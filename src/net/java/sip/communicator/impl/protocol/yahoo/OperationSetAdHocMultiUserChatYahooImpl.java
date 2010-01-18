@@ -75,15 +75,6 @@ public class OperationSetAdHocMultiUserChatYahooImpl
     private final MessageDecoder messageDecoder = new MessageDecoder();
 
     /**
-     * Contacts who have been invited to a chat room during his creation (when a
-     * Yahoo! chat room is created with contacts, an invitation to this chat
-     * room is sent to each of them). These contacts are stored here in order to
-     * avoid them to be invited again after room's creation.
-     */
-    private final List<String> alreadyInvitedContactAddresses
-        = new Vector<String>();
-
-    /**
      * Instantiates the user operation set with a currently valid instance of
      * the Yahoo protocol provider.
      * 
@@ -238,27 +229,13 @@ public class OperationSetAdHocMultiUserChatYahooImpl
                                                 String reason)
         throws OperationFailedException
     {
-        String[] invitedContacts = null; // parameter used for room's creation
-
-        if (contacts != null)
-        {
-            int contactsIndex = 0;
-
-            invitedContacts = new String[contacts.size()];
-            for (Contact contact : contacts)
-            {
-                String contactAddress = contact.getAddress();
-
-                invitedContacts[contactsIndex] = contactAddress;
-                contactsIndex++;
-
-                // contact's address is stored here in order to avoid this
-                // contact to be invited again in the chat room implementation:
-                this.alreadyInvitedContactAddresses.add(contactAddress);
-            }
-        }
-
-        return createAdHocChatRoom(adHocRoomName, invitedContacts, reason);
+    	String[] contactsToInvite = new String[contacts.size()];
+    	for(int i=0; i<contacts.size(); i++)
+    	{	System.out.println(contacts.get(i).getAddress()+" is being invited");
+    		contactsToInvite[i] = contacts.get(i).getAddress();
+    	}
+        return createAdHocChatRoom(
+        		adHocRoomName, contactsToInvite, reason);
     }
 
     /**
@@ -491,17 +468,6 @@ public class OperationSetAdHocMultiUserChatYahooImpl
     }
 
     /**
-     * Returns the Vector of addresses of the contacts invited during a chat
-     * room creation.
-     * 
-     * @return Vector<String> contact addresses
-     */
-    public List<String> getAlreadyInvitedContactAddresses()
-    {
-        return alreadyInvitedContactAddresses;
-    }
-
-    /**
      * Create a Message instance for sending arbitrary MIME-encoding content.
      * 
      * @param content content value
@@ -648,13 +614,6 @@ public class OperationSetAdHocMultiUserChatYahooImpl
 
                     Contact participant =
                         presenceOpSet.findContactByID(ev.getFrom());
-
-                    if (alreadyInvitedContactAddresses.contains(participant
-                        .getAddress()))
-                    {
-                        alreadyInvitedContactAddresses.remove(participant
-                            .getAddress());
-                    }
 
                     chatRoom.addChatRoomParticipant(participant);
                 }

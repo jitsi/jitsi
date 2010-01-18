@@ -292,14 +292,8 @@ public class AdHocChatRoomYahooImpl
     {
         try
         {
-            // the contact is invited unless if he wasn't invited during room's 
-            // creation:
-            if(!opSetMuc.getAlreadyInvitedContactAddresses().contains(
-                userAddress))
-            {
                 provider.getYahooSession().extendConference(yahooConference,
                     userAddress, reason);
-            }
         }
         catch (IOException ioe)
         {
