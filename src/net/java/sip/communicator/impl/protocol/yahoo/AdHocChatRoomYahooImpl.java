@@ -147,26 +147,6 @@ public class AdHocChatRoomYahooImpl
     }
 
     /**
-     * Create a Message instance for sending arbitrary MIME-encoding content.
-     * 
-     * @param content
-     *            content value
-     * @param contentType
-     *            the MIME-type for <tt>content</tt>
-     * @param contentEncoding
-     *            encoding used for <tt>content</tt>
-     * @param subject
-     *            a <tt>String</tt> subject or <tt>null</tt> for now subject.
-     * @return the newly created message.
-     */
-    public Message createMessage(byte[] content, String contentType,
-                                String contentEncoding, String subject)
-    {
-        return new MessageYahooImpl(new String(content, "UTF-8"), contentType,
-            contentEncoding, subject);
-    }
-
-    /**
      * Create a Message instance for sending a simple text messages with default
      * (text/plain) content type and encoding.
      * 

@@ -478,9 +478,11 @@ implements OperationSetAdHocMultiUserChat
      * @param subject a <tt>String</tt> subject or <tt>null</tt> for now
      *            subject.
      * @return the newly created message.
+     * @throws UnsupportedEncodingException missing utf-8 in platform we use.
      */
-    public Message createMessage(byte[] content, String contentType,
+    private Message createMessage(byte[] content, String contentType,
         String contentEncoding, String subject)
+        throws UnsupportedEncodingException
     {
         return new MessageYahooImpl(new String(content, "UTF-8"), contentType,
             contentEncoding, subject);
