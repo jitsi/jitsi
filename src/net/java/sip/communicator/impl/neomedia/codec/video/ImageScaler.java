@@ -1,9 +1,8 @@
 package net.java.sip.communicator.impl.neomedia.codec.video;
 
-import java.awt.Dimension;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
+import java.awt.*;
+import java.awt.image.*;
+import java.awt.geom.*;
 
 import javax.media.Buffer;
 import javax.media.Codec;
@@ -23,6 +22,7 @@ import net.sf.fmj.media.util.ImageToBuffer;
  * Original from fmj project, changed only output format sizes.
  * The sizes are those supported in h263 and h264.
  * @author Damian Minkov
+ * @author Sebastien Vincent
  */
 public class ImageScaler extends AbstractCodec implements Codec
 {
@@ -31,7 +31,13 @@ public class ImageScaler extends AbstractCodec implements Codec
             new RGBFormat(null, -1, Format.intArray, -1.0f, 32, -1, -1, -1),
         };
     private final Format[] supportedOutputFormats = new Format[] {
-      //P720
+        //new RGBFormat(new Dimension(1280, 1024), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
+        //new RGBFormat(new Dimension(1280, 800), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
+        new RGBFormat(new Dimension(1024, 768), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
+        new RGBFormat(new Dimension(800, 600), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
+        new RGBFormat(new Dimension(640, 480), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
+        new RGBFormat(new Dimension(720, 576), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
+        //P720
         new RGBFormat(new Dimension(720, 480), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
         //CIF4
         new RGBFormat(new Dimension(704, 576), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
@@ -136,13 +142,18 @@ public class ImageScaler extends AbstractCodec implements Codec
         }
         
         final BufferedImage image = (BufferedImage) bufferToImage.createImage(input);
-        
+/*
         final Dimension inputSize = ((VideoFormat) inputFormat).getSize();
         final Dimension outputSize = ((VideoFormat) outputFormat).getSize();
         final double scaleX = ((double) outputSize.width) / ((double) inputSize.width);
         final double scaleY = ((double) outputSize.height) / ((double) inputSize.height);
         
         final BufferedImage scaled = scale(image, scaleX, scaleY);  // TODO: is the size exact?  what about rounding errors?
+*/
+        
+        final Dimension outputSize = ((VideoFormat) outputFormat).getSize();
+        /* rescale by preserving ratio */
+        final BufferedImage scaled = scalePreserveRatio(image, outputSize.width, outputSize.height);  // TODO: is the size exact?  what about rounding errors?
         
 //        System.out.println("scaled: " + scaled.getWidth() + "x" + scaled.getHeight());
         final Buffer b = ImageToBuffer.createBuffer(scaled, ((VideoFormat) outputFormat).getFrameRate());
@@ -156,11 +167,67 @@ public class ImageScaler extends AbstractCodec implements Codec
 
         
     }
-    private BufferedImage scale(BufferedImage bi, double scaleX, double scaleY)
+    private static BufferedImage scale(BufferedImage bi, double scaleX, double scaleY)
     {
         AffineTransform tx = new AffineTransform();
         tx.scale(scaleX, scaleY);
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BICUBIC);
         return op.filter(bi, null);
     }
+
+    /**
+     * Get a scaled <tt>BufferedImage</tt> that preserves ratio.
+     *
+     * This method put black borders if the initial ratio is not
+     * respected.
+     *
+     * Mainly inspired by:
+     * http://java.developpez.com/faq/gui/?page=graphique_general_images
+     * #GRAPHIQUE_IMAGE_redimensionner
+     * @param width width of the scaled image
+     * @param height height of scaled image
+     * @return scaled <tt>BufferedImage</tt>
+     */
+    public static BufferedImage scalePreserveRatio(BufferedImage src,
+                                                   int width,
+                                                   int height)
+    {
+        BufferedImage buf = new BufferedImage(width, height, src.getType());
+        Double ratioSrc = new Double((double)src.getWidth() / (double)src.getHeight());
+        Double ratioDst = new Double(width / height);
+        int startWidth = 0;
+        int startHeight = 0;
+
+        if(ratioSrc.compareTo(ratioDst) != 0)
+        {
+            /* adjust ratio */
+            int newWidth = 0;
+            int newHeight = ((src.getHeight() * width) / src.getWidth());
+
+            /* first try to adjust height */
+            startHeight = (height - newHeight) / 2;
+
+            if(startHeight < 0)
+            {
+                /* rescale width */
+                newWidth = ((src.getWidth() * height) / src.getHeight());
+                startWidth = (width - newWidth) / 2;
+                
+                startHeight = 0;
+                width = newWidth;
+            }
+            else
+            {
+                height = newHeight;
+            }
+        }
+
+        Graphics2D g2d = buf.createGraphics();
+        g2d.setBackground(Color.BLACK);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+            RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+       g2d.drawImage(src, startWidth, startHeight, width, height, null);
+       g2d.dispose();
+       return buf;
+   }
 }

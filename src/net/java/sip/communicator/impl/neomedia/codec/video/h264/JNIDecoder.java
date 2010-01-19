@@ -56,8 +56,13 @@ public class JNIDecoder
     // supported sizes by the codec
     private final Dimension[] supportedSizes = new Dimension[]
     {
-    // P720
-        new Dimension(720, 480),
+        //new Dimension(1280, 1024),
+        //new Dimension(1280, 800),
+        new Dimension(1024, 768),
+        new Dimension(800, 600),
+        new Dimension(640, 480),
+        // P720
+        new Dimension(720, 480), new Dimension(720, 576),
         // CIF4
         new Dimension(704, 576),
         // CIF

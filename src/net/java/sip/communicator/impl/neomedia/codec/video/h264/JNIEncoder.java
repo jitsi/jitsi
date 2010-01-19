@@ -20,6 +20,7 @@ import net.sf.fmj.media.*;
  *
  * @author Damian Minkov
  * @author Lubomir Marinov
+ * @author Sebastien Vincent
  */
 public class JNIEncoder
     extends AbstractCodec
@@ -63,23 +64,32 @@ public class JNIEncoder
      */
     public JNIEncoder()
     {
+        Format formats[] = new ImageScaler().getSupportedOutputFormats(null);
+        int i = 0;
         DEF_WIDTH = Constants.VIDEO_WIDTH;
         DEF_HEIGHT = Constants.VIDEO_HEIGHT;
 
-        int strideY = DEF_WIDTH;
-        int strideUV = strideY / 2;
-        int offsetU = strideY * DEF_HEIGHT;
-        int offsetV = offsetU + strideUV * DEF_HEIGHT / 2;
+        inputFormats = new Format[formats.length];
 
-        int inputYuvLength = (strideY + strideUV) * DEF_HEIGHT;
-        float sourceFrameRate = TARGET_FRAME_RATE;
+        /* initialize our supported output formats (those which we can scale) */
+        for(Format format : formats)
+        {
+            int width = (int)((VideoFormat)format).getSize().getWidth();
+            int height = (int)((VideoFormat)format).getSize().getHeight();
+            int strideY = width;
+            int strideUV = strideY / 2;
+            int offsetU = strideY * height;
+            int offsetV = offsetU + strideUV * height / 2;
+    
+            int inputYuvLength = (strideY + strideUV) * height;
+            float sourceFrameRate = TARGET_FRAME_RATE;
 
-        inputFormats =
-            new Format[]
-            { new YUVFormat(new Dimension(DEF_WIDTH, DEF_HEIGHT),
-                inputYuvLength + INPUT_BUFFER_PADDING_SIZE, Format.byteArray,
-                sourceFrameRate, YUVFormat.YUV_420, strideY, strideUV, 0,
-                offsetU, offsetV) };
+            inputFormats[i] = new YUVFormat(new Dimension(width, height),
+                    inputYuvLength + INPUT_BUFFER_PADDING_SIZE, Format.byteArray,
+                    sourceFrameRate, YUVFormat.YUV_420, strideY, strideUV, 0,
+                    offsetU, offsetV);
+            i++;
+        }
 
         inputFormat = null;
         outputFormat = null;
@@ -238,6 +248,9 @@ public class JNIEncoder
     @Override
     public synchronized void open() throws ResourceUnavailableException
     {
+        int width = 0;
+        int height = 0;
+
         if (opened)
             return;
 
@@ -246,12 +259,15 @@ public class JNIEncoder
         if (outputFormat == null)
             throw new ResourceUnavailableException("No output format selected");
 
+        width = (int)((VideoFormat)outputFormat).getSize().getWidth();
+        height = (int)((VideoFormat)outputFormat).getSize().getHeight();
+
         long avcodec = FFMPEG.avcodec_find_encoder(FFMPEG.CODEC_ID_H264);
 
         avcontext = FFMPEG.avcodec_alloc_context();
 
         FFMPEG.avcodeccontext_set_pix_fmt(avcontext, FFMPEG.PIX_FMT_YUV420P);
-        FFMPEG.avcodeccontext_set_size(avcontext, DEF_WIDTH, DEF_HEIGHT);
+        FFMPEG.avcodeccontext_set_size(avcontext, width, height);
 
         FFMPEG.avcodeccontext_set_qcompress(avcontext, 0.6f);
 
@@ -295,15 +311,15 @@ public class JNIEncoder
         if (FFMPEG.avcodec_open(avcontext, avcodec) < 0)
             throw new RuntimeException("Could not open codec");
 
-        encFrameLen = (DEF_WIDTH * DEF_HEIGHT * 3) / 2;
+        encFrameLen = (width * height * 3) / 2;
 
         rawFrameBuffer = FFMPEG.av_malloc(encFrameLen);
 
         avframe = FFMPEG.avcodec_alloc_frame();
-        int size = DEF_WIDTH * DEF_HEIGHT;
+        int size = width * height;
         FFMPEG.avframe_set_data(avframe, rawFrameBuffer, size, size / 4);
-        FFMPEG.avframe_set_linesize(avframe, DEF_WIDTH, DEF_WIDTH / 2,
-            DEF_WIDTH / 2);
+        FFMPEG.avframe_set_linesize(avframe, width, height / 2,
+            width / 2);
 
         encFrameBuffer = new byte[encFrameLen];
 
