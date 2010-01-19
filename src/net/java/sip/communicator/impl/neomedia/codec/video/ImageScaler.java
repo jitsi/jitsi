@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.neomedia.codec.video;
 
 import java.awt.*;
@@ -24,7 +30,9 @@ import net.sf.fmj.media.util.ImageToBuffer;
  * @author Damian Minkov
  * @author Sebastien Vincent
  */
-public class ImageScaler extends AbstractCodec implements Codec
+public class ImageScaler
+    extends AbstractCodec
+    implements Codec
 {
     // TODO: all formats supported by BufferToImage
     private final Format[] supportedInputFormats = new Format[] {
@@ -49,7 +57,9 @@ public class ImageScaler extends AbstractCodec implements Codec
         //SQCIF
         new RGBFormat(new Dimension(128, 96), -1, Format.intArray, -1.0f, 32, -1, -1, -1),
         };
-    
+
+    private BufferToImage bufferToImage;
+
     private boolean passthrough;
 
     @Override
@@ -68,10 +78,7 @@ public class ImageScaler extends AbstractCodec implements Codec
 //                new RGBFormat(DIMENSION, -1, Format.intArray, -1.0f, 32, -1, -1, -1)};
 //        // TODO: we have to specify the RGB, etc. in the output format.
 //        return result;
-        
     }
-
-    private BufferToImage bufferToImage;
     
     @Override
     public Format setInputFormat(Format format)
@@ -107,8 +114,8 @@ public class ImageScaler extends AbstractCodec implements Codec
                 Format inputFormat = getInputFormat();
                 passthrough =
                     (inputFormat != null)
-                        && outputSize.equals(((VideoFormat) inputFormat)
-                            .getSize());
+                        && outputSize.equals(
+                                ((VideoFormat) inputFormat).getSize());
                 return;
             }
         }
@@ -163,10 +170,9 @@ public class ImageScaler extends AbstractCodec implements Codec
         output.setFormat(b.getFormat());
         // TODO: what about format?
     
-        return BUFFER_PROCESSED_OK;
-
-        
+        return BUFFER_PROCESSED_OK;   
     }
+
     private static BufferedImage scale(BufferedImage bi, double scaleX, double scaleY)
     {
         AffineTransform tx = new AffineTransform();
@@ -176,29 +182,32 @@ public class ImageScaler extends AbstractCodec implements Codec
     }
 
     /**
-     * Get a scaled <tt>BufferedImage</tt> that preserves ratio.
-     *
-     * This method put black borders if the initial ratio is not
-     * respected.
-     *
-     * Mainly inspired by:
+     * Get a scaled <tt>BufferedImage</tt> that preserves ratio and puts black
+     * borders if the ratio of the source image is different than the ratio of
+     * the scaled image.
+     * <p>
+     * Mainly inspired by
      * http://java.developpez.com/faq/gui/?page=graphique_general_images
      * #GRAPHIQUE_IMAGE_redimensionner
+     * </p>
+     *
+     * @param src the <tt>BufferedImage<tt> to scale
      * @param width width of the scaled image
      * @param height height of scaled image
-     * @return scaled <tt>BufferedImage</tt>
+     * @return the <tt>BufferedImage</tt> which represents <tt>src</tt> scaled
+     * to <tt>width</tt> and <tt>height</tt>
      */
     public static BufferedImage scalePreserveRatio(BufferedImage src,
                                                    int width,
                                                    int height)
     {
         BufferedImage buf = new BufferedImage(width, height, src.getType());
-        Double ratioSrc = new Double((double)src.getWidth() / (double)src.getHeight());
-        Double ratioDst = new Double(width / height);
+        double ratioSrc = (double)src.getWidth() / (double)src.getHeight();
+        double ratioDst = width / height;
         int startWidth = 0;
         int startHeight = 0;
 
-        if(ratioSrc.compareTo(ratioDst) != 0)
+        if(Double.compare(ratioSrc, ratioDst) != 0)
         {
             /* adjust ratio */
             int newWidth = 0;
