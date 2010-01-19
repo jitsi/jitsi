@@ -222,12 +222,38 @@ public class DeviceConfiguration
                 + " capture devices: " + audioCaptureDevices);
 
             String audioDevName = config.getString(PROP_AUDIO_DEVICE);
+            boolean errorStartingPA = false;
+
+            try
+            {
+                // as here is the first entry when starting up
+                // we will create the instance of portaudio manager
+                // and if there are exceptions like missing binary
+                // will be back to javasound
+
+                // this will create portaudio instance
+                PortAudioManager.getInstance().isEnabledEchoCancel();
+            }
+            catch (Throwable e)
+            {
+                errorStartingPA = true;
+            }
 
             if(audioDevName == null)
             {
                 // the default behaviour if nothing set is to use javasound
                 // this will also choose the capture device
-                setAudioSystem(AUDIO_SYSTEM_PORTAUDIO, null, false);
+                if(!errorStartingPA)
+                {
+                    setAudioSystem(AUDIO_SYSTEM_PORTAUDIO, null, false);
+                }
+                else
+                {
+                    setAudioPlaybackDevice(null, false);
+                    setAudioNotifyDevice(null, false);
+                    setAudioCaptureDevice(null, false);
+                    setAudioSystem(AUDIO_SYSTEM_JAVASOUND, null, false);
+                }
             }
             else
             {
@@ -241,11 +267,11 @@ public class DeviceConfiguration
                     }
                 }
 
-                if(getAudioSystem() == null)
+                if(getAudioSystem() == null || errorStartingPA)
                 {
                     logger.warn("Computer sound config changed or " +
                         "there is a problem since last config was saved, " +
-                        "will back to default javasound");
+                        "will back to javasound");
                     setAudioPlaybackDevice(null, false);
                     setAudioNotifyDevice(null, false);
                     setAudioCaptureDevice(null, false);
@@ -257,39 +283,42 @@ public class DeviceConfiguration
                     + " as an audio capture device.");
 
             // now extract other sound related configs
-            try
+            if(!errorStartingPA)
             {
-                boolean echoCancelEnabled =
-                    config.getBoolean(PROP_AUDIO_ECHOCANCEL_ENABLED,
-                        PortAudioManager.getInstance().isEnabledEchoCancel());
-                if(echoCancelEnabled)
+                try
                 {
-                    int echoCancelTail =
-                        config.getInt(PROP_AUDIO_ECHOCANCEL_TAIL,
-                            PortAudioManager.getInstance().getFilterLength());
-                    PortAudioManager.getInstance().setEchoCancel(
-                        echoCancelEnabled,
-                        PortAudioManager.getInstance().getFrameSize(),
-                        echoCancelTail);
+                    boolean echoCancelEnabled =
+                        config.getBoolean(PROP_AUDIO_ECHOCANCEL_ENABLED,
+                            PortAudioManager.getInstance().isEnabledEchoCancel());
+                    if(echoCancelEnabled)
+                    {
+                        int echoCancelTail =
+                            config.getInt(PROP_AUDIO_ECHOCANCEL_TAIL,
+                                PortAudioManager.getInstance().getFilterLength());
+                        PortAudioManager.getInstance().setEchoCancel(
+                            echoCancelEnabled,
+                            PortAudioManager.getInstance().getFrameSize(),
+                            echoCancelTail);
+                    }
+
+                    boolean denoiseEnabled =
+                        config.getBoolean(PROP_AUDIO_DENOISE_ENABLED,
+                            PortAudioManager.getInstance().isEnabledDeNoise());
+                    PortAudioManager.getInstance().setDeNoise(denoiseEnabled);
+
+                    // suggested latency is saved in configuration as
+                    // milliseconds but PortAudioManager use it as seconds
+                    int audioLatency = config.getInt(PROP_AUDIO_LATENCY,
+                        (int)(PortAudioManager.getSuggestedLatency()*1000));
+                    if(audioLatency !=
+                        (int)PortAudioManager.getSuggestedLatency()*1000)
+                            PortAudioManager.setSuggestedLatency(
+                                (double)audioLatency/1000d);
                 }
-
-                boolean denoiseEnabled =
-                    config.getBoolean(PROP_AUDIO_DENOISE_ENABLED,
-                        PortAudioManager.getInstance().isEnabledDeNoise());
-                PortAudioManager.getInstance().setDeNoise(denoiseEnabled);
-
-                // suggested latency is saved in configuration as
-                // milliseconds but PortAudioManager use it as seconds
-                int audioLatency = config.getInt(PROP_AUDIO_LATENCY,
-                    (int)(PortAudioManager.getSuggestedLatency()*1000));
-                if(audioLatency !=
-                    (int)PortAudioManager.getSuggestedLatency()*1000)
-                        PortAudioManager.setSuggestedLatency(
-                            (double)audioLatency/1000d);
-            }
-            catch (Exception e)
-            {
-                logger.error("Error parsing audio config", e);
+                catch (Exception e)
+                {
+                    logger.error("Error parsing audio config", e);
+                }
             }
         }
 

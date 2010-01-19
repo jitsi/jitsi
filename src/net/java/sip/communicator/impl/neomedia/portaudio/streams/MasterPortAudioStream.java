@@ -59,6 +59,15 @@ public class MasterPortAudioStream
     private Object connectedToStreamSync = new Object();
 
     /**
+     * Other using MasterPortAudioStream may inform us that will stop us.
+     * This is unprotected field which will stop any further reading,
+     * as read is synchronized sometimes there maybe some delay
+     * before we are stopped, as reading is too aggressive stopping thread may
+     * even wait more than 20 seconds.
+     */
+    private boolean stopping = false;
+
+    /**
      * The <tt>InputPortAudioStream</tt>s which read audio from this
      * <tt>MasterPortAudioStream</tt>s.
      */
@@ -169,6 +178,7 @@ public class MasterPortAudioStream
             PortAudio.Pa_CloseStream(stream);
             stream = 0;
             started = false;
+            stopping = false;
             PortAudioManager.getInstance().stoppedInputPortAudioStream(this);
         }
     }
@@ -197,24 +207,30 @@ public class MasterPortAudioStream
      * @return the bytes that a read from underlying stream.
      * @throws PortAudioException if an error occurs while reading.
      */
-    public synchronized byte[] read()
+    public byte[] read()
         throws PortAudioException
     {
-        if(!started)
+        if(stopping)
             return new byte[0];
 
-        byte[] bytebuff = new byte[PortAudioManager.NUM_SAMPLES*frameSize];
-
-        synchronized(connectedToStreamSync)
+        synchronized(this)
         {
-            PortAudio.Pa_ReadStream(
-                stream, bytebuff, PortAudioManager.NUM_SAMPLES);
+            if(!started)
+                return new byte[0];
+
+            byte[] bytebuff = new byte[PortAudioManager.NUM_SAMPLES*frameSize];
+
+            synchronized(connectedToStreamSync)
+            {
+                PortAudio.Pa_ReadStream(
+                    stream, bytebuff, PortAudioManager.NUM_SAMPLES);
+            }
+
+            for(InputPortAudioStream slave : slaves)
+                slave.setBuffer(bytebuff);
+
+            return bytebuff;
         }
-
-        for(InputPortAudioStream slave : slaves)
-            slave.setBuffer(bytebuff);
-
-        return bytebuff;
     }
 
     /**
@@ -243,5 +259,14 @@ public class MasterPortAudioStream
             outStream,
             deNoiseEnabled,
             echoCancelEnabled, frameSize, filterLength);
+    }
+
+    /**
+     * Inform that we will be stopping this stream.
+     * @param stopping the stopping to set
+     */
+    public void setStopping(boolean stopping)
+    {
+        this.stopping = stopping;
     }
 }

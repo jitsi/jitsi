@@ -78,6 +78,7 @@ public class InputPortAudioStream
     {
         if(started)
         {
+            parentStream.setStopping(true);
             parentStream.stop(this);
             started = false;
         }
