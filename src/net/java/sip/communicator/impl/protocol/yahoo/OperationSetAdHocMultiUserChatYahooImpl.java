@@ -482,7 +482,7 @@ implements OperationSetAdHocMultiUserChat
     public Message createMessage(byte[] content, String contentType,
         String contentEncoding, String subject)
     {
-        return new MessageYahooImpl(new String(content), contentType,
+        return new MessageYahooImpl(new String(content, "UTF-8"), contentType,
             contentEncoding, subject);
     }
 
@@ -661,7 +661,7 @@ implements OperationSetAdHocMultiUserChat
 
                 Message newMessage =
                     createMessage(
-                        formattedMessage.getBytes(),
+                        formattedMessage.getBytes("UTF-8"),
                         OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
                         OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
                         null);

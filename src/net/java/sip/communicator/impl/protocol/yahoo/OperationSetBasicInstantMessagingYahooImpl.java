@@ -152,7 +152,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
                 return;
             
             byte[] msgBytesToBeSent = msgDeliveryPendingEvt.getSourceMessage().
-                getContent().trim().getBytes();
+                getContent().trim().getBytes("UTF-8");
 
             // split the message in parts with max allowed length
             // and send them all
@@ -173,13 +173,13 @@ public class OperationSetBasicInstantMessagingYahooImpl
                     
                     yahooProvider.getYahooSession().sendMessage(
                         toUserID,
-                        new String(tmp1));
+                        new String(tmp1, "UTF-8"));
                 }
                 else
                 {
                     yahooProvider.getYahooSession().sendMessage(
                         toUserID,
-                        new String(msgBytesToBeSent));
+                        new String(msgBytesToBeSent, "UTF-8"));
                 }
                 
                 MessageDeliveredEvent msgDeliveredEvt

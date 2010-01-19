@@ -162,7 +162,7 @@ public class AdHocChatRoomYahooImpl
     public Message createMessage(byte[] content, String contentType,
                                 String contentEncoding, String subject)
     {
-        return new MessageYahooImpl(new String(content), contentType,
+        return new MessageYahooImpl(new String(content, "UTF-8"), contentType,
             contentEncoding, subject);
     }
 
