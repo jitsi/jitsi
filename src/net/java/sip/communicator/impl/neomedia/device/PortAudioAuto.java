@@ -10,9 +10,11 @@ import java.util.*;
 
 import javax.media.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.configuration.*;
 
 import com.sun.media.util.*;
 
@@ -24,6 +26,12 @@ import com.sun.media.util.*;
  */
 public class PortAudioAuto
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>PortAudioAuto</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(PortAudioAuto.class);
+
     /**
      * An array of the devices that can be used for playback.
      */
@@ -38,6 +46,11 @@ public class PortAudioAuto
      * The default capture device.
      */
     public static CaptureDeviceInfo defaultCaptureDevice = null;
+
+    /**
+     * Is portaudio supported on current platform.
+     */
+    private static boolean supported = false;
 
     /**
      * Initializes a new <tt>PortAudioAuto</tt> instance which creates PortAudio
@@ -55,7 +68,7 @@ public class PortAudioAuto
         PortAudioManager.getInstance();
 
         // enable jmf logging, so we can track codec chains and formats
-        if(Logger.getLogger(PortAudioAuto.class).isDebugEnabled())
+        if(logger.isDebugEnabled())
             Registry.set("allowLogging", true);
 
         int deviceCount = PortAudio.Pa_GetDeviceCount();
@@ -105,5 +118,60 @@ public class PortAudioAuto
         // now add it as available audio system to DeviceConfiguration
         DeviceConfiguration.addAudioSystem(
             DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO);
+
+        // now extract other sound related configs
+        try
+        {
+            ConfigurationService config
+                = NeomediaActivator.getConfigurationService();
+
+            boolean echoCancelEnabled =
+                config.getBoolean(
+                    DeviceConfiguration.PROP_AUDIO_ECHOCANCEL_ENABLED,
+                    PortAudioManager.getInstance().isEnabledEchoCancel());
+            if(echoCancelEnabled)
+            {
+                int echoCancelTail =
+                    config.getInt(
+                        DeviceConfiguration.PROP_AUDIO_ECHOCANCEL_TAIL,
+                        PortAudioManager.getInstance().getFilterLength());
+                PortAudioManager.getInstance().setEchoCancel(
+                    echoCancelEnabled,
+                    PortAudioManager.getInstance().getFrameSize(),
+                    echoCancelTail);
+            }
+
+            boolean denoiseEnabled =
+                config.getBoolean(
+                    DeviceConfiguration.PROP_AUDIO_DENOISE_ENABLED,
+                    PortAudioManager.getInstance().isEnabledDeNoise());
+            PortAudioManager.getInstance().setDeNoise(denoiseEnabled);
+
+            // suggested latency is saved in configuration as
+            // milliseconds but PortAudioManager use it as seconds
+            int audioLatency = config.getInt(
+                DeviceConfiguration.PROP_AUDIO_LATENCY,
+                (int)(PortAudioManager.getSuggestedLatency()*1000));
+            if(audioLatency !=
+                (int)PortAudioManager.getSuggestedLatency()*1000)
+                    PortAudioManager.setSuggestedLatency(
+                        (double)audioLatency/1000d);
+        }
+        catch (Exception e)
+        {
+            logger.error("Error parsing audio config", e);
+        }
+
+
+        supported = true;
+    }
+
+    /**
+     * Whether portaudio is supported.
+     * @return the supported
+     */
+    public static boolean isSupported()
+    {
+        return supported;
     }
 }

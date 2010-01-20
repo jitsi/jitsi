@@ -15,9 +15,23 @@ import net.java.sip.communicator.impl.neomedia.portaudio.*;
  */
 public class InputPortAudioStream
 {
+    /**
+     * Our parent stream, the actual source of data.
+     */
     private final MasterPortAudioStream parentStream;
 
+    /**
+     * Is this stream started.
+     */
     private boolean started = false;
+
+    /**
+     * This is unprotected field which will stop any further reading,
+     * as read is synchronized sometimes there maybe some delay
+     * before we are stopped, as reading is too aggressive stopping thread may
+     * even wait more than 20 seconds.
+     */
+    private boolean stopping = false;
 
     /**
      * The buffer to return.
@@ -42,6 +56,9 @@ public class InputPortAudioStream
     public byte[] read()
         throws PortAudioException
     {
+        if(stopping || !started)
+            return new byte[0];
+
         synchronized(parentStream)
         {
             byte[] res = buffer;
@@ -78,9 +95,10 @@ public class InputPortAudioStream
     {
         if(started)
         {
-            parentStream.setStopping(true);
+            stopping = true;
             parentStream.stop(this);
             started = false;
+            stopping = false;
         }
     }
 

@@ -14,14 +14,7 @@ public final class PortAudio
 {
     static
     {
-        try
-        {
-            System.loadLibrary("jportaudio");
-        }
-        catch (Throwable e)
-        {
-            System.out.println("Missing portaudio binary");
-        }
+        System.loadLibrary("jportaudio");
     }
 
     /**
