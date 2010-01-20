@@ -177,17 +177,26 @@ public abstract class AbstractOperationSetBasicInstantMessaging
             .hasNext();)
         {
             MessageListener listener = listenerIter.next();
-            switch (eventType){
-            case MessageDelivered:
-                listener.messageDelivered((MessageDeliveredEvent) evt);
-                break;
-            case MessageDeliveryFailed:
-                listener
-                .messageDeliveryFailed((MessageDeliveryFailedEvent) evt);
-                break;
-            case MessageReceived:
-                listener.messageReceived((MessageReceivedEvent) evt);
-                break;
+
+            try
+            {
+                switch (eventType)
+                {
+                    case MessageDelivered:
+                        listener.messageDelivered((MessageDeliveredEvent) evt);
+                        break;
+                    case MessageDeliveryFailed:
+                        listener
+                        .messageDeliveryFailed((MessageDeliveryFailedEvent)evt);
+                        break;
+                    case MessageReceived:
+                        listener.messageReceived((MessageReceivedEvent) evt);
+                        break;
+                }
+            }
+            catch (Throwable e)
+            {
+                logger.error("Error delivering message", e);
             }
         }
     }
