@@ -6,14 +6,15 @@
  */
 #include "net_java_sip_communicator_impl_neomedia_portaudio_PortAudio.h"
 
+#include <math.h>
 #include <portaudio.h>
-#include <stdlib.h>
 #include <speex/speex_resampler.h>
 #include <speex/speex_preprocess.h>
 #include <speex/speex_echo.h>
-#include <math.h>
+#include <stdlib.h>
+#include <string.h>
+//#include <sys/time.h> /* used on Windows */
 #include <time.h>
-//#include <sys/time.h> //used on windows
 
 typedef struct
 {
@@ -24,14 +25,14 @@ typedef struct
 
 typedef struct
 {
-	PaStream *stream;
-	jobject streamCallback;
-	JavaVM *vm;
-	JNIEnv *env;
-	jmethodID streamCallbackMethodID;
-	jmethodID streamFinishedCallbackMethodID;
-	long inputFrameSize;
-	long outputFrameSize;
+    PaStream *stream;
+    jobject streamCallback;
+    JavaVM *vm;
+    JNIEnv *env;
+    jmethodID streamCallbackMethodID;
+    jmethodID streamFinishedCallbackMethodID;
+    long inputFrameSize;
+    long outputFrameSize;
     double samplerate;
 
     SpeexResamplerState *outputResampler;
@@ -49,34 +50,38 @@ typedef struct
 
     Buffer *first;
     Buffer *last;
-}
-PortAudioStream;
+} PortAudioStream;
 
 #define DEFAULT_SAMPLE_RATE 44100.0
 
 static void PortAudio_throwException(JNIEnv *env, PaError errorCode);
 static PaStreamParameters * PortAudio_fixInputParametersSuggestedLatency(
-	PaStreamParameters *inputParameters);
+    PaStreamParameters *inputParameters);
 static PaStreamParameters * PortAudio_fixOutputParametersSuggestedLatency(
-	PaStreamParameters *outputParameters);
+    PaStreamParameters *outputParameters);
 static long PortAudio_getFrameSize(PaStreamParameters *streamParameters);
 
 static int PortAudioStream_callback(
-	const void *input,
-	void *output,
-	unsigned long frameCount,
-	const PaStreamCallbackTimeInfo *timeInfo,
-	PaStreamCallbackFlags statusFlags,
-	void *userData);
+    const void *input,
+    void *output,
+    unsigned long frameCount,
+    const PaStreamCallbackTimeInfo *timeInfo,
+    PaStreamCallbackFlags statusFlags,
+    void *userData);
 static void PortAudioStream_finishedCallback(void *userData);
 static void PortAudioStream_free(JNIEnv *env, PortAudioStream *stream);
 static PortAudioStream * PortAudioStream_new(
-	JNIEnv *env, jobject streamCallback);
+    JNIEnv *env, jobject streamCallback);
+static PaError PortAudioStream_write(
+    PortAudioStream *stream,
+    jbyte *buffer,
+    jlong frames);
 
 static void clear(PortAudioStream *st)
 {
     int cleared = 0;
     Buffer *curr = st->first;
+
     while(curr != NULL)
     {
         Buffer *n = curr->next;
@@ -85,12 +90,6 @@ static void clear(PortAudioStream *st)
         curr = n;
         cleared++;
     }
-
-/*
-    if(cleared > 0)
-        printf("cleared %d\n", cleared);fflush(stdout);
-*/
-
     st->first = NULL;
     st->last = NULL;
 }
@@ -117,21 +116,21 @@ static Buffer* getBuffer(PortAudioStream *st, int time)
     Buffer *res = st->first;
 
     st->first = st->first->next;
-
     if(st->first == NULL)
-    {
         st->last = NULL;
-    }
-
     return res;
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_setEchoCancelParams
-  (JNIEnv *env, jclass clazz, 
-  jlong instream, jlong outstream,
-  jboolean enableDenoise, 
-  jboolean enableEchoCancel, jint frameSize, jint filterLength)
+Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_setEchoCancelParams(
+        JNIEnv *env,
+        jclass clazz,
+        jlong instream,
+        jlong outstream,
+        jboolean enableDenoise,
+        jboolean enableEchoCancel,
+        jint frameSize,
+        jint filterLength)
 {
     PortAudioStream *inAudioStream = (PortAudioStream *) instream;
     PortAudioStream *outAudioStream = (PortAudioStream *) outstream;
@@ -184,7 +183,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetDefaultO
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1CloseStream(
-	JNIEnv *env, jclass clazz, jlong stream)
+    JNIEnv *env, jclass clazz, jlong stream)
 {
     PortAudioStream *portAudioStream = (PortAudioStream *) stream;
 
@@ -245,86 +244,84 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1AbortStream
     PaError errorCode = Pa_AbortStream(((PortAudioStream *) stream)->stream);
 
     if (paNoError != errorCode)
-		PortAudio_throwException(env, errorCode);
+        PortAudio_throwException(env, errorCode);
 }
 
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetDeviceCount(
-	JNIEnv *env, jclass clazz)
+    JNIEnv *env, jclass clazz)
 {
-	PaDeviceIndex deviceCount = Pa_GetDeviceCount();
+    PaDeviceIndex deviceCount = Pa_GetDeviceCount();
 
-	if (deviceCount < 0)
-		PortAudio_throwException(env, deviceCount);
-	return deviceCount;
+    if (deviceCount < 0)
+        PortAudio_throwException(env, deviceCount);
+    return deviceCount;
 }
 
 JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetDeviceInfo(
-	JNIEnv *env, jclass clazz, jint deviceIndex)
+    JNIEnv *env, jclass clazz, jint deviceIndex)
 {
-	return (jlong) Pa_GetDeviceInfo(deviceIndex);
+    return (jlong) Pa_GetDeviceInfo(deviceIndex);
 }
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1Initialize(
-	JNIEnv *env, jclass clazz)
+    JNIEnv *env, jclass clazz)
 {
-	PaError errorCode = Pa_Initialize();
+    PaError errorCode = Pa_Initialize();
 
-	if (paNoError != errorCode)
-		PortAudio_throwException(env, errorCode);
+    if (paNoError != errorCode)
+        PortAudio_throwException(env, errorCode);
 }
 
 JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream(
-	JNIEnv *env,
-	jclass clazz,
-	jlong inputParameters,
-	jlong outputParameters,
-	jdouble sampleRate,
-	jlong framesPerBuffer,
-	jlong streamFlags,
-	jobject streamCallback)
+    JNIEnv *env,
+    jclass clazz,
+    jlong inputParameters,
+    jlong outputParameters,
+    jdouble sampleRate,
+    jlong framesPerBuffer,
+    jlong streamFlags,
+    jobject streamCallback)
 {
-	PortAudioStream *stream = PortAudioStream_new(env, streamCallback);
-	PaError errorCode;
-	PaStreamParameters *inputStreamParameters
-		= (PaStreamParameters *) inputParameters;
-	PaStreamParameters *outputStreamParameters
-		= (PaStreamParameters *) outputParameters;
+    PortAudioStream *stream = PortAudioStream_new(env, streamCallback);
+    PaError errorCode;
+    PaStreamParameters *inputStreamParameters
+        = (PaStreamParameters *) inputParameters;
+    PaStreamParameters *outputStreamParameters
+        = (PaStreamParameters *) outputParameters;
 
-	if (!stream)
-		return 0;
+    if (!stream)
+        return 0;
 
-        double defSampleRate = DEFAULT_SAMPLE_RATE;
+    double defSampleRate = DEFAULT_SAMPLE_RATE;
 
-        /*
-         *  Obay default sample rate of the device. some devices has
-         *  default 44.1 kHz and some 48 kHz.
-         */
-        if(outputStreamParameters)
-        {
-            defSampleRate = 
-                Pa_GetDeviceInfo(outputStreamParameters->device)->defaultSampleRate;
-        }
-        else if(inputStreamParameters)
-        {
-            defSampleRate =
-                Pa_GetDeviceInfo(inputStreamParameters->device)->defaultSampleRate;
-        }
+    /*
+     *  Obay default sample rate of the device. some devices has default 44.1kHz
+     * and some 48kHz.
+     */
+    if(outputStreamParameters)
+        defSampleRate
+            = Pa_GetDeviceInfo(outputStreamParameters->device)
+                ->defaultSampleRate;
+    else if(inputStreamParameters)
+        defSampleRate
+            = Pa_GetDeviceInfo(inputStreamParameters->device)
+                ->defaultSampleRate;
 
-	errorCode
-		= Pa_OpenStream(
-			&(stream->stream),
-			PortAudio_fixInputParametersSuggestedLatency(inputStreamParameters),
-			PortAudio_fixOutputParametersSuggestedLatency(
-				outputStreamParameters),
-			defSampleRate,
-			framesPerBuffer,
-			streamFlags,
-			streamCallback ? PortAudioStream_callback : NULL,
-			stream);
+    errorCode
+        = Pa_OpenStream(
+            &(stream->stream),
+            PortAudio_fixInputParametersSuggestedLatency(inputStreamParameters),
+            PortAudio_fixOutputParametersSuggestedLatency(
+                outputStreamParameters),
+            defSampleRate,
+            framesPerBuffer,
+            streamFlags,
+            streamCallback ? PortAudioStream_callback : NULL,
+            stream);
 
     stream->samplerate = sampleRate;
 
@@ -356,139 +353,98 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream(
                 stream->inputChannelCount, defSampleRate, sampleRate, 3, NULL);
 
             stream->inputFrameSize
-				= PortAudio_getFrameSize(inputStreamParameters);
+                = PortAudio_getFrameSize(inputStreamParameters);
         }
     }
     else
         stream->inputResampleFactor = 1.0;
 
-	if (paNoError == errorCode)
-	{
-        stream->outputFrameSize
-				= PortAudio_getFrameSize(outputStreamParameters);
+    if (paNoError == errorCode)
+    {
         stream->inputFrameSize
-				= PortAudio_getFrameSize(inputStreamParameters);
+                = PortAudio_getFrameSize(inputStreamParameters);
+        stream->outputFrameSize
+                = PortAudio_getFrameSize(outputStreamParameters);
 
-		if (streamCallback)
-		{
-			stream->inputFrameSize
-				= PortAudio_getFrameSize(inputStreamParameters);
-			stream->outputFrameSize
-				= PortAudio_getFrameSize(outputStreamParameters);
+        if (streamCallback)
+            errorCode
+                = Pa_SetStreamFinishedCallback(
+                    stream->stream,
+                    PortAudioStream_finishedCallback);
 
-			errorCode
-				= Pa_SetStreamFinishedCallback(
-					stream->stream,
-					PortAudioStream_finishedCallback);
-		}
-
-		return (jlong) stream;
-	}
-	else
-	{
-		PortAudioStream_free(env, stream);
-		PortAudio_throwException(env, errorCode);
-		return 0;
-	}
+        return (jlong) stream;
+    }
+    else
+    {
+        PortAudioStream_free(env, stream);
+        PortAudio_throwException(env, errorCode);
+        return 0;
+    }
 }
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1StartStream(
-	JNIEnv *env, jclass clazz, jlong stream)
+    JNIEnv *env, jclass clazz, jlong stream)
 {
-	PaError errorCode = Pa_StartStream(((PortAudioStream *) stream)->stream);
+    PaError errorCode = Pa_StartStream(((PortAudioStream *) stream)->stream);
 
-	if (paNoError != errorCode)
-		PortAudio_throwException(env, errorCode);
+    if (paNoError != errorCode)
+        PortAudio_throwException(env, errorCode);
 }
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1StopStream(
-	JNIEnv *env, jclass clazz, jlong stream)
+    JNIEnv *env, jclass clazz, jlong stream)
 {
-	PaError errorCode = Pa_StopStream(((PortAudioStream *) stream)->stream);
+    PaError errorCode = Pa_StopStream(((PortAudioStream *) stream)->stream);
 
-	if (paNoError != errorCode)
-		PortAudio_throwException(env, errorCode);
+    if (paNoError != errorCode)
+        PortAudio_throwException(env, errorCode);
 }
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1WriteStream(
-	JNIEnv *env, jclass clazz, jlong stream, jbyteArray buffer, jlong frames)
+        JNIEnv *env,
+        jclass clazz,
+        jlong stream,
+        jbyteArray buffer,
+        jint offset,
+        jlong frames,
+        jint numberOfWrites)
 {
-	jbyte* data = (*env)->GetByteArrayElements(env, buffer, NULL);
+    jbyte *bufferBytes;
+    jbyte* data;
+    PortAudioStream *portAudioStream;
+    long frameSize;
+    PaError errorCode;
+    jint i;
 
-    PortAudioStream *outStream = (PortAudioStream *) stream;
-    if (data)
-	{
-        PaError errorCode;
+    bufferBytes = (*env)->GetByteArrayElements(env, buffer, NULL);
+    if (!bufferBytes)
+        return;
 
-        if(outStream->outputResampleFactor != 1)
-        {
-            spx_uint32_t out_len;
-            out_len = lrint(
-                frames
-                *outStream->outputChannelCount
-                *outStream->outputResampleFactor);
+    data = bufferBytes + offset;
+    portAudioStream = (PortAudioStream *) stream;
+    frameSize = portAudioStream->outputFrameSize;
 
-            short res[out_len];
-            speex_resampler_process_interleaved_int(
-                    outStream->outputResampler,
-                    data,
-                    &frames,
-                    res,
-                    &out_len);
-
-            errorCode = Pa_WriteStream(
-                outStream->stream,
-                res,
-                out_len);
-
-            
-            if(outStream->connectedToStream != NULL &&
-                ((PortAudioStream *)outStream->connectedToStream)->echoState != NULL &&
-                outStream->startCaching == 1)
-            {
-                struct timeval tv;
-                gettimeofday(&tv,NULL);
-
-                Buffer *b;
-                b = (Buffer*)malloc(sizeof(Buffer));
-                b->time = tv.tv_sec*1000 + tv.tv_usec/1000;
-
-                b->data = malloc(sizeof(short)*frames);
-                memcpy(b->data, data, sizeof(short)*frames);
-
-                b->next = NULL;
-
-                addBuffer(outStream, b);
-            }
-        }
+    for (i = 0; i < numberOfWrites; i++)
+    {
+        errorCode = PortAudioStream_write(portAudioStream, data, frames);
+        if ((paNoError != errorCode) && (errorCode != paOutputUnderflowed))
+            break;
         else
-        {
-            errorCode = Pa_WriteStream(
-                outStream->stream,
-                data,
-                frames);
-        }
+            data += frames * frameSize;
+    }
 
-        (*env)->ReleaseByteArrayElements(env, buffer, data, 0);
+    (*env)->ReleaseByteArrayElements(env, buffer, bufferBytes, 0);
 
-        if (paNoError != errorCode && errorCode != paOutputUnderflowed)
-                PortAudio_throwException(env, errorCode);
-
-/*
-                if(errorCode == paOutputUnderflowed)
-                {
-                    printf("OutputUnderflowed\n");fflush(stdout);
-                }
-*/
-	}
+    if ((paNoError != errorCode) && (errorCode != paOutputUnderflowed))
+        PortAudio_throwException(env, errorCode);
 }
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1ReadStream
-  (JNIEnv *env, jclass clazz, jlong stream, jbyteArray buffer, jlong frames)
+    (JNIEnv *env, jclass clazz, jlong stream, jbyteArray buffer, jlong frames)
 {
     jbyte* data = (*env)->GetByteArrayElements(env, buffer, NULL);
 
@@ -639,26 +595,26 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1IsFormatSup
 
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getMaxInputChannels(
-	JNIEnv *env, jclass clazz, jlong deviceInfo)
+    JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
-	return ((PaDeviceInfo *) deviceInfo)->maxInputChannels;
+    return ((PaDeviceInfo *) deviceInfo)->maxInputChannels;
 }
 
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getMaxOutputChannels(
-	JNIEnv *env, jclass clazz, jlong deviceInfo)
+    JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
-	return ((PaDeviceInfo *) deviceInfo)->maxOutputChannels;
+    return ((PaDeviceInfo *) deviceInfo)->maxOutputChannels;
 }
 
 
 JNIEXPORT jstring JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getName(
-	JNIEnv *env, jclass clazz, jlong deviceInfo)
+    JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
-	const char *name = ((PaDeviceInfo *) deviceInfo)->name;
+    const char *name = ((PaDeviceInfo *) deviceInfo)->name;
 
-	return name ? (*env)->NewStringUTF(env, name) : NULL;
+    return name ? (*env)->NewStringUTF(env, name) : NULL;
 }
 
 JNIEXPORT jdouble JNICALL
@@ -749,30 +705,30 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1
 
 JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaStreamParameters_1new(
-	JNIEnv *env,
-	jclass clazz,
-	jint deviceIndex,
-	jint channelCount,
-	jlong sampleFormat,
+    JNIEnv *env,
+    jclass clazz,
+    jint deviceIndex,
+    jint channelCount,
+    jlong sampleFormat,
     jdouble suggestedLatency)
 {
-	PaStreamParameters *streamParameters
-		= (PaStreamParameters *) malloc(sizeof(PaStreamParameters));
+    PaStreamParameters *streamParameters
+        = (PaStreamParameters *) malloc(sizeof(PaStreamParameters));
 
-	if (streamParameters)
-	{
-		streamParameters->device = deviceIndex;
-		streamParameters->channelCount = channelCount;
-		streamParameters->sampleFormat = sampleFormat;
-		streamParameters->suggestedLatency = suggestedLatency;
-		streamParameters->hostApiSpecificStreamInfo = NULL;
-	}
-	return (jlong) streamParameters;
+    if (streamParameters)
+    {
+        streamParameters->device = deviceIndex;
+        streamParameters->channelCount = channelCount;
+        streamParameters->sampleFormat = sampleFormat;
+        streamParameters->suggestedLatency = suggestedLatency;
+        streamParameters->hostApiSpecificStreamInfo = NULL;
+    }
+    return (jlong) streamParameters;
 }
 
 static PaStreamParameters *
 PortAudio_fixInputParametersSuggestedLatency(
-	PaStreamParameters *inputParameters)
+    PaStreamParameters *inputParameters)
 {
     if (inputParameters)
     {
@@ -796,13 +752,13 @@ PortAudio_fixInputParametersSuggestedLatency(
 
 static PaStreamParameters *
 PortAudio_fixOutputParametersSuggestedLatency(
-	PaStreamParameters *outputParameters)
+    PaStreamParameters *outputParameters)
 {
-	if (outputParameters)
-	{
-		PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(outputParameters->device);
+    if (outputParameters)
+    {
+        PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(outputParameters->device);
 
-		if (deviceInfo)
+        if (deviceInfo)
         {
             if(outputParameters->suggestedLatency ==
                 net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_LOW)
@@ -814,173 +770,173 @@ PortAudio_fixOutputParametersSuggestedLatency(
                 outputParameters->suggestedLatency =
                     deviceInfo->defaultHighOutputLatency;
         }
-	}
-	return outputParameters;
+    }
+    return outputParameters;
 }
 
 static long
 PortAudio_getFrameSize(PaStreamParameters *streamParameters)
 {
-	if (streamParameters)
-	{
-		PaError sampleSize = Pa_GetSampleSize(streamParameters->sampleFormat);
+    if (streamParameters)
+    {
+        PaError sampleSize = Pa_GetSampleSize(streamParameters->sampleFormat);
 
-		if (paSampleFormatNotSupported != sampleSize)
-			return sampleSize * streamParameters->channelCount;
-	}
-	return 0;
+        if (paSampleFormatNotSupported != sampleSize)
+            return sampleSize * streamParameters->channelCount;
+    }
+    return 0;
 }
 
 static void
 PortAudio_throwException(JNIEnv *env, PaError errorCode)
 {
-	jclass clazz
-		= (*env)
-			->FindClass(
-				env,
-				"net/java/sip/communicator/impl/neomedia/portaudio/PortAudioException");
+    jclass clazz
+        = (*env)
+            ->FindClass(
+                env,
+                "net/java/sip/communicator/impl/neomedia/portaudio/PortAudioException");
 
-	if (clazz)
-		(*env)->ThrowNew(env, clazz, Pa_GetErrorText(errorCode));
+    if (clazz)
+        (*env)->ThrowNew(env, clazz, Pa_GetErrorText(errorCode));
 }
 
 static int
 PortAudioStream_callback(
-	const void *input,
-	void *output,
-	unsigned long frameCount,
-	const PaStreamCallbackTimeInfo *timeInfo,
-	PaStreamCallbackFlags statusFlags,
-	void *userData)
+    const void *input,
+    void *output,
+    unsigned long frameCount,
+    const PaStreamCallbackTimeInfo *timeInfo,
+    PaStreamCallbackFlags statusFlags,
+    void *userData)
 {
-	PortAudioStream *stream = (PortAudioStream *) userData;
-	jobject streamCallback = stream->streamCallback;
-	JNIEnv *env;
-	jmethodID streamCallbackMethodID;
+    PortAudioStream *stream = (PortAudioStream *) userData;
+    jobject streamCallback = stream->streamCallback;
+    JNIEnv *env;
+    jmethodID streamCallbackMethodID;
 
-	if (!streamCallback)
-		return paContinue;
+    if (!streamCallback)
+        return paContinue;
 
-	env = stream->env;
-	if (!env)
-	{
-		JavaVM *vm = stream->vm;
+    env = stream->env;
+    if (!env)
+    {
+        JavaVM *vm = stream->vm;
 
-		if ((*vm)->AttachCurrentThreadAsDaemon(vm, (void **) &env, NULL) < 0)
-			return paAbort;
-		else
-			stream->env = env;
-	}
-	streamCallbackMethodID = stream->streamCallbackMethodID;
-	if (!streamCallbackMethodID)
-	{
-		jclass streamCallbackClass
-			= (*env)->GetObjectClass(env, streamCallback);
+        if ((*vm)->AttachCurrentThreadAsDaemon(vm, (void **) &env, NULL) < 0)
+            return paAbort;
+        else
+            stream->env = env;
+    }
+    streamCallbackMethodID = stream->streamCallbackMethodID;
+    if (!streamCallbackMethodID)
+    {
+        jclass streamCallbackClass
+            = (*env)->GetObjectClass(env, streamCallback);
 
-		streamCallbackMethodID
-			= (*env)
-				->GetMethodID(
-					env,
-					streamCallbackClass,
-					"callback",
-					"(Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;)I");
-		if (streamCallbackMethodID)
-			stream->streamCallbackMethodID = streamCallbackMethodID;
-		else
-			return paAbort;
-	}
+        streamCallbackMethodID
+            = (*env)
+                ->GetMethodID(
+                    env,
+                    streamCallbackClass,
+                    "callback",
+                    "(Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;)I");
+        if (streamCallbackMethodID)
+            stream->streamCallbackMethodID = streamCallbackMethodID;
+        else
+            return paAbort;
+    }
 
         return
-		(*env)
-			->CallIntMethod(
-				env,
-				streamCallback,
-				streamCallbackMethodID,
-				input
-					? (*env)
-						->NewDirectByteBuffer(
-							env,
-							input,
-							frameCount * stream->inputFrameSize)
-					: NULL,
-				output
-					? (*env)
-						->NewDirectByteBuffer(
-							env,
-							output,
-							frameCount * stream->outputFrameSize)
-					: NULL);
+        (*env)
+            ->CallIntMethod(
+                env,
+                streamCallback,
+                streamCallbackMethodID,
+                input
+                    ? (*env)
+                        ->NewDirectByteBuffer(
+                            env,
+                            input,
+                            frameCount * stream->inputFrameSize)
+                    : NULL,
+                output
+                    ? (*env)
+                        ->NewDirectByteBuffer(
+                            env,
+                            output,
+                            frameCount * stream->outputFrameSize)
+                    : NULL);
 }
 
 static void
 PortAudioStream_finishedCallback(void *userData)
 {
-	PortAudioStream *stream = (PortAudioStream *) userData;
-	jobject streamCallback = stream->streamCallback;
-	JNIEnv *env;
-	jmethodID streamFinishedCallbackMethodID;
+    PortAudioStream *stream = (PortAudioStream *) userData;
+    jobject streamCallback = stream->streamCallback;
+    JNIEnv *env;
+    jmethodID streamFinishedCallbackMethodID;
 
-	if (!streamCallback)
-		return;
+    if (!streamCallback)
+        return;
 
-	env = stream->env;
-	if (!env)
-	{
-		JavaVM *vm = stream->vm;
+    env = stream->env;
+    if (!env)
+    {
+        JavaVM *vm = stream->vm;
 
-		if ((*vm)->AttachCurrentThreadAsDaemon(vm, (void **) &env, NULL) < 0)
-			return;
-		else
-			stream->env = env;
-	}
-	streamFinishedCallbackMethodID = stream->streamFinishedCallbackMethodID;
-	if (!streamFinishedCallbackMethodID)
-	{
-		jclass streamCallbackClass
-			= (*env)->GetObjectClass(env, streamCallback);
+        if ((*vm)->AttachCurrentThreadAsDaemon(vm, (void **) &env, NULL) < 0)
+            return;
+        else
+            stream->env = env;
+    }
+    streamFinishedCallbackMethodID = stream->streamFinishedCallbackMethodID;
+    if (!streamFinishedCallbackMethodID)
+    {
+        jclass streamCallbackClass
+            = (*env)->GetObjectClass(env, streamCallback);
 
-		streamFinishedCallbackMethodID
-			= (*env)
-				->GetMethodID(
-					env,
-					streamCallbackClass,
-					"finishedCallback",
-					"()V");
-		if (streamFinishedCallbackMethodID)
-			stream->streamFinishedCallbackMethodID
-				= streamFinishedCallbackMethodID;
-		else
-			return;
-	}
+        streamFinishedCallbackMethodID
+            = (*env)
+                ->GetMethodID(
+                    env,
+                    streamCallbackClass,
+                    "finishedCallback",
+                    "()V");
+        if (streamFinishedCallbackMethodID)
+            stream->streamFinishedCallbackMethodID
+                = streamFinishedCallbackMethodID;
+        else
+            return;
+    }
 
-	(*env)->CallVoidMethod(env, streamCallback, streamFinishedCallbackMethodID);
+    (*env)->CallVoidMethod(env, streamCallback, streamFinishedCallbackMethodID);
 }
 
 static void
 PortAudioStream_free(JNIEnv *env, PortAudioStream *stream)
 {
-	if (stream->streamCallback)
-	{
-		(*env)->DeleteGlobalRef(env, stream->streamCallback);
-		stream->streamCallback = NULL;
-	}
-	stream->streamCallbackMethodID = NULL;
-	stream->streamFinishedCallbackMethodID = NULL;
+    if (stream->streamCallback)
+    {
+        (*env)->DeleteGlobalRef(env, stream->streamCallback);
+        stream->streamCallback = NULL;
+    }
+    stream->streamCallbackMethodID = NULL;
+    stream->streamFinishedCallbackMethodID = NULL;
 
-	free(stream);
+    free(stream);
 }
 
 static PortAudioStream *
 PortAudioStream_new(JNIEnv *env, jobject streamCallback)
 {
-	PortAudioStream *stream = malloc(sizeof(PortAudioStream));
+    PortAudioStream *stream = malloc(sizeof(PortAudioStream));
 
-	if (!stream)
-	{
-		PortAudio_throwException(env, paInsufficientMemory);
-		return NULL;
-	}
-	stream->stream = NULL;
+    if (!stream)
+    {
+        PortAudio_throwException(env, paInsufficientMemory);
+        return NULL;
+    }
+    stream->stream = NULL;
     stream->preprocessor = NULL;
     stream->echoState = NULL;
     stream->first = NULL;
@@ -988,32 +944,95 @@ PortAudioStream_new(JNIEnv *env, jobject streamCallback)
     stream->connectedToStream = NULL;
     stream->startCaching = 0;
 
-	if (streamCallback)
-	{
-		if ((*env)->GetJavaVM(env, &(stream->vm)) < 0)
-		{
-			free(stream);
-			PortAudio_throwException(env, paInternalError);
-			return NULL;
-		}
+    if (streamCallback)
+    {
+        if ((*env)->GetJavaVM(env, &(stream->vm)) < 0)
+        {
+            free(stream);
+            PortAudio_throwException(env, paInternalError);
+            return NULL;
+        }
 
-		stream->streamCallback = (*env)->NewGlobalRef(env, streamCallback);
-		if (!(stream->streamCallback))
-		{
-			free(stream);
-			PortAudio_throwException(env, paInsufficientMemory);
-			return NULL;
-		}
-	}
-	else
-	{
-		stream->vm = NULL;
-		stream->streamCallback = NULL;
-	}
+        stream->streamCallback = (*env)->NewGlobalRef(env, streamCallback);
+        if (!(stream->streamCallback))
+        {
+            free(stream);
+            PortAudio_throwException(env, paInsufficientMemory);
+            return NULL;
+        }
+    }
+    else
+    {
+        stream->vm = NULL;
+        stream->streamCallback = NULL;
+    }
 
-	stream->env = NULL;
-	stream->streamCallbackMethodID = NULL;
-	stream->streamFinishedCallbackMethodID = NULL;
+    stream->env = NULL;
+    stream->streamCallbackMethodID = NULL;
+    stream->streamFinishedCallbackMethodID = NULL;
 
-	return stream;
+    return stream;
+}
+
+static PaError
+PortAudioStream_write(
+        PortAudioStream *stream,
+        jbyte *buffer,
+        jlong frames)
+{
+    PaError errorCode;
+
+    if(stream->outputResampleFactor != 1)
+    {
+        spx_uint32_t out_len;
+        out_len = lrint(
+            frames
+            *stream->outputChannelCount
+            *stream->outputResampleFactor);
+
+        short res[out_len];
+        speex_resampler_process_interleaved_int(
+                stream->outputResampler,
+                buffer,
+                &frames,
+                res,
+                &out_len);
+
+        errorCode = Pa_WriteStream(stream->stream, res, out_len);
+
+        if(stream->connectedToStream
+                && ((PortAudioStream *)stream->connectedToStream)
+                        ->echoState
+                && (stream->startCaching == 1))
+        {
+            Buffer *b;
+
+            b = malloc(sizeof(Buffer));
+            if (b)
+            {
+                struct timeval tv;
+
+                gettimeofday(&tv,NULL);
+                b->time = tv.tv_sec*1000 + tv.tv_usec/1000;
+
+                b->data = malloc(sizeof(short)*frames);
+                if (b->data)
+                {
+                    memcpy(b->data, buffer, sizeof(short)*frames);
+                    b->next = NULL;
+                    addBuffer(stream, b);
+                }
+                else
+                {
+                    free(b);
+                    errorCode = paInsufficientMemory;
+                }
+            }
+            else
+                errorCode = paInsufficientMemory;
+        }
+    }
+    else
+        errorCode = Pa_WriteStream(stream->stream, buffer, frames);
+    return errorCode;
 }

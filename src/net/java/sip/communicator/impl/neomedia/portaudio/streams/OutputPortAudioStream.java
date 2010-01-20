@@ -40,20 +40,40 @@ public class OutputPortAudioStream
     private final int frameSize;
 
     /**
+     * The number of frames to write to the native PortAudioStream represented
+     * by this instance with a single invocation.
+     */
+    private final int framesPerBuffer;
+
+    /**
+     * The number of bytes to write to a native PortAudio stream with a single
+     * invocation. Based on {@link #framesPerBuffer} and {@link #frameSize}.
+     */
+    private final int bytesPerBuffer;
+
+    /**
      * The stream pointer we are using or 0 if stopped and not initialized.
      */
     private long stream;
+
     /**
      * Whether this stream is started.
      */
     private boolean started = false;
 
     /**
-     * Buffer left for writing from previous write,
-     * as everything is split into parts of PortAudioManager.NUM_SAMPLES,
-     * this is what has left.
+     * The audio samples left unwritten by a previous call to
+     * {@link #write(byte[], int, int)}. As {@link #bytesPerBuffer} number of
+     * bytes are always written, the number of the unwritten audio samples is
+     * always less than that.
      */
     private byte[] bufferLeft = null;
+
+    /**
+     * The number of bytes in {@link #bufferLeft} representing unwritten audio
+     * samples.
+     */
+    private int bufferLeftLength = 0;
 
     /**
      * We use this object to sync input stream reads with this output stream
@@ -86,7 +106,7 @@ public class OutputPortAudioStream
      * @throws PortAudioException if stream fails to open.
      */
     public OutputPortAudioStream(
-        int deviceIndex, double sampleRate, int channels, long sampleFormat)
+            int deviceIndex, double sampleRate, int channels, long sampleFormat)
         throws PortAudioException
     {
         this.deviceIndex = deviceIndex;
@@ -95,6 +115,9 @@ public class OutputPortAudioStream
         this.sampleFormat = sampleFormat;
 
         frameSize = PortAudio.Pa_GetSampleSize(sampleFormat)*channels;
+        framesPerBuffer = PortAudioManager.getInstance().getFramesPerBuffer();
+        bytesPerBuffer = frameSize * framesPerBuffer;
+
         stream = createStream();
     }
 
@@ -149,77 +172,89 @@ public class OutputPortAudioStream
     }
     
     /**
-     * We will split everything into parts of PortAudioManager.NUM_SAMPLES.
-     * If something is left we will save it for next write and use it than.
+     * Writes a specific <tt>byte</tt> buffer of audio samples into the native
+     * PortAudio stream represented by this instance.
+     *<p>
+     * Splits the specified buffer and performs multiple writes with
+     * {@link PortAudioManager#getFramesPerBuffer()} number of frames at a time.
+     * If any bytes from the specified buffer remain unwritten, they are
+     * retained for the next write to be prepended to its buffer.
+     * </p>
      *
-     * @param buffer the current buffer.
-     * @throws PortAudioException error while writing to device.
+     * @param buffer the <tt>byte</tt> buffer to the written into the native
+     * PortAudio stream represented by this instance
+     * @param offset the offset in <tt>buffer</tt> at which the audio samples to
+     * be written begin
+     * @param length the length of the audio samples in <tt>buffer</tt> to be
+     * written
+     * @throws PortAudioException if anything goes wrong while writing
      */
-    public synchronized void write(byte[] buffer)
+    public synchronized void write(byte[] buffer, int offset, int length)
         throws PortAudioException
     {
         if((stream == 0) || !started)
             return;
 
-        int numSamples = PortAudioManager.NUM_SAMPLES*frameSize;
-
-        int currentIx = 0;
-
-        // if there are bytes from previous run
-        if(bufferLeft != null && bufferLeft.length > 0)
+        /*
+         * If there are audio samples left unwritten from a previous write,
+         * prepend them to the specified buffer. If it's possible to write them
+         * now, do it.
+         */
+        if ((bufferLeft != null) && (bufferLeftLength > 0))
         {
-            if(buffer.length + bufferLeft.length >= numSamples)
-            {
-                byte[] tmp = new byte[numSamples];
-                System.arraycopy(bufferLeft, 0, tmp, 0, bufferLeft.length);
-                System.arraycopy(buffer, currentIx, tmp,
-                    bufferLeft.length, numSamples - bufferLeft.length);
-                currentIx += numSamples - bufferLeft.length;
-                bufferLeft = null;
-                
-                PortAudio.Pa_WriteStream(
-                    stream,tmp, tmp.length/frameSize);
-            }
-            else
-            {
-                // not enough bytes even with previous left
-                // so let store everything
-                byte[] tmp = new byte[numSamples];
-                System.arraycopy(bufferLeft, 0, tmp, 0, bufferLeft.length);
-                System.arraycopy(buffer, currentIx, tmp,
-                    bufferLeft.length, numSamples - bufferLeft.length);
-                bufferLeft = null;
-                return;
-            }
-        }
+            int numberOfBytesInBufferLeftToBytesPerBuffer
+                = bytesPerBuffer - bufferLeftLength;
+            int numberOfBytesToCopyToBufferLeft
+                = (numberOfBytesInBufferLeftToBytesPerBuffer < length)
+                    ? numberOfBytesInBufferLeftToBytesPerBuffer
+                    : length;
 
-        // now use all the current buffer
-        if(buffer.length > numSamples)
-        {
-            while(currentIx <= buffer.length - numSamples)
-            {
-                byte[] tmp = new byte[numSamples];
-                System.arraycopy(buffer, currentIx, tmp, 0, numSamples);
+            System
+                .arraycopy(
+                    buffer,
+                    offset,
+                    bufferLeft,
+                    bufferLeftLength,
+                    numberOfBytesToCopyToBufferLeft);
+            offset += numberOfBytesToCopyToBufferLeft;
+            length -= numberOfBytesToCopyToBufferLeft;
+            bufferLeftLength += numberOfBytesToCopyToBufferLeft;
 
-                PortAudio.Pa_WriteStream(
-                    stream,tmp, tmp.length/frameSize);
-                currentIx += numSamples;
-            }
-
-            if(currentIx < buffer.length)
+            if (bufferLeftLength == bytesPerBuffer)
             {
-                bufferLeft = new byte[buffer.length - currentIx];
-                System.arraycopy(buffer, currentIx, bufferLeft, 0, bufferLeft.length);
+                PortAudio.Pa_WriteStream(stream, bufferLeft, framesPerBuffer);
+                bufferLeftLength = 0;
             }
         }
-        else if(buffer.length < numSamples)
+
+        // Write the audio samples from the specified buffer.
+        int numberOfWrites = length / bytesPerBuffer;
+
+        if (numberOfWrites > 0)
         {
-            bufferLeft = buffer;
+            PortAudio
+                .Pa_WriteStream(
+                    stream,
+                    buffer,
+                    offset,
+                    framesPerBuffer,
+                    numberOfWrites);
+
+            int bytesWritten = numberOfWrites * bytesPerBuffer;
+
+            offset += bytesWritten;
+            length -= bytesWritten;
         }
-        else
+
+        // If anything was left unwritten, remember it for next time.
+        if (length > 0)
         {
-            PortAudio.Pa_WriteStream(
-                    stream,buffer, buffer.length/frameSize);
+            if (bufferLeft == null)
+            {
+                bufferLeft = new byte[bytesPerBuffer];
+            }
+            System.arraycopy(buffer, offset, bufferLeft, 0, length);
+            bufferLeftLength = length;
         }
     }
 

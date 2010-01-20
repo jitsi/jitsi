@@ -65,7 +65,7 @@ public class PortAudioAuto
         // if PortAudio has a problem initializing like missing native
         // components it will trow exception here and PortAudio rendering will
         // not be inited.
-        PortAudioManager.getInstance();
+        PortAudioManager portAudioManager = PortAudioManager.getInstance();
 
         // enable jmf logging, so we can track codec chains and formats
         if(logger.isDebugEnabled())
@@ -128,32 +128,32 @@ public class PortAudioAuto
             boolean echoCancelEnabled =
                 config.getBoolean(
                     DeviceConfiguration.PROP_AUDIO_ECHOCANCEL_ENABLED,
-                    PortAudioManager.getInstance().isEnabledEchoCancel());
+                    portAudioManager.isEnabledEchoCancel());
             if(echoCancelEnabled)
             {
                 int echoCancelTail =
                     config.getInt(
                         DeviceConfiguration.PROP_AUDIO_ECHOCANCEL_TAIL,
-                        PortAudioManager.getInstance().getFilterLength());
-                PortAudioManager.getInstance().setEchoCancel(
+                        portAudioManager.getFilterLength());
+                portAudioManager.setEchoCancel(
                     echoCancelEnabled,
-                    PortAudioManager.getInstance().getFrameSize(),
                     echoCancelTail);
             }
 
             boolean denoiseEnabled =
                 config.getBoolean(
                     DeviceConfiguration.PROP_AUDIO_DENOISE_ENABLED,
-                    PortAudioManager.getInstance().isEnabledDeNoise());
-            PortAudioManager.getInstance().setDeNoise(denoiseEnabled);
+                    portAudioManager.isEnabledDeNoise());
+            portAudioManager.setDeNoise(denoiseEnabled);
 
             // suggested latency is saved in configuration as
             // milliseconds but PortAudioManager use it as seconds
+            int defaultAudioLatency
+                = (int) (PortAudioManager.getSuggestedLatency()*1000);
             int audioLatency = config.getInt(
                 DeviceConfiguration.PROP_AUDIO_LATENCY,
-                (int)(PortAudioManager.getSuggestedLatency()*1000));
-            if(audioLatency !=
-                (int)PortAudioManager.getSuggestedLatency()*1000)
+                defaultAudioLatency);
+            if(audioLatency != defaultAudioLatency)
                     PortAudioManager.setSuggestedLatency(
                         (double)audioLatency/1000d);
         }

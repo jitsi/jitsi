@@ -37,7 +37,7 @@ public class PortAudioClipImpl
 
     private final URL url;
     
-    private Object syncObject = new Object();
+    private final Object syncObject = new Object();
 
     /**
      * Creates the audio clip and initialize the listener used from the
@@ -110,6 +110,7 @@ public class PortAudioClipImpl
         implements Runnable
     {
         private final byte[] buffer = new byte[1024];
+
         private OutputPortAudioStream portAudioStream = null;
 
         public void run()
@@ -124,18 +125,22 @@ public class PortAudioClipImpl
 
                     if (portAudioStream == null)
                     {
-                        int deviceIndex =
-                            PortAudioUtils.getDeviceIndexFromLocator(
+                        int deviceIndex
+                            = PortAudioUtils.getDeviceIndexFromLocator(
                                         audioNotifier.getDeviceConfiguration().
                                         getAudioNotifyDevice().getLocator());
 
-                        portAudioStream = PortAudioManager.getInstance().
-                            getOutputStream(
-                                deviceIndex,
-                                audioStreamFormat.getSampleRate(),
-                                audioStreamFormat.getChannels(),
-                                PortAudioUtils.getPortAudioSampleFormat(
-                                    audioStreamFormat.getSampleSizeInBits()));
+                        portAudioStream
+                            = PortAudioManager
+                                .getInstance()
+                                    .getOutputStream(
+                                        deviceIndex,
+                                        audioStreamFormat.getSampleRate(),
+                                        audioStreamFormat.getChannels(),
+                                        PortAudioUtils
+                                            .getPortAudioSampleFormat(
+                                                audioStreamFormat
+                                                    .getSampleSizeInBits()));
                         portAudioStream.start();
                     }
 
@@ -146,8 +151,12 @@ public class PortAudioClipImpl
                         return;
                     }
 
-                    while(started && audioStream.read(buffer) != -1)
-                        portAudioStream.write(buffer);
+                    int bufferLength;
+
+                    while(started
+                            && ((bufferLength = audioStream.read(buffer))
+                                    != -1))
+                        portAudioStream.write(buffer, 0, bufferLength);
 
                     if(!isLooping())
                     {
@@ -158,12 +167,14 @@ public class PortAudioClipImpl
                     else
                     {
                         synchronized(syncObject) {
-                            if (started) {
-                                try {
+                            if (started)
+                                try
+                                {
                                     syncObject.wait(getLoopInterval());
-                                } catch (InterruptedException e) {
                                 }
-                            }
+                                catch (InterruptedException e)
+                                {
+                                }
                         }
                     }
                 }

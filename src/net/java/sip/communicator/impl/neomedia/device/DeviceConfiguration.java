@@ -891,10 +891,10 @@ public class DeviceConfiguration
     {
         try
         {
-            PortAudioManager.getInstance().setEchoCancel(
-                enabled,
-                PortAudioManager.getInstance().getFrameSize(),
-                PortAudioManager.getInstance().getFilterLength());
+            PortAudioManager portAudioManager = PortAudioManager.getInstance();
+
+            portAudioManager
+                .setEchoCancel(enabled, portAudioManager.getFilterLength());
 
             if(save)
                 NeomediaActivator.getConfigurationService()

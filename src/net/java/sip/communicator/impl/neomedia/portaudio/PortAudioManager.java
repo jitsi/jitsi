@@ -16,13 +16,17 @@ import net.java.sip.communicator.util.*;
  * them.
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class PortAudioManager
 {
+
     /**
-     * 20ms in 8kHz is 160 samples.
+     * The number of frames to be read from or written to a native PortAudio
+     * stream in a single transfer of data. The current value is based on 20ms
+     * of audio with 8kHz frame rate which is equal to 160 frames.
      */
-    public static final int NUM_SAMPLES = 160;
+    private static final int FRAMES_PER_BUFFER = 160;
 
     /**
      * The static instance of portaudio manager.
@@ -55,10 +59,11 @@ public class PortAudioManager
     private boolean enabledDeNoise = true;
 
     /**
-     * The default value for the frame size we use to read and write
-     * by portaudio. Currently 20 ms.
+     * The number of frames to be read from or written to a native PortAudio
+     * stream in a single transfer of data. The current value is based on 20ms
+     * of audio with 8kHz frame rate which is equal to 160 frames.
      */
-    private int frameSize = NUM_SAMPLES;
+    private final int framesPerBuffer = FRAMES_PER_BUFFER;
 
     /**
      * The default value for number of samples of echo to cancel.
@@ -113,24 +118,32 @@ public class PortAudioManager
         throws PortAudioException
     {
         MasterPortAudioStream st = inputStreams.get(deviceIndex);
+
         if(st == null)
         {
             st = new MasterPortAudioStream(deviceIndex, sampleRate, channels);
             inputStreams.put(deviceIndex, st);
 
-            // if there is a output streams, get the latest one
-            // and connect them
-            // todo: we must link input to all outputs ???
-            if(isEnabledEchoCancel() && outputStreams.size() > 0)
-            {
-                OutputPortAudioStream out = outputStreams.get(
-                        outputStreams.size() - 1);
-                st.setParams(out, isEnabledDeNoise(),
-                    isEnabledEchoCancel(), getFrameSize(), getFilterLength());
-            }
+            /*
+             * If there are output streams, get the latest one and connect them.
+             */
+            // TODO We must link input to all outputs???
+            boolean echoCancelIsEnabled = isEnabledEchoCancel();
+            int outputStreamCount;
+            OutputPortAudioStream out;
+
+            if(echoCancelIsEnabled
+                    && ((outputStreamCount = outputStreams.size()) > 0))
+                out = outputStreams.get(outputStreamCount - 1);
             else
-                st.setParams(null, isEnabledDeNoise(),
-                    isEnabledEchoCancel(), getFrameSize(), getFilterLength());
+                out = null;
+
+            st.setParams(
+                    out,
+                    isEnabledDeNoise(),
+                    echoCancelIsEnabled,
+                    getFramesPerBuffer(),
+                    getFilterLength());
         }
 
         return new InputPortAudioStream(st);
@@ -152,17 +165,26 @@ public class PortAudioManager
     {
         OutputPortAudioStream out
             = new OutputPortAudioStream(deviceIndex, sampleRate, channels);
+
         outputStreams.add(out);
 
-        // if there are input streams created, get the first one
-        // and link it to this output
-        // TODO what to do with the others
-        if(isEnabledEchoCancel() && inputStreams.size() > 0)
+        /*
+         * If there are input streams created, get the first one and link it to
+         * this output.
+         */
+        // TODO What to do with the others?
+        boolean echoCancelIsEnabled = isEnabledEchoCancel();
+
+        if (echoCancelIsEnabled && (inputStreams.size() > 0))
         {
             MasterPortAudioStream st = inputStreams.values().iterator().next();
 
-            st.setParams(out, isEnabledEchoCancel(),
-                isEnabledDeNoise(), getFrameSize(), getFilterLength());
+            st.setParams(
+                    out,
+                    echoCancelIsEnabled,
+                    isEnabledDeNoise(),
+                    getFramesPerBuffer(),
+                    getFilterLength());
         }
 
         return out;
@@ -206,16 +228,13 @@ public class PortAudioManager
 
     /**
      * Enables or disables echo cancel.
-     * @param enabled should we enable or disable echo cancelation
-     * @param frameSize Number of samples to process at one time
-     *          (should correspond to 10-20 ms)
+     * @param enabled should we enable or disable echo cancellation
      * @param filterLength Number of samples of echo to cancel
      *          (should generally correspond to 100-500 ms)
      */
-    public void setEchoCancel(boolean enabled, int frameSize, int filterLength)
+    public void setEchoCancel(boolean enabled, int filterLength)
     {
         this.enabledEchoCancel = enabled;
-        this.frameSize = frameSize;
         this.filterLength = filterLength;
     }
 
@@ -274,12 +293,14 @@ public class PortAudioManager
     }
 
     /**
-     * Number of samples to process at one time (should correspond to 10-20 ms).
-     * @return the frameSize.
+     * Gets the number of frames to process at a time (should correspond to
+     * 10-20ms).
+     *
+     * @return the number of frames to process at a time
      */
-    public int getFrameSize()
+    public int getFramesPerBuffer()
     {
-        return frameSize;
+        return framesPerBuffer;
     }
 
     /**

@@ -8,7 +8,9 @@ package net.java.sip.communicator.impl.neomedia.portaudio;
 
 /**
  * PortAudio functions.
+ *
  * @author Lubomir Marinov
+ * @author Damian Minkov
  */
 public final class PortAudio
 {
@@ -262,10 +264,39 @@ public final class PortAudio
      * @param frames The number of frames to be written from buffer.
      * @throws PortAudioException
      */
+    public static void Pa_WriteStream(long stream, byte[] buffer, long frames)
+        throws PortAudioException
+    {
+        Pa_WriteStream(stream, buffer, 0, frames, 1);
+    }
+
+    /**
+     * Writes samples to an output stream. Does not return until the specified
+     * samples have been consumed - this may involve waiting for the operating
+     * system to consume the data.
+     * <p>
+     * Provides better efficiency than achieved through multiple consecutive
+     * calls to {@link #Pa_WriteStream(long, byte[], long)} with one and the
+     * same buffer because the JNI access to the bytes of the buffer which is
+     * likely to copy the whole buffer is only performed once.
+     * </p>
+     *
+     * @param stream the pointer to the PortAudio stream to write the samples to
+     * @param buffer the buffer containing the samples to be written
+     * @param offset the byte offset in <tt>buffer</tt> at which the samples to
+     * be written start
+     * @param frames the number of frames from <tt>buffer</tt> starting at
+     * <tt>offset</tt> are to be written with a single write
+     * @param numberOfWrites the number of writes each writing <tt>frames</tt>
+     * number of frames to be performed
+     * @throws PortAudioException if anything goes wrong while writing
+     */
     public static native void Pa_WriteStream(
             long stream,
             byte[] buffer,
-            long frames)
+            int offset,
+            long frames,
+            int numberOfWrites)
         throws PortAudioException;
 
     /**

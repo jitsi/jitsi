@@ -127,26 +127,22 @@ public class PortAudioRenderer
     /**
      * Processes the data and renders it
      * to the output device represented by this Renderer.
-     * @param inputBuffer the input data.
+     * @param buffer the input data.
      * @return BUFFER_PROCESSED_OK if the processing is successful.
      */
-    public synchronized int process(Buffer inputBuffer)
+    public synchronized int process(Buffer buffer)
     {
-        byte[] buff = new byte[inputBuffer.getLength()];
-        System.arraycopy(
-            (byte[])inputBuffer.getData(),
-            inputBuffer.getOffset(),
-            buff,
-            0,
-            buff.length);
-
         try
         {
-            stream.write(buff);
+            stream
+                .write(
+                    (byte[]) buffer.getData(),
+                    buffer.getOffset(),
+                    buffer.getLength());
         }
-        catch (PortAudioException e)
+        catch (PortAudioException paex)
         {
-            logger.error("Error writing to device", e);
+            logger.error("Error writing to device", paex);
         }
 
         return BUFFER_PROCESSED_OK;

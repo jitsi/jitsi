@@ -104,10 +104,10 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_Po
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
  * Method:    Pa_WriteStream
- * Signature: (J[BJ)V
+ * Signature: (J[BIJI)V
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1WriteStream
-  (JNIEnv *, jclass, jlong, jbyteArray, jlong);
+  (JNIEnv *, jclass, jlong, jbyteArray, jint, jlong, jint);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio

@@ -6,9 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio;
 
-import net.java.sip.communicator.impl.neomedia.portaudio.*;
-import net.java.sip.communicator.impl.neomedia.portaudio.streams.*;
-
 import java.io.*;
 
 import javax.media.*;
@@ -16,6 +13,8 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.control.*;
+import net.java.sip.communicator.impl.neomedia.portaudio.*;
+import net.java.sip.communicator.impl.neomedia.portaudio.streams.*;
 
 /**
  * The stream used by jmf, wraps our InputPortAudioStream, which wraps
@@ -28,8 +27,8 @@ public class DSAudioStream
     extends ControlsAdapter
     implements PullBufferStream
 {
-    private final static ContentDescriptor cd =
-        new ContentDescriptor(ContentDescriptor.RAW);
+    private static final ContentDescriptor cd
+        = new ContentDescriptor(ContentDescriptor.RAW);
 
     private final int deviceIndex;
 
@@ -55,8 +54,7 @@ public class DSAudioStream
     {
         if(stream == null)
         {
-            AudioFormat audioFormat =
-                (AudioFormat)DataSource.getCaptureFormat();
+            AudioFormat audioFormat = DataSource.getCaptureFormat();
 
             stream = PortAudioManager.getInstance().getInputStream(deviceIndex,
                 audioFormat.getSampleRate(), audioFormat.getChannels());
@@ -106,7 +104,7 @@ public class DSAudioStream
             buffer.setData(bytebuff);
             buffer.setLength(bytebuff.length);
 
-            buffer.setFlags(0);
+            buffer.setFlags(Buffer.FLAG_SYSTEM_TIME);
             buffer.setFormat(getFormat());
             buffer.setHeader(null);
 

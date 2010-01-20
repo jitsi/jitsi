@@ -73,24 +73,24 @@ public class DataSource
     /**
      * The format of the media captured by the datasource.
      */
-    private static AudioFormat captureAudioFormat =
-        new AudioFormat(
+    private static AudioFormat captureAudioFormat
+        = new AudioFormat(
                 AudioFormat.LINEAR,
-                  8000,
-                  16,
-                  1,
-                  AudioFormat.LITTLE_ENDIAN,
-                  AudioFormat.SIGNED,
-                  16,
-                  Format.NOT_SPECIFIED,
-                  Format.byteArray);
+                8000,
+                16,
+                1,
+                AudioFormat.LITTLE_ENDIAN,
+                AudioFormat.SIGNED,
+                16,
+                Format.NOT_SPECIFIED,
+                Format.byteArray);
 
     /**
      * Return the formats supported by the datasource.
      *
      * @return the supported formats.
      */
-    public static Format getCaptureFormat()
+    public static AudioFormat getCaptureFormat()
     {
         return captureAudioFormat;
     }

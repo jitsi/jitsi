@@ -38,7 +38,19 @@ public class MasterPortAudioStream
     /**
      * The frame size we use.
      */
-    private int frameSize;
+    private final int frameSize;
+
+    /**
+     * The number of frames to read from a native PortAudio stream in a single
+     * invocation.
+     */
+    private final int framesPerBuffer;
+
+    /**
+     * The number of bytes to read from a native PortAudio stream in a single
+     * invocation. Based on {@link #framesPerBuffer} and {@link #frameSize}.
+     */
+    private final int bytesPerBuffer;
 
     /**
      * The sample rate for the current stream.
@@ -85,6 +97,8 @@ public class MasterPortAudioStream
         frameSize
             = PortAudio.Pa_GetSampleSize(PortAudio.SAMPLE_FORMAT_INT16)
                 * channels;
+        framesPerBuffer = PortAudioManager.getInstance().getFramesPerBuffer();
+        bytesPerBuffer = frameSize * framesPerBuffer;
     }
 
     /**
@@ -203,12 +217,11 @@ public class MasterPortAudioStream
         if(!started)
             return new byte[0];
 
-        byte[] bytebuff = new byte[PortAudioManager.NUM_SAMPLES*frameSize];
+        byte[] bytebuff = new byte[bytesPerBuffer];
 
         synchronized(connectedToStreamSync)
         {
-            PortAudio.Pa_ReadStream(
-                stream, bytebuff, PortAudioManager.NUM_SAMPLES);
+                PortAudio.Pa_ReadStream(stream, bytebuff, framesPerBuffer);
         }
 
         for(InputPortAudioStream slave : slaves)
