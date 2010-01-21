@@ -50,7 +50,7 @@ public class ChangeJVMFrame
     private String defaultLink
         = "<a href=\"https://cds.sun.com/is-bin/INTERSHOP.enfinity/" +
         "WFS/CDS-CDS_Developer-Site/en_US/-/USD/ViewProductDetail-Start?" +
-        "ProductRef=jre-6u4-b-oth-JPR@CDS-CDS_Developer\">Download Java 1.6</a>";
+        "ProductRef=jre-6u18-oth-JPR@CDS-CDS_Developer\">Download Java 1.6</a>";
 
     private JPanel mainPanel = new JPanel(new BorderLayout());
 
