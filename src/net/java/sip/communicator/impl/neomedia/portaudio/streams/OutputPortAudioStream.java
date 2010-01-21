@@ -84,6 +84,11 @@ public class OutputPortAudioStream
     private Object closeSyncObject = new Object();
 
     /**
+     * In process of stopping.
+     */
+    private boolean stopping = false;
+
+    /**
      * Creates output stream.
      * @param deviceIndex the index of the device to use.
      * @param sampleRate the sample rate.
@@ -192,7 +197,7 @@ public class OutputPortAudioStream
     public synchronized void write(byte[] buffer, int offset, int length)
         throws PortAudioException
     {
-        if((stream == 0) || !started)
+        if((stream == 0) || !started || stopping)
             return;
 
         /*
@@ -277,15 +282,21 @@ public class OutputPortAudioStream
      * Stops the stream operation.
      * @throws PortAudioException
      */
-    public synchronized void stop()
+    public void stop()
         throws PortAudioException
     {
-        if (started && (stream != 0))
-        {
-            started = false;
-            PortAudio.Pa_StopStream(stream);
+        stopping = true;
 
-            bufferLeft = null;
+        synchronized(this)
+        {
+            if (started && (stream != 0))
+            {
+                started = false;
+                PortAudio.Pa_StopStream(stream);
+
+                bufferLeft = null;
+                stopping = false;
+            }
         }
     }
 
