@@ -25,6 +25,7 @@ import com.toedter.calendar.*;
  *
  * @author Maxime Bourdon & Thomas Meyer
  */
+@SuppressWarnings("serial")
 public class ExtendedCallHistorySearchDialog
     extends SIPCommDialog
     implements  ActionListener,
@@ -110,7 +111,9 @@ public class ExtendedCallHistorySearchDialog
         this.initDateChooser();
 
         this.searchPanel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createTitledBorder("Search"), BorderFactory
+            BorderFactory.createTitledBorder(
+                ExtendedCallHistorySearchActivator.getResources()
+                .getI18NString("service.gui.SEARCH")), BorderFactory
                 .createEmptyBorder(5, 5, 5, 5)));
 
         this.callTypePanel.setBorder(BorderFactory.createCompoundBorder(
