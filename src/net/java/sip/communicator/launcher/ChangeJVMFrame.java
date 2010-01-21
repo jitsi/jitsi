@@ -44,8 +44,8 @@ public class ChangeJVMFrame
         + " the newest version for your environment.";
 
     private String macLink
-        = "<a href=\"http://www.apple.com/downloads/macosx/apple/macosx_updates/" +
-            "javaformacosx104release6.html\">Download Java 1.5 for MacOSX</a>";
+        = "<a href=\"http://www.apple.com/downloads/macosx/apple/application_updates/" +
+          "javaformacosx104release9.html\">Download Java 1.5 for MacOSX</a>";
 
     private String defaultLink
         = "<a href=\"https://cds.sun.com/is-bin/INTERSHOP.enfinity/" +
