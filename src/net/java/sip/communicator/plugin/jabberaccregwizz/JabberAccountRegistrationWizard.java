@@ -142,7 +142,7 @@ public class JabberAccountRegistrationWizard
 
         summaryTable.put(
             Resources.getString(
-                        "plugin.jabberaccregwizz.GMAIL_NOTIFICATIONS_ENABLED"),
+                        "plugin.jabberaccregwizz.ENABLE_GMAIL_NOTIFICATIONS"),
             String.valueOf(registration.isGmailNotificationEnabled()));
 
         summaryTable.put(
