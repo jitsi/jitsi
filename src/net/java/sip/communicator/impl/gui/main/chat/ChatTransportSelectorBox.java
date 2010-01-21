@@ -12,7 +12,6 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
@@ -91,7 +90,9 @@ public class ChatTransportSelectorBox
             Image img = createTransportStatusImage(chatTransport);
 
             JMenuItem menuItem = new JMenuItem(
-                        chatTransport.getName(),
+                        "From: " + chatTransport.getProtocolProvider()
+                            .getAccountID().getAccountAddress()
+                        + " To: " + chatTransport.getName(),
                         new ImageIcon(img));
 
             menuItem.addActionListener(this);
@@ -211,14 +212,15 @@ public class ChatTransportSelectorBox
 
         this.menu.setSelected(selectedObject);
 
-        String tooltipText;
+        String tooltipText = "From: " + chatTransport.getProtocolProvider()
+            .getAccountID().getAccountAddress() + " To: ";
 
         if(!chatTransport.getDisplayName()
                 .equals(chatTransport.getName()))
-            tooltipText = chatTransport.getDisplayName()
+            tooltipText += chatTransport.getDisplayName()
                 + " (" + chatTransport.getName() + ")";
         else
-            tooltipText = chatTransport.getDisplayName();
+            tooltipText += chatTransport.getDisplayName();
 
         this.menu.setToolTipText(tooltipText);
     }
