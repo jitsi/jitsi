@@ -76,7 +76,9 @@ public class JNIDecoder
         outputFormats = new VideoFormat[1];
 
         /* default output format */
-        outputFormats[0] = new RGBFormat(new Dimension(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT), -1, Format.intArray,
+        outputFormats[0] = new RGBFormat(
+                new Dimension(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT), 
+                -1, Format.intArray,
                 ensureFrameRate(Format.NOT_SPECIFIED), 32, RED_MASK,
                 GREEN_MASK, BLUE_MASK, 1, -1, Format.FALSE,
                 Format.NOT_SPECIFIED);
