@@ -26,13 +26,15 @@ public class ImageStreamingAuto
     public ImageStreamingAuto() throws Exception
     {
         String name = "Desktop streaming";
-        CaptureDeviceInfo devInfo = new CaptureDeviceInfo(name, 
-            new MediaLocator(ImageStreamingUtils.LOCATOR_PREFIX + ":" + name),
-            DataSource.getFormats());
+        CaptureDeviceInfo devInfo
+            = new CaptureDeviceInfo(
+                    name,
+                    new MediaLocator(
+                            ImageStreamingUtils.LOCATOR_PROTOCOL + ":" + name),
+                    DataSource.getFormats());
             
         /* add to JMF device manager */
         CaptureDeviceManager.addDevice(devInfo);
         CaptureDeviceManager.commit();
     }
 }
-

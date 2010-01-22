@@ -176,7 +176,9 @@ public class JNIDecoder
     /**
      * Init the codec instances.
      */
-    public synchronized void open() throws ResourceUnavailableException
+    @Override
+    public synchronized void open()
+        throws ResourceUnavailableException
     {
         if (opened)
             return;
@@ -360,7 +362,6 @@ public class JNIDecoder
         return PLUGIN_NAME;
     }
 
-    @Override
     public Format[] getSupportedOutputFormats(Format in)
     {
         // null input format

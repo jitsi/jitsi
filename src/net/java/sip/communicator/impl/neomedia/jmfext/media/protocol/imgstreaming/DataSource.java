@@ -29,55 +29,19 @@ public class DataSource
     /**
      * Array of supported formats.
      */
-    private static final Format formats[];
-
-    /**
-     * Resolutions supported for image. Listed in decreasing order of
-     * preference.
-     */
-    private static final Dimension res[] = new Dimension[] {
-        Toolkit.getDefaultToolkit().getScreenSize(), /* current desktop screen size */
-        new Dimension(1024, 768),
-        new Dimension(800, 600),
-        new Dimension(720, 480),
-        new Dimension(704, 576),
-        new Dimension(352, 288),
-        new Dimension(320, 240),
-        new Dimension(176, 144),
-        new Dimension(128, 96),
-    };
-
-    static
-    {
-        /* initialize supported format array */
-        int i = 0;
-
-        formats = new Format[res.length];
-        for(Dimension dim : res)
-        {
-            formats[i]
-                = new RGBFormat(
-                        dim, /* resolution */
-                        (int)(dim.getWidth() * dim.getHeight() * 4), /* max data length */
-                        Format.byteArray, /* format */
-                        -1.0f, /* frame rate */
-                        32, /* color is coded in 24 bit/pixel */
-                        1,
-                        2,
-                        3); /* color masks (red, green, blue) */
-            i++;
-        }
-    }
-
-    /**
-     * Get supported formats.
-     *
-     * @return supported formats
-     */
-    public static Format[] getFormats()
-    {
-        return formats;
-    }
+    private static final Format[] formats
+        = new Format[]
+                {
+                    new RGBFormat(
+                            Toolkit.getDefaultToolkit().getScreenSize(), // size
+                            Format.NOT_SPECIFIED, // maxDataLength
+                            Format.byteArray, // dataType
+                            Format.NOT_SPECIFIED, // frameRate
+                            32, // bitsPerPixel
+                            1, // red
+                            2, // green
+                            3) // blue
+                };
 
     /**
      * Constructor.
@@ -118,5 +82,15 @@ public class DataSource
             FormatControl formatControl)
     {
         return new ImageStream(formatControl);
+    }
+
+    /**
+     * Get supported formats.
+     *
+     * @return supported formats
+     */
+    public static Format[] getFormats()
+    {
+        return formats;
     }
 }

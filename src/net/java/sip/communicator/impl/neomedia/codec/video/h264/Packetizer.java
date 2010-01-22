@@ -13,7 +13,6 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
-
 import net.sf.fmj.media.*;
 
 /**
@@ -85,6 +84,7 @@ public class Packetizer
         return getMatchingOutputFormats(in);
     }
 
+    @Override
     public Format setInputFormat(Format in)
     {
         // mismatch input format
@@ -97,6 +97,7 @@ public class Packetizer
         return in;
     }
 
+    @Override
     public Format setOutputFormat(Format out)
     {
         // mismatch output format
@@ -128,6 +129,7 @@ public class Packetizer
         return outputFormat;
     }
 
+    @Override
     public int process(Buffer inBuffer, Buffer outBuffer)
     {
         // if there are some nals we check and send them
@@ -279,7 +281,9 @@ public class Packetizer
         return endIx;
     }
 
-    public synchronized void open() throws ResourceUnavailableException
+    @Override
+    public synchronized void open()
+        throws ResourceUnavailableException
     {
         if (!opened)
         {
@@ -288,6 +292,7 @@ public class Packetizer
         }
     }
 
+    @Override
     public synchronized void close()
     {
         if (opened)
@@ -300,6 +305,7 @@ public class Packetizer
         }
     }
 
+    @Override
     public String getName()
     {
         return PLUGIN_NAME;

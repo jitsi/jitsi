@@ -9,10 +9,10 @@ package net.java.sip.communicator.impl.neomedia.device;
 import java.awt.*;
 
 import javax.media.*;
+import javax.media.control.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
-import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -22,6 +22,7 @@ import net.java.sip.communicator.util.*;
  * Extends <tt>MediaDeviceSession</tt> to add video-specific functionality.
  *
  * @author Lubomir Marinov
+ * @author Sébastien Vincent
  */
 public class VideoMediaDeviceSession
     extends MediaDeviceSession
@@ -97,17 +98,44 @@ public class VideoMediaDeviceSession
         if (captureDevice != null)
         {
             MediaLocator locator = captureDevice.getLocator();
-            
+            String protocol = (locator == null) ? null : locator.getProtocol();
+
+            /*
+             * We'll probably have the frame size, frame size and such quality
+             * and/or bandwidth preferences controlled by the user (e.g. through
+             * a dumbed down present scale). But for now we try to make sure
+             * that our codecs are as generic as possible and we select the
+             * default preset here.
+             */
+            if (ImageStreamingUtils.LOCATOR_PROTOCOL.equals(protocol))
+            {
+                /*
+                 * It is not clear at this time what the default frame rate for
+                 * desktop streaming should be but at least we establish that it
+                 * is good to have a control from the outside rather than have a
+                 * hardcoded value in the imgstreaming CaptureDevice.
+                 */
+                FrameRateControl frameRateControl
+                    = (FrameRateControl)
+                        captureDevice
+                            .getControl(FrameRateControl.class.getName());
+                float defaultFrameRate = 10;
+
+                if ((frameRateControl != null)
+                        && (defaultFrameRate
+                                <= frameRateControl.getMaxSupportedFrameRate()))
+                    frameRateControl.setFrameRate(defaultFrameRate);
+            }
+            else
+            {
+                VideoMediaStreamImpl.selectVideoSize(captureDevice, 640, 480);
+            }
+
             /*
              * FIXME There is no video in calls when using the QuickTime/QTKit
-             * CaptureDevice and desktop streaming, so the local video support 
-             * is disabled for them now.
+             * CaptureDevice so the local video support is disabled for it.
              */
-            if ((locator == null)
-                    || (!QuickTimeAuto.LOCATOR_PROTOCOL
-                            .equals(locator.getProtocol()) &&
-                        !ImageStreamingUtils.LOCATOR_PREFIX
-                            .equals(locator.getProtocol())))
+            if (!QuickTimeAuto.LOCATOR_PROTOCOL.equals(protocol))
             {
                 DataSource cloneableDataSource
                     = Manager.createCloneableDataSource(captureDevice);

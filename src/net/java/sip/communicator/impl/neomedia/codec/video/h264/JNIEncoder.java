@@ -123,6 +123,7 @@ public class JNIEncoder
         return getMatchingOutputFormats(in);
     }
 
+    @Override
     public Format setInputFormat(Format in)
     {
         // mismatch input format
@@ -158,6 +159,7 @@ public class JNIEncoder
         return inputFormat;
     }
 
+    @Override
     public Format setOutputFormat(Format out)
     {
         // mismatch output format
@@ -246,7 +248,8 @@ public class JNIEncoder
     }
 
     @Override
-    public synchronized void open() throws ResourceUnavailableException
+    public synchronized void open()
+        throws ResourceUnavailableException
     {
         int width = 0;
         int height = 0;

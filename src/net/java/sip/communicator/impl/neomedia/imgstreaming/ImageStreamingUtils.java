@@ -17,9 +17,10 @@ import java.awt.image.*;
 public class ImageStreamingUtils
 {
     /**
-     * The locator prefix used when creating or parsing <tt>MediaLocator</tt>s.
+     * The locator protocol used when creating or parsing
+     * <tt>MediaLocator</tt>s.
      */
-    public static final String LOCATOR_PREFIX = "imgstreaming";
+    public static final String LOCATOR_PROTOCOL = "imgstreaming";
 
     /**
      * Get a scaled <tt>BufferedImage</tt>.
@@ -31,6 +32,7 @@ public class ImageStreamingUtils
      * @param src source image
      * @param width width of scaled image
      * @param height height of scaled image
+     * @param type
      * @return scaled <tt>BufferedImage</tt>
      */
     public static BufferedImage getScaledImage(BufferedImage src,
@@ -38,20 +40,18 @@ public class ImageStreamingUtils
                                                int height,
                                                int type)
     {
+        double scaleWidth = width / ((double)src.getWidth());
+        double scaleHeight = height / ((double)src.getHeight());
         AffineTransform tx = new AffineTransform();
-        AffineTransformOp op = null;
-        double scaleWidth = ((double)width) / ((double)src.getWidth());
-        double scaleHeight = ((double)height) / ((double)src.getHeight());
-        BufferedImage dst = null;
 
-        /* skip rescaling if input and output size are the same */
-        if(scaleWidth != 1 || scaleHeight != 1)
-        {
+        // Skip rescaling if input and output size are the same.
+        if ((Double.compare(scaleWidth, 1) != 0)
+                || (Double.compare(scaleHeight, 1) != 0))
             tx.scale(scaleWidth, scaleHeight);
-        }
 
-        op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
-        dst = new BufferedImage(width, height, type);
+        AffineTransformOp op
+            = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+        BufferedImage dst = new BufferedImage(width, height, type);
 
         return op.filter(src, dst);
     }
@@ -63,25 +63,21 @@ public class ImageStreamingUtils
      * @return raw bytes or null if src is not an ARGB
      * <tt>BufferedImage</tt>
      */
-    public static byte[] getImageByte(BufferedImage src)
+    public static byte[] getImageBytes(BufferedImage src)
     {
         if(src.getType() != BufferedImage.TYPE_INT_ARGB)
-        {
-            return null;
-        }
+            throw new IllegalArgumentException("src.type");
 
         WritableRaster raster = src.getRaster();
-        byte data[] = null;
-        int pixel[] = new int[4];
         int width = src.getWidth();
         int height = src.getHeight();
-        int off = 0;
 
         /* allocate our bytes array */
-        data = new byte[width * height * 4];
-        
+        byte[] data = new byte[width * height * 4];
+        int off = 0;
+        int pixel[] = new int[4];
+
         for(int y = 0 ; y < height ; y++)
-        {
             for(int x = 0 ; x < width ; x++)
             {
                 raster.getPixel(x, y, pixel);
@@ -90,10 +86,7 @@ public class ImageStreamingUtils
                 data[off++] = (byte)pixel[2];
                 data[off++] = (byte)pixel[3];
             }
-        }
 
-        raster = null;
-        pixel = null;
         return data;
     }
 }

@@ -448,10 +448,19 @@ public class MediaConfigurationPanel
             return;
 
         DataSource dataSource = Manager.createDataSource(device.getLocator());
-
         Dimension size = videoContainer.getPreferredSize();
+
+        /*
+         * Don't let the size be uselessly small just because the videoContainer
+         * has too small a preferred size.
+         */
+        if ((size.width < 128) || (size.height < 96))
+        {
+            size.width = 128;
+            size.height = 96;
+        }
         VideoMediaStreamImpl
-            .selectVideoSize(dataSource, size.width, size.height);
+                .selectVideoSize(dataSource, size.width, size.height);
 
         Player player = Manager.createPlayer(dataSource);
 

@@ -27,6 +27,7 @@ import net.java.sip.communicator.util.*;
  * <tt>VideoMediaStream</tt>.
  *
  * @author Lubomir Marinov
+ * @author Sébastien Vincent
  */
 public class VideoMediaStreamImpl
     extends MediaStreamImpl
@@ -153,24 +154,50 @@ public class VideoMediaStreamImpl
                 });
                 selectedFormat = infos[0].format;
             }
-//            if ((selectedFormat != null)
-//                    && (selectedFormat.getSize() == null))
-//                selectedFormat
-//                    = (VideoFormat)
-//                        selectedFormat
-//                            .intersects(
-//                                new VideoFormat(
-//                                        null,
-//                                        new Dimension(
-//                                                preferredWidth,
-//                                                preferredHeight),
-//                                        Format.NOT_SPECIFIED,
-//                                        null,
-//                                        Format.NOT_SPECIFIED));
+
+            // If videoDS states to support any size, use the preferred one.
+            if ((selectedFormat != null)
+                    && (selectedFormat.getSize() == null))
+            {
+                VideoFormat currentFormat
+                    = (VideoFormat) formatControl.getFormat();
+                int width = preferredWidth;
+                int height = preferredHeight;
+
+                // Try to preserve the aspect ratio
+                if (currentFormat != null)
+                {
+                    Dimension currentSize = currentFormat.getSize();
+
+                    if ((currentSize != null)
+                            && (currentSize.width > 0)
+                            && (currentSize.height > 0))
+                        height
+                            = (int)
+                                (width
+                                    * (currentSize.width
+                                        / (double) currentSize.height));
+                }
+
+                selectedFormat
+                    = (VideoFormat)
+                        selectedFormat
+                            .intersects(
+                                new VideoFormat(
+                                        null,
+                                        new Dimension(width, height),
+                                        Format.NOT_SPECIFIED,
+                                        null,
+                                        Format.NOT_SPECIFIED));
+            }
         }
 
-        formatControl.setFormat(selectedFormat);
-        return selectedFormat.getSize();
+        Format setFormat = formatControl.setFormat(selectedFormat);
+
+        return
+            (setFormat instanceof VideoFormat)
+                ? ((VideoFormat) setFormat).getSize()
+                : null;
     }
 
     /**

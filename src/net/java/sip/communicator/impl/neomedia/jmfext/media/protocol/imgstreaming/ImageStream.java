@@ -153,10 +153,10 @@ public class ImageStream
      */
     public void run()
     {
-        final RGBFormat format = (RGBFormat) getFormat();
+        VideoFormat format = (VideoFormat) getFormat();
         Dimension formatSize = format.getSize();
-        final int width = (int)formatSize.getWidth();
-        final int height = (int)formatSize.getHeight();
+        int width = (int) formatSize.getWidth();
+        int height = (int) formatSize.getHeight();
 
         if(desktopInteract == null)
         {
@@ -180,11 +180,16 @@ public class ImageStream
 
             /* get desktop screen and resize it */
             screen = desktopInteract.captureScreen();
-            scaledScreen = ImageStreamingUtils.getScaledImage(screen, 
-                    width, height, BufferedImage.TYPE_INT_ARGB);
+            scaledScreen
+                = ImageStreamingUtils
+                    .getScaledImage(
+                        screen,
+                        width,
+                        height,
+                        BufferedImage.TYPE_INT_ARGB);
 
             /* get raw bytes */
-            data = ImageStreamingUtils.getImageByte(scaledScreen);
+            data = ImageStreamingUtils.getImageBytes(scaledScreen);
 
             /* notify JMF that new data is available */
             synchronized (buf)
