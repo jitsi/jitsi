@@ -28,10 +28,6 @@ public class JNIEncoder
 {
     private static final String PLUGIN_NAME = "H.264 Encoder";
 
-    private static int DEF_WIDTH = 352;
-
-    private static int DEF_HEIGHT = 288;
-
     private static final int INPUT_BUFFER_PADDING_SIZE = 8;
 
     private static final Format[] defOutputFormats =
@@ -64,33 +60,13 @@ public class JNIEncoder
      */
     public JNIEncoder()
     {
-        Format formats[] = new ImageScaler().getSupportedOutputFormats(null);
-        int i = 0;
-        DEF_WIDTH = Constants.VIDEO_WIDTH;
-        DEF_HEIGHT = Constants.VIDEO_HEIGHT;
+        float sourceFrameRate = TARGET_FRAME_RATE;
 
-        inputFormats = new Format[formats.length];
+        inputFormats = new Format[1];
 
-        /* initialize our supported output formats (those which we can scale) */
-        for(Format format : formats)
-        {
-            int width = (int)((VideoFormat)format).getSize().getWidth();
-            int height = (int)((VideoFormat)format).getSize().getHeight();
-            int strideY = width;
-            int strideUV = strideY / 2;
-            int offsetU = strideY * height;
-            int offsetV = offsetU + strideUV * height / 2;
-    
-            int inputYuvLength = (strideY + strideUV) * height;
-            float sourceFrameRate = TARGET_FRAME_RATE;
-
-            inputFormats[i] = new YUVFormat(new Dimension(width, height),
-                    inputYuvLength + INPUT_BUFFER_PADDING_SIZE, Format.byteArray,
-                    sourceFrameRate, YUVFormat.YUV_420, strideY, strideUV, 0,
-                    offsetU, offsetV);
-            i++;
-        }
-
+        inputFormats[0] = new YUVFormat(null, -1, Format.byteArray, 
+                sourceFrameRate, YUVFormat.YUV_420, -1, -1, 0, -1, -1);
+        
         inputFormat = null;
         outputFormat = null;
     }
@@ -135,7 +111,10 @@ public class JNIEncoder
         Dimension inSize = videoIn.getSize();
 
         if (inSize == null)
-            inSize = new Dimension(DEF_WIDTH, DEF_HEIGHT);
+        {
+            /* XXX code reached ? */
+            inSize = new Dimension(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT);
+        }
 
         YUVFormat yuv = (YUVFormat) videoIn;
 
@@ -175,7 +154,10 @@ public class JNIEncoder
         {
             Dimension inSize = ((VideoFormat) inputFormat).getSize();
             if (inSize == null)
-                outSize = new Dimension(DEF_WIDTH, DEF_HEIGHT);
+            {
+                /* XXX code reached ? */
+                outSize = new Dimension(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT);
+            }
             else
                 outSize = inSize;
         }
