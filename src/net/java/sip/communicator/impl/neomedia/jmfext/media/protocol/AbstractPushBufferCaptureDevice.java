@@ -296,7 +296,15 @@ public abstract class AbstractPushBufferCaptureDevice
             }
             finally
             {
-                streams = null;
+                /*
+                 * While it is not clear whether the streams can be released
+                 * upon disconnect,
+                 * com.imb.media.protocol.SuperCloneableDataSource gets the
+                 * streams of the DataSource it adapts (i.e. this DataSource
+                 * when SourceCloneable support support is to be created for it)
+                 * before #connect().
+                 */
+                // streams = null;
             }
     }
 
