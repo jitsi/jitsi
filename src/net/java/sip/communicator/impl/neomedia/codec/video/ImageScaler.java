@@ -161,8 +161,7 @@ public class ImageScaler
         final Dimension outputSize = ((VideoFormat) outputFormat).getSize();
         /* rescale by preserving ratio */
         final BufferedImage scaled = scalePreserveRatio(image, outputSize.width, outputSize.height);  // TODO: is the size exact?  what about rounding errors?
-        
-//        System.out.println("scaled: " + scaled.getWidth() + "x" + scaled.getHeight());
+
         final Buffer b = ImageToBuffer.createBuffer(scaled, ((VideoFormat) outputFormat).getFrameRate());
         output.setData(b.getData());
         output.setLength(b.getLength());

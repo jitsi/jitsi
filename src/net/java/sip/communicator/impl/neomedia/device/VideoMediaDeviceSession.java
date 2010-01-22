@@ -135,7 +135,7 @@ public class VideoMediaDeviceSession
              * FIXME There is no video in calls when using the QuickTime/QTKit
              * CaptureDevice so the local video support is disabled for it.
              */
-            if (!QuickTimeAuto.LOCATOR_PROTOCOL.equals(protocol))
+//            if (!QuickTimeAuto.LOCATOR_PROTOCOL.equals(protocol))
             {
                 DataSource cloneableDataSource
                     = Manager.createCloneableDataSource(captureDevice);

@@ -355,7 +355,7 @@ public class QuickTimeStream
     {
         VideoFormat videoFormat = (VideoFormat) format;
         Dimension size = videoFormat.getSize();
-System.err.println(format);
+
         /*
          * FIXME Mac OS X Leopard does not seem to report the size of the
          * QTCaptureDevice in its formatDescriptions early in its creation.

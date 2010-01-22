@@ -77,8 +77,12 @@ public abstract class AbstractPushBufferCaptureDevice
     /**
      * The <tt>PushBufferStream</tt>s through which this
      * <tt>PushBufferDataSource</tt> gives access to its media data.
+     * <p>
+     * Warning: Caution is advised when directly using the field and access to
+     * it is to be synchronized with sync root <tt>this</tt>.
+     * </p>
      */
-    private AbstractPushBufferStream[] streams;
+    protected AbstractPushBufferStream[] streams;
 
     /**
      * Initializes a new <tt>AbstractPushBufferCaptureDevice</tt> instance.
@@ -288,24 +292,24 @@ public abstract class AbstractPushBufferCaptureDevice
      */
     protected synchronized void doDisconnect()
     {
-        if (streams != null)
-            try
-            {
-                for (AbstractPushBufferStream stream : streams)
-                    stream.close();
-            }
-            finally
-            {
-                /*
-                 * While it is not clear whether the streams can be released
-                 * upon disconnect,
-                 * com.imb.media.protocol.SuperCloneableDataSource gets the
-                 * streams of the DataSource it adapts (i.e. this DataSource
-                 * when SourceCloneable support support is to be created for it)
-                 * before #connect().
-                 */
-                // streams = null;
-            }
+        /*
+         * While it is not clear whether the streams can be released upon
+         * disconnect, com.imb.media.protocol.SuperCloneableDataSource gets the
+         * streams of the DataSource it adapts (i.e. this DataSource when
+         * SourceCloneable support is to be created for it) before #connect().
+         * Unfortunately, it means that it isn't clear when the streams are to
+         * be disposed.
+         */
+//        if (streams != null)
+//            try
+//            {
+//                for (AbstractPushBufferStream stream : streams)
+//                    stream.close();
+//            }
+//            finally
+//            {
+//                streams = null;
+//            }
     }
 
     /**

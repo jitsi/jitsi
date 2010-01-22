@@ -109,15 +109,16 @@ public class DataSource
     {
         QuickTimeStream stream = new QuickTimeStream(formatControl);
 
-        try
-        {
-            captureSession.addOutput(stream.captureOutput);
-        }
-        catch (NSErrorException nseex)
-        {
-            logger.error("Failed to addOutput to QTCaptureSession", nseex);
-            throw new UndeclaredThrowableException(nseex);
-        }
+        if (captureSession != null)
+            try
+            {
+                captureSession.addOutput(stream.captureOutput);
+            }
+            catch (NSErrorException nseex)
+            {
+                logger.error("Failed to addOutput to QTCaptureSession", nseex);
+                throw new UndeclaredThrowableException(nseex);
+            }
         return stream;
     }
 
@@ -166,6 +167,35 @@ public class DataSource
 
             ioex.initCause(nseex);
             throw ioex;
+        }
+
+        /*
+         * Add the QTCaptureOutputs represented by the QuickTimeStreams (if any)
+         * to the QTCaptureSession.
+         */
+        synchronized (this)
+        {
+            if (streams != null)
+                for (AbstractPushBufferStream stream : streams)
+                    if (stream != null)
+                        try
+                        {
+                            captureSession
+                                .addOutput(
+                                    ((QuickTimeStream) stream).captureOutput);
+                        }
+                        catch (NSErrorException nseex)
+                        {
+                            logger
+                                .error(
+                                    "Failed to addOutput to QTCaptureSession",
+                                    nseex);
+
+                            IOException ioex = new IOException();
+
+                            ioex.initCause(nseex);
+                            throw ioex;
+                        }
         }
     }
 
