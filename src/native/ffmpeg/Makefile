@@ -15,7 +15,7 @@ CPPFLAGS=-DJNI_IMPLEMENTATION \
 #TARGET=../../../lib/native/mac/libffmpeg.jnilib
 
 # Windows configuration
-# CPPFLAGS+=-I$(JAVA_HOME)/include/win32
+#CPPFLAGS+=-I$(JAVA_HOME)/include/win32
 #LDFLAGS=-Wl,--kill-at -shared
 # Choose between 32-bit or 64-bit
 #TARGET=../../../lib/native/windows/ffmpeg.dll
