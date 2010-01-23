@@ -472,13 +472,8 @@ JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_memcpy___3IIIJ (
         JNIEnv *jniEnv, jclass clazz, jintArray dst, jint dst_offset,
         jint dst_length, jlong src) {
-    jint *dst_ptr = (*jniEnv)->GetIntArrayElements (jniEnv, dst, NULL);
-
-    if (dst_ptr) {
-        memcpy (dst_ptr + dst_offset, (const void *) src,
-            dst_length * sizeof (jint));
-        (*jniEnv)->ReleaseIntArrayElements (jniEnv, dst, dst_ptr, 0);
-    }
+    (*jniEnv)
+        ->SetIntArrayRegion (jniEnv, dst, dst_offset, dst_length, (jint *) src);
 }
 
 JNIEXPORT void JNICALL
