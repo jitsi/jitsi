@@ -418,19 +418,19 @@ public class ConferenceChatSession
 
         if (eventType.equals(ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED))
         {
-            // Check if not ever present in the chat room. In some cases, the
-            // considered chatroom member may appear twice in the chat contact
-            // list panel.
-            for(int i=0; i<chatParticipants.size(); i++)
-            {
-                ChatContact cc = chatParticipants.get(i);
-                if(((ChatRoomMember)cc.getDescriptor()).getContactAddress()
-                        .equals(evt.getChatRoomMember().getContactAddress()))
-                {
-                    chatParticipants.remove(i);
-                    sessionRenderer.removeChatContact(cc);
-                }
-            }
+//            // Check if not ever present in the chat room. In some cases, the
+//            // considered chatroom member may appear twice in the chat contact
+//            // list panel.
+//            for(int i=0; i<chatParticipants.size(); i++)
+//            {
+//                ChatContact cc = chatParticipants.get(i);
+//                if(((ChatRoomMember)cc.getDescriptor()).getContactAddress()
+//                        .equals(evt.getChatRoomMember().getContactAddress()))
+//                {
+//                    chatParticipants.remove(i);
+//                    sessionRenderer.removeChatContact(cc);
+//                }
+//            }
 
             ConferenceChatContact chatContact
                 = new ConferenceChatContact(chatRoomMember);

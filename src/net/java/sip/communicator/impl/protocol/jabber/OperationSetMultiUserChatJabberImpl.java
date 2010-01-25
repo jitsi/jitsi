@@ -124,7 +124,6 @@ public class OperationSetMultiUserChatJabberImpl
             room = createLocalChatRoomInstance(muc);
             room.setUserRole(ChatRoomMemberRole.OWNER);
         }
-        room.join();
         return room;
     }
 

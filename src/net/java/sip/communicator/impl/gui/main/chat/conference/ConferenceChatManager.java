@@ -651,13 +651,15 @@ public class ConferenceChatManager
      *
      * @param protocolProvider the parent protocol provider.
      * @param contacts the contacts invited when creating the chat room.
+     * @param reason 
      * @return the <tt>ChatRoomWrapper</tt> corresponding to the created room
      */
     public ChatRoomWrapper createChatRoom(
         ProtocolProviderService protocolProvider,
-        Collection<String> contacts)
+        Collection<String> contacts,
+        String reason)
     {
-        return this.createChatRoom(null, protocolProvider, contacts);
+        return this.createChatRoom(null, protocolProvider, contacts, reason);
     }
 
     /**
@@ -668,12 +670,14 @@ public class ConferenceChatManager
      * @param roomName the name of the room
      * @param protocolProvider the parent protocol provider.
      * @param contacts the contacts invited when creating the chat room.
+     * @param reason
      * @return the <tt>ChatRoomWrapper</tt> corresponding to the created room
      */
     public ChatRoomWrapper createChatRoom(
         String roomName,
         ProtocolProviderService protocolProvider,
-        Collection<String> contacts)
+        Collection<String> contacts,
+        String reason)
     {
         ChatRoomWrapper chatRoomWrapper = null;
 
@@ -687,16 +691,11 @@ public class ConferenceChatManager
         ChatRoom chatRoom = null;
         try
         {
-            Map<String, Object> members = new Hashtable<String, Object>();
-            OperationSetPersistentPresence opSet
-                = protocolProvider
-                    .getOperationSet(OperationSetPersistentPresence.class);
-
+            chatRoom = groupChatOpSet.createChatRoom(roomName, null);
+            chatRoom.join();
+            
             for(String contact : contacts)
-                members.put(contact, opSet.findContactByID(contact));
-
-            // We don't specify the name of the room for now.
-            chatRoom = groupChatOpSet.createChatRoom(roomName, members);
+                chatRoom.invite(contact, reason);
         }
         catch (OperationFailedException ex)
         {

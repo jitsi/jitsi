@@ -105,7 +105,9 @@ public class CreateChatRoomDialog
 
             GuiActivator.getUIService().getConferenceChatManager()
                 .createChatRoom(chatRoomName,
-                                chatRoomProvider.getProtocolProvider(), null);
+                                chatRoomProvider.getProtocolProvider(), 
+                                null, 
+                                "");
         }
         this.dispose();
     }

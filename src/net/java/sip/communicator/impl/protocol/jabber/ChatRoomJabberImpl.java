@@ -582,9 +582,9 @@ public class ChatRoomJabberImpl
 
             members.put(nickname, member);
 
-                //we don't specify a reason
-                opSetMuc.fireLocalUserPresenceEvent(this,
-                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED, null);
+            //we don't specify a reason
+            opSetMuc.fireLocalUserPresenceEvent(this,
+                LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED, null);
             }
         }
         catch (XMPPException ex)
@@ -1972,7 +1972,7 @@ public class ChatRoomJabberImpl
         return (ChatRoomMemberJabberImpl) members.get(jabberID);
     }
 
-    /**
+   /**
     * Grants administrator privileges to another user. Room owners may grant
     * administrator privileges to a member or un-affiliated user. An
     * administrator is allowed to perform administrative functions such as
@@ -1996,7 +1996,7 @@ public class ChatRoomJabberImpl
         }
     }
 
-    /**
+   /**
     * Grants membership to a user. Only administrators are able to grant
     * membership. A user that becomes a room member will be able to enter a room
     * of type Members-Only (i.e. a room that a user cannot enter without being
@@ -2019,7 +2019,7 @@ public class ChatRoomJabberImpl
         }
     }
 
-    /**
+   /**
     * Grants moderator privileges to a participant or visitor. Room
     * administrators may grant moderator privileges. A moderator is allowed to
     * kick users, grant and revoke voice, invite other users, modify room's
@@ -2043,7 +2043,7 @@ public class ChatRoomJabberImpl
         }
     }
 
-    /**
+   /**
     * Grants ownership privileges to another user. Room owners may grant
     * ownership privileges. Some room implementations will not allow to grant
     * ownership privileges to other users. An owner is allowed to change
@@ -2067,7 +2067,7 @@ public class ChatRoomJabberImpl
         }
     }
 
-    /**
+   /**
     * Grants voice to a visitor in the room. In a moderated room, a moderator
     * may want to manage who does and does not have "voice" in the room. To have
     * voice means that a room occupant is able to send messages to the room
@@ -2093,7 +2093,7 @@ public class ChatRoomJabberImpl
         }
     }
 
-    /**
+   /**
     * Revokes administrator privileges from a user. The occupant that loses
     * administrator privileges will become a member. Room owners may revoke
     * administrator privileges from a member or unaffiliated user.
@@ -2116,7 +2116,7 @@ public class ChatRoomJabberImpl
         }
     }
 
-    /**
+   /**
     * Revokes a user's membership. Only administrators are able to revoke
     * membership. A user that becomes a room member will be able to enter a room
     * of type Members-Only (i.e. a room that a user cannot enter without being
@@ -2140,7 +2140,7 @@ public class ChatRoomJabberImpl
         }
     }
 
-    /**
+   /**
     * Revokes moderator privileges from another user. The occupant that loses
     * moderator privileges will become a participant. Room administrators may
     * revoke moderator privileges only to occupants whose affiliation is member
@@ -2165,7 +2165,7 @@ public class ChatRoomJabberImpl
         }
     }
 
-    /**
+   /**
     * Revokes ownership privileges from another user. The occupant that loses
     * ownership privileges will become an administrator. Room owners may revoke
     * ownership privileges. Some room implementations will not allow to grant

@@ -65,7 +65,8 @@ public class CreateChatRoomWizard
             GuiActivator.getUIService().getConferenceChatManager()
                 .createChatRoom(newChatRoom.getChatRoomName(),
                                 newChatRoom.getProtocolProvider(),
-                                null);
+                                null,
+                                "");
         }
     }
 }

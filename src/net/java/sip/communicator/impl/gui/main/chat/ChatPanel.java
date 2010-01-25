@@ -44,6 +44,7 @@ import net.java.sip.communicator.util.swing.SwingWorker; // disambiguation
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
+@SuppressWarnings("serial")
 public class ChatPanel
     extends TransparentPanel
     implements  ChatSessionRenderer,
@@ -1936,7 +1937,7 @@ public class ChatPanel
      * Invites the given <tt>chatContacts</tt> to this chat.
      * @param inviteChatTransport the chat transport to use to send the invite
      * @param chatContacts the contacts to invite
-     * @param reason the reason of the invite
+     * @param reason the reason of the invitation
      */
     public void inviteContacts( ChatTransport inviteChatTransport,
                                 Collection<String> chatContacts,
@@ -1958,7 +1959,8 @@ public class ChatPanel
                 ChatRoomWrapper chatRoomWrapper
                     = conferenceChatManager.createChatRoom(
                         inviteChatTransport.getProtocolProvider(), 
-                        chatContacts);
+                        chatContacts,
+                        reason);
 
                 conferenceChatSession
                     = new ConferenceChatSession(this, chatRoomWrapper);
