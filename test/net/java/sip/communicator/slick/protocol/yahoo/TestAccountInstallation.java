@@ -82,6 +82,8 @@ public class TestAccountInstallation
             YahooProtocolProviderServiceLick.ACCOUNT_1_PREFIX);
         Hashtable<String, String> yahooAccount2Properties = getAccountProperties(
             YahooProtocolProviderServiceLick.ACCOUNT_2_PREFIX);
+        Hashtable<String, String> yahooAccount3Properties = getAccountProperties(
+            YahooProtocolProviderServiceLick.ACCOUNT_3_PREFIX);
 
         //try to install an account with a null account id
         try{
@@ -101,6 +103,9 @@ public class TestAccountInstallation
         yahooProviderFactory.installAccount(
             yahooAccount2Properties.get(ProtocolProviderFactory.USER_ID)
             , yahooAccount2Properties);
+        yahooProviderFactory.installAccount(
+            yahooAccount3Properties.get(ProtocolProviderFactory.USER_ID)
+            , yahooAccount3Properties);
 
 
         //try to install one of the accounts one more time and verify that an
@@ -122,7 +127,7 @@ public class TestAccountInstallation
         assertTrue(
             "The newly installed account was not in the acc man's "
             +"registered accounts!",
-            yahooProviderFactory.getRegisteredAccounts().size() == 2);
+            yahooProviderFactory.getRegisteredAccounts().size() == 3);
 
         //Verify protocol providers corresponding to the new account have
         //been properly registered with the osgi framework.

@@ -37,6 +37,12 @@ public class TestProtocolProviderServiceYahooImpl
      */
     public RegistrationEventCollector regEvtCollector2
         = new RegistrationEventCollector();
+    
+    /**
+     * An event adapter that would collec registation state change events
+     */
+    public RegistrationEventCollector regEvtCollector3
+        = new RegistrationEventCollector();
 
     /**
      * Creates a test encapsulator for the method with the specified name.
@@ -87,13 +93,17 @@ public class TestProtocolProviderServiceYahooImpl
         //they were properly dispatched.
         fixture.provider1.addRegistrationStateChangeListener(regEvtCollector1);
         fixture.provider2.addRegistrationStateChangeListener(regEvtCollector2);
+        fixture.provider3.addRegistrationStateChangeListener(regEvtCollector3);
 
-        //register both our providers
+        //register our three providers
         fixture.provider1.register(new SecurityAuthorityImpl(
             System.getProperty(YahooProtocolProviderServiceLick.ACCOUNT_1_PREFIX
                            + ProtocolProviderFactory.PASSWORD).toCharArray()));
         fixture.provider2.register(new SecurityAuthorityImpl(
             System.getProperty(YahooProtocolProviderServiceLick.ACCOUNT_2_PREFIX
+                           + ProtocolProviderFactory.PASSWORD).toCharArray()));
+        fixture.provider3.register(new SecurityAuthorityImpl(
+            System.getProperty(YahooProtocolProviderServiceLick.ACCOUNT_3_PREFIX
                            + ProtocolProviderFactory.PASSWORD).toCharArray()));
 
         //give it enough time to register. We won't really have to wait all this
@@ -103,6 +113,7 @@ public class TestProtocolProviderServiceYahooImpl
 
         regEvtCollector1.waitForEvent(15000);
         regEvtCollector2.waitForEvent(40000);
+        regEvtCollector3.waitForEvent(60000);
 
         //make sure that the registration process trigerred the corresponding
         //events.
@@ -127,12 +138,26 @@ public class TestProtocolProviderServiceYahooImpl
             +"All events were: " + regEvtCollector2.collectedNewStates
             ,regEvtCollector2.collectedNewStates
                 .contains(RegistrationState.REGISTERED));
+        
+      //now the same for provider 3
+        assertTrue(
+            "No events were dispatched during the registration process "
+            +"of provider3."
+            ,regEvtCollector3.collectedNewStates.size() > 0);
+
+        assertTrue(
+            "No registration event notifying of registration was dispatched. "
+            +"All events were: " + regEvtCollector3.collectedNewStates
+            ,regEvtCollector3.collectedNewStates
+                .contains(RegistrationState.REGISTERED));
 
 
         fixture.provider1
             .removeRegistrationStateChangeListener(regEvtCollector1);
         fixture.provider2
             .removeRegistrationStateChangeListener(regEvtCollector2);
+        fixture.provider3
+        .    removeRegistrationStateChangeListener(regEvtCollector3);
     }
 
 

@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
  * provider bundle in order to verify that accounts are persistent.
  *
  * @author Emil Ivov
+ * @author Valentin Martinet
  */
 public class TestAccountUninstallation
     extends TestCase
@@ -208,7 +209,7 @@ public class TestAccountUninstallation
     }
 
     /**
-     * Uinstalls our test account and makes sure it really has been removed.
+     * Uninstalls our test account and makes sure it really has been removed.
      *
      */
     public void testUninstallAccount()
@@ -228,9 +229,14 @@ public class TestAccountUninstallation
                 fixture.provider1.getAccountID()));
         assertTrue(
             "Failed to remove a provider corresponding to URI "
-            + fixture.userID1
+            + fixture.userID2
             ,fixture.providerFactory.uninstallAccount(
                 fixture.provider2.getAccountID()));
+        assertTrue(
+            "Failed to remove a provider corresponding to URI "
+            + fixture.userID3
+            ,fixture.providerFactory.uninstallAccount(
+                fixture.provider3.getAccountID()));
 
         //make sure no providers have remained installed.
         ServiceReference[] yahooProviderRefs = null;

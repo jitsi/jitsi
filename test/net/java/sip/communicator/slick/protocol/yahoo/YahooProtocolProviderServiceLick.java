@@ -13,9 +13,10 @@ import junit.framework.*;
 
 /**
  * Yahoo specific testing for a Yahoo Protocol Provider Service implementation.
- * The test suite registers two accounts for
+ * The test suite registers three accounts for
  *
  * @author Damian Minkov
+ * @author Valentin Martinet
  */
 public class YahooProtocolProviderServiceLick
     extends    TestSuite
@@ -34,6 +35,13 @@ public class YahooProtocolProviderServiceLick
      */
     public static final String ACCOUNT_2_PREFIX
         = "accounts.yahoo.account2.";
+    
+    /**
+     * The prefix used for property names containing settings for our third
+     * testing account.
+     */
+    public static final String ACCOUNT_3_PREFIX
+        = "accounts.yahoo.account3.";
 
     /**
      * The name of the property that indicates whether the user would like to
@@ -87,6 +95,8 @@ public class YahooProtocolProviderServiceLick
             addTest(TestOperationSetTypingNotifications.suite());
 
             addTestSuite(TestOperationSetFileTransferImpl.class);
+            
+            addTest(TestOperationSetAdHocMultiUserChatYahooImpl.suite());
         }
 
         addTest(TestAccountUninstallation.suite());
