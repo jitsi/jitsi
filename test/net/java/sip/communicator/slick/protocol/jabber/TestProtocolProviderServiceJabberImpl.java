@@ -16,7 +16,9 @@ import net.java.sip.communicator.util.*;
 /**
  * Performs testing on protocol provider methods.
  * @todo add more detailed docs once the tests are written.
+ * 
  * @author Emil Ivov
+ * @author Valentin Martinet
  */
 public class TestProtocolProviderServiceJabberImpl
     extends TestCase
@@ -36,6 +38,12 @@ public class TestProtocolProviderServiceJabberImpl
      * An event adapter that would collec registation state change events
      */
     public RegistrationEventCollector regEvtCollector2
+        = new RegistrationEventCollector();
+    
+    /**
+     * An event adapter that would collec registation state change events
+     */
+    public RegistrationEventCollector regEvtCollector3
         = new RegistrationEventCollector();
 
     /**
@@ -87,13 +95,20 @@ public class TestProtocolProviderServiceJabberImpl
         //they were properly dispatched.
         fixture.provider1.addRegistrationStateChangeListener(regEvtCollector1);
         fixture.provider2.addRegistrationStateChangeListener(regEvtCollector2);
-
-        //register both our providers
+        fixture.provider3.addRegistrationStateChangeListener(regEvtCollector3);
+        
+        //register our three providers
         fixture.provider1.register(new SecurityAuthorityImpl(
-            System.getProperty(JabberProtocolProviderServiceLick.ACCOUNT_1_PREFIX
+            System.getProperty(
+                JabberProtocolProviderServiceLick.ACCOUNT_1_PREFIX
                            + ProtocolProviderFactory.PASSWORD).toCharArray()));
         fixture.provider2.register(new SecurityAuthorityImpl(
-            System.getProperty(JabberProtocolProviderServiceLick.ACCOUNT_2_PREFIX
+            System.getProperty(
+                JabberProtocolProviderServiceLick.ACCOUNT_2_PREFIX
+                           + ProtocolProviderFactory.PASSWORD).toCharArray()));
+        fixture.provider3.register(new SecurityAuthorityImpl(
+            System.getProperty(
+                JabberProtocolProviderServiceLick.ACCOUNT_3_PREFIX
                            + ProtocolProviderFactory.PASSWORD).toCharArray()));
 
         //give it enough time to register. We won't really have to wait all this
@@ -103,6 +118,7 @@ public class TestProtocolProviderServiceJabberImpl
 
         regEvtCollector1.waitForEvent(15000);
         regEvtCollector2.waitForEvent(40000);
+        regEvtCollector3.waitForEvent(60000);
 
         //make sure that the registration process trigerred the corresponding
         //events.
@@ -127,12 +143,26 @@ public class TestProtocolProviderServiceJabberImpl
             +"All events were: " + regEvtCollector2.collectedNewStates
             ,regEvtCollector2.collectedNewStates
                 .contains(RegistrationState.REGISTERED));
+        
+      //now the same for provider 3
+        assertTrue(
+            "No events were dispatched during the registration process "
+            +"of provider3."
+            ,regEvtCollector3.collectedNewStates.size() > 0);
+
+        assertTrue(
+            "No registration event notifying of registration was dispatched. "
+            +"All events were: " + regEvtCollector3.collectedNewStates
+            ,regEvtCollector3.collectedNewStates
+                .contains(RegistrationState.REGISTERED));
 
 
         fixture.provider1
             .removeRegistrationStateChangeListener(regEvtCollector1);
         fixture.provider2
             .removeRegistrationStateChangeListener(regEvtCollector2);
+        fixture.provider3
+            .removeRegistrationStateChangeListener(regEvtCollector3);
     }
 
 

@@ -16,6 +16,7 @@ import junit.framework.*;
  * The test suite registers two accounts for
  *
  * @author Damian Minkov
+ * @author Valentin Martinet
  */
 public class JabberProtocolProviderServiceLick
     extends    TestSuite
@@ -34,6 +35,13 @@ public class JabberProtocolProviderServiceLick
      */
     public static final String ACCOUNT_2_PREFIX
         = "accounts.jabber.account2.";
+    
+    /**
+     * The prefix used for property names containing settings for our third
+     * testing account.
+     */
+    public static final String ACCOUNT_3_PREFIX
+        = "accounts.jabber.account3.";
 
     /**
      * The name of the property that indicates whether the user would like to

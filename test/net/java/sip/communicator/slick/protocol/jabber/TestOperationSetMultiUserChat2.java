@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Tests multi user chat functionalities
+ * Tests multi user chat functionalities.
  *
  * @author Symphorien Wanko
  * @author Valentin Martinet
@@ -32,7 +32,9 @@ public class TestOperationSetMultiUserChat2
     private static final Logger logger =
         Logger.getLogger(TestOperationSetMultiUserChat2.class);
 
-    //room name for each test will be testRoomBaseName + roomID
+    /**
+     * Room name for each test will be testRoomBaseName + roomID
+     */
     private static String testRoomBaseName = "lmuctestroom";
 
     private static int roomID = 0;
@@ -43,12 +45,12 @@ public class TestOperationSetMultiUserChat2
     private final JabberSlickFixture fixture = new JabberSlickFixture();
 
     private OperationSetMultiUserChat opSetMUC1;
-
     private OperationSetMultiUserChat opSetMUC2;
+    private OperationSetMultiUserChat opSetMUC3;
 
     private OperationSetPresence opSetPresence1;
-
     private OperationSetPresence opSetPresence2;
+    private OperationSetPresence opSetPresence3;
 
     /**
      * Initializes the test with the specified <tt>name</tt>.
@@ -135,6 +137,38 @@ public class TestOperationSetMultiUserChat2
                 "An implementation of the service must provide an " +
                 "implementation of at least one of the PresenceOperationSets");
         }
+        
+        Map<String, OperationSet> supportedOperationSets3 =
+            fixture.provider3.getSupportedOperationSets();
+
+        if (supportedOperationSets3 == null
+            || (supportedOperationSets3.size() < 1))
+        {
+            throw new NullPointerException(
+                "No OperationSet implementations are supported by " +
+                "this implementation. ");
+        }
+
+        opSetMUC3 = (OperationSetMultiUserChat)
+            supportedOperationSets3.get(
+            OperationSetMultiUserChat.class.getName());
+
+        if (opSetMUC3 == null)
+        {
+            throw new NullPointerException(
+                "No implementation for MUC was found");
+        }
+
+        opSetPresence3 = (OperationSetPresence)
+            supportedOperationSets3.get(OperationSetPresence.class.getName());
+
+        //if the op set is null show that we're not happy.
+        if (opSetPresence3 == null)
+        {
+            throw new NullPointerException(
+                "An implementation of the service must provide an " +
+                "implementation of at least one of the PresenceOperationSets");
+        }
     }
 
     /**
@@ -175,13 +209,49 @@ public class TestOperationSetMultiUserChat2
 
         try
         {
+            opSetPresence1.subscribe(fixture.userID3);
+        }
+        catch (OperationFailedException ex)
+        {
+         // the contact already exist its OK
+        }
+            
+        try
+        {
             opSetPresence2.subscribe(fixture.userID1);
         }
         catch (OperationFailedException ex1)
         {
             // the contact already exist its OK
         }
+        
+        try
+        {
+            opSetPresence2.subscribe(fixture.userID3);
+        }
+        catch (OperationFailedException ex1)
+        {
+            // the contact already exist its OK
+        }
+        
+        try
+        {
+            opSetPresence3.subscribe(fixture.userID1);
+        }
+        catch (OperationFailedException ex1)
+        {
+            // the contact already exist its OK
+        }
 
+        try
+        {
+            opSetPresence3.subscribe(fixture.userID2);
+        }
+        catch (OperationFailedException ex1)
+        {
+            // the contact already exist its OK
+        }
+        
         logger.info("will wait till the list prepare is completed");
         synchronized (o)
         {
@@ -257,7 +327,74 @@ public class TestOperationSetMultiUserChat2
 
         suite.addTest(
             new TestOperationSetMultiUserChat2("testMemberKick"));
-
+        
+        /* 
+         * Unit tests who belong to users role functionalities are orderly added
+         * below. They are added in a specific order which match a predefined 
+         * scenario. It's not recommended to change this order, some tests may 
+         * then fail.
+         * 
+         * Please note:
+         * - when the room is created, participants are considered (by default)
+         *   as members (not guests).
+         * - in this test suite, the room will use three participants.
+         *    
+         * Scenario:
+         * - testInitialParticipantsRoles: verify participants role in the newly
+         *   created room.
+         * - testRevokeMembership: administrator/owner of the room revokes 
+         *   membership to a participant of the room.
+         * - testGrantMembership: administrator/owner of the room grants 
+         *   membership to the participant of the room who just loses it in the 
+         *   previous test.
+         * - testGrantModerator: administrator/owner of the room grants 
+         *   moderator rights to a participant of the room.
+         * - testRevokeVoice: the new moderator of the room (previous test) will
+         *   revoke voice right to the remaining guest, who will become a silent
+         *   member (the room currently includes the administrator/owner, the 
+         *   moderator from the previous test, and it remains a participant). 
+         * - testGrantVoice: moderator will grant voice the user he previously 
+         *   revokes voice right.
+         * - testRevokeModerator: moderator of the room will have his rights 
+         *   revoked by the owner/admin of the room.
+         * - testGrantAdmin: owner/admin of the room grants administrator rights
+         *   to the revoked-moderator (previous test).
+         * - testGrantOwnership: owner/admin of the room grants the new admin as
+         *   co-owner of the room.
+         * - testRevokeOwnership: owner/admin of the room revokes ownership to 
+         *   his co-owner (granted in previous test).
+         * - testRevokeAdmin: after having been ownership-revoked, the 
+         *   considered member is supposed to be an administrator: here his 
+         *   administrative rights are revoked by owner/admin of the room.
+         * 
+         */
+//        suite.addTest(
+//            new TestOperationSetMultiUserChat2("testInitialParticipantsRoles"));
+//        
+//        suite.addTest(
+//            new TestOperationSetMultiUserChat2("testRevokeMembership"));
+//
+//        suite.addTest(
+//            new TestOperationSetMultiUserChat2("testGrantMembership"));
+//
+//        suite.addTest(new TestOperationSetMultiUserChat2("testGrantModerator"));
+//        
+//        suite.addTest(new TestOperationSetMultiUserChat2("testRevokeVoice"));
+//        
+//        suite.addTest(new TestOperationSetMultiUserChat2("testGrantVoice"));
+//        
+//        suite.addTest(
+//            new TestOperationSetMultiUserChat2("testRevokeModerator"));
+//        
+//        suite.addTest(new TestOperationSetMultiUserChat2("testGrantAdmin"));
+//        
+//        suite.addTest(new TestOperationSetMultiUserChat2("testGrantOwnership"));
+//
+//        suite.addTest(
+//            new TestOperationSetMultiUserChat2("testRevokeOwnership"));
+//        
+//        suite.addTest(new TestOperationSetMultiUserChat2("testRevokeAdmin"));
+        
         return suite;
     }
 
@@ -318,7 +455,7 @@ public class TestOperationSetMultiUserChat2
 
         opSet1Collector.waitForEvent(10000);
 
-        assertEquals("user1 didn't ge an event since he joinde"
+        assertEquals("user1 didn't get an event since he joined"
             , 1, opSet1Collector.collectedEvents.size());
 
         LocalUserChatRoomPresenceChangeEvent changeEvent =
@@ -484,8 +621,9 @@ public class TestOperationSetMultiUserChat2
     }
 
     /**
-     * <tt>testInviteFindJoin</tt> reproduces the following scenario : user1
-     * invite user2. user2 retrieves the room where he is invited then, he joins it.
+     * <tt>testInviteJoin</tt> reproduces the following scenario : user1
+     * invite user2. user2 retrieves the room where he is invited then, 
+     * he joins it.
      */
     public void testInviteJoin()
         throws OperationFailedException,
@@ -1104,6 +1242,647 @@ public class TestOperationSetMultiUserChat2
     }
 
     /**
+     * Tests participant roles when the room just has been created. 
+     * The member who has created the room should have OWNER role. 
+     * Others participants who are invited to the room should be MEMBER. 
+     * 
+     * @throws OperationNotSupportedException 
+     * @throws OperationFailedException 
+     */
+    public void testInitialParticipantsRoles() 
+    throws OperationFailedException, OperationNotSupportedException
+    {
+        String roomName = testRoomBaseName + roomID++;
+
+        // We create the test room
+        ChatRoom roomUser1 = opSetMUC1.createChatRoom(roomName, null);
+        roomUser1.join();
+
+        MUCEventCollector roomUser1Collector =
+            new MUCEventCollector(roomUser1, MUCEventCollector.EVENT_PRESENCE);
+
+        // User1 who just created the room is supposed to be the owner:
+        assertEquals("Unexpected role for user1", 
+            roomUser1.getUserRole(), ChatRoomMemberRole.OWNER);
+        
+        // Both of our peers join the room:
+        ChatRoom roomUser2 = opSetMUC2.findRoom(roomName);
+        assertNotNull("Room can't be retrieved on user2's side", roomUser2);
+        roomUser2.join();
+        
+        ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
+        assertNotNull("Room can't be retrieved on user3's side", roomUser2);
+        roomUser3.join();
+
+        // Wait for our peers:
+        roomUser1Collector.waitForEvent(10000);
+        roomUser1Collector.waitForEvent(10000);
+
+        assertTrue("User2 not on member list after having join the room"
+            , nameIsOnMemberList(fixture.userID2, roomUser1.getMembers()));
+        assertTrue("User3 not on member list after having join the room"
+            , nameIsOnMemberList(fixture.userID3, roomUser1.getMembers()));
+
+        List<ChatRoomMember> members = roomUser1.getMembers();
+        
+        // Two members are supposed to be in the room:
+        assertTrue("Unexpected members count", members.size() == 2);
+        
+        // We are sure these members are our peers (checked before the last 
+        // test), now we make sure they are both members:
+        assertEquals("The current implementation requires that room's new " +
+            "comers must have MEMBER role", 
+            ChatRoomMemberRole.MEMBER, members.get(0).getRole());
+        assertEquals("The current implementation requires that room's new " +
+            "comers must have the MEMBER role", 
+            ChatRoomMemberRole.MEMBER, members.get(1).getRole());
+    }
+    
+    /**
+     * The owner of the room (the user who created it, and which is an 
+     * administrator too, typically user1) will grant membership's role to one 
+     * of our peers (user2).
+     * Membership means a long-life affiliation to the room, rather than being a
+     * guest.
+     * 
+     * @throws OperationNotSupportedException 
+     * @throws OperationFailedException 
+     */
+    public void testGrantMembership() 
+    throws OperationFailedException, OperationNotSupportedException
+    {
+        String roomName = testRoomBaseName + roomID;
+        ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user1's side", roomUser1);
+        
+        ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user3's side", roomUser3);
+        
+        MUCEventCollector roomUser1Col = new MUCEventCollector(
+            roomUser1, MUCEventCollector.EVENT_ROLE);
+        MUCEventCollector roomUser3Col = new MUCEventCollector(
+            roomUser3, MUCEventCollector.EVENT_ROLE);
+        
+        // Owner of the room grants user2 member rights:
+        roomUser1.grantMembership(fixture.userID2);
+        
+        roomUser1Col.waitForEvent(10000);
+        roomUser3Col.waitForEvent(10000);
+        
+        assertEquals("Wrong count of collected events on user1's side",
+            1, roomUser1Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser1 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser1Col.collectedEvents.get(0);
+        
+        assertEquals("Wrong count of collected events on user3's side",
+            1, roomUser3Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser3 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
+        
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, roleEventUser1.getSourceChatRoom().getName());
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser1.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.GUEST);
+        assertEquals("Unexpected new role",
+            roleEventUser1.getNewRole(), ChatRoomMemberRole.MEMBER);
+       
+        // We finally check that event is the same on each side:
+        assertEquals(roleEventUser1, roleEventUser3);
+    }
+    
+    /**
+     * The owner of the room (the user who created it, and which is an 
+     * administrator too, typically user1) will grant moderator role to one 
+     * of our peers (user2).
+     * A moderator is allowed to kick users, grant and revoke voice, 
+     * invite other users, modify room's subject plus all the participants 
+     * privileges.
+     * 
+     * @throws OperationNotSupportedException 
+     * @throws OperationFailedException 
+     */
+    public void testGrantModerator() 
+    throws OperationFailedException, OperationNotSupportedException
+    {
+        String roomName = testRoomBaseName + roomID;
+        ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user1's side", roomUser1);
+        
+        ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user3's side", roomUser3);
+        
+        MUCEventCollector roomUser1Col = new MUCEventCollector(
+            roomUser1, MUCEventCollector.EVENT_ROLE);
+        MUCEventCollector roomUser3Col = new MUCEventCollector(
+            roomUser3, MUCEventCollector.EVENT_ROLE);
+        
+        // Owner of the room grants user2 moderator rights:
+        roomUser1.grantModerator(fixture.userID2);
+        
+        roomUser1Col.waitForEvent(10000);
+        roomUser3Col.waitForEvent(10000);
+        
+        assertEquals("Wrong count of collected events on user1's side",
+            1, roomUser1Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser1 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser1Col.collectedEvents.get(0);
+        
+        assertEquals("Wrong count of collected events on user3's side",
+            1, roomUser3Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser3 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
+        
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, roleEventUser1.getSourceChatRoom().getName());
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser1.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.GUEST);
+        assertEquals("Unexpected new role",
+            roleEventUser1.getNewRole(), ChatRoomMemberRole.MODERATOR);
+       
+        // We finally check that event is the same on each side:
+        assertEquals(roleEventUser1, roleEventUser3);
+    }
+    
+    /**
+     * User2 which is currently moderator in the room for our scenario will 
+     * revoke voice to user3, thanks to his moderator privileges.
+     * 
+     * We will first check that user3 has become a silent member before making
+     * sure that he can't send messages through the room.
+     * 
+     * @throws OperationNotSupportedException 
+     * @throws OperationFailedException 
+     */
+    public void testRevokeVoice() 
+    throws OperationFailedException, OperationNotSupportedException
+    {
+        String roomName = testRoomBaseName + roomID;
+        ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user1's side", roomUser1);
+        
+        ChatRoom roomUser2 = opSetMUC2.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user2's side", roomUser2);
+        
+        ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user3's side", roomUser3);
+        
+        MUCEventCollector roomUser1Col = new MUCEventCollector(
+            roomUser1, MUCEventCollector.EVENT_ROLE);
+        MUCEventCollector roomUser2Col = new MUCEventCollector(
+            roomUser2, MUCEventCollector.EVENT_ROLE);
+        
+        // User2 (moderator role) revokes voice right to user2 (guest):
+        roomUser2.revokeVoice(fixture.userID3);
+        
+        roomUser1Col.waitForEvent(10000);
+        roomUser2Col.waitForEvent(10000);
+        
+        assertEquals("Wrong count of collected events on user1's side",
+            1, roomUser1Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser1 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser1Col.collectedEvents.get(0);
+        
+        assertEquals("Wrong count of collected events on user2's side",
+            1, roomUser2Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser2 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser2Col.collectedEvents.get(0);
+        
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, roleEventUser1.getSourceChatRoom().getName());
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID3, 
+            roleEventUser1.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.GUEST);
+        assertEquals("Unexpected new role",
+            roleEventUser1.getNewRole(), ChatRoomMemberRole.SILENT_MEMBER);
+       
+        // We check that event is the same on each side:
+        assertEquals(roleEventUser1, roleEventUser2);
+        
+        // Now user3 (silent member) will send a message to the room. This 
+        // action has to fail because user3 has no more voice right.
+        Message messageUser3 = roomUser3.createMessage("Mute?");
+        try
+        {
+            roomUser3.sendMessage(messageUser3);
+        }
+        catch (OperationFailedException ofe)
+        {
+            // that's what was supposed to happen.
+            return; // We exit here, otherwise the test fails.
+        }
+        fail("User3 may have succeeded to send a message through the room");
+    }
+    
+    /**
+     * User2 which is currently moderator in the room for our scenario will 
+     * grant voice to user3 (thanks to his moderator privileges) after having
+     * revoked him it in the previous test of the suite.
+     * 
+     * We will first check that user3 has become a guest before making
+     * sure that he can again send messages through the room.
+     * 
+     * @throws OperationNotSupportedException 
+     * @throws OperationFailedException 
+     */
+    public void testGrantVoice() 
+    throws OperationFailedException, OperationNotSupportedException
+    {
+        String roomName = testRoomBaseName + roomID;
+        ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user1's side", roomUser1);
+        
+        ChatRoom roomUser2 = opSetMUC2.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user2's side", roomUser2);
+        
+        ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user3's side", roomUser3);
+        
+        MUCEventCollector roomUser1Col = new MUCEventCollector(
+            roomUser1, MUCEventCollector.EVENT_ROLE);
+        MUCEventCollector roomUser2Col = new MUCEventCollector(
+            roomUser2, MUCEventCollector.EVENT_ROLE);
+        
+        // User2 of the room grants voice right to user2:
+        roomUser2.grantVoice(fixture.userID3);
+        
+        roomUser1Col.waitForEvent(10000);
+        roomUser2Col.waitForEvent(10000);
+        
+        assertEquals("Wrong count of collected events on user1's side",
+            1, roomUser1Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser1 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser1Col.collectedEvents.get(0);
+        
+        assertEquals("Wrong count of collected events on user3's side",
+            1, roomUser2Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser2 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser2Col.collectedEvents.get(0);
+        
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, roleEventUser1.getSourceChatRoom().getName());
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID3, 
+            roleEventUser1.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.SILENT_MEMBER);
+        assertEquals("Unexpected new role",
+            roleEventUser1.getNewRole(), ChatRoomMemberRole.GUEST);
+       
+        // We finally check that event is the same on each side:
+        assertEquals(roleEventUser1, roleEventUser2);
+     
+        // Now user3 (silent member) will send a message to the room. This 
+        // action has to fail because user3 has no more voice right.
+        Message messageUser3 = roomUser3.createMessage("Mute?");
+        try
+        {
+            roomUser3.sendMessage(messageUser3);
+        }
+        catch (OperationFailedException ofe)
+        {
+            // this was not supposed to happen.
+            fail("User3 didn't succeed to send a message through the room");
+        }
+        
+    }
+    
+    /**
+     * The owner of the room (the user who created it, and which is an 
+     * administrator too, typically user1) will grant administrator role to one 
+     * of our peers (user2).
+     * An administrator is allowed to perform administrative functions such as
+     * banning users and edit moderator list.
+     * 
+     * @throws OperationNotSupportedException 
+     * @throws OperationFailedException 
+     */
+    public void testGrantAdmin() 
+    throws OperationFailedException, OperationNotSupportedException
+    {
+        String roomName = testRoomBaseName + roomID;
+        ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user1's side", roomUser1);
+        
+        ChatRoom roomUser2 = opSetMUC2.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user3's side", roomUser2);
+        
+        ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user3's side", roomUser3);
+        
+        MUCEventCollector roomUser1Col = new MUCEventCollector(
+            roomUser1, MUCEventCollector.EVENT_ROLE);
+        MUCEventCollector roomUser3Col = new MUCEventCollector(
+            roomUser3, MUCEventCollector.EVENT_ROLE);
+        
+        // Owner of the room grants administrator rights to user2:
+        roomUser1.grantAdmin(fixture.userID2);
+        
+        roomUser1Col.waitForEvent(10000);
+        roomUser3Col.waitForEvent(10000);
+        
+        assertEquals("Wrong count of collected events on user1's side",
+            1, roomUser1Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser1 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser1Col.collectedEvents.get(0);
+        
+        assertEquals("Wrong count of collected events on user3's side",
+            1, roomUser3Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser3 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
+        
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, roleEventUser1.getSourceChatRoom().getName());
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser1.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.MEMBER);
+        assertEquals("Unexpected new role",
+            roleEventUser1.getNewRole(), ChatRoomMemberRole.ADMINISTRATOR);
+       
+        // We check that event is the same on each side:
+        assertEquals(roleEventUser1, roleEventUser3);
+    }
+    
+    /**
+     * The owner of the room (the user who created it, and which is an 
+     * administrator too, typically user1) will grant ownership privileges to 
+     * one of our peers (user2).
+     * An owner is allowed to change defining room features as well as perform 
+     * all administrative functions.
+     * 
+     * @throws OperationNotSupportedException 
+     * @throws OperationFailedException 
+     */
+    public void testGrantOwnership() 
+    throws OperationFailedException, OperationNotSupportedException
+    {
+        String roomName = testRoomBaseName + roomID;
+        ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user1's side", roomUser1);
+        
+        ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user3's side", roomUser3);
+        
+        MUCEventCollector roomUser1Col = new MUCEventCollector(
+            roomUser1, MUCEventCollector.EVENT_ROLE);
+        MUCEventCollector roomUser3Col = new MUCEventCollector(
+            roomUser3, MUCEventCollector.EVENT_ROLE);
+        
+        // Owner of the room grants ownership privileges to user2:
+        roomUser1.grantOwnership(fixture.userID2);
+        
+        roomUser1Col.waitForEvent(10000);
+        roomUser3Col.waitForEvent(10000);
+        
+        assertEquals("Wrong count of collected events on user1's side",
+            1, roomUser1Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser1 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser1Col.collectedEvents.get(0);
+        
+        assertEquals("Wrong count of collected events on user3's side",
+            1, roomUser3Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser3 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
+        
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, roleEventUser1.getSourceChatRoom().getName());
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser1.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.ADMINISTRATOR);
+        assertEquals("Unexpected new role",
+            roleEventUser1.getNewRole(), ChatRoomMemberRole.OWNER);
+       
+        // We check that event is the same on each side:
+        assertEquals(roleEventUser1, roleEventUser3);
+    }
+    
+    /**
+     * The owner of the room (the user who created it, and which is an 
+     * administrator too, typically user1) will revoke membership's role to one 
+     * of our peers (user2).
+     * The considered participant is then supposed to be a guest.
+     * 
+     * @throws OperationNotSupportedException 
+     * @throws OperationFailedException 
+     */
+    public void testRevokeMembership() 
+    throws OperationFailedException, OperationNotSupportedException
+    {
+        String roomName = testRoomBaseName + roomID;
+        ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user1's side", roomUser1);
+        
+        ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user3's side", roomUser3);
+        
+        MUCEventCollector roomUser1Col = new MUCEventCollector(
+            roomUser1, MUCEventCollector.EVENT_ROLE);
+        MUCEventCollector roomUser3Col = new MUCEventCollector(
+            roomUser3, MUCEventCollector.EVENT_ROLE);
+        
+        // Owner of the room revokes user2 member rights:
+        roomUser1.revokeMembership(fixture.userID2);
+        
+        roomUser1Col.waitForEvent(10000);
+        roomUser3Col.waitForEvent(10000);
+        
+        assertEquals("Wrong count of collected events on user1's side",
+            1, roomUser1Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser1 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser1Col.collectedEvents.get(0);
+        
+        assertEquals("Wrong count of collected events on user3's side",
+            1, roomUser3Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser3 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
+        
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, roleEventUser1.getSourceChatRoom().getName());
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser1.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.MEMBER);
+        assertEquals("Unexpected new role",
+            roleEventUser1.getNewRole(), ChatRoomMemberRole.GUEST);
+       
+        // We finally check that event is the same on each side:
+        assertEquals(roleEventUser1, roleEventUser3);
+    }
+    
+    /**
+     * The owner of the room (the user who created it, and which is an 
+     * administrator too, typically user1) will revoke moderator role to user2.
+     * The considered participant is then supposed to be a member.
+     * 
+     * @throws OperationNotSupportedException 
+     * @throws OperationFailedException 
+     */
+    public void testRevokeModerator() 
+    throws OperationFailedException, OperationNotSupportedException
+    {
+        String roomName = testRoomBaseName + roomID;
+        ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user1's side", roomUser1);
+        
+        ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user3's side", roomUser3);
+        
+        MUCEventCollector roomUser1Col = new MUCEventCollector(
+            roomUser1, MUCEventCollector.EVENT_ROLE);
+        MUCEventCollector roomUser3Col = new MUCEventCollector(
+            roomUser3, MUCEventCollector.EVENT_ROLE);
+        
+        // Owner of the room revokes user2 member rights:
+        roomUser1.revokeModerator(fixture.userID2);
+        
+        roomUser1Col.waitForEvent(10000);
+        roomUser3Col.waitForEvent(10000);
+        
+        assertEquals("Wrong count of collected events on user1's side",
+            1, roomUser1Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser1 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser1Col.collectedEvents.get(0);
+        
+        assertEquals("Wrong count of collected events on user3's side",
+            1, roomUser3Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser3 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
+        
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, roleEventUser1.getSourceChatRoom().getName());
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser1.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.MEMBER);
+        assertEquals("Unexpected new role",
+            roleEventUser1.getNewRole(), ChatRoomMemberRole.GUEST);
+       
+        // We finally check that event is the same on each side:
+        assertEquals(roleEventUser1, roleEventUser3);
+    }
+    
+    /**
+     * The owner of the room (the user who created it, and which is an 
+     * administrator too, typically user1) will revoke administrator role to 
+     * user2.
+     * The considered participant is then supposed to be a moderator.
+     * 
+     * @throws OperationNotSupportedException 
+     * @throws OperationFailedException 
+     */
+    public void testRevokeAdmin() 
+    throws OperationFailedException, OperationNotSupportedException
+    {
+        String roomName = testRoomBaseName + roomID;
+        ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user1's side", roomUser1);
+        
+        ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user3's side", roomUser3);
+        
+        MUCEventCollector roomUser1Col = new MUCEventCollector(
+            roomUser1, MUCEventCollector.EVENT_ROLE);
+        MUCEventCollector roomUser3Col = new MUCEventCollector(
+            roomUser3, MUCEventCollector.EVENT_ROLE);
+        
+        // Owner of the room revokes user2 member rights:
+        roomUser1.revokeAdmin(fixture.userID2);
+        
+        roomUser1Col.waitForEvent(10000);
+        roomUser3Col.waitForEvent(10000);
+        
+        assertEquals("Wrong count of collected events on user1's side",
+            1, roomUser1Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser1 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser1Col.collectedEvents.get(0);
+        
+        assertEquals("Wrong count of collected events on user3's side",
+            1, roomUser3Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser3 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
+        
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, roleEventUser1.getSourceChatRoom().getName());
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser1.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.ADMINISTRATOR);
+        assertEquals("Unexpected new role",
+            roleEventUser1.getNewRole(), ChatRoomMemberRole.MODERATOR);
+       
+        // We finally check that event is the same on each side:
+        assertEquals(roleEventUser1, roleEventUser3);
+    }
+    
+    /**
+     * The owner of the room (the user who created it, and which is an 
+     * administrator too, typically user1) will revoke ownership rights to 
+     * user2.
+     * The considered participant is then supposed to be an admin.
+     * 
+     * @throws OperationNotSupportedException 
+     * @throws OperationFailedException 
+     */
+    public void testRevokeOwnership() 
+    throws OperationFailedException, OperationNotSupportedException
+    {
+        String roomName = testRoomBaseName + roomID;
+        ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user1's side", roomUser1);
+        
+        ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
+        assertNotNull("The room can't be retrieved on user3's side", roomUser3);
+        
+        MUCEventCollector roomUser1Col = new MUCEventCollector(
+            roomUser1, MUCEventCollector.EVENT_ROLE);
+        MUCEventCollector roomUser3Col = new MUCEventCollector(
+            roomUser3, MUCEventCollector.EVENT_ROLE);
+        
+        // Owner of the room revokes user2 member rights:
+        roomUser1.revokeOwnership(fixture.userID2);
+        
+        roomUser1Col.waitForEvent(10000);
+        roomUser3Col.waitForEvent(10000);
+        
+        assertEquals("Wrong count of collected events on user1's side",
+            1, roomUser1Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser1 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser1Col.collectedEvents.get(0);
+        
+        assertEquals("Wrong count of collected events on user3's side",
+            1, roomUser3Col.collectedEvents.size());
+        ChatRoomMemberRoleChangeEvent roleEventUser3 = 
+            (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
+        
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, roleEventUser1.getSourceChatRoom().getName());
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser1.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.OWNER);
+        assertEquals("Unexpected new role",
+            roleEventUser1.getNewRole(), ChatRoomMemberRole.ADMINISTRATOR);
+       
+        // We finally check that event is the same on each side:
+        assertEquals(roleEventUser1, roleEventUser3);
+    }
+    
+    /**
      * Utility class used to collect events received during tests.
      */
     class MUCEventCollector
@@ -1117,12 +1896,15 @@ public class TestOperationSetMultiUserChat2
                    ChatRoomMemberRoleListener,
                    ChatRoomLocalUserRoleListener
     {
-        private final ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
+        private final ArrayList<EventObject> collectedEvents 
+            = new ArrayList<EventObject>();
 
         private int waitCount = 0;
 
+        @SuppressWarnings("unused")
         private final OperationSetMultiUserChat opSet;
 
+        @SuppressWarnings("unused")
         private final ChatRoom room;
 
         private static final int EVENT_INVITE = 1;

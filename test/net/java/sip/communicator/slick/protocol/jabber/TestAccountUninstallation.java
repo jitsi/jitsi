@@ -228,9 +228,14 @@ public class TestAccountUninstallation
                 fixture.provider1.getAccountID()));
         assertTrue(
             "Failed to remove a provider corresponding to URI "
-            + fixture.userID1
+            + fixture.userID2
             ,fixture.providerFactory.uninstallAccount(
                 fixture.provider2.getAccountID()));
+        assertTrue(
+            "Failed to remove a provider corresponding to URI "
+            + fixture.userID3
+            ,fixture.providerFactory.uninstallAccount(
+                fixture.provider3.getAccountID()));
 
         //make sure no providers have remained installed.
         ServiceReference[] jabberProviderRefs = null;

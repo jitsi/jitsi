@@ -82,6 +82,8 @@ public class TestAccountInstallation
             JabberProtocolProviderServiceLick.ACCOUNT_1_PREFIX);
         Hashtable<String, String> jabberAccount2Properties = getAccountProperties(
             JabberProtocolProviderServiceLick.ACCOUNT_2_PREFIX);
+        Hashtable<String, String> jabberAccount3Properties = getAccountProperties(
+            JabberProtocolProviderServiceLick.ACCOUNT_3_PREFIX);
 
         //try to install an account with a null account id
         try{
@@ -101,6 +103,9 @@ public class TestAccountInstallation
         jabberProviderFactory.installAccount(
             jabberAccount2Properties.get(ProtocolProviderFactory.USER_ID)
             , jabberAccount2Properties);
+        jabberProviderFactory.installAccount(
+            jabberAccount3Properties.get(ProtocolProviderFactory.USER_ID)
+            , jabberAccount3Properties);
 
 
         //try to install one of the accounts one more time and verify that an
@@ -122,7 +127,7 @@ public class TestAccountInstallation
         assertTrue(
             "The newly installed account was not in the acc man's "
             +"registered accounts!",
-            jabberProviderFactory.getRegisteredAccounts().size() == 2);
+            jabberProviderFactory.getRegisteredAccounts().size() == 3);
 
         //Verify protocol providers corresponding to the new account have
         //been properly registered with the osgi framework.

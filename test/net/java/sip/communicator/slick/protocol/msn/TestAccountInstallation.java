@@ -82,6 +82,8 @@ public class TestAccountInstallation
             MsnProtocolProviderServiceLick.ACCOUNT_1_PREFIX);
         Hashtable<String, String> msnAccount2Properties = getAccountProperties(
             MsnProtocolProviderServiceLick.ACCOUNT_2_PREFIX);
+        Hashtable<String, String> msnAccount3Properties = getAccountProperties(
+                MsnProtocolProviderServiceLick.ACCOUNT_3_PREFIX);
 
         //try to install an account with a null account id
         try{
@@ -101,10 +103,13 @@ public class TestAccountInstallation
         msnProviderFactory.installAccount(
             msnAccount2Properties.get(ProtocolProviderFactory.USER_ID)
             , msnAccount2Properties);
+        msnProviderFactory.installAccount(
+            msnAccount3Properties.get(ProtocolProviderFactory.USER_ID)
+            , msnAccount3Properties);
 
 
         //try to install one of the accounts one more time and verify that an
-        //excepion is thrown.
+        //exception is thrown.
         try{
             msnProviderFactory.installAccount(
                 msnAccount1Properties.get(ProtocolProviderFactory.USER_ID)
@@ -122,7 +127,7 @@ public class TestAccountInstallation
         assertTrue(
             "The newly installed account was not in the acc man's "
             +"registered accounts!",
-            msnProviderFactory.getRegisteredAccounts().size() == 2);
+            msnProviderFactory.getRegisteredAccounts().size() == 3);
 
         //Verify protocol providers corresponding to the new account have
         //been properly registered with the osgi framework.

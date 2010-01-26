@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
  * Contains fields and methods used by most or all tests in the Jabber slick.
  *
  * @author Damian Minkov
+ * @author Valentin Martinet
  */
 public class JabberSlickFixture
     extends TestCase
@@ -36,7 +37,7 @@ public class JabberSlickFixture
     /**
       * The protocol provider corresponding to our first testing account.
       */
-    public ProtocolProviderService provider1        = null;
+    public ProtocolProviderService provider1 = null;
 
     /**
      * The user ID associated with testing account 1.
@@ -52,20 +53,34 @@ public class JabberSlickFixture
     /**
      * The protocol provider corresponding to our first testing account.
      */
-    public ProtocolProviderService provider2        = null;
+    public ProtocolProviderService provider2 = null;
 
     /**
      * The user ID associated with testing account 2.
      */
     public String userID2 = null;
+    
+    /**
+     * An osgi service reference for the protocol provider corresponding to our
+     * third testing account.
+     */
+    public ServiceReference provider3ServiceRef = null;
+
+    /**
+      * The protocol provider corresponding to our third testing account.
+      */
+    public ProtocolProviderService provider3 = null;
+
+    /**
+     * The user ID associated with testing account 3.
+     */
+    public String userID3 = null;
 
     /**
      * The name of the chat room that we are using for testing of multi user
      * chatting.
      */
     public String chatRoomName = null;
-
-
 
     /**
      * The tested protocol provider factory.
@@ -135,27 +150,31 @@ public class JabberSlickFixture
            = System.getProperty(
                 JabberProtocolProviderServiceLick.ACCOUNT_2_PREFIX
                 + ProtocolProviderFactory.USER_ID);
+        
+        userID3
+        = System.getProperty(
+             JabberProtocolProviderServiceLick.ACCOUNT_3_PREFIX
+             + ProtocolProviderFactory.USER_ID);
 
         chatRoomName
             = System.getProperty(
                 JabberProtocolProviderServiceLick.CHAT_ROOM_NAME);
 
-        //find the protocol providers exported for the two accounts
+        //find the protocol providers exported for the three accounts
         ServiceReference[] jabberProvider1Refs
-            = bc.getServiceReferences(
-                ProtocolProviderService.class.getName(),
-                "(&"
-                +"("+ProtocolProviderFactory.PROTOCOL+"="+ProtocolNames.JABBER+")"
-                +"("+ProtocolProviderFactory.USER_ID+"="
-                + userID1 +")"
-                +")");
+        = bc.getServiceReferences(
+            ProtocolProviderService.class.getName(),
+            "(&"
+            +"("+ProtocolProviderFactory.PROTOCOL+"="+ProtocolNames.JABBER+")"
+            +"("+ProtocolProviderFactory.USER_ID+"="
+            + userID1 +")"
+            +")");
 
         //make sure we found a service
         assertNotNull("No Protocol Provider was found for Jabber account1:"
-                      + userID1
-                      , jabberProvider1Refs);
-        assertTrue("No Protocol Provider was found for Jabber account1:"+ userID1,
-                     jabberProvider1Refs.length > 0);
+                      + userID1, jabberProvider1Refs);
+        assertTrue("No Protocol Provider was found for Jabber account1:"+
+            userID1, jabberProvider1Refs.length > 0);
 
         ServiceReference[] jabberProvider2Refs
         = bc.getServiceReferences(
@@ -168,16 +187,34 @@ public class JabberSlickFixture
 
         //again make sure we found a service.
         assertNotNull("No Protocol Provider was found for Jabber account2:"
-                      + userID2
-                      , jabberProvider2Refs);
-        assertTrue("No Protocol Provider was found for Jabber account2:"+ userID2,
-                     jabberProvider2Refs.length > 0);
+                      + userID2, jabberProvider2Refs);
+        assertTrue("No Protocol Provider was found for Jabber account2:"+
+            userID2, jabberProvider2Refs.length > 0);
+        
+        ServiceReference[] jabberProvider3Refs
+        = bc.getServiceReferences(
+            ProtocolProviderService.class.getName(),
+            "(&"
+            +"("+ProtocolProviderFactory.PROTOCOL+"="+ProtocolNames.JABBER+")"
+            +"("+ProtocolProviderFactory.USER_ID+"="
+            + userID3 +")"
+            +")");
+
+        //again make sure we found a service.
+        assertNotNull("No Protocol Provider was found for Jabber account3:"
+                      + userID3, jabberProvider3Refs);
+        assertTrue("No Protocol Provider was found for Jabber account3:"+ 
+            userID3, jabberProvider3Refs.length > 0);
 
         //save the service for other tests to use.
         provider1ServiceRef = jabberProvider1Refs[0];
         provider1 = (ProtocolProviderService)bc.getService(provider1ServiceRef);
+        
         provider2ServiceRef = jabberProvider2Refs[0];
         provider2 = (ProtocolProviderService)bc.getService(provider2ServiceRef);
+        
+        provider3ServiceRef = jabberProvider3Refs[0];
+        provider3 = (ProtocolProviderService)bc.getService(provider3ServiceRef);
     }
 
     /**
@@ -187,6 +224,7 @@ public class JabberSlickFixture
     {
         bc.ungetService(provider1ServiceRef);
         bc.ungetService(provider2ServiceRef);
+        bc.ungetService(provider3ServiceRef);
     }
 
     /**
@@ -199,7 +237,7 @@ public class JabberSlickFixture
      * @return the Bundle that has registered the protocol provider service
      * we're testing in the slick.
      */
-    public static Bundle findProtocolProviderBundle(
+    public Bundle findProtocolProviderBundle(
         ProtocolProviderService provider)
     {
         Bundle[] bundles = bc.getBundles();
@@ -224,59 +262,79 @@ public class JabberSlickFixture
         return null;
     }
 
+    /**
+     * Clears all the providers of this fixture.
+     * 
+     * @throws Exception
+     */
     public void clearProvidersLists()
         throws Exception
     {
-        Map<String, OperationSet> supportedOperationSets1 =
-            provider1.getSupportedOperationSets();
+        clearProvider(provider1);
+        clearProvider(provider2);
+        clearProvider(provider3);
+    }
+    
+    
+    /**
+     * Clears the given <tt>provider</tt>. It means delete existing contacts,
+     * existing groups.
+     * 
+     * @param provider
+     * @throws IllegalArgumentException
+     * @throws IllegalStateException
+     * @throws OperationFailedException
+     */
+    public void clearProvider(ProtocolProviderService provider) 
+    throws  IllegalArgumentException, 
+            IllegalStateException, 
+            OperationFailedException
+    {
+        Map<String, OperationSet> supportedOperationSets =
+            provider.getSupportedOperationSets();
 
-        if ( supportedOperationSets1 == null
-            || supportedOperationSets1.size() < 1)
+        if ( supportedOperationSets == null
+            || supportedOperationSets.size() < 1)
             throw new NullPointerException(
                 "No OperationSet implementations are supported by "
                 +"this Jabber implementation. ");
 
         //get the operation set presence here.
-        OperationSetPersistentPresence opSetPersPresence1 =
-            (OperationSetPersistentPresence)supportedOperationSets1.get(
+        OperationSetPersistentPresence opSetPersPresence =
+            (OperationSetPersistentPresence) supportedOperationSets.get(
                 OperationSetPersistentPresence.class.getName());
 
         //if still null then the implementation doesn't offer a presence
         //operation set which is unacceptable for jabber.
-        if (opSetPersPresence1 == null)
+        if (opSetPersPresence == null)
             throw new NullPointerException(
                 "An implementation of the Jabber service must provide an "
                 + "implementation of at least the one of the Presence "
                 + "Operation Sets");
-
-        // lets do it once again for the second provider
-        Map<String, OperationSet> supportedOperationSets2 =
-            provider2.getSupportedOperationSets();
-
-        if (supportedOperationSets2 == null
-            || supportedOperationSets2.size() < 1)
-            throw new NullPointerException(
-                "No OperationSet implementations are supported by "
-                + "this Jabber implementation. ");
-
-        //get the operation set presence here.
-        OperationSetPersistentPresence opSetPersPresence2 =
-            (OperationSetPersistentPresence) supportedOperationSets2.get(
-                OperationSetPersistentPresence.class.getName());
-
-        //if still null then the implementation doesn't offer a presence
-        //operation set which is unacceptable for jabber.
-        if (opSetPersPresence2 == null)
-            throw new NullPointerException(
-                "An implementation of the Jabber service must provide an "
-                + "implementation of at least the one of the Presence "
-                + "Operation Sets");
-
-        ContactGroup rootGroup1 = opSetPersPresence1.getServerStoredContactListRoot();
+        
+        deleteGroups(opSetPersPresence);
+    }
+    
+    
+    /**
+     * Delete all groups and contacts for the given persistent presence op. set.
+     * 
+     * @param opSetPersPresence
+     * @throws IllegalArgumentException
+     * @throws IllegalStateException
+     * @throws OperationFailedException
+     */
+    public void deleteGroups(OperationSetPersistentPresence opSetPersPresence) 
+    throws  IllegalArgumentException, 
+            IllegalStateException, 
+            OperationFailedException
+    {
+        ContactGroup rootGroup = 
+            opSetPersPresence.getServerStoredContactListRoot();
 
         // first delete the groups
         Vector<ContactGroup> groupsToRemove = new Vector<ContactGroup>();
-        Iterator<ContactGroup> iter = rootGroup1.subgroups();
+        Iterator<ContactGroup> iter = rootGroup.subgroups();
         while (iter.hasNext())
         {
             groupsToRemove.add(iter.next());
@@ -286,12 +344,12 @@ public class JabberSlickFixture
         while (iter.hasNext())
         {
             ContactGroup item = iter.next();
-            opSetPersPresence1.removeServerStoredContactGroup(item);
+            opSetPersPresence.removeServerStoredContactGroup(item);
         }
 
         //then delete contacts if any in root list
         Vector<Contact> contactsToRemove = new Vector<Contact>();
-        Iterator<Contact> iter2 = rootGroup1.contacts();
+        Iterator<Contact> iter2 = rootGroup.contacts();
         while (iter2.hasNext())
         {
             contactsToRemove.add(iter2.next());
@@ -299,37 +357,7 @@ public class JabberSlickFixture
         iter2 = contactsToRemove.iterator();
         while (iter2.hasNext())
         {
-            opSetPersPresence1.unsubscribe(iter2.next());
-        }
-
-        ContactGroup rootGroup2 = opSetPersPresence2.getServerStoredContactListRoot();
-
-        // delete groups
-        groupsToRemove = new Vector<ContactGroup>();
-        iter = rootGroup2.subgroups();
-        while (iter.hasNext())
-        {
-            groupsToRemove.add(iter.next());
-        }
-
-        iter = groupsToRemove.iterator();
-        while (iter.hasNext())
-        {
-            ContactGroup item = iter.next();
-            opSetPersPresence2.removeServerStoredContactGroup(item);
-        }
-
-        //then delete contacts if any in root list
-        contactsToRemove = new Vector<Contact>();
-        iter2 = rootGroup2.contacts();
-        while (iter2.hasNext())
-        {
-            contactsToRemove.add(iter2.next());
-        }
-        iter2 = contactsToRemove.iterator();
-        while (iter2.hasNext())
-        {
-            opSetPersPresence2.unsubscribe(iter2.next());
+            opSetPersPresence.unsubscribe(iter2.next());
         }
     }
 }

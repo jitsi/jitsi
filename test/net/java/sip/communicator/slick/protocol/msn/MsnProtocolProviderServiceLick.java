@@ -13,9 +13,10 @@ import junit.framework.*;
 
 /**
  * Msn specific testing for a Msn Protocol Provider Service implementation.
- * The test suite registers two accounts for
+ * The test suite registers three accounts for
  *
  * @author Damian Minkov
+ * @author Valentin Martinet
  */
 public class MsnProtocolProviderServiceLick
     extends    TestSuite
@@ -34,6 +35,13 @@ public class MsnProtocolProviderServiceLick
      */
     public static final String ACCOUNT_2_PREFIX
         = "accounts.msn.account2.";
+    
+    /**
+     * The prefix used for property names containing settings for our third
+     * testing account.
+     */
+    public static final String ACCOUNT_3_PREFIX
+        = "accounts.msn.account3.";
 
     /**
      * The name of the property that indicates whether the user would like to
@@ -89,6 +97,8 @@ public class MsnProtocolProviderServiceLick
             addTest(TestOperationSetTypingNotifications.suite());
 
             addTestSuite(TestOperationSetFileTransferImpl.class);
+
+            addTest(TestOperationSetAdHocMultiUserChatMsnImpl.suite());
         }
 
         addTest(TestAccountUninstallation.suite());
