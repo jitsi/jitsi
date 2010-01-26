@@ -24,6 +24,13 @@ accounts.icq.TESTING_IMPL_ACCOUNT_ID=
 # The Password for the UIN specifined in accounts.icq.TESTING_IMPL_ACCOUNT_ID.
 accounts.icq.TESTING_IMPL_PWD=
 
+# An ICQ UIN (number) for the ICQ SLICK itself, so that it would be able to
+# sign on icq and also communicated with the tested implementation.
+accounts.icq.TESTING_IMPL2_ACCOUNT_ID=
+
+# The Password for the UIN specifined in accounts.icq.TESTING_IMPL2_ACCOUNT_ID.
+accounts.icq.TESTING_IMPL2_PWD=
+
 # The following describes the contact list that we will store on the AIM server
 # for the tested account implementation. The value of the CONTACT_LIST property
 # must be a space separated string containing elements each of which is in the
@@ -145,6 +152,23 @@ accounts.jabber.account2.SERVER_ADDRESS=
 # (Optional)
 accounts.jabber.account2.SERVER_PORT=
 
+# JABBER ACCOUNT 3
+
+# The user id needed to log onto the server specified in the SERVER_ADDRESS
+# property.
+accounts.jabber.account3.USER_ID=
+
+# The password (in plain text) needed to log the user specified in USER_ID
+# on the server specified in SERVER_ADDRESS.
+accounts.jabber.account3.PASSWORD=
+
+# The address of the server that this account belongs to (Use '[', ']' for IPv6)
+accounts.jabber.account3.SERVER_ADDRESS=
+
+# The server port to be used from account 3
+# (Optional)
+accounts.jabber.account3.SERVER_PORT=
+
 # The following describes the contact list that we will store on the Jabber
 # server for the tested account implementation. The value of the CONTACT_LIST
 # property must be a space separated string containing elements each of which
@@ -177,6 +201,15 @@ accounts.msn.account2.USER_ID=
 # on the server
 accounts.msn.account2.PASSWORD=
 
+# MSN ACCOUNT 3
+
+# The user email needed to log onto the server
+accounts.msn.account3.USER_ID=
+
+# The password (in plain text) needed to log the user specified in USER_ID
+# on the server
+accounts.msn.account3.PASSWORD=
+
 # The following describes the contact list that we will store on the Msn
 # server for the tested account implementation. The value of the CONTACT_LIST
 # property must be a space separated string containing elements each of which
@@ -208,6 +241,15 @@ accounts.yahoo.account2.USER_ID=
 # The password (in plain text) needed to log the user specified in USER_ID
 # on the server
 accounts.yahoo.account2.PASSWORD=
+
+# YAHOO ACCOUNT 3
+
+# The username needed to log onto the server
+accounts.yahoo.account3.USER_ID=
+
+# The password (in plain text) needed to log the user specified in USER_ID
+# on the server
+accounts.yahoo.account3.PASSWORD=
 
 # The following describes the contact list that we will store on the Msn
 # server for the tested account implementation. The value of the CONTACT_LIST
