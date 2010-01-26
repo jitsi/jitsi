@@ -48,7 +48,8 @@ public class SIPCommunicator
          */
         setScHomeDir(osName);
 
-        if (version.startsWith("1.4") || vmVendor.startsWith("Gnu") || vmVendor.startsWith("Free"))
+        if (version.startsWith("1.4") || vmVendor.startsWith("Gnu") || 
+                vmVendor.startsWith("Free"))
         {
             String os = "";
 
