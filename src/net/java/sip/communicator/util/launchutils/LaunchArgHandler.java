@@ -249,11 +249,6 @@ public class LaunchArgHandler
                 returnAction = ACTION_CONTINUE_LOCK_DISABLED;
                 continue;
             }
-            else if (args[i].equals("--desktop-stream") || args[i].equals("-s"))
-            {
-                handleDesktopStreaming();
-                break;
-            }
             //if this is the last arg and it's not an option then it's probably
             //an URI
             else if ( i == args.length - 1
@@ -291,14 +286,6 @@ public class LaunchArgHandler
     {
         System.setProperty("java.net.preferIPv4Stack", "true");
         System.setProperty("java.net.preferIPv6Addresses", "false");
-    }
-
-    /**
-     * Allows to use desktop streaming as video device.
-     */
-    private void handleDesktopStreaming()
-    {
-        System.setProperty("net.java.sip.communicator.impl.neomedia.imgstreaming", "true");
     }
 
     /**

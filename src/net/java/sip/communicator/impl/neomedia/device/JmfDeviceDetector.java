@@ -198,28 +198,17 @@ public class JmfDeviceDetector
             }
 
         /* Desktop capture */
-
-        /* for the moment desktop streaming is disabled by default, 
-         * user needs to add --desktop-stream argument:
-         * ant run -Dargs=--desktop-stream
-         */
-        String allowDs
-            = System
-                .getProperty(
-                    "net.java.sip.communicator.impl.neomedia.imgstreaming");
-
-        if(Boolean.parseBoolean(allowDs))
-            try
-            {
-                new ImageStreamingAuto();
-            }
-            catch(Throwable exc)
-            {
-                logger
-                    .debug(
-                        "No desktop streaming available: " + exc.getMessage(),
-                        exc);
-            }
+        try
+        {
+            new ImageStreamingAuto();
+        }
+        catch(Throwable exc)
+        {
+            logger
+                .debug(
+                    "No desktop streaming available: " + exc.getMessage(),
+                    exc);
+        }
     }
 
     /**
