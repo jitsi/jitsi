@@ -748,7 +748,7 @@ public class MockChatRoom
      * @param role the role to set
      * @throws OperationFailedException if the operation don't succeed
      */
-    public void setUserRole(ChatRoomMemberRole role)
+    public void setLocalUserRole(ChatRoomMemberRole role)
         throws OperationFailedException
     {
         throw new UnsupportedOperationException("Not supported yet.");

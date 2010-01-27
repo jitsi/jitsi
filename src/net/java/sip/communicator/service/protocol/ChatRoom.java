@@ -158,7 +158,7 @@ public interface ChatRoom
      *
      * @throws OperationFailedException if an error occurs.
      */
-    public void setUserRole(ChatRoomMemberRole role)
+    public void setLocalUserRole(ChatRoomMemberRole role)
         throws OperationFailedException;
 
     /**

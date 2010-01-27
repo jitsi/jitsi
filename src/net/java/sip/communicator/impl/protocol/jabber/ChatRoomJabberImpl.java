@@ -846,7 +846,7 @@ public class ChatRoomJabberImpl
      *
      * @param role the new role to be set for the local user
      */
-    public void setUserRole(ChatRoomMemberRole role)
+    public void setLocalUserRole(ChatRoomMemberRole role)
     {
         fireLocalUserRoleEvent(getUserRole(), role);
         this.role = role;
@@ -1151,7 +1151,7 @@ public class ChatRoomJabberImpl
                 return;
 
             fireMemberRoleEvent(member, member.getRole(),
-                ChatRoomMemberRole.GUEST);
+                ChatRoomMemberRole.MEMBER);
         }
 
         /**
@@ -1170,7 +1170,7 @@ public class ChatRoomJabberImpl
                 return;
 
             fireMemberRoleEvent(member, member.getRole(),
-                ChatRoomMemberRole.GUEST);
+                ChatRoomMemberRole.MEMBER);
         }
 
         /**
@@ -1479,6 +1479,7 @@ public class ChatRoomJabberImpl
     private void fireMemberRoleEvent(ChatRoomMember member,
         ChatRoomMemberRole previousRole, ChatRoomMemberRole newRole)
     {
+        member.setRole(newRole);
         ChatRoomMemberRoleChangeEvent evt
             = new ChatRoomMemberRoleChangeEvent(
                 this, member, previousRole, newRole);
@@ -1670,7 +1671,7 @@ public class ChatRoomJabberImpl
          */
         public void voiceGranted()
         {
-            setUserRole(ChatRoomMemberRole.MEMBER);
+            setLocalUserRole(ChatRoomMemberRole.MEMBER);
         }
 
         /**
@@ -1680,7 +1681,7 @@ public class ChatRoomJabberImpl
         */
         public void voiceRevoked()
         {
-            setUserRole(ChatRoomMemberRole.SILENT_MEMBER);
+            setLocalUserRole(ChatRoomMemberRole.SILENT_MEMBER);
         }
 
         /**
@@ -1705,7 +1706,7 @@ public class ChatRoomJabberImpl
         */
         public void membershipGranted()
         {
-            setUserRole(ChatRoomMemberRole.MEMBER);
+            setLocalUserRole(ChatRoomMemberRole.MEMBER);
         }
 
         /**
@@ -1714,7 +1715,7 @@ public class ChatRoomJabberImpl
         */
         public void membershipRevoked()
         {
-            setUserRole(ChatRoomMemberRole.GUEST);
+            setLocalUserRole(ChatRoomMemberRole.GUEST);
         }
 
         /**
@@ -1725,7 +1726,7 @@ public class ChatRoomJabberImpl
         */
         public void moderatorGranted()
         {
-            setUserRole(ChatRoomMemberRole.MODERATOR);
+            setLocalUserRole(ChatRoomMemberRole.MODERATOR);
         }
 
         /**
@@ -1736,7 +1737,7 @@ public class ChatRoomJabberImpl
         */
         public void moderatorRevoked()
         {
-            setUserRole(ChatRoomMemberRole.MEMBER);
+            setLocalUserRole(ChatRoomMemberRole.MEMBER);
         }
 
         /**
@@ -1746,7 +1747,7 @@ public class ChatRoomJabberImpl
         */
         public void ownershipGranted()
         {
-            setUserRole(ChatRoomMemberRole.OWNER);
+            setLocalUserRole(ChatRoomMemberRole.OWNER);
         }
 
         /**
@@ -1756,7 +1757,7 @@ public class ChatRoomJabberImpl
         */
         public void ownershipRevoked()
         {
-            setUserRole(ChatRoomMemberRole.ADMINISTRATOR);
+            setLocalUserRole(ChatRoomMemberRole.ADMINISTRATOR);
         }
 
         /**
@@ -1766,7 +1767,7 @@ public class ChatRoomJabberImpl
         */
         public void adminGranted()
         {
-            setUserRole(ChatRoomMemberRole.ADMINISTRATOR);
+            setLocalUserRole(ChatRoomMemberRole.ADMINISTRATOR);
         }
 
         /**
@@ -1776,7 +1777,7 @@ public class ChatRoomJabberImpl
         */
         public void adminRevoked()
         {
-            setUserRole(ChatRoomMemberRole.MEMBER);
+            setLocalUserRole(ChatRoomMemberRole.MEMBER);
         }
     }
 

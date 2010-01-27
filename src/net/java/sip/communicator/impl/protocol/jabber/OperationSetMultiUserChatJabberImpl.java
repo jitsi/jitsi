@@ -122,7 +122,7 @@ public class OperationSetMultiUserChatJabberImpl
                                                    , ex.getCause());
             }
             room = createLocalChatRoomInstance(muc);
-            room.setUserRole(ChatRoomMemberRole.MODERATOR);
+            room.setLocalUserRole(ChatRoomMemberRole.MODERATOR);
         }
         return room;
     }

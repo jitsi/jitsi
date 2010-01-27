@@ -959,6 +959,7 @@ public class ChatRoomIrcImpl
     public void fireMemberRoleEvent(   ChatRoomMember member,
                                         ChatRoomMemberRole newRole)
     {
+        member.setRole(newRole);
         ChatRoomMemberRole previousRole = member.getRole();
 
         ChatRoomMemberRoleChangeEvent evt
@@ -1069,7 +1070,7 @@ public class ChatRoomIrcImpl
      * @param role the role to set
      * @throws OperationFailedException if the operation don't succeed
      */
-    public void setUserRole(ChatRoomMemberRole role)
+    public void setLocalUserRole(ChatRoomMemberRole role)
         throws OperationFailedException
     {
         throw new UnsupportedOperationException("Not supported yet.");

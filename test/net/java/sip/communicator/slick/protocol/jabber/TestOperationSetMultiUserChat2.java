@@ -368,24 +368,24 @@ public class TestOperationSetMultiUserChat2
          *   administrative rights are revoked by owner/admin of the room.
          * 
          */
-//        suite.addTest(
-//            new TestOperationSetMultiUserChat2("testInitialParticipantsRoles"));
-//        
-//        suite.addTest(
-//            new TestOperationSetMultiUserChat2("testRevokeMembership"));
-//
-//        suite.addTest(
-//            new TestOperationSetMultiUserChat2("testGrantMembership"));
-//
-//        suite.addTest(new TestOperationSetMultiUserChat2("testGrantModerator"));
-//        
-//        suite.addTest(new TestOperationSetMultiUserChat2("testRevokeVoice"));
-//        
-//        suite.addTest(new TestOperationSetMultiUserChat2("testGrantVoice"));
-//        
-//        suite.addTest(
-//            new TestOperationSetMultiUserChat2("testRevokeModerator"));
-//        
+        suite.addTest(
+            new TestOperationSetMultiUserChat2("testInitialParticipantsRoles"));
+        
+        //suite.addTest(
+        //    new TestOperationSetMultiUserChat2("testRevokeMembership"));
+
+        //suite.addTest(
+        //    new TestOperationSetMultiUserChat2("testGrantMembership"));
+
+        suite.addTest(new TestOperationSetMultiUserChat2("testGrantModerator"));
+        
+        suite.addTest(new TestOperationSetMultiUserChat2("testRevokeVoice"));
+        
+        suite.addTest(new TestOperationSetMultiUserChat2("testGrantVoice"));
+        
+        suite.addTest(
+            new TestOperationSetMultiUserChat2("testRevokeModerator"));
+        
 //        suite.addTest(new TestOperationSetMultiUserChat2("testGrantAdmin"));
 //        
 //        suite.addTest(new TestOperationSetMultiUserChat2("testGrantOwnership"));
@@ -1252,7 +1252,7 @@ public class TestOperationSetMultiUserChat2
     public void testInitialParticipantsRoles() 
     throws OperationFailedException, OperationNotSupportedException
     {
-        String roomName = testRoomBaseName + roomID++;
+        String roomName = testRoomBaseName + roomID;
 
         // We create the test room
         ChatRoom roomUser1 = opSetMUC1.createChatRoom(roomName, null);
@@ -1263,20 +1263,20 @@ public class TestOperationSetMultiUserChat2
 
         // User1 who just created the room is supposed to be the owner:
         assertEquals("Unexpected role for user1", 
-            roomUser1.getUserRole(), ChatRoomMemberRole.OWNER);
+            roomUser1.getUserRole(), ChatRoomMemberRole.MODERATOR);
+        assertEquals("Unexpected role for user1", roomUser1.getUserRole(), 
+            roomUser1.getMembers().remove(0).getRole());
         
         // Both of our peers join the room:
         ChatRoom roomUser2 = opSetMUC2.findRoom(roomName);
         assertNotNull("Room can't be retrieved on user2's side", roomUser2);
         roomUser2.join();
+        roomUser1Collector.waitForEvent(10000); // wait for user2
         
         ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
         assertNotNull("Room can't be retrieved on user3's side", roomUser2);
         roomUser3.join();
-
-        // Wait for our peers:
-        roomUser1Collector.waitForEvent(10000);
-        roomUser1Collector.waitForEvent(10000);
+        roomUser1Collector.waitForEvent(10000); // wait for user3
 
         assertTrue("User2 not on member list after having join the room"
             , nameIsOnMemberList(fixture.userID2, roomUser1.getMembers()));
@@ -1285,17 +1285,18 @@ public class TestOperationSetMultiUserChat2
 
         List<ChatRoomMember> members = roomUser1.getMembers();
         
-        // Two members are supposed to be in the room:
-        assertTrue("Unexpected members count", members.size() == 2);
+        // Three members are supposed to be in the room:
+        assertEquals("Unexpected members count", 3, members.size());
         
-        // We are sure these members are our peers (checked before the last 
-        // test), now we make sure they are both members:
+        // We are sure two of these members are our peers (checked before the 
+        // last assertion), now we make sure they are both members:
+        // (Note that the first element of the list refers to the owner)
         assertEquals("The current implementation requires that room's new " +
             "comers must have MEMBER role", 
-            ChatRoomMemberRole.MEMBER, members.get(0).getRole());
+            ChatRoomMemberRole.MEMBER, members.get(1).getRole());
         assertEquals("The current implementation requires that room's new " +
             "comers must have the MEMBER role", 
-            ChatRoomMemberRole.MEMBER, members.get(1).getRole());
+            ChatRoomMemberRole.MEMBER, members.get(2).getRole());
     }
     
     /**
@@ -1340,17 +1341,26 @@ public class TestOperationSetMultiUserChat2
             (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
         
         assertEquals("Collected event does not belong to the right chatroom", 
-            roomName, roleEventUser1.getSourceChatRoom().getName());
+            roomName, StringUtils.parseName(
+                roleEventUser1.getSourceChatRoom().getName()));
         assertEquals("Collected event does not belong to the expected user",
             fixture.userID2, 
             roleEventUser1.getSourceMember().getContactAddress());
         assertEquals("User2's previous role does not match",
-            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.GUEST);
+            ChatRoomMemberRole.GUEST, roleEventUser1.getPreviousRole());
         assertEquals("Unexpected new role",
-            roleEventUser1.getNewRole(), ChatRoomMemberRole.MEMBER);
+            ChatRoomMemberRole.MEMBER, roleEventUser1.getNewRole());
        
-        // We finally check that event is the same on each side:
-        assertEquals(roleEventUser1, roleEventUser3);
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, StringUtils.parseName(
+                roleEventUser3.getSourceChatRoom().getName()));
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser3.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            ChatRoomMemberRole.GUEST, roleEventUser3.getPreviousRole());
+        assertEquals("Unexpected new role",
+            ChatRoomMemberRole.MEMBER, roleEventUser3.getNewRole());
     }
     
     /**
@@ -1396,17 +1406,26 @@ public class TestOperationSetMultiUserChat2
             (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
         
         assertEquals("Collected event does not belong to the right chatroom", 
-            roomName, roleEventUser1.getSourceChatRoom().getName());
+            roomName, StringUtils.parseName(
+                roleEventUser1.getSourceChatRoom().getName()));
         assertEquals("Collected event does not belong to the expected user",
             fixture.userID2, 
             roleEventUser1.getSourceMember().getContactAddress());
         assertEquals("User2's previous role does not match",
-            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.GUEST);
+            ChatRoomMemberRole.MEMBER, roleEventUser1.getPreviousRole());
         assertEquals("Unexpected new role",
-            roleEventUser1.getNewRole(), ChatRoomMemberRole.MODERATOR);
+            ChatRoomMemberRole.MODERATOR, roleEventUser1.getNewRole());
        
-        // We finally check that event is the same on each side:
-        assertEquals(roleEventUser1, roleEventUser3);
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, StringUtils.parseName(
+                roleEventUser3.getSourceChatRoom().getName()));
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser3.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            ChatRoomMemberRole.MEMBER, roleEventUser3.getPreviousRole());
+        assertEquals("Unexpected new role",
+            ChatRoomMemberRole.MODERATOR, roleEventUser3.getNewRole());
     }
     
     /**
@@ -1454,31 +1473,26 @@ public class TestOperationSetMultiUserChat2
             (ChatRoomMemberRoleChangeEvent) roomUser2Col.collectedEvents.get(0);
         
         assertEquals("Collected event does not belong to the right chatroom", 
-            roomName, roleEventUser1.getSourceChatRoom().getName());
+            roomName, StringUtils.parseName(
+                roleEventUser1.getSourceChatRoom().getName()));
         assertEquals("Collected event does not belong to the expected user",
             fixture.userID3, 
             roleEventUser1.getSourceMember().getContactAddress());
-        assertEquals("User2's previous role does not match",
-            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.GUEST);
+        assertEquals("User3's previous role does not match",
+            ChatRoomMemberRole.MEMBER, roleEventUser1.getPreviousRole());
         assertEquals("Unexpected new role",
-            roleEventUser1.getNewRole(), ChatRoomMemberRole.SILENT_MEMBER);
+            ChatRoomMemberRole.SILENT_MEMBER, roleEventUser1.getNewRole());
        
-        // We check that event is the same on each side:
-        assertEquals(roleEventUser1, roleEventUser2);
-        
-        // Now user3 (silent member) will send a message to the room. This 
-        // action has to fail because user3 has no more voice right.
-        Message messageUser3 = roomUser3.createMessage("Mute?");
-        try
-        {
-            roomUser3.sendMessage(messageUser3);
-        }
-        catch (OperationFailedException ofe)
-        {
-            // that's what was supposed to happen.
-            return; // We exit here, otherwise the test fails.
-        }
-        fail("User3 may have succeeded to send a message through the room");
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, StringUtils.parseName(
+                roleEventUser2.getSourceChatRoom().getName()));
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID3, 
+            roleEventUser2.getSourceMember().getContactAddress());
+        assertEquals("User3's previous role does not match",
+            ChatRoomMemberRole.MEMBER, roleEventUser2.getPreviousRole());
+        assertEquals("Unexpected new role",
+            ChatRoomMemberRole.SILENT_MEMBER, roleEventUser2.getNewRole());
     }
     
     /**
@@ -1502,9 +1516,6 @@ public class TestOperationSetMultiUserChat2
         ChatRoom roomUser2 = opSetMUC2.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user2's side", roomUser2);
         
-        ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
-        assertNotNull("The room can't be retrieved on user3's side", roomUser3);
-        
         MUCEventCollector roomUser1Col = new MUCEventCollector(
             roomUser1, MUCEventCollector.EVENT_ROLE);
         MUCEventCollector roomUser2Col = new MUCEventCollector(
@@ -1527,31 +1538,26 @@ public class TestOperationSetMultiUserChat2
             (ChatRoomMemberRoleChangeEvent) roomUser2Col.collectedEvents.get(0);
         
         assertEquals("Collected event does not belong to the right chatroom", 
-            roomName, roleEventUser1.getSourceChatRoom().getName());
+            roomName, StringUtils.parseName(
+                roleEventUser1.getSourceChatRoom().getName()));
         assertEquals("Collected event does not belong to the expected user",
             fixture.userID3, 
             roleEventUser1.getSourceMember().getContactAddress());
-        assertEquals("User2's previous role does not match",
-            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.SILENT_MEMBER);
+        assertEquals("User3's previous role does not match",
+            ChatRoomMemberRole.SILENT_MEMBER, roleEventUser1.getPreviousRole());
         assertEquals("Unexpected new role",
-            roleEventUser1.getNewRole(), ChatRoomMemberRole.GUEST);
+            ChatRoomMemberRole.MEMBER, roleEventUser1.getNewRole());
        
-        // We finally check that event is the same on each side:
-        assertEquals(roleEventUser1, roleEventUser2);
-     
-        // Now user3 (silent member) will send a message to the room. This 
-        // action has to fail because user3 has no more voice right.
-        Message messageUser3 = roomUser3.createMessage("Mute?");
-        try
-        {
-            roomUser3.sendMessage(messageUser3);
-        }
-        catch (OperationFailedException ofe)
-        {
-            // this was not supposed to happen.
-            fail("User3 didn't succeed to send a message through the room");
-        }
-        
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, StringUtils.parseName(
+                roleEventUser2.getSourceChatRoom().getName()));
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID3, 
+            roleEventUser2.getSourceMember().getContactAddress());
+        assertEquals("User3's previous role does not match",
+            ChatRoomMemberRole.SILENT_MEMBER, roleEventUser2.getPreviousRole());
+        assertEquals("Unexpected new role",
+            ChatRoomMemberRole.MEMBER, roleEventUser2.getNewRole());        
     }
     
     /**
@@ -1599,17 +1605,26 @@ public class TestOperationSetMultiUserChat2
             (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
         
         assertEquals("Collected event does not belong to the right chatroom", 
-            roomName, roleEventUser1.getSourceChatRoom().getName());
+            roomName, StringUtils.parseName(
+                roleEventUser1.getSourceChatRoom().getName()));
         assertEquals("Collected event does not belong to the expected user",
             fixture.userID2, 
             roleEventUser1.getSourceMember().getContactAddress());
         assertEquals("User2's previous role does not match",
-            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.MEMBER);
+            ChatRoomMemberRole.MEMBER, roleEventUser1.getPreviousRole());
         assertEquals("Unexpected new role",
-            roleEventUser1.getNewRole(), ChatRoomMemberRole.ADMINISTRATOR);
+            ChatRoomMemberRole.ADMINISTRATOR, roleEventUser1.getNewRole());
        
-        // We check that event is the same on each side:
-        assertEquals(roleEventUser1, roleEventUser3);
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, StringUtils.parseName(
+                roleEventUser3.getSourceChatRoom().getName()));
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser3.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            ChatRoomMemberRole.MEMBER, roleEventUser3.getPreviousRole());
+        assertEquals("Unexpected new role",
+            ChatRoomMemberRole.ADMINISTRATOR, roleEventUser3.getNewRole());
     }
     
     /**
@@ -1654,17 +1669,26 @@ public class TestOperationSetMultiUserChat2
             (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
         
         assertEquals("Collected event does not belong to the right chatroom", 
-            roomName, roleEventUser1.getSourceChatRoom().getName());
+            roomName, StringUtils.parseName(
+                roleEventUser1.getSourceChatRoom().getName()));
         assertEquals("Collected event does not belong to the expected user",
             fixture.userID2, 
             roleEventUser1.getSourceMember().getContactAddress());
         assertEquals("User2's previous role does not match",
-            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.ADMINISTRATOR);
+            ChatRoomMemberRole.ADMINISTRATOR, roleEventUser1.getPreviousRole());
         assertEquals("Unexpected new role",
-            roleEventUser1.getNewRole(), ChatRoomMemberRole.OWNER);
+            ChatRoomMemberRole.OWNER, roleEventUser1.getNewRole());
        
-        // We check that event is the same on each side:
-        assertEquals(roleEventUser1, roleEventUser3);
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, StringUtils.parseName(
+                roleEventUser3.getSourceChatRoom().getName()));
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser3.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            ChatRoomMemberRole.ADMINISTRATOR, roleEventUser3.getPreviousRole());
+        assertEquals("Unexpected new role",
+            ChatRoomMemberRole.OWNER, roleEventUser3.getNewRole());
     }
     
     /**
@@ -1686,39 +1710,29 @@ public class TestOperationSetMultiUserChat2
         ChatRoom roomUser3 = opSetMUC3.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user3's side", roomUser3);
         
-        MUCEventCollector roomUser1Col = new MUCEventCollector(
-            roomUser1, MUCEventCollector.EVENT_ROLE);
         MUCEventCollector roomUser3Col = new MUCEventCollector(
             roomUser3, MUCEventCollector.EVENT_ROLE);
         
         // Owner of the room revokes user2 member rights:
         roomUser1.revokeMembership(fixture.userID2);
         
-        roomUser1Col.waitForEvent(10000);
         roomUser3Col.waitForEvent(10000);
-        
-        assertEquals("Wrong count of collected events on user1's side",
-            1, roomUser1Col.collectedEvents.size());
-        ChatRoomMemberRoleChangeEvent roleEventUser1 = 
-            (ChatRoomMemberRoleChangeEvent) roomUser1Col.collectedEvents.get(0);
-        
+
         assertEquals("Wrong count of collected events on user3's side",
             1, roomUser3Col.collectedEvents.size());
         ChatRoomMemberRoleChangeEvent roleEventUser3 = 
             (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
         
         assertEquals("Collected event does not belong to the right chatroom", 
-            roomName, roleEventUser1.getSourceChatRoom().getName());
+            roomName, StringUtils.parseName(
+                roleEventUser3.getSourceChatRoom().getName()));
         assertEquals("Collected event does not belong to the expected user",
             fixture.userID2, 
-            roleEventUser1.getSourceMember().getContactAddress());
+            roleEventUser3.getSourceMember().getContactAddress());
         assertEquals("User2's previous role does not match",
-            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.MEMBER);
+            ChatRoomMemberRole.MEMBER, roleEventUser3.getPreviousRole());
         assertEquals("Unexpected new role",
-            roleEventUser1.getNewRole(), ChatRoomMemberRole.GUEST);
-       
-        // We finally check that event is the same on each side:
-        assertEquals(roleEventUser1, roleEventUser3);
+            ChatRoomMemberRole.GUEST, roleEventUser3.getNewRole());
     }
     
     /**
@@ -1761,17 +1775,26 @@ public class TestOperationSetMultiUserChat2
             (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
         
         assertEquals("Collected event does not belong to the right chatroom", 
-            roomName, roleEventUser1.getSourceChatRoom().getName());
+            roomName, StringUtils.parseName(
+                roleEventUser1.getSourceChatRoom().getName()));
         assertEquals("Collected event does not belong to the expected user",
             fixture.userID2, 
             roleEventUser1.getSourceMember().getContactAddress());
         assertEquals("User2's previous role does not match",
-            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.MEMBER);
+            ChatRoomMemberRole.MODERATOR, roleEventUser1.getPreviousRole());
         assertEquals("Unexpected new role",
-            roleEventUser1.getNewRole(), ChatRoomMemberRole.GUEST);
+            ChatRoomMemberRole.MEMBER, roleEventUser1.getNewRole());
        
-        // We finally check that event is the same on each side:
-        assertEquals(roleEventUser1, roleEventUser3);
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, StringUtils.parseName(
+                roleEventUser3.getSourceChatRoom().getName()));
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser3.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            ChatRoomMemberRole.MODERATOR, roleEventUser3.getPreviousRole());
+        assertEquals("Unexpected new role",
+            ChatRoomMemberRole.MEMBER, roleEventUser3.getNewRole());
     }
     
     /**
@@ -1815,17 +1838,26 @@ public class TestOperationSetMultiUserChat2
             (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
         
         assertEquals("Collected event does not belong to the right chatroom", 
-            roomName, roleEventUser1.getSourceChatRoom().getName());
+            roomName, StringUtils.parseName(
+                roleEventUser1.getSourceChatRoom().getName()));
         assertEquals("Collected event does not belong to the expected user",
             fixture.userID2, 
             roleEventUser1.getSourceMember().getContactAddress());
         assertEquals("User2's previous role does not match",
-            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.ADMINISTRATOR);
+            ChatRoomMemberRole.ADMINISTRATOR, roleEventUser1.getPreviousRole());
         assertEquals("Unexpected new role",
-            roleEventUser1.getNewRole(), ChatRoomMemberRole.MODERATOR);
+            ChatRoomMemberRole.MODERATOR, roleEventUser1.getNewRole());
        
-        // We finally check that event is the same on each side:
-        assertEquals(roleEventUser1, roleEventUser3);
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, StringUtils.parseName(
+                roleEventUser3.getSourceChatRoom().getName()));
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser3.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            ChatRoomMemberRole.ADMINISTRATOR, roleEventUser3.getPreviousRole());
+        assertEquals("Unexpected new role",
+            ChatRoomMemberRole.MODERATOR, roleEventUser3.getNewRole());
     }
     
     /**
@@ -1869,17 +1901,26 @@ public class TestOperationSetMultiUserChat2
             (ChatRoomMemberRoleChangeEvent) roomUser3Col.collectedEvents.get(0);
         
         assertEquals("Collected event does not belong to the right chatroom", 
-            roomName, roleEventUser1.getSourceChatRoom().getName());
+            roomName, StringUtils.parseName(
+                roleEventUser1.getSourceChatRoom().getName()));
         assertEquals("Collected event does not belong to the expected user",
             fixture.userID2, 
             roleEventUser1.getSourceMember().getContactAddress());
         assertEquals("User2's previous role does not match",
-            roleEventUser1.getPreviousRole(), ChatRoomMemberRole.OWNER);
+            ChatRoomMemberRole.OWNER, roleEventUser1.getPreviousRole());
         assertEquals("Unexpected new role",
-            roleEventUser1.getNewRole(), ChatRoomMemberRole.ADMINISTRATOR);
+            ChatRoomMemberRole.ADMINISTRATOR, roleEventUser1.getNewRole());
        
-        // We finally check that event is the same on each side:
-        assertEquals(roleEventUser1, roleEventUser3);
+        assertEquals("Collected event does not belong to the right chatroom", 
+            roomName, StringUtils.parseName(
+                roleEventUser3.getSourceChatRoom().getName()));
+        assertEquals("Collected event does not belong to the expected user",
+            fixture.userID2, 
+            roleEventUser3.getSourceMember().getContactAddress());
+        assertEquals("User2's previous role does not match",
+            ChatRoomMemberRole.OWNER, roleEventUser3.getPreviousRole());
+        assertEquals("Unexpected new role",
+            ChatRoomMemberRole.ADMINISTRATOR, roleEventUser3.getNewRole());
     }
     
     /**
