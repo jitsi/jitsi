@@ -29,15 +29,14 @@
 /**
  * \brief Grab X11 screen.
  * \param x11display display string (i.e. :0.0), if NULL getenv("DISPLAY") is used
+ * \param data array that will contain screen capture
  * \param x x position to start capture
  * \param y y position to start capture
  * \param w capture width
  * \param h capture height 
- * \return array of integers which will contains screen capture
- * (ARGB format) or NULL if failure. It needs to be freed by caller
- * \note Return pointer if not NULL needs to be freed by caller
+ * \return 0 if success, -1 otherwise
  */
-static int32_t* x11_grab_screen(const char* x11display, int32_t x, int32_t y, int32_t w, int32_t h)
+static int x11_grab_screen(const char* x11display, int32_t* data, int32_t x, int32_t y, int32_t w, int32_t h)
 {
   const char* display_str; /* display string */
   Display* display = NULL; /* X11 display */
@@ -50,18 +49,23 @@ static int32_t* x11_grab_screen(const char* x11display, int32_t x, int32_t y, in
   int shm_support = 0;
   XImage* img = NULL;
   XShmSegmentInfo shm_info;
-  int32_t* data = NULL;
   size_t off = 0;
   int i = 0;
   int j = 0;
   size_t size = 0;
+
+  if(!data)
+  {
+    /* fprintf(stderr, "data is NULL!\n"); */
+    return -1;
+  }
 
   display_str = x11display ? x11display : getenv("DISPLAY");
 
   if(!display_str)
   {
     /* fprintf(stderr, "No display!\n"); */
-    return NULL;
+    return -1;
   }
 
   /* open current X11 display */
@@ -70,7 +74,7 @@ static int32_t* x11_grab_screen(const char* x11display, int32_t x, int32_t y, in
   if(!display)
   {
     /* fprintf(stderr, "Cannot open X11 display!\n"); */
-    return NULL;
+    return -1;
   }
   
   screen = DefaultScreen(display);
@@ -84,7 +88,7 @@ static int32_t* x11_grab_screen(const char* x11display, int32_t x, int32_t y, in
   if((w + x) > width || (h + y) > height)
   {
     XCloseDisplay(display);
-    return NULL;
+    return -1;
   }
 
   size = w * h;
@@ -105,7 +109,7 @@ static int32_t* x11_grab_screen(const char* x11display, int32_t x, int32_t y, in
     {
       /* fprintf(stderr, "Image cannot be created!\n"); */
       XCloseDisplay(display);
-      return NULL;
+      return -1;
     }
 
     /* setup SHM stuff */
@@ -119,7 +123,7 @@ static int32_t* x11_grab_screen(const char* x11display, int32_t x, int32_t y, in
     {
       /* fprintf(stderr, "Cannot use shared memory!\n"); */
       XCloseDisplay(display);
-      return NULL;
+      return -1;
     }
     
     /* grab screen */
@@ -129,7 +133,7 @@ static int32_t* x11_grab_screen(const char* x11display, int32_t x, int32_t y, in
       XShmDetach(display, &shm_info);
       shmdt(shm_info.shmaddr);
       XCloseDisplay(display);
-      return NULL;
+      return -1;
     }
   }
   else
@@ -142,24 +146,8 @@ static int32_t* x11_grab_screen(const char* x11display, int32_t x, int32_t y, in
     {
       /* fprintf(stderr, "Cannot grab image!\n"); */
       XCloseDisplay(display);
-      return NULL;
+      return -1;
     }
-  }
-
-  data = malloc(sizeof(int32_t) * size);
-
-  if(!data)
-  {
-    XDestroyImage(img);
-
-    if(shm_support)
-    {
-      XShmDetach(display, &shm_info);
-      shmdt(shm_info.shmaddr);
-    }
-
-    XCloseDisplay(display);
-    return NULL;
   }
 
   /* convert to Java ARGB */
@@ -189,7 +177,7 @@ static int32_t* x11_grab_screen(const char* x11display, int32_t x, int32_t y, in
   XCloseDisplay(display);
 
   /* return array */
-  return data;
+  return 0;
 }
 
 /**
@@ -211,18 +199,28 @@ JNIEXPORT jintArray JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstre
 
   obj = obj; /* not used */
 
-  data = x11_grab_screen(NULL, x, y, width, height);
-
-  if(!data)
-  {
-    return 0;
-  }
-
   ret = (*env)->NewIntArray(env, size);
 
+  if(!ret)
+  {
+    return NULL;
+  }
+
+  data = (*env)->GetIntArrayElements(env, ret, NULL);
+  
+  if(!data)
+  {
+    return NULL;
+  }
+
+  if(x11_grab_screen(NULL, data, x, y, width, height) == -1)
+  {
+    (*env)->ReleaseIntArrayElements(env, ret, data, 0);
+    return NULL;
+  }
+
   /* updates array with data's content */
-  (*env)->SetIntArrayRegion(env, ret, 0, size, data);
-  free(data);
+  (*env)->ReleaseIntArrayElements(env, ret, data, 0);
 
   return ret;
 }
