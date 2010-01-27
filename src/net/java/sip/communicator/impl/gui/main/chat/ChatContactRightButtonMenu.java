@@ -280,8 +280,8 @@ public class ChatContactRightButtonMenu
                 // we must at least be an admin to manage membership
                 if(roleIndex < 40)
                     this.add(this.grantMembershipItem);
-                else if(roleIndex == 40)
-                    this.add(this.revokeMembershipItem);
+//                else if(roleIndex == 40)
+//                    this.add(this.revokeMembershipItem);
 
                 if(roleIndex < 50)    // room admins can edit moderators list
                     this.add(this.grantModeratorItem);
@@ -290,20 +290,20 @@ public class ChatContactRightButtonMenu
             }
 
             // only room owners can edit admins list
-            if(room.getUserRole().getRoleIndex() == 70)
-            {
-                if(roleIndex != 60 && roleIndex >= 30)
-                // room owners can grant members or unaffiliated users as admins
-                    this.add(this.grantAdminItem);
-                else if(roleIndex == 60)
-                    this.add(this.revokeAdminItem);
-
-                // room owners can edit owners list
-                if(roleIndex != 70 && roleIndex >= 40)
-                    this.add(this.grantOwnershipItem);
-                else if(roleIndex == 70)
-                    this.add(this.revokeOwnershipItem);
-            }
+//            if(room.getUserRole().getRoleIndex() == 70)
+//            {
+//                if(roleIndex != 60 && roleIndex >= 30)
+//                // room owners can grant members or unaffiliated users as admins
+//                    this.add(this.grantAdminItem);
+//                else if(roleIndex == 60)
+//                    this.add(this.revokeAdminItem);
+//
+//                // room owners can edit owners list
+//                if(roleIndex != 70 && roleIndex >= 40)
+//                    this.add(this.grantOwnershipItem);
+//                else if(roleIndex == 70)
+//                    this.add(this.revokeOwnershipItem);
+//            }
         }
     }
 
@@ -401,7 +401,7 @@ public class ChatContactRightButtonMenu
         {
             room.grantVoice(chatContact.getName());
             ((ChatRoomMember)chatContact.getDescriptor()).setRole(
-                ChatRoomMemberRole.GUEST);
+                ChatRoomMemberRole.MEMBER);
         }
         else if (menuItemName.equals("grantMembershipItem"))
         {
