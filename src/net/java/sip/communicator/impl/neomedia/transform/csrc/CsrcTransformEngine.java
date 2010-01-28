@@ -284,6 +284,8 @@ public class CsrcTransformEngine
             if(!(mediaStream instanceof AudioMediaStreamImpl))
                 return;
 
+            long[][] temp = null;
+
             while(isRunning)
             {
                 synchronized(this)
@@ -296,15 +298,20 @@ public class CsrcTransformEngine
                         }
                         catch (InterruptedException ie) {}
                     }
+
+                    temp = lastReportedLevels;
+                    // make lastReportedLevels to null
+                    // so we will wait for the next level on next iteration
+                    lastReportedLevels = null;
                 }
 
-                if(lastReportedLevels != null)
+                if(temp != null)
                 {
                     //now notify our listener
                     if (mediaStream != null)
                     {
                         ((AudioMediaStreamImpl)mediaStream)
-                            .fireConferenceAudioLevelEvent(lastReportedLevels);
+                            .fireConferenceAudioLevelEvent(temp);
                     }
                 }
             }
