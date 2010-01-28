@@ -351,21 +351,34 @@ public abstract class EventPackageNotifier
         throws OperationFailedException
     {
         Dialog dialog = subscription.getDialog();
-        ClientTransaction transac
-            = createNotify(dialog, subscription, subscriptionState, reason);
-        String callId = dialog.getCallId().getCallId();
+        String callId;
 
-        try
+        /*
+         * If sending a notify is requested too quickly (and in different
+         * threads, of course), a second notify may be created prior to sending
+         * a previous one and the Dialog implementation may mess up the CSeq
+         * which will lead to "500 Request out of order".
+         */
+        synchronized (dialog)
         {
-            dialog.sendRequest(transac);
-        }
-        catch (SipException sex)
-        {
-            logger.error("Failed to send NOTIFY request.", sex);
-            throw new OperationFailedException(
-                        "Failed to send NOTIFY request.",
-                        OperationFailedException.NETWORK_FAILURE,
-                        sex);
+            ClientTransaction transac
+                = createNotify(dialog, subscription, subscriptionState, reason);
+
+            callId = dialog.getCallId().getCallId();
+
+            try
+            {
+                dialog.sendRequest(transac);
+            }
+            catch (SipException sex)
+            {
+                logger.error("Failed to send NOTIFY request.", sex);
+                throw
+                    new OperationFailedException(
+                            "Failed to send NOTIFY request.",
+                            OperationFailedException.NETWORK_FAILURE,
+                            sex);
+            }
         }
 
         if (SubscriptionState.TERMINATED.equals(subscriptionState))
@@ -728,26 +741,29 @@ public abstract class EventPackageNotifier
         addSubscription(callId, subscription);
 
         // send a NOTIFY
-        ClientTransaction transac;
-        try
+        synchronized (dialog)
         {
-            transac = createNotify( dialog, subscription,
-                    SubscriptionStateHeader.ACTIVE, null);
-        }
-        catch (OperationFailedException e)
-        {
-            logger.error("failed to create the new notify", e);
-            return false;
-        }
+            ClientTransaction transac;
+            try
+            {
+                transac = createNotify( dialog, subscription,
+                        SubscriptionStateHeader.ACTIVE, null);
+            }
+            catch (OperationFailedException e)
+            {
+                logger.error("failed to create the new notify", e);
+                return false;
+            }
 
-        try
-        {
-            dialog.sendRequest(transac);
-        }
-        catch (Exception e)
-        {
-            logger.error("Can't send the request", e);
-            return false;
+            try
+            {
+                dialog.sendRequest(transac);
+            }
+            catch (Exception e)
+            {
+                logger.error("Can't send the request", e);
+                return false;
+            }
         }
 
         // add the timeout task

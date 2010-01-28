@@ -1246,12 +1246,20 @@ public class OperationSetTelephonyConferencingSipImpl
      *
      * @param callPeer the <tt>CallPeer</tt> which is a conference focus and has
      * sent the specified conference-info XML document
+     * @param version the value of the <tt>version</tt> attribute of the
+     * <tt>conference-info</tt> XML element currently represented in the
+     * specified <tt>callPeer</tt>
      * @param conferenceInfoXML the conference-info XML document sent by
      * <tt>callPeer</tt> in order to update the conference-related information
      * of the local peer represented by the associated <tt>Call</tt>
+     * @return the value of the <tt>version</tt> attribute of the
+     * <tt>conference-info</tt> XML element of the specified
+     * <tt>conferenceInfoXML</tt> if it was successfully parsed and represented
+     * in the specified <tt>callPeer</tt>
      */
-    private void setConferenceInfoXML(
+    private int setConferenceInfoXML(
             CallPeerSipImpl callPeer,
+            int version,
             String conferenceInfoXML)
     {
         byte[] bytes;
@@ -1301,8 +1309,19 @@ public class OperationSetTelephonyConferencingSipImpl
              * conference focus.
              */
             callPeer.setConferenceFocus(true);
-            setConferenceInfoDocument(callPeer, document);
+
+            int documentVersion
+                = Integer
+                    .parseInt(
+                        document.getDocumentElement().getAttribute("version"));
+
+            if (documentVersion >= version)
+            {
+                setConferenceInfoDocument(callPeer, document);
+                return documentVersion;
+            }
         }
+        return -1;
     }
 
     /**
@@ -1476,6 +1495,13 @@ public class OperationSetTelephonyConferencingSipImpl
         private final CallPeerSipImpl callPeer;
 
         /**
+         * The value of the <tt>version</tt> attribute specified in the incoming
+         * <tt>conference-info</tt> root XML element that is currently
+         * represented in {@link #callPeer}.
+         */
+        private int version = 0;
+
+        /**
          * Initializes a new <tt>ConferenceSubscriberSubscription</tt> instance
          * which is to represent the conference subscription of the local peer
          * to the conference event package of a specific <tt>CallPeer</tt>
@@ -1535,9 +1561,16 @@ public class OperationSetTelephonyConferencingSipImpl
                 byte[] rawContent)
         {
             if (rawContent != null)
-                setConferenceInfoXML(
-                    callPeer,
-                    SdpUtils.getContentAsString(requestEvent.getRequest()));
+            {
+                int contentVersion
+                    = setConferenceInfoXML(
+                        callPeer,
+                        version,
+                        SdpUtils.getContentAsString(requestEvent.getRequest()));
+
+                if (contentVersion >= version)
+                    version = contentVersion;
+            }
         }
 
         /**
