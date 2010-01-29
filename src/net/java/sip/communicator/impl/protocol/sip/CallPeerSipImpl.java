@@ -1987,8 +1987,15 @@ public class CallPeerSipImpl
          * levels of the received media. In order to make the UI oblivious of
          * the difference, we have to translate the event to the appropriate
          * type of listener.
+         *
+         * We may end up in a conference call with 0 members if the server
+         * for some reason doesn't support sip conference (our subscribes
+         * doesn't go to the focus of the conference) and so we must
+         * pass the sound levels measured on the stream so we can see
+         * the stream activity of the call.
          */
-        if (isConferenceFocus() && (getConferenceMemberCount() < 3))
+        if (isConferenceFocus() && (getConferenceMemberCount() > 0)
+            && (getConferenceMemberCount() < 3))
         {
             long audioRemoteSSRC = getMediaHandler().getAudioRemoteSSRC();
 
