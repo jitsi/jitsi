@@ -96,11 +96,11 @@ static int x11_grab_screen(const char* x11display, int32_t* data, int32_t x, int
   /* test is XServer support SHM */
   shm_support = XShmQueryExtension(display);
 
-  /* fprintf(stdout, "Display=%s width=%d height=%d depth=%d SHM=%s\n", display_str, width, height, depth, shm_support ? "true" : "false"); */
+  /* fprintf(stderr, "Display=%s width=%d height=%d depth=%d SHM=%s\n", display_str, width, height, depth, shm_support ? "true" : "false"); */
 
   if(shm_support)
   {
-    /* fprintf(stdout, "Use XShmGetImage\n"); */
+    /* fprintf(stderr, "Use XShmGetImage\n"); */
 
     /* create image for SHM use */
     img = XShmCreateImage(display, visual, depth, ZPixmap, NULL, &shm_info, w, h);
@@ -119,27 +119,37 @@ static int x11_grab_screen(const char* x11display, int32_t* data, int32_t x, int
     shmctl(shm_info.shmid, IPC_RMID, NULL);
     shm_info.readOnly = 0;
 
+    /* attach segment and grab screen */
     if((shm_info.shmaddr == (void*)-1) || !XShmAttach(display, &shm_info))
     {
       /* fprintf(stderr, "Cannot use shared memory!\n"); */
-      XCloseDisplay(display);
-      return -1;
+      if(shm_info.shmaddr != (void*)-1)
+      {
+        shmdt(shm_info.shmaddr);
+      }
+
+      img->data = NULL;
+      XDestroyImage(img);
+      img = NULL;
+      shm_support = 0;
     }
-    
-    /* grab screen */
-    if(!XShmGetImage(display, root_window, img, x, y, 0xffffffff))
+    else if(!XShmGetImage(display, root_window, img, x, y, 0xffffffff))
     {
       /* fprintf(stderr, "Cannot grab image!\n"); */
       XShmDetach(display, &shm_info);
       shmdt(shm_info.shmaddr);
-      XCloseDisplay(display);
-      return -1;
+      XDestroyImage(img);
+      img = NULL;
+      shm_support = 0;
     }
   }
-  else
+
+  /* if XSHM is not available or has failed 
+   * use XGetImage
+   */
+  if(!img)
   {
-    /* fprintf(stdout, "Use XGetImage\n"); */
-    /* no SHM */
+    /* fprintf(stderr, "Use XGetImage\n"); */
     img = XGetImage(display, root_window, x, y, w, h, 0xffffffff, ZPixmap);
 
     if(!img)
