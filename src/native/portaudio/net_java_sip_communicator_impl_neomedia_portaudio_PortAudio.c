@@ -16,6 +16,10 @@
 //#include <sys/time.h> /* used on Windows */
 #include <time.h>
 
+#ifndef _WIN32
+#include <sys/select.h> /* for struct timeval */
+#endif
+
 typedef struct
 {
     long time;

@@ -1,9 +1,9 @@
 1. portaudio
-    - Linux
-    $./configure --enable-static --disable-shared --with-jack=no && make
+    - Linux/FreeBSD
+    $./configure --enable-static --disable-shared --with-jack=no && make (gmake on FreeBSD)
 
-    - Linux amd64
-    ./configure  --enable-static --disable-shared --with-pic --with-jack=no && make
+    - Linux/FreeBSD amd64
+    ./configure  --enable-static --disable-shared --with-pic --with-jack=no && make (gmake on FreeBSD)
 
     - Mac OS X
     $./configure  --enable-static --disable-shared && make
@@ -30,11 +30,11 @@
     - Windows
     $./configure --enable-static --disable-shared && make
 
-    - Linux
-    $./configure --enable-static --disable-shared && make
+    - Linux/FreeBSD
+    $./configure --enable-static --disable-shared && make (gmake on FreeBSD)
 
-    - Linux amd64
-    $./configure --enable-static --disable-shared --with-pic && make
+    - Linux/FreeBSD amd64
+    $./configure --enable-static --disable-shared --with-pic && make (gmake on FreeBSD)
 
     - Macosx
     $export CC="gcc -arch i386 -arch ppc -arch x86_64 -mmacosx-version-min=10.4"
@@ -43,13 +43,13 @@
     $./configure --enable-static --disable-shared && make
 
 3. jportaudio
-    - Linux
-    $ make
+    - Linux/FreeBSD
+    $ make (gmake on FreeBSD)
 
-    - Linux amd64
+    - Linux/FreeBSD amd64
     LDFLAGS=-shared -fPIC
     LIBS=-L$(SPEEX_HOME)/libspeex/.libs -L$(PORTAUDIO_HOME)/lib/.libs -Wl,-Bstatic -lportaudio -lspeexdsp -Wl,-Bdynamic -lasound -lm -lpthread
-    $ make
+    $ make (gmake on FreeBSD)
 
     - Mac OS X
     CC=gcc -arch i386 -arch ppc -arch x86_64 -mmacosx-version-min=10.3

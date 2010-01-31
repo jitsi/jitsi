@@ -28,6 +28,13 @@ LDFLAGS=-fPIC -shared
 #TARGET=../../../lib/native/linux/libffmpeg.so
 TARGET=../../../lib/native/linux-64/libffmpeg.so
 
+# FreeBSD configuration
+#CPPFLAGS+=-I$(JAVA_HOME)/include/freebsd
+#LDFLAGS=-fPIC -shared
+# Choose between 32-bit or 64-bit
+#TARGET=../../../lib/native/freebsd/libffmpeg.so
+#TARGET=../../../lib/native/freebsd-64/libffmpeg.so
+
 LIBS=-L$(FFMPEG_HOME)/libavformat -L$(FFMPEG_HOME)/libavcodec -L$(FFMPEG_HOME)/libavutil \
      -L$(FFMPEG_HOME)/libswscale -L$(X264_HOME) \
      -lavformat -lavcodec -lavutil -lswscale -lx264

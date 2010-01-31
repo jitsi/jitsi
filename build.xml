@@ -12,6 +12,7 @@
     <property name="bundles.dest.win" value="${bundles.dest}/os-specific/windows"/>
     <property name="bundles.dest.lin" value="${bundles.dest}/os-specific/linux"/>
     <property name="bundles.dest.sol" value="${bundles.dest}/os-specific/solaris"/>
+    <property name="bundles.dest.freebsd" value="${bundles.dest}/os-specific/freebsd"/>
     <property name="doc" value="doc"/>
     <property name="java.doc" value="${doc}/api"/>
     <property name="lib" value="${sc.basedir}/lib"/>
@@ -23,6 +24,8 @@
     <property name="lib.mac.noinst" value="${lib}/os-specific/mac/installer-exclude"/>
     <property name="lib.sol" value="${lib}/os-specific/solaris"/>
     <property name="lib.sol.noinst" value="${lib}/os-specific/solaris/installer-exclude"/>
+    <property name="lib.freebsd" value="${lib}/os-specific/freebsd"/>
+    <property name="lib.freebsd.noinst" value="${lib}/os-specific/freebsd/installer-exclude"/>
     <property name="lib.noinst" value="${lib}/installer-exclude"/>
     <property name="native.libs" value="${lib}/native"/>
     <property name="src" value="${sc.basedir}/src"/>
@@ -146,6 +149,38 @@
 
     <condition property="bundles.dest.os" value="${bundles.dest.mac}">
         <isset property="is.running.macos"/>
+    </condition>
+
+    <!-- FreeBSD specific properties -->
+    <condition property="is.running.freebsd" value="${os.name}">
+        <equals arg1="${os.name}" arg2="freebsd" casesensitive="false" trim="true"/>
+    </condition>
+    
+    <!-- make sure we use the freebsd-64 natives if this is a 64 bit system-->
+    <condition property="ld.library.path"
+            value="${lib}/native/freebsd-64:${system.LD_LIBRARY_PATH}">
+        <and>
+            <isset property="is.running.freebsd"/>
+            <os arch="amd64" />
+        </and>
+    </condition>
+    <!-- otherwise we go for the normal freebsd natives (i.e. os.arch==i386)-->
+    <condition property="ld.library.path"
+            value="${lib}/native/freebsd:${system.LD_LIBRARY_PATH}">
+        <isset property="is.running.freebsd"/>
+    </condition>
+
+    <condition property="os.lib.home" value="${lib}/os-specific/freebsd">
+        <isset property="is.running.freebsd"/>
+    </condition>
+
+    <condition property="ld.library.path"
+              value="${lib}/native/freebsd:${system.LD_LIBRARY_PATH}">
+        <isset property="is.running.freebsd"/>
+    </condition>
+
+    <condition property="bundles.dest.os" value="${bundles.dest.freebsd}">
+        <isset property="is.running.freebsd"/>
     </condition>
 
     <!-- set the os.lib.home here in case it was not set before -->
@@ -436,6 +471,7 @@
         <mkdir dir="${bundles.dest.mac}"/>
         <mkdir dir="${bundles.dest.lin}"/>
         <mkdir dir="${bundles.dest.win}"/>
+        <mkdir dir="${bundles.dest.freebsd}"/>
 
         <mkdir dir="${test.reports.dir}"/>
         <mkdir dir="${test.reports.dir}/html"/>
@@ -1123,6 +1159,26 @@
             <zipfileset dir="${resources}/images/impl/media"
                 prefix="resources/images/impl/media"/>
             <zipfileset src="${lib.mac.noinst}/jmf.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
+        </jar>
+
+        <!-- Creates a bundle containing the impl of the neomedia package and
+             the standard jmf implementation.-->
+        <jar
+            compress="false" destfile="${bundles.dest.freebsd}/neomedia.jar"
+            manifest="${src}/net/java/sip/communicator/impl/neomedia/neomedia.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/neomedia"
+                prefix="net/java/sip/communicator/service/neomedia"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/neomedia"
+                prefix="net/java/sip/communicator/impl/neomedia"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
+                prefix="net/java/sip/communicator/service/audionotifier"/>
+            <zipfileset dir="${resources}/images/impl/media"
+                prefix="resources/images/impl/media"/>
+            <zipfileset src="${lib.noinst}/jmf.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>

@@ -10,7 +10,7 @@ make
 ./configure --disable-pthread --disable-avs-input --disable-asm
 make
 
-- Linux, Mac OS X
+- Linux, Mac OS X, FreeBSD
 
 ./configure --enable-pic
 make
@@ -57,7 +57,7 @@ Then run:
 mingw32-make
 Note: mingw64-make failed to work (segmentation fault) that's why we fallback to mingw32-make.
 
-- Linux
+- Linux, FreeBSD
 
 ./configure \
   --disable-mmx --enable-pic \
@@ -92,7 +92,7 @@ Open Makefile, uncomment the section for your OS and comment out the others.
 Be careful to correctly set X264_HOME, FFMPEG_HOME and JAVA_HOME variables.
 
 Then run:
-make
+make (gmake on FreeBSD)
 
 Note:
 If compilation errors related to "relocation" occured, you 

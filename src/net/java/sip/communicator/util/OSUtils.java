@@ -51,6 +51,9 @@ public class OSUtils
     /** <tt>true</tt> if OS is Windows Vista. */
     public static final boolean IS_WINDOWS_VISTA;
 
+    /** <tt>true</tt> if OS is FreeBSD. */
+    public static final boolean IS_FREEBSD;
+
     static
     {
         // OS
@@ -62,6 +65,7 @@ public class OSUtils
             IS_MAC = false;
             IS_WINDOWS = false;
             IS_WINDOWS_VISTA = false;
+            IS_FREEBSD = false;
         }
         else if (osName.startsWith("Linux"))
         {
@@ -69,6 +73,7 @@ public class OSUtils
             IS_MAC = false;
             IS_WINDOWS = false;
             IS_WINDOWS_VISTA = false;
+            IS_FREEBSD = false;
         }
         else if (osName.startsWith("Mac"))
         {
@@ -76,6 +81,7 @@ public class OSUtils
             IS_MAC = true;
             IS_WINDOWS = false;
             IS_WINDOWS_VISTA = false;
+            IS_FREEBSD = false;
         }
         else if (osName.startsWith("Windows"))
         {
@@ -83,6 +89,15 @@ public class OSUtils
             IS_MAC = false;
             IS_WINDOWS = true;
             IS_WINDOWS_VISTA = (osName.indexOf("Vista") != -1);
+            IS_FREEBSD = false;
+        }
+        else if (osName.startsWith("FreeBSD"))
+        {
+            IS_LINUX = false;
+            IS_MAC = false;
+            IS_WINDOWS = false; 
+            IS_WINDOWS_VISTA = (osName.indexOf("Vista") != -1);
+            IS_FREEBSD = true;
         }
         else
         {
@@ -90,6 +105,7 @@ public class OSUtils
             IS_MAC = false;
             IS_WINDOWS = false;
             IS_WINDOWS_VISTA = false;
+            IS_FREEBSD = false;
         }
 
         // arch i.e. x86, amd64
