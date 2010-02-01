@@ -525,7 +525,8 @@ public class ProtocolProviderServiceSipImpl
         logger.debug("received response=\n" + responseEvent.getResponse());
         ClientTransaction clientTransaction = responseEvent
             .getClientTransaction();
-        if (clientTransaction == null) {
+        if (clientTransaction == null)
+        {
             logger.debug("ignoring a transactionless response");
             return;
         }
@@ -544,12 +545,8 @@ public class ProtocolProviderServiceSipImpl
                 + " processor(s) for method " + method);
 
             for (MethodProcessor processor : processors)
-            {
                 if (processor.processResponse(responseEvent))
-                {
                     break;
-                }
-            }
         }
     }
 

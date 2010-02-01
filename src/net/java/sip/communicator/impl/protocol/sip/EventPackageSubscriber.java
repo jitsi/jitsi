@@ -699,6 +699,24 @@ public class EventPackageSubscriber
         if (!Request.SUBSCRIBE.equals(cseqHeader.getMethod()))
             return false;
 
+        ClientTransaction clientTransaction
+            = responseEvent.getClientTransaction();
+        Request request = clientTransaction.getRequest();
+
+        /*
+         * Don't handle responses to requests not coming from this event
+         * package.
+         */
+        if (request != null)
+        {
+            EventHeader eventHeader
+                = (EventHeader) request.getHeader(EventHeader.NAME);
+            if ((eventHeader == null)
+                    || !eventPackage
+                            .equalsIgnoreCase(eventHeader.getEventType()))
+                return false;
+        }
+
         // Find the subscription.
         CallIdHeader callIdHeader
             = (CallIdHeader) response.getHeader(CallIdHeader.NAME);
@@ -710,8 +728,6 @@ public class EventPackageSubscriber
         // challenge, we do it
         ExpiresHeader expHeader = response.getExpires();
         int statusCode = response.getStatusCode();
-        ClientTransaction clientTransaction
-            = responseEvent.getClientTransaction();
         SipProvider sourceProvider = (SipProvider) responseEvent.getSource();
         if (((expHeader != null) && (expHeader.getExpires() == 0))
                 || (subscription == null)) // this handle the unsubscription
@@ -798,9 +814,6 @@ public class EventPackageSubscriber
                              "response");
                      return false;
                  }
-
-                 Request request = responseEvent.getClientTransaction()
-                     .getRequest();
 
                  ExpiresHeader exp = request.getExpires();
 
