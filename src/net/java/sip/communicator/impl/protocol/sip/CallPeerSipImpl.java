@@ -1399,7 +1399,7 @@ public class CallPeerSipImpl
         if (contactHeader != null)
         {
             if (getCall().isConferenceFocus())
-                contactHeader.setParameter("isfocus", "");
+                contactHeader.setParameter("isfocus", null);
             else
                 contactHeader.removeParameter("isfocus");
         }
