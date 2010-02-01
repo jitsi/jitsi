@@ -1398,6 +1398,9 @@ public class CallPeerSipImpl
 
         if (contactHeader != null)
         {
+            // we must set the value of the parameter as null
+            // in order to avoid wrong generation of the tag - ';isfocus='
+            // as it must be ';isfocus'
             if (getCall().isConferenceFocus())
                 contactHeader.setParameter("isfocus", null);
             else
