@@ -10,13 +10,12 @@ import java.awt.image.*;
 
 /**
  * This class uses native code to capture
- * desktop screen.
- *
- * It should work on all OS with underlying X11.
+ * desktop screen. It should work for Windows and 
+ * X11-based Unix such as Linux and FreeBSD.
  *
  * @author Sebastien Vincent
  */
-public class UnixScreenCapture
+public class NativeScreenCapture
 {
     static
     {
@@ -38,8 +37,8 @@ public class UnixScreenCapture
                                               int height)
     {
         DirectColorModel model
-            = new DirectColorModel(24, 0xFF0000, 0x00FF00, 0xFF);
-        int masks[] = {0xFF0000, 0xFF00, 0xFF};
+            = new DirectColorModel(32, 0xFF0000, 0x00FF00, 0xFF, 0xFF000000);
+        int masks[] = {0xFF0000, 0xFF00, 0xFF, 0xFF000000};
         WritableRaster raster = null;
         DataBufferInt buffer = null;
         BufferedImage image = null;

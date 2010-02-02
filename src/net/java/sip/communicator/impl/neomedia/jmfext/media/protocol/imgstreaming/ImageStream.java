@@ -180,13 +180,26 @@ public class ImageStream
 
             /* get desktop screen and resize it */
             screen = desktopInteract.captureScreen();
-            scaledScreen
-                = ImageStreamingUtils
-                    .getScaledImage(
-                        screen,
-                        width,
-                        height,
-                        BufferedImage.TYPE_INT_ARGB);
+
+            if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS)
+            {
+                /* with our native screencapture we 
+                 * automatically create BufferedImage in 
+                 * ARGB format so no need to rescale/convert
+                 * to ARGB
+                 */
+                scaledScreen = screen;
+            }
+            else
+            {
+                scaledScreen 
+                    = ImageStreamingUtils
+                        .getScaledImage(
+                            screen,
+                            width,
+                            height,
+                            BufferedImage.TYPE_INT_ARGB);
+            }
 
             /* get raw bytes */
             data = ImageStreamingUtils.getImageBytes(scaledScreen);

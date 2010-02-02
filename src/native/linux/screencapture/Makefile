@@ -4,17 +4,37 @@
 # \author Sebastien Vincent
 
 CC = gcc
+CFLAGS = -std=c99 -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -Wall -Wextra -pedantic -Wstrict-prototypes -Wredundant-decls
+
+# uncomment to compile on Linux
+LDFLAGS =
+CFLAGS += -fPIC
 JNI_HEADERS = -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux
-CFLAGS = -std=c99 -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -Wall -Wextra -pedantic -Wstrict-prototypes -Wredundant-decls  $(JNI_HEADERS)
+TARGET = libscreencapture.so 
+
+# uncomment to compile on Windows
+#LDFLAGS = -lgdi32
+#JNI_HEADERS = -I${JAVA_HOME}/include -I${JAVA_HOME}/include/win32
+#CFLAGS += -Wl,--kill-at 
+#TARGET = screencapture.dll
+
+# uncomment to compile on FreeBSD
+#CFLAGS += -fPIC -I/usr/local/include
+#LDFLAGS =
+#JNI_HEADERS = -I${JAVA_HOME}/include -I${JAVA_HOME}/include/freebsd
+#TARGET = libscreencapture.so 
+
+CFLAGS += $(JNI_HEADERS)
 
 all: libscreencapture
 
-libscreencapture: net_java_sip_communicator_impl_neomedia_imgstreaming_UnixScreenCapture.c
-	$(CC) -shared -fPIC $(CFLAGS) -o libscreencapture.so -O $<
+libscreencapture: net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture.c
+	$(CC) -shared $(CFLAGS) -o $(TARGET) -O $< $(LDFLAGS)
 
 # To compile 32 bit library under 64 bit system
-libscreencapture-32: net_java_sip_communicator_impl_neomedia_imgstreaming_UnixScreenCapture.c
-	$(CC) -shared -m32 $(CFLAGS) -o libscreencapture.so -O $<
+# Note: On Windows, cross-compilation is supported from gcc-4.5
+libscreencapture-32: net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture.c
+	$(CC) -shared -m32 $(CFLAGS) -o $(TARGET) -O $< $(LDFLAGS)
 
 clean:
-	rm -f *.o *.so
+	rm -f *.o *.so *.dll
