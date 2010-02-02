@@ -278,20 +278,24 @@ public class SipRegistrarConnection
         //first extract the expires value that we requested
         int requestedExpiration = 0;
         Request register = clientTransatcion.getRequest();
-        ExpiresHeader expiresHeader = register.getExpires();
 
-        if (expiresHeader != null)
-            requestedExpiration = expiresHeader.getExpires();
+        //first check for an expires param in the contact header
+        ContactHeader contactHeader = (ContactHeader) register
+            .getHeader(ContactHeader.NAME);
+        if (contactHeader != null)
+            requestedExpiration = contactHeader.getExpires();
         else
+            requestedExpiration = 0;
+
+        //Try the expires header only if there was no expiration interval in
+        //the contact address. (Bug report and fix thereof Frederic Fournier)
+        if(requestedExpiration <= 0)
         {
-            //if there is no expires header check the contact header
-            ContactHeader contactHeader = (ContactHeader) register
-                .getHeader(ContactHeader.NAME);
-            if (contactHeader != null)
-                requestedExpiration = contactHeader.getExpires();
-            else
-                requestedExpiration = 0;
+            ExpiresHeader expiresHeader = register.getExpires();
+            if (expiresHeader != null)
+                requestedExpiration = expiresHeader.getExpires();
         }
+
 
         //now check if the registrar has touched our expiration timeout in its
         //response
