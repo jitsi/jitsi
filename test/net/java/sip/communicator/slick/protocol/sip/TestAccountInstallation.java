@@ -243,6 +243,8 @@ public class TestAccountInstallation
             }
         }
 
+        table.put(ProtocolProviderFactory.FORCE_P2P_MODE, 
+            Boolean.FALSE.toString());
 
         return table;
     }

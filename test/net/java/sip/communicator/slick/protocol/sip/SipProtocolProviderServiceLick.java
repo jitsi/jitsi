@@ -80,13 +80,13 @@ public class SipProtocolProviderServiceLick
         addTestSuite(TestProtocolProviderServiceSipImpl.class);
         
         // presence tests
-//        addTest(TestOperationSetPresence.suite());
+        addTest(TestOperationSetPresence.suite());
 
         // only in online mode
         if (!SipSlickFixture.onlineTestingDisabled)
         {
             // persistent presence
-//            addTest(TestOperationSetPersistentPresence.suite());
+            addTest(TestOperationSetPersistentPresence.suite());
             
             //IM test
             addTest(TestOperationSetBasicInstantMessaging.suite());
