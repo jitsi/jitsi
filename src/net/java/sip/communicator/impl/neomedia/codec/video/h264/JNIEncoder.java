@@ -303,8 +303,7 @@ public class JNIEncoder
         avframe = FFMPEG.avcodec_alloc_frame();
         int size = width * height;
         FFMPEG.avframe_set_data(avframe, rawFrameBuffer, size, size / 4);
-        FFMPEG.avframe_set_linesize(avframe, width, height / 2,
-            width / 2);
+        FFMPEG.avframe_set_linesize(avframe, width, width / 2, width / 2);
 
         encFrameBuffer = new byte[encFrameLen];
 
