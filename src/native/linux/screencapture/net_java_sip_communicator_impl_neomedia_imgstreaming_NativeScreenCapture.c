@@ -23,6 +23,12 @@
 
 typedef __int32 int32_t; 
 
+#elif defined(__APPLE__)
+
+#include <stdint.h>
+
+#include <ApplicationServices.h>
+
 #else /* Unix */
 
 #include <stdint.h>
@@ -192,6 +198,58 @@ static int windows_grab_screen(int32_t* data, int32_t x, int32_t y, int32_t w, i
   ReleaseDC(NULL, desktop);
 
   return 0; 
+}
+
+#elif defined(__APPLE__)
+
+/**
+ * \brief Grab Mac OS X screen (with Quartz API).
+ * \param data array that will contain screen capture
+ * \param x x position to start capture
+ * \param y y position to start capture
+ * \param w capture width
+ * \param h capture height
+ * \return 0 if success, -1 otherwise
+ */
+static int quartz_grab_screen(int32_t* data, int32_t x, int32_t y, int32_t w, int32_t h)
+{
+  CGImageRef img = NULL;
+  CGDataProviderRef provider = NULL;
+  CFDataRef dataRef = NULL;
+  uint8_t* pixels = NULL;
+  size_t len = 0;
+  size_t off = 0;
+  size_t i = 0;
+  CGRect rect;
+
+  rect = CGRectMake(x, y, w, h);
+  img = CGWindowListCreateImage(rect, kCGWindowListOptionOnScreenOnly, kCGNullWindowID, kCGWindowImageDefault);
+
+  if(img == NULL)
+  {
+    fprintf(stderr, "CGWindowListCreateImage failed\n!");
+    return -1;
+  }
+
+  /* get pixels */
+  provider = CGImageGetDataProvider(img);
+  dataRef = CGDataProviderCopyData(provider);
+  pixels = (uint8_t*)CFDataGetBytePtr(dataRef);
+
+  len = CFDataGetLength(dataRef);
+
+  for(i = 0 ; i < len ; i+=4)
+  {
+    uint32_t pixel = *((uint32_t*)&pixels[i]);
+
+    pixel |= 0xff000000; /* ARGB */
+    data[off++] = pixel;
+  }
+
+  /* cleanup */
+  CGImageRelease(img);
+  CFRelease(dataRef);
+  return 0;
 }
 
 #else /* Unix */
@@ -397,6 +455,8 @@ JNIEXPORT jintArray JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstre
 
 #if defined (_WIN32) || defined(_WIN64)
   if(windows_grab_screen(data, x, y, width, height) == -1)
+#elif defined(__APPLE__)
+    if(quartz_grab_screen(data, x, y, width, height) == -1)
 #else /* Unix */
   if(x11_grab_screen(NULL, data, x, y, width, height) == -1)
 #endif

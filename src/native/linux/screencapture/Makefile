@@ -18,6 +18,12 @@ TARGET = libscreencapture.so
 #CFLAGS += -Wl,--kill-at 
 #TARGET = screencapture.dll
 
+# uncomment to compile on Mac OS X
+#CFLAGS += -fPIC -arch i386 -arch x86_64 -arch ppc -I/System/Library/Frameworks/ApplicationServices.framework/Headers
+#LDFLAGS = -framework ApplicationServices
+#JNI_HEADERS = -I/System/Library/Frameworks/JavaVM.framework/Headers 
+#TARGET = libscreencapture.jnilib 
+
 # uncomment to compile on FreeBSD
 #CFLAGS += -fPIC -I/usr/local/include
 #LDFLAGS =
@@ -38,3 +44,4 @@ libscreencapture-32: net_java_sip_communicator_impl_neomedia_imgstreaming_Native
 
 clean:
 	rm -f *.o *.so *.dll
+

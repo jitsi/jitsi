@@ -74,7 +74,7 @@ public class DesktopInteractImpl implements DesktopInteract
         BufferedImage img = null;
         Rectangle rect = null;
 
-        if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS)
+        if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS || OSUtils.IS_MAC)
         {
             return NativeScreenCapture.captureScreen(x, y, width, height);
         }

@@ -181,7 +181,7 @@ public class ImageStream
             /* get desktop screen and resize it */
             screen = desktopInteract.captureScreen();
 
-            if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS)
+            if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS || OSUtils.IS_MAC)
             {
                 /* with our native screencapture we 
                  * automatically create BufferedImage in 
