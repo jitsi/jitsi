@@ -43,6 +43,8 @@ public class SipLogger
 
     /**
      * logs a stack trace. This helps to look at the stack frame.
+     *
+     * @param traceLevel currently unused.
      */
     public void logStackTrace(int traceLevel)
     {
@@ -116,6 +118,8 @@ public class SipLogger
      * Return true/false if logging is enabled at a given level.
      *
      * @param logLevel the level that we'd like to check loggability for.
+     *
+     * @return always <tt>true</tt> regardless of <tt>logLevel</tt>'s value.
      */
     public boolean isLoggingEnabled(int logLevel)
     {
@@ -165,19 +169,37 @@ public class SipLogger
     public void enableLogging() {}
 
 
+    /**
+     * Logs the build time stamp of the jain-sip reference implementation.
+     *
+     * @param buildTimeStamp the build time stamp of the jain-sip reference
+     * implementation.
+     */
     public void setBuildTimeStamp(String buildTimeStamp)
     {
         logger.trace("JAIN-SIP RI build " + buildTimeStamp);
     }
 
+    /**
+     * Dummy implementation for {@link ServerLogger#setStackProperties(
+     * Properties)}
+     */
     public void setStackProperties(Properties stackProperties) {}
 
-    /*
-     * Implementation of ServerLogger
+    /**
+     * Dummy implementation for {@link ServerLogger#closeLogFile()}
      */
-
     public void closeLogFile() {}
 
+    /**
+     * Logs the specified message and details.
+     *
+     * @param message the message to log
+     * @param from the message sender
+     * @param to the message addressee
+     * @param sender determines whether we are the origin of this message.
+     * @param time the date this message was received at.
+     */
     public void logMessage(SIPMessage message, String from, String to,
                            boolean sender, long time)
     {
@@ -195,6 +217,16 @@ public class SipLogger
         }
     }
 
+    /**
+     * Logs the specified message and details.
+     *
+     * @param message the message to log
+     * @param from the message sender
+     * @param to the message addressee
+     * @param status message status
+     * @param sender determines whether we are the origin of this message.
+     * @param time the date this message was received at.
+     */
     public void logMessage(SIPMessage message, String from, String to,
                            String status, boolean sender, long time)
     {
@@ -212,6 +244,15 @@ public class SipLogger
         }
     }
 
+    /**
+     * Logs the specified message and details.
+     *
+     * @param message the message to log
+     * @param from the message sender
+     * @param to the message addressee
+     * @param status message status
+     * @param sender determines whether we are the origin of this message.
+     */
     public void logMessage(SIPMessage message, String from, String to,
                            String status, boolean sender)
     {
@@ -228,10 +269,42 @@ public class SipLogger
                          + "):\n" + message); }
     }
 
-    public void logException(Exception ex)
+    /**
+     * Prints the specified <tt>exception</tt> as a warning.
+     *
+     * @param exception the <tt>Exception</tt> we are passed from jain-sip.
+     */
+    public void logException(Exception exception)
     {
-        logger.warn("the following exception occured in JAIN-SIP: " + ex, ex);
+        logger.warn("the following exception occured in JAIN-SIP: "
+                        + exception, exception);
     }
 
+    /**
+     * A dummy implementation.
+     *
+     * @param sipStack ignored;
+     */
     public void setSipStack(SipStack sipStack) {}
+
+    /**
+     * Returns a logger name.
+     *
+     * @return a logger name.
+     */
+    public String getLoggerName()
+    {
+        return "SIP Communicator JAIN SIP logger.";
+    }
+
+    /**
+     * Logs the specified trace with a debuf level.
+     *
+     * @param message the trace to log.
+     */
+    public void logTrace(String message)
+    {
+        logger.debug(message);
+
+    }
 }
