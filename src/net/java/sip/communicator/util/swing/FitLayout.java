@@ -54,22 +54,28 @@ public class FitLayout
     {
         Dimension componentSize = component.getPreferredSize();
         boolean scale = false;
-        double ratio = 1;
+        double widthRatio;
+        double heightRatio;
 
         if ((componentSize.width != bounds.width) && (componentSize.width > 0))
         {
             scale = true;
-            ratio = bounds.width / (double) componentSize.width;
+            widthRatio = bounds.width / (double) componentSize.width;
         }
+        else
+            widthRatio = 1;
         if ((componentSize.height != bounds.height)
             && (componentSize.height > 0))
         {
             scale = true;
-            ratio =
-                Math.min(bounds.height / (double) componentSize.height, ratio);
+            heightRatio = bounds.height / (double) componentSize.height;
         }
+        else
+            heightRatio = 1;
         if (scale)
         {
+            double ratio = Math.min(widthRatio, heightRatio);
+
             componentSize.width = (int) (componentSize.width * ratio);
             componentSize.height = (int) (componentSize.height * ratio);
         }
