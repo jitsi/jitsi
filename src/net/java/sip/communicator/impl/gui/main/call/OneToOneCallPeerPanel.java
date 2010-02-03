@@ -358,12 +358,9 @@ public class OneToOneCallPeerPanel
     {
         public void propertyChange(PropertyChangeEvent event)
         {
-            if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING.equals(
-                    event.getPropertyName()))
-            {
-                handleLocalVideoStreamingChange(
-                        this);
-            }
+            if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING
+                    .equals(event.getPropertyName()))
+                handleLocalVideoStreamingChange(this);
         }
 
         public void videoAdded(VideoEvent event)
@@ -372,6 +369,11 @@ public class OneToOneCallPeerPanel
         }
 
         public void videoRemoved(VideoEvent event)
+        {
+            handleVideoEvent(event);
+        }
+
+        public void videoUpdate(VideoEvent event)
         {
             handleVideoEvent(event);
         }
@@ -529,20 +531,20 @@ public class OneToOneCallPeerPanel
     }
 
     /**
-     * When a video is added or removed for the <code>callPeer</code>,
-     * makes sure to display or hide it respectively.
+     * When a video is added or removed for the <tt>callPeer</tt>, makes sure to
+     * display or hide it respectively.
      *
-     * @param event a <code>VideoEvent</code> describing the added visual
-     *            <code>Component</code> representing video and the provider it
-     *            was added into or <code>null</code> if such information is not
-     *            available
+     * @param event a <tt>VideoEvent</tt> describing the added visual
+     * <tt>Component</tt> representing video and the provider it was added into
+     * or <tt>null</tt> if such information is not available
      */
     private void handleVideoEvent(final VideoEvent event)
     {
         synchronized (videoContainers)
         {
-            if ((event != null) && !event.isConsumed()
-                && (event.getOrigin() == VideoEvent.LOCAL))
+            if ((event != null)
+                    && !event.isConsumed()
+                    && (event.getOrigin() == VideoEvent.LOCAL))
             {
                 Component localVideo = event.getVisualComponent();
 
@@ -560,9 +562,7 @@ public class OneToOneCallPeerPanel
 
                 case VideoEvent.VIDEO_REMOVED:
                     if (this.localVideo == localVideo)
-                    {
                         this.localVideo = null;
-                    }
                     break;
                 }
             }
@@ -585,43 +585,96 @@ public class OneToOneCallPeerPanel
             int videoContainerCount;
 
             if ((videoTelephony != null)
-                && ((videoContainerCount = videoContainers.size()) > 0))
+                    && ((videoContainerCount = videoContainers.size()) > 0))
             {
-                Container videoContainer =
-                    videoContainers.get(videoContainerCount - 1);
-                int zOrder = 0;
+                Container videoContainer
+                    = videoContainers.get(videoContainerCount - 1);
 
-                videoContainer.removeAll();
-
-                // LOCAL
-                if (localVideo != null)
-                {
-                    videoContainer.add(localVideo, VideoLayout.LOCAL, zOrder++);
-
-                    // If the local video is turned on, we ensure that the
-                    // button is selected.
-                    if (!callDialog.isVideoButtonSelected())
-                        callDialog.setVideoButtonSelected(true);
-                }
-
-                // REMOTE
-                Component video = videoTelephony.getVisualComponent(callPeer);
-
-                if (video != null)
-                    videoContainer
-                        .add(video, VideoLayout.CENTER_REMOTE, zOrder++);
-
-                videoContainer.validate();
-
-                /*
-                 * Without explicit repainting, the remote visual Component will
-                 * not stay small after entering fullscreen, the Component shown
-                 * when there's no video will show be shown beneath the video
-                 * Component though the former has already been removed...
-                 */
-                videoContainer.repaint();
+                handleVideoEvent(event, videoContainer);
             }
         }
+    }
+
+    /**
+     * Handles a specific <tt>VideoEvent</tt> related to a specific visual
+     * <tt>Component</tt> depicting video knowing that it is to be displayed or
+     * is already displayed in a specific <tt>Container</tt>.
+     *
+     * @param videoEvent the <tt>VideoEvent</tt> describing the visual
+     * <tt>Component</tt> which was added, removed or updated
+     * @param videoContainer the <tt>Container</tt> which is to contain or
+     * already contains the visual <tt>Component</tt> described by
+     * <tt>videoEvent</tt>
+     */
+    private void handleVideoEvent(
+            VideoEvent videoEvent,
+            Container videoContainer)
+    {
+        if (videoEvent != null)
+        {
+            if ((videoEvent.getOrigin() == VideoEvent.REMOTE)
+                    && (videoEvent instanceof SizeChangeVideoEvent))
+            {
+                SizeChangeVideoEvent sizeChangeVideoEvent
+                    = (SizeChangeVideoEvent) videoEvent;
+                Component visualComponent
+                    = sizeChangeVideoEvent.getVisualComponent();
+                int width = sizeChangeVideoEvent.getWidth();
+                int height = sizeChangeVideoEvent.getHeight();
+
+                if (visualComponent.getParent() == null)
+                    visualComponent.setPreferredSize(new Dimension(width, height));
+                else if (isAncestor(videoContainer, visualComponent))
+                    ensureSize(visualComponent, width, height);
+                return;
+            }
+
+            /*
+             * We only care about VIDEO_ADDED and VIDEO_REMOVED from now on till
+             * the end of this method. And null, of course.
+             */
+            switch (videoEvent.getType())
+            {
+                case VideoEvent.VIDEO_ADDED:
+                case VideoEvent.VIDEO_REMOVED:
+                    break;
+                default:
+                    return;
+            }
+        }
+
+        int zOrder = 0;
+
+        videoContainer.removeAll();
+
+        // LOCAL
+        if (localVideo != null)
+        {
+            videoContainer.add(localVideo, VideoLayout.LOCAL, zOrder++);
+
+            /*
+             * If the local video is turned on, we ensure that the button is
+             * selected.
+             */
+            if (!callDialog.isVideoButtonSelected())
+                callDialog.setVideoButtonSelected(true);
+        }
+
+        // REMOTE
+        Component video = videoTelephony.getVisualComponent(callPeer);
+
+        if (video != null)
+            videoContainer.add(video, VideoLayout.CENTER_REMOTE, zOrder++);
+
+        videoContainer.validate();
+
+        /*
+         * Without explicit repainting, the remote visual Component will not
+         * stay small after entering fullscreen, the Component shown when there
+         * is no video will be shown beneath the video Component though the
+         * former has already been removed...
+         */
+        videoContainer.repaint();
     }
 
     private void handleLocalVideoStreamingChange(
@@ -683,6 +736,102 @@ public class OneToOneCallPeerPanel
             = CallPeerRendererUtils.createButtonBar(true, buttons);
 
         return fullScreenButtonBar;
+    }
+
+    /**
+     * Attempts to give a specific <tt>Component</tt> a visible rectangle with a
+     * specific width and a specific height if possible and sane.
+     *
+     * @param component the <tt>Component</tt> to be given a visible rectangle
+     * with the specified width and height
+     * @param width the width of the visible rectangle to be given to the
+     * specified <tt>Component</tt>
+     * @param height the height of the visible rectangle to be given to the
+     * specified <tt>Component</tt>
+     * @return <tt>true</tt> if an actual attempt has been made because it
+     * seemed possible and sounded sane; otherwise, <tt>false</tt>
+     */
+    private boolean ensureSize(Component component, int width, int height)
+    {
+        Frame frame = TransferCallButton.getFrame(component);
+
+        if (frame == null)
+            return false;
+        else if ((frame.getExtendedState() & Frame.MAXIMIZED_BOTH)
+                == Frame.MAXIMIZED_BOTH)
+        {
+            /*
+             * Forcing the size of a Component which is displayed in a maximized
+             * window does not sound like anything we want to do.
+             */
+            return false;
+        }
+        else if (frame
+                .equals(
+                    frame
+                        .getGraphicsConfiguration()
+                            .getDevice().getFullScreenWindow()))
+        {
+            /*
+             * Forcing the size of a Component which is displayed in a
+             * full-screen window does not sound like anything we want to do.
+             */
+            return false;
+        }
+        else
+        {
+            Dimension frameSize = frame.getSize();
+            Dimension componentSize = component.getSize();
+
+            int widthDelta = width - componentSize.width;
+            int heightDelta = height - componentSize.height;
+            int newFrameWidth
+                = (widthDelta > 0)
+                    ? (frameSize.width + widthDelta)
+                    : frameSize.width;
+            int newFrameHeight
+                = (heightDelta > 0)
+                    ? (frameSize.height + heightDelta)
+                    : frameSize.height;
+
+            // Don't get bigger than the screen.
+            Rectangle screenBounds
+                = frame.getGraphicsConfiguration().getBounds();
+
+            if (newFrameWidth > screenBounds.width)
+                newFrameWidth = screenBounds.width;
+            if (newFrameHeight > screenBounds.height)
+                newFrameHeight = screenBounds.height;
+
+            // Don't go out of the screen.
+            Point frameLocation = frame.getLocation();
+            int newFrameX = frameLocation.x;
+            int newFrameY = frameLocation.y;
+            int xDelta
+                = (newFrameX + newFrameWidth)
+                    - (screenBounds.x + screenBounds.width);
+            int yDelta
+                = (newFrameY + newFrameHeight)
+                    - (screenBounds.y + screenBounds.height);
+
+            if (xDelta > 0)
+            {
+                newFrameX -= xDelta;
+                if (newFrameX < screenBounds.x)
+                    newFrameX = screenBounds.x;
+            }
+            if (yDelta > 0)
+            {
+                newFrameY -= yDelta;
+                if (newFrameY < screenBounds.y)
+                    newFrameY = screenBounds.y;
+            }
+
+            component.setPreferredSize(new Dimension(width, height));
+            frame
+                .setBounds(newFrameX, newFrameY, newFrameWidth, newFrameHeight);
+            return true;
+        }
     }
 
     /**
@@ -812,6 +961,7 @@ public class OneToOneCallPeerPanel
             this.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         }
 
+        @Override
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);
@@ -931,6 +1081,33 @@ public class OneToOneCallPeerPanel
         securityPanel.refreshStates(securityString, isSecurityVerified);
 
         this.revalidate();
+    }
+
+    /**
+     * Determines whether a specific <tt>Container</tt> is an ancestor of a
+     * specific <tt>Component</tt> (in the UI hierarchy).
+     *
+     * @param container the <tt>Container</tt> which is to be tested as an
+     * ancestor of <tt>component</tt>
+     * @param component the <tt>Component</tt> which is to be tested as having
+     * <tt>container</tt> as its ancestor
+     * @return <tt>true</tt> if <tt>container</tt> is an ancestor of
+     * <tt>component</tt> (in the UI hierarchy); otherwise, <tt>false</tt>
+     */
+    private static boolean isAncestor(Container container, Component component)
+    {
+        do
+        {
+            Container parent = component.getParent();
+
+            if (parent == null)
+                return false;
+            else if (parent.equals(container))
+                return true;
+            else
+                component = parent;
+        }
+        while (true);
     }
 
     /**

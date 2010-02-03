@@ -317,6 +317,11 @@ public class VideoMediaStreamImpl
                     {
                         videoAdded(e);
                     }
+
+                    public void videoUpdate(VideoEvent e)
+                    {
+                        fireVideoEvent(e);
+                    }
                 };
 
             ((VideoMediaDeviceSession) newValue)
@@ -357,6 +362,18 @@ public class VideoMediaStreamImpl
 
         return
             videoNotifierSupport.fireVideoEvent(type, visualComponent, origin);
+    }
+
+    /**
+     * Notifies the <tt>VideoListener</tt>s registered with this instance about
+     * a specific <tt>VideoEvent</tt>.
+     *
+     * @param event the <tt>VideoEvent</tt> to be fired to the
+     * <tt>VideoListener</tt>s registered with this instance
+     */
+    protected void fireVideoEvent(VideoEvent event)
+    {
+        videoNotifierSupport.fireVideoEvent(event);
     }
 
     /**

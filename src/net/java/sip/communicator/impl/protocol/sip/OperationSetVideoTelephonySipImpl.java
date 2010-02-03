@@ -373,5 +373,20 @@ public class OperationSetVideoTelephonySipImpl
             if (delegateEvent.isConsumed())
                 event.consume();
         }
+
+        /**
+         * Forwards a specific <tt>VideoEvent</tt> to the associated delegate.
+         *
+         * @param event the <tt>VideoEvent</tt> to be forwarded to the
+         * associated delegate
+         */
+        public void videoUpdate(VideoEvent event)
+        {
+            /*
+             * TODO Since the specified event is directly fired, the sender is
+             * the original one and not this.
+             */
+            delegate.videoUpdate(event);
+        }
     }
 }

@@ -119,6 +119,8 @@ public class VideoNotifierSupport
                     case VideoEvent.VIDEO_REMOVED:
                         listener.videoRemoved(event);
                         break;
+                    default:
+                        throw new IllegalArgumentException("type");
                 }
 
             consumed = event.isConsumed();
@@ -126,6 +128,39 @@ public class VideoNotifierSupport
         else
             consumed = false;
         return consumed;
+    }
+
+    /**
+     * Notifies the <tt>VideoListener</tt>s registered with this instance about
+     * a specific <tt>VideoEvent</tt>.
+     *
+     * @param event the <tt>VideoEvent</tt> to be fired to the
+     * <tt>VideoListener</tt>s registered with this instance
+     */
+    public void fireVideoEvent(VideoEvent event)
+    {
+        VideoListener[] listeners;
+
+        synchronized (this.listeners)
+        {
+            listeners
+                = this.listeners
+                    .toArray(new VideoListener[this.listeners.size()]);
+        }
+
+        for (VideoListener listener : listeners)
+            switch (event.getType())
+            {
+                case VideoEvent.VIDEO_ADDED:
+                    listener.videoAdded(event);
+                    break;
+                case VideoEvent.VIDEO_REMOVED:
+                    listener.videoRemoved(event);
+                    break;
+                default:
+                    listener.videoUpdate(event);
+                    break;
+            }
     }
 
     /**

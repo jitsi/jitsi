@@ -235,8 +235,9 @@ public class CallPeerMediaHandler
              * @param event the neomedia <tt>VideoEvent</tt> which specifies the
              * newly-added visual <tt>Component</tt> displaying remote video
              */
-            public void videoAdded(net.java.sip.communicator.service.neomedia
-                            .event.VideoEvent event)
+            public void videoAdded(
+                    net.java.sip.communicator.service.neomedia.event.VideoEvent
+                        event)
             {
                 if (fireVideoEvent(
                         event.getType(),
@@ -253,10 +254,20 @@ public class CallPeerMediaHandler
              * @param event the neomedia <tt>VideoEvent</tt> which specifies the
              * removed visual <tt>Component</tt> displaying remote video
              */
-            public void videoRemoved(net.java.sip.communicator.service.neomedia
-                            .event.VideoEvent event)
+            public void videoRemoved(
+                    net.java.sip.communicator.service.neomedia.event.VideoEvent
+                        event)
             {
+                // VIDEO_REMOVED is forwarded the same way as VIDEO_ADDED is.
                 videoAdded(event);
+            }
+
+            public void videoUpdate(
+                    net.java.sip.communicator.service.neomedia.event.VideoEvent
+                        event)
+            {
+                fireVideoEvent(
+                    neomedia2protocol(event, CallPeerMediaHandler.this));
             }
         };
 
@@ -1264,6 +1275,49 @@ public class CallPeerMediaHandler
     }
 
     /**
+     * Creates a new
+     * <tt>net.java.sip.communicator.service.protocol.event.VideoEvent</tt>
+     * instance which represents the same notification/information as a specific
+     * <tt>net.java.sip.communicator.service.neomedia.event.VideoEvent</tt>.
+     *
+     * @param neomediaEvent the
+     * <tt>net.java.sip.communicator.service.neomedia.event.VideoEvent</tt> to
+     * represent as a
+     * <tt>net.java.sip.communicator.service.protocol.event.VideoEvent</tt>
+     * @param sender the <tt>Object</tt> to be reported as the source of the
+     * new <tt>VideoEvent</tt>
+     * @return a new
+     * <tt>net.java.sip.communicator.service.protocol.event.VideoEvent</tt>
+     * which represents the same notification/information as the specified
+     * <tt>neomediaEvent</tt>
+     */
+    private static VideoEvent neomedia2protocol(
+            net.java.sip.communicator.service.neomedia.event.VideoEvent
+                neomediaEvent,
+            Object sender)
+    {
+        if (neomediaEvent
+                instanceof
+                    net.java.sip.communicator.service.neomedia.event.SizeChangeVideoEvent)
+        {
+            net.java.sip.communicator.service.neomedia.event.SizeChangeVideoEvent
+                neomediaSizeChangeEvent
+                    = (net.java.sip.communicator.service.neomedia.event.SizeChangeVideoEvent)
+                        neomediaEvent;
+
+            return
+                new SizeChangeVideoEvent(
+                        sender,
+                        neomediaEvent.getVisualComponent(),
+                        neomediaEvent.getOrigin(),
+                        neomediaSizeChangeEvent.getWidth(),
+                        neomediaSizeChangeEvent.getHeight());
+        }
+        else
+            throw new IllegalArgumentException("neomediaEvent");
+    }
+
+    /**
      * Handles the specified <tt>answer</tt> by creating and initializing the
      * corresponding <tt>MediaStream</tt>s.
      *
@@ -1884,6 +1938,8 @@ public class CallPeerMediaHandler
                     case VideoEvent.VIDEO_REMOVED:
                         listener.videoRemoved(event);
                         break;
+                    default:
+                        throw new IllegalArgumentException("type");
                 }
 
             consumed = event.isConsumed();
@@ -1891,6 +1947,40 @@ public class CallPeerMediaHandler
         else
             consumed = false;
         return consumed;
+    }
+
+    /**
+     * Notifies the <tt>VideoListener</tt>s registered with this
+     * <tt>CallPeerMediaHandler</tt> about a specific <tt>VideoEvent</tt>.
+     *
+     * @param event the <tt>VideoEvent</tt> to fire to the
+     * <tt>VideoListener</tt>s registered with this
+     * <tt>CallPeerMediaHandler</tt>
+     */
+    public void fireVideoEvent(VideoEvent event)
+    {
+        VideoListener[] listeners;
+
+        synchronized (videoListeners)
+        {
+            listeners
+                = videoListeners
+                    .toArray(new VideoListener[videoListeners.size()]);
+        }
+
+        for (VideoListener listener : listeners)
+            switch (event.getType())
+            {
+                case VideoEvent.VIDEO_ADDED:
+                    listener.videoAdded(event);
+                    break;
+                case VideoEvent.VIDEO_REMOVED:
+                    listener.videoRemoved(event);
+                    break;
+                default:
+                    listener.videoUpdate(event);
+                    break;
+            }
     }
 
     /**
