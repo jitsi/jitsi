@@ -25,7 +25,7 @@ public class ImageStreamingAuto
      */
     public ImageStreamingAuto() throws Exception
     {
-        String name = "Experimental desktop streaming";
+        String name = "Desktop Streaming (Experimental)";
         CaptureDeviceInfo devInfo
             = new CaptureDeviceInfo(
                     name,
