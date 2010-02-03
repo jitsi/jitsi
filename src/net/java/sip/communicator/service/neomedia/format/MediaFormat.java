@@ -33,6 +33,18 @@ public interface MediaFormat
     public static final byte RTP_PAYLOAD_TYPE_UNKNOWN = -1;
 
     /**
+     * The minimum integer that is allowed for use in dynamic payload type
+     * assignment.
+     */
+    public static final int MIN_DYNAMIC_PAYLOAD_TYPE = 96;
+
+    /**
+     * The maximum integer that is allowed for use in dynamic payload type
+     * assignment.
+     */
+    public static final int MAX_DYNAMIC_PAYLOAD_TYPE = 127;
+
+    /**
      * Returns the type of this <tt>MediaFormat</tt> (e.g. audio or video).
      *
      * @return the <tt>MediaType</tt> that this format represents (e.g. audio

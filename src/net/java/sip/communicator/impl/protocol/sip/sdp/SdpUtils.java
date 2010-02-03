@@ -682,9 +682,9 @@ public class SdpUtils
          * payloadType in its answer to a different MediaFormat than the one
          * we've specified in our offer?
          */
-        if ((payloadType >= DynamicPayloadTypeRegistry.MIN_DYNAMIC_PAYLOAD_TYPE)
+        if ((payloadType >= MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
                 && (payloadType
-                        <= DynamicPayloadTypeRegistry.MAX_DYNAMIC_PAYLOAD_TYPE)
+                        <= MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE)
                 && (format != null)
                 && (ptRegistry.findFormat(payloadType) == null))
             ptRegistry.addMapping(format, payloadType);

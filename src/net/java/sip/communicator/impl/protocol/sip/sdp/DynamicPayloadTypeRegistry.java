@@ -30,21 +30,9 @@ import net.java.sip.communicator.service.neomedia.format.*;
 public class DynamicPayloadTypeRegistry
 {
     /**
-     * The minimum integer that is allowed for use in dynamic payload type
-     * assignment.
-     */
-    public static final int MIN_DYNAMIC_PAYLOAD_TYPE = 96;
-
-    /**
-     * The maximum integer that is allowed for use in dynamic payload type
-     * assignment.
-     */
-    public static final int MAX_DYNAMIC_PAYLOAD_TYPE = 127;
-
-    /**
      * A field that we use to track dynamic payload numbers that we allocate.
      */
-    private byte nextDynamicPayloadType = MIN_DYNAMIC_PAYLOAD_TYPE;
+    private byte nextDynamicPayloadType = MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE;
 
     /**
      * A table mapping <tt>MediaFormat</tt> instances to the dynamic payload
@@ -110,12 +98,12 @@ public class DynamicPayloadTypeRegistry
                     + " has already been allocated to " + alreadyMappedFmt);
         }
 
-        if( payloadType < MIN_DYNAMIC_PAYLOAD_TYPE)
+        if( payloadType < MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
         {
             throw new IllegalArgumentException(payloadType
                 + " is not a valid dynamic payload type number."
-                + " (must be between " + MIN_DYNAMIC_PAYLOAD_TYPE
-                + " and " + MAX_DYNAMIC_PAYLOAD_TYPE);
+                + " (must be between " + MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE
+                + " and " + MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE);
         }
 
         payloadTypeMappings.put(format, Byte.valueOf(payloadType));
