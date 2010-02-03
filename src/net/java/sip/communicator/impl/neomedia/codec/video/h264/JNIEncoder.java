@@ -50,8 +50,8 @@ public class JNIEncoder
 
     private long rawFrameBuffer;
 
-    // key frame every four seconds
-    private static final int IFRAME_INTERVAL = TARGET_FRAME_RATE * 4;
+    // key frame every 300 frames
+    private static final int IFRAME_INTERVAL = 300;
 
     private int framesSinceLastIFrame = IFRAME_INTERVAL + 1;
 
@@ -257,7 +257,7 @@ public class JNIEncoder
         FFMPEG.avcodeccontext_set_qcompress(avcontext, 0.6f);
 
         //int _bitRate = 768000;
-        int _bitRate = 256000;
+        int _bitRate = 128000;
         // average bit rate
         FFMPEG.avcodeccontext_set_bit_rate(avcontext, _bitRate);
         // so to be 1 in x264
@@ -265,8 +265,9 @@ public class JNIEncoder
         FFMPEG.avcodeccontext_set_rc_max_rate(avcontext, _bitRate);
         FFMPEG.avcodeccontext_set_sample_aspect_ratio(avcontext, 0, 0);
         FFMPEG.avcodeccontext_set_thread_count(avcontext, 0);
-        FFMPEG.avcodeccontext_set_time_base(avcontext, 1000, 25500); // ???
-        FFMPEG.avcodeccontext_set_quantizer(avcontext, 10, 51, 4);
+        /* time base should be 1 / frame rate */
+        FFMPEG.avcodeccontext_set_time_base(avcontext, 1, TARGET_FRAME_RATE);
+        FFMPEG.avcodeccontext_set_quantizer(avcontext, 22, 30, 4);
 
         // avcontext.chromaoffset = -2;
 
@@ -282,16 +283,19 @@ public class JNIEncoder
 
         FFMPEG.avcodeccontext_add_flags(avcontext,
             FFMPEG.CODEC_FLAG_LOOP_FILTER);
-        FFMPEG.avcodeccontext_set_me_method(avcontext, 1);
+        FFMPEG.avcodeccontext_set_me_method(avcontext, 7);
         FFMPEG.avcodeccontext_set_me_subpel_quality(avcontext, 6);
         FFMPEG.avcodeccontext_set_me_range(avcontext, 16);
         FFMPEG.avcodeccontext_set_me_cmp(avcontext, FFMPEG.FF_CMP_CHROMA);
         FFMPEG.avcodeccontext_set_scenechange_threshold(avcontext, 40);
         // Constant quality mode (also known as constant ratefactor)
-        FFMPEG.avcodeccontext_set_crf(avcontext, 0);
+        /* FFMPEG.avcodeccontext_set_crf(avcontext, 0); */
         FFMPEG.avcodeccontext_set_rc_buffer_size(avcontext, 0);
         FFMPEG.avcodeccontext_set_gop_size(avcontext, IFRAME_INTERVAL);
         FFMPEG.avcodeccontext_set_i_quant_factor(avcontext, 1f / 1.4f);
+
+        FFMPEG.avcodeccontext_set_refs(avcontext, 4);
+        FFMPEG.avcodeccontext_set_trellis(avcontext, 2);
 
         if (FFMPEG.avcodec_open(avcontext, avcodec) < 0)
             throw new RuntimeException("Could not open codec");

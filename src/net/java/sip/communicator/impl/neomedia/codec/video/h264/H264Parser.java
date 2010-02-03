@@ -24,7 +24,7 @@ public class H264Parser
     private final Logger logger = Logger.getLogger(H264Parser.class);
 
     // allocate enough space for the incoming data
-    private static final int MAX_FRAME_SIZE = 128 * 1024;
+    private static final int MAX_FRAME_SIZE = 1280 * 1024;
 
     // every NAL starts with this start sequence
     private static final byte[] startSequence = { 0, 0, 1};
