@@ -181,7 +181,7 @@ public class ImageStream
             /* get desktop screen and resize it */
             screen = desktopInteract.captureScreen();
 
-            if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS || OSUtils.IS_MAC)
+            if(screen.getType() == BufferedImage.TYPE_INT_ARGB)
             {
                 /* with our native screencapture we 
                  * automatically create BufferedImage in 
@@ -192,6 +192,7 @@ public class ImageStream
             }
             else
             {
+                /* convert to ARGB BufferedImage */
                 scaledScreen 
                     = ImageStreamingUtils
                         .getScaledImage(

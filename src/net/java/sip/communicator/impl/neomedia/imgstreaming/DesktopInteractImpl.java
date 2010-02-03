@@ -72,17 +72,23 @@ public class DesktopInteractImpl implements DesktopInteract
     public BufferedImage captureScreen(int x, int y, int width, int height)
     {
         BufferedImage img = null;
-        Rectangle rect = null;
 
         if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS || OSUtils.IS_MAC)
         {
-            return NativeScreenCapture.captureScreen(x, y, width, height);
+            img = NativeScreenCapture.captureScreen(x, y, width, height);
         }
-        else
+
+        /* in case native screen grabber is not available
+         * for the current OS or if it has failed, 
+         * fallback to Java AWT Robot
+         */
+        if(img == null)
         {
-            /* Robot has not been created so abort */
+            Rectangle rect = null;
+            
             if(robot == null)
             {
+                /* Robot has not been created so abort */
                 return null;
             }
 
@@ -90,8 +96,9 @@ public class DesktopInteractImpl implements DesktopInteract
             rect = new Rectangle(x, y, width, height);
             img = robot.createScreenCapture(rect);
             logger.info("End capture: " + System.nanoTime());
-            return img;
         }
+        
+        return img;
     }
 
     /**
