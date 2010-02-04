@@ -46,7 +46,7 @@ public class SearchField
         this.setOpaque(false);
         this.setPreferredSize(new Dimension(100, 22));
 
-        this.setTransferHandler(new ExtendedTransferHandler());
+        this.setDragEnabled(true);
         this.getDocument().addDocumentListener(this);
 
         InputMap imap = getInputMap();

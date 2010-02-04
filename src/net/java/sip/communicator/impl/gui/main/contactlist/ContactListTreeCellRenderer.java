@@ -255,7 +255,7 @@ public class ContactListTreeCellRenderer
                 if (treeNode != null && treeNode instanceof ContactNode)
                 {
                     GuiActivator.getUIService().getChatWindowManager()
-                    .startChat(((ContactNode) treeNode).getMetaContact());
+                        .startChat(((ContactNode) treeNode).getMetaContact());
                 }
             }
         });

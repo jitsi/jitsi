@@ -83,7 +83,7 @@ public class ExtendedTransferHandler
             {
                 if (comp instanceof JTextComponent)
                 {
-                    JTextComponent c = (JTextComponent)comp;
+                    JTextComponent c = (JTextComponent) comp;
 
                     if (c.isEditable() && c.isEnabled())
                     {
@@ -463,5 +463,5 @@ public class ExtendedTransferHandler
         }
 
         public void dropActionChanged(DragSourceDragEvent dsde) {}
-    } 
+    }
 }
