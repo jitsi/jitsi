@@ -254,11 +254,8 @@ public class ContactListTreeCellRenderer
             {
                 if (treeNode != null && treeNode instanceof ContactNode)
                 {
-                    ContactListPane clistPanel = GuiActivator.getUIService()
-                        .getMainFrame().getContactListPanel();
-
-                    SwingUtilities.invokeLater(clistPanel.new RunMessageWindow(
-                        ((ContactNode) treeNode).getMetaContact()));
+                    GuiActivator.getUIService().getChatWindowManager()
+                    .startChat(((ContactNode) treeNode).getMetaContact());
                 }
             }
         });
