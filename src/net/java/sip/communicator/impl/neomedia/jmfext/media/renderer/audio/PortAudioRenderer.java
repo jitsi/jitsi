@@ -36,7 +36,7 @@ public class PortAudioRenderer
     private static final String name = "PortAudio Renderer";
 
     /**
-     * The supported input formats. The Inputformats are
+     * The supported input formats. The input formats are
      * changed after the device is set.
      */
     public static Format[] supportedInputFormats = new Format[]{};
@@ -97,7 +97,7 @@ public class PortAudioRenderer
      * When start is called, the renderer begins rendering
      * any data available in its internal buffers.
      */
-    public synchronized void start()
+    public void start()
     {
         try
         {
@@ -112,7 +112,7 @@ public class PortAudioRenderer
     /**
      * Halts the rendering process.
      */
-    public synchronized void stop()
+    public void stop()
     {
         try
         {
@@ -130,7 +130,7 @@ public class PortAudioRenderer
      * @param buffer the input data.
      * @return BUFFER_PROCESSED_OK if the processing is successful.
      */
-    public synchronized int process(Buffer buffer)
+    public int process(Buffer buffer)
     {
         try
         {
@@ -163,7 +163,7 @@ public class PortAudioRenderer
      * @throws  ResourceUnavailableException If required resources cannot
      *          be opened/created.
      */
-    public synchronized void open()
+    public void open()
         throws ResourceUnavailableException
     {
         if (stream == null)
@@ -186,7 +186,7 @@ public class PortAudioRenderer
     /**
      *  Closes the plug-in.
      */
-    public synchronized void close()
+    public void close()
     {
         if (stream != null)
         {
