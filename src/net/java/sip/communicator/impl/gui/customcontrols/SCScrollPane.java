@@ -28,6 +28,9 @@ public class SCScrollPane
 {
     private static final long serialVersionUID = 0L;
 
+    /**
+     * Creates an <tt>SCSCrollPane</tt>.
+     */
     public SCScrollPane()
     {
         this.setBorder(BorderFactory.createMatteBorder(
@@ -35,7 +38,7 @@ public class SCScrollPane
 
         this.setViewport(new SCViewport());
 
-        this.getVerticalScrollBar().setUnitIncrement(30);
+        this.getVerticalScrollBar().setUnitIncrement(100);
     }
 
     /**
@@ -51,6 +54,9 @@ public class SCScrollPane
         super.setViewportView(view);
     }
 
+    /**
+     * The <tt>SCViewport</tt> used as viewport in this scrollpane.
+     */
     private static class SCViewport
         extends JViewport
     {
@@ -62,6 +68,9 @@ public class SCScrollPane
 
         private final TexturePaint texture;
 
+        /**
+         * Creates the <tt>SCViewport</tt>.
+         */
         public SCViewport()
         {
             this.setBackground(Color.WHITE);
@@ -97,12 +106,21 @@ public class SCScrollPane
             }
         }
 
+        /**
+         * Returns the boolean value of the property given by <tt>key</tt>.
+         * @param key the key of the property we look for
+         * @return the boolean value of the searched property
+         */
         private boolean getSettingsBoolean(String key)
         {
             return new Boolean(GuiActivator.getResources().getSettingsString(
                 key)).booleanValue();
         }
 
+        /**
+         * Paints this viewport.
+         * @param g the <tt>Graphics</tt> object used for painting
+         */
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);

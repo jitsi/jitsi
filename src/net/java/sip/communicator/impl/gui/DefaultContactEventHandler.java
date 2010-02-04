@@ -44,7 +44,8 @@ public class DefaultContactEventHandler
     public void contactClicked(Contact contact, int clickCount)
     {
         MetaContact metaContact
-            = mainFrame.getContactList().findMetaContactByContact(contact);
+            = GuiActivator.getContactListService()
+                .findMetaContactByContact(contact);
 
         SwingUtilities
             .invokeLater(new RunMessageWindow(metaContact, contact));

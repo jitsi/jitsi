@@ -62,16 +62,6 @@ public class DialpadDialog
     }
 
     /**
-     * Creates an instance of the <tt>DialpadDialog</tt>.
-     *
-     * @param mainCallPanel The call panel.
-     */
-    public DialpadDialog(MainCallPanel mainCallPanel)
-    {
-        this(new DialPanel(mainCallPanel));
-    }
-
-    /**
      * New panel used as background for the dialpad which would be painted with
      * round corners and a gradient background.
      */

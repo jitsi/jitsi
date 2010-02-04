@@ -70,7 +70,7 @@ public class ChatInviteDialog
         this.inviteChatTransport = chatPanel.findInviteChatTransport();
 
         MetaContactListService metaContactListService
-            = GuiActivator.getMetaContactListService();
+            = GuiActivator.getContactListService();
 
         Iterator<MetaContact> contactListIter = metaContactListService
             .findAllMetaContactsForProvider(

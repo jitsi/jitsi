@@ -82,9 +82,9 @@ public class SelectAccountPanel
     private TransparentPanel buttonPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
-    private JButton addAccountButton =
-        new JButton(
-            GuiActivator.getResources().getI18NString("service.gui.ADD_ACCOUNT"));
+    private JButton addAccountButton
+        = new JButton(GuiActivator.getResources()
+                .getI18NString("service.gui.ADD_ACCOUNT"));
 
     /**
      * Creates and initializes the <tt>SelectAccountPanel</tt>.

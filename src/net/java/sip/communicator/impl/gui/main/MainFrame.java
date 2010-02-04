@@ -9,11 +9,11 @@ package net.java.sip.communicator.impl.gui.main;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -62,22 +62,19 @@ public class MainFrame
     private final TransparentPanel statusBarPanel
         = new TransparentPanel(new BorderLayout());
 
-    private final ImageIcon moreActionsIcon = new ImageIcon(ImageLoader
-        .getImage(ImageLoader.MORE_ACTIONS_BUTTON));
-
-    private final ImageIcon moreActionsRolloverIcon = new ImageIcon(ImageLoader
-        .getImage(ImageLoader.MORE_ACTIONS_ROLLOVER_BUTTON));
+    private final TransparentPanel centerPanel
+        = new TransparentPanel(new BorderLayout(0, 0));
 
     private MainMenu menu;
 
-    private MainCallPanel mainCallPanel;
+    private final SearchField searchField;
 
-    private final HashMap<ProtocolProviderService, Integer> protocolProviders =
-        new LinkedHashMap<ProtocolProviderService, Integer>();
+    private final HashMap<ProtocolProviderService, Integer> protocolProviders
+        = new LinkedHashMap<ProtocolProviderService, Integer>();
 
     private AccountStatusPanel accountStatusPanel;
 
-    private MetaContactListService contactList;
+    private UnknownContactPanel unknownContactPanel;
 
     private final Map<ProtocolProviderService, ContactEventHandler>
         providerContactHandlers =
@@ -93,8 +90,6 @@ public class MainFrame
 
     private ContactListPane contactListPanel;
 
-    private ActionMenuGlassPane glassPane = null;
-
     /**
      * Creates an instance of <tt>MainFrame</tt>.
      */
@@ -105,7 +100,7 @@ public class MainFrame
             this.setUndecorated(true);
         }
 
-        this.mainCallPanel = new MainCallPanel(this);
+        this.searchField = new SearchField(this);
 
         this.contactListPanel = new ContactListPane(this);
 
@@ -125,16 +120,6 @@ public class MainFrame
             }
         });
 
-        addComponentListener(new ComponentAdapter()
-        {
-            @Override
-            public void componentResized(ComponentEvent e)
-            {
-                if ((glassPane != null) && glassPane.isVisible())
-                    glassPane.revalidate();
-            }
-        });
-
         this.initTitleFont();
 
         ResourceManagementService resources = GuiActivator.getResources();
@@ -146,6 +131,9 @@ public class MainFrame
         this.mainPanel.setBackground(new Color(
                 GuiActivator.getResources()
                     .getColor("service.gui.MAIN_WINDOW_BACKGROUND")));
+
+        KeyboardFocusManager.getCurrentKeyboardFocusManager()
+            .addKeyEventDispatcher(new MainKeyDispatcher());
 
         this.init();
 
@@ -166,9 +154,7 @@ public class MainFrame
         this.addKeybindingAction("main-rename",
                                 new RenameAction());
 
-        TransparentPanel northPanel = new TransparentPanel(new BorderLayout());
-
-        TransparentPanel centerPanel
+        TransparentPanel northPanel
             = new TransparentPanel(new BorderLayout(0, 0));
 
         String isToolbarExtendedString
@@ -178,35 +164,23 @@ public class MainFrame
         boolean isToolBarExtended
             = Boolean.parseBoolean(isToolbarExtendedString);
 
-        JPanel menusPanel = new JPanel(new BorderLayout());
-
         if (isToolBarExtended)
         {
-            menusPanel.add(new ExtendedQuickMenu(this), BorderLayout.SOUTH);
-        }
-        else
-        {
-            JLabel moreActionsLabel = new JLabel(moreActionsIcon);
-            moreActionsLabel.setToolTipText(GuiActivator.getResources()
-                .getI18NString("service.gui.OPEN_TOOLS"));
-            moreActionsLabel.addMouseListener(new ActionMenuMouseListener());
-
-            TransparentPanel moreActionsPanel
-                = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-            moreActionsPanel.add(moreActionsLabel);
-
-            centerPanel.add(moreActionsPanel, BorderLayout.NORTH);
+            ExtendedQuickMenu menu = new ExtendedQuickMenu(this);
+            menu.setUI(new SIPCommOpaquePanelUI());
+            northPanel.add(menu, BorderLayout.NORTH);
         }
 
         this.setJMenuBar(menu);
 
-        menusPanel.setUI(new SIPCommOpaquePanelUI());
+        northPanel.add(accountStatusPanel, BorderLayout.CENTER);
 
-        northPanel.add(menusPanel, BorderLayout.CENTER);
-        northPanel.add(accountStatusPanel, BorderLayout.SOUTH);
+        TransparentPanel searchPanel = new TransparentPanel(new BorderLayout());
+        searchPanel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+        searchPanel.add(searchField);
 
+        centerPanel.add(searchPanel, BorderLayout.NORTH);
         centerPanel.add(contactListPanel, BorderLayout.CENTER);
-        centerPanel.add(mainCallPanel, BorderLayout.SOUTH);
 
         this.mainPanel.add(northPanel, BorderLayout.NORTH);
         this.mainPanel.add(centerPanel, BorderLayout.CENTER);
@@ -267,13 +241,29 @@ public class MainFrame
     }
 
     /**
-     * Returns the <tt>MetaContactListService</tt>.
-     *
-     * @return <tt>MetaContactListService</tt> The current meta contact list.
+     * Enters or exits the "unknown contact" view. This view will propose to
+     * the user some specific operations if the current filter doesn't match
+     * any contacts.
+     * @param isEnabled <tt>true</tt> to enable the "unknown contact" view,
+     * <tt>false</tt> - otherwise.
      */
-    public MetaContactListService getContactList()
+    public void setUnknownContactView(boolean isEnabled)
     {
-        return this.contactList;
+        if (isEnabled)
+        {
+            if (unknownContactPanel == null)
+                unknownContactPanel = new UnknownContactPanel(this);
+
+            centerPanel.remove(contactListPanel);
+            centerPanel.add(unknownContactPanel, BorderLayout.CENTER);
+        }
+        else if (unknownContactPanel != null)
+        {
+            centerPanel.remove(unknownContactPanel);
+            centerPanel.add(contactListPanel, BorderLayout.CENTER);
+        }
+        centerPanel.revalidate();
+        centerPanel.repaint();
     }
 
     /**
@@ -284,12 +274,7 @@ public class MainFrame
      */
     public void setContactList(MetaContactListService contactList)
     {
-        this.contactList = contactList;
-
         contactListPanel.initList(contactList);
-
-        contactListPanel.getContactList()
-            .addListSelectionListener(mainCallPanel);
     }
 
     /**
@@ -322,7 +307,7 @@ public class MainFrame
             presence.addProviderPresenceStatusListener(
                         new GUIProviderPresenceStatusListener());
             presence.addContactPresenceStatusListener(
-                        new GUIContactPresenceStatusListener());
+                        contactListPanel.getContactList());
         }
 
         // Obtain the basic instant messaging operation set.
@@ -499,12 +484,6 @@ public class MainFrame
             this.contactListPanel.getContactList()
                     .requestFocus();
         }
-
-        if(!mainCallPanel.containsCallAccount(protocolProvider)
-            && getTelephonyOpSet(protocolProvider) != null)
-        {
-            mainCallPanel.addCallAccount(protocolProvider);
-        }
     }
 
     /**
@@ -521,15 +500,12 @@ public class MainFrame
         {
             accountStatusPanel.removeAccount(protocolProvider);
         }
-
-        if(mainCallPanel.containsCallAccount(protocolProvider))
-        {
-            mainCallPanel.removeCallAccount(protocolProvider);
-        }
     }
 
     /**
      * Returns the account user id for the given protocol provider.
+     * @param protocolProvider the protocol provider corresponding to the
+     * account to add
      * @return The account user id for the given protocol provider.
      */
     public String getAccount(ProtocolProviderService protocolProvider)
@@ -635,79 +611,21 @@ public class MainFrame
     }
 
     /**
-     * Listens for all contactPresenceStatusChanged events in order
-     * to refresh the contact list, when a status is changed.
-     */
-    private class GUIContactPresenceStatusListener implements
-            ContactPresenceStatusListener
-    {
-        /**
-         * Indicates that a contact has changed its status.
-         *
-         * @param evt the presence event containing information about the
-         * contact status change
-         */
-        public void contactPresenceStatusChanged(
-                ContactPresenceStatusChangeEvent evt)
-        {
-            Contact sourceContact = evt.getSourceContact();
-
-            MetaContact metaContact = contactList
-                    .findMetaContactByContact(sourceContact);
-
-            if (metaContact != null
-                && ((evt.getOldStatus() != evt.getNewStatus())
-                    || sourceContact.getStatusMessage() != null))
-            {
-                // Update the status in the contact list.
-                contactListPanel.getContactList().refreshContact(metaContact);
-            }
-        }
-    }
-
-    /**
      * Listens for all providerStatusChanged and providerStatusMessageChanged
      * events in order to refresh the account status panel, when a status is
      * changed.
      */
-    private class GUIProviderPresenceStatusListener implements
-            ProviderPresenceStatusListener
+    private class GUIProviderPresenceStatusListener
+        implements ProviderPresenceStatusListener
     {
         public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
         {
             ProtocolProviderService pps = evt.getProvider();
 
             accountStatusPanel.updateStatus(pps, evt.getNewStatus());
-
-            if(mainCallPanel.containsCallAccount(pps))
-            {
-                mainCallPanel.updateCallAccountStatus(pps);
-            }
         }
 
-        public void providerStatusMessageChanged(PropertyChangeEvent evt) {
-        }
-    }
-
-    /**
-     * Returns the list of all groups.
-     * @return The list of all groups.
-     */
-    public Iterator<MetaContactGroup> getAllGroups()
-    {
-        return getContactListPanel().getContactList().getAllGroups();
-    }
-
-    /**
-     * Returns the Meta Contact Group corresponding to the given MetaUID.
-     *
-     * @param metaUID An identifier of a group.
-     * @return The Meta Contact Group corresponding to the given MetaUID.
-     */
-    public MetaContactGroup getGroupByID(String metaUID)
-    {
-        return getContactListPanel()
-            .getContactList().getGroupByID(metaUID);
+        public void providerStatusMessageChanged(PropertyChangeEvent evt) {}
     }
 
     /**
@@ -717,6 +635,15 @@ public class MainFrame
     public ContactListPane getContactListPanel()
     {
         return this.contactListPanel;
+    }
+
+    /**
+     * Returns the text currently shown in the search field.
+     * @return the text currently shown in the search field
+     */
+    public String getCurrentSearchText()
+    {
+        return searchField.getText();
     }
 
     /**
@@ -891,7 +818,8 @@ public class MainFrame
         public void actionPerformed(ActionEvent e)
         {
             Object selectedObject
-                = getContactListPanel().getContactList().getSelectedValue();
+                = GuiActivator.getContactList().getSelectionPath()
+                    .getLastPathComponent();
 
             if(selectedObject instanceof MetaContact) {
                 RenameContactDialog dialog = new RenameContactDialog(
@@ -928,27 +856,22 @@ public class MainFrame
     /**
      * Overwrites the <tt>SIPCommFrame</tt> close method. This method is
      * invoked when user presses the Escape key.
+     * @param isEscaped indicates if this window has been closed by pressing
+     * the escape key
      */
     protected void close(boolean isEscaped)
     {
-        ContactList contactList = getContactListPanel().getContactList();
+        TreeContactList contactList = GuiActivator.getContactList();
 
-        ContactRightButtonMenu contactPopupMenu
-            = contactList.getContactRightButtonMenu();
-
-        GroupRightButtonMenu groupPopupMenu
-            = contactList.getGroupRightButtonMenu();
+        Component contactListRightMenu
+            = contactList.getRightButtonMenu();
 
         CommonRightButtonMenu commonPopupMenu
             = getContactListPanel().getCommonRightButtonMenu();
 
-        if(contactPopupMenu != null && contactPopupMenu.isVisible())
+        if(contactListRightMenu != null && contactListRightMenu.isVisible())
         {
-            contactPopupMenu.setVisible(false);
-        }
-        else if(groupPopupMenu != null && groupPopupMenu.isVisible())
-        {
-            groupPopupMenu.setVisible(false);
+            contactListRightMenu.setVisible(false);
         }
         else if(commonPopupMenu != null && commonPopupMenu.isVisible())
         {
@@ -1001,9 +924,14 @@ public class MainFrame
     }
 
     /**
-     *
-     * @param protocolProvider
-     * @return
+     * Returns the <tt>ContactEventHandler</tt> for contacts given by the
+     * <tt>protocolProvider</tt>. The <tt>ContactEventHandler</tt> is meant to
+     * be used from other bundles in order to change the default behavior of
+     * events generated when clicking a contact.
+     * @param protocolProvider the protocol provider for which we want to obtain
+     * a contact event handler
+     * @return the <tt>ContactEventHandler</tt> for contacts given by the
+     * <tt>protocolProvider</tt>
      */
     private ContactEventHandler getContactHandlerForProvider(
         ProtocolProviderService protocolProvider)
@@ -1111,6 +1039,8 @@ public class MainFrame
     /**
      * Adds the associated with this <tt>PluginComponentEvent</tt> component to
      * the appropriate container.
+     * @param event the <tt>PluginComponentEvent</tt> that has notified us of
+     * the add of a plugin component
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
@@ -1156,6 +1086,8 @@ public class MainFrame
     /**
      * Removes the associated with this <tt>PluginComponentEvent</tt> component
      * from this container.
+     * @param event the <tt>PluginComponentEvent</tt> that notified us of the
+     * remove of a plugin component
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
@@ -1250,26 +1182,43 @@ public class MainFrame
         }
     }
 
+    /**
+     * Brings this window to front.
+     */
     public void bringToFront()
     {
         this.toFront();
     }
 
+    /**
+     * Returns the identifier of this window.
+     * @return the identifier of this window
+     */
     public WindowID getIdentifier()
     {
         return ExportedWindow.MAIN_WINDOW;
     }
 
+    /**
+     * Returns this window.
+     * @return this window
+     */
     public Object getSource()
     {
         return this;
     }
 
+    /**
+     * Maximizes this window.
+     */
     public void maximize()
     {
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
 
+    /**
+     * Minimizes this window.
+     */
     public void minimize()
     {
         this.setExtendedState(JFrame.ICONIFIED);
@@ -1324,6 +1273,7 @@ public class MainFrame
      * given constraints.
      *
      * @param c the component to add
+     * @param container the container to which to add the given component
      * @param constraints the constraints determining the container
      */
     private void addPluginComponent(Component c,
@@ -1367,6 +1317,7 @@ public class MainFrame
      * constraints.
      *
      * @param c the component to remove
+     * @param container the container from which to remove the given component
      * @param constraints the constraints determining the container
      */
     private void removePluginComponent( Component c,
@@ -1400,26 +1351,6 @@ public class MainFrame
     }
 
     /**
-     * Returns the phone number currently entered in the phone number field.
-     *
-     * @return the phone number currently entered in the phone number field.
-     */
-    public String getCurrentPhoneNumber()
-    {
-        return mainCallPanel.getPhoneNumberComboText();
-    }
-
-    /**
-     * Changes the phone number currently entered in the phone number field.
-     *
-     * @param number the phone number to enter in the phone number field.
-     */
-    public void setCurrentPhoneNumber(String number)
-    {
-        mainCallPanel.setPhoneNumberComboText(number);
-    }
-
-    /**
      * Implementation of {@link ExportedWindow#setParams(Object[])}.
      */
     public void setParams(Object[] windowParams) {}
@@ -1440,22 +1371,21 @@ public class MainFrame
                 logger.error("Failed to gently shutdown Felix", ex);
                 System.exit(0);
             }
-            //Callig System.exit() doesn't leave the time to the felix thread to
+            //stopping a bundle doesn't leave the time to the felix thread to
             //properly end all bundles and call their Activator.stop() methods.
-            //Even if felix is not shutting down properly, you should still not
-            //try uncommenting the following line but rather see why this is
-            //happening. A likely reason might be that it is running in embedded
-            //mode or that we still have active threads that are not marked as
-            //daemon.
+            //if this causes problems don't uncomment the following line but
+            //try and see why felix isn't exiting (suggesting: is it running
+            //in embedded mode?)
             //System.exit(0);
         }
     }
 
-    /*
+    /**
      * Overrides SIPCommFrame#windowClosing(WindowEvent). Reflects the closed
      * state of this MainFrame in the configuration in order to make it
      * accessible to interested parties, displays the warning that the
      * application will not quit.
+     * @param event the <tt>WindowEvent</tt> that notified us
      */
     protected void windowClosing(WindowEvent event)
     {
@@ -1487,64 +1417,92 @@ public class MainFrame
     }
 
     /**
-     * Initializes the more actions panel.
+     * The <tt>MainKeyDispatcher</tt> is added to pre-listen KeyEvents before
+     * they're delivered to the current focus owner in order to introduce a
+     * specific behavior for the <tt>SearchField</tt> on top of the contact
+     * list.
      */
-    private class ActionMenuMouseListener extends MouseAdapter
+    private class MainKeyDispatcher implements KeyEventDispatcher
     {
-        public void mouseEntered(MouseEvent e)
+        public boolean dispatchKeyEvent(KeyEvent e)
         {
-            JLabel moreActionsLabel = (JLabel) e.getComponent();
+            // If this window is not the focus window  or if the event is not
+            // of type PRESSED we have nothing more to do here.
+            if (!isFocused()
+                || e.getID() != KeyEvent.KEY_PRESSED)
+                return false;
 
-            moreActionsLabel.setIcon(moreActionsRolloverIcon);
-            moreActionsLabel.revalidate();
-            moreActionsLabel.repaint();
-        }
+            TreeContactList contactList
+                = getContactListPanel().getContactList();
 
-        public void mouseExited(MouseEvent e)
-        {
-            JLabel moreActionsLabel = (JLabel) e.getComponent();
-
-            moreActionsLabel.setIcon(moreActionsIcon);
-            moreActionsLabel.revalidate();
-            moreActionsLabel.repaint();
-        }
-
-        public void mousePressed(MouseEvent e)
-        {
-            if ((glassPane == null) && (rootPane != null))
+            // If the search field is the focus owner.
+            if (searchField.isFocusOwner()
+                && (e.getKeyCode() == KeyEvent.VK_UP
+                    || e.getKeyCode() == KeyEvent.VK_DOWN
+                    || e.getKeyCode() == KeyEvent.VK_PAGE_UP
+                    || e.getKeyCode() == KeyEvent.VK_PAGE_DOWN
+                    || e.getKeyCode() == KeyEvent.VK_HOME
+                    || e.getKeyCode() == KeyEvent.VK_END))
             {
-                glassPane = new ActionMenuGlassPane();
-                glassPane.add(new ActionMenuPanel());
-                KeyboardFocusManager.getCurrentKeyboardFocusManager()
-                    .addPropertyChangeListener(new PropertyChangeListener()
-                    {
-                        public void propertyChange(PropertyChangeEvent e)
-                        {
-                            if ("focusOwner".equals(e.getPropertyName())
-                                && glassPane.isVisible())
-                            {
-                                // we don't want the glasspane staying on top
-                                // of certain components
-                                if (e.getNewValue() == rootPane)
-                                {
-                                    glassPane.setVisible(false);
-                                }
-                            }
-                        }
-                    });
+                contactList.selectFirstContact();
+                contactList.requestFocus();
+                return false;
+            }
 
-                rootPane.setGlassPane(glassPane);
-                glassPane.setVisible(true);
-            }
-            else if (!glassPane.isVisible())
+            // If the contact list is the focus owner.
+            if (contactList.isFocusOwner()
+                && e.getKeyCode() == KeyEvent.VK_ESCAPE)
             {
-                // we re-set the same glasspane in the root pane otherwise
-                // we are not guaranteed it will be painted in some case
-                rootPane.setGlassPane(glassPane);
-                glassPane.setVisible(true);
+                // Removes all current selections.
+                contactList.removeSelectionRows(contactList.getSelectionRows());
+
+                if (searchField.getText() != null)
+                {
+                    searchField.requestFocus();
+                }
+                return false;
             }
-            else
-                glassPane.setVisible(false);
+            TreePath selectionPath = contactList.getSelectionPath();
+
+            // No matter who is the focus owner.
+            if (e.getKeyCode() == KeyEvent.VK_ENTER
+                || e.getKeyCode() == KeyEvent.VK_ESCAPE
+                || e.getKeyCode() == KeyEvent.VK_LEFT
+                || e.getKeyCode() == KeyEvent.VK_RIGHT
+                || e.getKeyCode() == KeyEvent.VK_UP
+                || e.getKeyCode() == KeyEvent.VK_DOWN
+                || e.getKeyCode() == KeyEvent.VK_BACK_SPACE
+                || e.getKeyCode() == KeyEvent.VK_CONTROL
+                || e.getKeyCode() == KeyEvent.VK_ALT
+                || e.getKeyCode() == KeyEvent.VK_SHIFT
+                || e.getKeyCode() == KeyEvent.VK_META
+                || e.getKeyCode() == KeyEvent.VK_TAB
+                || e.getKeyCode() == KeyEvent.VK_SPACE
+                || (selectionPath != null
+                    && selectionPath.getLastPathComponent() instanceof GroupNode
+                    && (e.getKeyChar() == '+'
+                        || e.getKeyChar() == '-')))
+            {
+                return false;
+            }
+
+            if (!searchField.isFocusOwner())
+            {
+                String searchText = "";
+                if (searchField.getText() != null)
+                    searchText += searchField.getText() + e.getKeyChar();
+                else
+                    searchText += e.getKeyChar();
+
+                searchField.setText(searchText);
+
+                searchField.requestFocus();
+
+                // We don't want to dispatch further this event.
+                return true;
+            }
+
+            return false;
         }
     }
 }

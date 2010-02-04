@@ -35,7 +35,7 @@ public class SIPCommTextField
 
         this.defaultText = text;
 
-        this.setFont(getFont().deriveFont(11f));
+        this.setFont(getFont().deriveFont(10f));
         this.setForeground(Color.GRAY);
 
         this.addMouseListener(this);
@@ -51,10 +51,7 @@ public class SIPCommTextField
     {
         if (getText() == null)
         {
-            // We call the super.setText() because we have modified ours to
-            // set the default text each time someone has set null text.
-            super.setText("");
-            this.setForeground(Color.BLACK);
+            clearDefaultText();
         }
     }
 
@@ -72,8 +69,7 @@ public class SIPCommTextField
      */
     public void focusGained(FocusEvent e)
     {
-        if (getText() != null)
-            select(0, super.getText().length());
+        clearDefaultText();
     }
 
     /**
@@ -106,10 +102,13 @@ public class SIPCommTextField
      */
     public void setText(String text)
     {
-        super.setText(text);
- 
         if ((text == null || text.length() == 0) && !isFocusOwner())
             setDefaultText();
+        else
+        {
+            this.setForeground(Color.BLACK);
+            super.setText(text);
+        }
     }
 
     /**
@@ -119,5 +118,17 @@ public class SIPCommTextField
     {
         super.setText(defaultText);
         this.setForeground(Color.GRAY);
+    }
+
+    /**
+     * Clears the default text.
+     */
+    private void clearDefaultText()
+    {
+        if (super.getText().equals(defaultText))
+        {
+            super.setText("");
+            this.setForeground(Color.BLACK);
+        }
     }
 }

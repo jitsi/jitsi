@@ -122,7 +122,7 @@ public class UIServiceImpl
          * back from its event listener(s) into the mainFrame and cause a
          * NullPointerException.
          */
-        mainFrame.setContactList(GuiActivator.getMetaContactListService());
+        mainFrame.setContactList(GuiActivator.getContactListService());
 
         this.mainFrame.initBounds();
 
@@ -553,7 +553,8 @@ public class UIServiceImpl
     public ChatPanel getChat(Contact contact)
     {
         MetaContact metaContact
-            = mainFrame.getContactList().findMetaContactByContact(contact);
+            = GuiActivator.getContactListService()
+                .findMetaContactByContact(contact);
 
         return chatWindowManager.getContactChat(metaContact, true);
     }
@@ -587,9 +588,9 @@ public class UIServiceImpl
      */
     public String getCurrentPhoneNumber()
     {
-        return mainFrame.getCurrentPhoneNumber();
+        return null;
     }
- 
+
     /**
      * Changes the phone number currently entered in the phone number field.
      *
@@ -597,7 +598,7 @@ public class UIServiceImpl
      */
     public void setCurrentPhoneNumber(String phoneNumber)
     {
-        mainFrame.setCurrentPhoneNumber(phoneNumber);
+
     }
 
     /**

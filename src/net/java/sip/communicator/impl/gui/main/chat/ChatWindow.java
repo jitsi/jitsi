@@ -1195,15 +1195,14 @@ public class ChatWindow
             MetaContact selectedMetaContact
                 = (MetaContact) chatSession.getDescriptor();
 
-            ContactList clist
-                = GuiActivator.getUIService().getMainFrame()
-                    .getContactListPanel().getContactList();
+            TreeContactList clist
+                = GuiActivator.getContactList();
 
             // Remove the envelope from the contact when the chat has
             // gained the focus.
-            if(clist.isMetaContactActive(selectedMetaContact))
+            if(clist.isContactActive(selectedMetaContact))
             {
-                clist.removeActiveContact(selectedMetaContact);
+                clist.setActiveContact(selectedMetaContact, false);
             }
 
             this.getCurrentChatPanel()

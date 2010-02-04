@@ -201,7 +201,7 @@ public class ReceivedCallDialog
         // try to get its image.
         if (peer.getContact() != null)
         {
-            MetaContact metaContact = GuiActivator.getMetaContactListService()
+            MetaContact metaContact = GuiActivator.getContactListService()
                 .findMetaContactByContact(peer.getContact());
 
             byte[] avatar = metaContact.getAvatar();

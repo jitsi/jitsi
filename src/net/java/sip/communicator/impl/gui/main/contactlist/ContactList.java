@@ -90,7 +90,7 @@ public class ContactList
     {
         this.mainFrame = mainFrame;
 
-        this.contactListService = GuiActivator.getMetaContactListService();
+        this.contactListService = GuiActivator.getContactListService();
 
         this.listModel = new ContactListModel(contactListService);
         this.setModel(listModel);
@@ -415,13 +415,13 @@ public class ContactList
             {
                 switch (event.getEventID())
                 {
-                case ContactListEvent.CONTACT_SELECTED:
+                case ContactListEvent.CONTACT_CLICKED:
                     listener.contactClicked(event);
                     break;
-                case ContactListEvent.PROTOCOL_CONTACT_SELECTED:
+                case ContactListEvent.PROTOCOL_CONTACT_CLICKED:
                     listener.protocolContactClicked(event);
                     break;
-                case ContactListEvent.GROUP_SELECTED:
+                case ContactListEvent.GROUP_CLICKED:
                     listener.groupSelected(event);
                     break;
                 default:
@@ -503,7 +503,7 @@ public class ContactList
                 }
 
                 fireContactListEvent(   group,
-                                        ContactListEvent.GROUP_SELECTED,
+                                        ContactListEvent.GROUP_CLICKED,
                                         e.getClickCount());
 
                 if(!disableOpenClose)
@@ -550,8 +550,8 @@ public class ContactList
                 || (e.isControlDown() && !e.isMetaDown()))
             {
 
-                contactRightButtonMenu = new ContactRightButtonMenu(this,
-                    contact);
+//                    contactRightButtonMenu = new ContactRightButtonMenu(this,
+//                        contact);
 
                 SwingUtilities
                     .convertPointToScreen(selectedCellPoint, this);
@@ -568,7 +568,7 @@ public class ContactList
                 && e.getClickCount() > 1)
             {
                 fireContactListEvent(contact,
-                    ContactListEvent.CONTACT_SELECTED, e.getClickCount());
+                    ContactListEvent.CONTACT_CLICKED, e.getClickCount());
             }
         }
     }
@@ -1087,7 +1087,7 @@ public class ContactList
             if (!ConfigurationManager.isMoveContactConfirmationRequested())
             {
                 // we move the specified contact
-                mainFrame.getContactList().moveContact(
+                GuiActivator.getContactListService().moveContact(
                     srcContact, destMetaContact);
 
                 return;
@@ -1114,7 +1114,7 @@ public class ContactList
 
             case MessageDialog.OK_RETURN_CODE:
                 // we move the specified contact
-                mainFrame.getContactList().moveContact(
+                GuiActivator.getContactListService().moveContact(
                     srcContact, destMetaContact);
                 break;
             }
@@ -1197,7 +1197,7 @@ public class ContactList
             Iterator<Contact> contacts = srcMetaContact.getContacts();
             while(contacts.hasNext())
             {
-                mainFrame.getContactList().moveContact(
+                GuiActivator.getContactListService().moveContact(
                     contacts.next(), destMetaContact);
             }
         }
@@ -1236,7 +1236,7 @@ public class ContactList
             if (!ConfigurationManager.isMoveContactConfirmationRequested())
             {
                 // we move the specified contact
-                mainFrame.getContactList().moveContact(
+                GuiActivator.getContactListService().moveContact(
                     srcContact, destGroup);
 
                 return;
@@ -1263,7 +1263,7 @@ public class ContactList
 
             case MessageDialog.OK_RETURN_CODE:
                 // we move the specified contact
-                mainFrame.getContactList().moveContact(
+                GuiActivator.getContactListService().moveContact(
                     srcContact, destGroup);
                 break;
             }
@@ -1306,7 +1306,7 @@ public class ContactList
                 // we move the specified contact
                 try
                 {
-                    mainFrame.getContactList().moveMetaContact(
+                    GuiActivator.getContactListService().moveMetaContact(
                         srcContact, destGroup);
                 }
                 catch (MetaContactListException e)
@@ -1338,7 +1338,7 @@ public class ContactList
 
             case MessageDialog.OK_RETURN_CODE:
                 // we move the specified contact
-                mainFrame.getContactList().moveMetaContact(
+                GuiActivator.getContactListService().moveMetaContact(
                     srcContact, destGroup);
                 break;
             }

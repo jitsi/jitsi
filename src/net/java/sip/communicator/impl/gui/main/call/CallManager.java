@@ -341,6 +341,40 @@ public class CallManager
     }
 
     /**
+     * Returns a list of all currently registered telephony providers.
+     * @return a list of all currently registered telephony providers
+     */
+    public static Vector<ProtocolProviderService> getTelephonyProviders()
+    {
+        Vector<ProtocolProviderService> telephonyProviders
+            = new Vector<ProtocolProviderService>();
+
+        for (ProtocolProviderFactory providerFactory : GuiActivator
+            .getProtocolProviderFactories().values())
+        {
+            ServiceReference serRef;
+            ProtocolProviderService protocolProvider;
+
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+            {
+                serRef = providerFactory.getProviderForAccount(accountID);
+
+                protocolProvider
+                    = (ProtocolProviderService) GuiActivator.bundleContext
+                        .getService(serRef);
+
+                if (protocolProvider.getOperationSet(
+                        OperationSetBasicTelephony.class) != null
+                    && protocolProvider.isRegistered())
+                {
+                    telephonyProviders.add(protocolProvider);
+                }
+            }
+        }
+        return telephonyProviders;
+    }
+
+    /**
      * Creates a call from a given Contact or a given String.
      */
     private static class CreateCallThread

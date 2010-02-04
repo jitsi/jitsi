@@ -15,25 +15,25 @@ public class ContactListEvent
     extends EventObject{
 
     private int eventID = -1;
-    
+
     /**
      * Indicates that the ContactListEvent instance was triggered by
      * selecting a contact in the contact list.
      */
-    public static final int CONTACT_SELECTED = 1;
-   
+    public static final int CONTACT_CLICKED = 1;
+
     /**
      * Indicates that the ContactListEvent instance was triggered by
      * selecting a protocol contact in the contact list.
      */
-    public static final int PROTOCOL_CONTACT_SELECTED = 2;
-    
+    public static final int PROTOCOL_CONTACT_CLICKED = 2;
+
     /**
      * Indicates that the ContactListEvent instance was triggered by selecting
      * a group in the contact list.
      */
-    public static final int GROUP_SELECTED = 3;
-    
+    public static final int GROUP_CLICKED = 3;
+
     /**
      * Indicated the number of click accompanying the event
      */
@@ -44,7 +44,7 @@ public class ContactListEvent
      * the event if any, null otherwise.
      */
     private Contact sourceProtoContact;
-    
+
     /**
      * Creates a new ContactListEvent according to the specified parameters.
      * @param source the MetaContact which was selected

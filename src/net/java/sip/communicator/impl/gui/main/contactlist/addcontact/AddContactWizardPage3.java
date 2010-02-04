@@ -16,22 +16,40 @@ import net.java.sip.communicator.service.gui.*;
  * 
  * @author Yana Stamcheva
  */
-public class AddContactWizardPage3 implements WizardPage {
-
+public class AddContactWizardPage3
+    implements WizardPage
+{
     public static final String IDENTIFIER = "ADD_CONTACT_PANEL";
-    
+
     private AddContactPanel addContactPanel;
-    
+
     private NewContact newContact;
-    
+
     /**
      * Creates an instance of <tt>AddContactWizardPage3</tt>.
+     * @param wizard the parent wizard
+     * @param newContact An object that collects all user choices through the
+     * wizard.
+     * @param contactAddress the address of the contact to add
+     */
+    public AddContactWizardPage3(Wizard wizard, NewContact newContact,
+                                String contactAddress)
+    {
+        this.addContactPanel = new AddContactPanel(wizard, contactAddress);
+
+        this.newContact = newContact;
+    }
+
+    /**
+     * Creates an instance of <tt>AddContactWizardPage3</tt>.
+     * @param wizard the parent wizard
      * @param newContact An object that collects all user choices through the
      * wizard.
      */
-    public AddContactWizardPage3(Wizard wizard, NewContact newContact) {
+    public AddContactWizardPage3(Wizard wizard, NewContact newContact)
+    {
         this.addContactPanel = new AddContactPanel(wizard);
-        
+
         this.newContact = newContact;
     }
     

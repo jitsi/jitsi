@@ -213,7 +213,7 @@ public class ConferenceInviteDialog
         this.removeAllMetaContacts();
 
         MetaContactListService metaContactListService
-            = GuiActivator.getMetaContactListService();
+            = GuiActivator.getContactListService();
 
         Iterator<MetaContact> contactListIter = metaContactListService
             .findAllMetaContactsForProvider(protocolProvider);

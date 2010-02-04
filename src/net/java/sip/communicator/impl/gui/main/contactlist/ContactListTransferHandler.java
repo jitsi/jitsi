@@ -11,6 +11,7 @@ import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -30,7 +31,7 @@ public class ContactListTransferHandler
     private static final Logger logger
         = Logger.getLogger(ContactListTransferHandler.class);
 
-    private final DefaultContactList contactList;
+    private final DefaultTreeContactList contactList;
 
     /**
      * Creates an instance of <tt>ContactListTransferHandler</tt> passing the
@@ -38,7 +39,7 @@ public class ContactListTransferHandler
      * @param contactList the <tt>DefaultContactList</tt> which uses this
      * <tt>TransferHandler</tt>
      */
-    public ContactListTransferHandler(DefaultContactList contactList)
+    public ContactListTransferHandler(DefaultTreeContactList contactList)
     {
         this.contactList = contactList;
     }
@@ -52,11 +53,13 @@ public class ContactListTransferHandler
      */
     public Transferable createTransferable(JComponent component)
     {
-        if (component instanceof JList)
+        if (component instanceof JTree)
         {
-            JList list = (JList) component;
+            JTree tree = (JTree) component;
+            TreePath selectionPath = tree.getSelectionPath();
             return new ContactListTransferable(
-                list.getSelectedIndex(), list.getSelectedValue());
+                tree.getRowForPath(selectionPath),
+                selectionPath.getLastPathComponent());
         }
 
         return super.createTransferable(component);
@@ -156,34 +159,38 @@ public class ContactListTransferHandler
                     logger.debug("Failed to drop meta contact.", e);
             }
 
-            if (o instanceof MetaContact
-                && comp instanceof ContactList)
+            if (o instanceof ContactNode
+                && comp instanceof TreeContactList)
             {
-                MetaContact transferredContact = (MetaContact) o;
-                ContactList list = (ContactList) comp;
+                MetaContact transferredContact
+                    = ((ContactNode) o).getMetaContact();
+                TreeContactList list = (TreeContactList) comp;
 
-                Object dest = list.getSelectedValue();
+                Object dest
+                    = list.getSelectionPath().getLastPathComponent();
 
                 if (transferredContact != null)
                 {
-                    if (dest instanceof MetaContact)
+                    if (dest instanceof ContactNode)
                     {
-                        MetaContact destContact = (MetaContact) dest;
+                        MetaContact destContact
+                            = ((ContactNode) dest).getMetaContact();
                         if (transferredContact != destContact)
                         {
-                            list.moveMetaContactToMetaContact(
+                            MetaContactListManager.moveMetaContactToMetaContact(
                                 transferredContact, destContact);
                         }
                         return true;
                     }
-                    else if (dest instanceof MetaContactGroup)
+                    else if (dest instanceof GroupNode)
                     {
-                        MetaContactGroup destGroup = (MetaContactGroup) dest;
+                        MetaContactGroup destGroup
+                            = ((GroupNode) dest).getMetaContactGroup();
 
                         if (transferredContact.getParentMetaContactGroup()
                                 != destGroup)
                         {
-                            list.moveMetaContactToGroup(
+                            MetaContactListManager.moveMetaContactToGroup(
                                 transferredContact, destGroup);
                         }
                         return true;
@@ -206,7 +213,7 @@ public class ContactListTransferHandler
      */
     public Icon getVisualRepresentation(Transferable t)
     {
-        ContactListCellRenderer renderer = null;
+        ContactListTreeCellRenderer renderer = null;
 
         if (t instanceof ContactListTransferable)
         {
@@ -214,12 +221,17 @@ public class ContactListTransferHandler
 
             try
             {
-                renderer = (ContactListCellRenderer)
+                renderer = (ContactListTreeCellRenderer)
                     contactList.getCellRenderer()
-                        .getListCellRendererComponent(
+                        .getTreeCellRendererComponent(
                         contactList,
                         transferable.getTransferData(metaContactDataFlavor),
-                        transferable.getTransferIndex(), false, false);
+                        true, // is selected
+                        false, // is expanded
+                        true, // is leaf
+                        transferable.getTransferIndex(),
+                        true // has focus
+                        );
             }
             catch (UnsupportedFlavorException e)
             {
@@ -250,7 +262,8 @@ public class ContactListTransferHandler
     private ChatPanel getChatPanel()
     {
         ChatPanel chatPanel = null;
-        Object selectedObject = contactList.getSelectedValue();
+        Object selectedObject
+            = contactList.getSelectionPath().getLastPathComponent();
 
         if (selectedObject instanceof MetaContact)
         {

@@ -975,11 +975,11 @@ public class ConfigurationManager
 
     /**
      * Stores the last group <tt>status</tt> for the given <tt>groupID</tt>.
-     * @param groupID the ideintifier of the group
-     * @param status the status to store
+     * @param groupID the identifier of the group
+     * @param isCollapsed indicates if the group is collapsed or expanded
      */
-    public static void storeContactListGroupStatus( String groupID,
-                                                    boolean status)
+    public static void setContactListGroupCollapsed(String groupID,
+                                                    boolean isCollapsed)
     {
         String prefix = "net.java.sip.communicator.impl.gui.contactlist.groups";
 
@@ -996,7 +996,7 @@ public class ConfigurationManager
             {
                 configService.setProperty(  groupRootPropName
                     + ".isClosed",
-                    Boolean.toString(status));
+                    Boolean.toString(isCollapsed));
 
                 isExistingGroup = true;
                 break;
@@ -1015,16 +1015,18 @@ public class ConfigurationManager
 
             configService.setProperty(  groupPackage
                                             + ".isClosed",
-                                        Boolean.toString(status));
+                                        Boolean.toString(isCollapsed));
         }
     }
 
     /**
-     * Returns the last status of the group given by the <tt>groupID</tt>.
+     * Returns <tt>true</tt> if the group given by <tt>groupID</tt> is collapsed
+     * or <tt>false</tt> otherwise.
      * @param groupID the identifier of the group
-     * @return the last group status (opened or closed)
+     * @return <tt>true</tt> if the group given by <tt>groupID</tt> is collapsed
+     * or <tt>false</tt> otherwise
      */
-    public static boolean getContactListGroupStatus(String groupID)
+    public static boolean isContactListGroupCollapsed(String groupID)
     {
         String prefix = "net.java.sip.communicator.impl.gui.contactlist.groups";
 

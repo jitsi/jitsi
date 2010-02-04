@@ -250,32 +250,30 @@ public class ChatWindowManager
         synchronized (syncChat)
         {
             ChatPanel activePanel = null;
-            synchronized (chatPanels) 
+
+            for (ChatPanel chatPanel : chatPanels)
             {
-                for (ChatPanel chatPanel : chatPanels)
+                if (chatPanel.getChatSession() instanceof
+                    AdHocConferenceChatSession)
                 {
-                    if (chatPanel.getChatSession() instanceof
-                        AdHocConferenceChatSession)
-                    {
-                        AdHocConferenceChatSession adHocSession
-                            = (AdHocConferenceChatSession) chatPanel
-                                .getChatSession();
+                    AdHocConferenceChatSession adHocSession
+                        = (AdHocConferenceChatSession) chatPanel
+                            .getChatSession();
 
-                        GuiActivator.getUIService().getConferenceChatManager()
-                .leaveChatRoom((AdHocChatRoomWrapper) 
-                    adHocSession.getDescriptor());
-                        }
+                    GuiActivator.getUIService().getConferenceChatManager()
+                        .leaveChatRoom(
+                            (AdHocChatRoomWrapper) adHocSession.getDescriptor());
+                }
 
-                    if (!chatPanel.isWriteAreaEmpty()
-                        || chatPanel.containsActiveFileTransfers()
-                || System.currentTimeMillis() - chatWindow
-                .getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
-                    {
-                        activePanel = chatPanel;
-                    }
+                if (!chatPanel.isWriteAreaEmpty()
+                    || chatPanel.containsActiveFileTransfers()
+                    || System.currentTimeMillis() - chatWindow
+                    .getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
+                {
+                    activePanel = chatPanel;
                 }
             }
-            
+
             if (activePanel == null)
             {
                 this.disposeChatWindow(chatWindow);
@@ -977,11 +975,7 @@ public class ChatWindowManager
         GuiActivator.getUIService().unregisterExportedWindow(chatWindow);
         chatWindow.dispose();
 
-        ContactList clist
-            = GuiActivator.getUIService().getMainFrame()
-                .getContactListPanel().getContactList();
-
         // Remove the envelope from the all active contacts in the contact list.
-        clist.removeAllActiveContacts();
+        GuiActivator.getContactList().deactivateAll();
     }
 }

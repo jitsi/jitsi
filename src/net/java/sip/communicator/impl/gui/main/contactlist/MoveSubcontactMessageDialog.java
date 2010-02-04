@@ -81,13 +81,12 @@ public class MoveSubcontactMessageDialog
             GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
         this.cancelButton.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 dispose();
 
-                ContactList clist
-                    = mainFrame.getContactListPanel().getContactList();
-
-                clist.removeExcContactListListener(clistListener);
+                GuiActivator.getContactList()
+                    .removeContactListListener(clistListener);
 
                 // FIXME: unset the special cursor after a subcontact has been
                 // moved (other related FIXMEs in ContactRightButtonMenu.java)

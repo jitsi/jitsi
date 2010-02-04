@@ -254,6 +254,30 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.CALL_BUTTON_BG");
 
     /**
+     * The call button small image.
+     */
+    public static final ImageID CALL_BUTTON_SMALL
+        = new ImageID("service.gui.buttons.CALL_BUTTON_SMALL");
+
+    /**
+     * The call button small pressed image.
+     */
+    public static final ImageID CALL_BUTTON_SMALL_PRESSED
+        = new ImageID("service.gui.buttons.CALL_BUTTON_SMALL_PRESSED");
+
+    /**
+     * The chat button small image.
+     */
+    public static final ImageID CHAT_BUTTON_SMALL
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_SMALL");
+
+    /**
+     * The chat button small pressed image.
+     */
+    public static final ImageID CHAT_BUTTON_SMALL_PRESSED
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_SMALL_PRESSED");
+
+    /**
      * The hangup button image.
      */
     public static final ImageID HANGUP_BUTTON_BG
@@ -741,6 +765,12 @@ public class ImageLoader
      */
     public static final ImageID DEFAULT_FILE_ICON
         = new ImageID("service.gui.icons.DEFAULT_FILE_ICON");
+
+    /**
+     * The icon used to indicate a connecting state.
+     */
+    public static final ImageID CONNECTING_ICON
+        = new ImageID("service.gui.icons.CONNECTING");
 
     /**
      * The tools icon shown in conference calls.

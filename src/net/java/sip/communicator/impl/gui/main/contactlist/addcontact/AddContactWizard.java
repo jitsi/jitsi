@@ -44,7 +44,21 @@ public class AddContactWizard
 
     private AddContactWizardPage3 page3;
 
+    /**
+     * Creates an <tt>AddContactWizard</tt> by specifying the parent window.
+     * @param mainFrame the parent window
+     */
     public AddContactWizard(MainFrame mainFrame)
+    {
+        this(mainFrame, null);
+    }
+
+    /**
+     * Creates an <tt>AddContactWizard</tt> by specifying the parent window.
+     * @param mainFrame the parent window
+     * @param contactAddress the address of the contact to add
+     */
+    public AddContactWizard(MainFrame mainFrame, String contactAddress)
     {
         super(mainFrame);
 
@@ -83,13 +97,16 @@ public class AddContactWizard
 
         this.registerWizardPage(AddContactWizardPage2.IDENTIFIER, page2);
 
-        page3 = new AddContactWizardPage3(this, newContact);
+        if (contactAddress != null)
+            page3 = new AddContactWizardPage3(this, newContact, contactAddress);
+        else
+            page3 = new AddContactWizardPage3(this, newContact);
 
         this.registerWizardPage(AddContactWizardPage3.IDENTIFIER, page3);
 
         this.setCurrentPage(AddContactWizardPage1.IDENTIFIER);
     }
-    
+
     /**
      * Creates new wizard with already defined protocol and 
      * contact address
@@ -126,9 +143,11 @@ public class AddContactWizard
             this.newContact = newContact;
         }
         
-        public void run() {
-            try {
-                mainFrame.getContactList()
+        public void run()
+        {
+            try
+            {
+                GuiActivator.getContactListService()
                     .createMetaContact(
                     pps, group, newContact.getUin());
             }
@@ -180,6 +199,11 @@ public class AddContactWizard
         }
     }
 
+    /**
+     * Indicates that the wizard has been finished (the user has pressed the
+     * "Finish" button).
+     * @param e the <tt>WizardEvent</tt> that notified us
+     */
     public void wizardFinished(WizardEvent e)
     {
         if(e.getEventCode() == WizardEvent.SUCCESS)
@@ -199,6 +223,7 @@ public class AddContactWizard
     /**
      * Invokes the <tt>Wizard.showDialog</tt> method in order to perform
      * additional operations when visualizing this component.
+     * @param isVisible indicates if the wizard is already visible
      */
     public void setVisible(boolean isVisible)
     {

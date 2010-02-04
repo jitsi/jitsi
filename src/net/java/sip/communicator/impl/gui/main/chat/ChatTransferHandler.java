@@ -16,6 +16,7 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -140,9 +141,10 @@ public class ChatTransferHandler
                 logger.debug("Failed to drop meta contact.", e);
             }
 
-            if (o instanceof MetaContact)
+            if (o instanceof ContactNode)
             {
-                MetaContact metaContact = (MetaContact) o;
+                MetaContact metaContact
+                    = ((ContactNode) o).getMetaContact();
 
                 ChatTransport currentChatTransport
                     = chatPanel.getChatSession().getCurrentChatTransport();
@@ -171,7 +173,7 @@ public class ChatTransferHandler
                             "service.gui.ERROR"),
                         GuiActivator.getResources().getI18NString(
                             "service.gui.CONTACT_NOT_SUPPORTING_CHAT_CONF",
-                            new String[]{contact}))
+                            new String[]{metaContact.getDisplayName()}))
                     .showDialog();
             }
         }

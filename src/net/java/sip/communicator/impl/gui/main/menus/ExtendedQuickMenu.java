@@ -184,8 +184,8 @@ public class ExtendedQuickMenu
             try
             {
                 Object selectedValue
-                    = mainFrame.getContactListPanel().getContactList()
-                        .getSelectedValue();
+                    = GuiActivator.getContactList()
+                        .getSelectionPath().getLastPathComponent();
 
                 for (ServiceReference serRef : serRefs)
                 {
@@ -242,7 +242,8 @@ public class ExtendedQuickMenu
 
         boolean added = addPluginComponent(
             component,
-            mainFrame.getContactListPanel().getContactList().getSelectedValue());
+            GuiActivator.getContactList()
+                .getSelectionPath().getLastPathComponent());
 
         if (added)
         {
@@ -362,8 +363,8 @@ public class ExtendedQuickMenu
         {
             for (PluginComponent plugin : pluginsTable.keySet())
             {
-                Object selectedValue = mainFrame.getContactListPanel()
-                    .getContactList().getSelectedValue();
+                Object selectedValue = GuiActivator
+                    .getContactList().getSelectionPath().getLastPathComponent();
 
                 if(selectedValue instanceof MetaContact)
                 {
@@ -489,14 +490,13 @@ public class ExtendedQuickMenu
         }
         else if (buttonName.equals("search"))
         {
-            ContactList contactList = mainFrame.getContactListPanel()
-                .getContactList();
+            TreeContactList contactList = GuiActivator.getContactList();
 
             ContactListModel listModel
                 = (ContactListModel) contactList.getModel();
 
             Object selectedObject = null;
-            int currentlySelectedIndex = contactList.getSelectedIndex();
+            int currentlySelectedIndex = contactList.getSelectionRows()[0];
             if(currentlySelectedIndex != -1)
             {
                 selectedObject
@@ -520,18 +520,13 @@ public class ExtendedQuickMenu
                     .getI18NString("service.gui.HIDE_OFFLINE_CONTACTS"));
             }
 
-            contactList.setShowOffline(!ConfigurationManager.isShowOffline());
-
-            if (selectedObject != null)
-            {
-                contactList.setSelectedIndex(
-                    listModel.indexOf(selectedObject));
-            }
+            GuiActivator.getContactList()
+                .applyFilter(TreeContactList.presenceFilter);
         }
         else if (buttonName.equals("info"))
         {
             Object selectedValue = mainFrame.getContactListPanel()
-                .getContactList().getSelectedValue();
+                .getContactList().getSelectionPath().getLastPathComponent();
 
             if (selectedValue == null
                     || !(selectedValue instanceof MetaContact))

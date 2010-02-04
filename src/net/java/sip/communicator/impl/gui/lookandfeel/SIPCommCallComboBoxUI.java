@@ -118,7 +118,7 @@ public class SIPCommCallComboBoxUI extends SIPCommComboBoxUI
             int popupHeight = getPopupHeightForRowCount(
                     comboBox.getMaximumRowCount());
 
-            popupSize.setSize(popupSize.width - (insets.right + insets.left), 
+            popupSize.setSize(popupSize.width - (insets.right + insets.left),
                               popupHeight);
             Rectangle popupBounds = computePopupBounds(
                     0,
@@ -137,5 +137,45 @@ public class SIPCommCallComboBoxUI extends SIPCommComboBoxUI
 
             return popupLocation;
         }
+    }
+
+    /**
+     * Creates and initializes the components which make up the
+     * aggregate combo box. This method is called as part of the UI
+     * installation process.
+     */
+    protected void installComponents()
+    {
+        if (arrowButton != null)
+            configureArrowButton();
+
+        if (comboBox.isEditable())
+            addEditor();
+
+        comboBox.add(currentValuePane);
+    }
+
+    /**
+     * Returns the area that is reserved for drawing the currently selected item.
+     * @return the rectangle
+     */
+    protected Rectangle rectangleForCurrentValue()
+    {
+        int width = comboBox.getWidth();
+        int height = comboBox.getHeight();
+
+        Insets insets = getInsets();
+        int buttonSize = 0;
+        if ( arrowButton != null )
+            buttonSize = arrowButton.getWidth();
+
+        if(comboBox.getComponentOrientation().isLeftToRight())
+            return new Rectangle(insets.left, insets.top,
+                 width - (insets.left + insets.right + buttonSize),
+                             height - (insets.top + insets.bottom));
+        else
+            return new Rectangle(insets.left + buttonSize, insets.top,
+                 width - (insets.left + insets.right + buttonSize),
+                             height - (insets.top + insets.bottom));
     }
 }

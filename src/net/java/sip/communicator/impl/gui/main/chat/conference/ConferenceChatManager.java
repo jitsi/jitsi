@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 // Java 1.6 has javax.swing.SwingWorker so we have to disambiguate.
-import org.jdesktop.swingworker.*;
+import org.jdesktop.swingworker.SwingWorker;
 import org.osgi.framework.*;
 
 /**
@@ -128,7 +128,9 @@ public class ConferenceChatManager
     {
         InvitationReceivedDialog dialog
             = new InvitationReceivedDialog(
-                this, evt.getSourceOperationSet(), evt.getInvitation());
+                    this,
+                    evt.getSourceOperationSet(),
+                    evt.getInvitation());
 
         dialog.setVisible(true);
     }
@@ -435,7 +437,7 @@ public class ConferenceChatManager
                 else
                     chatWindowManager.openChat(chatPanel, true);
             }
-            
+
             sourceAdHocChatRoom.addMessageListener(this);
         }
         else if (evt.getEventType().equals(

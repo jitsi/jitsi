@@ -75,7 +75,7 @@ public class MetaContactChatSession
 
         // Obtain the MetaContactListService and add this class to it as a
         // listener of all events concerning the contact list.
-        metaContactListService = GuiActivator.getMetaContactListService();
+        metaContactListService = GuiActivator.getContactListService();
 
         if (metaContactListService != null)
             metaContactListService.addMetaContactListListener(this);
@@ -491,7 +491,7 @@ public class MetaContactChatSession
             Object chatSourceContact = chatContact.getDescriptor();
 
             MetaContact parentMetaContact
-                = GuiActivator.getMetaContactListService()
+                = GuiActivator.getContactListService()
                     .findMetaContactByContact((Contact) chatSourceContact);
 
             if(parentMetaContact != null

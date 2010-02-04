@@ -231,7 +231,6 @@ public interface MetaContactGroup
      */
     public int indexOf(MetaContactGroup metaContactGroup);
 
-
     /**
      * Returns the meta contact on the specified index.
      * @param index the index of the meta contact to return.

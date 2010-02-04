@@ -46,7 +46,7 @@ public class DefaultContactList
                 ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         this.setDragEnabled(true);
-        this.setTransferHandler(new ContactListTransferHandler(this));
+//        this.setTransferHandler(new ContactListTransferHandler(this));
         this.setCellRenderer(new ContactListCellRenderer());
     }
 

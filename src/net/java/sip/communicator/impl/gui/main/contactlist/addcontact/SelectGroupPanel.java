@@ -103,10 +103,11 @@ public class SelectGroupPanel
 //      wizard.getRootGroup()));
 
         String lastGroupName = ConfigurationManager.getLastContactParent();
-        
+
         Object lastSelectedGroup = null;
-        
-        Iterator<MetaContactGroup> groupsList = wizard.getMainFrame().getAllGroups();
+
+        Iterator<MetaContactGroup> groupsList
+            = GuiActivator.getContactListService().getRoot().getSubgroups();
 
         if (groupsList.hasNext())
         {

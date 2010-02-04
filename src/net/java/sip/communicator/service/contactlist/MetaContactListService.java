@@ -134,6 +134,17 @@ public interface MetaContactListService
     public MetaContact findMetaContactByMetaUID(String metaContactID);
 
     /**
+     * Returns the MetaContactGroup that corresponds to the specified
+     * metaGroupID.
+     *
+     * @param metaGroupID
+     *            a String identifier of a meta contact group.
+     * @return the MetaContactGroup with the specified string identifier or null
+     *          if no such meta contact was found.
+     */
+    public MetaContactGroup findMetaContactGroupByMetaUID(String metaGroupID);
+
+    /**
      * Returns a list of all <tt>MetaContact</tt>s containing a protocol contact
      * from the given <tt>ProtocolProviderService</tt>.
      * 

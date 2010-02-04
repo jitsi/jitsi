@@ -383,7 +383,7 @@ public class ContactListModel
 
             this.closedGroups.add(group);
 
-            ConfigurationManager.storeContactListGroupStatus(
+            ConfigurationManager.setContactListGroupCollapsed(
                 group.getMetaUID(),
                 true);
         }
@@ -402,7 +402,7 @@ public class ContactListModel
             contentAdded(this.indexOf(group.getMetaContact(0)), this.indexOf(group
                 .getMetaContact(countContactsAndSubgroups(group) - 1)));
 
-            ConfigurationManager.storeContactListGroupStatus(
+            ConfigurationManager.setContactListGroupCollapsed(
                 group.getMetaUID(),
                 false);
         }
@@ -517,7 +517,7 @@ public class ContactListModel
     private void initGroupsStatus(MetaContactGroup group)
     {
         boolean isClosed = ConfigurationManager
-            .getContactListGroupStatus(group.getMetaUID());
+            .isContactListGroupCollapsed(group.getMetaUID());
 
         if (isClosed)
         {

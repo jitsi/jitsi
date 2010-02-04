@@ -105,8 +105,8 @@ public class ChatPanel
 
     private long lastHistoryMsgTimestamp;
 
-    private final java.util.List<ChatFocusListener> focusListeners =
-        new Vector<ChatFocusListener>();
+    private final java.util.List<ChatFocusListener> focusListeners
+        = new Vector<ChatFocusListener>();
 
     private final Vector<Object> incomingEventBuffer = new Vector<Object>();
 
@@ -1376,8 +1376,8 @@ public class ChatPanel
 
             Contact sourceContact = evt.getDestinationContact();
 
-            MetaContact metaContact = GuiActivator.getUIService().getMainFrame()
-                .getContactList().findMetaContactByContact(sourceContact);
+            MetaContact metaContact = GuiActivator
+                .getContactListService().findMetaContactByContact(sourceContact);
 
             if (evt.getErrorCode()
                     == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)

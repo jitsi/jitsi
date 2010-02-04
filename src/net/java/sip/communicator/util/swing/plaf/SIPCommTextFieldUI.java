@@ -8,8 +8,6 @@ package net.java.sip.communicator.util.swing.plaf;
 import java.awt.*;
 import java.awt.event.*;
 
-import javax.swing.*;
-import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 import javax.swing.text.*;
 
@@ -32,6 +30,10 @@ public class SIPCommTextFieldUI
 
     private Image deleteButtonRolloverImg;
 
+    /**
+     * Indicates if the text field contains a
+     * delete button allowing to delete all the content at once.
+     */
     private boolean isDeleteButtonEnabled = false;
 
     private SIPCommButton deleteButton;
@@ -93,46 +95,42 @@ public class SIPCommTextFieldUI
     }
 
     /**
-     * Creates the UI.
-     *
-     * @param c the component associated with this UI implementation.
-     * @return an instance of this UI implementation
-     */
-    public static ComponentUI createUI(JComponent c)
-    {
-        return new SIPCommTextFieldUI();
-    }
-
-    /**
-     * Implements parent paintSafely method and enables antialiasing.
-     */
-    protected void paintSafely(Graphics g)
-    {
-        AntialiasingManager.activateAntialiasing(g);
-        super.paintSafely(g);
-    }
-
-    /**
      * Paints the background of the associated component.
+     * @param g the <tt>Graphics</tt> object used for painting
      */
-    protected void paintBackground(Graphics g)
+    protected void customPaintBackground(Graphics g)
     {
-        AntialiasingManager.activateAntialiasing(g);
-        JTextComponent c = this.getComponent();
-        g.setColor(c.getBackground());
-        g.fillRoundRect(1, 1, c.getWidth() - 2, c.getHeight() - 2, 5, 5);
+        Graphics2D g2 = (Graphics2D) g.create();
 
-        int dx = c.getX() + c.getWidth() - deleteButton.getWidth() - BUTTON_GAP;
-        int dy = (c.getY() + c.getHeight()) / 2 - deleteButton.getHeight()/2;
-
-        if (c.getText() != null
-                && c.getText().length() > 0
-                && isDeleteButtonEnabled)
+        try
         {
-            if (mouseOver)
-                g.drawImage(deleteButtonRolloverImg, dx, dy + 1, null);
-            else
-                g.drawImage(deleteButtonImg, dx, dy + 1, null);
+            AntialiasingManager.activateAntialiasing(g2);
+            JTextComponent c = this.getComponent();
+            g2.setColor(Color.WHITE);
+            g2.fillRoundRect(1, 1, c.getWidth() - 2, c.getHeight() - 2, 20, 20);
+
+            int dx = c.getX() + c.getWidth()
+                - deleteButton.getWidth() - BUTTON_GAP - 5;
+            int dy = (c.getY() + c.getHeight()) / 2
+                - deleteButton.getHeight()/2;
+
+            if (c.getText() != null
+                    && c.getText().length() > 0
+                    && isDeleteButtonEnabled)
+            {
+                if (mouseOver)
+                    g2.drawImage(deleteButtonRolloverImg, dx, dy, null);
+                else
+                    g2.drawImage(deleteButtonImg, dx, dy, null);
+            }
+
+            g2.setStroke(new BasicStroke(1f));
+            g2.setColor(Color.GRAY);
+            g2.drawRoundRect(0, 0, c.getWidth() - 1, c.getHeight() - 1, 20, 20);
+        }
+        finally
+        {
+            g2.dispose();
         }
     }
 
@@ -193,6 +191,7 @@ public class SIPCommTextFieldUI
      * If we are in the case of disabled delete button, we simply call the
      * parent implementation of this method, otherwise we recalculate the editor
      * rectangle in order to leave place for the delete button.
+     * @return the visible editor rectangle
      */
     protected Rectangle getVisibleEditorRect()
     {
@@ -226,28 +225,36 @@ public class SIPCommTextFieldUI
      */
     protected class TextFieldMouseListener implements MouseListener
     {
+        /**
+         * Updates the delete icon when the mouse was clicked.
+         * @param e the <tt>MouseEvent</tt> that notified us of the click
+         */
         public void mouseClicked(MouseEvent e)
         {
             updateDeleteIcon(e);
         }
 
+        /**
+         * Updates the delete icon when the mouse is enters the component area.
+         * @param e the <tt>MouseEvent</tt> that notified us
+         */
         public void mouseEntered(MouseEvent e)
         {
             updateDeleteIcon(e);
         }
 
+        /**
+         * Updates the delete icon when the mouse exits the component area.
+         * @param e the <tt>MouseEvent</tt> that notified us
+         */
         public void mouseExited(MouseEvent e)
         {
             updateDeleteIcon(e);
         }
 
-        public void mousePressed(MouseEvent e)
-        {
-        }
+        public void mousePressed(MouseEvent e) {}
 
-        public void mouseReleased(MouseEvent e)
-        {
-        }
+        public void mouseReleased(MouseEvent e) {}
     }
 
     /**
@@ -256,11 +263,19 @@ public class SIPCommTextFieldUI
      */
     protected class TextFieldMouseMotionListener implements MouseMotionListener
     {
+        /**
+         * Updates the delete icon when the mouse is dragged over.
+         * @param e the <tt>MouseEvent</tt> that notified us
+         */
         public void mouseDragged(MouseEvent e)
         {
             updateDeleteIcon(e);
         }
 
+        /**
+         * Updates the delete icon when the mouse is moved over.
+         * @param e the <tt>MouseEvent</tt> that notified us
+         */
         public void mouseMoved(MouseEvent e)
         {
             updateDeleteIcon(e);

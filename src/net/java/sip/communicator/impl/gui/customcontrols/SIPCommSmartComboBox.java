@@ -14,7 +14,6 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.util.swing.plaf.*;
 
 /**

@@ -28,23 +28,23 @@ public class RenameContactDialog
     implements ActionListener
 {
     private RenameContactPanel renameContactPanel;
-    
+
     private JButton renameButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.RENAME"));
-    
+
     private JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
-    
+
     private TransparentPanel buttonsPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-    
+
     private TransparentPanel mainPanel
         = new TransparentPanel(new BorderLayout());
-    
+
     private MetaContactListService clist;
-    
+
     private MetaContact metaContact;
-        
+
     /**
      * Creates an instance of <tt>RenameContactDialog</tt>.
      * 
@@ -52,51 +52,53 @@ public class RenameContactDialog
      * @param metaContact The <tt>MetaContact</tt> to rename.
      */
     public RenameContactDialog(MainFrame mainFrame,
-            MetaContact metaContact) {
+            MetaContact metaContact)
+    {
         super(mainFrame);
-            
+
         this.setSize(new Dimension(520, 270));
-        
-        this.clist = mainFrame.getContactList();
+
+        this.clist = GuiActivator.getContactListService();
         this.metaContact = metaContact;
-        
+
         this.renameContactPanel = new RenameContactPanel(
                 metaContact.getDisplayName());
-        
+
         this.init();
     }
-    
+
     /**
      * Initializes the <tt>RenameContactDialog</tt> by adding the buttons,
      * fields, etc.
      */
-    private void init() {
+    private void init()
+    {
         this.setTitle(GuiActivator.getResources()
             .getI18NString("service.gui.RENAME_CONTACT"));
-        
+
         this.getRootPane().setDefaultButton(renameButton);
         this.renameButton.setName("rename");
         this.cancelButton.setName("cancel");
-        
+
         this.renameButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.RENAME"));
         this.cancelButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
-        
+
         this.renameButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
-        
+
         this.buttonsPanel.add(renameButton);
         this.buttonsPanel.add(cancelButton);
-        
+
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 10));
-        
+
         this.mainPanel.add(renameContactPanel, BorderLayout.NORTH);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
-        
-        this.getContentPane().add(mainPanel);        
+
+        this.getContentPane().add(mainPanel);
     }
-    
+
     /**
      * Handles the <tt>ActionEvent</tt>. In order to rename the contact invokes
      * the <code>renameMetaContact</code> method of the current
@@ -106,7 +108,7 @@ public class RenameContactDialog
     {
         JButton button = (JButton)e.getSource();
         String name = button.getName();
-        
+
         if (name.equals("rename"))
         {   
             if (metaContact != null)
@@ -118,18 +120,18 @@ public class RenameContactDialog
                         clist.renameMetaContact(
                             metaContact, renameContactPanel.getNewName());
                     }
-                }.start();                           
+                }.start();
             }
         }
-                
         this.dispose();
     }
-    
+
     /**
      * Requests the focus in the text field contained in this
      * dialog.
      */
-    public void requestFocusInFiled() {
+    public void requestFocusInFiled()
+    {
         this.renameContactPanel.requestFocusInField();
     }
 

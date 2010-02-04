@@ -447,7 +447,7 @@ public class AdHocConferenceChatSession
     public void participantPresenceChanged(
             AdHocChatRoomParticipantPresenceChangeEvent evt) {
         AdHocChatRoom sourceChatRoom = evt.getAdHocChatRoom();
-        
+
         if(!sourceChatRoom.equals(chatRoomWrapper.getAdHocChatRoom()))
             return;
 

@@ -34,31 +34,31 @@ public class AddContactDialog
     implements ActionListener
 {
     private Logger logger = Logger.getLogger(AddContactDialog.class.getName());
-    
+
     private AddContactPanel addContactPanel = new AddContactPanel();
-    
+
     private JButton addButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.ADD"));
-    
+
     private JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
-    
+
     private TransparentPanel buttonsPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-    
+
     private TransparentPanel mainPanel
         = new TransparentPanel(new BorderLayout());
-    
+
     private MetaContactListService clist;
-    
+
     private MainFrame mainFrame;
-    
+
     private MetaContact metaContact;
-    
+
     private MetaContactGroup group;
-    
+
     private ProtocolProviderService pps;
-    
+
     /**
      * Creates an instance of <tt>AddContactDialog</tt> that represents a dialog
      * that adds a new contact to an already existing meta contact.
@@ -73,12 +73,12 @@ public class AddContactDialog
             ProtocolProviderService pps)
     {
         super(mainFrame);
-        
+
         this.mainFrame = mainFrame;
-        this.clist = mainFrame.getContactList();
+        this.clist = GuiActivator.getContactListService();
         this.metaContact = metaContact;
         this.pps = pps;
-        
+
         this.init();
     }
 
@@ -96,12 +96,12 @@ public class AddContactDialog
             ProtocolProviderService pps)
     {
         super(mainFrame);
-        
+
         this.mainFrame = mainFrame;
-        this.clist = mainFrame.getContactList();
+        this.clist = GuiActivator.getContactListService();
         this.group = group;
         this.pps = pps;
-        
+
         this.init();
     }
 
@@ -124,29 +124,30 @@ public class AddContactDialog
 
         this.cancelButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
-        
+
         this.addButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
-        
+
         this.buttonsPanel.add(addButton);
         this.buttonsPanel.add(cancelButton);
-        
+
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 10));
-        
+
         this.mainPanel.add(addContactPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
-        
+
         this.getContentPane().add(mainPanel);
     }
-    
+
     /**
-     * 
+     * Indicates that the "Add" buttons has been pressed.
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
     {
         JButton button = (JButton)e.getSource();
         String name = button.getName();
-        
+
         if (name.equals("add"))
         {
             if (metaContact != null)
@@ -229,6 +230,11 @@ public class AddContactDialog
         }
     }
 
+    /**
+     * Indicates that this dialog is about to be closed.
+     * @param isEscaped indicates if the dialog is closed by pressing the
+     * Esc key
+     */
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
@@ -240,7 +246,7 @@ public class AddContactDialog
     public void showDialog()
     {
         this.setVisible(true);
-        
+
         this.addContactPanel.requestFocusInField();
     }
 }

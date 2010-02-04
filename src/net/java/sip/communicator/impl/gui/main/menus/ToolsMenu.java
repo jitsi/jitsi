@@ -15,6 +15,8 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
@@ -102,18 +104,49 @@ public class ToolsMenu
     public void actionPerformed(ActionEvent e)
     {
         JMenuItem menuItem = (JMenuItem) e.getSource();
-        String itemText = menuItem.getName();
+        String itemName = menuItem.getName();
 
-        if (itemText.equalsIgnoreCase("config"))
+        if (itemName.equalsIgnoreCase("config"))
         {
             configActionPerformed();
         }
-        else if (itemText.equals("conference"))
+        else if (itemName.equals("conference"))
         {
             ConferenceInviteDialog confInviteDialog
                 = new ConferenceInviteDialog();
 
             confInviteDialog.setVisible(true);
+        }
+        else if (itemName.equals("showHideOffline"))
+        {
+            boolean isShowOffline = ConfigurationManager.isShowOffline();
+
+            TreeContactList.presenceFilter.setShowOffline(!isShowOffline);
+
+            GuiActivator.getContactList()
+                .applyFilter(TreeContactList.presenceFilter);
+
+            ConfigurationManager.setShowOffline(!isShowOffline);
+
+            String itemTextKey = !isShowOffline
+                    ? "service.gui.HIDE_OFFLINE_CONTACTS"
+                    : "service.gui.SHOW_OFFLINE_CONTACTS";
+
+            menuItem.setText(
+                GuiActivator.getResources().getI18NString(itemTextKey));
+        }
+        else if (itemName.equals("sound"))
+        {
+            boolean isMute = GuiActivator.getAudioNotifier().isMute();
+
+            GuiActivator.getAudioNotifier().setMute(!isMute);
+
+            String itemTextKey = !isMute
+                    ? "service.gui.SOUND_ON"
+                    : "service.gui.SOUND_OFF";
+
+            menuItem.setText(
+                GuiActivator.getResources().getI18NString(itemTextKey));
         }
     }
 
@@ -182,6 +215,38 @@ public class ToolsMenu
         conferenceMenuItem.setName("conference");
         conferenceMenuItem.addActionListener(this);
         this.add(conferenceMenuItem);
+
+        // Show/hide offline contacts menu item.
+        String offlineTextKey = ConfigurationManager.isShowOffline()
+                            ? "service.gui.HIDE_OFFLINE_CONTACTS"
+                            : "service.gui.SHOW_OFFLINE_CONTACTS";
+
+        JMenuItem hideOfflineMenuItem = new JMenuItem(
+            GuiActivator.getResources().getI18NString(offlineTextKey),
+            GuiActivator.getResources().getImage(
+                "service.gui.icons.SHOW_HIDE_OFFLINE_ICON"));
+
+        hideOfflineMenuItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic(offlineTextKey));
+        hideOfflineMenuItem.setName("showHideOffline");
+        hideOfflineMenuItem.addActionListener(this);
+        this.add(hideOfflineMenuItem);
+
+        // Sound on/off menu item.
+        String soundTextKey = GuiActivator.getAudioNotifier().isMute()
+                            ? "service.gui.SOUND_ON"
+                            : "service.gui.SOUND_OFF";
+
+        JMenuItem soundMenuItem = new JMenuItem(
+            GuiActivator.getResources().getI18NString(soundTextKey),
+            GuiActivator.getResources().getImage(
+                "service.gui.icons.SOUND_MENU_ICON"));
+
+        soundMenuItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic(soundTextKey));
+        soundMenuItem.setName("sound");
+        soundMenuItem.addActionListener(this);
+        this.add(soundMenuItem);
     }
 
     /**

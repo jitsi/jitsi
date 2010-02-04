@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.browserlauncher.*;
@@ -69,12 +70,21 @@ public class GuiActivator implements BundleActivator
     private static final Map<Object, ProtocolProviderFactory>
         providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
 
+    /**
+     * Indicates if this bundle has been started.
+     */
     public  static boolean isStarted = false;
+
+    /**
+     * The contact list object.
+     */
+    private static TreeContactList contactList;
 
     /**
      * Called when this bundle is started.
      *
      * @param bContext The execution context of the bundle being started.
+     * @throws Exception if the bundle is not correctly started
      */
     public void start(BundleContext bContext)
         throws Exception
@@ -88,7 +98,8 @@ public class GuiActivator implements BundleActivator
 
         ConfigurationManager.loadGuiConfigurations();
 
-        try {
+        try
+        {
             // Create the ui service
             uiService = new UIServiceImpl();
 
@@ -108,7 +119,8 @@ public class GuiActivator implements BundleActivator
 
             logger.logEntry();
         }
-        finally {
+        finally
+        {
             logger.logExit();
         }
 
@@ -147,7 +159,8 @@ public class GuiActivator implements BundleActivator
      * @return all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
      *         context
      */
-    public static Map<Object, ProtocolProviderFactory> getProtocolProviderFactories()
+    public static Map<Object, ProtocolProviderFactory>
+        getProtocolProviderFactories()
     {
 
         ServiceReference[] serRefs = null;
@@ -184,12 +197,14 @@ public class GuiActivator implements BundleActivator
     /**
      * Returns a <tt>ProtocolProviderFactory</tt> for a given protocol
      * provider.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>, which
+     * factory we're looking for
      * @return a <tt>ProtocolProviderFactory</tt> for a given protocol
      * provider
      */
     public static ProtocolProviderFactory getProtocolProviderFactory(
-            ProtocolProviderService protocolProvider) {
-
+            ProtocolProviderService protocolProvider)
+    {
         ServiceReference[] serRefs = null;
 
         String osgiFilter = "("
@@ -214,8 +229,10 @@ public class GuiActivator implements BundleActivator
      * @return the <tt>ConfigurationService</tt> obtained from the bundle
      * context
      */
-    public static ConfigurationService getConfigurationService() {
-        if(configService == null) {
+    public static ConfigurationService getConfigurationService()
+    {
+        if(configService == null)
+        {
             ServiceReference configReference = bundleContext
                 .getServiceReference(ConfigurationService.class.getName());
 
@@ -232,7 +249,8 @@ public class GuiActivator implements BundleActivator
      * @return the <tt>MetaHistoryService</tt> obtained from the bundle
      * context
      */
-    public static MetaHistoryService getMetaHistoryService() {
+    public static MetaHistoryService getMetaHistoryService()
+    {
         if (metaHistoryService == null)
         {
             ServiceReference serviceReference = bundleContext
@@ -252,8 +270,10 @@ public class GuiActivator implements BundleActivator
      * @return the <tt>MetaContactListService</tt> obtained from the bundle
      * context
      */
-    public static MetaContactListService getMetaContactListService() {
-        if (metaCListService == null) {
+    public static MetaContactListService getContactListService()
+    {
+        if (metaCListService == null)
+        {
             ServiceReference clistReference = bundleContext
                 .getServiceReference(MetaContactListService.class.getName());
 
@@ -270,8 +290,10 @@ public class GuiActivator implements BundleActivator
      * @return the <tt>CallHistoryService</tt> obtained from the bundle
      * context
      */
-    public static CallHistoryService getCallHistoryService() {
-        if (callHistoryService == null) {
+    public static CallHistoryService getCallHistoryService()
+    {
+        if (callHistoryService == null)
+        {
             ServiceReference serviceReference = bundleContext
                 .getServiceReference(CallHistoryService.class.getName());
 
@@ -310,8 +332,10 @@ public class GuiActivator implements BundleActivator
      * @return the <tt>BrowserLauncherService</tt> obtained from the bundle
      * context
      */
-    public static BrowserLauncherService getBrowserLauncher() {
-        if (browserLauncherService == null) {
+    public static BrowserLauncherService getBrowserLauncher()
+    {
+        if (browserLauncherService == null)
+        {
             ServiceReference serviceReference = bundleContext
                 .getServiceReference(BrowserLauncherService.class.getName());
 
@@ -491,5 +515,24 @@ public class GuiActivator implements BundleActivator
                 NotificationManager.registerGuiNotifications();
             }
         }
+    }
+
+    /**
+     * Sets the <tt>contactList</tt> component currently used to show the
+     * contact list.
+     * @param list the contact list object to set
+     */
+    public static void setContactList(TreeContactList list)
+    {
+        contactList = list;
+    }
+
+    /**
+     * Returns the component used to show the contact list.
+     * @return the component used to show the contact list
+     */
+    public static TreeContactList getContactList()
+    {
+        return contactList;
     }
 }

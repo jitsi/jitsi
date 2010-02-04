@@ -47,7 +47,7 @@ public class ContactListPane
 {
     private final MainFrame mainFrame;
 
-    private ContactList contactList;
+    private TreeContactList contactList;
 
     private final TypingTimer typingTimer = new TypingTimer();
 
@@ -91,7 +91,9 @@ public class ContactListPane
      */
     public void initList(MetaContactListService contactListService)
     {
-        this.contactList = new ContactList(mainFrame);
+        this.contactList = new TreeContactList();
+
+        GuiActivator.setContactList(contactList);
 
         TransparentPanel transparentPanel
             = new TransparentPanel(new BorderLayout());
@@ -99,6 +101,9 @@ public class ContactListPane
         transparentPanel.add(contactList, BorderLayout.NORTH);
 
         this.setViewportView(transparentPanel);
+
+        transparentPanel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        this.contactList.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         this.contactList.addContactListListener(this);
         this.addMouseListener(new MouseAdapter()
@@ -120,8 +125,6 @@ public class ContactListPane
             }
         });
 
-        this.contactList.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-
         this.getActionMap().put("runChat", new ContactListPanelEnterAction());
 
         InputMap imap = this.getInputMap(
@@ -135,16 +138,21 @@ public class ContactListPane
      *
      * @return the contact list
      */
-    public ContactList getContactList()
+    public TreeContactList getContactList()
     {
         return this.contactList;
     }
 
     /**
      * Implements the ContactListListener.contactSelected method.
+     * @param evt the <tt>ContactListEvent</tt> that notified us
      */
     public void contactClicked(ContactListEvent evt)
     {
+        // We're interested only in two click events.
+        if (evt.getClickCount() < 2)
+            return;
+
         MetaContact metaContact = evt.getSourceContact();
 
         // Searching for the right proto contact to use as default for the
@@ -196,12 +204,14 @@ public class ContactListPane
 
     /**
      * Implements the ContactListListener.groupSelected method.
+     * @param evt the <tt>ContactListEvent</tt> that notified us
      */
     public void groupSelected(ContactListEvent evt)
     {}
 
     /**
      * Implements the ContactListListener.protocolContactSelected method.
+     * @param evt the <tt>ContactListEvent</tt> that notified us
      */
     public void protocolContactClicked(ContactListEvent evt)
     {
@@ -307,7 +317,7 @@ public class ContactListPane
         Message message = evt.getSourceMessage();
         int eventType = evt.getEventType();
 
-        MetaContact metaContact = mainFrame.getContactList()
+        MetaContact metaContact = GuiActivator.getContactListService()
                 .findMetaContactByContact(protocolContact);
 
         if(metaContact != null)
@@ -321,7 +331,7 @@ public class ContactListPane
             // Show an envelope on the sender contact in the contact list and
             // in the systray.
             if (!chatPanel.isChatFocused())
-                contactList.addActiveContact(metaContact);
+                contactList.setActiveContact(metaContact, true);
 
             // Distinguish the message type, depending on the type of event that
             // we have received.
@@ -394,8 +404,8 @@ public class ContactListPane
     public void messageDelivered(MessageDeliveredEvent evt)
     {
         Contact contact = evt.getDestinationContact();
-        MetaContact metaContact
-            = mainFrame.getContactList().findMetaContactByContact(contact);
+        MetaContact metaContact = GuiActivator.getContactListService()
+            .findMetaContactByContact(contact);
 
         logger.trace("MESSAGE DELIVERED to contact: " + contact.getAddress());
 
@@ -437,7 +447,7 @@ public class ContactListPane
 
         Contact sourceContact = evt.getDestinationContact();
 
-        MetaContact metaContact = mainFrame.getContactList()
+        MetaContact metaContact = GuiActivator.getContactListService()
             .findMetaContactByContact(sourceContact);
 
         if (evt.getErrorCode()
@@ -502,7 +512,7 @@ public class ContactListPane
 
         String notificationMsg = "";
 
-        MetaContact metaContact = mainFrame.getContactList()
+        MetaContact metaContact = GuiActivator.getContactListService()
                 .findMetaContactByContact(evt.getSourceContact());
         String contactName = metaContact.getDisplayName() + " ";
 
@@ -569,7 +579,7 @@ public class ContactListPane
 
         Contact sourceContact = request.getSender();
 
-        MetaContact metaContact = mainFrame.getContactList()
+        MetaContact metaContact = GuiActivator.getContactListService()
             .findMetaContactByContact(sourceContact);
 
         final ChatPanel chatPanel
@@ -603,6 +613,7 @@ public class ContactListPane
     /**
      * Nothing to do here, because we already know when a file transfer is
      * created.
+     * @param event the <tt>FileTransferCreatedEvent</tt> that notified us
      */
     public void fileTransferCreated(FileTransferCreatedEvent event)
     {}
@@ -634,7 +645,7 @@ public class ContactListPane
      * The notification is fired only if another notification hasn't been
      * recieved for more than 1 minute
      *
-     * @param contac The contact the notification comes from
+     * @param contact the contact the notification comes from
      */
     private void fireProactiveNotification(Contact contact)
     {
@@ -739,7 +750,8 @@ public class ContactListPane
     {
         public void actionPerformed(ActionEvent e)
         {
-            Object selectedValue = contactList.getSelectedValue();
+            Object selectedValue
+                = contactList.getSelectionPath().getLastPathComponent();
 
             if (selectedValue instanceof MetaContact)
             {
@@ -780,8 +792,7 @@ public class ContactListPane
                         GuiActivator.bundleContext.getService(serRef);
 
                 Object selectedValue =
-                    mainFrame.getContactListPanel().getContactList()
-                        .getSelectedValue();
+                    getContactList().getSelectionPath().getLastPathComponent();
 
                 if(selectedValue instanceof MetaContact)
                 {
@@ -812,6 +823,11 @@ public class ContactListPane
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
 
+    /**
+     * Adds the plugin component given by <tt>event</tt> to this panel if it's
+     * its container.
+     * @param event the <tt>PluginComponentEvent</tt> that notified us
+     */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
         PluginComponent pluginComponent = event.getPluginComponent();
@@ -831,8 +847,8 @@ public class ContactListPane
 
         this.add((Component) pluginComponent.getComponent(), constraints);
 
-        Object selectedValue = mainFrame.getContactListPanel()
-                .getContactList().getSelectedValue();
+        Object selectedValue
+            = getContactList().getSelectionPath().getLastPathComponent();
 
         if(selectedValue instanceof MetaContact)
         {
@@ -849,6 +865,11 @@ public class ContactListPane
         this.repaint();
     }
 
+    /**
+     * Removes the plugin component given by <tt>event</tt> if previously added
+     * in this panel.
+     * @param event the <tt>PluginComponentEvent</tt> that notified us
+     */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
         PluginComponent c = event.getPluginComponent();

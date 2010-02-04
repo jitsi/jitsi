@@ -59,14 +59,24 @@ public class AddContactPanel
      */
     public AddContactPanel()
     {
-        this(null);
+        this(null, null);
     }
-    
+
     /**
      * Creates and initializes the <tt>AddContactPanel</tt>.
-     * @param wizard The parent wizard, where this add contact panel is added
+     * @param wizard the parent wizard, where this add contact panel is added
      */
     public AddContactPanel(WizardContainer wizard)
+    {
+        this(wizard, null);
+    }
+
+    /**
+     * Creates and initializes the <tt>AddContactPanel</tt>.
+     * @param wizard the parent wizard, where this add contact panel is added
+     * @param contactAddress the address of the contact to add
+     */
+    public AddContactPanel(WizardContainer wizard, String contactAddress)
     {
         super(new BorderLayout());
 
@@ -103,9 +113,11 @@ public class AddContactPanel
         this.add(iconLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
 
+        this.textField.setText(contactAddress);
+
         this.textField.getDocument().addDocumentListener(this);
     }
-    
+
     /**
      * Returns the string identifier entered by user.
      * @return the string identifier entered by user
@@ -114,37 +126,59 @@ public class AddContactPanel
     {
         return textField.getText();
     }
-    
+
+    /**
+     * Sets the user identifier.
+     * @param uin the user identifier
+     */
     public void setUIN(String uin)
     {
         textField.setText(uin);
     }
-    
-    public void requestFocusInField() {
+
+    /**
+     * Requests the focus in the text field.
+     */
+    public void requestFocusInField()
+    {
         this.textField.requestFocus();
     }
 
-    public void changedUpdate(DocumentEvent e)
-    {   
-    }
+    public void changedUpdate(DocumentEvent e) {}
 
+    /**
+     * Indicates that a letter has been inserted in the document. Updates the
+     * state of next and finish buttons according to the text in the text field.
+     * @param e the <tt>DocumentEvent</tt> that notified us
+     */
     public void insertUpdate(DocumentEvent e)
     {
         this.setNextFinishButtonAccordingToUIN();
     }
 
+    /**
+     * Indicates that a letter has been removed from the document. Updates the
+     * state of next and finish buttons according to the text in the text field.
+     * @param e the <tt>DocumentEvent</tt> that notified us
+     */
     public void removeUpdate(DocumentEvent e)
     {
         this.setNextFinishButtonAccordingToUIN();
     }
-    
+
+    /**
+     * Updates the state of next and finish buttons according to the text
+     * in the text field.
+     */
     public void setNextFinishButtonAccordingToUIN()
-    {        
+    {
         if(parentWizard != null) {
-            if(textField.getText() != null && textField.getText().length() > 0){                
+            if(textField.getText() != null && textField.getText().length() > 0)
+            {
                 parentWizard.setNextFinishButtonEnabled(true);
             }
-            else {                
+            else
+            {
                 parentWizard.setNextFinishButtonEnabled(false);
             }
         }
