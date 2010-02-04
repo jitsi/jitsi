@@ -51,8 +51,10 @@ public class SearchField
 
         InputMap imap = getInputMap();
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escape");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enter");
         ActionMap amap = getActionMap();
-        amap.put("escape", new AbstractAction() {
+        amap.put("escape", new AbstractAction()
+        {
             public void actionPerformed(ActionEvent e)
             {
                 setText("");
@@ -60,6 +62,14 @@ public class SearchField
                 KeyboardFocusManager.getCurrentKeyboardFocusManager()
                     .focusNextComponent();
             }});
+        amap.put("enter", new AbstractAction()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                // Starts a chat with the currently selected contact.
+                GuiActivator.getContactList().startSelectedContactChat();
+            }
+        });
     }
 
     /**

@@ -683,6 +683,30 @@ public class ChatWindowManager
     }
 
     /**
+     * Starts a chat with the given <tt>MetaContact</tt>.
+     * @param metaContact the destination <tt>MetaContact</tt>
+     */
+    public void startChat(MetaContact metaContact)
+    {
+        SwingUtilities.invokeLater(new RunChatWindow(metaContact));
+    }
+
+    /**
+     * Starts a chat with the given <tt>MetaContact</tt>.
+     * @param metaContact the destination <tt>MetaContact</tt>
+     * @param protocolContact the protocol contact of the destination
+     * @param isSmsMessage indicates if the chat should be opened for an SMS
+     * message
+     */
+    public void startChat(  MetaContact metaContact,
+                            Contact protocolContact,
+                            boolean isSmsMessage)
+    {
+        SwingUtilities.invokeLater(new RunChatWindow(
+            metaContact, protocolContact, isSmsMessage));
+    }
+
+    /**
      * Closes the selected chat tab or the window if there are no tabs.
      *
      * @param chatPanel the chat panel to close.
@@ -977,5 +1001,69 @@ public class ChatWindowManager
 
         // Remove the envelope from the all active contacts in the contact list.
         GuiActivator.getContactList().deactivateAll();
+    }
+
+    /**
+     * Runs the chat window for the specified contact
+     */
+    private class RunChatWindow implements Runnable
+    {
+        private MetaContact metaContact;
+
+        private Contact protocolContact;
+
+        private boolean isSmsSelected = false;
+
+        /**
+         * Creates an instance of <tt>RunMessageWindow</tt> by specifying the
+         *
+         * @param metaContact the meta contact to which we will talk.
+         */
+        public RunChatWindow(MetaContact metaContact)
+        {
+            this.metaContact = metaContact;
+        }
+
+        /**
+         * Creates a chat window.
+         *
+         * @param metaContact the destination <tt>MetaContact</tt>
+         * @param protocolContact the destination protocol contact
+         */
+        public RunChatWindow(   MetaContact metaContact,
+                                Contact protocolContact)
+        {
+            this.metaContact = metaContact;
+            this.protocolContact = protocolContact;
+        }
+
+        /**
+         * Creates a chat window
+         *
+         * @param metaContact
+         * @param protocolContact
+         * @param isSmsSelected
+         */
+        public RunChatWindow(   MetaContact metaContact,
+                                Contact protocolContact,
+                                boolean isSmsSelected)
+        {
+            this.metaContact = metaContact;
+            this.protocolContact = protocolContact;
+            this.isSmsSelected = isSmsSelected;
+        }
+
+        /**
+         * Opens a chat window
+         */
+        public void run()
+        {
+            ChatPanel chatPanel
+                = getContactChat(metaContact, protocolContact);
+
+            chatPanel.setSmsSelected(isSmsSelected);
+
+            openChat(chatPanel, true);
+        }
     }
 }

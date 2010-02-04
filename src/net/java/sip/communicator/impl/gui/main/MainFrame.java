@@ -1471,6 +1471,8 @@ public class MainFrame
                 || e.getKeyCode() == KeyEvent.VK_RIGHT
                 || e.getKeyCode() == KeyEvent.VK_UP
                 || e.getKeyCode() == KeyEvent.VK_DOWN
+                || e.getKeyCode() == KeyEvent.VK_PAGE_UP
+                || e.getKeyCode() == KeyEvent.VK_PAGE_DOWN
                 || e.getKeyCode() == KeyEvent.VK_BACK_SPACE
                 || e.getKeyCode() == KeyEvent.VK_CONTROL
                 || e.getKeyCode() == KeyEvent.VK_ALT

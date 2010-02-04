@@ -1039,26 +1039,16 @@ public class TreeContactList
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "openGroup");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "closeGroup");
 
-        amap.put("enter", new AbstractAction() {
+        amap.put("enter", new AbstractAction()
+        {
             public void actionPerformed(ActionEvent e)
             {
-                TreePath selectionPath = getSelectionPath();
+                startSelectedContactChat();
+            }
+        });
 
-                if (selectionPath != null
-                    && selectionPath.getLastPathComponent()
-                        instanceof ContactNode)
-                {
-                    ContactNode contactNode
-                        = (ContactNode) selectionPath.getLastPathComponent();
-
-                    ContactListPane clistPanel = GuiActivator.getUIService()
-                        .getMainFrame().getContactListPanel();
-                    SwingUtilities.invokeLater(clistPanel.new RunMessageWindow(
-                        contactNode.getMetaContact()));
-                }
-            }});
-
-        amap.put("openGroup", new AbstractAction() {
+        amap.put("openGroup", new AbstractAction()
+        {
             public void actionPerformed(ActionEvent e)
             {
                 TreePath selectionPath = getSelectionPath();
@@ -1074,7 +1064,8 @@ public class TreeContactList
                 }
             }});
 
-        amap.put("closeGroup", new AbstractAction() {
+        amap.put("closeGroup", new AbstractAction()
+        {
             public void actionPerformed(ActionEvent e)
             {
                 TreePath selectionPath = getSelectionPath();
@@ -1086,5 +1077,25 @@ public class TreeContactList
                     collapsePath(selectionPath);
                 }
             }});
+    }
+
+    /**
+     * Starts a chat with the currently selected contact if any, otherwise
+     * nothing happens.
+     */
+    public void startSelectedContactChat()
+    {
+        TreePath selectionPath = getSelectionPath();
+
+        if (selectionPath != null
+            && selectionPath.getLastPathComponent()
+                instanceof ContactNode)
+        {
+            ContactNode contactNode
+                = (ContactNode) selectionPath.getLastPathComponent();
+
+            GuiActivator.getUIService().getChatWindowManager()
+                .startChat(contactNode.getMetaContact());
+        }
     }
 }

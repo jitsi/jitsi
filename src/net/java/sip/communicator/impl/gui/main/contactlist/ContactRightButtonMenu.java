@@ -490,18 +490,16 @@ public class ContactRightButtonMenu
         }
         else if (itemName.equalsIgnoreCase("sendMessage"))
         {
-            ContactListPane clistPanel = mainFrame.getContactListPanel();
-            SwingUtilities.invokeLater(clistPanel.new RunMessageWindow(
-                    contactItem));
+            GuiActivator.getUIService().getChatWindowManager()
+                .startChat(contactItem);
         }
         else if (itemName.equalsIgnoreCase("sendSms"))
         {
             Contact defaultSmsContact
                 = contactItem.getDefaultContact(OperationSetSmsMessaging.class);
 
-            ContactListPane clistPanel = mainFrame.getContactListPanel();
-            SwingUtilities.invokeLater(clistPanel.new RunMessageWindow(
-                    contactItem, defaultSmsContact, true));
+            GuiActivator.getUIService().getChatWindowManager()
+                .startChat(contactItem, defaultSmsContact, true);
         }
         else if (itemName.equalsIgnoreCase("call"))
         {
@@ -512,30 +510,23 @@ public class ContactRightButtonMenu
         }
         else if (itemName.equalsIgnoreCase("sendFile"))
         {
-            ContactListPane clistPanel = mainFrame.getContactListPanel();
-            SwingUtilities.invokeLater(
-                clistPanel.new RunMessageWindow(contactItem)
-                    {
-                        public void run()
-                        {
-                            super.run();
+            SipCommFileChooser scfc = GenericFileDialog.create(
+                null, "Send file...", 
+                SipCommFileChooser.LOAD_FILE_OPERATION,
+                ConfigurationManager.getSendFileLastDir());
+            File selectedFile = scfc.getFileFromDialog();
+            if(selectedFile != null)
+            {
+                ConfigurationManager.setSendFileLastDir(
+                        selectedFile.getParent());
 
-                            SipCommFileChooser scfc = GenericFileDialog.create(
-                                    null, "Send file...", 
-                                    SipCommFileChooser.LOAD_FILE_OPERATION,
-                                    ConfigurationManager.getSendFileLastDir());
-                            File selectedFile = scfc.getFileFromDialog();
-                            if(selectedFile != null)
-                            {
-                                ConfigurationManager.setSendFileLastDir(
-                                        selectedFile.getParent());
+                GuiActivator.getUIService().
+                getChatWindowManager().getSelectedChat().
+                    sendFile(selectedFile);
+            }
 
-                                GuiActivator.getUIService().
-                                getChatWindowManager().getSelectedChat().
-                                    sendFile(selectedFile);
-                            }
-                        }
-                    });
+            GuiActivator.getUIService().getChatWindowManager()
+                .startChat(contactItem);
         }
         else if (itemName.equalsIgnoreCase("renameContact"))
         {

@@ -224,82 +224,6 @@ public class ContactListPane
     }
 
     /**
-     * Runs the chat window for the specified contact. We examine different
-     * cases here, depending on the chat window mode.
-     *
-     * In mode "Open messages in new window" a new window is opened for the
-     * given <tt>MetaContact</tt> if there's no opened window for it,
-     * otherwise the existing chat window is made visible and focused.
-     *
-     * In mode "Group messages in one chat window" a JTabbedPane is used to show
-     * chats for different contacts in one window. A new tab is opened for the
-     * given <tt>MetaContact</tt> if there's no opened tab for it, otherwise
-     * the existing chat tab is selected and focused.
-     *
-     * @author Yana Stamcheva
-     */
-    public class RunMessageWindow implements Runnable
-    {
-        private MetaContact metaContact;
-
-        private Contact protocolContact;
-
-        private boolean isSmsSelected = false;
-
-        /**
-         * Creates an instance of <tt>RunMessageWindow</tt> by specifying the
-         *
-         * @param metaContact the meta contact to which we will talk.
-         */
-        public RunMessageWindow(MetaContact metaContact)
-        {
-            this.metaContact = metaContact;
-        }
-
-        /**
-         * Creates a chat window
-         *
-         * @param metaContact
-         * @param protocolContact
-         */
-        public RunMessageWindow(MetaContact metaContact,
-            Contact protocolContact)
-        {
-            this.metaContact = metaContact;
-            this.protocolContact = protocolContact;
-        }
-
-        /**
-         * Creates a chat window
-         *
-         * @param metaContact
-         * @param protocolContact
-         * @param isSmsSelected
-         */
-        public RunMessageWindow(MetaContact metaContact,
-            Contact protocolContact, boolean isSmsSelected)
-        {
-            this.metaContact = metaContact;
-            this.protocolContact = protocolContact;
-            this.isSmsSelected = isSmsSelected;
-        }
-
-        /**
-         * Opens a chat window
-         */
-        public void run()
-        {
-            ChatPanel chatPanel
-                = chatWindowManager
-                    .getContactChat(metaContact, protocolContact);
-
-            chatPanel.setSmsSelected(isSmsSelected);
-
-            chatWindowManager.openChat(chatPanel, true);
-        }
-    }
-
-    /**
      * When a message is received determines whether to open a new chat window
      * or chat window tab, or to indicate that a message is received from a
      * contact which already has an open chat. When the chat is found checks if
@@ -757,7 +681,7 @@ public class ContactListPane
             {
                 MetaContact contact = (MetaContact) selectedValue;
 
-                SwingUtilities.invokeLater(new RunMessageWindow(contact));
+                chatWindowManager.startChat(contact);
             }
         }
     }
