@@ -260,12 +260,14 @@ public class ToolsMenu
     }
 
     /**
-     * Registers the settings item in the MacOS X menu.
+     * Registers the settings item for non-MacOS X OS.
      */
     private void registerConfigMenuItemNonMacOSX()
     {
         JMenuItem configMenuItem = new JMenuItem(
-            GuiActivator.getResources().getI18NString("service.gui.SETTINGS"));
+            GuiActivator.getResources().getI18NString("service.gui.SETTINGS"),
+            GuiActivator.getResources().getImage(
+                                "service.gui.icons.CONFIGURE_ICON"));
 
         this.add(configMenuItem);
         configMenuItem.setMnemonic(GuiActivator.getResources()
