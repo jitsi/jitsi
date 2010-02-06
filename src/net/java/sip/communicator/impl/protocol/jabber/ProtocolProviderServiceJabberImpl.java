@@ -622,13 +622,19 @@ public class ProtocolProviderServiceJabberImpl
                 new OperationSetServerStoredContactInfoJabberImpl(
                         infoRetreiver));
 
-            addSupportedOperationSet(
-                OperationSetServerStoredAccountInfo.class,
-                new OperationSetServerStoredAccountInfoJabberImpl(
-                        this,
+            OperationSetServerStoredAccountInfo accountInfo =
+                new OperationSetServerStoredAccountInfoJabberImpl(this,
                         infoRetreiver,
-                        screenname));
+                        screenname);
+            
+            addSupportedOperationSet(OperationSetServerStoredAccountInfo.class,
+                accountInfo);
 
+            // Initialize avatar operation set
+            OperationSetAvatar avatarOpSet =
+                new OperationSetAvatarJabberImpl(this, accountInfo);
+            addSupportedOperationSet(OperationSetAvatar.class, avatarOpSet);
+            
             // initialize the file transfer operation set
             addSupportedOperationSet(
                 OperationSetFileTransfer.class,
