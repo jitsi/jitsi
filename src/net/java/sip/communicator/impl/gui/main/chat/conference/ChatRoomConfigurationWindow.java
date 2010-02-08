@@ -110,7 +110,7 @@ public class ChatRoomConfigurationWindow
 
         this.generalScrollPane.setPreferredSize(new Dimension(550, 500));
         this.generalScrollPane.setHorizontalScrollBarPolicy(
-            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         this.optionsScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -329,7 +329,8 @@ public class ChatRoomConfigurationWindow
                     BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
                 label.setPreferredSize(new Dimension(labelWidth, 30));
-
+                label.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
+                
                 fieldPanel.add(label, BorderLayout.WEST);
                 fieldPanel.add(field, BorderLayout.CENTER);
 

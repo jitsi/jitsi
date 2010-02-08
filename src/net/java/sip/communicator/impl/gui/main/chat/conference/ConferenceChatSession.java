@@ -425,11 +425,20 @@ public class ConferenceChatSession
             // Check if not ever present in the chat room. In some cases, the
             // considered chatroom member may appear twice in the chat contact
             // list panel.
-            for(ChatContact cc : chatParticipants)
-                if(!cc.getUID().equals(chatContact.getUID()))
+            synchronized (chatParticipants)
+            {
+                if (!chatParticipants.contains(chatContact))
                     chatParticipants.add(chatContact);
                     sessionRenderer.addChatContact(chatContact);
-
+            }
+//            for(int i=0; i< chatParticipants.size(); ++i)
+//            {
+//                ChatContact cc = chatParticipants.get(i);
+//                if(!cc.getUID().equals(chatContact.getUID()))
+//                    chatParticipants.add(chatContact);
+//                    sessionRenderer.addChatContact(chatContact);
+//            }
+            
             /*
              * When the whole list of members of a given chat room is reported,
              * it doesn't make sense to see "ChatContact has joined #ChatRoom"
