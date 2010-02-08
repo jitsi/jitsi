@@ -1019,6 +1019,12 @@ public class ImageLoader
         = new ImageID("service.gui.icons.ADD_CONTACT_16x16_ICON");
 
     /**
+     * Quit 16x16 image.
+     */
+    public static final ImageID QUIT_16x16_ICON
+        = new ImageID("service.gui.icons.QUIT_16x16_ICON");
+
+    /**
      * Rename 16x16 image.
      */
     public static final ImageID RENAME_16x16_ICON

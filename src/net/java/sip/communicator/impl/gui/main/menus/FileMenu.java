@@ -207,7 +207,8 @@ public class FileMenu
     private void registerCloseMenuItemNonMacOSX()
     {
         JMenuItem closeMenuItem = new JMenuItem(
-            GuiActivator.getResources().getI18NString("service.gui.QUIT"));
+            GuiActivator.getResources().getI18NString("service.gui.QUIT"),
+            new ImageIcon(ImageLoader.getImage(ImageLoader.QUIT_16x16_ICON)));
 
         this.addSeparator();
         this.add(closeMenuItem);
