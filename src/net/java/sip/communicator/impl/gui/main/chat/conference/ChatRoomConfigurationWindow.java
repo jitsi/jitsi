@@ -109,7 +109,7 @@ public class ChatRoomConfigurationWindow
         titlePanel.setTitleText(GuiActivator.getResources().getI18NString(
             "service.gui.SETTINGS"));
 
-        this.generalScrollPane.setPreferredSize(new Dimension(550, 500));
+        this.generalScrollPane.setPreferredSize(new Dimension(820, 520));
         this.generalScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         this.optionsScrollPane.setHorizontalScrollBarPolicy(
@@ -121,7 +121,6 @@ public class ChatRoomConfigurationWindow
             BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         this.mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-
         this.saveButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
 
@@ -169,8 +168,6 @@ public class ChatRoomConfigurationWindow
         Iterator<ChatRoomConfigurationFormField> configurationSet
             = configForm.getConfigurationSet();
 
-        int labelWidth = computeLabelWidth(configForm);
-
         while(configurationSet.hasNext())
         {
             ChatRoomConfigurationFormField formField
@@ -180,12 +177,10 @@ public class ChatRoomConfigurationWindow
             Iterator<String> options = formField.getOptions();
 
             JComponent field = null;
-            JLabel label = new JLabel();
+            JLabel label = new JLabel("", JLabel.RIGHT);
 
             if(formField.getLabel() != null)
-            {
                 label.setText(formField.getLabel() + ": ");
-            }
 
             String fieldType = formField.getType();
 
@@ -203,17 +198,15 @@ public class ChatRoomConfigurationWindow
             else if(fieldType.equals(
                 ChatRoomConfigurationFormField.TYPE_TEXT_FIXED))
             {
-                // Create a not editable text area when we have a fixed text.
-
-                field = new JTextArea();
-
-                ((JTextArea)field).setEditable(false);
-
+                field = new JLabel();
+                
                 if(values.hasNext())
                 {
                     String value = values.next().toString();
 
-                    ((JTextArea) field).setText(value);
+                    ((JLabel) field).setText(value);
+                    ((JLabel) field).setFont(new Font(null, Font.ITALIC, 9));
+                    ((JLabel) field).setForeground(Color.GRAY);
                 }
             }
             else if(fieldType.equals(
@@ -311,7 +304,8 @@ public class ChatRoomConfigurationWindow
             // If the field is not fixed (i.e. could be changed) we would like
             // to save it in a list in order to use it later when user saves
             // the configuration data.            
-            if(!fieldType.equals(ChatRoomConfigurationFormField.TYPE_TEXT_FIXED))
+            if(!fieldType.equals(
+                ChatRoomConfigurationFormField.TYPE_TEXT_FIXED))
             {
                 uiFieldsTable.put(formField.getName(), field);
             }
@@ -324,16 +318,18 @@ public class ChatRoomConfigurationWindow
             }
             else
             {
-                JPanel fieldPanel = new JPanel(new BorderLayout());
+                JPanel fieldPanel = new JPanel(new GridLayout(1,2));
                 fieldPanel.setOpaque(false);
-                fieldPanel.setBorder(
-                    BorderFactory.createEmptyBorder(0, 0, 10, 0));
-
-                label.setPreferredSize(new Dimension(labelWidth, 30));
-                label.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
                 
-                fieldPanel.add(label, BorderLayout.WEST);
-                fieldPanel.add(field, BorderLayout.CENTER);
+                if(!(field instanceof JLabel))
+                    fieldPanel.setBorder(
+                        BorderFactory.createEmptyBorder(0, 0, 10, 0));
+
+                label.setPreferredSize(
+                    new Dimension(computeLabelWidth(configForm), 30));
+
+                fieldPanel.add(label);
+                fieldPanel.add(field);
 
                 this.mainPanel.add(fieldPanel);
             }
@@ -451,8 +447,8 @@ public class ChatRoomConfigurationWindow
                             GuiActivator.getResources().getI18NString(
                             "service.gui.ERROR"),
                             GuiActivator.getResources().getI18NString(
-                            "service.gui.CHAT_ROOM_CONFIGURATION_SUBMIT_FAILED"),
-                            e).showDialog();
+                            "service.gui.CHAT_ROOM_CONFIGURATION_SUBMIT_FAILED")
+                            , e).showDialog();
                     }
                 }
             }.start();
