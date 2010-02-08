@@ -431,13 +431,6 @@ public class ConferenceChatSession
                     chatParticipants.add(chatContact);
                     sessionRenderer.addChatContact(chatContact);
             }
-//            for(int i=0; i< chatParticipants.size(); ++i)
-//            {
-//                ChatContact cc = chatParticipants.get(i);
-//                if(!cc.getUID().equals(chatContact.getUID()))
-//                    chatParticipants.add(chatContact);
-//                    sessionRenderer.addChatContact(chatContact);
-//            }
             
             /*
              * When the whole list of members of a given chat room is reported,

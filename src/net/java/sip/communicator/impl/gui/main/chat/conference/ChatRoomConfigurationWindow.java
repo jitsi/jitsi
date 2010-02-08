@@ -24,6 +24,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  * @author Valentin Martinet
  */
+@SuppressWarnings("serial")
 public class ChatRoomConfigurationWindow
     extends SIPCommFrame
     implements ActionListener
