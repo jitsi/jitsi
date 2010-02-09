@@ -478,7 +478,7 @@ public class ContactListTreeCellRenderer
         if (isSelected)
         {
             clipG.setPaint(new GradientPaint(0, 0,
-                Constants.SELECTED_COLOR, 0, getHeight(), Color.WHITE));
+                Color.WHITE, 0, getHeight(), Constants.SELECTED_COLOR));
             clipG.fill(clipShape);
 
             // Apply the border glow effect
@@ -488,9 +488,9 @@ public class ContactListTreeCellRenderer
         else if (treeNode instanceof GroupNode)
         {
             clipG.setPaint(new GradientPaint(0, 0,
-                Constants.CONTACT_LIST_GROUP_BG_COLOR,
+                Constants.CONTACT_LIST_GROUP_BG_GRADIENT_COLOR,
                 0, getHeight(),
-                Constants.CONTACT_LIST_GROUP_BG_GRADIENT_COLOR));
+                Constants.CONTACT_LIST_GROUP_BG_COLOR));
             clipG.fill(clipShape);
 
             // Apply the border glow effect

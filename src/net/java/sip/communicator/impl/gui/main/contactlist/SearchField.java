@@ -82,7 +82,7 @@ public class SearchField
         // triggers also an insertUpdate event.
         String filterString = this.getText();
         if (filterString != null && filterString.length() > 0)
-            this.handleChange();
+            SwingUtilities.invokeLater(new ChangeRunnable());
     }
 
     /**
@@ -91,10 +91,21 @@ public class SearchField
      */
     public void removeUpdate(DocumentEvent e)
     {
-        this.handleChange();
+        SwingUtilities.invokeLater(new ChangeRunnable());
     }
 
     public void changedUpdate(DocumentEvent e) {}
+
+    /**
+     * Handles every document change without blocking the interface.
+     */
+    private class ChangeRunnable implements Runnable
+    {
+        public void run()
+        {
+            handleChange();
+        }
+    }
 
     /**
      * Handles changes in document content. Creates a contact list filter from

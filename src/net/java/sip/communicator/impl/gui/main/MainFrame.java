@@ -1480,6 +1480,18 @@ public class MainFrame
                 || e.getKeyCode() == KeyEvent.VK_META
                 || e.getKeyCode() == KeyEvent.VK_TAB
                 || e.getKeyCode() == KeyEvent.VK_SPACE
+                || e.getKeyCode() == KeyEvent.VK_F1
+                || e.getKeyCode() == KeyEvent.VK_F2
+                || e.getKeyCode() == KeyEvent.VK_F3
+                || e.getKeyCode() == KeyEvent.VK_F4
+                || e.getKeyCode() == KeyEvent.VK_F5
+                || e.getKeyCode() == KeyEvent.VK_F6
+                || e.getKeyCode() == KeyEvent.VK_F7
+                || e.getKeyCode() == KeyEvent.VK_F8
+                || e.getKeyCode() == KeyEvent.VK_F9
+                || e.getKeyCode() == KeyEvent.VK_F10
+                || e.getKeyCode() == KeyEvent.VK_F11
+                || e.getKeyCode() == KeyEvent.VK_F12
                 || (selectionPath != null
                     && selectionPath.getLastPathComponent() instanceof GroupNode
                     && (e.getKeyChar() == '+'
