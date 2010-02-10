@@ -19,37 +19,42 @@ import net.java.sip.communicator.util.Logger;
  * @author Damien Roth
  */
 public abstract class AbstractOperationSetAvatar<T extends ProtocolProviderService>
-        implements OperationSetAvatar
+    implements OperationSetAvatar
 {
-    private static Logger logger = Logger
-            .getLogger(AbstractOperationSetAvatar.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>AbstractOperationSetAvatar</tt> class
+     * and its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(AbstractOperationSetAvatar.class);
 
     /**
      * The maximum avatar width. Zero mean no maximum
      */
-    private int maxWidth = 0;
+    private final int maxWidth;
 
     /**
      * The maximum avatar height. Zero mean no maximum
      */
-    private int maxHeight = 0;
+    private final int maxHeight;
 
     /**
      * The maximum avatar size. Zero mean no maximum
      */
-    private int maxSize = 0;
+    private final int maxSize;
 
     /**
      * The provider that created us.
      */
-    private T parentProvider;
+    private final T parentProvider;
 
-    private OperationSetServerStoredAccountInfo accountInfoOpSet;
+    private final OperationSetServerStoredAccountInfo accountInfoOpSet;
 
     /**
      * The list of listeners interested in <tt>AvatarEvent</tt>s.
      */
-    private List<AvatarListener> avatarListeners = new ArrayList<AvatarListener>();
+    private final List<AvatarListener> avatarListeners
+        = new ArrayList<AvatarListener>();
 
     protected AbstractOperationSetAvatar(T parentProvider,
             OperationSetServerStoredAccountInfo accountInfoOpSet, int maxWidth,
@@ -63,32 +68,26 @@ public abstract class AbstractOperationSetAvatar<T extends ProtocolProviderServi
         this.maxSize = maxSize;
     }
 
-    @Override
     public int getMaxWidth()
     {
         return this.maxWidth;
     }
 
-    @Override
     public int getMaxHeight()
     {
         return this.maxHeight;
     }
 
-    @Override
     public int getMaxSize()
     {
         return this.maxSize;
     }
 
-    @Override
     public byte[] getAvatar()
     {
         return AccountInfoUtils.getImage(this.accountInfoOpSet);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     public void setAvatar(byte[] avatar)
     {
         ImageDetail oldDetail = null;
@@ -115,7 +114,6 @@ public abstract class AbstractOperationSetAvatar<T extends ProtocolProviderServi
         fireAvatarChanged(avatar);
     }
 
-    @Override
     public void addAvatarListener(AvatarListener listener)
     {
         synchronized (this.avatarListeners)
@@ -125,7 +123,6 @@ public abstract class AbstractOperationSetAvatar<T extends ProtocolProviderServi
         }
     }
 
-    @Override
     public void removeAvatarListener(AvatarListener listener)
     {
         synchronized (this.avatarListeners)
@@ -143,16 +140,19 @@ public abstract class AbstractOperationSetAvatar<T extends ProtocolProviderServi
      */
     protected void fireAvatarChanged(byte[] newAvatar)
     {
-        AvatarEvent event = new AvatarEvent(this, this.parentProvider,
-                newAvatar);
-
         Collection<AvatarListener> listeners;
         synchronized (this.avatarListeners)
         {
             listeners = new ArrayList<AvatarListener>(this.avatarListeners);
         }
 
-        for (AvatarListener l : listeners)
-            l.avatarChanged(event);
+        if (!listeners.isEmpty())
+        {
+            AvatarEvent event
+                = new AvatarEvent(this, this.parentProvider, newAvatar);
+
+            for (AvatarListener l : listeners)
+                l.avatarChanged(event);
+        }
     }
 }
