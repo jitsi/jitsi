@@ -290,6 +290,24 @@ public class DataSource
                                 QTFormatDescription
                                     .VideoEncodedPixelsSizeAttribute);
                     if (size != null)
+                    {
+                        /*
+                         * If the actual capture device reports too small a
+                         * resolution, we end up using it while it can actually
+                         * be set to one with better quality. We've decided that
+                         * DEFAULT_WIDTH and DEFAULT_HEIGHT make sense as the
+                         * minimum resolution to request from the capture
+                         * device.
+                         */
+                        if ((size.width < DEFAULT_WIDTH)
+                                && (size.height < DEFAULT_HEIGHT))
+                        {
+                            double ratio = size.height / (double) size.width;
+
+                            size.width = DEFAULT_WIDTH;
+                            size.height = (int) (size.width * ratio);
+                        }
+
                         format
                             = format
                                 .intersects(
@@ -299,6 +317,7 @@ public class DataSource
                                             videoFormat.getMaxDataLength(),
                                             format.getDataType(),
                                             videoFormat.getFrameRate()));
+                    }
                 }
             }
         }
