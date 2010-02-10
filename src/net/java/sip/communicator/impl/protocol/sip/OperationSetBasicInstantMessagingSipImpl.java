@@ -540,6 +540,7 @@ public class OperationSetBasicInstantMessagingSipImpl
     private class BasicInstantMessagingMethodProcessor
         extends MethodProcessorAdapter
     {
+        @Override
         public boolean processTimeout(TimeoutEvent timeoutEvent)
         {
             synchronized (messageProcessors)
@@ -630,6 +631,7 @@ public class OperationSetBasicInstantMessagingSipImpl
          *         processor and shouldn't be offered to other processors
          *         registered for the same method; <tt>false</tt>, otherwise
          */
+        @Override
         public boolean processRequest(RequestEvent requestEvent)
         {
             synchronized (messageProcessors)
@@ -739,6 +741,7 @@ public class OperationSetBasicInstantMessagingSipImpl
          *         processor and shouldn't be offered to other processors
          *         registered for the same method; <tt>false</tt>, otherwise
          */
+        @Override
         public boolean processResponse(ResponseEvent responseEvent)
         {
             synchronized (messageProcessors)

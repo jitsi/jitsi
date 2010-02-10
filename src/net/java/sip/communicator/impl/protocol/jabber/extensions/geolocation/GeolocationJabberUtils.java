@@ -21,8 +21,7 @@ import net.java.sip.communicator.util.*;
  */
 public class GeolocationJabberUtils
 {
-
-    protected static final Logger logger =
+    private static final Logger logger =
         Logger.getLogger(GeolocationJabberUtils.class);
 
     /**
@@ -177,8 +176,9 @@ public class GeolocationJabberUtils
             try
             {
 
-                Method toCall = GeolocationPacketExtension
-                    .class.getMethod(setterFunction, new Class[]{String.class});
+                Method toCall
+                    = GeolocationPacketExtension
+                        .class.getMethod(setterFunction, String.class);
                 Object[] arguments = new Object[]{curValue};
 
                 try

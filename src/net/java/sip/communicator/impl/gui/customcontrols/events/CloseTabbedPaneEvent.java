@@ -18,7 +18,9 @@ import java.awt.event.*;
 /**
  * @author Yana Stamcheva
  */
-public class CloseTabbedPaneEvent extends Event {
+public class CloseTabbedPaneEvent
+    extends Event
+{
     private final String description;
 
     private final MouseEvent e;

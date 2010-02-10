@@ -83,6 +83,7 @@ public class OperationSetPersistentPresenceRssImpl
      * AbstractOperationSetPersistentPresence#fireProviderStatusChangeEvent
      * (PresenceStatus) to stop the firing of an event.
      */
+    @Override
     protected void fireProviderStatusChangeEvent(PresenceStatus oldValue)
     {
         // Override the super implementation and stop the firing of an event.
@@ -370,7 +371,7 @@ public class OperationSetPersistentPresenceRssImpl
                                                     PresenceStatus newStatus)
     {
         //first set the status for contacts in this group
-        Iterator childContacts = parent.contacts();
+        Iterator<Contact> childContacts = parent.contacts();
 
         while(childContacts.hasNext())
         {
@@ -385,11 +386,11 @@ public class OperationSetPersistentPresenceRssImpl
         }
 
         //now call this method recursively for all subgroups
-        Iterator subgroups = parent.subgroups();
+        Iterator<ContactGroup> subgroups = parent.subgroups();
 
         while(subgroups.hasNext())
         {
-            ContactGroup subgroup = (ContactGroup)subgroups.next();
+            ContactGroup subgroup = subgroups.next();
             changePresenceStatusForAllContacts(subgroup, newStatus);
         }
     }

@@ -265,9 +265,11 @@ public class OperationSetTypingNotificationsSipImpl
     /**
      * Process the responses of sent messages
      * @param responseEvent the incoming event holding the response
+     * @param sentMsg map containing sent messages
      * @return whether this message needs further processing(true) or no(false)
      */
-    public boolean processResponse(ResponseEvent responseEvent, Map sentMsg)
+    public boolean processResponse(ResponseEvent responseEvent,
+                                   Map<String, Message> sentMsg)
     {
         Request req = responseEvent.getClientTransaction().getRequest();
         ContentTypeHeader ctheader =
@@ -317,7 +319,8 @@ public class OperationSetTypingNotificationsSipImpl
      * @param timeoutEvent the event holding the request
      * @return whether this message needs further processing(true) or no(false)
      */
-    public boolean processTimeout(TimeoutEvent timeoutEvent, Map sentMessages)
+    public boolean processTimeout(TimeoutEvent timeoutEvent,
+                                  Map<String, Message> sentMessages)
     {
         Request req = timeoutEvent.getClientTransaction().getRequest();
         ContentTypeHeader ctheader =
