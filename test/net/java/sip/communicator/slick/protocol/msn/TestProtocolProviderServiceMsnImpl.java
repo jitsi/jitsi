@@ -12,6 +12,7 @@ import junit.framework.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.slick.protocol.generic.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -95,7 +96,6 @@ public class TestProtocolProviderServiceMsnImpl
         //they were properly dispatched.
         fixture.provider1.addRegistrationStateChangeListener(regEvtCollector1);
         fixture.provider2.addRegistrationStateChangeListener(regEvtCollector2);
-        fixture.provider3.addRegistrationStateChangeListener(regEvtCollector3);
 
         //register all of our providers
         fixture.provider1.register(new SecurityAuthorityImpl(
@@ -103,9 +103,6 @@ public class TestProtocolProviderServiceMsnImpl
                            + ProtocolProviderFactory.PASSWORD).toCharArray()));
         fixture.provider2.register(new SecurityAuthorityImpl(
             System.getProperty(MsnProtocolProviderServiceLick.ACCOUNT_2_PREFIX
-                           + ProtocolProviderFactory.PASSWORD).toCharArray()));
-        fixture.provider3.register(new SecurityAuthorityImpl(
-            System.getProperty(MsnProtocolProviderServiceLick.ACCOUNT_3_PREFIX
                            + ProtocolProviderFactory.PASSWORD).toCharArray()));
 
         //give it enough time to register. We won't really have to wait all this
@@ -115,7 +112,6 @@ public class TestProtocolProviderServiceMsnImpl
 
         regEvtCollector1.waitForEvent(15000);
         regEvtCollector2.waitForEvent(40000);
-        regEvtCollector3.waitForEvent(60000);
 
         //make sure that the registration process trigerred the corresponding
         //events.
@@ -142,24 +138,24 @@ public class TestProtocolProviderServiceMsnImpl
                 .contains(RegistrationState.REGISTERED));
         
       //now the same for provider 3
-        assertTrue(
-            "No events were dispatched during the registration process "
-            +"of provider3."
-            ,regEvtCollector3.collectedNewStates.size() > 0);
-
-        assertTrue(
-            "No registration event notifying of registration was dispatched. "
-            +"All events were: " + regEvtCollector3.collectedNewStates
-            ,regEvtCollector3.collectedNewStates
-                .contains(RegistrationState.REGISTERED));
+//        assertTrue(
+//            "No events were dispatched during the registration process "
+//            +"of provider3."
+//            ,regEvtCollector3.collectedNewStates.size() > 0);
+//
+//        assertTrue(
+//            "No registration event notifying of registration was dispatched. "
+//            +"All events were: " + regEvtCollector3.collectedNewStates
+//            ,regEvtCollector3.collectedNewStates
+//                .contains(RegistrationState.REGISTERED));
 
 
         fixture.provider1
             .removeRegistrationStateChangeListener(regEvtCollector1);
         fixture.provider2
             .removeRegistrationStateChangeListener(regEvtCollector2);
-        fixture.provider3
-        .removeRegistrationStateChangeListener(regEvtCollector3);
+//        fixture.provider3
+//        .removeRegistrationStateChangeListener(regEvtCollector3);
     }
 
 
@@ -265,89 +261,6 @@ public class TestProtocolProviderServiceMsnImpl
                         , ex);
                 }
             }
-        }
-    }
-
-    /**
-     * A very simple straight forward implementation of a security authority
-     * that would always return the same password (the one specified upon
-     * construction) when asked for credentials.
-     */
-    public class SecurityAuthorityImpl
-        implements SecurityAuthority
-    {
-        /**
-         * The password to return when asked for credentials
-         */
-        private char[] passwd = null;
-
-        private boolean isUserNameEditable = false;
-
-        /**
-         * Creates an instance of this class that would always return "passwd"
-         * when asked for credentials.
-         *
-         * @param passwd the password that this class should return when
-         * asked for credentials.
-         */
-        public SecurityAuthorityImpl(char[] passwd)
-        {
-            this.passwd = passwd;
-        }
-
-        /**
-         * Returns a Credentials object associated with the specified realm.
-         * <p>
-         * @param realm The realm that the credentials are needed for.
-         * @param defaultValues the values to propose the user by default
-         * @param reasonCode the reason for which we're obtaining the
-         * credentials.
-         * @return The credentials associated with the specified realm or null
-         * if none could be obtained.
-         */
-        public UserCredentials obtainCredentials(String          realm,
-                                                 UserCredentials defaultValues,
-                                                 int reasonCode)
-        {
-            return obtainCredentials(realm, defaultValues);
-        }
-
-        /**
-         * Returns a Credentials object associated with the specified realm.
-         * <p>
-         * @param realm The realm that the credentials are needed for.
-         * @param defaultValues the values to propose the user by default
-         * @return The credentials associated with the specified realm or null
-         * if none could be obtained.
-         */
-        public UserCredentials obtainCredentials(String          realm,
-                                                 UserCredentials defaultValues)
-        {
-            defaultValues.setPassword(passwd);
-            return defaultValues;
-        }
-
-        /**
-         * Sets the userNameEditable property, which should indicate if the
-         * user name could be changed by user or not.
-         * 
-         * @param isUserNameEditable indicates if the user name could be changed
-         */
-        public void setUserNameEditable(boolean isUserNameEditable)
-        {
-            this.isUserNameEditable = isUserNameEditable;
-        }
-        
-        /**
-         * Indicates if the user name is currently editable, i.e. could be changed
-         * by user or not.
-         * 
-         * @return <code>true</code> if the user name could be changed,
-         * <code>false</code> - otherwise.
-         */
-        public boolean isUserNameEditable()
-        {
-            return isUserNameEditable;
         }
     }
 }

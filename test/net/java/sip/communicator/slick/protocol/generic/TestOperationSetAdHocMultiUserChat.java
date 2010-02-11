@@ -92,8 +92,18 @@ public abstract class TestOperationSetAdHocMultiUserChat extends TestCase
 
         // We wait some time to let the MsnSwitchboard attached to this room
         // started...
-        try { Thread.sleep(10000); }
-        catch (InterruptedException e) { e.printStackTrace(); }
+        Object wait = new Object();
+        synchronized (wait)
+        {
+            try
+            {
+                wait.wait(10000);
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+        }
 
         // Check that we retrieved the only one room that should be available:
         assertEquals("The room can't be retrieved", 
