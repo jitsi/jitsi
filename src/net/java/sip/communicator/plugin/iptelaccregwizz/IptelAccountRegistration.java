@@ -73,7 +73,7 @@ public class IptelAccountRegistration
 
     private boolean enablePresence = true;
 
-    private boolean forceP2PMode = true;
+    private boolean forceP2PMode = false;
 
     private boolean defaultEncryption = false;
 

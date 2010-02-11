@@ -136,7 +136,7 @@ public class FirstWizardPage
 
     private JCheckBox forceP2PPresOpButton =
         new SIPCommCheckBox(Resources
-            .getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"), true);
+            .getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"), false);
 
     private JLabel pollPeriodLabel = new JLabel(
         Resources.getString(

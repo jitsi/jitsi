@@ -34,6 +34,9 @@ public class OperationSetTypingNotificationsSipImpl
     implements SipMessageProcessor,
                MessageListener
 {
+    /**
+     * The logger.
+     */
     private static final Logger logger =
         Logger.getLogger(OperationSetTypingNotificationsSipImpl.class);
 
@@ -50,20 +53,61 @@ public class OperationSetTypingNotificationsSipImpl
     private OperationSetBasicInstantMessagingSipImpl opSetBasicIm = null;
 
     // XML documents types
+    /**
+     * The content type of the sent message.
+     */
     private final String CONTENT_TYPE = "application/im-iscomposing+xml";
+
+    /**
+     * The subtype of the message.
+     */
     private final String CONTENT_SUBTYPE = "im-iscomposing+xml";
 
     // isComposing elements and attributes
+    /**
+     * IsComposing body name space.
+     */
     private static final String NS_VALUE = "urn:ietf:params:xml:ns:im-iscomposing";
+
+    /**
+     * The state element.
+     */
     private static final String STATE_ELEMENT= "state";
+
+    /**
+     * The refresh element.
+     */
     private static final String REFRESH_ELEMENT= "refresh";
 
+    /**
+     * Default refresh time for incoming events.
+     */
     private static final int REFRESH_DEFAULT_TIME = 120;
 
+    /**
+     * The minimum refresh time used to be sent.
+     */
+    private static final int REFRESH_TIME = 60;
+
+    /**
+     * The state active when composing.
+     */
     private static final String COMPOSING_STATE_ACTIVE = "active";
+
+    /**
+     * The state idle when composing is finished.
+     */
     private static final String COMPOSING_STATE_IDLE = "idle";
 
+    /**
+     * The global timer managing the tasks.
+     */
     private Timer timer = new Timer();
+
+    /**
+     * The timer tasks for received events, it timer time is reached this
+     * means the user has gone idle.
+     */
     private final List<TypingTask> typingTasks = new Vector<TypingTask>();
 
     /**
@@ -71,6 +115,7 @@ public class OperationSetTypingNotificationsSipImpl
      * @param provider a ref to the <tt>ProtocolProviderServiceImpl</tt>
      * that created us and that we'll use for retrieving the underlying aim
      * connection.
+     * @param opSetBasicIm the parent instant messaging operation set.
      */
     OperationSetTypingNotificationsSipImpl(
         ProtocolProviderServiceSipImpl provider,
@@ -239,13 +284,16 @@ public class OperationSetTypingNotificationsSipImpl
         {
             TypingTask task = findTypingTask(from);
 
-            if(task == null)
+            if(task != null)
             {
-                task = new TypingTask(from);
-                typingTasks.add(task);
+                typingTasks.remove(task);
+                task.cancel();                
             }
-            else
-                task.cancel();
+
+            // when a task is canceled it cannot be
+            // resheduled, we will create new task each time we shedule
+            task = new TypingTask(from, true);
+            typingTasks.add(task);
 
             timer.schedule(task, refresh * 1000);
 
@@ -334,11 +382,16 @@ public class OperationSetTypingNotificationsSipImpl
                         .equalsIgnoreCase(ctheader.getContentSubType());
     }
 
+    /**
+     * Finds typing task for a contact.
+     * @param contact the contact.
+     * @return the typing task.
+     */
     private TypingTask findTypingTask(Contact contact)
     {
         for (TypingTask typingTask : typingTasks)
         {
-            if (typingTask.typingContact.equals(contact))
+            if (typingTask.getContact().equals(contact))
                 return typingTask;
         }
         return null;
@@ -377,7 +430,7 @@ public class OperationSetTypingNotificationsSipImpl
             rootEl.appendChild(state);
 
             Element refresh = doc.createElement("refresh");
-            Node refreshValue = doc.createTextNode("60");
+            Node refreshValue = doc.createTextNode(String.valueOf(REFRESH_TIME));
             refresh.appendChild(refreshValue);
             rootEl.appendChild(refresh);
         }
@@ -432,6 +485,11 @@ public class OperationSetTypingNotificationsSipImpl
         }
     }
 
+    /**
+     * Sending responses.
+     * @param requestEvent the request
+     * @param response the response code.
+     */
     private void sendResponse(RequestEvent requestEvent, int response)
     {
         // answer
@@ -461,7 +519,7 @@ public class OperationSetTypingNotificationsSipImpl
     }
 
     /**
-     * When a message is delivered fire that typing has stoped.
+     * When a message is delivered fire that typing has stopped.
      * @param evt the received message event
      */
     public void messageReceived(MessageReceivedEvent evt)
@@ -484,21 +542,41 @@ public class OperationSetTypingNotificationsSipImpl
     {}
 
     /**
-     * Task that will fire typing stoppped when refresh time expires.
+     * Task that will fire typing stopped when refresh time expires.
      */
     private class TypingTask
         extends TimerTask
     {
-        public final Contact typingContact;
+        /**
+         * The contact that is typing in case of receiving the event and
+         * the contact to which we are sending notifications in case of
+         * sending events.
+         */
+        private final Contact contact;
 
-        TypingTask(Contact typingContact)
+        /**
+         * Create typing task.
+         * @param contact the contact.
+         * @param receiving the direction.
+         */
+        TypingTask(Contact contact, boolean receiving)
         {
-            this.typingContact = typingContact;
+            this.contact = contact;
         }
 
         public void run()
         {
-            fireTypingNotificationsEvent(typingContact, STATE_STOPPED);
+            typingTasks.remove(this);
+
+            fireTypingNotificationsEvent(contact, STATE_STOPPED);
+        }
+
+        /**
+         * @return the contact
+         */
+        public Contact getContact()
+        {
+            return contact;
         }
     }
 }
