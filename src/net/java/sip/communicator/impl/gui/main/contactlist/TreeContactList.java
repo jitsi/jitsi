@@ -56,8 +56,8 @@ public class TreeContactList
      * is a contact that has been sent a message. The list is used to indicate
      * these contacts with a special icon.
      */
-    private final java.util.List<MetaContact> activeContacts
-        = new Vector<MetaContact>();
+    private final java.util.List<ContactNode> activeContacts
+        = new Vector<ContactNode>();
 
     /**
      * A list of all registered <tt>ContactListListener</tt>-s.
@@ -351,11 +351,8 @@ public class TreeContactList
      */
     public void deactivateAll()
     {
-        for (MetaContact metaContact : activeContacts)
+        for (ContactNode contactNode : activeContacts)
         {
-            ContactNode contactNode
-                = treeModel.findContactNodeByMetaContact(metaContact);
-
             contactNode.setActive(false);
         }
         activeContacts.clear();
@@ -377,14 +374,14 @@ public class TreeContactList
 
         if (isActive)
         {
-            activeContacts.add(metaContact);
+            activeContacts.add(contactNode);
 //            SystrayService stray = GuiActivator.getSystrayService();
 //
 //            if (stray != null)
 //                stray.setSystrayIcon(SystrayService.ENVELOPE_IMG_TYPE);
         }
         else
-            activeContacts.remove(metaContact);
+            activeContacts.remove(contactNode);
     }
 
     /**
