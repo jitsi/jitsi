@@ -335,9 +335,12 @@ public class MetaContactImpl
     {
         Contact defaultOpSetContact = null;
 
+        Contact defaultContact = getDefaultContact();
+
         // if the current default contact supports the requested operationSet
         // we use it
-        if (getDefaultContact().getProtocolProvider()
+        if (defaultContact != null
+            && defaultContact.getProtocolProvider()
                 .getOperationSet(operationSet) != null)
         {
             defaultOpSetContact = getDefaultContact();
