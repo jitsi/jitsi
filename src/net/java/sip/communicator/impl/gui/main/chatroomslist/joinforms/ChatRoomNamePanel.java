@@ -21,6 +21,7 @@ import net.java.sip.communicator.util.swing.*;
  *  
  * @author Yana Stamcheva
  */
+@SuppressWarnings("serial")
 public class ChatRoomNamePanel
     extends TransparentPanel
 {    
@@ -107,5 +108,16 @@ public class ChatRoomNamePanel
     public void addChatRoomNameListener(DocumentListener l)
     {
         this.textField.getDocument().addDocumentListener(l);
+    }
+    
+    /**
+     * Removess a <tt>DocumentListener</tt> to the text field containing the 
+     * chosen chat room.
+     * 
+     * @param l the <tt>DocumentListener</tt> to add
+     */
+    public void removeChatRoomNameListener(DocumentListener l)
+    {
+        this.textField.getDocument().removeDocumentListener(l);
     }
 }

@@ -19,9 +19,17 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.swing.*;
 
+/**
+ * This panel allows to search chat rooms on the considered provider, and to 
+ * join them.
+ * 
+ * @author Yana Stamcheva
+ * @author Valentin Martinet
+ */
+@SuppressWarnings("serial")
 public class SearchChatRoomPanel
     extends TransparentPanel
-    implements ActionListener
+    implements ActionListener, DocumentListener
 {
     private final ChatRoomNamePanel namePanel = new ChatRoomNamePanel();
     
@@ -46,7 +54,9 @@ public class SearchChatRoomPanel
     private final WizardContainer wizardContainer;
 
     private ChatRoomProviderWrapper chatRoomProvider;
-
+    
+    List<String> serverRooms = null;
+    
     /**
      * Creates a <tt>SearchChatRoomPanel</tt> instance without specifying 
      * neither the parent window, nor the protocol provider.
@@ -67,8 +77,8 @@ public class SearchChatRoomPanel
     public SearchChatRoomPanel(ChatRoomProviderWrapper provider)
     {
         this.chatRoomProvider = provider;
-        wizardContainer = null;
-
+        this.wizardContainer = null;
+        
         this.init();
     }
 
@@ -82,7 +92,9 @@ public class SearchChatRoomPanel
         this.searchTextArea.setEditable(false);
         this.searchTextArea.setLineWrap(true);
         this.searchTextArea.setWrapStyleWord(true);
-
+        
+        this.namePanel.addChatRoomNameListener(this);
+        
         this.searchPanel.add(searchTextArea);
         this.searchPanel.add(buttonPanel);
 
@@ -124,22 +136,22 @@ public class SearchChatRoomPanel
      */
     public void loadChatRoomsList()
     {
-        List<String> list = GuiActivator.getUIService().getConferenceChatManager()
-            .getExistingChatRooms(chatRoomProvider);
+        serverRooms = GuiActivator.getUIService().getConferenceChatManager()
+                .getExistingChatRooms(chatRoomProvider);
 
-        if(list != null)
+        if(serverRooms != null)
         {
-            if(list.size() == 0)
+            if(serverRooms.size() == 0)
             {
-                list.add(GuiActivator.getResources()
+                serverRooms.add(GuiActivator.getResources()
                     .getI18NString("service.gui.NO_AVAILABLE_ROOMS"));
             }
 
-            chatRoomsList.setListData(new Vector<String>(list));
+            chatRoomsList.setListData(new Vector<String>(serverRooms));
             chatRoomsList.setBorder(
                     BorderFactory.createLineBorder(Color.LIGHT_GRAY));
             
-            chatRoomsScrollPane.setPreferredSize(new Dimension(500, 120));
+            chatRoomsScrollPane.setPreferredSize(new Dimension(500, 250));
             chatRoomsScrollPane.setOpaque(false);
 
             chatRoomsScrollPane.getViewport().add(chatRoomsList);
@@ -169,11 +181,16 @@ public class SearchChatRoomPanel
          */
         public void valueChanged(ListSelectionEvent e)
         {
-            if(e.getValueIsAdjusting())
+            if(e.getValueIsAdjusting() 
+                || chatRoomsList.getSelectedIndex() == -1)
                 return;
-
+            
+            // The listener has to be removed while the textfield he's listening
+            // is being changed:
+            namePanel.removeChatRoomNameListener(SearchChatRoomPanel.this);
             namePanel.setChatRoomName(
                 chatRoomsList.getSelectedValue().toString());
+            namePanel.addChatRoomNameListener(SearchChatRoomPanel.this);
         }
     }
 
@@ -214,6 +231,8 @@ public class SearchChatRoomPanel
     public void setChatRoomProvider(ChatRoomProviderWrapper provider)
     {
         this.chatRoomProvider = provider;
+        serverRooms = GuiActivator.getUIService().getConferenceChatManager()
+            .getExistingChatRooms(chatRoomProvider);
     }
 
     /**
@@ -225,5 +244,39 @@ public class SearchChatRoomPanel
     public void addChatRoomNameListener(DocumentListener l)
     {
         namePanel.addChatRoomNameListener(l);
+    }
+
+    /**
+     * Updates the chat rooms list when a key change is performed in the search 
+     * field. The new chat rooms list will contain all the chat rooms whose name
+     * start with search field's text value.
+     */
+    public void updateChatRoomList()
+    {        
+        if(namePanel.getChatRoomName().length() > 0)
+        {
+            Vector<String> newCRL = new Vector<String>();
+            for(String s : serverRooms)
+                if(s.startsWith(namePanel.getChatRoomName())) newCRL.add(s);
+            
+            chatRoomsList.setListData(newCRL);
+        }
+        else 
+            chatRoomsList.setListData(new Vector<String>(serverRooms));
+    }
+    
+    public void changedUpdate(DocumentEvent e)
+    {
+        updateChatRoomList();
+    }
+
+    public void insertUpdate(DocumentEvent e)
+    {
+        updateChatRoomList();
+    }
+
+    public void removeUpdate(DocumentEvent e)
+    {
+        updateChatRoomList();
     }
 }
