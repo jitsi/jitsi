@@ -93,20 +93,18 @@ public class UnknownContactPanel
 
                 if (telephonyProviders.size() == 1)
                 {
-                    callProvider = telephonyProviders.get(0);
+                    CallManager.createCall(callProvider, searchText);
                 }
                 else if (telephonyProviders.size() > 1)
                 {
-                    ChooseCallAccountDialog chooseAccountDialog
-                        = new ChooseCallAccountDialog(telephonyProviders);
+                    ChooseCallAccountPopupMenu chooseAccountDialog
+                        = new ChooseCallAccountPopupMenu(
+                            callContact,
+                            searchText,
+                            telephonyProviders);
 
-                    callProvider = chooseAccountDialog.showDialog(); 
+                    chooseAccountDialog.showPopupMenu();
                 }
-
-                // We have nothing to do if the user has cancel the operation
-                // or if the callProvider is null.
-                if (callProvider != null)
-                    CallManager.createCall(callProvider, searchText);
             }
         });
     }
