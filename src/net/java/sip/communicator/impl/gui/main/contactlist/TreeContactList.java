@@ -817,6 +817,11 @@ public class TreeContactList
 
         TreePath path = this.getPathForLocation(e.getX(), e.getY());
 
+        // If we didn't find any path for the given mouse location, we have
+        // nothing to do here.
+        if (path == null)
+            return;
+
         // Select the node under the right button click.
         if (!path.equals(getSelectionPath())
             && (e.getModifiers() & InputEvent.BUTTON1_MASK) != 0
