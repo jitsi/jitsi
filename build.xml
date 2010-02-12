@@ -885,7 +885,7 @@
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
         bundle-argdelegation,bundle-zrtp4j,
         bundle-filehistory,bundle-metahistory,bundle-metahistory-slick,
-        bundle-facebook,bundle-plugin-facebookaccregwizz,
+        bundle-plugin-facebookaccregwizz,
         bundle-bouncycastle,bundle-plugin-otr,bundle-plugin-iptelaccregwizz"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
@@ -1304,6 +1304,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources/images">
                 <include name="protocol/icq/**/*"/>
                 <include name="protocol/googletalk/**/*"/>
+                <include name="protocol/facebook/**/*"/>
                 <include name="protocol/jabber/**/*"/>
                 <include name="protocol/msn/**/*"/>
                 <include name="protocol/yahoo/**/*"/>
@@ -1472,21 +1473,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${testsrc}/net/java/sip/communicator/slick/protocol/gibberish/gibberish.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/gibberish"
                 prefix="net/java/sip/communicator/slick/protocol/gibberish"/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-FACEBOOK -->
-    <target name="bundle-facebook">
-        <!-- Creates a bundle containing the Facebook impl of the protocol provider.-->
-        <jar compress="false" destfile="${bundles.dest}/protocol-facebook.jar"
-                manifest="${src}/net/java/sip/communicator/impl/protocol/facebook/facebook.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/facebook"
-                    prefix="net/java/sip/communicator/impl/protocol/facebook"/>
-            <zipfileset dir="${resources}/images/protocol/facebook"
-                    prefix="resources/images/protocol/facebook" />
-            <zipfileset src="${lib.noinst}/commons-codec-1.3.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/httpclient-4.0-beta2.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/json-20090723.jar" prefix=""/>
         </jar>
     </target>
 

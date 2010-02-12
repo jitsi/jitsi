@@ -92,7 +92,7 @@ public class FacebookAccRegWizzActivator
 
         String osgiFilter = "("
             + ProtocolProviderFactory.PROTOCOL
-            + "=" + "Facebook" + ")";
+            + "=" + ProtocolNames.JABBER + ")";
 
         try
         {

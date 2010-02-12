@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * The <tt>FirstWizardPage</tt> is the page, where user could enter the email
+ * The <tt>FirstWizardPage</tt> is the page, where user could enter the username
  * and the password of the account.
  *
  * @author Dai Zhiwei
@@ -29,7 +29,7 @@ public class FirstWizardPage
 {
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
-    public static final String USER_NAME_EXAMPLE = "Ex: username@email.com";
+    public static final String USER_NAME_EXAMPLE = "Ex: username";
     
     private JPanel userPassPanel
         = new TransparentPanel(new BorderLayout(10, 10));
@@ -38,7 +38,7 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new TransparentPanel();
 
-    private JLabel emailLabel
+    private JLabel usernameLabel
         = new JLabel(Resources.getString("plugin.facebookaccregwizz.USERNAME"));
 
     private JLabel passLabel
@@ -49,9 +49,9 @@ public class FirstWizardPage
 
     private JPanel emptyPanel = new TransparentPanel();
 
-    private JLabel emailExampleLabel = new JLabel(USER_NAME_EXAMPLE);
+    private JLabel usernameExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
-    private JTextField emailField = new JTextField();
+    private JTextField usernameField = new JTextField();
 
     private JPasswordField passField = new JPasswordField();
 
@@ -93,32 +93,32 @@ public class FirstWizardPage
      */
     private void init()
     {
-        this.emailField.getDocument().addDocumentListener(this);
+        this.usernameField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(true);
         this.rememberPassBox.setOpaque(false);
 
         this.existingAccountLabel.setForeground(Color.RED);
 
-        this.emailExampleLabel.setForeground(Color.GRAY);
-        this.emailExampleLabel.setFont(
-                emailExampleLabel.getFont().deriveFont(8));
+        this.usernameExampleLabel.setForeground(Color.GRAY);
+        this.usernameExampleLabel.setFont(
+                usernameExampleLabel.getFont().deriveFont(8));
         this.emptyPanel.setMaximumSize(new Dimension(40, 35));
-        this.emailExampleLabel.setBorder(
+        this.usernameExampleLabel.setBorder(
                 BorderFactory.createEmptyBorder(0, 0, 8,0));
 
-        labelsPanel.add(emailLabel);
+        labelsPanel.add(usernameLabel);
         labelsPanel.add(emptyPanel);
         labelsPanel.add(passLabel);
 
-        valuesPanel.add(emailField);
-        valuesPanel.add(emailExampleLabel);
+        valuesPanel.add(usernameField);
+        valuesPanel.add(usernameExampleLabel);
         valuesPanel.add(passField);
 
         JLabel experimentalWarningLabel
             = new JLabel(
                     Resources.getString(
-                        "plugin.facebookaccregwizz.EXPERIMENTAL_WARNING"));
-        experimentalWarningLabel.setForeground(Color.RED);
+                        "plugin.facebookaccregwizz.DESCRIPTION"));
+        experimentalWarningLabel.setHorizontalAlignment(JLabel.CENTER);
         setPreferredWidthInCharCount(experimentalWarningLabel, 50);
 
         userPassPanel.add(experimentalWarningLabel, BorderLayout.NORTH);
@@ -212,7 +212,7 @@ public class FirstWizardPage
      */
     public void pageShowing()
     {
-        this.setNextButtonAccordingToEmail();
+        this.setNextButtonAccordingToUsername();
     }
 
     /**
@@ -220,7 +220,12 @@ public class FirstWizardPage
      */
     public void commitPage()
     {
-        String userID = emailField.getText().trim();
+
+        String userID = usernameField.getText().trim();
+
+        // add server part to username
+        if(userID.indexOf("@") == -1)
+            userID += "@" + FacebookAccountRegistrationWizard.SERVER_ADDRESS;
 
         if (!wizard.isModification() && isExistingAccount(userID))
         {
@@ -236,7 +241,7 @@ public class FirstWizardPage
             FacebookAccountRegistration registration
                 = wizard.getRegistration();
 
-            registration.setEmail(emailField.getText());
+            registration.setUsername(userID);
 
             if (passField.getPassword() != null)
                 registration.setPassword(new String(passField.getPassword()));
@@ -251,9 +256,9 @@ public class FirstWizardPage
      * Enables or disables the "Next" wizard button according to whether the
      * User ID field is empty.
      */
-    private void setNextButtonAccordingToEmail()
+    private void setNextButtonAccordingToUsername()
     {
-        if (emailField.getText() == null || emailField.getText().equals(""))
+        if (usernameField.getText() == null || usernameField.getText().equals(""))
         {
             wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
@@ -272,7 +277,7 @@ public class FirstWizardPage
      */
     public void insertUpdate(DocumentEvent event)
     {
-        this.setNextButtonAccordingToEmail();
+        this.setNextButtonAccordingToUsername();
     }
 
     /**
@@ -284,7 +289,7 @@ public class FirstWizardPage
      */
     public void removeUpdate(DocumentEvent event)
     {
-        this.setNextButtonAccordingToEmail();
+        this.setNextButtonAccordingToUsername();
     }
 
     public void changedUpdate(DocumentEvent event)
@@ -315,8 +320,8 @@ public class FirstWizardPage
         String password = accountID.getAccountProperties()
             .get(ProtocolProviderFactory.PASSWORD);
 
-        this.emailField.setEnabled(false);
-        this.emailField.setText(accountID.getUserID());
+        this.usernameField.setEnabled(false);
+        this.usernameField.setText(accountID.getUserID());
 
         if (password != null)
         {
@@ -329,11 +334,11 @@ public class FirstWizardPage
      * Verifies whether there is already an account installed with the same
      * details as the one that the user has just entered.
      *
-     * @param email the name of the user that the account is registered for
+     * @param username the name of the user that the account is registered for
      * @return true if there is already an account for this userID and false
      * otherwise.
      */
-    private boolean isExistingAccount(String email)
+    private boolean isExistingAccount(String username)
     {
         ProtocolProviderFactory factory
             = FacebookAccRegWizzActivator.getFacebookProtocolProviderFactory();
@@ -341,16 +346,24 @@ public class FirstWizardPage
         Iterable<AccountID> registeredAccounts = factory.getRegisteredAccounts();
 
         for (AccountID accountID : registeredAccounts)
-            if (email.equalsIgnoreCase(accountID.getUserID()))
+            if (username.equalsIgnoreCase(accountID.getUserID()))
                 return true;
         return false;
     }
 
+    /**
+     * The simple form.
+     * @return
+     */
     public Object getSimpleForm()
     {
         return userPassPanel;
     }
-    
+
+    /**
+     * Is committed.
+     * @return Is committed.
+     */
     public boolean isCommitted()
     {
         return isCommitted;

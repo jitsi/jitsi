@@ -14,26 +14,26 @@ package net.java.sip.communicator.plugin.facebookaccregwizz;
  */
 public class FacebookAccountRegistration
 {
-    private String email;
+    private String username;
     private String password;
     private boolean rememberPassword;
 
     /**
-     * Returns the Email of the facebook registration account.
-     * @return the Email of the facebook registration account.
+     * Returns the username of the facebook registration account.
+     * @return the username of the facebook registration account.
      */
-    public String getEmail()
+    public String getUsername()
     {
-        return email;
+        return username;
     }
 
     /**
-     * Sets the Email of the facebook registration account.
-     * @param email the userID of the facebook registration account.
+     * Sets the username of the facebook registration account.
+     * @param username the userID of the facebook registration account.
      */
-    public void setEmail(String email)
+    public void setUsername(String username)
     {
-        this.email = email;
+        this.username = username;
     }
 
     /**

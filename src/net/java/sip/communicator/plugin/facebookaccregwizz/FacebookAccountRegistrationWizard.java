@@ -30,6 +30,8 @@ public class FacebookAccountRegistrationWizard
      */
     private FirstWizardPage firstWizardPage;
 
+    public static final String SERVER_ADDRESS = "chat.facebook.com";
+
     /**
      * The object that we use to store details on an account that we will be
      * creating.
@@ -121,7 +123,7 @@ public class FacebookAccountRegistrationWizard
     {
         Map<String, String> summaryTable = new Hashtable<String, String>();
 
-        summaryTable.put("User ID", registration.getEmail());
+        summaryTable.put("User ID", registration.getUsername());
         return summaryTable.entrySet().iterator();
     }
 
@@ -134,7 +136,7 @@ public class FacebookAccountRegistrationWizard
         if (!firstWizardPage.isCommitted())
             firstWizardPage.commitPage();
 
-        return signin(registration.getEmail(), null);
+        return signin(registration.getUsername(), null);
     }
 
     /**
@@ -164,11 +166,20 @@ public class FacebookAccountRegistrationWizard
     {
         Map<String, String> accountProperties = new Hashtable<String, String>();
 
+        /* Make the account use the resources specific to Facebook. */
+        accountProperties.put(ProtocolProviderFactory.PROTOCOL, 
+            ProtocolNames.FACEBOOK);
+        accountProperties
+            .put(ProtocolProviderFactory.PROTOCOL_ICON_PATH,
+                "resources/images/protocol/facebook");
+
         if (registration.isRememberPassword())
         {
             accountProperties.put(  ProtocolProviderFactory.PASSWORD,
                                     registration.getPassword());
         }
+
+        accountProperties.put("SEND_KEEP_ALIVE", Boolean.TRUE.toString());
 
         if (isModification)
         {
@@ -176,6 +187,15 @@ public class FacebookAccountRegistrationWizard
             this.protocolProvider = null;
             this.isModification  = false;
         }
+
+        accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
+            SERVER_ADDRESS);
+
+        accountProperties.put(ProtocolProviderFactory.SERVER_PORT, "5222");
+
+        accountProperties.put(ProtocolProviderFactory.RESOURCE, "sip-comm");
+
+        accountProperties.put(ProtocolProviderFactory.RESOURCE_PRIORITY, "10");
 
         Throwable exception = null;
 

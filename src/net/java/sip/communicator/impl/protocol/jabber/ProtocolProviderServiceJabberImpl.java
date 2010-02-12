@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.impl.protocol.jabber.sasl.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
@@ -374,6 +375,13 @@ public class ProtocolProviderServiceJabberImpl
                     accountResource = "sip-comm";
 
                 SASLAuthentication.supportSASLMechanism("PLAIN", 0);
+
+                // Insert our sasl mechanism implementation
+                // in order to support some incompatable servers
+                SASLAuthentication.unregisterSASLMechanism("DIGEST-MD5");
+                SASLAuthentication.registerSASLMechanism("DIGEST-MD5",
+                    SASLDigestMD5Mechanism.class);
+                SASLAuthentication.supportSASLMechanism("DIGEST-MD5");
 
                 try
                 {

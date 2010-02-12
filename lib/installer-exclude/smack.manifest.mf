@@ -31,5 +31,6 @@ Export-Package: org.jivesoftware.smack,
  org.jivesoftware.smackx.jingle.listeners,
  org.jivesoftware.smackx.filetransfer,
  org.jivesoftware.smackx.provider,
+ org.jivesoftware.smack.sasl,
  org.xmlpull.v1,
  org.xmlpull.mxp1
