@@ -235,30 +235,4 @@ public class TestOperationSetFileTransferImpl
     {
         return true;
     }
-
-    private class AuthHandler
-        implements AuthorizationHandler
-    {
-
-        public AuthorizationResponse processAuthorisationRequest(AuthorizationRequest req, Contact sourceContact)
-        {
-            logger.trace("processAuthorisationRequest " + req + " " +
-                             sourceContact);
-
-            return new AuthorizationResponse(AuthorizationResponse.ACCEPT, "");
-        }
-
-        public AuthorizationRequest createAuthorizationRequest(Contact contact)
-        {
-            logger.trace("createAuthorizationRequest " + contact);
-            return new AuthorizationRequest();
-        }
-
-        public void processAuthorizationResponse(AuthorizationResponse response, Contact sourceContact)
-        {
-            logger.debug("auth response from: " +
-                sourceContact.getAddress() + " " +
-                response.getResponseCode().getCode());
-        }
-    }
 }

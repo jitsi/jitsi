@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 import junit.framework.*;
 
 /**
@@ -19,6 +20,9 @@ import junit.framework.*;
  */
 public abstract class TestOperationSetAdHocMultiUserChat extends TestCase 
 {
+    private Logger logger = Logger.getLogger(
+        TestOperationSetAdHocMultiUserChat.class);
+    
     /**
      * The name for the AdHocChatRoom we will use in this test case.
      */
@@ -803,15 +807,8 @@ public abstract class TestOperationSetAdHocMultiUserChat extends TestCase
 
         try 
         {
+            opSetPresence1.setAuthorizationHandler(new AuthHandler());
             opSetPresence1.subscribe(fixture.userID2);
-        }
-        catch (OperationFailedException e)
-        {
-            // means that the contacts already exits.
-        }
-        
-        try 
-        {
             opSetPresence1.subscribe(fixture.userID3);
         }
         catch (OperationFailedException e)
@@ -821,15 +818,8 @@ public abstract class TestOperationSetAdHocMultiUserChat extends TestCase
         
         try 
         {
+            opSetPresence2.setAuthorizationHandler(new AuthHandler());
             opSetPresence2.subscribe(fixture.userID1);
-        }
-        catch (OperationFailedException e)
-        {
-            // means that the contacts already exits.
-        }
-        
-        try 
-        {
             opSetPresence2.subscribe(fixture.userID3);
         }
         catch (OperationFailedException e)
@@ -839,20 +829,20 @@ public abstract class TestOperationSetAdHocMultiUserChat extends TestCase
         
         try 
         {
+            opSetPresence3.setAuthorizationHandler(new AuthHandler());
             opSetPresence3.subscribe(fixture.userID1);
+            opSetPresence3.subscribe(fixture.userID2);
         }
         catch (OperationFailedException e)
         {
             // means that the contacts already exits.
         }
         
-        try 
+        logger.info("Will wait until the list prepare is completed");
+        Object o = new Object();
+        synchronized(o)
         {
-            opSetPresence3.subscribe(fixture.userID2);
-        } 
-        catch (OperationFailedException e)
-        {
-            // means that the contacts already exits.
+            o.wait(2000);
         }
     }
 }
