@@ -843,7 +843,7 @@
     </target>
 
     <!--CRUISE CONTROL BUILD LOOP target-->
-    <target name="cc-buildloop" depends="rebuild"
+    <target name="cc-buildloop" depends="rebuild,test"
             description="Comprehensive (paranoid) rebuild and test (used by Cruise Control)."/>
 
 
