@@ -599,6 +599,7 @@
             <env key="LD_LIBRARY_PATH" path="${ld.library.path}"/>
             <env key="PATH" path="${path}"/>
             <env key="DYLD_LIBRARY_PATH" path="${dyld.library.path}"/>
+            <env key="DISPLAY" path=":0"/>
 
         </java>
 
