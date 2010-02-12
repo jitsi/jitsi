@@ -23,7 +23,7 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
  * @author Damian Minkov
  */
 public class DataSource
-    extends AbstractPushBufferCaptureDevice
+    extends AbstractPullBufferCaptureDevice
 {
 
     /**
@@ -61,23 +61,23 @@ public class DataSource
     }
 
     /**
-     * Create a new <tt>PushBufferStream</tt> which is to be at a specific
+     * Create a new <tt>PullBufferStream</tt> which is to be at a specific
      * zero-based index in the list of streams of this
-     * <tt>PushBufferDataSource</tt>. The <tt>Format</tt>-related information of
+     * <tt>PullBufferDataSource</tt>. The <tt>Format</tt>-related information of
      * the new instance is to be abstracted by a specific
      * <tt>FormatControl</tt>.
      *
-     * @param streamIndex the zero-based index of the <tt>PushBufferStream</tt>
-     * in the list of streams of this <tt>PushBufferDataSource</tt>
+     * @param streamIndex the zero-based index of the <tt>PullBufferStream</tt>
+     * in the list of streams of this <tt>PullBufferDataSource</tt>
      * @param formatControl the <tt>FormatControl</tt> which is to abstract the
      * <tt>Format</tt>-related information of the new instance
-     * @return a new <tt>PushBufferStream</tt> which is to be at the specified
+     * @return a new <tt>PullBufferStream</tt> which is to be at the specified
      * <tt>streamIndex</tt> in the list of streams of this
-     * <tt>PushBufferDataSource</tt> and which has its <tt>Format</tt>-related
+     * <tt>PullBufferDataSource</tt> and which has its <tt>Format</tt>-related
      * information abstracted by the specified <tt>formatControl</tt>
-     * @see AbstractPushBufferCaptureDevice#createStream(int, FormatControl)
+     * @see AbstractPullBufferCaptureDevice#createStream(int, FormatControl)
      */
-    protected AbstractPushBufferStream createStream(
+    protected AbstractPullBufferStream createStream(
             int streamIndex,
             FormatControl formatControl)
     {

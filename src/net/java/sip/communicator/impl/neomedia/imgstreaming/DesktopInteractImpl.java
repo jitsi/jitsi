@@ -48,7 +48,56 @@ public class DesktopInteractImpl implements DesktopInteract
     }
 
     /**
-     * Capture the full desktop screen.
+     * Capture the full desktop screen using native grabber.
+     *
+     * Contrary to other captureScreen method, it only returns raw bytes
+     * and not <tt>BufferedImage</tt>. It is done in order to limit
+     * slow operation such as converting ARGB images (uint32_t) to bytes
+     * especially for big big screen. For example a 1920x1200 desktop consumes
+     * 9 MB of memory for grabbing and another 9 MB array for convertion operation.
+     *
+     * @param output output buffer to store bytes in.
+     * Be sure that output length is sufficient
+     * @return true if success, false if JNI error or output length too short
+     */
+    public boolean captureScreen(byte output[])
+    {
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+
+        return captureScreen(0, 0, (int)dim.getWidth(), (int)dim.getHeight(), output);
+    }
+
+    /**
+     * Capture a part of the desktop screen using native grabber.
+     *
+     * Contrary to other captureScreen method, it only returns raw bytes
+     * and not <tt>BufferedImage</tt>. It is done in order to limit
+     * slow operation such as converting ARGB images (uint32_t) to bytes 
+     * especially for big big screen. For example a 1920x1200 desktop consumes
+     * 9 MB of memory for grabbing and another 9 MB array for convertion operation.
+     *
+     * @param x x position to start capture
+     * @param y y position to start capture
+     * @param width capture width
+     * @param height capture height
+     * @param output output buffer to store bytes in.
+     * Be sure that output length is sufficient
+     * @return true if success, false if JNI error or output length too short
+     */
+    public boolean captureScreen(int x, int y, int width, int height, byte output[])
+    {
+        if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS
+                || OSUtils.IS_MAC)
+        {
+            return NativeScreenCapture.grabScreen(
+                        x, y, width, height, output);
+        }
+
+        return false;
+    }
+
+    /**
+     * Capture the full desktop screen using <tt>java.awt.Robot</tt>.
      *
      * @return <tt>BufferedImage</tt> of the desktop screen
      */
@@ -60,7 +109,7 @@ public class DesktopInteractImpl implements DesktopInteract
     }
 
     /**
-     * Capture a part of the desktop screen.
+     * Capture a part of the desktop screen using <tt>java.awt.Robot</tt>.
      *
      * @param x x position to start capture
      * @param y y position to start capture
@@ -72,31 +121,18 @@ public class DesktopInteractImpl implements DesktopInteract
     public BufferedImage captureScreen(int x, int y, int width, int height)
     {
         BufferedImage img = null;
-
-        if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS || OSUtils.IS_MAC)
+        Rectangle rect = null;
+           
+        if(robot == null)
         {
-            img = NativeScreenCapture.captureScreen(x, y, width, height);
+            /* Robot has not been created so abort */
+            return null;
         }
 
-        /* in case native screen grabber is not available
-         * for the current OS or if it has failed, 
-         * fallback to Java AWT Robot
-         */
-        if(img == null)
-        {
-            Rectangle rect = null;
-            
-            if(robot == null)
-            {
-                /* Robot has not been created so abort */
-                return null;
-            }
-
-            logger.info("Begin capture: " + System.nanoTime());
-            rect = new Rectangle(x, y, width, height);
-            img = robot.createScreenCapture(rect);
-            logger.info("End capture: " + System.nanoTime());
-        }
+        logger.info("Begin capture: " + System.nanoTime());
+        rect = new Rectangle(x, y, width, height);
+        img = robot.createScreenCapture(rect);
+        logger.info("End capture: " + System.nanoTime());
         
         return img;
     }

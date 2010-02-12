@@ -132,13 +132,13 @@ public class VideoMediaDeviceSession
             }
 
             /*
-             * FIXME There is no video in calls when using the QuickTime/QTKit
-             * CaptureDevice so the local video support is disabled for it.
+             * FIXME Cloning a Desktop streaming capture device no longer works
+             * since it becames a PullBufferCaptureDevice
              */
-//            if (!QuickTimeAuto.LOCATOR_PROTOCOL.equals(protocol))
+            if (!ImageStreamingUtils.LOCATOR_PROTOCOL.equals(protocol))
             {
-                DataSource cloneableDataSource
-                    = Manager.createCloneableDataSource(captureDevice);
+                DataSource cloneableDataSource =
+                    Manager.createCloneableDataSource(captureDevice);
 
                 if (cloneableDataSource != null)
                     captureDevice = cloneableDataSource;

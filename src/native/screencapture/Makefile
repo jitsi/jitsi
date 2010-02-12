@@ -4,7 +4,7 @@
 # \author Sebastien Vincent
 
 CC = gcc
-CFLAGS = -std=c99 -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -Wall -Wextra -pedantic -Wstrict-prototypes -Wredundant-decls
+CFLAGS = -std=c99 -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -Wall -Wextra -pedantic -Wstrict-prototypes -Wredundant-decls -O3
 
 # uncomment to compile on Linux
 LDFLAGS =

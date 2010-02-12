@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -22,6 +23,8 @@
 #include <wingdi.h>
 
 typedef __int32 int32_t; 
+typedef unsigned __int32 uint32_t; 
+typedef unsigned __int8 uint8_t; 
 
 #elif defined(__APPLE__)
 
@@ -56,7 +59,7 @@ typedef __int32 int32_t;
  * \param h capture height 
  * \return 0 if success, -1 otherwise
  */
-static int windows_grab_screen(int32_t* data, int32_t x, int32_t y, int32_t w, int32_t h)
+static int windows_grab_screen(jbyte* data, int32_t x, int32_t y, int32_t w, int32_t h)
 {
   static const RGBQUAD redColor = {0x00, 0x00, 0xFF, 0x00};
   static const RGBQUAD greenColor = {0x00, 0xFF, 0x00, 0x00};
@@ -72,6 +75,9 @@ static int windows_grab_screen(int32_t* data, int32_t x, int32_t y, int32_t w, i
   BITMAPINFOHEADER* bitmap_hdr = NULL;
   RGBQUAD *pixels = NULL;
   size_t i = 0;
+  size_t off = 0;
+  uint32_t test = 1;
+  int little_endian = *((uint8_t*)&test);
 
   /* get handle to the entire screen of Windows */
   desktop = GetDC(NULL);
@@ -186,8 +192,20 @@ static int windows_grab_screen(int32_t* data, int32_t x, int32_t y, int32_t w, i
 
   for(i = 0 ; i < size ; i++)
   {
-    RGBQUAD* pixel = &pixels[i];
-    data[i] = 0xFF000000 | pixel->rgbRed << 16 | pixel->rgbGreen << 8 | pixel->rgbBlue;
+    RGBQUAD* quad = &pixels[i];
+    uint32_t pixel = 0xFF000000 | quad->rgbRed << 16 | quad->rgbGreen << 8 | quad->rgbBlue;
+
+    if(little_endian)
+    {
+      uint8_t r = (pixel >> 16) & 0xff;
+      uint8_t g = (pixel >> 8) & 0xff;
+      uint8_t b = pixel & 0xff;
+
+      pixel = 0xff << 24 | b << 16 | g << 8 | r;
+    }
+
+    memcpy(data + off, &pixel, 4);
+    off += 4;
   }
 
   /* cleanup */
@@ -211,7 +229,7 @@ static int windows_grab_screen(int32_t* data, int32_t x, int32_t y, int32_t w, i
  * \param h capture height
  * \return 0 if success, -1 otherwise
  */
-static int quartz_grab_screen(int32_t* data, int32_t x, int32_t y, int32_t w, int32_t h)
+static int quartz_grab_screen(jbyte* data, int32_t x, int32_t y, int32_t w, int32_t h)
 {
   CGImageRef img = NULL;
   CGDataProviderRef provider = NULL;
@@ -221,6 +239,8 @@ static int quartz_grab_screen(int32_t* data, int32_t x, int32_t y, int32_t w, in
   size_t off = 0;
   size_t i = 0;
   CGRect rect;
+  uint32_t test_endian = 1;
+  int little_endian = *((uint8_t*)&test_endian);
 
   rect = CGRectMake(x, y, w, h);
   img = CGWindowListCreateImage(rect, kCGWindowListOptionOnScreenOnly, kCGNullWindowID, kCGWindowImageDefault);
@@ -242,8 +262,17 @@ static int quartz_grab_screen(int32_t* data, int32_t x, int32_t y, int32_t w, in
   {
     uint32_t pixel = *((uint32_t*)&pixels[i]);
 
-    pixel |= 0xff000000; /* ARGB */
-    data[off++] = pixel;
+    if(little_endian)
+    {
+      uint8_t r = (pixel >> 16) & 0xff;
+      uint8_t g = (pixel >> 8) & 0xff;
+      uint8_t b = pixel & 0xff;
+
+      pixel = 0xff << 24 | b << 16 | g << 8 | r;
+    }
+
+    memcpy(data + off, &pixel, 4);
+    off += 4;
   }
 
   /* cleanup */
@@ -264,7 +293,7 @@ static int quartz_grab_screen(int32_t* data, int32_t x, int32_t y, int32_t w, in
  * \param h capture height 
  * \return 0 if success, -1 otherwise
  */
-static int x11_grab_screen(const char* x11display, int32_t* data, int32_t x, int32_t y, int32_t w, int32_t h)
+static int x11_grab_screen(const char* x11display, jbyte* data, int32_t x, int32_t y, int32_t w, int32_t h)
 {
   const char* display_str; /* display string */
   Display* display = NULL; /* X11 display */
@@ -281,13 +310,9 @@ static int x11_grab_screen(const char* x11display, int32_t* data, int32_t x, int
   int i = 0;
   int j = 0;
   size_t size = 0;
-
-  if(!data)
-  {
-    /* fprintf(stderr, "data is NULL!\n"); */
-    return -1;
-  }
-
+  uint32_t test_endian = 1;
+  int little_endian = *((uint8_t*)&test_endian);
+  
   display_str = x11display ? x11display : getenv("DISPLAY");
 
   if(!display_str)
@@ -388,7 +413,7 @@ static int x11_grab_screen(const char* x11display, int32_t* data, int32_t x, int
     }
   }
 
-  /* convert to Java ARGB */
+  /* convert to bytes but keep ARGB */
   for(j = 0 ; j < h ; j++)
   {
     for(i = 0 ; i < w ; i++)
@@ -398,8 +423,17 @@ static int x11_grab_screen(const char* x11display, int32_t* data, int32_t x, int
        */
       uint32_t pixel = (uint32_t)XGetPixel(img, i, j);
 
-      pixel |= 0xff000000; /* ARGB */
-      data[off++] = pixel;
+      if(little_endian)
+      {
+        uint8_t r = (pixel >> 16) & 0xff;
+        uint8_t g = (pixel >> 8) & 0xff;
+        uint8_t b = pixel & 0xff;
+
+        pixel = 0xff << 24 | b << 16 | g << 8 | r;
+      }
+
+      memcpy(data + off, &pixel, 4);
+      off += 4;
     }
   }
 
@@ -428,29 +462,27 @@ static int x11_grab_screen(const char* x11display, int32_t* data, int32_t x, int
  * \param y y position to start capture
  * \param width capture width
  * \param height capture height
- * \return array of ARGB pixels (jint)
+ * \param output output buffer, screen bytes will be stored in
+ * \return true if success, false otherwise
  */
-JNIEXPORT jintArray JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture_grabScreen
-  (JNIEnv* env, jclass obj, jint x, jint y, jint width, jint height)
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture_grabScreen
+  (JNIEnv* env, jclass obj, jint x, jint y, jint width, jint height, jbyteArray output)
 {
-  int32_t* data = NULL; /* jint is always four-bytes signed integer */
-  size_t size = width * height;
-  jintArray ret = NULL;
+  jint size = width * height * 4;
+  jbyte* data = NULL;
 
   obj = obj; /* not used */
 
-  ret = (*env)->NewIntArray(env, size);
-
-  if(!ret)
+  if(!output || (*env)->GetArrayLength(env, output) < size)
   {
-    return NULL;
+    return JNI_FALSE;
   }
 
-  data = (*env)->GetIntArrayElements(env, ret, NULL);
-  
+  data = (*env)->GetPrimitiveArrayCritical(env, output, 0);
+
   if(!data)
   {
-    return NULL;
+    return JNI_FALSE;
   }
 
 #if defined (_WIN32) || defined(_WIN64)
@@ -461,13 +493,11 @@ JNIEXPORT jintArray JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstre
   if(x11_grab_screen(NULL, data, x, y, width, height) == -1)
 #endif
   {
-    (*env)->ReleaseIntArrayElements(env, ret, data, 0);
-    return NULL;
+    (*env)->ReleasePrimitiveArrayCritical(env, output, data, 0);
+    return JNI_FALSE;
   }
 
-  /* updates array with data's content */
-  (*env)->ReleaseIntArrayElements(env, ret, data, 0);
-
-  return ret;
+  (*env)->ReleasePrimitiveArrayCritical(env, output, data, 0);
+  return JNI_TRUE;
 }
 

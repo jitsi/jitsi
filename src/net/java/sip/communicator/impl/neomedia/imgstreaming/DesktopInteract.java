@@ -17,6 +17,40 @@ import java.awt.image.*;
 public interface DesktopInteract
 {
     /**
+     * Capture the full desktop screen using native grabber.
+     *
+     * Contrary to other captureScreen method, it only returns raw bytes
+     * and not <tt>BufferedImage</tt>. It is done in order to limit
+     * slow operation such as converting ARGB images (uint32_t) to bytes
+     * especially for big big screen. For example a 1920x1200 desktop consumes
+     * 9 MB of memory for grabbing and another 9 MB array for convertion operation.
+     *
+     * @param output output buffer to store bytes in.
+     * Be sure that output length is sufficient
+     * @return true if success, false if JNI error or output length too short
+     */
+    public boolean captureScreen(byte output[]);
+
+    /**
+     * Capture a part of the desktop screen using native grabber.
+     *
+     * Contrary to other captureScreen method, it only returns raw bytes
+     * and not <tt>BufferedImage</tt>. It is done in order to limit
+     * slow operation such as converting ARGB images (uint32_t) to bytes
+     * especially for big big screen. For example a 1920x1200 desktop consumes
+     * 9 MB of memory for grabbing and another 9 MB array for convertion operation.
+     *
+     * @param x x position to start capture
+     * @param y y position to start capture
+     * @param width capture width
+     * @param height capture height
+     * @param output output buffer to store bytes in.
+     * Be sure that output length is sufficient
+     * @return true if success, false if JNI error or output length too short
+     */
+    public boolean captureScreen(int x, int y, int width, int height, byte output[]);
+
+    /**
      * Capture the full desktop screen.
      *
      * @return <tt>BufferedImage</tt> of the desktop screen

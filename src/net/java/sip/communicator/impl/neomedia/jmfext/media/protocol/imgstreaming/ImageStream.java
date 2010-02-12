@@ -29,8 +29,7 @@ import net.java.sip.communicator.util.*;
  * @author Damian Minkov
  */
 public class ImageStream
-    extends AbstractPushBufferStream
-    implements Runnable
+    extends AbstractPullBufferStream
 {
     /**
      * The <tt>Logger</tt>
@@ -41,11 +40,6 @@ public class ImageStream
      * Sequence number.
      */
     private long seqNo = 0;
-
-    /**
-     * Capture thread reference.
-     */
-    private Thread captureThread = null;
 
     /**
      * If stream is started or not.
@@ -83,81 +77,69 @@ public class ImageStream
     public void read(Buffer buffer)
         throws IOException
     {
-        synchronized(buf)
+        //System.out.println(System.currentTimeMillis());
+        byte data[] = (byte[])buffer.getData();
+        int dataLength = (data != null) ? data.length : 0;
+        long begin = System.currentTimeMillis();
+        /* maximum time allowed for a capture to respect frame rate */
+        long maxTime = 1000 / 10; 
+        int wait = 0;
+
+        if((data != null) || (dataLength != 0))
         {
-            try
-            {
-                Object bufData = buf.getData();
-                int bufLength = buf.getLength();
+            byte buf[] = readScreen(data);
 
-                if ((bufData != null) || (bufLength != 0))
-                {
-                    buffer.setData(bufData);
-                    buffer.setOffset(0);
-                    buffer.setLength(bufLength);
-                    buffer.setFormat(buf.getFormat());
-                    buffer.setHeader(null);
-                    buffer.setTimeStamp(buf.getTimeStamp());
-                    buffer.setSequenceNumber(buf.getSequenceNumber());
-                    buffer.setFlags(buf.getFlags());
-
-                    /* clear buf so JMF will not get twice the same image */
-                    buf.setData(null);
-                    buf.setLength(0);
-                }
-            }
-            catch (Exception e)
+            if(buf != data)
             {
+                /* readScreen returns us a different buffer than JMF ones,
+                 * it means that JMF's initial buffer was too short.
+                 */
+                //System.out.println("use our own buffer");
+                buffer.setData(buf);
             }
+
+            buffer.setOffset(0);
+            buffer.setLength(buf.length);
+            buffer.setFormat(getFormat());
+            buffer.setHeader(null);
+            buffer.setTimeStamp(System.nanoTime());
+            buffer.setSequenceNumber(seqNo);
+            buffer.setFlags(Buffer.FLAG_SYSTEM_TIME | Buffer.FLAG_LIVE_DATA);
+            seqNo++;
+        }
+        
+        wait = (int)(maxTime - (System.currentTimeMillis() - begin));
+
+        try
+        {
+            /* sleep to respect as much as possible the 
+             * frame rate
+             */
+            if(wait > 0)
+            {
+                Thread.sleep(wait);
+            }
+            else
+            {
+                /* yield a little bit to not use all the 
+                 * CPU
+                 */
+                Thread.yield();
+            }
+        }
+        catch(Exception e)
+        {
         }
     }
 
     /**
      * Start desktop capture stream.
      *
-     * @see AbstractPushBufferStream#start()
+     * @see AbstractPullBufferStream#start()
      */
     @Override
     public void start()
     {
-        if(captureThread == null || !captureThread.isAlive())
-        {
-            logger.info("Start stream");
-            captureThread = new Thread(this);
-
-            /*
-             * Set the started indicator before calling Thread#start() because
-             * the Thread may exist upon start if Thread#run() starts executing
-             * before setting the started indicator.
-             */
-            started = true;
-            captureThread.start();
-        }
-    }
-
-    /**
-     * Stop desktop capture stream.
-     *
-     * @see AbstractPushBufferStream#stop()
-     */
-    @Override
-    public void stop()
-    {
-        logger.info("Stop stream");
-        started = false;
-        captureThread = null;
-    }
-
-    /**
-     * Thread entry point.
-     */
-    public void run()
-    {
-        VideoFormat format = (VideoFormat) getFormat();
-        Dimension formatSize = format.getSize();
-        int width = (int) formatSize.getWidth();
-        int height = (int) formatSize.getHeight();
-
         if(desktopInteract == null)
         {
             try
@@ -172,75 +154,85 @@ public class ImageStream
             }
         }
 
-        while(started)
+        started = true;
+    }
+
+    /**
+     * Stop desktop capture stream.
+     *
+     * @see AbstractPullBufferStream#stop()
+     */
+    @Override
+    public void stop()
+    {
+        logger.info("Stop stream");
+        started = false;
+    }
+
+    /**
+     * Read screen.
+     * 
+     * @param output output buffer for screen bytes
+     * @return raw bytes, it could be equal to output or not. Take care in the caller 
+     * to check if output is the returned value.
+     */
+    public byte[] readScreen(byte output[])
+    {
+        VideoFormat format = (VideoFormat) getFormat();
+        Dimension formatSize = format.getSize();
+        int width = (int) formatSize.getWidth();
+        int height = (int) formatSize.getHeight();
+        BufferedImage scaledScreen = null;
+        BufferedImage screen = null;
+        byte data[] = null;
+        int size = width * height * 4;
+
+        /* check if output buffer can hold all the screen
+         * if not allocate our own buffer
+         */
+        if(output.length < size)
         {
-            byte data[] = null;
-            BufferedImage scaledScreen = null;
-            BufferedImage screen = null;
+            output = null;
+            output = new byte[size];
+        }
 
-            /* get desktop screen and resize it */
-            screen = desktopInteract.captureScreen();
+        /* get desktop screen via native grabber if available */
+        if(desktopInteract.captureScreen(output))
+        {
+            return output;
+        }
 
-            if(screen.getType() == BufferedImage.TYPE_INT_ARGB)
-            {
-                /* with our native screencapture we 
-                 * automatically create BufferedImage in 
-                 * ARGB format so no need to rescale/convert
-                 * to ARGB
-                 */
-                scaledScreen = screen;
-            }
-            else
-            {
-                /* convert to ARGB BufferedImage */
-                scaledScreen 
-                    = ImageStreamingUtils
-                        .getScaledImage(
-                            screen,
-                            width,
-                            height,
-                            BufferedImage.TYPE_INT_ARGB);
-            }
+        System.out.println("failed to grab with native! " + output.length);
+
+        /* OK native grabber failed or is not available,
+         * try with AWT Robot and convert it to the right format
+         *
+         * Note that it is very memory consuming since memory are allocated
+         * to capture screen (via Robot) and then for converting to raw bytes
+         *
+         * Normally not of our supported platform (Windows (x86, x64), 
+         * Linux (x86, x86-64), Mac OS X (i386, x86-64, ppc) and 
+         * FreeBSD (x86, x86-64) should go here.
+         */
+        screen = desktopInteract.captureScreen();
+
+        if(screen != null)
+        {
+            /* convert to ARGB BufferedImage */
+            scaledScreen 
+                = ImageStreamingUtils
+                    .getScaledImage(
+                        screen,
+                        width,
+                        height,
+                        BufferedImage.TYPE_INT_ARGB);
 
             /* get raw bytes */
-            data = ImageStreamingUtils.getImageBytes(scaledScreen);
-
-            /* notify JMF that new data is available */
-            synchronized (buf)
-            {
-                buf.setData(data);
-                buf.setOffset(0);
-                buf.setLength(data.length);
-                buf.setFormat(format);
-                buf.setHeader(null);
-                buf.setTimeStamp(System.nanoTime());
-                buf.setSequenceNumber(seqNo++);
-                buf.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
-            }
-
-            /* pass to JMF handler */
-            BufferTransferHandler transferHandler = this.transferHandler;
-
-            if(transferHandler != null)
-            {
-                transferHandler.transferData(this);
-                Thread.yield();
-            }
-
-            /* cleanup */
-            screen = null;
-            scaledScreen = null;
-            data = null;
-
-            try
-            {
-                /* 100 ms */
-                Thread.sleep(100);
-            }
-            catch(InterruptedException e)
-            {
-                /* do nothing */
-            }
+            data = ImageStreamingUtils.getImageBytes(scaledScreen, output);
         }
+
+        screen = null;
+        scaledScreen = null;
+        return data;
     }
 }
