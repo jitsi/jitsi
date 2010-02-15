@@ -352,8 +352,8 @@ public class FirstWizardPage
     }
 
     /**
-     * The simple form.
-     * @return
+     * Get the simple form.
+     * @return form with user and password field
      */
     public Object getSimpleForm()
     {

@@ -52,8 +52,7 @@ public interface OperationSetAvatar extends OperationSet
      * Returns the current avatar of this protocol. May return null if the
      * account has no avatar
      * 
-     * @param avatar
-     *            the new avatar
+     * @return avatar's bytes or null if no avatar set
      */
     public byte[] getAvatar();
 
