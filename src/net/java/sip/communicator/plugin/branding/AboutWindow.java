@@ -197,14 +197,15 @@ public class AboutWindow
             {
                 bgImage = ImageIO.read(BrandingActivator.getResources().
                     getImageURL("plugin.branding.ABOUT_WINDOW_BACKGROUND"));
+
+                this.setPreferredSize(new Dimension(bgImage.getWidth(this),
+                    bgImage.getHeight(this)));
             }
             catch (IOException e)
             {
                 logger.error("Error cannot obtain background image", e);
                 bgImage = null;
             }
-            this.setPreferredSize(new Dimension(bgImage.getWidth(this),
-                                                bgImage.getHeight(this)));
         }
 
         protected void paintComponent(Graphics g)

@@ -157,20 +157,6 @@ public class MainFrame
         TransparentPanel northPanel
             = new TransparentPanel(new BorderLayout(0, 0));
 
-        String isToolbarExtendedString
-            = GuiActivator.getResources().
-                getSettingsString("impl.gui.IS_TOOLBAR_EXTENDED");
-
-        boolean isToolBarExtended
-            = Boolean.parseBoolean(isToolbarExtendedString);
-
-        if (isToolBarExtended)
-        {
-            ExtendedQuickMenu menu = new ExtendedQuickMenu(this);
-            menu.setUI(new SIPCommOpaquePanelUI());
-            northPanel.add(menu, BorderLayout.NORTH);
-        }
-
         this.setJMenuBar(menu);
 
         northPanel.add(accountStatusPanel, BorderLayout.CENTER);
