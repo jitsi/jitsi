@@ -328,13 +328,78 @@ public class TreeContactList
         });
     }
 
-    public void protoContactAdded(ProtoContactEvent evt) {}
+    /**
+     * Adds a contact node corresponding to the parent <tt>MetaContact</tt> if
+     * this last is matching the current filter and wasn't previously contained
+     * in the contact list.
+     * @param evt the <tt>ProtoContactEvent</tt> that notified us
+     */
+    public void protoContactAdded(ProtoContactEvent evt)
+    {
+        MetaContact parent = evt.getNewParent();
+
+        ContactNode contactNode
+            = treeModel.findContactNodeByMetaContact(parent);
+
+        if (contactNode == null && currentFilter.isMatching(parent))
+        {
+            addContact(parent);
+        }
+    }
 
     public void protoContactModified(ProtoContactEvent evt) {}
 
-    public void protoContactMoved(ProtoContactEvent evt) {}
+    /**
+     * Adds the new <tt>MetaContact</tt> parent and removes the old one if the
+     * first is matching the current filter and the last is no longer matching
+     * it.
+     * @param evt the <tt>ProtoContactEvent</tt> that notified us
+     */
+    public void protoContactMoved(ProtoContactEvent evt)
+    {
+        // Remove old parent if not matching.
+        MetaContact oldParent = evt.getOldParent();
 
-    public void protoContactRemoved(ProtoContactEvent evt) {}
+        ContactNode oldContactNode
+            = treeModel.findContactNodeByMetaContact(oldParent);
+
+        if (oldContactNode != null && !currentFilter.isMatching(oldParent))
+        {
+            removeContact(oldParent,
+                oldParent.getParentMetaContactGroup());
+        }
+
+        // Add new parent if matching.
+        MetaContact newParent = evt.getNewParent();
+
+        ContactNode newContactNode
+            = treeModel.findContactNodeByMetaContact(newParent);
+
+        if (newContactNode == null && currentFilter.isMatching(newParent))
+        {
+            addContact(newParent);
+        }
+    }
+
+    /**
+     * Removes the contact node corresponding to the parent
+     * <tt>MetaContact</tt> if the last is no longer matching the current filter
+     * and wasn't previously contained in the contact list.
+     * @param evt the <tt>ProtoContactEvent</tt> that notified us
+     */
+    public void protoContactRemoved(ProtoContactEvent evt)
+    {
+        MetaContact oldParent = evt.getOldParent();
+
+        ContactNode contactNode
+            = treeModel.findContactNodeByMetaContact(oldParent);
+
+        if (contactNode != null && !currentFilter.isMatching(oldParent))
+        {
+            removeContact(oldParent,
+                oldParent.getParentMetaContactGroup());
+        }
+    }
 
     /**
      * Returns the right button menu opened over the contact list.
