@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -22,6 +23,9 @@ import org.osgi.framework.*;
 public class FacebookAccRegWizzActivator
     implements BundleActivator
 {
+    /**
+     * The logger.
+     */
     private static Logger logger
         = Logger.getLogger(FacebookAccRegWizzActivator.class.getName());
 
@@ -30,11 +34,25 @@ public class FacebookAccRegWizzActivator
      */
     public static BundleContext bundleContext;
 
+    /**
+     * The container.
+     */
     private static WizardContainer wizardContainer;
 
+    /**
+     * Registration wizard.
+     */
     private static FacebookAccountRegistrationWizard facebookWizard;
 
+    /**
+     * The UI service.
+     */
     private static UIService uiService;
+
+    /**
+     * The browser launcher service.
+     */
+    private static BrowserLauncherService browserLauncherService;
 
     /**
      * Starts this bundle.
@@ -125,5 +143,25 @@ public class FacebookAccRegWizzActivator
     public static UIService getUIService()
     {
         return uiService;
+    }
+
+    /**
+     * Gets the browser launcher service.
+     * @return the browser launcher service.
+     */
+    public static BrowserLauncherService getBrowserLauncher()
+    {
+        if (browserLauncherService == null)
+        {
+            ServiceReference serviceReference =
+                bundleContext.getServiceReference(BrowserLauncherService.class
+                    .getName());
+
+            browserLauncherService =
+                (BrowserLauncherService) bundleContext
+                    .getService(serviceReference);
+        }
+
+        return browserLauncherService;
     }
 }

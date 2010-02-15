@@ -34,10 +34,6 @@ public class FirstWizardPage
     private JPanel userPassPanel
         = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel labelsPanel = new TransparentPanel();
-
-    private JPanel valuesPanel = new TransparentPanel();
-
     private JLabel usernameLabel
         = new JLabel(Resources.getString("plugin.facebookaccregwizz.USERNAME"));
 
@@ -77,15 +73,11 @@ public class FirstWizardPage
 
         this.wizard = wizard;
 
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setLayout(new BorderLayout());
 
         this.init();
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        this.labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
-
-        this.valuesPanel.setLayout(new BoxLayout(valuesPanel, BoxLayout.Y_AXIS));
     }
 
     /**
@@ -106,22 +98,44 @@ public class FirstWizardPage
         this.usernameExampleLabel.setBorder(
                 BorderFactory.createEmptyBorder(0, 0, 8,0));
 
+        JPanel labelsPanel = new TransparentPanel();
+        labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
         labelsPanel.add(usernameLabel);
         labelsPanel.add(emptyPanel);
         labelsPanel.add(passLabel);
 
+        JPanel valuesPanel = new TransparentPanel();
+        valuesPanel.setLayout(new BoxLayout(valuesPanel, BoxLayout.Y_AXIS));
         valuesPanel.add(usernameField);
         valuesPanel.add(usernameExampleLabel);
         valuesPanel.add(passField);
 
-        JLabel experimentalWarningLabel
-            = new JLabel(
-                    Resources.getString(
-                        "plugin.facebookaccregwizz.DESCRIPTION"));
-        experimentalWarningLabel.setHorizontalAlignment(JLabel.CENTER);
-        setPreferredWidthInCharCount(experimentalWarningLabel, 50);
+        JPanel descriptionPanel = new TransparentPanel(new BorderLayout());
+        descriptionPanel.setBorder(
+            BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        userPassPanel.add(experimentalWarningLabel, BorderLayout.NORTH);
+        JEditorPane descriptionValue = new JEditorPane();
+        descriptionValue.setAlignmentX(JEditorPane.CENTER_ALIGNMENT);
+        descriptionValue.setOpaque(false);
+        descriptionValue.setContentType("text/html");
+        descriptionValue.setEditable(false);
+        descriptionValue.setText(
+            Resources.getString(
+                "plugin.facebookaccregwizz.DESCRIPTION"));
+        descriptionValue.addHyperlinkListener(new HyperlinkListener()
+            {
+                public void hyperlinkUpdate(HyperlinkEvent e)
+                {
+                    if (e.getEventType()
+                            .equals(HyperlinkEvent.EventType.ACTIVATED))
+                    {
+                        FacebookAccRegWizzActivator
+                            .getBrowserLauncher().openURL(e.getURL().toString());
+                    }
+                }
+            });
+        descriptionPanel.add(descriptionValue, BorderLayout.CENTER);
+
         userPassPanel.add(labelsPanel, BorderLayout.WEST);
         userPassPanel.add(valuesPanel, BorderLayout.CENTER);
         userPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
@@ -131,7 +145,10 @@ public class FirstWizardPage
                 Resources.getString(
                     "plugin.facebookaccregwizz.USERNAME_AND_PASSWORD")));
 
-        this.add(userPassPanel, BorderLayout.NORTH);
+        mainPanel.add(userPassPanel, BorderLayout.CENTER);
+        mainPanel.add(descriptionPanel, BorderLayout.SOUTH);
+
+        this.add(mainPanel, BorderLayout.NORTH);
     }
 
     /**
@@ -309,7 +326,7 @@ public class FirstWizardPage
     }
 
     /**
-     * Fills the UserID and Password fields in this panel with the data comming
+     * Fills the UserID and Password fields in this panel with the data coming
      * from the given protocolProvider.
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
      * data from.
@@ -357,7 +374,7 @@ public class FirstWizardPage
      */
     public Object getSimpleForm()
     {
-        return userPassPanel;
+        return mainPanel;
     }
 
     /**
