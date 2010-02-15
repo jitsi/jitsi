@@ -176,9 +176,7 @@ public class AboutWindow
         this.pack();
         this.setResizable(false);
 
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setLocation(screenSize.width / 2 - getWidth() / 2, screenSize.height
-            / 2 - getHeight() / 2);
+        setLocationRelativeTo(getParent());
     }
 
     /**

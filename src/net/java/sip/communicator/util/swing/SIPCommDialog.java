@@ -242,11 +242,7 @@ public abstract class SIPCommDialog
      */
     private void setCenterLocation()
     {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-        this.setLocation(
-                screenSize.width/2 - this.getWidth()/2,
-                screenSize.height/2 - this.getHeight()/2);
+        setLocationRelativeTo(getParent());
     }
 
     /**
