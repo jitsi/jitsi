@@ -302,7 +302,7 @@ public class ContactListTreeCellRenderer
 
             this.nameLabel.setText(displayName);
 
-            if(contactList.isMetaContactActive(metaContact))
+            if(contactList.isContactActive(metaContact))
             {
                 statusIcon.setImage(msgReceivedImage);
             }

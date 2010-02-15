@@ -77,7 +77,7 @@ public class DefaultTreeContactList
      * @return TRUE if the given <tt>MetaContact</tt> is active, FALSE -
      * otherwise
      */
-    public boolean isMetaContactActive(MetaContact metaContact)
+    public boolean isContactActive(MetaContact metaContact)
     {
         return false;
     }

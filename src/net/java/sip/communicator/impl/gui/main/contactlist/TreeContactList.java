@@ -353,7 +353,8 @@ public class TreeContactList
     {
         for (ContactNode contactNode : activeContacts)
         {
-            contactNode.setActive(false);
+            if (contactNode != null)
+                contactNode.setActive(false);
         }
         activeContacts.clear();
     }
@@ -370,18 +371,22 @@ public class TreeContactList
             = treeModel.findContactNodeByMetaContact(metaContact);
 
         if (contactNode != null)
+        {
             contactNode.setActive(isActive);
 
-        if (isActive)
-        {
-            activeContacts.add(contactNode);
+            if (isActive)
+            {
+                activeContacts.add(contactNode);
 //            SystrayService stray = GuiActivator.getSystrayService();
 //
 //            if (stray != null)
 //                stray.setSystrayIcon(SystrayService.ENVELOPE_IMG_TYPE);
+            }
+            else
+                activeContacts.remove(contactNode);
+
+            treeModel.nodeChanged(contactNode);
         }
-        else
-            activeContacts.remove(contactNode);
     }
 
     /**
