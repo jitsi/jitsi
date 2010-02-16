@@ -72,9 +72,13 @@ public class ChatContactCellRenderer
         this.nameLabel.setText(displayName);
 
         if(member != null)
-            if(member.getRole() != null)
+        {
+            ChatRoomMemberRole memberRole = member.getRole();
+
+            if(memberRole != null)
                 this.nameLabel.setIcon(
-                    ChatContactRoleIcon.getRoleIcon(member.getRole()));
+                    ChatContactRoleIcon.getRoleIcon(memberRole));
+        }
 
         if (contactForegroundColor != null)
             this.nameLabel.setForeground(contactForegroundColor);
@@ -87,29 +91,59 @@ public class ChatContactCellRenderer
             this.rightLabel.setIcon(avatar);
         else if (member != null)
         {
+            ChatRoom memberChatRoom = member.getChatRoom();
+            ProtocolProviderService protocolProvider
+                = memberChatRoom.getParentProvider();
+
             if(chatContact.getName().equals(
-                    member.getChatRoom().getUserNickname()))
+                    memberChatRoom.getUserNickname()))
             {
                 // Try to retrieve local user avatar:
                 OperationSetServerStoredAccountInfo opSet
-                    = member.getChatRoom().getParentProvider().getOperationSet(
+                    = protocolProvider.getOperationSet(
                         OperationSetServerStoredAccountInfo.class);
 
-                Iterator<GenericDetail> itr = opSet.getAllAvailableDetails();
-                while(itr.hasNext())
+                if (opSet != null)
                 {
-                    GenericDetail detail = itr.next();
-                    if(detail instanceof BinaryDetail)
+                    Iterator<GenericDetail> itr
+                        = opSet.getAllAvailableDetails();
+
+                    while(itr.hasNext())
                     {
-                        BinaryDetail bin = (BinaryDetail)detail;
-                        if(bin.getBytes() != null)
-                            this.rightLabel.setIcon(
-                                ImageUtils.getScaledRoundedIcon(
-                                    bin.getBytes(), 25, 25));
-                        break;
+                        GenericDetail detail = itr.next();
+
+                        if(detail instanceof BinaryDetail)
+                        {
+                            BinaryDetail bin = (BinaryDetail)detail;
+                            byte[] binBytes = bin.getBytes();
+
+                            if(binBytes != null)
+                                this.rightLabel.setIcon(
+                                    ImageUtils.getScaledRoundedIcon(
+                                        binBytes, 25, 25));
+                            break;
+                        }
                     }
                 }
-                ChatRoomMemberRole role = member.getChatRoom().getUserRole();
+
+                ChatRoomMemberRole role;
+
+                /*
+                 * XXX I don't know why ChatRoom#getUserRole() would not be
+                 * implemented when ChatRoomMember#getRole() is or why the
+                 * former would exist at all as anything else but as a
+                 * convenience delegating to the latter, but IRC seems to be the
+                 * case and the whole IRC channel painting fails because of it.
+                 */
+                try
+                {
+                    role = memberChatRoom.getUserRole();
+                }
+                catch (UnsupportedOperationException uoex)
+                {
+                    role = member.getRole();
+                }
+
                 if (role != null)
                     this.nameLabel.setIcon(
                         ChatContactRoleIcon.getRoleIcon(role));
@@ -118,14 +152,24 @@ public class ChatContactCellRenderer
             {
                 // Try to retrieve participant avatar:
                 OperationSetPersistentPresence opSet
-                    = member.getChatRoom().getParentProvider().getOperationSet(
+                    = protocolProvider.getOperationSet(
                     OperationSetPersistentPresence.class);
 
-                Contact c = opSet.findContactByID(member.getContactAddress());
+                if (opSet != null)
+                {
+                    Contact c
+                        = opSet.findContactByID(member.getContactAddress());
 
-                if(opSet != null && c != null && c.getImage() != null)
-                    this.rightLabel.setIcon(ImageUtils.getScaledRoundedIcon(
-                            c.getImage(), 25, 25));
+                    if (c != null)
+                    {
+                        byte[] cImage = c.getImage();
+
+                        if (cImage != null)
+                            this.rightLabel.setIcon(
+                                    ImageUtils.getScaledRoundedIcon(
+                                            cImage, 25, 25));
+                    }
+                }
             }
         }
 
