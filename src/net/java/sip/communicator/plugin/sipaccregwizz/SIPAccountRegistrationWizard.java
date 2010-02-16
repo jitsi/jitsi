@@ -25,17 +25,35 @@ import org.osgi.framework.*;
 public class SIPAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    /**
+     * The first wizard page.
+     */
     private FirstWizardPage firstWizardPage;
 
+    /**
+     * Account registration instance holding the data.
+     */
     private SIPAccountRegistration registration
         = new SIPAccountRegistration();
 
+    /**
+     * The container.
+     */
     private final WizardContainer wizardContainer;
 
+    /**
+     * The protocol provider.
+     */
     private ProtocolProviderService protocolProvider;
 
+    /**
+     * Is current wizard run as modification of an existing account.
+     */
     private boolean isModification;
 
+    /**
+     * The logger.
+     */
     private static final Logger logger
         = Logger.getLogger(SIPAccountRegistrationWizard.class);
 
@@ -110,108 +128,111 @@ public class SIPAccountRegistrationWizard
      */
     public Iterator<Map.Entry<String, String>> getSummary() 
     {
-        ArrayList<Map.Entry<String, String>> summaryTable = new ArrayList<Map.Entry<String, String>>();
+        Hashtable<String, String> summaryTable
+            = new Hashtable<String, String>();
+
         boolean rememberPswd = registration.isRememberPassword();
         String rememberPswdString = Resources.getString(
                 rememberPswd ? "service.gui.YES" : "service.gui.NO");
 
-        summaryTable.add(new SimpleEntry<String, String>(
+        summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.USERNAME"),
-            registration.getId()));
-        summaryTable.add(new SimpleEntry<String, String>(
+            registration.getId());
+        summaryTable.put(
             Resources.getString("service.gui.REMEMBER_PASSWORD"),
-            rememberPswdString));
-        summaryTable.add(new  SimpleEntry<String, String>(
+            rememberPswdString);
+        summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.REGISTRAR"),
-            registration.getServerAddress()));
-        summaryTable.add(new  SimpleEntry<String, String>(
+            registration.getServerAddress());
+        summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.AUTH_NAME"),
-            registration.getAuthorizationName()));
-        summaryTable.add(new  SimpleEntry<String, String>(
+            registration.getAuthorizationName());
+        summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.SERVER_PORT"),
-            registration.getServerPort()));
-        summaryTable.add(new  SimpleEntry<String, String>(
+            registration.getServerPort());
+        summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.PROXY"),
-            registration.getProxy()));
-        summaryTable.add(new  SimpleEntry<String, String>(
+            registration.getProxy());
+        summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.PROXY_PORT"),
-            registration.getProxyPort()));
-        summaryTable.add(new  SimpleEntry<String, String>(
+            registration.getProxyPort());
+        summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.PREFERRED_TRANSPORT"),
-            registration.getPreferredTransport()));
+            registration.getPreferredTransport());
 
         if (registration.isEnablePresence())
         {
-            summaryTable.add(new  SimpleEntry<String, String>(
+            summaryTable.put(
                 Resources.getString("plugin.sipaccregwizz.ENABLE_PRESENCE"),
-                Resources.getString("service.gui.YES")));
+                Resources.getString("service.gui.YES"));
         }
         else
         {
-            summaryTable.add(new  SimpleEntry<String, String>(
+            summaryTable.put(
                 Resources.getString("plugin.sipaccregwizz.ENABLE_PRESENCE"),
-                Resources.getString("service.gui.NO")));
+                Resources.getString("service.gui.NO"));
         }
 
         if (registration.isForceP2PMode())
         {
-            summaryTable.add(new  SimpleEntry<String, String>(
+            summaryTable.put(
                 Resources.getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"),
-                Resources.getString("service.gui.YES")));
+                Resources.getString("service.gui.YES"));
         }
         else
         {
-            summaryTable.add(new  SimpleEntry<String, String>(
+            summaryTable.put(
                 Resources.getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"),
-                Resources.getString("service.gui.NO")));
+                Resources.getString("service.gui.NO"));
         }
 
         if (registration.isDefaultEncryption())
         {
-            summaryTable.add(new  SimpleEntry<String, String>(Resources.getString(
+            summaryTable.put(Resources.getString(
                 "plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
-                Resources.getString("service.gui.YES")));
+                Resources.getString("service.gui.YES"));
         }
         else
         {
-            summaryTable.add(new  SimpleEntry<String, String>(Resources.getString(
+            summaryTable.put(Resources.getString(
                 "plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
-                Resources.getString("service.gui.NO")));
+                Resources.getString("service.gui.NO"));
         }
 
         if (registration.isSipZrtpAttribute())
         {
-            summaryTable.add(new  SimpleEntry<String, String>(Resources.getString(
+            summaryTable.put(Resources.getString(
                 "plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"),
-                Resources.getString("service.gui.YES")));
+                Resources.getString("service.gui.YES"));
         }
         else
         {
-            summaryTable.add(new  SimpleEntry<String, String>(Resources.getString(
+            summaryTable.put(Resources.getString(
                 "plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"),
-                Resources.getString("service.gui.NO")));
+                Resources.getString("service.gui.NO"));
         }
 
-        summaryTable.add(new  SimpleEntry<String, String>(Resources.getString(
+        summaryTable.put(Resources.getString(
                 "plugin.sipaccregwizz.OFFLINE_CONTACT_POLLING_PERIOD"),
-                registration.getPollingPeriod()));
-        summaryTable.add(new  SimpleEntry<String, String>(Resources.getString(
+                registration.getPollingPeriod());
+        summaryTable.put(Resources.getString(
                 "plugin.sipaccregwizz.SUBSCRIPTION_EXPIRATION"),
-                registration.getSubscriptionExpiration()));
+                registration.getSubscriptionExpiration());
 
-        summaryTable.add(new  SimpleEntry<String, String>(
+        summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_METHOD"),
-            registration.getKeepAliveMethod()));
-        summaryTable.add(new  SimpleEntry<String, String>(
+            registration.getKeepAliveMethod());
+        summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL"),
-            registration.getKeepAliveInterval()));
+            registration.getKeepAliveInterval());
 
-        return summaryTable.iterator();
+        return summaryTable.entrySet().iterator();
     }
 
     /**
      * Installs the account created through this wizard.
      * @return ProtocolProviderService
+     * @throws OperationFailedException problem signing in.
      */
     public ProtocolProviderService signin()
         throws OperationFailedException
@@ -225,6 +246,7 @@ public class SIPAccountRegistrationWizard
      * Installs the account with the given user name and password.
      * @return the <tt>ProtocolProviderService</tt> corresponding to the newly
      * created account.
+     * @throws OperationFailedException problem signing in.
      */
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
@@ -249,6 +271,7 @@ public class SIPAccountRegistrationWizard
      * @param userName the user identifier
      * @param passwd the password
      * @return the <tt>ProtocolProviderService</tt> for the new account.
+     * @throws OperationFailedException problem installing account
      */
     private ProtocolProviderService installAccount(
             ProtocolProviderFactory providerFactory,
@@ -307,8 +330,18 @@ public class SIPAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.IS_PRESENCE_ENABLED,
                 Boolean.toString(registration.isEnablePresence()));
 
-        accountProperties.put(ProtocolProviderFactory.FORCE_P2P_MODE,
+        // when we are creating registerless account make sure that
+        // we don't use PA
+        if(serverAddress != null)
+        {
+            accountProperties.put(ProtocolProviderFactory.FORCE_P2P_MODE,
                 Boolean.toString(registration.isForceP2PMode()));
+        }
+        else
+        {
+            accountProperties.put(ProtocolProviderFactory.FORCE_P2P_MODE,
+                Boolean.TRUE.toString());
+        }
 
         accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                 Boolean.toString(registration.isDefaultEncryption()));
@@ -483,6 +516,7 @@ public class SIPAccountRegistrationWizard
     /**
      * Return the server part of the sip user name.
      *
+     * @param userName the username.
      * @return the server part of the sip user name.
      */
     protected String getServerFromUserName(String userName)
@@ -518,159 +552,4 @@ public class SIPAccountRegistrationWizard
         firstWizardPage = new FirstWizardPage(this);
         return firstWizardPage.getSimpleForm();
     }
-    
-    /**
-     * A class which implements Map.Entry. 
-     * 
-     * This private class is necessary to compile SC using Java 5. This
-     * class was copied from GNU classpath and modified to fit here.
-     *
-     * @author Jon Zeppieri
-     * @author Eric Blake (ebb9@email.byu.edu)
-     * 
-     * @since 1.6
-     */
-    private static class SimpleEntry<K, V> implements Map.Entry<K, V>
-    {
-
-      /**
-       * Compatible with JDK 1.6
-       */
-      private static final long serialVersionUID = -8499721149061103585L;
-
-      /**
-       * The key. Package visible for direct manipulation.
-       */
-      K key;
-
-      /**
-       * The value. Package visible for direct manipulation.
-       */
-      V value;
-
-      /**
-       * Basic constructor initializes the fields.
-       * @param newKey the key
-       * @param newValue the value
-       */
-      protected SimpleEntry(K newKey, V newValue)
-      {
-        key = newKey;
-        value = newValue;
-      }
-      
-      protected SimpleEntry(Map.Entry<? extends K, ? extends V> entry)
-      {
-        this(entry.getKey(), entry.getValue());
-      }
-
-      static final boolean equals(Object o1, Object o2)
-      {
-        return o1 == o2 || (o1 != null && o1.equals(o2));
-      }
-
-      static final int hashCode(Object o)
-      {
-        return o == null ? 0 : o.hashCode();
-      }
-
-      /**
-       * Compares the specified object with this entry. Returns true only if
-       * the object is a mapping of identical key and value. In other words,
-       * this must be:<br>
-       * <pre>(o instanceof Map.Entry)
-       *       && (getKey() == null ? ((HashMap) o).getKey() == null
-       *           : getKey().equals(((HashMap) o).getKey()))
-       *       && (getValue() == null ? ((HashMap) o).getValue() == null
-       *           : getValue().equals(((HashMap) o).getValue()))</pre>
-       *
-       * @param o the object to compare
-       * @return <code>true</code> if it is equal
-       */
-      @SuppressWarnings("unchecked")
-      public boolean equals(Object o)
-      {
-        if (! (o instanceof Map.Entry))
-          return false;
-        // Optimize for our own entries.
-        if (o instanceof SimpleEntry)
-          {
-            SimpleEntry<K,V> e = (SimpleEntry<K,V>) o;
-            return (SimpleEntry.equals(key, e.key)
-                    && SimpleEntry.equals(value, e.value));
-          }
-        Map.Entry<K,V> e = (Map.Entry<K,V>) o;
-        return (SimpleEntry.equals(key, e.getKey())
-                && SimpleEntry.equals(value, e.getValue()));
-      }
-
-      /**
-       * Get the key corresponding to this entry.
-       *
-       * @return the key
-       */
-      public K getKey()
-      {
-        return key;
-      }
-
-      /**
-       * Get the value corresponding to this entry. If you already called
-       * Iterator.remove(), the behavior undefined, but in this case it works.
-       *
-       * @return the value
-       */
-      public V getValue()
-      {
-        return value;
-      }
-
-      /**
-       * Returns the hash code of the entry.  This is defined as the exclusive-or
-       * of the hashcodes of the key and value (using 0 for null). In other
-       * words, this must be:<br>
-       * <pre>(getKey() == null ? 0 : getKey().hashCode())
-       *       ^ (getValue() == null ? 0 : getValue().hashCode())</pre>
-       *
-       * @return the hash code
-       */
-      public int hashCode()
-      {
-        return (SimpleEntry.hashCode(key) ^ SimpleEntry.hashCode(value));
-      }
-
-      /**
-       * Replaces the value with the specified object. This writes through
-       * to the map, unless you have already called Iterator.remove(). It
-       * may be overridden to restrict a null value.
-       *
-       * @param newVal the new value to store
-       * @return the old value
-       * @throws NullPointerException if the map forbids null values.
-       * @throws UnsupportedOperationException if the map doesn't support
-       *          <code>put()</code>.
-       * @throws ClassCastException if the value is of a type unsupported
-       *         by the map.
-       * @throws IllegalArgumentException if something else about this
-       *         value prevents it being stored in the map.
-       */
-      public V setValue(V newVal)
-      {
-        V r = value;
-        value = newVal;
-        return r;
-      }
-
-      /**
-       * This provides a string representation of the entry. It is of the form
-       * "key=value", where string concatenation is used on key and value.
-       *
-       * @return the string representation
-       */
-      public String toString()
-      {
-        return key + "=" + value;
-      }
-    } // class SimpleEntry
-
 }
