@@ -43,7 +43,7 @@ public class ChatRoomIrcImpl
     /**
      * list of members of this chatRoom
      */
-    private Hashtable<String, ChatRoomMember> chatRoomMembers 
+    private final Hashtable<String, ChatRoomMember> chatRoomMembers
         = new Hashtable<String, ChatRoomMember>();
 
     /**
@@ -55,7 +55,7 @@ public class ChatRoomIrcImpl
      * Listeners that will be notified of changes in member status in the
      * room such as member joined, left or being kicked or dropped.
      */
-    private Vector<ChatRoomMemberPresenceListener> 
+    private final Vector<ChatRoomMemberPresenceListener>
         memberListeners = new Vector<ChatRoomMemberPresenceListener>();
 
     /**
@@ -63,7 +63,7 @@ public class ChatRoomIrcImpl
      * room such as member being granted admin permissions, or revoked admin
      * permissions.
      */
-    private Vector<ChatRoomMemberRoleListener> memberRoleListeners 
+    private final Vector<ChatRoomMemberRoleListener> memberRoleListeners
         = new Vector<ChatRoomMemberRoleListener>();
     
     /**
@@ -71,28 +71,28 @@ public class ChatRoomIrcImpl
      * room such as member being granted administrator permissions, or revoked
      * administrator permissions.
      */
-    private Vector<ChatRoomLocalUserRoleListener> localUserRoleListeners 
+    private final Vector<ChatRoomLocalUserRoleListener> localUserRoleListeners
         = new Vector<ChatRoomLocalUserRoleListener>();
 
     /**
      * Listeners that will be notified every time
      * a new message is received on this chat room.
      */
-    private Vector<ChatRoomMessageListener> messageListeners 
+    private final Vector<ChatRoomMessageListener> messageListeners
         = new Vector<ChatRoomMessageListener>();
 
     /**
      * Listeners that will be notified every time
      * a chat room property has been changed.
      */
-    private Vector<ChatRoomPropertyChangeListener> propertyChangeListeners 
+    private final Vector<ChatRoomPropertyChangeListener> propertyChangeListeners
         = new Vector<ChatRoomPropertyChangeListener>();
 
     /**
      * Listeners that will be notified every time
      * a chat room member property has been changed.
      */
-    private Vector<ChatRoomMemberPropertyChangeListener>
+    private final Vector<ChatRoomMemberPropertyChangeListener>
         memberPropChangeListeners 
             = new Vector<ChatRoomMemberPropertyChangeListener>();
 
