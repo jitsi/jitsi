@@ -163,7 +163,7 @@ public class AddContactWizard
                 {
                         new ErrorDialog(mainFrame,
                             GuiActivator.getResources().getI18NString(
-                            "addContactErrorTitle"),
+                            "service.gui.ADD_CONTACT_ERROR_TITLE"),
                             GuiActivator.getResources().getI18NString(
                                     "service.gui.ADD_CONTACT_EXIST_ERROR",
                                     new String[]{newContact.getUin()}),
@@ -186,7 +186,7 @@ public class AddContactWizard
                     
                     new ErrorDialog(mainFrame,
                         GuiActivator.getResources().getI18NString(
-                        "addContactErrorTitle"),
+                        "service.gui.ADD_CONTACT_ERROR_TITLE"),
                         GuiActivator.getResources().getI18NString(
                                 "service.gui.ADD_CONTACT_ERROR",
                                 new String[]{newContact.getUin()}),
