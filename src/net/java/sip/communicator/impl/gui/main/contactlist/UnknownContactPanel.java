@@ -89,11 +89,10 @@ public class UnknownContactPanel
                 Vector<ProtocolProviderService> telephonyProviders
                     = CallManager.getTelephonyProviders();
 
-                ProtocolProviderService callProvider = null;
-
                 if (telephonyProviders.size() == 1)
                 {
-                    CallManager.createCall(callProvider, searchText);
+                    CallManager.createCall(
+                        telephonyProviders.get(0), searchText);
                 }
                 else if (telephonyProviders.size() > 1)
                 {
