@@ -42,11 +42,10 @@ public interface WizardPage
      * The identifier of the default wizard page.
      * <p>
      * At the time of this writing, it seems from its current uses that the
-     * constant indicates a <tt>null</tt> back page.  
+     * constant indicates a <tt>null</tt> back page.
      * </p>
      */
     String DEFAULT_PAGE_IDENTIFIER = "DEFAULT";
-
 
     /**
      * Returns the identifier of this <tt>WizardPage</tt>.

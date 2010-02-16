@@ -23,7 +23,9 @@ import net.java.sip.communicator.service.protocol.*;
 public class AddContactWizardPage1
     implements WizardPage, ListSelectionListener
 {
-
+    /**
+     * The identifier of this page.
+     */
     public static final String IDENTIFIER = "SELECT_ACCOUNT_PANEL";
 
     private SelectAccountPanel selectAccountPanel;
@@ -32,7 +34,8 @@ public class AddContactWizardPage1
 
     /**
      * Creates an instance of <tt>AddContactWizardPage1</tt>.
-     * 
+     *
+     * @param wizard the parent wizard
      * @param newContact An object that collects all user choices through the
      *            wizard.
      * @param providerList The list of available
@@ -83,40 +86,58 @@ public class AddContactWizardPage1
         setNextButtonAccordingToCheckBox();
     }
 
+    /**
+     * Returns the identifier of this wizard page.
+     * @return the identifier of this wizard page
+     */
     public Object getIdentifier()
     {
         return IDENTIFIER;
     }
 
+    /**
+     * Implements the <code>WizardPage.getNextPageIdentifier</code> to return
+     * the next identifier.
+     *
+     * @return the identifier of the next wizard page.
+     */
     public Object getNextPageIdentifier()
     {
         return AddContactWizardPage2.IDENTIFIER;
     }
 
+    /**
+     * Implements the <code>WizardPage.getBackPageIdentifier</code> to return
+     * the back identifier. In this case it's null because this is the first
+     * wizard page.
+     *
+     * @return the identifier of the previous wizard page.
+     */
     public Object getBackPageIdentifier()
     {
-        return IDENTIFIER;
+        return null;
     }
 
+    /**
+     * Returns the graphical component corresponding to this wizard page.
+     * @return the graphical component corresponding to this wizard page
+     */
     public Object getWizardForm()
     {
         return selectAccountPanel;
     }
 
-    public void pageHiding()
-    {
-    }
-
-    public void pageShown()
-    {
-    }
-
+    /**
+     * Commits all data from the form before going to the next page.
+     */
     public void commitPage()
     {
         selectAccountPanel.initSelectedAccount();
     }
 
-    public void pageBack()
-    {
-    }
+    public void pageHiding() {}
+
+    public void pageShown() {}
+
+    public void pageBack() {}
 }

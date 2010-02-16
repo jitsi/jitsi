@@ -276,13 +276,13 @@ public class FirstWizardPage
 
     /**
      * Implements the <code>WizardPage.getBackPageIdentifier</code> to return
-     * the next back identifier - the default page.
+     * the back identifier, which is null as this is the first wizard page.
      *
-     * @return Returns the identifier of the previous page of the wizard.
+     * @return the identifier of the previous page of the wizard.
      */
     public Object getBackPageIdentifier()
     {
-        return WizardPage.DEFAULT_PAGE_IDENTIFIER;
+        return null;
     }
 
     /**

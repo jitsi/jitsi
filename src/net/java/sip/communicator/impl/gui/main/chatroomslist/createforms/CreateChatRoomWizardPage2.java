@@ -37,7 +37,7 @@ public class CreateChatRoomWizardPage2
     {
         this.newChatRoom = newChatRoom;
         
-        namePanel = new ChatRoomNamePanel(wizard);                
+        namePanel = new ChatRoomNamePanel(wizard);
     }
 
     /**
