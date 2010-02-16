@@ -28,6 +28,9 @@ import org.jivesoftware.smackx.packet.*;
  */
 public class ServerStoredContactListJabberImpl
 {
+    /**
+     * The logger.
+     */
     private static final Logger logger =
         Logger.getLogger(ServerStoredContactListJabberImpl.class);
 
@@ -155,6 +158,23 @@ public class ServerStoredContactListJabberImpl
             listeners
                 = new ArrayList<ServerStoredGroupListener>(
                         serverStoredGroupListeners);
+        }
+
+        /**
+         * Sometimes contact statuses are received before the groups and 
+         * contacts are being created. This is a problem when we don't have
+         * already created unresolved contacts. So we will check contact
+         * statuses to be sure they are correct.
+         */
+        if(eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
+        {
+            Iterator iter = group.contacts();
+            while (iter.hasNext())
+            {
+                ContactJabberImpl c = (ContactJabberImpl)iter.next();
+                parentOperationSet.firePresenceStatuschanged(
+                    roster.getPresence(c.getAddress()));
+            }
         }
 
         for (ServerStoredGroupListener listener : listeners)
@@ -721,6 +741,15 @@ public class ServerStoredContactListJabberImpl
             return;
         }
 
+        // if we are already registered(roster != null) and we are currently
+        // creating the contact list, presences maybe already received
+        // before we have created the contacts, so lets check
+        if(roster != null)
+        {
+            parentOperationSet.firePresenceStatuschanged(
+                roster.getPresence(contact.getAddress()));
+        }
+
         // dispatch
         parentOperationSet.fireSubscriptionEvent(contact, parentGroup,
             SubscriptionEvent.SUBSCRIPTION_CREATED);
@@ -763,11 +792,14 @@ public class ServerStoredContactListJabberImpl
         imageRetriever.addContact(c);
     }
 
+    /**
+     * Receives changes in roster.
+     */
     private class ChangeListener
         implements RosterListener
     {
         /**
-         * Received event when entry is added to the serverstored list
+         * Received event when entry is added to the server stored list
          * @param addresses Collection
          */
         public void entriesAdded(Collection<String> addresses)
@@ -948,10 +980,17 @@ public class ServerStoredContactListJabberImpl
             }
         }
 
+        /**
+         * Not used here.
+         * @param presence
+         */
         public void presenceChanged(Presence presence)
         {}
     }
 
+    /**
+     * Thread retrieving images.
+     */
     private class ImageRetriever
         extends Thread
     {
@@ -961,6 +1000,9 @@ public class ServerStoredContactListJabberImpl
         private Vector<ContactJabberImpl> contactsForUpdate
                                         = new Vector<ContactJabberImpl>();
 
+        /**
+         * Creates image retrieving.
+         */
         ImageRetriever()
         {
             setDaemon(true);
@@ -1010,15 +1052,16 @@ public class ServerStoredContactListJabberImpl
         }
 
         /**
-         * Add contact for retreiving
-         * if the provider is register notify the retreiver to get the nicks
-         * if we are not registered add a listener to wiat for registering
+         * Add contact for retrieving
+         * if the provider is register notify the retriever to get the nicks
+         * if we are not registered add a listener to wait for registering
          *
          * @param contact ContactJabberImpl
          */
         synchronized void addContact(ContactJabberImpl contact)
         {
-            synchronized(contactsForUpdate){
+            synchronized(contactsForUpdate)
+            {
                 if (!contactsForUpdate.contains(contact))
                 {
                     contactsForUpdate.add(contact);
@@ -1027,6 +1070,11 @@ public class ServerStoredContactListJabberImpl
             }
         }
 
+        /**
+         * Retrieves the avatar.
+         * @param contact the contact.
+         * @return the contact avatar.
+         */
         private byte[] getAvatar(ContactJabberImpl contact)
         {
             try

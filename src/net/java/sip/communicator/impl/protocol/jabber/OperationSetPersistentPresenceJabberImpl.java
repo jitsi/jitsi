@@ -32,6 +32,9 @@ public class OperationSetPersistentPresenceJabberImpl
     extends AbstractOperationSetPersistentPresence<
                 ProtocolProviderServiceJabberImpl>
 {
+    /**
+     * The logger.
+     */
     private static final Logger logger =
         Logger.getLogger(OperationSetPersistentPresenceJabberImpl.class);
 
@@ -71,10 +74,25 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     private final ServerStoredContactListJabberImpl ssContactList;
 
+    /**
+     * Listens for subscriptions.
+     */
     private JabberSubscriptionListener subscribtionPacketListener = null;
 
+    /**
+     * Current resource priority. 10 is default value.
+     */
     private int resourcePriority = 10;
 
+    /**
+     * Manages statuses and different user resources.
+     */
+    private ContactChangesListener contactChangesListener = null;
+
+    /**
+     * Creates the OperationSet.
+     * @param provider the parent provider.
+     */
     public OperationSetPersistentPresenceJabberImpl(
         ProtocolProviderServiceJabberImpl provider)
     {
@@ -558,6 +576,7 @@ public class OperationSetPersistentPresenceJabberImpl
      * JabberStatusEnum class.
      *
      * @param presence the Jabber Status
+     * @param jabberProvider the parent provider.
      * @return a PresenceStatus instance representation of the Jabber Status
      * parameter. The returned result is one of the JabberStatusEnum fields.
      */
@@ -664,8 +683,9 @@ public class OperationSetPersistentPresenceJabberImpl
 
             if(evt.getNewState() == RegistrationState.REGISTERED)
             {
-                parentProvider.getConnection().getRoster().addRosterListener(
-                    new ContactChangesListener());
+                contactChangesListener = new ContactChangesListener();
+                parentProvider.getConnection().getRoster()
+                    .addRosterListener(contactChangesListener);
 
                 fireProviderStatusChangeEvent(
                     currentStatus,
@@ -691,6 +711,8 @@ public class OperationSetPersistentPresenceJabberImpl
                 currentStatus = offlineStatus;
 
                 fireProviderStatusChangeEvent(oldStatus, currentStatus);
+
+                contactChangesListener = null;
 
                 //send event notifications saying that all our buddies are
                 //offline. The protocol does not implement top level buddies
@@ -751,20 +773,63 @@ public class OperationSetPersistentPresenceJabberImpl
         }
     }
 
+    /**
+     * Fires the status change, respecting resource priorities.
+     * @param presence the presence changed.
+     */
+    void firePresenceStatuschanged(Presence presence)
+    {
+        if(contactChangesListener != null)
+            contactChangesListener.firePresenceStatuschanged(presence);
+    }
+
+    /**
+     * Manage changes of statuses by resource.
+     */
     private class ContactChangesListener
         implements RosterListener
     {
+        /**
+         * Map containing all statuses for a userID.
+         */
         private final Map<String, TreeSet<Presence>> statuses =
             new Hashtable<String, TreeSet<Presence>>();
 
+        /**
+         * Not used here.
+         * @param addresses
+         */
         public void entriesAdded(Collection<String> addresses)
         {}
+
+        /**
+         * Not used here.
+         * @param addresses
+         */
         public void entriesUpdated(Collection<String> addresses)
         {}
+
+        /**
+         * Not used here.
+         * @param addresses
+         */
         public void entriesDeleted(Collection<String> addresses)
         {}
 
+        /**
+         * Received on resource status change.
+         * @param presence
+         */
         public void presenceChanged(Presence presence)
+        {
+            firePresenceStatuschanged(presence);
+        }
+
+        /**
+         * Fires the status change, respecting resource priorities.
+         * @param presence the presence changed.
+         */
+        void firePresenceStatuschanged(Presence presence)
         {
             try
             {
@@ -881,11 +946,21 @@ public class OperationSetPersistentPresenceJabberImpl
         }
     }
 
+    /**
+     * Listens for subscription events coming from stack.
+     */
     private class JabberSubscriptionListener
         implements PacketListener
     {
+        /**
+         * The authorization handler.
+         */
         AuthorizationHandler handler = null;
 
+        /**
+         * Process packets.
+         * @param packet
+         */
         public void processPacket(Packet packet)
         {
             Presence presence = (Presence) packet;
