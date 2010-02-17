@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
@@ -26,6 +27,9 @@ import org.jivesoftware.smackx.*;
 public class OperationSetTypingNotificationsJabberImpl
     extends AbstractOperationSetTypingNotifications<ProtocolProviderServiceJabberImpl>
 {
+    /**
+     * The logger.
+     */
     private static final Logger logger =
         Logger.getLogger(OperationSetTypingNotificationsJabberImpl.class);
 
@@ -36,7 +40,7 @@ public class OperationSetTypingNotificationsJabberImpl
     private OperationSetPersistentPresenceJabberImpl opSetPersPresence = null;
 
     /**
-     * We use this listener to ceise the moment when the protocol provider
+     * We use this listener to cease the moment when the protocol provider
      * has been successfully registered.
      */
     private ProviderRegListener providerRegListener = new ProviderRegListener();
@@ -176,6 +180,30 @@ public class OperationSetTypingNotificationsJabberImpl
             logger.warn("Failed to send state [" + state + "] to ["
                 + contact.getAddress() + "].", exc);
         }
+    }
+
+    /**
+     * Utility method throwing an exception if the stack is not properly
+     * initialized.
+     *
+     * @throws java.lang.IllegalStateException
+     *             if the underlying stack is not registered and initialized.
+     */
+    protected void assertConnected()
+        throws IllegalStateException
+    {
+        if(parentProvider != null && !parentProvider.isRegistered()
+            && opSetPersPresence.getPresenceStatus().isOnline())
+        {
+            // if we are not registered but the current status is online
+            // change the current status
+            opSetPersPresence.fireProviderStatusChangeEvent(
+                    opSetPersPresence.getPresenceStatus(),
+                    parentProvider.getJabberStatusEnum().getStatus(
+                        JabberStatusEnum.OFFLINE));
+        }
+
+        super.assertConnected();
     }
 
     /**

@@ -455,9 +455,21 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 "The provider must be non-null and signed on the "
                 +"service before being able to communicate.");
         if (!jabberProvider.isRegistered())
+        {
+            // if we are not registered but the current status is online
+            // change the current status
+            if(opSetPersPresence.getPresenceStatus().isOnline())
+            {
+                opSetPersPresence.fireProviderStatusChangeEvent(
+                    opSetPersPresence.getPresenceStatus(),
+                    jabberProvider.getJabberStatusEnum().getStatus(
+                        JabberStatusEnum.OFFLINE));
+            }
+
             throw new IllegalStateException(
                 "The provider must be signed on the service before "
                 +"being able to communicate.");
+        }
     }
 
     /**

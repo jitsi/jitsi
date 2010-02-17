@@ -108,6 +108,9 @@ public class ProtocolProviderServiceJabberImpl
      */
     private ServiceDiscoveryManager discoveryManager = null;
 
+    /**
+     * The statuses.
+     */
     private JabberStatusEnum jabberStatusEnum;
 
     /**
@@ -402,6 +405,11 @@ public class ProtocolProviderServiceJabberImpl
                         {}
                         // and connect again
                         connection.connect();
+
+                        // as disconnect clears all listeners lets add it again
+                        connection.addConnectionListener(
+                            new JabberConnectionListener());
+
                         // logging in to google need and service name
                         connection.login(userID + "@" + serviceName,
                                 password, accountResource);

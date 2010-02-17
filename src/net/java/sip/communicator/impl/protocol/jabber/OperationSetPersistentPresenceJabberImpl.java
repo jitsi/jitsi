@@ -644,9 +644,21 @@ public class OperationSetPersistentPresenceJabberImpl
                 "The provider must be non-null and signed on the Jabber "
                 +"service before being able to communicate.");
         if (!parentProvider.isRegistered())
+        {
+            // if we are not registered but the current status is online
+            // change the current status
+            if(currentStatus.isOnline())
+            {
+                fireProviderStatusChangeEvent(
+                    currentStatus,
+                    parentProvider.getJabberStatusEnum().getStatus(
+                        JabberStatusEnum.OFFLINE));
+            }
+
             throw new IllegalStateException(
                 "The provider must be signed on the Jabber service before "
                 +"being able to communicate.");
+        }
     }
 
     public void fireProviderStatusChangeEvent(

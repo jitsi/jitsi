@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.FileTransfer;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.event.FileTransferListener;
+import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
@@ -46,6 +47,11 @@ public class OperationSetFileTransferJabberImpl
      * The provider that created us.
      */
     private final ProtocolProviderServiceJabberImpl jabberProvider;
+
+    /**
+     * An active instance of the opSetPersPresence operation set.
+     */
+    private OperationSetPersistentPresenceJabberImpl opSetPersPresence = null;
 
     /**
      * The Jabber file transfer manager.
@@ -210,9 +216,21 @@ public class OperationSetFileTransferJabberImpl
                 "The provider must be non-null and signed on the "
                 +"service before being able to send a file.");
         else if (!jabberProvider.isRegistered())
+        {
+            // if we are not registered but the current status is online
+            // change the current status
+            if(opSetPersPresence.getPresenceStatus().isOnline())
+            {
+                opSetPersPresence.fireProviderStatusChangeEvent(
+                    opSetPersPresence.getPresenceStatus(),
+                    jabberProvider.getJabberStatusEnum().getStatus(
+                        JabberStatusEnum.OFFLINE));
+            }
+
             throw new IllegalStateException(
                 "The provider must be signed on the service before "
                 +"being able to send a file.");
+        }
     }
 
     /**
@@ -247,6 +265,10 @@ public class OperationSetFileTransferJabberImpl
 
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
+                opSetPersPresence =
+                    (OperationSetPersistentPresenceJabberImpl) jabberProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
+
                 // Create the Jabber FileTransferManager.
                 manager = new FileTransferManager(
                             jabberProvider.getConnection());
@@ -300,6 +322,10 @@ public class OperationSetFileTransferJabberImpl
      */
     private class FileTransferRequestListener implements PacketListener
     {
+        /**
+         * Listens for file transfer packets.
+         * @param packet
+         */
         public void processPacket(Packet packet)
         {
             if (!(packet instanceof StreamInitiation))
