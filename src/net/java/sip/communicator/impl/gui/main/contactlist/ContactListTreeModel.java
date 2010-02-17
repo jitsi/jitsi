@@ -93,7 +93,8 @@ public class ContactListTreeModel
 
     /**
      * Returns the first found child <tt>ContactNode</tt>.
-     * @return the first found child <tt>ContactNode</tt>.
+     * @return the first found child <tt>ContactNode</tt> or <tt>null</tt>
+     * if there is no ContactNode.
      */
     public ContactNode findFirstContactNode()
     {
@@ -124,6 +125,10 @@ public class ContactListTreeModel
      */
     private ContactNode findFirstContactNode(GroupNode parentNode)
     {
+        // If the parent node has no children we have nothing to do here.
+        if (parentNode.getChildCount() ==0)
+            return null;
+
         TreeNode treeNode = parentNode.getFirstChild();
 
         if (treeNode instanceof GroupNode)
