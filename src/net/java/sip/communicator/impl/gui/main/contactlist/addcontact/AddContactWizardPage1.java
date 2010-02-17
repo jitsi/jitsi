@@ -33,6 +33,11 @@ public class AddContactWizardPage1
     private WizardContainer wizard;
 
     /**
+     * By default we are next to wizard page #2 but this can be changed.
+     */
+    private String nextPageIdentifier = AddContactWizardPage2.IDENTIFIER;
+
+    /**
      * Creates an instance of <tt>AddContactWizardPage1</tt>.
      *
      * @param wizard the parent wizard
@@ -103,7 +108,7 @@ public class AddContactWizardPage1
      */
     public Object getNextPageIdentifier()
     {
-        return AddContactWizardPage2.IDENTIFIER;
+        return nextPageIdentifier;
     }
 
     /**
@@ -140,4 +145,13 @@ public class AddContactWizardPage1
     public void pageShown() {}
 
     public void pageBack() {}
+
+    /**
+     * Changes the back page for the current wizard page.
+     * @param identifier the new back page identifier.
+     */
+    public void setNextPageIdentifier(String identifier)
+    {
+        this.nextPageIdentifier = identifier;
+    }
 }

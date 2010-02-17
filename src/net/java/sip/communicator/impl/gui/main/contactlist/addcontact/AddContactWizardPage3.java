@@ -26,6 +26,11 @@ public class AddContactWizardPage3
     private NewContact newContact;
 
     /**
+     * By default we are back to wizard page #2 but this can be changed.
+     */
+    private String backPageIdentifier = AddContactWizardPage2.IDENTIFIER;
+
+    /**
      * Creates an instance of <tt>AddContactWizardPage3</tt>.
      * @param wizard the parent wizard
      * @param newContact An object that collects all user choices through the
@@ -66,7 +71,7 @@ public class AddContactWizardPage3
      * identifier of the previous wizard page.
      */
     public Object getBackPageIdentifier() {
-        return AddContactWizardPage2.IDENTIFIER;
+        return backPageIdentifier;
     }
     
     /**
@@ -102,5 +107,14 @@ public class AddContactWizardPage3
     public void setUIN(String uin)
     {
         addContactPanel.setUIN(uin);
+    }
+
+    /**
+     * Changes the back page for the current wizard page.
+     * @param identifier the new back page identifier.
+     */
+    public void setBackPageIdentifier(String identifier)
+    {
+        this.backPageIdentifier = identifier;
     }
 }

@@ -95,12 +95,21 @@ public class AddContactWizard
 
         page2 = new AddContactWizardPage2(this, newContact);
 
-        this.registerWizardPage(AddContactWizardPage2.IDENTIFIER, page2);
-
         if (contactAddress != null)
             page3 = new AddContactWizardPage3(this, newContact, contactAddress);
         else
             page3 = new AddContactWizardPage3(this, newContact);
+
+        if(page2.countGroups() == 1)
+        {
+            page2.commitPage();
+            page3.setBackPageIdentifier(AddContactWizardPage1.IDENTIFIER);
+            page1.setNextPageIdentifier(AddContactWizardPage3.IDENTIFIER);
+        }
+        else
+        {
+            this.registerWizardPage(AddContactWizardPage2.IDENTIFIER, page2);
+        }
 
         this.registerWizardPage(AddContactWizardPage3.IDENTIFIER, page3);
 

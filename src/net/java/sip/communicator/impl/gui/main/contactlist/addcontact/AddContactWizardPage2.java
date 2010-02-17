@@ -113,4 +113,13 @@ public class AddContactWizardPage2
     public void pageBack()
     {
     }
+
+    /**
+     * The number of groups.
+     * @return The number of available groups.
+     */
+    public int countGroups()
+    {
+        return selectGroupPanel.countGroups();
+    }
 }

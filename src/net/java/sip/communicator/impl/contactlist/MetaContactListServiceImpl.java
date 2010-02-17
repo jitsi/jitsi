@@ -392,7 +392,11 @@ public class MetaContactListServiceImpl
         try
         {
             //create the contact in the group
-            opSetPersPresence.subscribe(parentProtoGroup, contactID);
+            // if its the root group just call subscribe
+            if(parentMetaGroup.equals(rootMetaGroup))
+                opSetPersPresence.subscribe(contactID);
+            else
+                opSetPersPresence.subscribe(parentProtoGroup, contactID);
 
             //wait for a confirmation event
             evtRetriever.waitForEvent(CONTACT_LIST_MODIFICATION_TIMEOUT);
@@ -403,13 +407,13 @@ public class MetaContactListServiceImpl
                == OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS)
             {
                 throw new MetaContactListException(
-                "failed to create contact" + contactID
+                "failed to create contact " + contactID
                 , ex
                 , MetaContactListException.CODE_CONTACT_ALREADY_EXISTS_ERROR);
             }
 
             throw new MetaContactListException(
-                "failed to create contact" + contactID
+                "failed to create contact " + contactID
                 , ex
                 , MetaContactListException.CODE_NETWORK_ERROR);
 
@@ -417,7 +421,7 @@ public class MetaContactListServiceImpl
         catch (Exception ex)
         {
             throw new MetaContactListException(
-                "failed to create contact" + contactID
+                "failed to create contact " + contactID
                 , ex
                 , MetaContactListException.CODE_NETWORK_ERROR);
         }

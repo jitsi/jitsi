@@ -98,9 +98,11 @@ public class SelectGroupPanel
         this.add(iconLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
 
-//      groupCombo.addItem(new GroupWrapper(
-//      GuiActivator.getResources().getI18NString("service.gui.ROOT_GROUP").getText(),
-//      wizard.getRootGroup()));
+        // adding the root group
+        groupCombo.addItem(new GroupWrapper(
+            GuiActivator.getContactListService().getRoot(),
+            GuiActivator.getResources().
+                getI18NString("service.gui.SELECT_GROUP_WIZARD_NO_GROUP")));
 
         String lastGroupName = ConfigurationManager.getLastContactParent();
 
@@ -109,37 +111,28 @@ public class SelectGroupPanel
         Iterator<MetaContactGroup> groupsList
             = GuiActivator.getContactListService().getRoot().getSubgroups();
 
-        if (groupsList.hasNext())
-        {
-            infoLabel.setText(
-                GuiActivator.getResources().
-                    getI18NString("service.gui.SELECT_GROUP_WIZARD_MSG"));
+        infoLabel.setText(
+            GuiActivator.getResources().
+                getI18NString("service.gui.SELECT_GROUP_WIZARD_MSG"));
 
-            this.groupPanel.add(groupLabel, BorderLayout.WEST);
-            this.groupPanel.add(groupCombo, BorderLayout.CENTER);
+        this.groupPanel.add(groupLabel, BorderLayout.WEST);
+        this.groupPanel.add(groupCombo, BorderLayout.CENTER);
 
-            while(groupsList.hasNext())
-            {
-                MetaContactGroup group = groupsList.next();
-                
-                GroupWrapper gr = new GroupWrapper(group);
-                
-                if(lastGroupName != null && 
-                    lastGroupName.equals(group.getGroupName()))
-                    lastSelectedGroup = gr;
-                    
-                groupCombo.addItem(gr);
-            }
-            
-            if(lastSelectedGroup != null)
-                groupCombo.setSelectedItem(lastSelectedGroup);
-        }
-        else
+        while(groupsList.hasNext())
         {
-            infoLabel.setForeground(Color.RED);
-            infoLabel.setText(GuiActivator.getResources()
-                .getI18NString("service.gui.CREATE_FIRST_GROUP_WIZARD"));
+            MetaContactGroup group = groupsList.next();
+
+            GroupWrapper gr = new GroupWrapper(group);
+
+            if(lastGroupName != null &&
+                lastGroupName.equals(group.getGroupName()))
+                lastSelectedGroup = gr;
+
+            groupCombo.addItem(gr);
         }
+
+        if(lastSelectedGroup != null)
+            groupCombo.setSelectedItem(lastSelectedGroup);
     }
     
     /**
@@ -173,10 +166,20 @@ public class SelectGroupPanel
 
     /**
      * Implements <tt>ItemListener.itemStateChanged</tt>.
+     * @param e the event.
      */
     public void itemStateChanged(ItemEvent e)
     {
         this.setNextButtonAccordingToComboBox();
+    }
+
+    /**
+     * The number of groups.
+     * @return The number of available groups.
+     */
+    public int countGroups()
+    {
+        return groupCombo.getItemCount();
     }
 
     private static class GroupWrapper

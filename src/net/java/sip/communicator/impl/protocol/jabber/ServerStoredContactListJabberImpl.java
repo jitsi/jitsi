@@ -1042,6 +1042,9 @@ public class ServerStoredContactListJabberImpl
                                 ContactPropertyChangeEvent.PROPERTY_IMAGE,
                                 contact, oldImage, imgBytes);
                         }
+                        else
+                            // set an empty image data so it won't be queried again
+                            contact.setImage(new byte[0]);
                     }
                 }
             }
