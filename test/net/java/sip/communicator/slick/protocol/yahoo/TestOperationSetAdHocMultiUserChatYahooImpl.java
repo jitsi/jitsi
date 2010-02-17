@@ -41,20 +41,39 @@ extends TestOperationSetAdHocMultiUserChat
     {
         TestSuite suite = new TestSuite();
 
-//        suite.addTest(new TestOperationSetAdHocMultiUserChatYahooImpl(
-//        "prepareContactList"));
-//        suite.addTest(new TestOperationSetAdHocMultiUserChatYahooImpl(
-//        "testCreateRoomWithParticipants"));
-//        suite.addTest(new TestOperationSetAdHocMultiUserChatYahooImpl(
-//        "testInvitations"));
-//        suite.addTest(new TestOperationSetAdHocMultiUserChatYahooImpl(
-//        "testSendIM"));
-//        suite.addTest(new TestOperationSetAdHocMultiUserChatYahooImpl(
-//        "testPeerLeaved"));
+        suite.addTest(new TestOperationSetAdHocMultiUserChatYahooImpl(
+        "testRegisterAccount3"));
+        suite.addTest(new TestOperationSetAdHocMultiUserChatYahooImpl(
+        "prepareContactList"));
+        suite.addTest(new TestOperationSetAdHocMultiUserChatYahooImpl(
+        "testCreateRoomWithParticipants"));
+        suite.addTest(new TestOperationSetAdHocMultiUserChatYahooImpl(
+        "testInvitations"));
+        suite.addTest(new TestOperationSetAdHocMultiUserChatYahooImpl(
+        "testSendIM"));
+        suite.addTest(new TestOperationSetAdHocMultiUserChatYahooImpl(
+        "testPeerLeaved"));
 
         return suite;
     }
 
+    /**
+     * Register the third testing account.
+     * 
+     * @throws OperationFailedException
+     */
+    public void testRegisterAccount3() throws OperationFailedException
+    {
+            fixture.provider3.register(
+                    new SecurityAuthorityImpl(
+                        System.getProperty(
+                            YahooProtocolProviderServiceLick.ACCOUNT_3_PREFIX
+                            + ProtocolProviderFactory.PASSWORD).toCharArray()));
+            
+            assertEquals(fixture.provider3.getRegistrationState(), 
+                RegistrationState.REGISTERED);
+    }
+    
     /**
      * JUnit setUp method.
      * @throws Exception 

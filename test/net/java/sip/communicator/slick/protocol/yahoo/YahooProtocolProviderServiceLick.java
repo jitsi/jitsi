@@ -96,7 +96,7 @@ public class YahooProtocolProviderServiceLick
 
             addTestSuite(TestOperationSetFileTransferImpl.class);
             
-            addTest(TestOperationSetAdHocMultiUserChatYahooImpl.suite());
+            //addTest(TestOperationSetAdHocMultiUserChatYahooImpl.suite());
         }
 
         addTest(TestAccountUninstallation.suite());
