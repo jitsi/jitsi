@@ -54,8 +54,8 @@ public abstract class MetaContactPropertyChangeEvent
      * Indicates that the MetaContactEvent instance was triggered by the update
      * of an Avatar for one of its encapsulated contacts.
      */
-    public static final String PROTO_CONTACT_AVATAR_UPDATE
-                                            = "ProtoContactAvatarUpdate";
+    public static final String META_CONTACT_AVATAR_UPDATE
+                                            = "MetaContactAvatarUpdate";
 
     /**
      * Indicates that the meta contact has been modified. The old and new value

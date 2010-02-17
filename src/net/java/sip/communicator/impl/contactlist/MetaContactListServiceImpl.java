@@ -817,10 +817,10 @@ public class MetaContactListServiceImpl
         }
 
         byte[] oldAvatar = metaContact.getAvatar(true);
-        ((MetaContactImpl)metaContact).cacheAvatar(protoContact, newAvatar);
+        ((MetaContactImpl) metaContact).cacheAvatar(protoContact, newAvatar);
 
         fireMetaContactEvent(
-            new MetaContactAvatarUpdate(metaContact, oldAvatar, newAvatar));
+            new MetaContactAvatarUpdateEvent(metaContact, oldAvatar, newAvatar));
     }
 
     /**
@@ -2564,6 +2564,11 @@ public class MetaContactListServiceImpl
             else if (event instanceof MetaContactModifiedEvent)
             {
                 listener.metaContactModified( (MetaContactModifiedEvent) event);
+            }
+            else if (event instanceof MetaContactAvatarUpdateEvent)
+            {
+                listener.metaContactAvatarUpdated(
+                    (MetaContactAvatarUpdateEvent) event);
             }
         }
     }

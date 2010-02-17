@@ -2056,4 +2056,14 @@ public class MclStorageManager
             return null;
         }
     }
+
+    /**
+     * Indicates that a new avatar is available for a <tt>MetaContact</tt>.
+     * @param evt the <tt>MetaContactAvatarUpdateEvent</tt> containing details
+     * of this event
+     */
+    public void metaContactAvatarUpdated(MetaContactAvatarUpdateEvent evt)
+    {
+        // TODO: Store meta contact avatar.
+    }
 }

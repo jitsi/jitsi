@@ -217,6 +217,8 @@ public class ContactList
         this.modifyGroup(evt.getOldParent());
     }
 
+    public void metaContactAvatarUpdated(MetaContactAvatarUpdateEvent evt) {}
+
     /**
      * Handles the <tt>MetaContactGroupEvent</tt>. Refreshes the list model
      * when a new meta contact group has been added.

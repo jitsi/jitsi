@@ -329,6 +329,31 @@ public class TreeContactList
     }
 
     /**
+     * Notifies the tree model, when the <tt>MetaContact</tt> avatar has been
+     * modified in the <tt>MetaContactListService</tt>.
+     * @param evt the <tt>MetaContactEvent</tt> that notified us
+     */
+    public void metaContactAvatarUpdated(MetaContactAvatarUpdateEvent evt)
+    {
+        final MetaContact metaContact = evt.getSourceMetaContact();
+
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                if (currentFilter.isMatching(metaContact))
+                {
+                    ContactNode contactNode
+                        = treeModel.findContactNodeByMetaContact(metaContact);
+
+                    if (contactNode != null)
+                        treeModel.nodeChanged(contactNode);
+                }
+            }
+        });
+    }
+
+    /**
      * Adds a contact node corresponding to the parent <tt>MetaContact</tt> if
      * this last is matching the current filter and wasn't previously contained
      * in the contact list.

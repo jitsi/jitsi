@@ -619,6 +619,9 @@ public class MetaContactImpl
 
             this.protoContacts.add(contact);
 
+            // Re-init the default contact.
+            defaultContact = null;
+
             // if this is our firt contact and we don't already have a display
             // name, use theirs.
             if (this.protoContacts.size() == 1

@@ -1235,5 +1235,15 @@ public class TestMetaContactList
         {
             collectedMetaContactGroupEvents.add(evt);
         }
+
+        /**
+         * Indicates that the avatar of a <tt>MetaContact</tt> has been updated.
+         * @param evt the <tt>MetaContactAvatarUpdateEvent</tt> containing
+         * details of this event
+         */
+        public void metaContactAvatarUpdated(MetaContactAvatarUpdateEvent evt)
+        {
+            collectedMetaContactGroupEvents.add(evt);
+        }
     }
 }

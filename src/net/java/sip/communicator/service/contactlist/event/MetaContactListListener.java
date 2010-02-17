@@ -119,4 +119,10 @@ public interface MetaContactListListener
      */
     public void metaContactModified(MetaContactModifiedEvent evt);
 
+    /**
+     * Indicates that a new avatar is available for a <tt>MetaContact</tt>.
+     * @param evt the <tt>MetaContactAvatarUpdateEvent</tt> containing details
+     * of this event
+     */
+    public void metaContactAvatarUpdated(MetaContactAvatarUpdateEvent evt);
 }

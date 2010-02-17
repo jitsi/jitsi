@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.contactlist.*;
  *
  * @author Emil Ivov
  */
-public class MetaContactAvatarUpdate
+public class MetaContactAvatarUpdateEvent
     extends MetaContactPropertyChangeEvent
 {
     /**
@@ -23,11 +23,11 @@ public class MetaContactAvatarUpdate
      * @param oldAvatar the new avatar just of this meta contact.
      * @param newAvatar the old avatar that just got replaced or <tt>null</tt>.
      */
-    public MetaContactAvatarUpdate(MetaContact source,
+    public MetaContactAvatarUpdateEvent(MetaContact source,
                                    byte[] oldAvatar,
                                    byte[] newAvatar)
     {
-        super(source, PROTO_CONTACT_AVATAR_UPDATE, oldAvatar, newAvatar);
+        super(source, META_CONTACT_AVATAR_UPDATE, oldAvatar, newAvatar);
     }
 
     /**
