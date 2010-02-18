@@ -34,8 +34,14 @@ public class SearchFilter
         filterString = Pattern.quote(filterString);
 
         // Then create the pattern.
+        // By default, case-insensitive matching assumes that only characters
+        // in the US-ASCII charset are being matched, that's why we use
+        // the UNICODE_CASE flag to enable unicode case-insensitive matching.
+        // Sun Bug ID: 6486934 "RegEx case_insensitive match is broken"
         this.filterPattern = Pattern.compile(
-            filterString, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+            filterString, Pattern.MULTILINE
+                            | Pattern.CASE_INSENSITIVE
+                            | Pattern.UNICODE_CASE);
     }
 
     /**
