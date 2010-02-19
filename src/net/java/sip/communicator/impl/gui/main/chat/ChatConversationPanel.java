@@ -1324,7 +1324,7 @@ public class ChatConversationPanel
      */
     public static String getDateString(long date)
     {
-        if (GuiUtils.compareDates(date, System.currentTimeMillis()) < 0)
+        if (GuiUtils.compareDatesOnly(date, System.currentTimeMillis()) < 0)
         {
             StringBuffer dateStrBuf = new StringBuffer();
 
