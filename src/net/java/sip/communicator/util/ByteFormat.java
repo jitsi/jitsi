@@ -4,16 +4,12 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.util;
 
-import java.text.DecimalFormat;
-import java.text.FieldPosition;
-import java.text.Format;
-import java.text.ParsePosition;
+import java.text.*;
 
 /**
- * Acknowledgement: This file was originally provided by the Ignite Realtime
+ * Acknowledgment: This file was originally provided by the Ignite Realtime
  * community, and was part of the Spark project (distributed under the terms of
  * the LGPL).
  * 
@@ -22,8 +18,11 @@ import java.text.ParsePosition;
  *
  * @author Bill Lynch
  */
-public class ByteFormat extends Format
+public class ByteFormat
+    extends Format
 {
+    private static final long serialVersionUID = 0;
+
     public ByteFormat()
     {}
 

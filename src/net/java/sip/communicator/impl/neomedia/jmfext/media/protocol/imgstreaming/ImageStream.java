@@ -13,7 +13,6 @@ import java.io.*;
 import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
-import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
@@ -40,16 +39,6 @@ public class ImageStream
      * Sequence number.
      */
     private long seqNo = 0;
-
-    /**
-     * If stream is started or not.
-     */
-    private boolean started = false;
-
-    /**
-     * Buffer for the last image.
-     */
-    private final Buffer buf = new Buffer();
 
     /**
      * Desktop interaction (screen capture, key press, ...).
@@ -149,12 +138,8 @@ public class ImageStream
             catch(Exception e)
             {
                 logger.warn("Cannot create DesktopInteract object!");
-                started = false;
-                return;
             }
         }
-
-        started = true;
     }
 
     /**
@@ -166,7 +151,6 @@ public class ImageStream
     public void stop()
     {
         logger.info("Stop stream");
-        started = false;
     }
 
     /**

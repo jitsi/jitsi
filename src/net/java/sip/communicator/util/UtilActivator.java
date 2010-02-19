@@ -8,7 +8,6 @@ package net.java.sip.communicator.util;
 
 import java.awt.image.*;
 import java.net.*;
-import java.util.*;
 
 import javax.imageio.*;
 
@@ -40,9 +39,6 @@ public class UtilActivator
     private static ResourceManagementService resourceService;
 
     private static BundleContext bundleContext;
-
-    private static final Map<String, BufferedImage> imageCache =
-        new HashMap<String, BufferedImage>();
 
     /**
      * Calls <tt>Thread.setUncaughtExceptionHandler()</tt>

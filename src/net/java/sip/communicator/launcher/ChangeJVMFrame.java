@@ -13,7 +13,7 @@ import javax.swing.event.*;
 
 /**
  * The <tt>ChangeJVMFrame</tt> will ask the user to install the newest java
- * version if she's using an old and icompatible one.
+ * version if she's using an old and incompatible one.
  * 
  * @author Yana Stamcheva
  */

@@ -32,11 +32,6 @@ public class DesktopInteractImpl implements DesktopInteract
     private Robot robot = null;
 
     /**
-     * The unique instance of this class (singleton).
-     */
-    private static DesktopInteractImpl instance = null;
-
-    /**
      * Constructor.
      * 
      * @throws AWTException if platform configuration does not allow low-level input control
