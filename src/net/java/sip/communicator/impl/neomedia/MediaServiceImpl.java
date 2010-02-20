@@ -135,10 +135,10 @@ public class MediaServiceImpl
         switch (device.getMediaType())
         {
         case AUDIO:
-            return new AudioMediaStreamImpl(connector, device, 
+            return new AudioMediaStreamImpl(connector, device,
                 (ZrtpControlImpl)zrtpControl);
         case VIDEO:
-            return new VideoMediaStreamImpl(connector, device, 
+            return new VideoMediaStreamImpl(connector, device,
                 (ZrtpControlImpl)zrtpControl);
         default:
             return null;
@@ -208,15 +208,15 @@ public class MediaServiceImpl
         if (captureDeviceInfo != null)
         {
             for (MediaDevice device : getDevices(mediaType))
+            {
                 if ((device instanceof MediaDeviceImpl)
-                        && captureDeviceInfo
-                                .equals(
-                                    ((MediaDeviceImpl) device)
+                        && captureDeviceInfo.equals(((MediaDeviceImpl) device)
                                         .getCaptureDeviceInfo()))
                 {
                     defaultDevice = device;
                     break;
                 }
+            }
         }
         if (defaultDevice == null)
             switch (mediaType)
@@ -234,6 +234,14 @@ public class MediaServiceImpl
                  */
                 break;
             }
+
+        //Don't use the device in case the user has disabled all codecs for that
+        //kind of media.
+        if (defaultDevice != null
+            && defaultDevice.getSupportedFormats().size() == 0)
+        {
+            defaultDevice = null;
+        }
         return defaultDevice;
     }
 
