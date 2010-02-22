@@ -62,7 +62,8 @@ public class EncodingConfiguration
             "net.java.sip.communicator.impl.neomedia.codec.video.h264.JNIEncoder",
             "net.java.sip.communicator.impl.neomedia.codec.video.h264.Packetizer",
             "net.java.sip.communicator.impl.neomedia.codec.video.h264.JNIDecoder",
-            "net.java.sip.communicator.impl.neomedia.codec.video.ImageScaler",
+            //"net.java.sip.communicator.impl.neomedia.codec.video.ImageScaler",
+            "net.java.sip.communicator.impl.neomedia.codec.video.SwScaler",
             "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JavaEncoder",
             "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JavaDecoder",
             "net.java.sip.communicator.impl.neomedia.codec.audio.ilbc.JavaEncoder",
@@ -327,6 +328,9 @@ public class EncodingConfiguration
                     PlugInManager
                         .getPlugInList(null, null, PlugInManager.CODEC));
         boolean commit = false;
+
+        /* remove JavaRGBToYUV */
+        PlugInManager.removePlugIn("com.sun.media.codec.video.colorspace.JavaRGBToYUV", PlugInManager.CODEC);
 
         for (String className : CUSTOM_CODECS)
         {

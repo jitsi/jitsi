@@ -438,15 +438,15 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avpicture_1get_1
 
 static int image_convert(
 AVPicture* dst, int dst_pix_fmt,
-const AVPicture* src, int pix_fmt, int width, int height)
+const AVPicture* src, int pix_fmt, int width, int height, jint newWidth, jint newHeight)
 {
    struct SwsContext *img_convert_ctx =
         sws_getContext(
             width, height, pix_fmt,
-            width, height, dst_pix_fmt, SWS_BICUBIC, NULL, NULL, NULL);
+            newWidth, newHeight, dst_pix_fmt, SWS_BICUBIC, NULL, NULL, NULL);
 
    int result = sws_scale(img_convert_ctx, 
-        src->data, src->linesize, 0, height,
+        (uint8_t**)src->data, (int*)src->linesize, 0, height,
         dst->data, dst->linesize);
    sws_freeContext(img_convert_ctx);
 
@@ -454,7 +454,7 @@ const AVPicture* src, int pix_fmt, int width, int height)
 } 
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert__JIJIII (
         JNIEnv *jniEnv, jclass clazz, jlong dst, jint dst_pix_fmt, jlong src,
         jint pix_fmt, jint width, jint height)
 {
@@ -465,8 +465,49 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert (
             (const AVPicture *) src,
             (int) pix_fmt,
             (int) width,
+            (int) height, 
+            (int) width,
             (int) height);
 }
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert___3BI_3BIIIII
+  (JNIEnv *jniEnv, jclass clazz, jbyteArray dst, jint dst_pix_fmt, 
+   jbyteArray src, jint pix_fmt, jint width, jint height, jint newWidth, jint newHeight)
+{
+  AVPicture dst_dummy;
+  AVPicture src_dummy;
+  int size = width * height;
+  jint ret = 0;
+/*  
+  uint8_t* dst_buf = (*jniEnv)->GetPrimitiveArrayCritical(jniEnv, dst, 0);
+  uint8_t* src_buf = (*jniEnv)->GetPrimitiveArrayCritical(jniEnv, src, 0);
+*/
+  uint8_t* dst_buf = (*jniEnv)->GetByteArrayElements(jniEnv, dst, 0);
+  uint8_t* src_buf = (*jniEnv)->GetByteArrayElements(jniEnv, src, 0);
+
+  if(!src || !dst)
+  {
+    return -1;
+  }
+
+  /* assign AVPicture with buffer */
+  avpicture_fill(&dst_dummy, dst_buf, (int)dst_pix_fmt, newWidth, newHeight);
+  avpicture_fill(&src_dummy, src_buf, (int)pix_fmt, width, height);
+
+  ret = image_convert(&dst_dummy, (int)dst_pix_fmt, &src_dummy, (int)pix_fmt,
+      (int)width, (int)height, (int)newWidth, (int)newHeight);
+
+  /* release pointers */
+/*
+  (*jniEnv)->ReleasePrimitiveArrayCritical(jniEnv, dst, dst_buf, 0);
+  (*jniEnv)->ReleasePrimitiveArrayCritical(jniEnv, src, src_buf, 0);
+*/
+  (*jniEnv)->ReleaseByteArrayElements(jniEnv, dst, dst_buf, 0);
+  (*jniEnv)->ReleaseByteArrayElements(jniEnv, src, src_buf, 0);
+  return ret;
+}
+
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_memcpy___3IIIJ (
@@ -489,6 +530,13 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB32Format
   (JNIEnv *env, jclass clazz)
 {
     return PIX_FMT_RGB32;
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGBAFormat
+  (JNIEnv *env, jclass clazz)
+{
+    return PIX_FMT_RGBA;
 }
 
 JNIEXPORT jint JNICALL

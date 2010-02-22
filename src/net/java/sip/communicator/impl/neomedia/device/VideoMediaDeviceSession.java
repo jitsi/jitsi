@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.neomedia.device;
 import java.awt.*;
 
 import javax.media.*;
+import javax.media.format.*;
 import javax.media.control.*;
 import javax.media.protocol.*;
 
@@ -46,6 +47,16 @@ public class VideoMediaDeviceSession
      * Local <tt>Player</tt> for the local video.
      */
     private Player localPlayer = null;
+
+    /**
+     * Output size of the stream.
+     *
+     * It is used to specify a different size (generally lesser ones)
+     * than the capture device provides. Typically one usage can be
+     * in desktop streaming/sharing session when sender desktop is bigger
+     * than remote ones.
+     */
+    private Dimension outputSize = null;
 
     /**
      * Initializes a new <tt>VideoMediaDeviceSession</tt> instance which is to
@@ -145,6 +156,31 @@ public class VideoMediaDeviceSession
             }
         }
         return captureDevice;
+    }
+
+    /**
+     * Sets the JMF <tt>Format</tt> in which a specific <tt>Processor</tt> is to
+     * output media data.
+     *
+     * @param processor the <tt>Processor</tt> to set the output <tt>Format</tt>
+     * of
+     * @param format the JMF <tt>Format</tt> to set to <tt>processor</tt>
+     */
+    @Override
+    protected void setFormat(Processor processor, Format format)
+    {
+        Format newFormat = null;
+        VideoFormat tmp = (VideoFormat)format;
+
+        /* add a size in the output format, as VideoFormat has no
+         * set accessors, we recreate the object
+         */
+        if(outputSize != null)
+        {
+            newFormat = new VideoFormat(tmp.getEncoding(), outputSize, tmp.getMaxDataLength(), tmp.getDataType(), tmp.getFrameRate());
+        }
+
+        super.setFormat(processor, newFormat != null ? newFormat : format);
     }
 
     /**

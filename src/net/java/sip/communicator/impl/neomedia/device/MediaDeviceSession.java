@@ -19,6 +19,7 @@ import javax.media.rtp.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
+import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -1226,7 +1227,7 @@ public class MediaDeviceSession
      * of
      * @param format the JMF <tt>Format</tt> to set to <tt>processor</tt>
      */
-    private void setFormat(Processor processor, Format format)
+    protected void setFormat(Processor processor, Format format)
     {
         TrackControl[] trackControls = processor.getTrackControls();
         MediaType mediaType = getMediaType();
@@ -1276,7 +1277,36 @@ public class MediaDeviceSession
             case VIDEO:
                 if (supportedFormats[0] instanceof VideoFormat)
                 {
-                    supportedFormat
+                    VideoFormat tmp = (VideoFormat)format;
+                    Dimension size = tmp.getSize();
+
+                    if(size != null)
+                    {
+                        /* We have been explictely told to use
+                         * a specified output size so create a 
+                         * custom SwScaler that will rescale and 
+                         * change format in one call
+                         */
+                        Codec ar[] = new Codec[1];
+                        SwScaler scaler = new SwScaler();
+
+                        scaler.setOutputSize(size);
+                        ar[0] = scaler;
+
+                        /* add our custom SwScaler to the codec chain so that
+                         * it will be used instead of default SwScaler
+                         */
+                        try
+                        {
+                            trackControl.setCodecChain(ar);
+                        }
+                        catch(Exception e)
+                        {
+                            System.out.println("Error setCodecChain: " + e);
+                        }
+                    }
+
+                    supportedFormat 
                         = findFirstMatchingFormat(supportedFormats, format);
 
                     /*

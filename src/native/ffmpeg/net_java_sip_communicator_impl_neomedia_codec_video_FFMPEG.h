@@ -31,6 +31,14 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    getRGBAFormat
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGBAFormat
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
  * Method:    getYUV420PFormat
  * Signature: ()I
  */
@@ -458,8 +466,16 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
  * Method:    img_convert
  * Signature: (JIJIII)I
  */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert__JIJIII
   (JNIEnv *, jclass, jlong, jint, jlong, jint, jint, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    img_convert
+ * Signature: ([BI[BIIIII)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert___3BI_3BIIIII
+  (JNIEnv *, jclass, jbyteArray, jint, jbyteArray, jint, jint, jint, jint, jint);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG

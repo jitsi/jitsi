@@ -9,9 +9,10 @@ package net.java.sip.communicator.impl.neomedia.imgstreaming;
 import java.awt.image.*;
 
 /**
- * This class uses native code to capture
- * desktop screen. It should work for Windows and 
- * X11-based Unix such as Linux and FreeBSD.
+ * This class uses native code to capture desktop screen.
+ * 
+ * It should work for Windows, Mac OS X and X11-based Unix such as Linux 
+ * and FreeBSD.
  *
  * @author Sebastien Vincent
  */
