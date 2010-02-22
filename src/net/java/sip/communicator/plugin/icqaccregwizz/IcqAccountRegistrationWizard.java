@@ -186,27 +186,27 @@ public class IcqAccountRegistrationWizard
         }
 
         if (registration.getProxy() != null
-            && registration.getProxy() != "")
+            && registration.getProxy().length() != 0)
             accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
                 registration.getProxy());
 
         if (registration.getProxyPort() != null
-            && registration.getProxyPort() != "")
+            && registration.getProxyPort().length() != 0)
             accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
                 registration.getProxyPort());
 
         if (registration.getProxyType() != null
-            && registration.getProxyType() != "")
+            && registration.getProxyType().length() != 0)
             accountProperties.put(ProtocolProviderFactory.PROXY_TYPE,
                 registration.getProxyType());
 
         if (registration.getProxyUsername() != null
-            && registration.getProxyUsername() != "")
+            && registration.getProxyUsername().length() != 0)
             accountProperties.put(ProtocolProviderFactory.PROXY_USERNAME,
                 registration.getProxyUsername());
 
         if (registration.getProxyPassword() != null
-            && registration.getProxyPassword() != "")
+            && registration.getProxyPassword().length() != 0)
             accountProperties.put(ProtocolProviderFactory.PROXY_PASSWORD,
                 registration.getProxyPassword());
 

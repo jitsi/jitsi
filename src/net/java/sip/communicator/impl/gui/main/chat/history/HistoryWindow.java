@@ -210,7 +210,7 @@ public class HistoryWindow
      */
     public void showHistoryByPeriod(Date startDate, Date endDate)
     {
-        if((searchKeyword == null || searchKeyword == "")
+        if((searchKeyword == null || searchKeyword.length() == 0)
                 && dateHistoryTable.containsKey(startDate))
         {
             HTMLDocument document = dateHistoryTable.get(startDate);
@@ -588,7 +588,7 @@ public class HistoryWindow
                 {
                     HTMLDocument doc = createHistory(msgList);
 
-                    if(searchKeyword == null || searchKeyword == "")
+                    if(searchKeyword == null || searchKeyword.length() == 0)
                     {
                         dateHistoryTable.put(startDate, doc);
                     }
