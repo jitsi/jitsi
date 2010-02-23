@@ -120,8 +120,6 @@ public class CsrcTransformEngine
 
                 csrcLevelDispatcher.addLevels(levels);
             }
-
-            pkt.removeExtension();
         }
         return pkt;
     }

@@ -1375,6 +1375,12 @@ public class CallPeerMediaHandler
             MediaDevice dev = getDefaultDevice(mediaType);
             MediaDirection devDirection
                 = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
+            /*
+             * Take the preference of the user with respect to streaming
+             * mediaType into account.
+             */
+            devDirection
+                = devDirection.and(getDirectionUserPreference(mediaType));
 
             if (supportedFormats.isEmpty()
                     || (devDirection == MediaDirection.INACTIVE))

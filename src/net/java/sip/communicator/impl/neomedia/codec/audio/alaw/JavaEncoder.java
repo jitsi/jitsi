@@ -10,17 +10,31 @@ import javax.media.*;
 import javax.media.format.*;
 
 /**
- * The ALAW Encoder
+ * The ALAW Encoder. Used the FMJ ALawEncoderUtil.
  *
  * @author Damian Minkov
  */
 public class JavaEncoder
     extends com.ibm.media.codec.audio.AudioCodec
 {
+    /**
+     * The last used format.
+     */
     private Format lastFormat = null;
+
+    /**
+     * The input sample size in bits.
+     */
     private int inputSampleSize;
+
+    /**
+     * The byte order.
+     */
     private boolean bigEndian = false;
 
+    /**
+     * Constructs the encoder and init the supported formats.
+     */
     public JavaEncoder()
     {
         supportedInputFormats = new AudioFormat[]
@@ -55,9 +69,13 @@ public class JavaEncoder
         PLUGIN_NAME = "pcm to alaw converter";
     }
 
+    /**
+     * Returns the output formats according to the input.
+     * @param in the input format.
+     * @return the possible output formats.
+     */
     protected Format[] getMatchingOutputFormats(Format in)
     {
-
         AudioFormat inFormat = (AudioFormat) in;
         int sampleRate = (int) (inFormat.getSampleRate());
 
@@ -75,12 +93,24 @@ public class JavaEncoder
         return supportedOutputFormats;
     }
 
+    /**
+     * No resources to be opened.
+     * @throws ResourceUnavailableException
+     */
     public void open() throws ResourceUnavailableException
     {}
 
+    /**
+     * No resources used to be cleared.
+     */
     public void close()
     {}
 
+    /**
+     * Calculate the output data size.
+     * @param inputLength input length.
+     * @return the output data size.
+     */
     private int calculateOutputSize(int inputLength)
     {
         if (inputSampleSize == 16)
@@ -139,140 +169,170 @@ public class JavaEncoder
         byte[] inpData = (byte[]) inputBuffer.getData();
         byte[] outData = validateByteArraySize(outputBuffer, outLength);
 
-        pcm162alaw(
-            inpData, inputBuffer.getOffset(), outData, 0, outData.length, bigEndian);
+        aLawEncode(bigEndian,
+            inpData, inputBuffer.getOffset(), inputBuffer.getLength(),
+            outData);
 
         updateOutput(outputBuffer, outputFormat, outLength, 0);
         return BUFFER_PROCESSED_OK;
     }
 
-    /*
-     * This source code is a product of Sun Microsystems, Inc. and is provided
-     * for unrestricted use.  Users may copy or modify this source code without
-     * charge.
-     *
-     * linear2alaw() - Convert a 16-bit linear PCM value to 8-bit A-law
-     *
-     * linear2alaw() accepts an 16-bit integer and encodes it as A-law data.
-     *
-     *      Linear Input Code   Compressed Code
-     *  ------------------------    ---------------
-     *  0000000wxyza            000wxyz
-     *  0000001wxyza            001wxyz
-     *  000001wxyzab            010wxyz
-     *  00001wxyzabc            011wxyz
-     *  0001wxyzabcd            100wxyz
-     *  001wxyzabcde            101wxyz
-     *  01wxyzabcdef            110wxyz
-     *  1wxyzabcdefg            111wxyz
-     *
-     * For further information see John C. Bellamy's Digital Telephony, 1982,
-     * John Wiley & Sons, pps 98-111 and 472-476.
+    /**
+     * maximum that can be held in 15 bits
      */
-    private static final byte QUANT_MASK = 0xf; /* Quantization field mask. */
-    private static final byte SEG_SHIFT = 4;
-        /* Left shift for segment number. */
-    private static final short[] seg_end =
-        {
-        0xFF, 0x1FF, 0x3FF, 0x7FF, 0xFFF, 0x1FFF, 0x3FFF, 0x7FFF
-    };
+    public static final int MAX = 0x7fff;
 
-    private static byte linear2alaw(short pcm_val)
-        /* 2's complement (16-bit range) */
+    /**
+     *  An array where the index is the 16-bit PCM input, and the value is
+     *  the a-law result.
+     */
+    private static byte[] pcmToALawMap;
+
+    static
     {
-        byte mask;
-        byte seg = 8;
-        byte aval;
-
-        if (pcm_val >= 0)
-        {
-            mask = (byte) 0xD5; /* sign (7th) bit = 1 */
-        }
-        else
-        {
-            mask = 0x55; /* sign bit = 0 */
-            pcm_val = (short) ( -pcm_val - 8);
-        }
-
-        /* Convert the scaled magnitude to segment number. */
-        for (int i = 0; i < 8; i++)
-        {
-            if (pcm_val <= seg_end[i])
-            {
-                seg = (byte) i;
-                break;
-            }
-        }
-
-        /* Combine the sign, segment, and quantization bits. */
-        if (seg >= 8) /* out of range, return maximum value. */
-        {
-            return (byte) ( (0x7F ^ mask) & 0xFF);
-        }
-        else
-        {
-            aval = (byte) (seg << SEG_SHIFT);
-            if (seg < 2)
-            {
-                aval |= (pcm_val >> 4) & QUANT_MASK;
-            }
-            else
-            {
-                aval |= (pcm_val >> (seg + 3)) & QUANT_MASK;
-            }
-            return (byte) ( (aval ^ mask) & 0xFF);
-        }
+        pcmToALawMap = new byte[65536];
+        for (int i = Short.MIN_VALUE; i <= Short.MAX_VALUE; i++)
+            pcmToALawMap[uShortToInt((short) i)] = encode(i);
     }
 
     /**
-     * Converts the input buffer to the output one using the alaw codec
-     * @param inBuffer byte[]
-     * @param inByteOffset int
-     * @param outBuffer byte[]
-     * @param outByteOffset int
-     * @param sampleCount int
-     * @param bigEndian boolean
+     * 65535
      */
-    private static void pcm162alaw(byte[] inBuffer, int inByteOffset,
-                                  byte[] outBuffer, int outByteOffset,
-                                  int sampleCount, boolean bigEndian)
+    public static final int MAX_USHORT = (Short.MAX_VALUE) * 2 + 1;
+
+    /**
+     * Unsigned short to integer.
+     * @param value unsigned short.
+     * @return integer.
+     */
+    public static int uShortToInt(short value)
+	{
+        if (value >= 0)
+			return value;
+		else
+			return MAX_USHORT + 1 + value;
+	}
+
+    /**
+     *  Encode an array of pcm values into a pre-allocated target array
+     *
+     * @param bigEndian the data byte order.
+     * @param data An array of bytes in Little-Endian format
+     * @param target A pre-allocated array to receive the A-law bytes.
+     *      This array must be at least half the size of the source.
+     * @param offset of the input.
+     * @param length of the input.
+     */
+    public static void aLawEncode(boolean bigEndian,
+        byte[] data, int offset, int length, byte[] target)
     {
-        int shortIndex = inByteOffset;
-        int alawIndex = outByteOffset;
-        if (bigEndian)
-        {
-            while (sampleCount > 0)
-            {
-                outBuffer[alawIndex++] = linear2alaw
-                    (bytesToShort16(inBuffer[shortIndex],
-                                    inBuffer[shortIndex + 1]));
-                shortIndex++;
-                shortIndex++;
-                sampleCount--;
-            }
-        }
-        else
-        {
-            while (sampleCount > 0)
-            {
-                outBuffer[alawIndex++] = linear2alaw
-                    (bytesToShort16(inBuffer[shortIndex + 1],
-                                    inBuffer[shortIndex]));
-                shortIndex++;
-                shortIndex++;
-                sampleCount--;
-            }
-        }
+    	if (bigEndian)
+    		aLawEncodeBigEndian(data, offset, length, target);
+    	else
+    		aLawEncodeLittleEndian(data, offset, length, target);
+     }
+
+    /**
+     * Encode little endian data.
+     * @param data the input data.
+     * @param offset the input offset.
+     * @param length the input length.
+     * @param target the target array to fill.
+     */
+    public static void aLawEncodeLittleEndian(byte[] data,
+        int offset, int length, byte[] target)
+    {
+        int size = length / 2;
+        for (int i = 0; i < size; i++)
+            target[i] =
+                aLawEncode(
+                    ((data[offset + 2 * i + 1] & 0xff) << 8)
+                    | (data[offset + 2 * i]) & 0xff);
     }
 
     /**
-     * Converts the 2 bytes to the corresponding short value
-     * @param highByte byte
-     * @param lowByte byte
-     * @return short
+     * Encode big endian data.
+     * @param data the input data.
+     * @param offset the input offset.
+     * @param length the input length.
+     * @param target the target array to fill.
      */
-    private static short bytesToShort16(byte highByte, byte lowByte)
+    public static void aLawEncodeBigEndian(byte[] data, int offset, int length, byte[] target)
     {
-        return (short) ( (highByte << 8) | (lowByte & 0xFF));
+        int size = length / 2;
+        for (int i = 0; i < size; i++)
+            target[i] = aLawEncode(((data[offset + 2 * i + 1]) & 0xff) | ((data[offset + 2 * i] & 0xff) << 8));
+    }
+
+    /**
+     *  Encode a pcm value into a a-law byte
+     *
+     *  @param pcm A 16-bit pcm value
+     *  @return A a-law encoded byte
+     */
+    public static byte aLawEncode(int pcm)
+    {
+        return pcmToALawMap[uShortToInt((short) (pcm & 0xffff))];
+    }
+
+    /**
+     *  Encode one a-law byte from a 16-bit signed integer. Internal use only.
+     *
+     *  @param pcm A 16-bit signed pcm value
+     *  @return A a-law encoded byte
+     */
+    private static byte encode(int pcm)
+    {
+        //Get the sign bit.  Shift it for later use without further modification
+        int sign = (pcm & 0x8000) >> 8;
+        //If the number is negative, make it positive (now it's a magnitude)
+        if (sign != 0)
+            pcm = -pcm;
+        //The magnitude must fit in 15 bits to avoid overflow
+        if (pcm > MAX) pcm = MAX;
+
+        /* Finding the "exponent"
+         * Bits:
+         * 1 2 3 4 5 6 7 8 9 A B C D E F G
+         * S 7 6 5 4 3 2 1 0 0 0 0 0 0 0 0
+         * We want to find where the first 1 after the sign bit is.
+         * We take the corresponding value from
+         * the second row as the exponent value.
+         * (i.e. if first 1 at position 7 -> exponent = 2)
+         * The exponent is 0 if the 1 is not found in bits 2 through 8.
+         * This means the exponent is 0 even if the "first 1" doesn't exist.
+         */
+        int exponent = 7;
+        //Move to the right and decrement exponent until
+        //we hit the 1 or the exponent hits 0
+        for (int expMask = 0x4000; 
+            (pcm & expMask) == 0 && exponent>0;
+            exponent--, expMask >>= 1) { }
+
+        /* The last part - the "mantissa"
+         * We need to take the four bits after the 1 we just found.
+         * To get it, we shift 0x0f :
+         * 1 2 3 4 5 6 7 8 9 A B C D E F G
+         * S 0 0 0 0 0 1 . . . . . . . . . (say that exponent is 2)
+         * . . . . . . . . . . . . 1 1 1 1
+         * We shift it 5 times for an exponent of two, meaning
+         * we will shift our four bits (exponent + 3) bits.
+         * For convenience, we will actually just shift the number,
+         * then AND with 0x0f.
+         *
+         * NOTE: If the exponent is 0:
+         * 1 2 3 4 5 6 7 8 9 A B C D E F G
+         * S 0 0 0 0 0 0 0 Z Y X W V U T S (we know nothing about bit 9)
+         * . . . . . . . . . . . . 1 1 1 1
+         * We want to get ZYXW, which means a shift of 4 instead of 3
+         */
+        int mantissa = (pcm >> ((exponent == 0) ? 4 : (exponent + 3))) & 0x0f;
+
+        //The a-law byte bit arrangement is SEEEMMMM
+        //(Sign, Exponent, and Mantissa.)
+        byte alaw = (byte)(sign | exponent << 4 | mantissa);
+
+        //Last is to flip every other bit, and the sign bit (0xD5 = 1101 0101)
+        return (byte)(alaw^0xD5);
     }
 }
