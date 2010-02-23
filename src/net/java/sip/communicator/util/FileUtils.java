@@ -9,6 +9,7 @@ package net.java.sip.communicator.util;
 import java.io.*;
 
 import javax.swing.*;
+import javax.swing.filechooser.*;
 
 /**
  * Utility class that allows to check if a given file is an image or to obtain
@@ -18,6 +19,9 @@ import javax.swing.*;
  */
 public class FileUtils
 {
+    /**
+     * Logger.
+     */
     private static final Logger logger = Logger.getLogger(FileUtils.class);
 
     /**
@@ -60,15 +64,13 @@ public class FileUtils
 
         try
         {
-            sun.awt.shell.ShellFolder shellFolder
-                = sun.awt.shell.ShellFolder.getShellFolder(file);
-
-            fileIcon = new ImageIcon(   shellFolder.getIcon(true),
-                                        shellFolder.getFolderType());
+            fileIcon = FileSystemView.getFileSystemView().getSystemIcon(file);
         }
         catch (Exception e)
         {
             logger.debug("Failed to obtain file icon from ShellFolder.", e);
+
+            /* try with another method to obtain file icon */
             try
             {
                 fileIcon = new JFileChooser().getIcon(file);
