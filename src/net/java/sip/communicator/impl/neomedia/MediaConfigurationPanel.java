@@ -290,7 +290,10 @@ public class MediaConfigurationPanel
             secondContainer.add(portAudioParentPanel);
         }
         else
+        {
+            comboBox.setLightWeightPopupEnabled(false);
             secondContainer.add(createPreview(type, comboBox));
+        }
 
         secondContainer.add(createEncodingControls(type));
 
