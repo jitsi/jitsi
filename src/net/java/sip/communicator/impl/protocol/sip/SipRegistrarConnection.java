@@ -272,6 +272,8 @@ public class SipRegistrarConnection
     * sending the register request.
     * @param response the OK Response that we've just received.
     */
+    @SuppressWarnings("unchecked") //legacy jain-sip code for handling multiple
+                                   //headers of the same type
     public void processOK(ClientTransaction clientTransatcion,
                         Response          response)
     {
@@ -322,7 +324,7 @@ public class SipRegistrarConnection
             grantedExpiration = requestedExpiration;
         }
 
-        //If this is a respond to a REGISTER request ending our registration
+        //If this is a response to a REGISTER request ending our registration
         //then expires would be 0.
         //fix by Luca Bincoletto <Luca.Bincoletto@tilab.com>
 
@@ -367,6 +369,13 @@ public class SipRegistrarConnection
 
             //schedule a reregistration.
             scheduleReRegistration(scheduleTime);
+
+            //update the set of supported services
+            ListIterator<AllowHeader> headerIter
+                = response.getHeaders(AllowHeader.NAME);
+
+            if(headerIter != null && headerIter.hasNext())
+                updateSupportedOperationSets(headerIter);
 
             setRegistrationState(
                 RegistrationState.REGISTERED
@@ -666,6 +675,29 @@ public class SipRegistrarConnection
     ListeningPoint getListeningPoint()
     {
         return sipProvider.getListeningPoint(registrarURI.getTransportParam());
+    }
+
+    /**
+     * Analyzes the content of the <tt>allowHeader</tt> and determines whether
+     * some of the operation sets in our provider need to be disabled.
+     *
+     * @param headerIter the list of <tt>AllowHeader</tt>s that we need to
+     * analyze for supported features.
+     */
+    private void updateSupportedOperationSets(
+                                        ListIterator<AllowHeader> headerIter)
+    {
+        HashSet<String> set = new HashSet<String>();
+        while(headerIter.hasNext())
+        {
+            set.add(headerIter.next().getMethod());
+        }
+
+        //Emil XXX: I am not sure how this would work out with most providers
+        //so we are going to only start by implementing this feature for IM.
+        if ( !set.contains(Request.MESSAGE) )
+            sipProvider.removeSupportedOperationSet(
+                            OperationSetBasicInstantMessaging.class);
     }
 
     /**

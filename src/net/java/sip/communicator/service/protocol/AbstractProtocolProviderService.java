@@ -81,6 +81,21 @@ public abstract class AbstractProtocolProviderService
     }
 
     /**
+     * Removes an <tt>OperationSet</tt> implementation from the set of
+     * supported <tt>OperationSet</tt>s for this instance.
+     *
+     * @param <T> the exact type of the <tt>OperationSet</tt> implementation to
+     * be added
+     * @param opsetClass the <tt>Class</tt> of <tt>OperationSet</tt> under the
+     * name of which the specified implementation is to be added
+     */
+    protected <T extends OperationSet> void removeSupportedOperationSet(
+                                                Class<T> opsetClass)
+    {
+        supportedOperationSets.remove(opsetClass.getName());
+    }
+
+    /**
      * Creates a RegistrationStateChange event corresponding to the specified
      * old and new states and notifies all currently registered listeners.
      *
@@ -166,7 +181,7 @@ public abstract class AbstractProtocolProviderService
     /**
      * Returns the protocol display name. This is the name that would be used
      * by the GUI to display the protocol name.
-     * 
+     *
      * @return a String containing the display name of the protocol this service
      * is implementing
      */
@@ -185,7 +200,7 @@ public abstract class AbstractProtocolProviderService
      * MUST ignore any OperationSet-s that they are not aware of and that may be
      * defined by future version of this service. Such "unknown" OperationSet-s
      * though not encouraged, may also be defined by service implementors.
-     * 
+     *
      * @return a java.util.Map containing instance of all supported operation
      *         sets mapped against their class names (e.g.
      *         OperationSetPresence.class.getName()) .

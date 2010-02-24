@@ -506,6 +506,21 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
+     * Removes an <tt>OperationSet</tt> implementation from the set of
+     * supported <tt>OperationSet</tt>s for this instance.
+     *
+     * @param <T> the exact type of the <tt>OperationSet</tt> implementation to
+     * be added
+     * @param opsetClass the <tt>Class</tt> of <tt>OperationSet</tt> under the
+     * name of which the specified implementation is to be added
+     */
+    protected <T extends OperationSet> void removeSupportedOperationSet(
+                                                Class<T> opsetClass)
+    {
+        super.removeSupportedOperationSet(opsetClass);
+    }
+
+    /**
      * Never called.
      *
      * @param exceptionEvent the IOExceptionEvent containing the cause.
