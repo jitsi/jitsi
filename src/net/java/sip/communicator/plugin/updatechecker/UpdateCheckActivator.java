@@ -62,6 +62,12 @@ public class UpdateCheckActivator
     private static final String UPDATE_PASSWORD_CONFIG =
         "net.java.sip.communicator.plugin.updatechecker.UPDATE_SITE_PASSWORD";
 
+    /**
+     * Property indicating whether update check is enabled.
+     */
+    private static final String UPDATECHECKER_ENABLED =
+        "net.java.sip.communicator.plugin.updatechecker.ENABLED";
+
     static
     {
         removeDownloadRestrictions();
@@ -85,17 +91,23 @@ public class UpdateCheckActivator
             logger.logExit();
         }
 
+        // check whether we are enabled
+        if(!getConfigurationService().getBoolean(UPDATECHECKER_ENABLED, true))
+            return;
+
         Thread updateThread = new Thread(new UpdateCheckThread());
         updateThread.setDaemon(true);
         updateThread.start();
     }
 
     /**
-    * stop the bundle
-    */
-    public void stop(BundleContext bundleContext) throws Exception
-    {
-    }
+     * Stop the bundle. Nothing to stop for now.
+     * @param bundleContext
+     * @throws Exception 
+     */
+    public void stop(BundleContext bundleContext)
+        throws Exception
+    {}
 
     /**
      * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
@@ -182,6 +194,10 @@ public class UpdateCheckActivator
         return uiService;
     }
 
+    /**
+     * Returns resource service.
+     * @return the resource service.
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
@@ -201,8 +217,7 @@ public class UpdateCheckActivator
 
     /**
      * Check the first link as files on the web are sorted by date
-     * @param currentVersionStr
-     * @return
+     * @return whether we are using the latest version or not.
      */
     private boolean isNewestVersion()
     {
@@ -589,10 +604,17 @@ public class UpdateCheckActivator
     private class UpdateMenuButtonComponent
         extends AbstractPluginComponent
     {
+        /**
+         * The menu item to use.
+         */
         private final JMenuItem updateMenuItem
             = new JMenuItem(getResources().
                 getI18NString("plugin.updatechecker.UPDATE_MENU_ENTRY"));
 
+        /**
+         * Creates update menu component.
+         * @param container
+         */
         UpdateMenuButtonComponent(Container container)
         {
             super(container);
@@ -624,23 +646,39 @@ public class UpdateCheckActivator
     private static class DummyTrustManager
         implements X509TrustManager
     {
-
-        public void checkClientTrusted(X509Certificate[] arg0, String arg1)
+        /**
+         * Not used.
+         * @param chain
+         * @param authType
+         * @throws CertificateException
+         */
+        public void checkClientTrusted(X509Certificate[] chain, String authType)
             throws CertificateException
-        {
-        }
+        {}
 
-        public void checkServerTrusted(X509Certificate[] arg0, String arg1)
+        /**
+         * Not used.
+         * @param chain
+         * @param authType
+         * @throws CertificateException
+         */
+        public void checkServerTrusted(X509Certificate[] chain, String authType)
             throws CertificateException
-        {
-        }
+        {}
 
+        /**
+         * Accepts everything.
+         * @return
+         */
         public X509Certificate[] getAcceptedIssuers()
         {
             return null;
         }
     }
 
+    /**
+     * The thread that do the actual checking.
+     */
     private class UpdateCheckThread
         implements Runnable
     {

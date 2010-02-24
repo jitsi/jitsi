@@ -50,6 +50,7 @@ public class GeneralConfigurationPanel
     private JComboBox notifConfigComboBox;
 
     private JComboBox localesConfigComboBox;
+    private JCheckBox updateCheckBox;
 
     public GeneralConfigurationPanel()
     {
@@ -507,6 +508,26 @@ public class GeneralConfigurationPanel
                     valuePanel.add(warnLabel);
                 }
             }
+            if(!OSUtils.IS_MAC)// if we are not running mac
+            {
+                updateCheckBox = new SIPCommCheckBox();
+                mainPanel.add(updateCheckBox);
+                mainPanel.add(new JSeparator());
+                mainPanel.add(Box.createVerticalStrut(10));
+                updateCheckBox.setText(
+                    Resources.getString("plugin.generalconfig.CHECK_FOR_UPDATES"));
+                updateCheckBox.addActionListener(new ActionListener() {
+
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        GeneralConfigPluginActivator.getConfigurationService()
+                            .setProperty(
+                                "net.java.sip.communicator.plugin.updatechecker.ENABLED",
+                            Boolean.toString(
+                                ((JCheckBox)e.getSource()).isSelected()));
+                    }
+                });
+            }
 //            {
 //                JPanel transparencyPanel = new JPanel();
 //                BorderLayout transparencyPanelLayout
@@ -564,6 +585,9 @@ public class GeneralConfigurationPanel
         }
     }
 
+    /**
+     * Init default values.
+     */
     private void initDefaults()
     {
         groupMessagesCheckBox.setSelected(
@@ -597,8 +621,19 @@ public class GeneralConfigurationPanel
 
         bringToFrontCheckBox.setSelected(
             ConfigurationManager.isAutoPopupNewMessage());
+
+        if(!OSUtils.IS_MAC)// if we are not running mac
+        {
+            updateCheckBox.setSelected(
+            GeneralConfigPluginActivator.getConfigurationService().getBoolean((
+                "net.java.sip.communicator.plugin.updatechecker.ENABLED"), true));
+        }
     }
 
+    /**
+     * Returns the application name.
+     * @return
+     */
     private String getApplicationName()
     {
         return Resources.getSettingsString("service.gui.APPLICATION_NAME");
@@ -692,6 +727,9 @@ public class GeneralConfigurationPanel
         }
     }
 
+    /**
+     * Init auto start checkbox.
+     */
     private void initAutoStartCheckBox()
     {
         try
