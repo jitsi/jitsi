@@ -15,7 +15,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -107,10 +107,10 @@ public class CallTransferHandler
                     logger.debug("Failed to drop meta contact.", e);
             }
 
-            if (o instanceof MetaContact)
+            if (o instanceof ContactNode)
             {
                 Iterator<Contact> contacts
-                    = ((MetaContact) o).getContactsForProvider(
+                    = ((ContactNode) o).getMetaContact().getContactsForProvider(
                         call.getProtocolProvider());
 
                 String callee = null;

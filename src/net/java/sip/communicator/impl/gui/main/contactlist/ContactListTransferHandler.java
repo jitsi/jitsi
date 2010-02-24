@@ -339,8 +339,9 @@ public class ContactListTransferHandler
             }
             else if (DataFlavor.stringFlavor.equals(flavor))
             {
-                if (transferredObject instanceof MetaContact)
-                    return ((MetaContact) transferredObject).getDisplayName();
+                if (transferredObject instanceof ContactNode)
+                    return ((ContactNode) transferredObject)
+                        .getMetaContact().getDisplayName();
             }
             else
                 throw new UnsupportedFlavorException(flavor);
