@@ -501,8 +501,31 @@ public class ProtocolProviderServiceSipImpl
             this.sipSecurityManager = new SipSecurityManager(accountID);
             sipSecurityManager.setHeaderFactory(headerFactory);
 
+            // register any available custom extensions
+            ProtocolProviderExtensions.registerCustomOperationSets(this);
+
             isInitialized = true;
         }
+    }
+
+    /**
+     * Adds a specific <tt>OperationSet</tt> implementation to the set of
+     * supported <tt>OperationSet</tt>s of this instance. Serves as a type-safe
+     * wrapper around {@link #supportedOperationSets} which works with class
+     * names instead of <tt>Class</tt> and also shortens the code which performs
+     * such additions.
+     *
+     * @param <T> the exact type of the <tt>OperationSet</tt> implementation to
+     * be added
+     * @param opsetClass the <tt>Class</tt> of <tt>OperationSet</tt> under the
+     * name of which the specified implementation is to be added
+     * @param opset the <tt>OperationSet</tt> implementation to be added
+     */
+    protected <T extends OperationSet> void addSupportedOperationSet(
+            Class<T> opsetClass,
+            T opset)
+    {
+        super.addSupportedOperationSet(opsetClass, opset);
     }
 
     /**
