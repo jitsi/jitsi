@@ -14,7 +14,7 @@ import javax.media.format.*;
 import net.sf.fmj.media.*;
 
 /**
- * Codec that use libswccale to scale images from one size to 
+ * Codec that use libswscale to scale images from one size to 
  * another and change format (typically RGB to YUV).
  *
  * @author Sebastien Vincent
@@ -122,7 +122,7 @@ public class SwScaler
     }
 
     /**
-     * Process (format convertion, rescale) a buffer.
+     * Process (format conversion, rescale) a buffer.
      *
      * @param input input buffer
      * @param output output buffer
@@ -182,7 +182,7 @@ public class SwScaler
             dst = new byte[outputSize];
         }
 
-        /* convertion! */
+        /* conversion! */
         //System.out.println("Convert: " + inputWidth + "x" + inputHeight + " to " + outputWidth + "x" + outputHeight);
         FFMPEG.img_convert(dst, outfmt, src, infmt, inputWidth, inputHeight, outputWidth, outputHeight);
 
