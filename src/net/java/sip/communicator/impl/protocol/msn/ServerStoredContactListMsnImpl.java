@@ -405,17 +405,36 @@ public class ServerStoredContactListMsnImpl
      */
     ContactMsnImpl createVolatileContact(MsnContact contact)
     {
-        //First create the new volatile contact;
-        VolatileContact volatileBuddy =
-            new VolatileContact(contact.getId(),
-                                contact.getEmail(),
-                                contact.getDisplayName());
+        return
+            createVolatileContact(
+                contact.getId(),
+                contact.getEmail(),
+                contact.getDisplayName());
+    }
 
+    /**
+     * Creates a non persistent contact for the specified address. This would
+     * also create (if necessary) a group for volatile contacts that would not
+     * be added to the server stored contact list. This method would have no
+     * effect on the server stored contact list.
+     *
+     * @param id the id of the contact to create
+     * @param email the e-mail address of the contact to create
+     * @param displayName the display name of the contact to create
+     * @return the newly created volatile <tt>ContactImpl</tt>
+     */
+    ContactMsnImpl createVolatileContact(
+            String id,
+            Email email,
+            String displayName)
+    {
+        //First create the new volatile contact;
+        VolatileContact volatileBuddy
+            = new VolatileContact(id, email, displayName);
         ContactMsnImpl newVolatileContact
             = new ContactMsnImpl(volatileBuddy, this, false, false);
 
-        //Check whether a volatile group already exists and if not create
-        //one
+        //Check whether a volatile group already exists and if not create one.
         ContactGroupMsnImpl theVolatileGroup = getNonPersistentGroup();
 
         //if the parent group is null then add necessary create the group
@@ -429,14 +448,13 @@ public class ServerStoredContactListMsnImpl
 
             this.rootGroup.addSubGroup(theVolatileGroup);
 
-            fireGroupEvent(theVolatileGroup
-                           , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+            fireGroupEvent(theVolatileGroup,
+                           ServerStoredGroupEvent.GROUP_CREATED_EVENT);
         }
         else
         {
             theVolatileGroup.addContact(newVolatileContact);
-            fireContactAdded(theVolatileGroup
-                             , newVolatileContact);
+            fireContactAdded(theVolatileGroup, newVolatileContact);
         }
 
         return newVolatileContact;

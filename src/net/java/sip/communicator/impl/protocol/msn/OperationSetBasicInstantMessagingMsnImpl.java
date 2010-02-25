@@ -284,47 +284,64 @@ public class OperationSetBasicInstantMessagingMsnImpl
             String messageFromAddr = message.getFromAddr();
             if ((messageFromAddr == null)
                     || (messageFromAddr.indexOf('@') < 0))
-            {
                 return;
-            }
-            
+
             String subject = message.getSubject();
 
             try
             {
                 subject = MimeUtility.decodeText(subject);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                exception.printStackTrace();
+                logger.warn("Failed to decode the subject of a new e-mail", ex);
             }
 
+            String messageFrom = message.getFrom();
             Message newMailMessage = new MessageMsnImpl(
                     MessageFormat.format(
                         MsnActivator.getResources()
-                            .getI18NString("service.gui.NEW_MAIL"), 
-                        new Object[]{message.getFrom(), 
-                                     messageFromAddr, 
-                                     subject}),
-                     DEFAULT_MIME_TYPE,
+                                .getI18NString("service.gui.NEW_MAIL"),
+                        messageFrom,
+                        messageFromAddr,
+                        subject,
+                        "" /*
+                            * TODO What is {3} meant for? The Yahoo! protocol
+                            * implementation seems to put a link to a mail login
+                            * page.
+                            */),
+                     HTML_MIME_TYPE,
                      DEFAULT_MIME_ENCODING,
                      subject);
 
-             Contact sourceContact = opSetPersPresence.
-                 findContactByID(message.getFromAddr());
+             Contact sourceContact
+                 = opSetPersPresence.findContactByID(messageFromAddr);
 
              if (sourceContact == null)
              {
                  logger.debug("received a new mail from an unknown contact: "
-                                    + message.getFrom()
+                                    + messageFrom
                                     + " &lt;" + messageFromAddr + "&gt;");
                  //create the volatile contact
-                 sourceContact = opSetPersPresence
-                     .createVolatileContact(contact);
+                 String id = contact.getId();
+                 Email email = contact.getEmail();
+                 String displayName = contact.getDisplayName();
+
+                 if (id == null)
+                     id = messageFromAddr;
+                 if (email == null)
+                     email = Email.parseStr(messageFromAddr);
+                 if (displayName == null)
+                     displayName = messageFrom;
+                 sourceContact
+                     = opSetPersPresence.createVolatileContact(id, email, displayName);
              }
+
              MessageReceivedEvent msgReceivedEvt
                  = new MessageReceivedEvent(
-                     newMailMessage, sourceContact, System.currentTimeMillis(),
+                     newMailMessage,
+                     sourceContact,
+                     System.currentTimeMillis(),
                      MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
 
              fireMessageEvent(msgReceivedEvt);

@@ -9,11 +9,10 @@ package net.java.sip.communicator.impl.protocol.msn;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.sf.jml.MsnGroup;
-import net.sf.jml.MsnContact;
+import net.sf.jml.*;
 
 /**
- * The Msn implementation of the ContactGroup interface. Intances of this class
+ * The Msn implementation of the ContactGroup interface. Instances of this class
  * (contrary to <tt>RootContactGroupMsnImpl</tt>) may only contain buddies
  * and cannot have sub groups. Note that instances of this class only use the
  * corresponding smack source group for reading their names and only
@@ -38,8 +37,9 @@ public class ContactGroupMsnImpl
      * lower case  strings in the left column because MSN IDs in XMPP are not
      * case sensitive.
      */
-    private Map<String, Contact> buddies
+    private final Map<String, Contact> buddies
         = new Hashtable<String, Contact>();
+
     private boolean isResolved = false;
 
     /**
@@ -51,9 +51,10 @@ public class ContactGroupMsnImpl
      * a list that would always remain empty. We only use it so that we're able
      * to extract empty iterators
      */
-    private List<ContactGroup> dummyGroupsList = new LinkedList<ContactGroup>();
+    private final List<ContactGroup> dummyGroupsList
+        = new LinkedList<ContactGroup>();
 
-    private ServerStoredContactListMsnImpl ssclCallback = null;
+    private final ServerStoredContactListMsnImpl ssclCallback;
 
     /**
      * Creates an Msn group using the specified <tt>RosterGroup</tt> as
@@ -64,7 +65,7 @@ public class ContactGroupMsnImpl
      * ServerStoredContactListImpl update will only be done if source group
      * is changed.
 
-     * @param msnGroup the Msn Group correspoinding to the group
+     * @param msnGroup the Msn Group corresponding to the group
      * @param groupMembers the group members that we should add to the group.
      * @param ssclCallback a callback to the server stored contact list
      * we're creating.
@@ -80,19 +81,18 @@ public class ContactGroupMsnImpl
         this.isResolved = isResolved;
         this.ssclCallback = ssclCallback;
 
-        for (int i = 0; i < groupMembers.length; i++)
+        for (MsnContact groupMember : groupMembers)
         {
-
-            //only add the contact if it doesn't already exist in some other
-            //group. this is necessary because MSN would allow having one and the
-            //same contact in more than one group.
-            if(ssclCallback.findContactById(groupMembers[i]
-                                    .getEmail().getEmailAddress()) != null)
-            {
-                continue;
-            }
-            addContact( new ContactMsnImpl(
-                            groupMembers[i], ssclCallback, true, true));
+            /*
+             *Only add the contact if it doesn't already exist in some other
+             * group. This is necessary because MSN would allow having one and
+             * the same contact in more than one group.
+             */
+            if(ssclCallback.findContactById(
+                        groupMember.getEmail().getEmailAddress())
+                    == null)
+                addContact(
+                    new ContactMsnImpl(groupMember, ssclCallback, true, true));
         }
     }
 
@@ -145,8 +145,8 @@ public class ContactGroupMsnImpl
      * <tt>ContactGroup</tt>.
      *
      * @return a java.util.Iterator over all contacts inside this
-     *   <tt>ContactGroup</tt>. In case the group doesn't contain any
-     * memebers it will return an empty iterator.
+     * <tt>ContactGroup</tt>. In case the group doesn't contain any members it
+     * will return an empty iterator.
      */
     public Iterator<Contact> contacts()
     {
@@ -156,7 +156,7 @@ public class ContactGroupMsnImpl
     /**
      * Returns the <tt>Contact</tt> with the specified address or
      * identifier.
-     * @param id the addres or identifier of the <tt>Contact</tt> we are
+     * @param id the address or identifier of the <tt>Contact</tt> we are
      * looking for.
      * @return the <tt>Contact</tt> with the specified id or address.
      */

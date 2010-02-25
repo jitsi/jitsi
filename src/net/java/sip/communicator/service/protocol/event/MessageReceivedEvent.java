@@ -72,7 +72,7 @@ public class MessageReceivedEvent
      * 
      * @param source the <tt>Message</tt> whose reception this event represents.
      * @param from the <tt>Contact</tt> that has sent this message.
-     * @param timestamp the exact date when the event ocurred.
+     * @param timestamp the exact date when the event occurred.
      * @param eventType the type of message event that this instance represents
      * (one of the XXX_MESSAGE_RECEIVED static fields). 
      */

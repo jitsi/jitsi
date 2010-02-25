@@ -163,6 +163,26 @@ public class OperationSetPersistentPresenceMsnImpl
     }
 
     /**
+     * Creates a non persistent contact for the specified address. This would
+     * also create (if necessary) a group for volatile contacts that would not
+     * be added to the server stored contact list. The volatile contact would
+     * remain in the list until it is really added to the contact list or until
+     * the application is terminated.
+     *
+     * @param id the id of the MSN contact
+     * @param email the e-mail address of the MSN contact
+     * @param displayName the display name of the MSN contact
+     * @return the newly created volatile <tt>ContactImpl</tt>
+     */
+    public ContactMsnImpl createVolatileContact(
+            String id,
+            Email email,
+            String displayName)
+    {
+        return ssContactList.createVolatileContact(id, email, displayName);
+    }
+
+    /**
      * Creates and returns a unresolved contact from the specified
      * <tt>address</tt> and <tt>persistentData</tt>.
      *

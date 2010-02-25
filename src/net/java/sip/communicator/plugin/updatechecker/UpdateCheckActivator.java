@@ -572,12 +572,13 @@ public class UpdateCheckActivator
             protected PasswordAuthentication getPasswordAuthentication()
             {
                 // if there is something save return it
-                String uName = (String)getConfigurationService().
-                        getProperty(UPDATE_USERNAME_CONFIG);
+                ConfigurationService config = getConfigurationService();
+                String uName
+                    = (String) config.getProperty(UPDATE_USERNAME_CONFIG);
                 if(uName != null)
                 {
-                    String pass = (String)getConfigurationService().
-                            getProperty(UPDATE_PASSWORD_CONFIG);
+                    String pass
+                        = (String) config.getProperty(UPDATE_PASSWORD_CONFIG);
 
                     if(pass != null)
                         return new PasswordAuthentication(uName,
