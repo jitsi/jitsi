@@ -76,8 +76,6 @@ static int windows_grab_screen(jbyte* data, int32_t x, int32_t y, int32_t w, int
   RGBQUAD *pixels = NULL;
   size_t i = 0;
   size_t off = 0;
-  uint32_t test = 1;
-  int little_endian = *((uint8_t*)&test);
 
   /* get handle to the entire screen of Windows */
   desktop = GetDC(NULL);
@@ -194,16 +192,8 @@ static int windows_grab_screen(jbyte* data, int32_t x, int32_t y, int32_t w, int
   {
     RGBQUAD* quad = &pixels[i];
     uint32_t pixel = 0xFF000000 | quad->rgbRed << 16 | quad->rgbGreen << 8 | quad->rgbBlue;
-
-    if(little_endian)
-    {
-      uint8_t r = (pixel >> 16) & 0xff;
-      uint8_t g = (pixel >> 8) & 0xff;
-      uint8_t b = pixel & 0xff;
-
-      pixel = 0xff << 24 | b << 16 | g << 8 | r;
-    }
-
+    
+    /* Java int is always big endian so output as ARGB */
     memcpy(data + off, &pixel, 4);
     off += 4;
   }
@@ -239,8 +229,6 @@ static int quartz_grab_screen(jbyte* data, int32_t x, int32_t y, int32_t w, int3
   size_t off = 0;
   size_t i = 0;
   CGRect rect;
-  uint32_t test_endian = 1;
-  int little_endian = *((uint8_t*)&test_endian);
 
   rect = CGRectMake(x, y, w, h);
   img = CGWindowListCreateImage(rect, kCGWindowListOptionOnScreenOnly, kCGNullWindowID, kCGWindowImageDefault);
@@ -261,16 +249,12 @@ static int quartz_grab_screen(jbyte* data, int32_t x, int32_t y, int32_t w, int3
   for(i = 0 ; i < len ; i+=4)
   {
     uint32_t pixel = *((uint32_t*)&pixels[i]);
+    uint8_t r = (pixel >> 16) & 0xff;
+    uint8_t g = (pixel >> 8) & 0xff;
+    uint8_t b = pixel & 0xff;
 
-    if(little_endian)
-    {
-      uint8_t r = (pixel >> 16) & 0xff;
-      uint8_t g = (pixel >> 8) & 0xff;
-      uint8_t b = pixel & 0xff;
-
-      pixel = 0xff << 24 | b << 16 | g << 8 | r;
-    }
-
+    /* Java int is always big endian so output as ARGB */
+    pixel = 0xff << 24 | r << 16 | g << 8 | b;
     memcpy(data + off, &pixel, 4);
     off += 4;
   }
@@ -310,8 +294,6 @@ static int x11_grab_screen(const char* x11display, jbyte* data, int32_t x, int32
   int i = 0;
   int j = 0;
   size_t size = 0;
-  uint32_t test_endian = 1;
-  int little_endian = *((uint8_t*)&test_endian);
   
   display_str = x11display ? x11display : getenv("DISPLAY");
 
@@ -418,20 +400,16 @@ static int x11_grab_screen(const char* x11display, jbyte* data, int32_t x, int32
   {
     for(i = 0 ; i < w ; i++)
     {
-      /* do not care about hight 32-bit for Linux 64 bit 
+      /* do not care about high 32-bit for Linux 64 bit 
        * machine (sizeof(unsigned long) = 8)
        */
       uint32_t pixel = (uint32_t)XGetPixel(img, i, j);
+      uint8_t r = (pixel >> 16) & 0xff;
+      uint8_t g = (pixel >> 8) & 0xff;
+      uint8_t b = pixel & 0xff;
 
-      if(little_endian)
-      {
-        uint8_t r = (pixel >> 16) & 0xff;
-        uint8_t g = (pixel >> 8) & 0xff;
-        uint8_t b = pixel & 0xff;
-
-        pixel = 0xff << 24 | b << 16 | g << 8 | r;
-      }
-
+      /* Java int is always big endian so output as ARGB */
+      pixel = 0xff << 24 | r << 16 | g << 8 | b;
       memcpy(data + off, &pixel, 4);
       off += 4;
     }

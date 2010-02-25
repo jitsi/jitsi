@@ -10,7 +10,14 @@ make
 ./configure --disable-pthread --disable-avs-input --disable-asm
 make
 
-- Linux, Mac OS X, FreeBSD
+- FreeBSD
+
+Apply x264_bsd.diff patch first and compile:
+patch -p1 < /path/to/x264_bsd.diff
+./configure --enable-pic
+gmake
+
+- Linux, Mac OS X
 
 ./configure --enable-pic
 make

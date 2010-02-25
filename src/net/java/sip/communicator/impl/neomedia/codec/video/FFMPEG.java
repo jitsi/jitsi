@@ -23,17 +23,17 @@ public class FFMPEG
 
     public static final int FF_MB_DECISION_SIMPLE = 0;
 
-    public static final int PIX_FMT_RGB32;
-    
     public static final int PIX_FMT_RGBA;
+
+    public static final int PIX_FMT_RGB24;
 
     public static final int PIX_FMT_YUV420P;
 
     public static final int X264_RC_ABR = 2;
 
-    public static native int getRGB32Format();
-    
     public static native int getRGBAFormat();
+
+    public static native int getRGB24Format();
 
     public static native int getYUV420PFormat();
 
@@ -177,10 +177,22 @@ public class FFMPEG
     public static native int img_convert(long dst, int dst_pix_fmt, long src,
         int pix_fmt, int width, int height);
     
-    public static native int img_convert(byte dst[], int dst_pix_fmt, 
-            byte src[], int pix_fmt, int width, int height, int newWidth, 
+    /**
+     * Convert image bytes (scale/format).
+     * 
+     * @param dst destination image. Its type must be an array (int[], byte[] 
+     * or short[])
+     * @param dst_pix_fmt destination format
+     * @param src source image. Its type must be an array (int[], byte[] or short[])
+     * @param width original width
+     * @param height original height
+     * @param newWidth new width
+     * @param newHeight new height
+     */
+    public static native int img_convert(Object dst, int dst_pix_fmt, 
+            Object src, int pix_fmt, int width, int height, int newWidth, 
             int newHeight);
-
+    
     public static native void memcpy(int[] dst, int dst_offset, int dst_length,
         long src);
 
@@ -193,8 +205,8 @@ public class FFMPEG
 
         av_register_all();
         avcodec_init();
-        PIX_FMT_RGB32 = getRGB32Format(); /* for decoding */
-        PIX_FMT_RGBA = getRGBAFormat(); /* for encoding */
+        PIX_FMT_RGB24 = getRGB24Format();
+        PIX_FMT_RGBA = getRGBAFormat();
         PIX_FMT_YUV420P = getYUV420PFormat();
     }
 }

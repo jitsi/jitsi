@@ -4,6 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
+
 #include "net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG.h"
 
 #include <string.h>
@@ -58,7 +59,6 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodec_1decode_
 
     if (buf) {
         jbyte *buf_ptr = (*jniEnv)->GetByteArrayElements (jniEnv, buf, NULL);
-
 
         if (buf_ptr)
         {
@@ -434,11 +434,9 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avpicture_1get_1
     return (jint) avpicture_get_size ((int) pix_fmt, (int) width, (int) height);
 }
 
-
-
 static int image_convert(
 AVPicture* dst, int dst_pix_fmt,
-const AVPicture* src, int pix_fmt, int width, int height, jint newWidth, jint newHeight)
+const AVPicture* src, int pix_fmt, int width, int height, int newWidth, int newHeight)
 {
    struct SwsContext *img_convert_ctx =
         sws_getContext(
@@ -471,43 +469,34 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert__JI
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert___3BI_3BIIIII
-  (JNIEnv *jniEnv, jclass clazz, jbyteArray dst, jint dst_pix_fmt, 
-   jbyteArray src, jint pix_fmt, jint width, jint height, jint newWidth, jint newHeight)
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert__Ljava_lang_Object_2ILjava_lang_Object_2IIIII
+  (JNIEnv *jniEnv, jclass clazz, jobject dst, jint dst_pix_fmt, 
+   jobject src, jint pix_fmt, jint width, jint height, jint newWidth, jint newHeight)
 {
-  AVPicture dst_dummy;
-  AVPicture src_dummy;
-  int size = width * height;
-  jint ret = 0;
-/*  
-  uint8_t* dst_buf = (*jniEnv)->GetPrimitiveArrayCritical(jniEnv, dst, 0);
-  uint8_t* src_buf = (*jniEnv)->GetPrimitiveArrayCritical(jniEnv, src, 0);
-*/
-  uint8_t* dst_buf = (*jniEnv)->GetByteArrayElements(jniEnv, dst, 0);
-  uint8_t* src_buf = (*jniEnv)->GetByteArrayElements(jniEnv, src, 0);
+    uint8_t* src_buf = (*jniEnv)->GetPrimitiveArrayCritical(jniEnv, (jarray)src, 0);
+    uint8_t* dst_buf = (*jniEnv)->GetPrimitiveArrayCritical(jniEnv, (jarray)dst, 0);
+    AVPicture dst_dummy;
+    AVPicture src_dummy;
+    int size = width * height;
+    jint ret = 0;
 
-  if(!src || !dst)
-  {
-    return -1;
-  }
+    if(!src_buf || !dst_buf)
+    {
+      return -1;
+    }
 
-  /* assign AVPicture with buffer */
-  avpicture_fill(&dst_dummy, dst_buf, (int)dst_pix_fmt, newWidth, newHeight);
-  avpicture_fill(&src_dummy, src_buf, (int)pix_fmt, width, height);
+    /* assign AVPicture with buffer */
+    avpicture_fill(&dst_dummy, dst_buf, (int)dst_pix_fmt, newWidth, newHeight);
+    avpicture_fill(&src_dummy, src_buf, (int)pix_fmt, width, height);
 
-  ret = image_convert(&dst_dummy, (int)dst_pix_fmt, &src_dummy, (int)pix_fmt,
-      (int)width, (int)height, (int)newWidth, (int)newHeight);
+    ret = image_convert(&dst_dummy, (int)dst_pix_fmt, &src_dummy, (int)pix_fmt, 
+        (int)width, (int)height, (int)newWidth, (int)newHeight);
 
-  /* release pointers */
-/*
-  (*jniEnv)->ReleasePrimitiveArrayCritical(jniEnv, dst, dst_buf, 0);
-  (*jniEnv)->ReleasePrimitiveArrayCritical(jniEnv, src, src_buf, 0);
-*/
-  (*jniEnv)->ReleaseByteArrayElements(jniEnv, dst, dst_buf, 0);
-  (*jniEnv)->ReleaseByteArrayElements(jniEnv, src, src_buf, 0);
-  return ret;
+    /* release pointers */
+    (*jniEnv)->ReleasePrimitiveArrayCritical(jniEnv, dst, dst_buf, 0);
+    (*jniEnv)->ReleasePrimitiveArrayCritical(jniEnv, src, src_buf, 0);
+    return ret;
 }
-
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_memcpy___3IIIJ (
@@ -526,10 +515,20 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_memcpy__J_3BII (
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB32Format
-  (JNIEnv *env, jclass clazz)
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB24Format
+  (JNIEnv *jniEnv, jclass clazz)
 {
-    return PIX_FMT_RGB32;
+    uint32_t test = 1;
+    int little_endian = *((uint8_t*)&test);
+
+    if(little_endian)
+    {
+      return PIX_FMT_RGB24;
+    }
+    else /* big endian */
+    {
+      return PIX_FMT_BGR24;
+    }
 }
 
 JNIEXPORT jint JNICALL

@@ -23,18 +23,18 @@ extern "C" {
 #define net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_X264_RC_ABR 2L
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    getRGB32Format
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB32Format
-  (JNIEnv *, jclass);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
  * Method:    getRGBAFormat
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGBAFormat
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    getRGB24Format
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB24Format
   (JNIEnv *, jclass);
 
 /*
@@ -472,10 +472,10 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
  * Method:    img_convert
- * Signature: ([BI[BIIIII)I
+ * Signature: (Ljava/lang/Object;ILjava/lang/Object;IIIII)I
  */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert___3BI_3BIIIII
-  (JNIEnv *, jclass, jbyteArray, jint, jbyteArray, jint, jint, jint, jint, jint);
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert__Ljava_lang_Object_2ILjava_lang_Object_2IIIII
+  (JNIEnv *, jclass, jobject, jint, jobject, jint, jint, jint, jint, jint);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG

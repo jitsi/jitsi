@@ -28,14 +28,36 @@ public class SwScaler
      * Supported input formats.
      */
     private final Format[] supportedInputFormats = new Format[] {
-        new RGBFormat(null, -1, Format.byteArray, -1.0f, 32, -1, -1, -1)
+        new RGBFormat(null, -1, Format.byteArray, -1.0f, 32, -1, -1, -1),
+        new RGBFormat(null, -1, Format.intArray, -1.0f, 32, -1, -1, -1),
+        new RGBFormat(null, -1, Format.shortArray, -1.0f, 32, -1, -1, -1),
+        new RGBFormat(null, -1, Format.byteArray, -1.0f, 24, -1, -1, -1),
+        new RGBFormat(null, -1, Format.intArray, -1.0f, 24, -1, -1, -1),
+        new RGBFormat(null, -1, Format.shortArray, -1.0f, 24, -1, -1, -1),
+        new YUVFormat(null, -1, Format.byteArray, -1.0f, YUVFormat.YUV_420,
+                -1, -1, 0, -1, -1),
+        new YUVFormat(null, -1, Format.intArray, -1.0f, YUVFormat.YUV_420,
+                -1, -1, 0, -1, -1),
+        new YUVFormat(null, -1, Format.shortArray, -1.0f, YUVFormat.YUV_420,
+                -1, -1, 0, -1, -1),
     };
 
     /**
      * Supported output formats.
      */
     private Format[] supportedOutputFormats = new Format[] {
-        new YUVFormat(null, -1, Format.byteArray, -1.0f, YUVFormat.YUV_420, -1, -1, 0, -1, -1)
+        new YUVFormat(null, -1, Format.byteArray, -1.0f, YUVFormat.YUV_420, 
+                -1, -1, 0, -1, -1),
+        new YUVFormat(null, -1, Format.intArray, -1.0f, YUVFormat.YUV_420, 
+                -1, -1, 0, -1, -1),
+        new YUVFormat(null, -1, Format.shortArray, -1.0f, YUVFormat.YUV_420, 
+                -1, -1, 0, -1, -1),
+        new RGBFormat(null, -1, Format.byteArray, -1.0f, 32, -1, -1, -1),
+        new RGBFormat(null, -1, Format.intArray, -1.0f, 32, -1, -1, -1),
+        new RGBFormat(null, -1, Format.shortArray, -1.0f, 32, -1, -1, -1),
+        new RGBFormat(null, -1, Format.byteArray, -1.0f, 24, -1, -1, -1),
+        new RGBFormat(null, -1, Format.intArray, -1.0f, 24, -1, -1, -1),
+        new RGBFormat(null, -1, Format.shortArray, -1.0f, 24, -1, -1, -1),
     };
 
     /**
@@ -50,8 +72,24 @@ public class SwScaler
             size = new Dimension(640, 480);
         }
 
-        Format newFormat = new YUVFormat(size, -1, Format.byteArray, -1.0f, YUVFormat.YUV_420, -1, -1, 0, -1, -1);
-        supportedOutputFormats[0] = newFormat;
+        supportedOutputFormats[0] = new YUVFormat(size, -1, Format.byteArray,
+                -1.0f, YUVFormat.YUV_420, -1, -1, 0, -1, -1);
+        supportedOutputFormats[1] = new YUVFormat(size, -1, Format.intArray,
+                -1.0f, YUVFormat.YUV_420, -1, -1, 0, -1, -1);
+        supportedOutputFormats[2] = new YUVFormat(size, -1, Format.shortArray,
+                -1.0f, YUVFormat.YUV_420, -1, -1, 0, -1, -1);
+        supportedOutputFormats[3] = new RGBFormat(size, -1, Format.byteArray,
+                -1.0f, 32, -1, -1, -1);
+        supportedOutputFormats[4] = new RGBFormat(size, -1, Format.intArray,
+                -1.0f, 32, -1, -1, -1);
+        supportedOutputFormats[5] = new RGBFormat(size, -1, Format.shortArray,
+                -1.0f, 32, -1, -1, -1);
+        supportedOutputFormats[6] = new RGBFormat(size, -1, Format.byteArray,
+                -1.0f, 24, -1, -1, -1);
+        supportedOutputFormats[7] = new RGBFormat(size, -1, Format.intArray,
+                -1.0f, 24, -1, -1, -1);
+        supportedOutputFormats[8] = new RGBFormat(size, -1, Format.shortArray,
+                -1.0f, 24, -1, -1, -1);
     }
 
     /**
@@ -74,18 +112,49 @@ public class SwScaler
     @Override
     public Format[] getSupportedOutputFormats(Format input)
     {
+        Dimension size = null;
+
         if(input == null)
         {
             return supportedOutputFormats;
         }
+
+        /* if size is set for element 0 (YUVFormat), it is also set 
+         * for element 1 (RGBFormat) and so on...
+         */
+        size = ((VideoFormat)supportedOutputFormats[0]).getSize();
     
         //System.out.println("input: " + ((VideoFormat)input).getSize());
-        if(((VideoFormat)supportedOutputFormats[0]).getSize() != null)
+        if(size != null)
         {
             return supportedOutputFormats;
         }
 
-        return new Format[] { new YUVFormat(((VideoFormat)input).getSize(), -1, Format.byteArray, -1.0f, YUVFormat.YUV_420, -1, -1, 0, -1, -1)};
+        /* no specified size set so return the same size as input
+         * in output format supported
+         */
+        size = ((VideoFormat)input).getSize();
+
+        return new Format[] { 
+                              new YUVFormat(size, -1, Format.byteArray, -1.0f,
+                                      YUVFormat.YUV_420, -1, -1, 0, -1, -1),
+                              new YUVFormat(size, -1, Format.intArray, -1.0f,
+                                      YUVFormat.YUV_420, -1, -1, 0, -1, -1),
+                              new YUVFormat(size, -1, Format.shortArray, -1.0f,
+                                      YUVFormat.YUV_420, -1, -1, 0, -1, -1),
+                              new RGBFormat(size, -1, Format.byteArray, -1.0f,
+                                      32, -1, -1, -1),
+                              new RGBFormat(size, -1, Format.intArray, -1.0f,
+                                      32, -1, -1, -1),
+                              new RGBFormat(size, -1, Format.shortArray, -1.0f,
+                                      32, -1, -1, -1),
+                              new RGBFormat(size, -1, Format.byteArray, -1.0f,
+                                      24, -1, -1, -1),
+                              new RGBFormat(size, -1, Format.intArray, -1.0f,
+                                      24, -1, -1, -1),
+                              new RGBFormat(size, -1, Format.shortArray, -1.0f,
+                                      24, -1, -1, -1),
+                            };
     }
    
     /**
@@ -135,13 +204,26 @@ public class SwScaler
         VideoFormat voutput = (VideoFormat)output.getFormat();
         int inputWidth = (int)vinput.getSize().getWidth();
         int inputHeight = (int)vinput.getSize().getHeight();
-        int outputWidth = (int)voutput.getSize().getWidth();
-        int outputHeight = (int)voutput.getSize().getHeight();
-        byte src[] = (byte[])input.getData();
-        byte dst[] = (byte[])output.getData();
+        /* input's data type can be byte[], int[] or short[]
+         * so we used Object type to store it
+         */
+        Object src = input.getData();
+        Object dst = output.getData();
         int outputSize = 0;
+        int outputWidth = 0;
+        int outputHeight = 0;
         int infmt = 0;
         int outfmt = 0;
+
+        /* first buffer has no output format set */
+        if(voutput == null)
+        {
+            voutput = (VideoFormat)outputFormat;
+            return BUFFER_PROCESSED_FAILED;
+        }
+
+        outputWidth = (int)voutput.getSize().getWidth();
+        outputHeight = (int)voutput.getSize().getHeight();
 
         if (!checkInputBuffer(input))
         {
@@ -164,7 +246,14 @@ public class SwScaler
         else /* RGB format */
         {
             outputSize = (outputWidth * outputHeight * 4);
-            outfmt = FFMPEG.PIX_FMT_RGBA;
+            if(((RGBFormat)voutput).getBitsPerPixel() == 32)
+            {
+                outfmt = FFMPEG.PIX_FMT_RGBA;
+            }
+            else
+            {
+                outfmt = FFMPEG.PIX_FMT_RGB24;
+           }
         }
         
         /* determine input format */
@@ -174,20 +263,59 @@ public class SwScaler
         }
         else /* RGBFormat */
         {
-            infmt = FFMPEG.PIX_FMT_RGBA;
+            if(((RGBFormat)vinput).getBitsPerPixel() == 32)
+            {
+                infmt = FFMPEG.PIX_FMT_RGBA;
+            }
+            else
+            {
+                infmt = FFMPEG.PIX_FMT_RGB24;
+            }
         }
 
-        if(dst == null || dst.length < outputSize)
+        if(voutput.getDataType() == Format.byteArray)
         {
-            dst = new byte[outputSize];
+            if(dst == null || ((byte[])dst).length < outputSize)
+            {
+                dst = new byte[outputSize];
+            }
+        }
+        else if(voutput.getDataType() == Format.intArray)
+        {
+            /* Java int is always 4 bytes */
+            outputSize = (outputSize % 4) + outputSize / 4;
+            if(dst == null || ((int[])dst).length < outputSize)
+            {
+                dst = new int[outputSize];
+            }
+        }
+        else if(voutput.getDataType() == Format.shortArray)
+        {
+            /* Java short is always 2 bytes */
+            outputSize = (outputSize % 2) + outputSize / 2;
+            if(dst == null || ((short[])dst).length < outputSize)
+            {
+                dst = new short[outputSize];
+            }
+        }
+        else
+        {
+            System.out.println("Unknown data type!");
+            return BUFFER_PROCESSED_FAILED;
         }
 
-        /* conversion! */
-        //System.out.println("Convert: " + inputWidth + "x" + inputHeight + " to " + outputWidth + "x" + outputHeight);
-        FFMPEG.img_convert(dst, outfmt, src, infmt, inputWidth, inputHeight, outputWidth, outputHeight);
+        synchronized(src)
+        {
+            /* conversion! */
+            FFMPEG.img_convert(dst, outfmt, src, infmt, inputWidth, inputHeight,
+                    outputWidth, outputHeight);
+        }
+
+        //System.out.println("Converted: " + inputWidth + "x" + inputHeight + 
+        //" to " + outputWidth + "x" + outputHeight);
 
         output.setData(dst);
-        output.setLength(dst.length);
+        output.setLength(outputSize);
         output.setOffset(0);
 
         return BUFFER_PROCESSED_OK;   

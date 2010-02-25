@@ -331,6 +331,7 @@ public class EncodingConfiguration
 
         /* remove JavaRGBToYUV */
         PlugInManager.removePlugIn("com.sun.media.codec.video.colorspace.JavaRGBToYUV", PlugInManager.CODEC);
+        PlugInManager.removePlugIn("com.sun.media.codec.video.colorspace.JavaRGBConverter", PlugInManager.CODEC);
 
         for (String className : CUSTOM_CODECS)
         {
