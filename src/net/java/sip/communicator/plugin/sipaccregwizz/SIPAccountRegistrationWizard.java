@@ -126,7 +126,7 @@ public class SIPAccountRegistrationWizard
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
-    public Iterator<Map.Entry<String, String>> getSummary() 
+    public Iterator<Map.Entry<String, String>> getSummary()
     {
         Hashtable<String, String> summaryTable
             = new Hashtable<String, String>();
@@ -144,9 +144,11 @@ public class SIPAccountRegistrationWizard
         summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.REGISTRAR"),
             registration.getServerAddress());
-        summaryTable.put(
-            Resources.getString("plugin.sipaccregwizz.AUTH_NAME"),
-            registration.getAuthorizationName());
+        String authName = registration.getAuthorizationName();
+        if(authName != null)
+            summaryTable.put(
+                        Resources.getString("plugin.sipaccregwizz.AUTH_NAME"),
+                        authName);
         summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.SERVER_PORT"),
             registration.getServerPort());
