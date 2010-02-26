@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * A default implementation of the <code>MetaContact</code> interface.
- * 
+ *
  * @author Emil Ivov
  * @author Lubomir Marinov
  */
@@ -133,7 +133,7 @@ public class MetaContactImpl
     /**
      * Creates a new meta contact with the specified UID. This constructor
      * MUST ONLY be used when restoring contacts stored in the contactlist.xml.
-     * 
+     *
      * @param metaUID the meta uid that this meta contact should have.
      * @param details the already stored details for the contact.
      */
@@ -343,7 +343,7 @@ public class MetaContactImpl
             && defaultContact.getProtocolProvider()
                 .getOperationSet(operationSet) != null)
         {
-            defaultOpSetContact = getDefaultContact();
+            defaultOpSetContact = defaultContact;
         }
         else
         {
@@ -1148,7 +1148,7 @@ public class MetaContactImpl
 
     /**
      * Determines the index in <code>#data</code> of a specific key.
-     * 
+     *
      * @param key
      *            the key to retrieve the index in <code>#data</code> of
      * @return the index in <code>#data</code> of the specified <code>key</code>
@@ -1166,7 +1166,7 @@ public class MetaContactImpl
 
     /**
      * Gets the sync lock for use when modifying {@link #parentGroup}.
-     * 
+     *
      * @return the sync lock for use when modifying {@link #parentGroup}
      */
     private Object getParentGroupModLock()
