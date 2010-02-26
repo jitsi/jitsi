@@ -38,9 +38,9 @@ public class DataSource
                             Format.byteArray, // dataType
                             Format.NOT_SPECIFIED, // frameRate
                             32, // bitsPerPixel
-                            1, // red
-                            2, // green
-                            3) // blue
+                            2, // red
+                            3, // green
+                            4) // blue
                 };
 
     /**

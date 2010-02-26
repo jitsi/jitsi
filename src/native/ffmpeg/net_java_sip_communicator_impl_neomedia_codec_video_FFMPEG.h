@@ -23,10 +23,34 @@ extern "C" {
 #define net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_X264_RC_ABR 2L
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    getRGBAFormat
+ * Method:    getRGB32Format
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGBAFormat
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB32Format
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    getRGB32_1Format
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB32_11Format
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    getBGR32Format
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getBGR32Format
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    getBGR32_1Format
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getBGR32_11Format
   (JNIEnv *, jclass);
 
 /*

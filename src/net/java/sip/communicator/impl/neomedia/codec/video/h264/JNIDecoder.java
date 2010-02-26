@@ -267,15 +267,15 @@ public class JNIDecoder
 
         // convert the picture in RGB Format
         int numBytes =
-            FFMPEG.avpicture_get_size(FFMPEG.PIX_FMT_RGBA, avctxWidth,
+            FFMPEG.avpicture_get_size(FFMPEG.PIX_FMT_RGB32, avctxWidth,
                 avctxHeight);
         long buffer = FFMPEG.av_malloc(numBytes);
 
-        FFMPEG.avpicture_fill(frameRGB, buffer, FFMPEG.PIX_FMT_RGBA,
+        FFMPEG.avpicture_fill(frameRGB, buffer, FFMPEG.PIX_FMT_RGB32,
             avctxWidth, avctxHeight);
 
         // Convert the image from its native format to RGB
-        FFMPEG.img_convert(frameRGB, FFMPEG.PIX_FMT_RGBA, avframe, FFMPEG
+        FFMPEG.img_convert(frameRGB, FFMPEG.PIX_FMT_RGB32, avframe, FFMPEG
             .avcodeccontext_get_pix_fmt(avcontext), avctxWidth, avctxHeight);
 
         Object outData = outputBuffer.getData();

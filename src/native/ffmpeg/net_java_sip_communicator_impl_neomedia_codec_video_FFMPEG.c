@@ -523,19 +523,40 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB24Format
 
     if(little_endian)
     {
-      return PIX_FMT_RGB24;
+      return PIX_FMT_BGR24;
     }
     else /* big endian */
     {
-      return PIX_FMT_BGR24;
+      return PIX_FMT_RGB24;
     }
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGBAFormat
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB32Format
   (JNIEnv *env, jclass clazz)
 {
-    return PIX_FMT_RGBA;
+    return PIX_FMT_RGB32;
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB32_11Format
+  (JNIEnv *env, jclass clazz)
+{
+    return PIX_FMT_RGB32_1;
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getBGR32Format
+  (JNIEnv *env, jclass clazz)
+{
+    return PIX_FMT_BGR32;
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getBGR32_11Format
+  (JNIEnv *env, jclass clazz)
+{
+    return PIX_FMT_BGR32_1;
 }
 
 JNIEXPORT jint JNICALL

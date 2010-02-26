@@ -1,5 +1,7 @@
 FFMPEG_HOME=/home/seb/svn_work/ffmpeg
 JAVA_HOME=/usr/lib/jvm/java-6-sun
+#JAVA_HOME=/System/Library/Frameworks/JavaVM.framework
+#JAVA_HOME=C:\Progra~1\jdk1.6.0_18
 X264_HOME=/home/seb/svn_work/x264-snapshot-20091208-2245
 
 CC=gcc
@@ -8,6 +10,13 @@ CPPFLAGS=-DJNI_IMPLEMENTATION \
          -I$(FFMPEG_HOME) 
 
 # Uncomment section for your OS AND comment out the others
+
+# Linux configuration
+CPPFLAGS+=-I$(JAVA_HOME)/include/linux
+LDFLAGS=-fPIC -shared
+# Choose between 32-bit or 64-bit
+#TARGET=../../../lib/native/linux/libffmpeg.so
+TARGET=../../../lib/native/linux-64/libffmpeg.so
 
 # MacOS X configuration
 #CPPFLAGS+=-I$(JAVA_HOME)/Headers/
@@ -20,13 +29,6 @@ CPPFLAGS=-DJNI_IMPLEMENTATION \
 # Choose between 32-bit or 64-bit
 #TARGET=../../../lib/native/windows/ffmpeg.dll
 #TARGET=../../../lib/native/windows-64/ffmpeg.dll
-
-# Linux configuration
-CPPFLAGS+=-I$(JAVA_HOME)/include/linux
-LDFLAGS=-fPIC -shared
-# Choose between 32-bit or 64-bit
-#TARGET=../../../lib/native/linux/libffmpeg.so
-TARGET=../../../lib/native/linux-64/libffmpeg.so
 
 # FreeBSD configuration
 #CPPFLAGS+=-I$(JAVA_HOME)/include/freebsd

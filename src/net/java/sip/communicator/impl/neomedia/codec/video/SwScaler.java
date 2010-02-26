@@ -191,6 +191,50 @@ public class SwScaler
     }
 
     /**
+     * Get native (FFMPEG) RGB format.
+     *
+     * @param rgb JMF <tt>RGBFormat</tt>
+     * @return native RGB format
+     */
+    public static int getNativeRGBFormat(RGBFormat rgb)
+    {
+        int fmt = 0;
+
+        if(rgb.getBitsPerPixel() == 32)
+        {
+            switch(rgb.getRedMask())
+            {
+            case 1:
+            case 0xff:
+                fmt = FFMPEG.PIX_FMT_BGR32;
+                break;
+            case 2:
+            case (0xff << 8):
+                fmt = FFMPEG.PIX_FMT_BGR32_1;
+                break;
+            case 3:
+            case (0xff << 16):
+                fmt = FFMPEG.PIX_FMT_RGB32;
+                break;
+            case 4:
+            case (0xff << 24):
+                fmt = FFMPEG.PIX_FMT_RGB32_1;
+                break;
+            default:
+                /* assume ARGB ? */
+                fmt = FFMPEG.PIX_FMT_RGB32;
+                break;
+            }
+        }
+        else
+        {
+            fmt = FFMPEG.PIX_FMT_RGB24;
+        }
+        
+        return fmt;
+    }
+
+    /**
      * Process (format conversion, rescale) a buffer.
      *
      * @param input input buffer
@@ -245,15 +289,10 @@ public class SwScaler
         }
         else /* RGB format */
         {
+            RGBFormat rgb = (RGBFormat)voutput;
+            
+            outfmt = FFMPEG.PIX_FMT_RGB32;
             outputSize = (outputWidth * outputHeight * 4);
-            if(((RGBFormat)voutput).getBitsPerPixel() == 32)
-            {
-                outfmt = FFMPEG.PIX_FMT_RGBA;
-            }
-            else
-            {
-                outfmt = FFMPEG.PIX_FMT_RGB24;
-           }
         }
         
         /* determine input format */
@@ -263,14 +302,8 @@ public class SwScaler
         }
         else /* RGBFormat */
         {
-            if(((RGBFormat)vinput).getBitsPerPixel() == 32)
-            {
-                infmt = FFMPEG.PIX_FMT_RGBA;
-            }
-            else
-            {
-                infmt = FFMPEG.PIX_FMT_RGB24;
-            }
+            RGBFormat rgb = (RGBFormat)vinput;
+            infmt = getNativeRGBFormat(rgb);
         }
 
         if(voutput.getDataType() == Format.byteArray)
@@ -313,7 +346,7 @@ public class SwScaler
 
         //System.out.println("Converted: " + inputWidth + "x" + inputHeight + 
         //" to " + outputWidth + "x" + outputHeight);
-
+        
         output.setData(dst);
         output.setLength(outputSize);
         output.setOffset(0);

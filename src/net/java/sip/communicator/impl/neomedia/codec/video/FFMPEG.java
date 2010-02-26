@@ -22,16 +22,48 @@ public class FFMPEG
     public static final int FF_INPUT_BUFFER_PADDING_SIZE = 8;
 
     public static final int FF_MB_DECISION_SIMPLE = 0;
+    
+    /**
+     * RGB32 format handled in endian specific manner.
+     * It is stored as ARGB on big-endian and BGRA on little-endian.
+     */
+    public static final int PIX_FMT_RGB32;
+    
+    /**
+     * RGB32_1 format handled in endian specific manner.
+     * It is stored as RGBA on big-endian and ABGR on little-endian.
+     */
+    public static final int PIX_FMT_RGB32_1;
+    
+    /**
+     * BGR32 format handled in endian specific manner.
+     * It is stored as ABGR on big-endian and RGBA on little-endian.
+     */
+    public static final int PIX_FMT_BGR32;
+    
+    /**
+     * BGR32_1 format handled in endian specific manner.
+     * It is stored as BGRA on big-endian and ARGB on little-endian.
+     */
+    public static final int PIX_FMT_BGR32_1;
 
-    public static final int PIX_FMT_RGBA;
-
+    /**
+     * RGB24 format handled in endian specific manner.
+     * It is stored as RGB on big-endian and BGR on little-endian.
+     */
     public static final int PIX_FMT_RGB24;
 
     public static final int PIX_FMT_YUV420P;
 
     public static final int X264_RC_ABR = 2;
 
-    public static native int getRGBAFormat();
+    public static native int getRGB32Format();
+    
+    public static native int getRGB32_1Format();
+    
+    public static native int getBGR32Format();
+
+    public static native int getBGR32_1Format();
 
     public static native int getRGB24Format();
 
@@ -206,7 +238,10 @@ public class FFMPEG
         av_register_all();
         avcodec_init();
         PIX_FMT_RGB24 = getRGB24Format();
-        PIX_FMT_RGBA = getRGBAFormat();
+        PIX_FMT_RGB32 = getRGB32Format();
+        PIX_FMT_RGB32_1 = getRGB32_1Format();
+        PIX_FMT_BGR32 = getBGR32Format();
+        PIX_FMT_BGR32_1 = getBGR32_1Format();
         PIX_FMT_YUV420P = getYUV420PFormat();
     }
 }
