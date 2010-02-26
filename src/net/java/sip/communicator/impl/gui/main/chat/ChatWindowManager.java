@@ -241,7 +241,7 @@ public class ChatWindowManager
     /**
      * Closes the specified <tt>ChatWindow</tt> and makes it available for
      * garbage collection.
-     * 
+     *
      * @param chatWindow the <tt>ChatWindow</tt> to close
      */
     void closeWindow(ChatWindow chatWindow)
@@ -652,7 +652,7 @@ public class ChatWindowManager
                     = chatRoomList.findServerWrapperFromProvider(
                         adHocChatRoom.getParentProvider());
 
-                chatRoomWrapper = 
+                chatRoomWrapper =
                     new AdHocChatRoomWrapper(parentProvider, adHocChatRoom);
 
                 chatRoomList.addAdHocChatRoom(chatRoomWrapper);
@@ -742,7 +742,8 @@ public class ChatWindowManager
      */
     private Contact getDefaultContact(MetaContact metaContact)
     {
-        Contact defaultContact = metaContact.getDefaultContact();
+        Contact defaultContact = metaContact.getDefaultContact(
+                        OperationSetBasicInstantMessaging.class);
         ProtocolProviderService defaultProvider
             = defaultContact.getProtocolProvider();
         OperationSetBasicInstantMessaging defaultIM
@@ -765,7 +766,8 @@ public class ChatWindowManager
                         .getOperationSet(
                             OperationSetBasicInstantMessaging.class);
 
-                if(protoContactIM.isOfflineMessagingSupported()
+                if(  protoContactIM != null
+                     && protoContactIM.isOfflineMessagingSupported()
                         && protoContactProvider.isRegistered())
                 {
                     defaultContact = contact;
@@ -865,10 +867,10 @@ public class ChatWindowManager
     }
 
     /**
-     * Creates a <tt>ChatPanel</tt> for the given <tt>AdHocChatRoom</tt> and 
+     * Creates a <tt>ChatPanel</tt> for the given <tt>AdHocChatRoom</tt> and
      * saves it in the list of created <tt>ChatPanel</tt>s.
      *
-     * @param chatRoomWrapper the <tt>AdHocChatRoom</tt>, for which the chat 
+     * @param chatRoomWrapper the <tt>AdHocChatRoom</tt>, for which the chat
      * will be created
      * @return The <code>ChatPanel</code> newly created.
      */
@@ -911,10 +913,10 @@ public class ChatWindowManager
     }
 
     /**
-     * Creates a <tt>ChatPanel</tt> for the given <tt>AdHocChatRoom</tt> and 
+     * Creates a <tt>ChatPanel</tt> for the given <tt>AdHocChatRoom</tt> and
      * saves it in the list of created <tt>ChatPanel</tt>s.
      *
-     * @param chatRoomWrapper the <tt>AdHocChatRoom</tt>, for which the chat 
+     * @param chatRoomWrapper the <tt>AdHocChatRoom</tt>, for which the chat
      * will be created
      * @param escapedMessageID the message ID of the message that should be
      * excluded from the history when the last one is loaded in the chat.
@@ -941,10 +943,10 @@ public class ChatWindowManager
 
         return chatPanel;
     }
-    
+
     /**
      * Finds the <tt>ChatPanel</tt> corresponding to the given chat descriptor.
-     * 
+     *
      * @param descriptor the chat descriptor.
      * @return the <tt>ChatPanel</tt> corresponding to the given chat descriptor
      * if any; otherwise, <tt>null</tt>
