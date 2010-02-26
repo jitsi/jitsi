@@ -210,7 +210,7 @@ public class MetaContactListServiceImpl
         //stop listening to all currently installed providers
         for (ProtocolProviderService pp : currentlyInstalledProviders.values())
         {
-            OperationSetPersistentPresence opSetPersPresence = 
+            OperationSetPersistentPresence opSetPersPresence =
                 pp.getOperationSet(OperationSetPersistentPresence.class);
 
             if(opSetPersPresence !=null)
@@ -225,7 +225,7 @@ public class MetaContactListServiceImpl
             else
             {
                 //check if a non persistent presence operation set exists.
-                OperationSetPresence opSetPresence = 
+                OperationSetPresence opSetPresence =
                     pp.getOperationSet(OperationSetPresence.class);
 
                 if(opSetPresence != null)
@@ -799,7 +799,7 @@ public class MetaContactListServiceImpl
     /**
      * Sets the avatar for <tt>metaContact</tt> to be <tt>newAvatar</tt>.
      * <p>
-     * @param metaContact the <tt>MetaContact</tt> that change avatar 
+     * @param metaContact the <tt>MetaContact</tt> that change avatar
      * @param protoContact the <tt>Contact> that change avatar
      * @param newAvatar avatar image bytes
      * @throws IllegalArgumentException if <tt>metaContact</tt> is not an
@@ -1677,7 +1677,7 @@ public class MetaContactListServiceImpl
             remove(provider.getAccountID().getAccountUniqueID());
 
         //get the root group for the provider so that we could remove it.
-        OperationSetPersistentPresence persPresOpSet = 
+        OperationSetPersistentPresence persPresOpSet =
             provider.getOperationSet(OperationSetPersistentPresence.class);
 
         //ignore if persistent presence is not supported.
@@ -1965,8 +1965,7 @@ public class MetaContactListServiceImpl
 
         if (event.getType() == ServiceEvent.REGISTERED)
         {
-            logger
-                .debug("Handling registration of a new Protocol Provider.");
+            logger.debug("Handling registration of a new Protocol Provider.");
             // if we have the PROVIDER_MASK property set, make sure that this
             // provider has it and if not ignore it.
             String providerMask = System
@@ -1982,13 +1981,18 @@ public class MetaContactListServiceImpl
                 if (servRefMask == null
                     || !servRefMask.equals(providerMask))
                 {
+                    logger.debug("Ignoing masked provider: "
+                                        + provider.getAccountID());
                     return;
                 }
             }
 
-            if(sourceFactory != null && sourceFactory.getRegisteredAccounts().contains(
-                provider.getAccountID()))
+            if(sourceFactory != null
+               && currentlyInstalledProviders.containsKey(
+                               provider.getAccountID().getAccountUniqueID()))
             {
+                logger.debug("Ignoing an already installed account: "
+                                + provider.getAccountID());
                 // the account is already installed and this event is coming
                 // from a modification. we don't need to do anything.
                 return;
