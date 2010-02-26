@@ -87,9 +87,13 @@ public class PortAudioAuto
             int maxOutputChannels =
                 PortAudio.PaDeviceInfo_getMaxOutputChannels(deviceInfo);
 
+            String devName = PortAudio.PaDeviceInfo_getName(deviceInfo);
+            if (devName != null)
+                devName = devName.trim();
+
             CaptureDeviceInfo jmfInfo =
                     new CaptureDeviceInfo(
-                        PortAudio.PaDeviceInfo_getName(deviceInfo),
+                        devName,
                         new MediaLocator(
                             PortAudioUtils.LOCATOR_PREFIX + deviceIndex),
                         new Format[]{DataSource.getCaptureFormat()});

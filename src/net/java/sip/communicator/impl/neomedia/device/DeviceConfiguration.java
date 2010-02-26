@@ -560,7 +560,7 @@ public class DeviceConfiguration
     {
         String res = null;
         // Here we iterate over the available audio systems
-        // to be sure that the audio system 
+        // to be sure that the audio system
         // is available and enabled on the system we are running on
         if(cdi.getLocator().getProtocol().equals("javasound"))
         {
@@ -841,7 +841,7 @@ public class DeviceConfiguration
                     config.setProperty(PROP_AUDIO_PLAYBACK_DEVICE, null);
             }
 
-            firePropertyChange(AUDIO_PLAYBACK_DEVICE, 
+            firePropertyChange(AUDIO_PLAYBACK_DEVICE,
                 oldDev, audioPlaybackDevice);
         }
     }
