@@ -22,7 +22,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 /**
  * An implementation of the <tt>ChatSession</tt> interface that represents a
  * user-to-user chat session.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -43,7 +43,7 @@ public class MetaContactChatSession
     private ChatTransport currentChatTransport;
 
     private final ChatSessionRenderer sessionRenderer;
-    
+
     private final java.util.List<ChatSessionChangeListener>
             chatTransportChangeListeners
                 = new Vector<ChatSessionChangeListener>();
@@ -53,7 +53,7 @@ public class MetaContactChatSession
      * renderer, which gives the connection with the UI, the meta contact
      * corresponding to the session and the protocol contact to be used as
      * transport.
-     * 
+     *
      * @param sessionRenderer the renderer, which gives the connection with
      * the UI.
      * @param metaContact the meta contact corresponding to the session and the
@@ -82,10 +82,10 @@ public class MetaContactChatSession
     }
 
     /**
-     * Returns an iterator to the list of all participants contained in this 
+     * Returns an iterator to the list of all participants contained in this
      * chat session.
-     * 
-     * @return an iterator to the list of all participants contained in this 
+     *
+     * @return an iterator to the list of all participants contained in this
      * chat session.
      */
     public Iterator<ChatContact> getParticipants()
@@ -96,7 +96,7 @@ public class MetaContactChatSession
     /**
      * Returns all available chat transports for this chat session. Each chat
      * transport is corresponding to a protocol provider.
-     * 
+     *
      * @return all available chat transports for this chat session.
      */
     public Iterator<ChatTransport> getChatTransports()
@@ -106,7 +106,7 @@ public class MetaContactChatSession
 
     /**
      * Returns the name of this chat.
-     * 
+     *
      * @return the name of this chat
      */
     public String getChatName()
@@ -121,7 +121,7 @@ public class MetaContactChatSession
 
     /**
      * Returns a collection of the last N number of messages given by count.
-     * 
+     *
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
@@ -144,7 +144,7 @@ public class MetaContactChatSession
 
     /**
      * Returns a collection of the last N number of messages given by count.
-     * 
+     *
      * @param date The date up to which we're looking for messages.
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
@@ -167,7 +167,7 @@ public class MetaContactChatSession
 
     /**
      * Returns a collection of the last N number of messages given by count.
-     * 
+     *
      * @param date The date from which we're looking for messages.
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
@@ -190,7 +190,7 @@ public class MetaContactChatSession
 
     /**
      * Returns the start date of the history of this chat session.
-     * 
+     *
      * @return the start date of the history of this chat session.
      */
     public long getHistoryStartDate()
@@ -242,7 +242,7 @@ public class MetaContactChatSession
 
     /**
      * Returns the end date of the history of this chat session.
-     * 
+     *
      * @return the end date of the history of this chat session.
      */
     public long getHistoryEndDate()
@@ -294,7 +294,7 @@ public class MetaContactChatSession
 
     /**
      * Returns the default mobile number used to send sms-es in this session.
-     * 
+     *
      * @return the default mobile number used to send sms-es in this session.
      */
     public String getDefaultSmsNumber()
@@ -313,7 +313,7 @@ public class MetaContactChatSession
 
     /**
      * Sets the default mobile number used to send sms-es in this session.
-     * 
+     *
      * @param smsPhoneNumber The default mobile number used to send sms-es in
      * this session.
      */
@@ -350,7 +350,7 @@ public class MetaContactChatSession
     /**
      * Returns the currently used transport for all operation within this chat
      * session.
-     * 
+     *
      * @return the currently used transport for all operation within this chat
      * session.
      */
@@ -362,7 +362,7 @@ public class MetaContactChatSession
     /**
      * Sets the transport that will be used for all operations within this chat
      * session.
-     * 
+     *
      * @param chatTransport The transport to set as a default transport for this
      * session.
      */
@@ -481,7 +481,7 @@ public class MetaContactChatSession
     /**
      * Returns the <tt>ChatContact</tt> corresponding to the given
      * <tt>MetaContact</tt>.
-     * 
+     *
      * @param metaContact the <tt>MetaContact</tt> to search for
      * @return the <tt>ChatContact</tt> corresponding to the given
      * <tt>MetaContact</tt>.
@@ -519,7 +519,7 @@ public class MetaContactChatSession
     /**
      * Returns the <tt>ChatSessionRenderer</tt> that provides the connection
      * between this chat session and its UI.
-     * 
+     *
      * @return The <tt>ChatSessionRenderer</tt>.
      */
     public ChatSessionRenderer getChatSessionRenderer()
@@ -529,7 +529,7 @@ public class MetaContactChatSession
 
     /**
      * Returns the descriptor of this chat session.
-     * 
+     *
      * @return the descriptor of this chat session.
      */
     public Object getDescriptor()
@@ -548,7 +548,8 @@ public class MetaContactChatSession
         if(metaContact == null)
             return false;
 
-        Contact defaultContact = metaContact.getDefaultContact();
+        Contact defaultContact = metaContact.getDefaultContact(
+                        OperationSetBasicInstantMessaging.class);
 
         if(defaultContact == null)
             return false;
@@ -578,7 +579,7 @@ public class MetaContactChatSession
 
     /**
      * Returns the ChatTransport corresponding to the given descriptor.
-     * 
+     *
      * @param descriptor The descriptor of the chat transport we're looking for.
      * @return The ChatTransport corresponding to the given descriptor.
      */
@@ -630,7 +631,7 @@ public class MetaContactChatSession
     {
         return false;
     }
-    
+
     public void addChatTransportChangeListener(ChatSessionChangeListener l)
     {
         synchronized (chatTransportChangeListeners)
@@ -639,7 +640,7 @@ public class MetaContactChatSession
                 chatTransportChangeListeners.add(l);
         }
     }
-    
+
     public void removeChatTransportChangeListener(ChatSessionChangeListener l)
     {
         synchronized (chatTransportChangeListeners)
