@@ -256,8 +256,10 @@ public class SearchChatRoomPanel
         if(namePanel.getChatRoomName().length() > 0)
         {
             Vector<String> newCRL = new Vector<String>();
-            for(String s : serverRooms)
-                if(s.startsWith(namePanel.getChatRoomName())) newCRL.add(s);
+            
+            if(serverRooms != null)
+                for(String s : serverRooms)
+                    if(s.startsWith(namePanel.getChatRoomName())) newCRL.add(s);
             
             chatRoomsList.setListData(newCRL);
         }
