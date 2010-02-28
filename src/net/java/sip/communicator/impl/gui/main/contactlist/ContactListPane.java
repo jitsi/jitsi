@@ -60,7 +60,7 @@ public class ContactListPane
     /**
      * Pseudo timer used to delay multiple typings notifications before
      * receiving the message.
-     * 
+     *
      * Time to live : 1 minute
      */
     private Map<Contact,Long> proactiveTimer = new HashMap<Contact, Long>();
@@ -157,7 +157,8 @@ public class ContactListPane
 
         // Searching for the right proto contact to use as default for the
         // chat conversation.
-        Contact defaultContact = metaContact.getDefaultContact();
+        Contact defaultContact = metaContact.getDefaultContact(
+                                    OperationSetBasicInstantMessaging.class);
 
         ProtocolProviderService defaultProvider
             = defaultContact.getProtocolProvider();
@@ -493,7 +494,7 @@ public class ContactListPane
     /**
      * When a request has been received we show it to the user through the
      * chat session renderer.
-     * 
+     *
      * @param event <tt>FileTransferRequestEvent</tt>
      * @see FileTransferListener#fileTransferRequestReceived(FileTransferRequestEvent)
      */
@@ -557,7 +558,7 @@ public class ContactListPane
      * Called when an <tt>IncomingFileTransferRequest</tt> has been canceled
      * from the contact who sent it.
      *
-     * @param event the <tt>FileTransferRequestEvent</tt> containing the 
+     * @param event the <tt>FileTransferRequestEvent</tt> containing the
      * request which was canceled.
      */
     public void fileTransferRequestCanceled(FileTransferRequestEvent event)
