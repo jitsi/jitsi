@@ -160,10 +160,7 @@ public class ChatRoomListDialog
         }
         else if (buttonName.equals(JOIN_CHAT_ROOM))
         {
-            JoinChatRoomWizard joinChatRoomWizard
-                = new JoinChatRoomWizard(mainFrame);
-
-            joinChatRoomWizard.showDialog(false);
+            new JoinChatRoomWindow();
         }
     }
 
