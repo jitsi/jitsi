@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.swing.*;
@@ -76,6 +77,11 @@ public class AccountStatusPanel
     private final TexturePaint texture;
 
     /**
+     * Container for plugins.
+     */
+    private final PluginContainer pluginContainer;
+
+    /**
      * Creates an instance of <tt>AccountStatusPanel</tt> by specifying the
      * main window, where this panel is added.
      * @param mainFrame the main window, where this panel is added
@@ -105,13 +111,27 @@ public class AccountStatusPanel
         // Align status combo box with account name field.
         statusComboBox.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
+        TransparentPanel statusToolsPanel
+            = new TransparentPanel(new BorderLayout());
+
         SIPCommMenuBar statusMenuBar = new SIPCommMenuBar();
         statusMenuBar.setLayout(new BorderLayout(0, 0));
         statusMenuBar.add(statusComboBox);
+        statusToolsPanel.add(statusMenuBar, BorderLayout.WEST);
 
-        Container rightPanel = new TransparentPanel(new GridLayout(0, 1, 0, 0));
+        TransparentPanel pluginPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        pluginContainer = new PluginContainer(
+            new TransparentPanel(new FlowLayout(FlowLayout.RIGHT)),
+            Container.CONTAINER_MAIN_TOOL_BAR);
+
+        statusToolsPanel.add(pluginPanel, BorderLayout.EAST);
+
+        TransparentPanel rightPanel
+            = new TransparentPanel(new GridLayout(0, 1, 0, 0));
         rightPanel.add(accountNameLabel);
-        rightPanel.add(statusMenuBar);
+        rightPanel.add(statusToolsPanel);
 
         this.add(accountImageLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);

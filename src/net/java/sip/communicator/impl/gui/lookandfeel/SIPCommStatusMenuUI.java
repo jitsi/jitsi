@@ -50,7 +50,7 @@ public class SIPCommStatusMenuUI
                 int menuHeight = menuItem.getHeight();
 
                 g.setColor(Color.LIGHT_GRAY);
-                g.fillRoundRect(0, 0, menuWidth, menuHeight, 8, 8);
+                g.fillRoundRect(0, 0, menuWidth, menuHeight, 20, 20);
             }
             finally
             {

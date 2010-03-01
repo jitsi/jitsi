@@ -86,7 +86,7 @@ public class MainToolBar
 
         pluginContainer
             = new PluginContainer(this, Container.CONTAINER_CHAT_TOOL_BAR);
-        
+
         this.messageWindow.addChatChangeListener(this);
     }
 

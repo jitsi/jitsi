@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.chat;
+package net.java.sip.communicator.impl.gui.utils;
 
 import java.awt.*;
 import java.util.*;

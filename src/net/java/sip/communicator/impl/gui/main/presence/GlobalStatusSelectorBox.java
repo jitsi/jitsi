@@ -150,7 +150,7 @@ public class GlobalStatusSelectorBox
         this.setToolTipText("<html><b>Set global status</b></html>");
         this.setUI(new SIPCommStatusMenuUI());
 
-        computeTextWidth();
+        fitSizeToText();
     }
 
     /**
@@ -569,7 +569,7 @@ public class GlobalStatusSelectorBox
         JMenuItem item = getItemFromStatus(status);
 
         setSelected(new SelectedObject(item.getText(), item.getIcon(), item));
-        computeTextWidth();
+        fitSizeToText();
 
         this.revalidate();
         setSystrayIcon(status);
@@ -827,16 +827,16 @@ public class GlobalStatusSelectorBox
      * Computes the width of the text in pixels in order to position the arrow
      * during its painting.
      */
-    private void computeTextWidth()
+    private void fitSizeToText()
     {
         String text = getText();
 
         textWidth
             = (text == null)
                 ? 0
-                : SwingUtilities
-                        .computeStringWidth(
-                            getFontMetrics(getFont()),
-                            text);
+                : GuiUtils.getStringWidth(this, text);
+
+        this.setPreferredSize(new Dimension(
+            textWidth + 2*IMAGE_INDENT + arrowImage.getWidth(null) + 5, 20));
     }
 }

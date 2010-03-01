@@ -172,7 +172,7 @@ public class SIPCommMenu
 
         g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
 
-        g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 10, 10);
+        g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 20, 20);
 
         g.setColor(UIManager.getColor("Menu.foreground"));
 
