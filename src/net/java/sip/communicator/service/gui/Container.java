@@ -46,7 +46,15 @@ public class Container
      * Main application window main toolbar container.
      */
     public static final Container CONTAINER_MAIN_TOOL_BAR 
-            = new Container("CONTAINER_MAIN_TOOL_BAR");
+        = new Container("CONTAINER_MAIN_TOOL_BAR");
+
+    /**
+     * The container added on the south of the account panel above the
+     * contact list.
+     */
+    public static final Container CONTAINER_ACCOUNT_SOUTH 
+        = new Container("CONTAINER_ACCOUNT_SOUTH");
+
     /**
      * Main application window main tabbedpane container.
      */

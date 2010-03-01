@@ -77,11 +77,6 @@ public class AccountStatusPanel
     private final TexturePaint texture;
 
     /**
-     * Container for plugins.
-     */
-    private final PluginContainer pluginContainer;
-
-    /**
      * Creates an instance of <tt>AccountStatusPanel</tt> by specifying the
      * main window, where this panel is added.
      * @param mainFrame the main window, where this panel is added
@@ -122,9 +117,7 @@ public class AccountStatusPanel
         TransparentPanel pluginPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        pluginContainer = new PluginContainer(
-            new TransparentPanel(new FlowLayout(FlowLayout.RIGHT)),
-            Container.CONTAINER_MAIN_TOOL_BAR);
+        new PluginContainer(pluginPanel, Container.CONTAINER_MAIN_TOOL_BAR);
 
         statusToolsPanel.add(pluginPanel, BorderLayout.EAST);
 
@@ -135,6 +128,15 @@ public class AccountStatusPanel
 
         this.add(accountImageLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
+
+        TransparentPanel southPluginPanel
+            = new TransparentPanel(new BorderLayout());
+
+        new PluginContainer(
+            new TransparentPanel(new BorderLayout()),
+            Container.CONTAINER_ACCOUNT_SOUTH);
+
+        this.add(southPluginPanel, BorderLayout.SOUTH);
 
         // texture
         BufferedImage bgImage
