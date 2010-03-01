@@ -133,7 +133,7 @@ public class AccountStatusPanel
             = new TransparentPanel(new BorderLayout());
 
         new PluginContainer(
-            new TransparentPanel(new BorderLayout()),
+            southPluginPanel,
             Container.CONTAINER_ACCOUNT_SOUTH);
 
         this.add(southPluginPanel, BorderLayout.SOUTH);
