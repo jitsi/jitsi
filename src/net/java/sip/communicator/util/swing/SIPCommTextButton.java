@@ -55,7 +55,7 @@ public class SIPCommTextButton extends JButton
          * Explicitly remove all borders that may be set from the current look
          * and feel.
          */
-        this.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 3));
+        this.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
         this.setContentAreaFilled(false);
         this.setUI(new BasicButtonUI());
     }
