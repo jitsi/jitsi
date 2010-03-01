@@ -28,8 +28,16 @@ public class SIPCommTextButton extends JButton
         = Color.DARK_GRAY.getRGBComponents(null);
 
     /**
+     * Creates a <tt>SIPCommTextButton</tt>.
+     */
+    public SIPCommTextButton()
+    {
+        this(null);
+    }
+
+    /**
      * Creates a <tt>SIPCommTextButton</tt>
-     * @param text
+     * @param text the text of the button
      */
     public SIPCommTextButton(String text)
     {
