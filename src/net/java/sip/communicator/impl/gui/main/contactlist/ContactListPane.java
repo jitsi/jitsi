@@ -404,7 +404,7 @@ public class ContactListPane
         else
         {
             errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_UNKNOWN_ERROR",
+                    "service.gui.MSG_DELIVERY_ERROR",
                     new String[]{evt.getReason()});
         }
 

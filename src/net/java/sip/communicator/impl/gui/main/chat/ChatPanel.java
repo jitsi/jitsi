@@ -1072,7 +1072,7 @@ public class ChatPanel
                     addErrorMessage(
                         chatSession.getCurrentChatTransport().getName(),
                         GuiActivator.getResources().getI18NString(
-                            "service.gui.MSG_DELIVERY_UNKNOWN_ERROR",
+                            "service.gui.MSG_DELIVERY_ERROR",
                             new String[]{ex.getMessage()}));
                 }
             }
@@ -1267,7 +1267,7 @@ public class ChatPanel
             this.addErrorMessage(
                 chatSession.getCurrentChatTransport().getName(),
                 GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_UNKNOWN_ERROR",
+                    "service.gui.MSG_DELIVERY_ERROR",
                     new String[]{ex.getMessage()}));
         }
 

@@ -159,7 +159,7 @@ public class SendSmsDialog
             chatPanel.addErrorMessage(
                 phoneNumber,
                 GuiActivator.getResources()
-                    .getI18NString("service.gui.MSG_DELIVERY_UNKNOWN_ERROR",
+                    .getI18NString("service.gui.MSG_DELIVERY_ERROR",
                     new String[]{ex.getMessage()}));
         }
         
