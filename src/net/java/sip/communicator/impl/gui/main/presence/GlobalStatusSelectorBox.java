@@ -145,6 +145,7 @@ public class GlobalStatusSelectorBox
         this.addSeparator();
 
         this.setIcon(offlineItem.getIcon());
+        this.setIconTextGap(2);
         this.setOpaque(false);
         this.setText("Offline");
         this.setToolTipText("<html><b>Set global status</b></html>");

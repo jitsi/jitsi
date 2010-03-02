@@ -107,10 +107,9 @@ public class AccountStatusPanel
         statusComboBox.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         TransparentPanel statusToolsPanel
-            = new TransparentPanel(new BorderLayout());
+            = new TransparentPanel(new BorderLayout(0, 0));
 
         SIPCommMenuBar statusMenuBar = new SIPCommMenuBar();
-        statusMenuBar.setLayout(new BorderLayout(0, 0));
         statusMenuBar.add(statusComboBox);
         statusToolsPanel.add(statusMenuBar, BorderLayout.WEST);
 
@@ -121,10 +120,11 @@ public class AccountStatusPanel
 
         statusToolsPanel.add(pluginPanel, BorderLayout.EAST);
 
-        TransparentPanel rightPanel
-            = new TransparentPanel(new GridLayout(0, 1, 0, 0));
-        rightPanel.add(accountNameLabel);
-        rightPanel.add(statusToolsPanel);
+        TransparentPanel rightPanel = new TransparentPanel();
+        rightPanel.setLayout(new BorderLayout(0, 0));
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
+        rightPanel.add(accountNameLabel, BorderLayout.NORTH);
+        rightPanel.add(statusToolsPanel, BorderLayout.SOUTH);
 
         this.add(accountImageLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
