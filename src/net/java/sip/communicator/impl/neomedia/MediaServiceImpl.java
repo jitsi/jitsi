@@ -484,6 +484,18 @@ public class MediaServiceImpl
      */
     public java.awt.Dimension getScreenSize()
     {
-        return java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        java.awt.Dimension res = null;
+
+        try
+        {
+            res = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+            res = null;
+        }
+        catch(NoClassDefFoundError e)
+        {
+            return null;
+        }
+        
+        return res;
     }
 }

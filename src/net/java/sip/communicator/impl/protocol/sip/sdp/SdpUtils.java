@@ -325,8 +325,10 @@ public class SdpUtils
         int len = 0;
         Pattern pSendSingle = Pattern.compile("send \\[x=[0-9]+,y=[0-9]+\\]");
         Pattern pRecvSingle = Pattern.compile("recv \\[x=[0-9]+,y=[0-9]+\\]");
-        Pattern pSendRange = Pattern.compile("send \\[x=\\[[0-9]+-[0-9]+\\],y=\\[[0-9]+-[0-9]+\\]\\]");
-        Pattern pRecvRange = Pattern.compile("recv \\[x=\\[[0-9]+-[0-9]+\\],y=\\[[0-9]+-[0-9]+\\]\\]");
+        Pattern pSendRange = Pattern.compile(
+                "send \\[x=\\[[0-9]+-[0-9]+\\],y=\\[[0-9]+-[0-9]+\\]\\]");
+        Pattern pRecvRange = Pattern.compile(
+                "recv \\[x=\\[[0-9]+-[0-9]+\\],y=\\[[0-9]+-[0-9]+\\]\\]");
         Pattern pNumeric = Pattern.compile("[0-9]+");
         Matcher mSingle = null; 
         Matcher mRange = null;
@@ -1356,7 +1358,8 @@ public class SdpUtils
              * basically peer can send any size and can 
              * receive image size up to its display screen size
              */
-            java.awt.Dimension screen = SipActivator.getMediaService().getScreenSize();
+            java.awt.Dimension screen = SipActivator.getMediaService().
+                getScreenSize();
             Attribute imgattr = createImageAttribute((byte)0, vformat, screen);
             mediaAttributes.add(imgattr);
         }
@@ -1494,11 +1497,22 @@ public class SdpUtils
      * @param maxRecvSize maximum size peer can display
      * @return image <tt>Attribute</tt>
      */
-    private static Attribute createImageAttribute(byte payloadType, VideoMediaFormat format, java.awt.Dimension maxRecvSize)
+    private static Attribute createImageAttribute(byte payloadType, 
+            VideoMediaFormat format, java.awt.Dimension maxRecvSize)
     {
         StringBuffer img = new StringBuffer("imageattr:");
-        java.awt.Dimension maxSendSize = format.getMaximumSize();
-        java.awt.Dimension minSendSize = format.getMinimumSize();
+        java.awt.Dimension maxSendSize = null;
+        java.awt.Dimension minSendSize = null;
+
+        if(format != null)
+        {
+            minSendSize = format.getMinimumSize();
+            maxSendSize = format.getMaximumSize();
+        }
+        else
+        {
+            maxSendSize = null;
+        }
 
         if(payloadType != 0)
         {

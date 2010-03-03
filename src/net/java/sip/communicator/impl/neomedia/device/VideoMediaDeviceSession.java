@@ -188,7 +188,9 @@ public class VideoMediaDeviceSession
          */
         if(outputSize != null)
         {
-            newFormat = new VideoFormat(tmp.getEncoding(), outputSize, tmp.getMaxDataLength(), tmp.getDataType(), tmp.getFrameRate());
+            newFormat = new VideoFormat(tmp.getEncoding(), outputSize, 
+                    tmp.getMaxDataLength(), tmp.getDataType(), 
+                    tmp.getFrameRate());
         }
 
         super.setFormat(processor, newFormat != null ? newFormat : format);

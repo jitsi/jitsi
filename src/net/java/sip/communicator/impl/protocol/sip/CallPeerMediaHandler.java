@@ -375,7 +375,8 @@ public class CallPeerMediaHandler
         
         newValue = videoDirectionUserPreference;
 
-        firePropertyChange(OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING, oldValue, newValue);
+        firePropertyChange(OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING, 
+                oldValue, newValue);
     }
 
     /**
@@ -831,14 +832,19 @@ public class CallPeerMediaHandler
         else
         {
             stream = this.videoStream;
-            Dimension deviceSize = ((VideoMediaFormat)device.getFormat()).getSize();
 
-            if((deviceSize != null && maxRecvSize != null) && 
-                    (maxRecvSize.width > 0 && maxRecvSize.height > 0) &&
-                    (deviceSize.width > maxRecvSize.width || 
-                    deviceSize.height > maxRecvSize.height))
+            if(device != null && device.getFormat() != null)
             {
-                size = maxRecvSize;
+                Dimension deviceSize = ((VideoMediaFormat)device.getFormat())
+                    .getSize();
+
+                if((deviceSize != null && maxRecvSize != null) && 
+                        (maxRecvSize.width > 0 && maxRecvSize.height > 0) &&
+                        (deviceSize.width > maxRecvSize.width || 
+                        deviceSize.height > maxRecvSize.height))
+                {
+                    size = maxRecvSize;
+                }
             }
         }
 
@@ -1433,7 +1439,8 @@ public class CallPeerMediaHandler
                 = devDirection.getDirectionForAnswer(remoteDirection);
 
             /* extract remote peer maximum supported resolution */
-            Dimension res[] = SdpUtils.extractSendRecvResolution(mediaDescription);
+            Dimension res[] = SdpUtils.extractSendRecvResolution(
+                    mediaDescription);
             if(res != null)
             {
                 maxSendSize = res[0];
