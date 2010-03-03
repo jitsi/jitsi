@@ -94,11 +94,16 @@ public class AboutWindow
         titleLabel.setForeground(Constants.TITLE_COLOR);
         titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        JLabel versionLabel =
-            new JLabel(" " + System.getProperty("sip-communicator.version"));
+        JTextField versionLabel
+            = new JTextField(" "
+                    + System.getProperty("sip-communicator.version"));
+        versionLabel.setBorder(null);
+        versionLabel.setOpaque(false);
+        versionLabel.setEditable(false);
         versionLabel.setFont(versionLabel.getFont().deriveFont(Font.BOLD, 18));
         versionLabel.setForeground(Constants.TITLE_COLOR);
         versionLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        versionLabel.setHorizontalAlignment(JTextField.RIGHT);
 
         int logoAreaFontSize
             = resources.getSettingsInt("plugin.branding.ABOUT_LOGO_FONT_SIZE");
