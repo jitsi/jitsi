@@ -767,6 +767,7 @@ public class CallManager
      */
     private static void stopAllSounds()
     {
+        NotificationManager.stopSound(NotificationManager.DIALING);
         NotificationManager.stopSound(NotificationManager.BUSY_CALL);
         NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
         NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);

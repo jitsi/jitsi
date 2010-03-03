@@ -69,6 +69,19 @@ public class CallPeerAdapter
 
         String newStateString = sourcePeer.getState().getStateString();
 
+        // Play the dialing audio when in connecting and initiating call state.
+        // Stop the dialing audio when we enter any other state.
+        if (newState == CallPeerState.INITIATING_CALL
+            || newState == CallPeerState.CONNECTING)
+        {
+            NotificationManager
+                .fireNotification(NotificationManager.DIALING);
+        }
+        else
+        {
+            NotificationManager.stopSound(NotificationManager.DIALING);
+        }
+
         if (newState == CallPeerState.ALERTING_REMOTE_SIDE)
         {
             NotificationManager

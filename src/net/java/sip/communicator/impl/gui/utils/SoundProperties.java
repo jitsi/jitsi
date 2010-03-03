@@ -50,6 +50,8 @@ public final class SoundProperties
 
     public static final String BUSY;
 
+    public static final String DIALING;
+
     public static final String CALL_SECURITY_ON;
 
     public static final String CALL_SECURITY_ERROR;
@@ -84,6 +86,7 @@ public final class SoundProperties
         DIAL_DIEZ = resources.getSoundPath("DIAL_DIEZ");
         DIAL_STAR = resources.getSoundPath("DIAL_STAR");
         BUSY = resources.getSoundPath("BUSY");
+        DIALING = resources.getSoundPath("DIAL");
         CALL_SECURITY_ON = resources.getSoundPath("CALL_SECURITY_ON");
         CALL_SECURITY_ERROR = resources.getSoundPath("CALL_SECURITY_ERROR");
     }

@@ -21,6 +21,8 @@ public class NotificationManager
     
     public static final String BUSY_CALL = "BusyCall";
     
+    public static final String DIALING = "Dialing";
+    
     public static final String PROACTIVE_NOTIFICATION = "ProactiveNotification";
     
     public static final String SECURITY_MESSAGE = "SecurityMessage";
@@ -89,6 +91,16 @@ public class NotificationManager
                 BUSY_CALL,
                 NotificationService.ACTION_SOUND,
                 busyCallSoundHandler);
+
+        // Register dial notifications.
+        SoundNotificationHandler dialSoundHandler
+            = notificationService
+                .createSoundNotificationHandler(SoundProperties.DIALING, 0);
+
+        notificationService.registerDefaultNotificationForEvent(
+                DIALING,
+                NotificationService.ACTION_SOUND,
+                dialSoundHandler);
 
         // Register proactive notifications.
         notificationService.registerDefaultNotificationForEvent(
