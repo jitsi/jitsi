@@ -112,4 +112,11 @@ public interface MediaService
      * @return ZrtpControl instance.
      */
     public ZrtpControl createZrtpControl();
+
+    /**
+     * Get the resolution of the screen.
+     *
+     * @return screen resolution
+     */
+    public java.awt.Dimension getScreenSize();
 }

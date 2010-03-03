@@ -70,4 +70,11 @@ public interface VideoMediaStream
      * <tt>VideoMediaStream</tt>
      */
     public void removeVideoListener(VideoListener listener);
+    
+    /**
+     * Set negociated output size.
+     *
+     * @param size output size of video stream
+     */
+    public void setOutputSize(Dimension size);
 }

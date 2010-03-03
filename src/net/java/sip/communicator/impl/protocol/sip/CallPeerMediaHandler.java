@@ -10,6 +10,8 @@ import java.awt.Component;
 import java.net.*;
 import java.util.*;
 
+import java.awt.Dimension; /* disambiguates java.awt.List and java.util.List */
+
 import javax.sdp.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
@@ -153,6 +155,16 @@ public class CallPeerMediaHandler
      * The RTP stream that this media handler uses to send video.
      */
     private VideoMediaStream videoStream = null;
+
+    /**
+     * Image size that remote peer can send.
+     */
+    private Dimension maxSendSize = null;
+
+    /**
+     * Image size that remote peer can receive
+     */
+    private Dimension maxRecvSize = null;
 
     /**
      * The last-known local SSRC of {@link #videoStream}.
@@ -672,6 +684,7 @@ public class CallPeerMediaHandler
                 {
                     MediaDescription md =
                         createMediaDescription(
+                                        dev.getFormat(),
                                         dev.getSupportedFormats(),
                                         getStreamConnector(mediaType),
                                         direction,
@@ -811,11 +824,23 @@ public class CallPeerMediaHandler
         throws OperationFailedException
     {
         MediaStream stream = null;
+        Dimension size = null; 
 
         if (device.getMediaType() == MediaType.AUDIO)
             stream = this.audioStream;
         else
+        {
             stream = this.videoStream;
+            Dimension deviceSize = ((VideoMediaFormat)device.getFormat()).getSize();
+
+            if((deviceSize != null && maxRecvSize != null) && 
+                    (maxRecvSize.width > 0 && maxRecvSize.height > 0) &&
+                    (deviceSize.width > maxRecvSize.width || 
+                    deviceSize.height > maxRecvSize.height))
+            {
+                size = maxRecvSize;
+            }
+        }
 
         if (stream == null)
         {
@@ -828,6 +853,12 @@ public class CallPeerMediaHandler
             else
                 stream = mediaService.createMediaStream(
                                             connector, device, control);
+
+            /* set negociated output size for video stream */
+            if(device.getMediaType() == MediaType.VIDEO)
+            {
+                ((VideoMediaStream)stream).setOutputSize(size);
+            }
         }
         else
         {
@@ -1163,6 +1194,7 @@ public class CallPeerMediaHandler
 
             // create the answer description
             answerDescriptions.add(createMediaDescription(
+                dev.getFormat(),
                 supportedFormats, connector,
                 direction, rtpExtensions));
 
@@ -1400,6 +1432,14 @@ public class CallPeerMediaHandler
             MediaDirection direction
                 = devDirection.getDirectionForAnswer(remoteDirection);
 
+            /* extract remote peer maximum supported resolution */
+            Dimension res[] = SdpUtils.extractSendRecvResolution(mediaDescription);
+            if(res != null)
+            {
+                maxSendSize = res[0];
+                maxRecvSize = res[1]; 
+            }
+
             // create the corresponding stream...
             initStream(connector, dev, supportedFormats.get(0), target,
                                 direction);
@@ -1424,6 +1464,7 @@ public class CallPeerMediaHandler
      * taking account the local streaming preference for the corresponding
      * media type.
      *
+     * @param captureFormat capture <tt>MediaFormat</tt> of the device.
      * @param formats the list of <tt>MediaFormats</tt> that we'd like to
      * advertise.
      * @param connector the <tt>StreamConnector</tt> that we will be using
@@ -1440,6 +1481,7 @@ public class CallPeerMediaHandler
      * <tt>MediaDescription</tt> fails for some reason.
      */
     private MediaDescription createMediaDescription(
+                                             MediaFormat captureFormat,
                                              List<MediaFormat>  formats,
                                              StreamConnector    connector,
                                              MediaDirection     direction,
@@ -1447,7 +1489,8 @@ public class CallPeerMediaHandler
         throws OperationFailedException
     {
         return SdpUtils.createMediaDescription(
-           formats, connector, direction, extensions,
+           captureFormat, formats, connector, 
+           direction, extensions,
            dynamicPayloadTypes, rtpExtensionsRegistry);
     }
 

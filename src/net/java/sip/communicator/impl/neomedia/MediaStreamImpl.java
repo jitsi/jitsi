@@ -59,7 +59,7 @@ public class MediaStreamImpl
      * The session with the <tt>MediaDevice</tt> this instance uses for both
      * capture and playback of media.
      */
-    private MediaDeviceSession deviceSession;
+    protected MediaDeviceSession deviceSession;
 
     /**
      * The <tt>PropertyChangeListener</tt> which listens to

@@ -49,6 +49,12 @@ public class VideoMediaStreamImpl
     private static boolean formatsRegisteredOnce = false;
 
     /**
+     * Negociated output size of the video stream.
+     * It may need to scale original capture device stream.
+     */
+    private Dimension outputSize = null;
+
+    /**
      * Selects the <tt>VideoFormat</tt> from the list of supported formats of a
      * specific video <tt>DataSource</tt> which has a size as close as possible
      * to a specific size and sets it as the format of the specified video
@@ -232,6 +238,35 @@ public class VideoMediaStreamImpl
         ZrtpControlImpl zrtpControl)
     {
         super(connector, device, zrtpControl);
+    }
+
+    /**
+     * Set negociated output size.
+     *
+     * @param size output size of video stream
+     */
+    public void setOutputSize(Dimension size)
+    {
+        outputSize = size;
+    }
+
+    /**
+     * Sets the <tt>MediaDevice</tt> that this stream should use to play back
+     * and capture media.
+     * <p>
+     * <b>Note</b>: Also resets any previous direction set with
+     * {@link #setDirection(MediaDirection)} to the direction of the specified
+     * <tt>MediaDevice</tt>.
+     * </p>
+     *
+     * @param device the <tt>MediaDevice</tt> that this stream should use to
+     * play back and capture media
+     * @see MediaStream#setDevice(MediaDevice)
+     */
+    public void setDevice(MediaDevice device)
+    {
+        super.setDevice(device);
+        ((VideoMediaDeviceSession)deviceSession).setOutputSize(outputSize);
     }
 
     /**

@@ -65,10 +65,21 @@ public class VideoMediaDeviceSession
      *
      * @param device the video <tt>MediaDevice</tt> the use of which by a
      * <tt>MediaStream</tt> is to be represented by the new instance
+     * @param outputSize output size of the video
      */
     public VideoMediaDeviceSession(AbstractMediaDevice device)
     {
         super(device);
+    }
+
+    /**
+     * Set output size of video.
+     *
+     * @param size output size
+     */
+    public void setOutputSize(Dimension size)
+    {
+        outputSize = size;
     }
 
     /**

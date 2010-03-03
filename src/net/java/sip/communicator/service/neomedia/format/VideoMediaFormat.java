@@ -26,4 +26,18 @@ public interface VideoMediaFormat
      * (in pixels) of this <tt>VideoMediaFormat</tt>.
      */
     public Dimension getSize();
+
+    /**
+     * Get maximum size.
+     *
+     * @return maximum supported size
+     */
+    public Dimension getMaximumSize();
+
+    /**
+     * Get minimum size.
+     *
+     * @return minimum size
+     */
+    public Dimension getMinimumSize();
 }

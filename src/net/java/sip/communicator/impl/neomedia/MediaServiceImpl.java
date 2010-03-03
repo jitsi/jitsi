@@ -476,4 +476,14 @@ public class MediaServiceImpl
     {
         return new ZrtpControlImpl();
     }
+    
+    /**
+     * Get the resolution of the screen.
+     *
+     * @return screen resolution
+     */
+    public java.awt.Dimension getScreenSize()
+    {
+        return java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+    }
 }

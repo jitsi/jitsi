@@ -10,12 +10,14 @@ import java.io.*;
 import java.net.*;
 import java.net.URI;
 import java.util.*;
+import java.util.regex.*;
 
 import javax.sdp.*;
 import javax.sip.header.ContentTypeHeader; // disambiguates MediaType
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -299,6 +301,142 @@ public class SdpUtils
         }
 
         return null;
+    }
+
+    /**
+     * Extracts and returns maximum resolution can receive from the image 
+     * attribute.
+     *
+     * @param mediaDesc the <tt>MediaDescription</tt> that we'd like to probe
+     * for maximum receive resolution.
+     * @return maximum resolution array (first element is send, second one is 
+     * recv). Elements could be null if image attribute is not present or if 
+     * resoluion is a wildcard.
+     */
+    @SuppressWarnings("unchecked") /* legacy code from jain-sdp */
+    public static java.awt.Dimension[] extractSendRecvResolution(
+                                           MediaDescription mediaDesc)
+    {
+        java.awt.Dimension res[] = new java.awt.Dimension[2];
+        String imgattr = null;
+        String token = null;
+        int idx = 0;
+        int idx2 = 0;
+        int len = 0;
+        Pattern pSendSingle = Pattern.compile("send \\[x=[0-9]+,y=[0-9]+\\]");
+        Pattern pRecvSingle = Pattern.compile("recv \\[x=[0-9]+,y=[0-9]+\\]");
+        Pattern pSendRange = Pattern.compile("send \\[x=\\[[0-9]+-[0-9]+\\],y=\\[[0-9]+-[0-9]+\\]\\]");
+        Pattern pRecvRange = Pattern.compile("recv \\[x=\\[[0-9]+-[0-9]+\\],y=\\[[0-9]+-[0-9]+\\]\\]");
+        Pattern pNumeric = Pattern.compile("[0-9]+");
+        Matcher mSingle = null; 
+        Matcher mRange = null;
+        Matcher m = null;
+        
+        try
+        {
+            imgattr = mediaDesc.getAttribute("imageattr");
+        }
+        catch (SdpParseException exc)
+        {
+            logger.debug("A funny thing just happened ...", exc);
+            return null;
+        }
+
+        if(imgattr == null)
+        {
+            return null;
+        }
+
+        /* resolution (width and height) can be on four forms
+         *
+         * - single value [x=1920,y=1200]
+         * - range of values [x=[800-1024],y=[600-768]]
+         * - fixed range of values [x=[800,1024],y=[600,768]]
+         * - range of values with step (here 32) [x=[800:32:1024],y=[600:32:768]]
+         *
+         * For the moment we only support the first two forms.
+         */
+       
+        /* send part */
+        mSingle = pSendSingle.matcher(imgattr);
+        mRange = pSendRange.matcher(imgattr);
+
+        if(mSingle.find())
+        {
+            int val[] = new int[2];
+            int i = 0;
+            token = imgattr.substring(mSingle.start(), mSingle.end());
+            m = pNumeric.matcher(token);
+
+            while(m.find() && i < 2)
+            {
+                val[i] = Integer.parseInt(token.substring(m.start(), m.end()));
+            }
+
+            res[0] = new java.awt.Dimension(val[0], val[1]);
+        }
+        else if(mRange.find()) /* try with range */ 
+        {
+            /* have two value for width and two for height (min-max) */
+            int val[]  = new int[4];
+            int i = 0;
+            token = imgattr.substring(mRange.start(), mRange.end());
+            m = pNumeric.matcher(token);
+
+            while(m.find() && i < 4)
+            {
+                val[i] = Integer.parseInt(token.substring(m.start(), m.end()));
+                i++;
+            }
+
+            res[0] = new java.awt.Dimension(val[1], val[3]);
+        }
+
+        /* recv part */
+        mSingle = pRecvSingle.matcher(imgattr);
+        mRange = pRecvRange.matcher(imgattr);
+
+        if(mSingle.find())
+        {
+            int val[] = new int[2];
+            int i = 0;
+            token = imgattr.substring(mSingle.start(), mSingle.end());
+            m = pNumeric.matcher(token);
+
+            while(m.find() && i < 2)
+            {
+                val[i] = Integer.parseInt(token.substring(m.start(), m.end()));
+            }
+            
+            res[1] = new java.awt.Dimension(val[0], val[1]);
+        }
+        else if(mRange.find()) /* try with range */
+        {
+            /* have two value for width and two for height (min-max) */
+            int val[]  = new int[4];
+            int i = 0;
+            token = imgattr.substring(mRange.start(), mRange.end());
+            m = pNumeric.matcher(token);
+            
+            while(m.find() && i < 4)
+            {
+                val[i] = Integer.parseInt(token.substring(m.start(), m.end()));
+                i++;
+            }
+            
+            res[1] = new java.awt.Dimension(val[1], val[3]);
+        }
+
+        token = null;
+        mSingle = null;
+        mRange = null;
+        m = null;
+        pRecvRange = null;
+        pSendSingle = null;
+        pRecvSingle = null;
+        pSendRange = null;
+        
+        return res;
     }
 
     /**
@@ -1109,6 +1247,7 @@ public class SdpUtils
      * description is determined via from the type of the first
      * <tt>MediaFormat</tt> in the <tt>formats</tt> list.
      *
+     * @param captureFormat capture <tt>MediaFormat</tt> of the device.
      * @param formats the list of formats that should be advertised in the newly
      * created <tt>MediaDescription</tt>.
      * @param connector the socket couple that will be used for the media stream
@@ -1131,6 +1270,7 @@ public class SdpUtils
      * some other reason.
      */
     public static MediaDescription createMediaDescription(
+                    MediaFormat                  captureFormat,
                     List<MediaFormat>            formats,
                     StreamConnector              connector,
                     MediaDirection               direction,
@@ -1204,6 +1344,21 @@ public class SdpUtils
             }
 
             payloadTypesArray[i] = payloadType;
+        }
+
+        /* image attribute */
+        if(mediaType == MediaType.VIDEO)
+        {
+            VideoMediaFormat vformat = (VideoMediaFormat)captureFormat;
+
+            /* one image attribute for all payload 
+             *
+             * basically peer can send any size and can 
+             * receive image size up to its display screen size
+             */
+            java.awt.Dimension screen = SipActivator.getMediaService().getScreenSize();
+            Attribute imgattr = createImageAttribute((byte)0, vformat, screen);
+            mediaAttributes.add(imgattr);
         }
 
         // rtcp: (only include it if different from the default (i.e. rtp + 1)
@@ -1327,6 +1482,87 @@ public class SdpUtils
         }
 
         return sdpFactory.createAttribute(dirStr, null);
+    }
+
+    /**
+     * Creates an <tt>Attribute</tt> instance for send/recv image negociation.
+     * 
+     * http://tools.ietf.org/html/draft-ietf-mmusic-image-attributes-04
+     *
+     * @param payloadType payload type
+     * @param format capture <tt>VideoMediaFormat</tt>
+     * @param maxRecvSize maximum size peer can display
+     * @return image <tt>Attribute</tt>
+     */
+    private static Attribute createImageAttribute(byte payloadType, VideoMediaFormat format, java.awt.Dimension maxRecvSize)
+    {
+        StringBuffer img = new StringBuffer("imageattr:");
+        java.awt.Dimension maxSendSize = format.getMaximumSize();
+        java.awt.Dimension minSendSize = format.getMinimumSize();
+
+        if(payloadType != 0)
+        {
+            img.append(payloadType);
+        }
+        else
+        {
+            img.append("*");
+        }
+
+        /* send width */
+        if(maxSendSize != null)
+        {
+            /* send [x=[min-max],y=[min-max]] */
+            if(maxSendSize.equals(minSendSize))
+            {
+                /* same size */
+                img.append(" send [x=");
+                img.append((int)maxSendSize.getWidth());
+                img.append(",y=");
+                img.append((int)maxSendSize.getHeight());
+                img.append("]");
+            }
+            else
+            {
+                /* range */
+                img.append(" send [x=[");
+                img.append((int)minSendSize.getWidth());
+                img.append("-");
+                img.append((int)maxSendSize.getWidth());
+                img.append("],y=[");
+                img.append((int)minSendSize.getHeight());
+                img.append("-");
+                img.append((int)maxSendSize.getHeight());
+                img.append("]]");
+            }
+        }
+        else
+        {
+            /* can send "all" sizes */
+            img.append(" send *");
+        }
+        
+        /* receive size */
+        if(maxRecvSize != null)
+        {
+            /* basically we can receive any size up to our 
+             * screen display size
+             */
+            
+            /* recv [x=[min-max],y=[min-max]] */
+            img.append(" recv [x=[0-");
+            img.append((int)maxRecvSize.getWidth());
+            img.append("],y=[0-");
+            img.append((int)maxRecvSize.getHeight());
+            img.append("]]");
+        }
+        else
+        {
+            /* accept all sizes */
+            img.append(" recv *");
+        }
+
+        return sdpFactory.createAttribute(img.toString(), null);
     }
 
     /**
