@@ -93,9 +93,10 @@ public class CallPeerMediaHandler
 
     /**
      * Determines whether or not streaming local video is currently enabled.
+     * Default is inactive so that default calls would be audio only.
      */
     private MediaDirection videoDirectionUserPreference
-        = MediaDirection.RECVONLY;
+        = MediaDirection.INACTIVE;
 
     /**
      * Determines whether or not streaming local audio is currently enabled.
@@ -372,10 +373,10 @@ public class CallPeerMediaHandler
 
         videoDirectionUserPreference
             = enabled ? MediaDirection.SENDRECV : MediaDirection.RECVONLY;
-        
+
         newValue = videoDirectionUserPreference;
 
-        firePropertyChange(OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING, 
+        firePropertyChange(OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING,
                 oldValue, newValue);
     }
 
@@ -825,7 +826,7 @@ public class CallPeerMediaHandler
         throws OperationFailedException
     {
         MediaStream stream = null;
-        Dimension size = null; 
+        Dimension size = null;
 
         if (device.getMediaType() == MediaType.AUDIO)
             stream = this.audioStream;
@@ -838,9 +839,9 @@ public class CallPeerMediaHandler
                 Dimension deviceSize = ((VideoMediaFormat)device.getFormat())
                     .getSize();
 
-                if((deviceSize != null && maxRecvSize != null) && 
+                if((deviceSize != null && maxRecvSize != null) &&
                         (maxRecvSize.width > 0 && maxRecvSize.height > 0) &&
-                        (deviceSize.width > maxRecvSize.width || 
+                        (deviceSize.width > maxRecvSize.width ||
                         deviceSize.height > maxRecvSize.height))
                 {
                     size = maxRecvSize;
@@ -1334,14 +1335,13 @@ public class CallPeerMediaHandler
                 neomediaEvent,
             Object sender)
     {
-        if (neomediaEvent
-                instanceof
-                    net.java.sip.communicator.service.neomedia.event.SizeChangeVideoEvent)
+        if (neomediaEvent instanceof net.java.sip.communicator.service
+                                          .neomedia.event.SizeChangeVideoEvent)
         {
             net.java.sip.communicator.service.neomedia.event.SizeChangeVideoEvent
                 neomediaSizeChangeEvent
-                    = (net.java.sip.communicator.service.neomedia.event.SizeChangeVideoEvent)
-                        neomediaEvent;
+                    = (net.java.sip.communicator.service.neomedia.event
+                                    .SizeChangeVideoEvent)neomediaEvent;
 
             return
                 new SizeChangeVideoEvent(
@@ -1406,7 +1406,7 @@ public class CallPeerMediaHandler
             {
                     closeStream(mediaType);
                     continue;
-            }            
+            }
             List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
                             mediaDescription, dynamicPayloadTypes);
 
@@ -1444,7 +1444,7 @@ public class CallPeerMediaHandler
             if(res != null)
             {
                 maxSendSize = res[0];
-                maxRecvSize = res[1]; 
+                maxRecvSize = res[1];
             }
 
             // create the corresponding stream...
@@ -1496,7 +1496,7 @@ public class CallPeerMediaHandler
         throws OperationFailedException
     {
         return SdpUtils.createMediaDescription(
-           captureFormat, formats, connector, 
+           captureFormat, formats, connector,
            direction, extensions,
            dynamicPayloadTypes, rtpExtensionsRegistry);
     }
@@ -2046,15 +2046,16 @@ public class CallPeerMediaHandler
      */
     public Component createLocalVisualComponent()
     {
-        return (videoStream == null || !isLocalVideoTransmissionEnabled()) ? null : videoStream.createLocalVisualComponent();
+        return (videoStream == null || !isLocalVideoTransmissionEnabled())
+            ? null : videoStream.createLocalVisualComponent();
     }
-              
+
     /**
      * Dispose local visual <tt>Component</tt> of the local peer.
      */
     public void disposeLocalVisualComponent()
     {
-        if(videoStream != null)  
+        if(videoStream != null)
         {
             videoStream.disposeLocalVisualComponent();
         }
