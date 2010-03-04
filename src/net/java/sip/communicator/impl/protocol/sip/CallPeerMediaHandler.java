@@ -859,16 +859,16 @@ public class CallPeerMediaHandler
             else
                 stream = mediaService.createMediaStream(
                                             connector, device, control);
-
-            /* set negociated output size for video stream */
-            if(device.getMediaType() == MediaType.VIDEO)
-            {
-                ((VideoMediaStream)stream).setOutputSize(size);
-            }
         }
         else
         {
             //this is a reinit
+        }
+
+        /* set negociated output size for video stream */
+        if(device != null && device.getMediaType() == MediaType.VIDEO)
+        {
+            ((VideoMediaStream)stream).setOutputSize(size);
         }
 
         return  configureAndStartStream(
