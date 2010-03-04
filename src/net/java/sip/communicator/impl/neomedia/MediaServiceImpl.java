@@ -489,7 +489,6 @@ public class MediaServiceImpl
         try
         {
             res = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-            res = null;
         }
         catch(NoClassDefFoundError e)
         {
