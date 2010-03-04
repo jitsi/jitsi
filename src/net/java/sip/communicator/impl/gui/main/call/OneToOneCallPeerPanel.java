@@ -851,7 +851,7 @@ public class OneToOneCallPeerPanel
 
         // Lay out the main Components of the UI.
         final Container contentPane = frame.getContentPane();
-        contentPane.setLayout(new FullScreenLayout(true));
+        contentPane.setLayout(new FullScreenLayout(false));
         if (buttonBar != null)
             contentPane.add(buttonBar, FullScreenLayout.SOUTH);
         if (center != null)
