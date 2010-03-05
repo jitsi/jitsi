@@ -6,16 +6,18 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import javax.sip.*;
-import javax.sip.message.*;
-import javax.sip.address.*;
-import javax.sip.header.*;
+import java.io.*;
 import java.text.*;
 import java.util.*;
-import java.io.*;
-import net.java.sip.communicator.util.*;
+
+import javax.sip.*;
+import javax.sip.address.*;
+import javax.sip.header.*;
+import javax.sip.message.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Handles OPTIONS requests by replying with an OK response containing
@@ -26,12 +28,18 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class ClientCapabilities
     extends MethodProcessorAdapter
 {
-    private static Logger logger = Logger.getLogger(ClientCapabilities.class);
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>ClientCapabilities</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(ClientCapabilities.class);
 
     /**
      * The protocol provider that created us.
      */
-    private ProtocolProviderServiceSipImpl provider = null;
+    private final ProtocolProviderServiceSipImpl provider;
 
     /**
      * The timer that runs the keep-alive task
@@ -53,8 +61,8 @@ public class ClientCapabilities
     public ClientCapabilities(ProtocolProviderServiceSipImpl protocolProvider)
     {
         this.provider = protocolProvider;
-        provider.registerMethodProcessor(Request.OPTIONS, this);
 
+        provider.registerMethodProcessor(Request.OPTIONS, this);
         provider.addRegistrationStateChangeListener(new RegistrationListener());
     }
 
@@ -72,32 +80,24 @@ public class ClientCapabilities
             optionsOK = provider.getMessageFactory().createResponse(
                 Response.OK, requestEvent.getRequest());
 
-            Iterator<String> supportedMethods
-                = provider.getSupportedMethods().iterator();
-
             //add to the allows header all methods that we support
-            while(supportedMethods.hasNext())
+            for (String method : provider.getSupportedMethods())
             {
-                String method = supportedMethods.next();
-
                 //don't support REGISTERs
-                if(method.equals(Request.REGISTER))
-                    continue;
-
-                optionsOK.addHeader(
-                    provider.getHeaderFactory().createAllowHeader(method));
+                if(!method.equals(Request.REGISTER))
+                    optionsOK.addHeader(
+                            provider.getHeaderFactory().createAllowHeader(
+                                    method));
             }
 
-            Iterator<String> events = provider.getKnownEventsList().iterator();
+            Iterable<String> knownEventsList = provider.getKnownEventsList();
 
-            synchronized (provider.getKnownEventsList())
+            synchronized (knownEventsList)
             {
-                while (events.hasNext()) {
-                    String event = events.next();
-
-                    optionsOK.addHeader(provider.getHeaderFactory()
-                            .createAllowEventsHeader(event));
-                }
+                for (String event : knownEventsList)
+                    optionsOK.addHeader(
+                            provider.getHeaderFactory().createAllowEventsHeader(
+                                    event));
             }
         }
         catch (ParseException ex)

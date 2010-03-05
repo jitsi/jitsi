@@ -2481,10 +2481,12 @@ public class ProtocolProviderServiceSipImpl
         //but the destination could only be known to our outbound proxy
         //if we have one. If this is the case replace the destination
         //address with that of the proxy.(report by Dan Bogos)
-        if(getOutboundProxy() != null)
+        InetSocketAddress outboundProxy = getOutboundProxy();
+
+        if(outboundProxy != null)
         {
             logger.trace("Will use proxy address");
-            destinationInetAddress = getOutboundProxy().getAddress();
+            destinationInetAddress = outboundProxy.getAddress();
         }
         else
         {
