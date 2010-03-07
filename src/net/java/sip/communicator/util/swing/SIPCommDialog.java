@@ -375,7 +375,7 @@ public abstract class SIPCommDialog
             }
 
             ensureOnScreenLocationAndSize();
-            
+
             JButton button = this.getRootPane().getDefaultButton();
 
             if(button != null)

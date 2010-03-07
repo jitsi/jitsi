@@ -42,7 +42,7 @@ public class ChatRoomNamePanel
         GuiActivator.getResources().getI18NString("service.gui.CREATE_CHAT_ROOM"));
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
+            .getImage(ImageLoader.ADD_CONTACT_CHAT_ICON)));
 
     private JPanel labelsPanel =
         new TransparentPanel(new GridLayout(0, 1, 10, 10));

@@ -62,7 +62,7 @@ public class SelectAccountPanel extends TransparentPanel
         = new TransparentPanel(new BorderLayout(5, 5));
     
     private final JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
+            .getImage(ImageLoader.ADD_CONTACT_CHAT_ICON)));
     
     private final SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
         GuiActivator.getResources()

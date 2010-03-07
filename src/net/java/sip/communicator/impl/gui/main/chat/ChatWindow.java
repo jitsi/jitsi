@@ -19,7 +19,6 @@ import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -1044,16 +1043,15 @@ public class ChatWindow
                 {
                     if(chatSession != null)
                     {
-                        AddContactWizard addCWizz = 
-                                new AddContactWizard(
-                                    GuiActivator.getUIService().getMainFrame(),
-                                    chatSession.getCurrentChatTransport()
-                                        .getName(),
-                                    chatSession.getCurrentChatTransport()
-                                            .getProtocolProvider()
-                                );
+                        AddContactDialog dialog
+                            = new AddContactDialog(
+                                    GuiActivator.getUIService().getMainFrame());
 
-                        addCWizz.setVisible(true);
+                        dialog.setSelectedAccount(
+                            chatSession.getCurrentChatTransport()
+                                .getProtocolProvider());
+
+                        dialog.setVisible(true);
                     }
                 }
             });

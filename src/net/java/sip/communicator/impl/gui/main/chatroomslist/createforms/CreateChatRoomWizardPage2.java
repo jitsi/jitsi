@@ -7,7 +7,6 @@
 
 package net.java.sip.communicator.impl.gui.main.chatroomslist.createforms;
 
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**
@@ -55,7 +54,7 @@ public class CreateChatRoomWizardPage2
      */
     public Object getBackPageIdentifier()
     {
-        return AddContactWizardPage1.IDENTIFIER;
+        return CreateChatRoomWizardPage1.IDENTIFIER;
     }
     
     /**

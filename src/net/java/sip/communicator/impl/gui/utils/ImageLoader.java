@@ -566,8 +566,8 @@ public class ImageLoader
     /**
      * The image used for decoration of the "Add contact" window.
      */
-    public static final ImageID ADD_CONTACT_WIZARD_ICON
-        = new ImageID("service.gui.icons.ADD_CONTACT_WIZARD_ICON");
+    public static final ImageID ADD_CONTACT_DIALOG_ICON
+        = new ImageID("service.gui.icons.ADD_CONTACT_DIALOG_ICON");
 
     /**
      * The image used for decoration of the "Add group" window.

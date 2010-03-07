@@ -111,7 +111,7 @@ public final class TrayMenuFactory
         add(trayMenu, createTrayMenuItem("settings", "service.gui.SETTINGS",
             "service.systray.CONFIGURE_ICON", listener, swing));
         add(trayMenu, createTrayMenuItem("addContact",
-            "service.gui.ADD_CONTACT",
+            "service.gui.ADD_CONTACT" + "...",
             "service.gui.icons.ADD_CONTACT_16x16_ICON", listener, swing));
         addSeparator(trayMenu);
         add(trayMenu, new StatusSubMenu(tray, swing).getMenu());

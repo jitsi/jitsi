@@ -39,7 +39,7 @@ public class CreateGroupDialog
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     private TransparentPanel buttonsPanel
-        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
 
     private TransparentPanel mainPanel
         = new TransparentPanel(new BorderLayout());
@@ -57,8 +57,6 @@ public class CreateGroupDialog
         super(mainFrame);
 
         this.clist = GuiActivator.getContactListService();
-
-        this.setSize(520, 250);
 
         this.init();
     }
@@ -86,7 +84,7 @@ public class CreateGroupDialog
         this.buttonsPanel.add(addButton);
         this.buttonsPanel.add(cancelButton);
 
-        this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 10));
+        this.mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         this.mainPanel.add(groupPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);

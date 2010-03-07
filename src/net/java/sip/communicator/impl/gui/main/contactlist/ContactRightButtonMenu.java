@@ -19,7 +19,6 @@ import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -58,10 +57,6 @@ public class ContactRightButtonMenu
     private static final String moveSubcontactString = GuiActivator.getResources()
         .getI18NString("service.gui.MOVE_SUBCONTACT");
 
-    private static final String addSubcontactString
-        = GuiActivator.getResources()
-            .getI18NString("service.gui.ADD_SUBCONTACT");
-
     private static final String removeContactString
         = GuiActivator.getResources()
             .getI18NString("service.gui.REMOVE_CONTACT");
@@ -89,13 +84,14 @@ public class ContactRightButtonMenu
     private final SIPCommMenu moveSubcontactMenu
         = new SIPCommMenu(moveSubcontactString);
 
-    private final SIPCommMenu addSubcontactMenu
-        = new SIPCommMenu(addSubcontactString);
-
     private final SIPCommMenu removeContactMenu
         = new SIPCommMenu(removeContactString);
 
     private final SIPCommMenu callContactMenu = new SIPCommMenu(callString);
+
+    private final JMenuItem addContactItem
+        = new JMenuItem(GuiActivator.getResources()
+            .getI18NString("service.gui.ADD_CONTACT") + "...");
 
     private final JMenuItem callItem = new JMenuItem(
         callString,
@@ -126,8 +122,6 @@ public class ContactRightButtonMenu
     private static final String moveToPrefix = "moveTo:";
 
     private static final String removeContactPrefix = "removeContact:";
-
-    private static final String addSubcontactPrefix = "addSubcontact:";
 
     private static final String moveSubcontactPrefix = "moveSubcontact:";
 
@@ -173,7 +167,7 @@ public class ContactRightButtonMenu
         this.moveToMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.GROUPS_16x16_ICON)));
 
-        this.addSubcontactMenu.setIcon(new ImageIcon(ImageLoader
+        this.addContactItem.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
 
         this.removeContactMenu.setIcon(new ImageIcon(ImageLoader
@@ -184,40 +178,6 @@ public class ContactRightButtonMenu
 
         this.callContactMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.CALL_16x16_ICON)));
-
-        //Initialize the addSubcontact menu.
-        Iterator<ProtocolProviderService> providers 
-                = mainFrame.getProtocolProviders();
-
-        if(providers.hasNext())
-        {
-            JLabel infoLabel = new JLabel(
-                GuiActivator.getResources()
-                    .getI18NString("service.gui.SELECT_ACCOUNT"));
-
-            infoLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
-            infoLabel.setFont(infoLabel.getFont().deriveFont(Font.BOLD));
-
-            this.addSubcontactMenu.add(infoLabel);
-            this.addSubcontactMenu.addSeparator();
-        }
-
-        while (providers.hasNext())
-        {
-            ProtocolProviderService pps = providers.next();
-
-            String protocolName = pps.getProtocolName();
-
-            ProviderAwareMenuItem menuItem 
-                = new ProviderAwareMenuItem(pps, 
-                    pps.getAccountID().getDisplayName(),
-                    ImageLoader.getAccountStatusImage(pps));
-
-            menuItem.setName(addSubcontactPrefix + protocolName);
-            menuItem.addActionListener(this);
-
-            this.addSubcontactMenu.add(menuItem);
-        }
 
         //Initialize moveTo menu.
         Iterator<MetaContactGroup> groups
@@ -333,7 +293,7 @@ public class ContactRightButtonMenu
 
         this.addSeparator();
 
-        this.add(addSubcontactMenu);
+        this.add(addContactItem);
 
         this.addSeparator();
 
@@ -351,7 +311,7 @@ public class ContactRightButtonMenu
         this.sendSmsItem.setName("sendSms");
         this.sendFileItem.setName("sendFile");
         this.moveToMenu.setName("moveToGroup");
-        this.addSubcontactMenu.setName("addSubcontact");
+        this.addContactItem.setName("addContact");
         this.renameContactItem.setName("renameContact");
         this.viewHistoryItem.setName("viewHistory");
 
@@ -361,6 +321,7 @@ public class ContactRightButtonMenu
         this.sendFileItem.addActionListener(this);
         this.renameContactItem.addActionListener(this);
         this.viewHistoryItem.addActionListener(this);
+        this.addContactItem.addActionListener(this);
 
         // Disable all menu items that do nothing.
         if (contactItem.getDefaultContact(OperationSetFileTransfer.class)
@@ -446,8 +407,8 @@ public class ContactRightButtonMenu
             .getI18nMnemonic("service.gui.SEND_FILE"));
         this.moveToMenu.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.MOVE_TO_GROUP"));
-        this.addSubcontactMenu.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic("service.gui.ADD_SUBCONTACT"));
+        this.addContactItem.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.ADD_CONTACT"));
         this.removeContactMenu.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.REMOVE_CONTACT"));
         this.renameContactItem.setMnemonic(GuiActivator.getResources()
@@ -469,24 +430,12 @@ public class ContactRightButtonMenu
         String itemName = menuItem.getName();
         Contact contact = null;
 
-        if (itemName.startsWith(addSubcontactPrefix))
+        if (itemName.equals(addContactItem.getName()))
         {
-            ProtocolProviderService pps
-                = ((ProviderAwareMenuItem)menuItem).getProvider();
+            AddContactDialog dialog
+                = new AddContactDialog(mainFrame, contactItem);
 
-            if(pps != null)
-            {
-                AddContactDialog dialog
-                    = new AddContactDialog(mainFrame, contactItem, pps);
-                Dimension screenSize
-                    = Toolkit.getDefaultToolkit().getScreenSize();
-
-                dialog
-                    .setLocation(
-                        screenSize.width/2 - 250,
-                        screenSize.height/2 - 100);
-                dialog.showDialog();
-            }
+            dialog.setVisible(true);
         }
         else if (itemName.equalsIgnoreCase("sendMessage"))
         {

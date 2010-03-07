@@ -14,7 +14,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -69,11 +68,11 @@ public class UnknownContactPanel
         {
             public void actionPerformed(ActionEvent e)
             {
-                AddContactWizard wizard
-                    = new AddContactWizard(parentWindow,
-                            parentWindow.getCurrentSearchText());
+                AddContactDialog dialog
+                    = new AddContactDialog(parentWindow);
 
-                wizard.showDialog(false);
+                dialog.setContactAddress(parentWindow.getCurrentSearchText());
+                dialog.setVisible(true);
             }
         });
 

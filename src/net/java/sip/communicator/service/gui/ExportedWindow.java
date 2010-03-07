@@ -15,21 +15,33 @@ package net.java.sip.communicator.service.gui;
  */
 public interface ExportedWindow
 {
-    /*
-     * WindowID-s
-     */    
+    /**
+     * The add contact window identifier.
+     */
     public static final WindowID ADD_CONTACT_WINDOW
         = new WindowID("AddContactWindow");
-    
+
+    /**
+     * The about window identifier.
+     */
     public static final WindowID ABOUT_WINDOW
         = new WindowID("AboutWindow");
-    
+
+    /**
+     * The chat window identifier.
+     */
     public static final WindowID CHAT_WINDOW
         = new WindowID("ChatWindow");
-    
+
+    /**
+     * The authentication window identifier.
+     */
     public static final WindowID AUTHENTICATION_WINDOW
         = new WindowID("AuthenticationWindow");
 
+    /**
+     * The main (contact list) window identifier.
+     */
     public static final WindowID MAIN_WINDOW
         = new WindowID("MainWindow");
 
@@ -40,7 +52,7 @@ public interface ExportedWindow
      * @return the WindowID corresponding to this window
      */
     public WindowID getIdentifier();
-    
+
     /**
      * Returns TRUE if the component is visible and FALSE otherwise.
      * 
@@ -48,7 +60,7 @@ public interface ExportedWindow
      * <code>false</code> otherwise.
      */
     public boolean isVisible();
-    
+
     /**
      * Returns TRUE if this component is currently the focused component,
      * FALSE - otherwise.
@@ -56,17 +68,18 @@ public interface ExportedWindow
      * FALSE - otherwise.
      */
     public boolean isFocused();
-    
+
     /**
      * Shows or hides this component.
+     * @param isVisible indicates whether to set this window visible or hide it
      */
     public void setVisible(boolean isVisible);
-    
+
     /**
      * Brings the focus to this window.
      */
     public void bringToFront();
-    
+
     /**
      * Resizes the window with the given width and height.
      * 
@@ -74,7 +87,7 @@ public interface ExportedWindow
      * @param height The new height.
      */
     public void setSize(int width, int height);
-    
+
     /**
      * Moves the window to the given coordinates.
      * 
@@ -82,23 +95,23 @@ public interface ExportedWindow
      * @param y The y coordinate.
      */
     public void setLocation(int x, int y);
-    
+
     /**
      * Minimizes the window.
      */
     public void minimize();
-    
+
     /**
      * Maximizes the window.
      */
     public void maximize();
-    
+
     /**
      * The source of the window
      * @return the source of the window
      */
     public Object getSource();
-    
+
     /**
      * This method can be called to pass any params to the exported window. This
      * method will be automatically called by

@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms;
 
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**
@@ -69,7 +68,7 @@ public class JoinChatRoomWizardPage2
      */
     public Object getBackPageIdentifier()
     {
-        return AddContactWizardPage1.IDENTIFIER;
+        return JoinChatRoomWizardPage1.IDENTIFIER;
     }
     
     /**

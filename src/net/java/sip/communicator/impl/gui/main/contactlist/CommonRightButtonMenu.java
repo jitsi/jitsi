@@ -12,7 +12,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
@@ -27,7 +26,8 @@ public class CommonRightButtonMenu extends JPopupMenu
     implements ActionListener
 {
     private final JMenuItem addContactItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"),
+        GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"
+            + "..."),
         new ImageIcon(ImageLoader.getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
 
     private final JMenuItem createGroupItem = new JMenuItem(
@@ -76,9 +76,9 @@ public class CommonRightButtonMenu extends JPopupMenu
         }
         else if(item.equals(addContactItem))
         {
-            AddContactWizard wizard = new AddContactWizard(mainFrame);
+            AddContactDialog dialog = new AddContactDialog(mainFrame);
 
-            wizard.setVisible(true);
+            dialog.setVisible(true);
         }
     }
 }

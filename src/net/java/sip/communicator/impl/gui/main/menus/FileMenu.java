@@ -16,7 +16,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
@@ -55,7 +55,7 @@ public class FileMenu
         JMenuItem newAccountMenuItem = new JMenuItem(
             resources.getI18NString("service.gui.NEW_ACCOUNT"));
         JMenuItem addContactItem = new JMenuItem(
-            resources.getI18NString("service.gui.ADD_CONTACT"),
+            resources.getI18NString("service.gui.ADD_CONTACT") + "...",
             new ImageIcon(ImageLoader.getImage(
                 ImageLoader.ADD_CONTACT_16x16_ICON)));
         JMenuItem createGroupItem = new JMenuItem(
@@ -126,9 +126,9 @@ public class FileMenu
         }
         else if (itemName.equals("addContact"))
         {
-            AddContactWizard wizard = new AddContactWizard(parentWindow);
+            AddContactDialog dialog = new AddContactDialog(parentWindow);
 
-            wizard.showDialog(false);
+            dialog.setVisible(true);
         }
         else if (itemName.equals("createGroup"))
         {

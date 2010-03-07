@@ -15,7 +15,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -402,14 +402,12 @@ public class ExtendedMainToolBar
         {
             if(currentChatContact != null)
             {
-                AddContactWizard addCWizz = 
-                        new AddContactWizard(
-                            GuiActivator.getUIService().getMainFrame(),
-                            currentChatContact.getAddress(),
-                            currentChatContact.getProtocolProvider()
-                        );
+                AddContactDialog dialog = 
+                        new AddContactDialog(
+                            GuiActivator.getUIService().getMainFrame());
 
-                addCWizz.setVisible(true);
+                dialog.setContactAddress(currentChatContact.getAddress());
+                dialog.setVisible(true);
             }
         }
         else if (buttonText.equalsIgnoreCase("settings"))

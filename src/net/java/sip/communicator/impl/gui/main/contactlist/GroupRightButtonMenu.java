@@ -7,21 +7,17 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -38,9 +34,9 @@ public class GroupRightButtonMenu
 {
     private final Logger logger = Logger.getLogger(GroupRightButtonMenu.class);
 
-    private final SIPCommMenu addContactMenu =
-        new SIPCommMenu(GuiActivator.getResources().getI18NString(
-            "service.gui.ADD_CONTACT"));
+    private final JMenuItem addContactItem =
+        new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.ADD_CONTACT") + "...");
 
     private final JMenuItem removeGroupItem =
         new JMenuItem(GuiActivator.getResources().getI18NString(
@@ -67,42 +63,17 @@ public class GroupRightButtonMenu
         this.group = group;
         this.mainFrame = mainFrame;
 
-        this.addContactMenu.setIcon(new ImageIcon(ImageLoader
+        this.addContactItem.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
 
-        this.add(addContactMenu);
-
-        Iterator<ProtocolProviderService> providers
-            = mainFrame.getProtocolProviders();
-
-        while (providers.hasNext())
-        {
-            ProtocolProviderService pps = providers.next();
-
-            boolean isHidden =
-                pps.getAccountID().getAccountProperty(
-                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
-
-            if (isHidden)
-                continue;
-
-            String protocolName = pps.getProtocolName();
-
-            AccountMenuItem menuItem =
-                new AccountMenuItem(pps, ImageLoader.getAccountStatusImage(pps));
-
-            menuItem.setName(protocolName);
-            menuItem.addActionListener(this);
-
-            this.addContactMenu.add(menuItem);
-        }
+        this.add(addContactItem);
 
         this.addSeparator();
 
         this.add(renameGroupItem);
         this.add(removeGroupItem);
 
-        this.addContactMenu.setMnemonic(GuiActivator.getResources()
+        this.addContactItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.ADD_CONTACT"));
 
         this.renameGroupItem.setMnemonic(GuiActivator.getResources()
@@ -111,6 +82,7 @@ public class GroupRightButtonMenu
         this.removeGroupItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.REMOVE_GROUP"));
 
+        this.addContactItem.addActionListener(this);
         this.renameGroupItem.addActionListener(this);
         this.removeGroupItem.addActionListener(this);
 
@@ -191,19 +163,14 @@ public class GroupRightButtonMenu
 
             dialog.requestFocusInFiled();
         }
-        else if (item instanceof AccountMenuItem)
+        else if (item.equals(addContactItem))
         {
-            ProtocolProviderService pps =
-                ((AccountMenuItem) item).getProtocolProvider();
+            AddContactDialog dialog
+                = new AddContactDialog(mainFrame);
 
-            AddContactDialog dialog =
-                new AddContactDialog(mainFrame, group, pps);
+            dialog.setSelectedGroup(group);
 
-            dialog.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 250,
-                Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 100);
-
-            dialog.showDialog();
+            dialog.setVisible(true);
         }
     }
 
@@ -247,28 +214,6 @@ public class GroupRightButtonMenu
             .equals(Container.CONTAINER_GROUP_RIGHT_BUTTON_MENU))
         {
             this.remove((Component) c.getComponent());
-        }
-    }
-
-    /**
-     * The <tt>AccountMenuItem</tt> is a <tt>JMenuItem</tt> that stores a
-     * <tt>ProtocolProviderService</tt> in it.
-     */
-    private static class AccountMenuItem
-        extends JMenuItem
-    {
-        private final ProtocolProviderService pps;
-
-        public AccountMenuItem(ProtocolProviderService pps, Icon icon)
-        {
-            super(pps.getAccountID().getDisplayName(), icon);
-
-            this.pps = pps;
-        }
-
-        public ProtocolProviderService getProtocolProvider()
-        {
-            return pps;
         }
     }
 }

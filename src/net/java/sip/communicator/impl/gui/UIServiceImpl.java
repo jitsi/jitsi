@@ -22,7 +22,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.addcontact.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -390,7 +390,7 @@ public class UIServiceImpl
      */
     public void initExportedWindows()
     {
-        registerExportedWindow(new AddContactWizardExportedWindow(mainFrame));
+        registerExportedWindow(new AddContactDialog(mainFrame));
         registerExportedWindow(new AuthenticationExportedWindow(mainFrame));
     }
 

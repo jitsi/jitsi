@@ -55,23 +55,23 @@ public class CreateGroupPanel
      */
     public CreateGroupPanel()
     {
-        super(new BorderLayout());
-        
-        this.setPreferredSize(new Dimension(650, 300));
-        
-        this.iconLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 10));
-        
+        super(new BorderLayout(20, 20));
+
+        this.setPreferredSize(new Dimension(400, 200));
+
+        this.iconLabel.setVerticalAlignment(JLabel.TOP);
+
         this.infoLabel.setEditable(false);
 
         this.dataPanel.add(uinLabel, BorderLayout.WEST);
-        
+
         this.dataPanel.add(textField, BorderLayout.CENTER);
-        
+
         this.infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);
 
         Font font = infoTitleLabel.getFont();
         infoTitleLabel.setFont(font.deriveFont(Font.BOLD, font.getSize2D() + 6));
-        
+
         this.labelsPanel.add(infoTitleLabel);
         this.labelsPanel.add(infoLabel);
         this.labelsPanel.add(dataPanel);
@@ -84,7 +84,7 @@ public class CreateGroupPanel
         this.add(iconLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
     }
-    
+
     /**
      * Returns the string identifier entered by user.
      * @return the string identifier entered by user

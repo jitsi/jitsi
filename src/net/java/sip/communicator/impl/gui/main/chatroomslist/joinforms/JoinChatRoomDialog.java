@@ -35,7 +35,7 @@ public class JoinChatRoomDialog
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
     
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
-        .getImage(ImageLoader.ADD_CONTACT_WIZARD_ICON)));
+        .getImage(ImageLoader.ADD_CONTACT_CHAT_ICON)));
 
     private JPanel buttonsPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
