@@ -48,7 +48,8 @@ public final class TrayMenuFactory
 
         if (itemName.equals("settings"))
         {
-            OsDependentActivator.getUIService().setConfigurationWindowVisible(true);
+            OsDependentActivator.getUIService()
+                .setConfigurationWindowVisible(true);
         }
         else if (itemName.equals("service.gui.CLOSE"))
         {
@@ -111,7 +112,7 @@ public final class TrayMenuFactory
         add(trayMenu, createTrayMenuItem("settings", "service.gui.SETTINGS",
             "service.systray.CONFIGURE_ICON", listener, swing));
         add(trayMenu, createTrayMenuItem("addContact",
-            "service.gui.ADD_CONTACT" + "...",
+            "service.gui.ADD_CONTACT",
             "service.gui.icons.ADD_CONTACT_16x16_ICON", listener, swing));
         addSeparator(trayMenu);
         add(trayMenu, new StatusSubMenu(tray, swing).getMenu());
@@ -133,7 +134,8 @@ public final class TrayMenuFactory
         Object trayMenuItem;
         if (swing)
         {
-            JMenuItem menuItem = new JMenuItem(text, Resources.getImage(iconID));
+            JMenuItem menuItem = 
+                new JMenuItem(text, Resources.getImage(iconID));
             menuItem.setName(name);
             menuItem.addActionListener(listener);
             trayMenuItem = menuItem;
