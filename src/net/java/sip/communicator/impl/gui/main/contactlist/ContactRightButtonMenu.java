@@ -89,9 +89,7 @@ public class ContactRightButtonMenu
 
     private final SIPCommMenu callContactMenu = new SIPCommMenu(callString);
 
-    private final JMenuItem addContactItem
-        = new JMenuItem(GuiActivator.getResources()
-            .getI18NString("service.gui.ADD_CONTACT") + "...");
+    private final JMenuItem addContactItem = new JMenuItem();
 
     private final JMenuItem callItem = new JMenuItem(
         callString,
@@ -164,6 +162,10 @@ public class ContactRightButtonMenu
      */
     private void init()
     {
+        addContactItem.setText(GuiActivator.getResources()
+            .getI18NString("service.gui.ADD_CONTACT_TO")
+                + " " + contactItem.getDisplayName());
+
         this.moveToMenu.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.GROUPS_16x16_ICON)));
 

@@ -96,11 +96,10 @@ public class AddContactDialog
         this.metaContact = metaContact;
 
         this.setSelectedGroup(metaContact.getParentMetaContactGroup());
+        this.groupCombo.setEnabled(false);
 
         this.setTitle(GuiActivator.getResources()
-                        .getI18NString("service.gui.ADD_CONTACT")
-                        + " " + GuiActivator.getResources()
-                         .getI18NString("service.gui.TO")
+                        .getI18NString("service.gui.ADD_CONTACT_TO")
                          + " " + metaContact.getDisplayName());
 
     }
@@ -178,7 +177,7 @@ public class AddContactDialog
         this.getContentPane().add(mainPanel, BorderLayout.NORTH);
         this.getContentPane().add(createButtonsPanel(), BorderLayout.SOUTH);
 
-        this.setPreferredSize(new Dimension(400, 200));
+        this.setPreferredSize(new Dimension(450, 200));
     }
 
     /**
