@@ -84,15 +84,18 @@ public class AddContactDialog
     }
 
     /**
-     * 
-     * @param mainFrame
-     * @param metaContact
+     * Creates an <tt>AddContactDialog</tt> by specifying the parent window and
+     * a meta contact, to which to add the new contact.
+     * @param parentWindow the parent window
+     * @param metaContact the meta contact, to which to add the new contact
      */
-    public AddContactDialog(MainFrame mainFrame, MetaContact metaContact)
+    public AddContactDialog(MainFrame parentWindow, MetaContact metaContact)
     {
-        this(mainFrame);
+        this(parentWindow);
 
         this.metaContact = metaContact;
+
+        this.setSelectedGroup(metaContact.getParentMetaContactGroup());
 
         this.setTitle(GuiActivator.getResources()
                         .getI18NString("service.gui.ADD_CONTACT")
