@@ -32,7 +32,7 @@ public class MailboxConfigurationPanel
     private JFileChooser  jfcOutgoingMessage = new JFileChooser();
 
     private JButton jbtnOutgoingMessage
-        = new JButton(Resources.getString("plugin.mailbox.BROWSE"));
+        = new JButton(Resources.getString("service.gui.BROWSE"));
 
     private JTextField jtfOutgoingMessage = new JTextField();
 
@@ -45,7 +45,7 @@ public class MailboxConfigurationPanel
     private JFileChooser  jfcIncomingMessage = new JFileChooser();
 
     private JButton jbtnIncomingMessage
-        = new JButton(Resources.getString("plugin.mailbox.BROWSE"));
+        = new JButton(Resources.getString("service.gui.BROWSE"));
 
     private JTextField jtfIncomingMessage = new JTextField();
 

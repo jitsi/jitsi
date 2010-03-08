@@ -51,8 +51,8 @@ public class StatusSimpleSelector
         updateStatus();
 
         /* the menu itself */
-        createMenuItem("impl.systray.ONLINE_STATUS", "online");
-        createMenuItem("impl.systray.OFFLINE_STATUS", "offline");
+        createMenuItem("service.gui.ONLINE", "online");
+        createMenuItem("service.gui.OFFLINE", "offline");
     }
 
     private void createMenuItem(String textKey, String name)
