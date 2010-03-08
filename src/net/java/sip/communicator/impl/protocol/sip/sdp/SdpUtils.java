@@ -1351,16 +1351,20 @@ public class SdpUtils
         /* image attribute */
         if(mediaType == MediaType.VIDEO)
         {
-            VideoMediaFormat vformat = (VideoMediaFormat)captureFormat;
-
             /* one image attribute for all payload 
              *
              * basically peer can send any size and can 
              * receive image size up to its display screen size
              */
-            java.awt.Dimension screen = SipActivator.getMediaService().
-                getScreenSize();
-            Attribute imgattr = createImageAttribute((byte)0, vformat, screen);
+            ScreenDevice screen = SipActivator.getMediaService().getDefaultScreenDevice();
+            java.awt.Dimension res = null;
+            
+            if(screen != null)
+            {
+                res = screen.getSize();
+            }
+            
+            Attribute imgattr = createImageAttribute((byte)0, null, res);
             mediaAttributes.add(imgattr);
         }
 
@@ -1498,22 +1502,10 @@ public class SdpUtils
      * @return image <tt>Attribute</tt>
      */
     private static Attribute createImageAttribute(byte payloadType, 
-            VideoMediaFormat format, java.awt.Dimension maxRecvSize)
+            java.awt.Dimension sendSize, java.awt.Dimension maxRecvSize)
     {
         StringBuffer img = new StringBuffer("imageattr:");
-        java.awt.Dimension maxSendSize = null;
-        java.awt.Dimension minSendSize = null;
-
-        if(format != null)
-        {
-            minSendSize = format.getMinimumSize();
-            maxSendSize = format.getMaximumSize();
-        }
-        else
-        {
-            maxSendSize = null;
-        }
-
+     
         if(payloadType != 0)
         {
             img.append(payloadType);
@@ -1524,21 +1516,18 @@ public class SdpUtils
         }
 
         /* send width */
-        if(maxSendSize != null)
+        if(sendSize != null)
         {
-            /* send [x=[min-max],y=[min-max]] */
-            if(maxSendSize.equals(minSendSize))
-            {
-                /* same size */
-                img.append(" send [x=");
-                img.append((int)maxSendSize.getWidth());
-                img.append(",y=");
-                img.append((int)maxSendSize.getHeight());
-                img.append("]");
-            }
+            /* single value => send [x=width,y=height] */
+            img.append(" send [x=");
+            img.append((int)sendSize.getWidth());
+            img.append(",y=");
+            img.append((int)sendSize.getHeight());
+            img.append("]");
+            /*
             else
             {
-                /* range */
+                // range
                 img.append(" send [x=[");
                 img.append((int)minSendSize.getWidth());
                 img.append("-");
@@ -1549,6 +1538,7 @@ public class SdpUtils
                 img.append((int)maxSendSize.getHeight());
                 img.append("]]");
             }
+            */
         }
         else
         {

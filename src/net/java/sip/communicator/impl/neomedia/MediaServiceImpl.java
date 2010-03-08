@@ -478,23 +478,47 @@ public class MediaServiceImpl
     }
     
     /**
-     * Get the resolution of the screen.
-     *
-     * @return screen resolution
+     * Get available screens.
+     * 
+     * @return screens
      */
-    public java.awt.Dimension getScreenSize()
+    public List<ScreenDevice> getAvailableScreenDevices()
     {
-        java.awt.Dimension res = null;
-
-        try
-        {
-            res = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        }
-        catch(NoClassDefFoundError e)
-        {
-            return null;
-        }
+      List<ScreenDevice> ret = new ArrayList<ScreenDevice>();
+        ScreenDevice screens[] = ScreenDeviceImpl.getAvailableScreenDevice();
         
-        return res;
+        /* populates screen list */
+        for(ScreenDevice sc : screens)
+        {
+            ret.add(sc);
+        }
+        return ret;
+    }
+    
+    /**
+     * Get default screen device.
+     *
+     * @return default screen device
+     */
+    public ScreenDevice getDefaultScreenDevice()
+    {
+      List<ScreenDevice> screens = getAvailableScreenDevices();
+      ScreenDevice best = null;
+      int width = 0;
+      int height = 0;
+      
+      for(ScreenDevice sc : screens)
+      {
+        java.awt.Dimension res = sc.getSize();
+        
+        if(width < res.getSize().width || height < res.getSize().height)
+        {
+          width = res.width;
+          height = res.height;
+          best = sc;
+        }
+      }
+      
+      return best;
     }
 }

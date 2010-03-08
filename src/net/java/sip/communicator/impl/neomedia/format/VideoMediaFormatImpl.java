@@ -185,29 +185,6 @@ public class VideoMediaFormatImpl
     }
 
     /**
-     * Get maximum size.
-     *
-     * @return maximum supported size
-     */
-    public Dimension getMaximumSize()
-    {
-        return format.getSize();
-    }
-
-    /**
-     * Get minimum size.
-     *
-     * @return minimum size
-     */
-    public Dimension getMinimumSize()
-    {
-        Dimension res = format.getSize();
-
-        /* allow a minimum size up to 6 times less than original size */
-        return new Dimension(res.width / 6, res.height / 6);
-    }
-    
-    /**
      * Overrides <tt>MediaFormatImpl#hashCode()</tt> because
      * <tt>Object#equals(Object)</tt> is overridden.
      *

@@ -114,9 +114,16 @@ public interface MediaService
     public ZrtpControl createZrtpControl();
 
     /**
-     * Get the resolution of the screen.
-     *
-     * @return screen resolution
+     * Get available <tt>ScreenDevice</tt>s.
+     * 
+     * @return screens
      */
-    public java.awt.Dimension getScreenSize();
+    public List<ScreenDevice> getAvailableScreenDevices();
+    
+    /**
+     * Get default <tt>ScreenDevice</tt> device.
+     *
+     * @return default screen device
+     */
+    public ScreenDevice getDefaultScreenDevice();
 }
