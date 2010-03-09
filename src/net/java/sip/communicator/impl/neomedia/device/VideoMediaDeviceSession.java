@@ -12,11 +12,13 @@ import javax.media.*;
 import javax.media.format.*;
 import javax.media.control.*;
 import javax.media.protocol.*;
+import javax.swing.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -35,6 +37,14 @@ public class VideoMediaDeviceSession
      */
     private static final Logger logger
         = Logger.getLogger(VideoMediaDeviceSession.class);
+
+    /**
+     * The image ID of the icon which is to be displayed as the local visual
+     * <tt>Component</tt> depicting the streaming of the desktop of the local
+     * peer to the remote peer.
+     */
+    private static final String DESKTOP_STREAMING_ICON
+        = "impl.media.DESKTOP_STREAMING_ICON";
 
     /**
      * The facility which aids this instance in managing a list of
@@ -154,8 +164,8 @@ public class VideoMediaDeviceSession
             }
 
             /*
-             * FIXME Cloning a Desktop streaming capture device no longer works
-             * since it becames a PullBufferCaptureDevice
+             * FIXME Cloning a Desktop streaming CaptureDevice no longer works
+             * since it became a PullBufferCaptureDevice.
              */
             if (!ImageStreamingUtils.LOCATOR_PROTOCOL.equals(protocol))
             {
@@ -370,27 +380,142 @@ public class VideoMediaDeviceSession
     }
 
     /**
-     * Gets local visual <tt>Component</tt> of the local peer.
+     * Creates the visual <tt>Component</tt> depicting the video being streamed
+     * from the local peer to the remote peer.
      *
-     * @return visual <tt>Component</tt>
+     * @return the visual <tt>Component</tt> depicting the video being streamed
+     * from the local peer to the remote peer if it was immediately created or
+     * <tt>null</tt> if it was not immediately created and it is to be delivered
+     * to the currently registered <tt>VideoListener</tt>s in a
+     * <tt>VideoEvent</tt> with type {@link VideoEvent#VIDEO_ADDED} and origin
+     * {@link VideoEvent#LOCAL}
      */
     public Component createLocalVisualComponent()
     {
-        Player player = getLocalPlayer();
+        /*
+         * Displaying the currently streamed desktop is perceived as unnecessary
+         * because the user sees the whole desktop anyway. Instead, a static
+         * image will be presented.
+         */
+        DataSource captureDevice = getCaptureDevice();
+
+        if (captureDevice != null)
+        {
+            MediaLocator locator = captureDevice.getLocator();
+
+            if ((locator != null)
+                    && ImageStreamingUtils.LOCATOR_PROTOCOL
+                            .equals(locator.getProtocol()))
+                return createLocalVisualComponentForDesktopStreaming();
+        }
+
+        /*
+         * The visual Component to depict the video being streamed from the
+         * local peer to the remote peer is created by JMF and its Player so it
+         * is likely to take noticeably long time. Consequently, we will deliver
+         * it to the currently registered VideoListeners in a VideoEvent after
+         * returning from the call.
+         */
+        getLocalPlayer();
         return null;
     }
 
     /**
-     * Dispose local visual <tt>Component</tt> of the local peer.
+     * Creates the visual <tt>Component</tt> to depict the streaming of the
+     * desktop of the local peer to the remote peer.
+     *
+     * @return the visual <tt>Component</tt> to depict the streaming of the
+     * desktop of the local peer to the remote peer
+     */
+    private Component createLocalVisualComponentForDesktopStreaming()
+    {
+        ResourceManagementService resources = NeomediaActivator.getResources();
+        ImageIcon icon = resources.getImage(DESKTOP_STREAMING_ICON);
+        Canvas canvas;
+
+        if (icon == null)
+            canvas = null;
+        else
+        {
+            final Image img = icon.getImage();
+
+            canvas = new Canvas()
+            {
+                @Override
+                public void paint(Graphics g)
+                {
+                    int width = getWidth();
+                    int height = getHeight();
+
+                    g.setColor(Color.BLACK);
+                    g.fillRect(0, 0, width, height);
+
+                    int imgWidth = img.getWidth(this);
+                    int imgHeight = img.getHeight(this);
+
+                    if ((imgWidth < 1) || (imgHeight < 1))
+                        return;
+
+                    boolean scale = false;
+                    float scaleFactor = 1;
+
+                    if (imgWidth > width)
+                    {
+                        scale = true;
+                        scaleFactor = width / (float) imgWidth; 
+                    }
+                    if (imgHeight > height)
+                    {
+                        scale = true;
+                        scaleFactor
+                            = Math.min(scaleFactor, height / (float) imgHeight);
+                    }
+
+                    int dstWidth;
+                    int dstHeight;
+
+                    if (scale)
+                    {
+                        dstWidth = Math.round(imgWidth * scaleFactor);
+                        dstHeight = Math.round(imgHeight * scaleFactor);
+                    }
+                    else
+                    {
+                        dstWidth = imgWidth;
+                        dstHeight = imgHeight;
+                    }
+
+                    int dstX = (width - dstWidth) / 2;
+                    int dstY = (height - dstWidth) / 2;
+
+                    g.drawImage(
+                            img,
+                            dstX, dstY, dstX + dstWidth, dstY + dstHeight,
+                            0, 0, imgWidth, imgHeight,
+                            this);
+                }
+            };
+
+            Dimension iconSize
+                = new Dimension(icon.getIconWidth(), icon.getIconHeight());
+
+            canvas.setMaximumSize(iconSize);
+            canvas.setPreferredSize(iconSize);
+
+            fireVideoEvent(VideoEvent.LOCAL, canvas, VideoEvent.LOCAL);
+        }
+        return canvas;
+    }
+
+    /**
+     * Disposes the local visual <tt>Component</tt> of the local peer.
      */
     public void disposeLocalVisualComponent()
     {
-        Player player = getLocalPlayer();
+        Player localPlayer = this.localPlayer;
 
-        if(player != null)
-        {
-            disposeLocalPlayer(player);
-        }
+        if (localPlayer != null)
+            disposeLocalPlayer(localPlayer);
     }
 
     /**

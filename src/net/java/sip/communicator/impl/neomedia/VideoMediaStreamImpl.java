@@ -412,9 +412,15 @@ public class VideoMediaStreamImpl
     }
 
     /**
-     * Gets local visual <tt>Component</tt> of the local peer.
+     * Creates the visual <tt>Component</tt> depicting the video being streamed
+     * from the local peer to the remote peer.
      *
-     * @return visual <tt>Component</tt>
+     * @return the visual <tt>Component</tt> depicting the video being streamed
+     * from the local peer to the remote peer if it was immediately created or
+     * <tt>null</tt> if it was not immediately created and it is to be delivered
+     * to the currently registered <tt>VideoListener</tt>s in a
+     * <tt>VideoEvent</tt> with type {@link VideoEvent#VIDEO_ADDED} and origin
+     * {@link VideoEvent#LOCAL}
      */
     public Component createLocalVisualComponent()
     {

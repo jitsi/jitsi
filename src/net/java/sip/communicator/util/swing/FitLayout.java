@@ -78,13 +78,28 @@ public class FitLayout
 
             componentSize.width = (int) (componentSize.width * ratio);
             componentSize.height = (int) (componentSize.height * ratio);
+
+            // Respect the maximumSize of the component.
+            if (component.isMaximumSizeSet())
+            {
+                Dimension maximumSize = component.getMaximumSize();
+
+                if (componentSize.width > maximumSize.width)
+                    componentSize.width = maximumSize.width;
+                if (componentSize.height > maximumSize.height)
+                    componentSize.height = maximumSize.height;
+            }
         }
 
-        component.setBounds(bounds.x
-            + Math.round((bounds.width - componentSize.width) * alignmentX),
-            bounds.y
-                + Math.round((bounds.height - componentSize.height)
-                    * alignmentY), componentSize.width, componentSize.height);
+        component.setBounds(
+                bounds.x
+                    + Math.round(
+                        (bounds.width - componentSize.width) * alignmentX),
+                bounds.y
+                    + Math.round(
+                        (bounds.height - componentSize.height) * alignmentY),
+                componentSize.width,
+                componentSize.height);
     }
 
     /*

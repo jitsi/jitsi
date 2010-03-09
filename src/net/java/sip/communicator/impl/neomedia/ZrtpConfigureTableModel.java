@@ -1,14 +1,20 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.neomedia;
 
-import java.util.ArrayList;
+import java.util.*;
 
-import javax.swing.table.AbstractTableModel;
+import javax.swing.table.*;
 
-import gnu.java.zrtp.ZrtpConfigure;
-import gnu.java.zrtp.ZrtpConstants;
+import gnu.java.zrtp.*;
 
-public class ZrtpConfigureTableModel<T extends Enum<T>> extends AbstractTableModel {
-
+public class ZrtpConfigureTableModel<T extends Enum<T>>
+    extends AbstractTableModel
+{
     private final ZrtpConfigure active;
     private final ZrtpConfigure inActive;
     
