@@ -291,11 +291,17 @@ public class SwScaler
             return BUFFER_PROCESSED_OK;
         }
 
-        VideoFormat outputFormat = (VideoFormat)output.getFormat();
+        VideoFormat outputFormat = (VideoFormat) getOutputFormat();
 
         if(outputFormat == null)
         {
-            outputFormat = (VideoFormat)this.outputFormat;
+            /*
+             * The format of the output Buffer is not documented to be used as
+             * input to the #process method. Anyway, we're trying to use it in
+             * case this Codec doesn't have an outputFormat set which is
+             * unlikely to ever happen.
+             */
+            outputFormat = (VideoFormat) output.getFormat();
             if (outputFormat == null) // first buffer has no output format set
                 return BUFFER_PROCESSED_FAILED;
         }
@@ -371,6 +377,7 @@ public class SwScaler
         }
 
         output.setData(dst);
+        output.setFormat(outputFormat);
         output.setLength(dstLength);
         output.setOffset(0);
 
