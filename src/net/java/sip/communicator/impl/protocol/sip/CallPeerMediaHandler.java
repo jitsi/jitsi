@@ -93,10 +93,11 @@ public class CallPeerMediaHandler
 
     /**
      * Determines whether or not streaming local video is currently enabled.
-     * Default is inactive so that default calls would be audio only.
+     * Default is RECVONLY. We tried to have INACTIVE at one point but it was
+     * breaking incoming reINVITEs for video calls..
      */
     private MediaDirection videoDirectionUserPreference
-        = MediaDirection.INACTIVE;
+        = MediaDirection.RECVONLY;
 
     /**
      * Determines whether or not streaming local audio is currently enabled.
@@ -1151,10 +1152,9 @@ public class CallPeerMediaHandler
             MediaDevice dev = getDefaultDevice(mediaType);
             MediaDirection devDirection
                 = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
-            /*
-             * Take the preference of the user with respect to streaming
-             * mediaType into account.
-             */
+
+            // Take the preference of the user with respect to streaming
+            // mediaType into account.
             devDirection
                 = devDirection.and(getDirectionUserPreference(mediaType));
 
@@ -1413,10 +1413,9 @@ public class CallPeerMediaHandler
             MediaDevice dev = getDefaultDevice(mediaType);
             MediaDirection devDirection
                 = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
-            /*
-             * Take the preference of the user with respect to streaming
-             * mediaType into account.
-             */
+
+            // Take the preference of the user with respect to streaming
+            // mediaType into account.
             devDirection
                 = devDirection.and(getDirectionUserPreference(mediaType));
 
