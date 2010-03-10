@@ -4,13 +4,13 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.service.searchsource;
+package net.java.sip.communicator.service.contactsource;
 
 import java.util.*;
 
 /**
  * The <tt>ContactReceivedEvent</tt> indicates that a
- * <tt>SearchSourceContact</tt> has been received as a result of a
+ * <tt>SourceContact</tt> has been received as a result of a
  * <tt>ContactQuery</tt>.
  * @author Yana Stamcheva
  */
@@ -20,7 +20,7 @@ public class ContactReceivedEvent
     /**
      * The contact that has been received.
      */
-    private final SearchSourceContact contact;
+    private final SourceContact contact;
 
     /**
      * Creates a <tt>ContactReceivedEvent</tt> by specifying the contact search
@@ -29,7 +29,7 @@ public class ContactReceivedEvent
      * @param contact the received contact
      */
     public ContactReceivedEvent(ContactQuery source,
-                                SearchSourceContact contact)
+                                SourceContact contact)
     {
         super(source);
 
@@ -40,7 +40,7 @@ public class ContactReceivedEvent
      * Returns the <tt>ContactQuery</tt> that triggered this event.
      * @return the <tt>ContactQuery</tt> that triggered this event
      */
-    public ContactQuery getSearchSource()
+    public ContactQuery getQuerySource()
     {
         return (ContactQuery) source;
     }
@@ -49,7 +49,7 @@ public class ContactReceivedEvent
      * Returns the received contact.
      * @return the received contact
      */
-    public SearchSourceContact getContact()
+    public SourceContact getContact()
     {
         return contact;
     }

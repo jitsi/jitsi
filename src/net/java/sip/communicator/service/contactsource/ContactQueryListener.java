@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.service.searchsource;
+package net.java.sip.communicator.service.contactsource;
 
 /**
  * The <tt>ContactQueryListener</tt> notifies interested parties of any change
@@ -18,7 +18,7 @@ public interface ContactQueryListener
     /**
      * Indicates that a new contact has been received for a search.
      * @param event the <tt>ContactQueryEvent</tt> containing information
-     * about the received <tt>SearchSourceContact</tt>
+     * about the received <tt>SourceContact</tt>
      */
     public void contactReceived(ContactReceivedEvent event);
 

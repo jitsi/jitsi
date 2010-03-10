@@ -4,19 +4,19 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.service.searchsource;
+package net.java.sip.communicator.service.contactsource;
 
 import java.util.*;
 
 /**
- * The <tt>SearchSourceContact</tt> is the result contact of a search in the
+ * The <tt>SourceContact</tt> is the result contact of a search in the
  * source. It should be identifier by a display name, an image if available
  * and a telephony string, which would allow to call this contact through the
- * preferred telephony provider defined in the <tt>SearchSource</tt>.
+ * preferred telephony provider defined in the <tt>ContactSourceService</tt>.
  *
  * @author Yana Stamcheva
  */
-public interface SearchSourceContact
+public interface SourceContact
 {
     /**
      * Returns the display name of this search contact. This is a user-friendly
@@ -50,7 +50,7 @@ public interface SearchSourceContact
 
     /**
      * Returns a string, through which this contact could be reached using the
-     * preferred telephony provider defined in the <tt>SearchSource</tt>.
+     * preferred telephony provider defined in the <tt>ContactSource</tt>.
      *
      * @return the telephony string corresponding to this contact
      */

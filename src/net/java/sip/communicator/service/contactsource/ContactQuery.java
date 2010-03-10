@@ -4,11 +4,11 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.service.searchsource;
+package net.java.sip.communicator.service.contactsource;
 
 /**
  * The <tt>ContactQuery</tt> corresponds to a particular query made through the
- * <tt>ContactSearchSourceService</tt>. Each query once started could be
+ * <tt>ContactSourceService</tt>. Each query once started could be
  * canceled. One could also register a listener in order to be notified for
  * changes in query status and query contact results.
  *
