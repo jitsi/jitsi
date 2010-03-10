@@ -31,9 +31,18 @@ public class ScreenDeviceImpl implements ScreenDevice
     {
         ScreenDevice screens[] = null;
         GraphicsDevice devices[] = null;
+        GraphicsEnvironment ge = null;
         int i = 0;
-        GraphicsEnvironment ge = GraphicsEnvironment.
-            getLocalGraphicsEnvironment();
+        
+        try
+        {
+            ge = GraphicsEnvironment.
+                getLocalGraphicsEnvironment();
+        }
+        catch(NoClassDefFoundError e)
+        {
+            ge = null;
+        }
         
         if(ge == null)
         {
