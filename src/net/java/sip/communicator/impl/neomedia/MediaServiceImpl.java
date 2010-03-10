@@ -485,12 +485,15 @@ public class MediaServiceImpl
     public List<ScreenDevice> getAvailableScreenDevices()
     {
       List<ScreenDevice> ret = new ArrayList<ScreenDevice>();
-        ScreenDevice screens[] = ScreenDeviceImpl.getAvailableScreenDevice();
-        
-        /* populates screen list */
-        for(ScreenDevice sc : screens)
+      ScreenDevice screens[] = ScreenDeviceImpl.getAvailableScreenDevice();
+       
+        if(screens != null)
         {
-            ret.add(sc);
+            /* populates screen list */
+            for(ScreenDevice sc : screens)
+            {
+                ret.add(sc);
+            }
         }
         return ret;
     }
