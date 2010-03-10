@@ -997,11 +997,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             //Get a reference to a dummy volatile contact
             Contact sourceContact = opSetPersPresence
-                .findContactByID("GMail");
+                .findContactByID(jabberProvider.getAccountID().getService());
 
             if(sourceContact == null)
-                sourceContact = opSetPersPresence
-                    .createVolatileContact("GMail");
+                sourceContact = opSetPersPresence.createVolatileContact(
+                                jabberProvider.getAccountID().getService());
 
             lastReceivedMailboxResultTime = mailboxIQ.getResultTime();
 
