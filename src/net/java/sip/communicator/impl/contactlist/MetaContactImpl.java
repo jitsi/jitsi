@@ -347,15 +347,10 @@ public class MetaContactImpl
         }
         else
         {
+            PresenceStatus currentStatus = null;
+
             for (Contact protoContact : protoContacts)
             {
-
-                /*
-                 * TODO currentStatus is initialized to null and then there's a
-                 * check whether it's non-null i.e. the check will always fail.
-                 */
-                PresenceStatus currentStatus = null;
-
                 // we filter to care only about contact which support
                 // the needed opset.
                 if (protoContact.getProtocolProvider()
