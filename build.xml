@@ -700,6 +700,12 @@
             <isset property="is.running.macos"/>
         </condition>
 
+        <condition property="jvm.maxheapsize"
+              value="-Xmx256m"
+              else="" > 
+             <os arch="i386" />
+        </condition>
+
          <!-- forking prevents from debugging -->
         <java classname="net.java.sip.communicator.launcher.SIPCommunicator"
             fork="true"
@@ -750,11 +756,11 @@
             <sysproperty key="felix.auto.start.68"
                 value="${profiler.autostart}" />
 
-            <!-- add some eventual profiler args -->
-            <jvmarg line="${profiler.args} ${jvmarg.line}"/>
-            <!-- prevent server-class machine detection because -server uses
-                 much more memory -->
-            <jvmarg value="-client" />
+            <!-- add some eventual profiler args, prevent server-class
+                 detection because -server uses much more memory for 32-bit OS
+                 (64-bit always used -server) -->
+            <jvmarg line="${profiler.args} ${jvmarg.line} 
+              -client ${jvm.maxheapsize}"/>
 
             <sysproperty key="apple.laf.useScreenMenuBar" value="true" />
         </java>
