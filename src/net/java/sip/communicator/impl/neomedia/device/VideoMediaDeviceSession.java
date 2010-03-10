@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia.device;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.media.*;
 import javax.media.format.*;
@@ -15,6 +16,7 @@ import javax.media.protocol.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -47,13 +49,6 @@ public class VideoMediaDeviceSession
         = "impl.media.DESKTOP_STREAMING_ICON";
 
     /**
-     * The facility which aids this instance in managing a list of
-     * <tt>VideoListener</tt>s and firing <tt>VideoEvent</tt>s to them.
-     */
-    private final VideoNotifierSupport videoNotifierSupport
-        = new VideoNotifierSupport(this);
-
-    /**
      * Local <tt>Player</tt> for the local video.
      */
     private Player localPlayer = null;
@@ -69,6 +64,20 @@ public class VideoMediaDeviceSession
     private Dimension outputSize = null;
 
     /**
+     * The <tt>SwScaler</tt> inserted into the codec chain of the
+     * <tt>Player</tt> rendering the media received from the remote peer and
+     * enabling the explicit setting of the video size.
+     */
+    private SwScaler playerScaler;
+
+    /**
+     * The facility which aids this instance in managing a list of
+     * <tt>VideoListener</tt>s and firing <tt>VideoEvent</tt>s to them.
+     */
+    private final VideoNotifierSupport videoNotifierSupport
+        = new VideoNotifierSupport(this);
+
+    /**
      * Initializes a new <tt>VideoMediaDeviceSession</tt> instance which is to
      * represent the work of a <tt>MediaStream</tt> with a specific video
      * <tt>MediaDevice</tt>.
@@ -80,16 +89,6 @@ public class VideoMediaDeviceSession
     public VideoMediaDeviceSession(AbstractMediaDevice device)
     {
         super(device);
-    }
-
-    /**
-     * Set output size of video.
-     *
-     * @param size output size
-     */
-    public void setOutputSize(Dimension size)
-    {
-        outputSize = size;
     }
 
     /**
@@ -177,33 +176,6 @@ public class VideoMediaDeviceSession
             }
         }
         return captureDevice;
-    }
-
-    /**
-     * Sets the JMF <tt>Format</tt> in which a specific <tt>Processor</tt> is to
-     * output media data.
-     *
-     * @param processor the <tt>Processor</tt> to set the output <tt>Format</tt>
-     * of
-     * @param format the JMF <tt>Format</tt> to set to <tt>processor</tt>
-     */
-    @Override
-    protected void setFormat(Processor processor, Format format)
-    {
-        Format newFormat = null;
-        VideoFormat tmp = (VideoFormat)format;
-
-        /* add a size in the output format, as VideoFormat has no
-         * set accessors, we recreate the object
-         */
-        if(outputSize != null)
-        {
-            newFormat = new VideoFormat(tmp.getEncoding(), outputSize, 
-                    tmp.getMaxDataLength(), tmp.getDataType(), 
-                    tmp.getFrameRate());
-        }
-
-        super.setFormat(processor, newFormat != null ? newFormat : format);
     }
 
     /**
@@ -362,19 +334,25 @@ public class VideoMediaDeviceSession
             Player player = (Player) controllerEvent.getSourceController();
             Component visualComponent = player.getVisualComponent();
 
-            if ((visualComponent != null)
-                    && !fireVideoEvent(
-                            VideoEvent.VIDEO_ADDED,
-                            visualComponent,
-                            VideoEvent.LOCAL))
+            if (visualComponent != null)
             {
-                // No listener interrested in our event so free resources.
-                if(localPlayer == player)
-                    localPlayer = null;
-
-                player.stop();
-                player.deallocate();
-                player.close();
+                if (fireVideoEvent(
+                        VideoEvent.VIDEO_ADDED,
+                        visualComponent,
+                        VideoEvent.LOCAL))
+                {
+                    localVisualComponentConsumed(visualComponent, player);
+                }
+                else
+                {
+                    // No listener interested in our event so free resources.
+                    if(localPlayer == player)
+                        localPlayer = null;
+    
+                    player.stop();
+                    player.deallocate();
+                    player.close();
+                }
             }
         }
     }
@@ -600,6 +578,102 @@ public class VideoMediaDeviceSession
     }
 
     /**
+     * Notifies this <tt>VideoMediaDeviceSession</tt> that a specific visual
+     * <tt>Component</tt> which depicts video streaming from the local peer to
+     * the remote peer and which has been created by a specific <tt>Player</tt>
+     * has been delivered to the registered <tt>VideoListener</tt>s and at least
+     * one of them has consumed it.
+     *
+     * @param visualComponent the visual <tt>Component</tt> depicting local
+     * video which has been consumed by the registered <tt>VideoListener</tt>s
+     * @param player the local <tt>Player</tt> which has created the specified
+     * visual <tt>Component</tt>
+     */
+    private void localVisualComponentConsumed(
+            Component visualComponent,
+            Player player)
+    {
+    }
+
+    /**
+     * Notifies this instance that a specific <tt>Player</tt> of remote content
+     * has generated a <tt>ConfigureCompleteEvent</tt>.
+     *
+     * @param player the <tt>Player</tt> which is the source of a
+     * <tt>ConfigureCompleteEvent</tt>
+     * @see MediaDeviceSession#playerConfigureComplete(Processor)
+     */
+    @Override
+    protected void playerConfigureComplete(final Processor player)
+    {
+        super.playerConfigureComplete(player);
+
+        TrackControl[] trackControls = player.getTrackControls();
+        SwScaler playerScaler = null;
+
+        if ((trackControls != null) && (trackControls.length != 0))
+        {
+            try
+            {
+                for (TrackControl trackControl : trackControls)
+                {
+                    /*
+                     * Since SwScaler will scale any input size into the
+                     * configured output size, we may never get SizeChangeEvent
+                     * from the player. We'll generate it ourselves then.
+                     */
+                    playerScaler = new SwScaler()
+                    {
+                        /**
+                         * The last size reported in the form of a
+                         * SizeChangeEvent.
+                         */
+                        private Dimension lastSize;
+
+                        @Override
+                        public int process(Buffer input, Buffer output)
+                        {
+                            int result = super.process(input, output);
+
+                            if (result == BUFFER_PROCESSED_OK)
+                            {
+                                Format inputFormat = input.getFormat();
+
+                                if (inputFormat != null)
+                                {
+                                    Dimension inputSize
+                                        = ((VideoFormat) inputFormat).getSize();
+
+                                    if ((inputSize != null)
+                                            && ((lastSize == null)
+                                                    || !lastSize
+                                                            .equals(inputSize)))
+                                    {
+                                        lastSize = inputSize;
+                                        playerSizeChange(
+                                            player,
+                                            lastSize.width,
+                                            lastSize.height);
+                                    }
+                                }
+                            }
+                            return result;
+                        }
+                    };
+                    trackControl.setCodecChain(new Codec[] { playerScaler });
+                    break;
+                }
+            }
+            catch (UnsupportedPlugInException upiex)
+            {
+                logger.error("Failed to add SwScaler to codec chain", upiex);
+                playerScaler = null;
+            }
+        }
+        this.playerScaler = playerScaler;
+    }
+
+    /**
      * Gets notified about <tt>ControllerEvent</tt>s generated by a specific
      * <tt>Player</tt> of remote content.
      *
@@ -614,7 +688,14 @@ public class VideoMediaDeviceSession
         super.playerControllerUpdate(event);
 
         if (event instanceof SizeChangeEvent)
-            playerSizeChange((SizeChangeEvent) event);
+        {
+            SizeChangeEvent sizeChangeEvent = (SizeChangeEvent) event;
+
+            playerSizeChange(
+                sizeChangeEvent.getSourceController(),
+                sizeChangeEvent.getWidth(),
+                sizeChangeEvent.getHeight());
+        }
     }
 
     /**
@@ -626,31 +707,68 @@ public class VideoMediaDeviceSession
      * @see MediaDeviceSession#playerRealizeComplete(Processor)
      */
     @Override
-    protected void playerRealizeComplete(Processor player)
+    protected void playerRealizeComplete(final Processor player)
     {
         super.playerRealizeComplete(player);
 
         Component visualComponent = getVisualComponent(player);
 
         if (visualComponent != null)
+        {
+            /*
+             * SwScaler seems to be very good at scaling with respect to image
+             * quality so use it for the scaling in the player replacing the
+             * scaling it does upon rendering.
+             */
+            visualComponent.addComponentListener(new ComponentAdapter()
+            {
+                @Override
+                public void componentResized(ComponentEvent e)
+                {
+                    playerVisualComponentResized(player, e);
+                }
+            });
+
             fireVideoEvent(
                 VideoEvent.VIDEO_ADDED,
                 visualComponent,
                 VideoEvent.REMOTE);
+        }
     }
 
     /**
      * Notifies this instance that a specific <tt>Player</tt> of remote content
      * has generated a <tt>SizeChangeEvent</tt>.
      *
-     * @param event the <tt>SizeChangeEvent</tt> specifying the <tt>Player</tt>
-     * which is the source of the event and the additional details related to
-     * the event
+     * @param sourceController the <tt>Player</tt> which is the source of the
+     * event
+     * @param width the width reported in the event
+     * @param height the height reported in the event
      * @see SizeChangeEvent
      */
-    protected void playerSizeChange(SizeChangeEvent event)
+    protected void playerSizeChange(
+            final Controller sourceController,
+            final int width,
+            final int height)
     {
-        Player player = (Player) event.getSourceController();
+        /*
+         * Invoking anything that is likely to change the UI in the Player
+         * thread seems like a performance hit so bring it into the event
+         * thread.
+         */
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    playerSizeChange(sourceController, width, height);
+                }
+            });
+            return;
+        }
+
+        Player player = (Player) sourceController;
         Component visualComponent = getVisualComponent(player);
 
         if (visualComponent != null)
@@ -659,8 +777,97 @@ public class VideoMediaDeviceSession
                         this,
                         visualComponent,
                         SizeChangeVideoEvent.REMOTE,
-                        event.getWidth(),
-                        event.getHeight()));
+                        width,
+                        height));
+    }
+
+    /**
+     * Notifies this instance that the visual <tt>Component</tt> of a
+     * <tt>Player</tt> rendering remote content has been resized.
+     *
+     * @param player the <tt>Player</tt> rendering remote content the visual
+     * <tt>Component</tt> of which has been resized
+     * @param e a <tt>ComponentEvent</tt> which specifies the resized
+     * <tt>Component</tt>
+     */
+    private void playerVisualComponentResized(
+            Processor player,
+            ComponentEvent e)
+    {
+        if (playerScaler == null)
+            return;
+
+        Component visualComponent = e.getComponent();
+
+        /*
+         * When the visualComponent is not in an UI hierarchy, its size isn't
+         * expected to be representative of what the user is seeing.
+         */
+        if (visualComponent.getParent() == null)
+            return;
+
+        Dimension outputSize = visualComponent.getSize();
+        float outputWidth = outputSize.width;
+        float outputHeight = outputSize.height;
+
+        if ((outputWidth < 1) || (outputHeight < 1))
+            return;
+
+        /*
+         * The size of the output video will be calculated so that it fits into
+         * the visualComponent and the video aspect ratio is preserved. The
+         * presumption here is that the inputFormat holds the video size with
+         * the correct aspect ratio.
+         */
+        Format inputFormat = playerScaler.getInputFormat();
+
+        if (inputFormat == null)
+            return;
+
+        Dimension inputSize = ((VideoFormat) inputFormat).getSize();
+
+        if (inputSize == null)
+            return;
+
+        int inputWidth = inputSize.width;
+        int inputHeight = inputSize.height;
+
+        if ((inputWidth < 1) || (inputHeight < 1))
+            return;
+
+        // Preserve the aspect ratio.
+        outputHeight = outputWidth * inputHeight / (float) inputWidth;
+
+        // Fit the output video into the visualComponent.
+        boolean scale = false;
+        float widthRatio;
+        float heightRatio;
+
+        if (Math.abs(outputWidth - inputWidth) < 1)
+        {
+            scale = true;
+            widthRatio = outputWidth / (float) inputWidth;
+        }
+        else
+            widthRatio = 1;
+        if (Math.abs(outputHeight - inputHeight) < 1)
+        {
+            scale = true;
+            heightRatio = outputHeight / (float) inputHeight;
+        }
+        else
+            heightRatio = 1;
+        if (scale)
+        {
+            float scaleFactor = Math.min(widthRatio, heightRatio);
+
+            outputWidth = inputWidth * scaleFactor;
+            outputHeight = inputHeight * scaleFactor;
+        }
+
+        outputSize.width = (int) outputWidth;
+        outputSize.height = (int) outputHeight;
+        playerScaler.setOutputSize(outputSize);
     }
 
     /**
@@ -675,5 +882,96 @@ public class VideoMediaDeviceSession
     public void removeVideoListener(VideoListener listener)
     {
         videoNotifierSupport.removeVideoListener(listener);
+    }
+
+    /**
+     * Sets the size of the output video.
+     *
+     * @param size the size of the output video
+     */
+    public void setOutputSize(Dimension size)
+    {
+        outputSize = size;
+    }
+
+    /**
+     * Sets the JMF <tt>Format</tt> in which a specific <tt>Processor</tt>
+     * producing media to be streamed to the remote peer is to output.
+     *
+     * @param processor the <tt>Processor</tt> to set the output <tt>Format</tt>
+     * of
+     * @param format the JMF <tt>Format</tt> to set to <tt>processor</tt>
+     * @see MediaDeviceSession#setProcessorFormat(Processor, Format)
+     */
+    @Override
+    protected void setProcessorFormat(Processor processor, Format format)
+    {
+        Format newFormat = null;
+        VideoFormat tmp = (VideoFormat)format;
+
+        /* Add a size in the output format. As VideoFormat has no setter, we
+         * recreate the object.
+         */
+        if(outputSize != null)
+        {
+            newFormat = new VideoFormat(tmp.getEncoding(), outputSize, 
+                    tmp.getMaxDataLength(), tmp.getDataType(), 
+                    tmp.getFrameRate());
+        }
+
+        super.setProcessorFormat(
+                processor,
+                newFormat != null ? newFormat : format);
+    }
+
+    /**
+     * Sets the JMF <tt>Format</tt> of a specific <tt>TrackControl</tt> of the
+     * <tt>Processor</tt> which produces the media to be streamed by this
+     * <tt>MediaDeviceSession</tt> to the remote peer. Allows extenders to
+     * override the set procedure and to detect when the JMF <tt>Format</tt> of
+     * the specified <tt>TrackControl</tt> changes.
+     *
+     * @param trackControl the <tt>TrackControl</tt> to set the JMF
+     * <tt>Format</tt> of
+     * @param format the JMF <tt>Format</tt> to be set on the specified
+     * <tt>TrackControl</tt>
+     * @return the JMF <tt>Format</tt> set on <tt>TrackControl</tt> after the
+     * attempt to set the specified <tt>format</tt> or <tt>null</tt> if the
+     * specified <tt>format</tt> was found to be incompatible with
+     * <tt>trackControl</tt>
+     * @see MediaDeviceSession#setProcessorFormat(TrackControl, Format)
+     */
+    @Override
+    protected Format setProcessorFormat(
+            TrackControl trackControl,
+            Format format)
+    {
+        VideoFormat videoFormat = (VideoFormat) format;
+        Dimension size = videoFormat.getSize();
+
+        if(size != null)
+        {
+            /* We have been explicitly told to use a specified output size so
+             * create a custom SwScaler that will scale and convert color spaces
+             * in one call.
+             */
+            SwScaler scaler = new SwScaler();
+
+            scaler.setOutputSize(size);
+
+            /* Add our custom SwScaler to the codec chain so that it will be
+             * used instead of default.
+             */
+            try
+            {
+                trackControl.setCodecChain(new Codec[] { scaler });
+            }
+            catch(UnsupportedPlugInException upiex)
+            {
+                logger.error("Failed to add SwScaler to codec chain", upiex);
+            }
+        }
+
+        return super.setProcessorFormat(trackControl, format);
     }
 }

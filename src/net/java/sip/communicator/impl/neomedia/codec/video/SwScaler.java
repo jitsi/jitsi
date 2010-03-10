@@ -63,6 +63,28 @@ public class SwScaler
     };
 
     /**
+     * Sets the <tt>Format</tt> in which this <tt>Codec</tt> is to output media
+     * data.
+     *
+     * @param format the <tt>Format</tt> in which this <tt>Codec</tt> is to
+     * output media data
+     * @return the <tt>Format</tt> in which this <tt>Codec</tt> is currently
+     * configured to output media data or <tt>null</tt> if <tt>format</tt> was
+     * found to be incompatible with this <tt>Codec</tt>
+     */
+    @Override
+    public Format setOutputFormat(Format format)
+    {
+        Format outputFormat = super.setOutputFormat(format);
+
+        if (logger.isDebugEnabled() && (outputFormat != null))
+                logger.debug(
+                        "SwScaler set to output with size "
+                            + ((VideoFormat) outputFormat).getSize());
+        return outputFormat;
+    }
+
+    /**
      * Sets output size.
      *
      * @param size size to set
@@ -90,6 +112,48 @@ public class SwScaler
                 -1.0f, 24, -1, -1, -1);
         supportedOutputFormats[8] = new RGBFormat(size, -1, Format.shortArray,
                 -1.0f, 24, -1, -1, -1);
+
+        // Set the size to the outputFormat as well.
+        VideoFormat outputFormat = (VideoFormat) this.outputFormat;
+
+        if (outputFormat != null)
+            setOutputFormat(
+                new VideoFormat(
+                        outputFormat.getEncoding(),
+                        size,
+                        outputFormat.getMaxDataLength(),
+                        outputFormat.getDataType(),
+                        outputFormat.getFrameRate())
+                    .intersects(outputFormat));
+    }
+
+    /**
+     * Gets the <tt>Format</tt> in which this <tt>Codec</tt> is currently
+     * configured to accept input media data.
+     * <p>
+     * Make the protected super implementation public.
+     * </p>
+     *
+     * @return the <tt>Format</tt> in which this <tt>Codec</tt> is currently
+     * configured to accept input media data
+     * @see AbstractCodec#getInputFormat()
+     */
+    @Override
+    public Format getInputFormat()
+    {
+        return super.getInputFormat();
+    }
+
+    public Dimension getOutputSize()
+    {
+        Format outputFormat = getOutputFormat();
+
+        if (outputFormat == null)
+        {
+            // They all have one and the same size.
+            outputFormat = supportedOutputFormats[0];
+        }
+        return ((VideoFormat) outputFormat).getSize();
     }
 
     /**

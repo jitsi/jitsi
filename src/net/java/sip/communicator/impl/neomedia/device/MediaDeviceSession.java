@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.neomedia.device;
 
-import java.awt.Dimension;
+import java.awt.Dimension; // disambiguation
 import java.io.*;
 import java.util.*;
 
@@ -19,7 +19,6 @@ import javax.media.rtp.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
-import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -1085,7 +1084,7 @@ public class MediaDeviceSession
                 }
 
                 if (format != null)
-                    setFormat(processor, format);
+                    setProcessorFormat(processor, format);
             }
         }
         else if (event instanceof ControllerClosedEvent)
@@ -1196,6 +1195,7 @@ public class MediaDeviceSession
          * We need javax.media.Format and we know how to convert MediaFormat to
          * it only for MediaFormatImpl so assert early.
          */
+        @SuppressWarnings("unchecked")
         MediaFormatImpl<? extends Format> mediaFormatImpl
             = (MediaFormatImpl<? extends Format>) format;
 
@@ -1211,7 +1211,7 @@ public class MediaDeviceSession
             int processorState = processor.getState();
 
             if (processorState == Processor.Configured)
-                setFormat(processor, this.format);
+                setProcessorFormat(processor, this.format);
             else if (processorIsPrematurelyClosed
                         || ((processorState > Processor.Configured)
                                 && !format.equals(getFormat())))
@@ -1220,14 +1220,14 @@ public class MediaDeviceSession
     }
 
     /**
-     * Sets the JMF <tt>Format</tt> in which a specific <tt>Processor</tt> is to
-     * output media data.
+     * Sets the JMF <tt>Format</tt> in which a specific <tt>Processor</tt>
+     * producing media to be streamed to the remote peer is to output.
      *
      * @param processor the <tt>Processor</tt> to set the output <tt>Format</tt>
      * of
      * @param format the JMF <tt>Format</tt> to set to <tt>processor</tt>
      */
-    protected void setFormat(Processor processor, Format format)
+    protected void setProcessorFormat(Processor processor, Format format)
     {
         TrackControl[] trackControls = processor.getTrackControls();
         MediaType mediaType = getMediaType();
@@ -1277,35 +1277,6 @@ public class MediaDeviceSession
             case VIDEO:
                 if (supportedFormats[0] instanceof VideoFormat)
                 {
-                    VideoFormat tmp = (VideoFormat)format;
-                    Dimension size = tmp.getSize();
-
-                    if(size != null)
-                    {
-                        /* We have been explictely told to use
-                         * a specified output size so create a 
-                         * custom SwScaler that will rescale and 
-                         * change format in one call
-                         */
-                        Codec ar[] = new Codec[1];
-                        SwScaler scaler = new SwScaler();
-
-                        scaler.setOutputSize(size);
-                        ar[0] = scaler;
-
-                        /* add our custom SwScaler to the codec chain so that
-                         * it will be used instead of default SwScaler
-                         */
-                        try
-                        {
-                            trackControl.setCodecChain(ar);
-                        }
-                        catch(Exception e)
-                        {
-                            System.out.println("Error setCodecChain: " + e);
-                        }
-                    }
-
                     supportedFormat 
                         = findFirstMatchingFormat(supportedFormats, format);
 
@@ -1328,7 +1299,8 @@ public class MediaDeviceSession
                 trackControl.setEnabled(false);
             else if (!supportedFormat.equals(trackControl.getFormat()))
             {
-                Format setFormat = trackControl.setFormat(supportedFormat);
+                Format setFormat
+                    = setProcessorFormat(trackControl, supportedFormat);
 
                 if (setFormat == null)
                     logger
@@ -1359,6 +1331,29 @@ public class MediaDeviceSession
                                 + setFormat);
             }
         }
+    }
+
+    /**
+     * Sets the JMF <tt>Format</tt> of a specific <tt>TrackControl</tt> of the
+     * <tt>Processor</tt> which produces the media to be streamed by this
+     * <tt>MediaDeviceSession</tt> to the remote peer. Allows extenders to
+     * override the set procedure and to detect when the JMF <tt>Format</tt> of
+     * the specified <tt>TrackControl</tt> changes.
+     *
+     * @param trackControl the <tt>TrackControl</tt> to set the JMF
+     * <tt>Format</tt> of
+     * @param format the JMF <tt>Format</tt> to be set on the specified
+     * <tt>TrackControl</tt>
+     * @return the JMF <tt>Format</tt> set on <tt>TrackControl</tt> after the
+     * attempt to set the specified <tt>format</tt> or <tt>null</tt> if the
+     * specified <tt>format</tt> was found to be incompatible with
+     * <tt>trackControl</tt>
+     */
+    protected Format setProcessorFormat(
+            TrackControl trackControl,
+            Format format)
+    {
+        return trackControl.setFormat(format);
     }
 
     /**
