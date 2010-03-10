@@ -71,9 +71,14 @@ public class ChatRoomMemberListPanel
                 {
                     if(e.getButton() == MouseEvent.BUTTON3)
                     {
-                        new ChatContactRightButtonMenu(
-                            chat, (ChatContact)memberList.getSelectedValue())
-                            .show( memberList, e.getX(), e.getY());
+                        ChatContact chatContact
+                            = (ChatContact) memberList.getSelectedValue();
+
+                        if (chatContact != null)
+                            new ChatContactRightButtonMenu(
+                                    chat,
+                                    chatContact)
+                                .show(memberList, e.getX(), e.getY());
                     }
                 }
             });

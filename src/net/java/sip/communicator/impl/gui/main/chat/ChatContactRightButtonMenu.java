@@ -101,7 +101,6 @@ public class ChatContactRightButtonMenu
                                         ChatContact chatContact)
     {
         this.chatPanel = chatPanel;
-
         this.chatContact = chatContact;
 
         Object descriptor
@@ -222,16 +221,13 @@ public class ChatContactRightButtonMenu
             ImageLoader.CHANGE_NICKNAME_ICON_16x16)));
         this.changeRoomSubjectItem.setIcon(new ImageIcon(ImageLoader.getImage(
             ImageLoader.CHANGE_ROOM_SUBJECT_ICON_16x16)));
-        int roleIndex = ((ChatRoomMember)
-                chatContact.getDescriptor()).getRole().getRoleIndex();
-        String roleName = ((ChatRoomMember)
-                chatContact.getDescriptor()).getRole().getRoleName();
 
-        if(chatContact.getName().equals(room.getUserNickname()))
-        {
-            roleName = room.getUserRole().getRoleName();
-            roleIndex  = room.getUserRole().getRoleIndex();
-        }
+        ChatRoomMemberRole role
+            = chatContact.getName().equals(room.getUserNickname())
+                ? room.getUserRole()
+                : ((ChatRoomMember) chatContact.getDescriptor()).getRole();
+        int roleIndex = role.getRoleIndex();
+        String roleName = role.getRoleName();
 
         JLabel jl_username
             = new JLabel(" "+chatContact.getName()+" ("+roleName+") ");
