@@ -495,9 +495,7 @@ public class MediaStreamImpl
                 ZRTPTransformEngine engine = zrtpControl.getZrtpEngine();
 
                 if (engine != null)
-                {
                     engine.setOwnSSRC(sendStream.getSSRC());
-                }
             }
             catch (IOException ioe)
             {

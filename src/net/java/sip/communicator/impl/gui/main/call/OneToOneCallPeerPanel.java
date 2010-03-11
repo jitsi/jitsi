@@ -625,7 +625,17 @@ public class OneToOneCallPeerPanel
                 if (visualComponent.getParent() == null)
                     visualComponent.setPreferredSize(new Dimension(width, height));
                 else if (isAncestor(videoContainer, visualComponent))
+                {
                     ensureSize(visualComponent, width, height);
+
+                    /*
+                     * Even if ensureSize hasn't changed the Frame size,
+                     * videoContainer may still need to lay out visualComponent
+                     * again because the size-related properties of the latter
+                     * have likely changed.
+                     */
+                    videoContainer.doLayout();
+                }
                 return;
             }
 

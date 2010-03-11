@@ -216,6 +216,7 @@ public class FFMPEG
      * or short[])
      * @param dst_pix_fmt destination format
      * @param src source image. Its type must be an array (int[], byte[] or short[])
+     * @param pix_fmt the format of <tt>src</tt>
      * @param width original width
      * @param height original height
      * @param newWidth new width

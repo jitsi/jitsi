@@ -76,8 +76,9 @@ public class MainMenu
     /**
      * Paints the MENU_BACKGROUND image on the background of this container.
      * 
-     * @param g the Graphics object that does the painting
+     * @param g the <tt>Graphics</tt> object that does the painting
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
@@ -85,6 +86,6 @@ public class MainMenu
         Image backgroundImage
             = ImageLoader.getImage(ImageLoader.MENU_BACKGROUND);
 
-        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
+        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
     }
 }

@@ -78,9 +78,7 @@ public class SwScaler
         Format outputFormat = super.setOutputFormat(format);
 
         if (logger.isDebugEnabled() && (outputFormat != null))
-                logger.debug(
-                        "SwScaler set to output with size "
-                            + ((VideoFormat) outputFormat).getSize());
+            logger.debug("SwScaler set to output in " + outputFormat);
         return outputFormat;
     }
 
@@ -114,17 +112,55 @@ public class SwScaler
                 -1.0f, 24, -1, -1, -1);
 
         // Set the size to the outputFormat as well.
-        VideoFormat outputFormat = (VideoFormat) this.outputFormat;
+        VideoFormat outputFormat = (VideoFormat) getOutputFormat();
 
-        if (outputFormat != null)
+        /*
+         * Since the size of the Format has changed, its size-related properties
+         * should change as well. Format#intersects doesn't seem to be cool
+         * because it preserves them and thus the resulting Format is
+         * inconsistent.
+         */
+        if (outputFormat instanceof RGBFormat)
+        {
+            RGBFormat rgbOutputFormat = (RGBFormat) outputFormat;
+
             setOutputFormat(
-                new VideoFormat(
-                        outputFormat.getEncoding(),
+                new RGBFormat(
                         size,
-                        outputFormat.getMaxDataLength(),
+                        Format.NOT_SPECIFIED,
                         outputFormat.getDataType(),
-                        outputFormat.getFrameRate())
-                    .intersects(outputFormat));
+                        outputFormat.getFrameRate(),
+                        rgbOutputFormat.getBitsPerPixel(),
+                        rgbOutputFormat.getRedMask(),
+                        rgbOutputFormat.getGreenMask(),
+                        rgbOutputFormat.getBlueMask(),
+                        rgbOutputFormat.getPixelStride(),
+                        size.width, // lineStride
+                        rgbOutputFormat.getFlipped(),
+                        rgbOutputFormat.getEndian()));
+        }
+        else if (outputFormat instanceof YUVFormat)
+        {
+            YUVFormat yuvOutputFormat = (YUVFormat) outputFormat;
+
+            setOutputFormat(
+                new YUVFormat(
+                        size,
+                        Format.NOT_SPECIFIED,
+                        outputFormat.getDataType(),
+                        outputFormat.getFrameRate(),
+                        yuvOutputFormat.getYuvType(),
+                        Format.NOT_SPECIFIED,
+                        Format.NOT_SPECIFIED,
+                        0,
+                        Format.NOT_SPECIFIED,
+                        Format.NOT_SPECIFIED));
+        }
+        else if (outputFormat != null)
+            logger.warn(
+                    "SwScaler outputFormat of type "
+                        + outputFormat.getClass().getSimpleName()
+                        + " is not supported for optimized scaling.");
     }
 
     /**
@@ -223,12 +259,15 @@ public class SwScaler
     @Override
     public Format setInputFormat(Format format)
     {
-        VideoFormat videoFormat = (VideoFormat) format;
+        Format inputFormat
+            = ((format instanceof VideoFormat)
+                    && (((VideoFormat) format).getSize() == null))
+                ? null // size is required
+                : super.setInputFormat(format);
 
-        if (videoFormat.getSize() == null)
-            return null;    // must set a size.
-
-        return super.setInputFormat(format);
+        if (logger.isDebugEnabled() && (inputFormat != null))
+            logger.debug("SwScaler set to input in " + inputFormat);
+        return inputFormat;
     }
 
     /**
@@ -287,7 +326,7 @@ public class SwScaler
 
         if (isEOM(input))
         {
-            propagateEOM(output);   // TODO: what about data? can there be any?
+            propagateEOM(output);   // TODO Can there be any data?
             return BUFFER_PROCESSED_OK;
         }
 
