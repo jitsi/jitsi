@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.contactsource;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.*;
+
 /**
  * The <tt>SourceContact</tt> is the result contact of a search in the
  * source. It should be identifier by a display name, an image if available
@@ -35,10 +37,21 @@ public interface SourceContact
     public String getDisplayDetails();
 
     /**
-     * Returns contact details.
-     * @return contact details
+     * Returns a list of available contact details.
+     * @return a list of available contact details
      */
-    public Map<String, String> getContactDetails();
+    public List<ContactDetail> getContactDetails();
+
+    /**
+     * Returns the preferred <tt>ContactDetail</tt> for a given
+     * <tt>OperationSet</tt> class.
+     * @param operationSet the <tt>OperationSet</tt> class, for which we would
+     * like to obtain a <tt>ContactDetail</tt>
+     * @return the preferred <tt>ContactDetail</tt> for a given
+     * <tt>OperationSet</tt> class
+     */
+    public ContactDetail getPreferredContactDetail(
+                                    Class<? extends OperationSet> operationSet);
 
     /**
      * An image (or avatar) corresponding to this search contact. If such is
@@ -47,12 +60,4 @@ public interface SourceContact
      * @return the byte array of the image or null if no image is available
      */
     public byte[] getImage();
-
-    /**
-     * Returns a string, through which this contact could be reached using the
-     * preferred telephony provider defined in the <tt>ContactSource</tt>.
-     *
-     * @return the telephony string corresponding to this contact
-     */
-    public String getTelephonyString();
 }
