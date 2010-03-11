@@ -704,6 +704,12 @@
           <isset property="sparkle"/>
       </condition>
 
+      <condition property="jvmarg"
+            value="-client -Xmx256m"
+            else="" >
+           <os arch="i386" />
+      </condition>
+
       <!-- This creates the .app for MacOSX -->
       <jarbundler dir="${macosx.app.dir}"
                   name="${application.name}"
@@ -719,7 +725,7 @@
                   stubfile="${macosx.stubfile}"
                   extraclasspath="/System/Library/Java"
                   workingdirectory="$APP_PACKAGE/Contents/Resources/Java"
-                  vmoptions="-agentlib:AEGetURLEventHandlerAgent">
+                  vmoptions="-agentlib:AEGetURLEventHandlerAgent ${jvmarg}">
 
         <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
         <javaproperty name="apple.awt.brushMetalRounded" value="true"/>
