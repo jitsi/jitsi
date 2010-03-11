@@ -151,6 +151,7 @@ public interface ResourceManagementService
      * Returns an internationalized string corresponding to the given key.
      *
      * @param key The key of the string.
+     * @param l The locale.
      * @return An internationalized string corresponding to the given key.
      */
     public char getI18nMnemonic(String key, Locale l);
@@ -211,6 +212,7 @@ public interface ResourceManagementService
      * Returns the path of the sound corresponding to the given
      * property key.
      *
+     * @param soundKey The key of the sound.
      * @return the path of the sound corresponding to the given
      * property key.
      */

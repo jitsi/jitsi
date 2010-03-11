@@ -30,7 +30,7 @@ public class SipStackProperties
 
     /**
      * The default name of a debug log file for the jain-sip RI.
-     * (not final on purpose, see contructor)
+     * (not final on purpose, see constructor)
      */
     private static String NSPVALUE_DEBUG_LOG = "log/sc-jainsipdebug.log";
 
@@ -108,7 +108,7 @@ public class SipStackProperties
         "gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS";
 
     /**
-     * A default specifyier telling the stack whether or not to cache client
+     * A default specifier telling the stack whether or not to cache client
      * connections.
      */
     private static final String NSPVALUE_CACHE_CLIENT_CONNECTIONS = "true";
@@ -188,6 +188,9 @@ public class SipStackProperties
     private static final String JSPNAME_STACK_NAME =
         "javax.sip.STACK_NAME";
 
+    /**
+     * Init sip stack properties.
+     */
     public SipStackProperties()
     {
         super();
@@ -286,5 +289,8 @@ public class SipStackProperties
 
         this.setProperty(NSPNAME_STACK_LOGGER, NSPVALUE_STACK_LOGGER);
         this.setProperty(NSPNAME_SERVER_LOGGER, NSPVALUE_SERVER_LOGGER);
+
+        this.setProperty("gov.nist.javax.sip.NETWORK_LAYER", 
+            "net.java.sip.communicator.impl.protocol.sip.net.SslNetworkLayer");
     }
 }

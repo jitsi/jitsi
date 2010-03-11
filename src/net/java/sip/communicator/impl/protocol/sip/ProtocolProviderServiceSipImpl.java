@@ -1074,14 +1074,22 @@ public class ProtocolProviderServiceSipImpl
             //socket that we are actually using and not that of LP
             if (ListeningPoint.TCP.equalsIgnoreCase(transport))
             {
+                InetAddress intendedDestinationAddress =
+                    NetworkUtils.getInetAddress(intendedDestination.getHost());
                 int dstPort = intendedDestination.getPort();
+                
+                // addresses are different it means we are using the outbound
+                // proxy we must use its port
+                if(!targetAddress.equals(intendedDestinationAddress) &&
+                    getOutboundProxy() != null)
+                    dstPort = getOutboundProxy().getPort();
+
                 if (dstPort == -1)
                     dstPort = 5060;
 
                 InetSocketAddress localSockAddr
                     = sipStackSharing.obtainLocalAddress(
-                                    NetworkUtils.getInetAddress(
-                                                intendedDestination.getHost()),
+                                    targetAddress,
                                     dstPort,
                                     localAddress);
                 localPort = localSockAddr.getPort();

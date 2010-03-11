@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui;
 import java.util.*;
 
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.browserlauncher.*;
@@ -114,6 +115,11 @@ public class GuiActivator implements BundleActivator
             bundleContext.registerService(ShutdownService.class.getName(),
                                           (ShutdownService) uiService,
                                           null);
+
+            bundleContext.registerService(
+                CertificateVerificationService.class.getName(),
+                new CertificateVerificationServiceImpl(),
+                null);
 
             uiService.loadApplicationGui();
 
