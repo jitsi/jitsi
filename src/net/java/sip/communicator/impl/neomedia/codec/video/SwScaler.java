@@ -123,19 +123,31 @@ public class SwScaler
         if (outputFormat instanceof RGBFormat)
         {
             RGBFormat rgbOutputFormat = (RGBFormat) outputFormat;
+            Class<?> dataType = outputFormat.getDataType();
+            int bitsPerPixel = rgbOutputFormat.getBitsPerPixel();
+            int pixelStride = rgbOutputFormat.getPixelStride();
 
+            if ((pixelStride == Format.NOT_SPECIFIED)
+                    && (dataType != null)
+                    && (bitsPerPixel != Format.NOT_SPECIFIED))
+                pixelStride
+                    = dataType.equals(Format.byteArray)
+                        ? (bitsPerPixel / 8)
+                        : 1;
             setOutputFormat(
                 new RGBFormat(
                         size,
                         Format.NOT_SPECIFIED,
-                        outputFormat.getDataType(),
+                        dataType,
                         outputFormat.getFrameRate(),
-                        rgbOutputFormat.getBitsPerPixel(),
+                        bitsPerPixel,
                         rgbOutputFormat.getRedMask(),
                         rgbOutputFormat.getGreenMask(),
                         rgbOutputFormat.getBlueMask(),
-                        rgbOutputFormat.getPixelStride(),
-                        size.width, // lineStride
+                        pixelStride,
+                        (pixelStride == Format.NOT_SPECIFIED)
+                            ? Format.NOT_SPECIFIED
+                            : (pixelStride * size.width), // lineStride
                         rgbOutputFormat.getFlipped(),
                         rgbOutputFormat.getEndian()));
         }
