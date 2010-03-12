@@ -25,6 +25,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Yana Stamcheva
  * @author Valentin Martinet
+ * @author Lubomir Marinov
  */
 public class ChatContactCellRenderer
     extends ContactListCellRenderer
@@ -105,25 +106,40 @@ public class ChatContactCellRenderer
 
                 if (opSet != null)
                 {
-                    Iterator<GenericDetail> itr
-                        = opSet.getAllAvailableDetails();
+                    Iterator<GenericDetail> itr;
 
-                    while(itr.hasNext())
+                    try
                     {
-                        GenericDetail detail = itr.next();
-
-                        if(detail instanceof BinaryDetail)
-                        {
-                            BinaryDetail bin = (BinaryDetail)detail;
-                            byte[] binBytes = bin.getBytes();
-
-                            if(binBytes != null)
-                                this.rightLabel.setIcon(
-                                    ImageUtils.getScaledRoundedIcon(
-                                        binBytes, 25, 25));
-                            break;
-                        }
+                        itr = opSet.getAllAvailableDetails();
                     }
+                    catch (IllegalStateException isex)
+                    {
+                        /*
+                         * It may be wrong to try to utilize the OperationSet
+                         * when the account is logged out but this is painting
+                         * we're doing here i.e. we'll screw the whole window
+                         * up.
+                         */
+                        itr = null;
+                    }
+
+                    if (itr != null)
+                        while(itr.hasNext())
+                        {
+                            GenericDetail detail = itr.next();
+    
+                            if(detail instanceof BinaryDetail)
+                            {
+                                BinaryDetail bin = (BinaryDetail)detail;
+                                byte[] binBytes = bin.getBytes();
+    
+                                if(binBytes != null)
+                                    this.rightLabel.setIcon(
+                                        ImageUtils.getScaledRoundedIcon(
+                                            binBytes, 25, 25));
+                                break;
+                            }
+                        }
                 }
 
                 ChatRoomMemberRole role;
@@ -150,7 +166,7 @@ public class ChatContactCellRenderer
             }
             else
             {
-                // Try to retrieve participant avatar:
+                // Try to retrieve participant's avatar.
                 OperationSetPersistentPresence opSet
                     = protocolProvider.getOperationSet(
                     OperationSetPersistentPresence.class);
@@ -173,18 +189,15 @@ public class ChatContactCellRenderer
             }
         }
 
-        // We should set the bounds of the cell explicitly in order to
-        // make getComponentAt work properly.
-        this.setBounds(0, 0, list.getWidth() - 2, 30);
+        // We should set the bounds of the cell explicitly in order to make
+        // getComponentAt work properly.
+        int listWidth = list.getWidth();
 
-        this.nameLabel.setBounds(
-                    0, 0, list.getWidth() - 28, 17);
-
-        this.rightLabel.setBounds(
-            list.getWidth() - 28, 0, 25, 30);
+        this.setBounds(0, 0, listWidth - 2, 30);
+        this.nameLabel.setBounds(0, 0, listWidth - 28, 17);
+        this.rightLabel.setBounds(listWidth - 28, 0, 25, 30);
 
         this.isLeaf = true;
-
         this.isSelected = isSelected;
 
         return this;
