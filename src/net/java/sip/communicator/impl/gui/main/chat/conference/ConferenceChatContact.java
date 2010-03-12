@@ -17,9 +17,8 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Lubomir Marinov
  */
 public class ConferenceChatContact
-    extends ChatContact
+    extends ChatContact<ChatRoomMember>
 {
-    private final ChatRoomMember chatRoomMember;
 
     /**
      * Creates an instance of <tt>ChatContact</tt> by passing to it the
@@ -30,17 +29,15 @@ public class ConferenceChatContact
      */
     public ConferenceChatContact(ChatRoomMember chatRoomMember)
     {
-        this.chatRoomMember = chatRoomMember;
+        super(chatRoomMember);
     }
 
     /**
-     * Returns the descriptor object corresponding to this chat contact.
-     * 
-     * @return the descriptor object corresponding to this chat contact.
+     * Implements ChatContact#getAvatarBytes(). Delegates to chatRoomMember.
      */
-    public Object getDescriptor()
+    public byte[] getAvatarBytes()
     {
-        return chatRoomMember;
+        return descriptor.getAvatar();
     }
 
     /**
@@ -50,7 +47,7 @@ public class ConferenceChatContact
      */
     public String getName()
     {
-        String name = chatRoomMember.getName();
+        String name = descriptor.getName();
 
         if (name == null || name.length() < 1)
             name = GuiActivator.getResources()
@@ -59,17 +56,9 @@ public class ConferenceChatContact
         return name;
     }
 
-    /**
-     * Implements ChatContact#getAvatarBytes(). Delegates to chatRoomMember.
-     */
-    public byte[] getAvatarBytes()
-    {
-        return chatRoomMember.getAvatar();
-    }
-
     public ChatRoomMemberRole getRole()
     {
-        return chatRoomMember.getRole();
+        return descriptor.getRole();
     }
 
     /**
@@ -78,6 +67,6 @@ public class ConferenceChatContact
      */
     public String getUID()
     {
-        return chatRoomMember.getContactAddress();
+        return descriptor.getContactAddress();
     }
 }

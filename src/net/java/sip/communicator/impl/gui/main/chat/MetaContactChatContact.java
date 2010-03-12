@@ -16,9 +16,8 @@ import net.java.sip.communicator.service.contactlist.*;
  * @author Lubomir Marinov
  */
 public class MetaContactChatContact
-    extends ChatContact
+    extends ChatContact<MetaContact>
 {
-    private final MetaContact metaContact;
 
     /**
      * Creates an instance of <tt>ChatContact</tt> by passing to it the
@@ -29,17 +28,15 @@ public class MetaContactChatContact
      */
     public MetaContactChatContact(MetaContact metaContact)
     {
-        this.metaContact = metaContact;
+        super(metaContact);
     }
 
-    /**
-     * Returns the descriptor object corresponding to this chat contact.
-     * 
-     * @return the descriptor object corresponding to this chat contact.
+    /*
+     * Implements ChatContact#getAvatarBytes(). Delegates to metaContact.
      */
-    public Object getDescriptor()
+    public byte[] getAvatarBytes()
     {
-        return metaContact;
+        return descriptor.getAvatar();
     }
 
     /**
@@ -49,20 +46,14 @@ public class MetaContactChatContact
      */
     public String getName()
     {
-        String name = metaContact.getDisplayName();
+        String name = descriptor.getDisplayName();
 
         if (name == null || name.length() < 1)
-            name = GuiActivator.getResources().getI18NString("service.gui.UNKNOWN");
+            name
+                = GuiActivator.getResources()
+                        .getI18NString("service.gui.UNKNOWN");
 
         return name;
-    }
-
-    /*
-     * Implements ChatContact#getAvatarBytes(). Delegates to metaContact.
-     */
-    public byte[] getAvatarBytes()
-    {
-        return metaContact.getAvatar();
     }
 
     /*
@@ -71,6 +62,6 @@ public class MetaContactChatContact
      */
     public String getUID()
     {
-        return metaContact.getMetaUID();
+        return descriptor.getMetaUID();
     }
 }

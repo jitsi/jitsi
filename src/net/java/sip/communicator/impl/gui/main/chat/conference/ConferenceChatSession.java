@@ -540,9 +540,7 @@ public class ConferenceChatSession
     public void loadChatRoom(ChatRoom chatRoom)
     {
         for (ChatRoomMember member : chatRoom.getMembers())
-        {
             sessionRenderer.addChatContact(new ConferenceChatContact(member));
-        }
 
         chatRoom.addPropertyChangeListener(this);
         chatRoom.addMemberPresenceListener(this);
@@ -585,12 +583,8 @@ public class ConferenceChatSession
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
 
         if ((chatRoom != null) && chatRoom.isJoined())
-        {
             for (ChatRoomMember member : chatRoom.getMembers())
-            {
                 chatParticipants.add(new ConferenceChatContact(member));
-            }
-        }
     }
 
     /**

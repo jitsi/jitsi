@@ -381,14 +381,10 @@ public class AdHocConferenceChatSession
     public void loadChatRoom(AdHocChatRoom chatRoom)
     {
         for (Contact contact : chatRoom.getParticipants())
-        {
             sessionRenderer.addChatContact(
                     new AdHocConferenceChatContact(contact));
-            
-        }
-       
-        chatRoom.addParticipantPresenceListener(this);
 
+        chatRoom.addParticipantPresenceListener(this);
     }
 
     /**

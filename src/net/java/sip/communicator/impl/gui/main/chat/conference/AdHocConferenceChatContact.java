@@ -6,25 +6,20 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>AdHocConferenceChatContact</tt> represents a <tt>ChatContact</tt> in
  * an ad-hoc conference chat.
  *
  * @author Valentin Martinet
+ * @author Lubomir Marinov
  */
-public class AdHocConferenceChatContact extends ChatContact
+public class AdHocConferenceChatContact
+    extends ChatContact<Contact>
 {
-    /**
-     * The contact associated with this <tt>AdHocConferenceChatContact</tt>.
-     */
-    private Contact participant;
 
     /**
      * Creates an instance of <tt>AdHocConferenceChatContact</tt> by passing to 
@@ -35,17 +30,12 @@ public class AdHocConferenceChatContact extends ChatContact
      */
     public AdHocConferenceChatContact(Contact participant)
     {
-        this.participant = participant;
+        super(participant);
     }
 
-    /**
-     * Returns the descriptor object corresponding to this chat contact.
-     * 
-     * @return the descriptor object corresponding to this chat contact.
-     */
-    public Object getDescriptor()
+    protected byte[] getAvatarBytes()
     {
-        return participant;
+        return descriptor.getImage();
     }
 
     /**
@@ -55,7 +45,7 @@ public class AdHocConferenceChatContact extends ChatContact
      */
     public String getName()
     {
-        String name = participant.getDisplayName();
+        String name = descriptor.getDisplayName();
 
         if (name == null || name.length() < 1)
             name = GuiActivator.getResources().getI18NString(
@@ -64,39 +54,12 @@ public class AdHocConferenceChatContact extends ChatContact
         return name;
     }
 
-    /**
-     * Returns the current presence status for single user chat contacts and
-     * null for multi user chat contacts.
-     *
-     * @return the current presence status for single user chat contacts and
-     * null for multi user chat contacts
-     */
-    public ImageIcon getAvatar()
-    {
-        byte[] avatarBytes = participant.getImage();
-
-        if (avatarBytes != null && avatarBytes.length > 0)
-        {
-            return ImageUtils.getScaledRoundedIcon(avatarBytes,
-                    AVATAR_ICON_WIDTH,
-                    AVATAR_ICON_HEIGHT
-            );
-        }
-        else
-            return null;
-    }
-
     /*
      * Implements ChatContact#getUID(). Delegates to
      * Contact#getAddress() because it's supposed to be unique.
      */
     public String getUID()
     {
-        return participant.getAddress();
-    }
-
-    @Override
-    protected byte[] getAvatarBytes() {
-        return this.participant.getImage();
+        return descriptor.getAddress();
     }
 }

@@ -285,10 +285,7 @@ public class ChatPanel
                 = chatSession.getParticipants();
 
             while (chatParticipants.hasNext())
-            {
-                //Add the contact to the list of contacts contained in this chat.
                 chatContactListPanel.addContact(chatParticipants.next());
-            }
         }
 
         if (!chatSession.getCurrentChatTransport().allowsSmsMessage())

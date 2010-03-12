@@ -14,16 +14,16 @@ import net.java.sip.communicator.util.*;
  * The <tt>ChatContact</tt> is a wrapping class for the <tt>Contact</tt> and
  * <tt>ChatRoomMember</tt> interface.
  *
+ * @param <T> the type of the descriptor
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
-public abstract class ChatContact
+public abstract class ChatContact<T>
 {
     public static final int AVATAR_ICON_HEIGHT = 25;
 
     public static final int AVATAR_ICON_WIDTH = 25;
-
-    private boolean isSelected;
 
     /**
      * The avatar image corresponding to the source contact in the form of an
@@ -38,20 +38,50 @@ public abstract class ChatContact
     private byte[] avatarBytes;
 
     /**
-     * Returns the descriptor object corresponding to this chat contact. In the
-     * case of single chat this could be the <tt>MetaContact</tt> and in the
-     * case of conference chat this could be the <tt>ChatRoomMember</tt>.
-     * 
-     * @return the descriptor object corresponding to this chat contact.
+     * The descriptor being adapted by this instance.
      */
-    public abstract Object getDescriptor();
+    protected final T descriptor;
+
+    private boolean selected;
 
     /**
-     * Returns the contact name.
+     * Initializes a new <tt>ChatContact</tt> instance with a specific
+     * descriptor.
      *
-     * @return the contact name
+     * @param descriptor the descriptor to be adapted by the new instance
      */
-    public abstract String getName();
+    protected ChatContact(T descriptor)
+    {
+        this.descriptor = descriptor;
+    }
+
+    /**
+     * Determines whether a specific <tt>Object</tt> represents the same value
+     * as this <tt>ChatContact</tt>.
+     *
+     * @param obj the <tt>Object</tt> to be checked for value equality with this
+     * <tt>ChatContact</tt>
+     * @return <tt>true</tt> if <tt>obj</tt> represents the same value as this
+     * <tt>ChatContact</tt>; otherwise, <tt>false</tt>.
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+
+        /*
+         * ChatContact is an adapter so two ChatContacts of the same runtime
+         * type with equal descriptors are equal.
+         */
+        if (!getClass().isInstance(obj))
+            return false;
+
+        @SuppressWarnings("unchecked")
+        ChatContact<T> chatContact = (ChatContact<T>) obj;
+
+        return getDescriptor().equals(chatContact.getDescriptor());
+    }
 
     /**
      * Returns the avatar image corresponding to the source contact. In the case
@@ -89,12 +119,46 @@ public abstract class ChatContact
     protected abstract byte[] getAvatarBytes();
 
     /**
+     * Returns the descriptor object corresponding to this chat contact. In the
+     * case of single chat this could be the <tt>MetaContact</tt> and in the
+     * case of conference chat this could be the <tt>ChatRoomMember</tt>.
+     * 
+     * @return the descriptor object corresponding to this chat contact.
+     */
+    public T getDescriptor()
+    {
+        return descriptor;
+    }
+
+    /**
+     * Returns the contact name.
+     *
+     * @return the contact name
+     */
+    public abstract String getName();
+
+    /**
      * Gets the implementation-specific identifier which uniquely specifies this
      * contact.
      * 
      * @return an identifier which uniquely specifies this contact
      */
     public abstract String getUID();
+
+    /**
+     * Gets a hash code value for this object for the benefit of hashtables.
+     *
+     * @return a hash code value for this object
+     */
+    @Override
+    public int hashCode()
+    {
+        /*
+         * ChatContact is an adapter so two ChatContacts of the same runtime
+         * type with equal descriptors are equal.
+         */
+        return getDescriptor().hashCode();
+    }
 
     /**
      * Returns <code>true</code> if this is the currently selected contact in
@@ -104,18 +168,18 @@ public abstract class ChatContact
      */
     public boolean isSelected()
     {
-        return isSelected;
+        return selected;
     }
 
     /**
      * Sets this isSelected property of this chat contact.
      *
-     * @param isSelected <code>true</code> to indicate that this contact would
-     * be the selected contact in the list of chat window contacts, otherwise -
+     * @param selected <code>true</code> to indicate that this contact would be
+     * the selected contact in the list of chat window contacts; otherwise,
      * <code>false</code>
      */
-    public void setSelected(boolean isSelected)
+    public void setSelected(boolean selected)
     {
-        this.isSelected = isSelected;
+        this.selected = selected;
     }
 }

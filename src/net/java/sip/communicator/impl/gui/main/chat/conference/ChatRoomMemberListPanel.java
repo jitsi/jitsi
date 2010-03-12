@@ -67,6 +67,7 @@ public class ChatRoomMemberListPanel
         {
             this.memberList.addMouseListener(new MouseAdapter()
             {
+                @Override
                 public void mouseClicked(MouseEvent e)
                 {
                     if(e.getButton() == MouseEvent.BUTTON3)

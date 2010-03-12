@@ -728,21 +728,12 @@ public class ChatRoomJabberImpl
     {
         multiUserChat.leave();
 
-// FIXME : do we have to do the following when we leave the room ?
-
-        Iterator<Map.Entry<String, ChatRoomMember>> membersSet 
-            = members.entrySet().iterator();
-
-        while(membersSet.hasNext())
-        {
-            Map.Entry<String, ChatRoomMember> memberEntry = membersSet.next();
-
-            ChatRoomMember member = memberEntry.getValue();
-
-            fireMemberPresenceEvent(member,
+        // FIXME Do we have to do the following when we leave the room?
+        for (ChatRoomMember member : members.values())
+            fireMemberPresenceEvent(
+                member,
                 ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
                 "Local user has left the chat room.");
-        }
 
         // Delete the list of members
         members.clear();
