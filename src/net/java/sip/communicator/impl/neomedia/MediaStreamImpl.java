@@ -165,12 +165,6 @@ public class MediaStreamImpl
     private long[] localContributingSourceIDList = null;
 
     /**
-     * The list of CSRC IDs that the remote party reported as contributing to
-     * the media they are sending toward us.
-     */
-    private long[] remoteContributingSourceIDList = null;
-
-    /**
      * The indicator which determines whether this <tt>MediaStream</tt> is set
      * to transmit "silence" instead of the actual media fed from its
      * <tt>MediaDevice</tt>.
@@ -294,6 +288,7 @@ public class MediaStreamImpl
             byte rtpPayloadType,
             MediaFormat format)
     {
+        @SuppressWarnings("unchecked")
         MediaFormatImpl<? extends Format> mediaFormatImpl
             = (MediaFormatImpl<? extends Format>) format;
 
@@ -864,8 +859,6 @@ public class MediaStreamImpl
             //JMF inits the local SSRC upon initialize(RTPConnector) so now's
             //the time to ask:
             setLocalSourceID(((RTPSessionMgr)rtpManager).getLocalSSRC());
-
-            createSendStreams();
         }
         return rtpManager;
     }
@@ -918,7 +911,6 @@ public class MediaStreamImpl
             closeSendStreams();
             if ((getDeviceSession() != null) && (rtpManager != null))
             {
-                createSendStreams();
                 if (MediaDirection.SENDONLY.equals(startedDirection)
                         || MediaDirection.SENDRECV.equals(startedDirection))
                     startSendStreams();
@@ -944,6 +936,7 @@ public class MediaStreamImpl
             for (Map.Entry<Byte, MediaFormat> dynamicRTPPayloadType
                     : dynamicRTPPayloadTypes.entrySet())
             {
+                @SuppressWarnings("unchecked")
                 MediaFormatImpl<? extends Format> mediaFormatImpl
                     = (MediaFormatImpl<? extends Format>)
                         dynamicRTPPayloadType.getValue();
@@ -1285,6 +1278,15 @@ public class MediaStreamImpl
      */
     private void startSendStreams()
     {
+        /*
+         * Until it's clear that the SendStreams are required (i.e. we've
+         * negotiated to send), they will not be created. Otherwise, their
+         * creation isn't only illogical but also causes the CaptureDevice to
+         * be used.
+         */
+        if (!sendStreamsAreCreated)
+            createSendStreams();
+
         RTPManager rtpManager = getRTPManager();
         @SuppressWarnings("unchecked")
         Iterable<SendStream> sendStreams = rtpManager.getSendStreams();
