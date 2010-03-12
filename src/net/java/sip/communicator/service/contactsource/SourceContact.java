@@ -29,6 +29,14 @@ public interface SourceContact
     public String getDisplayName();
 
     /**
+     * Returns the parent <tt>ContactSourceService</tt> from which this contact
+     * came from.
+     * @return the parent <tt>ContactSourceService</tt> from which this contact
+     * came from
+     */
+    public ContactSourceService getContactSource();
+
+    /**
      * Returns the display details of this search contact. This could be any
      * important information that should be shown to the user.
      *
