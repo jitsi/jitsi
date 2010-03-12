@@ -152,8 +152,12 @@ public abstract class AbstractOperationSetBasicInstantMessaging
         logger.debug("Dispatching Message Listeners=" + listeners.size()
             + " evt=" + evt);
 
-        // TODO Create a super class like this MessageEventObject that would contain the MessageEventType.
-        // Also we could fire an event for the MessageDeliveryPending event type (modify MessageListener and OperationSetInstantMessageTransform).
+        /*
+         * TODO Create a super class like this MessageEventObject that would
+         * contain the MessageEventType. Also we could fire an event for the
+         * MessageDeliveryPending event type (modify MessageListener and
+         * OperationSetInstantMessageTransform).
+         */
         MessageEventType eventType = MessageEventType.None;
         if (evt instanceof MessageDeliveredEvent)
         {
@@ -173,11 +177,7 @@ public abstract class AbstractOperationSetBasicInstantMessaging
         if (evt == null)
             return;
         
-        for (Iterator<MessageListener> listenerIter = listeners.iterator(); listenerIter
-            .hasNext();)
-        {
-            MessageListener listener = listenerIter.next();
-
+        for (MessageListener listener : listeners)
             try
             {
                 switch (eventType)
@@ -198,7 +198,6 @@ public abstract class AbstractOperationSetBasicInstantMessaging
             {
                 logger.error("Error delivering message", e);
             }
-        }
     }
 
     /**

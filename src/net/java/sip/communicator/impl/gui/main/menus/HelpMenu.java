@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -30,25 +31,22 @@ public class HelpMenu
     implements ActionListener,
                PluginComponentListener
 {
-    private final Logger logger = Logger.getLogger(HelpMenu.class);
+    private static final Logger logger = Logger.getLogger(HelpMenu.class);
 
     /**
      * Creates an instance of <tt>HelpMenu</tt>.
      * 
-     * @param mainFrame
-     *                the parent window
+     * @param mainFrame the parent window
      */
     public HelpMenu(MainFrame mainFrame)
     {
-        super(GuiActivator.getResources().getI18NString("service.gui.HELP"));
+        ResourceManagementService resources = GuiActivator.getResources();
 
-        this.setForeground(
-            new Color(GuiActivator.getResources().
-                getColor("service.gui.MAIN_MENU_FOREGROUND")));
-        this.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.HELP"));
-
-        this.setOpaque(false);
+        setForeground(
+            new Color(resources.getColor("service.gui.MAIN_MENU_FOREGROUND")));
+        setMnemonic(resources.getI18nMnemonic("service.gui.HELP"));
+        setOpaque(false);
+        setText(resources.getI18NString("service.gui.HELP"));
 
         this.initPluginComponents();
     }
@@ -121,5 +119,4 @@ public class HelpMenu
             this.remove((Component) c.getComponent());
         }
     }
-
 }

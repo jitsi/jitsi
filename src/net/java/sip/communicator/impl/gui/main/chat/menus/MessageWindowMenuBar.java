@@ -15,6 +15,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>MessageWindowMenuBar</tt> is the menu bar in the chat window where
@@ -47,16 +49,14 @@ public class MessageWindowMenuBar
     {
         this.parentWindow = parentWindow;
 
+        final ResourceManagementService resources = GuiActivator.getResources();
+
         this.setForeground(
-            new Color(GuiActivator.getResources()
-                    .getColor("service.gui.MAIN_MENU_FOREGROUND")));
+            new Color(resources.getColor("service.gui.MAIN_MENU_FOREGROUND")));
 
         fileMenu = new FileMenu(this.parentWindow);
-
         editMenu = new EditMenu(this.parentWindow);
-        
         optionsMenu = new OptionsMenu(this.parentWindow);
-
         helpMenu = new HelpMenu(this.parentWindow);
 
         fileMenu.setOpaque(false);
@@ -78,6 +78,18 @@ public class MessageWindowMenuBar
                         Component component,
                         JComponent container)
                     {
+                        /*
+                         * Apply CHAT_MENU_FOREGROUND in order to prevent plugin
+                         * menus from looking different than the built-in menus.
+                         */
+                        if (component instanceof SIPCommMenu)
+                            component
+                                .setForeground(
+                                    new Color(
+                                            resources
+                                                .getColor(
+                                                    "service.gui.CHAT_MENU_FOREGROUND")));
+
                         container.add(component, getComponentIndex(helpMenu));
                     }
                 };
