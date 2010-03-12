@@ -200,7 +200,6 @@ public class CertificateVerificationServiceImpl
 
             this.getContentPane().add(southPanel, BorderLayout.SOUTH);
 
-            validateTree();
             pack();
         }
 
@@ -214,9 +213,10 @@ public class CertificateVerificationServiceImpl
                 certPanel.removeAll();
                 certButton.setText(GuiActivator.getResources()
                     .getI18NString("service.gui.SHOW_CERT"));
+
+                certPanel.revalidate();
+                certPanel.repaint();
                 pack();
-                validateTree();
-                repaint();
                 certOpened = false;
                 setLocationRelativeTo(getParent());
                 return;
@@ -243,9 +243,9 @@ public class CertificateVerificationServiceImpl
             certButton.setText(GuiActivator.getResources()
                 .getI18NString("service.gui.HIDE_CERT"));
 
-            validateTree();
+            certPanel.revalidate();
+            certPanel.repaint();
             pack();
-            repaint();
             certOpened = true;
             setLocationRelativeTo(getParent());
         }
