@@ -114,7 +114,8 @@ public class GlobalStatusSelectorBox
     {
         this.mainFrame = mainFrame;
 
-        JLabel titleLabel = new JLabel("Set global status");
+        JLabel titleLabel = new JLabel(GuiActivator.getResources()
+                        .getI18NString("service.gui.SET_GLOBAL_STATUS"));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
 
@@ -148,7 +149,9 @@ public class GlobalStatusSelectorBox
         this.setIconTextGap(2);
         this.setOpaque(false);
         this.setText("Offline");
-        this.setToolTipText("<html><b>Set global status</b></html>");
+        this.setToolTipText("<html><b>" + GuiActivator.getResources()
+                        .getI18NString("service.gui.SET_GLOBAL_STATUS")
+                        + "</b></html>");
         this.setUI(new SIPCommStatusMenuUI());
 
         fitSizeToText();
