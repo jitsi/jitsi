@@ -27,13 +27,6 @@ public interface ContactSourceService
     public ContactQuery queryContactSource(String queryString);
 
     /**
-     * Queries this search source for the given <tt>searchPattern</tt>.
-     * @param queryPattern the pattern to search for
-     * @return the created query
-     */
-    public ContactQuery queryContactSource(Pattern queryPattern);
-
-    /**
      * Returns the telephony provider preferred for calling items from this
      * source.
      * @return the preferred telephony provider
