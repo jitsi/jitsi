@@ -18,6 +18,12 @@ import net.java.sip.communicator.service.protocol.*;
 public interface ContactSourceService
 {
     /**
+     * Returns a user-friendly string that identifies this contact source.
+     * @return the display name of this contact source
+     */
+    public String getDisplayName();
+
+    /**
      * Queries this search source for the given <tt>searchString</tt>.
      * @param queryString the string to search for
      * @return the created query
