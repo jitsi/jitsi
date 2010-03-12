@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.service.contactsource;
 
-import java.util.regex.*;
-
 import net.java.sip.communicator.service.protocol.*;
 
 /**
