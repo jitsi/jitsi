@@ -19,9 +19,16 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.plaf.*;
 
 import org.osgi.framework.*;
 
+/**
+ * The <tt>AboutWindow</tt> is containing information about the application
+ * name, version, license etc..
+ *
+ * @author Yana Stamcheva
+ */
 public class AboutWindow
     extends JDialog
     implements HyperlinkListener, ActionListener, ExportedWindow
@@ -63,6 +70,10 @@ public class AboutWindow
         = BrandingActivator.getResources()
             .getSettingsInt("plugin.branding.ABOUT_TEXT_INDENT");
 
+    /**
+     * Creates an <tt>AboutWindow</tt> by specifying the parent frame owner.
+     * @param owner the parent owner
+     */
     public AboutWindow(Frame owner)
     {
         super(owner);
@@ -97,6 +108,9 @@ public class AboutWindow
         JTextField versionLabel
             = new JTextField(" "
                     + System.getProperty("sip-communicator.version"));
+        // Force the use of the custom text field UI in order to fix an
+        // incorrect rendering on Ubuntu.
+        versionLabel.setUI(new SIPCommTextFieldUI());
         versionLabel.setBorder(null);
         versionLabel.setOpaque(false);
         versionLabel.setEditable(false);
@@ -110,7 +124,8 @@ public class AboutWindow
 
         // FIXME: the message exceeds the window length
         JTextArea logoArea =
-            new JTextArea(resources.getI18NString("plugin.branding.LOGO_MESSAGE"));
+            new JTextArea(resources.getI18NString(
+                "plugin.branding.LOGO_MESSAGE"));
         logoArea.setFont(
             logoArea.getFont().deriveFont(Font.BOLD, logoAreaFontSize));
         logoArea.setForeground(Constants.TITLE_COLOR);
@@ -126,7 +141,8 @@ public class AboutWindow
         StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
         rightsArea.setContentType("text/html");
 
-        rightsArea.appendToEnd(resources.getI18NString("plugin.branding.COPYRIGHT",
+        rightsArea.appendToEnd(resources.getI18NString(
+            "plugin.branding.COPYRIGHT",
             new String[]
             { Constants.TEXT_COLOR }));
 
@@ -162,7 +178,8 @@ public class AboutWindow
         textPanel.add(rightsArea);
         textPanel.add(licenseArea);
 
-        JButton okButton = new JButton(resources.getI18NString("service.gui.OK"));
+        JButton okButton
+            = new JButton(resources.getI18NString("service.gui.OK"));
 
         this.getRootPane().setDefaultButton(okButton);
 
@@ -229,6 +246,10 @@ public class AboutWindow
         }
     }
 
+    /**
+     * Opens a browser when the link has been activated (clicked).
+     * @param e the <tt>HyperlinkEvent</tt> that notified us
+     */
     public void hyperlinkUpdate(HyperlinkEvent e)
     {
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
@@ -250,6 +271,10 @@ public class AboutWindow
         }
     }
 
+    /**
+     * Indicates that the ok button has been pressed. Closes the window.
+     * @param e the <tt>ActionEvent</tt> that notified us
+     */
     public void actionPerformed(ActionEvent e)
     {
         setVisible(false);
@@ -258,6 +283,7 @@ public class AboutWindow
 
     /**
      * Implements the <tt>ExportedWindow.getIdentifier()</tt> method.
+     * @return the identifier of this exported window
      */
     public WindowID getIdentifier()
     {
