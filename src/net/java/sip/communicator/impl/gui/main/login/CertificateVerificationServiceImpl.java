@@ -14,6 +14,7 @@ import java.security.cert.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.util.swing.*;
 
 
 /**
@@ -55,7 +56,7 @@ public class CertificateVerificationServiceImpl
      * The dialog that is shown to user.
      */
     private static class VerifyCertificateDialog
-        extends JDialog
+        extends SIPCommDialog
     {
         /**
          * The certificate to show.
@@ -75,7 +76,7 @@ public class CertificateVerificationServiceImpl
         /**
          * The certificate panel.
          */
-        JPanel certPanel;
+        TransparentPanel certPanel;
 
         /**
          * Whether certificate description is shown.
@@ -108,10 +109,11 @@ public class CertificateVerificationServiceImpl
          */
         public VerifyCertificateDialog(Certificate[] certs, String host, int port)
         {
-            super(GuiActivator.getUIService().getMainFrame(),
-                  GuiActivator.getResources().getI18NString(
-                        "service.gui.CERT_DIALOG_TITLE"),
-                  true);
+            super(GuiActivator.getUIService().getMainFrame(), false);
+
+            setTitle(GuiActivator.getResources().getI18NString(
+                "service.gui.CERT_DIALOG_TITLE"));
+            setModal(true);
 
             // for now shows only the first certificate from the chain
             this.cert = certs[0];
@@ -153,13 +155,15 @@ public class CertificateVerificationServiceImpl
             descriptionLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
             this.getContentPane().add(descriptionLabel, BorderLayout.CENTER);
 
-            JPanel southPanel = new JPanel(new BorderLayout());
+            TransparentPanel southPanel =
+                new TransparentPanel(new BorderLayout());
             southPanel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
 
-            certPanel = new JPanel();
+            certPanel = new TransparentPanel();
             southPanel.add(certPanel, BorderLayout.CENTER);
 
-            JPanel buttonPanel = new JPanel(new BorderLayout());
+            TransparentPanel buttonPanel =
+                new TransparentPanel(new BorderLayout());
             southPanel.add(buttonPanel, BorderLayout.SOUTH);
 
             certButton = new JButton();
@@ -171,11 +175,13 @@ public class CertificateVerificationServiceImpl
                     actionShowCertificate();
                 }
             });
-            JPanel firstButonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            TransparentPanel firstButonPanel = 
+                new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
             firstButonPanel.add(certButton);
             buttonPanel.add(firstButonPanel, BorderLayout.WEST);
 
-            JPanel secondButonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            TransparentPanel secondButonPanel =
+                new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
             JButton cancelButton = new JButton(
                 GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
             cancelButton.addActionListener(new ActionListener() {
@@ -266,6 +272,15 @@ public class CertificateVerificationServiceImpl
         {
             isTrusted = true;
             dispose();
+        }
+
+        /**
+         * Called when dialog closed or escape pressed.
+         * @param isEscaped is escape button pressed.
+         */
+        protected void close(boolean isEscaped)
+        {
+            actionCancel();
         }
     }
 }
