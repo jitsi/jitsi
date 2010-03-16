@@ -117,7 +117,7 @@ public class ContactDetail
      * the given <tt>opSetClass</tt>
      */
     public ProtocolProviderService getPreferredProtocolProvider(
-        Class<OperationSet> opSetClass)
+        Class<? extends OperationSet> opSetClass)
     {
         return preferredProviders.get(opSetClass);
     }
