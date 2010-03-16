@@ -272,12 +272,13 @@ public interface MetaContactListService
      * @param contactGroup the MetaContactGroup where the newly created meta
      * contact should be stored.
      * @param contactID a protocol specific string identifier indicating the
-     * contact the prtocol provider should create.
+     * contact the protocol provider should create.
+     * @return the newly created <tt>MetaContact</tt>
      *
      * @throws MetaContactListException with an appropriate code if the
      * operation fails for some reason.
      */
-    public void createMetaContact(ProtocolProviderService provider,
+    public MetaContact createMetaContact(ProtocolProviderService provider,
                                   MetaContactGroup contactGroup,
                                   String contactID)
         throws MetaContactListException;
@@ -331,11 +332,12 @@ public interface MetaContactListService
      * @param parentGroup the <tt>MetaContactGroup</tt> that should be the
      * parent of the newly created group.
      * @param groupName the name of the <tt>MetaContactGroup</tt> to create.
+     * @return the newly created <tt>MetaContactGroup</tt>
      *
      * @throws MetaContactListException with an appropriate code if the
      * operation fails for some reason.
      */
-    public void createMetaContactGroup(MetaContactGroup parentGroup,
+    public MetaContactGroup createMetaContactGroup(MetaContactGroup parentGroup,
                                        String groupName)
         throws MetaContactListException;
 

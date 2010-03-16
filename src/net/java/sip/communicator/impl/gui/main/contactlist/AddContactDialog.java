@@ -16,6 +16,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -246,6 +247,34 @@ public class AddContactDialog
         {
             groupCombo.addItem(groupList.next());
         }
+
+        final String newGroupString = GuiActivator.getResources()
+            .getI18NString("service.gui.CREATE_GROUP");
+
+        groupCombo.addItem(newGroupString);
+
+        groupCombo.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if (groupCombo.getSelectedItem().equals(newGroupString))
+                {
+                    CreateGroupDialog dialog
+                        = new CreateGroupDialog(AddContactDialog.this, false);
+                    dialog.setModal(true);
+                    dialog.setVisible(true);
+
+                    MetaContactGroup newGroup = dialog.getNewMetaGroup();
+
+                    if (newGroup != null)
+                    {
+                        groupCombo.insertItemAt(newGroup,
+                                groupCombo.getItemCount() - 2);
+                        groupCombo.setSelectedItem(newGroup);
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -403,13 +432,25 @@ public class AddContactDialog
                                                         boolean isSelected,
                                                         boolean cellHasFocus)
         {
-            MetaContactGroup group = (MetaContactGroup) value;
-
-            if (group.equals(GuiActivator.getContactListService().getRoot()))
-                this.setText(GuiActivator.getResources()
-                    .getI18NString("service.gui.SELECT_NO_GROUP"));
+            if (value instanceof String)
+            {
+                this.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY),
+                    BorderFactory.createEmptyBorder(5, 0, 0, 0)));
+                this.setText((String) value);
+            }
             else
-                this.setText(group.getGroupName());
+            {
+                this.setBorder(null);
+                MetaContactGroup group = (MetaContactGroup) value;
+
+                if (group.equals(GuiActivator
+                    .getContactListService().getRoot()))
+                    this.setText(GuiActivator.getResources()
+                        .getI18NString("service.gui.SELECT_NO_GROUP"));
+                else
+                    this.setText(group.getGroupName());
+            }
 
             if (isSelected)
             {

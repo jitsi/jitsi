@@ -11,9 +11,10 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import sun.font.*;
+
 import net.java.sip.communicator.impl.gui.*;
 
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -47,14 +48,32 @@ public class CreateGroupDialog
     private MetaContactListService clist;
 
     /**
+     * The newly created <tt>MetaContactGroup</tt>.
+     */
+    private MetaContactGroup newMetaGroup;
+
+    /**
      * Creates an instance of <tt>CreateGroupDialog</tt> that represents a dialog
      * that creates a new contact group.
      * 
-     * @param mainFrame The MainFrame window.
+     * @param parentWindow the parent window
      */
-    public CreateGroupDialog(MainFrame mainFrame)
+    public CreateGroupDialog(Window parentWindow)
     {
-        super(mainFrame);
+        this(parentWindow, true);
+    }
+
+    /**
+     * Creates an instance of <tt>CreateGroupDialog</tt> that represents a dialog
+     * that creates a new contact group.
+     *
+     * @param parentWindow the parent window
+     * @param isSaveSizeAndLocation indicates if this dialog should remember its
+     * size and location
+     */
+    public CreateGroupDialog(Window parentWindow, boolean isSaveSizeAndLocation)
+    {
+        super(parentWindow, isSaveSizeAndLocation);
 
         this.clist = GuiActivator.getContactListService();
 
@@ -93,6 +112,10 @@ public class CreateGroupDialog
         this.addWindowFocusListener(this);
     }
 
+    /**
+     * Performs needed actions when one of the buttons is pressed.
+     * @param e the <tt>ActionEvent</tt> that notified us
+     */
     public void actionPerformed(ActionEvent e)
     {
         JButton button = (JButton)e.getSource();
@@ -108,12 +131,17 @@ public class CreateGroupDialog
         }
     }
 
+    /**
+     * Indicates that the window has gained the focus. Requests the focus in
+     * the text field.
+     * @param e the <tt>WindowEvent</tt> that notified us
+     */
     public void windowGainedFocus(WindowEvent e)
     {
         this.groupPanel.requestFocusInField();
     }
 
-    public void windowLostFocus(WindowEvent e) {;}
+    public void windowLostFocus(WindowEvent e) {}
 
     /**
      * Creates a new meta contact group in a separate thread.
@@ -136,7 +164,7 @@ public class CreateGroupDialog
                 {
                     try
                     {
-                        mcl.createMetaContactGroup(
+                        newMetaGroup = mcl.createMetaContactGroup(
                             mcl.getRoot(), groupName);
 
                         dispose();
@@ -192,6 +220,21 @@ public class CreateGroupDialog
         }
     }
 
+    /**
+     * Returns the newly created <tt>MetaContactGroup</tt> if everything is
+     * gone well, otherwise returns null.
+     * @return the newly created <tt>MetaContactGroup</tt>
+     */
+    public MetaContactGroup getNewMetaGroup()
+    {
+        return newMetaGroup;
+    }
+
+    /**
+     * Cancels the application if the window is closed.
+     * @param isEscaped indicates if the window has been closed by pressing the
+     * Esc button.
+     */
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();

@@ -648,11 +648,13 @@ public class MetaContactListServiceImpl
      * @param contactID
      *            a protocol specific string identifier indicating the contact
      *            the protocol provider should create.
+     * @return the newly created <tt>MetaContact</tt>
+     *
      * @throws MetaContactListException
      *             with an appropriate code if the operation fails for some
      *             reason.
      */
-    public void createMetaContact(  ProtocolProviderService provider,
+    public MetaContact createMetaContact(  ProtocolProviderService provider,
                                     MetaContactGroup metaContactGroup,
                                     String contactID)
         throws MetaContactListException
@@ -665,13 +667,16 @@ public class MetaContactListServiceImpl
 
         MetaContactImpl newMetaContact = new MetaContactImpl();
 
-        this.addNewContactToMetaContact(provider, metaContactGroup, newMetaContact,
-                contactID, false);  //don't fire a PROTO_CONT_ADDED event we'll
-                                    //fire our own event here.
+        this.addNewContactToMetaContact(provider, metaContactGroup,
+            newMetaContact, contactID, false);
+            //don't fire a PROTO_CONT_ADDED event we'll
+            //fire our own event here.
 
         fireMetaContactEvent(   newMetaContact,
                                 findParentMetaContactGroup(newMetaContact),
                                 MetaContactEvent.META_CONTACT_ADDED);
+
+        return newMetaContact;
     }
 
     /**
@@ -681,18 +686,19 @@ public class MetaContactListServiceImpl
      * creation of the first protocol specific child contact in the respective
      * group.
      *
-     * * @param parentGroup the <tt>MetaContactGroup</tt> that should be the
+     * @param parentGroup the <tt>MetaContactGroup</tt> that should be the
      * parent of the newly created group.
      * @param parent
      *            the meta contact group inside which the new child group must
      *            be created.
-     * @param groupName
-     *            the name of the <tt>MetaContactGroup</tt> to create.
+     * @param groupName the name of the <tt>MetaContactGroup</tt> to create.
+     * @return the newly created <tt>MetaContactGroup</tt>
+     *
      * @throws MetaContactListException
      *             with an appropriate code if the operation fails for some
      *             reason.
      */
-    public void createMetaContactGroup(MetaContactGroup parent,
+    public MetaContactGroup createMetaContactGroup(MetaContactGroup parent,
                                        String groupName)
         throws MetaContactListException
     {
@@ -731,6 +737,8 @@ public class MetaContactListServiceImpl
         //fire the event
         fireMetaContactGroupEvent(newMetaGroup
             , null, null, MetaContactGroupEvent. META_CONTACT_GROUP_ADDED);
+
+        return newMetaGroup;
     }
 
     /**
