@@ -45,6 +45,8 @@ public class CallDialog
 
     private final Container contentPane = getContentPane();
 
+    private final TransparentPanel settingsPanel = new TransparentPanel();
+
     private JComponent callPanel = null;
 
     private HoldButton holdButton;
@@ -123,9 +125,6 @@ public class CallDialog
     {
         TransparentPanel buttonsPanel
             = new TransparentPanel(new BorderLayout(5, 5));
-
-        TransparentPanel settingsPanel
-            = new TransparentPanel();
 
         SIPCommButton hangupButton = new SIPCommButton(
             ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
@@ -490,6 +489,7 @@ public class CallDialog
                     // conference.
                     if (isLastConference)
                     {
+                        settingsPanel.remove(videoButton);
                         contentPane.remove(callPanel);
                         callPanel
                             = new ConferenceCallPanel(CallDialog.this, call);
