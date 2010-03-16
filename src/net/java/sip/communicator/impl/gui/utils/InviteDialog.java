@@ -283,6 +283,15 @@ public class InviteDialog
     }
 
     /**
+     * Removes all <tt>MetaContact</tt>-s from the right list of selected
+     * contacts for invite.
+     */
+    public void removeAllSelectedContacts()
+    {
+        selectedContactListModel.removeAllElements();
+    }
+
+    /**
      * Returns an enumeration of the list of selected <tt>MetaContact</tt>s.
      * @return an enumeration of the list of selected <tt>MetaContact</tt>s
      */

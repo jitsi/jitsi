@@ -16,6 +16,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -109,9 +110,12 @@ public class CallTransferHandler
 
             if (o instanceof ContactNode)
             {
+                MetaContact metaContact = ((ContactNode) o).getMetaContact();
+                ProtocolProviderService callProvider
+                    = call.getProtocolProvider();
+
                 Iterator<Contact> contacts
-                    = ((ContactNode) o).getMetaContact().getContactsForProvider(
-                        call.getProtocolProvider());
+                    = metaContact.getContactsForProvider(callProvider);
 
                 String callee = null;
                 if (contacts.hasNext())
@@ -129,8 +133,11 @@ public class CallTransferHandler
                         GuiActivator.getResources().getI18NString(
                             "service.gui.ERROR"),
                         GuiActivator.getResources().getI18NString(
-                            "service.gui.CONTACT_NOT_SUPPORTING_TELEPHONY",
-                            new String[]{callee}))
+                            "service.gui.CALL_NOT_SUPPORTING_PARTICIPANT",
+                            new String[]{
+                                callProvider.getAccountID().getService(),
+                                callProvider.getAccountID().getUserID(),
+                                metaContact.getDisplayName()}))
                     .showDialog();
             }
         }

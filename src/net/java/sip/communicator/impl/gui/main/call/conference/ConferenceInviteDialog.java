@@ -102,6 +102,8 @@ public class ConferenceInviteDialog
                 {
                     lastSelectedAccount = accountSelectorBoxSelectedItem;
 
+                    removeAllSelectedContacts();
+
                     initContactListData(
                         (ProtocolProviderService) accountSelectorBox
                             .getSelectedItem());
