@@ -96,6 +96,17 @@ public class CallPeerAdapter
                 NotificationManager.fireNotification(
                     NotificationManager.BUSY_CALL);
         }
+        else if (newState == CallPeerState.CONNECTING_INCOMING_CALL ||
+            newState == CallPeerState.CONNECTING_INCOMING_CALL_WITH_MEDIA)
+        {
+            if (!CallPeerState.isOnHold(oldState))
+            {
+                NotificationManager
+                    .stopSound(NotificationManager.OUTGOING_CALL);
+                NotificationManager
+                    .stopSound(NotificationManager.INCOMING_CALL);
+            }
+        }
         else if (newState == CallPeerState.CONNECTED)
         {
             if (!CallPeerState.isOnHold(oldState))

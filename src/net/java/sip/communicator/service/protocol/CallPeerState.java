@@ -102,6 +102,24 @@ public class CallPeerState
                        new CallPeerState( _CONNECTING_WITH_EARLY_MEDIA );
 
     /**
+     * This constant value indicates that the state of the  incoming call peer
+     * is CONNECTING - which means that a network connection to that peer
+     * is currently being established.
+     */
+    public static final CallPeerState CONNECTING_INCOMING_CALL =
+                       new CallPeerState( _CONNECTING_WITH_EARLY_MEDIA );
+
+    /**
+     * This constant value indicates that the state of the incoming call peer
+     * is CONNECTING - which means that a network connection to that peer
+     * is currently being established and during the process before hearing
+     * the other peer we can still can hear media coming from the 
+     * server for example.
+     */
+    public static final CallPeerState CONNECTING_INCOMING_CALL_WITH_MEDIA =
+                       new CallPeerState( _CONNECTING_WITH_EARLY_MEDIA );
+
+    /**
      * This constant value indicates a String representation of the
      * ALERTING_REMOTE_SIDE call state.
      * <br>This constant has the String value "Alerting Remote User".

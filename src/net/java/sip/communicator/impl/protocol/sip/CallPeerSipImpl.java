@@ -1193,10 +1193,11 @@ public class CallPeerSipImpl
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
+        // This is the sdp offer that came from the initial invite,
+        // also that invite can have no offer.
+        String sdpOffer = null;
         try
         {
-            String sdpOffer = null;
-
             // extract the SDP description.
             // beware: SDP description may be in ACKs so it could be that there's
             // nothing here - bug report Laurent Michel
@@ -1246,6 +1247,11 @@ public class CallPeerSipImpl
         }
 
         fireRequestProcessed(invite, ok);
+
+        if(sdpOffer != null && sdpOffer.length() > 0)
+            setState(CallPeerState.CONNECTING_INCOMING_CALL_WITH_MEDIA);
+        else
+            setState(CallPeerState.CONNECTING_INCOMING_CALL);
     }
 
     /**
