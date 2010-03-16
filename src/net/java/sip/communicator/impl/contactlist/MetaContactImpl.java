@@ -183,6 +183,31 @@ public class MetaContactImpl
     }
 
     /**
+     * Returns all protocol specific Contacts, encapsulated by this MetaContact
+     * and supporting the given <tt>opSetClass</tt>. If none of the
+     * contacts encapsulated by this MetaContact is supporting the specified
+     * <tt>OperationSet</tt> class then an empty iterator is returned.
+     * <p>
+     * @param opSetClass the operation for which the default contact is needed
+     * @return a <tt>List</tt> over all contacts encapsulated in this
+     * <tt>MetaContact</tt> and supporting the specified <tt>OperationSet</tt>
+     */
+    public List<Contact> getContactsForOperationSet(
+                                    Class<? extends OperationSet> opSetClass)
+    {
+        LinkedList<Contact> opSetContacts = new LinkedList<Contact>();
+
+        for (Contact contact : protoContacts)
+        {
+            if(contact.getProtocolProvider()
+                    .getOperationSet(opSetClass) != null)
+                opSetContacts.add( contact );
+        }
+
+        return opSetContacts;
+    }
+
+    /**
      * Returns contacts, encapsulated by this MetaContact and belonging to
      * the specified protocol ContactGroup.
      * <p>

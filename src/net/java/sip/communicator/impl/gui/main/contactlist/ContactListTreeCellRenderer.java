@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.tree.*;
@@ -237,12 +238,36 @@ public class ContactListTreeCellRenderer
             {
                 if (treeNode != null && treeNode instanceof ContactNode)
                 {
-                    Contact contact = ((ContactNode) treeNode).getMetaContact()
-                        .getDefaultContact(OperationSetBasicTelephony.class);
+                    List<Contact> telephonyContacts
+                        = ((ContactNode) treeNode).getMetaContact()
+                            .getContactsForOperationSet(
+                                OperationSetBasicTelephony.class);
 
-                    if (contact != null)
+                    if (telephonyContacts.size() == 1)
+                    {
+                        Contact contact = telephonyContacts.get(0);
                         CallManager.createCall(
-                            contact.getProtocolProvider(), contact);
+                            telephonyContacts.get(0).getProtocolProvider(),
+                            contact);
+                    }
+                    else if (telephonyContacts.size() > 1)
+                    {
+                        ChooseCallAccountPopupMenu chooseAccountDialog
+                            = new ChooseCallAccountPopupMenu(
+                                callButton,
+                                telephonyContacts);
+
+                        Point location = new Point(callButton.getX(),
+                            callButton.getY() + callButton.getHeight());
+
+                        SwingUtilities.convertPointToScreen(
+                            location, tree);
+
+                        location.y = location.y
+                            + tree.getPathBounds(tree.getSelectionPath()).y;
+                        chooseAccountDialog
+                            .showPopupMenu(location.x + 8, location.y - 8);
+                    }
                 }
             }
         });

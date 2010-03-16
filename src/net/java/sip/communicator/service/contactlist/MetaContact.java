@@ -104,7 +104,24 @@ public interface MetaContact
                                               ProtocolProviderService provider);
 
     /**
-     * Returns the MetaContactGroup currently containin this meta contact
+     * Returns all protocol specific Contacts, encapsulated by this MetaContact
+     * and supporting the given <tt>opSetClass</tt>. If none of the
+     * contacts encapsulated by this MetaContact is supporting the specified
+     * <tt>OperationSet</tt> class then an empty list is returned.
+     * <p>
+     * Note to implementors:  In order to prevent problems with concurrency, the
+     * <tt>List</tt> returned by this method should not be the actual list of
+     * contacts but rather a copy of that list.
+     * <p>
+     * @param opSetClass the operation for which the default contact is needed
+     * @return a <tt>List</tt> of all contacts encapsulated in this
+     * <tt>MetaContact</tt> and supporting the specified <tt>OperationSet</tt>
+     */
+    public List<Contact> getContactsForOperationSet(
+                                    Class<? extends OperationSet> opSetClass);
+
+    /**
+     * Returns the MetaContactGroup currently containing this meta contact
      * @return a reference to the MetaContactGroup currently containing this
      * meta contact.
      */
