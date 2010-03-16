@@ -943,17 +943,17 @@ public class CallPeerMediaHandler
          */
         if(stream instanceof VideoMediaStream)
         {
-        	logger.info("Try to open port on NAT if any");
-        	try
-        	{
-        		videoStreamConnector.getDataSocket().send(new DatagramPacket(
-        				new byte[0], 0, target.getDataAddress().getAddress(),
-        				target.getDataAddress().getPort()));
-        	}
-        	catch(Exception e)
-        	{
-        		logger.error("Error cannot send to remote peer");
-        	}
+            logger.info("Try to open port on NAT if any");
+            try
+            {
+                videoStreamConnector.getDataSocket().send(new DatagramPacket(
+                        new byte[0], 0, target.getDataAddress().getAddress(),
+                        target.getDataAddress().getPort()));
+            }
+            catch(Exception e)
+            {
+                logger.error("Error cannot send to remote peer", e);
+            }
         }
         return stream;
     }
