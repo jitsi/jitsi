@@ -272,6 +272,8 @@ public class AddContactDialog
                                 groupCombo.getItemCount() - 2);
                         groupCombo.setSelectedItem(newGroup);
                     }
+                    else
+                        groupCombo.setSelectedIndex(0);
                 }
             }
         });
@@ -462,7 +464,6 @@ public class AddContactDialog
                 setBackground(list.getBackground());
                 setForeground(list.getForeground());
             }
-
             return this;
         }
     }

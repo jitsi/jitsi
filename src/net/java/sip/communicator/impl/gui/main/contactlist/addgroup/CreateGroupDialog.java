@@ -11,8 +11,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import sun.font.*;
-
 import net.java.sip.communicator.impl.gui.*;
 
 import net.java.sip.communicator.service.contactlist.*;
@@ -56,9 +54,20 @@ public class CreateGroupDialog
      * Creates an instance of <tt>CreateGroupDialog</tt> that represents a dialog
      * that creates a new contact group.
      * 
-     * @param parentWindow the parent window
+     * @param parentWindow the parent dialog
      */
-    public CreateGroupDialog(Window parentWindow)
+    public CreateGroupDialog(Dialog parentWindow)
+    {
+        this(parentWindow, true);
+    }
+
+    /**
+     * Creates an instance of <tt>CreateGroupDialog</tt> that represents a dialog
+     * that creates a new contact group.
+     * 
+     * @param parentWindow the parent frame
+     */
+    public CreateGroupDialog(Frame parentWindow)
     {
         this(parentWindow, true);
     }
@@ -67,11 +76,28 @@ public class CreateGroupDialog
      * Creates an instance of <tt>CreateGroupDialog</tt> that represents a dialog
      * that creates a new contact group.
      *
-     * @param parentWindow the parent window
+     * @param parentWindow the parent dialog
      * @param isSaveSizeAndLocation indicates if this dialog should remember its
      * size and location
      */
-    public CreateGroupDialog(Window parentWindow, boolean isSaveSizeAndLocation)
+    public CreateGroupDialog(Dialog parentWindow, boolean isSaveSizeAndLocation)
+    {
+        super(parentWindow, isSaveSizeAndLocation);
+
+        this.clist = GuiActivator.getContactListService();
+
+        this.init();
+    }
+
+    /**
+     * Creates an instance of <tt>CreateGroupDialog</tt> that represents a dialog
+     * that creates a new contact group.
+     *
+     * @param parentWindow the parent frame
+     * @param isSaveSizeAndLocation indicates if this dialog should remember its
+     * size and location
+     */
+    public CreateGroupDialog(Frame parentWindow, boolean isSaveSizeAndLocation)
     {
         super(parentWindow, isSaveSizeAndLocation);
 
