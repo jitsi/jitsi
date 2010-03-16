@@ -937,6 +937,24 @@ public class CallPeerMediaHandler
         if ( ! stream.isStarted())
             stream.start();
 
+
+        /* send empty packet to deblock some kind of RTP proxy to let just
+         * one user sends its video
+         */
+        if(stream instanceof VideoMediaStream)
+        {
+        	logger.info("Try to open port on NAT if any");
+        	try
+        	{
+        		videoStreamConnector.getDataSocket().send(new DatagramPacket(
+        				new byte[0], 0, target.getDataAddress().getAddress(),
+        				target.getDataAddress().getPort()));
+        	}
+        	catch(Exception e)
+        	{
+        		logger.error("Error cannot send to remote peer");
+        	}
+        }
         return stream;
     }
 

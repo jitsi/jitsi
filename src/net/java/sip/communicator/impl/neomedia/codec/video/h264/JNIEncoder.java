@@ -64,9 +64,9 @@ public class JNIEncoder
 
         inputFormats = new Format[1];
 
-        inputFormats[0] = new YUVFormat(null, -1, Format.byteArray, 
+        inputFormats[0] = new YUVFormat(null, -1, Format.byteArray,
                 sourceFrameRate, YUVFormat.YUV_420, -1, -1, 0, -1, -1);
-        
+
         inputFormat = null;
         outputFormat = null;
     }
