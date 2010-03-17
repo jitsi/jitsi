@@ -339,11 +339,88 @@ public class ProtocolProviderServiceJabberImpl
 
                 try
                 {
+                    //Getting global proxy information from configuration files
+                    org.jivesoftware.smack.proxy.ProxyInfo proxy = null;
+                    String globalProxyType =
+                        JabberActivator.getConfigurationService()
+                        .getString(ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
+                    if(globalProxyType == null || 
+                       globalProxyType.equals(ProxyInfo.ProxyType.NONE.name()))
+                    {
+                        proxy = org.jivesoftware.smack.proxy.ProxyInfo
+                            .forNoProxy();
+                    }
+                    else
+                    {
+                        String globalProxyAddress =
+                            JabberActivator.getConfigurationService().getString(
+                            ProxyInfo.CONNECTON_PROXY_ADDRESS_PROPERTY_NAME);
+                        String globalProxyPortStr =
+                            JabberActivator.getConfigurationService().getString(
+                            ProxyInfo.CONNECTON_PROXY_PORT_PROPERTY_NAME);
+                        int globalProxyPort;
+                        try
+                        {
+                            globalProxyPort = Integer.parseInt(
+                                globalProxyPortStr);
+                        }
+                        catch(NumberFormatException ex)
+                        {
+                            throw new OperationFailedException("Wrong port",
+                                OperationFailedException.INVALID_ACCOUNT_PROPERTIES,
+                                ex);
+                        }
+                        String globalProxyUsername =
+                            JabberActivator.getConfigurationService().getString(
+                            ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
+                        String globalProxyPassword =
+                            JabberActivator.getConfigurationService().getString(
+                            ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
+                        if(globalProxyAddress == null ||
+                            globalProxyAddress.length() <= 0)
+                        {
+                            throw new OperationFailedException(
+                                "Missing Proxy Address",
+                                OperationFailedException.INVALID_ACCOUNT_PROPERTIES);
+                        }
+                        if(globalProxyType.equals(
+                            ProxyInfo.ProxyType.HTTP.name()))
+                        {
+                            proxy = org.jivesoftware.smack.proxy.ProxyInfo
+                                .forHttpProxy(
+                                    globalProxyAddress,
+                                    globalProxyPort,
+                                    globalProxyUsername,
+                                    globalProxyPassword);
+                        }
+                        else if(globalProxyType.equals(
+                            ProxyInfo.ProxyType.SOCKS4.name()))
+                        {
+                             proxy = org.jivesoftware.smack.proxy.ProxyInfo
+                                 .forSocks4Proxy(
+                                    globalProxyAddress,
+                                    globalProxyPort,
+                                    globalProxyUsername,
+                                    globalProxyPassword);
+                        }
+                        else if(globalProxyType.equals(
+                            ProxyInfo.ProxyType.SOCKS5.name()))
+                        {
+                             proxy = org.jivesoftware.smack.proxy.ProxyInfo
+                                 .forSocks5Proxy(
+                                    globalProxyAddress,
+                                    globalProxyPort,
+                                    globalProxyUsername,
+                                    globalProxyPassword);
+                        }
+                    }
+
                     ConnectionConfiguration confConn =
                     new ConnectionConfiguration(
                             serverAddress,
                             Integer.parseInt(serverPort),
-                            serviceName
+                            serviceName,
+                            proxy
                     );
                     confConn.setReconnectionAllowed(false);
                     connection = new XMPPConnection(confConn);

@@ -310,18 +310,23 @@ public class ProtocolProviderServiceIcqImpl
             aimSession = session.openAimSession(
                 new Screenname(getAccountID().getUserID()));
 
-            String proxyAddress =
-                getAccountID().getAccountPropertyString(
-                    ProtocolProviderFactory.PROXY_ADDRESS);
-            if(proxyAddress != null && proxyAddress.length() > 0)
+            String globalProxyType =
+                IcqActivator.getConfigurationService()
+                    .getString(ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
+            if(globalProxyType != null &&
+               !globalProxyType.equals(ProxyInfo.ProxyType.NONE.name()))
             {
-                String proxyPortStr =
-                    getAccountID().getAccountPropertyString(
-                        ProtocolProviderFactory.PROXY_PORT);
+                String globalProxyAddress =
+                    IcqActivator.getConfigurationService().getString(
+                        ProxyInfo.CONNECTON_PROXY_ADDRESS_PROPERTY_NAME);
+                String globalProxyPortStr =
+                    IcqActivator.getConfigurationService().getString(
+                        ProxyInfo.CONNECTON_PROXY_PORT_PROPERTY_NAME);
+
                 int proxyPort;
                 try
                 {
-                    proxyPort = Integer.parseInt(proxyPortStr);
+                    proxyPort = Integer.parseInt(globalProxyPortStr);
                 }
                 catch (NumberFormatException ex)
                 {
@@ -329,22 +334,21 @@ public class ProtocolProviderServiceIcqImpl
                         OperationFailedException.INVALID_ACCOUNT_PROPERTIES, ex);
                 }
 
-                String proxyType =
-                    getAccountID().getAccountPropertyString(
-                        ProtocolProviderFactory.PROXY_TYPE);
-
-                if(proxyType == null)
-                    throw new OperationFailedException("Missing proxy type",
+                String globalProxyUsername =
+                    IcqActivator.getConfigurationService().getString(
+                        ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
+                String globalProxyPassword =
+                    IcqActivator.getConfigurationService().getString(
+                        ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
+                if(globalProxyAddress == null ||
+                    globalProxyAddress.length() <= 0)
+                {
+                    throw new OperationFailedException(
+                        "Missing Proxy Address",
                         OperationFailedException.INVALID_ACCOUNT_PROPERTIES);
+                }
 
-                String proxyUsername =
-                    getAccountID().getAccountPropertyString(
-                        ProtocolProviderFactory.PROXY_USERNAME);
-                String proxyPassword =
-                    getAccountID().getAccountPropertyString(
-                        ProtocolProviderFactory.PROXY_PASSWORD);
-
-                if(proxyType.equals("http"))
+                if(globalProxyType.equals(ProxyInfo.ProxyType.HTTP.name()))
                 {
                     // If we are using http proxy, sometimes
                     // default port 5190 is forbidden, so force
@@ -356,9 +360,9 @@ public class ProtocolProviderServiceIcqImpl
                     connProps.setLoginHost("login.icq.com");
                     connProps.setLoginPort(443);
                     aimConnection = aimSession.openConnection(connProps);
-                    aimConnection.setProxy(
-                        AimProxyInfo.forHttp(proxyAddress, proxyPort,
-                                            proxyUsername, proxyPassword));
+                    aimConnection.setProxy(AimProxyInfo.forHttp(
+                        globalProxyAddress, proxyPort,
+                        globalProxyUsername, globalProxyPassword));
                 }
                 else
                 {
@@ -367,14 +371,20 @@ public class ProtocolProviderServiceIcqImpl
                             new Screenname(getAccountID().getUserID())
                             , password));
 
-                    if(proxyType.equals("socks4"))
-                    aimConnection.setProxy(
-                        AimProxyInfo.forSocks4(proxyAddress, proxyPort,
-                                               proxyUsername));
-                    else if(proxyType.equals("socks5"))
-                        aimConnection.setProxy(
-                            AimProxyInfo.forSocks5(proxyAddress, proxyPort,
-                                               proxyUsername, proxyPassword));
+                    if(globalProxyType.equals(
+                        ProxyInfo.ProxyType.SOCKS4.name()))
+                    {
+                        aimConnection.setProxy(AimProxyInfo.forSocks4(
+                            globalProxyAddress, proxyPort,
+                            globalProxyUsername));
+                    }
+                    else if(globalProxyType.equals(
+                        ProxyInfo.ProxyType.SOCKS5.name()))
+                    {
+                        aimConnection.setProxy(AimProxyInfo.forSocks5(
+                            globalProxyAddress, proxyPort,
+                            globalProxyUsername, globalProxyPassword));
+                    }
                 }
             }
             else

@@ -729,6 +729,11 @@
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
                     value="${user.home}/schome"/-->
 
+             <!--sysproperty key="smack.debugEnabled"
+                     value="true"/>
+             <sysproperty key="smack.debuggerClass"
+                     value="org.jivesoftware.smack.debugger.ConsoleDebugger"/-->
+
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
                 path="${ld.library.path}:${path}:${dyld.library.path}"/>
@@ -885,7 +890,7 @@
         bundle-contacteventhandler,bundle-plugin-contactinfo,
         bundle-plugin-accountinfo,bundle-plugin-chatalerter,
         bundle-plugin-autoaway, bundle-keybindings,
-        bundle-plugin-keybindingChooser,
+        bundle-plugin-keybindingChooser,bundle-plugin-globalproxyconfig,
         bundle-jfontchooserlib,
         bundle-updatecheckplugin,
         bundle-dict,bundle-plugin-dictaccregwizz,
@@ -2287,6 +2292,16 @@ org.apache.http.util"/>
             manifest="${testsrc}/net/java/sip/communicator/slick/metahistory/metahistory.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/metahistory"
                 prefix="net/java/sip/communicator/slick/metahistory"/>
+        </jar>
+    </target>
+
+	<!-- BUNDLE-PLUGIN-GLOBALPROXYCONFIG -->
+    <target name="bundle-plugin-globalproxyconfig">
+        <!-- Creates a bundle for the global proxy configuration plugin.-->
+        <jar compress="false" destfile="${bundles.dest}/globalproxyconfig.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/globalproxyconfig/globalproxyconfig.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/globalproxyconfig"
+                prefix="net/java/sip/communicator/plugin/globalproxyconfig"/>
         </jar>
     </target>
 

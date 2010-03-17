@@ -36,15 +36,6 @@ public class FirstWizardPage
 
     private JPanel valuesPanel = new TransparentPanel();
 
-    private JPanel advancedOpPanel
-        = new TransparentPanel(new BorderLayout(10, 10));
-
-    private JPanel labelsAdvOpPanel
-        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
-
-    private JPanel valuesAdvOpPanel
-        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
-
     private JLabel uinLabel
         = new JLabel(Resources.getString("plugin.icqaccregwizz.USERNAME"));
 
@@ -72,32 +63,6 @@ public class FirstWizardPage
 
     private JButton registerButton = new JButton(
         Resources.getString("plugin.icqaccregwizz.REGISTER_NEW_ACCOUNT"));
-
-    private JLabel proxyLabel = new JLabel(
-        Resources.getString("plugin.icqaccregwizz.PROXY"));
-
-    private JLabel proxyPortLabel =
-        new JLabel(Resources.getString("plugin.icqaccregwizz.PROXY_PORT"));
-
-    private JLabel proxyUsernameLabel =
-        new JLabel(Resources.getString("plugin.icqaccregwizz.PROXY_USERNAME"));
-
-    private JLabel proxyPasswordLabel =
-        new JLabel(Resources.getString("plugin.icqaccregwizz.PROXY_PASSWORD"));
-
-    private JLabel proxyTypeLabel =
-        new JLabel(Resources.getString("plugin.icqaccregwizz.PROXY_TYPE"));
-
-    private JTextField proxyField = new JTextField();
-
-    private JTextField proxyPortField = new JTextField();
-
-    private JTextField proxyUsernameField = new JTextField();
-
-    private JPasswordField proxyPassField = new JPasswordField();
-
-    private JComboBox proxyTypeCombo = new JComboBox(new Object[]
-    { "http", "socks5", "socks4" });
 
     private JPanel mainPanel = new TransparentPanel();
 
@@ -170,28 +135,6 @@ public class FirstWizardPage
             .getString("plugin.aimaccregwizz.USERNAME_AND_PASSWORD")));
 
         mainPanel.add(uinPassPanel);
-
-        proxyTypeCombo.setSelectedItem(wizard.getRegistration().getProxyType());
-
-        labelsAdvOpPanel.add(proxyLabel);
-        labelsAdvOpPanel.add(proxyPortLabel);
-        labelsAdvOpPanel.add(proxyTypeLabel);
-        labelsAdvOpPanel.add(proxyUsernameLabel);
-        labelsAdvOpPanel.add(proxyPasswordLabel);
-
-        valuesAdvOpPanel.add(proxyField);
-        valuesAdvOpPanel.add(proxyPortField);
-        valuesAdvOpPanel.add(proxyTypeCombo);
-        valuesAdvOpPanel.add(proxyUsernameField);
-        valuesAdvOpPanel.add(proxyPassField);
-
-        advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
-        advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
-
-        advancedOpPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("plugin.aimaccregwizz.ADVANCED_OPTIONS")));
-
-        mainPanel.add(advancedOpPanel);
 
         this.buttonPanel.add(registerButton);
 
@@ -275,19 +218,6 @@ public class FirstWizardPage
         registration.setPassword(new String(passField.getPassword()));
         registration.setRememberPassword(rememberPassBox.isSelected());
 
-        registration.setProxy(proxyField.getText());
-        registration.setProxyPort(proxyPortField.getText());
-
-        if (proxyTypeCombo.getSelectedItem() != null)
-            registration.setProxyType(
-                proxyTypeCombo.getSelectedItem().toString());
-
-        registration.setProxyUsername(proxyUsernameField.getText());
-
-        if (proxyPassField.getPassword() != null)
-            registration.setProxyPassword(
-                new String(proxyPassField.getPassword()));
-
         nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
 
         isCommitted = true;
@@ -369,32 +299,6 @@ public class FirstWizardPage
 
             this.rememberPassBox.setSelected(true);
         }
-
-        String proxyAddress =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PROXY_ADDRESS);
-
-        String proxyPort =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PROXY_PORT);
-
-        String proxyType =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PROXY_TYPE);
-
-        String proxyUsername =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PROXY_USERNAME);
-
-        String proxyPassword =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PROXY_PASSWORD);
-
-        proxyField.setText(proxyAddress);
-        proxyPortField.setText(proxyPort);
-        proxyTypeCombo.setSelectedItem(proxyType);
-        proxyUsernameField.setText(proxyUsername);
-        proxyPassField.setText(proxyPassword);
     }
 
     public void actionPerformed(ActionEvent e)

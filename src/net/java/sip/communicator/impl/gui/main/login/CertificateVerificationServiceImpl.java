@@ -143,8 +143,13 @@ public class CertificateVerificationServiceImpl
             this.getContentPane().add(imgLabel, BorderLayout.WEST);
 
             String descriptionTxt = GuiActivator.getResources()
-                .getI18NString("service.gui.CERT_DIALOG_DESCRIPTION_TXT",
-                               new String[]{host, String.valueOf(port)});
+                .getI18NString(
+                    "service.gui.CERT_DIALOG_DESCRIPTION_TXT",
+                    new String[]{
+                        GuiActivator.getResources().getSettingsString(
+                            "service.gui.APPLICATION_NAME"),
+                        host,
+                        String.valueOf(port)});
 
             JTextArea descriptionLabel = new JTextArea();
             descriptionLabel.setEditable(false);

@@ -24,6 +24,9 @@ import org.osgi.framework.*;
 public class IcqAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    /**
+     * The logger.
+     */
     private final Logger logger
         = Logger.getLogger(IcqAccountRegistrationWizard.class);
 
@@ -115,26 +118,6 @@ public class IcqAccountRegistrationWizard
         summaryTable.put(Resources.getString("service.gui.REMEMBER_PASSWORD"),
                 Boolean.toString(registration.isRememberPassword()));
 
-        if (registration.getProxy() != null)
-            summaryTable.put(Resources.getString("plugin.icqaccregwizz.PROXY"),
-                registration.getProxy());
-
-        if (registration.getProxyPort() != null)
-            summaryTable.put(Resources.getString("proxyPort"),
-                registration.getProxyPort());
-
-        if (registration.getProxyType() != null)
-            summaryTable.put(Resources.getString("proxyType"),
-                registration.getProxyType());
-
-        if (registration.getProxyPort() != null)
-            summaryTable.put(Resources.getString("proxyUsername"),
-                registration.getProxyUsername());
-
-        if (registration.getProxyType() != null)
-            summaryTable.put(Resources.getString("proxyPassword"),
-                registration.getProxyPassword());
-
         return summaryTable.entrySet().iterator();
     }
 
@@ -143,6 +126,7 @@ public class IcqAccountRegistrationWizard
      * 
      * @return the <tt>ProtocolProviderService</tt> for the newly created
      * account.
+     * @throws OperationFailedException 
      */
     public ProtocolProviderService signin()
         throws OperationFailedException
@@ -170,6 +154,7 @@ public class IcqAccountRegistrationWizard
      * @param user the user identifier
      * @param passwd the password
      * @return the <tt>ProtocolProviderService</tt> for the new account.
+     * @throws OperationFailedException 
      */
     public ProtocolProviderService installAccount(
         ProtocolProviderFactory providerFactory,
@@ -184,31 +169,6 @@ public class IcqAccountRegistrationWizard
         {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
-
-        if (registration.getProxy() != null
-            && registration.getProxy().length() != 0)
-            accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
-                registration.getProxy());
-
-        if (registration.getProxyPort() != null
-            && registration.getProxyPort().length() != 0)
-            accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
-                registration.getProxyPort());
-
-        if (registration.getProxyType() != null
-            && registration.getProxyType().length() != 0)
-            accountProperties.put(ProtocolProviderFactory.PROXY_TYPE,
-                registration.getProxyType());
-
-        if (registration.getProxyUsername() != null
-            && registration.getProxyUsername().length() != 0)
-            accountProperties.put(ProtocolProviderFactory.PROXY_USERNAME,
-                registration.getProxyUsername());
-
-        if (registration.getProxyPassword() != null
-            && registration.getProxyPassword().length() != 0)
-            accountProperties.put(ProtocolProviderFactory.PROXY_PASSWORD,
-                registration.getProxyPassword());
 
         if (isModification)
         {

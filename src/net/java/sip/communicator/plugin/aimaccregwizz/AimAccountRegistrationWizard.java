@@ -24,6 +24,9 @@ import org.osgi.framework.*;
 public class AimAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    /**
+     * The logger.
+     */
     private final Logger logger
         = Logger.getLogger(AimAccountRegistrationWizard.class);
 
@@ -116,34 +119,14 @@ public class AimAccountRegistrationWizard
         summaryTable.put(Resources.getString("service.gui.REMEMBER_PASSWORD"),
                 Boolean.toString(registration.isRememberPassword()));
 
-        if (registration.getProxy() != null)
-            summaryTable.put(Resources.getString("plugin.aimaccregwizz.PROXY"),
-                registration.getProxy());
-
-        if (registration.getProxyPort() != null)
-            summaryTable.put(Resources.getString("plugin.aimaccregwizz.PROXY"),
-                registration.getProxyPort());
-
-        if (registration.getProxyType() != null)
-            summaryTable.put(
-                Resources.getString("plugin.aimaccregwizz.PROXY_TYPE"),
-                registration.getProxyType());
-
-        if (registration.getProxyPort() != null)
-            summaryTable.put(
-                Resources.getString("plugin.aimaccregwizz.PROXY_USERNAME"),
-                registration.getProxyPort());
-
-        if (registration.getProxyType() != null)
-            summaryTable.put(
-                Resources.getString("plugin.aimaccregwizz.PROXY_PASSWORD"),
-                registration.getProxyType());
-
         return summaryTable.entrySet().iterator();
     }
 
     /**
      * Installs the account created through this wizard.
+     * @return the <tt>ProtocolProviderService</tt> for the newly created
+     * account.
+     * @throws OperationFailedException
      */
     public ProtocolProviderService signin()
         throws OperationFailedException
@@ -159,6 +142,8 @@ public class AimAccountRegistrationWizard
      * 
      * @param userName the user name to sign in with
      * @param password the password to sign in with
+     * @return the <tt>ProtocolProviderService</tt> for the new account.
+     * @throws OperationFailedException
      */
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
@@ -177,6 +162,7 @@ public class AimAccountRegistrationWizard
      * @param user the user identifier
      * @param passwd the password
      * @return the <tt>ProtocolProviderService</tt> for the new account.
+     * @throws OperationFailedException 
      */
     public ProtocolProviderService installAccount(
         ProtocolProviderFactory providerFactory, String user, String passwd)
@@ -189,31 +175,6 @@ public class AimAccountRegistrationWizard
         {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
-
-        if (registration.getProxy() != null
-            && registration.getProxy().length() != 0)
-            accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
-                registration.getProxy());
-
-        if (registration.getProxyPort() != null
-            && registration.getProxyPort().length() != 0)
-            accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
-                registration.getProxyPort());
-
-        if (registration.getProxyType() != null
-            && registration.getProxyType().length() != 0)
-            accountProperties.put(ProtocolProviderFactory.PROXY_TYPE,
-                registration.getProxyType());
-
-        if (registration.getProxyUsername() != null
-            && registration.getProxyUsername().length() != 0)
-            accountProperties.put(ProtocolProviderFactory.PROXY_USERNAME,
-                registration.getProxyUsername());
-
-        if (registration.getProxyPassword() != null
-            && registration.getProxyPassword().length() != 0)
-            accountProperties.put(ProtocolProviderFactory.PROXY_PASSWORD,
-                registration.getProxyPassword());
 
         if (isModification)
         {
