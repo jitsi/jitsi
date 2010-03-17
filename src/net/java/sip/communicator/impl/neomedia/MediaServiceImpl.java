@@ -476,17 +476,17 @@ public class MediaServiceImpl
     {
         return new ZrtpControlImpl();
     }
-    
+
     /**
      * Get available screens.
-     * 
+     *
      * @return screens
      */
     public List<ScreenDevice> getAvailableScreenDevices()
     {
       List<ScreenDevice> ret = new ArrayList<ScreenDevice>();
       ScreenDevice screens[] = ScreenDeviceImpl.getAvailableScreenDevice();
-       
+
         if(screens != null)
         {
             /* populates screen list */
@@ -497,7 +497,7 @@ public class MediaServiceImpl
         }
         return ret;
     }
-    
+
     /**
      * Get default screen device.
      *
@@ -509,19 +509,20 @@ public class MediaServiceImpl
       ScreenDevice best = null;
       int width = 0;
       int height = 0;
-      
+
       for(ScreenDevice sc : screens)
       {
         java.awt.Dimension res = sc.getSize();
-        
-        if(width < res.getSize().width || height < res.getSize().height)
+
+        if(res != null && (width < res.getSize().width ||
+                height < res.getSize().height))
         {
           width = res.width;
           height = res.height;
           best = sc;
         }
       }
-      
+
       return best;
     }
 }

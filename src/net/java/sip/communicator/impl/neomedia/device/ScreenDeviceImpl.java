@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.neomedia.device.*;
 
 /**
  * Implementation of <tt>ScreenDevice</tt>.
- * 
+ *
  * @author Sebastien Vincent
  */
 public class ScreenDeviceImpl implements ScreenDevice
@@ -21,10 +21,10 @@ public class ScreenDeviceImpl implements ScreenDevice
      * AWT <tt>GraphicsDevice</tt>.
      */
     GraphicsDevice screen = null;
-    
+
     /**
      * Returns all available <tt>ScreenDevice</tt> device.
-     * 
+     *
      * @return array of <tt>ScreenDevice</tt> device
      */
     public static ScreenDevice[] getAvailableScreenDevice()
@@ -33,7 +33,7 @@ public class ScreenDeviceImpl implements ScreenDevice
         GraphicsDevice devices[] = null;
         GraphicsEnvironment ge = null;
         int i = 0;
-        
+
         try
         {
             ge = GraphicsEnvironment.
@@ -43,31 +43,31 @@ public class ScreenDeviceImpl implements ScreenDevice
         {
             ge = null;
         }
-        
+
         if(ge == null)
         {
             return null;
         }
 
         devices = ge.getScreenDevices();
-        
+
         if(devices == null || devices.length == 0)
         {
             return null;
         }
-        
+
         screens = new ScreenDevice[devices.length];
-        
+
         for(GraphicsDevice dev : devices)
         {
             /* we know that GraphicsDevice type is TYPE_RASTER_SCREEN */
             screens[i] = new ScreenDeviceImpl(dev);
             i++;
         }
-        
+
         return screens;
     }
-    
+
     /**
      * Constructor.
      *
@@ -77,17 +77,22 @@ public class ScreenDeviceImpl implements ScreenDevice
     {
         this.screen = screen;
     }
-    
+
     /**
      * Get current resolution of <tt>ScreenDevice</tt> device.
-     * 
+     *
      * @return current resolution of the screen
      */
     public Dimension getSize()
     {
         /* get current display resolution */
         DisplayMode mode = screen.getDisplayMode();
-        return new Dimension(mode.getWidth(), mode.getHeight());
+
+        if(mode != null)
+        {
+            return new Dimension(mode.getWidth(), mode.getHeight());
+        }
+        return null;
     }
 }
 
