@@ -21,7 +21,8 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class GlobalProxyConfigForm
     extends TransparentPanel
-    implements ActionListener
+    implements ActionListener,
+                KeyListener
 {
     /**
      * Hold the available proxy types.
@@ -64,6 +65,11 @@ public class GlobalProxyConfigForm
      */
     private void init()
     {
+        serverAddressField.addKeyListener(this);
+        portField.addKeyListener(this);
+        usernameField.addKeyListener(this);
+        passwordField.addKeyListener(this);
+
         this.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         TransparentPanel centerPanel = new TransparentPanel(new GridBagLayout());
 
@@ -125,7 +131,7 @@ public class GlobalProxyConfigForm
         constraints.gridy = 4;
         constraints.gridwidth = 4;
         constraints.gridheight = 2;
-        constraints.insets = new Insets(20,20,20,20);
+        constraints.insets = new Insets(20,15,20,15);
         JTextPane pane = new JTextPane();
         pane.setEditable(false);
         pane.setOpaque(false);
@@ -137,21 +143,22 @@ public class GlobalProxyConfigForm
             pane,
             constraints);
 
+        constraints.gridx = 0;
+        constraints.gridy = 6;
+        constraints.gridwidth = 4;
+        constraints.gridheight = 2;
+        constraints.insets = new Insets(20,20,20,20);
+        JEditorPane table = new JEditorPane();
+        table.setContentType("text/html");
+        table.setEditable(false);
+        table.setOpaque(false);
+        table.setText(Resources.getString(
+            "plugin.globalproxy.PROTOCOL_SUPPORT"));
+        centerPanel.add(
+            table,
+            constraints);
+
         add(centerPanel, BorderLayout.NORTH);
-
-        TransparentPanel p = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton saveButton = new JButton(
-            Resources.getString("service.gui.SAVE"));
-        saveButton.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e)
-            {
-                saveValues();
-            }
-        });
-        p.add(saveButton);
-
-        add(p, BorderLayout.SOUTH);
     }
     
     /**
@@ -161,17 +168,6 @@ public class GlobalProxyConfigForm
     {
         ConfigurationService configService =
             GlobalProxyPluginActivator.getConfigurationService();
-
-        try
-        {
-            String type = configService.getString(
-                ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
-            if(type != null)
-                typeCombo.setSelectedItem(ProxyInfo.ProxyType.valueOf(type));
-        } catch (IllegalArgumentException e)
-        {
-            // wrong proxy type stored in configuration
-        }
 
         String serverAddress = configService.getString(
             ProxyInfo.CONNECTON_PROXY_ADDRESS_PROPERTY_NAME);
@@ -189,9 +185,23 @@ public class GlobalProxyConfigForm
             usernameField.setText(username);
 
         String password = configService.getString(
-            ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
+            ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
         if(password != null)
             passwordField.setText(password);
+
+        // we load the types at the end cause a event will ne trigered
+        // when selecting the configured value, which will eventually
+        // trigger a save operation
+        try
+        {
+            String type = configService.getString(
+                ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
+            if(type != null)
+                typeCombo.setSelectedItem(ProxyInfo.ProxyType.valueOf(type));
+        } catch (IllegalArgumentException e)
+        {
+            // wrong proxy type stored in configuration
+        }
 
         if(typeCombo.getSelectedItem().equals(ProxyInfo.ProxyType.NONE))
         {
@@ -245,14 +255,30 @@ public class GlobalProxyConfigForm
 
         String username = usernameField.getText();
         if(username != null && username.length() > 0)
+        {
             configService.setProperty(
                 ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME, username);
+        }
+        else
+        {
+            configService.removeProperty(
+                ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
+        }
 
         char[] password = passwordField.getPassword();
         if(password.length > 0)
+        {
             configService.setProperty(
                 ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME,
                 new String(password));
+        }
+        else
+        {
+            configService.removeProperty(
+                ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
+        }
+
+        GlobalProxyPluginActivator.initProperties();
     }
 
     /**
@@ -275,5 +301,30 @@ public class GlobalProxyConfigForm
             usernameField.setEnabled(true);
             passwordField.setEnabled(true);
         }
+
+        saveValues();
+    }
+
+    /**
+     * Not used.
+     * @param e
+     */
+    public void keyTyped(KeyEvent e)
+    {}
+
+    /**
+     * Not used.
+     * @param e
+     */
+    public void keyPressed(KeyEvent e)
+    {}
+
+    /**
+     * Used to listen for changes and saving on every change.
+     * @param e
+     */
+    public void keyReleased(KeyEvent e)
+    {
+        saveValues();
     }
 }

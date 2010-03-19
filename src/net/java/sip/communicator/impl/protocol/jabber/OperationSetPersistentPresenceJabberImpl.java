@@ -670,62 +670,12 @@ public class OperationSetPersistentPresenceJabberImpl
             currentStatus = newStatus;
 
             super.fireProviderStatusChangeEvent(oldStatus, newStatus);
-        }
-    }
 
-    /**
-     * Our listener that will tell us when we're registered to server
-     * and is ready to accept us as a listener.
-     */
-    private class RegistrationStateListener
-        implements RegistrationStateChangeListener
-    {
-        /**
-         * The method is called by a ProtocolProvider implementation whenver
-         * a change in the registration state of the corresponding provider had
-         * occurred.
-         * @param evt ProviderStatusChangeEvent the event describing the status
-         * change.
-         */
-        public void registrationStateChanged(RegistrationStateChangeEvent evt)
-        {
-            logger.debug("The Jabber provider changed state from: "
-                         + evt.getOldState()
-                         + " to: " + evt.getNewState());
-
-            if(evt.getNewState() == RegistrationState.REGISTERED)
-            {
-                contactChangesListener = new ContactChangesListener();
-                parentProvider.getConnection().getRoster()
-                    .addRosterListener(contactChangesListener);
-
-                fireProviderStatusChangeEvent(
-                    currentStatus,
-                    parentProvider
-                        .getJabberStatusEnum()
-                            .getStatus(JabberStatusEnum.AVAILABLE));
-
-                // init ssList
-                ssContactList.init();
-            }
-            else if(evt.getNewState() == RegistrationState.UNREGISTERED
-                 || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
-                 || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
-            {
-                //since we are disconnected, we won't receive any further status
-                //updates so we need to change by ourselves our own status as
-                //well as set to offline all contacts in our contact list that
-                //were online
-                PresenceStatus oldStatus = currentStatus;
-                PresenceStatus offlineStatus =
+            PresenceStatus offlineStatus =
                     parentProvider.getJabberStatusEnum().getStatus(
                         JabberStatusEnum.OFFLINE);
-                currentStatus = offlineStatus;
-
-                fireProviderStatusChangeEvent(oldStatus, currentStatus);
-
-                contactChangesListener = null;
-
+            if(newStatus.equals(offlineStatus))
+            {
                 //send event notifications saying that all our buddies are
                 //offline. The protocol does not implement top level buddies
                 //nor subgroups for top level groups so a simple nested loop
@@ -780,7 +730,62 @@ public class OperationSetPersistentPresenceJabberImpl
                         , contact.getParentContactGroup()
                         , oldContactStatus, offlineStatus);
                 }
+            }
+        }
+    }
 
+    /**
+     * Our listener that will tell us when we're registered to server
+     * and is ready to accept us as a listener.
+     */
+    private class RegistrationStateListener
+        implements RegistrationStateChangeListener
+    {
+        /**
+         * The method is called by a ProtocolProvider implementation whenever
+         * a change in the registration state of the corresponding provider had
+         * occurred.
+         * @param evt ProviderStatusChangeEvent the event describing the status
+         * change.
+         */
+        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        {
+            logger.debug("The Jabber provider changed state from: "
+                         + evt.getOldState()
+                         + " to: " + evt.getNewState());
+
+            if(evt.getNewState() == RegistrationState.REGISTERED)
+            {
+                contactChangesListener = new ContactChangesListener();
+                parentProvider.getConnection().getRoster()
+                    .addRosterListener(contactChangesListener);
+
+                fireProviderStatusChangeEvent(
+                    currentStatus,
+                    parentProvider
+                        .getJabberStatusEnum()
+                            .getStatus(JabberStatusEnum.AVAILABLE));
+
+                // init ssList
+                ssContactList.init();
+            }
+            else if(evt.getNewState() == RegistrationState.UNREGISTERED
+                 || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
+                 || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
+            {
+                //since we are disconnected, we won't receive any further status
+                //updates so we need to change by ourselves our own status as
+                //well as set to offline all contacts in our contact list that
+                //were online
+                PresenceStatus oldStatus = currentStatus;
+                PresenceStatus offlineStatus =
+                    parentProvider.getJabberStatusEnum().getStatus(
+                        JabberStatusEnum.OFFLINE);
+                currentStatus = offlineStatus;
+
+                fireProviderStatusChangeEvent(oldStatus, currentStatus);
+
+                contactChangesListener = null;
             }
         }
     }

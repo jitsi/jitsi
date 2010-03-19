@@ -314,7 +314,7 @@ public class ProtocolProviderServiceIcqImpl
                 IcqActivator.getConfigurationService()
                     .getString(ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
             if(globalProxyType != null &&
-               !globalProxyType.equals(ProxyInfo.ProxyType.NONE.name()))
+               globalProxyType.equals(ProxyInfo.ProxyType.HTTP.name()))
             {
                 String globalProxyAddress =
                     IcqActivator.getConfigurationService().getString(
@@ -348,44 +348,19 @@ public class ProtocolProviderServiceIcqImpl
                         OperationFailedException.INVALID_ACCOUNT_PROPERTIES);
                 }
 
-                if(globalProxyType.equals(ProxyInfo.ProxyType.HTTP.name()))
-                {
-                    // If we are using http proxy, sometimes
-                    // default port 5190 is forbidden, so force
-                    // http/https port
-                    AimConnectionProperties connProps =
-                        new AimConnectionProperties(
-                            new Screenname(getAccountID().getUserID())
-                            , password);
-                    connProps.setLoginHost("login.icq.com");
-                    connProps.setLoginPort(443);
-                    aimConnection = aimSession.openConnection(connProps);
-                    aimConnection.setProxy(AimProxyInfo.forHttp(
-                        globalProxyAddress, proxyPort,
-                        globalProxyUsername, globalProxyPassword));
-                }
-                else
-                {
-                    aimConnection = aimSession.openConnection(
-                        new AimConnectionProperties(
-                            new Screenname(getAccountID().getUserID())
-                            , password));
-
-                    if(globalProxyType.equals(
-                        ProxyInfo.ProxyType.SOCKS4.name()))
-                    {
-                        aimConnection.setProxy(AimProxyInfo.forSocks4(
-                            globalProxyAddress, proxyPort,
-                            globalProxyUsername));
-                    }
-                    else if(globalProxyType.equals(
-                        ProxyInfo.ProxyType.SOCKS5.name()))
-                    {
-                        aimConnection.setProxy(AimProxyInfo.forSocks5(
-                            globalProxyAddress, proxyPort,
-                            globalProxyUsername, globalProxyPassword));
-                    }
-                }
+                // If we are using http proxy, sometimes
+                // default port 5190 is forbidden, so force
+                // http/https port
+                AimConnectionProperties connProps =
+                    new AimConnectionProperties(
+                        new Screenname(getAccountID().getUserID())
+                        , password);
+                connProps.setLoginHost("login.icq.com");
+                connProps.setLoginPort(443);
+                aimConnection = aimSession.openConnection(connProps);
+                aimConnection.setProxy(AimProxyInfo.forHttp(
+                    globalProxyAddress, proxyPort,
+                    globalProxyUsername, globalProxyPassword));
             }
             else
             {
