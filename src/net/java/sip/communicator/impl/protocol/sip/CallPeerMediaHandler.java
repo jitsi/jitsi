@@ -1437,8 +1437,7 @@ public class CallPeerMediaHandler
             devDirection
                 = devDirection.and(getDirectionUserPreference(mediaType));
 
-            if (supportedFormats.isEmpty()
-                    || (devDirection == MediaDirection.INACTIVE))
+            if (supportedFormats.isEmpty())
             {
                 //remote party must have messed up our SDP. throw an exception.
                 ProtocolProviderServiceSipImpl.throwOperationFailedException(
