@@ -946,10 +946,7 @@ public class VideoMediaDeviceSession
             TrackControl trackControl,
             Format format)
     {
-        VideoFormat videoFormat = (VideoFormat) format;
-        Dimension size = videoFormat.getSize();
-
-        if(size != null)
+        if(outputSize != null)
         {
             /* We have been explicitly told to use a specified output size so
              * create a custom SwScaler that will scale and convert color spaces
@@ -957,7 +954,7 @@ public class VideoMediaDeviceSession
              */
             SwScaler scaler = new SwScaler();
 
-            scaler.setOutputSize(size);
+            scaler.setOutputSize(outputSize);
 
             /* Add our custom SwScaler to the codec chain so that it will be
              * used instead of default.
