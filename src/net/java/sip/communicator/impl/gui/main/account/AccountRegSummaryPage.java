@@ -62,9 +62,9 @@ public class AccountRegSummaryPage
         JPanel wrapPanel = new TransparentPanel(new BorderLayout());
         wrapPanel.add(mainPanel, BorderLayout.NORTH);
 
-        this.setViewportView(wrapPanel);
-
-        this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setOpaque(false);
+        setViewportView(wrapPanel);
     }
 
     /**
