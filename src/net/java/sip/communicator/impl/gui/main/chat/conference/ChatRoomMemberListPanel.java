@@ -43,17 +43,20 @@ public class ChatRoomMemberListPanel
     private final ChatContactListModel memberListModel
         = new ChatContactListModel();
 
-     private final ChatPanel chatPanel;
+    private final ChatPanel chatPanel;
 
     /**
-     * Creates an instance of <tt>ChatContactListPanel</tt>.
-     * @param chat Currently not used
+     * Initializes a new <tt>ChatRoomMemberListPanel</tt> instance which is to
+     * depict the members of a chat specified by its <tt>ChatPanel</tt>.
+     *
+     * @param chatPanel the <tt>ChatPanel</tt> which specifies the chat the new
+     * instance is to depict the members of
      */
-    public ChatRoomMemberListPanel(final ChatPanel chat)
+    public ChatRoomMemberListPanel(ChatPanel chatPanel)
     {
         super(new BorderLayout());
 
-         this.chatPanel = chat;
+        this.chatPanel = chatPanel;
 
         this.memberList.setModel(memberListModel);
         this.memberList.addKeyListener(new CListKeySearchListener(memberList));
@@ -77,7 +80,7 @@ public class ChatRoomMemberListPanel
 
                         if (chatContact != null)
                             new ChatContactRightButtonMenu(
-                                    chat,
+                                    ChatRoomMemberListPanel.this.chatPanel,
                                     chatContact)
                                 .show(memberList, e.getX(), e.getY());
                     }

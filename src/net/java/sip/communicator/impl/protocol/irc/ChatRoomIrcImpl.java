@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class ChatRoomIrcImpl
-    implements  ChatRoom
+    implements ChatRoom
 {
     /**
      * The object used for logging.
@@ -49,7 +49,7 @@ public class ChatRoomIrcImpl
     /**
      * The parent protocol service provider
      */
-    private ProtocolProviderServiceIrcImpl parentProvider;
+    private final ProtocolProviderServiceIrcImpl parentProvider;
 
     /**
      * Listeners that will be notified of changes in member status in the
@@ -106,7 +106,7 @@ public class ChatRoomIrcImpl
      * Indicates if this chat room is a private one (i.e. created with the 
      * query command ).
      */
-    private boolean isPrivate = false;
+    private final boolean isPrivate;
 
     /**
      * Indicates if this chat room is a system one (i.e. corresponding to the

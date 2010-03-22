@@ -373,11 +373,11 @@ public class IrcStack
      * change.
      * @param recipient The nick of the user that got 'de-opp-ed'.
      */
-    protected void onDeop(  String channel,
-                            String sourceNick,
-                            String sourceLogin,
-                            String sourceHostname,
-                            String recipient)
+    protected void onDeop(String channel,
+                          String sourceNick,
+                          String sourceLogin,
+                          String sourceHostname,
+                          String recipient)
     {
         logger.trace("DEOP on " + channel + ": Received from " + sourceNick
                 + " " + sourceLogin + "@" + sourceHostname + "on " + recipient);

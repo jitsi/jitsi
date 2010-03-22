@@ -12,6 +12,7 @@ import net.java.sip.communicator.service.protocol.*;
  * Represents a chat room member.
  *
  * @author Stephane Remy
+ * @author Lubomir Marinov
  */
 public class ChatRoomMemberIrcImpl
     implements ChatRoomMember
@@ -29,12 +30,12 @@ public class ChatRoomMemberIrcImpl
     /**
      * The provider that created us.
      */
-    private ProtocolProviderServiceIrcImpl parentProvider = null;
+    private final ProtocolProviderServiceIrcImpl parentProvider;
 
     /**
      * The role of this member.
      */
-    private ChatRoomMemberRole chatRoomMemberRole = null;
+    private ChatRoomMemberRole chatRoomMemberRole;
 
     /**
      * Creates an instance of <tt>ChatRoomMemberIrcImpl</tt>, by specifying the
@@ -50,9 +51,9 @@ public class ChatRoomMemberIrcImpl
      * corresponding chat room
      */
     public ChatRoomMemberIrcImpl(ProtocolProviderServiceIrcImpl parentProvider,
-            ChatRoom chatRoom,
-            String contactID,
-            ChatRoomMemberRole chatRoomMemberRole)
+                                 ChatRoom chatRoom,
+                                 String contactID,
+                                 ChatRoomMemberRole chatRoomMemberRole)
     {
         this.parentProvider = parentProvider;
         this.chatRoom = chatRoom;

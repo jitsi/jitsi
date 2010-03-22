@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -24,41 +25,32 @@ import net.java.sip.communicator.util.swing.*;
  * button.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ChatRoomSubjectPanel
     extends TransparentPanel
 {
     /**
-     * The object used for logging.
+     * The <tt>Logger</tt> used by the <tt>ChatRoomSubjectPanel</tt> class and
+     * its instances for logging output.
      */
-    private Logger logger = Logger.getLogger(ChatRoomSubjectPanel.class);
-
-    /**
-     * The panel containing the subject of the chat room.
-     */
-    private JLabel subjectLabel = new JLabel(
-        GuiActivator.getResources().getI18NString("service.gui.SUBJECT") + ": ");
-
-    /**
-     * The field containing the subject of the chat room.
-     */
-    private JTextField subjectField = new JTextField();
-
-    /**
-     * The button that opens the configuration form of the chat room.
-     */
-    private JButton configButton = new JButton(new ImageIcon(
-        ImageLoader.getImage(ImageLoader.CHAT_ROOM_CONFIG)));
+    private static final Logger logger
+        = Logger.getLogger(ChatRoomSubjectPanel.class);
 
     /**
      * The corresponding chat session.
      */
-    private ConferenceChatSession chatSession;
+    private final ConferenceChatSession chatSession;
 
     /**
      * The parent window.
      */
-    private ChatWindow chatWindow;
+    private final ChatWindow chatWindow;
+
+    /**
+     * The field containing the subject of the chat room.
+     */
+    private final JTextField subjectField = new JTextField();
 
     /**
      * Creates the panel containing the chat room subject.
@@ -72,34 +64,54 @@ public class ChatRoomSubjectPanel
     {
         super(new BorderLayout(5, 5));
 
-        this.chatSession = chatSession;
         this.chatWindow = chatWindow;
+        this.chatSession = chatSession;
 
-        this.add(subjectLabel, BorderLayout.WEST);
-        this.add(subjectField, BorderLayout.CENTER);
-        this.add(configButton, BorderLayout.EAST);
+        JLabel subjectLabel
+            = new JLabel(
+                    GuiActivator.getResources().getI18NString(
+                            "service.gui.SUBJECT") + ": ");
 
-        this.configButton.setPreferredSize(new Dimension(26, 26));
+        subjectField.setText(chatSession.getChatSubject());
+        // TODO Implement the editing of the chat room subject.
+        subjectField.setEditable(false);
 
-        this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        JButton configButton
+            = new JButton(
+                    new ImageIcon(
+                            ImageLoader.getImage(
+                                    ImageLoader.CHAT_ROOM_CONFIG)));
+        configButton.setPreferredSize(new Dimension(26, 26));
+        configButton.addActionListener(new ConfigButtonActionListener());
 
-        this.configButton.addActionListener(new ConfigButtonActionListener());
-
-        this.subjectField.setText(chatSession.getChatSubject());
-
-        // The subject is set not editable until we implement this functionality.
-        // TODO: Implement the editing of the chat room subject
-        this.subjectField.setEditable(false);
+        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        add(subjectLabel, BorderLayout.WEST);
+        add(subjectField, BorderLayout.CENTER);
+        add(configButton, BorderLayout.EAST);
     }
 
     /**
-     * Sets the subject in the corresponding field.
+     * Gets the (chat room) subject displayed in this
+     * <tt>ChatRoomSubjectPanel</tt>.
+     *
+     * @return the (chat room) subject displayed in this
+     * <tt>ChatRoomSubjectPanel</tt>
+     */
+    public String getSubject()
+    {
+        return subjectField.getText();
+    }
+
+    /**
+     * Sets the (chat room) subject to be displayed in this
+     * <tt>ChatRoomSubjectPanel</tt>.
      * 
-     * @param subject the subject of the chat room
+     * @param subject the (chat room) subject to be displayed in this
+     * <tt>ChatRoomSubjectPanel</tt>
      */
     public void setSubject(String subject)
     {
-        this.subjectField.setText(subject);
+        subjectField.setText(subject);
     }
 
     /**
@@ -119,7 +131,6 @@ public class ChatRoomSubjectPanel
             {
                 ChatRoomConfigurationForm configForm
                     = chatSession.getChatConfigurationForm();
-
                 ChatRoomConfigurationWindow configWindow
                     = new ChatRoomConfigurationWindow(
                         chatSession.getChatName(), configForm);
@@ -132,30 +143,31 @@ public class ChatRoomSubjectPanel
                 logger.error(
                     "Failed to obtain the chat room configuration form.", e);
 
+                ResourceManagementService resources
+                    = GuiActivator.getResources();
+
                 if(e.getErrorCode()
                     == OperationFailedException.NOT_ENOUGH_PRIVILEGES)
                 {
                     new ErrorDialog(
-                        chatWindow,
-                        GuiActivator.getResources()
-                            .getI18NString("service.gui.WARNING"),
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.CHAT_ROOM_CONFIGURATION_FORBIDDEN",
-                            new String[]{chatSession.getChatName()}),
-                        ErrorDialog.WARNING)
-                            .showDialog();
+                            chatWindow,
+                            resources.getI18NString("service.gui.WARNING"),
+                            resources.getI18NString(
+                                    "service.gui.CHAT_ROOM_CONFIGURATION_FORBIDDEN",
+                                    new String[]{chatSession.getChatName()}),
+                            ErrorDialog.WARNING)
+                        .showDialog();
                 }
                 else
                 {
                     new ErrorDialog(
-                        chatWindow,
-                        GuiActivator.getResources()
-                            .getI18NString("service.gui.ERROR"),
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.CHAT_ROOM_CONFIGURATION_FAILED",
-                            new String[]{
-                            chatSession.getChatName()}),
-                        e).showDialog();
+                            chatWindow,
+                            resources.getI18NString("service.gui.ERROR"),
+                            resources.getI18NString(
+                                    "service.gui.CHAT_ROOM_CONFIGURATION_FAILED",
+                                    new String[]{chatSession.getChatName()}),
+                            e)
+                        .showDialog();
                 }
             }
         }

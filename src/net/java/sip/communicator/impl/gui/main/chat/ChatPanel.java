@@ -279,7 +279,6 @@ public class ChatPanel
 
         if (chatContactListPanel != null)
         {
-
             // Initialize chat participants' panel.
             Iterator<ChatContact> chatParticipants
                 = chatSession.getParticipants();
@@ -1774,6 +1773,17 @@ public class ChatPanel
     {
         if (subjectPanel != null)
         {
+            // Don't do anything if the subject doesn't really change.
+            String oldSubject = subjectPanel.getSubject();
+
+            if ((subject == null ) || (subject.length() == 0))
+            {
+                if ((oldSubject == null) || (oldSubject.length() == 0))
+                    return;
+            }
+            else if (subject.equals(oldSubject))
+                return;
+
             subjectPanel.setSubject(subject);
 
             this.addMessage(

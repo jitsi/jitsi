@@ -86,8 +86,8 @@ public class ChatContactListModel
         if (chatContact == null)
             throw new IllegalArgumentException("chatContact");
 
-        int index = -1;
         int chatContactCount = chatContacts.size();
+        int index = -1;
 
         for (int i = 0; i < chatContactCount; i++)
         {
@@ -104,7 +104,7 @@ public class ChatContactListModel
             }
         }
         if (index == -1)
-            index = 0;
+            index = chatContactCount;
 
         chatContacts.add(index, chatContact);
         fireIntervalAdded(this, index, index);
