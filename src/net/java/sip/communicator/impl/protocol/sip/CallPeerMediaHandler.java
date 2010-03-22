@@ -941,21 +941,33 @@ public class CallPeerMediaHandler
         /* send empty packet to deblock some kind of RTP proxy to let just
          * one user sends its video
          */
-        if(stream instanceof VideoMediaStream)
+        if(stream instanceof VideoMediaStream &&
+                videoDirectionUserPreference == MediaDirection.RECVONLY)
         {
-            logger.info("Try to open port on NAT if any");
-            try
-            {
-                videoStreamConnector.getDataSocket().send(new DatagramPacket(
-                        new byte[0], 0, target.getDataAddress().getAddress(),
-                        target.getDataAddress().getPort()));
-            }
-            catch(Exception e)
-            {
-                logger.error("Error cannot send to remote peer", e);
-            }
+            sendHolePunchPacket(target);
         }
         return stream;
+    }
+
+    /**
+     * Send empty UDP packet to target destination in order to open port
+     * on NAT or RTP proxy if any.
+     *
+     * @param target <tt>MediaStreamTarget</tt>
+     */
+    private void sendHolePunchPacket(MediaStreamTarget target)
+    {
+        logger.info("Try to open port on NAT if any");
+        try
+        {
+            videoStreamConnector.getDataSocket().send(new DatagramPacket(
+                    new byte[0], 0, target.getDataAddress().getAddress(),
+                    target.getDataAddress().getPort()));
+        }
+        catch(Exception e)
+        {
+            logger.error("Error cannot send to remote peer", e);
+        }
     }
 
     /**
