@@ -188,9 +188,7 @@ public class JNIEncoder
 
         Format inFormat = inBuffer.getFormat();
         if (inFormat != inputFormat && !(inFormat.matches(inputFormat)))
-        {
             setInputFormat(inFormat);
-        }
 
         if (inBuffer.getLength() < 10)
         {
@@ -225,6 +223,7 @@ public class JNIEncoder
         outBuffer.setData(r);
         outBuffer.setLength(r.length);
         outBuffer.setOffset(0);
+        //outBuffer.setTimeStamp(inBuffer.getTimeStamp());
 
         return BUFFER_PROCESSED_OK;
     }

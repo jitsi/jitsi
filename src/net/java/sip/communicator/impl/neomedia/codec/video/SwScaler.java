@@ -11,6 +11,7 @@ import java.awt.*;
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.util.*;
 import net.sf.fmj.media.*;
 
@@ -24,12 +25,25 @@ import net.sf.fmj.media.*;
 public class SwScaler
     extends AbstractCodec
 {
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>SwScaler</tt> class and its instances
+     * for logging output.
+     */
     private static final Logger logger = Logger.getLogger(SwScaler.class);
-    
+
+    /**
+     * The <tt>FrameProcessingControl</tt> of this <tt>Codec</tt> which allows
+     * JMF to instruct it to drop frames because it's behind schedule.
+     */
+    private final FrameProcessingControlImpl frameProcessingControl
+        = new FrameProcessingControlImpl();
+
     /**
      * Supported input formats.
      */
-    private final Format[] supportedInputFormats = new Format[] {
+    private final Format[] supportedInputFormats = new Format[]
+    {
         new RGBFormat(null, -1, Format.byteArray, -1.0f, 32, -1, -1, -1),
         new RGBFormat(null, -1, Format.intArray, -1.0f, 32, -1, -1, -1),
         new RGBFormat(null, -1, Format.shortArray, -1.0f, 32, -1, -1, -1),
@@ -47,7 +61,8 @@ public class SwScaler
     /**
      * Supported output formats.
      */
-    private Format[] supportedOutputFormats = new Format[] {
+    private Format[] supportedOutputFormats = new Format[]
+    {
         new YUVFormat(null, -1, Format.byteArray, -1.0f, YUVFormat.YUV_420, 
                 -1, -1, 0, -1, -1),
         new YUVFormat(null, -1, Format.intArray, -1.0f, YUVFormat.YUV_420, 
@@ -61,6 +76,16 @@ public class SwScaler
         new RGBFormat(null, -1, Format.intArray, -1.0f, 24, -1, -1, -1),
         new RGBFormat(null, -1, Format.shortArray, -1.0f, 24, -1, -1, -1),
     };
+
+    /**
+     * Initializes a new <tt>SwScaler</tt> instance which doesn't have an output
+     * size and will use a default one when it becomes necessary unless an
+     * explicit one is specified in the meantime.
+     */
+    public SwScaler()
+    {
+        addControl(frameProcessingControl);
+    }
 
     /**
      * Sets the <tt>Format</tt> in which this <tt>Codec</tt> is to output media
@@ -83,33 +108,36 @@ public class SwScaler
     }
 
     /**
-     * Sets output size.
+     * Sets the output size.
      *
-     * @param size size to set
+     * @param size the size to set as the output size
      */
     public void setOutputSize(Dimension size)
     {
         if(size == null)
             size = new Dimension(640, 480);
 
-        supportedOutputFormats[0] = new YUVFormat(size, -1, Format.byteArray,
-                -1.0f, YUVFormat.YUV_420, -1, -1, 0, -1, -1);
-        supportedOutputFormats[1] = new YUVFormat(size, -1, Format.intArray,
-                -1.0f, YUVFormat.YUV_420, -1, -1, 0, -1, -1);
-        supportedOutputFormats[2] = new YUVFormat(size, -1, Format.shortArray,
-                -1.0f, YUVFormat.YUV_420, -1, -1, 0, -1, -1);
-        supportedOutputFormats[3] = new RGBFormat(size, -1, Format.byteArray,
-                -1.0f, 32, -1, -1, -1);
-        supportedOutputFormats[4] = new RGBFormat(size, -1, Format.intArray,
-                -1.0f, 32, -1, -1, -1);
-        supportedOutputFormats[5] = new RGBFormat(size, -1, Format.shortArray,
-                -1.0f, 32, -1, -1, -1);
-        supportedOutputFormats[6] = new RGBFormat(size, -1, Format.byteArray,
-                -1.0f, 24, -1, -1, -1);
-        supportedOutputFormats[7] = new RGBFormat(size, -1, Format.intArray,
-                -1.0f, 24, -1, -1, -1);
-        supportedOutputFormats[8] = new RGBFormat(size, -1, Format.shortArray,
-                -1.0f, 24, -1, -1, -1);
+        supportedOutputFormats[0]
+            = new YUVFormat(size, -1, Format.byteArray, -1.0f,
+                    YUVFormat.YUV_420, -1, -1, 0, -1, -1);
+        supportedOutputFormats[1]
+            = new YUVFormat(size, -1, Format.intArray, -1.0f, YUVFormat.YUV_420,
+                    -1, -1, 0, -1, -1);
+        supportedOutputFormats[2]
+            = new YUVFormat(size, -1, Format.shortArray, -1.0f,
+                    YUVFormat.YUV_420, -1, -1, 0, -1, -1);
+        supportedOutputFormats[3]
+            = new RGBFormat(size, -1, Format.byteArray, -1.0f, 32, -1, -1, -1);
+        supportedOutputFormats[4]
+            = new RGBFormat(size, -1, Format.intArray, -1.0f, 32, -1, -1, -1);
+        supportedOutputFormats[5]
+            = new RGBFormat(size, -1, Format.shortArray, -1.0f, 32, -1, -1, -1);
+        supportedOutputFormats[6]
+            = new RGBFormat(size, -1, Format.byteArray, -1.0f, 24, -1, -1, -1);
+        supportedOutputFormats[7]
+            = new RGBFormat(size, -1, Format.intArray, -1.0f, 24, -1, -1, -1);
+        supportedOutputFormats[8]
+            = new RGBFormat(size, -1, Format.shortArray, -1.0f, 24, -1, -1, -1);
 
         // Set the size to the outputFormat as well.
         VideoFormat outputFormat = (VideoFormat) getOutputFormat();
@@ -179,7 +207,7 @@ public class SwScaler
      * Gets the <tt>Format</tt> in which this <tt>Codec</tt> is currently
      * configured to accept input media data.
      * <p>
-     * Make the protected super implementation public.
+     * Makes the protected super implementation public.
      * </p>
      *
      * @return the <tt>Format</tt> in which this <tt>Codec</tt> is currently
@@ -192,6 +220,11 @@ public class SwScaler
         return super.getInputFormat();
     }
 
+    /**
+     * Gets the output size.
+     *
+     * @return the output size
+     */
     public Dimension getOutputSize()
     {
         Format outputFormat = getOutputFormat();
@@ -230,36 +263,40 @@ public class SwScaler
         /* if size is set for element 0 (YUVFormat), it is also set 
          * for element 1 (RGBFormat) and so on...
          */
-        Dimension size = ((VideoFormat)supportedOutputFormats[0]).getSize();
-
-        if(size != null)
-            return supportedOutputFormats;
+        Dimension size = ((VideoFormat) supportedOutputFormats[0]).getSize();
 
         /* no specified size set so return the same size as input
          * in output format supported
          */
-        size = ((VideoFormat)input).getSize();
+        VideoFormat videoInput = (VideoFormat) input;
 
-        return new Format[] { 
-                              new YUVFormat(size, -1, Format.byteArray, -1.0f,
-                                      YUVFormat.YUV_420, -1, -1, 0, -1, -1),
-                              new YUVFormat(size, -1, Format.intArray, -1.0f,
-                                      YUVFormat.YUV_420, -1, -1, 0, -1, -1),
-                              new YUVFormat(size, -1, Format.shortArray, -1.0f,
-                                      YUVFormat.YUV_420, -1, -1, 0, -1, -1),
-                              new RGBFormat(size, -1, Format.byteArray, -1.0f,
-                                      32, -1, -1, -1),
-                              new RGBFormat(size, -1, Format.intArray, -1.0f,
-                                      32, -1, -1, -1),
-                              new RGBFormat(size, -1, Format.shortArray, -1.0f,
-                                      32, -1, -1, -1),
-                              new RGBFormat(size, -1, Format.byteArray, -1.0f,
-                                      24, -1, -1, -1),
-                              new RGBFormat(size, -1, Format.intArray, -1.0f,
-                                      24, -1, -1, -1),
-                              new RGBFormat(size, -1, Format.shortArray, -1.0f,
-                                      24, -1, -1, -1),
-                            };
+        if(size == null)
+            size = videoInput.getSize();
+
+        float frameRate = videoInput.getFrameRate();
+
+        return
+            new Format[]
+            { 
+                new YUVFormat(size, -1, Format.byteArray, frameRate,
+                        YUVFormat.YUV_420, -1, -1, 0, -1, -1),
+                new YUVFormat(size, -1, Format.intArray, frameRate,
+                        YUVFormat.YUV_420, -1, -1, 0, -1, -1),
+                new YUVFormat(size, -1, Format.shortArray, frameRate,
+                        YUVFormat.YUV_420, -1, -1, 0, -1, -1),
+                new RGBFormat(size, -1, Format.byteArray, frameRate, 32, -1, -1,
+                        -1),
+                new RGBFormat(size, -1, Format.intArray, frameRate, 32, -1, -1,
+                        -1),
+                new RGBFormat(size, -1, Format.shortArray, frameRate, 32, -1,
+                        -1, -1),
+                new RGBFormat(size, -1, Format.byteArray, frameRate, 24, -1, -1,
+                        -1),
+                new RGBFormat(size, -1, Format.intArray, frameRate, 24, -1, -1,
+                        -1),
+                new RGBFormat(size, -1, Format.shortArray, frameRate, 24, -1,
+                        -1, -1)
+            };
     }
 
     /**
@@ -277,8 +314,11 @@ public class SwScaler
                 ? null // size is required
                 : super.setInputFormat(format);
 
-        if (logger.isDebugEnabled() && (inputFormat != null))
-            logger.debug("SwScaler set to input in " + inputFormat);
+        if (inputFormat != null)
+        {
+            if (logger.isDebugEnabled())
+                logger.debug("SwScaler set to input in " + inputFormat);
+        }
         return inputFormat;
     }
 
@@ -341,6 +381,26 @@ public class SwScaler
             propagateEOM(output);   // TODO Can there be any data?
             return BUFFER_PROCESSED_OK;
         }
+        if (input.isDiscard() || frameProcessingControl.isMinimalProcessing())
+        {
+            output.setDiscard(true);
+            return BUFFER_PROCESSED_OK;
+        }
+
+        /* determine input format */
+        VideoFormat inputFormat = (VideoFormat)input.getFormat();
+        Format thisInputFormat = getInputFormat();
+
+        if ((inputFormat != thisInputFormat)
+                && !inputFormat.equals(thisInputFormat))
+            setInputFormat(inputFormat);
+
+        int srcFmt;
+
+        if(inputFormat instanceof YUVFormat)
+            srcFmt = FFMPEG.PIX_FMT_YUV420P;
+        else // RGBFormat
+            srcFmt = getNativeRGBFormat((RGBFormat)inputFormat);
 
         VideoFormat outputFormat = (VideoFormat) getOutputFormat();
 
@@ -375,15 +435,6 @@ public class SwScaler
             dstFmt = FFMPEG.PIX_FMT_RGB32;
             dstLength = (outputWidth * outputHeight * 4);
         }
-        
-        /* determine input format */
-        VideoFormat inputFormat = (VideoFormat)input.getFormat();
-        int srcFmt;
-
-        if(inputFormat instanceof YUVFormat)
-            srcFmt = FFMPEG.PIX_FMT_YUV420P;
-        else // RGBFormat
-            srcFmt = getNativeRGBFormat((RGBFormat)inputFormat);
 
         Class<?> outputDataType = outputFormat.getDataType();
         Object dst = output.getData();
@@ -428,9 +479,13 @@ public class SwScaler
         }
 
         output.setData(dst);
+        output.setDuration(input.getDuration());
+        output.setFlags(input.getFlags());
         output.setFormat(outputFormat);
         output.setLength(dstLength);
         output.setOffset(0);
+        output.setSequenceNumber(input.getSequenceNumber());
+        output.setTimeStamp(input.getTimeStamp());
 
         return BUFFER_PROCESSED_OK;   
     }

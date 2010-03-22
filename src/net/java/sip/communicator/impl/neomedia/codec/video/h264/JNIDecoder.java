@@ -38,8 +38,8 @@ public class JNIDecoder
 
     private final VideoFormat[] outputFormats;
 
-    private final VideoFormat[] defaultOutputFormats = new VideoFormat[]
-    { new RGBFormat() };
+    private final VideoFormat[] defaultOutputFormats
+        = new VideoFormat[] { new RGBFormat() };
 
     // The codec we will use
     private long avcontext;
@@ -51,8 +51,8 @@ public class JNIDecoder
     private long frameRGB;
 
     // The parser used to parse rtp content
-    private final H264Parser parser =
-        new H264Parser(FFMPEG.FF_INPUT_BUFFER_PADDING_SIZE);
+    private final H264Parser parser
+        = new H264Parser(FFMPEG.FF_INPUT_BUFFER_PADDING_SIZE);
     
     // current width of video, so we can detect changes in video size
     private double currentVideoWidth;
@@ -70,12 +70,11 @@ public class JNIDecoder
      */
     public JNIDecoder()
     {
-        inputFormats = new VideoFormat[]
-        { new VideoFormat(Constants.H264_RTP) };
+        inputFormats
+            = new VideoFormat[] { new VideoFormat(Constants.H264_RTP) };
 
         outputFormats = new VideoFormat[1];
-
-        /* default output format */
+        // default output format
         outputFormats[0] = new RGBFormat(
                 new Dimension(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT), 
                 -1, Format.intArray,
@@ -90,28 +89,37 @@ public class JNIDecoder
     {
         VideoFormat ivf = (VideoFormat) in;
         Dimension inSize = ivf.getSize();
+        Dimension outSize;
 
-        VideoFormat ovf;
         // return the default size/currently decoder and encoder
         // set to transmit/receive at this size
         if (inSize == null)
         {
-            ovf = outputFormats[0];
+            VideoFormat ovf = outputFormats[0];
+
+            if (ovf == null)
+                return null;
+            else
+                outSize = ovf.getSize();
         }
         else
-        {
-            /* output in same size as input */
-            ovf = ivf;
-        }
+            outSize = inSize; // Output in same size as input.
 
-        if (ovf == null)
-            return null;
-
-        Dimension outSize = ovf.getSize();
-        return new Format[]
-        { new RGBFormat(outSize, -1, Format.intArray,
-            ensureFrameRate(ivf.getFrameRate()), 32, RED_MASK, GREEN_MASK,
-            BLUE_MASK, 1, outSize.width, Format.FALSE, Format.NOT_SPECIFIED) };
+        return
+            new Format[]
+            {
+                new RGBFormat(
+                        outSize,
+                        -1,
+                        Format.intArray,
+                        ensureFrameRate(ivf.getFrameRate()),
+                        32,
+                        RED_MASK, GREEN_MASK, BLUE_MASK,
+                        1,
+                        outSize.width,
+                        Format.FALSE,
+                        Format.NOT_SPECIFIED)
+            };
     }
 
     /**
@@ -122,23 +130,15 @@ public class JNIDecoder
     @Override
     public Format setInputFormat(Format format)
     {
-        if (super.setInputFormat(format) != null)
-        {
-            reset();
-            return format;
-        }
-        else
-            return null;
-    }
+        Format setFormat = super.setInputFormat(format);
 
-    @Override
-    public Format setOutputFormat(Format format)
-    {
-        return super.setOutputFormat(format);
+        if (setFormat != null)
+            reset();
+        return setFormat;
     }
 
     /**
-     * Init the codec instances.
+     * Inits the codec instances.
      */
     @Override
     public synchronized void open()
@@ -246,16 +246,20 @@ public class JNIDecoder
 
             VideoFormat ivf = (VideoFormat) inputBuffer.getFormat();
             /* output format with same size as input */
-            VideoFormat ovf = new RGBFormat(new Dimension(avctxWidth, 
-                        avctxHeight), -1, Format.intArray,
-                        ensureFrameRate(ivf.getFrameRate()), 32, RED_MASK, GREEN_MASK,
-                        BLUE_MASK, 1, avctxWidth, Format.FALSE, 
+            VideoFormat ovf
+                = new RGBFormat(
+                        new Dimension(avctxWidth, avctxHeight),
+                        -1,
+                        Format.intArray,
+                        ensureFrameRate(ivf.getFrameRate()),
+                        32,
+                        RED_MASK, GREEN_MASK, BLUE_MASK,
+                        1,
+                        avctxWidth, Format.FALSE, 
                         Format.NOT_SPECIFIED);
 
             if (ovf != null)
-            {
                 outputFormat = ovf;
-            }
         }
         outputBuffer.setFormat(outputFormat);
 
@@ -290,11 +294,13 @@ public class JNIDecoder
         FFMPEG
             .memcpy(data, 0, dataLength, FFMPEG.avpicture_get_data0(frameRGB));
 
-        outputBuffer.setOffset(0);
-        outputBuffer.setLength(dataLength);
         outputBuffer.setData(data);
+        outputBuffer.setLength(dataLength);
+        outputBuffer.setOffset(0);
+        //outputBuffer.setTimeStamp(inputBuffer.getTimeStamp());
 
         FFMPEG.av_free(buffer);
+
         return BUFFER_PROCESSED_OK;
     }
 
@@ -318,15 +324,11 @@ public class JNIDecoder
     {
         // null input format
         if (in == null)
-        {
             return defaultOutputFormats;
-        }
 
         // mismatch input format
         if (!(in instanceof VideoFormat) || (matches(in, inputFormats) == null))
-        {
             return new Format[0];
-        }
 
         // match input format
         return getMatchingOutputFormats(in);
@@ -338,10 +340,8 @@ public class JNIDecoder
     public static Format matches(Format in, Format outs[])
     {
         for (Format out : outs)
-        {
             if (in.matches(out))
                 return out;
-        }
         return null;
     }
 }
