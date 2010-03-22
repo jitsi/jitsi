@@ -11,11 +11,13 @@ import java.io.*;
 
 import javax.media.*;
 import javax.media.MediaException;
+import javax.media.control.*;
 import javax.media.protocol.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -94,12 +96,54 @@ public class MediaConfigurationPanel
     private void controllerUpdateForPreview(ControllerEvent event,
         Container videoContainer)
     {
-        if (event instanceof RealizeCompleteEvent)
+        if (event instanceof ConfigureCompleteEvent)
+        {
+            Processor player = (Processor) event.getSourceController();
+
+            /*
+             * Use SwScaler for the scaling since it produces an image with
+             * better quality.
+             */
+            TrackControl[] trackControls = player.getTrackControls();
+
+            if ((trackControls != null) && (trackControls.length != 0))
+                try
+                {
+                    for (TrackControl trackControl : trackControls)
+                    {
+                        SwScaler playerScaler = new SwScaler();
+
+                        trackControl.setCodecChain(
+                                new Codec[] { playerScaler });
+                        break;
+                    }
+                }
+                catch (UnsupportedPlugInException upiex)
+                {
+                    logger.warn("Failed to add SwScaler to codec chain", upiex);
+                }
+
+            // Turn the Processor into a Player.
+            try
+            {
+                player.setContentDescriptor(null);
+            }
+            catch (NotConfiguredError nce)
+            {
+                logger.error(
+                    "Failed to set ContentDescriptor of Processor",
+                    nce);
+            }
+
+            player.realize();
+        }
+        else if (event instanceof RealizeCompleteEvent)
         {
             Player player = (Player) event.getSourceController();
             Component video = player.getVisualComponent();
 
             showPreview(videoContainer, video, player);
+            player.start();
         }
     }
 
@@ -465,7 +509,10 @@ public class MediaConfigurationPanel
         VideoMediaStreamImpl
                 .selectVideoSize(dataSource, size.width, size.height);
 
-        Player player = Manager.createPlayer(dataSource);
+        // A Player is documented to be created on a connected DataSource.
+        dataSource.connect();
+
+        Processor player = Manager.createProcessor(dataSource);
 
         videoPlayerInPreview = player;
 
@@ -476,7 +523,7 @@ public class MediaConfigurationPanel
                 controllerUpdateForPreview(event, videoContainer);
             }
         });
-        player.start();
+        player.configure();
     }
 
     /**
