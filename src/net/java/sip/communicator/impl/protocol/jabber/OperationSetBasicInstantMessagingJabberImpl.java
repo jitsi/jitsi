@@ -491,7 +491,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
 
-            if (evt.getNewState() == RegistrationState.REGISTERED)
+            if (evt.getNewState() == RegistrationState.REGISTERING)
             {
                 opSetPersPresence =
                     (OperationSetPersistentPresenceJabberImpl) jabberProvider
@@ -503,7 +503,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
                             new PacketFilter[]{new GroupMessagePacketFilter(),
                             new PacketTypeFilter(
                             org.jivesoftware.smack.packet.Message.class)}));
-
+            }
+            else if (evt.getNewState() == RegistrationState.REGISTERED)
+            {
                 //subscribe for Google (GMail or Google Apps) notifications
                 //for new mail messages.
                 boolean enableGmailNotifications

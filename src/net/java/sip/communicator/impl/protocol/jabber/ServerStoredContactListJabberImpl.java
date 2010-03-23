@@ -172,8 +172,12 @@ public class ServerStoredContactListJabberImpl
             while (iter.hasNext())
             {
                 ContactJabberImpl c = (ContactJabberImpl)iter.next();
-                parentOperationSet.firePresenceStatuschanged(
-                    roster.getPresence(c.getAddress()));
+
+                // roster can be null, receiving system messages from server
+                // before we are log in
+                if(roster != null)
+                    parentOperationSet.firePresenceStatuschanged(
+                        roster.getPresence(c.getAddress()));
             }
         }
 
