@@ -8,12 +8,20 @@ package net.java.sip.communicator.impl.gui.main.login;
 
 import java.awt.*;
 import java.awt.event.*;
-
-import javax.swing.*;
+import java.security.MessageDigest;
 import java.security.cert.*;
+import java.security.interfaces.*;
+import java.text.*;
+
+import javax.naming.*;
+import javax.swing.*;
+import javax.naming.ldap.*;
+import javax.security.auth.x500.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.service.resources.*;
+
 import net.java.sip.communicator.util.swing.*;
 
 
@@ -59,6 +67,18 @@ public class CertificateVerificationServiceImpl
         extends SIPCommDialog
     {
         /**
+         * Date formatter.
+         */
+        private static SimpleDateFormat dateFormatter =
+            new SimpleDateFormat(GuiActivator.getResources()
+                .getI18NString("service.gui.CERT_INFO_DATE_FORMAT"));
+
+        /**
+         * Used for converting bytes to HEX.
+         */
+        private static final String HEXES = "0123456789ABCDEF";
+
+        /**
          * The certificate to show.
          */
         Certificate cert;
@@ -77,6 +97,11 @@ public class CertificateVerificationServiceImpl
          * The certificate panel.
          */
         TransparentPanel certPanel;
+
+        /**
+         * This dialog content pane.
+         */
+        TransparentPanel contentPane;
 
         /**
          * Whether certificate description is shown.
@@ -120,8 +145,6 @@ public class CertificateVerificationServiceImpl
             this.host = host;
             this.port = port;
 
-            setMinimumSize(new Dimension(600, 200));
-
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
             init();
@@ -134,13 +157,20 @@ public class CertificateVerificationServiceImpl
          */
         private void init()
         {
-            this.getContentPane().setLayout(new BorderLayout(5, 5));
+            this.getContentPane().setLayout(new BorderLayout());
+
+            contentPane =
+                new TransparentPanel(new BorderLayout(5, 5));
+
+            TransparentPanel northPanel =
+                new TransparentPanel(new BorderLayout(5, 5));
+            northPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
 
             JLabel imgLabel = new JLabel(
                 GuiActivator.getResources().getImage(
                     "impl.media.security.zrtp.CONF_ICON"));
             imgLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            this.getContentPane().add(imgLabel, BorderLayout.WEST);
+            northPanel.add(imgLabel, BorderLayout.WEST);
 
             String descriptionTxt = GuiActivator.getResources()
                 .getI18NString(
@@ -151,28 +181,21 @@ public class CertificateVerificationServiceImpl
                         host,
                         String.valueOf(port)});
 
-            JTextArea descriptionLabel = new JTextArea();
-            descriptionLabel.setEditable(false);
-            descriptionLabel.setWrapStyleWord(true);
-            descriptionLabel.setLineWrap(true);
-            descriptionLabel.setOpaque(false);
-            descriptionLabel.setText(descriptionTxt);
-            descriptionLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-            this.getContentPane().add(descriptionLabel, BorderLayout.CENTER);
+            JLabel descriptionLabel = new JLabel(descriptionTxt);
+
+            northPanel.add(descriptionLabel, BorderLayout.CENTER);
+            contentPane.add(northPanel, BorderLayout.NORTH);
+
+            certPanel = new TransparentPanel();
+            contentPane.add(certPanel, BorderLayout.CENTER);
 
             TransparentPanel southPanel =
                 new TransparentPanel(new BorderLayout());
-            southPanel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
-
-            certPanel = new TransparentPanel();
-            southPanel.add(certPanel, BorderLayout.CENTER);
-
-            TransparentPanel buttonPanel =
-                new TransparentPanel(new BorderLayout());
-            southPanel.add(buttonPanel, BorderLayout.SOUTH);
+            contentPane.add(southPanel, BorderLayout.SOUTH);
 
             certButton = new JButton();
-            certButton.setText("Show Certificate");
+            certButton.setText(GuiActivator.getResources()
+                .getI18NString("service.gui.SHOW_CERT"));
             certButton.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e)
@@ -183,7 +206,7 @@ public class CertificateVerificationServiceImpl
             TransparentPanel firstButonPanel = 
                 new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
             firstButonPanel.add(certButton);
-            buttonPanel.add(firstButonPanel, BorderLayout.WEST);
+            southPanel.add(firstButonPanel, BorderLayout.WEST);
 
             TransparentPanel secondButonPanel =
                 new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -207,9 +230,9 @@ public class CertificateVerificationServiceImpl
             });
             secondButonPanel.add(continueButton);
             secondButonPanel.add(cancelButton);
-            buttonPanel.add(secondButonPanel, BorderLayout.EAST);
+            southPanel.add(secondButonPanel, BorderLayout.EAST);
 
-            this.getContentPane().add(southPanel, BorderLayout.SOUTH);
+            this.getContentPane().add(contentPane, BorderLayout.CENTER);
 
             pack();
         }
@@ -225,8 +248,8 @@ public class CertificateVerificationServiceImpl
                 certButton.setText(GuiActivator.getResources()
                     .getI18NString("service.gui.SHOW_CERT"));
 
-                certPanel.revalidate();
-                certPanel.repaint();
+                contentPane.revalidate();
+                contentPane.repaint();
                 pack();
                 certOpened = false;
                 setLocationRelativeTo(getParent());
@@ -236,11 +259,21 @@ public class CertificateVerificationServiceImpl
             certPanel.setLayout(new BorderLayout());
             certPanel.add(alwaysTrustCheckBox, BorderLayout.NORTH);
 
-            JTextArea certInfoPane = new JTextArea();
-            certInfoPane.setEditable(false);
-            certInfoPane.setText(cert.toString());
+            Component certInfoPane = null;
+            if(cert instanceof X509Certificate)
+            {
+                certInfoPane = getX509DisplayComponent((X509Certificate)cert);
+            }
+            else
+            {
+                JTextArea textArea = new JTextArea();
+                textArea.setEditable(false);
+                textArea.setText(cert.toString());
+                certInfoPane = textArea;
+            }
+            
             final JScrollPane certScroll = new JScrollPane(certInfoPane);
-            certScroll.setPreferredSize(new Dimension(200, 200));
+            certScroll.setPreferredSize(new Dimension(300, 300));
             certPanel.add(certScroll, BorderLayout.CENTER);
 
             SwingUtilities.invokeLater(new Runnable()
@@ -254,8 +287,8 @@ public class CertificateVerificationServiceImpl
             certButton.setText(GuiActivator.getResources()
                 .getI18NString("service.gui.HIDE_CERT"));
 
-            certPanel.revalidate();
-            certPanel.repaint();
+            contentPane.revalidate();
+            contentPane.repaint();
             pack();
             certOpened = true;
             setLocationRelativeTo(getParent());
@@ -286,6 +319,414 @@ public class CertificateVerificationServiceImpl
         protected void close(boolean isEscaped)
         {
             actionCancel();
+        }
+
+        /**
+         *
+         * @param certificate
+         * @return
+         */
+        private static Component getX509DisplayComponent(
+            X509Certificate certificate)
+        {
+            Insets valueInsets = new Insets(2,10,0,0);
+            Insets titleInsets = new Insets(10,5,0,0);
+
+            ResourceManagementService resources = GuiActivator.getResources();
+
+            TransparentPanel certDisplayPanel =
+                new TransparentPanel(new GridBagLayout());
+
+            int currentRow = 0;
+
+            GridBagConstraints constraints = new GridBagConstraints();
+            constraints.anchor = GridBagConstraints.WEST;
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.insets = new Insets(2,5,0,0);
+            constraints.gridx = 0;
+            constraints.weightx = 0;
+            constraints.weighty = 0;
+            constraints.gridy = currentRow++;
+
+            X500Principal issuer = certificate.getIssuerX500Principal();
+            X500Principal subject = certificate.getSubjectX500Principal();
+
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_ISSUED_TO")),
+                constraints);
+
+            constraints.gridy = currentRow++;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_CN")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(getCertificateValue(subject.getName(), "CN")),
+                constraints);
+            
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_O")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(getCertificateValue(subject.getName(), "O")),
+                constraints);
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_C")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(getCertificateValue(subject.getName(), "C")),
+                constraints);
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_ST")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(getCertificateValue(subject.getName(), "ST")),
+                constraints);
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_L")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(getCertificateValue(subject.getName(), "L")),
+                constraints);
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            constraints.insets = titleInsets;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_ISSUED_BY")),
+                constraints);
+            constraints.insets = valueInsets;
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_C")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(getCertificateValue(issuer.getName(), "C")),
+                constraints);
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_O")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(getCertificateValue(issuer.getName(), "O")),
+                constraints);
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_OU")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(getCertificateValue(issuer.getName(), "OU")),
+                constraints);
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            constraints.insets = titleInsets;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_VALIDITY")),
+                constraints);
+            constraints.insets = valueInsets;
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_ISSUED_ON")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(dateFormatter.format(certificate.getNotBefore())),
+                constraints);
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_EXPIRES_ON")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(dateFormatter.format(certificate.getNotAfter())),
+                constraints);
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            constraints.insets = titleInsets;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_FINGERPRINTS")),
+                constraints);
+            constraints.insets = valueInsets;
+
+            try
+            {
+                MessageDigest md = MessageDigest.getInstance("SHA1");
+                md.update(certificate.getEncoded());
+                String sha1String = getHex(md.digest());
+
+                md = MessageDigest.getInstance("MD5");
+                md.update(certificate.getEncoded());
+                String md5String = getHex(md.digest());
+
+                JTextArea sha1Area = new JTextArea(sha1String);
+                sha1Area.setLineWrap(false);
+                sha1Area.setOpaque(false);
+                sha1Area.setWrapStyleWord(true);
+                sha1Area.setEditable(false);
+
+                constraints.gridy = currentRow++;
+                constraints.gridx = 0;
+                certDisplayPanel.add(new JLabel("SHA1:"),
+                    constraints);
+                
+                constraints.gridx = 1;
+                certDisplayPanel.add(
+                    sha1Area,
+                    constraints);
+
+                constraints.gridy = currentRow++;
+                constraints.gridx = 0;
+                certDisplayPanel.add(new JLabel("MD5:"),
+                    constraints);
+
+                JTextArea md5Area = new JTextArea(md5String);
+                md5Area.setLineWrap(false);
+                md5Area.setOpaque(false);
+                md5Area.setWrapStyleWord(true);
+                md5Area.setEditable(false);
+
+                constraints.gridx = 1;
+                certDisplayPanel.add(
+                    md5Area,
+                    constraints);
+            }
+            catch (Exception e)
+            {
+                // do nothing as we cannot show this value
+            }
+            
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            constraints.insets = titleInsets;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_CERT_DETAILS")),
+                constraints);
+            constraints.insets = valueInsets;
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_SER_NUM")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(certificate.getSerialNumber().toString()),
+                constraints);
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_VER")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(String.valueOf(certificate.getVersion())),
+                constraints);
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_SIGN_ALG")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(String.valueOf(certificate.getSigAlgName())),
+                constraints);
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            constraints.insets = titleInsets;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_PUB_KEY_INFO")),
+                constraints);
+            constraints.insets = valueInsets;
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_ALG")),
+                constraints);
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                new JLabel(certificate.getPublicKey().getAlgorithm()),
+                constraints);
+
+            if(certificate.getPublicKey().getAlgorithm().equals("RSA"))
+            {
+                RSAPublicKey key = (RSAPublicKey)certificate.getPublicKey();
+
+                constraints.gridy = currentRow++;
+                constraints.gridx = 0;
+                certDisplayPanel.add(new JLabel(
+                    resources.getI18NString("service.gui.CERT_INFO_PUB_KEY")),
+                    constraints);
+
+                JTextArea pubkeyArea = new JTextArea(
+                    resources.getI18NString(
+                        "service.gui.CERT_INFO_KEY_BYTES_PRINT",
+                        new String[]{
+                            String.valueOf(key.getModulus().toByteArray().length - 1),
+                            key.getModulus().toString(16)
+                        }));
+                pubkeyArea.setLineWrap(false);
+                pubkeyArea.setOpaque(false);
+                pubkeyArea.setWrapStyleWord(true);
+                pubkeyArea.setEditable(false);
+
+                constraints.gridx = 1;
+                certDisplayPanel.add(
+                    pubkeyArea,
+                    constraints);
+
+                constraints.gridy = currentRow++;
+                constraints.gridx = 0;
+                certDisplayPanel.add(new JLabel(
+                    resources.getI18NString("service.gui.CERT_INFO_EXP")),
+                    constraints);
+                constraints.gridx = 1;
+                certDisplayPanel.add(
+                    new JLabel(key.getPublicExponent().toString()),
+                    constraints);
+
+                constraints.gridy = currentRow++;
+                constraints.gridx = 0;
+                certDisplayPanel.add(new JLabel(
+                    resources.getI18NString("service.gui.CERT_INFO_KEY_SIZE")),
+                    constraints);
+                constraints.gridx = 1;
+                certDisplayPanel.add(
+                    new JLabel(resources.getI18NString(
+                        "service.gui.CERT_INFO_KEY_BITS_PRINT",
+                        new String[]{
+                            String.valueOf(key.getModulus().bitLength())})),
+                    constraints);
+            }
+            else if(certificate.getPublicKey().getAlgorithm().equals("DSA"))
+            {
+                DSAPublicKey key =
+                    (DSAPublicKey)certificate.getPublicKey();
+
+                constraints.gridy = currentRow++;
+                constraints.gridx = 0;
+                certDisplayPanel.add(new JLabel("Y:"), constraints);
+
+                JTextArea yArea = new JTextArea(key.getY().toString(16));
+                yArea.setLineWrap(false);
+                yArea.setOpaque(false);
+                yArea.setWrapStyleWord(true);
+                yArea.setEditable(false);
+
+                constraints.gridx = 1;
+                certDisplayPanel.add(
+                    yArea,
+                    constraints);
+            }
+
+            constraints.gridy = currentRow++;
+            constraints.gridx = 0;
+            certDisplayPanel.add(new JLabel(
+                resources.getI18NString("service.gui.CERT_INFO_SIGN")),
+                constraints);
+
+            JTextArea signArea = new JTextArea(
+                resources.getI18NString(
+                        "service.gui.CERT_INFO_KEY_BYTES_PRINT",
+                        new String[]{
+                            String.valueOf(certificate.getSignature().length),
+                            getHex(certificate.getSignature())
+                        }));
+            signArea.setLineWrap(false);
+            signArea.setOpaque(false);
+            signArea.setWrapStyleWord(true);
+            signArea.setEditable(false);
+
+            constraints.gridx = 1;
+            certDisplayPanel.add(
+                signArea,
+                constraints);
+
+            return certDisplayPanel;
+        }
+
+        /**
+         * Extract values from certificate DNs(Distinguished Names).
+         * @param rfc2253String the certificate string.
+         * @param attributeName the DN attribute name to search for.
+         * @return empty string or the found value.
+         */
+        private static String getCertificateValue(
+            String rfc2253String, String attributeName)
+        {
+            try
+            {
+                LdapName issuerDN = new LdapName(rfc2253String);
+                java.util.List<Rdn> l = issuerDN.getRdns();
+                for (int i = 0; i < l.size(); i++)
+                {
+                    Rdn rdn = l.get(i);
+                    if (rdn.getType().equals(attributeName))
+                    {
+                        return (String) rdn.getValue();
+                    }
+                }
+            }
+            catch (InvalidNameException ex)
+            {
+                // do nothing
+            }
+
+            return "";
+        }
+
+        /**
+         * Converts the byte array to hex string.
+         * @param raw the data.
+         * @return the hex string.
+         */
+        public static String getHex( byte [] raw )
+        {
+            if ( raw == null )
+            {
+                return null;
+            }
+            final StringBuilder hex = new StringBuilder( 2 * raw.length );
+            for ( final byte b : raw )
+            {
+                hex.append(HEXES.charAt((b & 0xF0) >> 4))
+                    .append(HEXES.charAt((b & 0x0F)));
+            }
+            return hex.toString();
         }
     }
 }
