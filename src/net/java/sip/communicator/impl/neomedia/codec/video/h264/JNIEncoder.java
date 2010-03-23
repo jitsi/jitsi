@@ -263,7 +263,7 @@ public class JNIEncoder
         FFMPEG.avcodeccontext_set_bit_rate_tolerance(avcontext, _bitRate);
         FFMPEG.avcodeccontext_set_rc_max_rate(avcontext, _bitRate);
         FFMPEG.avcodeccontext_set_sample_aspect_ratio(avcontext, 0, 0);
-        FFMPEG.avcodeccontext_set_thread_count(avcontext, 0);
+        FFMPEG.avcodeccontext_set_thread_count(avcontext, 1);
         /* time base should be 1 / frame rate */
         FFMPEG.avcodeccontext_set_time_base(avcontext, 1, TARGET_FRAME_RATE);
         FFMPEG.avcodeccontext_set_quantizer(avcontext, 22, 30, 4);
