@@ -133,21 +133,23 @@ public class MediaUtils
             Constants.TELEPHONE_EVENT,
             8000);
 
+        addMediaFormats((byte) SdpConstants.JPEG,
+                        "JPEG",
+                        MediaType.VIDEO,
+                        VideoFormat.JPEG_RTP);
+
+        /* We don't really support these.
         addMediaFormats(
             (byte) SdpConstants.H263,
             "H263",
             MediaType.VIDEO,
             VideoFormat.H263_RTP);
         addMediaFormats(
-            (byte) SdpConstants.JPEG,
-            "JPEG",
-            MediaType.VIDEO,
-            VideoFormat.JPEG_RTP);
-        addMediaFormats(
             (byte) SdpConstants.H261,
             "H261",
             MediaType.VIDEO,
             VideoFormat.H261_RTP);
+         */
 
         Map<String, String> h264FormatParams
             = new HashMap<String, String>();
