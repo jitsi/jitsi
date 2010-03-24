@@ -21,7 +21,7 @@ import javax.security.auth.x500.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.resources.*;
-
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 
@@ -34,6 +34,11 @@ import net.java.sip.communicator.util.swing.*;
 public class CertificateVerificationServiceImpl
     implements CertificateVerificationService
 {
+    /**
+     * The logger.
+     */
+    private static final Logger logger =
+        Logger.getLogger(CertificateVerificationServiceImpl.class);
 
     /**
      * Checks does the user trust the supplied chain of certificates, when
@@ -45,12 +50,27 @@ public class CertificateVerificationServiceImpl
      * @return  the result of user interaction on of DO_NOT_TRUST, TRUST_ALWAYS,
      *          TRUST_THIS_SESSION_ONLY.
      */
-    public int verificationNeeded(Certificate[] chain, String toHost, int toPort)
+    public int verificationNeeded(
+        final Certificate[] chain, final String toHost, final int toPort)
     {
-        VerifyCertificateDialog dialog = new VerifyCertificateDialog(
-            chain, toHost, toPort);
-
-        dialog.setVisible(true);
+        final VerifyCertificateDialog dialog = new VerifyCertificateDialog(
+                        chain, toHost, toPort);
+        try
+        {
+            // show the dialog in the swing thread and wait for the user
+            // choice
+            SwingUtilities.invokeAndWait(new Runnable() {
+                public void run()
+                {
+                    dialog.setVisible(true);
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            logger.error("Cannot show certificate verification dialog", e);
+            return DO_NOT_TRUST;
+        }
 
         if(!dialog.isTrusted)
             return DO_NOT_TRUST;
@@ -77,6 +97,16 @@ public class CertificateVerificationServiceImpl
          * Used for converting bytes to HEX.
          */
         private static final String HEXES = "0123456789ABCDEF";
+
+        /**
+         * The maximum width that we allow message dialogs to have.
+         */
+        private static final int MAX_MSG_PANE_WIDTH = 600;
+
+        /**
+         * The maximum height that we allow message dialogs to have.
+         */
+        private static final int MAX_MSG_PANE_HEIGHT = 800;
 
         /**
          * The certificate to show.
@@ -181,9 +211,18 @@ public class CertificateVerificationServiceImpl
                         host,
                         String.valueOf(port)});
 
-            JLabel descriptionLabel = new JLabel(descriptionTxt);
+            JEditorPane descriptionPane = new JEditorPane();
+            descriptionPane.setOpaque(false);
+            descriptionPane.setEditable(false);
+            descriptionPane.setContentType("text/html");
+            descriptionPane.setText(descriptionTxt);
+            descriptionPane.setSize(
+                        new Dimension(MAX_MSG_PANE_WIDTH, MAX_MSG_PANE_HEIGHT));
+            int height = descriptionPane.getPreferredSize().height;
+            descriptionPane.setPreferredSize(
+                        new Dimension(MAX_MSG_PANE_WIDTH, height));
 
-            northPanel.add(descriptionLabel, BorderLayout.CENTER);
+            northPanel.add(descriptionPane, BorderLayout.CENTER);
             contentPane.add(northPanel, BorderLayout.NORTH);
 
             certPanel = new TransparentPanel();
@@ -248,8 +287,8 @@ public class CertificateVerificationServiceImpl
                 certButton.setText(GuiActivator.getResources()
                     .getI18NString("service.gui.SHOW_CERT"));
 
-                contentPane.revalidate();
-                contentPane.repaint();
+                certPanel.revalidate();
+                certPanel.repaint();
                 pack();
                 certOpened = false;
                 setLocationRelativeTo(getParent());
@@ -271,7 +310,7 @@ public class CertificateVerificationServiceImpl
                 textArea.setText(cert.toString());
                 certInfoPane = textArea;
             }
-            
+
             final JScrollPane certScroll = new JScrollPane(certInfoPane);
             certScroll.setPreferredSize(new Dimension(300, 300));
             certPanel.add(certScroll, BorderLayout.CENTER);
@@ -284,11 +323,15 @@ public class CertificateVerificationServiceImpl
                 }
             });
 
-            certButton.setText(GuiActivator.getResources()
+                certButton.setText(GuiActivator.getResources()
                 .getI18NString("service.gui.HIDE_CERT"));
-
-            contentPane.revalidate();
-            contentPane.repaint();
+            
+            certPanel.revalidate();
+            certPanel.repaint();
+            // restore default values for prefered size,
+            // as we have resized its components let it calculate
+            // that size
+            setPreferredSize(null);
             pack();
             certOpened = true;
             setLocationRelativeTo(getParent());
@@ -523,6 +566,7 @@ public class CertificateVerificationServiceImpl
             catch (Exception e)
             {
                 // do nothing as we cannot show this value
+                logger.warn("Error in certificate, cannot show fingerprints", e);
             }
             
 
@@ -704,6 +748,7 @@ public class CertificateVerificationServiceImpl
             catch (InvalidNameException ex)
             {
                 // do nothing
+                logger.warn("Wrong DN:" + rfc2253String, ex);
             }
 
             return "";

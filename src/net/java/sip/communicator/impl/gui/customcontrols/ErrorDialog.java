@@ -249,6 +249,10 @@ public class ErrorDialog
 
         this.messagePanel.revalidate();
         this.messagePanel.repaint();
+        // restore default values for prefered size,
+        // as we have resized its components let it calculate
+        // that size
+        setPreferredSize(null);
         this.pack();
     }
 
