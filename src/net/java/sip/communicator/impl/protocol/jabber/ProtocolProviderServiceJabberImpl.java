@@ -487,6 +487,12 @@ public class ProtocolProviderServiceJabberImpl
                         connection.addConnectionListener(
                             new JabberConnectionListener());
 
+                        fireRegistrationStateChanged(
+                            getRegistrationState()
+                            , RegistrationState.REGISTERING
+                            , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+                            , null);
+
                         // logging in to google need and service name
                         connection.login(userID + "@" + serviceName,
                                 password, accountResource);
