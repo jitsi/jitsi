@@ -256,7 +256,7 @@ public abstract class SIPCommDialog
 
         int width = this.getWidth();
         int height = this.getHeight();
-
+        
         Rectangle virtualBounds = ScreenInformation.getScreenBounds();
 
         // the default distance to the screen border
@@ -312,9 +312,8 @@ public abstract class SIPCommDialog
         }
 
         // check the lower right corder
-        if (!(virtualBounds.contains(x + width, y + height)))
+        if (!(virtualBounds.contains(x, y, width, height)))
         {
-
             if (x + width > virtualBounds.x + virtualBounds.width)
             {
                 // location of window is too far to the right, its right

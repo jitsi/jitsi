@@ -281,7 +281,7 @@ public class FirstWizardPage
         advancedOpPanel.add(encryptionPanel, BorderLayout.SOUTH);
 
         advancedOpPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("plugin.aimaccregwizz.ADVANCED_OPTIONS")));
+            .getString("plugin.sipaccregwizz.ADVANCED_OPTIONS")));
 
         advancedPanel.add(advancedOpPanel);
 
