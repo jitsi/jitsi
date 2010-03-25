@@ -8,11 +8,13 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.util.List;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -61,8 +63,7 @@ public class ChooseCallAccountPopupMenu
 
         for (Contact contact : telephonyContacts)
         {
-            this.addTelephonyProviderItem(  contact.getProtocolProvider(),
-                                            contact.getAddress());
+            this.addTelephonyContactItem(contact);
         }
     }
 
@@ -79,7 +80,7 @@ public class ChooseCallAccountPopupMenu
     }
 
     /**
-     * Adds the given <tt>telephonyProvider</tt> in the list of available
+     * Adds the given <tt>telephonyProvider</tt> to the list of available
      * telephony providers.
      * @param telephonyProvider the provider to add.
      * @param contactString the contact to call when the provider is selected
@@ -102,6 +103,29 @@ public class ChooseCallAccountPopupMenu
         });
 
         this.add(providerItem);
+    }
+
+    /**
+     * Adds the given <tt>telephonyContact</tt> to the list of available
+     * telephony contact.
+     * @param telephonyContact the telephony contact to add
+     */
+    private void addTelephonyContactItem(final Contact telephonyContact)
+    {
+        final ContactMenuItem contactItem
+            = new ContactMenuItem(telephonyContact);
+
+        contactItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                CallManager.createCall( telephonyContact.getProtocolProvider(),
+                                        telephonyContact);
+                ChooseCallAccountPopupMenu.this.setVisible(false);
+            }
+        });
+
+        this.add(contactItem);
     }
 
     /**
@@ -145,7 +169,8 @@ public class ChooseCallAccountPopupMenu
     }
 
     /**
-     * A custom radio button corresponding to a <tt>ProtocolProviderService</tt>.
+     * A custom menu item corresponding to a specific
+     * <tt>ProtocolProviderService</tt>.
      */
     private class ProviderMenuItem extends JMenuItem
     {
@@ -167,6 +192,31 @@ public class ChooseCallAccountPopupMenu
         public ProtocolProviderService getProtocolProvider()
         {
             return protocolProvider;
+        }
+    }
+
+    /**
+     * A custom menu item corresponding to a specific protocol <tt>Contact</tt>.
+     */
+    private class ContactMenuItem extends JMenuItem
+    {
+        private final Contact contact;
+
+        public ContactMenuItem(Contact contact)
+        {
+            this.contact = contact;
+            this.setText(contact.getDisplayName());
+
+            BufferedImage contactIcon
+                = Constants.getStatusIcon(contact.getPresenceStatus());
+
+            if (contactIcon != null)
+                this.setIcon(new ImageIcon(contactIcon));
+        }
+
+        public Contact getContact()
+        {
+            return contact;
         }
     }
 }
