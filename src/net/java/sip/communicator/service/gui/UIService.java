@@ -7,7 +7,6 @@
 package net.java.sip.communicator.service.gui;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
@@ -388,23 +387,4 @@ public interface UIService
      *            configuration window; <tt>false</tt> to hide it
      */
     public void setConfigurationWindowVisible(boolean visible);
-
-    /**
-     * Adds the given <tt>WindowListener</tt> listening for events triggered
-     * by the main UIService component. This is normally the main application
-     * window component, the one containing the contact list. This listener
-     * would also receive events when this window is shown or hidden.
-     * @param l the <tt>WindowListener</tt> to add
-     */
-    public void addWindowListener(WindowListener l);
-
-    /**
-     * Removes the given <tt>WindowListener</tt> from the list of registered
-     * listener. The <tt>WindowListener</tt> is listening for events
-     * triggered by the main UIService component. This is normally the main
-     * application window component, the one containing the contact list. This
-     * listener would also receive events when this window is shown or hidden.
-     * @param l the <tt>WindowListener</tt> to remove
-     */
-    public void removeWindowListener(WindowListener l);
 }
