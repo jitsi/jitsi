@@ -1,8 +1,8 @@
-FFMPEG_HOME=/home/seb/svn_work/ffmpeg
-JAVA_HOME=/usr/lib/jvm/java-6-sun
+FFMPEG_HOME?=/home/seb/svn_work/ffmpeg
+JAVA_HOME?=/usr/lib/jvm/java-6-sun
 #JAVA_HOME=/System/Library/Frameworks/JavaVM.framework
 #JAVA_HOME=C:\Progra~1\jdk1.6.0_18
-X264_HOME=/home/seb/svn_work/x264-snapshot-20091208-2245
+X264_HOME?=/home/seb/svn_work/x264-snapshot-20091208-2245
 
 CC=gcc
 CPPFLAGS=-DJNI_IMPLEMENTATION \

@@ -23,54 +23,6 @@ extern "C" {
 #define net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_X264_RC_ABR 2L
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    getRGB32Format
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB32Format
-  (JNIEnv *, jclass);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    getRGB32_1Format
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB32_11Format
-  (JNIEnv *, jclass);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    getBGR32Format
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getBGR32Format
-  (JNIEnv *, jclass);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    getBGR32_1Format
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getBGR32_11Format
-  (JNIEnv *, jclass);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    getRGB24Format
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB24Format
-  (JNIEnv *, jclass);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    getYUV420PFormat
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getYUV420PFormat
-  (JNIEnv *, jclass);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
  * Method:    av_free
  * Signature: (J)V
  */
@@ -207,6 +159,14 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    avcodeccontext_set_b_frame_strategy
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1b_1frame_1strategy
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
  * Method:    avcodeccontext_set_bit_rate
  * Signature: (JI)V
  */
@@ -223,11 +183,27 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    avcodeccontext_set_chromaoffset
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1chromaoffset
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
  * Method:    avcodeccontext_set_crf
  * Signature: (JF)V
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1crf
   (JNIEnv *, jclass, jlong, jfloat);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    avcodeccontext_set_deblockbeta
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1deblockbeta
+  (JNIEnv *, jclass, jlong, jint);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
@@ -244,6 +220,14 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1i_1quant_1factor
   (JNIEnv *, jclass, jlong, jfloat);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    avcodeccontext_set_max_b_frames
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1max_1b_1frames
+  (JNIEnv *, jclass, jlong, jint);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
@@ -335,6 +319,14 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    avcodeccontext_set_refs
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1refs
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
  * Method:    avcodeccontext_set_sample_aspect_ratio
  * Signature: (JII)V
  */
@@ -367,35 +359,19 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    avcodeccontext_set_ticks_per_frame
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1ticks_1per_1frame
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
  * Method:    avcodeccontext_set_time_base
  * Signature: (JII)V
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1time_1base
   (JNIEnv *, jclass, jlong, jint, jint);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    avcodeccontext_set_workaround_bugs
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1workaround_1bugs
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    avcodeccontext_set_max_b_frames
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1max_1b_1frames
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    avcodeccontext_set_b_frame_strategy
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1b_1frame_1strategy
-  (JNIEnv *, jclass, jlong, jint);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
@@ -407,34 +383,10 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    avcodeccontext_set_refs
+ * Method:    avcodeccontext_set_workaround_bugs
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1refs
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    avcodeccontext_set_chromaoffset
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1chromaoffset
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    avcodeccontext_set_deblockbeta
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1deblockbeta
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
- * Method:    avcodeccontext_set_ticks_per_frame
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1ticks_1per_1frame
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_avcodeccontext_1set_1workaround_1bugs
   (JNIEnv *, jclass, jlong, jint);
 
 /*
@@ -487,11 +439,67 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    getRGB32Format
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB32Format
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    getRGB32_1Format
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB32_11Format
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    getBGR32Format
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getBGR32Format
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    getBGR32_1Format
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getBGR32_11Format
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    getRGB24Format
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getRGB24Format
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    getYUV420PFormat
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_getYUV420PFormat
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
  * Method:    img_convert
  * Signature: (JIJIII)I
  */
 JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert__JIJIII
   (JNIEnv *, jclass, jlong, jint, jlong, jint, jint, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
+ * Method:    img_convert
+ * Signature: (Ljava/lang/Object;IJIIIII)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG_img_1convert__Ljava_lang_Object_2IJIIIII
+  (JNIEnv *, jclass, jobject, jint, jlong, jint, jint, jint, jint, jint);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG
