@@ -1172,4 +1172,23 @@ public class UIServiceImpl
         else
             return null;
     }
+
+    /**
+     * Adds the given <tt>WindowListener</tt> to the main application window.
+     * @param l the <tt>WindowListener</tt> to add
+     */
+    public void addWindowListener(WindowListener l)
+    {
+        mainFrame.addWindowListener(l);
+    }
+
+    /**
+     * Removes the given <tt>WindowListener</tt> from the main application
+     * window.
+     * @param l the <tt>WindowListener</tt> to remove
+     */
+    public void removeWindowListener(WindowListener l)
+    {
+        mainFrame.removeWindowListener(l);
+    }
 }
