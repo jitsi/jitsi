@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.imageio.*;
 import javax.swing.*;
+import javax.swing.text.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -61,11 +62,10 @@ public class InitialAccountRegistrationFrame
 
         TransparentPanel mainPanel
             = new TransparentPanel(new BorderLayout());
-        JPanel messageAreaPanel
-            = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JTextArea messageArea
-            = new JTextArea(Resources.getString(
-                "plugin.simpleaccregwizz.INITIAL_ACCOUNT_REGISTRATION"));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton cancelButton
             = new JButton(Resources.getString("service.gui.CANCEL"));
@@ -84,20 +84,15 @@ public class InitialAccountRegistrationFrame
 
         this.getContentPane().add(mainPanel);
 
-        mainPanel.add(messageAreaPanel, BorderLayout.NORTH);
+        mainPanel.add(createTitleComponent(), BorderLayout.NORTH);
         mainPanel.add(mainAccountsPanel, BorderLayout.CENTER);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        messageAreaPanel.add(messageArea);
-        messageArea.setPreferredSize(new Dimension(350, 20));
-        messageArea.setFont(messageArea.getFont().deriveFont(Font.BOLD));
 
         mainAccountsPanel.add(accountsPanel, BorderLayout.CENTER);
 
         mainAccountsPanel.setOpaque(false);
         accountsPanel.setOpaque(false);
         buttonPanel.setOpaque(false);
-        messageAreaPanel.setOpaque(false);
 
         SigninActionListener actionListener = new SigninActionListener();
 
@@ -106,11 +101,6 @@ public class InitialAccountRegistrationFrame
 
         buttonPanel.add(signinButton);
         buttonPanel.add(cancelButton);
-
-        messageArea.setLineWrap(true);
-        messageArea.setWrapStyleWord(true);
-        messageArea.setEditable(false);
-        messageArea.setOpaque(false);
 
         this.getRootPane().setDefaultButton(signinButton);
 
@@ -572,6 +562,27 @@ public class InitialAccountRegistrationFrame
                     .getService(configReference);
         }
         return configurationService;
+    }
+
+    /**
+     * Creates the title component.
+     * @return the newly created title component
+     */
+    private JComponent createTitleComponent()
+    {
+        JTextPane titlePane = new JTextPane();
+        SimpleAttributeSet aSet = new SimpleAttributeSet();
+        StyleConstants.setAlignment(aSet, StyleConstants.ALIGN_CENTER);
+        StyleConstants.setBold(aSet, true);
+        StyleConstants.setFontFamily(aSet, titlePane.getFont().getFamily());
+
+        titlePane.setParagraphAttributes(aSet, true);
+        titlePane.setEditable(false);
+        titlePane.setText(Resources.getString(
+            "plugin.simpleaccregwizz.INITIAL_ACCOUNT_REGISTRATION"));
+        titlePane.setOpaque(false);
+
+        return titlePane;
     }
 
     @Override
