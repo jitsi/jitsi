@@ -51,7 +51,7 @@ public final class TrayMenuFactory
             OsDependentActivator.getUIService()
                 .setConfigurationWindowVisible(true);
         }
-        else if (itemName.equals("service.gui.CLOSE"))
+        else if (itemName.equals("service.gui.QUIT"))
         {
             OsDependentActivator.getShutdownService().beginShutdown();
         }
@@ -117,8 +117,8 @@ public final class TrayMenuFactory
         addSeparator(trayMenu);
         add(trayMenu, new StatusSubMenu(tray, swing).getMenu());
         addSeparator(trayMenu);
-        add(trayMenu, createTrayMenuItem("service.gui.CLOSE",
-            "service.gui.CLOSE", "service.systray.CLOSE_MENU_ICON", listener,
+        add(trayMenu, createTrayMenuItem("service.gui.QUIT",
+            "service.gui.QUIT", "service.systray.QUIT_MENU_ICON", listener,
             swing));
 
         return trayMenu;
