@@ -24,7 +24,6 @@ import net.sf.fmj.media.*;
  */
 public class JNIEncoder
     extends AbstractCodec
-    implements Codec
 {
     private static final String PLUGIN_NAME = "H.264 Encoder";
 
@@ -93,7 +92,7 @@ public class JNIEncoder
 
         // mismatch input format
         if (!(in instanceof VideoFormat)
-                || (null == JNIDecoder.matches(in, inputFormats)))
+                || (null == AbstractCodecExt.matches(in, inputFormats)))
             return new Format[0];
 
         return getMatchingOutputFormats(in);
@@ -104,7 +103,7 @@ public class JNIEncoder
     {
         // mismatch input format
         if (!(in instanceof VideoFormat)
-            || null == JNIDecoder.matches(in, inputFormats))
+                || null == AbstractCodecExt.matches(in, inputFormats))
             return null;
 
         VideoFormat videoIn = (VideoFormat) in;
@@ -143,8 +142,10 @@ public class JNIEncoder
     {
         // mismatch output format
         if (!(out instanceof VideoFormat)
-            || null == JNIDecoder.matches(out,
-                getMatchingOutputFormats(inputFormat)))
+                || (null
+                        == AbstractCodecExt.matches(
+                                out,
+                                getMatchingOutputFormats(inputFormat))))
             return null;
 
         VideoFormat videoOut = (VideoFormat) out;
@@ -198,23 +199,23 @@ public class JNIEncoder
         }
 
         // copy data to avframe
-        FFMPEG.memcpy(rawFrameBuffer, (byte[]) inBuffer.getData(), inBuffer
+        FFmpeg.memcpy(rawFrameBuffer, (byte[]) inBuffer.getData(), inBuffer
             .getOffset(), encFrameLen);
 
         if (framesSinceLastIFrame >= IFRAME_INTERVAL)
         {
-            FFMPEG.avframe_set_key_frame(avframe, true);
+            FFmpeg.avframe_set_key_frame(avframe, true);
             framesSinceLastIFrame = 0;
         }
         else
         {
             framesSinceLastIFrame++;
-            FFMPEG.avframe_set_key_frame(avframe, false);
+            FFmpeg.avframe_set_key_frame(avframe, false);
         }
 
         // encode data
         int encLen =
-            FFMPEG.avcodec_encode_video(avcontext, encFrameBuffer, encFrameLen,
+            FFmpeg.avcodec_encode_video(avcontext, encFrameBuffer, encFrameLen,
                 avframe);
 
         byte[] r = new byte[encLen];
@@ -246,67 +247,67 @@ public class JNIEncoder
         width = (int)((VideoFormat)outputFormat).getSize().getWidth();
         height = (int)((VideoFormat)outputFormat).getSize().getHeight();
 
-        long avcodec = FFMPEG.avcodec_find_encoder(FFMPEG.CODEC_ID_H264);
+        long avcodec = FFmpeg.avcodec_find_encoder(FFmpeg.CODEC_ID_H264);
 
-        avcontext = FFMPEG.avcodec_alloc_context();
+        avcontext = FFmpeg.avcodec_alloc_context();
 
-        FFMPEG.avcodeccontext_set_pix_fmt(avcontext, FFMPEG.PIX_FMT_YUV420P);
-        FFMPEG.avcodeccontext_set_size(avcontext, width, height);
+        FFmpeg.avcodeccontext_set_pix_fmt(avcontext, FFmpeg.PIX_FMT_YUV420P);
+        FFmpeg.avcodeccontext_set_size(avcontext, width, height);
 
-        FFMPEG.avcodeccontext_set_qcompress(avcontext, 0.6f);
+        FFmpeg.avcodeccontext_set_qcompress(avcontext, 0.6f);
 
         //int _bitRate = 768000;
         int _bitRate = 128000;
         // average bit rate
-        FFMPEG.avcodeccontext_set_bit_rate(avcontext, _bitRate);
+        FFmpeg.avcodeccontext_set_bit_rate(avcontext, _bitRate);
         // so to be 1 in x264
-        FFMPEG.avcodeccontext_set_bit_rate_tolerance(avcontext, _bitRate);
-        FFMPEG.avcodeccontext_set_rc_max_rate(avcontext, _bitRate);
-        FFMPEG.avcodeccontext_set_sample_aspect_ratio(avcontext, 0, 0);
-        FFMPEG.avcodeccontext_set_thread_count(avcontext, 1);
+        FFmpeg.avcodeccontext_set_bit_rate_tolerance(avcontext, _bitRate);
+        FFmpeg.avcodeccontext_set_rc_max_rate(avcontext, _bitRate);
+        FFmpeg.avcodeccontext_set_sample_aspect_ratio(avcontext, 0, 0);
+        FFmpeg.avcodeccontext_set_thread_count(avcontext, 1);
         /* time base should be 1 / frame rate */
-        FFMPEG.avcodeccontext_set_time_base(avcontext, 1, TARGET_FRAME_RATE);
-        FFMPEG.avcodeccontext_set_quantizer(avcontext, 22, 30, 4);
+        FFmpeg.avcodeccontext_set_time_base(avcontext, 1, TARGET_FRAME_RATE);
+        FFmpeg.avcodeccontext_set_quantizer(avcontext, 22, 30, 4);
 
         // avcontext.chromaoffset = -2;
 
-        FFMPEG.avcodeccontext_add_partitions(avcontext, 0x111);
+        FFmpeg.avcodeccontext_add_partitions(avcontext, 0x111);
         // X264_PART_I4X4 0x001
         // X264_PART_P8X8 0x010
         // X264_PART_B8X8 0x100
 
-        FFMPEG.avcodeccontext_set_mb_decision(avcontext,
-            FFMPEG.FF_MB_DECISION_SIMPLE);
+        FFmpeg.avcodeccontext_set_mb_decision(avcontext,
+            FFmpeg.FF_MB_DECISION_SIMPLE);
 
-        FFMPEG.avcodeccontext_set_rc_eq(avcontext, "blurCplx^(1-qComp)");
+        FFmpeg.avcodeccontext_set_rc_eq(avcontext, "blurCplx^(1-qComp)");
 
-        FFMPEG.avcodeccontext_add_flags(avcontext,
-            FFMPEG.CODEC_FLAG_LOOP_FILTER);
-        FFMPEG.avcodeccontext_set_me_method(avcontext, 7);
-        FFMPEG.avcodeccontext_set_me_subpel_quality(avcontext, 6);
-        FFMPEG.avcodeccontext_set_me_range(avcontext, 16);
-        FFMPEG.avcodeccontext_set_me_cmp(avcontext, FFMPEG.FF_CMP_CHROMA);
-        FFMPEG.avcodeccontext_set_scenechange_threshold(avcontext, 40);
+        FFmpeg.avcodeccontext_add_flags(avcontext,
+            FFmpeg.CODEC_FLAG_LOOP_FILTER);
+        FFmpeg.avcodeccontext_set_me_method(avcontext, 7);
+        FFmpeg.avcodeccontext_set_me_subpel_quality(avcontext, 6);
+        FFmpeg.avcodeccontext_set_me_range(avcontext, 16);
+        FFmpeg.avcodeccontext_set_me_cmp(avcontext, FFmpeg.FF_CMP_CHROMA);
+        FFmpeg.avcodeccontext_set_scenechange_threshold(avcontext, 40);
         // Constant quality mode (also known as constant ratefactor)
-        /* FFMPEG.avcodeccontext_set_crf(avcontext, 0); */
-        FFMPEG.avcodeccontext_set_rc_buffer_size(avcontext, 0);
-        FFMPEG.avcodeccontext_set_gop_size(avcontext, IFRAME_INTERVAL);
-        FFMPEG.avcodeccontext_set_i_quant_factor(avcontext, 1f / 1.4f);
+        /* FFmpeg.avcodeccontext_set_crf(avcontext, 0); */
+        FFmpeg.avcodeccontext_set_rc_buffer_size(avcontext, 0);
+        FFmpeg.avcodeccontext_set_gop_size(avcontext, IFRAME_INTERVAL);
+        FFmpeg.avcodeccontext_set_i_quant_factor(avcontext, 1f / 1.4f);
 
-        FFMPEG.avcodeccontext_set_refs(avcontext, 4);
-        FFMPEG.avcodeccontext_set_trellis(avcontext, 2);
+        FFmpeg.avcodeccontext_set_refs(avcontext, 4);
+        FFmpeg.avcodeccontext_set_trellis(avcontext, 2);
 
-        if (FFMPEG.avcodec_open(avcontext, avcodec) < 0)
+        if (FFmpeg.avcodec_open(avcontext, avcodec) < 0)
             throw new RuntimeException("Could not open codec");
 
         encFrameLen = (width * height * 3) / 2;
 
-        rawFrameBuffer = FFMPEG.av_malloc(encFrameLen);
+        rawFrameBuffer = FFmpeg.av_malloc(encFrameLen);
 
-        avframe = FFMPEG.avcodec_alloc_frame();
+        avframe = FFmpeg.avcodec_alloc_frame();
         int size = width * height;
-        FFMPEG.avframe_set_data(avframe, rawFrameBuffer, size, size / 4);
-        FFMPEG.avframe_set_linesize(avframe, width, width / 2, width / 2);
+        FFmpeg.avframe_set_data(avframe, rawFrameBuffer, size, size / 4);
+        FFmpeg.avframe_set_linesize(avframe, width, width / 2, width / 2);
 
         encFrameBuffer = new byte[encFrameLen];
 
@@ -322,13 +323,13 @@ public class JNIEncoder
             opened = false;
             super.close();
 
-            FFMPEG.avcodec_close(avcontext);
-            FFMPEG.av_free(avcontext);
+            FFmpeg.avcodec_close(avcontext);
+            FFmpeg.av_free(avcontext);
             avcontext = 0;
 
-            FFMPEG.av_free(avframe);
+            FFmpeg.av_free(avframe);
             avframe = 0;
-            FFMPEG.av_free(rawFrameBuffer);
+            FFmpeg.av_free(rawFrameBuffer);
             rawFrameBuffer = 0;
 
             encFrameBuffer = null;

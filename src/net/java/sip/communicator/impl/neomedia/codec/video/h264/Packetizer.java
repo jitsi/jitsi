@@ -78,7 +78,7 @@ public class Packetizer
 
         // mismatch input format
         if (!(in instanceof VideoFormat)
-                || (null == JNIDecoder.matches(in, inputFormats)))
+                || (null == AbstractCodecExt.matches(in, inputFormats)))
             return new Format[0];
 
         return getMatchingOutputFormats(in);
@@ -89,7 +89,7 @@ public class Packetizer
     {
         // mismatch input format
         if (!(in instanceof VideoFormat)
-                || null == JNIDecoder.matches(in, inputFormats))
+                || null == AbstractCodecExt.matches(in, inputFormats))
             return null;
 
         inputFormat = in;
@@ -102,7 +102,10 @@ public class Packetizer
     {
         // mismatch output format
         if (!(out instanceof VideoFormat)
-                || null == JNIDecoder.matches(out, getMatchingOutputFormats(inputFormat)))
+                || (null
+                        == AbstractCodecExt.matches(
+                                out,
+                                getMatchingOutputFormats(inputFormat))))
             return null;
 
         VideoFormat videoOut = (VideoFormat) out;

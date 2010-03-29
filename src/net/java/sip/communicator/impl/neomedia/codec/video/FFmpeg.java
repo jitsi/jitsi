@@ -8,8 +8,9 @@ package net.java.sip.communicator.impl.neomedia.codec.video;
 
 /**
  * @author Lubomir Marinov
+ * @author Sebastien Vincent
  */
-public class FFMPEG
+public class FFmpeg
 {
     public static final int CODEC_FLAG_LOOP_FILTER = 0x00000800;
 
@@ -22,25 +23,13 @@ public class FFMPEG
     public static final int FF_INPUT_BUFFER_PADDING_SIZE = 8;
 
     public static final int FF_MB_DECISION_SIMPLE = 0;
-    
-    /**
-     * RGB32 format handled in endian specific manner.
-     * It is stored as ARGB on big-endian and BGRA on little-endian.
-     */
-    public static final int PIX_FMT_RGB32;
-    
-    /**
-     * RGB32_1 format handled in endian specific manner.
-     * It is stored as RGBA on big-endian and ABGR on little-endian.
-     */
-    public static final int PIX_FMT_RGB32_1;
-    
+
     /**
      * BGR32 format handled in endian specific manner.
      * It is stored as ABGR on big-endian and RGBA on little-endian.
      */
     public static final int PIX_FMT_BGR32;
-    
+
     /**
      * BGR32_1 format handled in endian specific manner.
      * It is stored as BGRA on big-endian and ARGB on little-endian.
@@ -53,21 +42,23 @@ public class FFMPEG
      */
     public static final int PIX_FMT_RGB24;
 
+    /**
+     * RGB32 format handled in endian specific manner.
+     * It is stored as ARGB on big-endian and BGRA on little-endian.
+     */
+    public static final int PIX_FMT_RGB32;
+
+    /**
+     * RGB32_1 format handled in endian specific manner.
+     * It is stored as RGBA on big-endian and ABGR on little-endian.
+     */
+    public static final int PIX_FMT_RGB32_1;
+
     public static final int PIX_FMT_YUV420P;
 
+    public static final int SWS_BICUBIC = 4;
+
     public static final int X264_RC_ABR = 2;
-
-    public static native int getRGB32Format();
-    
-    public static native int getRGB32_1Format();
-    
-    public static native int getBGR32Format();
-
-    public static native int getBGR32_1Format();
-
-    public static native int getRGB24Format();
-
-    public static native int getYUV420PFormat();
 
     public static native void av_free(long ptr);
 
@@ -105,20 +96,32 @@ public class FFMPEG
     public static native int avcodeccontext_get_pix_fmt(long avctx);
 
     public static native int avcodeccontext_get_width(long avctx);
+    
+    public static native void avcodeccontext_set_b_frame_strategy(long avctx, 
+        int b_frame_strategy);
 
     public static native void avcodeccontext_set_bit_rate(long avctx,
         int bit_rate);
 
     public static native void avcodeccontext_set_bit_rate_tolerance(long avctx,
         int bit_rate_tolerance);
+    
+    public static native void avcodeccontext_set_chromaoffset(long avctx, 
+        int chromaoffset);
 
     public static native void avcodeccontext_set_crf(long avctx, float crf);
+    
+    public static native void avcodeccontext_set_deblockbeta(long avctx, 
+        int deblockbeta);
 
     public static native void avcodeccontext_set_gop_size(long avctx,
         int gop_size);
 
     public static native void avcodeccontext_set_i_quant_factor(long avctx,
         float i_quant_factor);
+
+    public static native void avcodeccontext_set_max_b_frames(long avctx, 
+        int max_b_frames);
 
     public static native void avcodeccontext_set_mb_decision(long avctx,
         int mb_decision);
@@ -149,6 +152,9 @@ public class FFMPEG
 
     public static native void avcodeccontext_set_rc_max_rate(long avctx,
         int rc_max_rate);
+    
+    public static native void avcodeccontext_set_refs(long avctx, 
+        int refs);
 
     public static native void avcodeccontext_set_sample_aspect_ratio(
         long avctx, int num, int den);
@@ -161,33 +167,18 @@ public class FFMPEG
 
     public static native void avcodeccontext_set_thread_count(long avctx,
         int thread_count);
+    
+    public static native void avcodeccontext_set_ticks_per_frame(long avctx, 
+        int ticks_per_frame);
 
     public static native void avcodeccontext_set_time_base(long avctx, int num,
         int den);
 
+    public static native void avcodeccontext_set_trellis(long avctx,
+        int trellis);
+
     public static native void avcodeccontext_set_workaround_bugs(long avctx,
         int workaround_bugs);
-
-    public static native void avcodeccontext_set_max_b_frames(long avctx, 
-        int max_b_frames);
-    
-    public static native void avcodeccontext_set_b_frame_strategy(long avctx, 
-        int b_frame_strategy);
-
-    public static native void avcodeccontext_set_trellis(long avctx, 
-        int trellis);
-    
-    public static native void avcodeccontext_set_refs(long avctx, 
-        int refs);
-    
-    public static native void avcodeccontext_set_chromaoffset(long avctx, 
-        int chromaoffset);
-    
-    public static native void avcodeccontext_set_deblockbeta(long avctx, 
-        int deblockbeta);
-    
-    public static native void avcodeccontext_set_ticks_per_frame(long avctx, 
-        int ticks_per_frame);
 
     public static native void avframe_set_data(long frame, long data0,
         long offset1, long offset2);
@@ -206,31 +197,42 @@ public class FFMPEG
     public static native int avpicture_get_size(int pix_fmt, int width,
         int height);
 
-    public static native int img_convert(long dst, int dst_pix_fmt, long src,
-        int pix_fmt, int width, int height);
-    
-    /**
-     * Convert image bytes (scale/format).
-     * 
-     * @param dst destination image. Its type must be an array (int[], byte[] 
-     * or short[])
-     * @param dst_pix_fmt destination format
-     * @param src source image. Its type must be an array (int[], byte[] or short[])
-     * @param pix_fmt the format of <tt>src</tt>
-     * @param width original width
-     * @param height original height
-     * @param newWidth new width
-     * @param newHeight new height
-     */
-    public static native int img_convert(Object dst, int dst_pix_fmt, 
-            Object src, int pix_fmt, int width, int height, int newWidth, 
-            int newHeight);
-    
     public static native void memcpy(int[] dst, int dst_offset, int dst_length,
         long src);
 
     public static native void memcpy(long dst, byte[] src, int src_offset,
         int src_length);
+
+    private static native int PIX_FMT_BGR32();
+
+    private static native int PIX_FMT_BGR32_1();
+
+    private static native int PIX_FMT_RGB24();
+
+    private static native int PIX_FMT_RGB32();
+    
+    private static native int PIX_FMT_RGB32_1();
+
+    private static native int PIX_FMT_YUV420P();
+
+    public static native void sws_freeContext(long context);
+
+    public static native long sws_getCachedContext(
+        long context,
+        int srcW, int srcH, int srcFormat,
+        int dstW, int dstH, int dstFormat,
+        int flags);
+
+    public static native int sws_scale(
+        long context,
+        long src, int srcSliceY, int srcSliceH,
+        Object dst, int dstFormat, int dstW, int dstH);
+
+    public static native int sws_scale(
+        long context,
+        Object src, int srcFormat, int srcW, int srcH,
+        int srcSliceY, int srcSliceH,
+        Object dst, int dstFormat, int dstW, int dstH);
 
     static
     {
@@ -238,11 +240,12 @@ public class FFMPEG
 
         av_register_all();
         avcodec_init();
-        PIX_FMT_RGB24 = getRGB24Format();
-        PIX_FMT_RGB32 = getRGB32Format();
-        PIX_FMT_RGB32_1 = getRGB32_1Format();
-        PIX_FMT_BGR32 = getBGR32Format();
-        PIX_FMT_BGR32_1 = getBGR32_1Format();
-        PIX_FMT_YUV420P = getYUV420PFormat();
+
+        PIX_FMT_BGR32 = PIX_FMT_BGR32();
+        PIX_FMT_BGR32_1 = PIX_FMT_BGR32_1();
+        PIX_FMT_RGB24 = PIX_FMT_RGB24();
+        PIX_FMT_RGB32 = PIX_FMT_RGB32();
+        PIX_FMT_RGB32_1 = PIX_FMT_RGB32_1();
+        PIX_FMT_YUV420P = PIX_FMT_YUV420P();
     }
 }

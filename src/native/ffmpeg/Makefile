@@ -4,7 +4,7 @@ JAVA_HOME?=/usr/lib/jvm/java-6-sun
 #JAVA_HOME=C:\Progra~1\jdk1.6.0_18
 X264_HOME?=/home/seb/svn_work/x264-snapshot-20091208-2245
 
-CC=gcc
+CC=gcc -g
 CPPFLAGS=-DJNI_IMPLEMENTATION \
          -I$(JAVA_HOME)/include \
          -I$(FFMPEG_HOME) 
@@ -41,5 +41,5 @@ LIBS=-L$(FFMPEG_HOME)/libavformat -L$(FFMPEG_HOME)/libavcodec -L$(FFMPEG_HOME)/l
      -L$(FFMPEG_HOME)/libswscale -L$(X264_HOME) \
      -lavformat -lavcodec -lavutil -lswscale -lx264
 
-$(TARGET): net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG.c net_java_sip_communicator_impl_neomedia_codec_video_FFMPEG.h
+$(TARGET): net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg.c net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg.h
 	$(CC) $(CPPFLAGS) $< $(LDFLAGS) -o $@ $(LIBS)

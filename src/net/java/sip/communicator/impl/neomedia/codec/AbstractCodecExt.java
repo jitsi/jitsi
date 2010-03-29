@@ -4,13 +4,16 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.neomedia.codec.audio.g729;
+package net.java.sip.communicator.impl.neomedia.codec;
 
 import javax.media.*;
 
 import net.sf.fmj.media.*;
 
 /**
+ * Extends FMJ's <tt>AbstractCodec</tt> to make it even easier to implement a
+ * <tt>Codec</tt>.
+ *
  * @author Lubomir Marinov
  */
 public abstract class AbstractCodecExt

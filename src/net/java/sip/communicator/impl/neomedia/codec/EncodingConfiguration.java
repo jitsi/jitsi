@@ -59,9 +59,10 @@ public class EncodingConfiguration
             FMJConditionals.FMJ_CODECS
                 ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer"
                 : "net.java.sip.communicator.impl.neomedia.codec.audio.ulaw.Packetizer",
+            "net.java.sip.communicator.impl.neomedia.codec.video.h264.DePacketizer",
+            "net.java.sip.communicator.impl.neomedia.codec.video.h264.JNIDecoder",
             "net.java.sip.communicator.impl.neomedia.codec.video.h264.JNIEncoder",
             "net.java.sip.communicator.impl.neomedia.codec.video.h264.Packetizer",
-            "net.java.sip.communicator.impl.neomedia.codec.video.h264.JNIDecoder",
             //"net.java.sip.communicator.impl.neomedia.codec.video.ImageScaler",
             "net.java.sip.communicator.impl.neomedia.codec.video.SwScaler",
             "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JavaEncoder",
@@ -329,9 +330,13 @@ public class EncodingConfiguration
                         .getPlugInList(null, null, PlugInManager.CODEC));
         boolean commit = false;
 
-        /* remove JavaRGBToYUV */
-        PlugInManager.removePlugIn("com.sun.media.codec.video.colorspace.JavaRGBToYUV", PlugInManager.CODEC);
-        PlugInManager.removePlugIn("com.sun.media.codec.video.colorspace.JavaRGBConverter", PlugInManager.CODEC);
+        // Remove JavaRGBToYUV.
+        PlugInManager.removePlugIn(
+                "com.sun.media.codec.video.colorspace.JavaRGBToYUV",
+                PlugInManager.CODEC);
+        PlugInManager.removePlugIn(
+                "com.sun.media.codec.video.colorspace.JavaRGBConverter",
+                PlugInManager.CODEC);
 
         for (String className : CUSTOM_CODECS)
         {

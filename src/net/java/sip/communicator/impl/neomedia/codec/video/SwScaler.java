@@ -40,25 +40,6 @@ public class SwScaler
         = new FrameProcessingControlImpl();
 
     /**
-     * Supported input formats.
-     */
-    private final Format[] supportedInputFormats = new Format[]
-    {
-        new RGBFormat(null, -1, Format.byteArray, -1.0f, 32, -1, -1, -1),
-        new RGBFormat(null, -1, Format.intArray, -1.0f, 32, -1, -1, -1),
-        new RGBFormat(null, -1, Format.shortArray, -1.0f, 32, -1, -1, -1),
-        new RGBFormat(null, -1, Format.byteArray, -1.0f, 24, -1, -1, -1),
-        new RGBFormat(null, -1, Format.intArray, -1.0f, 24, -1, -1, -1),
-        new RGBFormat(null, -1, Format.shortArray, -1.0f, 24, -1, -1, -1),
-        new YUVFormat(null, -1, Format.byteArray, -1.0f, YUVFormat.YUV_420,
-                -1, -1, 0, -1, -1),
-        new YUVFormat(null, -1, Format.intArray, -1.0f, YUVFormat.YUV_420,
-                -1, -1, 0, -1, -1),
-        new YUVFormat(null, -1, Format.shortArray, -1.0f, YUVFormat.YUV_420,
-                -1, -1, 0, -1, -1),
-    };
-
-    /**
      * Supported output formats.
      */
     private Format[] supportedOutputFormats = new Format[]
@@ -77,6 +58,8 @@ public class SwScaler
         new RGBFormat(null, -1, Format.shortArray, -1.0f, 24, -1, -1, -1),
     };
 
+    private long swsContext = 0;
+
     /**
      * Initializes a new <tt>SwScaler</tt> instance which doesn't have an output
      * size and will use a default one when it becomes necessary unless an
@@ -84,7 +67,333 @@ public class SwScaler
      */
     public SwScaler()
     {
+        inputFormats = new Format[]
+        {
+            new AVFrameFormat(),
+            new RGBFormat(null, -1, Format.byteArray, -1.0f, 32, -1, -1, -1),
+            new RGBFormat(null, -1, Format.intArray, -1.0f, 32, -1, -1, -1),
+            new RGBFormat(null, -1, Format.shortArray, -1.0f, 32, -1, -1, -1),
+            new RGBFormat(null, -1, Format.byteArray, -1.0f, 24, -1, -1, -1),
+            new RGBFormat(null, -1, Format.intArray, -1.0f, 24, -1, -1, -1),
+            new RGBFormat(null, -1, Format.shortArray, -1.0f, 24, -1, -1, -1),
+            new YUVFormat(null, -1, Format.byteArray, -1.0f, YUVFormat.YUV_420,
+                    -1, -1, 0, -1, -1),
+            new YUVFormat(null, -1, Format.intArray, -1.0f, YUVFormat.YUV_420,
+                    -1, -1, 0, -1, -1),
+            new YUVFormat(null, -1, Format.shortArray, -1.0f, YUVFormat.YUV_420,
+                    -1, -1, 0, -1, -1),
+        };
+
         addControl(frameProcessingControl);
+    }
+
+    @Override
+    public void close()
+    {
+        try
+        {
+            if (swsContext != 0)
+            {
+                FFmpeg.sws_freeContext(swsContext);
+                swsContext = 0;
+            }
+        }
+        finally
+        {
+            super.close();
+        }
+    }
+
+    /**
+     * Gets the <tt>Format</tt> in which this <tt>Codec</tt> is currently
+     * configured to accept input media data.
+     * <p>
+     * Makes the protected super implementation public.
+     * </p>
+     *
+     * @return the <tt>Format</tt> in which this <tt>Codec</tt> is currently
+     * configured to accept input media data
+     * @see AbstractCodec#getInputFormat()
+     */
+    @Override
+    public Format getInputFormat()
+    {
+        return super.getInputFormat();
+    }
+
+    /**
+     * Gets native (FFmpeg) RGB format.
+     *
+     * @param rgb JMF <tt>RGBFormat</tt>
+     * @return native RGB format
+     */
+    public static int getNativeRGBFormat(RGBFormat rgb)
+    {
+        int fmt;
+
+        if(rgb.getBitsPerPixel() == 32)
+            switch(rgb.getRedMask())
+            {
+            case 1:
+            case 0xff:
+                fmt = FFmpeg.PIX_FMT_BGR32;
+                break;
+            case 2:
+            case (0xff << 8):
+                fmt = FFmpeg.PIX_FMT_BGR32_1;
+                break;
+            case 3:
+            case (0xff << 16):
+                fmt = FFmpeg.PIX_FMT_RGB32;
+                break;
+            case 4:
+            case (0xff << 24):
+                fmt = FFmpeg.PIX_FMT_RGB32_1;
+                break;
+            default:
+                /* assume ARGB ? */
+                fmt = FFmpeg.PIX_FMT_RGB32;
+                break;
+            }
+        else
+            fmt = FFmpeg.PIX_FMT_RGB24;
+        
+        return fmt;
+    }
+
+    /**
+     * Gets the output size.
+     *
+     * @return the output size
+     */
+    public Dimension getOutputSize()
+    {
+        Format outputFormat = getOutputFormat();
+
+        if (outputFormat == null)
+        {
+            // They all have one and the same size.
+            outputFormat = supportedOutputFormats[0];
+        }
+        return ((VideoFormat) outputFormat).getSize();
+    }
+
+    /**
+     * Gets the supported output formats for an input one.
+     *
+     * @param input input format to get supported output ones for
+     * @return array of supported output formats
+     */
+    @Override
+    public Format[] getSupportedOutputFormats(Format input)
+    {
+        if(input == null)
+            return supportedOutputFormats;
+
+        /* if size is set for element 0 (YUVFormat), it is also set 
+         * for element 1 (RGBFormat) and so on...
+         */
+        Dimension size = ((VideoFormat) supportedOutputFormats[0]).getSize();
+
+        /* no specified size set so return the same size as input
+         * in output format supported
+         */
+        VideoFormat videoInput = (VideoFormat) input;
+
+        if(size == null)
+            size = videoInput.getSize();
+
+        float frameRate = videoInput.getFrameRate();
+
+        return
+            new Format[]
+            { 
+                new YUVFormat(size, -1, Format.byteArray, frameRate,
+                        YUVFormat.YUV_420, -1, -1, 0, -1, -1),
+                new YUVFormat(size, -1, Format.intArray, frameRate,
+                        YUVFormat.YUV_420, -1, -1, 0, -1, -1),
+                new YUVFormat(size, -1, Format.shortArray, frameRate,
+                        YUVFormat.YUV_420, -1, -1, 0, -1, -1),
+                new RGBFormat(size, -1, Format.byteArray, frameRate, 32, -1, -1,
+                        -1),
+                new RGBFormat(size, -1, Format.intArray, frameRate, 32, -1, -1,
+                        -1),
+                new RGBFormat(size, -1, Format.shortArray, frameRate, 32, -1,
+                        -1, -1),
+                new RGBFormat(size, -1, Format.byteArray, frameRate, 24, -1, -1,
+                        -1),
+                new RGBFormat(size, -1, Format.intArray, frameRate, 24, -1, -1,
+                        -1),
+                new RGBFormat(size, -1, Format.shortArray, frameRate, 24, -1,
+                        -1, -1)
+            };
+    }
+
+    /**
+     * Processes (converts color space and/or scales) a buffer.
+     *
+     * @param input input buffer
+     * @param output output buffer
+     * @return <tt>BUFFER_PROCESSED_OK</tt> if buffer has been successfully
+     * processed
+     */
+    @Override
+    public int process(Buffer input, Buffer output) 
+    {
+        if (!checkInputBuffer(input))
+            return BUFFER_PROCESSED_FAILED;
+        if (isEOM(input))
+        {
+            propagateEOM(output);
+            return BUFFER_PROCESSED_OK;
+        }
+        if (input.isDiscard() || frameProcessingControl.isMinimalProcessing())
+        {
+            output.setDiscard(true);
+            return BUFFER_PROCESSED_OK;
+        }
+
+        // Determine the input Format.
+        VideoFormat inputFormat = (VideoFormat) input.getFormat();
+        Format thisInputFormat = getInputFormat();
+
+        if ((inputFormat != thisInputFormat)
+                && !inputFormat.equals(thisInputFormat))
+            setInputFormat(inputFormat);
+
+        // Determine the output Format and size.
+        VideoFormat outputFormat = (VideoFormat) getOutputFormat();
+
+        if (outputFormat == null)
+        {
+            /*
+             * The format of the output Buffer is not documented to be used as
+             * input to the #process method. Anyway, we're trying to use it in
+             * case this Codec doesn't have an outputFormat set which is
+             * unlikely to ever happen.
+             */
+            outputFormat = (VideoFormat) output.getFormat();
+            if (outputFormat == null)
+                return BUFFER_PROCESSED_FAILED;
+        }
+
+        int dstFmt;
+        int dstLength;
+        Dimension outputSize = outputFormat.getSize();
+        int outputWidth = outputSize.width;
+        int outputHeight = outputSize.height;
+
+        if (outputFormat instanceof YUVFormat)
+        {
+            dstFmt = FFmpeg.PIX_FMT_YUV420P;
+            /* YUV420P is 12 bpp (bit per pixel) => 1,5 bytes */
+            dstLength = (int)(outputWidth * outputHeight * 1.5);
+        }
+        else /* RGB format */
+        {
+            dstFmt = FFmpeg.PIX_FMT_RGB32;
+            dstLength = (outputWidth * outputHeight * 4);
+        }
+
+        Class<?> outputDataType = outputFormat.getDataType();
+        Object dst = output.getData();
+
+        if (Format.byteArray.equals(outputDataType))
+        {
+            if(dst == null || ((byte[])dst).length < dstLength)
+                dst = new byte[dstLength];
+        }
+        else if (Format.intArray.equals(outputDataType))
+        {
+            /* Java int is always 4 bytes */
+            dstLength = (dstLength % 4) + dstLength / 4;
+            if(dst == null || ((int[])dst).length < dstLength)
+                dst = new int[dstLength];
+        }
+        else if (Format.shortArray.equals(outputDataType))
+        {
+            /* Java short is always 2 bytes */
+            dstLength = (dstLength % 2) + dstLength / 2;
+            if(dst == null || ((short[])dst).length < dstLength)
+                dst = new short[dstLength];
+        }
+        else
+        {
+            logger.error("Unknown data type " + outputDataType);
+            return BUFFER_PROCESSED_FAILED;
+        }
+
+        Dimension inputSize = inputFormat.getSize();
+        int inputWidth = inputSize.width;
+        int inputHeight = inputSize.height;
+        Object src = input.getData();
+        int srcFmt;
+        long srcPicture;
+
+        if (src instanceof AVFrame)
+        {
+            srcFmt = ((AVFrameFormat) inputFormat).getPixFmt();
+            srcPicture = ((AVFrame) src).getPtr();
+        }
+        else
+        {
+            srcFmt
+                = (inputFormat instanceof YUVFormat)
+                    ? FFmpeg.PIX_FMT_YUV420P
+                    : getNativeRGBFormat((RGBFormat) inputFormat);
+            srcPicture = 0;
+        }
+
+        swsContext
+            = FFmpeg.sws_getCachedContext(
+                    swsContext,
+                    inputWidth, inputHeight, srcFmt,
+                    outputWidth, outputHeight, dstFmt,
+                    FFmpeg.SWS_BICUBIC);
+        if (srcPicture == 0)
+            FFmpeg.sws_scale(
+                    swsContext,
+                    src, srcFmt, inputWidth, inputHeight, 0, inputHeight,
+                    dst, dstFmt, outputWidth, outputHeight);
+        else
+            FFmpeg.sws_scale(
+                    swsContext,
+                    srcPicture, 0, inputHeight,
+                    dst, dstFmt, outputWidth, outputHeight);
+
+        output.setData(dst);
+        output.setDuration(input.getDuration());
+        output.setFlags(input.getFlags());
+        output.setFormat(outputFormat);
+        output.setLength(dstLength);
+        output.setOffset(0);
+        output.setSequenceNumber(input.getSequenceNumber());
+        output.setTimeStamp(input.getTimeStamp());
+
+        return BUFFER_PROCESSED_OK;   
+    }
+
+    /**
+     * Sets the input format.
+     *
+     * @param format format to set
+     * @return format
+     */
+    @Override
+    public Format setInputFormat(Format format)
+    {
+        Format inputFormat
+            = ((format instanceof VideoFormat)
+                    && (((VideoFormat) format).getSize() == null))
+                ? null // size is required
+                : super.setInputFormat(format);
+
+        if (inputFormat != null)
+        {
+            if (logger.isDebugEnabled())
+                logger.debug("SwScaler set to input in " + inputFormat);
+        }
+        return inputFormat;
     }
 
     /**
@@ -201,292 +510,5 @@ public class SwScaler
                     "SwScaler outputFormat of type "
                         + outputFormat.getClass().getSimpleName()
                         + " is not supported for optimized scaling.");
-    }
-
-    /**
-     * Gets the <tt>Format</tt> in which this <tt>Codec</tt> is currently
-     * configured to accept input media data.
-     * <p>
-     * Makes the protected super implementation public.
-     * </p>
-     *
-     * @return the <tt>Format</tt> in which this <tt>Codec</tt> is currently
-     * configured to accept input media data
-     * @see AbstractCodec#getInputFormat()
-     */
-    @Override
-    public Format getInputFormat()
-    {
-        return super.getInputFormat();
-    }
-
-    /**
-     * Gets the output size.
-     *
-     * @return the output size
-     */
-    public Dimension getOutputSize()
-    {
-        Format outputFormat = getOutputFormat();
-
-        if (outputFormat == null)
-        {
-            // They all have one and the same size.
-            outputFormat = supportedOutputFormats[0];
-        }
-        return ((VideoFormat) outputFormat).getSize();
-    }
-
-    /**
-     * Gets the supported input formats.
-     *
-     * @return array of supported input format
-     */
-    @Override
-    public Format[] getSupportedInputFormats()
-    {
-        return supportedInputFormats;
-    }
-
-    /**
-     * Gets the supported output formats for an input one.
-     *
-     * @param input input format to get supported output ones for
-     * @return array of supported output formats
-     */
-    @Override
-    public Format[] getSupportedOutputFormats(Format input)
-    {
-        if(input == null)
-            return supportedOutputFormats;
-
-        /* if size is set for element 0 (YUVFormat), it is also set 
-         * for element 1 (RGBFormat) and so on...
-         */
-        Dimension size = ((VideoFormat) supportedOutputFormats[0]).getSize();
-
-        /* no specified size set so return the same size as input
-         * in output format supported
-         */
-        VideoFormat videoInput = (VideoFormat) input;
-
-        if(size == null)
-            size = videoInput.getSize();
-
-        float frameRate = videoInput.getFrameRate();
-
-        return
-            new Format[]
-            { 
-                new YUVFormat(size, -1, Format.byteArray, frameRate,
-                        YUVFormat.YUV_420, -1, -1, 0, -1, -1),
-                new YUVFormat(size, -1, Format.intArray, frameRate,
-                        YUVFormat.YUV_420, -1, -1, 0, -1, -1),
-                new YUVFormat(size, -1, Format.shortArray, frameRate,
-                        YUVFormat.YUV_420, -1, -1, 0, -1, -1),
-                new RGBFormat(size, -1, Format.byteArray, frameRate, 32, -1, -1,
-                        -1),
-                new RGBFormat(size, -1, Format.intArray, frameRate, 32, -1, -1,
-                        -1),
-                new RGBFormat(size, -1, Format.shortArray, frameRate, 32, -1,
-                        -1, -1),
-                new RGBFormat(size, -1, Format.byteArray, frameRate, 24, -1, -1,
-                        -1),
-                new RGBFormat(size, -1, Format.intArray, frameRate, 24, -1, -1,
-                        -1),
-                new RGBFormat(size, -1, Format.shortArray, frameRate, 24, -1,
-                        -1, -1)
-            };
-    }
-
-    /**
-     * Sets the input format.
-     *
-     * @param format format to set
-     * @return format
-     */
-    @Override
-    public Format setInputFormat(Format format)
-    {
-        Format inputFormat
-            = ((format instanceof VideoFormat)
-                    && (((VideoFormat) format).getSize() == null))
-                ? null // size is required
-                : super.setInputFormat(format);
-
-        if (inputFormat != null)
-        {
-            if (logger.isDebugEnabled())
-                logger.debug("SwScaler set to input in " + inputFormat);
-        }
-        return inputFormat;
-    }
-
-    /**
-     * Gets native (FFMPEG) RGB format.
-     *
-     * @param rgb JMF <tt>RGBFormat</tt>
-     * @return native RGB format
-     */
-    public static int getNativeRGBFormat(RGBFormat rgb)
-    {
-        int fmt;
-
-        if(rgb.getBitsPerPixel() == 32)
-            switch(rgb.getRedMask())
-            {
-            case 1:
-            case 0xff:
-                fmt = FFMPEG.PIX_FMT_BGR32;
-                break;
-            case 2:
-            case (0xff << 8):
-                fmt = FFMPEG.PIX_FMT_BGR32_1;
-                break;
-            case 3:
-            case (0xff << 16):
-                fmt = FFMPEG.PIX_FMT_RGB32;
-                break;
-            case 4:
-            case (0xff << 24):
-                fmt = FFMPEG.PIX_FMT_RGB32_1;
-                break;
-            default:
-                /* assume ARGB ? */
-                fmt = FFMPEG.PIX_FMT_RGB32;
-                break;
-            }
-        else
-            fmt = FFMPEG.PIX_FMT_RGB24;
-        
-        return fmt;
-    }
-
-    /**
-     * Processes (converts color space and/or scales) a buffer.
-     *
-     * @param input input buffer
-     * @param output output buffer
-     * @return <tt>BUFFER_PROCESSED_OK</tt> if buffer has been successfully
-     * processed
-     */
-    @Override
-    public int process(Buffer input, Buffer output) 
-    {
-        if (!checkInputBuffer(input))
-            return BUFFER_PROCESSED_FAILED;
-
-        if (isEOM(input))
-        {
-            propagateEOM(output);   // TODO Can there be any data?
-            return BUFFER_PROCESSED_OK;
-        }
-        if (input.isDiscard() || frameProcessingControl.isMinimalProcessing())
-        {
-            output.setDiscard(true);
-            return BUFFER_PROCESSED_OK;
-        }
-
-        /* determine input format */
-        VideoFormat inputFormat = (VideoFormat)input.getFormat();
-        Format thisInputFormat = getInputFormat();
-
-        if ((inputFormat != thisInputFormat)
-                && !inputFormat.equals(thisInputFormat))
-            setInputFormat(inputFormat);
-
-        int srcFmt;
-
-        if(inputFormat instanceof YUVFormat)
-            srcFmt = FFMPEG.PIX_FMT_YUV420P;
-        else // RGBFormat
-            srcFmt = getNativeRGBFormat((RGBFormat)inputFormat);
-
-        VideoFormat outputFormat = (VideoFormat) getOutputFormat();
-
-        if(outputFormat == null)
-        {
-            /*
-             * The format of the output Buffer is not documented to be used as
-             * input to the #process method. Anyway, we're trying to use it in
-             * case this Codec doesn't have an outputFormat set which is
-             * unlikely to ever happen.
-             */
-            outputFormat = (VideoFormat) output.getFormat();
-            if (outputFormat == null) // first buffer has no output format set
-                return BUFFER_PROCESSED_FAILED;
-        }
-
-        int dstFmt;
-        int dstLength;
-        Dimension outputSize = outputFormat.getSize();
-        int outputWidth = outputSize.width;
-        int outputHeight = outputSize.height;
-
-        /* determine output format and output size needed */
-        if(outputFormat instanceof YUVFormat)
-        {
-            dstFmt = FFMPEG.PIX_FMT_YUV420P;
-            /* YUV420P is 12 bpp (bit per pixel) => 1,5 bytes */
-            dstLength = (int)(outputWidth * outputHeight * 1.5);
-        }
-        else /* RGB format */
-        {
-            dstFmt = FFMPEG.PIX_FMT_RGB32;
-            dstLength = (outputWidth * outputHeight * 4);
-        }
-
-        Class<?> outputDataType = outputFormat.getDataType();
-        Object dst = output.getData();
-
-        if(Format.byteArray.equals(outputDataType))
-        {
-            if(dst == null || ((byte[])dst).length < dstLength)
-                dst = new byte[dstLength];
-        }
-        else if(Format.intArray.equals(outputDataType))
-        {
-            /* Java int is always 4 bytes */
-            dstLength = (dstLength % 4) + dstLength / 4;
-            if(dst == null || ((int[])dst).length < dstLength)
-                dst = new int[dstLength];
-        }
-        else if(Format.shortArray.equals(outputDataType))
-        {
-            /* Java short is always 2 bytes */
-            dstLength = (dstLength % 2) + dstLength / 2;
-            if(dst == null || ((short[])dst).length < dstLength)
-                dst = new short[dstLength];
-        }
-        else
-        {
-            logger.error("Unknown data type " + outputDataType);
-            return BUFFER_PROCESSED_FAILED;
-        }
-
-        Object src = input.getData();
-
-        synchronized(src)
-        {
-            /* conversion! */
-            Dimension inputSize = inputFormat.getSize();
-
-            FFMPEG.img_convert(
-                    dst, dstFmt,
-                    src, srcFmt,
-                    inputSize.width, inputSize.height,
-                    outputWidth, outputHeight);
-        }
-
-        output.setData(dst);
-        output.setDuration(input.getDuration());
-        output.setFlags(input.getFlags());
-        output.setFormat(outputFormat);
-        output.setLength(dstLength);
-        output.setOffset(0);
-        output.setSequenceNumber(input.getSequenceNumber());
-        output.setTimeStamp(input.getTimeStamp());
-
-        return BUFFER_PROCESSED_OK;   
     }
 }
