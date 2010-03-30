@@ -49,7 +49,7 @@ public class MediaConfigurationPanel
     /**
      * The current instance of the media service.
      */
-    private final MediaServiceImpl mediaService = 
+    private final MediaServiceImpl mediaService =
         NeomediaActivator.getMediaServiceImpl();
 
     /**
@@ -240,7 +240,9 @@ public class MediaConfigurationPanel
         portAudioPanel.add(denoiseCheckBox, constraints);
 
         parentPanel.setBorder(
-                BorderFactory.createTitledBorder("Devices"));
+                BorderFactory.createTitledBorder(
+                        NeomediaActivator.getResources().getI18NString(
+                        "impl.media.configform.DEVICES")));
     }
 
     /**
