@@ -23,6 +23,9 @@ import javax.media.format.*;
 public class AVFrameFormat
     extends VideoFormat
 {
+    /**
+     * Native FFMPEG format used.
+     */
     private int pixFmt;
 
     /**
@@ -61,6 +64,11 @@ public class AVFrameFormat
         return f;
     }
 
+    /**
+     * Copy specified <tt>Format</tt>.
+     *
+     * @param f <tt>Format</tt> to be copied
+     */
     @Override
     protected void copy(Format f)
     {
@@ -97,6 +105,11 @@ public class AVFrameFormat
             return false;
     }
 
+    /**
+     * Get the native FFMPEG format.
+     *
+     * @return native format
+     */
     public int getPixFmt()
     {
         return pixFmt;

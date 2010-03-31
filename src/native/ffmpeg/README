@@ -66,6 +66,8 @@ Note: mingw64-make failed to work (segmentation fault) that's why we fallback to
 
 - Linux, FreeBSD
 
+ Note: remove --enable-pic for x86 architecture.
+
 ./configure \
   --enable-pic \
   --enable-static --disable-shared --shlibdir=. \
@@ -79,7 +81,11 @@ Note: mingw64-make failed to work (segmentation fault) that's why we fallback to
   --disable-ffserver --disable-ffplay --disable-ffmpeg \
   --enable-pthreads
 
-- Mac OS X(removed from configure script the option to add -mdynamic-no-pic)
+- Mac OS X 
+
+ Note: removed from configure script the option to add -mdynamic-no-pic unless you compile
+ for i386 architecture (intel 32-bit).
+
 ./configure \
   --enable-static --disable-shared --shlibdir=. \
   --disable-encoders --disable-decoders --disable-muxers --disable-demuxers \
@@ -102,9 +108,10 @@ make (gmake on FreeBSD)
 
 Note:
 If compilation errors related to "relocation" occured, you 
-have to patch ffmpeg (more specifically libswscale) and x264.
+have to patch ffmpeg, libswscale and x264.
 
 Apply the following patches in the relevant directory:
 - x264-20091208-visibility-hidden.patch
+- ffmpeg-visibility-hidden.patch
 - ffmpeg-libswcale-visibility-hidden.patch
 

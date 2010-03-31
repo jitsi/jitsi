@@ -26,26 +26,40 @@ import net.sf.fmj.media.*;
 public class JNIDecoder
     extends AbstractCodec
 {
+    /**
+     * Plugin name.
+     */
     private static final String PLUGIN_NAME = "H.264 Decoder";
 
-    private static final int RED_MASK = 0xff0000;
-    private static final int GREEN_MASK = 0x00ff00;
-    private static final int BLUE_MASK = 0x0000ff;
-
+    /**
+     * The default output <tt>VideoFormat</tt>.
+     */
     private static final VideoFormat[] DEFAULT_OUTPUT_FORMATS
         = new VideoFormat[] { new AVFrameFormat() };
 
-    // The codec we will use
+    /**
+     *  The codec context native pointer we will use.
+     */
     private long avcontext;
 
-    // The decoded data is stored in avpicture in native ffmpeg format (YUV)
+    /**
+     *  The decoded data is stored in avpicture in native ffmpeg format (YUV).
+     */
     private long avframe;
 
+    /**
+     * If decoder has got a picture.
+     */
     private final boolean[] got_picture = new boolean[1];
 
+    /**
+     * Array of output <tt>VideoFormat</tt>s.
+     */
     private final VideoFormat[] outputFormats;
 
-    // current width of video, so we can detect changes in video size
+    /**
+     * Current width of video, so we can detect changes in video size.
+     */
     private int width;
 
     /**
@@ -69,11 +83,20 @@ public class JNIDecoder
         width = outputFormats[0].getSize().width;
     }
 
+    /**
+     * Check <tt>Format</tt>.
+     *
+     * @param format <tt>Format</tt> to check
+     * @return true if <tt>Format</tt> is H264_RTP
+     */
     public boolean checkFormat(Format format)
     {
         return format.getEncoding().equals(Constants.H264_RTP);
     }
 
+    /**
+     * Close <tt>Codec</tt>.
+     */
     @Override
     public synchronized void close()
     {
@@ -91,11 +114,24 @@ public class JNIDecoder
         }
     }
 
+    /**
+     * Ensure frame rate.
+     *
+     * @param frameRate frame rate
+     * @return frame rate
+     */
     private float ensureFrameRate(float frameRate)
     {
         return frameRate;
     }
 
+    /**
+     * Get matching outputs for a specified input <tt>Format</tt>.
+     *
+     * @param in input <tt>Format</tt>
+     * @return array of matching outputs or null if there are no matching
+     * outputs.
+     */
     protected Format[] getMatchingOutputFormats(Format in)
     {
         VideoFormat ivf = (VideoFormat) in;
@@ -123,15 +159,24 @@ public class JNIDecoder
             };
     }
 
+    /**
+     * Get plugin name.
+     *
+     * @return "H.264 Decoder"
+     */
     @Override
     public String getName()
     {
         return PLUGIN_NAME;
     }
 
+    /**
+     * Get all supported output <tt>Format</tt>s.
+     *
+     * @return array of supported <tt>Format</tt>
+     */
     public Format[] getSupportedOutputFormats(Format in)
     {
-        // null input format
         if (in == null)
             return DEFAULT_OUTPUT_FORMATS;
 
@@ -169,6 +214,14 @@ public class JNIDecoder
         super.open();
     }
 
+    /**
+     * Process input <tt>Buffer</tt>.
+     *
+     * @param inputBuffer input <tt>Buffer</tt>
+     * @param inputBuffer output <tt>Buffer</tt>
+     * @return <tt>BUFFER_PROCESSED_OK</tt> if buffer has been successfully
+     * processed
+     */
     public synchronized int process(Buffer inputBuffer, Buffer outputBuffer)
     {
         if (!checkInputBuffer(inputBuffer))
