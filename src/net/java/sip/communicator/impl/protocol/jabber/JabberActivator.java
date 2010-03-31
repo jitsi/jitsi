@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
 //import net.java.sip.communicator.service.media.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -41,6 +42,11 @@ public class JabberActivator
      * Configuration service.
      */
     private static ConfigurationService configurationService = null;
+
+    /**
+     * File access service.
+     */
+    private static FileAccessService    fileService           = null;
 
     /**
      * Media service.
@@ -120,6 +126,26 @@ public class JabberActivator
                 = (ConfigurationService) bundleContext.getService(confReference);
         }
         return configurationService;
+    }
+
+    /**
+     * Returns a reference to a FileAccessService implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     *
+     * @return a currently valid implementation of the FileAccessService.
+     */
+    public static FileAccessService getFileAccessService()
+    {
+        if(fileService == null)
+        {
+            ServiceReference fileReference
+                = bundleContext.getServiceReference(
+                    FileAccessService.class.getName());
+            fileService
+                = (FileAccessService) bundleContext.getService(fileReference);
+        }
+        return fileService;
     }
 
     /**
