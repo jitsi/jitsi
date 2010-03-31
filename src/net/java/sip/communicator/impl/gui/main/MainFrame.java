@@ -18,7 +18,6 @@ import javax.swing.tree.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
@@ -117,6 +116,16 @@ public class MainFrame
             public void windowClosed(WindowEvent event)
             {
                 MainFrame.this.windowClosed(event);
+            }
+
+            public void windowActivated(WindowEvent event)
+            {
+                ConfigurationManager.setApplicationVisible(true);
+            }
+
+            public void windowOpened(WindowEvent event)
+            {
+                ConfigurationManager.setApplicationVisible(true);
             }
         });
 
@@ -1452,6 +1461,7 @@ public class MainFrame
             if (
                 e.getKeyChar() == KeyEvent.CHAR_UNDEFINED
                 || e.getKeyCode() == KeyEvent.VK_ENTER
+                || e.getKeyCode() == KeyEvent.VK_DELETE
                 || e.getKeyCode() == KeyEvent.VK_BACK_SPACE
                 || e.getKeyCode() == KeyEvent.VK_TAB
                 || e.getKeyCode() == KeyEvent.VK_SPACE
