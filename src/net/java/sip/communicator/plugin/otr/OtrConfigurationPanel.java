@@ -123,8 +123,10 @@ public class OtrConfigurationPanel
                 lblFingerprint.setEnabled(false);
                 btnGenerate.setEnabled(false);
 
-                lblFingerprint.setText("No key present");
-                btnGenerate.setText("Generate");
+                lblFingerprint.setText(OtrActivator.resourceService
+                    .getI18NString("plugin.otr.configform.NO_KEY_PRESENT"));
+                btnGenerate.setText(OtrActivator.resourceService
+                    .getI18NString("plugin.otr.configform.GENERATE"));
             }
             else
             {
@@ -136,13 +138,16 @@ public class OtrConfigurationPanel
 
                 if (fingerprint == null || fingerprint.length() < 1)
                 {
-                    lblFingerprint.setText("No key present");
-                    btnGenerate.setText("Generate");
+                    lblFingerprint.setText(OtrActivator.resourceService
+                        .getI18NString("plugin.otr.configform.NO_KEY_PRESENT"));
+                    btnGenerate.setText(OtrActivator.resourceService
+                        .getI18NString("plugin.otr.configform.GENERATE"));
                 }
                 else
                 {
                     lblFingerprint.setText(fingerprint);
-                    btnGenerate.setText("Re-generate");
+                    btnGenerate.setText(OtrActivator.resourceService
+                        .getI18NString("plugin.otr.configform.REGENERATE"));
                 }
             }
         }
@@ -161,7 +166,9 @@ public class OtrConfigurationPanel
             JPanel pnlAccounts = new TransparentPanel();
             this.add(pnlAccounts);
 
-            pnlAccounts.add(new JLabel("Account: "));
+            pnlAccounts.add(new JLabel(OtrActivator.resourceService
+                .getI18NString("service.gui.ACCOUNT")
+                + ": "));
 
             cbAccounts = new AccountsComboBox();
             cbAccounts.addActionListener(new ActionListener()
@@ -177,7 +184,9 @@ public class OtrConfigurationPanel
             JPanel pnlFingerprint = new TransparentPanel();
             this.add(pnlFingerprint);
 
-            pnlFingerprint.add(new JLabel("Fingerprint: "));
+            pnlFingerprint.add(new JLabel(OtrActivator.resourceService
+                .getI18NString("plugin.otr.configform.FINGERPRINT")
+                + ": "));
 
             lblFingerprint = new JLabel();
             pnlFingerprint.add(lblFingerprint);
@@ -277,11 +286,14 @@ public class OtrConfigurationPanel
                 switch (column)
                 {
                 case CONTACTNAME_INDEX:
-                    return "Contact";
+                    return OtrActivator.resourceService
+                        .getI18NString("plugin.otr.configform.COLUMN_NAME_CONTACT");
                 case VERIFIED_INDEX:
-                    return "Verified";
+                    return OtrActivator.resourceService
+                        .getI18NString("plugin.otr.configform.COLUMN_NAME_VERIFIED_STATUS");
                 case FINGERPRINT_INDEX:
-                    return "Fingerprint";
+                    return OtrActivator.resourceService
+                        .getI18NString("plugin.otr.configform.FINGERPRINT");
                 default:
                     return null;
                 }
@@ -301,8 +313,11 @@ public class OtrConfigurationPanel
                 case CONTACTNAME_INDEX:
                     return contact.getDisplayName();
                 case VERIFIED_INDEX:
-                    return (OtrActivator.scOtrKeyManager.isVerified(contact)) ? "Yes"
-                        : "No";
+                    // TODO: Maybe use a CheckBoxColumn?
+                    return (OtrActivator.scOtrKeyManager.isVerified(contact)) ? OtrActivator.resourceService
+                        .getI18NString("plugin.otr.configform.COLUMN_VALUE_VERIFIED_TRUE")
+                        : OtrActivator.resourceService
+                            .getI18NString("plugin.otr.configform.COLUMN_VALUE_VERIFIED_FALSE");
                 case FINGERPRINT_INDEX:
                     return OtrActivator.scOtrKeyManager
                         .getRemoteFingerprint(contact);
@@ -421,7 +436,8 @@ public class OtrConfigurationPanel
             this.add(pnlButtons);
 
             btnVerifyFingerprint = new JButton();
-            btnVerifyFingerprint.setText("Verify fingerprint");
+            btnVerifyFingerprint.setText(OtrActivator.resourceService
+                .getI18NString("plugin.otr.configform.VERIFY_FINGERPRINT"));
             btnVerifyFingerprint.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent arg0)
@@ -433,7 +449,8 @@ public class OtrConfigurationPanel
             pnlButtons.add(btnVerifyFingerprint);
 
             btnForgetFingerprint = new JButton();
-            btnForgetFingerprint.setText("Forget fingerprint");
+            btnForgetFingerprint.setText(OtrActivator.resourceService
+                .getI18NString("plugin.otr.configform.VERIFY_FINGERPRINT"));
             btnForgetFingerprint.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent arg0)
