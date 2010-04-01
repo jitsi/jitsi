@@ -17,6 +17,12 @@ import java.security.cert.*;
 public interface CertificateVerificationService
 {
     /**
+     * Property for always trust mode. When enabled certificate check is skipped.
+     */
+    public final static String ALWAYS_TRUST_MODE_ENABLED_PROP_NAME =
+        "net.java.sip.communicator.service.gui.ALWAYS_TRUST_MODE_ENABLED";
+
+    /**
      * Result of user interaction. User don't trust this certificate.
      */
     public static int DO_NOT_TRUST = 0;

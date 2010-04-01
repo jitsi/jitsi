@@ -1257,6 +1257,10 @@ public class ProtocolProviderServiceJabberImpl
         public void checkServerTrusted(X509Certificate[] chain, String authType)
             throws CertificateException
         {
+            if(JabberActivator.getConfigurationService().getBoolean(
+                CertificateVerificationService.ALWAYS_TRUST_MODE_ENABLED_PROP_NAME,
+                false))
+                return;
             try
             {
                 tm.checkServerTrusted(chain, authType);

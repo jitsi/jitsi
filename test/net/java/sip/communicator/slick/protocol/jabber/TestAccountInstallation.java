@@ -10,6 +10,8 @@ import java.util.*;
 
 import org.osgi.framework.*;
 import junit.framework.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
 public class TestAccountInstallation
@@ -65,6 +67,16 @@ public class TestAccountInstallation
         assertTrue(
             "Failed to find a provider factory service for protocol Jabber",
             serRefs != null && serRefs.length >  0);
+
+        // Enable always trust mode for testing tls jabber connections
+        ServiceReference confReference
+            = JabberSlickFixture.bc.getServiceReference(
+                ConfigurationService.class.getName());
+        ConfigurationService configurationService
+            = (ConfigurationService) JabberSlickFixture.bc.getService(confReference);
+        configurationService.setProperty(
+            CertificateVerificationService.ALWAYS_TRUST_MODE_ENABLED_PROP_NAME,
+            Boolean.TRUE);
 
         //Keep the reference for later usage.
         ProtocolProviderFactory jabberProviderFactory = (ProtocolProviderFactory)

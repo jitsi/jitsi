@@ -451,6 +451,11 @@ public class SslNetworkLayer
         public void checkServerTrusted(X509Certificate[] chain, String authType)
             throws CertificateException
         {
+            if(SipActivator.getConfigurationService().getBoolean(
+                CertificateVerificationService.ALWAYS_TRUST_MODE_ENABLED_PROP_NAME,
+                false))
+                return;
+
             try
             {
                 tm.checkServerTrusted(chain, authType);
