@@ -215,41 +215,41 @@ public class JNIDecoder
     }
 
     /**
-     * Process input <tt>Buffer</tt>.
+     * Decodes H.264 media data read from a specific input <tt>Buffer</tt> into
+     * a specific output <tt>Buffer</tt>.
      *
-     * @param inputBuffer input <tt>Buffer</tt>
-     * @param inputBuffer output <tt>Buffer</tt>
-     * @return <tt>BUFFER_PROCESSED_OK</tt> if buffer has been successfully
-     * processed
+     * @param inBuffer input <tt>Buffer</tt>
+     * @param outBuffer output <tt>Buffer</tt>
+     * @return <tt>BUFFER_PROCESSED_OK</tt> if <tt>inBuffer</tt> has been
+     * successfully processed
      */
-    public synchronized int process(Buffer inputBuffer, Buffer outputBuffer)
+    public synchronized int process(Buffer inBuffer, Buffer outBuffer)
     {
-        if (!checkInputBuffer(inputBuffer))
+        if (!checkInputBuffer(inBuffer))
             return BUFFER_PROCESSED_FAILED;
-        if (isEOM(inputBuffer) || !opened)
+        if (isEOM(inBuffer) || !opened)
         {
-            propagateEOM(outputBuffer);
+            propagateEOM(outBuffer);
             return BUFFER_PROCESSED_OK;
         }
-        if (inputBuffer.isDiscard())
+        if (inBuffer.isDiscard())
         {
-            inputBuffer.setDiscard(true);
-            reset();
+            outBuffer.setDiscard(true);
             return BUFFER_PROCESSED_OK;
         }
 
-        // decodes the data
+        // Ask FFmpeg to decode.
         got_picture[0] = false;
         // TODO Take into account the offset of inputBuffer.
         FFmpeg.avcodec_decode_video(
                 avcontext,
                 avframe,
                 got_picture,
-                (byte[]) inputBuffer.getData(), inputBuffer.getLength());
+                (byte[]) inBuffer.getData(), inBuffer.getLength());
 
         if (!got_picture[0])
         {
-            outputBuffer.setDiscard(true);
+            outBuffer.setDiscard(true);
             return BUFFER_PROCESSED_OK;
         }
 
@@ -262,20 +262,19 @@ public class JNIDecoder
 
             // Output in same size and frame rate as input.
             Dimension outSize = new Dimension(avctxWidth, avctxHeight);
-            VideoFormat ivf = (VideoFormat) inputBuffer.getFormat();
-            float outFrameRate = ensureFrameRate(ivf.getFrameRate());
+            VideoFormat inFormat = (VideoFormat) inBuffer.getFormat();
+            float outFrameRate = ensureFrameRate(inFormat.getFrameRate());
 
             outputFormat = new AVFrameFormat(outSize, outFrameRate);
         }
-        outputBuffer.setFormat(outputFormat);
+        outBuffer.setFormat(outputFormat);
 
-        Object outputData = outputBuffer.getData();
+        Object out = outBuffer.getData();
 
-        if (!(outputData instanceof AVFrame)
-                || (((AVFrame) outputData).getPtr() != avframe))
-            outputBuffer.setData(new AVFrame(avframe));
+        if (!(out instanceof AVFrame) || (((AVFrame) out).getPtr() != avframe))
+            outBuffer.setData(new AVFrame(avframe));
 
-        //outputBuffer.setTimeStamp(inputBuffer.getTimeStamp());
+        //outBuffer.setTimeStamp(inBuffer.getTimeStamp());
         return BUFFER_PROCESSED_OK;
     }
 
