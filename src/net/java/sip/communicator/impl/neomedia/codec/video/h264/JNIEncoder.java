@@ -296,8 +296,22 @@ public class JNIEncoder
         outBuffer.setData(out);
         outBuffer.setLength(encLen);
         outBuffer.setOffset(0);
-        //outBuffer.setTimeStamp(inBuffer.getTimeStamp());
+        outBuffer.setTimeStamp(inBuffer.getTimeStamp());
+/*
+        // flags
+        int inFlags = inBuffer.getFlags();
+        int outFlags = outBuffer.getFlags();
 
+        if ((inFlags & Buffer.FLAG_LIVE_DATA) != 0)
+            outFlags |= Buffer.FLAG_LIVE_DATA;
+        if ((inFlags & Buffer.FLAG_RELATIVE_TIME) != 0)
+            outFlags |= Buffer.FLAG_RELATIVE_TIME;
+        if ((inFlags & Buffer.FLAG_RTP_TIME) != 0)
+            outFlags |= Buffer.FLAG_RTP_TIME;
+        if ((inFlags & Buffer.FLAG_SYSTEM_TIME) != 0)
+            outFlags |= Buffer.FLAG_SYSTEM_TIME;
+        outBuffer.setFlags(outFlags);
+*/
         return BUFFER_PROCESSED_OK;
     }
 

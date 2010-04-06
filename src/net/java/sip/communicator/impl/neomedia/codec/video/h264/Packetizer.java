@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.neomedia.codec.video.h264;
 
-import java.awt.*;
+import java.awt.Dimension; // disambiguation
 import java.util.*;
 
 import javax.media.*;
@@ -16,7 +16,8 @@ import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.sf.fmj.media.*;
 
 /**
- * Packets supplied data and encapsulates it in RTP in accord with RFC3984.
+ * Packetizes H.264 encoded data/NAL units into RTP packets in accord with RFC
+ * 3984 "RTP Payload Format for H.264 Video".
  *
  * @author Damian Minkov
  * @author Lubomir Marinov
@@ -24,34 +25,79 @@ import net.sf.fmj.media.*;
 public class Packetizer
     extends AbstractPacketizer
 {
-    private final static String PLUGIN_NAME = "H264 Packetizer";
+    private static final Format[] DEFAULT_OUTPUT_FORMATS
+        = { new VideoFormat(Constants.H264_RTP) };
 
     // without the headers
-    private final static int MAX_PAYLOAD_SIZE = 1024;
+    private static final int MAX_PAYLOAD_SIZE = 1024;
 
-    private final static Format[] defOutputFormats =
-    {
-        new VideoFormat(Constants.H264_RTP)
-    };
-
-    // Vector to store NALs , when packaging encoded frame to rtp packets
-    private Vector<byte[]> nals = new Vector<byte[]>();
-    // last timestamp we processed
-    private long lastTimeStamp = 0;
-    // the current rtp sequence
-    private int seq = 0;
+    private static final String PLUGIN_NAME = "H264 Packetizer";
 
     /**
-     * Constructor
+     * The list of NAL units to be sent as payload in RTP packets.
+     */
+    private final List<byte[]> nals = new LinkedList<byte[]>();
+
+    /**
+     * The timeStamp of the RTP packets in which <tt>nals</tt> are to be sent.
+     */
+    private long nalsTimeStamp;
+
+    /**
+     * The sequence number of the next RTP packet to be output by this
+     * <tt>Packetizer</tt>.
+     */
+    private int sequenceNumber;
+
+    /**
+     * Initializes a new <tt>Packetizer</tt> instance which is to packetize
+     * H.264 encoded data/NAL units into RTP packets in accord with RFC 3984
+     * "RTP Payload Format for H.264 Video".
      */
     public Packetizer()
     {
-        inputFormats = new Format[]{
-            new VideoFormat(Constants.H264)
-        };
+        inputFormats = new Format[] { new VideoFormat(Constants.H264) };
 
         inputFormat = null;
         outputFormat = null;
+    }
+
+    @Override
+    public synchronized void close()
+    {
+        if (opened)
+        {
+            opened = false;
+            super.close();
+        }
+    }
+
+    /**
+     * Finds the index in <tt>byteStream</tt> at which the
+     * start_code_prefix_one_3bytes of a NAL unit begins.
+     *
+     * @param byteStream the H.264 encoded byte stream composed of NAL units in
+     * which the index of the beginning of the start_code_prefix_one_3bytes of a
+     * NAL unit is to be found
+     * @param beginIndex the inclusive index in <tt>byteStream</tt> at which the
+     * search is to begin
+     * @param endIndex the exclusive index in <tt>byteStream</tt> at which the
+     * search is to end
+     * @return the index in <tt>byteStream</tt> at which the
+     * start_code_prefix_one_3bytes of a NAL unit begins if it is found;
+     * otherwise, <tt>endIndex</tt>
+     */
+    private static int ff_avc_find_startcode(
+        byte[] byteStream,
+        int beginIndex,
+        int endIndex)
+    {
+        for (; beginIndex < (endIndex - 3); beginIndex++)
+            if((byteStream[beginIndex] == 0)
+                    && (byteStream[beginIndex + 1] == 0)
+                    && (byteStream[beginIndex + 2] == 1))
+                return beginIndex;
+        return endIndex;
     }
 
     private Format[] getMatchingOutputFormats(Format in)
@@ -62,9 +108,19 @@ public class Packetizer
         return
             new VideoFormat[]
             {
-                new VideoFormat(Constants.H264_RTP, inSize,
-                    Format.NOT_SPECIFIED, Format.byteArray, videoIn
-                        .getFrameRate()) };
+                new VideoFormat(
+                        Constants.H264_RTP,
+                        inSize,
+                        Format.NOT_SPECIFIED,
+                        Format.byteArray,
+                        videoIn.getFrameRate())
+            };
+    }
+
+    @Override
+    public String getName()
+    {
+        return PLUGIN_NAME;
     }
 
     /**
@@ -74,7 +130,7 @@ public class Packetizer
     {
         // null input format
         if (in == null)
-            return defOutputFormats;
+            return DEFAULT_OUTPUT_FORMATS;
 
         // mismatch input format
         if (!(in instanceof VideoFormat)
@@ -85,22 +141,251 @@ public class Packetizer
     }
 
     @Override
+    public synchronized void open()
+        throws ResourceUnavailableException
+    {
+        if (!opened)
+        {
+            nals.clear();
+            sequenceNumber = 0;
+
+            super.open();
+            opened = true;
+        }
+    }
+
+    /**
+     * Packetizes a specific NAL unit of H.264 encoded data so that it becomes
+     * ready to be sent as the payload of RTP packets. If the specified NAL unit
+     * does not fit into a single RTP packet i.e. will not become a "Single NAL
+     * Unit Packet", splits it into "Fragmentation Units (FUs)" of type FU-A.
+     *
+     * @param nal the bytes which contain the NAL unit of H.264 encoded data to
+     * be packetized
+     * @param nalOffset the offset in <tt>nal</tt> at which the NAL unit of
+     * H.264 encoded data to be packetized begins
+     * @param nalLength the length in <tt>nal</tt> beginning at
+     * <tt>nalOffset</tt> of the NAL unit of H.264 encoded data to be packetized
+     * @return <tt>true</tt> if at least one RTP packet payload has been
+     * packetized i.e. prepared for sending; otherwise, <tt>false</tt>
+     */
+    private boolean packetizeNAL(byte[] nal, int nalOffset, int nalLength)
+    {
+        /*
+         * If the NAL fits into a "Single NAL Unit Packet", it's already
+         * packetized.
+         */
+        if (nalLength <= MAX_PAYLOAD_SIZE)
+        {
+            byte[] singleNALUnitPacket = new byte[nalLength];
+
+            System.arraycopy(nal, nalOffset, singleNALUnitPacket, 0, nalLength);
+            return nals.add(singleNALUnitPacket);
+        }
+
+        // Otherwise, split it into "Fragmentation Units (FUs)".
+        byte octet = nal[nalOffset];
+        int forbidden_zero_bit = octet & 0x80;
+        int nri = octet & 0x60;
+        int nal_unit_type = octet & 0x1F;
+
+        byte fuIndicator
+            = (byte)
+                (0xFF
+                    & (forbidden_zero_bit
+                        | nri
+                        | 28 /* nal_unit_type FU-A */));
+        byte fuHeader
+            = (byte)
+                (0xFF
+                    & (0x80 /* Start bit */
+                        | 0 /* End bit */
+                        | 0 /* Reserved bit */
+                        | nal_unit_type));
+
+        nalOffset++;
+        nalLength--;
+
+        int maxFUPayloadLength
+            = MAX_PAYLOAD_SIZE - 2 /* FU indicator & FU header */;
+        boolean nalsAdded = false;
+
+        while (nalLength > 0)
+        {
+            int fuPayloadLength;
+
+            if (nalLength > maxFUPayloadLength)
+                fuPayloadLength = maxFUPayloadLength;
+            else
+            {
+                fuPayloadLength = nalLength;
+                fuHeader |= 0x40; // Turn on the End bit.
+            }
+
+            /*
+             * Tests with Asterisk suggest that the fragments of a fragmented
+             * NAL unit must be with one and the same size. There is also a
+             * similar question on the x264-devel mailing list but,
+             * unfortunately, it is unanswered.
+             */
+            byte[] fua
+                = new byte[
+                        2 /* FU indicator & FU header */ + maxFUPayloadLength];
+
+            fua[0] = fuIndicator;
+            fua[1] = fuHeader;
+            System.arraycopy(nal, nalOffset, fua, 2, fuPayloadLength);
+            nalOffset += fuPayloadLength;
+            nalLength -= fuPayloadLength;
+
+            nalsAdded = nals.add(fua) || nalsAdded;
+
+            fuHeader &= ~0x80; // Turn off the Start bit.
+        }
+        return nalsAdded;
+    }
+
+    @Override
+    public int process(Buffer inBuffer, Buffer outBuffer)
+    {
+        // if there are some nals we check and send them
+        if (nals.size() > 0)
+        {
+            byte[] nal = nals.remove(0);
+
+            // Send the NAL.
+            outBuffer.setData(nal);
+            outBuffer.setLength(nal.length);
+            outBuffer.setOffset(0);
+            outBuffer.setTimeStamp(nalsTimeStamp);
+            outBuffer.setSequenceNumber(sequenceNumber++);
+/*
+            // flags
+            int inFlags = inBuffer.getFlags();
+            int outFlags = outBuffer.getFlags();
+
+            if ((inFlags & Buffer.FLAG_LIVE_DATA) != 0)
+                outFlags |= Buffer.FLAG_LIVE_DATA;
+            if ((inFlags & Buffer.FLAG_RELATIVE_TIME) != 0)
+                outFlags |= Buffer.FLAG_RELATIVE_TIME;
+            if ((inFlags & Buffer.FLAG_RTP_TIME) != 0)
+                outFlags |= Buffer.FLAG_RTP_TIME;
+            if ((inFlags & Buffer.FLAG_SYSTEM_TIME) != 0)
+                outFlags |= Buffer.FLAG_SYSTEM_TIME;
+            outBuffer.setFlags(outFlags);
+*/
+            // If there are other NALs, send them as well.
+            if(nals.size() > 0)
+                return (BUFFER_PROCESSED_OK | INPUT_BUFFER_NOT_CONSUMED);
+            else
+            {
+                // It's the last NAL of the current frame so mark it.
+                outBuffer.setFlags(
+                    outBuffer.getFlags() | Buffer.FLAG_RTP_MARKER);
+                return BUFFER_PROCESSED_OK;
+            }
+        }
+
+        if (isEOM(inBuffer))
+        {
+            propagateEOM(outBuffer);
+            reset();
+            return BUFFER_PROCESSED_OK;
+        }
+        if (inBuffer.isDiscard())
+        {
+            outBuffer.setDiscard(true);
+            reset();
+            return BUFFER_PROCESSED_OK;
+        }
+
+        Format inFormat = inBuffer.getFormat();
+
+        if ((inFormat != inputFormat) && !inFormat.matches(inputFormat))
+            setInputFormat(inFormat);
+
+        int inLength = inBuffer.getLength();
+
+        /*
+         * We need 3 bytes for start_code_prefix_one_3bytes and at least 1 byte
+         * for the NAL unit i.e. its octet serving as the payload header.
+         */
+        if (inLength < 4)
+        {
+            outBuffer.setDiscard(true);
+            reset();
+            return BUFFER_PROCESSED_OK;
+        }
+
+        byte[] inData = (byte[]) inBuffer.getData();
+        int inOffset = inBuffer.getOffset();
+        boolean nalsAdded = false;
+
+        /*
+         * Split the H.264 encoded data into NAL units. Each NAL unit begins
+         * with start_code_prefix_one_3bytes. Refer to "B.1 Byte stream NAL unit
+         * syntax and semantics" of "ITU-T Rec. H.264 Advanced video coding for
+         * generic audiovisual services" for further details.
+         */
+        int endIndex = inOffset + inLength;
+        int beginIndex = ff_avc_find_startcode(inData, inOffset, endIndex);
+
+        if (beginIndex < endIndex)
+        {
+            beginIndex += 3;
+
+            for (int nextBeginIndex;
+                    (beginIndex < endIndex)
+                        && ((nextBeginIndex
+                                = ff_avc_find_startcode(
+                                    inData,
+                                    beginIndex,
+                                    endIndex))
+                            <= endIndex);
+                    beginIndex = nextBeginIndex + 3)
+            {
+                int nalLength = nextBeginIndex - beginIndex;
+
+                // Discard any trailing_zero_8bits.
+                while ((nalLength > 0)
+                        && (inData[beginIndex + nalLength - 1] == 0))
+                    nalLength--;
+
+                if (nalLength > 0)
+                    nalsAdded
+                        = packetizeNAL(inData, beginIndex, nalLength)
+                            || nalsAdded;
+            }
+        }
+
+        nalsTimeStamp = inBuffer.getTimeStamp();
+
+        return
+            nalsAdded ? process(inBuffer, outBuffer) : OUTPUT_BUFFER_NOT_FILLED;
+    }
+
+    @Override
     public Format setInputFormat(Format in)
     {
-        // mismatch input format
+        /*
+         * Return null if the specified input Format is incompatible with this
+         * Packetizer.
+         */
         if (!(in instanceof VideoFormat)
                 || null == AbstractCodecExt.matches(in, inputFormats))
             return null;
 
         inputFormat = in;
-
         return in;
     }
 
     @Override
     public Format setOutputFormat(Format out)
     {
-        // mismatch output format
+        /*
+         * Return null if the specified output Format is incompatible with this
+         * Packetizer.
+         */
         if (!(out instanceof VideoFormat)
                 || (null
                         == AbstractCodecExt.matches(
@@ -123,194 +408,15 @@ public class Packetizer
                     : inSize;
         }
 
-        outputFormat =
-            new VideoFormat(videoOut.getEncoding(),
-                outSize, outSize.width * outSize.height,
-                Format.byteArray, videoOut.getFrameRate());
+        outputFormat
+            = new VideoFormat(
+                    videoOut.getEncoding(),
+                    outSize,
+                    outSize.width * outSize.height,
+                    Format.byteArray,
+                    videoOut.getFrameRate());
 
-        // Return the selected outputFormat
+        // Return the outputFormat which is actually set.
         return outputFormat;
-    }
-
-    @Override
-    public int process(Buffer inBuffer, Buffer outBuffer)
-    {
-        // if there are some nals we check and send them
-        if(nals.size() > 0)
-        {
-            byte[] buf = nals.remove(0);
-            //int type = buf[0]  & 0x1f;
-            // if nal is too big we must make FU packet
-            if(buf.length > MAX_PAYLOAD_SIZE)
-            {
-                int bufOfset = 0;
-                int size = buf.length;
-
-                int nri = buf[bufOfset]  & 0x60;
-                byte[] tmp = new byte[MAX_PAYLOAD_SIZE];
-                tmp[0] = 28;        /* FU Indicator; Type = 28 ---> FU-A */
-                tmp[0] |= nri;
-                tmp[1] = buf[bufOfset];
-                // set start bit
-                tmp[1] |= 1 << 7;
-                // remove end bit
-                tmp[1] &= ~(1 << 6);
-
-                bufOfset += 1;
-                size -= 1;
-                int currentSIx = 0;
-                while (size + 2 > MAX_PAYLOAD_SIZE)
-                {
-                    System.arraycopy(buf, bufOfset, tmp, 2, MAX_PAYLOAD_SIZE - 2);
-
-                    nals.add(currentSIx++, tmp.clone());
-
-                    bufOfset += MAX_PAYLOAD_SIZE - 2;
-                    size -= MAX_PAYLOAD_SIZE - 2;
-                    tmp[1] &= ~(1 << 7);
-                }
-
-                byte[] tmp2 = new byte[size + 2];
-                tmp2[0] = tmp[0];
-                tmp2[1] = tmp[1];
-                tmp2[1] |= 1 << 6;
-
-                System.arraycopy(buf, bufOfset, tmp2, 2, size);
-                nals.add(currentSIx++, tmp2);
-
-                return INPUT_BUFFER_NOT_CONSUMED | OUTPUT_BUFFER_NOT_FILLED;
-            }
-
-            // size is ok lets send it
-            outBuffer.setData(buf);
-            outBuffer.setLength(buf.length);
-            outBuffer.setOffset(0);
-            outBuffer.setTimeStamp(lastTimeStamp);
-            outBuffer.setSequenceNumber(seq++);
-
-            // if more nals exist process them
-            if(nals.size() > 0)
-            {
-                return  BUFFER_PROCESSED_OK | INPUT_BUFFER_NOT_CONSUMED;
-            }
-            else
-            {
-                // its the last one from current frame, mark it
-                outBuffer.setFlags(outBuffer.getFlags() | Buffer.FLAG_RTP_MARKER);
-                return BUFFER_PROCESSED_OK;
-            }
-        }
-
-        if (isEOM(inBuffer))
-        {
-            propagateEOM(outBuffer);
-            reset();
-            return BUFFER_PROCESSED_OK;
-        }
-
-        if (inBuffer.isDiscard())
-        {
-            outBuffer.setDiscard(true);
-            reset();
-            return BUFFER_PROCESSED_OK;
-        }
-
-        Format inFormat = inBuffer.getFormat();
-        if (inFormat != inputFormat && !inFormat.matches(inputFormat))
-        {
-            setInputFormat(inFormat);
-        }
-
-        int inputLength = inBuffer.getLength();
-        if (inputLength < 10)
-        {
-            outBuffer.setDiscard(true);
-            reset();
-            return BUFFER_PROCESSED_OK;
-        }
-
-        byte[] r = (byte[]) inBuffer.getData();
-        int inputOffset = inBuffer.getOffset();
-
-        // split encoded data to nals
-        // we know it starts with 00 00 01
-        int ix = 3 + inputOffset;
-        int prevIx = 1 + inputOffset;
-        while((ix = ff_avc_find_startcode(r, ix, r.length)) < r.length)
-        {
-            int len = ix - prevIx;
-            byte[] b = new byte[len -4];
-            System.arraycopy(r, prevIx+ 3, b, 0, b.length);
-            nals.add(b);
-
-            prevIx = ix;
-            ix = prevIx + 3;
-        }
-
-        int len = ix - prevIx;
-        if(len < 0)
-        {
-            outBuffer.setDiscard(true);
-            return BUFFER_PROCESSED_OK;
-        }
-
-        byte[] b = new byte[len - 3];
-        System.arraycopy(r, prevIx+ 3, b, 0, b.length);
-        nals.add(b);
-
-        lastTimeStamp = inBuffer.getTimeStamp();
-
-        return INPUT_BUFFER_NOT_CONSUMED | OUTPUT_BUFFER_NOT_FILLED;
-    }
-
-    /**
-     * Find a NAL in the encoded data.
-     * @param buff the encoded data
-     * @param startIx starting index
-     * @param endIx end index
-     * @return starting position of the NAL
-     */
-    private int ff_avc_find_startcode(byte[] buff, int startIx, int endIx)
-    {
-        while(startIx < (endIx - 3))
-        {
-            if(buff[startIx] == 0 &&
-                buff[startIx + 1] == 0 &&
-                buff[startIx + 2] == 1)
-                return startIx;
-
-            startIx++;
-        }
-        return endIx;
-    }
-
-    @Override
-    public synchronized void open()
-        throws ResourceUnavailableException
-    {
-        if (!opened)
-        {
-            super.open();
-            opened = true;
-        }
-    }
-
-    @Override
-    public synchronized void close()
-    {
-        if (opened)
-        {
-            opened = false;
-            super.close();
-
-            if(nals != null)
-                nals.clear();
-        }
-    }
-
-    @Override
-    public String getName()
-    {
-        return PLUGIN_NAME;
     }
 }

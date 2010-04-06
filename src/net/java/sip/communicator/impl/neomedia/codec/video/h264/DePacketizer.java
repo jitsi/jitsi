@@ -33,14 +33,24 @@ public class DePacketizer
     private static final Logger logger = Logger.getLogger(DePacketizer.class);
 
     /**
-     * The start sequence of every NAL.
+     * The bytes to prefix any NAL unit to be output by this
+     * <tt>DePacketizer</tt> and given to a H.264 decoder. Includes
+     * start_code_prefix_one_3bytes. According to "B.1 Byte stream NAL unit
+     * syntax and semantics" of "ITU-T Rec. H.264 Advanced video coding for
+     * generic audiovisual services", zero_byte "shall be present" when "the
+     * nal_unit_type within the nal_unit() is equal to 7 (sequence parameter
+     * set) or 8 (picture parameter set)" or "the byte stream NAL unit syntax
+     * structure contains the first NAL unit of an access unit in decoding
+     * order". Since the above conditions require code branching,
+     * <tt>NAL_PREFIX</tt> prepends a byte equal to <tt>0</tt> to
+     * start_code_prefix_one_3bytes. When the conditions in question are
+     * satisfied, the said byte will be interpreted by the H.264 decoder as
+     * zero_byte; otherwise, it will be discarded by the H.264 decoder as
+     * trailing_zero_8bits.
      */
-    private static final byte[] NAL_START_SEQUENCE = { 0, 0, 1 };
+    private static final byte[] NAL_PREFIX = { 0, 0, 1 };
 
-    /**
-     * If last processed packet has a marker (indicate end of frame).
-     */
-    private boolean lastHasMarker = false;
+    private boolean fuaStartedAndNotEnded = false;
 
     /**
      * Keeps track of last (input) sequence number in order to avoid
@@ -55,15 +65,10 @@ public class DePacketizer
 
     /**
      * The size of the padding at the end of the output data of this
-     * <tt>DePpacketizer</tt> expected by the H.264 decoder.
+     * <tt>DePacketizer</tt> expected by the H.264 decoder.
      */
     private final int outputPaddingSize
         = FFmpeg.FF_INPUT_BUFFER_PADDING_SIZE;
-
-    /**
-     * In case of inconsistent input drop all data until a marker is received.
-     */
-    private boolean waitingForMarker = false;
 
     /**
      * Initializes a new <tt>DePacketizer</tt> instance which is to depacketize
@@ -84,75 +89,122 @@ public class DePacketizer
      * Extracts a fragment of a NAL unit from a specific FU-A RTP packet
      * payload.
      *
-     * @param input the payload of the RTP packet from which a FU-A fragment of
-     * a NAL unit is to be extracted
-     * @param inputOffset the offset in <tt>input</tt> at which the payload
-     * starts
-     * @param inputLength the length of the payload in <tt>input</tt> starting
-     * at <tt>inputOffset</tt>
-     * @param outputBuffer the <tt>Buffer</tt> which is to receive the extracted
+     * @param in the payload of the RTP packet from which a FU-A fragment of a
+     * NAL unit is to be extracted
+     * @param inOffset the offset in <tt>in</tt> at which the payload begins
+     * @param inLength the length of the payload in <tt>in</tt> beginning at
+     * <tt>inOffset</tt>
+     * @param outBuffer the <tt>Buffer</tt> which is to receive the extracted
      * FU-A fragment of a NAL unit
+     * @return
      */
-    private void deencapsulateFU(
-            byte[] input, int inputOffset, int inputLength,
-            Buffer outputBuffer)
+    private int dePacketizeFUA(
+            byte[] in, int inOffset, int inLength,
+            Buffer outBuffer)
     {
-        byte fu_indicator = input[inputOffset];
+        byte fu_indicator = in[inOffset];
 
-        // Skip fu_indicator.
-        inputOffset++;
-        inputLength--;
+        inOffset++;
+        inLength--;
 
-        byte fu_header = input[inputOffset];
-        boolean start_bit = (fu_header >> 7) != 0;
-        //boolean end_bit = ((fu_header & 0x40) >> 6) != 0;
-        int nal_type = (fu_header & 0x1f);
-        byte reconstructed_nal;
+        byte fu_header = in[inOffset];
 
-        //reconstruct this packet's true nal; only the data follows..
-        //the original nal forbidden bit and NRI are stored in this packet's nal;
-        reconstructed_nal = (byte)(fu_indicator & (byte)0xe0);
-        reconstructed_nal |= nal_type;
+        inOffset++;
+        inLength--;
 
-        // Skip fu_header.
-        inputOffset++;
-        inputLength--;
-
-        int outputOffset = outputBuffer.getOffset();
-        int outputLength = outputBuffer.getLength();
-        int newOutputLength = outputLength + inputLength;
-
-        if (start_bit)
-            newOutputLength += NAL_START_SEQUENCE.length + 1;
-
-        byte[] output
-            = validateByteArraySize(
-                outputBuffer,
-                outputOffset + newOutputLength + outputPaddingSize);
-
-        outputOffset += outputLength;
+        boolean start_bit = (fu_header & 0x80) != 0;
+        boolean end_bit = (fu_header & 0x40) != 0;
+        int outOffset = outBuffer.getOffset();
+        int newOutLength = inLength;
+        int octet;
 
         if (start_bit)
         {
-            // Copy in the start sequence and the reconstructed NAL.
-            System.arraycopy(
-                    NAL_START_SEQUENCE, 0,
-                    output, outputOffset,
-                    NAL_START_SEQUENCE.length);
-            outputOffset += NAL_START_SEQUENCE.length;
+            /*
+             * The Start bit and End bit MUST NOT both be set to one in the same
+             * FU header.
+             */
+            if (end_bit)
+            {
+                outBuffer.setDiscard(true);
+                return BUFFER_PROCESSED_OK;
+            }
 
-            output[outputOffset] = reconstructed_nal;
-            outputOffset++;
+            fuaStartedAndNotEnded = true;
+
+            newOutLength += NAL_PREFIX.length + 1 /* octet */;
+            octet
+                = (fu_indicator & 0xE0) /* forbidden_zero_bit & NRI */
+                    | (fu_header & 0x1F) /* nal_unit_type */;
         }
-        System.arraycopy(
-                input, inputOffset,
-                output, outputOffset,
-                inputLength);
-        outputOffset += inputLength;
+        else if (!fuaStartedAndNotEnded)
+        {
+            outBuffer.setDiscard(true);
+            return BUFFER_PROCESSED_OK;
+        }
+        else
+        {
+            int outLength = outBuffer.getLength();
 
-        padOutput(output, outputOffset);
+            outOffset += outLength;
+            newOutLength += outLength;
+            octet = 0; // Ignored later on.
+        }
 
-        outputBuffer.setLength(newOutputLength);
+        byte[] out
+            = validateByteArraySize(
+                outBuffer,
+                outBuffer.getOffset() + newOutLength + outputPaddingSize);
+
+        if (start_bit)
+        {
+            // Copy in the NAL start sequence and the (reconstructed) octet.
+            System.arraycopy(NAL_PREFIX, 0, out, outOffset, NAL_PREFIX.length);
+            outOffset += NAL_PREFIX.length;
+
+            out[outOffset] = (byte) (octet & 0xFF);
+            outOffset++;
+        }
+        System.arraycopy(in, inOffset, out, outOffset, inLength);
+        outOffset += inLength;
+
+        padOutput(out, outOffset);
+
+        outBuffer.setLength(newOutLength);
+
+        if (end_bit)
+        {
+            fuaStartedAndNotEnded = false;
+            return BUFFER_PROCESSED_OK;
+        }
+        else
+            return OUTPUT_BUFFER_NOT_FILLED;
+    }
+
+    private int dePacketizeSingleNALUnitPacket(
+            byte[] in,
+            int inOffset,
+            int inLength,
+            Buffer outBuffer)
+    {
+        int outOffset = outBuffer.getOffset();
+        int newOutLength = NAL_PREFIX.length + inLength;
+        byte[] out
+            = validateByteArraySize(
+                outBuffer,
+                outOffset + newOutLength + outputPaddingSize);
+
+        System.arraycopy(NAL_PREFIX, 0, out, outOffset, NAL_PREFIX.length);
+        outOffset += NAL_PREFIX.length;
+
+        System.arraycopy(in, inOffset, out, outOffset, inLength);
+        outOffset += inLength;
+
+        padOutput(out, outOffset);
+
+        outBuffer.setLength(newOutLength);
+
+        return BUFFER_PROCESSED_OK;
     }
 
     protected void doClose()
@@ -162,141 +214,121 @@ public class DePacketizer
     protected void doOpen()
         throws ResourceUnavailableException
     {
-        lastHasMarker = false;
+        fuaStartedAndNotEnded = false;
         lastSequenceNumber = -1;
         lastTimeStamp = -1;
-        waitingForMarker = false;
     }
 
-    protected int doProcess(Buffer inputBuffer, Buffer outputBuffer)
+    protected int doProcess(Buffer inBuffer, Buffer outBuffer)
     {
-        if (waitingForMarker)
-        {
-            lastSequenceNumber = inputBuffer.getSequenceNumber();
-            if ((inputBuffer.getFlags() & Buffer.FLAG_RTP_MARKER) != 0)
-            {
-                waitingForMarker = false;
-                discardOutputBuffer(outputBuffer);
-                return BUFFER_PROCESSED_OK;
-            }
-            else
-                return OUTPUT_BUFFER_NOT_FILLED;
-        }
+        /*
+         * We'll only be depacketizing, we'll not act as an H.264 parser.
+         * Consequently, we'll only care about the rules of
+         * packetizing/depacketizing. For example, we'll have to make sure that
+         * no packets are lost and no other packets are received when
+         * depacketizing FU-A Fragmentation Units (FUs).
+         */
+        long sequenceNumber = inBuffer.getSequenceNumber();
 
-        long inputSequenceNumber = inputBuffer.getSequenceNumber();
-
-        // Detect inconsistent input drop.
         if ((lastSequenceNumber != -1)
-                && (inputSequenceNumber - lastSequenceNumber > 1))
+                && ((sequenceNumber - lastSequenceNumber) != 1))
         {
             if (logger.isTraceEnabled())
                 logger.trace(
-                        "Dropping RTP data! "
-                            + lastSequenceNumber + "/" + inputSequenceNumber);
+                        "Dropping RTP packets upto sequenceNumber "
+                            + lastSequenceNumber
+                            + " and continuing with sequenceNumber "
+                            + sequenceNumber);
 
-            lastSequenceNumber = inputSequenceNumber;
-            waitingForMarker = true;
-            outputBuffer.setLength(0);
-            return OUTPUT_BUFFER_NOT_FILLED;
-        }
-        else
-            lastSequenceNumber = inputSequenceNumber;
-
-        // if the timestamp changes we are starting receiving a new frame
-        // this is also the case when last processed packet has marker
-        long timeStamp = inputBuffer.getTimeStamp();
-
-        if((timeStamp != lastTimeStamp) || lastHasMarker)
-            outputBuffer.setLength(0); // reset
-        // the new frame timestamp
-        lastTimeStamp = timeStamp;
-
-        byte[] input = (byte[]) inputBuffer.getData();
-        int inputOffset = inputBuffer.getOffset();
-        byte fByte = input[inputOffset];
-
-        /*
-         * A value of 00 indicates that the content of the NAL unit is not used
-         * to reconstruct reference pictures for inter picture prediction. Such
-         * NAL units can be discarded without risking the integrity of the
-         * reference pictures.
-         */
-        int nri = (fByte & 0x60) >> 5;
-
-        if(nri == 0)
-            return OUTPUT_BUFFER_NOT_FILLED;
-
-        int type = fByte & 0x1f;
-
-        try
-        {
-            if ((type >= 1) && (type <= 23)) // Single NAL unit packet per H.264
+            fuaStartedAndNotEnded = false;
+            if (sequenceNumber <= lastSequenceNumber)
             {
-                int outputOffset = outputBuffer.getOffset();
-                int outputLength = outputBuffer.getLength();
-                int inputLength = inputBuffer.getLength();
-                int newOutputLength
-                    = outputLength + NAL_START_SEQUENCE.length + inputLength;
-                byte[] output
-                    = validateByteArraySize(
-                        outputBuffer,
-                        outputOffset + newOutputLength + outputPaddingSize);
-
-                outputOffset += outputLength;
-
-                System.arraycopy(
-                        NAL_START_SEQUENCE, 0,
-                        output, outputOffset,
-                        NAL_START_SEQUENCE.length);
-                outputOffset += NAL_START_SEQUENCE.length;
-
-                System.arraycopy(
-                        input, inputOffset,
-                        output, outputOffset,
-                        inputLength);
-                outputOffset += inputLength;
-
-                padOutput(output, outputOffset);
-
-                outputBuffer.setLength(newOutputLength);
-            }
-            else if (type == 28) // FU-A Fragmentation unit
-            {
-                deencapsulateFU(
-                    input, inputOffset, inputBuffer.getLength(),
-                    outputBuffer);
+                // Drop the input Buffer.
+                outBuffer.setDiscard(true);
+                return BUFFER_PROCESSED_OK;
             }
             else
-            {
-                logger.warn("Skipping unsupported NAL unit type");
-                return OUTPUT_BUFFER_NOT_FILLED;
-            }
+                outBuffer.setLength(0); // Reset.
         }
-        catch (Exception ex)
+        lastSequenceNumber = sequenceNumber;
+
+        // If the RTP time stamp changes, we're receiving a new NAL unit.
+        long timeStamp = inBuffer.getTimeStamp();
+
+        if(timeStamp != lastTimeStamp)
         {
-            logger.warn("Cannot parse incoming packet", ex);
-            outputBuffer.setLength(0); // reset
-            return OUTPUT_BUFFER_NOT_FILLED;
+            // Reset.
+            fuaStartedAndNotEnded = false;
+            outBuffer.setLength(0);
+        }
+        lastTimeStamp = timeStamp;
+
+        byte[] in = (byte[]) inBuffer.getData();
+        int inOffset = inBuffer.getOffset();
+        byte octet = in[inOffset];
+
+        /*
+         * NRI equal to the binary value 00 indicates that the content of the
+         * NAL unit is not used to reconstruct reference pictures for inter
+         * picture prediction. Such NAL units can be discarded without risking
+         * the integrity of the reference pictures. However, it is not the place
+         * of the DePacketizer to take the decision to discard them but of the
+         * H.264 decoder.
+         */
+
+        int nal_unit_type = octet & 0x1F;
+        int ret;
+
+        // Single NAL Unit Packet
+        if ((nal_unit_type >= 1) && (nal_unit_type <= 23))
+        {
+            fuaStartedAndNotEnded = false;
+            ret
+                = dePacketizeSingleNALUnitPacket(
+                    in, inOffset, inBuffer.getLength(),
+                    outBuffer);
+        }
+        else if (nal_unit_type == 28) // FU-A Fragmentation unit (FU)
+        {
+            ret = dePacketizeFUA(in, inOffset, inBuffer.getLength(), outBuffer);
+            if (outBuffer.isDiscard())
+                fuaStartedAndNotEnded = false;
+        }
+        else
+        {
+            logger.warn(
+                    "Dropping NAL unit of unsupported type " + nal_unit_type);
+            fuaStartedAndNotEnded = false;
+            outBuffer.setDiscard(true);
+            ret = BUFFER_PROCESSED_OK;
         }
 
-        outputBuffer.setTimeStamp(timeStamp);
+        outBuffer.setSequenceNumber(sequenceNumber);
+        //outBuffer.setTimeStamp(timeStamp);
 
-        // the rtp marker field points that this is the last packet of
-        // the received frame
-        boolean hasMarker
-            = (inputBuffer.getFlags() & Buffer.FLAG_RTP_MARKER) != 0;
+        /*
+         * The RTP marker bit is set for the very last packet of the access unit
+         * indicated by the RTP time stamp to allow an efficient playout buffer
+         * handling. Consequently, we have to output it as well.
+         */
+        if ((inBuffer.getFlags() & Buffer.FLAG_RTP_MARKER) != 0)
+            outBuffer.setFlags(outBuffer.getFlags() | Buffer.FLAG_RTP_MARKER);
 
-        lastHasMarker = hasMarker;
-
-        return hasMarker ? BUFFER_PROCESSED_OK : OUTPUT_BUFFER_NOT_FILLED;
+        return ret;
     }
 
-    private void padOutput(byte[] output, int outputOffset)
+    /**
+     * Appends {@link #outputPaddingSize} number of bytes to <tt>out</tt>
+     * beginning at index <tt>outOffset</tt>. The specified <tt>out</tt> is
+     * expected to be large enough to accommodate the mentioned number of bytes.
+     *
+     * @param out the buffer in which <tt>outputPaddingSize</tt> number of bytes
+     * are to be written
+     * @param outOffset the index in <tt>outOffset</tt> at which the writing of
+     * <tt>outputPaddingSize</tt> number of bytes is to begin
+     */
+    private void padOutput(byte[] out, int outOffset)
     {
-        Arrays.fill(
-                output,
-                outputOffset,
-                outputOffset + outputPaddingSize,
-                (byte) 0);
+        Arrays.fill(out, outOffset, outOffset + outputPaddingSize, (byte) 0);
     }
 }
