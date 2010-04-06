@@ -351,6 +351,21 @@ public class UIServiceImpl
     }
 
     /**
+     * Brings the focus to the main application window.
+     */
+    public void bringToFront()
+    {
+        if (mainFrame.getState() == Frame.ICONIFIED) 
+            mainFrame.setState(Frame.NORMAL);
+        // Because toFront() method gives us no guarantee that our frame would
+        // go on top we'll try to also first request the focus and set our
+        // window always on top.
+        mainFrame.requestFocus();
+        mainFrame.setAlwaysOnTop(true);
+        mainFrame.toFront();
+    }
+
+    /**
      * Implements the <code>UIService.setExitOnMainWindowClose</code>. Sets a
      * boolean property, which indicates whether the application should be
      * exited when the main application window is closed.
@@ -1171,5 +1186,24 @@ public class UIServiceImpl
         // If not, we are talking to more then one person and we return null
         else
             return null;
+    }
+
+    /**
+     * Adds the given <tt>WindowListener</tt> to the main application window.
+     * @param l the <tt>WindowListener</tt> to add
+     */
+    public void addWindowListener(WindowListener l)
+    {
+        mainFrame.addWindowListener(l);
+    }
+
+    /**
+     * Removes the given <tt>WindowListener</tt> from the main application
+     * window.
+     * @param l the <tt>WindowListener</tt> to remove
+     */
+    public void removeWindowListener(WindowListener l)
+    {
+        mainFrame.removeWindowListener(l);
     }
 }

@@ -117,16 +117,6 @@ public class MainFrame
             {
                 MainFrame.this.windowClosed(event);
             }
-
-            public void windowActivated(WindowEvent event)
-            {
-                ConfigurationManager.setApplicationVisible(true);
-            }
-
-            public void windowOpened(WindowEvent event)
-            {
-                ConfigurationManager.setApplicationVisible(true);
-            }
         });
 
         this.initTitleFont();

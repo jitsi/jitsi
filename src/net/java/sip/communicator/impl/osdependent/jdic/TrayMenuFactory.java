@@ -22,10 +22,10 @@ import net.java.sip.communicator.util.*;
  *
  * @author Nicolas Chamouard
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public final class TrayMenuFactory
 {
-
     /**
      * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
      *
@@ -68,8 +68,28 @@ public final class TrayMenuFactory
                     .showMessagePopupDialog(Resources.getString(
                         "impl.systray.FAILED_TO_OPEN_ADD_CONTACT_DIALOG"));
         }
+        else if (itemName.equals("service.gui.SHOW"))
+        {
+            OsDependentActivator.getUIService().setVisible(true);
+            OsDependentActivator.getUIService().bringToFront();
+
+            changeTrayMenuItem(source, "service.gui.HIDE",
+                "service.gui.HIDE", "service.gui.icons.SEARCH_ICON_16x16");
+        }
+        else if (itemName.equals("service.gui.HIDE"))
+        {
+            OsDependentActivator.getUIService().setVisible(false);
+
+            changeTrayMenuItem(source, "service.gui.SHOW",
+                "service.gui.SHOW", "service.gui.icons.SEARCH_ICON_16x16");
+        }
     }
 
+    /**
+     * Adds the given <tt>trayMenuItem</tt> to the given <tt>trayMenu</tt>.
+     * @param trayMenu the tray menu to which to add the item
+     * @param trayMenuItem the item to add
+     */
     private static void add(Object trayMenu, Object trayMenuItem)
     {
         if (trayMenu instanceof JPopupMenu)
@@ -78,6 +98,11 @@ public final class TrayMenuFactory
             ((PopupMenu) trayMenu).add((MenuItem) trayMenuItem);
     }
 
+    /**
+     * Adds a <tt>PopupMenuListener</tt> to the given <tt>trayMenu</tt>.
+     * @param trayMenu the tray menu to which to add a popup listener
+     * @param listener the listener to add
+     */
     public static void addPopupMenuListener(Object trayMenu,
         PopupMenuListener listener)
     {
@@ -85,6 +110,10 @@ public final class TrayMenuFactory
             ((JPopupMenu) trayMenu).addPopupMenuListener(listener);
     }
 
+    /**
+     * Adds a separator to the given <tt>trayMenu</tt>.
+     * @param trayMenu the tray menu to which to add a separator
+     */
     private static void addSeparator(Object trayMenu)
     {
         if (trayMenu instanceof JPopupMenu)
@@ -93,6 +122,12 @@ public final class TrayMenuFactory
             ((PopupMenu) trayMenu).addSeparator();
     }
 
+    /**
+     * Creates a tray menu for the given system tray.
+     * @param tray the system tray for which we're creating a menu
+     * @param swing indicates if we should create a Swing or an AWT menu
+     * @return a tray menu for the given system tray
+     */
     public static Object createTrayMenu(SystrayServiceJdicImpl tray,
                                         boolean swing)
     {
@@ -117,13 +152,76 @@ public final class TrayMenuFactory
         addSeparator(trayMenu);
         add(trayMenu, new StatusSubMenu(tray, swing).getMenu());
         addSeparator(trayMenu);
-        add(trayMenu, createTrayMenuItem("service.gui.QUIT",
-            "service.gui.QUIT", "service.systray.QUIT_MENU_ICON", listener,
+
+        String showHideName;
+        String showHideTextId;
+        String showHideIconId;
+
+        if (OsDependentActivator.getUIService().isVisible())
+        {
+            showHideName = "service.gui.HIDE";
+            showHideTextId = "service.gui.HIDE";
+            showHideIconId = "service.gui.icons.SEARCH_ICON_16x16";
+        }
+        else
+            showHideName = "service.gui.SHOW";
+            showHideTextId = "service.gui.SHOW";
+            showHideIconId = "service.gui.icons.SEARCH_ICON_16x16";
+
+        final Object showHideMenuItem = createTrayMenuItem( showHideName,
+                                                            showHideTextId,
+                                                            showHideIconId,
+                                                            listener,
+                                                            swing);
+
+        add(trayMenu, showHideMenuItem);
+
+        add(trayMenu, createTrayMenuItem("service.gui.CLOSE",
+            "service.gui.CLOSE", "service.systray.CLOSE_MENU_ICON", listener,
             swing));
+
+        OsDependentActivator.getUIService().addWindowListener(
+            new WindowAdapter()
+            {
+                /**
+                 * Invoked when a window is activated.
+                 */
+                public void windowActivated(WindowEvent e)
+                {
+                    changeTrayMenuItem( showHideMenuItem,
+                                        "service.gui.HIDE",
+                                        "service.gui.HIDE",
+                                        "service.gui.icons.SEARCH_ICON_16x16");
+                }
+
+                /**
+                 * Invoked when a window is de-activated.
+                 */
+                public void windowDeactivated(WindowEvent e)
+                {
+                    changeTrayMenuItem( showHideMenuItem,
+                                        "service.gui.SHOW",
+                                        "service.gui.SHOW",
+                                        "service.gui.icons.SEARCH_ICON_16x16");
+                }
+            });
 
         return trayMenu;
     }
 
+    /**
+     * Creates a tray menu with the given <tt>name</tt>, text given by
+     * <tt>textID</tt> and icon given by <tt>iconID</tt>. The <tt>listener</tt>
+     * is handling item events and the <tt>swing</tt> value indicates if we
+     * should create a Swing menu item or and an AWT item.
+     * @param name the name of the item
+     * @param textID the identifier of the text in the localization resources
+     * @param iconID the identifier of the icon in the image resources
+     * @param listener the <tt>ActionListener</tt> handling action events
+     * @param swing indicates if we should create a Swing menu item or an AWT
+     * item
+     * @return a reference to the newly created item
+     */
     private static Object createTrayMenuItem(   String name,
                                                 String textID,
                                                 String iconID,
@@ -150,6 +248,42 @@ public final class TrayMenuFactory
         return trayMenuItem;
     }
 
+    /**
+     * Changes the tray menu item properties, like name, text and icon.
+     * @param trayItem the tray menu item to change
+     * @param name the new name of the item
+     * @param textID the new text identifier
+     * @param iconID the new icon string identifier
+     */
+    private static void changeTrayMenuItem( Object trayItem,
+                                            String name,
+                                            String textID,
+                                            String iconID)
+    {
+        String text = Resources.getString(textID);
+
+        if (trayItem instanceof JMenuItem)
+        {
+            JMenuItem jmenuItem = (JMenuItem) trayItem;
+            jmenuItem.setName(name);
+            jmenuItem.setText(text);
+            jmenuItem.setIcon(Resources.getImage(iconID));
+        }
+        else if (trayItem instanceof MenuItem)
+        {
+            MenuItem menuItem = (MenuItem) trayItem;
+            menuItem.setName(name);
+            menuItem.setLabel(text);
+        }
+    }
+
+    /**
+     * Returns <tt>true</tt> if the given <tt>trayMenu</tt> is visible,
+     * otherwise returns <tt>false</tt>.
+     * @param trayMenu the <tt>TrayMenu</tt> to check
+     * @return <tt>true</tt> if the given <tt>trayMenu</tt> is visible,
+     * otherwise returns <tt>false</tt>
+     */
     public static boolean isVisible(Object trayMenu)
     {
         if (trayMenu instanceof JPopupMenu)
