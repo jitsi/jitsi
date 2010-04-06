@@ -299,7 +299,7 @@ public class ChatAlerterActivator
 
             Alerter.newInstance().alert(fr);
         }
-        catch (Exception ex)
+        catch (Throwable ex)
         {
             logger.error("Cannot alert chat window!");
         }
