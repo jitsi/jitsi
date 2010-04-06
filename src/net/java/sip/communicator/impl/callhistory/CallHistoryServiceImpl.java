@@ -968,8 +968,11 @@ public class CallHistoryServiceImpl
     private void handleNewCall(Call sourceCall, String direction)
     {
         // if call exist. its not new
-        if(currentCallRecords.contains(sourceCall))
-            return;
+        for (CallRecordImpl currentCallRecord : currentCallRecords)
+        {
+            if (currentCallRecord.getSourceCall().equals(sourceCall))
+                return;
+        }
 
         CallRecordImpl newRecord = new CallRecordImpl(
             direction,
