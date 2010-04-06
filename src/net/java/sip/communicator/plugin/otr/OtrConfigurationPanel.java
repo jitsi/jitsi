@@ -450,7 +450,7 @@ public class OtrConfigurationPanel
 
             btnForgetFingerprint = new JButton();
             btnForgetFingerprint.setText(OtrActivator.resourceService
-                .getI18NString("plugin.otr.configform.VERIFY_FINGERPRINT"));
+                .getI18NString("plugin.otr.configform.FORGET_FINGERPRINT"));
             btnForgetFingerprint.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent arg0)
