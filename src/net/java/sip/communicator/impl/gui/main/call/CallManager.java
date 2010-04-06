@@ -202,6 +202,59 @@ public class CallManager
     }
 
     /**
+     * Creates a call to the contact represented by the given string through the
+     * default (most connected) protocol provider. If none of the providers is
+     * registered or online does nothing.
+     *
+     * @param contact the contact to call to
+     */
+    public static void createCall(String contact)
+    {
+        ProtocolProviderService telProvider = null;
+        int status = 0;
+
+        Vector<ProtocolProviderService> telProviders = getTelephonyProviders();
+
+        for (ProtocolProviderService provider : telProviders)
+        {
+            if (!provider.isRegistered())
+                continue;
+
+            OperationSetPresence presence
+                = provider.getOperationSet(OperationSetPresence.class);
+
+            int presenceStatus
+                = (presence == null)
+                    ? PresenceStatus.AVAILABLE_THRESHOLD
+                    : presence.getPresenceStatus().getStatus();
+
+            if (status < presenceStatus)
+            {
+                status = presenceStatus;
+                telProvider = provider;
+            }
+        }
+
+        if (status >= PresenceStatus.ONLINE_THRESHOLD)
+            new CreateCallThread(telProvider, contact).start();
+        else
+        {
+            logger.error("There's no online telephony"
+                        + " provider to create this call.");
+
+            new ErrorDialog(
+                    null,
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.WARNING"),
+                    GuiActivator.getResources()
+                        .getI18NString(
+                            "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"),
+                    ErrorDialog.WARNING)
+                .showDialog();
+        }
+    }
+
+    /**
      * Creates a call to the given list of contacts.
      *
      * @param protocolProvider the protocol provider to which this call belongs.

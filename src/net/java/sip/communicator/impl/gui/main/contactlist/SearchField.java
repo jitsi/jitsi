@@ -8,6 +8,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.plaf.*;
 
@@ -66,8 +67,11 @@ public class SearchField
         {
             public void actionPerformed(ActionEvent e)
             {
-                // Starts a chat with the currently selected contact.
-                GuiActivator.getContactList().startSelectedContactChat();
+                if (!lastHasMatching)
+                    CallManager.createCall(getText());
+                else
+                    // Starts a chat with the currently selected contact.
+                    GuiActivator.getContactList().startSelectedContactChat();
             }
         });
     }
