@@ -314,6 +314,11 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_avcodeccontext_1
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint refs) {
     ((AVCodecContext *) avctx)->refs = (int) refs;
 }
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_avcodeccontext_1set_1rtp_1payload_1size (
+        JNIEnv *jniEnv, jclass clazz, jlong avctx, jint rtp_payload_size) {
+    ((AVCodecContext *) avctx)->rtp_payload_size = (int) rtp_payload_size;
+}
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_avcodeccontext_1set_1sample_1aspect_1ratio (
@@ -372,6 +377,12 @@ JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_avcodeccontext_1set_1workaround_1bugs (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint workaround_bugs) {
     ((AVCodecContext *) avctx)->workaround_bugs = (int) workaround_bugs;
+}
+
+JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_avframe_1get_1pts (
+        JNIEnv *jniEnv, jclass clazz, jlong frame) {
+    return (jlong) (((AVFrame *) frame)->pts);
 }
 
 JNIEXPORT void JNICALL

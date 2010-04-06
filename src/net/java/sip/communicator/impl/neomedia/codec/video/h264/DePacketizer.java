@@ -41,12 +41,7 @@ public class DePacketizer
      * nal_unit_type within the nal_unit() is equal to 7 (sequence parameter
      * set) or 8 (picture parameter set)" or "the byte stream NAL unit syntax
      * structure contains the first NAL unit of an access unit in decoding
-     * order". Since the above conditions require code branching,
-     * <tt>NAL_PREFIX</tt> prepends a byte equal to <tt>0</tt> to
-     * start_code_prefix_one_3bytes. When the conditions in question are
-     * satisfied, the said byte will be interpreted by the H.264 decoder as
-     * zero_byte; otherwise, it will be discarded by the H.264 decoder as
-     * trailing_zero_8bits.
+     * order".
      */
     private static final byte[] NAL_PREFIX = { 0, 0, 1 };
 

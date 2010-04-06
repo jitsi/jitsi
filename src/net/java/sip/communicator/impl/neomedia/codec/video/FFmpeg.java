@@ -12,6 +12,8 @@ package net.java.sip.communicator.impl.neomedia.codec.video;
  */
 public class FFmpeg
 {
+    public static final long AV_NOPTS_VALUE = 0x8000000000000000L;
+
     public static final int CODEC_FLAG_LOOP_FILTER = 0x00000800;
 
     public static final int CODEC_ID_H264 = 28;
@@ -156,6 +158,9 @@ public class FFmpeg
     public static native void avcodeccontext_set_refs(long avctx, 
         int refs);
 
+    public static native void avcodeccontext_set_rtp_payload_size(long avctx,
+        int rtp_payload_size);
+
     public static native void avcodeccontext_set_sample_aspect_ratio(
         long avctx, int num, int den);
 
@@ -179,6 +184,8 @@ public class FFmpeg
 
     public static native void avcodeccontext_set_workaround_bugs(long avctx,
         int workaround_bugs);
+
+    public static native long avframe_get_pts(long frame);
 
     public static native void avframe_set_data(long frame, long data0,
         long offset1, long offset2);

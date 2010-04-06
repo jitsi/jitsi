@@ -29,7 +29,7 @@ public class Packetizer
         = { new VideoFormat(Constants.H264_RTP) };
 
     // without the headers
-    private static final int MAX_PAYLOAD_SIZE = 1024;
+    public static final int MAX_PAYLOAD_SIZE = 1024;
 
     private static final String PLUGIN_NAME = "H264 Packetizer";
 
@@ -259,21 +259,21 @@ public class Packetizer
             outBuffer.setOffset(0);
             outBuffer.setTimeStamp(nalsTimeStamp);
             outBuffer.setSequenceNumber(sequenceNumber++);
-/*
-            // flags
-            int inFlags = inBuffer.getFlags();
-            int outFlags = outBuffer.getFlags();
 
-            if ((inFlags & Buffer.FLAG_LIVE_DATA) != 0)
-                outFlags |= Buffer.FLAG_LIVE_DATA;
-            if ((inFlags & Buffer.FLAG_RELATIVE_TIME) != 0)
-                outFlags |= Buffer.FLAG_RELATIVE_TIME;
-            if ((inFlags & Buffer.FLAG_RTP_TIME) != 0)
-                outFlags |= Buffer.FLAG_RTP_TIME;
-            if ((inFlags & Buffer.FLAG_SYSTEM_TIME) != 0)
-                outFlags |= Buffer.FLAG_SYSTEM_TIME;
-            outBuffer.setFlags(outFlags);
-*/
+            // flags
+//            int inFlags = inBuffer.getFlags();
+//            int outFlags = outBuffer.getFlags();
+
+//            if ((inFlags & Buffer.FLAG_LIVE_DATA) != 0)
+//                outFlags |= Buffer.FLAG_LIVE_DATA;
+//            if ((inFlags & Buffer.FLAG_RELATIVE_TIME) != 0)
+//                outFlags |= Buffer.FLAG_RELATIVE_TIME;
+//            if ((inFlags & Buffer.FLAG_RTP_TIME) != 0)
+//                outFlags |= Buffer.FLAG_RTP_TIME;
+//            if ((inFlags & Buffer.FLAG_SYSTEM_TIME) != 0)
+//                outFlags |= Buffer.FLAG_SYSTEM_TIME;
+//            outBuffer.setFlags(outFlags);
+
             // If there are other NALs, send them as well.
             if(nals.size() > 0)
                 return (BUFFER_PROCESSED_OK | INPUT_BUFFER_NOT_CONSUMED);

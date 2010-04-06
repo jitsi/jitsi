@@ -253,6 +253,7 @@ public class JNIDecoder
             return BUFFER_PROCESSED_OK;
         }
 
+        // format
         int avctxWidth = FFmpeg.avcodeccontext_get_width(avcontext);
         int avctxHeight = FFmpeg.avcodeccontext_get_height(avcontext);
 
@@ -269,12 +270,28 @@ public class JNIDecoder
         }
         outBuffer.setFormat(outputFormat);
 
+        // data
         Object out = outBuffer.getData();
 
         if (!(out instanceof AVFrame) || (((AVFrame) out).getPtr() != avframe))
             outBuffer.setData(new AVFrame(avframe));
 
-        //outBuffer.setTimeStamp(inBuffer.getTimeStamp());
+        // timeStamp
+        long pts = FFmpeg.AV_NOPTS_VALUE; // TODO avframe_get_pts(avframe);
+
+        if (pts == FFmpeg.AV_NOPTS_VALUE)
+            outBuffer.setTimeStamp(Buffer.TIME_UNKNOWN);
+        else
+        {
+            outBuffer.setTimeStamp(pts);
+
+            int outFlags = outBuffer.getFlags();
+
+            outFlags |= Buffer.FLAG_RELATIVE_TIME;
+            outFlags &= ~(Buffer.FLAG_RTP_TIME | Buffer.FLAG_SYSTEM_TIME);
+            outBuffer.setFlags(outFlags);
+        }
+
         return BUFFER_PROCESSED_OK;
     }
 

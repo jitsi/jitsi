@@ -16,7 +16,7 @@ import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.sf.fmj.media.*;
 
 /**
- * Encodes supplied data in h264
+ * Implements a H.264 encoder.
  *
  * @author Damian Minkov
  * @author Lubomir Marinov
@@ -140,9 +140,6 @@ public class JNIEncoder
     public synchronized void open()
         throws ResourceUnavailableException
     {
-        int width = 0;
-        int height = 0;
-
         if (opened)
             return;
 
@@ -151,8 +148,9 @@ public class JNIEncoder
         if (outputFormat == null)
             throw new ResourceUnavailableException("No output format selected");
 
-        width = (int)((VideoFormat)outputFormat).getSize().getWidth();
-        height = (int)((VideoFormat)outputFormat).getSize().getHeight();
+        Dimension outputFormatSize = ((VideoFormat) outputFormat).getSize();
+        int width = outputFormatSize.width;
+        int height = outputFormatSize.height;
 
         long avcodec = FFmpeg.avcodec_find_encoder(FFmpeg.CODEC_ID_H264);
 
@@ -172,7 +170,7 @@ public class JNIEncoder
         FFmpeg.avcodeccontext_set_rc_max_rate(avcontext, _bitRate);
         FFmpeg.avcodeccontext_set_sample_aspect_ratio(avcontext, 0, 0);
         FFmpeg.avcodeccontext_set_thread_count(avcontext, 1);
-        /* time base should be 1 / frame rate */
+        // time_base should be 1 / frame rate
         FFmpeg.avcodeccontext_set_time_base(avcontext, 1, TARGET_FRAME_RATE);
         FFmpeg.avcodeccontext_set_quantizer(avcontext, 22, 30, 4);
 
@@ -196,13 +194,23 @@ public class JNIEncoder
         FFmpeg.avcodeccontext_set_me_cmp(avcontext, FFmpeg.FF_CMP_CHROMA);
         FFmpeg.avcodeccontext_set_scenechange_threshold(avcontext, 40);
         // Constant quality mode (also known as constant ratefactor)
-        /* FFmpeg.avcodeccontext_set_crf(avcontext, 0); */
+        // FFmpeg.avcodeccontext_set_crf(avcontext, 0);
         FFmpeg.avcodeccontext_set_rc_buffer_size(avcontext, 0);
         FFmpeg.avcodeccontext_set_gop_size(avcontext, IFRAME_INTERVAL);
         FFmpeg.avcodeccontext_set_i_quant_factor(avcontext, 1f / 1.4f);
 
         FFmpeg.avcodeccontext_set_refs(avcontext, 4);
         FFmpeg.avcodeccontext_set_trellis(avcontext, 2);
+
+        /*
+         * AVCodecContext's rtp_payload_size is supposed to try to provide an
+         * alternative to the "Fragmentation Units (FUs)" created by Packetizer
+         * but the former does not seem to be guaranteed and the video looks
+         * better at the time of this writing when only Packetizer takes care of
+         * ensuring MAX_PAYLOAD_SIZE.
+         */
+        //FFmpeg.avcodeccontext_set_rtp_payload_size(avcontext,
+        //        Packetizer.MAX_PAYLOAD_SIZE);
 
         if (FFmpeg.avcodec_open(avcontext, avcodec) < 0)
             throw new RuntimeException("Could not open codec");

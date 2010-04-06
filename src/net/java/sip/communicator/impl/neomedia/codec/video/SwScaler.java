@@ -369,7 +369,7 @@ public class SwScaler
         output.setOffset(0);
         output.setSequenceNumber(input.getSequenceNumber());
         output.setTimeStamp(input.getTimeStamp());
-/*
+
         // flags
         int inFlags = input.getFlags();
         int outFlags = output.getFlags();
@@ -385,7 +385,7 @@ public class SwScaler
         if ((inFlags & Buffer.FLAG_SYSTEM_TIME) != 0)
             outFlags |= Buffer.FLAG_SYSTEM_TIME;
         output.setFlags(outFlags);
-*/
+
         return BUFFER_PROCESSED_OK;   
     }
 
