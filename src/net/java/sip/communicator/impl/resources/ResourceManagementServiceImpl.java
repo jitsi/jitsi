@@ -670,7 +670,10 @@ public class ResourceManagementServiceImpl
     public ImageIcon getImage(String imageID)
     {
         URL imageURL = getImageURL(imageID);
-
+        if (imageURL == null)
+        {
+            return null;
+        }
         return new ImageIcon(imageURL);
     }
 }
