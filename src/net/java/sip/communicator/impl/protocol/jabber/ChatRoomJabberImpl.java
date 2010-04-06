@@ -1505,18 +1505,27 @@ public class ChatRoomJabberImpl
 
         for (ChatRoomMessageListener listener : listeners)
         {
-            if (evt instanceof ChatRoomMessageDeliveredEvent)
+            try
             {
-                listener.messageDelivered( (ChatRoomMessageDeliveredEvent) evt);
-            }
-            else if (evt instanceof ChatRoomMessageReceivedEvent)
+                if (evt instanceof ChatRoomMessageDeliveredEvent)
+                {
+                    listener.messageDelivered(
+                        (ChatRoomMessageDeliveredEvent)evt);
+                }
+                else if (evt instanceof ChatRoomMessageReceivedEvent)
+                {
+                    listener.messageReceived(
+                        (ChatRoomMessageReceivedEvent)evt);
+                }
+                else if (evt instanceof ChatRoomMessageDeliveryFailedEvent)
+                {
+                    listener.messageDeliveryFailed(
+                        (ChatRoomMessageDeliveryFailedEvent)evt);
+                }
+            } catch (Throwable e)
             {
-                listener.messageReceived( (ChatRoomMessageReceivedEvent) evt);
-            }
-            else if (evt instanceof ChatRoomMessageDeliveryFailedEvent)
-            {
-                listener.messageDeliveryFailed(
-                    (ChatRoomMessageDeliveryFailedEvent) evt);
+                logger.error("Error delivering multi chat message for " +
+                    listener, e);
             }
         }
     }
