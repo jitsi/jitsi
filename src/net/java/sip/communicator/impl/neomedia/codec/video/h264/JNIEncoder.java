@@ -25,12 +25,15 @@ import net.sf.fmj.media.*;
 public class JNIEncoder
     extends AbstractCodec
 {
-    private static final String PLUGIN_NAME = "H.264 Encoder";
+    private static final Format[] DEFAULT_OUTPUT_FORMATS
+        = { new VideoFormat(Constants.H264) };
+
+    // key frame every 300 frames
+    private static final int IFRAME_INTERVAL = 300;
 
     private static final int INPUT_BUFFER_PADDING_SIZE = 8;
 
-    private static final Format[] defOutputFormats =
-    { new VideoFormat(Constants.H264) };
+    private static final String PLUGIN_NAME = "H.264 Encoder";
 
     // the frame rate we will use
     private static final int TARGET_FRAME_RATE = 15;
@@ -47,38 +50,73 @@ public class JNIEncoder
     // the supplied data length
     private int encFrameLen;
 
-    private long rawFrameBuffer;
-
-    // key frame every 300 frames
-    private static final int IFRAME_INTERVAL = 300;
-
     private int framesSinceLastIFrame = IFRAME_INTERVAL + 1;
 
+    private long rawFrameBuffer;
+
     /**
-     * Constructor
+     * Initializes a new <tt>JNIEncoder</tt> instance.
      */
     public JNIEncoder()
     {
-        float sourceFrameRate = TARGET_FRAME_RATE;
-
-        inputFormats = new Format[1];
-
-        inputFormats[0] = new YUVFormat(null, -1, Format.byteArray,
-                sourceFrameRate, YUVFormat.YUV_420, -1, -1, 0, -1, -1);
+        inputFormats
+            = new Format[]
+            {
+                new YUVFormat(
+                        null,
+                        Format.NOT_SPECIFIED,
+                        Format.byteArray,
+                        TARGET_FRAME_RATE,
+                        YUVFormat.YUV_420,
+                        Format.NOT_SPECIFIED, Format.NOT_SPECIFIED,
+                        0, Format.NOT_SPECIFIED, Format.NOT_SPECIFIED)
+            };
 
         inputFormat = null;
         outputFormat = null;
     }
 
+    @Override
+    public synchronized void close()
+    {
+        if (opened)
+        {
+            opened = false;
+            super.close();
+
+            FFmpeg.avcodec_close(avcontext);
+            FFmpeg.av_free(avcontext);
+            avcontext = 0;
+
+            FFmpeg.av_free(avframe);
+            avframe = 0;
+            FFmpeg.av_free(rawFrameBuffer);
+            rawFrameBuffer = 0;
+
+            encFrameBuffer = null;
+        }
+    }
+
     private Format[] getMatchingOutputFormats(Format in)
     {
         VideoFormat videoIn = (VideoFormat) in;
-        Dimension inSize = videoIn.getSize();
 
         return
             new VideoFormat[]
-            { new VideoFormat(Constants.H264, inSize, Format.NOT_SPECIFIED,
-                Format.byteArray, videoIn.getFrameRate()) };
+            {
+                new VideoFormat(
+                        Constants.H264,
+                        videoIn.getSize(),
+                        Format.NOT_SPECIFIED,
+                        Format.byteArray,
+                        videoIn.getFrameRate())
+            };
+    }
+
+    @Override
+    public String getName()
+    {
+        return PLUGIN_NAME;
     }
 
     /**
@@ -88,7 +126,7 @@ public class JNIEncoder
     {
         // null input format
         if (in == null)
-            return defOutputFormats;
+            return DEFAULT_OUTPUT_FORMATS;
 
         // mismatch input format
         if (!(in instanceof VideoFormat)
@@ -96,137 +134,6 @@ public class JNIEncoder
             return new Format[0];
 
         return getMatchingOutputFormats(in);
-    }
-
-    @Override
-    public Format setInputFormat(Format in)
-    {
-        // mismatch input format
-        if (!(in instanceof VideoFormat)
-                || null == AbstractCodecExt.matches(in, inputFormats))
-            return null;
-
-        VideoFormat videoIn = (VideoFormat) in;
-        Dimension inSize = videoIn.getSize();
-
-        if (inSize == null)
-        {
-            /* XXX code reached ? */
-            inSize = new Dimension(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT);
-        }
-
-        YUVFormat yuv = (YUVFormat) videoIn;
-
-        if (yuv.getOffsetU() > yuv.getOffsetV())
-            return null;
-
-        int strideY = inSize.width;
-        int strideUV = strideY / 2;
-        int offsetU = strideY * inSize.height;
-        int offsetV = offsetU + strideUV * inSize.height / 2;
-
-        int inputYuvLength = (strideY + strideUV) * inSize.height;
-        float sourceFrameRate = videoIn.getFrameRate();
-
-        inputFormat =
-            new YUVFormat(inSize, inputYuvLength + INPUT_BUFFER_PADDING_SIZE,
-                Format.byteArray, sourceFrameRate, YUVFormat.YUV_420, strideY,
-                strideUV, 0, offsetU, offsetV);
-
-        // Return the selected inputFormat
-        return inputFormat;
-    }
-
-    @Override
-    public Format setOutputFormat(Format out)
-    {
-        // mismatch output format
-        if (!(out instanceof VideoFormat)
-                || (null
-                        == AbstractCodecExt.matches(
-                                out,
-                                getMatchingOutputFormats(inputFormat))))
-            return null;
-
-        VideoFormat videoOut = (VideoFormat) out;
-        Dimension outSize = videoOut.getSize();
-
-        if (outSize == null)
-        {
-            Dimension inSize = ((VideoFormat) inputFormat).getSize();
-            if (inSize == null)
-            {
-                /* XXX code reached ? */
-                outSize = new Dimension(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT);
-            }
-            else
-                outSize = inSize;
-        }
-
-        outputFormat =
-            new VideoFormat(videoOut.getEncoding(), outSize, outSize.width
-                * outSize.height, Format.byteArray, videoOut.getFrameRate());
-
-        // Return the selected outputFormat
-        return outputFormat;
-    }
-
-    public synchronized int process(Buffer inBuffer, Buffer outBuffer)
-    {
-        if (isEOM(inBuffer))
-        {
-            propagateEOM(outBuffer);
-            reset();
-            return BUFFER_PROCESSED_OK;
-        }
-
-        if (inBuffer.isDiscard())
-        {
-            outBuffer.setDiscard(true);
-            reset();
-            return BUFFER_PROCESSED_OK;
-        }
-
-        Format inFormat = inBuffer.getFormat();
-        if (inFormat != inputFormat && !(inFormat.matches(inputFormat)))
-            setInputFormat(inFormat);
-
-        if (inBuffer.getLength() < 10)
-        {
-            outBuffer.setDiscard(true);
-            reset();
-            return BUFFER_PROCESSED_OK;
-        }
-
-        // copy data to avframe
-        FFmpeg.memcpy(rawFrameBuffer, (byte[]) inBuffer.getData(), inBuffer
-            .getOffset(), encFrameLen);
-
-        if (framesSinceLastIFrame >= IFRAME_INTERVAL)
-        {
-            FFmpeg.avframe_set_key_frame(avframe, true);
-            framesSinceLastIFrame = 0;
-        }
-        else
-        {
-            framesSinceLastIFrame++;
-            FFmpeg.avframe_set_key_frame(avframe, false);
-        }
-
-        // encode data
-        int encLen =
-            FFmpeg.avcodec_encode_video(avcontext, encFrameBuffer, encFrameLen,
-                avframe);
-
-        byte[] r = new byte[encLen];
-        System.arraycopy(encFrameBuffer, 0, r, 0, r.length);
-
-        outBuffer.setData(r);
-        outBuffer.setLength(r.length);
-        outBuffer.setOffset(0);
-        //outBuffer.setTimeStamp(inBuffer.getTimeStamp());
-
-        return BUFFER_PROCESSED_OK;
     }
 
     @Override
@@ -315,30 +222,159 @@ public class JNIEncoder
         super.open();
     }
 
-    @Override
-    public synchronized void close()
+    public synchronized int process(Buffer inBuffer, Buffer outBuffer)
     {
-        if (opened)
+        if (isEOM(inBuffer))
         {
-            opened = false;
-            super.close();
-
-            FFmpeg.avcodec_close(avcontext);
-            FFmpeg.av_free(avcontext);
-            avcontext = 0;
-
-            FFmpeg.av_free(avframe);
-            avframe = 0;
-            FFmpeg.av_free(rawFrameBuffer);
-            rawFrameBuffer = 0;
-
-            encFrameBuffer = null;
+            propagateEOM(outBuffer);
+            reset();
+            return BUFFER_PROCESSED_OK;
         }
+        if (inBuffer.isDiscard())
+        {
+            outBuffer.setDiscard(true);
+            reset();
+            return BUFFER_PROCESSED_OK;
+        }
+
+        Format inFormat = inBuffer.getFormat();
+
+        if ((inFormat != inputFormat) && !(inFormat.matches(inputFormat)))
+            setInputFormat(inFormat);
+
+        if (inBuffer.getLength() < 10)
+        {
+            outBuffer.setDiscard(true);
+            reset();
+            return BUFFER_PROCESSED_OK;
+        }
+
+        // copy data to avframe
+        FFmpeg.memcpy(
+                rawFrameBuffer,
+                (byte[]) inBuffer.getData(), inBuffer.getOffset(),
+                encFrameLen);
+
+        if (framesSinceLastIFrame >= IFRAME_INTERVAL)
+        {
+            FFmpeg.avframe_set_key_frame(avframe, true);
+            framesSinceLastIFrame = 0;
+        }
+        else
+        {
+            framesSinceLastIFrame++;
+            FFmpeg.avframe_set_key_frame(avframe, false);
+        }
+
+        // encode data
+        int encLen
+            = FFmpeg.avcodec_encode_video(
+                    avcontext,
+                    encFrameBuffer, encFrameLen,
+                    avframe);
+
+        /*
+         * Do not always allocate a new data array for outBuffer, try to reuse
+         * the existing one if it is suitable.
+         */
+        Object outData = outBuffer.getData();
+        byte[] out;
+
+        if (outData instanceof byte[])
+        {
+            out = (byte[]) outData;
+            if (out.length < encLen)
+                out = null;
+        }
+        else
+            out = null;
+        if (out == null)
+            out = new byte[encLen];
+
+        System.arraycopy(encFrameBuffer, 0, out, 0, encLen);
+
+        outBuffer.setData(out);
+        outBuffer.setLength(encLen);
+        outBuffer.setOffset(0);
+        //outBuffer.setTimeStamp(inBuffer.getTimeStamp());
+
+        return BUFFER_PROCESSED_OK;
     }
 
     @Override
-    public String getName()
+    public Format setInputFormat(Format in)
     {
-        return PLUGIN_NAME;
+        // mismatch input format
+        if (!(in instanceof VideoFormat)
+                || (null == AbstractCodecExt.matches(in, inputFormats)))
+            return null;
+
+        YUVFormat yuv = (YUVFormat) in;
+        Dimension inSize = yuv.getSize();
+
+        if (inSize == null)
+            inSize
+                = new Dimension(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT);
+
+        if (yuv.getOffsetU() > yuv.getOffsetV())
+            return null;
+
+        int strideY = inSize.width;
+        int strideUV = strideY / 2;
+        int offsetU = strideY * inSize.height;
+        int offsetV = offsetU + strideUV * inSize.height / 2;
+
+        int inYUVLength = (strideY + strideUV) * inSize.height;
+
+        inputFormat
+            = new YUVFormat(
+                    inSize,
+                    inYUVLength + INPUT_BUFFER_PADDING_SIZE,
+                    Format.byteArray,
+                    yuv.getFrameRate(),
+                    YUVFormat.YUV_420,
+                    strideY, strideUV,
+                    0, offsetU, offsetV);
+
+        // Return the selected inputFormat
+        return inputFormat;
+    }
+
+    @Override
+    public Format setOutputFormat(Format out)
+    {
+        // mismatch output format
+        if (!(out instanceof VideoFormat)
+                || (null
+                        == AbstractCodecExt.matches(
+                                out,
+                                getMatchingOutputFormats(inputFormat))))
+            return null;
+
+        VideoFormat videoOut = (VideoFormat) out;
+        Dimension outSize = videoOut.getSize();
+
+        if (outSize == null)
+        {
+            Dimension inSize = ((VideoFormat) inputFormat).getSize();
+
+            outSize
+                = (inSize == null)
+                    ? new Dimension(
+                            Constants.VIDEO_WIDTH,
+                            Constants.VIDEO_HEIGHT)
+                    : inSize;
+        }
+
+        outputFormat
+            = new VideoFormat(
+                    videoOut.getEncoding(),
+                    outSize,
+                    outSize.width * outSize.height,
+                    Format.byteArray,
+                    videoOut.getFrameRate());
+
+        // Return the selected outputFormat
+        return outputFormat;
     }
 }
