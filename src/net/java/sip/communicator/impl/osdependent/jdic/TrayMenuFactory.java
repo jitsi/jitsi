@@ -176,8 +176,8 @@ public final class TrayMenuFactory
 
         add(trayMenu, showHideMenuItem);
 
-        add(trayMenu, createTrayMenuItem("service.gui.CLOSE",
-            "service.gui.CLOSE", "service.systray.CLOSE_MENU_ICON", listener,
+        add(trayMenu, createTrayMenuItem("service.gui.QUIT",
+            "service.gui.QUIT", "service.systray.QUIT_MENU_ICON", listener,
             swing));
 
         OsDependentActivator.getUIService().addWindowListener(
