@@ -437,6 +437,7 @@ public class TestOperationSetMultiUserChat2
      * true for an user after he joins a room with <tt>someRoom.join()</tt>
      *
      * @throws OperationFailedException
+     * @throws OperationNotSupportedException
      */
     public void testJoinRoom()
         throws OperationFailedException,
@@ -1009,11 +1010,11 @@ public class TestOperationSetMultiUserChat2
         assertEquals("created message content differ from the one provided "
             ,message1, opSet1Message.getContent());
 
-        MUCEventCollector opSet1RoomCollector =
-            new MUCEventCollector(opSet1Room, MUCEventCollector.EVENT_MESSAGE);
+        MUCEventCollector opSet1RoomCollector = new MUCEventCollector(
+            opSet1Room, MUCEventCollector.EVENT_MESSAGE, true);
 
-        MUCEventCollector opSet2RoomCollector =
-            new MUCEventCollector(opSet2Room, MUCEventCollector.EVENT_MESSAGE);
+        MUCEventCollector opSet2RoomCollector = new MUCEventCollector(
+            opSet2Room, MUCEventCollector.EVENT_MESSAGE, true);
 
         // ship it
         opSet1Room.sendMessage(opSet1Message);
@@ -1959,12 +1960,17 @@ public class TestOperationSetMultiUserChat2
         private static final int EVENT_ROLE = 5;
 
         /**
+         * Should we skip system messages in chat rooms.
+         */
+        private boolean skipSystemMsgs = false;
+
+        /**
          * Creates an event collector to listen for specific events from
          * the given opSet
          *
          * @param opSet the <tt>OperationSetMultiUserChat> from which we will
          * receive events.
-         * @param  eventType indicades the kind of events we are looking for
+         * @param  eventType indicates the kind of events we are looking for
          */
         public MUCEventCollector(
             OperationSetMultiUserChat opSet, int eventType)
@@ -1986,9 +1992,24 @@ public class TestOperationSetMultiUserChat2
             }
         }
 
+        /**
+         * @param room the room we are listening to.
+         * @param eventType indicates the kind of events we are looking for
+         */
         public MUCEventCollector(ChatRoom room, int eventType)
         {
+            this(room, eventType, false);
+        }
+        /**
+         * @param room the room we are listening to.
+         * @param eventType indicates the kind of events we are looking for
+         * @param skipSystemMsgs should we skip system messages in chat rooms.
+         */
+        public MUCEventCollector(
+            ChatRoom room, int eventType, boolean skipSystemMsgs)
+        {
             this.room = room;
+            this.skipSystemMsgs = skipSystemMsgs;
             opSet = null;
             switch (eventType)
             {
@@ -2095,7 +2116,11 @@ public class TestOperationSetMultiUserChat2
         public void messageReceived(
             ChatRoomMessageReceivedEvent evt)
         {
-            collectEvent(evt);
+            if(skipSystemMsgs && evt.getEventType()
+                == ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED)
+                return;
+            else
+                collectEvent(evt);
         }
 
         public void messageDelivered(

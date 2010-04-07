@@ -26,7 +26,7 @@ public class IptelAccountRegistration
     /**
      * The default transport.
      */
-    public static String DEFAULT_TRANSPORT = "UDP";
+    public static String DEFAULT_TRANSPORT = "TCP";
 
     /**
      * The default poll period.

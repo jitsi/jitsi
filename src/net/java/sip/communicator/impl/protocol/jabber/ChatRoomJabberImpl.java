@@ -1549,7 +1549,12 @@ public class ChatRoomJabberImpl
             if(msgBody == null)
                 return;
 
+            int messageReceivedEventType =
+                ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED;
+
             String msgFrom = msg.getFrom();
+            ChatRoomMember member = null;
+
             String fromUserName = StringUtils.parseResource(msgFrom);
 
             // We try to get the nickname of the participantName in case it's
@@ -1558,7 +1563,18 @@ public class ChatRoomJabberImpl
             if(nickname.equals(getNickName(fromUserName)))
                 return;
 
-            ChatRoomMember member = smackParticipantToScMember(msgFrom);
+            // when the message comes from the room itself its a system message
+            if(msgFrom.equals(getName()))
+            {
+                messageReceivedEventType =
+                    ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED;
+                member = new ChatRoomMemberJabberImpl(
+                    ChatRoomJabberImpl.this, getName(), getName(), null);
+            }
+            else
+            {
+                member = smackParticipantToScMember(msgFrom);
+            }
 
             if(logger.isDebugEnabled())
             {
@@ -1608,8 +1624,7 @@ public class ChatRoomJabberImpl
                     member,
                     System.currentTimeMillis(),
                     newMessage,
-                    ChatRoomMessageReceivedEvent
-                        .CONVERSATION_MESSAGE_RECEIVED);
+                    messageReceivedEventType);
 
             fireMessageEvent(msgReceivedEvt);
         }

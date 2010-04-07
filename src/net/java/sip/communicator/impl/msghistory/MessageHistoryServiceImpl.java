@@ -859,6 +859,11 @@ public class MessageHistoryServiceImpl
     {
         try
         {
+            // ignore non conversation messages
+            if(evt.getEventType() !=
+                ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED)
+                return;
+
             History history = this.getHistoryForMultiChat(
                 evt.getSourceChatRoom());
 
