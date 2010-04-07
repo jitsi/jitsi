@@ -6,11 +6,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import org.apache.log4j.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.plaf.*;
 
