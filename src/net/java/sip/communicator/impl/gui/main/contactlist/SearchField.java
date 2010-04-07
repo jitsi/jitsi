@@ -6,6 +6,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import org.apache.log4j.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
@@ -21,6 +23,8 @@ public class SearchField
     extends SIPCommTextField
     implements DocumentListener
 {
+    private final Logger logger = Logger.getLogger(SearchField.class);
+
     private final MainFrame mainFrame;
 
     /**
@@ -28,6 +32,8 @@ public class SearchField
      * we'll find matching contacts.
      */
     private boolean lastHasMatching = true;
+
+    private SearchThread searchThread = null;
 
     /**
      * Creates the <tt>SearchField</tt>.
@@ -85,8 +91,10 @@ public class SearchField
         // Should explicitly check if there's a text, because the default text
         // triggers also an insertUpdate event.
         String filterString = this.getText();
-        if (filterString != null && filterString.length() > 0)
-            SwingUtilities.invokeLater(new ChangeRunnable());
+        if (filterString == null || filterString.length() <= 0)
+            return;
+
+        scheduleUpdate();
     }
 
     /**
@@ -95,35 +103,79 @@ public class SearchField
      */
     public void removeUpdate(DocumentEvent e)
     {
-        SwingUtilities.invokeLater(new ChangeRunnable());
+        scheduleUpdate();
     }
 
+    /**
+     * Do not need this for the moment.
+     * @param e the <tt>DocumentEvent</tt> that notified us
+     */
     public void changedUpdate(DocumentEvent e) {}
 
     /**
-     * Handles every document change without blocking the interface.
+     * Schedules an update if necessary.
      */
-    private class ChangeRunnable implements Runnable
+    private void scheduleUpdate()
+    {
+        if (searchThread == null)
+        {
+            searchThread = new SearchThread();
+            searchThread.start();
+        }
+        else
+            synchronized (searchThread)
+            {
+                searchThread.notify();
+            }
+    }
+
+    /**
+     * The <tt>SearchThread</tt> is meant to launch the search in a separate
+     * thread.
+     */
+    private class SearchThread extends Thread
     {
         public void run()
         {
-            handleChange();
+            synchronized (this)
+            {
+                while (true)
+                {
+                    String filterString = getText();
+
+                    if (filterString != null && filterString.length() > 0)
+                    {
+                        TreeContactList.searchFilter
+                            .setFilterString(filterString);
+
+                        SwingUtilities.invokeLater(new UpdateNonNullFilter());
+                    }
+                    else
+                    {
+                        SwingUtilities.invokeLater(new UpdateNullFilter());
+                    }
+
+                    try
+                    {
+                        this.wait();
+                    }
+                    catch (InterruptedException e)
+                    {
+                        logger.debug("Search thread was interrupted.", e);
+                    }
+                }
+            }
         }
     }
 
     /**
-     * Handles changes in document content. Creates a contact list filter from
-     * the contained text.
+     * Updates the UI to fit the search filter.
      */
-    private void handleChange()
+    private class UpdateNonNullFilter implements Runnable 
     {
-        String filterString = this.getText();
-
-        TreeContactList contactList = GuiActivator.getContactList();
-
-        if (filterString != null && filterString.length() > 0)
+        public void run()
         {
-            TreeContactList.searchFilter.setFilterString(filterString);
+            TreeContactList contactList = GuiActivator.getContactList();
 
             boolean hasMatching
                 = contactList.applyFilter(TreeContactList.searchFilter);
@@ -144,10 +196,19 @@ public class SearchField
                 contactList.selectFirstContact();
             }
 
-            this.lastHasMatching = hasMatching;
+            lastHasMatching = hasMatching;
         }
-        else
+    }
+
+    /**
+     * Updates the UI to fit a null filter.
+     */
+    private class UpdateNullFilter implements Runnable
+    {
+        public void run()
         {
+            TreeContactList contactList = GuiActivator.getContactList();
+
             contactList.applyFilter(TreeContactList.presenceFilter);
 
             mainFrame.setUnknownContactView(false);
