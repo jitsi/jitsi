@@ -491,14 +491,24 @@ public class MetaContactChatSession
         for (ChatContact chatContact : chatParticipants)
         {
             Object chatSourceContact = chatContact.getDescriptor();
-
-            MetaContact parentMetaContact
-                = GuiActivator.getContactListService()
-                    .findMetaContactByContact((Contact) chatSourceContact);
-
-            if(parentMetaContact != null
+            if (chatSourceContact instanceof MetaContact)
+            {
+                MetaContact metaChatContact = (MetaContact) chatSourceContact;
+                if (metaChatContact.equals(metaContact))
+                    return chatContact;
+            }
+            else
+            {
+                assert chatSourceContact instanceof ChatRoomMember;
+                ChatRoomMember metaChatContact = (ChatRoomMember) chatSourceContact;
+                Contact contact = metaChatContact.getContact();
+                MetaContact parentMetaContact
+                        = GuiActivator.getContactListService()
+                        .findMetaContactByContact(contact);
+                if(parentMetaContact != null
                     && parentMetaContact.equals(metaContact))
                 return chatContact;
+            }
         }
 
         return null;
