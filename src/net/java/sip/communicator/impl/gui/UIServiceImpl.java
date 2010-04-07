@@ -359,10 +359,11 @@ public class UIServiceImpl
             mainFrame.setState(Frame.NORMAL);
         // Because toFront() method gives us no guarantee that our frame would
         // go on top we'll try to also first request the focus and set our
-        // window always on top.
+        // window always on top to put all the chances on our side.
         mainFrame.requestFocus();
         mainFrame.setAlwaysOnTop(true);
         mainFrame.toFront();
+        mainFrame.setAlwaysOnTop(false);
     }
 
     /**
