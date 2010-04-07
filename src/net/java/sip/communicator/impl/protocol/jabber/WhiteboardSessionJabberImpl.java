@@ -288,7 +288,7 @@ public class WhiteboardSessionJabberImpl
         if ((newValue== WhiteboardParticipantState.DISCONNECTED)
                 || (newValue == WhiteboardParticipantState.FAILED))
         {
-            removeWhiteboardParticipant((WhiteboardParticipantJabberImpl) evt
+            removeWhiteboardParticipant(evt
                 .getSourceWhiteboardParticipant());
         }
     }
@@ -351,7 +351,7 @@ public class WhiteboardSessionJabberImpl
      */
     public void addWhiteboardParticipant(WhiteboardParticipant wbParticipant)
     {
-        if (wbParticipants.contains(wbParticipant))
+        if (wbParticipants.containsKey(wbParticipant.getContactAddress()))
             return;
 
         wbParticipant.addWhiteboardParticipantListener(this);
@@ -376,10 +376,10 @@ public class WhiteboardSessionJabberImpl
      */
     public void removeWhiteboardParticipant(WhiteboardParticipant wbParticipant)
     {
-        if (!wbParticipants.contains(wbParticipant))
+        if (!wbParticipants.containsKey(wbParticipant.getContactAddress()))
             return;
 
-        this.wbParticipants.remove(wbParticipant);
+        this.wbParticipants.remove(wbParticipant.getContactAddress());
 
         if (wbParticipant instanceof WhiteboardParticipantJabberImpl)
             ((WhiteboardParticipantJabberImpl) wbParticipant)
@@ -390,7 +390,7 @@ public class WhiteboardSessionJabberImpl
         fireWhiteboardParticipantEvent(wbParticipant,
             WhiteboardParticipantEvent.WHITEBOARD_PARTICIPANT_REMOVED);
 
-        if (wbParticipants.size() == 0)
+        if (wbParticipants.isEmpty())
             setWhiteboardSessionState(WhiteboardSessionState.WHITEBOARD_ENDED);
     }
 
