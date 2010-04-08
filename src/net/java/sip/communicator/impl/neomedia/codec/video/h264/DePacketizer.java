@@ -228,22 +228,21 @@ public class DePacketizer
         if ((lastSequenceNumber != -1)
                 && ((sequenceNumber - lastSequenceNumber) != 1))
         {
+            /*
+             * Even if (the new) sequenceNumber is less than lastSequenceNumber,
+             * we have to use it because the received sequence numbers may have
+             * reached their maximum value and wrapped around starting from
+             * their minimum value again.
+             */
             if (logger.isTraceEnabled())
                 logger.trace(
-                        "Dropping RTP packets upto sequenceNumber "
+                        "Dropped RTP packets upto sequenceNumber "
                             + lastSequenceNumber
                             + " and continuing with sequenceNumber "
                             + sequenceNumber);
-
+            // Reset.
             fuaStartedAndNotEnded = false;
-            if (sequenceNumber <= lastSequenceNumber)
-            {
-                // Drop the input Buffer.
-                outBuffer.setDiscard(true);
-                return BUFFER_PROCESSED_OK;
-            }
-            else
-                outBuffer.setLength(0); // Reset.
+            outBuffer.setLength(0);
         }
         lastSequenceNumber = sequenceNumber;
 

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia;
 
 import javax.media.*;
+import javax.media.control.*;
 import javax.media.format.*;
 import javax.media.rtp.*;
 
@@ -97,6 +98,51 @@ public class AudioMediaStreamImpl
         super(connector, device, zrtpControl);
 
         this.dtmfTransfrmEngine = new DtmfTransformEngine(this);
+    }
+
+    /**
+     * Performs any optional configuration on the <tt>BufferControl</tt> of the
+     * specified <tt>RTPManager</tt> which is to be used as the
+     * <tt>RTPManager</tt> of this <tt>MediaStreamImpl</tt>.
+     *
+     * @param rtpManager the <tt>RTPManager</tt> which is to be used by this
+     * <tt>MediaStreamImpl</tt>
+     * @param bufferControl the <tt>BufferControl</tt> of <tt>rtpManager</tt> on
+     * which any optional configuration is to be performed
+     */
+    @Override
+    protected void configureRTPManagerBufferControl(
+            RTPManager rtpManager,
+            BufferControl bufferControl)
+    {
+        /*
+         * It appears that if we don't do this managers don't play. You can try
+         * some other buffer size to see if you can get better smoothness.
+         */
+        String bufferLengthStr
+            = NeomediaActivator.getConfigurationService()
+                    .getString(PROPERTY_NAME_RECEIVE_BUFFER_LENGTH);
+        long bufferLength = 100;
+
+        try
+        {
+            if ((bufferLengthStr != null) && (bufferLengthStr.length() > 0))
+                bufferLength = Long.parseLong(bufferLengthStr);
+        }
+        catch (NumberFormatException nfe)
+        {
+            logger.warn(
+                    bufferLengthStr
+                        + " is not a valid receive buffer length/long value",
+                    nfe);
+        }
+
+        bufferLength = bufferControl.setBufferLength(bufferLength);
+        if (logger.isTraceEnabled())
+            logger.trace("Set receiver buffer length to " + bufferLength);
+
+        bufferControl.setEnabledThreshold(true);
+        bufferControl.setMinimumThreshold(100);
     }
 
     /**

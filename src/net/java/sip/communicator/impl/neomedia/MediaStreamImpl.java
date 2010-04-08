@@ -52,7 +52,7 @@ public class MediaStreamImpl
     /**
      * The name of the property indicating the length of our receive buffer.
      */
-    private static final String PROPERTY_NAME_RECEIVE_BUFFER_LENGTH
+    protected static final String PROPERTY_NAME_RECEIVE_BUFFER_LENGTH
         = "net.java.sip.communicator.impl.neomedia.RECEIVE_BUFFER_LENGTH";
 
     /**
@@ -226,6 +226,23 @@ public class MediaStreamImpl
         TransformEngineChain engineChain = createTransformEngineChain();
 
         rtpConnector.setEngine(engineChain);
+    }
+
+    /**
+     * Performs any optional configuration on the <tt>BufferControl</tt> of the
+     * specified <tt>RTPManager</tt> which is to be used as the
+     * <tt>RTPManager</tt> of this <tt>MediaStreamImpl</tt>. Allows extenders to
+     * override.
+     *
+     * @param rtpManager the <tt>RTPManager</tt> which is to be used by this
+     * <tt>MediaStreamImpl</tt>
+     * @param bufferControl the <tt>BufferControl</tt> of <tt>rtpManager</tt> on
+     * which any optional configuration is to be performed
+     */
+    protected void configureRTPManagerBufferControl(
+            RTPManager rtpManager,
+            BufferControl bufferControl)
+    {
     }
 
     /**
@@ -816,41 +833,11 @@ public class MediaStreamImpl
             rtpManager.addSendStreamListener(this);
             rtpManager.addSessionListener(this);
 
-            /*
-             * It appears that if we don't do this managers don't play. You can
-             * try out some other buffer size to see if you can get better
-             * smoothness.
-             */
             BufferControl bc
                 = (BufferControl)
                     rtpManager.getControl(BufferControl.class.getName());
             if (bc != null)
-            {
-                String buffStr
-                    = NeomediaActivator
-                        .getConfigurationService()
-                            .getString(PROPERTY_NAME_RECEIVE_BUFFER_LENGTH);
-                long buff = 100;
-
-                try
-                {
-                    if ((buffStr != null) && (buffStr.length() > 0))
-                        buff = Long.parseLong(buffStr);
-                }
-                catch (NumberFormatException nfe)
-                {
-                    logger
-                        .warn(
-                            buffStr
-                                + " is not a valid receive buffer/long value",
-                            nfe);
-                }
-
-                buff = bc.setBufferLength(buff);
-                logger.trace("set receiver buffer len to " + buff);
-                bc.setEnabledThreshold(true);
-                bc.setMinimumThreshold(100);
-            }
+                configureRTPManagerBufferControl(rtpManager, bc);
 
             //Emil: if you replace this method with another init method make
             //sure you check that the line below still works.

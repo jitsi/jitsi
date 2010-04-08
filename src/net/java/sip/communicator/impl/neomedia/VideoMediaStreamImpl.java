@@ -241,35 +241,6 @@ public class VideoMediaStreamImpl
     }
 
     /**
-     * Set negociated output size.
-     *
-     * @param size output size of video stream
-     */
-    public void setOutputSize(Dimension size)
-    {
-        outputSize = size;
-    }
-
-    /**
-     * Sets the <tt>MediaDevice</tt> that this stream should use to play back
-     * and capture media.
-     * <p>
-     * <b>Note</b>: Also resets any previous direction set with
-     * {@link #setDirection(MediaDirection)} to the direction of the specified
-     * <tt>MediaDevice</tt>.
-     * </p>
-     *
-     * @param device the <tt>MediaDevice</tt> that this stream should use to
-     * play back and capture media
-     * @see MediaStream#setDevice(MediaDevice)
-     */
-    public void setDevice(MediaDevice device)
-    {
-        super.setDevice(device);
-        ((VideoMediaDeviceSession)deviceSession).setOutputSize(outputSize);
-    }
-
-    /**
      * Adds a specific <tt>VideoListener</tt> to this <tt>VideoMediaStream</tt>
      * in order to receive notifications when visual/video <tt>Component</tt>s
      * are being added and removed.
@@ -286,6 +257,46 @@ public class VideoMediaStreamImpl
     public void addVideoListener(VideoListener listener)
     {
         videoNotifierSupport.addVideoListener(listener);
+    }
+
+    /**
+     * Performs any optional configuration on the <tt>BufferControl</tt> of the
+     * specified <tt>RTPManager</tt> which is to be used as the
+     * <tt>RTPManager</tt> of this <tt>MediaStreamImpl</tt>.
+     *
+     * @param rtpManager the <tt>RTPManager</tt> which is to be used by this
+     * <tt>MediaStreamImpl</tt>
+     * @param bufferControl the <tt>BufferControl</tt> of <tt>rtpManager</tt> on
+     * which any optional configuration is to be performed
+     */
+    @Override
+    protected void configureRTPManagerBufferControl(
+            RTPManager rtpManager,
+            BufferControl bufferControl)
+    {
+        bufferControl.setBufferLength(BufferControl.MAX_VALUE);
+    }
+
+    /**
+     * Creates the visual <tt>Component</tt> depicting the video being streamed
+     * from the local peer to the remote peer.
+     *
+     * @return the visual <tt>Component</tt> depicting the video being streamed
+     * from the local peer to the remote peer if it was immediately created or
+     * <tt>null</tt> if it was not immediately created and it is to be delivered
+     * to the currently registered <tt>VideoListener</tt>s in a
+     * <tt>VideoEvent</tt> with type {@link VideoEvent#VIDEO_ADDED} and origin
+     * {@link VideoEvent#LOCAL}
+     */
+    public Component createLocalVisualComponent()
+    {
+        MediaDeviceSession deviceSession = getDeviceSession();
+
+        return
+            (deviceSession instanceof VideoMediaDeviceSession)
+                ? ((VideoMediaDeviceSession) deviceSession)
+                    .createLocalVisualComponent()
+                : null;
     }
 
     /**
@@ -365,6 +376,18 @@ public class VideoMediaStreamImpl
     }
 
     /**
+     * Disposes of the visual <tt>Component</tt> of the local peer.
+     */
+    public void disposeLocalVisualComponent()
+    {
+        MediaDeviceSession deviceSession = getDeviceSession();
+
+        if(deviceSession instanceof VideoMediaDeviceSession)
+            ((VideoMediaDeviceSession) deviceSession)
+                .disposeLocalVisualComponent();
+    }
+
+    /**
      * Notifies the <tt>VideoListener</tt>s registered with this
      * <tt>VideoMediaStream</tt> about a specific type of change in the
      * availability of a specific visual <tt>Component</tt> depicting video.
@@ -409,40 +432,6 @@ public class VideoMediaStreamImpl
     protected void fireVideoEvent(VideoEvent event)
     {
         videoNotifierSupport.fireVideoEvent(event);
-    }
-
-    /**
-     * Creates the visual <tt>Component</tt> depicting the video being streamed
-     * from the local peer to the remote peer.
-     *
-     * @return the visual <tt>Component</tt> depicting the video being streamed
-     * from the local peer to the remote peer if it was immediately created or
-     * <tt>null</tt> if it was not immediately created and it is to be delivered
-     * to the currently registered <tt>VideoListener</tt>s in a
-     * <tt>VideoEvent</tt> with type {@link VideoEvent#VIDEO_ADDED} and origin
-     * {@link VideoEvent#LOCAL}
-     */
-    public Component createLocalVisualComponent()
-    {
-        MediaDeviceSession deviceSession = getDeviceSession();
-
-        return
-            (deviceSession instanceof VideoMediaDeviceSession)
-                ? ((VideoMediaDeviceSession) deviceSession)
-                    .createLocalVisualComponent()
-                : null;
-    }
-
-    /**
-     * Dispose local visual <tt>Component</tt> of the local peer.
-     */
-    public void disposeLocalVisualComponent()
-    {
-        MediaDeviceSession deviceSession = getDeviceSession();
-
-        if(deviceSession instanceof VideoMediaDeviceSession)
-            ((VideoMediaDeviceSession) deviceSession)
-                .disposeLocalVisualComponent();
     }
 
     /**
@@ -500,5 +489,35 @@ public class VideoMediaStreamImpl
     public void removeVideoListener(VideoListener listener)
     {
         videoNotifierSupport.removeVideoListener(listener);
+    }
+
+    /**
+     * Sets the <tt>MediaDevice</tt> that this stream should use to play back
+     * and capture media.
+     * <p>
+     * <b>Note</b>: Also resets any previous direction set with
+     * {@link #setDirection(MediaDirection)} to the direction of the specified
+     * <tt>MediaDevice</tt>.
+     * </p>
+     *
+     * @param device the <tt>MediaDevice</tt> that this stream should use to
+     * play back and capture media
+     * @see MediaStream#setDevice(MediaDevice)
+     */
+    public void setDevice(MediaDevice device)
+    {
+        super.setDevice(device);
+
+        ((VideoMediaDeviceSession)deviceSession).setOutputSize(outputSize);
+    }
+
+    /**
+     * Set negociated output size.
+     *
+     * @param size output size of video stream
+     */
+    public void setOutputSize(Dimension size)
+    {
+        outputSize = size;
     }
 }
