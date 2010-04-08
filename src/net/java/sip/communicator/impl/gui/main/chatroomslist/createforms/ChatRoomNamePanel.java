@@ -41,9 +41,6 @@ public class ChatRoomNamePanel
     private JLabel infoTitleLabel = new JLabel(
         GuiActivator.getResources().getI18NString("service.gui.CREATE_CHAT_ROOM"));
     
-    private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.ADD_CONTACT_CHAT_ICON)));
-
     private JPanel labelsPanel =
         new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
@@ -72,9 +69,6 @@ public class ChatRoomNamePanel
         this.setBorder(
             BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        this.iconLabel.setBorder(
-            BorderFactory.createEmptyBorder(0, 10, 10, 10));
-
         this.infoLabel.setEditable(false);
 
         this.dataPanel.add(nameLabel, BorderLayout.WEST);
@@ -96,7 +90,6 @@ public class ChatRoomNamePanel
 
         this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
 
-        this.add(iconLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
 
         this.textField.getDocument().addDocumentListener(this);

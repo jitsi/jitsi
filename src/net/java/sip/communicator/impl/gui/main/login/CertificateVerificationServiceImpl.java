@@ -90,8 +90,7 @@ public class CertificateVerificationServiceImpl
          * Date formatter.
          */
         private static SimpleDateFormat dateFormatter =
-            new SimpleDateFormat(GuiActivator.getResources()
-                .getI18NString("service.gui.CERT_INFO_DATE_FORMAT"));
+            new SimpleDateFormat("MM/dd/yyyy");
 
         /**
          * Used for converting bytes to HEX.

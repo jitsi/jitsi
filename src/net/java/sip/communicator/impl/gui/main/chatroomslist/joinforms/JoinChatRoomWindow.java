@@ -19,12 +19,12 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * This window allows to choose an account for joining a chatroom.
+ * This window allows to choose an account for joining a chat room.
  * 
  * @author Valentin Martinet
  */
 public class JoinChatRoomWindow
-extends SIPCommFrame
+    extends SIPCommFrame
 {
     /**
      * An Eclipse generated serial version ID.
@@ -61,7 +61,7 @@ extends SIPCommFrame
     /**
      * Stores the provider names (plus AccountID).
      */
-    private Vector<JLabel> providerNames = new Vector<JLabel>();
+    private Vector<String> providerNames = new Vector<String>();
     
     /**
      * Rooms of the currently selected provider.
@@ -78,11 +78,20 @@ extends SIPCommFrame
      * Search state label.
      */
     private JLabel jl_searchState = new JLabel(searchStateValue, JLabel.LEFT);
-    
+
     /**
      * Builds the window.
      */
     public JoinChatRoomWindow()
+    {
+        this(null);
+    }
+
+    /**
+     * Builds the window.
+     * @param chatRoomProvider the provider to join the room to.
+     */
+    public JoinChatRoomWindow(ChatRoomProviderWrapper chatRoomProvider)
     {
         super();
         
@@ -99,8 +108,8 @@ extends SIPCommFrame
             if(provider.getProtocolProvider().getRegistrationState()
                     == RegistrationState.REGISTERED)
             {
-                providerNames.add(new JLabel(provider.getProtocolProvider()
-                    .getAccountID().getAccountAddress()));
+                providerNames.add(provider.getProtocolProvider()
+                    .getAccountID().getAccountAddress());
                 providerIcons.add(new ImageIcon(provider.getProtocolProvider()
                     .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));
             }
@@ -109,6 +118,13 @@ extends SIPCommFrame
         buildGUI();
         setVisible(true);
         loadProviderRooms();
+
+        if(chatRoomProvider != null)
+        {
+            jcb_chatRoomProviders.setSelectedItem(
+                chatRoomProvider.getProtocolProvider()
+                    .getAccountID().getAccountAddress());
+        }
     }
 
     /**
@@ -232,7 +248,9 @@ extends SIPCommFrame
     /**
      * Updates the chat rooms list when a key change is performed in the search 
      * field. The new chat rooms list will contain all the chat rooms whose name
-     * start with search field's text value.
+     * start with search fields text value.
+     * @param match search for.
+     * @return the found rooms.
      */
     public Vector<String> getChatRoomList(String match)
     {
@@ -265,8 +283,7 @@ extends SIPCommFrame
         {
             if(crp.getProtocolProvider().getAccountID()
                 .getAccountAddress().equals(
-                    ((JLabel)jcb_chatRoomProviders
-                        .getSelectedItem()).getText()))
+                    (jcb_chatRoomProviders.getSelectedItem())))
             {
                 return crp;
             }
@@ -290,9 +307,10 @@ extends SIPCommFrame
      */
     class ComboBoxRenderer extends JLabel implements ListCellRenderer 
     {
-        private static final long serialVersionUID = 9051280240140469090L;
-
-        public ComboBoxRenderer() 
+        /**
+         * The renderer.
+         */
+        public ComboBoxRenderer()
         {
             setOpaque(true);
             setHorizontalAlignment(LEFT);
@@ -303,7 +321,7 @@ extends SIPCommFrame
         public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus) 
         {
-            JLabel label = (JLabel)value;
+            String label = (String)value;
             
             if (isSelected) 
             {
@@ -318,10 +336,9 @@ extends SIPCommFrame
 
             int idx = providerNames.indexOf(label);
             ImageIcon icon = providerIcons.get(idx);
-            JLabel name = providerNames.get(idx);
             
-            setText(name.getText());
-            
+            setText(label);
+
             if (icon != null) setIcon(icon);
             
             return this;

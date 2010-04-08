@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
-import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -96,17 +95,7 @@ public class ChatRoomServerRightButtonMenu
         }
         else if (itemName.equals("joinChatRoom"))
         {
-            JoinChatRoomDialog joinChannelDialog
-                = new JoinChatRoomDialog(chatRoomProvider);
-
-            joinChannelDialog.pack();
-            joinChannelDialog.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2
-                    - joinChannelDialog.getWidth()/2,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2
-                    - joinChannelDialog.getHeight()/2
-                );
-            joinChannelDialog.showDialog();
+            new JoinChatRoomWindow(chatRoomProvider);
         }
     }
 }

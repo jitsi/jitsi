@@ -951,6 +951,11 @@ public class MessageHistoryServiceImpl
             Message message, long messageTimestamp)
     {
         try {
+            // mising from, strange messages, most probably a history
+            // coming from server and probably already written
+            if(from == null)
+                return;
+
             HistoryWriter historyWriter = history.getWriter();
             historyWriter.addRecord(new String[] { direction,
                     message.getContent(), message.getContentType(),

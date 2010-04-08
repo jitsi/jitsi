@@ -50,9 +50,6 @@ public class SelectAccountPanel extends TransparentPanel
     private final JPanel rightPanel 
             = new TransparentPanel(new BorderLayout(10, 10));
     
-    private final JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.ADD_CONTACT_CHAT_ICON)));
-    
     private final SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
         GuiActivator.getResources()
             .getI18NString("service.gui.SELECT_PROVIDERS_FOR_CHAT_ROOM"));
@@ -85,8 +82,6 @@ public class SelectAccountPanel extends TransparentPanel
 
         this.protocolProvidersList = protocolProvidersList;
 
-        this.iconLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
-
         this.infoLabel.setEditable(false);
 
         Font font = infoTitleLabel.getFont();
@@ -101,8 +96,6 @@ public class SelectAccountPanel extends TransparentPanel
 
         this.rightPanel.add(labelsPanel, BorderLayout.NORTH);
         this.rightPanel.add(tablePane, BorderLayout.CENTER);
-
-        this.add(iconLabel, BorderLayout.WEST);
 
         this.add(rightPanel, BorderLayout.CENTER);
         
@@ -125,10 +118,11 @@ public class SelectAccountPanel extends TransparentPanel
     {
         accountsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
 
-        tableModel.addColumn(
-            GuiActivator.getResources().getI18NString("service.gui.PROTOCOL"));
+        tableModel.addColumn("");
         tableModel.addColumn(
             GuiActivator.getResources().getI18NString("service.gui.ACCOUNT"));
+        tableModel.addColumn(
+            GuiActivator.getResources().getI18NString("service.gui.PROTOCOL"));
 
         while(protocolProvidersList.hasNext())
         {
