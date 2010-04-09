@@ -45,6 +45,12 @@ public class DePacketizer
      */
     private static final byte[] NAL_PREFIX = { 0, 0, 1 };
 
+    /**
+     * The indicator which determines whether this <tt>DePacketizer</tt> has
+     * successfully processed an RTP packet with payload representing a
+     * "Fragmentation Unit (FU)" with its Start bit set and has not encountered
+     * one with its End bit set.
+     */
     private boolean fuaStartedAndNotEnded = false;
 
     /**
@@ -91,7 +97,9 @@ public class DePacketizer
      * <tt>inOffset</tt>
      * @param outBuffer the <tt>Buffer</tt> which is to receive the extracted
      * FU-A fragment of a NAL unit
-     * @return
+     * @return the flags such as <tt>BUFFER_PROCESSED_OK</tt> and
+     * <tt>OUTPUT_BUFFER_NOT_FILLED</tt> to be returned by
+     * {@link #process(Buffer, Buffer)}
      */
     private int dePacketizeFUA(
             byte[] in, int inOffset, int inLength,
@@ -116,8 +124,8 @@ public class DePacketizer
         if (start_bit)
         {
             /*
-             * The Start bit and End bit MUST NOT both be set to one in the same
-             * FU header.
+             * The Start bit and End bit MUST NOT both be set in the same FU
+             * header.
              */
             if (end_bit)
             {
@@ -177,9 +185,8 @@ public class DePacketizer
     }
 
     private int dePacketizeSingleNALUnitPacket(
-            byte[] in,
-            int inOffset,
-            int inLength,
+            int nal_unit_type,
+            byte[] in, int inOffset, int inLength,
             Buffer outBuffer)
     {
         int outOffset = outBuffer.getOffset();
@@ -224,6 +231,7 @@ public class DePacketizer
          * depacketizing FU-A Fragmentation Units (FUs).
          */
         long sequenceNumber = inBuffer.getSequenceNumber();
+        int ret;
 
         if ((lastSequenceNumber != -1)
                 && ((sequenceNumber - lastSequenceNumber) != 1))
@@ -240,21 +248,23 @@ public class DePacketizer
                             + lastSequenceNumber
                             + " and continuing with sequenceNumber "
                             + sequenceNumber);
-            // Reset.
-            fuaStartedAndNotEnded = false;
-            outBuffer.setLength(0);
+
+            ret = reset(outBuffer);
+            if ((ret & OUTPUT_BUFFER_NOT_FILLED) == 0)
+                return ret;
         }
-        lastSequenceNumber = sequenceNumber;
 
         // If the RTP time stamp changes, we're receiving a new NAL unit.
         long timeStamp = inBuffer.getTimeStamp();
 
         if(timeStamp != lastTimeStamp)
         {
-            // Reset.
-            fuaStartedAndNotEnded = false;
-            outBuffer.setLength(0);
+            ret = reset(outBuffer);
+            if ((ret & OUTPUT_BUFFER_NOT_FILLED) == 0)
+                return ret;
         }
+
+        lastSequenceNumber = sequenceNumber;
         lastTimeStamp = timeStamp;
 
         byte[] in = (byte[]) inBuffer.getData();
@@ -271,7 +281,6 @@ public class DePacketizer
          */
 
         int nal_unit_type = octet & 0x1F;
-        int ret;
 
         // Single NAL Unit Packet
         if ((nal_unit_type >= 1) && (nal_unit_type <= 23))
@@ -279,6 +288,7 @@ public class DePacketizer
             fuaStartedAndNotEnded = false;
             ret
                 = dePacketizeSingleNALUnitPacket(
+                    nal_unit_type,
                     in, inOffset, inBuffer.getLength(),
                     outBuffer);
         }
@@ -324,5 +334,47 @@ public class DePacketizer
     private void padOutput(byte[] out, int outOffset)
     {
         Arrays.fill(out, outOffset, outOffset + outputPaddingSize, (byte) 0);
+    }
+
+    /**
+     * Resets the states of this <tt>DePacketizer</tt> and a specific output
+     * <tt>Buffer</tt> so that they are ready to have this <tt>DePacketizer</tt>
+     * process input RTP payloads. If the specified output <tt>Buffer</tt>
+     * contains an incomplete NAL unit, its forbidden_zero_bit will be turned on
+     * and the NAL unit in question will be output by this
+     * <tt>DePacketizer</tt>.
+     *
+     * @param outBuffer the output <tt>Buffer</tt> to be reset
+     * @return the flags such as <tt>BUFFER_PROCESSED_OK</tt> and
+     * <tt>OUTPUT_BUFFER_NOT_FILLED</tt> to be returned by
+     * {@link #process(Buffer, Buffer)}
+     */
+    private int reset(Buffer outBuffer)
+    {
+        /*
+         * We need the octet at the very least. Additionally, it does not make
+         * sense to output a NAL unit with zero payload because such NAL units
+         * are only given meaning for the purposes of the network and not the
+         * H.264 decoder.
+         */
+        if (fuaStartedAndNotEnded
+                && (outBuffer.getLength() >= (NAL_PREFIX.length + 1 + 1)))
+        {
+            Object outData = outBuffer.getData();
+
+            if (outData instanceof byte[])
+            {
+                byte[] out = (byte[]) outData;
+                int octetIndex = outBuffer.getOffset() + NAL_PREFIX.length;
+
+                out[octetIndex] |= 0x80; // Turn on the forbidden_zero_bit.
+                fuaStartedAndNotEnded = false;
+                return (BUFFER_PROCESSED_OK | INPUT_BUFFER_NOT_CONSUMED);
+            }
+        }
+
+        fuaStartedAndNotEnded = false;
+        outBuffer.setLength(0);
+        return OUTPUT_BUFFER_NOT_FILLED;
     }
 }
