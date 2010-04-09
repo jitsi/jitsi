@@ -27,6 +27,14 @@ public class QuickTimeStream
 {
 
     /**
+     * The indicator which determines whether {@link #captureOutput}
+     * automatically drops late frames. If <tt>false</tt>, we have to drop them
+     * ourselves because QuickTime/QTKit will buffer them all and the video will
+     * be late.
+     */
+    private final boolean automaticallyDropsLateVideoFrames;
+
+    /**
      * The <tt>QTCaptureOutput</tt> represented by this <tt>SourceStream</tt>.
      */
     final QTCaptureDecompressedVideoOutput captureOutput
@@ -62,6 +70,33 @@ public class QuickTimeStream
     private Format format;
 
     /**
+     * The captured media data to become the value of {@link #data} as soon as
+     * the latter becomes is consumed. Thus prepares this
+     * <tt>QuickTimeStream</tt> to provide the latest available frame and not
+     * wait for QuickTime/QTKit to capture a new one.
+     */
+    private byte[] nextData;
+
+    /**
+     * The <tt>Format</tt> of {@link #nextData} if known.
+     */
+    private Format nextDataFormat;
+
+    /**
+     * The time stamp in nanoseconds of {@link #nextData}.
+     */
+    private long nextDataTimeStamp;
+
+    /**
+     * The <tt>Thread</tt> which is to call
+     * {@link BufferTransferHandler#transferData(PushBufferStream)} for this
+     * <tt>QuickTimeStream</tt> so that the call is not made in QuickTime/QTKit
+     * and we can drop late frames when {@link #automaticallyDropsLateFrames} is
+     * <tt>false</tt>.
+     */
+    private Thread transferDataThread;
+
+    /**
      * Initializes a new <tt>QuickTimeStream</tt> instance which is to have its
      * <tt>Format</tt>-related information abstracted by a specific
      * <tt>FormatControl</tt>.
@@ -81,7 +116,9 @@ public class QuickTimeStream
                 setCaptureOutputFormat(format);
         }
 
-        captureOutput.setAutomaticallyDropsLateVideoFrames(true);
+        automaticallyDropsLateVideoFrames
+            = false;//captureOutput.setAutomaticallyDropsLateVideoFrames(true);
+
         captureOutput
             .setDelegate(
                 new QTCaptureDecompressedVideoOutput.Delegate()
@@ -133,12 +170,28 @@ public class QuickTimeStream
 
         synchronized (dataSyncRoot)
         {
+            if (!automaticallyDropsLateVideoFrames && (data != null))
+            {
+                nextData = pixelBuffer.getBytes();
+                nextDataTimeStamp = System.nanoTime();
+                if (nextDataFormat == null)
+                    nextDataFormat = getVideoFrameFormat(pixelBuffer);
+                return;
+            }
+
             data = pixelBuffer.getBytes();
             dataTimeStamp = System.nanoTime();
-            transferData = (data != null);
-
             if (dataFormat == null)
                 dataFormat = getVideoFrameFormat(pixelBuffer);
+            nextData = null;
+
+            if (automaticallyDropsLateVideoFrames)
+                transferData = (data != null);
+            else
+            {
+                transferData = false;
+                dataSyncRoot.notifyAll();
+            }
         }
 
         if (transferData)
@@ -248,9 +301,7 @@ public class QuickTimeStream
                             Format.byteArray,
                             Format.NOT_SPECIFIED,
                             32,
-                            2,
-                            3,
-                            4);
+                            2, 3, 4);
             case CVPixelFormatType.kCVPixelFormatType_420YpCbCr8Planar:
                 if ((width == 0) && (height == 0))
                     return new YUVFormat(YUVFormat.YUV_420);
@@ -269,11 +320,8 @@ public class QuickTimeStream
                                 Format.byteArray,
                                 Format.NOT_SPECIFIED,
                                 YUVFormat.YUV_420,
-                                strideY,
-                                strideUV,
-                                offsetY,
-                                offsetU,
-                                offsetV);
+                                strideY, strideUV,
+                                offsetY, offsetU, offsetV);
                 }
             }
         }
@@ -340,6 +388,70 @@ public class QuickTimeStream
                 buffer.setTimeStamp(dataTimeStamp);
 
                 data = null;
+
+                if (!automaticallyDropsLateVideoFrames)
+                    dataSyncRoot.notifyAll();
+            }
+        }
+    }
+
+    /**
+     * Calls {@link BufferTransferHandler#transferData(PushBufferStream)} from
+     * inside {@link #transferDataThread} so that the call is not made in
+     * QuickTime/QTKit and we can drop late frames in the meantime.
+     */
+    private void runInTransferDataThread()
+    {
+        boolean transferData = false;
+
+        while (Thread.currentThread().equals(transferDataThread))
+        {
+            if (transferData)
+            {
+                BufferTransferHandler transferHandler = this.transferHandler;
+
+                if (transferHandler != null)
+                    transferHandler.transferData(this);
+
+                synchronized (dataSyncRoot)
+                {
+                    data = nextData;
+                    dataTimeStamp = nextDataTimeStamp;
+                    if (dataFormat == null)
+                        dataFormat = nextDataFormat;
+                    nextData = null;
+                }
+            }
+            
+            synchronized (dataSyncRoot)
+            {
+                if (data == null)
+                {
+                    data = nextData;
+                    dataTimeStamp = nextDataTimeStamp;
+                    if (dataFormat == null)
+                        dataFormat = nextDataFormat;
+                    nextData = null;
+                }
+                if (data == null)
+                {
+                    boolean interrupted = false;
+
+                    try
+                    {
+                        dataSyncRoot.wait();
+                    }
+                    catch (InterruptedException iex)
+                    {
+                        interrupted = true;
+                    }
+                    if (interrupted)
+                        Thread.currentThread().interrupt();
+
+                    transferData = (data != null);
+                }
+                else
+                    transferData = true;
             }
         }
     }
@@ -355,6 +467,8 @@ public class QuickTimeStream
     {
         VideoFormat videoFormat = (VideoFormat) format;
         Dimension size = videoFormat.getSize();
+        int width;
+        int height;
 
         /*
          * FIXME Mac OS X Leopard does not seem to report the size of the
@@ -362,24 +476,29 @@ public class QuickTimeStream
          * The workaround presented here is to just force a specific size.
          */
         if (size == null)
-            size
-                = new Dimension(
-                        DataSource.DEFAULT_WIDTH,
-                        DataSource.DEFAULT_HEIGHT);
+        {
+            width = DataSource.DEFAULT_WIDTH;
+            height = DataSource.DEFAULT_HEIGHT;
+        }
+        else
+        {
+            width = size.width;
+            height = size.height;
+        }
 
         NSMutableDictionary pixelBufferAttributes = null;
 
-        if (size != null)
+        if ((width > 0) && (height > 0))
         {
             if (pixelBufferAttributes == null)
                 pixelBufferAttributes = new NSMutableDictionary();
             pixelBufferAttributes
                 .setIntForKey(
-                    size.width,
+                    width,
                     CVPixelBufferAttributeKey.kCVPixelBufferWidthKey);
             pixelBufferAttributes
                 .setIntForKey(
-                    size.height,
+                    height,
                     CVPixelBufferAttributeKey.kCVPixelBufferHeightKey);
         }
 
@@ -409,6 +528,31 @@ public class QuickTimeStream
     }
 
     /**
+     * Starts the transfer of media data from this <tt>PushBufferStream</tt>.
+     *
+     * @throws IOException if anything goes wrong while starting the transfer of
+     * media data from this <tt>PushBufferStream</tt>
+     */
+    @Override
+    public void start()
+        throws IOException
+    {
+        if (!automaticallyDropsLateVideoFrames)
+        {
+            transferDataThread
+                = new Thread(getClass().getSimpleName())
+                {
+                    @Override
+                    public void run()
+                    {
+                        runInTransferDataThread();
+                    }
+                };
+            transferDataThread.start();
+        }
+    }
+
+    /**
      * Stops the transfer of media data from this <tt>PushBufferStream</tt>.
      *
      * @throws IOException if anything goes wrong while stopping the transfer of
@@ -418,10 +562,17 @@ public class QuickTimeStream
     public void stop()
         throws IOException
     {
+        transferDataThread = null;
+
         synchronized (dataSyncRoot)
         {
             data = null;
             dataFormat = null;
+            nextData = null;
+            nextDataFormat = null;
+
+            if (!automaticallyDropsLateVideoFrames)
+                dataSyncRoot.notifyAll();
         }
     }
 }
