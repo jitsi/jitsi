@@ -319,7 +319,8 @@ public class ProtocolProviderServiceSipImpl
         throws OperationFailedException
     {
         if(getRegistrationState().equals(RegistrationState.UNREGISTERED)
-            || getRegistrationState().equals(RegistrationState.UNREGISTERING))
+            || getRegistrationState().equals(RegistrationState.UNREGISTERING)
+                || getRegistrationState().equals(RegistrationState.CONNECTION_FAILED))
         {
             return;
         }
