@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.configuration;
 
-import net.java.sip.communicator.util.*;
+import java.beans.*;
 
 /**
  * A PropertyVetoException is thrown when a proposed change to a
@@ -14,7 +14,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Emil Ivov
  */
-public class PropertyVetoException
+public class ConfigPropertyVetoExceoption
     extends RuntimeException
 {
     /**
@@ -30,7 +30,7 @@ public class PropertyVetoException
      * @param message Descriptive message
      * @param evt A PropertyChangeEvent describing the vetoed change.
      */
-    public PropertyVetoException(String message, PropertyChangeEvent evt)
+    public ConfigPropertyVetoExceoption(String message, PropertyChangeEvent evt)
     {
         super(message);
 

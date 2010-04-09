@@ -8,11 +8,11 @@ package net.java.sip.communicator.impl.media.notify;
 
 import java.net.*;
 import java.util.*;
+import java.beans.*;
 
 import net.java.sip.communicator.impl.media.*;
 import net.java.sip.communicator.impl.media.device.*;
 import net.java.sip.communicator.service.audionotifier.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The implementation of the AudioNotifierService.

@@ -8,9 +8,8 @@ package net.java.sip.communicator.service.configuration;
 
 import java.io.*;
 import java.util.*;
+import java.beans.*;
 
-import net.java.sip.communicator.service.configuration.event.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
 
 /**
@@ -55,11 +54,11 @@ public interface ConfigurationService
      * <p>
      * @param propertyName the name of the property to change.
      * @param property the new value of the specified property.
-     * @throws PropertyVetoException in case the changed has been refused by
+     * @throws ConfigPropertyVetoExceoption in case the changed has been refused by
      * at least one propertychange listener.
      */
-    public void setProperty(String propertyName, Object property)
-        throws PropertyVetoException;
+    public void setProperty(String propertyName, Object property);
+        // throws PropertyVetoException;
 
     /**
      * Sets the property with the specified name to the specified. Calling
@@ -75,13 +74,13 @@ public interface ConfigurationService
      * @param isSystem specifies whether or not the property being is a System
      *                 property and should be resolved against the system
      *                 property set
-     * @throws PropertyVetoException in case the changed has been refused by
+     * @throws ConfigPropertyVetoExceoption in case the changed has been refused by
      * at least one propertychange listener.
      */
     public void setProperty(String propertyName,
                             Object property,
-                            boolean isSystem)
-        throws PropertyVetoException;
+                            boolean isSystem);
+        // throws PropertyVetoException;
 
     /**
      * Sets a set of specific properties to specific values as a batch operation
@@ -98,13 +97,13 @@ public interface ConfigurationService
      * @param properties
      *            a <code>Map</code> of property names to their new values to be
      *            set
-     * @throws PropertyVetoException
+     * @throws ConfigPropertyVetoExceoption
      *             if a change in at least one of the properties has been
      *             refused by at least one of the
      *             <code>VetoableChangeListener</code>s
      */
-    public void setProperties(Map<String, Object> properties)
-        throws PropertyVetoException;
+    public void setProperties(Map<String, Object> properties);
+        // throws PropertyVetoException;
 
     /**
      * Returns the value of the property with the specified name or null if no
@@ -123,11 +122,11 @@ public interface ConfigurationService
      * All properties with prefix propertyName will also be removed.
      * <p>
      * @param propertyName the name of the property to change.
-     * @throws PropertyVetoException in case the changed has been refused by
+     * @throws ConfigPropertyVetoExceoption in case the changed has been refused by
      * at least one propertychange listener.
      */
-    public void removeProperty(String propertyName)
-        throws PropertyVetoException;
+    public void removeProperty(String propertyName);
+        // throws PropertyVetoException;
 
     /**
      * Returns a <tt>java.util.List</tt> of <tt>String</tt>s containing the

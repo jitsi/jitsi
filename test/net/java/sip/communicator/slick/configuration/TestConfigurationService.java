@@ -7,11 +7,10 @@
 package net.java.sip.communicator.slick.configuration;
 
 import java.util.*;
+import java.beans.*;
 
 import junit.framework.*;
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.configuration.event.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -299,7 +298,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyValue);
         }
-        catch (PropertyVetoException ex)
+        catch (ConfigPropertyVetoExceoption ex)
         {
             fail("A PropertyVetoException came from nowhere. Exc="
                  + ex.getMessage());
@@ -324,7 +323,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyNewValue);
         }
-        catch (PropertyVetoException ex)
+        catch (ConfigPropertyVetoExceoption ex)
         {
             fail("A PropertyVetoException came from nowhere. Exc="
                  + ex.getMessage());
@@ -349,7 +348,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyValue);
         }
-        catch (PropertyVetoException ex)
+        catch (ConfigPropertyVetoExceoption ex)
         {
             fail("A PropertyVetoException came from nowhere. Exc="
                  + ex.getMessage());
@@ -376,7 +375,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyValue);
         }
-        catch (PropertyVetoException ex)
+        catch (ConfigPropertyVetoExceoption ex)
         {
             fail("A PropertyVetoException came from nowhere. Exc="
                  + ex.getMessage());
@@ -400,7 +399,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyNewValue);
         }
-        catch (PropertyVetoException ex)
+        catch (ConfigPropertyVetoExceoption ex)
         {
             fail("A PropertyVetoException came from nowhere. Exc="
                  + ex.getMessage());
@@ -426,7 +425,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyValue);
         }
-        catch (PropertyVetoException ex)
+        catch (ConfigPropertyVetoExceoption ex)
         {
             fail("A PropertyVetoException came from nowhere. Exc="
                  + ex.getMessage());
@@ -446,12 +445,12 @@ public class TestConfigurationService extends TestCase
         configurationService.addVetoableChangeListener(rudeVetoListener);
         configurationService.addPropertyChangeListener(pListener);
 
-        PropertyVetoException exception = null;
+        ConfigPropertyVetoExceoption exception = null;
         try
         {
             configurationService.setProperty(propertyName, propertyValue);
         }
-        catch (PropertyVetoException ex)
+        catch (ConfigPropertyVetoExceoption ex)
         {
             exception = ex;
         }
@@ -488,7 +487,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyNewValue);
         }
-        catch (PropertyVetoException ex1)
+        catch (ConfigPropertyVetoExceoption ex1)
         {
             ex1.printStackTrace();
             fail("unexpected veto exception. message:" + ex1.getMessage());

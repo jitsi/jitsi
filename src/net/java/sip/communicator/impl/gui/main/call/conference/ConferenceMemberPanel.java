@@ -7,10 +7,10 @@
 package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
+import java.beans.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ConferenceMemberPanel</tt> renders <tt>ConferenceMember</tt> details.

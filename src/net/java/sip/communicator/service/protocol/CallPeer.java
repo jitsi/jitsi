@@ -7,9 +7,9 @@
 package net.java.sip.communicator.service.protocol;
 
 import java.net.*;
+import java.beans.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The CallPeer is an interface that represents peers in a call.

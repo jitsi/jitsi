@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 import java.awt.Component;
 import java.net.*;
 import java.util.*;
+import java.beans.*;
 
 import java.awt.Dimension; /* disambiguates java.awt.List and java.util.List */
 

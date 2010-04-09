@@ -7,10 +7,10 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import java.awt.*;
+import java.beans.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements <tt>OperationSetVideoTelephony</tt> in order to give access to

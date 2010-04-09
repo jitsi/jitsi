@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.neomedia.device;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.beans.*;
 
 import javax.media.*;
 import javax.media.protocol.*;

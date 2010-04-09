@@ -7,10 +7,9 @@
 package net.java.sip.communicator.impl.configuration;
 
 import java.util.*;
+import java.beans.*;
 
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.configuration.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * This is a utility class that can be used by objects that support constrained
@@ -245,8 +244,8 @@ public class ChangeEventDispatcher
      *              change to be rolled back.
      */
     public void fireVetoableChange(String propertyName,
-                                   Object oldValue, Object newValue) throws
-        PropertyVetoException
+                                   Object oldValue, Object newValue) 
+        //throws PropertyVetoException
     {
         if (vetoableChangeListeners == null && vetoableChangeChildren == null)
         {
@@ -255,7 +254,7 @@ public class ChangeEventDispatcher
 
         PropertyChangeEvent evt = new PropertyChangeEvent(source,
             propertyName, oldValue, newValue);
-        fireVetoableChange(evt);
+            fireVetoableChange(evt);
     }
 
     /**
@@ -269,8 +268,8 @@ public class ChangeEventDispatcher
      * @exception PropertyVetoException if at least one of the recipients has
      * vetoed the change.
      */
-    public void fireVetoableChange(PropertyChangeEvent evt) throws
-        PropertyVetoException
+    public void fireVetoableChange(PropertyChangeEvent evt) 
+        // throws PropertyVetoException
     {
 
         Object oldValue = evt.getOldValue();
@@ -304,7 +303,11 @@ public class ChangeEventDispatcher
             {
                 VetoableChangeListener target = targets[i];
                 // don't catch the exception - let it bounce to the caller.
-                target.vetoableChange(evt);
+                try {
+                    target.vetoableChange(evt);
+                } catch (PropertyVetoException e) {
+                    throw new ConfigPropertyVetoExceoption(e.getLocalizedMessage(), evt);
+                }
             }
         }
 

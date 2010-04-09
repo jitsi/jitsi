@@ -7,9 +7,9 @@
 package net.java.sip.communicator.service.protocol;
 
 import java.awt.*;
+import java.beans.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Represents an <tt>OperationSet</tt> giving access to video-specific

@@ -8,10 +8,10 @@ package net.java.sip.communicator.impl.configuration;
 
 import java.io.*;
 import java.util.*;
+import java.beans.*;
 
 import net.java.sip.communicator.impl.configuration.xml.*;
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
@@ -78,7 +78,7 @@ public class ConfigurationServiceImpl
      * at least one propertychange listener.
      */
     public void setProperty(String propertyName, Object property)
-        throws PropertyVetoException
+        // throws PropertyVetoException
     {
         setProperty(propertyName, property, false);
     }
@@ -104,7 +104,7 @@ public class ConfigurationServiceImpl
      */
     public void setProperty(String propertyName, Object property,
                             boolean isSystem)
-        throws PropertyVetoException
+        // throws PropertyVetoException
     {
         Object oldValue = getProperty(propertyName);
 
@@ -144,7 +144,7 @@ public class ConfigurationServiceImpl
      * to the disk.
      */
     public void setProperties(Map<String, Object> properties)
-        throws PropertyVetoException
+        // throws PropertyVetoException
     {
         //first check whether the changes are ok with everyone
         Map<String, Object> oldValues
@@ -254,7 +254,7 @@ public class ConfigurationServiceImpl
      * at least one propertychange listener.
      */
     public void removeProperty(String propertyName)
-        throws PropertyVetoException
+        // throws PropertyVetoException
     {
         List<String> childPropertyNames = 
             getPropertyNamesByPrefix(propertyName, false);

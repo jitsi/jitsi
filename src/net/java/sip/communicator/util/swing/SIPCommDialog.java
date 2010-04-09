@@ -205,7 +205,7 @@ public abstract class SIPCommDialog
         {
             SIPCommFrame.saveSizeAndLocation(this);
         }
-        catch (PropertyVetoException e1)
+        catch (ConfigPropertyVetoExceoption e1)
         {
             logger.error("The proposed property change "
                     + "represents an unacceptable value");

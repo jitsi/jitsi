@@ -7,13 +7,13 @@
 package net.java.sip.communicator.impl.gui.utils;
 
 import java.util.*;
+import java.beans.*;
 
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * 

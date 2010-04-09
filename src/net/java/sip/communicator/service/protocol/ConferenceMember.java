@@ -6,7 +6,8 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.util.*;
+import java.beans.*;
+
 
 /**
  * Represents a member and its details in a telephony conference managed by a

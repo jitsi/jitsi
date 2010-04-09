@@ -8,10 +8,10 @@ package net.java.sip.communicator.service.neomedia;
 
 import java.net.*;
 import java.util.*;
+import java.beans.*;
 
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>MediaStream</tt> class represents a (generally) bidirectional RTP

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.msghistory;
 
 import java.io.*;
 import java.util.*;
+import java.beans.*;
 
 import org.osgi.framework.*;
 

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.util;
 
 import java.util.*;
+import java.beans.*;
 
 /**
  * Represents a source of <tt>PropertyChangeEvent</tt>s which notifies

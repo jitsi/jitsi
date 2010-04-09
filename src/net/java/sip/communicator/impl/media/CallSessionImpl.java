@@ -14,6 +14,7 @@ import java.net.*;
 import java.text.*;
 import java.util.*;
 import java.util.List;
+import java.beans.*;
 
 import javax.media.*;
 import javax.media.control.*;

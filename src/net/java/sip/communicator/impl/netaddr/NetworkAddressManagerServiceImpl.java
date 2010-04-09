@@ -9,9 +9,9 @@ package net.java.sip.communicator.impl.netaddr;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.beans.*;
 
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.configuration.event.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.util.*;
 import net.java.stun4j.*;

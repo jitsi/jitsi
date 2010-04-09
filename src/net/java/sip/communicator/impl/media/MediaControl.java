@@ -10,6 +10,7 @@ import java.awt.Dimension;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.beans.*;
 
 import javax.media.*;
 import javax.media.control.*;

@@ -6,7 +6,8 @@
  */
 package net.java.sip.communicator.service.neomedia;
 
-import net.java.sip.communicator.util.*;
+import java.beans.*;
+
 
 /**
  * Abstract base implementation of <tt>MediaStream</tt> to ease the

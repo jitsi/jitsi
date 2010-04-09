@@ -9,11 +9,11 @@ package net.java.sip.communicator.service.media;
 import java.awt.*;
 import java.net.*;
 import java.text.*;
+import java.beans.*;
 
 import net.java.sip.communicator.service.media.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A CallSession contains parameters associated with a particular Call such as

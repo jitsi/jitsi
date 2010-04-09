@@ -11,7 +11,7 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.net.*;
 import java.util.*;
-
+import java.beans.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.configuration.*;
@@ -192,7 +192,7 @@ public abstract class SIPCommFrame
         {
             saveSizeAndLocation(this);
         }
-        catch (PropertyVetoException e)
+        catch (ConfigPropertyVetoExceoption e)
         {
             logger
                 .error(
@@ -212,7 +212,7 @@ public abstract class SIPCommFrame
      * <tt>PropertyVetoListener</tt>s.
      */
     static void saveSizeAndLocation(Component component)
-        throws PropertyVetoException
+        throws ConfigPropertyVetoExceoption
     {
         Map<String, Object> props = new HashMap<String, Object>();
         String className
