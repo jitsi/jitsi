@@ -54,7 +54,7 @@ public interface ConfigurationService
      * <p>
      * @param propertyName the name of the property to change.
      * @param property the new value of the specified property.
-     * @throws ConfigPropertyVetoExceoption in case the changed has been refused by
+     * @throws ConfigPropertyVetoException in case the changed has been refused by
      * at least one propertychange listener.
      */
     public void setProperty(String propertyName, Object property);
@@ -74,7 +74,7 @@ public interface ConfigurationService
      * @param isSystem specifies whether or not the property being is a System
      *                 property and should be resolved against the system
      *                 property set
-     * @throws ConfigPropertyVetoExceoption in case the changed has been refused by
+     * @throws ConfigPropertyVetoException in case the changed has been refused by
      * at least one propertychange listener.
      */
     public void setProperty(String propertyName,
@@ -97,7 +97,7 @@ public interface ConfigurationService
      * @param properties
      *            a <code>Map</code> of property names to their new values to be
      *            set
-     * @throws ConfigPropertyVetoExceoption
+     * @throws ConfigPropertyVetoException
      *             if a change in at least one of the properties has been
      *             refused by at least one of the
      *             <code>VetoableChangeListener</code>s
@@ -122,7 +122,7 @@ public interface ConfigurationService
      * All properties with prefix propertyName will also be removed.
      * <p>
      * @param propertyName the name of the property to change.
-     * @throws ConfigPropertyVetoExceoption in case the changed has been refused by
+     * @throws ConfigPropertyVetoException in case the changed has been refused by
      * at least one propertychange listener.
      */
     public void removeProperty(String propertyName);

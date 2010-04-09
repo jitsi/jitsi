@@ -14,7 +14,7 @@ import java.beans.*;
  *
  * @author Emil Ivov
  */
-public class ConfigPropertyVetoExceoption
+public class ConfigPropertyVetoException
     extends RuntimeException
 {
     /**
@@ -30,7 +30,7 @@ public class ConfigPropertyVetoExceoption
      * @param message Descriptive message
      * @param evt A PropertyChangeEvent describing the vetoed change.
      */
-    public ConfigPropertyVetoExceoption(String message, PropertyChangeEvent evt)
+    public ConfigPropertyVetoException(String message, PropertyChangeEvent evt)
     {
         super(message);
 

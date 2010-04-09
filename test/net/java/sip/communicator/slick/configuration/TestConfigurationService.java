@@ -298,7 +298,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyValue);
         }
-        catch (ConfigPropertyVetoExceoption ex)
+        catch (ConfigPropertyVetoException ex)
         {
             fail("A PropertyVetoException came from nowhere. Exc="
                  + ex.getMessage());
@@ -323,7 +323,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyNewValue);
         }
-        catch (ConfigPropertyVetoExceoption ex)
+        catch (ConfigPropertyVetoException ex)
         {
             fail("A PropertyVetoException came from nowhere. Exc="
                  + ex.getMessage());
@@ -348,7 +348,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyValue);
         }
-        catch (ConfigPropertyVetoExceoption ex)
+        catch (ConfigPropertyVetoException ex)
         {
             fail("A PropertyVetoException came from nowhere. Exc="
                  + ex.getMessage());
@@ -375,7 +375,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyValue);
         }
-        catch (ConfigPropertyVetoExceoption ex)
+        catch (ConfigPropertyVetoException ex)
         {
             fail("A PropertyVetoException came from nowhere. Exc="
                  + ex.getMessage());
@@ -399,7 +399,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyNewValue);
         }
-        catch (ConfigPropertyVetoExceoption ex)
+        catch (ConfigPropertyVetoException ex)
         {
             fail("A PropertyVetoException came from nowhere. Exc="
                  + ex.getMessage());
@@ -425,7 +425,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyValue);
         }
-        catch (ConfigPropertyVetoExceoption ex)
+        catch (ConfigPropertyVetoException ex)
         {
             fail("A PropertyVetoException came from nowhere. Exc="
                  + ex.getMessage());
@@ -445,12 +445,12 @@ public class TestConfigurationService extends TestCase
         configurationService.addVetoableChangeListener(rudeVetoListener);
         configurationService.addPropertyChangeListener(pListener);
 
-        ConfigPropertyVetoExceoption exception = null;
+        ConfigPropertyVetoException exception = null;
         try
         {
             configurationService.setProperty(propertyName, propertyValue);
         }
-        catch (ConfigPropertyVetoExceoption ex)
+        catch (ConfigPropertyVetoException ex)
         {
             exception = ex;
         }
@@ -487,7 +487,7 @@ public class TestConfigurationService extends TestCase
         {
             configurationService.setProperty(propertyName, propertyNewValue);
         }
-        catch (ConfigPropertyVetoExceoption ex1)
+        catch (ConfigPropertyVetoException ex1)
         {
             ex1.printStackTrace();
             fail("unexpected veto exception. message:" + ex1.getMessage());

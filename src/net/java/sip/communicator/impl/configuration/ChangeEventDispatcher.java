@@ -306,7 +306,7 @@ public class ChangeEventDispatcher
                 try {
                     target.vetoableChange(evt);
                 } catch (PropertyVetoException e) {
-                    throw new ConfigPropertyVetoExceoption(e.getLocalizedMessage(), evt);
+                    throw new ConfigPropertyVetoException(e.getLocalizedMessage(), evt);
                 }
             }
         }

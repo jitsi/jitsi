@@ -192,7 +192,7 @@ public abstract class SIPCommFrame
         {
             saveSizeAndLocation(this);
         }
-        catch (ConfigPropertyVetoExceoption e)
+        catch (ConfigPropertyVetoException e)
         {
             logger
                 .error(
@@ -212,7 +212,7 @@ public abstract class SIPCommFrame
      * <tt>PropertyVetoListener</tt>s.
      */
     static void saveSizeAndLocation(Component component)
-        throws ConfigPropertyVetoExceoption
+        throws ConfigPropertyVetoException
     {
         Map<String, Object> props = new HashMap<String, Object>();
         String className
