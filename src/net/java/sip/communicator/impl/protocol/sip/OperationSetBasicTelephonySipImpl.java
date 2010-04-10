@@ -461,7 +461,17 @@ public class OperationSetBasicTelephonySipImpl
                 sourceProvider);
             processed = true;
             break;
-
+        case Response.REQUEST_TERMINATED:
+            {
+                CallPeerSipImpl callPeer = activeCallsRepository.
+                        findCallPeer(clientTransaction.getDialog());
+                if (callPeer != null)
+                {
+                    callPeer.setState(CallPeerState.FAILED);
+                }
+                processed = true;
+            }
+            break;
         // errors
         default:
             int responseStatusCodeRange = responseStatusCode / 100;
