@@ -726,7 +726,17 @@ public class ChatRoomJabberImpl
      */
     public void leave()
     {
-        multiUserChat.leave();
+        try
+        {
+            // if we are already disconnected
+            // leave maybe called from gui when closing chat window
+            multiUserChat.leave();
+        }
+        catch(Throwable e)
+        {
+            logger.warn("Error occured while leaving, maybe just " +
+                "disconnected before leaving", e);
+        }
 
         // FIXME Do we have to do the following when we leave the room?
         for (ChatRoomMember member : members.values())

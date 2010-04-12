@@ -899,7 +899,7 @@ public class MessageHistoryServiceImpl
      * Writes message to the history
      * @param direction String direction of the message
      * @param source The source Contact
-     * @param destination The destiantion Contact
+     * @param destination The destination Contact
      * @param message Message message to be written
      * @param messageTimestamp Date this is the timestamp when was message received
      *                          that came from the protocol provider
@@ -920,6 +920,7 @@ public class MessageHistoryServiceImpl
     /**
      * Writes message to the history
      * @param history The history to which will write the message
+     * @param direction coming from
      * @param message Message
      * @param messageTimestamp Date this is the timestamp when was message received
      *                          that came from the protocol provider
@@ -943,6 +944,8 @@ public class MessageHistoryServiceImpl
     /**
      * Writes message to the history
      * @param history The history to which will write the message
+     * @param direction the direction of the message.
+     * @param from coming from
      * @param message Message
      * @param messageTimestamp Date this is the timestamp when was message received
      *                          that came from the protocol provider
@@ -973,6 +976,8 @@ public class MessageHistoryServiceImpl
     /**
      * Writes a message to the history.
      * @param history The history to which will write the message
+     * @param direction the direction of the message.
+     * @param from coming from
      * @param message Message
      * @param messageTimestamp Date this is the timestamp when was message received
      *                          that came from the protocol provider

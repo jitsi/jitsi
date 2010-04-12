@@ -11,7 +11,6 @@ import java.util.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
@@ -33,7 +32,6 @@ public class SipActivator
     private static ConfigurationService configurationService  = null;
     private static NetworkAddressManagerService networkAddressManagerService
                                                               = null;
-    private static FileAccessService    fileService           = null;
     private static MediaService         mediaService          = null;
     private static VersionService       versionService        = null;
     private static UIService            uiService             = null;
@@ -96,26 +94,6 @@ public class SipActivator
                 = (ConfigurationService) bundleContext.getService(confReference);
         }
         return configurationService;
-    }
-
-    /**
-     * Returns a reference to a FileAccessService implementation currently
-     * registered in the bundle context or null if no such implementation was
-     * found.
-     *
-     * @return a currently valid implementation of the FileAccessService.
-     */
-    public static FileAccessService getFileAccessService()
-    {
-        if(fileService == null)
-        {
-            ServiceReference fileReference
-                = bundleContext.getServiceReference(
-                    FileAccessService.class.getName());
-            fileService
-                = (FileAccessService) bundleContext.getService(fileReference);
-        }
-        return fileService;
     }
 
     /**

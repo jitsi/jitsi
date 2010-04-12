@@ -9,8 +9,6 @@ package net.java.sip.communicator.impl.protocol.sip.net;
 import java.io.*;
 import java.net.*;
 import java.security.*;
-import java.security.cert.*;
-import java.util.*;
 
 import javax.net.ssl.*;
 
@@ -38,33 +36,9 @@ public class SslNetworkLayer
         Logger.getLogger(SslNetworkLayer.class);
 
     /**
-     * The property for the configuration value to store the
-     * KeyStore file location.
-     */
-    private static final String KEYSTORE_FILE_PROP =
-        "net.java.sip.communicator.impl.protocol.sip.net.KEYSTORE";
-
-    /**
-     * This are the certificates which are temporally allowed
-     * only for this session.
-     */
-    private ArrayList<X509Certificate> temporalyAllowed =
-            new ArrayList<X509Certificate>();
-
-    /**
-     * The key store holding stored certificate during previous sessions.
-     */
-    private KeyStore keyStore;
-
-    /**
-     * The default password used for the keystore.
-     */
-    private char[] defaultPassword = new char[0];
-
-    /**
      * The service we use to interact with user.
      */
-    private CertificateVerificationService guiVerification;
+    private CertificateVerificationService certificateVerification;
 
     /**
      * Creates the network layer.
@@ -85,46 +59,9 @@ public class SslNetworkLayer
                 CertificateVerificationService.class.getName());
 
         if(guiVerifyReference != null)
-            guiVerification
+            certificateVerification
                 = (CertificateVerificationService)SipActivator.getBundleContext()
                     .getService(guiVerifyReference);
-
-        keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(null, defaultPassword);
-
-        try
-        {
-            String keyStoreFile = SipActivator.getConfigurationService()
-                    .getString(KEYSTORE_FILE_PROP);
-
-            if(keyStoreFile == null || keyStoreFile.length() == 0)
-            {
-                File f = SipActivator.getFileAccessService()
-                    .getPrivatePersistentFile("jssecacerts");
-                keyStoreFile = f.getCanonicalPath();
-
-                SipActivator.getConfigurationService().setProperty(
-                    KEYSTORE_FILE_PROP, keyStoreFile);
-
-                keyStore.store(new FileOutputStream(f), defaultPassword);
-            }
-            else
-            {
-                File f = new File(keyStoreFile);
-                if(!f.exists())
-                {
-                    // if for some reason file is missing, create it
-                    // by saving the empty store
-                    keyStore.store(new FileOutputStream(f), defaultPassword);
-                }
-
-                keyStore.load(new FileInputStream(keyStoreFile), null);
-            }
-
-        } catch (Exception e)
-        {
-            logger.error("Cannot init keystore file.", e);
-        }
     }
 
     /**
@@ -234,32 +171,32 @@ public class SslNetworkLayer
     private SSLContext getSSLContext(String address, int port)
         throws IOException
     {
-        try
+        if(certificateVerification != null)
+            return certificateVerification.getSSLContext(address, port);
+        else
         {
-            SSLContext sslContext;
-            sslContext = SSLContext.getInstance("TLS");
-            String algorithm = KeyManagerFactory.getDefaultAlgorithm();
-            TrustManagerFactory tmFactory = TrustManagerFactory.getInstance(algorithm);
-            KeyManagerFactory kmFactory = KeyManagerFactory.getInstance(algorithm);
-            SecureRandom secureRandom   = new SecureRandom();
-            secureRandom.nextInt();
+            try
+            {
+                SSLContext sslContext;
+                sslContext = SSLContext.getInstance("TLS");
+                String algorithm = KeyManagerFactory.getDefaultAlgorithm();
+                TrustManagerFactory tmFactory =
+                    TrustManagerFactory.getInstance(algorithm);
+                KeyManagerFactory kmFactory =
+                    KeyManagerFactory.getInstance(algorithm);
+                SecureRandom secureRandom   = new SecureRandom();
+                secureRandom.nextInt();
+                tmFactory.init((KeyStore)null);
+                kmFactory.init(null, null);
+                sslContext.init(kmFactory.getKeyManagers(),
+                    tmFactory.getTrustManagers(), secureRandom);
 
-            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            trustStore.load(null, defaultPassword);
-
-            tmFactory.init(trustStore);
-            kmFactory.init(keyStore, defaultPassword);
-
-            sslContext.init(kmFactory.getKeyManagers(),
-                new TrustManager[]{new HostTrustManager(
-                    (X509TrustManager)tmFactory.getTrustManagers()[0],
-                    address, port)}
-                , secureRandom);
-
-            return sslContext;
-        } catch (Exception e)
-        {
-            throw new IOException("Cannot init SSLContext: " + e.getMessage());
+                return sslContext;
+            } catch (Throwable e)
+            {
+                throw new IOException("Cannot init SSLContext: " +
+                    e.getMessage());
+            }
         }
     }
 
@@ -381,146 +318,8 @@ public class SslNetworkLayer
         }
 
         if(event.getType() == ServiceEvent.REGISTERED)
-            guiVerification = (CertificateVerificationService)sService;
+            certificateVerification = (CertificateVerificationService)sService;
         else if(event.getType() == ServiceEvent.UNREGISTERING)
-            guiVerification = null;
-    }
-
-    /**
-     * The trust manager which asks the client whether to trust particular
-     * certificate which is not globally trusted.
-     */
-    private class HostTrustManager
-        implements X509TrustManager
-    {
-        /**
-         * The address we connect to.
-         */
-        String address;
-
-        /**
-         * The port we connect to.
-         */
-        int port;
-
-        /**
-         * The default trust manager.
-         */
-        private final X509TrustManager tm;
-
-        /**
-         * Creates the custom trust manager.
-         * @param tm the default trust manager.
-         * @param address the address we are connecting to.
-         * @param port the port.
-         */
-        HostTrustManager(X509TrustManager tm, String address, int port)
-        {
-            this.tm = tm;
-            this.port = port;
-            this.address = address;
-        }
-
-        /**
-         * Not used.
-         * @return
-         */
-        public X509Certificate[] getAcceptedIssuers() {
-            throw new UnsupportedOperationException();
-        }
-
-        /**
-         * Not used.
-         * @param chain the cert chain.
-         * @param authType authentication type like: RSA.
-         * @throws CertificateException
-         */
-        public void checkClientTrusted(X509Certificate[] chain, String authType)
-            throws CertificateException
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        /**
-         * Check whether a certificate is trusted, if not as user whether he
-         * trust it.
-         * @param chain the certificate chain.
-         * @param authType authentication type like: RSA.
-         * @throws CertificateException not trusted.
-         */
-        public void checkServerTrusted(X509Certificate[] chain, String authType)
-            throws CertificateException
-        {
-            if(SipActivator.getConfigurationService().getBoolean(
-                CertificateVerificationService.ALWAYS_TRUST_MODE_ENABLED_PROP_NAME,
-                false))
-                return;
-
-            try
-            {
-                tm.checkServerTrusted(chain, authType);
-            } catch (CertificateException certificateException)
-            {
-                try
-                {
-                    for (int i = 0; i < chain.length; i++)
-                    {
-                        X509Certificate c = chain[i];
-
-                        // check for temporaly allowed certs
-                        if(temporalyAllowed.contains(c))
-                        {
-                            return;
-                        }
-
-                        // now check for permanent allow of certs
-                        String alias = keyStore.getCertificateAlias(c);
-                        if(alias != null)
-                            return;
-                    }
-
-                    if(guiVerification == null)
-                        throw certificateException;
-
-                    int result = guiVerification
-                        .verificationNeeded(chain, address, port);
-
-                    if(result == CertificateVerificationService.DO_NOT_TRUST)
-                    {
-                        throw certificateException;
-                    }
-                    else if(result
-                        == CertificateVerificationService.TRUST_THIS_SESSION_ONLY)
-                    {
-                        for (X509Certificate c : chain)
-                            temporalyAllowed.add(c);
-                    }
-                    else if(result == CertificateVerificationService.TRUST_ALWAYS)
-                    {
-                        for (X509Certificate c : chain)
-                            keyStore.setCertificateEntry(
-                                String.valueOf(System.currentTimeMillis()), c);
-                    }
-                } catch (Exception e)
-                {
-                    // something happend
-                    logger.error("Error trying to " +
-                        "show certificate to user", e);
-
-                    throw certificateException;
-                }
-
-                try
-                {
-                    String keyStoreFile = SipActivator.getConfigurationService()
-                        .getString(KEYSTORE_FILE_PROP);
-                    keyStore.store(
-                        new FileOutputStream(keyStoreFile), defaultPassword);
-                } catch (Exception e)
-                {
-                    logger.error("Error saving keystore.", e);
-                }
-            }
-        }
+            certificateVerification = null;
     }
 }

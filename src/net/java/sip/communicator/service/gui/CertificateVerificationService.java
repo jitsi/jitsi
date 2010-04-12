@@ -6,7 +6,10 @@
  */
 package net.java.sip.communicator.service.gui;
 
+import java.io.*;
+import java.security.*;
 import java.security.cert.*;
+import javax.net.ssl.*;
 
 /**
  * A service which implementors will ask the user for permission for the
@@ -40,7 +43,7 @@ public interface CertificateVerificationService
 
     /**
      * Checks does the user trust the supplied chain of certificates, when
-     * connecting to the server and port.
+     * connecting to the server and port. If needed shows dialog to confirm.
      *
      * @param   chain the chain of the certificates to check with user.
      * @param   toHost the host we are connecting.
@@ -48,5 +51,32 @@ public interface CertificateVerificationService
      * @return  the result of user interaction on of DO_NOT_TRUST, TRUST_ALWAYS,
      *          TRUST_THIS_SESSION_ONLY.
      */
-    int verificationNeeded(Certificate[] chain, String toHost, int toPort);
+    public int verify(X509Certificate[] chain, String toHost, int toPort);
+
+    /**
+     * Obtain custom trust manager, which will try verify the certificate and
+     * if verification fails will query the user for acceptance.
+     *
+     * @param   toHost the host we are connecting.
+     * @param   toPort the port used when connecting.
+     * @return the custom trust manager.
+     * @throws GeneralSecurityException when there is problem creating
+     *         the trust manager
+     */
+    public X509TrustManager getTrustManager(String toHost, int toPort)
+        throws GeneralSecurityException;
+
+    /**
+     * Returns SSLContext instance initialized with the custom trust manager,
+     * which will try verify the certificate and if verification fails
+     * will query the user for acceptance.
+     *
+     * @param   toHost the host we are connecting.
+     * @param   toPort the port used when connecting.
+     * @return  the SSLContext
+     * @throws IOException throws exception when unable to initialize the
+     *  ssl context.
+     */
+    public SSLContext getSSLContext(String toHost, int toPort)
+        throws IOException;
 }

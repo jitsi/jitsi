@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.io.*;
 import java.net.*;
 import java.security.*;
 import java.security.cert.*;
@@ -126,28 +125,6 @@ public class ProtocolProviderServiceJabberImpl
     private CertificateVerificationService guiVerification;
 
     /**
-     * 
-     */
-    private boolean additionalCertificateChecks = true;
-
-    /**
-     * The key store holding stored certificate during previous sessions.
-     */
-    private KeyStore keyStore;
-
-    /**
-     * The property for the configuration value to store the
-     * KeyStore file location.
-     */
-    private static final String KEYSTORE_FILE_PROP =
-        "net.java.sip.communicator.impl.protocol.sip.net.KEYSTORE";
-
-    /**
-     * The default password used for the keystore.
-     */
-    private char[] defaultPassword = new char[0];
-
-    /**
      * Used with tls connecting when certificates are not trusted
      * and we ask the user to confirm connection. When some timeout expires
      * connect method returns, and we use abortConnecting to abort further
@@ -162,11 +139,10 @@ public class ProtocolProviderServiceJabberImpl
     private boolean abortConnectingAndReconnect = false;
 
     /**
-     * This are the certificates which are temporally allowed
-     * only for this session.
+     * Shows whether we have already checked the certificate for current server.
+     * In case we use TLS.
      */
-    private ArrayList<X509Certificate> temporalyAllowed =
-            new ArrayList<X509Certificate>();
+    private boolean certChecked = false;
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -202,7 +178,6 @@ public class ProtocolProviderServiceJabberImpl
 
         return guiVerification;
     }
-        
 
     /**
      * Starts the registration process. Connection details such as
@@ -228,6 +203,10 @@ public class ProtocolProviderServiceJabberImpl
 
         try
         {
+            // reset states
+            abortConnecting = false;
+            abortConnectingAndReconnect = false;
+
             connectAndLogin(authority,
                             SecurityAuthority.AUTHENTICATION_REQUIRED);
         }
@@ -283,7 +262,9 @@ public class ProtocolProviderServiceJabberImpl
             this.unregister(false);
 
             this.reconnecting = true;
-
+            // reset states
+            this.abortConnecting = false;
+            this.abortConnectingAndReconnect = false;
             connectAndLogin(authority,
                             authReasonCode);
         }
@@ -499,64 +480,22 @@ public class ProtocolProviderServiceJabberImpl
                             proxy
                     );
                     confConn.setReconnectionAllowed(false);
-                    confConn.setExpiredCertificatesCheckEnabled(
-                        additionalCertificateChecks);
-                    confConn.setNotMatchingDomainCheckEnabled(
-                        additionalCertificateChecks);
-
-                    TrustManagerFactory tmFactory = null;
-                    try
-                    {
-                        keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                        keyStore.load(null, defaultPassword);
-
-                        String keyStoreFile =
-                            JabberActivator.getConfigurationService()
-                            .getString(KEYSTORE_FILE_PROP);
-
-                        if(keyStoreFile == null || keyStoreFile.length() == 0)
-                        {
-                            File f = JabberActivator.getFileAccessService()
-                                .getPrivatePersistentFile("jssecacerts");
-                            keyStoreFile = f.getCanonicalPath();
-
-                            JabberActivator.getConfigurationService()
-                                .setProperty(KEYSTORE_FILE_PROP, keyStoreFile);
-
-                            keyStore.store(
-                                new FileOutputStream(f), defaultPassword);
-                        }
-                        else
-                        {
-                            File f = new File(keyStoreFile);
-                            if(!f.exists())
-                            {
-                                // if for some reason file is missing, create it
-                                // by saving the empty store
-                                keyStore.store(
-                                    new FileOutputStream(f), defaultPassword);
-                            }
-
-                            keyStore.load(new FileInputStream(keyStoreFile), null);
-                        }
-
-                        String algorithm = KeyManagerFactory.getDefaultAlgorithm();
-                        tmFactory = TrustManagerFactory.getInstance(algorithm);
-                        tmFactory.init(keyStore);
-                        confConn.setKeystorePath(keyStoreFile);
-                    } catch (Exception e)
-                    {
-                        logger.error("Cannot create key store", e);
-                    }
 
                     connection = new XMPPConnection(confConn);
-                    if(tmFactory != null)
+
+                    try
                     {
-                        connection.setCustomTrustManager(
-                            new HostTrustManager(
-                            (X509TrustManager)tmFactory.getTrustManagers()[0],
-                            serverAddress,
-                            Integer.parseInt(serverPort)));
+                        CertificateVerificationService gvs =
+                        getCertificateVerificationService();
+                        if(gvs != null)
+                            connection.setCustomTrustManager(
+                                new HostTrustManager(gvs.getTrustManager(
+                                    serverAddress,
+                                    Integer.parseInt(serverPort))));
+                    }
+                    catch(GeneralSecurityException e)
+                    {
+                        logger.error("Error creating custom trust manager", e);
                     }
 
                     connection.connect();
@@ -581,14 +520,13 @@ public class ProtocolProviderServiceJabberImpl
 
                 if(abortConnecting)
                 {
-                    abortConnecting = false;
                     if(abortConnectingAndReconnect)
                     {
-                        abortConnectingAndReconnect = false;
                         reregister(SecurityAuthority.CONNECTION_FAILED);
                     }
                     else
                     {
+                        abortConnecting = false;
                         connection.disconnect();
                     }
                     return;
@@ -638,14 +576,13 @@ public class ProtocolProviderServiceJabberImpl
 
                         if(abortConnecting)
                         {
-                            abortConnecting = false;
                             if(abortConnectingAndReconnect)
                             {
-                                abortConnectingAndReconnect = false;
                                 reregister(SecurityAuthority.CONNECTION_FAILED);
                             }
                             else
                             {
+                                abortConnecting = false;
                                 connection.disconnect();
                             }
                             return;
@@ -1200,16 +1137,6 @@ public class ProtocolProviderServiceJabberImpl
         implements X509TrustManager
     {
         /**
-         * The address we connect to.
-         */
-        String address;
-
-        /**
-         * The port we connect to.
-         */
-        int port;
-
-        /**
          * The default trust manager.
          */
         private final X509TrustManager tm;
@@ -1217,21 +1144,18 @@ public class ProtocolProviderServiceJabberImpl
         /**
          * Creates the custom trust manager.
          * @param tm the default trust manager.
-         * @param address the address we are connecting to.
-         * @param port the port.
          */
-        HostTrustManager(X509TrustManager tm, String address, int port)
+        HostTrustManager(X509TrustManager tm)
         {
             this.tm = tm;
-            this.port = port;
-            this.address = address;
         }
 
         /**
          * Not used.
          * @return
          */
-        public X509Certificate[] getAcceptedIssuers() {
+        public X509Certificate[] getAcceptedIssuers()
+        {
             throw new UnsupportedOperationException();
         }
 
@@ -1257,102 +1181,43 @@ public class ProtocolProviderServiceJabberImpl
         public void checkServerTrusted(X509Certificate[] chain, String authType)
             throws CertificateException
         {
-            if(JabberActivator.getConfigurationService().getBoolean(
-                CertificateVerificationService.ALWAYS_TRUST_MODE_ENABLED_PROP_NAME,
-                false))
+            if(certChecked)
                 return;
+
+            abortConnecting = true;
+
             try
             {
+                certChecked = true;
                 tm.checkServerTrusted(chain, authType);
-            } catch (Throwable certificateException)
+            }
+            catch(CertificateException e)
             {
-                try
-                {
-                    for (int i = 0; i < chain.length; i++)
-                    {
-                        X509Certificate c = chain[i];
-
-                        // check for temporaly allowed certs
-                        if(temporalyAllowed.contains(c))
-                        {
-                            return;
-                        }
-
-                        // now check for permanent allow of certs
-                        String alias = keyStore.getCertificateAlias(c);
-                        if(alias != null)
-                            return;
-                    }
-
-                    CertificateVerificationService guiVerification =
-                        getCertificateVerificationService();
-
-                    if(guiVerification == null)
-                        throw new CertificateException(certificateException.getMessage());
-
-                    abortConnecting = true;
-                    int result = guiVerification
-                        .verificationNeeded(chain, address, port);
-
-                    if(result == CertificateVerificationService.DO_NOT_TRUST)
-                    {
-                        fireRegistrationStateChanged(getRegistrationState(),
+                fireRegistrationStateChanged(getRegistrationState(),
                             RegistrationState.CONNECTION_FAILED,
                             RegistrationStateChangeEvent.REASON_USER_REQUEST,
                             "Not trusted certificate");
-                        return;
-                    }
-                    else if(result
-                        == CertificateVerificationService.TRUST_THIS_SESSION_ONLY)
-                    {
-                        for (X509Certificate c : chain)
-                            temporalyAllowed.add(c);  
-                    }
-                    else if(result == CertificateVerificationService.TRUST_ALWAYS)
-                    {
-                        for (X509Certificate c : chain)
-                            keyStore.setCertificateEntry(
-                                String.valueOf(System.currentTimeMillis()), c);
-                    }
+                throw e;
+            }
 
-                    try
-                    {
-                        String keyStoreFile = JabberActivator.getConfigurationService()
-                            .getString(KEYSTORE_FILE_PROP);
-                        keyStore.store(
-                            new FileOutputStream(keyStoreFile), defaultPassword);
-                    } catch (Exception e)
-                    {
-                        logger.error("Error saving keystore.", e);
-                    }
-
-                    if(abortConnecting)
-                    {
-                        abortConnectingAndReconnect = true;
-                        return;
-                    }
-                    else
-                    {
-                        // register.connect in new thread so we can release the
-                        // current connecting thread, otherwise this blocks
-                        // jabber
-                        new Thread(new Runnable()
-                        {
-                            public void run()
-                            {
-                                reregister(SecurityAuthority.CONNECTION_FAILED);
-                            }
-                        }).start();
-                        return;
-                    }
-                } catch (KeyStoreException e)
+            if(abortConnecting)
+            {
+                abortConnectingAndReconnect = true;
+                return;
+            }
+            else
+            {
+                // register.connect in new thread so we can release the
+                // current connecting thread, otherwise this blocks
+                // jabber
+                new Thread(new Runnable()
                 {
-                    // something happend
-                    logger.error("Error trying to " +
-                        "show certificate to user", e);
-
-                    throw new CertificateException(certificateException.getMessage());
-                }
+                    public void run()
+                    {
+                        reregister(SecurityAuthority.CONNECTION_FAILED);
+                    }
+                }).start();
+                return;
             }
         }
     }
