@@ -140,6 +140,15 @@ public class MainFrame
     }
 
     /**
+     * Requests the focus in the center panel, which contains either the
+     * contact list or the unknown contact panel.
+     */
+    public void requestFocusInCenterPanel()
+    {
+        centerPanel.requestFocusInWindow();
+    }
+
+    /**
      * Initiates the content of this frame.
      */
     private void init()
@@ -232,7 +241,7 @@ public class MainFrame
      * @param isEnabled <tt>true</tt> to enable the "unknown contact" view,
      * <tt>false</tt> - otherwise.
      */
-    public void setUnknownContactView(boolean isEnabled)
+    public void enableUnknownContactView(boolean isEnabled)
     {
         if (isEnabled)
         {
@@ -1470,6 +1479,8 @@ public class MainFrame
                     searchText += searchField.getText() + e.getKeyChar();
                 else
                     searchText += e.getKeyChar();
+
+                e.consume();
 
                 searchField.setText(searchText);
 

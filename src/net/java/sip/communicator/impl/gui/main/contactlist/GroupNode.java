@@ -24,11 +24,6 @@ public class GroupNode
     implements  ContactListNode
 {
     /**
-     * The parent contact list model.
-     */
-    private final ContactListTreeModel treeModel;
-
-    /**
      * The corresponding <tt>MetaContactGroup</tt>.
      */
     private final MetaContactGroup metaGroup;
@@ -55,7 +50,6 @@ public class GroupNode
     {
         super(metaGroup, true);
 
-        this.treeModel = treeModel;
         this.metaGroup = metaGroup;
 
         isCollapsed = ConfigurationManager
@@ -78,11 +72,16 @@ public class GroupNode
     /**
      * Creates a <tt>ContactNode</tt> for the given <tt>metaContact</tt>,
      * adds it to this group and performs a sort at the end.
+     * @param treeModel the <tt>ContactListTreeModel</tt> to which the given
+     * <tt>metaContact</tt> is added
      * @param metaContact the <tt>MetaContact</tt> to add
+     * @param isRefreshView indicates if the view should be refreshed
      * @return the created <tt>ContactNode</tt>
      */
     @SuppressWarnings("unchecked")
-    public ContactNode sortedAddMetaContact(MetaContact metaContact)
+    public ContactNode sortedAddMetaContact(ContactListTreeModel treeModel,
+                                            MetaContact metaContact,
+                                            boolean isRefreshView)
     {
         ContactNode contactNode = new ContactNode(metaContact);
 
@@ -91,7 +90,8 @@ public class GroupNode
         // TODO: Optimize!
         Collections.sort(children, nodeComparator);
 
-        this.fireNodeInserted(getIndex(contactNode));
+        if (isRefreshView)
+            this.fireNodeInserted(treeModel, getIndex(contactNode));
 
         return contactNode;
     }
@@ -99,9 +99,12 @@ public class GroupNode
     /**
      * Removes the node corresponding to the given <tt>MetaContact</tt> from
      * this group.
+     * @param treeModel the <tt>ContactListTreeModel</tt> from which the
+     * given <tt>metaContact</tt> is removed
      * @param metaContact the <tt>MetaContact</tt> to remove
      */
-    public void removeMetaContact(MetaContact metaContact)
+    public void removeMetaContact(  ContactListTreeModel treeModel,
+                                    MetaContact metaContact)
     {
         ContactNode contactNode = findContactNode(metaContact);
 
@@ -113,17 +116,20 @@ public class GroupNode
             children.removeElementAt(index);
             contactNode.setParent(null);
 
-            fireNodeRemoved(contactNode, index);
+            fireNodeRemoved(treeModel, contactNode, index);
         }
     }
 
     /**
      * Creates a <tt>GroupNode</tt> for the given <tt>metaGroup</tt> and adds it
      * to this group.
+     * @param treeModel the <tt>ContactListTreeModel</tt> to which the given
+     * <tt>metaGroup</tt> is added
      * @param metaGroup the <tt>MetaContactGroup</tt> to add
      * @return the created <tt>GroupNode</tt>
      */
-    public GroupNode addMetaContactGroup(MetaContactGroup metaGroup)
+    public GroupNode addMetaContactGroup(   ContactListTreeModel treeModel,
+                                            MetaContactGroup metaGroup)
     {
         GroupNode groupNode = new GroupNode(treeModel, metaGroup);
         this.add(groupNode);
@@ -133,9 +139,12 @@ public class GroupNode
     /**
      * Removes the node corresponding to the given <tt>metaGroup</tt> from this
      * group node.
+     * @param treeModel the <tt>ContactListTreeModel</tt> from which the given
+     * <tt>metaGroup</tt> is removed
      * @param metaGroup the <tt>MetaContactGroup</tt> to remove
      */
-    public void removeMetaContactGroup(MetaContactGroup metaGroup)
+    public void removeMetaContactGroup( ContactListTreeModel treeModel,
+                                        MetaContactGroup metaGroup)
     {
         GroupNode groupNode = findGroupNode(metaGroup);
 
@@ -147,18 +156,23 @@ public class GroupNode
             children.removeElementAt(index);
             groupNode.setParent(null);
 
-            fireNodeRemoved(groupNode, index);
+            fireNodeRemoved(treeModel, groupNode, index);
         }
     }
 
     /**
      * Creates a <tt>GroupNode</tt> for the given <tt>metaGroup</tt>, adds it
      * to this group node and performs a sort at the end.
+     * @param treeModel the <tt>ContactListTreeModel</tt> to which the given
+     * <tt>metaGroup</tt> is added
      * @param metaGroup the <tt>MetaContactGroup</tt> to add
+     * @param isRefreshView indicates if the view should be refreshed
      * @return the created <tt>GroupNode</tt>
      */
     @SuppressWarnings("unchecked")
-    public GroupNode sortedAddMetaContactGroup(MetaContactGroup metaGroup)
+    public GroupNode sortedAddMetaContactGroup( ContactListTreeModel treeModel,
+                                                MetaContactGroup metaGroup,
+                                                boolean isRefreshView)
     {
         GroupNode groupNode = new GroupNode(treeModel, metaGroup);
 
@@ -167,7 +181,8 @@ public class GroupNode
         // TODO: Optimize!
         Collections.sort(children, nodeComparator);
 
-        this.fireNodeInserted(getIndex(groupNode));
+        if (isRefreshView)
+            this.fireNodeInserted(treeModel, getIndex(groupNode));
 
         return groupNode;
     }
@@ -242,15 +257,17 @@ public class GroupNode
 
     /**
      * Sorts the children of this node.
+     * @param treeModel the <tt>ContactListTreeModel</tt>, which should be
+     * refreshed
      */
     @SuppressWarnings("unchecked")
-    public void sort()
+    public void sort(ContactListTreeModel treeModel)
     {
         if (children != null)
         {
             Collections.sort(children, nodeComparator);
 
-            fireNodesChanged();
+            fireNodesChanged(treeModel);
         }
     }
 
@@ -268,9 +285,11 @@ public class GroupNode
     /**
      * Notifies all interested listeners that a node has been inserted at the
      * given <tt>index</tt>.
+     * @param treeModel the <tt>ContactListTreeModel</tt> which should be
+     * notified
      * @param index the index of the newly inserted node
      */
-    private void fireNodeInserted(int index)
+    private void fireNodeInserted(ContactListTreeModel treeModel, int index)
     {
         int[] newIndexs = new int[1];
         newIndexs[0] = index;
@@ -280,10 +299,13 @@ public class GroupNode
     /**
      * Notifies all interested listeners that <tt>node</tt> has been removed
      * from the given <tt>index</tt>.
+     * @param treeModel the <tt>ContactListTreeModel</tt> which should
+     * be notified
      * @param node the node that has been removed
      * @param index the index of the removed node
      */
-    private void fireNodeRemoved(ContactListNode node, int index)
+    private void fireNodeRemoved(
+        ContactListTreeModel treeModel, ContactListNode node, int index)
     {
         int[] removedIndexs = new int[1];
         removedIndexs[0] = index;
@@ -292,8 +314,10 @@ public class GroupNode
 
     /**
      * Notifies all interested listeners that all nodes has changed.
+     * @param treeModel the <tt>ContactListTreeModel</tt> which should
+     * be notified
      */
-    private void fireNodesChanged()
+    private void fireNodesChanged(ContactListTreeModel treeModel)
     {
         int childCount = getChildCount();
         int[] changedIndexs = new int[childCount];

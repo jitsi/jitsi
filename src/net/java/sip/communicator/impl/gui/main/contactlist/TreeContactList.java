@@ -44,7 +44,14 @@ public class TreeContactList
     /**
      * The tree model.
      */
-    private final ContactListTreeModel treeModel;
+    private ContactListTreeModel treeModel;
+
+    /**
+     * The temporary tree model is used to collect the results from a filter
+     * operation. This is used in order to separate search and filter matching
+     * operations from the UI refresh operations.
+     */
+    private ContactListTreeModel tempTreeModel;
 
     /**
      * The right button menu.
@@ -92,6 +99,14 @@ public class TreeContactList
     private MouseListener[] originalMouseListeners;
 
     /**
+     * Indicates if we're currently filtering the tree model. If there's an
+     * ongoing filtering this variable would be set to true, otherwise the value
+     * would be false. This variable is needed because the actual filtering is
+     * done in a separate thread.
+     */
+    private boolean isFiltering = false;
+
+    /**
      * Creates the <tt>TreeContactList</tt>.
      */
     public TreeContactList()
@@ -110,10 +125,6 @@ public class TreeContactList
 
         treeModel = new ContactListTreeModel(
             GuiActivator.getContactListService().getRoot());
-
-        this.setModel(treeModel);
-        this.setRowHeight(0);
-        this.setToggleClickCount(1);
 
         // By default we set the current filter to be the presence filter.
         presenceFilter.setShowOffline(ConfigurationManager.isShowOffline());
@@ -139,13 +150,20 @@ public class TreeContactList
         {
             public void run()
             {
-                if (currentFilter.isMatching(metaGroup))
+                // We synchronize the matching and all MetaContactListener
+                // events on the tempTreeModel in order to prevent modification
+                // to be done on the actual treeModel while we're working with
+                // the temporary model.
+                synchronized (tempTreeModel)
                 {
-                    GroupNode groupNode
-                        = treeModel.findGroupNodeByMetaGroup(metaGroup);
+                    if (currentFilter.isMatching(metaGroup))
+                    {
+                        GroupNode groupNode
+                            = treeModel.findGroupNodeByMetaGroup(metaGroup);
 
-                    if (groupNode != null)
-                        groupNode.sort();
+                        if (groupNode != null)
+                            groupNode.sort(treeModel);
+                    }
                 }
             }
         });
@@ -164,8 +182,15 @@ public class TreeContactList
         {
             public void run()
             {
-                if (currentFilter.isMatching(metaContact))
-                    addContact(metaContact);
+                // We synchronize the matching and all MetaContactListener
+                // events on the tempTreeModel in order to prevent modification
+                // to be done on the actual treeModel while we're working with
+                // the temporary model.
+                synchronized (tempTreeModel)
+                {
+                    if (currentFilter.isMatching(metaContact))
+                        addContact(metaContact);
+                }
             }
         });
     }
@@ -183,8 +208,15 @@ public class TreeContactList
         {
             public void run()
             {
-                if (currentFilter.isMatching(metaGroup))
-                    addGroup(metaGroup);
+                // We synchronize the matching and all MetaContactListener
+                // events on the tempTreeModel in order to prevent modification
+                // to be done on the actual treeModel while we're working with
+                // the temporary model.
+                synchronized (tempTreeModel)
+                {
+                    if (currentFilter.isMatching(metaGroup))
+                        addGroup(metaGroup);
+                }
             }
         });
     }
@@ -202,13 +234,20 @@ public class TreeContactList
         {
             public void run()
             {
-                if (currentFilter.isMatching(metaGroup))
+                // We synchronize the matching and all MetaContactListener
+                // events on the tempTreeModel in order to prevent modification
+                // to be done on the actual treeModel while we're working with
+                // the temporary model.
+                synchronized (tempTreeModel)
                 {
-                    GroupNode groupNode
-                        = treeModel.findGroupNodeByMetaGroup(metaGroup);
+                    if (currentFilter.isMatching(metaGroup))
+                    {
+                        GroupNode groupNode
+                            = treeModel.findGroupNodeByMetaGroup(metaGroup);
 
-                    if (groupNode != null)
-                        treeModel.nodeChanged(groupNode);
+                        if (groupNode != null)
+                            treeModel.nodeChanged(groupNode);
+                    }
                 }
             }
         });
@@ -226,7 +265,14 @@ public class TreeContactList
         {
             public void run()
             {
-                removeGroup(evt.getSourceMetaContactGroup());
+                // We synchronize the matching and all MetaContactListener
+                // events on the tempTreeModel in order to prevent modification
+                // to be done on the actual treeModel while we're working with
+                // the temporary model.
+                synchronized (tempTreeModel)
+                {
+                    removeGroup(evt.getSourceMetaContactGroup());
+                }
             }
         });
     }
@@ -244,13 +290,21 @@ public class TreeContactList
         {
             public void run()
             {
-                if (currentFilter.isMatching(metaContact))
+                // We synchronize the matching and all MetaContactListener
+                // events on the tempTreeModel in order to prevent modification
+                // to be done on the actual treeModel while we're working with
+                // the temporary model.
+                synchronized (tempTreeModel)
                 {
-                    ContactNode contactNode
-                        = treeModel.findContactNodeByMetaContact(metaContact);
+                    if (currentFilter.isMatching(metaContact))
+                    {
+                        ContactNode contactNode
+                            = treeModel.findContactNodeByMetaContact(
+                                metaContact);
 
-                    if (contactNode != null)
-                        treeModel.nodeChanged(contactNode);
+                        if (contactNode != null)
+                            treeModel.nodeChanged(contactNode);
+                    }
                 }
             }
         });
@@ -269,17 +323,29 @@ public class TreeContactList
         {
             public void run()
             {
-                if (currentFilter.isMatching(metaContact))
+                // We synchronize the matching and all MetaContactListener
+                // events on the tempTreeModel in order to prevent modification
+                // to be done on the actual treeModel while we're working with
+                // the temporary model.
+                synchronized (tempTreeModel)
                 {
-                    GroupNode oldParent
-                        = treeModel.findGroupNodeByMetaGroup(evt.getOldParent());
-                    GroupNode newParent
-                        = treeModel.findGroupNodeByMetaGroup(evt.getNewParent());
+                    if (currentFilter.isMatching(metaContact))
+                    {
+                        GroupNode oldParent
+                            = treeModel.findGroupNodeByMetaGroup(
+                                evt.getOldParent());
+                        GroupNode newParent
+                            = treeModel.findGroupNodeByMetaGroup(
+                                evt.getNewParent());
 
-                    if (oldParent != null)
-                        oldParent.removeMetaContact(metaContact);
-                    if (newParent != null)
-                        newParent.sortedAddMetaContact(metaContact);
+                        if (oldParent != null)
+                            oldParent
+                                .removeMetaContact(treeModel, metaContact);
+
+                        if (newParent != null)
+                            newParent.sortedAddMetaContact(treeModel,
+                                metaContact, true);
+                    }
                 }
             }
         });
@@ -297,8 +363,15 @@ public class TreeContactList
         {
             public void run()
             {
-                removeContact(  evt.getSourceMetaContact(),
-                                evt.getParentGroup());
+                // We synchronize the matching and all MetaContactListener
+                // events on the tempTreeModel in order to prevent modification
+                // to be done on the actual treeModel while we're working with
+                // the temporary model.
+                synchronized (tempTreeModel)
+                {
+                    removeContact(  evt.getSourceMetaContact(),
+                        evt.getParentGroup());
+                }
             }
         });
     }
@@ -316,13 +389,21 @@ public class TreeContactList
         {
             public void run()
             {
-                if (currentFilter.isMatching(metaContact))
+                // We synchronize the matching and all MetaContactListener
+                // events on the tempTreeModel in order to prevent modification
+                // to be done on the actual treeModel while we're working with
+                // the temporary model.
+                synchronized (tempTreeModel)
                 {
-                    ContactNode contactNode
-                        = treeModel.findContactNodeByMetaContact(metaContact);
+                    if (currentFilter.isMatching(metaContact))
+                    {
+                        ContactNode contactNode
+                            = treeModel.findContactNodeByMetaContact(
+                                metaContact);
 
-                    if (contactNode != null)
-                        treeModel.nodeChanged(contactNode);
+                        if (contactNode != null)
+                            treeModel.nodeChanged(contactNode);
+                    }
                 }
             }
         });
@@ -341,13 +422,21 @@ public class TreeContactList
         {
             public void run()
             {
-                if (currentFilter.isMatching(metaContact))
+                // We synchronize the matching and all MetaContactListener
+                // events on the tempTreeModel in order to prevent modification
+                // to be done on the actual treeModel while we're working with
+                // the temporary model.
+                synchronized (tempTreeModel)
                 {
-                    ContactNode contactNode
-                        = treeModel.findContactNodeByMetaContact(metaContact);
+                    if (currentFilter.isMatching(metaContact))
+                    {
+                        ContactNode contactNode
+                            = treeModel.findContactNodeByMetaContact(
+                                metaContact);
 
-                    if (contactNode != null)
-                        treeModel.nodeChanged(contactNode);
+                        if (contactNode != null)
+                            treeModel.nodeChanged(contactNode);
+                    }
                 }
             }
         });
@@ -363,12 +452,19 @@ public class TreeContactList
     {
         MetaContact parent = evt.getNewParent();
 
-        ContactNode contactNode
-            = treeModel.findContactNodeByMetaContact(parent);
-
-        if (contactNode == null && currentFilter.isMatching(parent))
+        // We synchronize the matching and all MetaContactListener
+        // events on the tempTreeModel in order to prevent modification
+        // to be done on the actual treeModel while we're working with
+        // the temporary model.
+        synchronized (tempTreeModel)
         {
-            addContact(parent);
+            ContactNode contactNode
+                = treeModel.findContactNodeByMetaContact(parent);
+
+            if (contactNode == null && currentFilter.isMatching(parent))
+            {
+                addContact(parent);
+            }
         }
     }
 
@@ -385,24 +481,31 @@ public class TreeContactList
         // Remove old parent if not matching.
         MetaContact oldParent = evt.getOldParent();
 
-        ContactNode oldContactNode
-            = treeModel.findContactNodeByMetaContact(oldParent);
-
-        if (oldContactNode != null && !currentFilter.isMatching(oldParent))
+        // We synchronize the matching and all MetaContactListener
+        // events on the tempTreeModel in order to prevent modification
+        // to be done on the actual treeModel while we're working with
+        // the temporary model.
+        synchronized (tempTreeModel)
         {
-            removeContact(oldParent,
-                oldParent.getParentMetaContactGroup());
-        }
+            ContactNode oldContactNode
+                = treeModel.findContactNodeByMetaContact(oldParent);
 
-        // Add new parent if matching.
-        MetaContact newParent = evt.getNewParent();
+            if (oldContactNode != null && !currentFilter.isMatching(oldParent))
+            {
+                removeContact(oldParent,
+                    oldParent.getParentMetaContactGroup());
+            }
 
-        ContactNode newContactNode
-            = treeModel.findContactNodeByMetaContact(newParent);
+            // Add new parent if matching.
+            MetaContact newParent = evt.getNewParent();
 
-        if (newContactNode == null && currentFilter.isMatching(newParent))
-        {
-            addContact(newParent);
+            ContactNode newContactNode
+                = treeModel.findContactNodeByMetaContact(newParent);
+
+            if (newContactNode == null && currentFilter.isMatching(newParent))
+            {
+                addContact(newParent);
+            }
         }
     }
 
@@ -416,13 +519,20 @@ public class TreeContactList
     {
         MetaContact oldParent = evt.getOldParent();
 
-        ContactNode contactNode
-            = treeModel.findContactNodeByMetaContact(oldParent);
-
-        if (contactNode != null && !currentFilter.isMatching(oldParent))
+        // We synchronize the matching and all MetaContactListener
+        // events on the tempTreeModel in order to prevent modification
+        // to be done on the actual treeModel while we're working with
+        // the temporary model.
+        synchronized (tempTreeModel)
         {
-            removeContact(oldParent,
-                oldParent.getParentMetaContactGroup());
+            ContactNode contactNode
+                = treeModel.findContactNodeByMetaContact(oldParent);
+
+            if (contactNode != null && !currentFilter.isMatching(oldParent))
+            {
+                removeContact(oldParent,
+                    oldParent.getParentMetaContactGroup());
+            }
         }
     }
 
@@ -457,25 +567,32 @@ public class TreeContactList
      */
     public void setActiveContact(MetaContact metaContact, boolean isActive)
     {
-        ContactNode contactNode
-            = treeModel.findContactNodeByMetaContact(metaContact);
-
-        if (contactNode != null)
+        // We synchronize the matching and all MetaContactListener
+        // events on the tempTreeModel in order to prevent modification
+        // to be done on the actual treeModel while we're working with
+        // the temporary model.
+        synchronized (tempTreeModel)
         {
-            contactNode.setActive(isActive);
+            ContactNode contactNode
+                = treeModel.findContactNodeByMetaContact(metaContact);
 
-            if (isActive)
+            if (contactNode != null)
             {
-                activeContacts.add(contactNode);
-//            SystrayService stray = GuiActivator.getSystrayService();
-//
-//            if (stray != null)
-//                stray.setSystrayIcon(SystrayService.ENVELOPE_IMG_TYPE);
-            }
-            else
-                activeContacts.remove(contactNode);
+                contactNode.setActive(isActive);
 
-            treeModel.nodeChanged(contactNode);
+                if (isActive)
+                {
+                    activeContacts.add(contactNode);
+//              SystrayService stray = GuiActivator.getSystrayService();
+//
+//              if (stray != null)
+//                    stray.setSystrayIcon(SystrayService.ENVELOPE_IMG_TYPE);
+                }
+                else
+                    activeContacts.remove(contactNode);
+
+                treeModel.nodeChanged(contactNode);
+            }
         }
     }
 
@@ -497,22 +614,41 @@ public class TreeContactList
     }
 
     /**
-     * Adds the given <tt>MetaContact</tt> to this list.
+     * Adds the given <tt>MetaContact</tt> to this list default tree model and
+     * refreshes the tree view.
      * @param metaContact the <tt>MetaContact</tt> to add
      */
     private void addContact(MetaContact metaContact)
+    {
+        addContact(treeModel, metaContact, true);
+    }
+
+    /**
+     * Adds the given <tt>metaContact</tt> to the given <tt>treeModel</tt>, by
+     * specifying if the view should be refreshed.
+     * @param treeModel the <tt>ContactListTreeModel</tt> to which to add the
+     * given <tt>metaContact</tt>
+     * @param metaContact the <tt>MetaContact</tt> to add
+     * @param isRefreshView indicates if the view should be refreshed after
+     * the contact adding
+     */
+    private void addContact(ContactListTreeModel treeModel,
+                            MetaContact metaContact,
+                            boolean isRefreshView)
     {
         MetaContactGroup metaGroup = metaContact.getParentMetaContactGroup();
 
         GroupNode groupNode = treeModel.findGroupNodeByMetaGroup(metaGroup);
 
         if (groupNode == null)
-            groupNode = addGroup(metaGroup);
+            groupNode = addGroup(treeModel, metaGroup, isRefreshView);
 
-        groupNode.sortedAddMetaContact(metaContact);
+        groupNode.sortedAddMetaContact(treeModel, metaContact, isRefreshView);
 
-        if (!currentFilter.equals(presenceFilter) || !groupNode.isCollapsed())
-            this.expandGroup(groupNode);
+        if (currentFilter.equals(presenceFilter)
+            && !groupNode.isCollapsed()
+            && isRefreshView)
+            this.expandGroup(treeModel, groupNode);
     }
 
     /**
@@ -532,7 +668,7 @@ public class TreeContactList
         if (parentGroupNode == null)
             return;
 
-        parentGroupNode.removeMetaContact(metaContact);
+        parentGroupNode.removeMetaContact(treeModel, metaContact);
 
         // If the parent group is empty remove it.
         if (parentGroupNode.getChildCount() < 1
@@ -549,6 +685,22 @@ public class TreeContactList
      */
     private GroupNode addGroup(MetaContactGroup metaGroup)
     {
+        return addGroup(treeModel, metaGroup, true);
+    }
+
+    /**
+     * Adds the given <tt>metaGroup</tt> to the given <tt>treeModel</tt>.
+     * @param treeModel the <tt>ContactListTreeModel</tt>, to which to add the
+     * given <tt>metaGroup</tt>
+     * @param metaGroup the <tt>MetaContactGroup</tt> to add
+     * @param isRefreshView indicates if the view should be refresh after the
+     * group adding
+     * @return the created <tt>GroupNode</tt> corresponding to the group
+     */
+    private GroupNode addGroup( ContactListTreeModel treeModel,
+                                MetaContactGroup metaGroup,
+                                boolean isRefreshView)
+    {
         MetaContactGroup parentGroup = metaGroup.getParentMetaContactGroup();
 
         GroupNode parentGroupNode
@@ -558,7 +710,8 @@ public class TreeContactList
         if (parentGroupNode == null)
             addGroup(parentGroup);
         else
-            groupNode = parentGroupNode.sortedAddMetaContactGroup(metaGroup);
+            groupNode = parentGroupNode
+                .sortedAddMetaContactGroup(treeModel, metaGroup, isRefreshView);
 
         expandPath(new TreePath(treeModel.getRoot().getPath()));
 
@@ -580,16 +733,17 @@ public class TreeContactList
         if (parentGroupNode == null)
             return;
 
-        parentGroupNode.removeMetaContactGroup(metaGroup);
+        parentGroupNode.removeMetaContactGroup(treeModel, metaGroup);
 
         // If the parent group is empty remove it.
         if (parentGroupNode.getChildCount() < 1)
             treeModel.removeNodeFromParent(parentGroupNode);
     }
 
-    private void addAllMatching()
+    private void addAllMatching(ContactListTreeModel treeModel)
     {
-        addMatching(GuiActivator.getContactListService().getRoot());
+        addMatching(treeModel,
+            GuiActivator.getContactListService().getRoot());
     }
 
     /**
@@ -620,31 +774,41 @@ public class TreeContactList
     /**
      * Adds all contacts contained in the given <tt>MetaContactGroup</tt>
      * matching the current filter and not contained in the contact list.
+     * @param treeModel the tree model to add to
      * @param metaGroup the <tt>MetaContactGroup</tt>, which matching contacts
      * to add
      */
-    private void addMatching(MetaContactGroup metaGroup)
+    private void addMatching(   ContactListTreeModel treeModel,
+                                MetaContactGroup metaGroup)
     {
         Iterator<MetaContact> childContacts = metaGroup.getChildContacts();
 
-        while(childContacts.hasNext())
+        // Check also the isFiltering variable in order to be sure that we
+        // should continue with this filtering or it has been interrupted and
+        // a new one is scheduled.
+        while(childContacts.hasNext() && isFiltering)
         {
             MetaContact metaContact = childContacts.next();
+
             if(currentFilter.isMatching(metaContact))
-                addContact(metaContact);
+                addContact(treeModel, metaContact, false);
         }
 
         Iterator<MetaContactGroup> subgroups = metaGroup.getSubgroups();
-        while(subgroups.hasNext())
+
+        // Check also the isFiltering variable in order to be sure that we
+        // should continue with this filtering or it has been interrupted and
+        // a new one is scheduled.
+        while(subgroups.hasNext() && isFiltering)
         {
             MetaContactGroup subgroup = subgroups.next();
 
             if (subgroup.countChildContacts() == 0
                     && subgroup.countSubgroups() == 0
                     && currentFilter.isMatching(subgroup))
-                addGroup(subgroup);
+                addGroup(treeModel, subgroup, false);
             else
-                addMatching(subgroup);
+                addMatching(treeModel, subgroup);
         }
     }
 
@@ -670,21 +834,28 @@ public class TreeContactList
         {
             public void run()
             {
-                ContactNode contactNode = treeModel
-                    .findContactNodeByMetaContact(metaContact);
+                // We synchronize the matching and all MetaContactListener
+                // events on the tempTreeModel in order to prevent modification
+                // to be done on the actual treeModel while we're working with
+                // the temporary model.
+                synchronized (tempTreeModel)
+                {
+                    ContactNode contactNode = treeModel
+                        .findContactNodeByMetaContact(metaContact);
 
-                if (contactNode == null
-                    && currentFilter.isMatching(metaContact))
-                {
-                    addContact(metaContact);
-                }
-                else if (contactNode != null)
-                {
-                    if (!currentFilter.isMatching(metaContact))
-                        removeContact(metaContact,
-                            metaContact.getParentMetaContactGroup());
-                    else
-                        treeModel.nodeChanged(contactNode);
+                    if (contactNode == null
+                        && currentFilter.isMatching(metaContact))
+                    {
+                        addContact(metaContact);
+                    }
+                    else if (contactNode != null)
+                    {
+                        if (!currentFilter.isMatching(metaContact))
+                            removeContact(metaContact,
+                                metaContact.getParentMetaContactGroup());
+                        else
+                            treeModel.nodeChanged(contactNode);
+                    }
                 }
             }
         });
@@ -729,22 +900,77 @@ public class TreeContactList
     }
 
     /**
-     * Sets the current filter. This is a filter over the content of the contact
-     * list.
-     * @param filter the new filter to set
+     * Stops the current filtering if there's one active.
+     */
+    public void stopFiltering()
+    {
+        this.isFiltering = false;
+    }
+
+    /**
+     * Applies the given <tt>filter</tt>. This is a filter over the content of
+     * the contact list.
+     * @param filter the new filter to apply
      * @return <tt>true</tt> to indicate that the filter has found a match, 
      * <tt>false</tt> if no matches were found and the contact list is then
      * empty.
      */
     public boolean applyFilter(ContactListFilter filter)
     {
+        // We set the isFiltering to true to indicate that we're currently
+        // filtering.
+        isFiltering = true;
+
         if (currentFilter == null || !currentFilter.equals(filter))
             this.currentFilter = filter;
 
-        treeModel.clear();
-        addAllMatching();
+        tempTreeModel = new ContactListTreeModel(
+            GuiActivator.getContactListService().getRoot());
 
-        if (treeModel.getChildCount(treeModel.getRoot()) > 0)
+        // We synchronize the matching and all MetaContactListener events on
+        // the searchTreeModel in order to prevent modification to be done on
+        // the actual treeModel while we're working with the temporary model.
+        synchronized (tempTreeModel)
+        {
+            addAllMatching(tempTreeModel);
+
+            treeModel = tempTreeModel;
+        }
+
+        // If in the mean time someone has stopped filtering we return here.
+        if (!isFiltering)
+        {
+            return (treeModel.getChildCount(treeModel.getRoot()) > 0);
+        }
+
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                // Set the updated treeModel to the tree component.
+                setTreeModel(treeModel);
+
+                // Refresh the view.
+                treeModel.reload();
+
+                // Expand all rows. Should be done only after the new model
+                // is visible to have effect.
+                expandAllRows();
+
+                // We should explicitly re-validate the whole tree as we
+                // changed its model.
+                revalidate();
+                repaint();
+            }
+        });
+
+        // We set the isFiltering to false to indicate that we finished
+        // filtering.
+        isFiltering = false;
+
+        // As we update the tree in the swing thread, we should check the
+        // temporary model here in order to given correct results.
+        if (tempTreeModel.getChildCount(tempTreeModel.getRoot()) > 0)
             return true;
 
         return false;
@@ -765,10 +991,23 @@ public class TreeContactList
      */
     public void selectFirstContact()
     {
-        ContactNode contactNode = treeModel.findFirstContactNode();
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                // We synchronize the matching and all MetaContactListener
+                // events on the tempTreeModel in order to prevent modification
+                // to be done on the actual treeModel while we're working with
+                // the temporary model.
+                synchronized (tempTreeModel)
+                {
+                    ContactNode contactNode = treeModel.findFirstContactNode();
 
-        if (contactNode != null)
-            setSelectionPath(new TreePath(contactNode.getPath()));
+                    if (contactNode != null)
+                        setSelectionPath(new TreePath(contactNode.getPath()));
+                }
+            }
+        });
     }
 
     /**
@@ -828,14 +1067,39 @@ public class TreeContactList
 
     /**
      * Expands the given group node.
+     * @param treeModel the treeModel in which we expand the group
      * @param groupNode the group node to expand
      */
-    private void expandGroup(GroupNode groupNode)
+    private void expandGroup(   ContactListTreeModel treeModel,
+                                GroupNode groupNode)
     {
         TreePath path = new TreePath(treeModel.getPathToRoot(groupNode));
 
         if (!isExpanded(path))
             expandPath(path);
+    }
+
+    /**
+     * Expands all rows if the current filter is the <tt>SearchFilter</tt> and
+     * expands only "not collapsed" groups for any other filter.
+     */
+    private void expandAllRows()
+    {
+        for (int i = 0; i < getRowCount(); i++)
+        {
+            TreePath treePath = getPathForRow(i);
+
+            GroupNode groupNode = null;
+            if (!(treePath.getLastPathComponent() instanceof GroupNode))
+                continue;
+            else
+                groupNode = (GroupNode) treePath.getLastPathComponent();
+
+            if (groupNode != null
+                && (currentFilter.equals(searchFilter)
+                    || !groupNode.isCollapsed()))
+                expandRow(i);
+        }
     }
 
     /**
@@ -1157,7 +1421,7 @@ public class TreeContactList
                     GroupNode groupNode
                         = (GroupNode) selectionPath.getLastPathComponent();
 
-                    expandGroup(groupNode);
+                    expandGroup(treeModel, groupNode);
                 }
             }});
 
@@ -1194,5 +1458,17 @@ public class TreeContactList
             GuiActivator.getUIService().getChatWindowManager()
                 .startChat(contactNode.getMetaContact());
         }
+    }
+
+    /**
+     * Sets the given <tt>treeModel</tt> as a model of this tree. Specifies
+     * also some related properties.
+     * @param treeModel the <tt>TreeModel</tt> to set.
+     */
+    private void setTreeModel(TreeModel treeModel)
+    {
+        setModel(treeModel);
+        setRowHeight(0);
+        setToggleClickCount(1);
     }
 }

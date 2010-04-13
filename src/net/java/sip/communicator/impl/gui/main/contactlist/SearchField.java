@@ -55,7 +55,7 @@ public class SearchField
         this.setDragEnabled(true);
         this.getDocument().addDocumentListener(this);
 
-        InputMap imap = getInputMap();
+        InputMap imap = getInputMap(JComponent.WHEN_FOCUSED);
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escape");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enter");
         ActionMap amap = getActionMap();
@@ -64,10 +64,10 @@ public class SearchField
             public void actionPerformed(ActionEvent e)
             {
                 setText("");
-                // Give the focus to the next component in the focus cycle.
-                KeyboardFocusManager.getCurrentKeyboardFocusManager()
-                    .focusNextComponent();
-            }});
+
+                SearchField.this.mainFrame.requestFocusInCenterPanel();
+            }
+        });
         amap.put("enter", new AbstractAction()
         {
             public void actionPerformed(ActionEvent e)
@@ -116,6 +116,8 @@ public class SearchField
      */
     private void scheduleUpdate()
     {
+        GuiActivator.getContactList().stopFiltering();
+
         if (searchThread == null)
         {
             searchThread = new SearchThread();
@@ -136,27 +138,33 @@ public class SearchField
     {
         public void run()
         {
-            synchronized (this)
+            while (true)
             {
-                while (true)
+                String filterString = getText();
+
+                if (filterString != null && filterString.length() > 0)
                 {
-                    String filterString = getText();
+                    TreeContactList.searchFilter
+                        .setFilterString(filterString);
+                }
 
-                    if (filterString != null && filterString.length() > 0)
-                    {
-                        TreeContactList.searchFilter
-                            .setFilterString(filterString);
+                updateContactListView(filterString);
 
-                        SwingUtilities.invokeLater(new UpdateNonNullFilter());
-                    }
-                    else
-                    {
-                        SwingUtilities.invokeLater(new UpdateNullFilter());
-                    }
-
+                synchronized (this)
+                {
                     try
                     {
-                        this.wait();
+                        if (filterString == getText() //both are null or equal
+                            || (filterString != null
+                                && filterString.equals(getText())))
+                        {
+                            //filter still has the same value as the one
+                            //we did a search for, so we can wait for a
+                            //while
+                            this.wait();
+
+                            filterString = getText();
+                        }
                     }
                     catch (InterruptedException e)
                     {
@@ -168,11 +176,15 @@ public class SearchField
     }
 
     /**
-     * Updates the UI to fit the search filter.
+     * Updates the current contact list view to match the given
+     * <tt>filterString</tt>. If the <tt>filterString</tt> is null or
+     * empty we reset the presence filter.
+     * @param filterString the current filter string entered in
+     * this search field
      */
-    private class UpdateNonNullFilter implements Runnable 
+    public void updateContactListView(String filterString)
     {
-        public void run()
+        if (filterString != null && filterString.length() > 0)
         {
             TreeContactList contactList = GuiActivator.getContactList();
 
@@ -183,34 +195,43 @@ public class SearchField
             // view.
             if (!hasMatching)
             {
-                mainFrame.setUnknownContactView(true);
+                enableUnknownContactView(true);
             }
             // If the unknown contact view was previously enabled, but we
             // have found matching contacts we enter the normal view.
             else
             {
                 if (!lastHasMatching)
-                    mainFrame.setUnknownContactView(false);
+                    enableUnknownContactView(false);
 
                 contactList.selectFirstContact();
             }
 
             lastHasMatching = hasMatching;
         }
-    }
-
-    /**
-     * Updates the UI to fit a null filter.
-     */
-    private class UpdateNullFilter implements Runnable
-    {
-        public void run()
+        else
         {
             TreeContactList contactList = GuiActivator.getContactList();
 
             contactList.applyFilter(TreeContactList.presenceFilter);
 
-            mainFrame.setUnknownContactView(false);
+            enableUnknownContactView(false);
         }
+    }
+
+    /**
+     * Sets the unknown contact view to the main contact list window.
+     * @param isEnabled indicates if the unknown contact view should be enabled
+     * or disabled.
+     */
+    public void enableUnknownContactView(final boolean isEnabled)
+    {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                mainFrame.enableUnknownContactView(isEnabled);
+            }
+        });
     }
 }

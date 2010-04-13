@@ -102,23 +102,6 @@ public class ContactListTreeModel
     }
 
     /**
-     * Clears this model. Removes all children in deep.
-     */
-    public void clear()
-    {
-        int[] removedIndexs = new int[rootGroupNode.getChildCount()];
-        Object[] removedChildren = new Object[rootGroupNode.getChildCount()];
-        for (int i = 0; i < rootGroupNode.getChildCount(); i ++)
-        {
-            removedIndexs[i] = i;
-            removedChildren[i] = rootGroupNode.getChildAt(i);
-        }
-
-        rootGroupNode.removeAllChildren();
-        nodesWereRemoved(rootGroupNode, removedIndexs, removedChildren);
-    }
-
-    /**
      * Returns the first found child <tt>ContactNode</tt>.
      * @param parentNode the parent <tt>GroupNode</tt> to search in
      * @return the first found child <tt>ContactNode</tt>.
