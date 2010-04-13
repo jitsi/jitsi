@@ -20,7 +20,8 @@ import javax.swing.*;
 public class SIPCommTextField
     extends JTextField
     implements  MouseListener,
-                FocusListener
+                FocusListener,
+                KeyListener
 {
     private final String defaultText;
 
@@ -40,6 +41,8 @@ public class SIPCommTextField
 
         this.addMouseListener(this);
         this.addFocusListener(this);
+
+        this.addKeyListener(this);
     }
 
     /**
@@ -131,4 +134,24 @@ public class SIPCommTextField
             this.setForeground(Color.BLACK);
         }
     }
+
+    /**
+     * Clears the default text when a key pressed event is received.
+     * @param e the <tt>KeyEvent</tt> that notified us
+     */
+    public void keyPressed(KeyEvent e)
+    {
+        clearDefaultText();
+    }
+
+    /**
+     * Clears the default text when a key typed event is received.
+     * @param e the <tt>KeyEvent</tt> that notified us
+     */
+    public void keyTyped(KeyEvent e)
+    {
+        clearDefaultText();
+    }
+
+    public void keyReleased(KeyEvent e){}
 }

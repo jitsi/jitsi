@@ -53,40 +53,93 @@ public class MainFrame
     implements  ExportedWindow,
                 PluginComponentListener
 {
+    /**
+     * The logger.
+     */
     private final Logger logger = Logger.getLogger(MainFrame.class);
 
+    /**
+     * The main container.
+     */
     private final TransparentPanel mainPanel
         = new TransparentPanel(new BorderLayout(0, 0));
 
+    /**
+     * The status bar panel.
+     */
     private final TransparentPanel statusBarPanel
         = new TransparentPanel(new BorderLayout());
 
+    /**
+     * The center panel, containing the contact list.
+     */
     private final TransparentPanel centerPanel
         = new TransparentPanel(new BorderLayout(0, 0));
 
+    /**
+     * The main menu.
+     */
     private MainMenu menu;
 
+    /**
+     * The search field shown above the contact list.
+     */
     private final SearchField searchField;
 
+    /**
+     * A mapping of <tt>ProtocolProviderService</tt>s and their indexes.
+     */
     private final HashMap<ProtocolProviderService, Integer> protocolProviders
         = new LinkedHashMap<ProtocolProviderService, Integer>();
 
+    /**
+     * The panel containing the accounts status menu.
+     */
     private AccountStatusPanel accountStatusPanel;
 
+    /**
+     * The panel replacing the contact list, shown when no matching is found
+     * for the search filter.
+     */
     private UnknownContactPanel unknownContactPanel;
 
+    /**
+     * A mapping of <tt>ProtocolProviderService</tt>s and corresponding
+     * <tt>ContactEventHandler</tt>s.
+     */
     private final Map<ProtocolProviderService, ContactEventHandler>
         providerContactHandlers =
             new Hashtable<ProtocolProviderService, ContactEventHandler>();
 
+    /**
+     * A mapping of plug-in components and their corresponding native components.
+     */
     private final Map<PluginComponent, Component> nativePluginsTable =
         new Hashtable<PluginComponent, Component>();
 
+    /**
+     * The north plug-in panel.
+     */
     private final JPanel pluginPanelNorth = new TransparentPanel();
+
+    /**
+     * The south plug-in panel.
+     */
     private final JPanel pluginPanelSouth = new TransparentPanel();
+
+    /**
+     * The west plug-in panel.
+     */
     private final JPanel pluginPanelWest = new TransparentPanel();
+
+    /**
+     * The east plug-in panel.
+     */
     private final JPanel pluginPanelEast = new TransparentPanel();
 
+    /**
+     * The container containing the contact list.
+     */
     private ContactListPane contactListPanel;
 
     /**
@@ -131,8 +184,9 @@ public class MainFrame
                 GuiActivator.getResources()
                     .getColor("service.gui.MAIN_WINDOW_BACKGROUND")));
 
-        KeyboardFocusManager.getCurrentKeyboardFocusManager()
-            .addKeyEventDispatcher(new MainKeyDispatcher());
+        KeyboardFocusManager keyManager
+            = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        keyManager.addKeyEventDispatcher(new MainKeyDispatcher(keyManager));
 
         this.init();
 
@@ -1418,12 +1472,31 @@ public class MainFrame
      */
     private class MainKeyDispatcher implements KeyEventDispatcher
     {
+        private KeyboardFocusManager keyManager;
+
+        /**
+         * Creates an instance of <tt>MainKeyDispatcher</tt>.
+         * @param keyManager the parent <tt>KeyboardFocusManager</tt>
+         */
+        public MainKeyDispatcher(KeyboardFocusManager keyManager)
+        {
+            this.keyManager = keyManager;
+        }
+
+        /**
+         * Dispatches the given <tt>KeyEvent</tt>.
+         * @param e the <tt>KeyEvent</tt> to dispatch
+         * @return <tt>true</tt> if the KeyboardFocusManager should take no
+         * further action with regard to the KeyEvent; <tt>false</tt>
+         * otherwise
+         */
         public boolean dispatchKeyEvent(KeyEvent e)
         {
             // If this window is not the focus window  or if the event is not
             // of type PRESSED we have nothing more to do here.
             if (!isFocused()
-                || e.getID() != KeyEvent.KEY_PRESSED)
+                || (e.getID() != KeyEvent.KEY_PRESSED
+                    && e.getID() != KeyEvent.KEY_TYPED))
                 return false;
 
             TreeContactList contactList
@@ -1472,24 +1545,19 @@ public class MainFrame
                 return false;
             }
 
-            if (!searchField.isFocusOwner())
+            if (!searchField.isFocusOwner()
+                && keyManager.getFocusOwner()
+                    .equals(keyManager.getPermanentFocusOwner()))
             {
-                String searchText = "";
-                if (searchField.getText() != null)
-                    searchText += searchField.getText() + e.getKeyChar();
-                else
-                    searchText += e.getKeyChar();
+                // Request the focus in the search field if a letter is typed.
+                searchField.requestFocusInWindow();
 
-                e.consume();
-
-                searchField.setText(searchText);
-
-                searchField.requestFocus();
+                // We re-dispatch the event to search field.
+                keyManager.redispatchEvent(searchField, e);
 
                 // We don't want to dispatch further this event.
                 return true;
             }
-
             return false;
         }
     }
