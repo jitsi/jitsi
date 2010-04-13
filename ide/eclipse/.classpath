@@ -53,7 +53,7 @@
     <classpathentry kind="lib" path="lib/os-specific/linux/jdic_stub.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/mac/installer-exclude/jmf.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/mac/installer-exclude/dock.jar"/>
-    <classpathentry kind="lib" path="lib/os-specific/mac/AppleJavaExtensions.jar"/>
+    <classpathentry kind="lib" path="lib/os-specific/mac/OrangeExtensions.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/mac/growl4j.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/mac/jdic_stub.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/solaris/installer-exclude/jmf.jar"/>
