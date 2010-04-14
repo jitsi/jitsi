@@ -117,7 +117,7 @@ public class SIPCommToggleButton
         {
             // If there's no icon, we make grey the backgroundImage
             // when disabled.
-            if (this.iconImage == null && !isEnabled())
+            if (!isEnabled())
             {
                 Image disabledImage = new ImageIcon(LightGrayFilter
                         .createDisabledImage(bgImage)).getImage();

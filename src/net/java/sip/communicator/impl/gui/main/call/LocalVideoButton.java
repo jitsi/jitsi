@@ -10,11 +10,16 @@ import java.awt.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
+ * The local video button is the button used to start/stop video in a
+ * conversation.
+ *
  * @author Lubomir Marinov
  */
 public class LocalVideoButton
@@ -42,6 +47,14 @@ public class LocalVideoButton
         setModel(new LocalVideoButtonModel(call));
         setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.LOCAL_VIDEO_BUTTON_TOOL_TIP"));
+
+        MediaDevice videoDevice
+            = GuiActivator.getMediaService().getDefaultDevice(MediaType.VIDEO);
+        if (videoDevice == null
+            || videoDevice.getDirection().equals(MediaDirection.RECVONLY))
+        {
+            this.setEnabled(false);
+        }
     }
 
     private static class LocalVideoButtonModel

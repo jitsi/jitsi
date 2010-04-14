@@ -19,15 +19,16 @@ import javax.swing.*;
  *
  * @author Yana Stamcheva
  */
-public class LightGrayFilter extends GrayFilter {
-
+public class LightGrayFilter extends GrayFilter
+{
     /**
      * Creates an instance of a LightGrayFilter.
      * @param b  a boolean -- true if the pixels should be brightened
      * @param p  an int in the range 0..100 that determines the percentage
      *           of gray, where 100 is the darkest gray, and 0 is the lightest
      */
-    public LightGrayFilter(boolean b, int p) {
+    public LightGrayFilter(boolean b, int p)
+    {
         super(b, p);
     }
 
@@ -36,8 +37,9 @@ public class LightGrayFilter extends GrayFilter {
      * @param i The source image.
      * @return A disabled image based on the source image.
      */
-    public static Image createDisabledImage(Image i) {
-        LightGrayFilter filter = new LightGrayFilter(true, 30);
+    public static Image createDisabledImage(Image i)
+    {
+        LightGrayFilter filter = new LightGrayFilter(true, 50);
         ImageProducer prod = new FilteredImageSource(i.getSource(), filter);
         Image grayImage = Toolkit.getDefaultToolkit().createImage(prod);
 

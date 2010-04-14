@@ -1530,8 +1530,7 @@ public class MainFrame
             TreePath selectionPath = contactList.getSelectionPath();
 
             // No matter who is the focus owner.
-            if (
-                e.getKeyChar() == KeyEvent.CHAR_UNDEFINED
+            if (e.getKeyChar() == KeyEvent.CHAR_UNDEFINED
                 || e.getKeyCode() == KeyEvent.VK_ENTER
                 || e.getKeyCode() == KeyEvent.VK_DELETE
                 || e.getKeyCode() == KeyEvent.VK_BACK_SPACE
