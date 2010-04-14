@@ -1583,8 +1583,11 @@ public class CallPeerMediaHandler
                 OperationFailedException.INTERNAL_ERROR, exc, logger);
         }
 
-      //make sure that next time we don't try to bind on occupied ports
+        //make sure that next time we don't try to bind on occupied ports
         nextMediaPortToTry = rtcpSocket.getLocalPort() + 1;
+
+        if (nextMediaPortToTry > maxMediaPort)
+            nextMediaPortToTry = minMediaPort;
 
         //create the RTCP socket
         DefaultStreamConnector connector = new DefaultStreamConnector(
