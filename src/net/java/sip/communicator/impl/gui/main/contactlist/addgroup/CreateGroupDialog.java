@@ -149,7 +149,16 @@ public class CreateGroupDialog
 
         if (name.equals("create"))
         {
-            new CreateGroup(clist, groupPanel.getGroupName()).start();
+            String groupName = groupPanel.getGroupName().trim();
+            if (groupName.length() == 0)
+            {
+                     groupPanel.showErrorMessage(
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.ADD_GROUP_EMPTY_NAME",
+                                new String[]{groupName}));
+            }
+            else
+                new CreateGroup(clist, groupName).start();
         }
         else if(name.equals("cancel"))
         {
