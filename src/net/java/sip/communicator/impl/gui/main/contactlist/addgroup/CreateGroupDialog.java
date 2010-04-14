@@ -172,7 +172,8 @@ public class CreateGroupDialog
     /**
      * Creates a new meta contact group in a separate thread.
      */
-    private class CreateGroup extends Thread {
+    private class CreateGroup extends Thread
+    {
         MetaContactListService mcl;
         String groupName;
 
@@ -182,67 +183,54 @@ public class CreateGroupDialog
             this.groupName = groupName;
         }
 
+        @Override
         public void run()
         {
-            new Thread()
+            try
             {
-                public void run()
+                newMetaGroup = mcl.createMetaContactGroup(
+                    mcl.getRoot(), groupName);
+
+                dispose();
+            }
+            catch (MetaContactListException ex)
+            {
+                logger.error(ex);
+                int errorCode = ex.getErrorCode();
+
+                if (errorCode
+                        == MetaContactListException
+                            .CODE_GROUP_ALREADY_EXISTS_ERROR)
                 {
-                    try
-                    {
-                        newMetaGroup = mcl.createMetaContactGroup(
-                            mcl.getRoot(), groupName);
-
-                        dispose();
-                    }
-                    catch (MetaContactListException ex)
-                    {
-                        logger.error(ex);
-                        int errorCode = ex.getErrorCode();
-
-                        if (errorCode
-                                == MetaContactListException
-                                    .CODE_GROUP_ALREADY_EXISTS_ERROR)
-                        {
-                            groupPanel.showErrorMessage(
-                                GuiActivator.getResources().getI18NString(
-                                        "service.gui.ADD_GROUP_EXIST_ERROR",
-                                        new String[]{groupName}));
-
-                            return;
-                        }
-                        else if (errorCode
-                            == MetaContactListException.CODE_LOCAL_IO_ERROR)
-                        {
-                            groupPanel.showErrorMessage(
-                                GuiActivator.getResources().getI18NString(
-                                        "service.gui.ADD_GROUP_LOCAL_ERROR",
-                                        new String[]{groupName}));
-
-                            return;
-                        }
-                        else if (errorCode
-                                == MetaContactListException.CODE_NETWORK_ERROR)
-                        {
-                            groupPanel.showErrorMessage(
-                                GuiActivator.getResources().getI18NString(
-                                        "service.gui.ADD_GROUP_NET_ERROR",
-                                        new String[]{groupName}));
-
-                            return;
-                        }
-                        else
-                        {
-                            groupPanel.showErrorMessage(
-                                GuiActivator.getResources().getI18NString(
-                                        "service.gui.ADD_GROUP_ERROR",
-                                        new String[]{groupName}));
-
-                            return;
-                        }
-                    }
+                    groupPanel.showErrorMessage(
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.ADD_GROUP_EXIST_ERROR",
+                                new String[]{groupName}));
                 }
-            }.start();
+                else if (errorCode
+                    == MetaContactListException.CODE_LOCAL_IO_ERROR)
+                {
+                    groupPanel.showErrorMessage(
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.ADD_GROUP_LOCAL_ERROR",
+                                new String[]{groupName}));
+                }
+                else if (errorCode
+                        == MetaContactListException.CODE_NETWORK_ERROR)
+                {
+                    groupPanel.showErrorMessage(
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.ADD_GROUP_NET_ERROR",
+                                new String[]{groupName}));
+                }
+                else
+                {
+                    groupPanel.showErrorMessage(
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.ADD_GROUP_ERROR",
+                                new String[]{groupName}));
+                }
+            }
         }
     }
 
