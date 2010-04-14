@@ -1586,7 +1586,7 @@ public class CallPeerMediaHandler
         //make sure that next time we don't try to bind on occupied ports
         nextMediaPortToTry = rtcpSocket.getLocalPort() + 1;
 
-        if (nextMediaPortToTry > maxMediaPort)
+        if (nextMediaPortToTry > maxMediaPort -1)// take RTCP into account.
             nextMediaPortToTry = minMediaPort;
 
         //create the RTCP socket
