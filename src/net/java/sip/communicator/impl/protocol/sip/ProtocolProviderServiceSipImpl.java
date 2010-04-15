@@ -422,6 +422,16 @@ public class ProtocolProviderServiceSipImpl
             headerFactory = new HeaderFactoryImpl();
             addressFactory = new AddressFactoryImpl();
 
+            //initialize our display name
+            ourDisplayName = accountID.getAccountPropertyString(
+                                    ProtocolProviderFactory.DISPLAY_NAME);
+
+            if(ourDisplayName == null
+               || ourDisplayName.trim().length() == 0)
+            {
+                ourDisplayName = accountID.getUserID();
+            }
+
             //create a connection with the registrar
             initRegistrarConnection(accountID);
 
@@ -489,16 +499,6 @@ public class ProtocolProviderServiceSipImpl
 
             //initialize our OPTIONS handler
             new ClientCapabilities(this);
-
-            //initialize our display name
-            ourDisplayName = accountID.getAccountPropertyString(
-                                    ProtocolProviderFactory.DISPLAY_NAME);
-
-            if(ourDisplayName == null
-               || ourDisplayName.trim().length() == 0)
-            {
-                ourDisplayName = accountID.getUserID();
-            }
 
             //init the security manager
             this.sipSecurityManager = new SipSecurityManager(accountID);

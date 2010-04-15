@@ -1044,13 +1044,14 @@ public class SipRegistrarConnection
         if(sipUriHost == null)
             sipUriHost = getRegistrarAddress().getHostName();
 
-        SipURI ourSipURI = null;
+        SipURI ourSipURI;
         try
         {
             ourSipURI = sipProvider.getAddressFactory().createSipURI(
                             ourUserID, sipUriHost);
             ourSipAddressOfRecord = sipProvider.getAddressFactory()
                 .createAddress(sipProvider.getOurDisplayName(), ourSipURI);
+            ourSipAddressOfRecord.setDisplayName(sipProvider.getOurDisplayName());
         }
         catch (ParseException ex)
         {
