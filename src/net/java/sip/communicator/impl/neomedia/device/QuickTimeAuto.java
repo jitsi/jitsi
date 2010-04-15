@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.neomedia.device;
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.quicktime.*;
 import net.java.sip.communicator.util.*;
 
@@ -57,6 +58,7 @@ public class QuickTimeAuto
                                     + inputDevice.uniqueID()),
                         new Format[]
                                 {
+                                    //new AVFrameFormat(),
                                     new RGBFormat(),
                                     //new YUVFormat(YUVFormat.YUV_420)
                                 });

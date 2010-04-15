@@ -28,6 +28,29 @@ public class CVPixelBuffer
     }
 
     /**
+     * Gets the number of bytes which represent the pixels of the associated
+     * CoreVideo <tt>CVPixelBufferRef</tt>.
+     *
+     * @return the number of bytes which represent the pixels of the associated
+     * CoreVideo <tt>CVPixelBufferRef</tt>
+     */
+    public int getByteCount()
+    {
+        return getByteCount(getPtr());
+    }
+
+    /**
+     * Gets the number of bytes which represent the pixels of a specific
+     * CoreVideo <tt>CVPixelBufferRef</tt>.
+     *
+     * @param ptr the <tt>CVPixelBufferRef</tt> to get the number of bytes which
+     * represent its pixels of
+     * @return the number of bytes which represent the pixels of the specified
+     * CoreVideo <tt>CVPixelBufferRef</tt>
+     */
+    private static native int getByteCount(long ptr);
+
+    /**
      * Gets a <tt>byte</tt> array which represents the pixels of the associated
      * CoreVideo <tt>CVPixelBufferRef</tt>.
      *
@@ -48,6 +71,32 @@ public class CVPixelBuffer
      * specified CoreVideo <tt>CVPixelBufferRef</tt>
      */
     private static native byte[] getBytes(long ptr);
+
+    /**
+     * Gets the bytes which represent the pixels of the associated
+     * <tt>CVPixelBufferRef</tt> into a specific native byte buffer with a
+     * specific capacity.
+     *
+     * @param buf the native byte buffer to return the bytes into
+     * @param bufLength the capacity in bytes of <tt>buf</tt>
+     * @return the number of bytes written into <tt>buf</tt>
+     */
+    public int getBytes(long buf, int bufLength)
+    {
+        return getBytes(getPtr(), buf, bufLength);
+    }
+
+    /**
+     * Gets the bytes which represent the pixels of a specific
+     * <tt>CVPixelBufferRef</tt> into a specific native byte buffer with a
+     * specific capacity.
+     *
+     * @param ptr the <tt>CVPixelBufferRef</tt> to get the bytes of
+     * @param buf the native byte buffer to return the bytes into
+     * @param bufLength the capacity in bytes of <tt>buf</tt>
+     * @return the number of bytes written into <tt>buf</tt>
+     */
+    private static native int getBytes(long ptr, long buf, int bufLength);
 
     /**
      * Gets the height in pixels of this <tt>CVPixelBuffer</tt>.
@@ -90,4 +139,8 @@ public class CVPixelBuffer
      * <tt>CVPixelBufferRef</tt>
      */
     private static native int getWidth(long ptr);
+
+    public static native void memcpy(
+            byte[] dst, int dstOffset, int dstLength,
+            long src);
 }

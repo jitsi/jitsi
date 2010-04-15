@@ -6,16 +6,19 @@
  */
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.quicktime;
 
-import java.awt.*;
+import java.awt.Dimension; // disambiguation
 import java.io.*;
+import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
+import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.quicktime.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements a <tt>PushBufferStream</tt> using QuickTime/QTKit.
@@ -27,6 +30,13 @@ public class QuickTimeStream
 {
 
     /**
+     * The <tt>Logger</tt> used by the <tt>QuickTimeStream</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(QuickTimeStream.class);
+
+    /**
      * The indicator which determines whether {@link #captureOutput}
      * automatically drops late frames. If <tt>false</tt>, we have to drop them
      * ourselves because QuickTime/QTKit will buffer them all and the video will
@@ -35,15 +45,35 @@ public class QuickTimeStream
     private final boolean automaticallyDropsLateVideoFrames;
 
     /**
+     * The pool of <tt>ByteBuffer</tt>s this instances is using to transfer the
+     * media data captured by {@link #captureOutput} out of this instance
+     * through the <tt>Buffer</tt>s specified in its {@link #process(Buffer)}.
+     */
+    private final List<ByteBuffer> buffers = new ArrayList<ByteBuffer>();
+
+    /**
      * The <tt>QTCaptureOutput</tt> represented by this <tt>SourceStream</tt>.
      */
     final QTCaptureDecompressedVideoOutput captureOutput
         = new QTCaptureDecompressedVideoOutput();
 
     /**
+     * The <tt>VideoFormat</tt> which has been successfully set on
+     * {@link #captureOutput}.
+     */
+    private VideoFormat captureOutputFormat;
+
+    /**
+     * The indicator which determines whether this <tt>QuickTimeStream</tt> has
+     * been closed. Introduced to determine when <tt>ByteBuffer</tt>s are to be
+     * disposed of and no longer be pooled in {@link #buffers}.
+     */
+    private boolean closed = false;
+
+    /**
      * The captured media data to be returned in {@link #read(Buffer)}.
      */
-    private byte[] data;
+    private ByteBuffer data;
 
     /**
      * The <tt>Format</tt> of {@link #data} if known. If possible, determined by
@@ -75,7 +105,7 @@ public class QuickTimeStream
      * <tt>QuickTimeStream</tt> to provide the latest available frame and not
      * wait for QuickTime/QTKit to capture a new one.
      */
-    private byte[] nextData;
+    private ByteBuffer nextData;
 
     /**
      * The <tt>Format</tt> of {@link #nextData} if known.
@@ -172,18 +202,45 @@ public class QuickTimeStream
         {
             if (!automaticallyDropsLateVideoFrames && (data != null))
             {
-                nextData = pixelBuffer.getBytes();
-                nextDataTimeStamp = System.nanoTime();
-                if (nextDataFormat == null)
-                    nextDataFormat = getVideoFrameFormat(pixelBuffer);
+                if (nextData != null)
+                {
+                    returnFreeBuffer(nextData);
+                    nextData = null;
+                }
+
+                nextData = getFreeBuffer(pixelBuffer.getByteCount());
+                if (nextData != null)
+                {
+                    nextData.setLength(
+                            pixelBuffer.getBytes(
+                                    nextData.ptr,
+                                    nextData.capacity));
+                    nextDataTimeStamp = System.nanoTime();
+                    if (nextDataFormat == null)
+                        nextDataFormat = getVideoFrameFormat(pixelBuffer);
+                }
                 return;
             }
 
-            data = pixelBuffer.getBytes();
-            dataTimeStamp = System.nanoTime();
-            if (dataFormat == null)
-                dataFormat = getVideoFrameFormat(pixelBuffer);
-            nextData = null;
+            if (data != null)
+            {
+                returnFreeBuffer(data);
+                data = null;
+            }
+
+            data = getFreeBuffer(pixelBuffer.getByteCount());
+            if (data != null)
+            {
+                data.setLength(pixelBuffer.getBytes(data.ptr, data.capacity));
+                dataTimeStamp = System.nanoTime();
+                if (dataFormat == null)
+                    dataFormat = getVideoFrameFormat(pixelBuffer);
+            }
+            if (nextData != null)
+            {
+                returnFreeBuffer(nextData);
+                nextData = null;
+            }
 
             if (automaticallyDropsLateVideoFrames)
                 transferData = (data != null);
@@ -216,6 +273,32 @@ public class QuickTimeStream
         super.close();
 
         captureOutput.setDelegate(null);
+
+        synchronized (buffers)
+        {
+            closed = true;
+
+            Iterator<ByteBuffer> bufferIter = buffers.iterator();
+            boolean loggerIsTraceEnabled = logger.isTraceEnabled();
+            int leakedCount = 0;
+
+            while (bufferIter.hasNext())
+            {
+                ByteBuffer buffer = bufferIter.next();
+
+                if (buffer.isFree())
+                {
+                    bufferIter.remove();
+                    FFmpeg.av_free(buffer.ptr);
+                } else if (loggerIsTraceEnabled)
+                    leakedCount++;
+            }
+            if (loggerIsTraceEnabled)
+            {
+                logger.trace(
+                        "Leaking " + leakedCount + " ByteBuffer instances.");
+            }
+        }
     }
 
     /**
@@ -250,7 +333,9 @@ public class QuickTimeStream
                             .intersects(
                                 new VideoFormat(
                                         null,
-                                        new Dimension(640, 480),
+                                        new Dimension(
+                                                DataSource.DEFAULT_WIDTH,
+                                                DataSource.DEFAULT_HEIGHT),
                                         Format.NOT_SPECIFIED,
                                         Format.byteArray,
                                         Format.NOT_SPECIFIED));
@@ -304,7 +389,19 @@ public class QuickTimeStream
                             2, 3, 4);
             case CVPixelFormatType.kCVPixelFormatType_420YpCbCr8Planar:
                 if ((width == 0) && (height == 0))
-                    return new YUVFormat(YUVFormat.YUV_420);
+                {
+                    if (captureOutputFormat instanceof AVFrameFormat)
+                        return new AVFrameFormat();
+                    else
+                        return new YUVFormat(YUVFormat.YUV_420);
+                }
+                else if (captureOutputFormat instanceof AVFrameFormat)
+                {
+                    return
+                        new AVFrameFormat(
+                                new Dimension(width, height),
+                                Format.NOT_SPECIFIED);
+                }
                 else
                 {
                     int strideY = width;
@@ -326,6 +423,48 @@ public class QuickTimeStream
             }
         }
         return null;
+    }
+
+    /**
+     * Gets a <tt>ByteBuffer</tt> out of the pool of free <tt>ByteBuffer</tt>s
+     * (i.e. <tt>ByteBuffer</tt>s ready for writing captured media data into
+     * them) which is capable to receiving at least <tt>capacity</tt> number of
+     * bytes.
+     *
+     * @param capacity the minimal number of bytes that the returned
+     * <tt>ByteBuffer</tt> is to be capable of receiving
+     * @return a <tt>ByteBuffer</tt> which is ready for writing captured media
+     * data into and which is capable of receiving at least <tt>capacity</tt>
+     * number of bytes
+     */
+    private ByteBuffer getFreeBuffer(int capacity)
+    {
+        synchronized (buffers)
+        {
+            if (closed)
+                return null;
+
+            int bufferCount = buffers.size();
+            ByteBuffer freeBuffer = null;
+
+            for (int bufferIndex = 0; bufferIndex < bufferCount; bufferIndex++)
+            {
+                ByteBuffer buffer = buffers.get(bufferIndex);
+
+                if (buffer.isFree() && (buffer.capacity >= capacity))
+                {
+                    freeBuffer = buffer;
+                    break;
+                }
+            }
+            if (freeBuffer == null)
+            {
+                freeBuffer = new ByteBuffer(capacity);
+                buffers.add(freeBuffer);
+            }
+            freeBuffer.setFree(false);
+            return freeBuffer;
+        }
     }
 
     /**
@@ -378,20 +517,55 @@ public class QuickTimeStream
                 buffer.setLength(0);
             else
             {
-                buffer.setData(data);
-                buffer
-                    .setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
+                Object bufferData = buffer.getData();
+                byte[] bufferByteData = null;
+                int dataLength = data.getLength();
+
+                if (bufferData instanceof byte[])
+                {
+                    bufferByteData = (byte[]) bufferData;
+                    if (bufferByteData.length < dataLength)
+                        bufferByteData = null;
+                }
+                if (bufferByteData == null)
+                {
+                    bufferByteData = new byte[dataLength];
+                    buffer.setData(bufferByteData);
+                }
+                CVPixelBuffer.memcpy(bufferByteData, 0, dataLength, data.ptr);
+
+                buffer.setFlags(
+                        Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
                 if (dataFormat != null)
                     buffer.setFormat(dataFormat);
-                buffer.setLength(data.length);
+                buffer.setLength(dataLength);
                 buffer.setOffset(0);
                 buffer.setTimeStamp(dataTimeStamp);
 
+                returnFreeBuffer(data);
                 data = null;
 
                 if (!automaticallyDropsLateVideoFrames)
                     dataSyncRoot.notifyAll();
             }
+        }
+    }
+
+    /**
+     * Returns a specific <tt>ByteBuffer</tt> into the pool of free
+     * <tt>ByteBuffer</tt>s (i.e. <tt>ByteBuffer</tt>s ready for writing
+     * captured media data into them).
+     *
+     * @param buffer the <tt>ByteBuffer</tt> to be returned into the pool of
+     * free <tt>ByteBuffer</tt>s
+     */
+    private void returnFreeBuffer(ByteBuffer buffer)
+    {
+        synchronized (buffers)
+        {
+            buffer.setFree(true);
+            if (closed && buffers.remove(buffer))
+                FFmpeg.av_free(buffer.ptr);
         }
     }
 
@@ -415,6 +589,12 @@ public class QuickTimeStream
 
                 synchronized (dataSyncRoot)
                 {
+                    if (data != null)
+                    {
+                        returnFreeBuffer(data);
+                        data = null;
+                    }
+
                     data = nextData;
                     dataTimeStamp = nextDataTimeStamp;
                     if (dataFormat == null)
@@ -457,7 +637,7 @@ public class QuickTimeStream
     }
 
     /**
-     * Set the <tt>Format</tt> of the media data made available by this
+     * Sets the <tt>Format</tt> of the media data made available by this
      * <tt>PushBufferStream</tt> to {@link #captureOutput}.
      *
      * @param format the <tt>Format</tt> of the media data made available by
@@ -502,7 +682,25 @@ public class QuickTimeStream
                     CVPixelBufferAttributeKey.kCVPixelBufferHeightKey);
         }
 
-        if (format.isSameEncoding(VideoFormat.RGB))
+        String encoding;
+
+        if (format instanceof AVFrameFormat)
+        {
+            int pixfmt = ((AVFrameFormat) format).getPixFmt();
+
+            if (pixfmt == FFmpeg.PIX_FMT_YUV420P)
+                encoding = VideoFormat.YUV;
+            else
+                encoding = null;
+        }
+        else if (format.isSameEncoding(VideoFormat.RGB))
+            encoding = VideoFormat.RGB;
+        else if (format.isSameEncoding(VideoFormat.YUV))
+            encoding = VideoFormat.YUV;
+        else
+            encoding = null;
+
+        if (VideoFormat.RGB.equalsIgnoreCase(encoding))
         {
             if (pixelBufferAttributes == null)
                 pixelBufferAttributes = new NSMutableDictionary();
@@ -511,7 +709,7 @@ public class QuickTimeStream
                     CVPixelFormatType.kCVPixelFormatType_32ARGB,
                     CVPixelBufferAttributeKey.kCVPixelBufferPixelFormatTypeKey);
         }
-        else if (format.isSameEncoding(VideoFormat.YUV))
+        else if (VideoFormat.YUV.equalsIgnoreCase(encoding))
         {
             if (pixelBufferAttributes == null)
                 pixelBufferAttributes = new NSMutableDictionary();
@@ -524,7 +722,10 @@ public class QuickTimeStream
             throw new IllegalArgumentException("format");
 
         if (pixelBufferAttributes != null)
+        {
             captureOutput.setPixelBufferAttributes(pixelBufferAttributes);
+            captureOutputFormat = videoFormat;
+        }
     }
 
     /**
@@ -566,13 +767,128 @@ public class QuickTimeStream
 
         synchronized (dataSyncRoot)
         {
-            data = null;
+            if (data != null)
+            {
+                returnFreeBuffer(data);
+                data = null;
+            }
             dataFormat = null;
-            nextData = null;
+            if (nextData != null)
+            {
+                returnFreeBuffer(nextData);
+                nextData = null;
+            }
             nextDataFormat = null;
 
             if (!automaticallyDropsLateVideoFrames)
                 dataSyncRoot.notifyAll();
+        }
+    }
+
+    /**
+     * Represents a buffer of native memory with a specific size/capacity which
+     * either contains a specific number of bytes of valid data or is free for
+     * consumption.
+     */
+    private static class ByteBuffer
+    {
+
+        /**
+         * The maximum number of bytes which can be written into the native
+         * memory represented by this instance.
+         */
+        public final int capacity;
+
+        /**
+         * The indicator which determines whether this instance is free to be
+         * written bytes into.
+         */
+        private boolean free;
+
+        /**
+         * The number of bytes of valid data that the native memory represented
+         * by this instance contains.
+         */
+        private int length;
+
+        /**
+         * The pointer to the native memory represented by this instance.
+         */
+        public final long ptr;
+
+        /**
+         * Initializes a new <tt>ByteBuffer</tt> instance with a specific
+         * <tt>capacity</tt>.
+         *
+         * @param capacity the maximum number of bytes which can be written into
+         * the native memory represented by the new instance
+         */
+        public ByteBuffer(int capacity)
+        {
+            this.capacity = capacity;
+            this.ptr = FFmpeg.av_malloc(this.capacity);
+
+            this.free = true;
+            this.length = 0;
+
+            if (this.ptr == 0)
+            {
+                throw
+                    new OutOfMemoryError(
+                            getClass().getSimpleName()
+                                + " with capacity "
+                                + this.capacity);
+            }
+        }
+
+        /**
+         * Gets the number of bytes of valid data that the native memory
+         * represented by this instance contains.
+         *
+         * @return the number of bytes of valid data that the native memory
+         * represented by this instance contains
+         */
+        public int getLength()
+        {
+            return length;
+        }
+
+        /**
+         * Determines whether this instance is free to be written bytes into.
+         *
+         * @return <tt>true</tt> if this instance is free to be written bytes
+         * into or <tt>false</tt> is the native memory represented by this
+         * instance is already is use
+         */
+        public boolean isFree()
+        {
+            return free;
+        }
+
+        /**
+         * Sets the indicator which determines whether this instance is free to
+         * be written bytes into.
+         *
+         * @param free <tt>true</tt> if this instance is to be made available
+         * for writing bytes into; otherwise, <tt>false</tt>
+         */
+        public void setFree(boolean free)
+        {
+            this.free = free;
+            if (this.free)
+                setLength(0);
+        }
+
+        /**
+         * Sets the number of bytes of valid data that the native memory
+         * represented by this instance contains.
+         *
+         * @param length the number of bytes of valid data that the native
+         * memory represented by this instance contains
+         */
+        public void setLength(int length)
+        {
+            this.length = length;
         }
     }
 }

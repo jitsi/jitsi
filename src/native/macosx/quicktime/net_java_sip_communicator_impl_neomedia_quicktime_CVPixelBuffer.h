@@ -9,11 +9,27 @@ extern "C" {
 #endif
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer
+ * Method:    getByteCount
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getByteCount
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer
  * Method:    getBytes
  * Signature: (J)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getBytes
+JNIEXPORT jbyteArray JNICALL Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getBytes__J
   (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer
+ * Method:    getBytes
+ * Signature: (JJI)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getBytes__JJI
+  (JNIEnv *, jclass, jlong, jlong, jint);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer
@@ -30,6 +46,14 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_quicktime_CV
  */
 JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getWidth
   (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer
+ * Method:    memcpy
+ * Signature: ([BIIJ)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_memcpy
+  (JNIEnv *, jclass, jbyteArray, jint, jint, jlong);
 
 #ifdef __cplusplus
 }

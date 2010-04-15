@@ -19,12 +19,19 @@ import javax.media.format.*;
  * other <tt>VideoFormat</tt>s and a very obvious one.
  *
  * @author Lubomir Marinov
+ * @author Sebastien Vincent
  */
 public class AVFrameFormat
     extends VideoFormat
 {
+
     /**
-     * Native FFMPEG format used.
+     * The encoding of the <tt>AVFrameFormat</tt> instances.
+     */
+    public static final String AVFRAME = "AVFrame";
+
+    /**
+     * The native FFmpeg format represented by this instance.
      */
     private int pixFmt;
 
@@ -40,10 +47,13 @@ public class AVFrameFormat
     /**
      * Initializes a new <tt>AVFrameFormat</tt> instance with specific size and
      * frame rate.
+     *
+     * @param size the <tt>Dimension</tt> of the new instance
+     * @param frameRate the frame rate of the new instance
      */
     public AVFrameFormat(Dimension size, float frameRate)
     {
-        super("AVFrame", size, NOT_SPECIFIED, AVFrame.class, frameRate);
+        super(AVFRAME, size, NOT_SPECIFIED, AVFrame.class, frameRate);
 
         this.pixFmt = FFmpeg.PIX_FMT_YUV420P;
     }
@@ -65,9 +75,11 @@ public class AVFrameFormat
     }
 
     /**
-     * Copy specified <tt>Format</tt>.
+     * Copies the properties of the specified <tt>Format</tt> into this
+     * instance.
      *
-     * @param f <tt>Format</tt> to be copied
+     * @param f the <tt>Format</tt> the properties of which are to be copied
+     * into this instance
      */
     @Override
     protected void copy(Format f)
@@ -106,9 +118,9 @@ public class AVFrameFormat
     }
 
     /**
-     * Get the native FFMPEG format.
+     * Gets the native FFmpeg format represented by this instance.
      *
-     * @return native format
+     * @return the native FFmpeg format represented by this instance
      */
     public int getPixFmt()
     {
