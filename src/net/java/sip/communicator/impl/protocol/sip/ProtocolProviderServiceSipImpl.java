@@ -841,7 +841,7 @@ public class ProtocolProviderServiceSipImpl
         // especially for ending SIMPLE
         Thread t = new Thread(new ShutdownThread());
         t.setDaemon(false);
-        t.run();
+        t.start();
 
     }
 
