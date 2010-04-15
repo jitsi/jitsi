@@ -232,8 +232,10 @@ public class ProtocolProviderServiceSipImpl
      */
     public void registerEvent(String event)
     {
-        synchronized (this.registeredEvents) {
-            if (!this.registeredEvents.contains(event)) {
+        synchronized (this.registeredEvents)
+        {
+            if (!this.registeredEvents.contains(event))
+            {
                 this.registeredEvents.add(event);
             }
         }
@@ -393,7 +395,7 @@ public class ProtocolProviderServiceSipImpl
                     logger.error(preferredSipPort + " is larger than "
                                  + NetworkUtils.MAX_PORT_NUMBER
                                  + " and does not "
-                                 + "therefore represent a valid port nubmer.");
+                                 + "therefore represent a valid port number.");
                 }
             }
 
@@ -522,6 +524,7 @@ public class ProtocolProviderServiceSipImpl
      * name of which the specified implementation is to be added
      * @param opset the <tt>OperationSet</tt> implementation to be added
      */
+    @Override
     protected <T extends OperationSet> void addSupportedOperationSet(
             Class<T> opsetClass,
             T opset)
@@ -538,6 +541,7 @@ public class ProtocolProviderServiceSipImpl
      * @param opsetClass the <tt>Class</tt> of <tt>OperationSet</tt> under the
      * name of which the specified implementation is to be added
      */
+    @Override
     protected <T extends OperationSet> void removeSupportedOperationSet(
                                                 Class<T> opsetClass)
     {
@@ -611,7 +615,8 @@ public class ProtocolProviderServiceSipImpl
         else
             transaction = timeoutEvent.getClientTransaction();
 
-        if (transaction == null) {
+        if (transaction == null)
+        {
             logger.debug("ignoring a transactionless timeout event");
             return;
         }
@@ -659,7 +664,8 @@ public class ProtocolProviderServiceSipImpl
         else
             transaction = transactionTerminatedEvent.getClientTransaction();
 
-        if (transaction == null) {
+        if (transaction == null)
+        {
             logger.debug(
                 "ignoring a transactionless transaction terminated event");
             return;
@@ -724,15 +730,18 @@ public class ProtocolProviderServiceSipImpl
         EventHeader eventHeader = (EventHeader)
             request.getHeader(EventHeader.NAME);
 
-        if (eventHeader != null) {
+        if (eventHeader != null)
+        {
             boolean eventKnown;
 
-            synchronized (this.registeredEvents) {
+            synchronized (this.registeredEvents)
+            {
                 eventKnown = this.registeredEvents.contains(
                         eventHeader.getEventType());
             }
 
-            if (!eventKnown) {
+            if (!eventKnown)
+            {
                 // send a 489 / Bad Event response
                 ServerTransaction serverTransaction = requestEvent
                     .getServerTransaction();
@@ -765,19 +774,27 @@ public class ProtocolProviderServiceSipImpl
                 }
 
                 Response response = null;
-                try {
+                try
+                {
                     response = this.getMessageFactory().createResponse(
                             Response.BAD_EVENT, request);
-                } catch (ParseException e) {
+                }
+                catch (ParseException e)
+                {
                     logger.error("failed to create the 489 response", e);
                     return;
                 }
 
-                try {
+                try
+                {
                     serverTransaction.sendResponse(response);
-                } catch (SipException e) {
+                }
+                catch (SipException e)
+                {
                     logger.error("failed to send the response", e);
-                } catch (InvalidArgumentException e) {
+                }
+                catch (InvalidArgumentException e)
+                {
                     // should not happen
                     logger.error("invalid argument provided while trying" +
                             " to send the response", e);
@@ -838,7 +855,8 @@ public class ProtocolProviderServiceSipImpl
          * Shutdowns operation sets that need it then calls the
          * <tt>SipRegistrarConnection.unregister()</tt> method.
          */
-        public void run() {
+        public void run()
+        {
             logger.trace("Killing the SIP Protocol Provider.");
             //kill all active calls
             OperationSetBasicTelephonySipImpl telephony
@@ -861,7 +879,7 @@ public class ProtocolProviderServiceSipImpl
 
                     //leave ourselves time to complete un-registration (may include
                     //2 REGISTER requests in case notification is needed.)
-                    listener.waitForEvent(5000);
+                    listener.waitForEvent(5000L);
                 }
                 catch (OperationFailedException ex)
                 {
@@ -1282,7 +1300,7 @@ public class ProtocolProviderServiceSipImpl
         if(logger.isTraceEnabled())
         {
             logger.trace("Returning LP " + lp + " for transport ["
-                            + transport + "]" + " and ");
+                            + transport + "] and ");
         }
         return lp;
     }
@@ -1368,7 +1386,7 @@ public class ProtocolProviderServiceSipImpl
             String userID =
                 accountID
                     .getAccountPropertyString(ProtocolProviderFactory.USER_ID);
-            int index = userID.indexOf("@");
+            int index = userID.indexOf('@');
             if ( index > -1 )
                 registrarAddressStr = userID.substring( index+1);
         }
@@ -1468,7 +1486,7 @@ public class ProtocolProviderServiceSipImpl
         {
             throw new IllegalArgumentException(registrarPort
                 + " is larger than " + NetworkUtils.MAX_PORT_NUMBER
-                + " and does not therefore represent a valid port nubmer.");
+                + " and does not therefore represent a valid port number.");
         }
 
         //registrar transport
@@ -1763,7 +1781,7 @@ public class ProtocolProviderServiceSipImpl
         {
             throw new IllegalArgumentException(proxyPort + " is larger than "
                 + NetworkUtils.MAX_PORT_NUMBER
-                + " and does not therefore represent a valid port nubmer.");
+                + " and does not therefore represent a valid port number.");
         }
 
         //proxy transport
@@ -1787,8 +1805,8 @@ public class ProtocolProviderServiceSipImpl
             proxyTransport = ListeningPoint.UDP;
         }
 
-        StringBuffer proxyStringBuffer
-            = new StringBuffer(proxyAddress.getHostAddress());
+        StringBuilder proxyStringBuffer
+            = new StringBuilder(proxyAddress.getHostAddress());
 
         if(proxyAddress instanceof Inet6Address)
         {
