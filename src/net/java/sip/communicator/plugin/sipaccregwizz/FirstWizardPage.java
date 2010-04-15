@@ -80,6 +80,9 @@ public class FirstWizardPage
     private JLabel proxyLabel
         = new JLabel(Resources.getString("plugin.sipaccregwizz.PROXY"));
 
+    private JLabel displayNameLabel =
+        new JLabel(Resources.getString("plugin.sipaccregwizz.DISPLAY_NAME"));
+
     private JLabel authNameLabel =
         new JLabel(Resources.getString("plugin.sipaccregwizz.AUTH_NAME"));
 
@@ -96,6 +99,8 @@ public class FirstWizardPage
     private JTextField serverField = new JTextField();
 
     private JTextField proxyField = new JTextField();
+
+    private JTextField displayNameField = new JTextField();
 
     private JTextField authNameField = new JTextField();
 
@@ -247,6 +252,7 @@ public class FirstWizardPage
             .setSelectedItem(SIPAccountRegistration.DEFAULT_TRANSPORT);
 
         labelsAdvOpPanel.add(serverLabel);
+        labelsAdvOpPanel.add(displayNameLabel);
         labelsAdvOpPanel.add(authNameLabel);
         labelsAdvOpPanel.add(serverPortLabel);
         labelsAdvOpPanel.add(proxyLabel);
@@ -254,6 +260,7 @@ public class FirstWizardPage
         labelsAdvOpPanel.add(transportLabel);
 
         valuesAdvOpPanel.add(serverField);
+        valuesAdvOpPanel.add(displayNameField);
         valuesAdvOpPanel.add(authNameField);
         valuesAdvOpPanel.add(serverPortField);
         valuesAdvOpPanel.add(proxyField);
@@ -429,6 +436,9 @@ public class FirstWizardPage
 
         registration.setServerAddress(serverField.getText());
 
+        String displayName = displayNameField.getText();
+        registration.setDisplayName(displayName);
+
         String authName = authNameField.getText();
         if(authName != null && authName.length() > 0)
             registration.setAuthorizationName(authName);
@@ -527,6 +537,9 @@ public class FirstWizardPage
         String serverAddress = accountID.getAccountPropertyString(
                             ProtocolProviderFactory.SERVER_ADDRESS);
 
+        String displayName = accountID.getAccountPropertyString(
+                            ProtocolProviderFactory.DISPLAY_NAME);
+
         String authName = accountID.getAccountPropertyString(
                             ProtocolProviderFactory.AUTHORIZATION_NAME);
 
@@ -582,6 +595,9 @@ public class FirstWizardPage
 
         serverField.setText(serverAddress);
         serverField.setEnabled(false);
+
+        if (displayName != null && displayName.length() > 0)
+            displayNameField.setText(displayName);
 
         if(authName != null && authName.length() > 0)
             authNameField.setText(authName);

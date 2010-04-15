@@ -134,7 +134,11 @@ public class SIPAccountRegistrationWizard
         boolean rememberPswd = registration.isRememberPassword();
         String rememberPswdString = Resources.getString(
                 rememberPswd ? "service.gui.YES" : "service.gui.NO");
-
+        String displayName = registration.getDisplayName();
+        if(displayName != null)
+            summaryTable.put(
+                        Resources.getString("plugin.sipaccregwizz.DISPLAY_NAME"),
+                        displayName);
         summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.USERNAME"),
             registration.getId());
@@ -305,6 +309,10 @@ public class SIPAccountRegistrationWizard
                     ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
                     Boolean.toString(true));
         }
+
+        if(registration.getDisplayName() != null)
+            accountProperties.put(ProtocolProviderFactory.DISPLAY_NAME,
+                registration.getDisplayName());
 
         if(registration.getAuthorizationName() != null)
             accountProperties.put(ProtocolProviderFactory.AUTHORIZATION_NAME,

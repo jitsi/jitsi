@@ -35,6 +35,8 @@ public class SIPAccountRegistration
 
     private String serverAddress;
 
+    private String displayName;
+
     private String authorizationName;
 
     private String serverPort = DEFAULT_PORT;
@@ -153,6 +155,16 @@ public class SIPAccountRegistration
     }
 
     /**
+     * The display name
+     *
+     * @return String display name
+     */
+    public String getDisplayName()
+    {
+        return displayName;
+    }
+
+    /**
      * The authorization name
      *
      * @return String auth name
@@ -200,6 +212,16 @@ public class SIPAccountRegistration
     public void setServerPort(String port)
     {
         this.serverPort = port;
+    }
+
+    /**
+     * Sets the display name.
+     *
+     * @param displayName String
+     */
+    public void setDisplayName(String displayName)
+    {
+        this.displayName = displayName;
     }
 
     /**
