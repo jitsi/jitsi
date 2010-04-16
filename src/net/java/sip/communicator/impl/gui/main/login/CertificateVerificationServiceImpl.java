@@ -26,6 +26,7 @@ import javax.security.auth.x500.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -319,7 +320,7 @@ public class CertificateVerificationServiceImpl
          * The check box if checked permanently stored the certificate
          * which will be always trusted.
          */
-        JCheckBox alwaysTrustCheckBox = new JCheckBox(
+        SIPCommCheckBox alwaysTrustCheckBox = new SIPCommCheckBox(
             GuiActivator.getResources().getI18NString("service.gui.ALWAYS_TRUST"),
             false);
 
@@ -383,7 +384,7 @@ public class CertificateVerificationServiceImpl
                         host,
                         String.valueOf(port)});
 
-            JEditorPane descriptionPane = new JEditorPane();
+            StyledHTMLEditorPane descriptionPane = new StyledHTMLEditorPane();
             descriptionPane.setOpaque(false);
             descriptionPane.setEditable(false);
             descriptionPane.setContentType("text/html");
@@ -478,6 +479,7 @@ public class CertificateVerificationServiceImpl
             else
             {
                 JTextArea textArea = new JTextArea();
+                textArea.setOpaque(false);
                 textArea.setEditable(false);
                 textArea.setText(cert.toString());
                 certInfoPane = textArea;

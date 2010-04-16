@@ -203,7 +203,7 @@ public class MediaConfigurationPanel
 
         constraints.gridy = 3;
         constraints.insets = new Insets(10,0,0,0);
-        final JCheckBox echoCancelCheckBox = new JCheckBox(
+        final SIPCommCheckBox echoCancelCheckBox = new SIPCommCheckBox(
             NeomediaActivator.getResources().getI18NString(
                 "impl.media.configform.ECHOCANCEL"));
         // first set the selected one than add the listener
@@ -222,7 +222,7 @@ public class MediaConfigurationPanel
 
         constraints.gridy = 4;
         constraints.insets = new Insets(0,0,0,0);
-        final JCheckBox denoiseCheckBox = new JCheckBox(
+        final SIPCommCheckBox denoiseCheckBox = new SIPCommCheckBox(
             NeomediaActivator.getResources().getI18NString(
                 "impl.media.configform.DENOISE"));
         // first set the selected one than add the listener
