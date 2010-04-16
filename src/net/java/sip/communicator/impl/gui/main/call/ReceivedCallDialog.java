@@ -66,6 +66,8 @@ public class ReceivedCallDialog
     {
         JPanel mainPanel = new JPanel(new GridBagLayout());
         JLabel callLabel = new JLabel();
+        // disable html rendering
+        callLabel.putClientProperty("html.disable", Boolean.TRUE);
 
         JPanel buttonsPanel = new TransparentPanel(new GridBagLayout());
 
