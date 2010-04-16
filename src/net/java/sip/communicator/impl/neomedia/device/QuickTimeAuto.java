@@ -58,9 +58,11 @@ public class QuickTimeAuto
                                     + inputDevice.uniqueID()),
                         new Format[]
                                 {
-                                    //new AVFrameFormat(),
-                                    new RGBFormat(),
-                                    //new YUVFormat(YUVFormat.YUV_420)
+                                    new AVFrameFormat(
+                                            null,
+                                            Format.NOT_SPECIFIED,
+                                            FFmpeg.PIX_FMT_ARGB),
+                                    new RGBFormat()
                                 });
 
             CaptureDeviceManager.addDevice(device);

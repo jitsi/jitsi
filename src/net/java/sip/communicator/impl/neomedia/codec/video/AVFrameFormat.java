@@ -36,26 +36,38 @@ public class AVFrameFormat
     private int pixFmt;
 
     /**
-     * Initializes a new <tt>AVFrameFormat</tt> instance with unspecified size
-     * and frame rate.
+     * Initializes a new <tt>AVFrameFormat</tt> instance with unspecified size,
+     * frame rate and FFmpeg colorspace.
      */
     public AVFrameFormat()
     {
-        this(null, NOT_SPECIFIED);
+        this(NOT_SPECIFIED);
     }
 
     /**
-     * Initializes a new <tt>AVFrameFormat</tt> instance with specific size and
-     * frame rate.
+     * Initializes a new <tt>AVFrameFormat</tt> instance with a specific FFmpeg
+     * colorspace and unspecified size and frame rate.
+     *
+     * @param pixFmt the FFmpeg colorspace to be represented by the new instance
+     */
+    public AVFrameFormat(int pixFmt)
+    {
+        this(null, NOT_SPECIFIED, pixFmt);
+    }
+
+    /**
+     * Initializes a new <tt>AVFrameFormat</tt> instance with specific size,
+     * frame rate and FFmpeg colorspace.
      *
      * @param size the <tt>Dimension</tt> of the new instance
      * @param frameRate the frame rate of the new instance
+     * @param pixFmt the FFmpeg colorspace to be represented by the new instance
      */
-    public AVFrameFormat(Dimension size, float frameRate)
+    public AVFrameFormat(Dimension size, float frameRate, int pixFmt)
     {
         super(AVFRAME, size, NOT_SPECIFIED, AVFrame.class, frameRate);
 
-        this.pixFmt = FFmpeg.PIX_FMT_YUV420P;
+        this.pixFmt = pixFmt;
     }
 
     /**
@@ -68,7 +80,7 @@ public class AVFrameFormat
     @Override
     public Object clone()
     {
-        AVFrameFormat f = new AVFrameFormat(size, frameRate);
+        AVFrameFormat f = new AVFrameFormat(size, frameRate, pixFmt);
 
         f.copy(this);
         return f;
@@ -125,5 +137,56 @@ public class AVFrameFormat
     public int getPixFmt()
     {
         return pixFmt;
+    }
+
+    /**
+     * Finds the attributes shared by two matching <tt>Format</tt>s. If the
+     * specified <tt>Format</tt> does not match this one, the result is
+     * undefined.
+     *
+     * @param format the matching <tt>Format</tt> to intersect with this one
+     * @return a <tt>Format</tt> with its attributes set to the attributes
+     * common to this instane and the specified <tt>format</tt>
+     */
+    @Override
+    public Format intersects(Format format)
+    {
+        Format intersection = super.intersects(format);
+
+        if (intersection == null)
+            return null;
+        if (!(format instanceof AVFrameFormat))
+            return intersection;
+
+        ((AVFrameFormat) intersection).pixFmt
+            = (pixFmt == NOT_SPECIFIED)
+                ? ((AVFrameFormat) format).pixFmt
+                : pixFmt;
+        return intersection;
+    }
+
+    /**
+     * Determines whether a specific format matches this instance i.e. whether
+     * their attributes match according to the definition of "match" given by
+     * {@line Format#matches(Format)}.
+     *
+     * @param format the <tt>Format</tt> to compare to this instance
+     * @return <tt>true</tt> if the specified <tt>format</tt> matches this one;
+     * otherwise, <tt>false</tt>
+     */
+    @Override
+    public boolean matches(Format format)
+    {
+        if (!super.matches(format))
+            return false;
+        if (!(format instanceof AVFrameFormat))
+            return true;
+
+        AVFrameFormat avFrameFormat = (AVFrameFormat) format;
+
+        return
+            (pixFmt == NOT_SPECIFIED
+                || avFrameFormat.pixFmt == NOT_SPECIFIED
+                || (pixFmt == avFrameFormat.pixFmt));
     }
 }

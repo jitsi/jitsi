@@ -351,15 +351,21 @@ public class SwScaler
                     outputWidth, outputHeight, dstFmt,
                     FFmpeg.SWS_BICUBIC);
         if (srcPicture == 0)
+        {
             FFmpeg.sws_scale(
                     swsContext,
                     src, srcFmt, inputWidth, inputHeight, 0, inputHeight,
                     dst, dstFmt, outputWidth, outputHeight);
+        }
         else
+        {
+//System.err.println(
+//        "SwScaler.process: srcPicture= 0x" + Long.toHexString(srcPicture));
             FFmpeg.sws_scale(
                     swsContext,
                     srcPicture, 0, inputHeight,
                     dst, dstFmt, outputWidth, outputHeight);
+        }
 
         output.setData(dst);
         output.setDuration(input.getDuration());

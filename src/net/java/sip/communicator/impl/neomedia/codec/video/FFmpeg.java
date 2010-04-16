@@ -26,6 +26,8 @@ public class FFmpeg
 
     public static final int FF_MB_DECISION_SIMPLE = 0;
 
+    public static final int PIX_FMT_ARGB = 27;
+
     /**
      * BGR32 format handled in endian specific manner.
      * It is stored as ABGR on big-endian and RGBA on little-endian.

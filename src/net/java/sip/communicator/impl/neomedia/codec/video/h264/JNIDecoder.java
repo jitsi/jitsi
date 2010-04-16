@@ -77,7 +77,8 @@ public class JNIDecoder
                         new Dimension(
                                 Constants.VIDEO_WIDTH,
                                 Constants.VIDEO_HEIGHT),
-                        ensureFrameRate(Format.NOT_SPECIFIED))
+                        ensureFrameRate(Format.NOT_SPECIFIED),
+                        FFmpeg.PIX_FMT_YUV420P)
             };
 
         width = outputFormats[0].getSize().width;
@@ -155,7 +156,10 @@ public class JNIDecoder
         return
             new Format[]
             {
-                new AVFrameFormat(outSize, ensureFrameRate(ivf.getFrameRate()))
+                new AVFrameFormat(
+                        outSize,
+                        ensureFrameRate(ivf.getFrameRate()),
+                        FFmpeg.PIX_FMT_YUV420P)
             };
     }
 
@@ -266,7 +270,11 @@ public class JNIDecoder
             VideoFormat inFormat = (VideoFormat) inBuffer.getFormat();
             float outFrameRate = ensureFrameRate(inFormat.getFrameRate());
 
-            outputFormat = new AVFrameFormat(outSize, outFrameRate);
+            outputFormat
+                = new AVFrameFormat(
+                        outSize,
+                        outFrameRate,
+                        FFmpeg.PIX_FMT_YUV420P);
         }
         outBuffer.setFormat(outputFormat);
 

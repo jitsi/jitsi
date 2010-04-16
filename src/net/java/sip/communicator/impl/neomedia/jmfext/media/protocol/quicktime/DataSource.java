@@ -464,10 +464,43 @@ public class DataSource
     @Override
     protected Format setFormat(
             int streamIndex,
-            Format oldValue,
-            Format newValue)
+            Format oldValue, Format newValue)
     {
-        return newValue;
+        /*
+         * A resolution that is too small will yield bad image quality. We've
+         * decided that DEFAULT_WIDTH and DEFAULT_HEIGHT make sense as the
+         * minimum resolution to request from the capture device.
+         */
+        if (newValue instanceof VideoFormat)
+        {
+            VideoFormat newVideoFormatValue = (VideoFormat) newValue;
+            Dimension newSize = newVideoFormatValue.getSize();
+
+            if ((newSize != null)
+                    && (newSize.width < DEFAULT_WIDTH)
+                    && (newSize.height < DEFAULT_HEIGHT))
+            {
+                String encoding = newVideoFormatValue.getEncoding();
+                int maxDataLength = newVideoFormatValue.getMaxDataLength();
+                Class<?> dataType = newVideoFormatValue.getDataType();
+                float frameRate = newVideoFormatValue.getFrameRate();
+
+                newSize = new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+                newValue
+                    = ((Format) newVideoFormatValue.clone())
+                        .relax()
+                            .intersects(
+                                new VideoFormat(
+                                        encoding,
+                                        newSize,
+                                        Format.NOT_SPECIFIED,
+                                        dataType,
+                                        frameRate));
+            }
+            return newValue;
+        }
+        else
+            return super.setFormat(streamIndex, oldValue, newValue);
     }
 
     /**

@@ -213,7 +213,13 @@ public class JNIEncoder
         //        Packetizer.MAX_PAYLOAD_SIZE);
 
         if (FFmpeg.avcodec_open(avcontext, avcodec) < 0)
-            throw new RuntimeException("Could not open codec");
+        {
+            throw
+                new ResourceUnavailableException(
+                        "Could not open codec. (size= "
+                            + width + "x" + height
+                            + ")");
+        }
 
         encFrameLen = (width * height * 3) / 2;
 

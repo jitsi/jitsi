@@ -377,21 +377,30 @@ public class QuickTimeStream
             switch (pixelFormatType)
             {
             case CVPixelFormatType.kCVPixelFormatType_32ARGB:
-                return
-                    new RGBFormat(
-                            ((width == 0) && (height == 0)
-                                ? null
-                                : new Dimension(width, height)),
-                            Format.NOT_SPECIFIED,
-                            Format.byteArray,
-                            Format.NOT_SPECIFIED,
-                            32,
-                            2, 3, 4);
+                if (captureOutputFormat instanceof AVFrameFormat)
+                    return
+                        new AVFrameFormat(
+                                ((width == 0) && (height == 0)
+                                    ? null
+                                    : new Dimension(width, height)),
+                                Format.NOT_SPECIFIED,
+                                FFmpeg.PIX_FMT_ARGB);
+                else
+                    return
+                        new RGBFormat(
+                                ((width == 0) && (height == 0)
+                                    ? null
+                                    : new Dimension(width, height)),
+                                Format.NOT_SPECIFIED,
+                                Format.byteArray,
+                                Format.NOT_SPECIFIED,
+                                32,
+                                2, 3, 4);
             case CVPixelFormatType.kCVPixelFormatType_420YpCbCr8Planar:
                 if ((width == 0) && (height == 0))
                 {
                     if (captureOutputFormat instanceof AVFrameFormat)
-                        return new AVFrameFormat();
+                        return new AVFrameFormat(FFmpeg.PIX_FMT_YUV420P);
                     else
                         return new YUVFormat(YUVFormat.YUV_420);
                 }
@@ -400,7 +409,8 @@ public class QuickTimeStream
                     return
                         new AVFrameFormat(
                                 new Dimension(width, height),
-                                Format.NOT_SPECIFIED);
+                                Format.NOT_SPECIFIED,
+                                FFmpeg.PIX_FMT_YUV420P);
                 }
                 else
                 {
@@ -446,6 +456,12 @@ public class QuickTimeStream
 
             int bufferCount = buffers.size();
             ByteBuffer freeBuffer = null;
+
+            /*
+             * XXX Pad with FF_INPUT_BUFFER_PADDING_SIZE or hell will break
+             * loose.
+             */
+            capacity += FFmpeg.FF_INPUT_BUFFER_PADDING_SIZE;
 
             for (int bufferIndex = 0; bufferIndex < bufferCount; bufferIndex++)
             {
@@ -514,11 +530,64 @@ public class QuickTimeStream
         synchronized (dataSyncRoot)
         {
             if (data == null)
+            {
                 buffer.setLength(0);
+                return;
+            }
+
+            if (dataFormat != null)
+                buffer.setFormat(dataFormat);
+
+            Format bufferFormat = buffer.getFormat();
+
+            if (bufferFormat == null)
+            {
+                bufferFormat = getFormat();
+                if (bufferFormat != null)
+                    buffer.setFormat(bufferFormat);
+            }
+            if (bufferFormat instanceof AVFrameFormat)
+            {
+                Object bufferData = buffer.getData();
+                AVFrame bufferFrame;
+                long bufferFramePtr;
+                long bufferPtrToReturnFree;
+
+                if (bufferData instanceof AVFrame)
+                {
+                    bufferFrame = (AVFrame) bufferData;
+                    bufferFramePtr = bufferFrame.getPtr();
+                    bufferPtrToReturnFree
+                        = FFmpeg.avpicture_get_data0(bufferFramePtr);
+                }
+                else
+                {
+                    bufferFrame = new FinalizableAVFrame();
+                    buffer.setData(bufferFrame);
+                    bufferFramePtr = bufferFrame.getPtr();
+                    bufferPtrToReturnFree = 0;
+                }
+
+                AVFrameFormat bufferFrameFormat = (AVFrameFormat) bufferFormat;
+                Dimension bufferFrameSize = bufferFrameFormat.getSize();
+
+                FFmpeg.avpicture_fill(
+                        bufferFramePtr,
+                        data.ptr,
+                        bufferFrameFormat.getPixFmt(),
+                        bufferFrameSize.width, bufferFrameSize.height);
+//System.err.println(
+//        "QuickTimeStream.read: bufferFramePtr= 0x"
+//            + Long.toHexString(bufferFramePtr)
+//            + ", data.ptr= 0x"
+//            + Long.toHexString(data.ptr));
+                if (bufferPtrToReturnFree != 0)
+                    returnFreeBuffer(bufferPtrToReturnFree);
+            }
             else
             {
                 Object bufferData = buffer.getData();
-                byte[] bufferByteData = null;
+                byte[] bufferByteData;
                 int dataLength = data.getLength();
 
                 if (bufferData instanceof byte[])
@@ -527,6 +596,8 @@ public class QuickTimeStream
                     if (bufferByteData.length < dataLength)
                         bufferByteData = null;
                 }
+                else
+                    bufferByteData = null;
                 if (bufferByteData == null)
                 {
                     bufferByteData = new byte[dataLength];
@@ -534,20 +605,18 @@ public class QuickTimeStream
                 }
                 CVPixelBuffer.memcpy(bufferByteData, 0, dataLength, data.ptr);
 
-                buffer.setFlags(
-                        Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
-                if (dataFormat != null)
-                    buffer.setFormat(dataFormat);
                 buffer.setLength(dataLength);
                 buffer.setOffset(0);
-                buffer.setTimeStamp(dataTimeStamp);
 
                 returnFreeBuffer(data);
-                data = null;
-
-                if (!automaticallyDropsLateVideoFrames)
-                    dataSyncRoot.notifyAll();
             }
+
+            buffer.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
+            buffer.setTimeStamp(dataTimeStamp);
+
+            data = null;
+            if (!automaticallyDropsLateVideoFrames)
+                dataSyncRoot.notifyAll();
         }
     }
 
@@ -566,6 +635,29 @@ public class QuickTimeStream
             buffer.setFree(true);
             if (closed && buffers.remove(buffer))
                 FFmpeg.av_free(buffer.ptr);
+        }
+    }
+
+    /**
+     * Returns a specific <tt>ByteBuffer</tt> given by the pointer to the native
+     * memory that it represents into the pool of free <tt>ByteBuffer</tt>s
+     * (i.e. <tt>ByteBuffer</tt>s ready for writing captured media data into
+     * them).
+     *
+     * @param bufferPtr the pointer to the native memory represented by the
+     * <tt>ByteBuffer</tt> to be returned into the pool of free
+     * <tt>ByteBuffer</tt>s
+     */
+    private void returnFreeBuffer(long bufferPtr)
+    {
+        synchronized (buffers)
+        {
+            for (ByteBuffer buffer : buffers)
+                if (buffer.ptr == bufferPtr)
+                {
+                    returnFreeBuffer(buffer);
+                    break;
+                }
         }
     }
 
@@ -686,10 +778,12 @@ public class QuickTimeStream
 
         if (format instanceof AVFrameFormat)
         {
-            int pixfmt = ((AVFrameFormat) format).getPixFmt();
+            int pixFmt = ((AVFrameFormat) format).getPixFmt();
 
-            if (pixfmt == FFmpeg.PIX_FMT_YUV420P)
+            if (pixFmt == FFmpeg.PIX_FMT_YUV420P)
                 encoding = VideoFormat.YUV;
+            else if (pixFmt == FFmpeg.PIX_FMT_ARGB)
+                encoding = VideoFormat.RGB;
             else
                 encoding = null;
         }
@@ -889,6 +983,62 @@ public class QuickTimeStream
         public void setLength(int length)
         {
             this.length = length;
+        }
+    }
+
+    /**
+     * Represents an <tt>AVFrame</tt> used by this instance to provide captured
+     * media data in native format without representing the very frame data in
+     * the Java heap. Since this instance cannot know when the <tt>AVFrame</tt>
+     * instances are really safe for deallocation, <tt>FinalizableAVFrame</tt>
+     * relies on the Java finialization mechanism to reclaim the represented
+     * native memory.
+     */
+    private class FinalizableAVFrame
+        extends AVFrame
+    {
+
+        /**
+         * The indicator which determines whether the native memory represented
+         * by this instance has already been freed/deallocated.
+         */
+        private boolean freed = false;
+
+        /**
+         * Initializes a new <tt>FinalizableAVFrame</tt> instance which is to
+         * allocate a new native FFmpeg <tt>AVFrame</tt> and represent it.
+         */
+        public FinalizableAVFrame()
+        {
+            super(FFmpeg.avcodec_alloc_frame());
+        }
+
+        /**
+         * Deallocates the native memory represented by this instance.
+         *
+         * @see Object#finalize()
+         */
+        @Override
+        protected void finalize()
+            throws Throwable
+        {
+            try
+            {
+                if (!freed)
+                {
+                    long ptr = getPtr();
+                    long bufferPtr = FFmpeg.avpicture_get_data0(ptr);
+
+                    if (bufferPtr != 0)
+                        returnFreeBuffer(bufferPtr);
+                    FFmpeg.av_free(ptr);
+                    freed = true;
+                }
+            }
+            finally
+            {
+                super.finalize();
+            }
         }
     }
 }

@@ -52,7 +52,7 @@ public class VideoMediaStreamImpl
      * Negociated output size of the video stream.
      * It may need to scale original capture device stream.
      */
-    private Dimension outputSize = null;
+    private Dimension outputSize;
 
     /**
      * Selects the <tt>VideoFormat</tt> from the list of supported formats of a
@@ -140,7 +140,8 @@ public class VideoMediaStreamImpl
             for (int i = 0; i < count; i++)
             {
                 FormatInfo info
-                    = infos[i] = new FormatInfo((VideoFormat) formats[i]);
+                    = infos[i]
+                        = new FormatInfo((VideoFormat) formats[i]);
 
                 if (info.difference == 0)
                 {
@@ -178,11 +179,13 @@ public class VideoMediaStreamImpl
                     if ((currentSize != null)
                             && (currentSize.width > 0)
                             && (currentSize.height > 0))
+                    {
                         height
                             = (int)
                                 (width
-                                    * (currentSize.width
-                                        / (double) currentSize.height));
+                                    * (currentSize.height
+                                        / (double) currentSize.width));
+                    }
                 }
 
                 selectedFormat

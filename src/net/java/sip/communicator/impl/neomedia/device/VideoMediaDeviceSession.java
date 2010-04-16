@@ -61,7 +61,7 @@ public class VideoMediaDeviceSession
      * in desktop streaming/sharing session when sender desktop is bigger
      * than remote ones.
      */
-    private Dimension outputSize = null;
+    private Dimension outputSize;
 
     /**
      * The <tt>SwScaler</tt> inserted into the codec chain of the
