@@ -60,12 +60,13 @@ public class CallManager
             receivedCallDialog.pack();
             receivedCallDialog.setVisible(true);
 
-            // FIXME: I18N
             NotificationManager.fireNotification(
                 NotificationManager.INCOMING_CALL,
                 "",
-                "Incoming call received from: "
-                    + sourceCall.getCallPeers().next());
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.INCOMING_CALL",
+                        new String[]{sourceCall.getCallPeers()
+                                .next().toString()}));
         }
 
         /**
