@@ -319,7 +319,7 @@ public class OperationSetBasicTelephonySipImpl
             }
             else
             {
-                logger.error("reINVITEs while the dialog is not"
+                logger.error("reINVITEs while the dialog is not "
                             + "confirmed are not currently supported.");
             }
         }
@@ -1051,7 +1051,7 @@ public class OperationSetBasicTelephonySipImpl
                 }
                 catch (SipException ex)
                 {
-                    logger.error("Failed to make the REFER request"
+                    logger.error("Failed to make the REFER request "
                                 + "keep the dialog alive after BYE:\n"
                                 + referRequest, ex);
                 }
