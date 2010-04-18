@@ -847,10 +847,9 @@ public class UIServiceImpl
 
                 UIManager.setLookAndFeel(lf);
             }
-            catch (UnsupportedLookAndFeelException e)
+            catch (UnsupportedLookAndFeelException ex)
             {
-                logger.error("The provided Look & Feel is not supported.",
-                    e);
+                logger.error("The provided Look & Feel is not supported.", ex);
             }
         }
     }

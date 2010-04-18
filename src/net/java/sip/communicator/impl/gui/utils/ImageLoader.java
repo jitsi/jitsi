@@ -1371,20 +1371,18 @@ public class ImageLoader
         {
             URL path = GuiActivator.getResources().getImageURL(imageID.getId());
 
-            if (path == null)
+            if (path != null)
             {
-                return null;
-            }
+                try
+                {
+                    image = ImageIO.read(path);
 
-            try
-            {
-                image = ImageIO.read(path);
-
-                loadedImages.put(imageID, image);
-            }
-            catch (Exception exc)
-            {
-                logger.error("Failed to load image:" + path, exc);
+                    loadedImages.put(imageID, image);
+                }
+                catch (Exception ex)
+                {
+                    logger.error("Failed to load image: " + path, ex);
+                }
             }
         }
 

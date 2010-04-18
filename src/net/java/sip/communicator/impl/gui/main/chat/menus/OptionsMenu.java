@@ -44,14 +44,9 @@ public class OptionsMenu
         super(GuiActivator.getResources().getI18NString("service.gui.TOOLS"));
         this.chatWindow = chatWindow;
 
-        this.setOpaque(false);
-
-        this.setForeground(new Color(
-            GuiActivator.getResources()
-                .getColor("service.gui.CHAT_MENU_FOREGROUND")));
-
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.TOOLS"));
+        this.setOpaque(false);
         
         this.viewToolBar.setActionCommand(ACTCMD_VIEW_TOOLBAR);
         this.viewToolBar.addActionListener(this);

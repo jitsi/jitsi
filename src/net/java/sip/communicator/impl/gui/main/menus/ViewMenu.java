@@ -29,13 +29,8 @@ public class ViewMenu
     public ViewMenu(MainFrame mainFrame) {
         super(GuiActivator.getResources().getI18NString("service.gui.VIEW"));
 
-        this.setOpaque(false);
-
-        this.setForeground(
-            new Color(GuiActivator.getResources().
-                getColor("service.gui.MAIN_MENU_FOREGROUND")));
-
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.VIEW"));
+        this.setOpaque(false);
     }
 }

@@ -40,14 +40,9 @@ public class HelpMenu
     {
         super(GuiActivator.getResources().getI18NString("service.gui.HELP"));
 
-        this.setOpaque(false);
-
-        this.setForeground(new Color(
-            GuiActivator.getResources()
-                .getColor("service.gui.CHAT_MENU_FOREGROUND")));
-
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.HELP"));
+        this.setOpaque(false);
 
         this.initPluginComponents();
     }

@@ -46,12 +46,8 @@ public class ToolsMenu
 
         super(GuiActivator.getResources().getI18NString("service.gui.TOOLS"));
 
-        this.setForeground(
-            new Color(GuiActivator.getResources().
-                getColor("service.gui.MAIN_MENU_FOREGROUND")));
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.TOOLS"));
-
         this.setOpaque(false);
 
         this.registerMenuItems();

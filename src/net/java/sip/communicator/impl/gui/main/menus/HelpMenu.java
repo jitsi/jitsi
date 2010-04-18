@@ -42,8 +42,6 @@ public class HelpMenu
     {
         ResourceManagementService resources = GuiActivator.getResources();
 
-        setForeground(
-            new Color(resources.getColor("service.gui.MAIN_MENU_FOREGROUND")));
         setMnemonic(resources.getI18nMnemonic("service.gui.HELP"));
         setOpaque(false);
         setText(resources.getI18NString("service.gui.HELP"));

@@ -68,10 +68,6 @@ public class FileMenu
 
         this.setOpaque(false);
 
-        this.setForeground(
-            new Color(resources
-                .getColor("service.gui.MAIN_MENU_FOREGROUND")));
-
         this.parentWindow = parentWindow;
 
         this.add(newAccountMenuItem);

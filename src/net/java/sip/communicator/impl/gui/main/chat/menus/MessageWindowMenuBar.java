@@ -11,11 +11,11 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.gui.Container; // disambiguation
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -26,7 +26,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Lubomir Marinov
  */
 public class MessageWindowMenuBar
-    extends JMenuBar
+    extends SIPCommWindowMenuBar
 {
     private final FileMenu fileMenu;
 
@@ -36,32 +36,22 @@ public class MessageWindowMenuBar
 
     private final HelpMenu helpMenu;
 
-    private final ChatWindow parentWindow;
-
     private final PluginContainer pluginContainer;
 
     /**
-     * Creates an instance of <tt>MessageWindowMenuBar</tt>.
+     * Initializes a new <tt>MessageWindowMenuBar</tt> instance.
      * 
-     * @param parentWindow The parent ChatWindow.
+     * @param parentWindow the ChatWindow which is to be the parent of the new
+     * instance
      */
     public MessageWindowMenuBar(ChatWindow parentWindow)
     {
-        this.parentWindow = parentWindow;
+        super("service.gui.CHAT_MENU_FOREGROUND");
 
-        final ResourceManagementService resources = GuiActivator.getResources();
-
-        this.setForeground(
-            new Color(resources.getColor("service.gui.MAIN_MENU_FOREGROUND")));
-
-        fileMenu = new FileMenu(this.parentWindow);
-        editMenu = new EditMenu(this.parentWindow);
-        optionsMenu = new OptionsMenu(this.parentWindow);
-        helpMenu = new HelpMenu(this.parentWindow);
-
-        fileMenu.setOpaque(false);
-        editMenu.setOpaque(false);
-        helpMenu.setOpaque(false);
+        fileMenu = new FileMenu(parentWindow);
+        editMenu = new EditMenu(parentWindow);
+        optionsMenu = new OptionsMenu(parentWindow);
+        helpMenu = new HelpMenu(parentWindow);
 
         this.init();
 
@@ -74,32 +64,28 @@ public class MessageWindowMenuBar
                      * Component, JComponent). Keeps the Help menu last as it is
                      * its conventional place.
                      */
+                    @Override
                     protected void addComponentToContainer(
                         Component component,
                         JComponent container)
                     {
                         /*
-                         * Apply CHAT_MENU_FOREGROUND in order to prevent plugin
+                         * Apply the opaque property in order to prevent plugin
                          * menus from looking different than the built-in menus.
                          */
                         if (component instanceof SIPCommMenu)
-                            component
-                                .setForeground(
-                                    new Color(
-                                            resources
-                                                .getColor(
-                                                    "service.gui.CHAT_MENU_FOREGROUND")));
+                            ((SIPCommMenu) component).setOpaque(false);
 
                         container.add(component, getComponentIndex(helpMenu));
                     }
                 };
 
-        this.parentWindow.addChatChangeListener(new ChatChangeListener()
+        parentWindow.addChatChangeListener(new ChatChangeListener()
         {
             public void chatChanged(ChatPanel panel)
             {
-                MetaContact contact =
-                    GuiActivator.getUIService().getChatContact(panel);
+                MetaContact contact
+                    = GuiActivator.getUIService().getChatContact(panel);
 
                 for (PluginComponent c : pluginContainer.getPluginComponents())
                     c.setCurrentContact(contact);
@@ -123,6 +109,11 @@ public class MessageWindowMenuBar
      */
     private void init()
     {
+        fileMenu.setOpaque(false);
+        editMenu.setOpaque(false);
+        optionsMenu.setOpaque(false);
+        helpMenu.setOpaque(false);
+
         this.add(fileMenu);
         this.add(editMenu);
         this.add(optionsMenu);
@@ -134,32 +125,13 @@ public class MessageWindowMenuBar
      */
     public JMenu getSelectedMenu()
     {
-        int menuCount = this.getMenuCount();
-
-        for (int i = 0; i < menuCount; i++)
+        for (int i = 0, menuCount = getMenuCount(); i < menuCount; i++)
         {
             JMenu menu = this.getMenu(i);
 
             if (menu.isSelected())
-            {
                 return menu;
-            }
         }
         return null;
-    }
-
-    /**
-     * Paints the MENU_BACKGROUND image on the background of this container.
-     * 
-     * @param g the Graphics object that does the painting
-     */
-    public void paintComponent(Graphics g)
-    {
-        super.paintComponent(g);
-
-        Image backgroundImage =
-            ImageLoader.getImage(ImageLoader.MENU_BACKGROUND);
-
-        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
     }
 }

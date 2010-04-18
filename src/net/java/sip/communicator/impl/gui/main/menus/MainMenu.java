@@ -6,13 +6,10 @@
  */
 package net.java.sip.communicator.impl.gui.main.menus;
 
-import java.awt.*;
-
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.resources.*;
 
 /**
@@ -20,22 +17,22 @@ import net.java.sip.communicator.service.resources.*;
  * window. It contains a file menu, tools menu, view menu and help menu.
  * <p>
  * Note that this container allows also specifying a custom background by
- * modifying the menuBackgroundImage.png in the resources/images/impl/gui/common
+ * modifying the menuBackground.png in the resources/images/impl/gui/common
  * folder.
+ * </p>
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class MainMenu
-    extends JMenuBar
+    extends SIPCommWindowMenuBar
 {
     /**
-     * Creates an instance of <tt>Menu</tt>.
+     * Initializes a new <tt>MainMenu</tt> instance.
      */
     public MainMenu(MainFrame mainFrame)
     {
-        this.setForeground(
-            new Color(GuiActivator.getResources()
-                    .getColor("service.gui.MAIN_MENU_FOREGROUND")));
+        super("service.gui.MAIN_MENU_FOREGROUND");
 
         addMenu(new FileMenu(mainFrame), "service.gui.FILE");
         addMenu(new ToolsMenu(mainFrame), "service.gui.TOOLS");
@@ -53,39 +50,16 @@ public class MainMenu
     }
 
     /**
-     * Returns <code>true</code> if there are selected menus, otherwise - 
-     * returns <code>false</code>.
-     * 
-     * @return <code>true</code> if there are selected menus, otherwise - 
-     * returns <code>false</code>.
+     * Determines whether there are selected menus.
+     *
+     * @return <tt>true</tt> if there are selected menus;otherwise,
+     * <tt>false</tt>
      */
     public boolean hasSelectedMenus()
     {
-        int menuCount = this.getMenuCount();
-        
-        for(int i = 0; i < menuCount; i ++) {
-            JMenu menu = this.getMenu(i);
-            
-            if(menu.isSelected()) {
+        for (int i = 0, menuCount = getMenuCount(); i < menuCount; i++)
+            if (getMenu(i).isSelected())
                 return true;
-            }
-        }
         return false;
-    }
-
-    /**
-     * Paints the MENU_BACKGROUND image on the background of this container.
-     * 
-     * @param g the <tt>Graphics</tt> object that does the painting
-     */
-    @Override
-    public void paintComponent(Graphics g)
-    {
-        super.paintComponent(g);
-
-        Image backgroundImage
-            = ImageLoader.getImage(ImageLoader.MENU_BACKGROUND);
-
-        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
     }
 }

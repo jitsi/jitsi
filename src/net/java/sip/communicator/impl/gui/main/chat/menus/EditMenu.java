@@ -56,10 +56,6 @@ public class EditMenu
 
         this.chatWindow = chatWindow;
 
-        this.setForeground(new Color(
-            GuiActivator.getResources()
-                .getColor("service.gui.CHAT_MENU_FOREGROUND")));
-
         this.cutMenuItem.setName("cut");
         this.copyMenuItem.setName("copy");
         this.pasteMenuItem.setName("paste");
