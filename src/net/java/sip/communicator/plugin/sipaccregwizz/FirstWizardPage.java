@@ -284,7 +284,7 @@ public class FirstWizardPage
                 enableSipZrtpAttribute.setEnabled(cb.isSelected());
             }
         });
-        
+
         advancedOpPanel.add(encryptionPanel, BorderLayout.SOUTH);
 
         advancedOpPanel.setBorder(BorderFactory.createTitledBorder(Resources
@@ -446,8 +446,15 @@ public class FirstWizardPage
         registration.setServerPort(serverPortField.getText());
         registration.setProxy(proxyField.getText());
         registration.setProxyPort(proxyPortField.getText());
-        registration.setPreferredTransport(transportCombo.getSelectedItem()
-            .toString());
+
+        //Emil: it appears that sometimes the selected item may be null even
+        //though the combo box does not allow a null selection.
+        Object selectedItem = transportCombo.getSelectedItem();
+
+        if(selectedItem == null)
+            selectedItem = transportCombo.getItemAt(0);
+
+        registration.setPreferredTransport(selectedItem.toString());
 
         registration.setEnablePresence(enablePresOpButton.isSelected());
         registration.setForceP2PMode(forceP2PPresOpButton.isSelected());
@@ -616,7 +623,7 @@ public class FirstWizardPage
         enableDefaultEncryption.setSelected(enabledDefaultEncryption);
         enableSipZrtpAttribute.setSelected(enabledSipZrtpAttribute);
         enableSipZrtpAttribute.setEnabled(enabledDefaultEncryption);
-        
+
         pollPeriodField.setText(pollingPeriod);
         subscribeExpiresField.setText(subscriptionPeriod);
 
