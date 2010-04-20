@@ -116,8 +116,8 @@ public class VersionImpl
             return Integer.valueOf(RevisionID.REVISION_ID);
         } catch (NumberFormatException numberFormatException)
         {
-            // if we cannot parse the revision number return 0
-            return 0;
+            // if we cannot parse the revision number return -1, so we skip it
+            return -1;
         }
     }
 
@@ -241,8 +241,12 @@ public class VersionImpl
         }
         else
         {
-            versionStringBuff.append(".");
-            versionStringBuff.append(Integer.toString(getVersionRevision()));
+            int rev = getVersionRevision();
+            if(rev >= 0)
+            {
+                versionStringBuff.append(".");
+                versionStringBuff.append(Integer.toString(rev));
+            }
         }
 
         if(isNightly())
