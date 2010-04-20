@@ -48,14 +48,6 @@ public class VersionImpl
     public static final String PRE_RELEASE_ID = "alpha3";
 
     /**
-     * Returns the version revision number of the current SIP Communicator
-     * version. In an example 2.3.1 version string 1 is the revision number.
-     * The version revision number number changes after applying bug fixes and
-     * possible some small enhancements to a given SIP Communicator version.
-     */
-    public static final int VERSION_REVISION = 0;
-
-    /**
      * Indicates if this SIP Communicator version corresponds to a nightly build
      * of a repository snapshot or to an official SIP Communicator release.
      */
@@ -119,7 +111,14 @@ public class VersionImpl
         if(isPreRelease())
             return -1;
 
-        return VERSION_REVISION;
+        try
+        {
+            return Integer.valueOf(RevisionID.REVISION_ID);
+        } catch (NumberFormatException numberFormatException)
+        {
+            // if we cannot parse the revision number return 0
+            return 0;
+        }
     }
 
     /**

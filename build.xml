@@ -435,6 +435,15 @@
         <!-- set the build id according to the cruisecontrol property -->
         <replace file="${src}/net/java/sip/communicator/impl/version/NightlyBuildID.java"
             token="build.id" value="${build.label}"/>
+
+        <!-- create a class that would contain our nightly revision.id if any -->
+        <copy file="${src}/net/java/sip/communicator/impl/version/RevisionID.java.tmpl"
+              tofile="${src}/net/java/sip/communicator/impl/version/RevisionID.java"
+              overwrite="true"/>
+
+        <!-- set the build id according to the cruisecontrol property -->
+        <replace file="${src}/net/java/sip/communicator/impl/version/RevisionID.java"
+            token="revision.id" value="${build.label}"/>
     </target>
 
     <!-- SIP Communicator Version -->
