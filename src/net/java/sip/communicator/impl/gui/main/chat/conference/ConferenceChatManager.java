@@ -211,12 +211,8 @@ public class ConferenceChatManager
             break;
         }
 
-        logger
-            .info("MESSAGE RECEIVED from " + sourceMember.getContactAddress());
-        logger
-            .trace(
-                "MESSAGE RECEIVED from contact: "
-                    + sourceMember.getContactAddress());
+        logger.trace("MESSAGE RECEIVED from contact: "
+            + sourceMember.getContactAddress());
 
         Message message = evt.getMessage();
 
@@ -267,10 +263,14 @@ public class ConferenceChatManager
         {
             String nickname = sourceChatRoom.getUserNickname();
 
+            int atIx = nickname.indexOf("@");
+
             fireChatNotification =
                 (nickname == null)
                     || messageContent.toLowerCase().contains(
-                        nickname.toLowerCase());
+                        nickname.toLowerCase())
+                    || ((atIx == -1)? false : messageContent.toLowerCase()
+                        .contains(nickname.substring(0, atIx + 1)));
         }
         if (fireChatNotification)
         {
