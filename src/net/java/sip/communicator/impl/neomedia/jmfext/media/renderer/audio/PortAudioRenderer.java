@@ -15,7 +15,7 @@ import net.java.sip.communicator.impl.neomedia.portaudio.streams.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * PortAudio renderer.
+ * Implements an audio <tt>Renderer</tt> which uses PortAudio.
  *
  * @author Damian Minkov
  * @author Lubomir Marinov
@@ -25,163 +25,45 @@ public class PortAudioRenderer
     implements Renderer
 {
     /**
-     * logger
+     * The <tt>Logger</tt> used by the <tt>PortAudioRenderer</tt> class and its
+     * instances for logging output.
      */
-    private static final Logger logger =
-        Logger.getLogger(PortAudioRenderer.class);
+    private static final Logger logger
+        = Logger.getLogger(PortAudioRenderer.class);
 
     /**
-     * Name of the renderer.
+     * The human-readable name of the <tt>PortAudioRenderer</tt> JMF plug-in.
      */
-    private static final String name = "PortAudio Renderer";
+    private static final String PLUGIN_NAME = "PortAudio Renderer";
 
     /**
-     * The supported input formats. The input formats are
-     * changed after the device is set.
+     * The list of the standard sample rates supported by
+     * <tt>PortAudioRenderer</tt>.
      */
-    public static Format[] supportedInputFormats = new Format[]{};
+    private static final double[] SUPPORTED_SAMPLE_RATES
+        = new double[] { 8000, 16000, 22050, 44100, 48000 };
 
     /**
-     * The standard supported sample rates.
-     */
-    private static double[] supportedSampleRates =
-        new double[]{8000, 16000, 22050, 44100, 48000};
-
-    /**
-     * The current input format of the renderer.
-     */
-    private AudioFormat inputFormat;
-
-    /**
-     * PortAudio output stream currently in use.
-     */
-    private OutputPortAudioStream stream = null;
-
-    /**
-     * Is renderer started.
-     */
-    boolean started = false;
-
-    /**
-     * Index of the device we use and must use when creating stream.
+     * The PortAudio index of the device to be used by the
+     * <tt>PortAudioRenderer</tt> instance which are to be opened.
      */
     private static int deviceIndex = -1;
 
     /**
-     * Lists the input formats supported by this Renderer.
-     * @return  An array of Format objects that represent
-     *          the input formats supported by this Renderer.
+     * The supported input formats. Changed when {@link #deviceIndex} is set.
      */
-    public Format[] getSupportedInputFormats()
-    {
-        return supportedInputFormats;
-    }
+    public static Format[] supportedInputFormats = new Format[0];
 
     /**
-     * Sets the Format of the input data.
-     * @param format the format to set.
-     * @return The Format that was set.
+     * The JMF <tt>Format</tt> in which this <tt>PortAudioRenderer</tt> is
+     * currently configured to read the audio data to be rendered.
      */
-    public Format setInputFormat(Format format)
-    {
-        if(!(format instanceof AudioFormat))
-            return null;
-
-        this.inputFormat = (AudioFormat) format;
-
-        return inputFormat;
-    }
+    private AudioFormat inputFormat = null;
 
     /**
-     * Initiates the rendering process.
-     * When start is called, the renderer begins rendering
-     * any data available in its internal buffers.
+     * The output PortAudio stream represented by this instance.
      */
-    public void start()
-    {
-        try
-        {
-            stream.start();
-        }
-        catch (PortAudioException paex)
-        {
-            logger.error("Starting portaudio stream failed", paex);
-        }
-    }
-
-    /**
-     * Halts the rendering process.
-     */
-    public void stop()
-    {
-        try
-        {
-            stream.stop();
-        }
-        catch (PortAudioException paex)
-        {
-            logger.error("Closing portaudio stream failed", paex);
-        }
-    }
-
-    /**
-     * Processes the data and renders it
-     * to the output device represented by this Renderer.
-     * @param buffer the input data.
-     * @return BUFFER_PROCESSED_OK if the processing is successful.
-     */
-    public int process(Buffer buffer)
-    {
-        try
-        {
-            stream
-                .write(
-                    (byte[]) buffer.getData(),
-                    buffer.getOffset(),
-                    buffer.getLength());
-        }
-        catch (PortAudioException paex)
-        {
-            logger.error("Error writing to device", paex);
-        }
-
-        return BUFFER_PROCESSED_OK;
-    }
-
-    /**
-     * Returns the name of this plug-in.
-     * @return a <tt>String</tt> which contains the descriptive name of this
-     * plug-in.
-     */
-    public String getName()
-    {
-        return name;
-    }
-
-    /**
-     * Opens the device and stream that we will use to render data.
-     * @throws  ResourceUnavailableException If required resources cannot
-     *          be opened/created.
-     */
-    public void open()
-        throws ResourceUnavailableException
-    {
-        if (stream == null)
-            try
-            {
-                stream
-                    = PortAudioManager
-                        .getInstance()
-                            .getOutputStream(
-                                deviceIndex,
-                                inputFormat.getSampleRate(),
-                                inputFormat.getChannels());
-            }
-            catch (PortAudioException e)
-            {
-                throw new ResourceUnavailableException(e.getMessage());
-            }
-    }
+    private OutputPortAudioStream stream = null;
 
     /**
      *  Closes the plug-in.
@@ -204,6 +86,83 @@ public class PortAudioRenderer
     }
 
     /**
+     * Gets the descriptive/human-readble name of this JMF plug-in.
+     *
+     * @return the descriptive/human-readable name of this JMF plug-in
+     */
+    public String getName()
+    {
+        return PLUGIN_NAME;
+    }
+
+    /**
+     * Gets the list of JMF <tt>Format</tt>s of audio data which this
+     * <tt>Renderer</tt> is capable of rendering.
+     *
+     * @return an array of JMF <tt>Format</tt>s of audio data which this
+     * <tt>Renderer</tt> is capable of rendering
+     */
+    public Format[] getSupportedInputFormats()
+    {
+        return supportedInputFormats;
+    }
+
+    /**
+     * Opens the PortAudio device and output stream represented by this instance
+     * which are to be used to render audio.
+     *
+     * @throws ResourceUnavailableException if the PortAudio device or output
+     * stream cannot be created or opened
+     */
+    public void open()
+        throws ResourceUnavailableException
+    {
+        if (stream == null)
+        {
+            try
+            {
+                stream
+                    = PortAudioManager
+                        .getInstance()
+                            .getOutputStream(
+                                deviceIndex,
+                                inputFormat.getSampleRate(),
+                                inputFormat.getChannels());
+            }
+            catch (PortAudioException paex)
+            {
+                throw new ResourceUnavailableException(paex.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Renders the audio data contained in a specific <tt>Buffer</tt> onto the
+     * PortAudio device represented by this <tt>Renderer</tt>.
+     *
+     * @param buffer the <tt>Buffer</tt> which contains the audio data to be
+     * rendered
+     * @return <tt>BUFFER_PROCESSED_OK</tt> if the specified <tt>buffer</tt> has
+     * been successfully processed
+     */
+    public int process(Buffer buffer)
+    {
+        try
+        {
+            stream
+                .write(
+                    (byte[]) buffer.getData(),
+                    buffer.getOffset(),
+                    buffer.getLength());
+        }
+        catch (PortAudioException paex)
+        {
+            logger.error("Error writing to device", paex);
+        }
+        return BUFFER_PROCESSED_OK;
+    }
+
+    /**
      * Resets the state of the plug-in.
      */
     public void reset()
@@ -211,10 +170,13 @@ public class PortAudioRenderer
     }
 
     /**
-     * Used to set the device index used by the renderer common for all
-     * instances of it. Change the format corresponding the device which
-     * will be used.
-     * @param locator the locator containing the device index.
+     * Sets the PortAudio index of the device to be used by the
+     * <tt>PortAudioRenderer</tt> instances which are to be opened later on.
+     * Changes the <tt>supportedInputFormats</tt> property of all
+     * <tt>PortAudioRenderer</tt> instances.
+     *
+     * @param locator the <tt>MediaLocator</tt> specifying the PortAudio device
+     * index
      */
     public static void setDevice(MediaLocator locator)
     {
@@ -222,23 +184,71 @@ public class PortAudioRenderer
 
         int outputChannels = 1;
 
-        supportedInputFormats = new Format[supportedSampleRates.length];
-
-        for(int i = 0; i < supportedSampleRates.length; i++)
+        supportedInputFormats = new Format[SUPPORTED_SAMPLE_RATES.length];
+        for(int i = 0; i < SUPPORTED_SAMPLE_RATES.length; i++)
         {
-            double sampleRate = supportedSampleRates[i];
+            supportedInputFormats[i]
+                = new AudioFormat(
+                        AudioFormat.LINEAR,
+                        SUPPORTED_SAMPLE_RATES[i],
+                        16,
+                        outputChannels,
+                        AudioFormat.LITTLE_ENDIAN,
+                        AudioFormat.SIGNED,
+                        16,
+                        Format.NOT_SPECIFIED,
+                        Format.byteArray);
+        }
+    }
 
-            supportedInputFormats[i] =
-                new AudioFormat(
-                    AudioFormat.LINEAR,
-                      sampleRate,
-                      16,
-                      outputChannels,
-                      AudioFormat.LITTLE_ENDIAN,
-                      AudioFormat.SIGNED,
-                      16,
-                      Format.NOT_SPECIFIED,
-                      Format.byteArray);
+    /**
+     * Sets the JMF <tt>Format</tt> of the audio data to be rendered by this
+     * <tt>Renderer</tt>.
+     *
+     * @param format the JMF <tt>Format</tt> of the audio data to be redered by
+     * this instance
+     * @return <tt>null</tt> if the specified <tt>format</tt> is not compatible
+     * with this <tt>Renderer</tt>; otherwise, the JMF <tt>Format</tt> which has
+     * been successfully set
+     */
+    public Format setInputFormat(Format format)
+    {
+        if(!(format instanceof AudioFormat))
+            return null;
+
+        this.inputFormat = (AudioFormat) format;
+        return this.inputFormat;
+    }
+
+    /**
+     * Starts the rendering process. Any audio data available in the internal
+     * resources associated with this <tt>PortAudioRenderer</tt> will begin
+     * being rendered.
+     */
+    public void start()
+    {
+        try
+        {
+            stream.start();
+        }
+        catch (PortAudioException paex)
+        {
+            logger.error("Starting PortAudio stream failed", paex);
+        }
+    }
+
+    /**
+     * Stops the rendering process.
+     */
+    public void stop()
+    {
+        try
+        {
+            stream.stop();
+        }
+        catch (PortAudioException paex)
+        {
+            logger.error("Closing PortAudio stream failed", paex);
         }
     }
 }

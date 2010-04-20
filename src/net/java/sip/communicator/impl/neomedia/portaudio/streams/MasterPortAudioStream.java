@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.neomedia.portaudio.streams;
 
 import java.util.*;
 
+import javax.media.*;
+
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
 
 /**
@@ -26,36 +28,10 @@ public class MasterPortAudioStream
     private int deviceIndex = -1;
 
     /**
-     * The stream pointer we are using or 0 if stopped and not initialized.
-     */
-    private long stream = 0;
-
-    /**
-     * Whether this stream is started.
-     */
-    private boolean started = false;
-
-    /**
-     * The frame size we use.
-     */
-    private final int frameSize;
-
-    /**
-     * The number of frames to read from a native PortAudio stream in a single
-     * invocation.
-     */
-    private final int framesPerBuffer;
-
-    /**
      * The number of bytes to read from a native PortAudio stream in a single
      * invocation. Based on {@link #framesPerBuffer} and {@link #frameSize}.
      */
     private final int bytesPerBuffer;
-
-    /**
-     * The sample rate for the current stream.
-     */
-    private double sampleRate;
 
     /**
      * The number of channel for the current stream.
@@ -71,11 +47,37 @@ public class MasterPortAudioStream
     private Object connectedToStreamSync = new Object();
 
     /**
+     * The frame size we use.
+     */
+    private final int frameSize;
+
+    /**
+     * The number of frames to read from a native PortAudio stream in a single
+     * invocation.
+     */
+    private final int framesPerBuffer;
+
+    /**
+     * The sample rate for the current stream.
+     */
+    private double sampleRate;
+
+    /**
      * The <tt>InputPortAudioStream</tt>s which read audio from this
      * <tt>MasterPortAudioStream</tt>s.
      */
     private final List<InputPortAudioStream> slaves
         = new ArrayList<InputPortAudioStream>();
+
+    /**
+     * Whether this stream is started.
+     */
+    private boolean started = false;
+
+    /**
+     * The stream pointer we are using or 0 if stopped and not initialized.
+     */
+    private long stream = 0;
 
     /**
      * Creates new stream.
@@ -85,7 +87,7 @@ public class MasterPortAudioStream
      * @throws PortAudioException if stream cannot be opened.
      */
     public MasterPortAudioStream(
-        int deviceIndex, double sampleRate, int channels)
+            int deviceIndex, double sampleRate, int channels)
         throws PortAudioException
     {
         this.deviceIndex = deviceIndex;
@@ -99,6 +101,24 @@ public class MasterPortAudioStream
                 * channels;
         framesPerBuffer = PortAudioManager.getInstance().getFramesPerBuffer();
         bytesPerBuffer = frameSize * framesPerBuffer;
+    }
+
+    /**
+     * Returns the index of the device that we use.
+     * @return the deviceIndex
+     */
+    public int getDeviceIndex()
+    {
+        return deviceIndex;
+    }
+
+    /**
+     * Returns the pointer to the stream that we use for reading.
+     * @return the stream pointer.
+     */
+    public long getStream()
+    {
+        return stream;
     }
 
     /**
@@ -125,6 +145,79 @@ public class MasterPortAudioStream
     }
 
     /**
+     * Reads audio data from this <tt>MasterPortAudioStream</tt> into a specific
+     * <tt>Buffer</tt> blocking until audio data is indeed available.
+     *
+     * @param buffer the <tt>Buffer</tt> into which the audio data read from
+     * this <tt>MasterPortAudioStream</tt> is to be returned
+     * @throws PortAudioException if an error occurs while reading
+     */
+    public synchronized void read(Buffer buffer)
+        throws PortAudioException
+    {
+        if (!started)
+        {
+            buffer.setLength(0);
+            return;
+        }
+
+        /*
+         * Attempting to reuse the data of the specified buffer in order to
+         * decrease the unnecessary allocations is not currently implemented.
+         */
+        int bufferLength = bytesPerBuffer;
+        byte[] bufferData = new byte[bufferLength];
+
+        synchronized (connectedToStreamSync)
+        {
+            PortAudio.Pa_ReadStream(stream, bufferData, framesPerBuffer);
+        }
+
+        long bufferTimeStamp = System.nanoTime();
+
+        buffer.setData(bufferData);
+        buffer.setFlags(Buffer.FLAG_SYSTEM_TIME);
+        buffer.setLength(bufferLength);
+        buffer.setOffset(0);
+        buffer.setTimeStamp(bufferTimeStamp);
+
+        int slaveCount = slaves.size();
+
+        for(int slaveIndex = 0; slaveIndex < slaveCount; slaveIndex++)
+        {
+            slaves
+                .get(slaveIndex)
+                    .setBuffer(bufferData, bufferLength, bufferTimeStamp);
+        }
+    }
+
+    /**
+     * Sets parameters to the underlying stream.
+     * @param out the connected output stream if echo cancel is enabled.
+     * @param deNoiseEnabled true if we want to enable noise reduction.
+     * @param echoCancelEnabled true to enable echo cancel.
+     * @param frameSize Number of samples to process at one time
+     *        (should correspond to 10-20 ms).
+     * @param filterLength Number of samples of echo to cancel
+     *        (should generally correspond to 100-500 ms)
+     */
+    public void setParams(OutputPortAudioStream out,
+        boolean deNoiseEnabled,
+        boolean echoCancelEnabled, int frameSize, int filterLength)
+    {
+        if(out != null)
+            this.connectedToStreamSync = out.getCloseSyncObject();
+
+        long outStream = (out == null) ? 0 : out.getStream();
+
+        PortAudio.setEchoCancelParams(
+            stream,
+            outStream,
+            deNoiseEnabled,
+            echoCancelEnabled, frameSize, filterLength);
+    }
+
+    /**
      * Starts this <tt>MasterPortAudioStream</tt> so that a specific
      * <tt>InputPortAudioStream</tt> can read from it. When the first such
      * <tt>InputPortAudioStream</tt> request the starting of this instance, this
@@ -144,11 +237,12 @@ public class MasterPortAudioStream
         if(slaves.isEmpty())
         {
             if(stream == 0)
+            {
                 initStream();
-
-            // if still not initted return
-            if(stream == 0)
-                return;
+                // if still not initted return
+                if(stream == 0)
+                    return;
+            }
 
             // start
             PortAudio.Pa_StartStream(stream);
@@ -185,76 +279,5 @@ public class MasterPortAudioStream
             started = false;
             PortAudioManager.getInstance().stoppedInputPortAudioStream(this);
         }
-    }
-
-    /**
-     * Returns the index of the device that we use.
-     * @return the deviceIndex
-     */
-    public int getDeviceIndex()
-    {
-        return deviceIndex;
-    }
-
-    /**
-     * Returns the pointer to the stream that we use for reading.
-     * @return the stream pointer.
-     */
-    public long getStream()
-    {
-        return stream;
-    }
-
-    /**
-     * Block and read a buffer from the stream.
-     *
-     * @return the bytes that a read from underlying stream.
-     * @throws PortAudioException if an error occurs while reading.
-     */
-    public synchronized byte[] read()
-        throws PortAudioException
-    {
-        if(!started)
-            return new byte[0];
-
-        byte[] bytebuff = new byte[bytesPerBuffer];
-
-        synchronized(connectedToStreamSync)
-        {
-                PortAudio.Pa_ReadStream(stream, bytebuff, framesPerBuffer);
-        }
-
-        for(InputPortAudioStream slave : slaves)
-            slave.setBuffer(bytebuff);
-
-        return bytebuff;
-    }
-
-    /**
-     * Sets parameters to the underlying stream.
-     * @param out the connected output stream if echo cancel is enabled.
-     * @param deNoiseEnabled true if we want to enable noise reduction.
-     * @param echoCancelEnabled true to enable echo cancel.
-     * @param frameSize Number of samples to process at one time
-     *        (should correspond to 10-20 ms).
-     * @param filterLength Number of samples of echo to cancel
-     *        (should generally correspond to 100-500 ms)
-     */
-    public void setParams(OutputPortAudioStream out,
-        boolean deNoiseEnabled,
-        boolean echoCancelEnabled, int frameSize, int filterLength)
-    {
-        if(out != null)
-        {
-            this.connectedToStreamSync = out.getCloseSyncObject();
-        }
-
-        long outStream = (out == null) ? 0 : out.getStream();
-
-        PortAudio.setEchoCancelParams(
-            stream,
-            outStream,
-            deNoiseEnabled,
-            echoCancelEnabled, frameSize, filterLength);
     }
 }

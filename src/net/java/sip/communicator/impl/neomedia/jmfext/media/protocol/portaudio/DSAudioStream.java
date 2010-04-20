@@ -56,8 +56,13 @@ public class DSAudioStream
         {
             AudioFormat audioFormat = DataSource.getCaptureFormat();
 
-            stream = PortAudioManager.getInstance().getInputStream(deviceIndex,
-                audioFormat.getSampleRate(), audioFormat.getChannels());
+            stream
+                = PortAudioManager
+                    .getInstance()
+                        .getInputStream(
+                            deviceIndex,
+                            audioFormat.getSampleRate(),
+                            audioFormat.getChannels());
         }
 
         stream.start();
@@ -93,31 +98,27 @@ public class DSAudioStream
         throws IOException
     {
         if (stream == null)
+        {
+            buffer.setLength(0);
             return;
+        }
 
         try
         {
-            byte[] bytebuff = stream.read();
-
-            buffer.setTimeStamp(System.nanoTime());
-
-            buffer.setData(bytebuff);
-            buffer.setLength(bytebuff.length);
-
-            buffer.setFlags(Buffer.FLAG_SYSTEM_TIME);
-            buffer.setFormat(getFormat());
-            buffer.setHeader(null);
-
-            buffer.setSequenceNumber(seqNo);
-            seqNo++;
+            stream.read(buffer);
         }
-        catch (PortAudioException pae)
+        catch (PortAudioException paex)
         {
-            IOException ioe = new IOException();
+            IOException ioex = new IOException();
 
-            ioe.initCause(pae);
-            throw ioe;
+            ioex.initCause(paex);
+            throw ioex;
         }
+
+        buffer.setFormat(getFormat());
+        buffer.setHeader(null);
+
+        buffer.setSequenceNumber(seqNo++);
     }
 
     /**

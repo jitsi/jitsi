@@ -55,10 +55,7 @@ public class DataSource
      * for this <tt>DataSource</tt>.
      */
     private final Object[] controls
-        = new Object[]
-                {
-                    new FormatControlImpl()
-                };
+        = new Object[] { new FormatControlImpl() };
 
     /**
      * Indicates whether the datasource is starteded or not.

@@ -138,23 +138,6 @@ public class AudioMediaDeviceSession
     }
 
     /**
-     * Sets the  <tt>SimpleAudioLevelListener</tt> that this session should be
-     * notifying about changes in local audio level related information. This
-     * class only supports a single listener for audio changes per source
-     * (i.e. stream or data source). Audio changes are generally quite time
-     * intensive (~ 50 per second) so we are doing this in order to reduce the
-     * number of objects associated with the process (such as event instances
-     * listener list iterators and sync copies).
-     *
-     * @param listener the <tt>SimpleAudioLevelListener</tt> to add
-     */
-    public void setLocalUserAudioLevelListener(
-                                            SimpleAudioLevelListener listener)
-    {
-        this.localUserAudioLevelEffect.setAudioLevelListener(listener);
-    }
-
-    /**
      * Creates an audio level effect and add its to the codec chain of the
      * <tt>TrackControl</tt> assuming that it only contains a single track.
      *
@@ -163,7 +146,7 @@ public class AudioMediaDeviceSession
      * effects.
      */
     private void registerLocalUserAudioLevelJMFEffect(TrackControl tc)
-            throws UnsupportedPlugInException
+        throws UnsupportedPlugInException
     {
         //we register the effect regardless of whether or not we have any
         //listeners at this point because we won't get a second chance.
@@ -173,25 +156,7 @@ public class AudioMediaDeviceSession
         //XXX: i am assuming that a single effect could be reused multiple times
         // if that turns out not to be the case we need to create a new instance
         // here.
-        tc.setCodecChain(new Codec[]{localUserAudioLevelEffect});
-    }
-
-    /**
-     * Sets <tt>listener</tt> as the <tt>SimpleAudioLevelListener</tt> that we
-     * are going to notify every time a change occurs in the audio level of
-     * the media that this device session is receiving from the remote party.
-     * This class only supports a single listener for audio changes per source
-     * (i.e. stream or data source). Audio changes are generally quite time
-     * intensive (~ 50 per second) so we are doing this in order to reduce the
-     * number of objects associated with the process (such as event instances
-     * listener list iterators and sync copies).
-     *
-     * @param listener the <tt>SimpleAudioLevelListener</tt> that we want
-     * notified for audio level changes in the remote participant's media.
-     */
-    public void setStreamAudioLevelListener(SimpleAudioLevelListener listener)
-    {
-        this.streamAudioLevelEffect.setAudioLevelListener(listener);
+        tc.setCodecChain(new Codec[] { localUserAudioLevelEffect });
     }
 
     /**
@@ -214,7 +179,42 @@ public class AudioMediaDeviceSession
         //however the effect would do next to nothing unless we register a
         //first listener with it.
         // Assume there is only one audio track
-        trackControl.setCodecChain(new Codec[]{streamAudioLevelEffect});
+        trackControl.setCodecChain(new Codec[] { streamAudioLevelEffect });
+    }
+
+    /**
+     * Sets the  <tt>SimpleAudioLevelListener</tt> that this session should be
+     * notifying about changes in local audio level related information. This
+     * class only supports a single listener for audio changes per source
+     * (i.e. stream or data source). Audio changes are generally quite time
+     * intensive (~ 50 per second) so we are doing this in order to reduce the
+     * number of objects associated with the process (such as event instances
+     * listener list iterators and sync copies).
+     *
+     * @param listener the <tt>SimpleAudioLevelListener</tt> to add
+     */
+    public void setLocalUserAudioLevelListener(
+                                            SimpleAudioLevelListener listener)
+    {
+        this.localUserAudioLevelEffect.setAudioLevelListener(listener);
+    }
+
+    /**
+     * Sets <tt>listener</tt> as the <tt>SimpleAudioLevelListener</tt> that we
+     * are going to notify every time a change occurs in the audio level of
+     * the media that this device session is receiving from the remote party.
+     * This class only supports a single listener for audio changes per source
+     * (i.e. stream or data source). Audio changes are generally quite time
+     * intensive (~ 50 per second) so we are doing this in order to reduce the
+     * number of objects associated with the process (such as event instances
+     * listener list iterators and sync copies).
+     *
+     * @param listener the <tt>SimpleAudioLevelListener</tt> that we want
+     * notified for audio level changes in the remote participant's media.
+     */
+    public void setStreamAudioLevelListener(SimpleAudioLevelListener listener)
+    {
+        this.streamAudioLevelEffect.setAudioLevelListener(listener);
     }
 
     /**

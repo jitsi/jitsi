@@ -6,15 +6,38 @@
  */
 package net.java.sip.communicator.impl.neomedia.portaudio.streams;
 
+import javax.media.*;
+
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
 
 /**
  * The input audio stream.
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class InputPortAudioStream
 {
+
+    /**
+     * The audio data to be read from this <tt>InputPortAudioStream</tt> upon
+     * the next {@link #read(Buffer)} request.
+     */
+    private byte[] bufferData = null;
+
+    /**
+     * The number of bytes in {@link #bufferData} which represent valid audio
+     * data to be read from this <tt>InputPortAudioStream</tt> upon the next
+     * {@link #read(Buffer)} request.
+     */
+    private int bufferLength = 0;
+
+    /**
+     * The time stamp of the audio data in {@link #bufferData} represented in
+     * accord with {@link Buffer#FLAG_SYSTEM_TIME}.
+     */
+    private long bufferTimeStamp = 0;
+
     /**
      * Our parent stream, the actual source of data.
      */
@@ -34,46 +57,86 @@ public class InputPortAudioStream
     private boolean stopping = false;
 
     /**
-     * The buffer to return.
-     */
-    protected byte[] buffer = null;
-
-    /**
      * Creates new input stream (slave) with master input stream.
-     * @param st the parent(master) input stream.
+     *
+     * @param parentStream the parent/master input stream.
      */
-    public InputPortAudioStream(MasterPortAudioStream st)
+    public InputPortAudioStream(MasterPortAudioStream parentStream)
     {
-        this.parentStream = st;
+        this.parentStream = parentStream;
     }
 
     /**
-     * Block and read a buffer from the stream if there is no buffer.
+     * Reads audio data from this <tt>InputPortAudioStream</tt> into a specific
+     * <tt>Buffer</tt> blocking until audio data is indeed available.
      *
-     * @return the bytes that a read from underlying stream.
-     * @throws PortAudioException if an error occurs while reading.
+     * @param buffer the <tt>Buffer</tt> into which the audio data read from
+     * this <tt>InputPortAudioStream</tt> is to be returned
+     * @throws PortAudioException if an error occurs while reading
      */
-    public byte[] read()
+    public void read(Buffer buffer)
         throws PortAudioException
     {
-        if(stopping || !started)
-            return new byte[0];
-
-        synchronized(parentStream)
+        if (stopping || !started)
         {
-            byte[] res = buffer;
+            buffer.setLength(0);
+            return;
+        }
 
-            if(res == null)
-                res = parentStream.read();
-            buffer = null;
-            return res;
+        synchronized (parentStream)
+        {
+            if (bufferData == null)
+            {
+                parentStream.read(buffer);
+            }
+            else
+            {
+                buffer.setData(bufferData);
+                buffer.setFlags(Buffer.FLAG_SYSTEM_TIME);
+                buffer.setLength(bufferLength);
+                buffer.setOffset(0);
+                buffer.setTimeStamp(bufferTimeStamp);
+            }
+
+            /*
+             * The bufferData of this InputPortAudioStream has been consumed so
+             * make sure a new piece of audio data will be read the next time.
+             */
+            bufferData = null;
+        }
+    }
+
+    /**
+     * Sets the audio data to be read from this <tt>InputPortAudioStream</tt>
+     * upon the next request. Used by {@link #parentStream} in order to provide
+     * all audio samples to all its slaves and not only to the one which caused
+     * the actual read from PortAudio.
+     *
+     * @param bufferData the audio data to be read from this
+     * <tt>InputPortAudioStream</tt> upon the next request
+     * @param bufferLength the number of bytes in <tt>bufferData</tt> which
+     * represent valid audio data to be read from this
+     * <tt>InputPortAudioStream</tt> upon the next request
+     * @param bufferTimeStamp the time stamp of the audio data in
+     * <tt>bufferData</tt> represented in accord with
+     * {@link Buffer#FLAG_SYSTEM_TIME}
+     */
+    void setBuffer(byte[] bufferData, int bufferLength, long bufferTimeStamp)
+    {
+        synchronized (parentStream)
+        {
+            this.bufferData = bufferData;
+            this.bufferLength = bufferLength;
+            this.bufferTimeStamp = bufferTimeStamp;
         }
     }
 
     /**
      * Starts the stream. Also starts the parent stream
      * if its not already started.
-     * @throws PortAudioException if stream cannot be started.
+     *
+     * @throws PortAudioException if an error occurs while starting this
+     * <tt>InputPortAudioStream</tt>
      */
     public synchronized void start()
         throws PortAudioException
@@ -88,7 +151,9 @@ public class InputPortAudioStream
     /**
      * Stops the stream. Also stops the parent if we are the last slave
      * stream that use it.
-     * @throws PortAudioException
+     *
+     * @throws PortAudioException if an error occurs while stopping this
+     * <tt>InputPortAudioStream</tt>
      */
     public synchronized void stop()
         throws PortAudioException
@@ -99,19 +164,6 @@ public class InputPortAudioStream
             parentStream.stop(this);
             started = false;
             stopping = false;
-        }
-    }
-
-    /**
-     * The parent can set a buffer that was requested and read by other
-     * slave stream.
-     * @param buffer the buffer to set.
-     */
-    public void setBuffer(byte[] buffer)
-    {
-        synchronized (parentStream)
-        {
-            this.buffer = buffer;
         }
     }
 }
