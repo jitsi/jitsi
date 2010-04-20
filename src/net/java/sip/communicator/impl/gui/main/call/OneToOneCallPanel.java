@@ -44,7 +44,7 @@ public class OneToOneCallPanel
         this.callDialog = callDialog;
 
         this.setBorder(BorderFactory
-            .createEmptyBorder(5, 5, 5, 5));
+            .createEmptyBorder(5, 0, 5, 0));
 
         this.setTransferHandler(new CallTransferHandler(call));
 

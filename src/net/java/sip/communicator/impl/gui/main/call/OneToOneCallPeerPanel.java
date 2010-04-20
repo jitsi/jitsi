@@ -101,6 +101,13 @@ public class OneToOneCallPeerPanel
     private Component localVideo;
 
     /**
+     * A list storing remote video resize coordinates in order to prevent to
+     * call ensureSize on events that are coming from local user resizing the
+     * window.
+     */
+    private LinkedList<ResizedCoordinates> resizeList;
+
+    /**
      * The current <code>Window</code> being displayed in full-screen. Because
      * the AWT API with respect to the full-screen support doesn't seem
      * sophisticated enough, the field is used sparingly i.e. when there are no
@@ -545,15 +552,14 @@ public class OneToOneCallPeerPanel
         {
             if ((event != null)
                     && !event.isConsumed()
-                    && (event.getOrigin() == VideoEvent.LOCAL))
+                    && event.getOrigin() == VideoEvent.LOCAL)
             {
-                Component localVideo = event.getVisualComponent();
+                Component video = event.getVisualComponent();
 
                 switch (event.getType())
                 {
                 case VideoEvent.VIDEO_ADDED:
-                    this.localVideo = localVideo;
-
+                    this.localVideo = video;
                     /*
                      * Let the creator of the local visual Component know it
                      * shouldn't be disposed of because we're going to use it.
@@ -562,7 +568,7 @@ public class OneToOneCallPeerPanel
                     break;
 
                 case VideoEvent.VIDEO_REMOVED:
-                    if (this.localVideo == localVideo)
+                    if (this.localVideo == video)
                         this.localVideo = null;
                     break;
                 }
@@ -579,6 +585,34 @@ public class OneToOneCallPeerPanel
                 }
             });
             return;
+        }
+
+        // Stores remote video resize events in order to prevent ensureSize to
+        // be called lately for these events.
+        if (event != null
+            &&event.getType() == VideoEvent.VIDEO_ADDED
+            && event.getOrigin() == VideoEvent.REMOTE)
+        {
+            event.getVisualComponent().addComponentListener(
+                new ComponentAdapter()
+                {
+                    public void componentResized(ComponentEvent e)
+                    {
+                        Component c = e.getComponent();
+                        if (resizeList == null)
+                            resizeList = new LinkedList<ResizedCoordinates>();
+
+                        synchronized (resizeList)
+                        {
+                            if (resizeList.size() > 10)
+                                resizeList.clear();
+
+                            resizeList.add(
+                                new ResizedCoordinates(
+                                    c.getWidth(), c.getHeight()));
+                        }
+                    }
+                });
         }
 
         synchronized (videoContainers)
@@ -623,11 +657,44 @@ public class OneToOneCallPeerPanel
                 int width = sizeChangeVideoEvent.getWidth();
                 int height = sizeChangeVideoEvent.getHeight();
 
+                // Check if the current coordinates are in the scope of the
+                // latest resize events. If so we won't call ensureSize after
+                // that, because the size is already set. This should prevent
+                // the flickering of the window while resizing.
+                boolean containedSize = false;
+                if (resizeList != null && resizeList.size() > 0)
+                {
+                    synchronized (resizeList)
+                    {
+                        Iterator<ResizedCoordinates> resizeIter
+                            = resizeList.iterator();
+                        while (resizeIter.hasNext())
+                        {
+                            ResizedCoordinates coord = resizeIter.next();
+                            int resizeWidth = coord.getWidth();
+                            int resizeHeight = coord.getHeight();
+
+                            if (resizeWidth - 3 <= width
+                                && width <= resizeWidth + 3
+                                && resizeHeight - 3 <= height
+                                && height <= resizeHeight + 3)
+                            {
+                                resizeIter.remove();
+                                containedSize = true;
+                            }
+                        }
+                    }
+                }
+
                 if (visualComponent.getParent() == null)
-                    visualComponent.setPreferredSize(new Dimension(width, height));
+                    visualComponent.setPreferredSize(
+                        new Dimension(width, height));
                 else if (isAncestor(videoContainer, visualComponent))
                 {
-                    ensureSize(visualComponent, width, height);
+                    // Only ensure the size if the current size is not contained
+                    // in the list of resize events.
+                    if (!containedSize || resizeList == null)
+                        ensureSize(visualComponent, width, height);
 
                     /*
                      * Even if ensureSize hasn't changed the Frame size,
@@ -777,11 +844,8 @@ public class OneToOneCallPeerPanel
              */
             return false;
         }
-        else if (frame
-                .equals(
-                    frame
-                        .getGraphicsConfiguration()
-                            .getDevice().getFullScreenWindow()))
+        else if (frame.equals(frame.getGraphicsConfiguration()
+                                .getDevice().getFullScreenWindow()))
         {
             /*
              * Forcing the size of a Component which is displayed in a
@@ -794,16 +858,9 @@ public class OneToOneCallPeerPanel
             Dimension frameSize = frame.getSize();
             Dimension componentSize = component.getSize();
 
-            int widthDelta = width - componentSize.width;
-            int heightDelta = height - componentSize.height;
-            int newFrameWidth
-                = (widthDelta > 0)
-                    ? (frameSize.width + widthDelta)
-                    : frameSize.width;
+            int newFrameWidth = width;
             int newFrameHeight
-                = (heightDelta > 0)
-                    ? (frameSize.height + heightDelta)
-                    : frameSize.height;
+                = frameSize.height + height - componentSize.height;
 
             // Don't get bigger than the screen.
             Rectangle screenBounds
@@ -839,8 +896,8 @@ public class OneToOneCallPeerPanel
             }
 
             component.setPreferredSize(new Dimension(width, height));
-            frame
-                .setBounds(newFrameX, newFrameY, newFrameWidth, newFrameHeight);
+            frame.setBounds(newFrameX, newFrameY, newFrameWidth, newFrameHeight);
+
             return true;
         }
     }
@@ -1184,5 +1241,51 @@ public class OneToOneCallPeerPanel
     public CallDialog getCallDialog()
     {
         return callDialog;
+    }
+
+    /**
+     * The <tt>ResizedCoordinates</tt> store a pair of width and height coming
+     * from a resize event.
+     */
+    private class ResizedCoordinates
+    {
+        /**
+         * The width.
+         */
+        int width = 0;
+
+        /**
+         * The height.
+         */
+        int height = 0;
+ 
+        /**
+         * Creates a <tt>ResizedCoordonates</tt> instance.
+         * @param width the width
+         * @param height the height
+         */
+        public ResizedCoordinates(int width, int height)
+        {
+            this.width = width;
+            this.height = height;
+        }
+
+        /**
+         * Returns the resized width.
+         * @return the resized width
+         */
+        public int getWidth()
+        {
+            return width;
+        }
+
+        /**
+         * Returns the resized height.
+         * @return the resized height
+         */
+        public int getHeight()
+        {
+            return height;
+        }
     }
 }

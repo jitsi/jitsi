@@ -78,6 +78,16 @@ public class VideoMediaDeviceSession
         = new VideoNotifierSupport(this);
 
     /**
+     * Previous output video width.
+     */
+    private int previousWidth = 0;
+
+    /**
+     * Previous output video height.
+     */
+    private int previousHeight = 0;
+
+    /**
      * Initializes a new <tt>VideoMediaDeviceSession</tt> instance which is to
      * represent the work of a <tt>MediaStream</tt> with a specific video
      * <tt>MediaDevice</tt>.
@@ -813,6 +823,12 @@ public class VideoMediaDeviceSession
         if ((outputWidth < 1) || (outputHeight < 1))
             return;
 
+        if (previousWidth - 2 <= outputWidth
+            && outputWidth <= previousWidth + 2
+            && previousHeight -2 <= outputHeight
+            && outputHeight <= previousHeight)
+            return;
+
         /*
          * The size of the output video will be calculated so that it fits into
          * the visualComponent and the video aspect ratio is preserved. The
@@ -867,6 +883,9 @@ public class VideoMediaDeviceSession
 
         outputSize.width = (int) outputWidth;
         outputSize.height = (int) outputHeight;
+        previousWidth = outputSize.width;
+        previousHeight = outputSize.height;
+
         playerScaler.setOutputSize(outputSize);
     }
 
