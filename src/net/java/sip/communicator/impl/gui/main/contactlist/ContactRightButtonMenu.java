@@ -115,7 +115,7 @@ public class ContactRightButtonMenu
         viewHistoryString,
         new ImageIcon(ImageLoader.getImage(ImageLoader.HISTORY_16x16_ICON)));
 
-    private MetaContact contactItem;
+    private final MetaContact contactItem;
 
     private static final String moveToPrefix = "moveTo:";
 
@@ -372,7 +372,7 @@ public class ContactRightButtonMenu
             for (int i = 0; i < serRefs.length; i ++)
             {
                 PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);;
+                    .bundleContext.getService(serRefs[i]);
 
                 component.setCurrentContact(contactItem);
 
@@ -430,7 +430,7 @@ public class ContactRightButtonMenu
     {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
-        Contact contact = null;
+        Contact contact;
 
         if (itemName.equals(addContactItem.getName()))
         {
@@ -560,6 +560,7 @@ public class ContactRightButtonMenu
             // user cancels the action
             this.moveDialog.addWindowListener(new WindowAdapter()
                 {
+                    @Override
                     public void windowClosed(WindowEvent e)
                     {
                         contactList.setGroupClickConsumed(false);
