@@ -11,6 +11,7 @@ import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.util.*;
@@ -46,6 +47,11 @@ public class DePacketizer
     private static final byte[] NAL_PREFIX = { 0, 0, 1 };
 
     /**
+     * Interval between a PLI request and its reemission.
+     */
+    private static final long PLI_INTERVAL = 250;
+
+    /**
      * The indicator which determines whether this <tt>DePacketizer</tt> has
      * successfully processed an RTP packet with payload representing a
      * "Fragmentation Unit (FU)" with its Start bit set and has not encountered
@@ -70,6 +76,36 @@ public class DePacketizer
      */
     private final int outputPaddingSize
         = FFmpeg.FF_INPUT_BUFFER_PADDING_SIZE;
+
+    /**
+     * RTCP output stream to send RTCP feedback message
+     * back to sender in case of packet loss for example.
+     */
+    private RTPConnectorOutputStream rtcpOutputStream = null;
+
+    /**
+     * Local SSRC.
+     */
+    private long localSSRC = -1;
+
+    /**
+     * Remote SSRC.
+     */
+    private long remoteSSRC = -1;
+
+    /**
+     * Last timestamp of keyframe request.
+     *
+     * This is used to retransmit keyframe request in case previous get lost
+     * and codec doesn't receive keyframe.
+     */
+    private long lastKeyframeRequestTimeStamp = -1;
+
+    /**
+     * Use or not RTCP PLI message when depacketizer miss
+     * packets.
+     */
+    private boolean usePLI = false;
 
     /**
      * Initializes a new <tt>DePacketizer</tt> instance which is to depacketize
@@ -117,9 +153,18 @@ public class DePacketizer
 
         boolean start_bit = (fu_header & 0x80) != 0;
         boolean end_bit = (fu_header & 0x40) != 0;
+        /* key frame (IDR) type = 5 */
+        boolean keyframe = ((fu_header & 0x1F) == 5);
         int outOffset = outBuffer.getOffset();
         int newOutLength = inLength;
         int octet;
+
+        /* waiting for a keyframe ? */
+        if(lastKeyframeRequestTimeStamp != -1 && keyframe)
+        {
+            /* keyframe received */
+            lastKeyframeRequestTimeStamp = -1;
+        }
 
         if (start_bit)
         {
@@ -249,7 +294,17 @@ public class DePacketizer
                             + " and continuing with sequenceNumber "
                             + sequenceNumber);
 
+            /* send an PLI request to inform sender that we miss
+             * part of video
+             * Do not send another one here if we are waiting for a keyframe.
+             */
+            if(usePLI && lastKeyframeRequestTimeStamp == -1)
+            {
+                sendRTCPFeedbackPLI();
+            }
+
             ret = reset(outBuffer);
+
             if ((ret & OUTPUT_BUFFER_NOT_FILLED) == 0)
                 return ret;
         }
@@ -318,6 +373,15 @@ public class DePacketizer
         if ((inBuffer.getFlags() & Buffer.FLAG_RTP_MARKER) != 0)
             outBuffer.setFlags(outBuffer.getFlags() | Buffer.FLAG_RTP_MARKER);
 
+
+        /* we do not receive keyframe so retransmit request */
+        if(usePLI && lastKeyframeRequestTimeStamp != -1 &&
+              System.currentTimeMillis() > (lastKeyframeRequestTimeStamp +
+                      PLI_INTERVAL))
+        {
+            sendRTCPFeedbackPLI();
+        }
+
         return ret;
     }
 
@@ -376,5 +440,48 @@ public class DePacketizer
         fuaStartedAndNotEnded = false;
         outBuffer.setLength(0);
         return OUTPUT_BUFFER_NOT_FILLED;
+    }
+
+    /**
+     * Send RTCP Feedback PLI message.
+     */
+    private void sendRTCPFeedbackPLI()
+    {
+        RTCPFeedbackPacket packet = new RTCPFeedbackPacket(1, 206,
+                localSSRC, remoteSSRC);
+        lastKeyframeRequestTimeStamp = System.currentTimeMillis();
+
+        packet.writeTo(rtcpOutputStream);
+    }
+
+    /**
+     * Set <tt>OutputDataStream</tt>.
+     *
+     * @param rtcpOutputStream RTCP <tt>OutputDataStream</tt>
+     */
+    public void setConnector(RTPConnectorOutputStream rtcpOutputStream)
+    {
+        this.rtcpOutputStream = rtcpOutputStream;
+    }
+
+    /**
+     * Set local and remote SSRC. It will be used
+     * to send RTCP messages.
+     *
+     * @param localSSRC local SSRC
+     * @param remoteSSRC remote SSRC
+     */
+    public void setSSRC(long localSSRC, long remoteSSRC)
+    {
+        this.localSSRC = localSSRC;
+        this.remoteSSRC = remoteSSRC;
+    }
+
+    /**
+     * Use or not RTCP feedback PLI.
+     */
+    public void setRtcpFeedbackPLI(boolean use)
+    {
+        usePLI = use;
     }
 }

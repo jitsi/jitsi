@@ -44,11 +44,11 @@ public class SwScaler
      */
     private Format[] supportedOutputFormats = new Format[]
     {
-        new YUVFormat(null, -1, Format.byteArray, -1.0f, YUVFormat.YUV_420, 
+        new YUVFormat(null, -1, Format.byteArray, -1.0f, YUVFormat.YUV_420,
                 -1, -1, 0, -1, -1),
-        new YUVFormat(null, -1, Format.intArray, -1.0f, YUVFormat.YUV_420, 
+        new YUVFormat(null, -1, Format.intArray, -1.0f, YUVFormat.YUV_420,
                 -1, -1, 0, -1, -1),
-        new YUVFormat(null, -1, Format.shortArray, -1.0f, YUVFormat.YUV_420, 
+        new YUVFormat(null, -1, Format.shortArray, -1.0f, YUVFormat.YUV_420,
                 -1, -1, 0, -1, -1),
         new RGBFormat(null, -1, Format.byteArray, -1.0f, 32, -1, -1, -1),
         new RGBFormat(null, -1, Format.intArray, -1.0f, 32, -1, -1, -1),
@@ -87,6 +87,9 @@ public class SwScaler
         addControl(frameProcessingControl);
     }
 
+    /**
+     * Close codec.
+     */
     @Override
     public void close()
     {
@@ -157,7 +160,7 @@ public class SwScaler
             }
         else
             fmt = FFmpeg.PIX_FMT_RGB24;
-        
+
         return fmt;
     }
 
@@ -190,7 +193,7 @@ public class SwScaler
         if(input == null)
             return supportedOutputFormats;
 
-        /* if size is set for element 0 (YUVFormat), it is also set 
+        /* if size is set for element 0 (YUVFormat), it is also set
          * for element 1 (RGBFormat) and so on...
          */
         Dimension size = ((VideoFormat) supportedOutputFormats[0]).getSize();
@@ -207,7 +210,7 @@ public class SwScaler
 
         return
             new Format[]
-            { 
+            {
                 new YUVFormat(size, -1, Format.byteArray, frameRate,
                         YUVFormat.YUV_420, -1, -1, 0, -1, -1),
                 new YUVFormat(size, -1, Format.intArray, frameRate,
@@ -238,7 +241,7 @@ public class SwScaler
      * processed
      */
     @Override
-    public int process(Buffer input, Buffer output) 
+    public int process(Buffer input, Buffer output)
     {
         if (!checkInputBuffer(input))
             return BUFFER_PROCESSED_FAILED;
@@ -392,7 +395,7 @@ public class SwScaler
             outFlags |= Buffer.FLAG_SYSTEM_TIME;
         output.setFlags(outFlags);
 
-        return BUFFER_PROCESSED_OK;   
+        return BUFFER_PROCESSED_OK;
     }
 
     /**

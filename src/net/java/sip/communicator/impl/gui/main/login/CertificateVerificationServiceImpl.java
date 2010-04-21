@@ -168,7 +168,7 @@ public class CertificateVerificationServiceImpl
      *
      * @param   toHost the host we are connecting.
      * @param   toPort the port used when connecting.
-     * @return
+     * @return SSL context object
      */
     public SSLContext getSSLContext(String toHost, int toPort)
         throws IOException

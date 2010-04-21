@@ -81,7 +81,7 @@ public class MediaDeviceSession
      * {@link #setFormat(MediaFormat)} and to be set as the output format of
      * {@link #processor}.
      */
-    private Format format;
+    protected Format format;
 
     /**
      * The indicator which determines whether this <tt>MediaDeviceSession</tt>
@@ -265,7 +265,8 @@ public class MediaDeviceSession
         }
         else
         {
-            // We don't know this particular format.  We'll just leave it alone then.
+            // We don't know this particular format.  We'll just leave it alone
+            //then.
             return sourceFormat;
         }
 
@@ -1277,7 +1278,7 @@ public class MediaDeviceSession
             case VIDEO:
                 if (supportedFormats[0] instanceof VideoFormat)
                 {
-                    supportedFormat 
+                    supportedFormat
                         = findFirstMatchingFormat(supportedFormats, format);
 
                     /*

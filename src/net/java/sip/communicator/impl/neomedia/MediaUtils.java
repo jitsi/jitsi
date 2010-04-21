@@ -79,6 +79,7 @@ public class MediaUtils
             MediaType.AUDIO,
             AudioFormat.G723_RTP,
             g723FormatParams,
+            null,
             8000);
 
         addMediaFormats(
@@ -153,13 +154,19 @@ public class MediaUtils
 
         Map<String, String> h264FormatParams
             = new HashMap<String, String>();
+        Map<String, String> h264AdvancedParams
+        = new HashMap<String, String>();
+
         h264FormatParams.put("packetization-mode", "1");
+        h264AdvancedParams.put("rtcp-fb", "nack pli");
+
         addMediaFormats(
             MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN,
             "H264",
             MediaType.VIDEO,
             Constants.H264_RTP,
-            h264FormatParams);
+            h264FormatParams,
+            h264AdvancedParams);
     }
 
     /**
@@ -192,6 +199,7 @@ public class MediaUtils
             mediaType,
             jmfEncoding,
             null,
+            null,
             clockRates);
     }
 
@@ -220,6 +228,7 @@ public class MediaUtils
             MediaType mediaType,
             String jmfEncoding,
             Map<String, String> formatParameters,
+            Map<String, String> advancedParameters,
             double... clockRates)
     {
         int clockRateCount = clockRates.length;
@@ -250,7 +259,8 @@ public class MediaUtils
                             .createInstance(
                                 format,
                                 clockRate,
-                                formatParameters);
+                                formatParameters,
+                                advancedParameters);
 
                     if (mediaFormat != null)
                         mediaFormats.add(mediaFormat);
@@ -281,7 +291,8 @@ public class MediaUtils
             {
                 MediaFormat mediaFormat
                     = MediaFormatImpl
-                        .createInstance(format, clockRate, formatParameters);
+                        .createInstance(format, clockRate, formatParameters,
+                                advancedParameters);
 
                 if (mediaFormat != null)
                     mediaFormats.add(mediaFormat);

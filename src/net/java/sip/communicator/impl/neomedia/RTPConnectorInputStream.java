@@ -46,13 +46,13 @@ public class RTPConnectorInputStream
     /**
      * Caught an IO exception during read from socket
      */
-    private boolean ioError = false;
+    protected boolean ioError = false;
 
     /**
      * The packet data to be read out of this instance through its
      * {@link #read(byte[], int, int)} method.
      */
-    private RawPacket pkt;
+    protected RawPacket pkt;
 
     /**
      * UDP socket used to receive data.

@@ -11,6 +11,8 @@ import java.awt.*;
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.service.neomedia.event.*;
+
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.sf.fmj.media.*;
@@ -24,35 +26,78 @@ import net.sf.fmj.media.*;
  */
 public class JNIEncoder
     extends AbstractCodec
+    implements RTCPFeedbackListener
 {
+    /**
+     * Default output formats.
+     */
     private static final Format[] DEFAULT_OUTPUT_FORMATS
         = { new VideoFormat(Constants.H264) };
 
-    // key frame every 300 frames
+    /**
+     * Key frame every 300 frames.
+     */
     private static final int IFRAME_INTERVAL = 300;
 
+    /**
+     * Padding size.
+     */
     private static final int INPUT_BUFFER_PADDING_SIZE = 8;
 
+    /**
+     * Name of the code.
+     */
     private static final String PLUGIN_NAME = "H.264 Encoder";
 
-    // the frame rate we will use
+    /**
+     * Minimum interval between two PLI request processing (in milliseconds).
+     */
+    private static final long PLI_INTERVAL = 1000;
+
+    /**
+     * The frame rate we will use
+     */
     private static final int TARGET_FRAME_RATE = 15;
 
-    // The codec we will use
+    /**
+     * The codec we will use.
+     */
     private long avcontext;
 
-    // the encoded data is stored in avpicture
+    /**
+     * The encoded data is stored in avpicture.
+     */
     private long avframe;
 
-    // we use this buffer to supply data to encoder
+    /**
+     * We use this buffer to supply data to encoder.
+     */
     private byte[] encFrameBuffer;
 
-    // the supplied data length
+    /**
+     * The supplied data length.
+     */
     private int encFrameLen;
 
+    /**
+     * Next interval for an automatic keyframe.
+     */
     private int framesSinceLastIFrame = IFRAME_INTERVAL + 1;
 
+    /**
+     * The raw frame buffer.
+     */
     private long rawFrameBuffer;
+
+    /**
+     * Force encoder to send a key frame.
+     */
+    private boolean forceKeyFrame = false;
+
+    /**
+     * Last keyframe request time.
+     */
+    private long lastKeyframeRequestTime = System.currentTimeMillis();
 
     /**
      * Initializes a new <tt>JNIEncoder</tt> instance.
@@ -76,6 +121,9 @@ public class JNIEncoder
         outputFormat = null;
     }
 
+    /**
+     * Close the <tt>Codec</tt>.
+     */
     @Override
     public synchronized void close()
     {
@@ -97,6 +145,12 @@ public class JNIEncoder
         }
     }
 
+    /**
+     * Get the matching output formats for a specific format.
+     *
+     * @param in input format
+     * @return array for formats matching input format
+     */
     private Format[] getMatchingOutputFormats(Format in)
     {
         VideoFormat videoIn = (VideoFormat) in;
@@ -113,6 +167,11 @@ public class JNIEncoder
             };
     }
 
+    /**
+     * Get codec name.
+     *
+     * @return codec name
+     */
     @Override
     public String getName()
     {
@@ -121,6 +180,8 @@ public class JNIEncoder
 
     /**
      * Return the list of formats supported at the output.
+     *
+     * @return array of formats supported at output
      */
     public Format[] getSupportedOutputFormats(Format in)
     {
@@ -136,6 +197,9 @@ public class JNIEncoder
         return getMatchingOutputFormats(in);
     }
 
+    /**
+     * Inits <tt>Codec</tt> instance.
+     */
     @Override
     public synchronized void open()
         throws ResourceUnavailableException
@@ -236,6 +300,14 @@ public class JNIEncoder
         super.open();
     }
 
+    /**
+     * Processes (encode) a buffer.
+     *
+     * @param inBuffer input buffer
+     * @param outBuffer output buffer
+     * @return <tt>BUFFER_PROCESSED_OK</tt> if buffer has been successfully
+     * processed
+     */
     public synchronized int process(Buffer inBuffer, Buffer outBuffer)
     {
         if (isEOM(inBuffer))
@@ -269,10 +341,11 @@ public class JNIEncoder
                 (byte[]) inBuffer.getData(), inBuffer.getOffset(),
                 encFrameLen);
 
-        if (framesSinceLastIFrame >= IFRAME_INTERVAL)
+        if (framesSinceLastIFrame >= IFRAME_INTERVAL || forceKeyFrame)
         {
             FFmpeg.avframe_set_key_frame(avframe, true);
             framesSinceLastIFrame = 0;
+            forceKeyFrame = false;
         }
         else
         {
@@ -329,6 +402,12 @@ public class JNIEncoder
         return BUFFER_PROCESSED_OK;
     }
 
+    /**
+     * Sets the input format.
+     *
+     * @param in format to set
+     * @return format
+     */
     @Override
     public Format setInputFormat(Format in)
     {
@@ -368,6 +447,16 @@ public class JNIEncoder
         return inputFormat;
     }
 
+    /**
+     * Sets the <tt>Format</tt> in which this <tt>Codec</tt> is to output media
+     * data.
+     *
+     * @param out the <tt>Format</tt> in which this <tt>Codec</tt> is to
+     * output media data
+     * @return the <tt>Format</tt> in which this <tt>Codec</tt> is currently
+     * configured to output media data or <tt>null</tt> if <tt>format</tt> was
+     * found to be incompatible with this <tt>Codec</tt>
+     */
     @Override
     public Format setOutputFormat(Format out)
     {
@@ -404,5 +493,35 @@ public class JNIEncoder
 
         // Return the selected outputFormat
         return outputFormat;
+    }
+
+    /**
+     * Event fired when RTCP feedback message is received.
+     *
+     * @param event <tt>RTCPFeedbackEvent</tt>
+     */
+    public void feedbackReceived(RTCPFeedbackEvent event)
+    {
+        /* if RTCP message is a Picture Loss Indication (PLI)
+         * or a Full Intra-frame Request (FIR) the encoder will
+         * force the next frame to be a keyframe
+         */
+        if(event.getPayloadType() == RTCPFeedbackEvent.PT_PS)
+        {
+            switch(event.getFeedbackMessageType())
+            {
+                case RTCPFeedbackEvent.FMT_PLI:
+                case RTCPFeedbackEvent.FMT_FIR:
+                    if(System.currentTimeMillis() > lastKeyframeRequestTime
+                            + PLI_INTERVAL)
+                    {
+                        lastKeyframeRequestTime = System.currentTimeMillis();
+                        forceKeyFrame = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

@@ -131,7 +131,8 @@ public interface MediaFormatFactory
     public MediaFormat createMediaFormat(
             String encoding,
             double clockRate,
-            Map<String, String> formatParams);
+            Map<String, String> formatParams,
+            Map<String, String> advancedParams);
 
     /**
      * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt>,
@@ -159,7 +160,8 @@ public interface MediaFormatFactory
             String encoding,
             double clockRate,
             int channels,
-            Map<String, String> formatParams);
+            Map<String, String> formatParams,
+            Map<String, String> advancedParams);
 
     /**
      * Creates a <tt>MediaFormat</tt> either for the specified
@@ -197,5 +199,6 @@ public interface MediaFormatFactory
             String encoding,
             double clockRate,
             int channels,
-            Map<String, String> formatParams);
+            Map<String, String> formatParams,
+            Map<String, String> advancedParams);
 }

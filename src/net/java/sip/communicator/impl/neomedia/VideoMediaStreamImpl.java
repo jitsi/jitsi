@@ -55,6 +55,11 @@ public class VideoMediaStreamImpl
     private Dimension outputSize;
 
     /**
+     * Use or not PLI.
+     */
+    private boolean usePLI = false;
+
+    /**
      * Selects the <tt>VideoFormat</tt> from the list of supported formats of a
      * specific video <tt>DataSource</tt> which has a size as close as possible
      * to a specific size and sets it as the format of the specified video
@@ -511,7 +516,20 @@ public class VideoMediaStreamImpl
     {
         super.setDevice(device);
 
-        ((VideoMediaDeviceSession)deviceSession).setOutputSize(outputSize);
+        VideoMediaDeviceSession vmds = (VideoMediaDeviceSession)deviceSession;
+        vmds.setOutputSize(outputSize);
+        vmds.setConnector(rtpConnector);
+        vmds.setRtcpFeedbackPLI(usePLI);
+    }
+
+    /**
+     * Use or not RTCP feedback Picture Loss Indication.
+     *
+     * @param use use or not PLI
+     */
+    public void setRtcpFeedbackPLI(boolean use)
+    {
+        usePLI = use;
     }
 
     /**
@@ -523,4 +541,29 @@ public class VideoMediaStreamImpl
     {
         outputSize = size;
     }
+
+    /**
+     * Set local SSRC.
+     *
+     * @param ssrc source ID
+     */
+    @Override
+    protected void setLocalSourceID(long ssrc)
+    {
+        super.setLocalSourceID(ssrc);
+        ((VideoMediaDeviceSession)deviceSession).setLocalSSRC(ssrc);
+    }
+
+    /**
+     * Set remote SSRC.
+     *
+     * @param ssrc remote SSRC
+     */
+    @Override
+    protected void setRemoteSourceID(long ssrc)
+    {
+        super.setRemoteSourceID(ssrc);
+        ((VideoMediaDeviceSession)deviceSession).setRemoteSSRC(ssrc);
+    }
+
 }

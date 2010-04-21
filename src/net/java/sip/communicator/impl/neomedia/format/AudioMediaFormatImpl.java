@@ -34,7 +34,7 @@ public class AudioMediaFormatImpl
      */
     AudioMediaFormatImpl(AudioFormat format)
     {
-        this(format, null);
+        this(format, null, null);
     }
 
     /**
@@ -47,12 +47,15 @@ public class AudioMediaFormatImpl
      * and provide an implementation of <tt>AudioMediaFormat</tt> for
      * @param formatParameters  the set of format-specific parameters of the new
      * instance
+     * @param advancedParameters  the set of format-specific parameters of the new
+     * instance
      */
     AudioMediaFormatImpl(
             AudioFormat format,
-            Map<String, String> formatParameters)
+            Map<String, String> formatParameters,
+            Map<String, String> advancedParameters)
     {
-        super(fixChannels(format), formatParameters);
+        super(fixChannels(format), formatParameters, advancedParameters);
     }
 
     /**
@@ -94,7 +97,7 @@ public class AudioMediaFormatImpl
      */
     AudioMediaFormatImpl(String encoding, double clockRate, int channels)
     {
-        this(encoding, clockRate, channels, null);
+        this(encoding, clockRate, channels, null, null);
     }
 
     /**
@@ -112,9 +115,10 @@ public class AudioMediaFormatImpl
     AudioMediaFormatImpl(
             String encoding,
             double clockRate,
-            Map<String, String> formatParameters)
+            Map<String, String> formatParameters,
+            Map<String, String> advancedParameters)
     {
-        this(encoding, clockRate, 1, formatParameters);
+        this(encoding, clockRate, 1, formatParameters, advancedParameters);
     }
 
     /**
@@ -130,12 +134,15 @@ public class AudioMediaFormatImpl
      * stereo)
      * @param formatParameters any codec-specific parameters that have been
      * received via SIP/SDP or XMPP/Jingle
+     * @param advancedParameters any parameters that have been
+     * received via SIP/SDP or XMPP/Jingle
      */
     AudioMediaFormatImpl(
             String encoding,
             double clockRate,
             int channels,
-            Map<String, String> formatParameters)
+            Map<String, String> formatParameters,
+            Map<String, String> advancedParameters)
     {
         this(
             new AudioFormat(
@@ -143,7 +150,8 @@ public class AudioMediaFormatImpl
                     clockRate,
                     AudioFormat.NOT_SPECIFIED,
                     channels),
-            formatParameters);
+            formatParameters,
+            advancedParameters);
     }
 
     /**

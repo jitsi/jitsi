@@ -304,25 +304,21 @@ public class SdpUtils
     }
 
     /**
-     * Extracts and returns maximum resolution can receive from the image 
+     * Extracts and returns maximum resolution can receive from the image
      * attribute.
      *
      * @param mediaDesc the <tt>MediaDescription</tt> that we'd like to probe
      * for maximum receive resolution.
-     * @return maximum resolution array (first element is send, second one is 
-     * recv). Elements could be null if image attribute is not present or if 
+     * @return maximum resolution array (first element is send, second one is
+     * recv). Elements could be null if image attribute is not present or if
      * resoluion is a wildcard.
      */
-    @SuppressWarnings("unchecked") /* legacy code from jain-sdp */
     public static java.awt.Dimension[] extractSendRecvResolution(
                                            MediaDescription mediaDesc)
     {
         java.awt.Dimension res[] = new java.awt.Dimension[2];
         String imgattr = null;
         String token = null;
-        int idx = 0;
-        int idx2 = 0;
-        int len = 0;
         Pattern pSendSingle = Pattern.compile("send \\[x=[0-9]+,y=[0-9]+\\]");
         Pattern pRecvSingle = Pattern.compile("recv \\[x=[0-9]+,y=[0-9]+\\]");
         Pattern pSendRange = Pattern.compile(
@@ -330,10 +326,10 @@ public class SdpUtils
         Pattern pRecvRange = Pattern.compile(
                 "recv \\[x=\\[[0-9]+-[0-9]+\\],y=\\[[0-9]+-[0-9]+\\]\\]");
         Pattern pNumeric = Pattern.compile("[0-9]+");
-        Matcher mSingle = null; 
+        Matcher mSingle = null;
         Matcher mRange = null;
         Matcher m = null;
-        
+
         try
         {
             imgattr = mediaDesc.getAttribute("imageattr");
@@ -354,11 +350,11 @@ public class SdpUtils
          * - single value [x=1920,y=1200]
          * - range of values [x=[800-1024],y=[600-768]]
          * - fixed range of values [x=[800,1024],y=[600,768]]
-         * - range of values with step (here 32) [x=[800:32:1024],y=[600:32:768]]
+         * - range of values with step [x=[800:32:1024],y=[600:32:768]]
          *
          * For the moment we only support the first two forms.
          */
-       
+
         /* send part */
         mSingle = pSendSingle.matcher(imgattr);
         mRange = pSendRange.matcher(imgattr);
@@ -377,7 +373,7 @@ public class SdpUtils
 
             res[0] = new java.awt.Dimension(val[0], val[1]);
         }
-        else if(mRange.find()) /* try with range */ 
+        else if(mRange.find()) /* try with range */
         {
             /* have two value for width and two for height (min-max) */
             int val[]  = new int[4];
@@ -409,7 +405,7 @@ public class SdpUtils
             {
                 val[i] = Integer.parseInt(token.substring(m.start(), m.end()));
             }
-            
+
             res[1] = new java.awt.Dimension(val[0], val[1]);
         }
         else if(mRange.find()) /* try with range */
@@ -419,13 +415,13 @@ public class SdpUtils
             int i = 0;
             token = imgattr.substring(mRange.start(), mRange.end());
             m = pNumeric.matcher(token);
-            
+
             while(m.find() && i < 4)
             {
                 val[i] = Integer.parseInt(token.substring(m.start(), m.end()));
                 i++;
             }
-            
+
             res[1] = new java.awt.Dimension(val[1], val[3]);
         }
 
@@ -437,7 +433,7 @@ public class SdpUtils
         pSendSingle = null;
         pRecvSingle = null;
         pSendRange = null;
-        
+
         return res;
     }
 
@@ -468,8 +464,9 @@ public class SdpUtils
                                          DynamicPayloadTypeRegistry ptRegistry)
     {
         List<MediaFormat> mediaFmts = new ArrayList<MediaFormat>();
-
         Vector<String> formatStrings;
+        List<Attribute> advp = new ArrayList<Attribute>();
+
         try
         {
             formatStrings
@@ -482,6 +479,20 @@ public class SdpUtils
             //here anyway ?!?
             logger.debug("A funny thing just happened ...", exc);
             return mediaFmts;
+        }
+
+        try
+        {
+            Attribute rtcpFbAsterisk = findPayloadTypeSpecificAttribute(
+                    mediaDesc.getAttributes(false), "rtcp-fb", "*");
+
+            if(rtcpFbAsterisk != null)
+                advp.add(rtcpFbAsterisk);
+        }
+        catch(SdpException e)
+        {
+            //there was a problem parsing the "*" rtcp-fb. try to ignore.
+            logger.debug("Does not seem like a valid rtcp-fb:* attribute", e);
         }
 
         for(String ptStr : formatStrings)
@@ -503,7 +514,8 @@ public class SdpUtils
             try
             {
                 rtpmap = findPayloadTypeSpecificAttribute(
-                    mediaDesc.getAttributes(false), SdpConstants.RTPMAP, pt);
+                    mediaDesc.getAttributes(false), SdpConstants.RTPMAP,
+                    Byte.toString(pt));
             }
             catch (SdpException e)
             {
@@ -513,10 +525,17 @@ public class SdpUtils
             }
 
             Attribute fmtp = null;
+            Attribute rtcpFb = null;
+
             try
             {
                 fmtp = findPayloadTypeSpecificAttribute(
-                    mediaDesc.getAttributes(false), "fmtp", pt);
+                    mediaDesc.getAttributes(false), "fmtp", ptStr);
+                rtcpFb = findPayloadTypeSpecificAttribute(
+                        mediaDesc.getAttributes(false), "rtcp-fb", ptStr);
+
+                if(rtcpFb != null)
+                    advp.add(rtcpFb);
             }
             catch (SdpException exc)
             {
@@ -528,7 +547,7 @@ public class SdpUtils
             MediaFormat mediaFormat = null;
             try
             {
-                mediaFormat = createFormat(pt, rtpmap, fmtp, ptRegistry);
+                mediaFormat = createFormat(pt, rtpmap, fmtp, advp, ptRegistry);
             }
             catch (SdpException e)
             {
@@ -708,6 +727,7 @@ public class SdpUtils
      * @param rtpmap an SDP <tt>Attribute</tt> mapping the <tt>payloadType</tt>
      * to an encoding name.
      * @param fmtp a list of format specific parameters
+     * @param advp list of advanced parameters (rtcp-fb, ...)
      * @param ptRegistry the {@link DynamicPayloadTypeRegistry} that we are to
      * use in case <tt>payloadType</tt> is dynamic and <tt>rtpmap</tt> is
      * <tt>null</tt> (in which case we can hope its in the registry).
@@ -725,6 +745,7 @@ public class SdpUtils
                                         byte                       payloadType,
                                         Attribute                  rtpmap,
                                         Attribute                  fmtp,
+                                        List<Attribute>            advp,
                                         DynamicPayloadTypeRegistry ptRegistry)
         throws SdpException
     {
@@ -795,8 +816,19 @@ public class SdpUtils
 
         //Format parameters
         Map<String, String> fmtParamsMap = null;
+        Map<String, String> advancedParamsMap = null;
+
         if ( fmtp != null)
             fmtParamsMap = parseFmtpAttribute(fmtp);
+
+        for(Attribute attr : advp)
+        {
+            /* RTCP feedback support */
+            if (attr.getName().equals("rtcp-fb"))
+            {
+                advancedParamsMap = parseRTCPFeedbackAttribute(attr);
+            }
+        }
 
         //now create the format.
         MediaFormat format
@@ -808,13 +840,14 @@ public class SdpUtils
                             encoding,
                             clockRate,
                             numChannels,
-                            fmtParamsMap);
+                            fmtParamsMap,
+                            advancedParamsMap);
 
         /*
          * We've just created a MediaFormat for the specified payloadType so we
          * have to remember the mapping between the two so that we don't, for
          * example, map the same payloadType to a different MediaFormat at a
-         * later time when we do automatic generatation of payloadType in
+         * later time when we do automatic generation of payloadType in
          * DynamicPayloadTypeRegistry.
          */
         /*
@@ -830,6 +863,42 @@ public class SdpUtils
             ptRegistry.addMapping(format, payloadType);
 
         return format;
+    }
+
+    /**
+     * Parses the value of <tt>rtcpAttr</tt> attribute.
+     *
+     * @param rtcpAttr SDP attribute containing rtcp-fb parameters.
+     * @return
+     */
+    private static Map<String, String> parseRTCPFeedbackAttribute(
+            Attribute rtcpAttr)
+    {
+        Map<String, String> ret = new Hashtable<String, String>();
+        String attrVal = rtcpAttr.toString();
+        StringTokenizer tokenizer = new StringTokenizer(attrVal, " ", false);
+
+        /* valid rtcp-fb we support is on the form:
+         * a=rtcp-fb:100 nack pli
+         */
+        if (tokenizer.countTokens() != 3)
+            return null;
+
+        /* skip rtcp-fb:pt */
+        tokenizer.nextToken();
+        String ackType = tokenizer.nextToken();
+        String ackExt = tokenizer.nextToken();
+
+        if(ackType.equals("nack") && (ackExt.equals("pli\r\n") ||
+                ackExt.equals("pli ")))
+        {
+            ret.put("rtcp-fb", "nack pli");
+        }
+
+        if (ret.size() == 0)
+            return null;
+
+        return ret;
     }
 
     /**
@@ -900,7 +969,7 @@ public class SdpUtils
         // No valid fmtp tokens found, just return null
         if (fmtParamsMap.size() == 0)
             return null;
-        
+
         return fmtParamsMap;
     }
 
@@ -924,13 +993,11 @@ public class SdpUtils
     private static Attribute findPayloadTypeSpecificAttribute(
                                     Vector<Attribute> mediaAttributes,
                                     String            attributeName,
-                                    byte              payloadType)
+                                    String            payloadType)
         throws SdpException
     {
         if( mediaAttributes == null || mediaAttributes.size() == 0)
             return null;
-
-        String ptStr = Byte.toString(payloadType);
 
         for (Attribute attr : mediaAttributes)
         {
@@ -944,7 +1011,7 @@ public class SdpUtils
 
             attrValue = attrValue.trim();
 
-            if(!attrValue.startsWith(ptStr + " "))
+            if(!attrValue.startsWith(payloadType + " "))
                 continue;
 
             //that's it! we have the attribute we are looking for.
@@ -1345,25 +1412,38 @@ public class SdpUtils
                 mediaAttributes.add(fmtp);
             }
 
+            /* add extra attributes (rtcp-fb, ...) */
+            Iterator<Map.Entry<String, String>> iter = format
+                    .getAdvancedParameters().entrySet().iterator();
+
+            while (iter.hasNext())
+            {
+                Map.Entry<String, String> ntry = iter.next();
+                Attribute adv = sdpFactory.createAttribute(ntry.getKey(),
+                        payloadType + " " + ntry.getValue());
+                mediaAttributes.add(adv);
+            }
+
             payloadTypesArray[i] = payloadType;
         }
 
         /* image attribute */
         if(mediaType == MediaType.VIDEO)
         {
-            /* one image attribute for all payload 
+            /* one image attribute for all payload
              *
-             * basically peer can send any size and can 
+             * basically peer can send any size and can
              * receive image size up to its display screen size
              */
-            ScreenDevice screen = SipActivator.getMediaService().getDefaultScreenDevice();
+            ScreenDevice screen = SipActivator.getMediaService().
+                getDefaultScreenDevice();
             java.awt.Dimension res = null;
-            
+
             if(screen != null)
             {
                 res = screen.getSize();
             }
-            
+
             Attribute imgattr = createImageAttribute((byte)0, null, res);
             mediaAttributes.add(imgattr);
         }
@@ -1493,7 +1573,7 @@ public class SdpUtils
 
     /**
      * Creates an <tt>Attribute</tt> instance for send/recv image negociation.
-     * 
+     *
      * http://tools.ietf.org/html/draft-ietf-mmusic-image-attributes-04
      *
      * @param payloadType payload type
@@ -1501,11 +1581,11 @@ public class SdpUtils
      * @param maxRecvSize maximum size peer can display
      * @return image <tt>Attribute</tt>
      */
-    private static Attribute createImageAttribute(byte payloadType, 
+    private static Attribute createImageAttribute(byte payloadType,
             java.awt.Dimension sendSize, java.awt.Dimension maxRecvSize)
     {
         StringBuffer img = new StringBuffer("imageattr:");
-     
+
         if(payloadType != 0)
         {
             img.append(payloadType);
@@ -1545,14 +1625,14 @@ public class SdpUtils
             /* can send "all" sizes */
             img.append(" send *");
         }
-        
+
         /* receive size */
         if(maxRecvSize != null)
         {
-            /* basically we can receive any size up to our 
+            /* basically we can receive any size up to our
              * screen display size
              */
-            
+
             /* recv [x=[min-max],y=[min-max]] */
             img.append(" recv [x=[0-");
             img.append((int)maxRecvSize.getWidth());
@@ -1623,7 +1703,8 @@ public class SdpUtils
             if(formatsVec == null)
             {
                 formatsVec = new Vector<String>();
-                //add at least one format so that we could generate a valid offer.
+                //add at least one format so that we could generate a valid
+                //offer.
                 formatsVec.add(Integer.toString(0));
             }
 

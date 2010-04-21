@@ -868,10 +868,17 @@ public class CallPeerMediaHandler
             //this is a reinit
         }
 
-        /* set negociated output size for video stream */
+
         if(device != null && device.getMediaType() == MediaType.VIDEO)
         {
+            /* set negociated output size for video stream */
             ((VideoMediaStream)stream).setOutputSize(size);
+
+            /* set rtcp-fb */
+            if(format.getAdvancedParameters().containsKey("rtcp-fb"))
+            {
+                ((VideoMediaStream)stream).setRtcpFeedbackPLI(true);
+            }
         }
 
         return  configureAndStartStream(
@@ -951,8 +958,8 @@ public class CallPeerMediaHandler
     }
 
     /**
-     * Send empty UDP packet to target destination in order to open port
-     * on NAT or RTP proxy if any.
+     * Send empty UDP packet to target destination data/control ports
+     * in order to open port on NAT or RTP proxy if any.
      *
      * @param target <tt>MediaStreamTarget</tt>
      */
@@ -961,9 +968,15 @@ public class CallPeerMediaHandler
         logger.info("Try to open port on NAT if any");
         try
         {
+            /* data port (RTP) */
             videoStreamConnector.getDataSocket().send(new DatagramPacket(
                     new byte[0], 0, target.getDataAddress().getAddress(),
                     target.getDataAddress().getPort()));
+
+            /* control port (RTCP) */
+            videoStreamConnector.getControlSocket().send(new DatagramPacket(
+                    new byte[0], 0, target.getControlAddress().getAddress(),
+                    target.getControlAddress().getPort()));
         }
         catch(Exception e)
         {
@@ -1470,6 +1483,7 @@ public class CallPeerMediaHandler
             /* extract remote peer maximum supported resolution */
             Dimension res[] = SdpUtils.extractSendRecvResolution(
                     mediaDescription);
+
             if(res != null)
             {
                 maxSendSize = res[0];

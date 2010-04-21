@@ -103,6 +103,16 @@ public interface MediaFormat
     public Map<String, String> getFormatParameters();
 
     /**
+     * Returns a <tt>Map</tt> containing advanced parameters specific to this
+     * particular <MediaFormat</tt>. The parameters returned here are meant for
+     * use in SIP/SDP or XMPP session descriptions.
+     *
+     * @return a <tt>Map</tt> containing advanced parameters specific to this
+     * particular <tt>MediaFormat</tt>
+     */
+    public Map<String, String> getAdvancedParameters();
+
+    /**
      * Returns a <tt>String</tt> representation of this <tt>MediaFormat</tt>
      * containing important format attributes such as the encoding for example.
      *

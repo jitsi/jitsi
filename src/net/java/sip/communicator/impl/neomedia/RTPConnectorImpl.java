@@ -129,7 +129,7 @@ public class RTPConnectorImpl
     protected RTPConnectorInputStream createControlInputStream()
         throws IOException
     {
-        return new RTPConnectorInputStream(getControlSocket());
+        return new RTCPConnectorInputStream(getControlSocket());
     }
 
     /**

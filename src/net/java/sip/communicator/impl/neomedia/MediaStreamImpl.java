@@ -112,7 +112,7 @@ public class MediaStreamImpl
      * RTP and RTCP traffic. The instance is a <tt>TransformConnector</tt> in
      * order to also enable packet transformations.
      */
-    private final RTPTransformConnector rtpConnector;
+    protected final RTPTransformConnector rtpConnector;
 
     /**
      * The one and only <tt>MediaStreamTarget</tt> this instance has added as a
@@ -1607,7 +1607,7 @@ public class MediaStreamImpl
      * @param ssrc the SSRC identifier that this stream will be using in
      * outgoing RTP packets from now on.
      */
-    private void setLocalSourceID(long ssrc)
+    protected void setLocalSourceID(long ssrc)
     {
         Long oldValue = this.localSourceID;
 
@@ -1623,7 +1623,7 @@ public class MediaStreamImpl
      * @param ssrc the SSRC identifier that this stream will be using in
      * outgoing RTP packets from now on.
      */
-    private void setRemoteSourceID(long ssrc)
+    protected void setRemoteSourceID(long ssrc)
     {
         Long oldValue = this.remoteSourceID;
         this.remoteSourceID = ssrc;

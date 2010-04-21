@@ -686,8 +686,6 @@ public class MetaContactListServiceImpl
      * creation of the first protocol specific child contact in the respective
      * group.
      *
-     * @param parentGroup the <tt>MetaContactGroup</tt> that should be the
-     * parent of the newly created group.
      * @param parent
      *            the meta contact group inside which the new child group must
      *            be created.

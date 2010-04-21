@@ -76,7 +76,7 @@ public class RTPTransformConnector
         throws IOException
     {
         TransformInputStream controlInputStream
-            = new TransformInputStream(getControlSocket());
+            = new ControlTransformInputStream(getControlSocket());
 
         controlInputStream.setTransformer(getRTCPTransformer());
         return controlInputStream;

@@ -53,7 +53,7 @@ public class Resources
 
     /**
      * Returns the resource service.
-     * @return
+     * @return resource service.
      */
     public static ResourceManagementService getResources()
     {

@@ -165,19 +165,21 @@ public class MediaFormatFactoryImpl
      * <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt> instance if
      * <tt>encoding</tt> is known to this <tt>MediaFormatFactory</tt>;
      * otherwise, <tt>null</tt>
-     * @see MediaFormatFactory#createMediaFormat(String, double, Map)
+     * @see MediaFormatFactory#createMediaFormat(String, double, Map, Map)
      */
     public MediaFormat createMediaFormat(
             String encoding,
             double clockRate,
-            Map<String, String> formatParams)
+            Map<String, String> formatParams,
+            Map<String, String> advancedParams)
     {
         return
             createMediaFormat(
                 encoding,
                 clockRate,
                 1,
-                formatParams);
+                formatParams,
+                advancedParams);
     }
 
     /**
@@ -196,18 +198,21 @@ public class MediaFormatFactoryImpl
      * <tt>encoding</tt>; otherwise, ignored
      * @param formatParams any codec specific parameters which have been
      * received via SIP/SDP or XMPP/Jingle
+     * @param advancedParams any parameters which have been
+     * received via SIP/SDP or XMPP/Jingle
      * @return a <tt>MediaFormat</tt> with the specified <tt>encoding</tt>,
      * <tt>clockRate</tt>, <tt>channels</tt> and set of format parameters which
      * is either an <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt>
      * instance if <tt>encoding</tt> is known to this
      * <tt>MediaFormatFactory</tt>; otherwise, <tt>null</tt>
-     * @see MediaFormatFactory#createMediaFormat(String, double, int, Map)
+     * @see MediaFormatFactory#createMediaFormat(String, double, int, Map, Map)
      */
     public MediaFormat createMediaFormat(
             String encoding,
             double clockRate,
             int channels,
-            Map<String, String> formatParams)
+            Map<String, String> formatParams,
+            Map<String, String> advancedParams)
     {
         MediaFormat mediaFormat
             = createMediaFormat(encoding, clockRate, channels);
@@ -218,9 +223,16 @@ public class MediaFormatFactoryImpl
         {
             Map<String, String> formatParameters
                 = new HashMap<String, String>();
+            Map<String, String> advancedParameters
+            = new HashMap<String, String>();
 
             formatParameters.putAll(mediaFormat.getFormatParameters());
             formatParameters.putAll(formatParams);
+
+            if(advancedParams != null)
+            {
+                advancedParameters.putAll(advancedParams);
+            }
 
             switch (mediaFormat.getMediaType())
             {
@@ -228,7 +240,7 @@ public class MediaFormatFactoryImpl
                 mediaFormat
                     = new AudioMediaFormatImpl(
                             ((AudioMediaFormatImpl) mediaFormat).getFormat(),
-                            formatParameters);
+                            formatParameters, advancedParameters);
                 break;
             case VIDEO:
                 VideoMediaFormatImpl videoMediaFormatImpl
@@ -238,7 +250,8 @@ public class MediaFormatFactoryImpl
                     = new VideoMediaFormatImpl(
                             videoMediaFormatImpl.getFormat(),
                             videoMediaFormatImpl.getClockRate(),
-                            formatParameters);
+                            null,
+                            advancedParameters);
                 break;
             default:
                 mediaFormat = null;
@@ -283,7 +296,8 @@ public class MediaFormatFactoryImpl
             String encoding,
             double clockRate,
             int channels,
-            Map<String, String> formatParams)
+            Map<String, String> formatParams,
+            Map<String, String> advancedParams)
     {
 
         /*
@@ -326,7 +340,8 @@ public class MediaFormatFactoryImpl
             }
         }
 
-        return createMediaFormat(encoding, clockRate, channels, formatParams);
+        return createMediaFormat(encoding, clockRate, channels, formatParams,
+                advancedParams);
     }
 
     /**

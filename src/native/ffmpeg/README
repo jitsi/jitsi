@@ -24,6 +24,9 @@ make
 
 2. ffmpeg-r20783
 
+First patch ffmpeg with ffmpeg-libx264-keyframe.diff:
+$ patch -p0 < ffmpeg-libx264-keyframe.diff
+
 - Windows
 
 32-bit

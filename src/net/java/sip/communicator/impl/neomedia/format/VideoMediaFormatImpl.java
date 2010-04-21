@@ -86,7 +86,7 @@ public class VideoMediaFormatImpl
      */
     VideoMediaFormatImpl(VideoFormat format, double clockRate)
     {
-        this(format, clockRate, null);
+        this(format, clockRate, null, null);
     }
 
     /**
@@ -105,9 +105,10 @@ public class VideoMediaFormatImpl
     VideoMediaFormatImpl(
             VideoFormat format,
             double clockRate,
-            Map<String, String> formatParameters)
+            Map<String, String> formatParameters,
+            Map<String, String> advancedParameters)
     {
-        super(format, formatParameters);
+        super(format, formatParameters, advancedParameters);
 
         this.clockRate = clockRate;
     }

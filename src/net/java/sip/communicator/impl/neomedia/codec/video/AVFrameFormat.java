@@ -15,7 +15,7 @@ import javax.media.format.*;
  * Implements a <tt>VideoFormat</tt> for a <tt>Buffer</tt> carrying
  * <tt>AVFrame</tt> as its <tt>data</tt>. While the <tt>AVFrameFormat</tt> class
  * is not strictly necessary and <tt>VideoFormat</tt> could have be directly
- * used, it is conceived as an appripriate way to avoid possible matching with
+ * used, it is conceived as an appropriate way to avoid possible matching with
  * other <tt>VideoFormat</tt>s and a very obvious one.
  *
  * @author Lubomir Marinov
@@ -168,7 +168,7 @@ public class AVFrameFormat
     /**
      * Determines whether a specific format matches this instance i.e. whether
      * their attributes match according to the definition of "match" given by
-     * {@line Format#matches(Format)}.
+     * {@link Format#matches(Format)}.
      *
      * @param format the <tt>Format</tt> to compare to this instance
      * @return <tt>true</tt> if the specified <tt>format</tt> matches this one;

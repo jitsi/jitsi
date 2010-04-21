@@ -75,7 +75,8 @@ public abstract class MediaFormatImpl<T extends Format>
     public static MediaFormatImpl<? extends Format> createInstance(
             Format format,
             double clockRate,
-            Map<String, String> formatParameters)
+            Map<String, String> formatParameters,
+            Map<String, String> advancedParameters)
     {
         if (format instanceof AudioFormat)
         {
@@ -91,14 +92,16 @@ public abstract class MediaFormatImpl<T extends Format>
                 new AudioMediaFormatImpl(
                         (AudioFormat)
                             clockRateAudioFormat.intersects(audioFormat),
-                        formatParameters);
+                        formatParameters,
+                        advancedParameters);
         }
         if (format instanceof VideoFormat)
             return
                 new VideoMediaFormatImpl(
                         (VideoFormat) format,
                         clockRate,
-                        formatParameters);
+                        formatParameters,
+                        advancedParameters);
         return null;
     }
 
@@ -172,6 +175,12 @@ public abstract class MediaFormatImpl<T extends Format>
     private final Map<String, String> formatParameters;
 
     /**
+     * The advanced parameters of this instance which have been received
+     * via SIP/SDP or XMPP/Jingle.
+     */
+    private final Map<String, String> advancedParameters;
+
+    /**
      * Initializes a new <tt>MediaFormatImpl</tt> instance which is to provide
      * an implementation of <tt>MediaFormat</tt> for a specific <tt>Format</tt>.
      *
@@ -180,7 +189,7 @@ public abstract class MediaFormatImpl<T extends Format>
      */
     protected MediaFormatImpl(T format)
     {
-        this(format, null);
+        this(format, null, null);
     }
 
     /**
@@ -192,8 +201,11 @@ public abstract class MediaFormatImpl<T extends Format>
      * implementation of <tt>MediaFormat</tt> for
      * @param formatParameters any codec-specific parameters that have been
      * received via SIP/SDP or XMPP/Jingle
+     * @param advancedParameters any parameters that have been
+     * received via SIP/SDP or XMPP/Jingle
      */
-    protected MediaFormatImpl(T format, Map<String, String> formatParameters)
+    protected MediaFormatImpl(T format, Map<String, String> formatParameters,
+            Map<String, String> advancedParameters)
     {
         if (format == null)
             throw new NullPointerException("format");
@@ -203,6 +215,10 @@ public abstract class MediaFormatImpl<T extends Format>
             = ((formatParameters == null) || formatParameters.isEmpty())
                 ? EMPTY_FORMAT_PARAMETERS
                 : new HashMap<String, String>(formatParameters);
+        this.advancedParameters
+        = ((advancedParameters == null) || advancedParameters.isEmpty())
+            ? EMPTY_FORMAT_PARAMETERS
+            : new HashMap<String, String>(advancedParameters);
     }
 
     /**
@@ -211,7 +227,7 @@ public abstract class MediaFormatImpl<T extends Format>
      *
      * @param mediaFormat the object that we'd like to compare <tt>this</tt> one
      * to.
-     *
+     8*
      * @return <tt>true</tt> if the JMF <tt>Format</tt> instances encapsulated
      * by this class are equal and <tt>false</tt> otherwise.
      */
@@ -287,6 +303,22 @@ public abstract class MediaFormatImpl<T extends Format>
         return (formatParameters == EMPTY_FORMAT_PARAMETERS)
                 ? EMPTY_FORMAT_PARAMETERS
                 : new HashMap<String, String>(formatParameters);
+    }
+
+    /**
+     * Implements MediaFormat#getAdvancedParameters(). Returns a copy of the
+     * attribute properties of this instance. Modifications to the returned Map
+     * do no affect the format properties of this instance.
+     *
+     * @return a copy of the attribute properties of this instance.
+     * Modifications to the returned Map do no affect the format properties of
+     * this instance.
+     */
+    public Map<String, String> getAdvancedParameters()
+    {
+        return (advancedParameters == EMPTY_FORMAT_PARAMETERS)
+                ? EMPTY_FORMAT_PARAMETERS
+                : new HashMap<String, String>(advancedParameters);
     }
 
     /**

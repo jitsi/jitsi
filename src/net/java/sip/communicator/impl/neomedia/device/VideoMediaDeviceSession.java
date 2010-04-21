@@ -16,7 +16,9 @@ import javax.media.protocol.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
+import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -54,6 +56,11 @@ public class VideoMediaDeviceSession
     private Player localPlayer = null;
 
     /**
+     * Use or not RTCP feedback Picture Loss Indication.
+     */
+    private boolean usePLI = false;
+
+    /**
      * Output size of the stream.
      *
      * It is used to specify a different size (generally lesser ones)
@@ -62,6 +69,21 @@ public class VideoMediaDeviceSession
      * than remote ones.
      */
     private Dimension outputSize;
+
+    /**
+     * The <tt>RTPConnector</tt>.
+     */
+    private RTPConnectorImpl rtpConnector = null;
+
+    /**
+     * Local SSRC.
+     */
+    private long localSSRC = -1;
+
+    /**
+     * Remote SSRC.
+     */
+    private long remoteSSRC = -1;
 
     /**
      * The <tt>SwScaler</tt> inserted into the codec chain of the
@@ -94,7 +116,6 @@ public class VideoMediaDeviceSession
      *
      * @param device the video <tt>MediaDevice</tt> the use of which by a
      * <tt>MediaStream</tt> is to be represented by the new instance
-     * @param outputSize output size of the video
      */
     public VideoMediaDeviceSession(AbstractMediaDevice device)
     {
@@ -281,7 +302,7 @@ public class VideoMediaDeviceSession
     }
 
     /**
-     * Get the local <tt>Player</tt> if it exists, 
+     * Get the local <tt>Player</tt> if it exists,
      * create it otherwise
      * @return local <tt>Player</tt>
      */
@@ -358,7 +379,7 @@ public class VideoMediaDeviceSession
                     // No listener interested in our event so free resources.
                     if(localPlayer == player)
                         localPlayer = null;
-    
+
                     player.stop();
                     player.deallocate();
                     player.close();
@@ -450,7 +471,7 @@ public class VideoMediaDeviceSession
                     if (imgWidth > width)
                     {
                         scale = true;
-                        scaleFactor = width / (float) imgWidth; 
+                        scaleFactor = width / (float) imgWidth;
                     }
                     if (imgHeight > height)
                     {
@@ -507,9 +528,9 @@ public class VideoMediaDeviceSession
     }
 
     /**
-     * Releases the resources allocated by a specific local <tt>Player</tt> in the
-     * course of its execution and prepares it to be garbage collected. If the
-     * specified <tt>Player</tt> is rendering video, notifies the
+     * Releases the resources allocated by a specific local <tt>Player</tt> in
+     * the course of its execution and prepares it to be garbage collected. If
+     * the specified <tt>Player</tt> is rendering video, notifies the
      * <tt>VideoListener</tt>s of this instance that its visual
      * <tt>Component</tt> is to no longer be used by firing a
      * {@link VideoEvent#VIDEO_REMOVED} <tt>VideoEvent</tt>.
@@ -524,7 +545,7 @@ public class VideoMediaDeviceSession
          * its Player#getVisualComponent() (if any) should be released.
          */
         Component visualComponent = getVisualComponent(player);
-        
+
         if(localPlayer == player)
             localPlayer = null;
 
@@ -670,7 +691,37 @@ public class VideoMediaDeviceSession
                             return result;
                         }
                     };
-                    trackControl.setCodecChain(new Codec[] { playerScaler });
+
+                    /* for H264 codec, we will use RTCP feedback
+                     * for example to advertise sender that we miss
+                     * a frame
+                     */
+                    if(format.getEncoding().equals("h264/rtp") && usePLI)
+                    {
+                        DePacketizer depack = new DePacketizer();
+
+                        depack.setRtcpFeedbackPLI(usePLI);
+
+                        try
+                        {
+                            depack.setConnector(rtpConnector.
+                                    getControlOutputStream());
+                        }
+                        catch(Exception e)
+                        {
+                            logger.error("Error cannot get RTCP output stream",
+                                    e);
+                        }
+
+                        depack.setSSRC(localSSRC, remoteSSRC);
+
+                        trackControl.setCodecChain(new Codec[] {
+                            depack, playerScaler});
+                    }
+                    else
+                    {
+                        trackControl.setCodecChain(new Codec[] {playerScaler});
+                    }
                     break;
                 }
             }
@@ -904,6 +955,16 @@ public class VideoMediaDeviceSession
     }
 
     /**
+     * Use or not RTCP feedback Picture Loss Indication.
+     *
+     * @param use use or not PLI
+     */
+    public void setRtcpFeedbackPLI(boolean use)
+    {
+        usePLI = use;
+    }
+
+    /**
      * Sets the size of the output video.
      *
      * @param size the size of the output video
@@ -911,6 +972,37 @@ public class VideoMediaDeviceSession
     public void setOutputSize(Dimension size)
     {
         outputSize = size;
+    }
+
+    /**
+     * Sets the <tt>RTPConnector</tt> that will be used to
+     * initialize some codec for RTCP feedback.
+     *
+     * @param rtpConnector the RTP connector
+     */
+    public void setConnector(RTPConnectorImpl rtpConnector)
+    {
+        this.rtpConnector = rtpConnector;
+    }
+
+    /**
+     * Set the local SSRC.
+     *
+     * @param localSSRC local SSRC
+     */
+    public void setLocalSSRC(long localSSRC)
+    {
+        this.localSSRC = localSSRC;
+    }
+
+    /**
+     * Set the remote SSRC.
+     *
+     * @param remoteSSRC remote SSRC
+     */
+    public void setRemoteSSRC(long remoteSSRC)
+    {
+        this.remoteSSRC = remoteSSRC;
     }
 
     /**
@@ -933,8 +1025,8 @@ public class VideoMediaDeviceSession
          */
         if(outputSize != null)
         {
-            newFormat = new VideoFormat(tmp.getEncoding(), outputSize, 
-                    tmp.getMaxDataLength(), tmp.getDataType(), 
+            newFormat = new VideoFormat(tmp.getEncoding(), outputSize,
+                    tmp.getMaxDataLength(), tmp.getDataType(),
                     tmp.getFrameRate());
         }
 
@@ -965,27 +1057,69 @@ public class VideoMediaDeviceSession
             TrackControl trackControl,
             Format format)
     {
+        Codec codecs[] = null;
+        JNIEncoder encoder = null;
+        SwScaler scaler = null;
+        int nbCodec = 0;
+
+        /* for H264 we will monitor RTCP feedback
+         * for example if we receive a PLI/FIR message,
+         * we will send a keyframe
+         */
+        if(format.getEncoding().equals("h264/rtp") && usePLI)
+        {
+            encoder = new JNIEncoder();
+
+            /* encoder need to be notified of RTCP feedback message */
+            try
+            {
+                ((ControlTransformInputStream)rtpConnector.
+                    getControlInputStream()).addRTCPFeedbackListener(encoder);
+            }
+            catch(Exception e)
+            {
+                logger.error("Error cannot get RTCP input stream", e);
+            }
+            nbCodec++;
+        }
+
         if(outputSize != null)
         {
             /* We have been explicitly told to use a specified output size so
              * create a custom SwScaler that will scale and convert color spaces
              * in one call.
              */
-            SwScaler scaler = new SwScaler();
-
+            scaler = new SwScaler();
             scaler.setOutputSize(outputSize);
+            nbCodec++;
+        }
 
-            /* Add our custom SwScaler to the codec chain so that it will be
-             * used instead of default.
-             */
-            try
-            {
-                trackControl.setCodecChain(new Codec[] { scaler });
-            }
-            catch(UnsupportedPlugInException upiex)
-            {
-                logger.error("Failed to add SwScaler to codec chain", upiex);
-            }
+        codecs = new Codec[nbCodec];
+        nbCodec = 0;
+
+        if(scaler != null)
+        {
+            codecs[nbCodec] = scaler;
+            nbCodec++;
+        }
+
+        if(encoder != null)
+        {
+            codecs[nbCodec] = encoder;
+        }
+
+        /* Add our custom SwScaler and possibly RTCP aware codec to the codec
+         * chain so that it will be
+         * used instead of default.
+         */
+        try
+        {
+            trackControl.setCodecChain(codecs);
+        }
+        catch(UnsupportedPlugInException upiex)
+        {
+            logger.error("Failed to add SwScaler/JNIEncoder to codec chain",
+                    upiex);
         }
 
         return super.setProcessorFormat(trackControl, format);

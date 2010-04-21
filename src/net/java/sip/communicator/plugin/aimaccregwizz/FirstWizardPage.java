@@ -313,7 +313,7 @@ public class FirstWizardPage
 
     /**
      * The simple form for this wizard.
-     * @return
+     * @return the simple form for this wizard.
      */
     public Object getSimpleForm()
     {
@@ -322,7 +322,8 @@ public class FirstWizardPage
 
     /**
      * Whether is committed.
-     * @return
+     * @return <tt>true</tt> if the form is committed, <tt>false</tt>
+     * otherwise
      */
     public boolean isCommitted()
     {
