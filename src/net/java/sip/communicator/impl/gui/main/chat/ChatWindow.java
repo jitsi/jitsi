@@ -423,13 +423,6 @@ public class ChatWindow
         this.setTitle(chatSession.getChatName());
         this.setChatContactPhoto(chatSession);
 
-        mainToolBar
-            .enableInviteButton(chatPanel.findInviteChatTransport() != null);
-        mainToolBar
-            .enableSendFileButton(
-                chatPanel.findFileTransferChatTransport() != null);
-        mainToolBar.changeHistoryButtonsState(chatPanel);
-
         chatPanel.requestFocusInWriteArea();
 
         for (ChatChangeListener l : this.chatChangeListeners)

@@ -10,14 +10,17 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -64,13 +67,26 @@ public class MainToolBar
                 ImageLoader.getImage(ImageLoader.NEXT_ICON));
 
     /**
+     * The call button.
+     */
+    private final ChatToolbarButton callButton
+        = new ChatToolbarButton(
+                ImageLoader.getImage(ImageLoader.CHAT_CALL));
+
+    /**
      * The current <tt>ChatSession</tt> made known to this instance by the last
      * call to its {@link #chatChanged(ChatPanel)}. 
      */
     private ChatSession chatSession;
 
+    /**
+     * The chat window, where this tool bar is contained.
+     */
     protected final ChatWindow messageWindow;
 
+    /**
+     * The plug-in container contained in this tool bar.
+     */
     private final PluginContainer pluginContainer;
 
     /**
@@ -90,6 +106,9 @@ public class MainToolBar
         this.messageWindow.addChatChangeListener(this);
     }
 
+    /**
+     * Initializes this component.
+     */
     protected void init()
     {
         ChatToolbarButton optionsButton
@@ -100,6 +119,7 @@ public class MainToolBar
         this.setOpaque(false);
 
         this.add(inviteButton);
+        this.add(callButton);
         this.add(historyButton);
         this.add(optionsButton);
         this.add(sendFileButton);
@@ -110,6 +130,11 @@ public class MainToolBar
         this.inviteButton.setName("invite");
         this.inviteButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.INVITE"));
+
+        this.callButton.setName("call");
+        this.callButton.setToolTipText(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.CALL_CONTACT"));
 
         this.historyButton.setName("history");
         this.historyButton.setToolTipText(
@@ -133,6 +158,7 @@ public class MainToolBar
             GuiActivator.getResources().getI18NString("service.gui.NEXT"));
 
         this.inviteButton.addActionListener(this);
+        this.callButton.addActionListener(this);
         this.historyButton.addActionListener(this);
         optionsButton.addActionListener(this);
         this.sendFileButton.addActionListener(this);
@@ -150,30 +176,42 @@ public class MainToolBar
         pluginContainer.dispose();
     }
 
-    /*
+    /**
      * Implements ChatChangeListener#chatChanged(ChatPanel).
+     * @param chatPanel the <tt>ChatPanel</tt>, which changed
      */
-    public void chatChanged(ChatPanel panel)
+    public void chatChanged(ChatPanel chatPanel)
     {
-        if (panel == null)
+        if (chatPanel == null)
         {
             setChatSession(null);
         }
         else
         {
             MetaContact contact
-                = GuiActivator.getUIService().getChatContact(panel);
+                = GuiActivator.getUIService().getChatContact(chatPanel);
 
             for (PluginComponent c : pluginContainer.getPluginComponents())
                 c.setCurrentContact(contact);
 
-            setChatSession(panel.chatSession);
+            setChatSession(chatPanel.chatSession);
+
+            inviteButton.setEnabled(
+                chatPanel.findInviteChatTransport() != null);
+            sendFileButton.setEnabled(
+                chatPanel.findFileTransferChatTransport() != null);
+            callButton.setEnabled(
+                !chatPanel.chatSession.getTransportsForOperationSet(
+                    OperationSetBasicTelephony.class).isEmpty());
+
+            changeHistoryButtonsState(chatPanel);
         }
     }
 
-    /*
+    /**
      * Implements
      * ChatSessionChangeListener#currentChatTransportChanged(ChatSession).
+     * @param chatSession the <tt>ChatSession</tt>, which transport has changed
      */
     public void currentChatTransportChanged(ChatSession chatSession)
     {
@@ -193,8 +231,9 @@ public class MainToolBar
     }
 
     /**
-     * Handles the <tt>ActionEvent</tt>, when one of the toolbar buttons is
+     * Handles the <tt>ActionEvent</tt>, when one of the tool bar buttons is
      * clicked.
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -262,6 +301,43 @@ public class MainToolBar
 
             inviteDialog.setVisible(true);
         }
+        else if (buttonText.equals("call"))
+        {
+            ChatSession chatSession = chatPanel.getChatSession();
+
+            List<ChatTransport> telTransports = null;
+            if (chatSession != null)
+                telTransports = chatSession
+                    .getTransportsForOperationSet(
+                        OperationSetBasicTelephony.class);
+
+            if (telTransports != null)
+            {
+                if (telTransports.size() == 1)
+                {
+                    ChatTransport transport = telTransports.get(0);
+                    CallManager.createCall(
+                        transport.getProtocolProvider(),
+                        transport.getName());
+                }
+                else if (telTransports.size() > 1)
+                {
+                    ChooseCallAccountPopupMenu chooseAccountDialog
+                        = new ChooseCallAccountPopupMenu(
+                            callButton,
+                            telTransports);
+
+                    Point location = new Point(callButton.getX(),
+                        callButton.getY() + callButton.getHeight());
+
+                    SwingUtilities.convertPointToScreen(
+                        location, this);
+
+                    chooseAccountDialog
+                        .showPopupMenu(location.x, location.y);
+                }
+            }
+        }
         else if (buttonText.equals("options"))
         {
             GuiActivator.getUIService().setConfigurationWindowVisible(true);
@@ -281,6 +357,7 @@ public class MainToolBar
     /**
      * Disables/Enables history arrow buttons depending on whether the
      * current page is the first, the last page or a middle page.
+     * @param chatPanel the <tt>ChatPanel</tt> which has provoked the change.
      */
     public void changeHistoryButtonsState(ChatPanel chatPanel)
     {
@@ -304,28 +381,6 @@ public class MainToolBar
             .setEnabled(
                 (lastMsgInPage.getTime() > 0)
                     && (lastMsgInHistory > lastMsgInPage.getTime()));
-    }
-
-    /**
-     * Enables or disables the conference button in this tool bar.
-     *
-     * @param isEnabled <code>true</code> if the conference button should be
-     * enabled; <code>false</code>, otherwise.
-     */
-    public void enableInviteButton(boolean isEnabled)
-    {
-        inviteButton.setEnabled(isEnabled);
-    }
-
-    /**
-     * Enables or disables the send file button in this tool bar.
-     *
-     * @param isEnabled <code>true</code> if the send file button should be
-     * enabled; <code>false</code>, otherwise.
-     */
-    public void enableSendFileButton(boolean isEnabled)
-    {
-        sendFileButton.setEnabled(isEnabled);
     }
 
     /**

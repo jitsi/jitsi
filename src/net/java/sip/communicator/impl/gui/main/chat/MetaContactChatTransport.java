@@ -25,19 +25,45 @@ public class MetaContactChatTransport
     implements  ChatTransport,
                 ContactPresenceStatusListener
 {
+    /**
+     * The logger.
+     */
     private static final Logger logger
         = Logger.getLogger(MetaContactChatTransport.class);
 
+    /**
+     * The parent <tt>ChatSession</tt>, where this transport is available.
+     */
     private final ChatSession parentChatSession;
 
+    /**
+     * The associated protocol <tt>Contact</tt>.
+     */
     private final Contact contact;
 
+    /**
+     * The protocol presence operation set associated with this transport.
+     */
     private final OperationSetPresence presenceOpSet;
 
+    /**
+     * The thumbnail default width.
+     */
     private static final int THUMBNAIL_WIDTH = 64;
 
+    /**
+     * The thumbnail default height.
+     */
     private static final int THUMBNAIL_HEIGHT = 64;
 
+    /**
+     * Creates an instance of <tt>MetaContactChatTransport</tt> by specifying
+     * the parent <tt>chatSession</tt> and the <tt>contact</tt> associated with
+     * the transport.
+     *
+     * @param chatSession the parent <tt>ChatSession</tt>
+     * @param contact the <tt>Contact</tt> associated with this transport
+     */
     public MetaContactChatTransport(ChatSession chatSession,
                                     Contact contact)
     {
@@ -53,6 +79,10 @@ public class MetaContactChatTransport
             presenceOpSet.addContactPresenceStatusListener(this);
     }
 
+    /**
+     * Returns the contact associated with this transport.
+     * @return the contact associated with this transport
+     */
     public Contact getContact()
     {
         return contact;
@@ -175,10 +205,11 @@ public class MetaContactChatTransport
     /**
      * Sends the given instant message trough this chat transport, by specifying
      * the mime type (html or plain text).
-     * 
+     *
      * @param message The message to send.
      * @param mimeType The mime type of the message to send: text/html or
      * text/plain.
+     * @throws Exception if the send operation is interrupted
      */
     public void sendInstantMessage( String message,
                                     String mimeType)
@@ -212,9 +243,10 @@ public class MetaContactChatTransport
 
     /**
      * Sends the given sms message trough this chat transport.
-     * 
+     *
      * @param phoneNumber phone number of the destination
      * @param messageText The message to send.
+     * @throws Exception if the send operation is interrupted
      */
     public void sendSmsMessage(String phoneNumber, String messageText)
         throws Exception
@@ -236,9 +268,8 @@ public class MetaContactChatTransport
 
     /**
      * Sends a typing notification state.
-     * 
+     *
      * @param typingState the typing notification state to send
-     * 
      * @return the result of this operation. One of the TYPING_NOTIFICATION_XXX
      * constants defined in this class
      */
@@ -279,6 +310,7 @@ public class MetaContactChatTransport
      * Sends the given file through this chat transport file transfer operation
      * set.
      * @param file the file to send
+     * @return the <tt>FileTransfer</tt> object charged to transfer the file
      * @throws Exception if anything goes wrong
      */
     public FileTransfer sendFile(File file)
@@ -315,7 +347,6 @@ public class MetaContactChatTransport
                 }
             }
         }
-
         return ftOpSet.sendFile(contact, file);
     }
 
@@ -333,9 +364,7 @@ public class MetaContactChatTransport
         return ftOpSet.getMaximumFileLength();
     }
 
-    public void inviteChatContact(String contactAddress, String reason)
-    {
-    }
+    public void inviteChatContact(String contactAddress, String reason) {}
 
     /**
      * Returns the parent session of this chat transport. A <tt>ChatSession</tt>
@@ -347,10 +376,9 @@ public class MetaContactChatTransport
     {
         return parentChatSession;
     }
-    
+
     /**
-     * Adds an sms message listener to this chat transport.
-     * 
+     * Adds an SMS message listener to this chat transport.
      * @param l The message listener to add.
      */
     public void addSmsMessageListener(MessageListener l)
@@ -370,7 +398,6 @@ public class MetaContactChatTransport
 
     /**
      * Adds an instant message listener to this chat transport.
-     * 
      * @param l The message listener to add.
      */
     public void addInstantMessageListener(MessageListener l)
@@ -390,7 +417,6 @@ public class MetaContactChatTransport
 
     /**
      * Removes the given sms message listener from this chat transport.
-     * 
      * @param l The message listener to remove.
      */
     public void removeSmsMessageListener(MessageListener l)
@@ -410,7 +436,6 @@ public class MetaContactChatTransport
 
     /**
      * Removes the instant message listener from this chat transport.
-     * 
      * @param l The message listener to remove.
      */
     public void removeInstantMessageListener(MessageListener l)
@@ -430,7 +455,6 @@ public class MetaContactChatTransport
 
     /**
      * Indicates that a contact has changed its status.
-     *
      * @param evt The presence event containing information about the
      * contact status change.
      */
@@ -448,7 +472,6 @@ public class MetaContactChatTransport
 
     /**
      * Updates the status of this contact with the new given status.
-     * 
      * @param newStatus The new status.
      */
     private void updateContactStatus(PresenceStatus newStatus)
@@ -472,7 +495,6 @@ public class MetaContactChatTransport
 
     /**
      * Returns the descriptor of this chat transport.
-     * 
      * @return the descriptor of this chat transport
      */
     public Object getDescriptor()
@@ -482,8 +504,9 @@ public class MetaContactChatTransport
 
     /**
      * Sets the icon for the given file.
-     * 
+     *
      * @param file the file to set an icon for
+     * @return the byte array containing the thumbnail
      */
     private byte[] getFileThumbnail(File file)
     {
@@ -513,7 +536,6 @@ public class MetaContactChatTransport
                 logger.debug("Could not locate image.", e);
             }
         }
-
         return bytes;
     }
 }

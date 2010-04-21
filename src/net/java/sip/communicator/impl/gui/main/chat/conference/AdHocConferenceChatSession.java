@@ -23,15 +23,9 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Valentin Martinet
  */
 public class AdHocConferenceChatSession
-    implements  ChatSession,
-                AdHocChatRoomParticipantPresenceListener
+    extends ChatSession
+    implements AdHocChatRoomParticipantPresenceListener
 {
-    private final List<ChatContact> chatParticipants
-        = new ArrayList<ChatContact>();
-
-    private final List<ChatTransport> chatTransports
-        = new ArrayList<ChatTransport>();
-
     private ChatTransport currentChatTransport;
 
     private final AdHocChatRoomWrapper chatRoomWrapper;
@@ -105,28 +99,6 @@ public class AdHocConferenceChatSession
         throws OperationFailedException
     {
         return null;
-    }
-
-    /**
-     * Returns an iterator to the list of all participants contained in this 
-     * chat session.
-     * 
-     * @return an iterator to the list of all participants contained in this 
-     * chat session.
-     */
-    public Iterator<ChatContact> getParticipants()
-    {
-        return chatParticipants.iterator();
-    }
-
-    /**
-     * Returns all available chat transports for this chat session.
-     * 
-     * @return all available chat transports for this chat session.
-     */
-    public Iterator<ChatTransport> getChatTransports()
-    {
-        return chatTransports.iterator();
     }
 
     /**
@@ -363,13 +335,6 @@ public class AdHocConferenceChatSession
     public boolean isDescriptorPersistent()
     {
         return false;
-    }
-
-    public ChatTransport findChatTransportForDescriptor(Object descriptor)
-    {
-        return MetaContactChatSession.findChatTransportForDescriptor(
-            chatTransports,
-            descriptor);
     }
 
     /**

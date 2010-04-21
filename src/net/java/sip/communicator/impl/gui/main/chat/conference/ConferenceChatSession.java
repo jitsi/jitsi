@@ -25,22 +25,10 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Valentin Martinet
  */
 public class ConferenceChatSession
-    implements  ChatSession,
-                ChatRoomMemberPresenceListener,
+    extends ChatSession
+    implements  ChatRoomMemberPresenceListener,
                 ChatRoomPropertyChangeListener
 {
-    /**
-     * The list of all chat participants.
-     */
-    private final List<ChatContact> chatParticipants
-        = new ArrayList<ChatContact>();
-
-    /**
-     * The list of available chat transports.
-     */
-    private final List<ChatTransport> chatTransports
-        = new ArrayList<ChatTransport>();
-
     /**
      * The current chat transport used for messaging.
      */
@@ -144,28 +132,6 @@ public class ConferenceChatSession
         throws OperationFailedException
     {
         return chatRoomWrapper.getChatRoom().getConfigurationForm();
-    }
-
-    /**
-     * Returns an iterator to the list of all participants contained in this 
-     * chat session.
-     * 
-     * @return an iterator to the list of all participants contained in this 
-     * chat session.
-     */
-    public Iterator<ChatContact> getParticipants()
-    {
-        return chatParticipants.iterator();
-    }
-
-    /**
-     * Returns all available chat transports for this chat session.
-     * 
-     * @return all available chat transports for this chat session.
-     */
-    public Iterator<ChatTransport> getChatTransports()
-    {
-        return chatTransports.iterator();
     }
 
     /**
@@ -515,20 +481,6 @@ public class ConferenceChatSession
     public boolean isDescriptorPersistent()
     {
         return true;
-    }
-
-    /**
-     * Finds the <tt>ChatTransport</tt> corresponding to the given
-     * <tt>descriptor</tt>.
-     * @param descriptor the descriptor of the chat transport we're looking for
-     * @return the <tt>ChatTransport</tt> corresponding to the given
-     * <tt>descriptor</tt>
-     */
-    public ChatTransport findChatTransportForDescriptor(Object descriptor)
-    {
-        return MetaContactChatSession.findChatTransportForDescriptor(
-            chatTransports,
-            descriptor);
     }
 
     /**

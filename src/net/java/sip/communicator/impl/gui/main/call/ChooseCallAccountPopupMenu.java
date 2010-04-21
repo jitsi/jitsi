@@ -14,6 +14,7 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -53,17 +54,20 @@ public class ChooseCallAccountPopupMenu
      * Creates this dialog by specifying a list of telephony contacts to choose
      * from.
      * @param invoker the invoker of this pop up
-     * @param telephonyContacts the list of telephony contacts to select through
+     * @param telephonyObjects the list of telephony contacts to select through
      */
     public ChooseCallAccountPopupMenu(  JComponent invoker,
-                                        List<Contact> telephonyContacts)
+                                        List<?> telephonyObjects)
     {
         this.invoker = invoker;
         this.init();
 
-        for (Contact contact : telephonyContacts)
+        for (Object o : telephonyObjects)
         {
-            this.addTelephonyContactItem(contact);
+            if (o instanceof Contact)
+                this.addTelephonyContactItem((Contact) o);
+            else if (o instanceof ChatTransport)
+                this.addTelephonyChatTransportItem((ChatTransport) o);
         }
     }
 
@@ -126,6 +130,29 @@ public class ChooseCallAccountPopupMenu
         });
 
         this.add(contactItem);
+    }
+
+    /**
+     * Adds the given <tt>ChatTransport</tt> to the list of available
+     * telephony chat transports.
+     * @param telTransport the telephony chat transport to add
+     */
+    private void addTelephonyChatTransportItem(final ChatTransport telTransport)
+    {
+        final ChatTransportMenuItem transportItem
+            = new ChatTransportMenuItem(telTransport);
+
+        transportItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                CallManager.createCall( telTransport.getProtocolProvider(),
+                                        telTransport.getName());
+                ChooseCallAccountPopupMenu.this.setVisible(false);
+            }
+        });
+
+        this.add(transportItem);
     }
 
     /**
@@ -217,6 +244,31 @@ public class ChooseCallAccountPopupMenu
         public Contact getContact()
         {
             return contact;
+        }
+    }
+
+    /**
+     * A custom menu item corresponding to a specific <tt>ChatTransport</tt>.
+     */
+    private class ChatTransportMenuItem extends JMenuItem
+    {
+        private final ChatTransport chatTransport;
+
+        public ChatTransportMenuItem(ChatTransport chatTransport)
+        {
+            this.chatTransport = chatTransport;
+            this.setText(chatTransport.getDisplayName());
+
+            BufferedImage contactIcon
+                = Constants.getStatusIcon(chatTransport.getStatus());
+
+            if (contactIcon != null)
+                this.setIcon(new ImageIcon(contactIcon));
+        }
+
+        public ChatTransport getChatTransport()
+        {
+            return chatTransport;
         }
     }
 }

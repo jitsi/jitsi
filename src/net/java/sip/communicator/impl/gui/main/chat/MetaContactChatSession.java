@@ -25,18 +25,13 @@ import net.java.sip.communicator.service.protocol.event.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * 
  */
 public class MetaContactChatSession
-    implements  ChatSession,
-                MetaContactListListener
+    extends  ChatSession
+    implements MetaContactListListener
 {
     private final MetaContact metaContact;
-
-    private final List<ChatContact> chatParticipants
-        = new ArrayList<ChatContact>();
-
-    private final List<ChatTransport> chatTransports
-        = new ArrayList<ChatTransport>();
 
     private final MetaContactListService metaContactListService;
 
@@ -79,29 +74,6 @@ public class MetaContactChatSession
 
         if (metaContactListService != null)
             metaContactListService.addMetaContactListListener(this);
-    }
-
-    /**
-     * Returns an iterator to the list of all participants contained in this
-     * chat session.
-     *
-     * @return an iterator to the list of all participants contained in this
-     * chat session.
-     */
-    public Iterator<ChatContact> getParticipants()
-    {
-        return chatParticipants.iterator();
-    }
-
-    /**
-     * Returns all available chat transports for this chat session. Each chat
-     * transport is corresponding to a protocol provider.
-     *
-     * @return all available chat transports for this chat session.
-     */
-    public Iterator<ChatTransport> getChatTransports()
-    {
-        return chatTransports.iterator();
     }
 
     /**
@@ -588,29 +560,6 @@ public class MetaContactChatSession
     }
 
     /**
-     * Returns the ChatTransport corresponding to the given descriptor.
-     *
-     * @param descriptor The descriptor of the chat transport we're looking for.
-     * @return The ChatTransport corresponding to the given descriptor.
-     */
-    public ChatTransport findChatTransportForDescriptor(Object descriptor)
-    {
-        return findChatTransportForDescriptor(chatTransports, descriptor);
-    }
-
-    public static ChatTransport findChatTransportForDescriptor(
-            Iterable<ChatTransport> chatTransports,
-            Object descriptor)
-    {
-        for (ChatTransport chatTransport : chatTransports)
-        {
-            if (chatTransport.getDescriptor().equals(descriptor))
-                return chatTransport;
-        }
-        return null;
-    }
-
-    /**
      * Implements the <tt>ChatPanel.getChatStatusIcon</tt> method.
      *
      * @return the status icon corresponding to this chat room
@@ -636,7 +585,9 @@ public class MetaContactChatSession
     public void protoContactModified(ProtoContactEvent evt)
     {}
 
-    /* Implements ChatSession#isContactListSupported(). */
+    /**
+     *  Implements ChatSession#isContactListSupported().
+     */
     public boolean isContactListSupported()
     {
         return false;

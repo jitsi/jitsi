@@ -14,7 +14,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * The <tt>ChatTransport</tt> is an abstraction of the transport method used
- * when sending messages or sms-es.
+ * when sending messages, making calls, etc. through the chat window.
  * 
  * @author Yana Stamcheva
  */
@@ -23,7 +23,7 @@ public interface ChatTransport
     /**
      * Returns the descriptor object of this ChatTransport.
      * 
-     * @return the descriptor object of this ChatTransport.
+     * @return the descriptor object of this ChatTransport
      */
     public Object getDescriptor();
 
@@ -32,7 +32,7 @@ public interface ChatTransport
      * messaging, otherwise returns <code>false</code>.
      * 
      * @return <code>true</code> if this chat transport supports instant
-     * messaging, otherwise returns <code>false</code>.
+     * messaging, otherwise returns <code>false</code>
      */
     public boolean allowsInstantMessage();
 
@@ -41,7 +41,7 @@ public interface ChatTransport
      * messaging, otherwise returns <code>false</code>.
      * 
      * @return <code>true</code> if this chat transport supports sms
-     * messaging, otherwise returns <code>false</code>.
+     * messaging, otherwise returns <code>false</code>
      */
     public boolean allowsSmsMessage();
 
@@ -50,14 +50,14 @@ public interface ChatTransport
      * notifications, otherwise returns <code>false</code>.
      * 
      * @return <code>true</code> if this chat transport supports typing
-     * notifications, otherwise returns <code>false</code>.
+     * notifications, otherwise returns <code>false</code>
      */
     public boolean allowsTypingNotifications();
 
     /**
      * Returns the name of this chat transport. This is for example the name of
      * the contact in a single chat mode and the name of the chat room in the
-     * multi chat mode.
+     * multi-chat mode.
      * 
      * @return The name of this chat transport.
      */
@@ -66,7 +66,7 @@ public interface ChatTransport
     /**
      * Returns the display name of this chat transport. This is for example the
      * name of the contact in a single chat mode and the name of the chat room
-     * in the multi chat mode.
+     * in the multi-chat mode.
      * 
      * @return The display name of this chat transport.
      */
@@ -91,19 +91,22 @@ public interface ChatTransport
     /**
      * Sends the given instant message trough this chat transport, by specifying
      * the mime type (html or plain text).
-     * 
+     *
      * @param message The message to send.
      * @param mimeType The mime type of the message to send: text/html or
      * text/plain.
+     * @throws Exception if the send doesn't succeed
      */
     public void sendInstantMessage( String message,
                                     String mimeType)
         throws Exception;
 
     /**
-     * Sends the given sms message trough this chat transport.
-     * 
+     * Sends the given SMS message trough this chat transport.
+     *
+     * @param phoneNumber the phone number to which to send the message
      * @param message The message to send.
+     * @throws Exception if the send doesn't succeed
      */
     public void sendSmsMessage(String phoneNumber, String message)
         throws Exception;
@@ -122,6 +125,9 @@ public interface ChatTransport
      * Sends the given file trough this chat transport.
      * 
      * @param file the file to send
+     * @return the <tt>FileTransfer</tt> charged to transfer the given
+     * <tt>file</tt>.
+     * @throws Exception if the send doesn't succeed
      */
     public FileTransfer sendFile(File file)
         throws Exception;
