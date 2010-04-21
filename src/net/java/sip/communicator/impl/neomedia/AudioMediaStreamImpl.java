@@ -137,12 +137,12 @@ public class AudioMediaStreamImpl
                     nfe);
         }
 
-        bufferLength = bufferControl.setBufferLength(/* bufferLength */ BufferControl.MAX_VALUE);
+        bufferLength = bufferControl.setBufferLength(bufferLength);
         if (logger.isTraceEnabled())
             logger.trace("Set receiver buffer length to " + bufferLength);
 
         bufferControl.setEnabledThreshold(true);
-        bufferControl.setMinimumThreshold(20);
+        bufferControl.setMinimumThreshold(100);
     }
 
     /**
