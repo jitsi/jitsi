@@ -77,7 +77,8 @@ public class AudioLevelEventDispatcher
 
         while(!stopped)
         {
-            byte[] dataToProcess = null;
+            byte[] dataToProcess;
+            int dataToProcessLength;
 
             synchronized(this)
             {
@@ -95,23 +96,25 @@ public class AudioLevelEventDispatcher
                         //it before we've had a chance to notify it.
                         listenerToNotify = levelListener;
                     }
-                    catch (InterruptedException ie)
+                    catch (InterruptedException iex)
                     {
                     }
                 }
 
                 dataToProcess = data;
+                dataToProcessLength = dataLength;
                 data = null;
+                dataLength = 0;
             }
 
             if(dataToProcess != null)
             {
-                int newLevel =
-                    AudioLevelCalculator.calculateCurrentSignalPower(
-                        dataToProcess, 0, dataToProcess.length,
-                        SimpleAudioLevelListener.MAX_LEVEL,
-                        SimpleAudioLevelListener.MIN_LEVEL,
-                        lastLevel);
+                int newLevel
+                    = AudioLevelCalculator.calculateCurrentSignalPower(
+                            dataToProcess, 0, dataToProcessLength,
+                            SimpleAudioLevelListener.MAX_LEVEL,
+                            SimpleAudioLevelListener.MIN_LEVEL,
+                            lastLevel);
 
                 //cache the result for csrc delivery in case a cache has been
                 //set
@@ -138,8 +141,15 @@ public class AudioLevelEventDispatcher
         if((data == null) || (data.length < dataLength))
             data = new byte[dataLength];
 
-        System.arraycopy( buffer.getData(), buffer.getOffset(),
-                        data, 0, dataLength);
+        Object bufferData = buffer.getData();
+
+        if (bufferData != null)
+        {
+            System.arraycopy(
+                    bufferData, buffer.getOffset(),
+                    data, 0,
+                    dataLength);
+        }
 
         notifyAll();
     }

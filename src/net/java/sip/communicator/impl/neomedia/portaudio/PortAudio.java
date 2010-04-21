@@ -6,6 +6,11 @@
  */
 package net.java.sip.communicator.impl.neomedia.portaudio;
 
+import java.io.*;
+import java.nio.charset.*;
+
+import net.java.sip.communicator.util.*;
+
 /**
  * PortAudio functions.
  *
@@ -14,6 +19,13 @@ package net.java.sip.communicator.impl.neomedia.portaudio;
  */
 public final class PortAudio
 {
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>PortAudio</tt> class for logging
+     * output.
+     */
+    private static final Logger logger = Logger.getLogger(PortAudio.class);
+
     static
     {
         System.loadLibrary("jportaudio");
@@ -360,6 +372,36 @@ public final class PortAudio
         long outputParameters,
         double sampleRate);
 
+    public static String PaDeviceInfo_getCharsetAwareName(long deviceInfo)
+    {
+        try
+        {
+            byte[] nameBytes = PaDeviceInfo_getNameBytes(deviceInfo);
+            Charset defaultCharset = Charset.defaultCharset();
+            String charsetName
+                = (defaultCharset == null) ? "UTF-8" : defaultCharset.name();
+
+            try
+            {
+                return new String(nameBytes, charsetName);
+            }
+            catch (UnsupportedEncodingException ueex)
+            {
+                return new String(nameBytes);
+            }
+        }
+        catch (UnsatisfiedLinkError ulerr)
+        {
+            logger.warn(
+                    "The JNI library jportaudio is out-of-date and needs to be"
+                        + " recompiled. The application will continue with the"
+                        + " presumtion that the charset is modified UTF-8 which"
+                        + " may result in an inaccurate PaDeviceInfo name.",
+                    ulerr);
+            return PaDeviceInfo_getName(deviceInfo);
+        }
+    }
+
     /**
      * Maximum input channels for the device.
      * @param deviceInfo device info pointer.
@@ -375,11 +417,21 @@ public final class PortAudio
     public static native int PaDeviceInfo_getMaxOutputChannels(long deviceInfo);
 
     /**
-     * The name of the device.
-     * @param deviceInfo device info pointer.
-     * @return The name of the device.
+     * Gets the name of the PortAudio device specified by the pointer to its
+     * <tt>PaDeviceInfo</tt> instance.
+     *
+     * @param deviceInfo the pointer to the <tt>PaDeviceInfo</tt> instance to
+     * get the name of
+     * @return the name of the PortAudio device specified by the
+     * <tt>PaDeviceInfo</tt> instance pointed to by <tt>deviceInfo</tt>
+     * @deprecated Replaced by {@link #PaDeviceInfo_getCharsetAwareName()}
+     * because <tt>PaDeviceInfo_getName</tt> presumes that the <tt>name</tt> of
+     * <tt>PaDeviceInfo</tt> is encoded in modified UTF-8
      */
+    @Deprecated
     public static native String PaDeviceInfo_getName(long deviceInfo);
+
+    private static native byte[] PaDeviceInfo_getNameBytes(long deviceInfo);
 
     /**
      * The default samplerate for the deviec.
@@ -455,10 +507,17 @@ public final class PortAudio
     public static native int PaHostApiInfo_GetType(long hostApiInfo);
 
     /**
-     * A textual description of the host API for display on user interfaces.
-     * @param hostApiInfo pointer to host api info structure.
-     * @return host api name.
+     * Gets the human-readable name of the <tt>PaHostApiInfo</tt> specified by a
+     * pointer to it.
+     *
+     * @param hostApiInfo the pointer to the <tt>PaHostApiInfo</tt> to get the
+     * human-readable name of
+     * @return the human-readable name of the <tt>PaHostApiInfo</tt> pointed to
+     * by <tt>hostApiInfo</tt>
+     * @deprecated Presumes that the <tt>name</tt> of <tt>PaHostApiInfo</tt> is
+     * encoded in modified UTF-8
      */
+    @Deprecated
     public static native String PaHostApiInfo_GetName(long hostApiInfo);
 
     /**

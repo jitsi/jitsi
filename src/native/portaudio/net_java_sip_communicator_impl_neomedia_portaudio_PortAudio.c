@@ -303,7 +303,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream(
     double defSampleRate = DEFAULT_SAMPLE_RATE;
 
     /*
-     *  Obay default sample rate of the device. some devices has default 44.1kHz
+     * Obay default sample rate of the device. some devices has default 44.1kHz
      * and some 48kHz.
      */
     if(outputStreamParameters)
@@ -440,7 +440,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1WriteStream
             data += frames * frameSize;
     }
 
-    (*env)->ReleaseByteArrayElements(env, buffer, bufferBytes, 0);
+    (*env)->ReleaseByteArrayElements(env, buffer, bufferBytes, JNI_ABORT);
 
     if ((paNoError != errorCode) && (errorCode != paOutputUnderflowed))
         PortAudio_throwException(env, errorCode);
@@ -611,14 +611,43 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1g
     return ((PaDeviceInfo *) deviceInfo)->maxOutputChannels;
 }
 
-
 JNIEXPORT jstring JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getName(
     JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
     const char *name = ((PaDeviceInfo *) deviceInfo)->name;
 
+    /*
+     * PaDeviceInfo_getName has been deprected in the Java source code and the
+     * implementation here is left to allow the application to execute even
+     * without the recompiled JNI counterpart.
+     */
     return name ? (*env)->NewStringUTF(env, name) : NULL;
+}
+
+JNIEXPORT jbyteArray JNICALL
+Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getNameBytes(
+    JNIEnv *jniEnv, jclass clazz, jlong deviceInfo)
+{
+    const char *name = ((PaDeviceInfo *) deviceInfo)->name;
+    jbyteArray nameBytes;
+
+    if (name)
+    {
+        size_t nameLength = strlen(name);
+
+        nameBytes = (*jniEnv)->NewByteArray(jniEnv, nameLength);
+        if (nameBytes && nameLength)
+        {
+            (*jniEnv)->SetByteArrayRegion(
+                    jniEnv,
+                    nameBytes, 0, nameLength,
+                    (jbyte *) name);
+        }
+    }
+    else
+        nameBytes = NULL;
+    return nameBytes;
 }
 
 JNIEXPORT jdouble JNICALL
@@ -683,6 +712,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1
 {
     const char *name = ((PaHostApiInfo *) hostApi)->name;
 
+    /* PaHostApiInfo_GetName has been deprected in the Java source code. */
     return name ? (*env)->NewStringUTF(env, name) : NULL;
 }
 

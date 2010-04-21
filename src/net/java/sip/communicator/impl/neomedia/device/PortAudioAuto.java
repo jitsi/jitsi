@@ -87,7 +87,8 @@ public class PortAudioAuto
             int maxOutputChannels =
                 PortAudio.PaDeviceInfo_getMaxOutputChannels(deviceInfo);
 
-            String devName = PortAudio.PaDeviceInfo_getName(deviceInfo);
+            String devName
+                = PortAudio.PaDeviceInfo_getCharsetAwareName(deviceInfo);
             if (devName != null)
                 devName = devName.trim();
 
@@ -165,7 +166,6 @@ public class PortAudioAuto
         {
             logger.error("Error parsing audio config", e);
         }
-
 
         supported = true;
     }
