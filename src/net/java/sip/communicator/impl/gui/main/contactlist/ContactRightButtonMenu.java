@@ -484,13 +484,6 @@ public class ContactRightButtonMenu
             RenameContactDialog dialog = new RenameContactDialog(
                     mainFrame, contactItem);
 
-            dialog.setLocation(
-                    Toolkit.getDefaultToolkit().getScreenSize().width/2
-                        - 200,
-                    Toolkit.getDefaultToolkit().getScreenSize().height/2
-                        - 50
-                    );
-
             dialog.setVisible(true);
 
             dialog.requestFocusInFiled();
