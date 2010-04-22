@@ -949,6 +949,21 @@
           token="_PACKAGE_NAME_"
           value="${package.name}"/>
 
+      <get src="http://bluejimp.com/sip-communicator/changelogs/changelog-${label}.txt"
+          dest="changelog-${label}.txt" ignoreerrors="true"/>      
+      <loadfile property="latest.changelog"
+          srcFile="changelog-${label}.txt" failonerror="false"/>
+      <!-- Load a default value if file with changelogs is missing -->
+      <condition property="latest.changelog" value="Nightly builds">
+        <not>
+            <isset property="latest.changelog"/>
+        </not>
+      </condition>
+      <replace file="${inst.resrc}/debian/changelog"
+          token="_CHANGES_"
+          value="${latest.changelog}"/>
+      <delete file="changelog-${label}.txt"/>
+
     <!-- Prepare the control file -->
     <copy file="${inst.resrc}/debian/control.tmpl"
         tofile="${inst.resrc}/debian/control"

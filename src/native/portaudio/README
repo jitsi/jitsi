@@ -63,3 +63,8 @@
 	 -02 \
     LIBS=-L$(PORTAUDIO_HOME)/lib/.libs -static -lportaudio -lspeexdsp -lwinmm -lm -lstdc++ -lole32 -luuid
     $ make
+
+
+NOTES:
+    The patch pa_linux_alsa.c.fix.blocked.renderer.patch must be applied after
+    applying pa_linux_alsa.c-by-Werner.patch.
