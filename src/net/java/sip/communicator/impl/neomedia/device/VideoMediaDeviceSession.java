@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -1019,15 +1020,24 @@ public class VideoMediaDeviceSession
     {
         Format newFormat = null;
         VideoFormat tmp = (VideoFormat)format;
+        Dimension deviceSize = ((VideoMediaFormat)getDevice().getFormat()).getSize();
 
         /* Add a size in the output format. As VideoFormat has no setter, we
-         * recreate the object.
+         * recreate the object. Check also if capture device can output
+         * this size.
          */
-        if(outputSize != null)
+        if((deviceSize != null && outputSize != null) &&
+                (outputSize.width > 0 && outputSize.height > 0) &&
+                (deviceSize.width > outputSize.width ||
+                deviceSize.height > outputSize.height))
         {
             newFormat = new VideoFormat(tmp.getEncoding(), outputSize,
                     tmp.getMaxDataLength(), tmp.getDataType(),
                     tmp.getFrameRate());
+        }
+        else
+        {
+            outputSize = null;
         }
 
         super.setProcessorFormat(

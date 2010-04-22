@@ -38,6 +38,9 @@ public class RTCPConnectorInputStream extends RTPConnectorInputStream
 
     /**
      * Add an <tt>RTCPFeedbackListener</tt>.
+     *
+     * @param listener object that will listen to incoming RTCP feedback
+     * messages.
      */
     public void addRTCPFeedbackListener(RTCPFeedbackListener listener)
     {
@@ -48,7 +51,9 @@ public class RTCPConnectorInputStream extends RTPConnectorInputStream
     }
 
     /**
-     * Removve an <tt>RTCPFeedbackListener</tt>.
+     * Remove an <tt>RTCPFeedbackListener</tt>.
+     *
+     * @param listener object to remove from listening RTCP feedback messages.
      */
     public void removeRTCPFeedbackListener(RTCPFeedbackListener listener)
     {

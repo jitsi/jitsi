@@ -19,7 +19,7 @@ import net.sf.fmj.media.*;
 /**
  * Decodes incoming rtp data of type h264 and returns the result frames in RGB
  * format.
- * 
+ *
  * @author Damian Minkov
  * @author Lubomir Marinov
  */
@@ -376,6 +376,9 @@ public class JNIDecoder
 
     /**
      * Utility to perform format matching.
+     *
+     * @param in input format
+     * @param outs array of format
      */
     public static Format matches(Format in, Format outs[])
     {

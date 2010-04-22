@@ -479,6 +479,8 @@ public class DePacketizer
 
     /**
      * Use or not RTCP feedback PLI.
+     *
+     * @param use use or not RTCP PLI message
      */
     public void setRtcpFeedbackPLI(boolean use)
     {

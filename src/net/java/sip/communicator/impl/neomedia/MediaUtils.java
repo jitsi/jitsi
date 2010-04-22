@@ -15,6 +15,7 @@ import javax.sdp.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.device.ScreenDevice;
 import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
@@ -154,11 +155,23 @@ public class MediaUtils
 
         Map<String, String> h264FormatParams
             = new HashMap<String, String>();
-        Map<String, String> h264AdvancedParams
+        Map<String, String> h264AdvancedAttributes
         = new HashMap<String, String>();
 
         h264FormatParams.put("packetization-mode", "1");
-        h264AdvancedParams.put("rtcp-fb", "nack pli");
+        h264AdvancedAttributes.put("rtcp-fb", "nack pli");
+
+        ScreenDevice screen = NeomediaActivator.getMediaServiceImpl().
+            getDefaultScreenDevice();
+
+        java.awt.Dimension res = null;
+
+        if(screen != null)
+        {
+            res = screen.getSize();
+        }
+
+        h264AdvancedAttributes.put("imageattr", createImageAttr(null, res));
 
         addMediaFormats(
             MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN,
@@ -166,7 +179,7 @@ public class MediaUtils
             MediaType.VIDEO,
             Constants.H264_RTP,
             h264FormatParams,
-            h264AdvancedParams);
+            h264AdvancedAttributes);
     }
 
     /**
@@ -219,6 +232,8 @@ public class MediaUtils
      * associated with <tt>rtpPayloadType</tt>
      * @param formatParameters the set of format-specific parameters of the
      * <tt>MediaFormat</tt>s to be associated with <tt>rtpPayloadType</tt>
+     * @param advancedAttributes the set of advanced attributes of the
+     * <tt>MediaFormat</tt>s to be associated with <tt>rtpPayload</tt>
      * @param clockRates the optional list of clock rates of the
      * <tt>MediaFormat</tt>s to be associated with <tt>rtpPayloadType</tt>
      */
@@ -228,7 +243,7 @@ public class MediaUtils
             MediaType mediaType,
             String jmfEncoding,
             Map<String, String> formatParameters,
-            Map<String, String> advancedParameters,
+            Map<String, String> advancedAttributes,
             double... clockRates)
     {
         int clockRateCount = clockRates.length;
@@ -260,7 +275,7 @@ public class MediaUtils
                                 format,
                                 clockRate,
                                 formatParameters,
-                                advancedParameters);
+                                advancedAttributes);
 
                     if (mediaFormat != null)
                         mediaFormats.add(mediaFormat);
@@ -292,7 +307,7 @@ public class MediaUtils
                 MediaFormat mediaFormat
                     = MediaFormatImpl
                         .createInstance(format, clockRate, formatParameters,
-                                advancedParameters);
+                                advancedAttributes);
 
                 if (mediaFormat != null)
                     mediaFormats.add(mediaFormat);
@@ -529,5 +544,75 @@ public class MediaUtils
             return SdpConstants.H261;
         else
             return MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN;
+    }
+
+
+    /**
+     * Creates value of an imgattr.
+     *
+     * http://tools.ietf.org/html/draft-ietf-mmusic-image-attributes-04
+     *
+     * @param sendSize maximum size peer can send
+     * @param maxRecvSize maximum size peer can display
+     * @return string that represent imgattr that can be encoded via SIP/SDP or
+     * XMPP/Jingle
+     */
+    private static String createImageAttr(java.awt.Dimension sendSize,
+            java.awt.Dimension maxRecvSize)
+    {
+        StringBuffer img = new StringBuffer();
+
+        /* send width */
+        if(sendSize != null)
+        {
+            /* single value => send [x=width,y=height] */
+            img.append("send [x=");
+            img.append((int)sendSize.getWidth());
+            img.append(",y=");
+            img.append((int)sendSize.getHeight());
+            img.append("]");
+            /*
+            else
+            {
+                // range
+                img.append(" send [x=[");
+                img.append((int)minSendSize.getWidth());
+                img.append("-");
+                img.append((int)maxSendSize.getWidth());
+                img.append("],y=[");
+                img.append((int)minSendSize.getHeight());
+                img.append("-");
+                img.append((int)maxSendSize.getHeight());
+                img.append("]]");
+            }
+            */
+        }
+        else
+        {
+            /* can send "all" sizes */
+            img.append("send *");
+        }
+
+        /* receive size */
+        if(maxRecvSize != null)
+        {
+            /* basically we can receive any size up to our
+             * screen display size
+             */
+
+            /* recv [x=[min-max],y=[min-max]] */
+            img.append(" recv [x=[0-");
+            img.append((int)maxRecvSize.getWidth());
+            img.append("],y=[0-");
+            img.append((int)maxRecvSize.getHeight());
+            img.append("]]");
+        }
+        else
+        {
+            /* accept all sizes */
+            img.append(" recv *");
+        }
+
+        return img.toString();
     }
 }

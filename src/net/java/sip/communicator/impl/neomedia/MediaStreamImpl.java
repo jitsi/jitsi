@@ -191,6 +191,12 @@ public class MediaStreamImpl
     private CsrcTransformEngine csrcEngine;
 
     /**
+     * Map of advanced attributes.
+     */
+    protected Map<String, String> advancedAttributes =
+        new Hashtable<String, String>();
+
+    /**
      * Initializes a new <tt>MediaStreamImpl</tt> instance which will use the
      * specified <tt>MediaDevice</tt> for both capture and playback of media
      * exchanged via the specified <tt>StreamConnector</tt>.
@@ -392,6 +398,18 @@ public class MediaStreamImpl
         return csrcEngine;
     }
 
+    /**
+     * Set list of advanced attributes.
+     *
+     * @param attrs advanced attributes map
+     */
+    public void setAdvancedAttributes(Map<String, String> attrs)
+    {
+        if(attrs != null)
+        {
+            advancedAttributes.putAll(attrs);
+        }
+    }
     /**
      * Releases the resources allocated by this instance in the course of its
      * execution and prepares it to be garbage collected.

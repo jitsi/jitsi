@@ -11,8 +11,6 @@ import java.net.*;
 import java.util.*;
 import java.beans.*;
 
-import java.awt.Dimension; /* disambiguates java.awt.List and java.util.List */
-
 import javax.sdp.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
@@ -158,16 +156,6 @@ public class CallPeerMediaHandler
      * The RTP stream that this media handler uses to send video.
      */
     private VideoMediaStream videoStream = null;
-
-    /**
-     * Image size that remote peer can send.
-     */
-    private Dimension maxSendSize = null;
-
-    /**
-     * Image size that remote peer can receive
-     */
-    private Dimension maxRecvSize = null;
 
     /**
      * The last-known local SSRC of {@link #videoStream}.
@@ -828,27 +816,12 @@ public class CallPeerMediaHandler
         throws OperationFailedException
     {
         MediaStream stream = null;
-        Dimension size = null;
 
         if (device.getMediaType() == MediaType.AUDIO)
             stream = this.audioStream;
         else
         {
             stream = this.videoStream;
-
-            if(device != null && device.getFormat() != null)
-            {
-                Dimension deviceSize = ((VideoMediaFormat)device.getFormat())
-                    .getSize();
-
-                if((deviceSize != null && maxRecvSize != null) &&
-                        (maxRecvSize.width > 0 && maxRecvSize.height > 0) &&
-                        (deviceSize.width > maxRecvSize.width ||
-                        deviceSize.height > maxRecvSize.height))
-                {
-                    size = maxRecvSize;
-                }
-            }
         }
 
         if (stream == null)
@@ -868,18 +841,7 @@ public class CallPeerMediaHandler
             //this is a reinit
         }
 
-
-        if(device != null && device.getMediaType() == MediaType.VIDEO)
-        {
-            /* set negociated output size for video stream */
-            ((VideoMediaStream)stream).setOutputSize(size);
-
-            /* set rtcp-fb */
-            if(format.getAdvancedParameters().containsKey("rtcp-fb"))
-            {
-                ((VideoMediaStream)stream).setRtcpFeedbackPLI(true);
-            }
-        }
+        stream.setAdvancedAttributes(format.getAdvancedParameters());
 
         return  configureAndStartStream(
                         device, format, target, direction, stream);
@@ -1479,16 +1441,6 @@ public class CallPeerMediaHandler
 
             MediaDirection direction
                 = devDirection.getDirectionForAnswer(remoteDirection);
-
-            /* extract remote peer maximum supported resolution */
-            Dimension res[] = SdpUtils.extractSendRecvResolution(
-                    mediaDescription);
-
-            if(res != null)
-            {
-                maxSendSize = res[0];
-                maxRecvSize = res[1];
-            }
 
             // create the corresponding stream...
             initStream(connector, dev, supportedFormats.get(0), target,

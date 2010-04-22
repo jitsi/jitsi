@@ -122,6 +122,8 @@ public interface MediaFormatFactory
      * for
      * @param formatParams any codec specific parameters which have been
      * received via SIP/SDP or XMPP/Jingle
+     * @param advancedAttrs advanced attributes received via SIP/SDP or
+     * XMPP/Jingle
      * @return a <tt>MediaFormat</tt> with the specified <tt>encoding</tt>,
      * <tt>clockRate</tt> and set of format parameters which is either an
      * <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt> instance if
@@ -132,7 +134,7 @@ public interface MediaFormatFactory
             String encoding,
             double clockRate,
             Map<String, String> formatParams,
-            Map<String, String> advancedParams);
+            Map<String, String> advancedAttrs);
 
     /**
      * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt>,
@@ -150,6 +152,8 @@ public interface MediaFormatFactory
      * <tt>encoding</tt>; otherwise, ignored
      * @param formatParams any codec specific parameters which have been
      * received via SIP/SDP or XMPP/Jingle
+     * @param advancedAttrs advanced attributes received via SIP/SDP or
+     * XMPP/Jingle
      * @return a <tt>MediaFormat</tt> with the specified <tt>encoding</tt>,
      * <tt>clockRate</tt>, <tt>channels</tt> and set of format parameters which
      * is either an <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt>
@@ -161,7 +165,7 @@ public interface MediaFormatFactory
             double clockRate,
             int channels,
             Map<String, String> formatParams,
-            Map<String, String> advancedParams);
+            Map<String, String> advancedAttrs);
 
     /**
      * Creates a <tt>MediaFormat</tt> either for the specified
@@ -188,6 +192,8 @@ public interface MediaFormatFactory
      * <tt>encoding</tt>; otherwise, ignored
      * @param formatParams any codec specific parameters which have been
      * received via SIP/SDP or XMPP/Jingle
+     * @param advancedAttrs advanced attributes received via SIP/SDP or
+     * XMPP/Jingle
      * @return a <tt>MediaFormat</tt> with the specified <tt>encoding</tt>,
      * <tt>clockRate</tt>, <tt>channels</tt> and set of format parameters which
      * is either an <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt>
@@ -200,5 +206,5 @@ public interface MediaFormatFactory
             double clockRate,
             int channels,
             Map<String, String> formatParams,
-            Map<String, String> advancedParams);
+            Map<String, String> advancedAttrs);
 }

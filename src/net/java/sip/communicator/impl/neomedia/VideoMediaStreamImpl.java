@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia;
 
 import java.awt.*;
 import java.util.*;
+import java.util.regex.*;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -55,7 +56,7 @@ public class VideoMediaStreamImpl
     private Dimension outputSize;
 
     /**
-     * Use or not PLI.
+     * Use or not RTCP feedback Picture Loss Indication messages.
      */
     private boolean usePLI = false;
 
@@ -523,23 +524,156 @@ public class VideoMediaStreamImpl
     }
 
     /**
-     * Use or not RTCP feedback Picture Loss Indication.
+     * Set list of advanced attributes.
      *
-     * @param use use or not PLI
+     * @param attrs advanced attributes map
      */
-    public void setRtcpFeedbackPLI(boolean use)
+    public void setAdvancedAttributes(Map<String, String> attrs)
     {
-        usePLI = use;
+        super.setAdvancedAttributes(attrs);
+
+        /* walk through advanced attributes and see
+         * if we recognized something we support
+         */
+        if(attrs != null)
+        {
+            for(Map.Entry<String, String> mapEntry
+                    : advancedAttributes.entrySet())
+            {
+                String key = mapEntry.getKey();
+                String value = mapEntry.getValue();
+
+                if(key.equals("rtcp-fb") && value.equals("nack pli"))
+                {
+                    usePLI = true;
+                }
+                else if(key.equals("imageattr"))
+                {
+                    Dimension res[] = parseSendRecvResolution(value);
+
+                    if(res != null)
+                    {
+                        outputSize = res[1];
+                    }
+                }
+            }
+        }
     }
 
     /**
-     * Set negociated output size.
+     * Extracts and returns maximum resolution can receive from the image
+     * attribute.
      *
-     * @param size output size of video stream
+     * @param imgattr send/recv resolution string
+     * @return maximum resolution array (first element is send, second one is
+     * recv). Elements could be null if image attribute is not present or if
+     * resoluion is a wildcard.
      */
-    public void setOutputSize(Dimension size)
+    public static java.awt.Dimension[] parseSendRecvResolution(String imgattr)
     {
-        outputSize = size;
+        java.awt.Dimension res[] = new java.awt.Dimension[2];
+        String token = null;
+        Pattern pSendSingle = Pattern.compile("send \\[x=[0-9]+,y=[0-9]+\\]");
+        Pattern pRecvSingle = Pattern.compile("recv \\[x=[0-9]+,y=[0-9]+\\]");
+        Pattern pSendRange = Pattern.compile(
+                "send \\[x=\\[[0-9]+-[0-9]+\\],y=\\[[0-9]+-[0-9]+\\]\\]");
+        Pattern pRecvRange = Pattern.compile(
+                "recv \\[x=\\[[0-9]+-[0-9]+\\],y=\\[[0-9]+-[0-9]+\\]\\]");
+        Pattern pNumeric = Pattern.compile("[0-9]+");
+        Matcher mSingle = null;
+        Matcher mRange = null;
+        Matcher m = null;
+
+        /* resolution (width and height) can be on four forms
+         *
+         * - single value [x=1920,y=1200]
+         * - range of values [x=[800-1024],y=[600-768]]
+         * - fixed range of values [x=[800,1024],y=[600,768]]
+         * - range of values with step [x=[800:32:1024],y=[600:32:768]]
+         *
+         * For the moment we only support the first two forms.
+         */
+
+        /* send part */
+        mSingle = pSendSingle.matcher(imgattr);
+        mRange = pSendRange.matcher(imgattr);
+
+        if(mSingle.find())
+        {
+            int val[] = new int[2];
+            int i = 0;
+            token = imgattr.substring(mSingle.start(), mSingle.end());
+            m = pNumeric.matcher(token);
+
+            while(m.find() && i < 2)
+            {
+                val[i] = Integer.parseInt(token.substring(m.start(), m.end()));
+            }
+
+            res[0] = new java.awt.Dimension(val[0], val[1]);
+        }
+        else if(mRange.find()) /* try with range */
+        {
+            /* have two value for width and two for height (min-max) */
+            int val[]  = new int[4];
+            int i = 0;
+            token = imgattr.substring(mRange.start(), mRange.end());
+            m = pNumeric.matcher(token);
+
+            while(m.find() && i < 4)
+            {
+                val[i] = Integer.parseInt(token.substring(m.start(), m.end()));
+                i++;
+            }
+
+            res[0] = new java.awt.Dimension(val[1], val[3]);
+        }
+
+        /* recv part */
+        mSingle = pRecvSingle.matcher(imgattr);
+        mRange = pRecvRange.matcher(imgattr);
+
+        if(mSingle.find())
+        {
+            int val[] = new int[2];
+            int i = 0;
+            token = imgattr.substring(mSingle.start(), mSingle.end());
+            m = pNumeric.matcher(token);
+
+            while(m.find() && i < 2)
+            {
+                val[i] = Integer.parseInt(token.substring(m.start(), m.end()));
+            }
+
+            res[1] = new java.awt.Dimension(val[0], val[1]);
+        }
+        else if(mRange.find()) /* try with range */
+        {
+            /* have two value for width and two for height (min-max) */
+            int val[]  = new int[4];
+            int i = 0;
+            token = imgattr.substring(mRange.start(), mRange.end());
+            m = pNumeric.matcher(token);
+
+            while(m.find() && i < 4)
+            {
+                val[i] = Integer.parseInt(token.substring(m.start(), m.end()));
+                i++;
+            }
+
+            res[1] = new java.awt.Dimension(val[1], val[3]);
+        }
+
+        token = null;
+        mSingle = null;
+        mRange = null;
+        m = null;
+        pRecvRange = null;
+        pSendSingle = null;
+        pRecvSingle = null;
+        pSendRange = null;
+
+        return res;
     }
 
     /**

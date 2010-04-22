@@ -6,10 +6,13 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
-import java.util.*;
-
 import javax.media.rtp.*;
 
+/**
+ * Represents an RTCP feedback packet as described in RFC4585.
+ *
+ * @author Sebastien Vincent
+ */
 public class RTCPFeedbackPacket
 {
     /**
@@ -49,18 +52,18 @@ public class RTCPFeedbackPacket
     }
 
     /**
-     * Write packet to output stream.
+     * Write RTCP packet to output stream of a <tt>DatagramSocket</tt>.
      *
-     * @param out <tt>OutputDataStream</tt>
+     * @param out <tt>OutputDataStream</tt> of a <tt>DatagramSocket</tt>
      */
     public void writeTo(OutputDataStream out)
     {
         byte data[] = new byte[12];
         byte vpfmt = (byte)((2 << 7) | (0 << 6) | (byte)fmt);
-        
+
         data[0] = vpfmt;
         data[1] = (byte)payloadType;
-        
+
         /* length (in 32-bit words minus one) */
         data[2] = 0;
         data[3] = 2; /* common packet is 12 bytes so (12/4) - 1 */
@@ -70,13 +73,13 @@ public class RTCPFeedbackPacket
         data[5] = (byte)((senderSSRC >> 16) & 0xFF);
         data[6] = (byte)((senderSSRC >> 8) & 0xFF);
         data[7] = (byte)(senderSSRC & 0xFF);
-        
+
         /* source SSRC */
         data[8] = (byte)(sourceSSRC >> 24);
         data[9] = (byte)((sourceSSRC >> 16) & 0xFF);
         data[10] = (byte)((sourceSSRC >> 8) & 0xFF);
         data[11] = (byte)(sourceSSRC & 0xFF);
-     
+
         /* effective write */
         out.write(data, 0, 12);
     }

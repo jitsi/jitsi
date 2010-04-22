@@ -68,6 +68,7 @@ public abstract class MediaFormatImpl<T extends Format>
      * @param clockRate the clock rate of the new instance
      * @param formatParameters the set of format-specific parameters of the new
      * instance
+     * @param advancedAttrs advanced attributes of the new instance
      * @return a new <tt>MediaFormat</tt> instance for the specified JMF
      * <tt>Format</tt> and with the specified clock rate and set of
      * format-specific parameters
@@ -76,7 +77,7 @@ public abstract class MediaFormatImpl<T extends Format>
             Format format,
             double clockRate,
             Map<String, String> formatParameters,
-            Map<String, String> advancedParameters)
+            Map<String, String> advancedAttrs)
     {
         if (format instanceof AudioFormat)
         {
@@ -93,7 +94,7 @@ public abstract class MediaFormatImpl<T extends Format>
                         (AudioFormat)
                             clockRateAudioFormat.intersects(audioFormat),
                         formatParameters,
-                        advancedParameters);
+                        advancedAttrs);
         }
         if (format instanceof VideoFormat)
             return
@@ -101,7 +102,7 @@ public abstract class MediaFormatImpl<T extends Format>
                         (VideoFormat) format,
                         clockRate,
                         formatParameters,
-                        advancedParameters);
+                        advancedAttrs);
         return null;
     }
 
