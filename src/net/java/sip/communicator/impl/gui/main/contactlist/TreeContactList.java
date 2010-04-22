@@ -1461,6 +1461,29 @@ public class TreeContactList
     }
 
     /**
+     * Starts a call with the currently selected contact in the contact list.
+     */
+    public void startSelectedContactCall()
+    {
+        TreePath selectionPath = getSelectionPath();
+        if (selectionPath == null)
+            return;
+
+        ContactListTreeCellRenderer renderer
+            = (ContactListTreeCellRenderer) getCellRenderer()
+                .getTreeCellRendererComponent(
+                    this,
+                    selectionPath.getLastPathComponent(),
+                    true,
+                    true,
+                    true,
+                    this.getRowForPath(selectionPath),
+                    true);
+
+        renderer.getCallButton().doClick();
+    }
+
+    /**
      * Sets the given <tt>treeModel</tt> as a model of this tree. Specifies
      * also some related properties.
      * @param treeModel the <tt>TreeModel</tt> to set.

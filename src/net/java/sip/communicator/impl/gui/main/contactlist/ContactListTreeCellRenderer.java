@@ -165,6 +165,9 @@ public class ContactListTreeCellRenderer
      */
     protected TreeNode treeNode;
 
+    /**
+     * The parent tree.
+     */
     private JTree tree;
 
     /**
@@ -254,7 +257,7 @@ public class ContactListTreeCellRenderer
                     {
                         ChooseCallAccountPopupMenu chooseAccountDialog
                             = new ChooseCallAccountPopupMenu(
-                                callButton,
+                                tree,
                                 telephonyContacts);
 
                         Point location = new Point(callButton.getX(),
@@ -720,5 +723,14 @@ public class ContactListTreeCellRenderer
         {
             g.dispose();
         }
+    }
+
+    /**
+     * Returns the call button contained in the current cell.
+     * @return the call button contained in the current cell
+     */
+    public JButton getCallButton()
+    {
+        return callButton;
     }
 }

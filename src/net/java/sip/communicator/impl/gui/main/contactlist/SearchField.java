@@ -8,7 +8,6 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.plaf.*;
@@ -36,14 +35,14 @@ public class SearchField
 
     /**
      * Creates the <tt>SearchField</tt>.
-     * @param mainFrame the main application window
+     * @param frame the main application window
      */
-    public SearchField(MainFrame mainFrame)
+    public SearchField(MainFrame frame)
     {
         super(GuiActivator.getResources()
                 .getI18NString("service.gui.ENTER_NAME_OR_NUMBER"));
 
-        this.mainFrame = mainFrame;
+        this.mainFrame = frame;
 
         SearchTextFieldUI textFieldUI = new SearchTextFieldUI();
         textFieldUI.setDeleteButtonEnabled(true);
@@ -57,7 +56,6 @@ public class SearchField
 
         InputMap imap = getInputMap(JComponent.WHEN_FOCUSED);
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escape");
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enter");
         ActionMap amap = getActionMap();
         amap.put("escape", new AbstractAction()
         {
@@ -66,17 +64,6 @@ public class SearchField
                 setText("");
 
                 SearchField.this.mainFrame.requestFocusInCenterPanel();
-            }
-        });
-        amap.put("enter", new AbstractAction()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                if (!lastHasMatching)
-                    CallManager.createCall(getText());
-                else
-                    // Starts a chat with the currently selected contact.
-                    GuiActivator.getContactList().startSelectedContactChat();
             }
         });
     }

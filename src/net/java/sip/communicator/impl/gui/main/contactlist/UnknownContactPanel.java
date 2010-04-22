@@ -106,4 +106,21 @@ public class UnknownContactPanel
             }
         });
     }
+
+    /**
+     * Clicks the call contact button in order to call the unknown contact.
+     */
+    public void startCall()
+    {
+        callContact.doClick();
+    }
+
+    /**
+     * Clicks the add contact button in order to add the unknown contact
+     * to the contact list.
+     */
+    public void addUnknownContact()
+    {
+        addContact.doClick();
+    }
 }

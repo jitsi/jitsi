@@ -302,11 +302,15 @@ public class MainFrame
             if (unknownContactPanel == null)
                 unknownContactPanel = new UnknownContactPanel(this);
 
+            contactListPanel.setVisible(false);
+            unknownContactPanel.setVisible(true);
             centerPanel.remove(contactListPanel);
             centerPanel.add(unknownContactPanel, BorderLayout.CENTER);
         }
         else if (unknownContactPanel != null)
         {
+            unknownContactPanel.setVisible(false);
+            contactListPanel.setVisible(true);
             centerPanel.remove(unknownContactPanel);
             centerPanel.add(contactListPanel, BorderLayout.CENTER);
         }
@@ -1499,6 +1503,31 @@ public class MainFrame
                     && e.getID() != KeyEvent.KEY_TYPED))
                 return false;
 
+            // Ctrl-Enter || Cmd-Enter typed when this window is the focused
+            // window.
+            //
+            // Tried to make this with key bindings first, but has a problem
+            // with enter key binding. When the popup menu containing call
+            // contacts was opened the default keyboard manager was prioritizing
+            // the window ENTER key, which will open a chat and we wanted that
+            // the enter starts a call with the selected contact from the menu.
+            // This is why we need to do it here and to check if the
+            // permanent focus owner is equal to the focus owner, which is not
+            // the case when a popup menu is opened.
+            if (e.getKeyCode() == KeyEvent.VK_ENTER
+                && (e.isControlDown() || e.isMetaDown()))
+            {
+                ctrlEnterKeyTyped();
+                return false;
+            }
+            else if (e.getKeyCode() == KeyEvent.VK_ENTER
+                && keyManager.getFocusOwner()
+                .equals(keyManager.getPermanentFocusOwner()))
+            {
+                enterKeyTyped();
+                return false;
+            }
+
             TreeContactList contactList
                 = getContactListPanel().getContactList();
 
@@ -1558,6 +1587,42 @@ public class MainFrame
                 return true;
             }
             return false;
+        }
+    }
+
+    /**
+     * Called when the ENTER key was typed when this window was the focused
+     * window. Performs the appropriate actions depending on the current state
+     * of the contact list.
+     */
+    private void enterKeyTyped()
+    {
+        if (unknownContactPanel != null && unknownContactPanel.isVisible())
+        {
+            unknownContactPanel.addUnknownContact();
+        }
+        else if (contactListPanel.isVisible())
+        {
+            // Starts a chat with the currently selected contact.
+            GuiActivator.getContactList().startSelectedContactChat();
+        }
+    }
+
+    /**
+     * Called when the CTRL-ENTER or CMD-ENTER keys were typed when this window
+     * was the focused window. Performs the appropriate actions depending on the
+     * current state of the contact list.
+     */
+    public void ctrlEnterKeyTyped()
+    {
+        if (unknownContactPanel != null && unknownContactPanel.isVisible())
+        {
+            unknownContactPanel.startCall();
+        }
+        else if (contactListPanel.isVisible())
+        {
+            // Starts a chat with the currently selected contact.
+            GuiActivator.getContactList().startSelectedContactCall();
         }
     }
 }

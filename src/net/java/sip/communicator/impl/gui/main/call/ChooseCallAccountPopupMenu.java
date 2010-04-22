@@ -81,6 +81,8 @@ public class ChooseCallAccountPopupMenu
         this.add(createInfoLabel());
 
         this.addSeparator();
+
+        this.setFocusable(true);
     }
 
     /**

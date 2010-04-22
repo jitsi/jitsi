@@ -124,13 +124,6 @@ public class ContactListPane
                 }
             }
         });
-
-        this.getActionMap().put("runChat", new ContactListPanelEnterAction());
-
-        InputMap imap = this.getInputMap(
-                JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "runChat");
     }
 
     /**
