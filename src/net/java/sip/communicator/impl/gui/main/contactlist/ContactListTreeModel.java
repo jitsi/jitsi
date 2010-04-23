@@ -50,6 +50,7 @@ public class ContactListTreeModel
      * Returns the root group node.
      * @return the root group node
      */
+    @Override
     public GroupNode getRoot()
     {
         return rootGroupNode;
@@ -82,6 +83,9 @@ public class ContactListTreeModel
     public ContactNode findContactNodeByMetaContact(MetaContact metaContact)
     {
         MetaContactGroup parentGroup = metaContact.getParentMetaContactGroup();
+
+        if (parentGroup == null)
+            return null;
 
         GroupNode parentGroupNode = findGroupNodeByMetaGroup(parentGroup);
 
