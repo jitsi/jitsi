@@ -1519,14 +1519,47 @@ public class MediaDeviceSession
         if (direction == null)
             throw new NullPointerException("direction");
 
-        startedDirection = startedDirection.or(direction);
+        MediaDirection oldValue = startedDirection;
 
-        if (startedDirection.allowsSending())
+        startedDirection = startedDirection.or(direction);
+        if (!oldValue.equals(startedDirection))
+            startedDirectionChanged(oldValue, startedDirection);
+    }
+
+    /**
+     * Notifies this instance that the value of its <tt>startedDirection</tt>
+     * property has changed from a specific <tt>oldValue</tt> to a specific
+     * <tt>newValue</tt>. Allows extenders to override and perform additional
+     * processing of the change. Overriding implementations must call this
+     * implementation in order to ensure the proper execution of this
+     * <tt>MediaDeviceSession</tt>.
+     *
+     * @param oldValue the <tt>MediaDirection</tt> which used to be the value of
+     * the <tt>startedDirection</tt> property of this instance
+     * @param newValue the <tt>MediaDirection</tt> which is the value of the
+     * <tt>startedDirection</tt> property of this instance
+     */
+    protected void startedDirectionChanged(
+            MediaDirection oldValue,
+            MediaDirection newValue)
+    {
+        if (newValue.allowsSending())
         {
             Processor processor = getProcessor();
 
             if (processor != null)
                 startProcessorInAccordWithDirection(processor);
+        }
+        else if ((processor != null)
+                    && (processor.getState() > Processor.Configured))
+        {
+            processor.stop();
+            if (logger.isTraceEnabled())
+            {
+                logger.trace(
+                        "Stopped Processor with hashCode "
+                            + processor.hashCode());
+            }
         }
     }
 
@@ -1564,6 +1597,8 @@ public class MediaDeviceSession
         if (direction == null)
             throw new NullPointerException("direction");
 
+        MediaDirection oldValue = startedDirection;
+
         switch (startedDirection)
         {
         case SENDRECV:
@@ -1593,17 +1628,8 @@ public class MediaDeviceSession
             throw new IllegalArgumentException("direction");
         }
 
-        if (startedDirection.allowsSending())
-            if ((processor != null)
-                    && (processor.getState() > Processor.Configured))
-            {
-                processor.stop();
-                if (logger.isTraceEnabled())
-                    logger
-                        .trace(
-                            "Stopped Processor with hashCode "
-                                + processor.hashCode());
-            }
+        if (!oldValue.equals(startedDirection))
+            startedDirectionChanged(oldValue, startedDirection);
     }
 
     /**

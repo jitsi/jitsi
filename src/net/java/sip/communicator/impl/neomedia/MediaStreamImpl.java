@@ -764,7 +764,6 @@ public class MediaStreamImpl
                 if (entry.getValue().getEncoding().equals(encoding))
                     return entry.getKey().byteValue();
             }
-
             return -1;
         }
     }
@@ -868,6 +867,16 @@ public class MediaStreamImpl
             setLocalSourceID(((RTPSessionMgr)rtpManager).getLocalSSRC());
         }
         return rtpManager;
+    }
+
+    /**
+     * Gets the <tt>ZrtpControl</tt> which controls the ZRTP of this stream.
+     *
+     * @return the <tt>ZrtpControl</tt> which controls the ZRTP of this stream
+     */
+    public ZrtpControl getZrtpControl()
+    {
+        return zrtpControl;
     }
 
     /**
@@ -1206,7 +1215,6 @@ public class MediaStreamImpl
      * media in this instance or {@link MediaDirection#SENDONLY} to only start
      * the capture of media in this instance
      */
-    @SuppressWarnings("unchecked")
     private void start(MediaDirection direction)
     {
         if (direction == null)
@@ -1230,46 +1238,7 @@ public class MediaStreamImpl
                 && ((startedDirection == null)
                         || !startedDirection.allowsReceiving()))
         {
-            RTPManager rtpManager = getRTPManager();
-            Iterable<ReceiveStream> receiveStreams;
-
-            try
-            {
-                receiveStreams = rtpManager.getReceiveStreams();
-            }
-            catch (Exception e)
-            {
-                /*
-                 * it appears that in early call states, when there are no
-                 * streams this method could throw a null pointer exception.
-                 * Make sure we handle it gracefully
-                 */
-                logger.trace("Failed to retrieve receive streams", e);
-                receiveStreams = null;
-            }
-
-            if (receiveStreams != null)
-                for (ReceiveStream receiveStream : receiveStreams)
-                    try
-                    {
-                        DataSource receiveStreamDataSource
-                            = receiveStream.getDataSource();
-
-                        /*
-                         * For an unknown reason, the stream DataSource can be
-                         * null at the end of the Call after re-INVITEs have
-                         * been handled.
-                         */
-                        if (receiveStreamDataSource != null)
-                            receiveStreamDataSource.start();
-                    }
-                    catch (IOException ioe)
-                    {
-                        logger
-                            .warn(
-                                "Failed to start stream " + receiveStream,
-                                ioe);
-                    }
+            startReceiveStreams();
 
             getDeviceSession().start(MediaDirection.RECVONLY);
 
@@ -1281,8 +1250,65 @@ public class MediaStreamImpl
     }
 
     /**
+     * Starts the <tt>ReceiveStream</tt>s that this instance is receiving from
+     * its remote peer. By design, a <tt>MediaStream</tt> instance is associated
+     * with a single <tt>ReceiveStream</tt> at a time. However, the
+     * <tt>ReceiveStream</tt>s are created by <tt>RTPManager</tt> and it tracks
+     * multiple <tt>ReceiveStream</tt>s. In practice, the <tt>RTPManager</tt> of
+     * this <tt>MediaStreamImpl</tt> will have a single <tt>ReceiveStream</tt>
+     * in its list.
+     */
+    @SuppressWarnings("unchecked")
+    private void startReceiveStreams()
+    {
+        RTPManager rtpManager = getRTPManager();
+        Iterable<ReceiveStream> receiveStreams;
+
+        try
+        {
+            receiveStreams = rtpManager.getReceiveStreams();
+        }
+        catch (Exception ex)
+        {
+            /*
+             * It appears that in early call states when there are no streams, a
+             * NullPointerException could be thrown. Make sure we handle it
+             * gracefully.
+             */
+            logger.trace("Failed to retrieve receive streams", ex);
+            receiveStreams = null;
+        }
+
+        if (receiveStreams != null)
+        {
+            for (ReceiveStream receiveStream : receiveStreams)
+            {
+                try
+                {
+                    DataSource receiveStreamDataSource
+                        = receiveStream.getDataSource();
+
+                    /*
+                     * For an unknown reason, the stream DataSource can be null
+                     * at the end of the Call after re-INVITEs have been
+                     * handled.
+                     */
+                    if (receiveStreamDataSource != null)
+                        receiveStreamDataSource.start();
+                }
+                catch (IOException ioex)
+                {
+                    logger.warn(
+                            "Failed to start stream " + receiveStream,
+                            ioex);
+                }
+            }
+        }
+    }
+
+    /**
      * Starts the <tt>SendStream</tt>s of the <tt>RTPManager</tt> of this
-     * <tt>MediaStream</tt>.
+     * <tt>MediaStreamImpl</tt>.
      */
     private void startSendStreams()
     {
@@ -1300,7 +1326,9 @@ public class MediaStreamImpl
         Iterable<SendStream> sendStreams = rtpManager.getSendStreams();
 
         if (sendStreams != null)
+        {
             for (SendStream sendStream : sendStreams)
+            {
                 try
                 {
                     // TODO Are we sure we want to connect here?
@@ -1309,17 +1337,19 @@ public class MediaStreamImpl
                     sendStream.getDataSource().start();
 
                     if (logger.isTraceEnabled())
-                        logger
-                            .trace(
-                                "Started SendStream"
-                                    + " with hashCode "
+                    {
+                        logger.trace(
+                                "Started SendStream with hashCode "
                                     + sendStream.hashCode());
+                    }
                 }
                 catch (IOException ioe)
                 {
                     logger
                         .warn("Failed to start stream " + sendStream, ioe);
                 }
+            }
+        }
     }
 
     /**
@@ -1344,7 +1374,6 @@ public class MediaStreamImpl
      * media in this instance or {@link MediaDirection#SENDONLY} to only stop
      * the capture of media in this instance
      */
-    @SuppressWarnings("unchecked")
     private void stop(MediaDirection direction)
     {
         if (direction == null)
@@ -1374,45 +1403,7 @@ public class MediaStreamImpl
             && (MediaDirection.SENDRECV.equals(startedDirection)
                     || MediaDirection.RECVONLY.equals(startedDirection)))
         {
-            Iterable<ReceiveStream> receiveStreams;
-
-            try
-            {
-                receiveStreams = rtpManager.getReceiveStreams();
-            }
-            catch (Exception e)
-            {
-                /*
-                 * it appears that in early call states, when there are no
-                 * streams this method could throw a null pointer exception.
-                 * Make sure we handle it gracefully
-                 */
-                logger.trace("Failed to retrieve receive streams", e);
-                receiveStreams = null;
-            }
-
-            if (receiveStreams != null)
-                for (ReceiveStream receiveStream : receiveStreams)
-                    try
-                    {
-                        DataSource receiveStreamDataSource
-                            = receiveStream.getDataSource();
-
-                        /*
-                         * For an unknown reason, the stream DataSource can be
-                         * null at the end of the Call after re-INVITEs have
-                         * been handled.
-                         */
-                        if (receiveStreamDataSource != null)
-                            receiveStreamDataSource.stop();
-                    }
-                    catch (IOException ioe)
-                    {
-                        logger
-                            .warn(
-                                "Failed to stop stream " + receiveStream,
-                                ioe);
-                    }
+            stopReceiveStreams();
 
             if (deviceSession != null)
                 deviceSession.stop(MediaDirection.RECVONLY);
@@ -1425,7 +1416,61 @@ public class MediaStreamImpl
     }
 
     /**
-     * Stops the <tt>SendStream</tt> that this instance is sending to its
+     * Stops the <tt>ReceiveStream</tt>s that this instance is receiving from
+     * its remote peer. By design, a <tt>MediaStream</tt> instance is associated
+     * with a single <tt>ReceiveStream</tt> at a time. However, the
+     * <tt>ReceiveStream</tt>s are created by <tt>RTPManager</tt> and it tracks
+     * multiple <tt>ReceiveStream</tt>s. In practice, the <tt>RTPManager</tt> of
+     * this <tt>MediaStreamImpl</tt> will have a single <tt>ReceiveStream</tt>
+     * in its list.
+     */
+    @SuppressWarnings("unchecked")
+    private void stopReceiveStreams()
+    {
+        Iterable<ReceiveStream> receiveStreams;
+
+        try
+        {
+            receiveStreams = rtpManager.getReceiveStreams();
+        }
+        catch (Exception ex)
+        {
+            /*
+             * It appears that in early call states when there are no streams, a
+             * NullPointerException could be thrown. Make sure we handle it
+             * gracefully.
+             */
+            logger.trace("Failed to retrieve receive streams", ex);
+            receiveStreams = null;
+        }
+
+        if (receiveStreams != null)
+        {
+            for (ReceiveStream receiveStream : receiveStreams)
+            {
+                try
+                {
+                    DataSource receiveStreamDataSource
+                        = receiveStream.getDataSource();
+
+                    /*
+                     * For an unknown reason, the stream DataSource can be null
+                     * at the end of the Call after re-INVITEs have been
+                     * handled.
+                     */
+                    if (receiveStreamDataSource != null)
+                        receiveStreamDataSource.stop();
+                }
+                catch (IOException ioex)
+                {
+                    logger.warn("Failed to stop stream " + receiveStream, ioex);
+                }
+            }
+        }
+    }
+
+    /**
+     * Stops the <tt>SendStream</tt>s that this instance is sending to its
      * remote peer and optionally closes them.
      *
      * @param close <tt>true</tt> to close the <tt>SendStream</tt>s that this
@@ -1549,10 +1594,11 @@ public class MediaStreamImpl
                 long receiveStreamSSRC = receiveStream.getSSRC();
 
                 if (logger.isTraceEnabled())
-                    logger
-                        .trace(
+                {
+                    logger.trace(
                             "Received new ReceiveStream with ssrc "
                                 + receiveStreamSSRC);
+                }
 
                 setRemoteSourceID(receiveStreamSSRC);
 
@@ -1575,6 +1621,7 @@ public class MediaStreamImpl
             ReceiveStream receiveStream = event.getReceiveStream();
 
             if (receiveStream != null)
+            {
                 synchronized (receiveStreamSyncRoot)
                 {
                     if (this.receiveStream == receiveStream)
@@ -1587,6 +1634,7 @@ public class MediaStreamImpl
                             deviceSession.setReceiveStream(null);
                     }
                 }
+            }
         }
     }
 
@@ -1685,14 +1733,5 @@ public class MediaStreamImpl
         // TODO implement
 
         return remoteSsrcList;
-    }
-
-    /**
-     * The <tt>ZrtpControl</tt> which controls the ZRTP for the current stream.
-     * @return the <tt>ZrtpControl</tt> for the current stream.
-     */
-    public ZrtpControl getZrtpControl()
-    {
-        return zrtpControl;
     }
 }

@@ -249,10 +249,12 @@ public class VideoMediaDeviceSession
         super.disposePlayer(player);
 
         if (visualComponent != null)
+        {
             fireVideoEvent(
                 VideoEvent.VIDEO_REMOVED,
                 visualComponent,
                 VideoEvent.REMOTE);
+        }
     }
 
     /**
@@ -279,12 +281,13 @@ public class VideoMediaDeviceSession
             int origin)
     {
         if (logger.isTraceEnabled())
-            logger
-                .trace(
+        {
+            logger.trace(
                     "Firing VideoEvent with type "
                         + VideoEvent.typeToString(type)
                         + " and origin "
                         + VideoEvent.originToString(origin));
+        }
 
         return
             videoNotifierSupport.fireVideoEvent(type, visualComponent, origin);
@@ -570,9 +573,22 @@ public class VideoMediaDeviceSession
      */
     public Component getVisualComponent()
     {
-        Player player = getPlayer();
+        Component visualComponent = null;
 
-        return (player == null) ? null : getVisualComponent(player);
+        /*
+         * When we know (through means such as SDP) that we don't want to
+         * receive, it doesn't make sense to wait for the remote peer to
+         * acknowledge our desire. So we'll just stop depicting the video of the
+         * remote peer regarldess of whether it stops or continues its sending.
+         */
+        if (getStartedDirection().allowsReceiving())
+        {
+            Player player = getPlayer();
+
+            if (player != null)
+                visualComponent = getVisualComponent(player);
+        }
+        return visualComponent;
     }
 
     /**
@@ -1067,30 +1083,29 @@ public class VideoMediaDeviceSession
             TrackControl trackControl,
             Format format)
     {
-        Codec codecs[] = null;
         JNIEncoder encoder = null;
         SwScaler scaler = null;
-        int nbCodec = 0;
+        int codecCount = 0;
 
-        /* for H264 we will monitor RTCP feedback
-         * for example if we receive a PLI/FIR message,
-         * we will send a keyframe
+        /* For H.264 we will monitor RTCP feedback. For example, if we receive a
+         * PLI/FIR message, we will send a keyframe.
          */
         if(format.getEncoding().equals("h264/rtp") && usePLI)
         {
             encoder = new JNIEncoder();
 
-            /* encoder need to be notified of RTCP feedback message */
+            // The H.264 encoder needs to be notified of RTCP feedback message.
             try
             {
-                ((ControlTransformInputStream)rtpConnector.
-                    getControlInputStream()).addRTCPFeedbackListener(encoder);
+                ((ControlTransformInputStream)rtpConnector
+                        .getControlInputStream())
+                    .addRTCPFeedbackListener(encoder);
             }
             catch(Exception e)
             {
                 logger.error("Error cannot get RTCP input stream", e);
             }
-            nbCodec++;
+            codecCount++;
         }
 
         if(outputSize != null)
@@ -1101,37 +1116,98 @@ public class VideoMediaDeviceSession
              */
             scaler = new SwScaler();
             scaler.setOutputSize(outputSize);
-            nbCodec++;
+            codecCount++;
         }
 
-        codecs = new Codec[nbCodec];
-        nbCodec = 0;
+        Codec[] codecs = new Codec[codecCount];
 
+        codecCount = 0;
         if(scaler != null)
-        {
-            codecs[nbCodec] = scaler;
-            nbCodec++;
-        }
-
+            codecs[codecCount++] = scaler;
         if(encoder != null)
-        {
-            codecs[nbCodec] = encoder;
-        }
+            codecs[codecCount++] = encoder;
 
-        /* Add our custom SwScaler and possibly RTCP aware codec to the codec
-         * chain so that it will be
-         * used instead of default.
-         */
-        try
+        if (codecCount != 0)
         {
-            trackControl.setCodecChain(codecs);
-        }
-        catch(UnsupportedPlugInException upiex)
-        {
-            logger.error("Failed to add SwScaler/JNIEncoder to codec chain",
-                    upiex);
+            /* Add our custom SwScaler and possibly RTCP aware codec to the
+             * codec chain so that it will be used instead of default.
+             */
+            try
+            {
+                trackControl.setCodecChain(codecs);
+            }
+            catch(UnsupportedPlugInException upiex)
+            {
+                logger.error(
+                        "Failed to add SwScaler/JNIEncoder to codec chain",
+                        upiex);
+            }
         }
 
         return super.setProcessorFormat(trackControl, format);
+    }
+
+    /**
+     * Notifies this instance that the value of its <tt>startedDirection</tt>
+     * property has changed from a specific <tt>oldValue</tt> to a specific
+     * <tt>newValue</tt>.
+     *
+     * @param oldValue the <tt>MediaDirection</tt> which used to be the value of
+     * the <tt>startedDirection</tt> property of this instance
+     * @param newValue the <tt>MediaDirection</tt> which is the value of the
+     * <tt>startedDirection</tt> property of this instance
+     */
+    @Override
+    protected void startedDirectionChanged(
+            MediaDirection oldValue,
+            MediaDirection newValue)
+    {
+        super.startedDirectionChanged(oldValue, newValue);
+
+        Player player = getPlayer();
+
+        if (player == null)
+            return;
+
+        int state = player.getState();
+
+        /*
+         * The visual Component of a Player is safe to access and, respectively,
+         * report through a VideoEvent only when the Player is Realized.
+         */
+        if (state < Player.Realized)
+            return;
+
+        if (newValue.allowsReceiving())
+        {
+            if (state != Player.Started)
+            {
+                player.start();
+
+                Component visualComponent = getVisualComponent(player);
+
+                if (visualComponent != null)
+                {
+                    fireVideoEvent(
+                        VideoEvent.VIDEO_ADDED,
+                        visualComponent,
+                        VideoEvent.REMOTE);
+                }
+            }
+        }
+        else if (state > Processor.Configured)
+        {
+            Component visualComponent = getVisualComponent(player);
+
+            player.stop();
+
+            if (visualComponent != null)
+            {
+                fireVideoEvent(
+                    VideoEvent.VIDEO_REMOVED,
+                    visualComponent,
+                    VideoEvent.REMOTE);
+            }
+        }
     }
 }
