@@ -214,22 +214,24 @@ public class GuiActivator implements BundleActivator
     public static ProtocolProviderFactory getProtocolProviderFactory(
             ProtocolProviderService protocolProvider)
     {
-        ServiceReference[] serRefs = null;
-
         String osgiFilter = "("
             + ProtocolProviderFactory.PROTOCOL
             + "="+protocolProvider.getProtocolName()+")";
 
-        try {
-            serRefs = GuiActivator.bundleContext.getServiceReferences(
+        ProtocolProviderFactory protocolProviderFactory = null;
+        try
+        {
+            ServiceReference[] serRefs = GuiActivator.bundleContext.getServiceReferences(
                 ProtocolProviderFactory.class.getName(), osgiFilter);
+            protocolProviderFactory = (ProtocolProviderFactory) GuiActivator
+                    .bundleContext.getService(serRefs[0]);
         }
-        catch (InvalidSyntaxException ex){
+        catch (InvalidSyntaxException ex)
+        {
             logger.error("GuiActivator : " + ex);
         }
 
-        return (ProtocolProviderFactory) GuiActivator
-            .bundleContext.getService(serRefs[0]);
+        return protocolProviderFactory;
     }
 
     /**
