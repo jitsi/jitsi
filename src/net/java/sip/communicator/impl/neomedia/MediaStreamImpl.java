@@ -407,6 +407,7 @@ public class MediaStreamImpl
     {
         if(attrs != null)
         {
+            advancedAttributes.clear();
             advancedAttributes.putAll(attrs);
         }
     }
@@ -1085,6 +1086,7 @@ public class MediaStreamImpl
      */
     public void setFormat(MediaFormat format)
     {
+        setAdvancedAttributes(format.getAdvancedAttributes());
         getDeviceSession().setFormat(format);
     }
 

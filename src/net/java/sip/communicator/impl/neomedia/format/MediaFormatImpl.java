@@ -315,7 +315,7 @@ public abstract class MediaFormatImpl<T extends Format>
      * Modifications to the returned Map do no affect the format properties of
      * this instance.
      */
-    public Map<String, String> getAdvancedParameters()
+    public Map<String, String> getAdvancedAttributes()
     {
         return (advancedParameters == EMPTY_FORMAT_PARAMETERS)
                 ? EMPTY_FORMAT_PARAMETERS
