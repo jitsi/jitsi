@@ -681,7 +681,6 @@ public class CallPeerMediaHandler
                                         getStreamConnector(mediaType),
                                         direction,
                                         dev.getSupportedExtensions());
-System.out.println("supported extensions="+ dev.getSupportedExtensions());
 
                     if(peer.getCall().isSipZrtpAttribute())
                     {
@@ -803,6 +802,8 @@ System.out.println("supported extensions="+ dev.getSupportedExtensions());
      * address:port couples that the new stream would be sending packets to.
      * @param direction the <tt>MediaDirection</tt> that we'd like the new
      * stream to use (i.e. sendonly, sendrecv, recvonly, or inactive).
+     * @param rtpExtensions the list of <tt>RTPExtension</tt>s that should be
+     * enabled for this stream.
      *
      * @return the newly created <tt>MediaStream</tt>.
      *
@@ -813,7 +814,8 @@ System.out.println("supported extensions="+ dev.getSupportedExtensions());
                                    MediaDevice          device,
                                    MediaFormat          format,
                                    MediaStreamTarget    target,
-                                   MediaDirection       direction)
+                                   MediaDirection       direction,
+                                   List<RTPExtension>   rtpExtensions)
         throws OperationFailedException
     {
         MediaStream stream = null;
@@ -843,7 +845,7 @@ System.out.println("supported extensions="+ dev.getSupportedExtensions());
         }
 
         return  configureAndStartStream(
-                        device, format, target, direction, stream);
+                    device, format, target, direction, rtpExtensions, stream);
     }
 
     /**
@@ -859,6 +861,8 @@ System.out.println("supported extensions="+ dev.getSupportedExtensions());
      * packets to.
      * @param direction the <tt>MediaDirection</tt> that we'd like the new
      * stream to use (i.e. sendonly, sendrecv, recvonly, or inactive).
+     * @param rtpExtensions the list of <tt>RTPExtension</tt>s that should be
+     * enabled for this stream.
      * @param stream the <tt>MediaStream</tt> that we'd like to configure.
      *
      * @return the <tt>MediaStream</tt> that we received as a parameter (for
@@ -873,11 +877,12 @@ System.out.println("supported extensions="+ dev.getSupportedExtensions());
                                             MediaFormat          format,
                                             MediaStreamTarget    target,
                                             MediaDirection       direction,
+                                            List<RTPExtension>   rtpExtensions,
                                             MediaStream          stream)
            throws OperationFailedException
     {
         registerDynamicPTsWithStream(stream);
-        registerRTPExtensionsWithStream(stream);
+        registerRTPExtensionsWithStream(rtpExtensions, stream);
 
         stream.setDevice(device);
         stream.setTarget(target);
@@ -1003,17 +1008,19 @@ System.out.println("supported extensions="+ dev.getSupportedExtensions());
      *
      * @param stream the <tt>MediaStream</tt> that we'd like to register our
      * <tt>RTPExtension</tt>s with.
+     * @param rtpExtensions the list of <tt>RTPExtension</tt>s that should be
+     * enabled for <tt>stream</tt>.
      */
-    private void registerRTPExtensionsWithStream(MediaStream stream)
+    private void registerRTPExtensionsWithStream(
+                                          List<RTPExtension> rtpExtensions,
+                                          MediaStream        stream)
     {
-        for ( Map.Entry<RTPExtension, Byte> mapEntry
-                        : rtpExtensionsRegistry.getMappings().entrySet())
+        for ( RTPExtension rtpExtension : rtpExtensions)
         {
-            byte extensionID = mapEntry.getValue();
-            RTPExtension rtpExtension = mapEntry.getKey();
+            byte extensionID
+                = rtpExtensionsRegistry.getExtensionMapping(rtpExtension);
 
             stream.addRTPExtension(extensionID, rtpExtension);
-System.out.println("extensionID="+ extensionID + " rtpExtension=" + rtpExtension);
         }
     }
 
@@ -1203,7 +1210,7 @@ System.out.println("extensionID="+ extensionID + " rtpExtension=" + rtpExtension
 
             // create the corresponding stream...
             initStream(connector, dev, supportedFormats.get(0), target,
-                      direction);
+                      direction, rtpExtensions);
 
             // create the answer description
             answerDescriptions.add(createMediaDescription(
@@ -1442,9 +1449,20 @@ System.out.println("extensionID="+ extensionID + " rtpExtension=" + rtpExtension
             MediaDirection direction
                 = devDirection.getDirectionForAnswer(remoteDirection);
 
+            // update the RTP extensions that we will be exchanging.
+            List<RTPExtension> remoteRTPExtensions
+                    = SdpUtils.extractRTPExtensions(
+                            mediaDescription, this.rtpExtensionsRegistry);
+
+            List<RTPExtension> supportedExtensions
+                    = getExtensionsForType(mediaType);
+
+            List<RTPExtension> rtpExtensions = intersectRTPExtensions(
+                            remoteRTPExtensions, supportedExtensions);
+
             // create the corresponding stream...
             initStream(connector, dev, supportedFormats.get(0), target,
-                                direction);
+                                direction, rtpExtensions);
         }
     }
 

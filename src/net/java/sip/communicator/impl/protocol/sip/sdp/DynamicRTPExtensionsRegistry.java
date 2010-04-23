@@ -91,6 +91,29 @@ public class DynamicRTPExtensionsRegistry
     }
 
     /**
+     * Returns the ID that has been allocated for <tt>extension</tt> or
+     * <tt>-1</tt> if no extension exists.
+     *
+     * @param extension the <tt>RTPExtension</tt> instance whose ID we'd like to
+     * find.
+     *
+     * @return the ID corresponding to the specified <tt>extension</tt> or
+     * <tt>-1</tt> if <tt>extension</tt> is not registered with this registry.
+     */
+    public byte getExtensionMapping(RTPExtension extension)
+    {
+        Byte extID = extMap.get(extension);
+
+        //hey, we already had this one, let's return it ;)
+        if( extID == null)
+        {
+            return -1;
+        }
+
+        return extID;
+    }
+
+    /**
      * Adds the specified <tt>extension</tt> to <tt>extID</tt> mapping to
      * the list of mappings known to this registry. The method is meant for
      * use primarily when handling incoming media descriptions, methods
