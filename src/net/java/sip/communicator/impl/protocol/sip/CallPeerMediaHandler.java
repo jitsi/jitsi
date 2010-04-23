@@ -681,6 +681,7 @@ public class CallPeerMediaHandler
                                         getStreamConnector(mediaType),
                                         direction,
                                         dev.getSupportedExtensions());
+System.out.println("supported extensions="+ dev.getSupportedExtensions());
 
                     if(peer.getCall().isSipZrtpAttribute())
                     {
@@ -840,8 +841,6 @@ public class CallPeerMediaHandler
         {
             //this is a reinit
         }
-
-        stream.setAdvancedAttributes(format.getAdvancedParameters());
 
         return  configureAndStartStream(
                         device, format, target, direction, stream);
@@ -1014,6 +1013,7 @@ public class CallPeerMediaHandler
             RTPExtension rtpExtension = mapEntry.getKey();
 
             stream.addRTPExtension(extensionID, rtpExtension);
+System.out.println("extensionID="+ extensionID + " rtpExtension=" + rtpExtension);
         }
     }
 

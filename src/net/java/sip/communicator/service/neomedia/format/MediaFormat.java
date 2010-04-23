@@ -110,7 +110,7 @@ public interface MediaFormat
      * @return a <tt>Map</tt> containing advanced parameters specific to this
      * particular <tt>MediaFormat</tt>
      */
-    public Map<String, String> getAdvancedParameters();
+    public Map<String, String> getAdvancedAttributes();
 
     /**
      * Returns a <tt>String</tt> representation of this <tt>MediaFormat</tt>

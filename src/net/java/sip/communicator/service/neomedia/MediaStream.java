@@ -277,11 +277,4 @@ public interface MediaStream
      * @return the <tt>ZrtpControl</tt> for the current stream.
      */
     public ZrtpControl getZrtpControl();
-
-    /**
-     * Set list of advanced attributes.
-     *
-     * @param attrs advanced attributes map
-     */
-    public void setAdvancedAttributes(Map<String, String> attrs);
 }

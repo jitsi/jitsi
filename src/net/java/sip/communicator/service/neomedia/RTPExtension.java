@@ -164,7 +164,7 @@ public class RTPExtension
     @Override
     public String toString()
     {
-        return extensionURI.toString();
+        return extensionURI.toString() + ";" + getDirection();
     }
 
     /**

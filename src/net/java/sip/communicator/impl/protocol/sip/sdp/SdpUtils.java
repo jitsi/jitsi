@@ -232,6 +232,9 @@ public class SdpUtils
         newMediaDescriptions
             = new Vector<MediaDescription>(newMediaDescriptions);
 
+        //this loop determines which streams are discontinued in the new
+        //description so that we could explicitly disable them with the new
+        //description. this loop also guarantees we keep the order of streams
         for(MediaDescription medToUpdate : prevMedias)
         {
             MediaType type = getMediaType(medToUpdate);
@@ -239,8 +242,9 @@ public class SdpUtils
 
             if (desc == null)
             {
-                //obviously we don't want a stream of that type so make sure
-                //the old one is disabled
+                //a stream that was in the old description seems to be no longer
+                //there in the new one. We need to create the SDP necessary to
+                //explicitly disable it then.
                 desc = createDisablingAnswer(medToUpdate);
             }
 
@@ -725,7 +729,6 @@ public class SdpUtils
      */
     private static Map<String, String> parseAdvancedAttributes(
             List<Attribute> attrs)
-            throws SdpException
     {
         if(attrs == null)
             return null;
@@ -734,8 +737,19 @@ public class SdpUtils
 
         for(Attribute attr : attrs)
         {
-            String attrName = attr.getName();
-            String attrVal = attr.getValue();
+            String attrName;
+            String attrVal;
+            try
+            {
+                attrName = attr.getName();
+                attrVal = attr.getValue();
+            }
+            catch (SdpParseException e)
+            {
+                //can't happen. jain sip doesn't do lazy parsing
+                logger.debug("The impossible has just occurred!", e);
+                return null;
+            }
             int idx = -1;
 
             /* get the part after payloadtype */
@@ -1318,7 +1332,7 @@ public class SdpUtils
 
             /* add extra attributes */
             Iterator<Map.Entry<String, String>> iter = format
-                    .getAdvancedParameters().entrySet().iterator();
+                    .getAdvancedAttributes().entrySet().iterator();
 
             while (iter.hasNext())
             {
