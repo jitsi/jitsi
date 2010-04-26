@@ -162,7 +162,7 @@ public class ZRTPTransformEngine
     private class TimeoutProvider extends Thread
     {
         /**
-         * Contructs Timeout provider.
+         * Constructs Timeout provider.
          * @param name the name of the provider.
          */
         public TimeoutProvider(String name)
@@ -191,7 +191,7 @@ public class ZRTPTransformEngine
         private final Object sync = new Object();
 
         /**
-         * Request timout after the specified delay.
+         * Request timeout after the specified delay.
          * @param delay the delay.
          */
         public synchronized void requestTimeout(long delay)
@@ -497,7 +497,7 @@ public class ZRTPTransformEngine
         if (timeoutProvider == null)
         {
             timeoutProvider = new TimeoutProvider("ZRTP");
-            timeoutProvider.setDaemon(true);
+            // timeoutProvider.setDaemon(true); // Daemon only if timeoutprovider is a global singleton
             timeoutProvider.start();
         }
 
