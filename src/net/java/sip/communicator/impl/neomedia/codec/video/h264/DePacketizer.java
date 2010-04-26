@@ -47,9 +47,14 @@ public class DePacketizer
     private static final byte[] NAL_PREFIX = { 0, 0, 1 };
 
     /**
-     * Interval between a PLI request and its reemission.
+     * Interval between a PLI request and its reemission (in milliseconds).
      */
-    private static final long PLI_INTERVAL = 250;
+    private static final long PLI_INTERVAL = 200;
+
+    /**
+     * Interval between a PLI and last keyframe received (in milliseconds).
+     */
+    private static final long PLI_KEYFRAME_INTERVAL = 4000;
 
     /**
      * The indicator which determines whether this <tt>DePacketizer</tt> has
@@ -94,18 +99,39 @@ public class DePacketizer
     private long remoteSSRC = -1;
 
     /**
+     * Use or not RTCP PLI message when depacketizer miss
+     * packets.
+     */
+    private boolean usePLI = false;
+
+    /**
      * Last timestamp of keyframe request.
      *
      * This is used to retransmit keyframe request in case previous get lost
      * and codec doesn't receive keyframe.
      */
-    private long lastKeyframeRequestTimeStamp = -1;
+    private long lastPLIRequestTime = -1;
 
     /**
-     * Use or not RTCP PLI message when depacketizer miss
-     * packets.
+     * Last timestamp of received keyframe.
      */
-    private boolean usePLI = false;
+    private long lastReceivedKeyframeTime = -1;
+
+    /**
+     * If <tt>Codec</tt> has detected frames lost.
+     */
+    private boolean missFrame = false;
+
+    /**
+     * State of PLISendThread.
+     */
+    private boolean isPLIThreadRunning = false;
+
+    /**
+     * Thread that will monitor time between PLI request, keyframes received
+     * and will send or not a PLI.
+     */
+    private PLISendThread pliSendThread = new PLISendThread();
 
     /**
      * Initializes a new <tt>DePacketizer</tt> instance which is to depacketize
@@ -160,10 +186,11 @@ public class DePacketizer
         int octet;
 
         /* waiting for a keyframe ? */
-        if(lastKeyframeRequestTimeStamp != -1 && keyframe)
+        if(keyframe)
         {
             /* keyframe received */
-            lastKeyframeRequestTimeStamp = -1;
+            missFrame = false;
+            lastReceivedKeyframeTime = System.currentTimeMillis();
         }
 
         if (start_bit)
@@ -229,6 +256,20 @@ public class DePacketizer
             return OUTPUT_BUFFER_NOT_FILLED;
     }
 
+    /**
+     * Extract a single (complete) NAL unit from RTP payload.
+     *
+     * @param nal_unit_type unit type of NAL
+     * @param in the payload of the RTP packet
+     * @param inOffset the offset in <tt>in</tt> at which the payload begins
+     * @param inLength the length of the payload in <tt>in</tt> beginning at
+     * <tt>inOffset</tt>
+     * @param outBuffer the <tt>Buffer</tt> which is to receive the extracted
+     * NAL unit
+     * @return the flags such as <tt>BUFFER_PROCESSED_OK</tt> and
+     * <tt>OUTPUT_BUFFER_NOT_FILLED</tt> to be returned by
+     * {@link #process(Buffer, Buffer)}
+     */
     private int dePacketizeSingleNALUnitPacket(
             int nal_unit_type,
             byte[] in, int inOffset, int inLength,
@@ -254,10 +295,21 @@ public class DePacketizer
         return BUFFER_PROCESSED_OK;
     }
 
+    /**
+     * Close the <tt>Codec</tt>.
+     */
     protected void doClose()
     {
+        /* will end PLISendThread loop */
+        isPLIThreadRunning = false;
+        pliSendThread = null;
     }
 
+    /**
+     * Open and initialize the <tt>Codec</tt>.
+     *
+     * @throws ResourceUnavailableException if resources are unavailable
+     */
     protected void doOpen()
         throws ResourceUnavailableException
     {
@@ -265,7 +317,14 @@ public class DePacketizer
         lastSequenceNumber = -1;
         lastTimeStamp = -1;
     }
-
+    /**
+     * Processes (depacketize) a buffer.
+     *
+     * @param inBuffer input buffer
+     * @param outBuffer output buffer
+     * @return <tt>BUFFER_PROCESSED_OK</tt> if buffer has been successfully
+     * processed
+     */
     protected int doProcess(Buffer inBuffer, Buffer outBuffer)
     {
         /*
@@ -294,13 +353,17 @@ public class DePacketizer
                             + " and continuing with sequenceNumber "
                             + sequenceNumber);
 
-            /* send an PLI request to inform sender that we miss
-             * part of video
-             * Do not send another one here if we are waiting for a keyframe.
-             */
-            if(usePLI && lastKeyframeRequestTimeStamp == -1)
+            /* detection of missed frames */
+            if(usePLI)
             {
-                sendRTCPFeedbackPLI();
+                missFrame = true;
+
+                /* if the PLI thread is not started, start it! */
+                if(!isPLIThreadRunning)
+                {
+                    isPLIThreadRunning = true;
+                    pliSendThread.start();
+                }
             }
 
             ret = reset(outBuffer);
@@ -373,15 +436,6 @@ public class DePacketizer
         if ((inBuffer.getFlags() & Buffer.FLAG_RTP_MARKER) != 0)
             outBuffer.setFlags(outBuffer.getFlags() | Buffer.FLAG_RTP_MARKER);
 
-
-        /* we do not receive keyframe so retransmit request */
-        if(usePLI && lastKeyframeRequestTimeStamp != -1 &&
-              System.currentTimeMillis() > (lastKeyframeRequestTimeStamp +
-                      PLI_INTERVAL))
-        {
-            sendRTCPFeedbackPLI();
-        }
-
         return ret;
     }
 
@@ -449,8 +503,6 @@ public class DePacketizer
     {
         RTCPFeedbackPacket packet = new RTCPFeedbackPacket(1, 206,
                 localSSRC, remoteSSRC);
-        lastKeyframeRequestTimeStamp = System.currentTimeMillis();
-
         packet.writeTo(rtcpOutputStream);
     }
 
@@ -485,5 +537,52 @@ public class DePacketizer
     public void setRtcpFeedbackPLI(boolean use)
     {
         usePLI = use;
+    }
+
+    /**
+     * Thread that will handle Picture Loss Indication (PLI) transmission.
+     * Note that PLI will be sent with a delay if recently we received a
+     * keyframe or sent a PLI.
+     *
+     * @author Sebastien Vincent
+     */
+    private class PLISendThread extends Thread
+    {
+        /**
+         * Entry point of the thread.
+         */
+        public void run()
+        {
+            while(isPLIThreadRunning)
+            {
+                long time = System.currentTimeMillis();
+
+                if(missFrame)
+                {
+                    /* we keep some delay with the latest keyframe */
+                    if(time > (lastReceivedKeyframeTime +
+                            PLI_KEYFRAME_INTERVAL))
+                    {
+                        /* we keep delay between latest PLI to not spam sender
+                         * with a lot of PLI request
+                         */
+                        if(lastPLIRequestTime == -1 ||
+                                time > lastPLIRequestTime + PLI_INTERVAL)
+                        {
+                            lastPLIRequestTime = time;
+                            sendRTCPFeedbackPLI();
+                        }
+                    }
+                }
+
+                try
+                {
+                    Thread.sleep(100);
+                }
+                catch(Exception e)
+                {
+                }
+            }
+        }
     }
 }

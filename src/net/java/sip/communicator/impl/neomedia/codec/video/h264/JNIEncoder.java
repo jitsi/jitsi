@@ -52,7 +52,7 @@ public class JNIEncoder
     /**
      * Minimum interval between two PLI request processing (in milliseconds).
      */
-    private static final long PLI_INTERVAL = 1000;
+    private static final long PLI_INTERVAL = 3000;
 
     /**
      * The frame rate we will use
