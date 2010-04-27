@@ -462,7 +462,7 @@ static int x11_grab_screen(const char* x11display, jbyte* data, int32_t x, int32
 /**
  * \brief JNI native method to grab desktop screen and retrieve ARGB pixels.
  * \param env JVM environment
- * \param obj NativeScreenCapture Java class
+ * \param clazz NativeScreenCapture Java class
  * \param x x position to start capture
  * \param y y position to start capture
  * \param width capture width
@@ -470,13 +470,13 @@ static int x11_grab_screen(const char* x11display, jbyte* data, int32_t x, int32
  * \param output output buffer, screen bytes will be stored in
  * \return true if success, false otherwise
  */
-JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture_grabScreen
-  (JNIEnv* env, jclass obj, jint x, jint y, jint width, jint height, jbyteArray output)
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture_grabScreen__IIII_3B
+  (JNIEnv* env, jclass clazz, jint x, jint y, jint width, jint height, jbyteArray output)
 {
   jint size = width * height * 4;
   jbyte* data = NULL;
 
-  obj = obj; /* not used */
+  clazz = clazz; /* not used */
 
   if(!output || (*env)->GetArrayLength(env, output) < size)
   {
@@ -506,3 +506,43 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstrea
   return JNI_TRUE;
 }
 
+/**
+ * \brief JNI native method to grab desktop screen and retrieve ARGB pixels.
+ * \param env JVM environment
+ * \param clazz NativeScreenCapture Java class
+ * \param x x position to start capture
+ * \param y y position to start capture
+ * \param width capture width
+ * \param height capture height
+ * \param output native output buffer
+ * \return true if success, false otherwise
+ */
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture_grabScreen__IIIIJI
+  (JNIEnv* env, jclass clazz, jint x, jint y, jint width, jint height, jlong output, jint outputLength)
+{
+  jint size = width * height * 4;
+  jbyte* data = (jbyte*)output;
+
+  /* not used */
+  clazz = clazz;
+  env = env;
+
+  if(!data || outputLength < size)
+  {
+    return JNI_FALSE;
+  }
+
+#if defined (_WIN32) || defined(_WIN64)
+  if(windows_grab_screen(data, x, y, width, height) == -1)
+#elif defined(__APPLE__)
+    if(quartz_grab_screen(data, x, y, width, height) == -1)
+#else /* Unix */
+  if(x11_grab_screen(NULL, data, x, y, width, height) == -1)
+#endif
+  {
+    return JNI_FALSE;
+  }
+
+  return JNI_TRUE;
+}
+  

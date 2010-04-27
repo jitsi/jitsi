@@ -58,6 +58,9 @@ public class SwScaler
         new RGBFormat(null, -1, Format.shortArray, -1.0f, 24, -1, -1, -1),
     };
 
+    /**
+     * Libswscale context pointer.
+     */
     private long swsContext = 0;
 
     /**

@@ -6,12 +6,10 @@
  */
 package net.java.sip.communicator.impl.neomedia.imgstreaming;
 
-import java.awt.image.*;
-
 /**
  * This class uses native code to capture desktop screen.
- * 
- * It should work for Windows, Mac OS X and X11-based Unix such as Linux 
+ *
+ * It should work for Windows, Mac OS X and X11-based Unix such as Linux
  * and FreeBSD.
  *
  * @author Sebastien Vincent
@@ -25,7 +23,7 @@ public class NativeScreenCapture
 
     /**
      * Grab desktop screen and get raw bytes.
-     * 
+     *
      * @param x x position to start capture
      * @param y y position to start capture
      * @param width capture width
@@ -33,5 +31,20 @@ public class NativeScreenCapture
      * @param output output buffer to store screen bytes
      * @return true if grab success, false otherwise
      */
-    public static native boolean grabScreen(int x, int y, int width, int height, byte output[]);
+    public static native boolean grabScreen(int x, int y, int width, int height,
+            byte output[]);
+
+    /**
+     * Grab desktop screen and get raw bytes.
+     *
+     * @param x x position to start capture
+     * @param y y position to start capture
+     * @param width capture width
+     * @param height capture height
+     * @param output native output buffer to store screen bytes
+     * @param outputLength native output length
+     * @return true if grab success, false otherwise
+     */
+    public static native boolean grabScreen(int x, int y, int width, int height,
+            long output, int outputLength);
 }

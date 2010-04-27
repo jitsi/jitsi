@@ -12,19 +12,20 @@ import java.awt.image.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * This singleton class provide screen capture and key/mouse 
+ * This singleton class provide screen capture and key/mouse
  * events generation by wrapping partial or all <tt>java.awt.Robot</tt>
  * methods to interact with desktop.
  *
  * @see java.awt.Robot
  * @author Sebastien Vincent
  */
-public class DesktopInteractImpl implements DesktopInteract 
+public class DesktopInteractImpl implements DesktopInteract
 {
     /**
      * The <tt>Logger</tt>.
      */
-    private static final Logger logger = Logger.getLogger(DesktopInteractImpl.class);
+    private static final Logger logger =
+        Logger.getLogger(DesktopInteractImpl.class);
 
     /**
      * Screen capture robot.
@@ -33,11 +34,12 @@ public class DesktopInteractImpl implements DesktopInteract
 
     /**
      * Constructor.
-     * 
-     * @throws AWTException if platform configuration does not allow low-level input control
+     *
+     * @throws AWTException if platform configuration does not allow low-level
+     * input control
      * @throws SecurityException if Robot creation is not permitted
      */
-    public DesktopInteractImpl() throws AWTException, SecurityException 
+    public DesktopInteractImpl() throws AWTException, SecurityException
     {
         robot = new Robot();
     }
@@ -49,7 +51,8 @@ public class DesktopInteractImpl implements DesktopInteract
      * and not <tt>BufferedImage</tt>. It is done in order to limit
      * slow operation such as converting ARGB images (uint32_t) to bytes
      * especially for big big screen. For example a 1920x1200 desktop consumes
-     * 9 MB of memory for grabbing and another 9 MB array for convertion operation.
+     * 9 MB of memory for grabbing and another 9 MB array for conversion
+     * operation.
      *
      * @param output output buffer to store bytes in.
      * Be sure that output length is sufficient
@@ -59,7 +62,29 @@ public class DesktopInteractImpl implements DesktopInteract
     {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
-        return captureScreen(0, 0, (int)dim.getWidth(), (int)dim.getHeight(), output);
+        return captureScreen(0, 0, dim.width, dim.height,
+                output);
+    }
+
+    /**
+     * Capture the full desktop screen using native grabber.
+     *
+     * Contrary to other captureScreen method, it only returns raw bytes
+     * and not <tt>BufferedImage</tt>. It is done in order to limit
+     * slow operation such as converting ARGB images (uint32_t) to bytes
+     * especially for big big screen. For example a 1920x1200 desktop consumes
+     * 9 MB of memory for grabbing and another 9 MB array for conversion
+     * operation.
+     *
+     * @param buffer native output buffer to store bytes in.
+     * Be sure that output length is sufficient
+     * @param bufferLength length of native buffer
+     * @return true if success, false if JNI error or output length too short
+     */
+    public boolean captureScreen(long buffer, int bufferLength)
+    {
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        return captureScreen(0, 0, dim.width, dim.height, buffer, bufferLength);
     }
 
     /**
@@ -67,9 +92,10 @@ public class DesktopInteractImpl implements DesktopInteract
      *
      * Contrary to other captureScreen method, it only returns raw bytes
      * and not <tt>BufferedImage</tt>. It is done in order to limit
-     * slow operation such as converting ARGB images (uint32_t) to bytes 
+     * slow operation such as converting ARGB images (uint32_t) to bytes
      * especially for big big screen. For example a 1920x1200 desktop consumes
-     * 9 MB of memory for grabbing and another 9 MB array for convertion operation.
+     * 9 MB of memory for grabbing and another 9 MB array for conversion
+     * operation.
      *
      * @param x x position to start capture
      * @param y y position to start capture
@@ -79,13 +105,46 @@ public class DesktopInteractImpl implements DesktopInteract
      * Be sure that output length is sufficient
      * @return true if success, false if JNI error or output length too short
      */
-    public boolean captureScreen(int x, int y, int width, int height, byte output[])
+    public boolean captureScreen(int x, int y, int width, int height,
+            byte output[])
     {
         if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS
                 || OSUtils.IS_MAC)
         {
             return NativeScreenCapture.grabScreen(
                         x, y, width, height, output);
+        }
+
+        return false;
+    }
+
+    /**
+     * Capture a part of the desktop screen using native grabber.
+     *
+     * Contrary to other captureScreen method, it only returns raw bytes
+     * and not <tt>BufferedImage</tt>. It is done in order to limit
+     * slow operation such as converting ARGB images (uint32_t) to bytes
+     * especially for big big screen. For example a 1920x1200 desktop consumes
+     * 9 MB of memory for grabbing and another 9 MB array for conversion
+     * operation.
+     *
+     * @param x x position to start capture
+     * @param y y position to start capture
+     * @param width capture width
+     * @param height capture height
+     * @param buffer native output buffer to store bytes in.
+     * Be sure that output length is sufficient
+     * @param bufferLength length of native buffer
+     * @return true if success, false if JNI error or output length too short
+     */
+    public boolean captureScreen(int x, int y, int width, int height,
+            long buffer, int bufferLength)
+    {
+        if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS
+                || OSUtils.IS_MAC)
+        {
+            return NativeScreenCapture.grabScreen(
+                        x, y, width, height, buffer, bufferLength);
         }
 
         return false;
@@ -100,7 +159,7 @@ public class DesktopInteractImpl implements DesktopInteract
     {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
-        return captureScreen(0, 0, (int)dim.getWidth(), (int)dim.getHeight());
+        return captureScreen(0, 0, dim.width, dim.height);
     }
 
     /**
@@ -117,7 +176,7 @@ public class DesktopInteractImpl implements DesktopInteract
     {
         BufferedImage img = null;
         Rectangle rect = null;
-           
+
         if(robot == null)
         {
             /* Robot has not been created so abort */
@@ -128,7 +187,7 @@ public class DesktopInteractImpl implements DesktopInteract
         rect = new Rectangle(x, y, width, height);
         img = robot.createScreenCapture(rect);
         logger.info("End capture: " + System.nanoTime());
-        
+
         return img;
     }
 

@@ -12,10 +12,11 @@ import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 
 /**
- * DataSource for our image streaming (which is used for 
+ * DataSource for our image streaming (which is used for
  * Desktop streaming).
  *
  * @author Sebastien Vincent
@@ -32,7 +33,11 @@ public class DataSource
     private static final Format[] formats
         = new Format[]
                 {
-                    new RGBFormat(
+                    new AVFrameFormat(
+                            Toolkit.getDefaultToolkit().getScreenSize(),
+                            Format.NOT_SPECIFIED,
+                            FFmpeg.PIX_FMT_ARGB),
+                     new RGBFormat(
                             Toolkit.getDefaultToolkit().getScreenSize(), // size
                             Format.NOT_SPECIFIED, // maxDataLength
                             Format.byteArray, // dataType
