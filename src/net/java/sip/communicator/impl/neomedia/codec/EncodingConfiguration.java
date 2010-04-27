@@ -157,14 +157,18 @@ public class EncodingConfiguration
         setEncodingPreference("PCMA", 8000, 600);
         setEncodingPreference("iLBC", 8000, 500);
         setEncodingPreference("GSM", 8000, 450);
-        setEncodingPreference("speex", 8000, 352);
-        setEncodingPreference("speex", 16000, 351);
-        setEncodingPreference("speex", 32000, 350);
+        // not selected for use till confirmed its working
+        // cause uses some old speex impl which seems
+        // incompatable with some clients
+        setEncodingPreference("speex", 8000, 0);
+        setEncodingPreference("speex", 16000, 0);
+        setEncodingPreference("speex", 32000, 0);
         setEncodingPreference("DVI4", 8000, 300);
         setEncodingPreference("DVI4", 16000, 250);
         setEncodingPreference("G723", 8000, 150);
         setEncodingPreference("G728", 8000, 100);
-        setEncodingPreference("G729", 8000, 50);
+        // not selected by default as a proprietary one
+        setEncodingPreference("G729", 8000, 0);
 
         // now override with those that are specified by the user.
         ConfigurationService confService
