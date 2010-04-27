@@ -33,7 +33,8 @@ import net.java.sip.communicator.util.swing.*;
 public class AddContactDialog
     extends SIPCommDialog
     implements  ExportedWindow,
-                ActionListener
+                ActionListener,
+                WindowFocusListener
 {
     private final Logger logger
         = Logger.getLogger(AddContactDialog.class.getName());
@@ -54,7 +55,7 @@ public class AddContactDialog
         GuiActivator.getResources().getI18NString(
             "service.gui.CONTACT_NAME") + ": ");
 
-    private JTextField contactAddressField = new JTextField();
+    private final JTextField contactAddressField = new JTextField();
 
     private final JButton addButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.ADD"));
@@ -179,6 +180,7 @@ public class AddContactDialog
         this.getContentPane().add(createButtonsPanel(), BorderLayout.SOUTH);
 
         this.setPreferredSize(new Dimension(450, 200));
+        this.addWindowFocusListener(this);
     }
 
     /**
@@ -293,6 +295,7 @@ public class AddContactDialog
             {
                 new Thread()
                 {
+                    @Override
                     public void run()
                     {
                         GuiActivator.getContactListService()
@@ -310,6 +313,7 @@ public class AddContactDialog
 
                 new Thread()
                 {
+                    @Override
                     public void run()
                     {
                         try
@@ -378,16 +382,32 @@ public class AddContactDialog
      * @param isEscaped indicates if the dialog is closed by pressing the
      * Esc key
      */
+    @Override
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
     }
 
     /**
+     * Indicates that the window has gained the focus. Requests the focus in
+     * the text field.
+     * @param e the <tt>WindowEvent</tt> that notified us
+     */
+    public void windowGainedFocus(WindowEvent e)
+    {
+        this.contactAddressField.requestFocus();
+    }
+
+    public void windowLostFocus(WindowEvent e)
+    {
+    }
+
+    /**
      * A custom renderer displaying accounts in a combo box.
      */
-    private class AccountComboRenderer extends DefaultListCellRenderer
+    private static class AccountComboRenderer extends DefaultListCellRenderer
     {
+        @Override
         public Component getListCellRendererComponent(  JList list,
                                                         Object value,
                                                         int index,
@@ -426,8 +446,9 @@ public class AddContactDialog
     /**
      * A custom renderer displaying groups in a combo box.
      */
-    private class GroupComboRenderer extends DefaultListCellRenderer
+    private static class GroupComboRenderer extends DefaultListCellRenderer
     {
+        @Override
         public Component getListCellRendererComponent(  JList list,
                                                         Object value,
                                                         int index,
