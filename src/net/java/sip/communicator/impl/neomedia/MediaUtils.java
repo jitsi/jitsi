@@ -135,12 +135,11 @@ public class MediaUtils
             Constants.TELEPHONE_EVENT,
             8000);
 
+        /* We don't really support these.
         addMediaFormats((byte) SdpConstants.JPEG,
                         "JPEG",
                         MediaType.VIDEO,
                         VideoFormat.JPEG_RTP);
-
-        /* We don't really support these.
         addMediaFormats(
             (byte) SdpConstants.H263,
             "H263",
