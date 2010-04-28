@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.util.*;
 
 import java.io.*;
-import java.util.EnumSet;
+import java.util.*;
 
 /**
  * JMF extension/connector to support GNU ZRTP4J.
@@ -349,6 +349,14 @@ public class ZRTPTransformEngine
     private boolean started = false;
 
     /**
+     * Sometimes we need to start muted so we will discard any packets during
+     * some time after the start of the transformer. This is needed when for
+     * this time we can receive encrypted packets but we hadn't established
+     * a secure communication. This happens when a secure stream is recreated.
+     */
+    private boolean muted = false;
+
+    /**
      * Construct a ZRTPTransformEngine.
      *
      */
@@ -506,6 +514,39 @@ public class ZRTPTransformEngine
     }
 
     /**
+     *
+     * @param startMuted whether to be started as muted if no secure
+     *      communication is established
+     */
+    public void setStartMuted(boolean startMuted)
+    {
+        muted = startMuted;
+        if(startMuted)
+        {
+            // make sure we don't mute for long time as secure communication
+            // may fail.
+            new Timer().schedule(new TimerTask()
+            {
+                public void run()
+                {
+                    ZRTPTransformEngine.this.muted = false;
+                }
+            }, 1500);
+        }
+    }
+
+    /**
+     * Method for getting the default secure status value for communication
+     *
+     * @return the default enabled/disabled status value for secure
+     * communication
+     */
+    public boolean getSecureCommunicationStatus()
+    {
+        return srtpInTransformer != null || srtpOutTransformer != null;
+    }
+
+    /**
      * Start the ZRTP stack immediately, not autosensing mode.
      */
     public void startZrtp()
@@ -604,7 +645,12 @@ public class ZRTPTransformEngine
         if (!ZrtpRawPacket.isZrtpData(pkt))
         {
             if (srtpInTransformer == null)
-                return pkt;
+            {
+                if(muted)
+                    return null;
+                else
+                    return pkt;
+            }
 
             pkt = srtpInTransformer.reverseTransform(pkt);
             // if packet was valid (i.e. not null) and ZRTP engine started and
@@ -764,6 +810,7 @@ public class ZRTPTransformEngine
                         .getKeyResponder(), secrets.getSaltResponder(),
                         srtpPolicy, srtpPolicy);
                 srtpInTransformer = engine.getRTPTransformer();
+                this.muted = false;
             }
             else
             {
@@ -779,6 +826,7 @@ public class ZRTPTransformEngine
                         .getKeyInitiator(), secrets.getSaltInitiator(),
                         srtpPolicy, srtpPolicy);
                 srtpInTransformer = engine.getRTPTransformer();
+                this.muted = false;
             }
         }
         return true;

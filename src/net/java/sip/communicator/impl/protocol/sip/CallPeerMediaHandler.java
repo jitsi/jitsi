@@ -901,8 +901,13 @@ public class CallPeerMediaHandler
         if(peer.getCall().isDefaultEncrypted())
         {
             // we use the audio stream for master stream
-            //when using zrtp multistreams
+            // when using zrtp multistreams
             ZrtpControl zrtpControl = stream.getZrtpControl();
+
+            if(zrtpControl.getSecureCommunicationStatus())
+            {
+                zrtpControl = stream.restartZrtpControl();
+            }
 
             zrtpControl.setZrtpListener(peer);
             zrtpControl.start(stream instanceof AudioMediaStream);

@@ -880,6 +880,42 @@ public class MediaStreamImpl
     }
 
     /**
+     * Resets the state of secure communication and restart the secure
+     * communication negotiation.
+     * @return the newly created <tt>ZrtpControl</tt>.
+     */
+    public ZrtpControl restartZrtpControl()
+    {
+        ZrtpControlImpl oldZrtpControl = zrtpControl;
+
+        this.zrtpControl = new ZrtpControlImpl();
+        
+        // as we are recreating this stream and it was obviously secured
+        // it may happen we receive unencrepted data and we will hear
+        // noise, so we mute it till secure connection is again established
+        zrtpControl.getZrtpEngine().setStartMuted(true);
+
+        this.zrtpControl.setConnector(rtpConnector);
+        rtpConnector.setEngine(createTransformEngineChain());
+
+        if(oldZrtpControl != null)
+        {
+            if(oldZrtpControl.getMultiStrParams() != null)
+                zrtpControl.setMultistream(oldZrtpControl.getMultiStrParams());
+
+            ZRTPTransformEngine engine = oldZrtpControl.getZrtpEngine();
+
+            if(engine != null)
+            {
+                engine.stopZrtp();
+                engine.cleanup();
+            }
+        }
+
+        return zrtpControl;
+    }
+
+    /**
      * Determines whether this <tt>MediaStream</tt> is set to transmit "silence"
      * instead of the media being fed from its <tt>MediaDevice</tt>. "Silence"
      * for video is understood as video data which is not the captured video

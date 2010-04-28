@@ -28,11 +28,10 @@ public class ZrtpControlImpl
      */
     private ZrtpListener zrtpListener = null;
 
-   /**
-    * Toggles default (from the call start) activation
-    * of secure communication
-    */
-    private boolean usingZRTP = false;
+    /**
+     * The current multi-stream data if any.
+     */
+    private byte[] multiStreamData = null;
 
     /**
      * Additional info codes for and data to support ZRTP4J.
@@ -93,7 +92,10 @@ public class ZrtpControlImpl
      */
     public boolean getSecureCommunicationStatus()
     {
-        return usingZRTP;
+        if(zrtpEngine != null)
+            return zrtpEngine.getSecureCommunicationStatus();
+        else
+            return false;
     }
 
     /**
@@ -137,13 +139,14 @@ public class ZrtpControlImpl
      */
     public void start(boolean masterSession)
     {
-        usingZRTP = true;
-
         // Create security user callback for each peer.
         SecurityEventManager securityEventManager
             = new SecurityEventManager(this);
 
         boolean zrtpAutoStart = false;
+
+        // ZRTP engine initialization
+        ZRTPTransformEngine engine = getZrtpEngine();
 
         // Decide if this will become the ZRTP Master session:
         // - Statement: audio media session will be started before video
@@ -175,19 +178,16 @@ public class ZrtpControlImpl
                 SecurityEventManager.VIDEO_SESSION);
         }
 
-        // ZRTP engine initialization
-        ZRTPTransformEngine engine = getZrtpEngine();
         // tells the engine whether to autostart(enable)
         // zrtp communication, if false it just passes packets without
         // transformation
         engine.setEnableZrtp(zrtpAutoStart);
 
-        zrtpEngine.setConnector(zrtpConnector);
+        engine.setConnector(zrtpConnector);
 
-        zrtpEngine.setUserCallback(securityEventManager);
+        engine.setUserCallback(securityEventManager);
 
-        usingZRTP = true;
-        zrtpEngine.sendInfo(
+        engine.sendInfo(
             ZrtpCodes.MessageSeverity.Info,
             EnumSet.of(
                     ZRTPCustomInfoCodes.ZRTPEnabledByDefault));
@@ -204,12 +204,20 @@ public class ZrtpControlImpl
      */
     public void setMultistream(byte[] multiStreamData)
     {
-        if(usingZRTP)
-        {
-            ZRTPTransformEngine engine = getZrtpEngine();
-            engine.setMultiStrParams(multiStreamData);
-            engine.setEnableZrtp(true);
-        }
+        ZRTPTransformEngine engine = getZrtpEngine();
+        this.multiStreamData = multiStreamData;
+        engine.setMultiStrParams(multiStreamData);
+        engine.setEnableZrtp(true);
+    }
+
+    /**
+     * Gets the multistream params
+     *
+     * @return the multistream params
+     */
+    public byte[] getMultiStrParams()
+    {
+        return multiStreamData;
     }
 
     /**
