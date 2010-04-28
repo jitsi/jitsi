@@ -632,6 +632,14 @@ public class CallDialog
                             ((ConferenceCallPanel) callPanel)
                                 .removeCallPeerPanel(peer);
                         }
+                        else
+                        {
+                            // when in conference and the focus closes the
+                            // conference we receive event for peer remove and
+                            // there are no other peers in the call, so dispose
+                            // the window
+                            dispose();
+                        }
 
                         refreshWindow();
                     }
