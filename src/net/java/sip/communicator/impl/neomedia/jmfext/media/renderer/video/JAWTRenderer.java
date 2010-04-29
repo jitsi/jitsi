@@ -287,7 +287,7 @@ public class JAWTRenderer
 
             if (processed)
             {
-                component.repaint(); 
+                component.repaint();
                 return BUFFER_PROCESSED_OK;
             }
             else
