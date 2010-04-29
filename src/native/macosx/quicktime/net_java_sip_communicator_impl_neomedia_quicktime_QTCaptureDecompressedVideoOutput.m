@@ -135,7 +135,7 @@ Java_net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVide
 - (void)captureOutput:(QTCaptureOutput *)captureOutput
         didOutputVideoFrame:(CVImageBufferRef *)videoFrame
         withSampleBuffer:(QTSampleBuffer *)sampleBuffer
-        fromConnection:(QTCaptureConnection *)connection;
+        fromConnection:(QTCaptureConnection *)connection
 {
     jobject delegate;
     JavaVM *vm;
