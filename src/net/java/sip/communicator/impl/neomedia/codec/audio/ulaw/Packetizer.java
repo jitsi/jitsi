@@ -19,7 +19,8 @@ public class Packetizer
     public Packetizer()
     {
         super();
-        packetSize = 240;
+        // RFC 3551 4.5 Audio Encodings default ms/packet is 20
+        packetSize = 160;
         setPacketSize(packetSize);
         
         // Workaround to use our ulaw packetizer

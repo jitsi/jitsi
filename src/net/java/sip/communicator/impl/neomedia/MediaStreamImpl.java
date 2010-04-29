@@ -900,9 +900,6 @@ public class MediaStreamImpl
 
         if(oldZrtpControl != null)
         {
-            if(oldZrtpControl.getMultiStrParams() != null)
-                zrtpControl.setMultistream(oldZrtpControl.getMultiStrParams());
-
             ZRTPTransformEngine engine = oldZrtpControl.getZrtpEngine();
 
             if(engine != null)

@@ -29,11 +29,6 @@ public class ZrtpControlImpl
     private ZrtpListener zrtpListener = null;
 
     /**
-     * The current multi-stream data if any.
-     */
-    private byte[] multiStreamData = null;
-
-    /**
      * Additional info codes for and data to support ZRTP4J.
      * These could be added to the library. However they are specific for this
      * implementation, needing them for various GUI changes.
@@ -205,19 +200,8 @@ public class ZrtpControlImpl
     public void setMultistream(byte[] multiStreamData)
     {
         ZRTPTransformEngine engine = getZrtpEngine();
-        this.multiStreamData = multiStreamData;
         engine.setMultiStrParams(multiStreamData);
         engine.setEnableZrtp(true);
-    }
-
-    /**
-     * Gets the multistream params
-     *
-     * @return the multistream params
-     */
-    public byte[] getMultiStrParams()
-    {
-        return multiStreamData;
     }
 
     /**
