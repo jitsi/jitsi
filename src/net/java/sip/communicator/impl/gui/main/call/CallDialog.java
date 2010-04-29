@@ -619,9 +619,17 @@ public class CallDialog
                             contentPane.remove(callPanel);
                             CallPeer singlePeer = call.getCallPeers().next();
 
-                            if (singlePeer != null)
+                            // if the other party is focus we want to see
+                            // his members
+                            if (singlePeer != null
+                                && !singlePeer.isConferenceFocus())
                                 callPanel = new OneToOneCallPanel(
                                     CallDialog.this, call, singlePeer);
+                            else if(singlePeer.isConferenceFocus())
+                            {
+                                ((ConferenceCallPanel) callPanel)
+                                    .removeCallPeerPanel(peer);
+                            }
 
                             contentPane.add(callPanel, BorderLayout.CENTER);
 

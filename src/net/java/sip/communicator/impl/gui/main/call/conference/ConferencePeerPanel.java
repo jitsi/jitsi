@@ -520,6 +520,15 @@ public class ConferencePeerPanel
         if (callPeer.getConferenceMemberCount() == 0 && isFocusUI())
             setFocusUI(false);
 
+        // in situation we were in two conf calls but the other one
+        // is now with 2 peers (us and the his) we must show it
+        // like a normal conf call peer, we are back to single focus ui
+        if(isFocusUI() && !isSingleFocusUI() &&
+            callPeer.getConferenceMemberCount() == 2)
+        {
+            setSingleFocusUI(true);
+        }
+
         this.removeConferenceMemberPanel(member);
 
         callDialog.refreshWindow();
