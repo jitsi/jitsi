@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.neomedia.device;
 
+import java.io.*;
 import java.util.*;
 
 import javax.media.*;
@@ -135,6 +136,16 @@ public class DeviceConfiguration
         "net.java.sip.communicator.impl.neomedia.latency";
 
     /**
+     * The list of class names of custom <tt>Renderer</tt> implementations to be
+     * registered with JMF.
+     */
+    private static final String[] CUSTOM_RENDERERS
+        = new String[]
+                {
+                    "net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.video.JAWTRenderer"
+                };
+
+    /**
      * Used when no capture device is selected.
      */
     private static final CaptureDeviceInfo[] NO_CAPTURE_DEVICES =
@@ -191,6 +202,8 @@ public class DeviceConfiguration
         {
             logger.error("Failed to initialize media.", ex);
         }
+
+        registerCustomRenderers();
     }
 
     /**
@@ -956,6 +969,93 @@ public class DeviceConfiguration
         catch (PortAudioException e)
         {
             return false;
+        }
+    }
+
+    /**
+     * Registers the custom <tt>Renderer</tt> implementations defined by class
+     * name in {@link #CUSTOM_RENDERERS} with JMF.
+     */
+    private void registerCustomRenderers()
+    {
+        @SuppressWarnings("unchecked")
+        Vector<String> renderers
+            = PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
+        boolean commit = false;
+
+        for (String customRenderer : CUSTOM_RENDERERS)
+        {
+            if ((renderers == null) || !renderers.contains(customRenderer))
+            {
+                try
+                {
+                    Renderer customRendererInstance
+                        = (Renderer)
+                            Class.forName(customRenderer).newInstance();
+
+                    PlugInManager.addPlugIn(
+                            customRenderer,
+                            customRendererInstance.getSupportedInputFormats(),
+                            null,
+                            PlugInManager.RENDERER);
+                    commit = true;
+                }
+                catch (Throwable t)
+                {
+                    logger.error(
+                            "Failed to register custom Renderer "
+                                 + customRenderer
+                                 + " with JMF.");
+                }
+            }
+        }
+
+        /*
+         * Just in case, bubble our JMF contributions at the top so that they
+         * are considered preferred.
+         */
+        int pluginType = PlugInManager.RENDERER;
+        @SuppressWarnings("unchecked")
+        Vector<String> plugins
+            = PlugInManager.getPlugInList(null, null, pluginType);
+        
+        if (plugins != null)
+        {
+            int pluginCount = plugins.size();
+            int pluginBeginIndex = 0;
+            String preferred = "net.java.sip.communicator.impl.neomedia.";
+
+            for (int pluginIndex = pluginCount - 1;
+                 pluginIndex >= pluginBeginIndex;)
+            {
+                String plugin = plugins.get(pluginIndex);
+                
+                if (plugin.startsWith(preferred))
+                {
+                    plugins.remove(pluginIndex);
+                    plugins.add(0, plugin);
+                    pluginBeginIndex++;
+                    commit = true;
+                }
+                else
+                    pluginIndex--;
+            }
+            PlugInManager.setPlugInList(plugins, pluginType);
+            if (logger.isTraceEnabled())
+                logger.trace("Reordered plug-in list:" + plugins);
+        }
+
+        if (commit)
+        {
+            try
+            {
+                PlugInManager.commit();
+            }
+            catch (IOException ioex)
+            {
+                logger.warn(
+                        "Failed to commit changes to the JMF plug-in list.");
+            }
         }
     }
 }

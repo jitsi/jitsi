@@ -78,11 +78,15 @@ public class EncodingConfiguration
         };
 
     /**
-     * Custom Packages provided by Sip-Communicator
+     * The package prefixes of the additional JMF <tt>DataSource</tt>s (e.g. low
+     * latency PortAudio and ALSA <tt>CaptureDevice</tt>s).
      */
-    private static final String[] CUSTOM_PACKAGES = new String[]
-    { // datasource for low latency PortAudio or ALSA input
-        "net.java.sip.communicator.impl.neomedia.jmfext", "net.sf.fmj" };
+    private static final String[] CUSTOM_PACKAGES
+        = new String[]
+                {
+                    "net.java.sip.communicator.impl.neomedia.jmfext",
+                    "net.sf.fmj"
+                };
 
     /**
      * The <tt>Comparator</tt> which sorts the sets according to the settings in
@@ -381,15 +385,19 @@ public class EncodingConfiguration
                     exception = ex;
                 }
                 if (registered)
+                {
                     logger.debug(
                             "Codec "
-                            + className
-                            + " is successfully registered");
+                                + className
+                                + " is successfully registered");
+                }
                 else
+                {
                     logger.debug(
                             "Codec "
-                            + className
-                            + " is NOT succsefully registered", exception);
+                                + className
+                                + " is NOT succsefully registered", exception);
+                }
             }
         }
 
@@ -423,24 +431,30 @@ public class EncodingConfiguration
     public void registerCustomPackages()
     {
         @SuppressWarnings("unchecked")
-        Vector<String> currentPackagePrefix
-            = PackageManager.getProtocolPrefixList();
+        Vector<String> packages = PackageManager.getProtocolPrefixList();
+        boolean loggerIsDebugEnabled = logger.isDebugEnabled();
 
-        for (String className : CUSTOM_PACKAGES)
+        for (String customPackage : CUSTOM_PACKAGES)
         {
-            // linear search in a loop, but it doesn't have to scale since the
-            // list is always short
-            if (!currentPackagePrefix.contains(className))
+            /*
+             * Linear search in a loop but it doesn't have to scale since the
+             * list is always short.
+             */
+            if (!packages.contains(customPackage))
             {
-                currentPackagePrefix.add(className);
-                logger.debug("Adding package  : " + className);
+                packages.add(customPackage);
+                if (loggerIsDebugEnabled)
+                    logger.debug("Adding package  : " + customPackage);
             }
         }
 
-        PackageManager.setProtocolPrefixList(currentPackagePrefix);
+        PackageManager.setProtocolPrefixList(packages);
         PackageManager.commitProtocolPrefixList();
-        logger.debug("Registering new protocol prefix list : "
-            + currentPackagePrefix);
+        if (loggerIsDebugEnabled)
+        {
+            logger.debug(
+                    "Registering new protocol prefix list: " + packages);
+        }
     }
 
     public MediaFormat[] getAvailableEncodings(MediaType type)
