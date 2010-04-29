@@ -76,7 +76,22 @@ public class ImageStream
         long maxTime = 1000 / 10;
         int wait = 0;
 
-        if(buffer.getFormat() instanceof AVFrameFormat)
+        /*
+         * Determine the Format in which we're expected to output. We cannot
+         * rely on the Format always being specified in the Buffer because it is
+         * not its responsibility, the DataSource of this ImageStream knows the
+         * output Format.
+         */
+        Format bufferFormat = buffer.getFormat();
+
+        if (bufferFormat == null)
+        {
+            bufferFormat = getFormat();
+            if (bufferFormat != null)
+                buffer.setFormat(bufferFormat);
+        }
+
+        if(bufferFormat instanceof AVFrameFormat)
         {
             /* native transfert: we keep data in native memory rather
              * than Java Heap until we reach SwScaler
@@ -96,11 +111,16 @@ public class ImageStream
                 bufferFramePtr = bufferFrame.getPtr();
             }
 
-            AVFrameFormat bufferFrameFormat = (AVFrameFormat)buffer.getFormat();
+            AVFrameFormat bufferFrameFormat = (AVFrameFormat) bufferFormat;
             Dimension bufferFrameSize = bufferFrameFormat.getSize();
 
             if(readScreenNative(bufferFrameSize))
             {
+                /*
+                 * FIXME Since data is a field, the methods read and stop are
+                 * not synchronized and readScreeNative takes a lot of time,
+                 * data.ptr often results in a NullPointerException.
+                 */
                 FFmpeg.avpicture_fill(
                         bufferFramePtr,
                         data.ptr,
@@ -133,7 +153,6 @@ public class ImageStream
             }
         }
 
-        buffer.setFormat(buffer.getFormat());
         buffer.setHeader(null);
         buffer.setTimeStamp(System.nanoTime());
         buffer.setSequenceNumber(seqNo);
@@ -218,10 +237,9 @@ public class ImageStream
             data = new ByteBuffer(size);
             data.setLength(size);
         }
-
-        /* reallocate native array if capacity is not enough */
-        if(data.getLength() < size)
+        else if(data.capacity < size)
         {
+            /* reallocate native array if capacity is not enough */
             data.setFree(true);
             FFmpeg.av_free(data.ptr);
             data = new ByteBuffer(size);
@@ -229,11 +247,7 @@ public class ImageStream
         }
 
         /* get desktop screen via native grabber */
-        if(desktopInteract.captureScreen(data.ptr, data.getLength()))
-        {
-            return true;
-        }
-        return false;
+        return desktopInteract.captureScreen(data.ptr, data.getLength());
     }
 
     /**
