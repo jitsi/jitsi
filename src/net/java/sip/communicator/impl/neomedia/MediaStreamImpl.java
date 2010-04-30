@@ -267,7 +267,9 @@ public class MediaStreamImpl
                                         = new ArrayList<TransformEngine>(3);
 
         //CSRCs and audio levels
-        csrcEngine = new CsrcTransformEngine(this);
+        if(csrcEngine == null)
+            csrcEngine = new CsrcTransformEngine(this);
+
         engineChain.add(csrcEngine);
 
                 //DTMF
@@ -431,7 +433,10 @@ public class MediaStreamImpl
         }
 
         if(csrcEngine != null)
+        {
             csrcEngine.stop();
+            csrcEngine = null;
+        }
 
         rtpConnector.removeTargets();
         rtpConnectorTarget = null;
