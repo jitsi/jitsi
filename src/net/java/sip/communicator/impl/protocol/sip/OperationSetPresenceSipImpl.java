@@ -495,7 +495,9 @@ public class OperationSetPresenceSipImpl
         String oldMessage = this.statusMessage;
         this.statusMessage = statusMsg;
 
-        if (this.presenceEnabled == false)
+        if (this.presenceEnabled == false
+            || parentProvider.getRegistrarConnection()
+                instanceof SipRegistrarlessConnection)//no registrar-no publish
         {
             return;
         }

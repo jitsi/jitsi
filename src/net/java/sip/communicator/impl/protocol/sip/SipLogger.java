@@ -69,7 +69,9 @@ public class SipLogger
      */
     public void logException(Throwable ex)
     {
-        logger.warn("Exception in the JAIN-SIP stack: " + ex, ex);
+        logger.warn("Exception in the JAIN-SIP stack: " + ex.getMessage());
+        logger.info("JAIN-SIP exception stack trace is", ex);
+
     }
 
     /**
@@ -203,18 +205,15 @@ public class SipLogger
     public void logMessage(SIPMessage message, String from, String to,
                            boolean sender, long time)
     {
+        String msgHeader;
+
         if(sender)
-        {
-            logger.trace("JAIN-SIP sent message from \"" + from
-                         + "\"to \"" + to + "\" at " + time + ":\n"
-                         + message);
-        }
+            msgHeader = "JAIN-SIP sent a message from=\"";
         else
-        {
-            logger.trace("JAIN-SIP received message from \"" + from
-                         + "\" to \"" + to + "\" at " + time + "\n"
-                         + message);
-        }
+            msgHeader = "JAIN-SIP received a message from=\"";
+
+        logger.info( msgHeader + from + "\" to=\"" + to + "\" at=" + time
+                        + ":\n" + message);
     }
 
     /**
@@ -230,18 +229,15 @@ public class SipLogger
     public void logMessage(SIPMessage message, String from, String to,
                            String status, boolean sender, long time)
     {
+        String msgHeader;
+
         if(sender)
-        {
-            logger.trace("JAIN-SIP sent message from \"" + from
-                         + "\" to \"" + to + "\" at " + time + " (status: "
-                         + status + "):\n" + message);
-        }
+            msgHeader = "JAIN-SIP sent a message from=\"";
         else
-        {
-            logger.trace("JAIN-SIP received message from \"" + from
-                         + "\" to \"" + to + "\" at " + time + " (status: "
-                         + status + "):\n" + message);
-        }
+            msgHeader = "JAIN-SIP received a message from=\"";
+
+        logger.info(msgHeader + from + "\" to=\"" + to + "\" at " + time
+                        + " (status: " + status + "):\n" + message);
     }
 
     /**
@@ -256,17 +252,16 @@ public class SipLogger
     public void logMessage(SIPMessage message, String from, String to,
                            String status, boolean sender)
     {
+        String msgHeader;
+
         if(sender)
-        {
-            logger.trace("JAIN-SIP sent message from \"" + from
-                         + "\" to \"" + to + "\" (status: " + status
-                         + "):\n" + message);
-        }
+            msgHeader = "JAIN-SIP sent a message from=\"";
         else
-        {
-            logger.trace("JAIN-SIP received message from \"" + from
-                         + "\" to \"" + to + "\" (status: " + status
-                         + "):\n" + message); }
+            msgHeader = "JAIN-SIP received a message from=\"";
+
+
+        logger.info(msgHeader + from + "\" to=\"" + to + "\" (status: "
+                        + status + "):\n" + message);
     }
 
     /**

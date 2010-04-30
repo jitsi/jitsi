@@ -301,6 +301,8 @@ public class LaunchArgHandler
 
     /**
      * Instructs SIP Communicator to print logging messages to the console.
+     *
+     * @param the debug arg which we are not really using in this method.
      */
     private void handleDebugArg(String arg)
     {
@@ -329,7 +331,7 @@ public class LaunchArgHandler
             rootLogger.addHandler(conHan);
         }
 
-        conHan.setLevel(Level.FINEST);
+        //conHan.setLevel(Level.SEVERE);
     }
 
     /**
