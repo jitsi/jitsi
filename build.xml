@@ -2234,6 +2234,7 @@ org.apache.http.util"/>
                     org.bouncycastle.crypto.digests,
                     org.bouncycastle.crypto.macs,
                     org.bouncycastle.crypto.params,
+                	org.bouncycastle.crypto.prng,
                     org.bouncycastle.crypto.engines,
                     org.bouncycastle.crypto.modes"/>
                 <attribute name="Bundle-Name" value="ZRTP4J"/>
@@ -2275,6 +2276,7 @@ org.apache.http.util"/>
                     org.bouncycastle.crypto.digests,
                     org.bouncycastle.crypto.macs,
                     org.bouncycastle.crypto.params,
+                	org.bouncycastle.crypto.prng,
                     org.bouncycastle.crypto.engines,
                     org.bouncycastle.crypto.modes,
                     org.bouncycastle.crypto.generators,

@@ -134,6 +134,9 @@ public class NeomediaActivator
                 1100),
             null);
 
+        GatherEntropy entropy = new GatherEntropy(mediaServiceImpl.getDeviceConfiguration());
+        entropy.setEntropy();
+        
         //we use the nist-sdp stack to make parse sdp and we need to set the
         //following property to make sure that it would accept java generated
         //IPv6 addresses that contain address scope zones.
