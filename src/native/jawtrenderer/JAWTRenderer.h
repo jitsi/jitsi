@@ -7,7 +7,7 @@
 void JAWTRenderer_close
     (JNIEnv *jniEnv, jclass clazz, jlong handle, jobject component);
 jlong JAWTRenderer_open(JNIEnv *jniEnv, jclass clazz, jobject component);
-void JAWTRenderer_paint
+jboolean JAWTRenderer_paint
     (JAWT_DrawingSurfaceInfo *dsi, jclass clazz, jlong handle, jobject g);
 jboolean JAWTRenderer_process
     (JNIEnv *jniEnv, jclass clazz,

@@ -26,9 +26,9 @@ JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_medi
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer
  * Method:    paint
- * Signature: (JLjava/awt/Component;Ljava/awt/Graphics;)V
+ * Signature: (JLjava/awt/Component;Ljava/awt/Graphics;)Z
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer_paint
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer_paint
   (JNIEnv *, jclass, jlong, jobject, jobject);
 
 /*

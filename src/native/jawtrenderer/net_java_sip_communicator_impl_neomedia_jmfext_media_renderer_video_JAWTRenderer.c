@@ -15,14 +15,16 @@ Java_net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRen
     return JAWTRenderer_open(jniEnv, clazz, component);
 }
 
-JNIEXPORT void JNICALL
+JNIEXPORT jboolean JNICALL
 Java_net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer_paint
     (JNIEnv *jniEnv, jclass clazz, jlong handle, jobject component, jobject g)
 
 {
     JAWT awt;
+    jboolean wantsPaint;
 
     awt.version = JAWT_VERSION_1_3;
+    wantsPaint = JNI_TRUE;
     if (JAWT_GetAWT(jniEnv, &awt) != JNI_FALSE)
     {
         JAWT_DrawingSurface *ds;
@@ -46,7 +48,7 @@ Java_net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRen
                      * the JAWT_DrawingSurface which is itself the value of the
                      * field ds of the JAWT_DrawingSurfaceInfo.
                      */
-                    JAWTRenderer_paint(dsi, clazz, handle, g);
+                    wantsPaint = JAWTRenderer_paint(dsi, clazz, handle, g);
                     ds->FreeDrawingSurfaceInfo(dsi);
                 }
                 ds->Unlock(ds);
@@ -54,6 +56,7 @@ Java_net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRen
             awt.FreeDrawingSurface(ds);
         }
     }
+    return wantsPaint;
 }
 
 JNIEXPORT jboolean JNICALL

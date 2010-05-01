@@ -141,14 +141,47 @@ public class JAWTRenderer
         {
             component = new Canvas()
             {
+                /**
+                 * The indicator which determines whether the native counterpart
+                 * of this <tt>JAWTRenderer</tt> wants <tt>paint</tt> calls on
+                 * its AWT <tt>Component</tt> to be delivered. For example,
+                 * after the native counterpart has been able to acquire the
+                 * native handle of the AWT <tt>Component</tt>, it may be able
+                 * to determine when the native handle needs painting without
+                 * waiting for AWT to call <tt>paint</tt> on the
+                 * <tt>Component</tt>. In such a scenario, the native
+                 * counterpart may indicate with <tt>false</tt> that it does not
+                 * need further <tt>paint</tt> deliveries.
+                 */
+                private boolean wantsPaint = true;
+
+                @Override
+                public void addNotify()
+                {
+                    super.addNotify();
+
+                    wantsPaint = true;
+                }
+
                 @Override
                 public void paint(Graphics g)
                 {
                     synchronized (JAWTRenderer.this)
                     {
-                        if (handle != 0)
-                            JAWTRenderer.this.paint(handle, this, g);
+                        if (wantsPaint && (handle != 0))
+                        {
+                            wantsPaint
+                                = JAWTRenderer.this.paint(handle, this, g);
+                        }
                     }
+                }
+
+                @Override
+                public void removeNotify()
+                {
+                    wantsPaint = true;
+
+                    super.removeNotify();
                 }
             };
         }
@@ -228,8 +261,17 @@ public class JAWTRenderer
      * <tt>paint</tt>.
      * @param g the <tt>Graphics</tt> context into which the drawing is to be
      * performed
+     * @return <tt>true</tt> if the native counterpart of a
+     * <tt>JAWTRenderer</tt> wants to continue receiving the <tt>paint</tt>
+     * calls on the AWT <tt>Component</tt>; otherwise, false. For example, after
+     * the native counterpart has been able to acquire the native handle of the
+     * AWT <tt>Component</tt>, it may be able to determine when the native
+     * handle needs painting without waiting for AWT to call <tt>paint</tt> on
+     * the <tt>Component</tt>. In such a scenario, the native counterpart may
+     * indicate with <tt>false</tt> that it does not need further <tt>paint</tt>
+     * deliveries.
      */
-    private static native void paint(
+    private static native boolean paint(
             long handle, Component component, Graphics g);
 
     /**
