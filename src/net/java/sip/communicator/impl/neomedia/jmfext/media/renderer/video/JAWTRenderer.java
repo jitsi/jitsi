@@ -183,6 +183,13 @@ public class JAWTRenderer
 
                     super.removeNotify();
                 }
+
+                @Override
+                public void update(Graphics g)
+                {
+                    /* do not clear screen since it cause flickering */
+                    paint(g);
+                }
             };
         }
         return component;

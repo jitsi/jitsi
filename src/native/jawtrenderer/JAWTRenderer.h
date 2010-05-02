@@ -4,6 +4,10 @@
 #include <jni.h>
 #include <jawt.h>
 
+#ifdef __cplusplus
+extern "C" { /* } */
+#endif
+
 void JAWTRenderer_close
     (JNIEnv *jniEnv, jclass clazz, jlong handle, jobject component);
 jlong JAWTRenderer_open(JNIEnv *jniEnv, jclass clazz, jobject component);
@@ -14,5 +18,9 @@ jboolean JAWTRenderer_process
      jlong handle, jobject component,
      jint *data, jint length,
      jint width, jint height);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _JAWTRENDERER_H_ */

@@ -1,0 +1,19 @@
+##
+# \file Makefile
+# \brief Windows (Visual C++) makefile.
+# \author Sebastien Vincent
+
+CC = cl
+JNI_HEADERS = /I%JAVA_HOME%\include /I%JAVA_HOME%\include\win32
+DX_HEADERS = /I"C:\Program Files\Microsoft DirectX SDK (February 2010)\Include"
+# change x86 to x64 to compile on 64-bit Windows
+LIBS = /link /LIBPATH:"C:\Program Files\Microsoft DirectX SDK (February 2010)\lib\x86" /LIBPATH:%JAVA_HOME%\lib /out:jawtrenderer.dll
+CFLAGS = $(JNI_HEADERS) $(DX_HEADERS)
+
+OBJS = net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer.c JAwtRenderer_Windows.cpp windows\d3d_context.cpp windows\d3d_device.cpp windows\d3d_surface.cpp
+
+jawtrenderer.dll: clean 
+	$(CC) $(CFLAGS) /LD $(OBJS) $(LIBS) d3d9.lib d3dx9.lib user32.lib jawt.lib
+clean:
+	del *.exp *.lib *.dll *.obj *.manifest 
+

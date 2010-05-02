@@ -47,8 +47,13 @@ public class ImageStream
     /**
      * Native buffer pointer.
      */
-    ByteBuffer data = null;
+    private ByteBuffer data = null;
 
+    /**
+     * If stream has been reinitialized.
+     */
+    private boolean reinit = false;
+    
     /**
      * Initializes a new <tt>ImageStream</tt> instance which is to have a
      * specific <tt>FormatControl</tt>
@@ -116,11 +121,6 @@ public class ImageStream
 
             if(readScreenNative(bufferFrameSize))
             {
-                /*
-                 * FIXME Since data is a field, the methods read and stop are
-                 * not synchronized and readScreeNative takes a lot of time,
-                 * data.ptr often results in a NullPointerException.
-                 */
                 FFmpeg.avpicture_fill(
                         bufferFramePtr,
                         data.ptr,
@@ -202,6 +202,7 @@ public class ImageStream
                 logger.warn("Cannot create DesktopInteract object!");
             }
         }
+        reinit = true;
     }
 
     /**
@@ -213,9 +214,6 @@ public class ImageStream
     public void stop()
     {
         logger.info("Stop stream");
-
-        /* native pointer is freed in FinalizableAVFrame */
-        data = null;
     }
 
     /**
@@ -232,10 +230,11 @@ public class ImageStream
         size += FFmpeg.FF_INPUT_BUFFER_PADDING_SIZE;
 
         /* allocate native array */
-        if(data == null)
+        if(data == null || reinit)
         {
             data = new ByteBuffer(size);
             data.setLength(size);
+            reinit = false;
         }
         else if(data.capacity < size)
         {
