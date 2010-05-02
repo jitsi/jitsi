@@ -162,12 +162,21 @@ public class MasterPortAudioStream
         }
 
         /*
-         * Attempting to reuse the data of the specified buffer in order to
-         * decrease the unnecessary allocations is not currently implemented.
+         * If buffer conatins a data area then check if the type and 
+         * length fits. If yes then use it, otherwise allocate a new
+         * area and set it in buffer.
          */
-        int bufferLength = bytesPerBuffer;
-        byte[] bufferData = new byte[bufferLength];
-
+        Object data = buffer.getData();
+        byte[] bufferData;
+        if (data instanceof byte[] && ((byte[])data).length >= bytesPerBuffer) {
+            bufferData = (byte[])data;
+        }
+        else
+        {
+            bufferData = new byte[bytesPerBuffer];
+            buffer.setData(bufferData);
+        }
+        
         synchronized (connectedToStreamSync)
         {
             PortAudio.Pa_ReadStream(stream, bufferData, framesPerBuffer);
@@ -175,9 +184,8 @@ public class MasterPortAudioStream
 
         long bufferTimeStamp = System.nanoTime();
 
-        buffer.setData(bufferData);
         buffer.setFlags(Buffer.FLAG_SYSTEM_TIME);
-        buffer.setLength(bufferLength);
+        buffer.setLength(bytesPerBuffer);
         buffer.setOffset(0);
         buffer.setTimeStamp(bufferTimeStamp);
 
@@ -187,7 +195,7 @@ public class MasterPortAudioStream
         {
             slaves
                 .get(slaveIndex)
-                    .setBuffer(bufferData, bufferLength, bufferTimeStamp);
+                    .setBuffer(bufferData, bytesPerBuffer, bufferTimeStamp);
         }
     }
 

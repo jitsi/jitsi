@@ -91,7 +91,26 @@ public class InputPortAudioStream
             }
             else
             {
-                buffer.setData(bufferData);
+                /*
+                 * If buffer conatins a data area then check if the type and 
+                 * length fits. If yes then use it, otherwise allocate a new
+                 * area and set it in buffer.
+                 * 
+                 * In case we can re-use the data area: copy the data, don't
+                 * just set the bufferData into buffer because bufferData 
+                 * points to a data area in another buffer instance.
+                 */
+                Object data = buffer.getData();
+                byte[] tmpArray;
+                if (data instanceof byte[] && ((byte[])data).length >= bufferLength) {
+                    tmpArray = (byte[])data;
+                }
+                else
+                {
+                    tmpArray = new byte[bufferLength];
+                    buffer.setData(tmpArray);
+                }
+                System.arraycopy(bufferData, 0, tmpArray, 0, bufferLength);
                 buffer.setFlags(Buffer.FLAG_SYSTEM_TIME);
                 buffer.setLength(bufferLength);
                 buffer.setOffset(0);
