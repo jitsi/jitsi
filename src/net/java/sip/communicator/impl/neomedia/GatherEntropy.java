@@ -34,12 +34,46 @@ public class GatherEntropy {
      * Device config to look for catpture devices.
      */
     private DeviceConfiguration deviceConfiguration;
+    
+    /**
+     * Other methods shall/may check this to see if Fortuna was seeded with
+     * entropy.
+     */
+    private static boolean entropyOk = false;
+    
+    /**
+     * Number of gathered entropy bytes.
+     */
+    private int gatheredEntropy = 0;
+
+    /**
+     * How many audio frames to read. The current value is based on 20ms
+     * frames (50 frames per second). Read 2 seconds of audio frames.
+     */
+    final private static int NUM_OF_FRAMES = 2*50;
+
 
     public GatherEntropy(DeviceConfiguration deviceConfiguration) 
     {
         this.deviceConfiguration = deviceConfiguration;
     }
     
+    /**
+     * Get status of entropy flag.
+     * 
+     * @return Status if entropy was gathered and set in Fortuna PRNG. 
+     */
+    public static boolean isEntropyOk()
+    {
+        return entropyOk;
+    }
+    
+    /**
+     * @return the number of gathered entropy bytes.
+     */
+    protected int getGatheredEntropy() {
+        return gatheredEntropy;
+    }
     /**
      * Set entropy to ZrtpFortuna singleton.
      * 
@@ -52,87 +86,95 @@ public class GatherEntropy {
     public boolean setEntropy()
     {
         boolean retValue = false;
-        ZrtpFortuna fortuna = ZrtpFortuna.getInstance();
-        
-        byte entropy[] = readAudioEntropy();
-        if (entropy != null) {
-            fortuna.addSeedMaterial(0, entropy, 0, entropy.length);
-            retValue = true;
+        if (deviceConfiguration.getAudioSystem().equals(
+                DeviceConfiguration.AUDIO_SYSTEM_JAVASOUND))
+        {
+            // retValue = readJMFAudioEntropy();
+        }
+        else if (deviceConfiguration.getAudioSystem().equals(
+                DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
+        {
+            GatherPortAudio gatherer = new GatherPortAudio();
+            retValue = gatherer.preparePortAudioEntropy();
+            if (retValue)
+            {
+                gatherer.start();
+            }
         }
         return retValue;
     }
     
-    /**
-     * Read entropy data from audio capture device.
-     * 
-     * The method checks which audio systems are available and calls the
-     * appropriate method the get some random data.
-     * 
-     * @return Audio data from capture (microphone) device or null if
-     *         no data was available.
-     * 
-     */
-    private byte[] readAudioEntropy()
+    private class GatherPortAudio extends Thread
     {
-        try
+        private InputPortAudioStream portAudioStream = null;
+        
+        /**
+         * Prepares to read entropy data from portaudio capture device.
+         * 
+         * The method gets an PortAudio instance with a set of capture 
+         * parameters.
+         * 
+         * @return True if the PortAudio input stream is available. 
+         */
+        private boolean preparePortAudioEntropy()
         {
-            if(deviceConfiguration.getAudioSystem().equals(
-                DeviceConfiguration.AUDIO_SYSTEM_JAVASOUND))
-            {
-                // return readJMFAudioEntropy();
-            }
-            else if(deviceConfiguration.getAudioSystem().equals(
-                DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
-            {
-                return readPortAudioEntropy();
-            }
-            else 
-                return null;
-        }
-        catch (Throwable e)
-        {
-            // Cannot create audio to read entropy
-            return null;
-        }
-        return null;
-    }
-    
-    /**
-     * Read entropy data from portaudio capture device.
-     * 
-     * The method reads audio samples from the microphone, combines them and 
-     * returns the data. 
-     * 
-     * @return Audio data from capture (microphone) device or null if no data
-     *         was available.
-     * 
-     * @throws PortAudioException
-     */
-    private byte[] readPortAudioEntropy() throws PortAudioException 
-    {
-        int deviceIndex = PortAudioUtils
-                .getDeviceIndexFromLocator(deviceConfiguration
-                        .getAudioCaptureDevice().getLocator());
+            int deviceIndex = PortAudioUtils
+            .getDeviceIndexFromLocator(deviceConfiguration
+                    .getAudioCaptureDevice().getLocator());
 
-        InputPortAudioStream portAudioStream = PortAudioManager.getInstance()
+            try {
+                portAudioStream = PortAudioManager.getInstance()
                 .getInputStream(deviceIndex, 8000.0, 1);
-        Buffer firstBuf = new Buffer();
-        Buffer secondBuf = new Buffer();
-
-        portAudioStream.start();
-        portAudioStream.read(firstBuf);
-        portAudioStream.read(secondBuf);
-        portAudioStream.stop();
-
-        // make sure we have enough data
-        int length = firstBuf.getLength() + secondBuf.getLength();
-        if (length < 64) {
-            return null;
+            } catch (PortAudioException e) {
+                return false;
+            }
+            return true;
         }
-        byte[] returnData = new byte[length];
-        System.arraycopy(firstBuf.getData(), 0, returnData, 0, firstBuf.getLength());
-        System.arraycopy(secondBuf.getData(), 0, returnData, firstBuf.getLength(), secondBuf.getLength());
 
-        return returnData;
+        /**
+         * Gather entropy from portaudio capture devcie and seed Fortuna PRNG.
+         * 
+         * The method gathers a number of samples and seeds the Fortuna PRNG.
+         */
+        public void run() {
+            
+            ZrtpFortuna fortuna = ZrtpFortuna.getInstance();
+            
+            Buffer firstBuf = new Buffer();
+
+            if (portAudioStream == null) {
+                return;
+            }
+            
+            try {
+                portAudioStream.start();
+                
+                for (int i = 0; i < NUM_OF_FRAMES; i++) 
+                {
+                    portAudioStream.read(firstBuf);
+                    byte[] entropy = (byte[])firstBuf.getData();
+                    gatheredEntropy += entropy.length;
+                    // distribute first buffers evenly over the pools, put
+                    // others on the first pools. This method is adapted to
+                    // SC requirements to get random data
+                    if (i < 32)
+                    {
+                        fortuna.addSeedMaterial(entropy);
+                    }
+                    else 
+                    {
+                        fortuna.addSeedMaterial((i%3), entropy, 0, entropy.length);
+                    }
+                }
+                entropyOk = true;
+                portAudioStream.stop();
+            } catch (PortAudioException e) {
+                // ignore exception
+            }
+            // this forces a Fortuna to use the new seed (entropy) data.
+            byte[] random = new byte[300];
+            fortuna.nextBytes(random);
+            return;
+        }
     }
 }
