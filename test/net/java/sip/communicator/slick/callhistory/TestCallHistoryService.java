@@ -317,12 +317,12 @@ public class TestCallHistoryService
 
         Collection<CallRecord> lastCall = callHistoryService.findLast(1);
 
-        assertEquals("There must be 1 Call", lastCall.size(), 1);
+        assertEquals("There must be 1 Call", 1, lastCall.size());
 
         CallRecord callRecord = lastCall.iterator().next();
 
         assertEquals("There must be 2 participants in the call",
-                     callRecord.getPeerRecords().size(), 2);
+                     2, callRecord.getPeerRecords().size());
 
         CallPeerRecord callP1 =
             callRecord.findPeerRecord(partAddresses[0]);

@@ -345,7 +345,10 @@ public class CallHistoryServiceImpl
         if (this.historyService.isHistoryExisting(historyId))
         {
             retVal = this.historyService.getHistory(historyId);
-        } else {
+            retVal.setHistoryRecordsStructure(recordStructure);
+        }
+        else
+        {
             retVal = this.historyService.createHistory(historyId,
                     recordStructure);
         }
@@ -891,11 +894,14 @@ public class CallHistoryServiceImpl
      * @param callPeer CallPeer
      * @param srcCall Call
      */
-    private void handlePeerRemoved(CallPeer callPeer,
-        Call srcCall)
+    private void handlePeerRemoved( CallPeer callPeer,
+                                    Call srcCall)
     {
         CallRecord callRecord = findCallRecord(srcCall);
         String pAddress = callPeer.getAddress();
+
+        if (callRecord == null)
+            return;
 
         CallPeerRecordImpl cpRecord =
             (CallPeerRecordImpl)callRecord.findPeerRecord(pAddress);
@@ -1105,17 +1111,17 @@ public class CallHistoryServiceImpl
             if (callRecord == null)
                 return;
 
-            if (evt.getNewValue().equals(CallState.CALL_ENDED)
-                && evt.getOldValue().equals(CallState.CALL_INITIALIZATION))
+            if (evt.getNewValue().equals(CallState.CALL_ENDED))
             {
-                callRecord.setEndTime(callRecord.getStartTime());
+                if(evt.getOldValue().equals(CallState.CALL_INITIALIZATION))
+                    callRecord.setEndTime(callRecord.getStartTime());
+                else
+                    callRecord.setEndTime(new Date());
+
+                writeCall(callRecord, null, null);
+
+                currentCallRecords.remove(callRecord);
             }
-            else
-                callRecord.setEndTime(new Date());
-
-            writeCall(callRecord, null, null);
-
-            currentCallRecords.remove(callRecord);
         }
     }
 

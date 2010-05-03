@@ -41,6 +41,15 @@ public class HistoryImpl implements History {
     private SortedMap<String, Object> historyDocuments
         = new TreeMap<String, Object>();
 
+    /**
+     * Creates an instance of <tt>HistoryImpl</tt> by specifying the history
+     * identifier, the directory, the <tt>HistoryRecordStructure</tt> to use
+     * and the parent <tt>HistoryServiceImpl</tt>.
+     * @param id the identifier
+     * @param directory the directory
+     * @param historyRecordStructure the structure
+     * @param historyServiceImpl the parent history service
+     */
     protected HistoryImpl(HistoryID id, File directory,
             HistoryRecordStructure historyRecordStructure,
             HistoryServiceImpl historyServiceImpl)
@@ -68,16 +77,44 @@ public class HistoryImpl implements History {
         }
     }
 
+    /**
+     * Returns the identifier of this history.
+     * @return the identifier of this history
+     */
     public HistoryID getID()
     {
         return this.id;
     }
 
+    /**
+     * Returns the current <tt>HistoryRecordStructure</tt>.
+     * @return the current <tt>HistoryRecordStructure</tt>
+     */
     public HistoryRecordStructure getHistoryRecordsStructure()
     {
         return this.historyRecordStructure;
     }
 
+    /**
+     * Sets the given <tt>structure</tt> to be the new history records
+     * structure used in this history implementation.
+     * @param structure the new <tt>HistoryRecordStructure</tt> to use
+     */
+    public void setHistoryRecordsStructure(HistoryRecordStructure structure)
+    {
+        this.historyRecordStructure = structure;
+
+        try
+        {
+            File dbDatFile = new File(directory, HistoryServiceImpl.DATA_FILE);
+            DBStructSerializer dbss = new DBStructSerializer(historyServiceImpl);
+            dbss.writeHistory(dbDatFile, this);
+        }
+        catch (IOException e)
+        {
+            log.debug("Could not create new history structure");
+        }
+    }
     public HistoryReader getReader()
     {
         if (this.reader == null)

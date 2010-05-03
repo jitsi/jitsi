@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -13,10 +14,10 @@
    height="1052.3622047"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
-   sodipodi:docbase="/home/yana/images"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="outgoingCall.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   version="1.1">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -97,7 +98,7 @@
        xlink:href="#linearGradient15050"
        id="linearGradient7412"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.438973,0.374357,0.330097,-0.387072,142.9729,539.0856)"
+       gradientTransform="matrix(-0.438973,0.374357,-0.330097,-0.387072,294.73657,539.0856)"
        x1="-33.99184"
        y1="251.34933"
        x2="-13.660458"
@@ -107,7 +108,7 @@
        xlink:href="#linearGradient20674"
        id="linearGradient7415"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.63168,0.538698,0.464872,-0.54511,113.6667,584.4578)"
+       gradientTransform="matrix(-0.63168,0.538698,-0.464872,-0.54511,324.04277,584.4578)"
        x1="-25.239761"
        y1="254.02179"
        x2="-9.0964222"
@@ -189,10 +190,11 @@
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:window-width="1280"
-     inkscape:window-height="800"
+     inkscape:window-height="778"
      inkscape:window-x="0"
      inkscape:window-y="22"
-     showgrid="false" />
+     showgrid="false"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -201,6 +203,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -217,9 +220,9 @@
        y="419.6701"
        rx="7.0000005"
        ry="7.0000005"
-       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/outgoingCall.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90" />
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/outgoingCall.png"
+       inkscape:export-xdpi="78.306297"
+       inkscape:export-ydpi="78.306297" />
     <rect
        style="opacity:0.98999999;fill:url(#linearGradient15439);fill-opacity:1;stroke:none;stroke-width:1.47956574;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect15437"
@@ -229,24 +232,24 @@
        y="421.07907"
        rx="6.9999971"
        ry="6.9999971"
-       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/outgoingCall.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90" />
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/outgoingCall.png"
+       inkscape:export-xdpi="78.306297"
+       inkscape:export-ydpi="78.306297" />
     <path
-       style="fill:url(#linearGradient7415);fill-opacity:1;fill-rule:evenodd;stroke:#335c99;stroke-width:0.53984565;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 211.22716,437.94503 L 210.26392,427.52338 L 220.60311,427.01556 L 217.72853,430.44952 L 227.44555,438.66221 L 223.71046,443.04198 L 213.9986,434.72267 L 211.22716,437.94503 z "
+       style="fill:url(#linearGradient7415);fill-opacity:1;fill-rule:evenodd;stroke:#335c99;stroke-width:0.53984565;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 226.48231,437.94503 0.96324,-10.42165 -10.33919,-0.50782 2.87458,3.43396 -9.71702,8.21269 3.73509,4.37977 9.71186,-8.31931 2.77144,3.22236 z"
        id="path6507"
        sodipodi:nodetypes="cccccccc"
-       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/outgoingCall.png"
-       inkscape:export-xdpi="90.000000"
-       inkscape:export-ydpi="90.000000" />
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/outgoingCall.png"
+       inkscape:export-xdpi="78.306297"
+       inkscape:export-ydpi="78.306297" />
     <path
-       style="fill:url(#linearGradient7412);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.65629596;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 212.48871,435.2549 L 211.89114,427.92839 L 219.33726,427.58939 L 217.1107,430.1451 L 226.07415,437.85679 L 222.71365,441.06882 L 213.96737,433.60997 L 212.48871,435.2549 z "
+       style="fill:url(#linearGradient7412);fill-opacity:1;fill-rule:evenodd;stroke:none"
+       d="m 225.22076,435.2549 0.59757,-7.32651 -7.44612,-0.339 2.22656,2.55571 -8.96345,7.71169 3.3605,3.21203 8.74628,-7.45885 1.47866,1.64493 z"
        id="path6509"
        sodipodi:nodetypes="cccccccc"
-       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/outgoingCall.png"
-       inkscape:export-xdpi="90.000000"
-       inkscape:export-ydpi="90.000000" />
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/outgoingCall.png"
+       inkscape:export-xdpi="78.306297"
+       inkscape:export-ydpi="78.306297" />
   </g>
 </svg>

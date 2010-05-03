@@ -32,7 +32,7 @@
       <stop
          id="stop13637"
          offset="0"
-         style="stop-color:#bf0913;stop-opacity:0.98823529;" />
+         style="stop-color:#f1a6aa;stop-opacity:0.98823529;" />
       <stop
          style="stop-color:white;stop-opacity:1;"
          offset="1"
@@ -138,7 +138,7 @@
        xlink:href="#linearGradient15050"
        id="linearGradient13654"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(-0.460625,-0.392816,-0.346379,0.406163,249.5826,327.0912)"
+       gradientTransform="matrix(0.460625,-0.392816,0.346379,0.406163,91.22985,327.0912)"
        x1="-34.269634"
        y1="250.85629"
        x2="-8.8196745"
@@ -148,7 +148,7 @@
        xlink:href="#linearGradient13635-6"
        id="linearGradient13657"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(-0.658391,-0.561477,-0.484531,0.56816,280.0423,280.8889)"
+       gradientTransform="matrix(0.658391,-0.561477,0.484531,0.56816,60.77015,280.8889)"
        x1="-32.972176"
        y1="253.71817"
        x2="-6.5696635"
@@ -185,7 +185,7 @@
        xlink:href="#linearGradient15050-9"
        id="linearGradient13654-5"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(-0.460625,-0.392816,-0.346379,0.406163,285.53351,327.21874)"
+       gradientTransform="matrix(0.460625,-0.392816,0.346379,0.406163,127.18076,327.21874)"
        x1="-34.269634"
        y1="250.85629"
        x2="-1.3157908"
@@ -242,7 +242,8 @@
        y1="420.99265"
        x2="215.59256"
        y2="445.39755"
-       gradientUnits="userSpaceOnUse" />
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-1,0,0,1,412.71427,0)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -255,7 +256,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="3.4472044"
-     inkscape:cx="206.52909"
+     inkscape:cx="152.86241"
      inkscape:cy="618.66359"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -290,9 +291,9 @@
        y="420.86053"
        rx="6.9999971"
        ry="6.9999971"
-       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/incomingCall.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90" />
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/incomingCall.png"
+       inkscape:export-xdpi="78.75"
+       inkscape:export-ydpi="78.75" />
     <rect
        style="opacity:0.98999999;fill:url(#linearGradient13660);fill-opacity:1;stroke:none;stroke-width:1.47956574;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12738"
@@ -302,25 +303,25 @@
        y="422.92633"
        rx="6.9999971"
        ry="6.9999971"
-       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/incomingCall.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90" />
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/incomingCall.png"
+       inkscape:export-xdpi="78.75"
+       inkscape:export-ydpi="78.75" />
     <path
-       style="fill:url(#linearGradient13657);fill-opacity:1.0;fill-rule:evenodd;stroke:#ffd24a;stroke-width:0.56267327000000000;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 178.35631,433.59705 L 179.36031,444.45935 L 168.5839,444.98867 L 171.58005,441.40948 L 161.45214,432.84952 L 165.34516,428.28456 L 175.4677,436.95565 L 178.35631,433.59705 z "
+       style="fill:url(#linearGradient13657);fill-opacity:1;fill-rule:evenodd;stroke:#ffd24a;stroke-width:0.56267327;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 162.45614,433.59705 -1.004,10.8623 10.77641,0.52932 -2.99615,-3.57919 10.12791,-8.55996 -3.89302,-4.56496 -10.12254,8.67109 -2.88861,-3.3586 z"
        id="path12740"
        sodipodi:nodetypes="cccccccc"
-       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/incomingCall.png"
-       inkscape:export-xdpi="90.000000"
-       inkscape:export-ydpi="90.000000" />
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/incomingCall.png"
+       inkscape:export-xdpi="78.75"
+       inkscape:export-ydpi="78.75" />
     <path
-       style="fill:url(#linearGradient13654);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.65629596;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 176.63826,436.04285 L 177.2653,443.73068 L 169.65277,444.18682 L 171.92116,441.25238 L 162.91733,433.68184 L 165.90907,429.9422 L 175.08668,437.7689 L 176.63826,436.04285 z "
+       style="fill:url(#linearGradient13654);fill-opacity:1;fill-rule:evenodd;stroke:none"
+       d="m 164.17419,436.04285 -0.62704,7.68783 7.61253,0.45614 -2.26839,-2.93444 9.00383,-7.57054 -2.99174,-3.73964 -9.17761,7.8267 -1.55158,-1.72605 z"
        id="path12742"
        sodipodi:nodetypes="cccccccc"
-       inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/incomingCall.png"
-       inkscape:export-xdpi="90.000000"
-       inkscape:export-ydpi="90.000000" />
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/incomingCall.png"
+       inkscape:export-xdpi="78.75"
+       inkscape:export-ydpi="78.75" />
     <rect
        style="opacity:0.98999999000000005;fill:#bf0913;fill-opacity:1;stroke:none"
        id="rect12736-4"
@@ -331,8 +332,8 @@
        rx="6.9999971"
        ry="6.9999971"
        inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/missedCall.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90" />
+       inkscape:export-xdpi="78.75"
+       inkscape:export-ydpi="78.75" />
     <rect
        style="opacity:0.98999999;fill:url(#linearGradient13660-4);fill-opacity:1;stroke:none"
        id="rect12738-1"
@@ -343,23 +344,23 @@
        rx="6.9999971"
        ry="6.9999971"
        inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/missedCall.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90" />
+       inkscape:export-xdpi="78.75"
+       inkscape:export-ydpi="78.75" />
     <path
-       style="fill:url(#linearGradient7442);fill-opacity:1;fill-rule:evenodd;stroke:#bf0913;stroke-width:0.56267327000000000;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.98823529000000021;stroke-dasharray:none"
-       d="m 214.30722,433.72459 1.004,10.8623 -10.77641,0.52932 2.99615,-3.57919 -10.12791,-8.55996 3.89302,-4.56496 10.12254,8.67109 2.88861,-3.3586 z"
+       style="fill:url(#linearGradient7442);fill-opacity:1;fill-rule:evenodd;stroke:#bf0913;stroke-width:0.56267327;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.98823529;stroke-dasharray:none"
+       d="m 198.40705,433.72459 -1.004,10.8623 10.77641,0.52932 -2.99615,-3.57919 10.12791,-8.55996 -3.89302,-4.56496 -10.12254,8.67109 -2.88861,-3.3586 z"
        id="path12740-9"
        sodipodi:nodetypes="cccccccc"
        inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/missedCall.png"
-       inkscape:export-xdpi="90.000000"
-       inkscape:export-ydpi="90.000000" />
+       inkscape:export-xdpi="78.75"
+       inkscape:export-ydpi="78.75" />
     <path
        style="fill:url(#linearGradient13654-5);fill-opacity:1;fill-rule:evenodd;stroke:none"
-       d="m 212.58917,436.17039 0.62704,7.68783 -7.61253,0.45614 2.26839,-2.93444 -9.00383,-7.57054 2.99174,-3.73964 9.17761,7.8267 1.55158,-1.72605 z"
+       d="m 200.1251,436.17039 -0.62704,7.68783 7.61253,0.45614 -2.26839,-2.93444 9.00383,-7.57054 -2.99174,-3.73964 -9.17761,7.8267 -1.55158,-1.72605 z"
        id="path12742-0"
        sodipodi:nodetypes="cccccccc"
        inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/missedCall.png"
-       inkscape:export-xdpi="90.000000"
-       inkscape:export-ydpi="90.000000" />
+       inkscape:export-xdpi="78.75"
+       inkscape:export-ydpi="78.75" />
   </g>
 </svg>

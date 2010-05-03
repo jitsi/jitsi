@@ -35,4 +35,10 @@ public interface History {
      */
     HistoryRecordStructure getHistoryRecordsStructure();
 
+    /**
+     * Sets the given <tt>structure</tt> to be the new history records
+     * structure used in this history implementation.
+     * @param structure the new <tt>HistoryRecordStructure</tt> to use
+     */
+    void setHistoryRecordsStructure(HistoryRecordStructure struct);
 }
