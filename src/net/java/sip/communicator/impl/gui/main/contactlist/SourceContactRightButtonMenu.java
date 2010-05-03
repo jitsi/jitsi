@@ -74,7 +74,7 @@ public class SourceContactRightButtonMenu
             final ContactDetail detail = details.next();
             // add all the contacts that support telephony to the call menu
             JMenuItem callContactItem = new JMenuItem();
-            callContactItem.setName(detail.getContactAddress());
+            callContactItem.setText(detail.getContactAddress());
             callContactItem.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
