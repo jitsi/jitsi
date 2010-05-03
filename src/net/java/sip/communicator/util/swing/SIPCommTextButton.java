@@ -27,12 +27,14 @@ public class SIPCommTextButton extends JButton
     private final float[] borderColor
         = Color.DARK_GRAY.getRGBComponents(null);
 
+    private Image bgImage;
+
     /**
      * Creates a <tt>SIPCommTextButton</tt>.
      */
     public SIPCommTextButton()
     {
-        this(null);
+        this("", null);
     }
 
     /**
@@ -41,7 +43,14 @@ public class SIPCommTextButton extends JButton
      */
     public SIPCommTextButton(String text)
     {
+        this(text, null);
+    }
+
+    public SIPCommTextButton(String text, Image bgImage)
+    {
         super(text);
+
+        this.bgImage = bgImage;
 
         MouseRolloverHandler mouseHandler = new MouseRolloverHandler();
 
@@ -55,9 +64,13 @@ public class SIPCommTextButton extends JButton
          * Explicitly remove all borders that may be set from the current look
          * and feel.
          */
-        this.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
         this.setContentAreaFilled(false);
         this.setUI(new BasicButtonUI());
+    }
+
+    public void setBgImage(Image image)
+    {
+        this.bgImage = image;
     }
 
     /**
@@ -101,19 +114,37 @@ public class SIPCommTextButton extends JButton
 
         visibility /= 2;
 
-        g.setColor(getBackground());
-        g.fillRoundRect(1, 1,
-                        this.getWidth() - 2, this.getHeight() - 2,
-                        20, 20);
-
         if (visibility != 0.0f)
         {
             g.setColor(new Color(borderColor[0], borderColor[1],
                     borderColor[2], visibility));
-            g.drawRoundRect(0, 0,
-                            this.getWidth() - 1, this.getHeight() - 1,
+
+            if (bgImage != null)
+                g.fillRoundRect((this.getWidth() - bgImage.getWidth(null))/2,
+                                (this.getHeight() - bgImage.getHeight(null))/2,
+                                bgImage.getWidth(null) - 1,
+                                bgImage.getHeight(null) - 1,
+                                20, 20);
+            else
+                g.fillRoundRect(0, 0,
+                                this.getWidth() - 1, this.getHeight() - 1,
+                                20, 20);
+        }
+
+        if (bgImage != null)
+        {
+            g.drawImage(bgImage,
+                (this.getWidth() - bgImage.getWidth(null))/2,
+                (this.getHeight() - bgImage.getHeight(null))/2, null);
+        }
+        else
+        {
+            g.setColor(getBackground());
+            g.fillRoundRect(1, 1,
+                            this.getWidth() - 2, this.getHeight() - 2,
                             20, 20);
         }
+
     }
 
     /**

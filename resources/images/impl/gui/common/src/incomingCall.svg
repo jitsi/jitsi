@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -13,10 +14,10 @@
    height="1052.3622047"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
-   sodipodi:docbase="/home/yana/images"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="incomingCall.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   version="1.1">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -31,7 +32,7 @@
       <stop
          id="stop13637"
          offset="0"
-         style="stop-color:#fcf8a7;stop-opacity:1;" />
+         style="stop-color:#bf0913;stop-opacity:0.98823529;" />
       <stop
          style="stop-color:white;stop-opacity:1;"
          offset="1"
@@ -144,7 +145,7 @@
        y2="253.88161" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient13635"
+       xlink:href="#linearGradient13635-6"
        id="linearGradient13657"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(-0.658391,-0.561477,-0.484531,0.56816,280.0423,280.8889)"
@@ -172,6 +173,76 @@
        y1="418.1972"
        x2="181.13237"
        y2="440.79761" />
+    <inkscape:perspective
+       id="perspective6867"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient15050-9"
+       id="linearGradient13654-5"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.460625,-0.392816,-0.346379,0.406163,285.53351,327.21874)"
+       x1="-34.269634"
+       y1="250.85629"
+       x2="-1.3157908"
+       y2="251.95337" />
+    <linearGradient
+       id="linearGradient15050-9"
+       inkscape:collect="always">
+      <stop
+         id="stop15052-0"
+         offset="0"
+         style="stop-color:#ffffff;stop-opacity:1;" />
+      <stop
+         id="stop15054-1"
+         offset="1"
+         style="stop-color:#ffffff;stop-opacity:0;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient13635-6">
+      <stop
+         id="stop13637-9"
+         offset="0"
+         style="stop-color:#fcf8a7;stop-opacity:1;" />
+      <stop
+         style="stop-color:white;stop-opacity:1;"
+         offset="1"
+         id="stop13639-0" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5608-0"
+       id="linearGradient13660-4"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.938914,0,0,0.938914,44.273352,29.88622)"
+       x1="158.55054"
+       y1="418.1972"
+       x2="181.13237"
+       y2="440.79761" />
+    <linearGradient
+       id="linearGradient5608-0">
+      <stop
+         style="stop-color:white;stop-opacity:1;"
+         offset="0"
+         id="stop5610-2" />
+      <stop
+         style="stop-color:#f9ffc5;stop-opacity:0;"
+         offset="1"
+         id="stop5612-4" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient13635"
+       id="linearGradient7442"
+       x1="189.36821"
+       y1="420.99265"
+       x2="215.59256"
+       y2="445.39755"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -183,16 +254,17 @@
      objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.8750832"
-     inkscape:cx="219.40637"
-     inkscape:cy="617.51596"
+     inkscape:zoom="3.4472044"
+     inkscape:cx="206.52909"
+     inkscape:cy="618.66359"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:window-width="1280"
-     inkscape:window-height="800"
+     inkscape:window-height="778"
      inkscape:window-x="0"
      inkscape:window-y="22"
-     showgrid="false" />
+     showgrid="false"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -201,6 +273,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -233,7 +306,7 @@
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <path
-       style="fill:url(#linearGradient13657);fill-opacity:1;fill-rule:evenodd;stroke:#ffd24a;stroke-width:0.56267327;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:url(#linearGradient13657);fill-opacity:1.0;fill-rule:evenodd;stroke:#ffd24a;stroke-width:0.56267327000000000;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 178.35631,433.59705 L 179.36031,444.45935 L 168.5839,444.98867 L 171.58005,441.40948 L 161.45214,432.84952 L 165.34516,428.28456 L 175.4677,436.95565 L 178.35631,433.59705 z "
        id="path12740"
        sodipodi:nodetypes="cccccccc"
@@ -246,6 +319,46 @@
        id="path12742"
        sodipodi:nodetypes="cccccccc"
        inkscape:export-filename="/home/yana/workspace/sip-communicator-1-0-draft/src/net/java/sip/communicator/impl/gui/resources/common/incomingCall.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <rect
+       style="opacity:0.98999999000000005;fill:#bf0913;fill-opacity:1;stroke:none"
+       id="rect12736-4"
+       width="32"
+       height="32"
+       x="190.7657"
+       y="420.9881"
+       rx="6.9999971"
+       ry="6.9999971"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/missedCall.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="opacity:0.98999999;fill:url(#linearGradient13660-4);fill-opacity:1;stroke:none"
+       id="rect12738-1"
+       width="28.826275"
+       height="28.826275"
+       x="192.63022"
+       y="423.05389"
+       rx="6.9999971"
+       ry="6.9999971"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/missedCall.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:url(#linearGradient7442);fill-opacity:1;fill-rule:evenodd;stroke:#bf0913;stroke-width:0.56267327000000000;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.98823529000000021;stroke-dasharray:none"
+       d="m 214.30722,433.72459 1.004,10.8623 -10.77641,0.52932 2.99615,-3.57919 -10.12791,-8.55996 3.89302,-4.56496 10.12254,8.67109 2.88861,-3.3586 z"
+       id="path12740-9"
+       sodipodi:nodetypes="cccccccc"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/missedCall.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000" />
+    <path
+       style="fill:url(#linearGradient13654-5);fill-opacity:1;fill-rule:evenodd;stroke:none"
+       d="m 212.58917,436.17039 0.62704,7.68783 -7.61253,0.45614 2.26839,-2.93444 -9.00383,-7.57054 2.99174,-3.73964 9.17761,7.8267 1.55158,-1.72605 z"
+       id="path12742-0"
+       sodipodi:nodetypes="cccccccc"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/common/missedCall.png"
        inkscape:export-xdpi="90.000000"
        inkscape:export-ydpi="90.000000" />
   </g>

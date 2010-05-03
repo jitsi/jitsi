@@ -66,7 +66,7 @@ public class ContactList
 
     private GroupRightButtonMenu groupRightButtonMenu;
 
-    private ContactRightButtonMenu contactRightButtonMenu;
+    private MetaContactRightButtonMenu contactRightButtonMenu;
 
     /**
      * A list of all contacts that are currently "active". An "active" contact
@@ -391,15 +391,16 @@ public class ContactList
      * <tt>ContactListListener</tt>s that a contact is selected.
      *
      * @param sourceContact the contact that this event is about
-     * @param protocolContact the protocol contact the this event is about
      * @param eventID the id indicating the exact type of the event to fire.
+     * @param clickCount 
      */
-    public void fireContactListEvent(MetaContact sourceContact,
-        Contact protocolContact, int eventID)
+    public void fireContactListEvent(   MetaContact sourceContact,
+                                        int eventID,
+                                        int clickCount)
     {
         fireContactListEvent(
             contactListListeners,
-            new ContactListEvent(sourceContact, protocolContact, eventID));
+            new ContactListEvent(sourceContact, eventID, clickCount));
     }
 
     /**
@@ -420,11 +421,8 @@ public class ContactList
                 case ContactListEvent.CONTACT_CLICKED:
                     listener.contactClicked(event);
                     break;
-                case ContactListEvent.PROTOCOL_CONTACT_CLICKED:
-                    listener.protocolContactClicked(event);
-                    break;
                 case ContactListEvent.GROUP_CLICKED:
-                    listener.groupSelected(event);
+                    listener.groupClicked(event);
                     break;
                 default:
                     logger.error("Unknown event type " + event.getEventID());
@@ -542,10 +540,6 @@ public class ContactList
         {
             MetaContact contact = (MetaContact) selectedValue;
 
-            // get the component under the mouse
-            Component component = this.getHorizontalComponent(renderer,
-                translatedX);
-
             // Right click and Ctrl+LeftClick on the contact label opens
             // Popup menu
             if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
@@ -627,40 +621,6 @@ public class ContactList
     public void setDisableOpenClose(boolean disableOpenClose)
     {
         this.disableOpenClose = disableOpenClose;
-    }
-
-    /**
-     * Runs the info window for the specified contact at the appropriate
-     * position.
-     */
-    private class RunInfoWindow
-        implements Runnable
-    {
-        private final MetaContact contactItem;
-
-        private final Point p;
-
-        private RunInfoWindow(Point p, MetaContact contactItem)
-        {
-
-            this.p = p;
-            this.contactItem = contactItem;
-        }
-
-        public void run()
-        {
-            ContactInfoDialog contactInfoPanel
-                = new ContactInfoDialog(mainFrame, contactItem);
-
-            SwingUtilities.convertPointToScreen(p, ContactList.this);
-
-            // TODO: to calculate popup window position properly.
-            contactInfoPanel.setPopupLocation(p.x - 140, p.y - 15);
-
-            contactInfoPanel.setVisible(true);
-
-            contactInfoPanel.requestFocusInWindow();
-        }
     }
 
     /**
@@ -977,7 +937,7 @@ public class ContactList
      *
      * @return the right button menu for a contact
      */
-    public ContactRightButtonMenu getContactRightButtonMenu()
+    public MetaContactRightButtonMenu getContactRightButtonMenu()
     {
         return contactRightButtonMenu;
     }

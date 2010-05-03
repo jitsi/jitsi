@@ -1,29 +1,60 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.service.callhistory;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.*;
+
 /**
  * Structure used for encapsulating data when writing or reading
- * Call History Data. Also These records are uesd for returning data
- * from the Call History Service
+ * Call History Data. Also these records are used for returning data
+ * from the Call History Service.
  *
  * @author Damian Minkov
+ * @author Yana Stamcheva
  */
 public class CallRecord
 {
     /**
-     * Possible directions of the call
+     * The outgoing call direction.
      */
     public final static String OUT = "out";
+
+    /**
+     * The incoming call direction.
+     */
     public final static String IN = "in";
 
+    /**
+     * Indicates the direction of the call - IN or OUT.
+     */
     protected String direction = null;
 
+    /**
+     * A list of all peer records corresponding to this call record.
+     */
     protected final List<CallPeerRecord> peerRecords =
         new Vector<CallPeerRecord>();
 
+    /**
+     * The start call date.
+     */
     protected Date startTime = null;
+
+    /**
+     * The end call date.
+     */
     protected Date endTime = null;
+
+    /**
+     * The protocol provider through which the call was made.
+     */
+    protected ProtocolProviderService protocolProvider;
 
     /**
      * Creates CallRecord
@@ -100,5 +131,15 @@ public class CallRecord
     public Date getStartTime()
     {
         return startTime;
+    }
+
+    /**
+     * Returns the protocol provider used for the call. Could be null if the
+     * record has not saved the provider.
+     * @return the protocol provider used for the call
+     */
+    public ProtocolProviderService getProtocolProvider()
+    {
+        return protocolProvider;
     }
 }

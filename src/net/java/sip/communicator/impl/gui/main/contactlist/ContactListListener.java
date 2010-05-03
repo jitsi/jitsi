@@ -9,28 +9,24 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.util.*;
 
 /**
- * Listens for events coming from the contact list.
- * 
+ * Listens for events coming from mouse events over the contact list. For
+ * example a contact been clicked or a group been selected.
+ *
  * @author Yana Stamcheva
  */
 public interface ContactListListener extends EventListener
 {
     /**
-     * 
-     * @param evt
+     * Indicates that a group has been selected.
+     * @param evt the <tt>ContactListEvent</tt> that has been triggered from
+     * the user selection
      */
-    public void groupSelected(ContactListEvent evt);
-    
+    public void groupClicked(ContactListEvent evt);
+
     /**
-     * 
-     * @param evt
+     * Indicates that a contact has been clicked.
+     * @param evt the <tt>ContactListEvent</tt> that has been triggered from
+     * the user click
      */
     public void contactClicked(ContactListEvent evt);
-    
-    /**
-     * 
-     * @param evt
-     */
-    public void protocolContactClicked(ContactListEvent evt);
-    
 }

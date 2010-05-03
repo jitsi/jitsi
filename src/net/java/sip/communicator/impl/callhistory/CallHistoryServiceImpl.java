@@ -42,8 +42,9 @@ public class CallHistoryServiceImpl
         Logger.getLogger(CallHistoryServiceImpl.class);
 
     private static String[] STRUCTURE_NAMES =
-        new String[] { "callStart", "callEnd", "dir", "callParticipantIDs",
-            "callParticipantStart", "callParticipantEnd","callParticipantStates" };
+        new String[] { "accountUID", "callStart", "callEnd", "dir",
+            "callParticipantIDs", "callParticipantStart",
+            "callParticipantEnd", "callParticipantStates" };
 
     private static HistoryRecordStructure recordStructure =
         new HistoryRecordStructure(STRUCTURE_NAMES);
@@ -59,8 +60,10 @@ public class CallHistoryServiceImpl
 
     private Object syncRoot_HistoryService = new Object();
 
-    private final Map<CallHistorySearchProgressListener, SearchProgressWrapper> progressListeners =
-        new Hashtable<CallHistorySearchProgressListener, SearchProgressWrapper>();
+    private final Map<CallHistorySearchProgressListener, SearchProgressWrapper>
+        progressListeners
+            = new Hashtable<CallHistorySearchProgressListener,
+                            SearchProgressWrapper>();
 
     private final List<CallRecordImpl> currentCallRecords =
         new Vector<CallRecordImpl>();
@@ -68,22 +71,29 @@ public class CallHistoryServiceImpl
     private final CallChangeListener historyCallChangeListener =
         new HistoryCallChangeListener();
 
+    private HistoryReader historyReader;
+
+    /**
+     * Returns the underlying history service.
+     * @return the underlying history service
+     */
     public HistoryService getHistoryService()
     {
         return historyService;
     }
 
     /**
-     * Returns all the calls made by all the contacts
-     * in the supplied metacontact after the given date
+     * Returns all the calls made by all the contacts in the supplied
+     * <tt>contact</tt> after the given date.
      *
      * @param contact MetaContact which contacts participate in
      *      the returned calls
      * @param startDate Date the start date of the calls
-     * @return Collection of CallRecords with CallPeerRecord
+     * @return the <tt>CallHistoryQuery</tt>, corresponding to this find
      * @throws RuntimeException
      */
-    public Collection<CallRecord> findByStartDate(MetaContact contact, Date startDate)
+    public Collection<CallRecord> findByStartDate(
+        MetaContact contact, Date startDate)
         throws RuntimeException
     {
         throw new UnsupportedOperationException("Not implemented yet!");
@@ -93,7 +103,7 @@ public class CallHistoryServiceImpl
      * Returns all the calls made after the given date
      *
      * @param startDate Date the start date of the calls
-     * @return Collection of CallRecords with CallPeerRecord
+     * @return the <tt>CallHistoryQuery</tt>, corresponding to this find
      * @throws RuntimeException
      */
     public Collection<CallRecord> findByStartDate(Date startDate)
@@ -104,16 +114,16 @@ public class CallHistoryServiceImpl
         {
             // the default ones
             History history = this.getHistory(null, null);
-            HistoryReader reader = history.getReader();
-            addHistorySearchProgressListeners(reader, 1);
+            historyReader = history.getReader();
+            addHistorySearchProgressListeners(historyReader, 1);
             QueryResultSet<HistoryRecord> rs
-                = reader.findByStartDate(startDate);
+                = historyReader.findByStartDate(startDate);
             while (rs.hasNext())
             {
                 HistoryRecord hr = rs.next();
                 result.add(convertHistoryRecordToCallRecord(hr));
             }
-            removeHistorySearchProgressListeners(reader);
+            removeHistorySearchProgressListeners(historyReader);
         }
         catch (IOException ex)
         {
@@ -133,7 +143,8 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
-    public Collection<CallRecord> findByEndDate(MetaContact contact, Date endDate)
+    public Collection<CallRecord> findByEndDate(MetaContact contact,
+                                                Date endDate)
         throws RuntimeException
     {
         throw new UnsupportedOperationException("Not implemented yet!");
@@ -146,22 +157,25 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
-    public Collection<CallRecord> findByEndDate(Date endDate) throws RuntimeException
+    public Collection<CallRecord> findByEndDate(Date endDate)
+        throws RuntimeException
     {
-        TreeSet<CallRecord> result = new TreeSet<CallRecord>(new CallRecordComparator());
+        TreeSet<CallRecord> result
+            = new TreeSet<CallRecord>(new CallRecordComparator());
         try
         {
             // the default ones
             History history = this.getHistory(null, null);
-            HistoryReader reader = history.getReader();
-            addHistorySearchProgressListeners(reader, 1);
-            QueryResultSet<HistoryRecord> rs = reader.findByEndDate(endDate);
+            historyReader = history.getReader();
+            addHistorySearchProgressListeners(historyReader, 1);
+            QueryResultSet<HistoryRecord> rs
+                = historyReader.findByEndDate(endDate);
             while (rs.hasNext())
             {
                 HistoryRecord hr = rs.next();
                 result.add(convertHistoryRecordToCallRecord(hr));
             }
-            removeHistorySearchProgressListeners(reader);
+            removeHistorySearchProgressListeners(historyReader);
         }
         catch (IOException ex)
         {
@@ -181,7 +195,8 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
-    public Collection<CallRecord> findByPeriod(MetaContact contact, Date startDate, Date endDate)
+    public Collection<CallRecord> findByPeriod(MetaContact contact,
+        Date startDate, Date endDate)
         throws RuntimeException
     {
         throw new UnsupportedOperationException("Not implemented yet!");
@@ -195,24 +210,25 @@ public class CallHistoryServiceImpl
      * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
-    public Collection<CallRecord> findByPeriod(Date startDate, Date endDate) throws
-        RuntimeException
+    public Collection<CallRecord> findByPeriod(Date startDate, Date endDate)
+        throws RuntimeException
     {
-        TreeSet<CallRecord> result = new TreeSet<CallRecord>(new CallRecordComparator());
+        TreeSet<CallRecord> result
+            = new TreeSet<CallRecord>(new CallRecordComparator());
         try
         {
             // the default ones
             History history = this.getHistory(null, null);
-            HistoryReader reader = history.getReader();
-            addHistorySearchProgressListeners(reader, 1);
+            historyReader = history.getReader();
+            addHistorySearchProgressListeners(historyReader, 1);
             QueryResultSet<HistoryRecord> rs
-                = reader.findByPeriod(startDate, endDate);
+                = historyReader.findByPeriod(startDate, endDate);
             while (rs.hasNext())
             {
                 HistoryRecord hr = rs.next();
                 result.add(convertHistoryRecordToCallRecord(hr));
             }
-            removeHistorySearchProgressListeners(reader);
+            removeHistorySearchProgressListeners(historyReader);
         }
         catch (IOException ex)
         {
@@ -247,13 +263,14 @@ public class CallHistoryServiceImpl
      */
     public Collection<CallRecord> findLast(int count) throws RuntimeException
     {
-        TreeSet<CallRecord> result = new TreeSet<CallRecord>(new CallRecordComparator());
+        TreeSet<CallRecord> result
+            = new TreeSet<CallRecord>(new CallRecordComparator());
         try
         {
             // the default ones
             History history = this.getHistory(null, null);
-            QueryResultSet<HistoryRecord> rs
-                = history.getReader().findLast(count);
+            historyReader = history.getReader();
+            QueryResultSet<HistoryRecord> rs = historyReader.findLast(count);
             while (rs.hasNext())
             {
                 HistoryRecord hr = rs.next();
@@ -277,21 +294,22 @@ public class CallHistoryServiceImpl
     public Collection<CallRecord> findByPeer(String address)
         throws RuntimeException
     {
-        TreeSet<CallRecord> result = new TreeSet<CallRecord>(new CallRecordComparator());
+        TreeSet<CallRecord> result
+            = new TreeSet<CallRecord>(new CallRecordComparator());
         try
         {
             // the default ones
             History history = this.getHistory(null, null);
-            HistoryReader reader = history.getReader();
-            addHistorySearchProgressListeners(reader, 1);
+            historyReader = history.getReader();
+            addHistorySearchProgressListeners(historyReader, 1);
             QueryResultSet<HistoryRecord> rs
-                = reader.findByKeyword(address, "callParticipantIDs");
+                = historyReader.findByKeyword(address, "callParticipantIDs");
             while (rs.hasNext())
             {
                 HistoryRecord hr = rs.next();
                 result.add(convertHistoryRecordToCallRecord(hr));
             }
-            removeHistorySearchProgressListeners(reader);
+            removeHistorySearchProgressListeners(historyReader);
         }
         catch (IOException ex)
         {
@@ -364,19 +382,21 @@ public class CallHistoryServiceImpl
             String propName = hr.getPropertyNames()[i];
             String value = hr.getPropertyValues()[i];
 
-            if(propName.equals(STRUCTURE_NAMES[0]))
-                result.setStartTime(new Date(Long.parseLong(value)));
+            if (propName.equals(STRUCTURE_NAMES[0]))
+                result.setProtocolProvider(getProtocolProvider(value));
             else if(propName.equals(STRUCTURE_NAMES[1]))
-                result.setEndTime(new Date(Long.parseLong(value)));
+                result.setStartTime(new Date(Long.parseLong(value)));
             else if(propName.equals(STRUCTURE_NAMES[2]))
-                result.setDirection(value);
+                result.setEndTime(new Date(Long.parseLong(value)));
             else if(propName.equals(STRUCTURE_NAMES[3]))
-                callPeerIDs = getCSVs(value);
+                result.setDirection(value);
             else if(propName.equals(STRUCTURE_NAMES[4]))
-                callPeerStart = getCSVs(value);
+                callPeerIDs = getCSVs(value);
             else if(propName.equals(STRUCTURE_NAMES[5]))
-                callPeerEnd = getCSVs(value);
+                callPeerStart = getCSVs(value);
             else if(propName.equals(STRUCTURE_NAMES[6]))
+                callPeerEnd = getCSVs(value);
+            else if(propName.equals(STRUCTURE_NAMES[7]))
                 callPeerStates = getStates(value);
         }
 
@@ -557,10 +577,12 @@ public class CallHistoryServiceImpl
      * @param source Contact
      * @param destination Contact
      */
-    private void writeCall(CallRecord callRecord, Contact source,
-            Contact destination)
+    private void writeCall( CallRecordImpl callRecord,
+                            Contact source,
+                            Contact destination)
     {
-        try {
+        try
+        {
             History history = this.getHistory(source, destination);
             HistoryWriter historyWriter = history.getWriter();
 
@@ -589,6 +611,8 @@ public class CallHistoryServiceImpl
             }
 
             historyWriter.addRecord(new String[] {
+                    callRecord.getSourceCall().getProtocolProvider()
+                        .getAccountID().getAccountUniqueID(),
                     String.valueOf(callRecord.getStartTime().getTime()),
                     String.valueOf(callRecord.getEndTime().getTime()),
                     callRecord.getDirection(),
@@ -596,8 +620,10 @@ public class CallHistoryServiceImpl
                     callPeerStartTime.toString(),
                     callPeerEndTime.toString(),
                     callPeerStates.toString()},
-                    new Date()); // this date is when the history record is written
-        } catch (IOException e)
+                    new Date());    // this date is when the history
+                                    // record is written
+        }
+        catch (IOException e)
         {
             logger.error("Could not add call to history", e);
         }
@@ -646,9 +672,11 @@ public class CallHistoryServiceImpl
      */
     public void serviceChanged(ServiceEvent serviceEvent)
     {
-        Object sService = bundleContext.getService(serviceEvent.getServiceReference());
+        Object sService
+            = bundleContext.getService(serviceEvent.getServiceReference());
 
-        logger.trace("Received a service event for: " + sService.getClass().getName());
+        logger.trace("Received a service event for: "
+            + sService.getClass().getName());
 
         // we don't care if the source service is not a protocol provider
         if (! (sService instanceof ProtocolProviderService))
@@ -667,13 +695,12 @@ public class CallHistoryServiceImpl
         {
             this.handleProviderRemoved( (ProtocolProviderService) sService);
         }
-
     }
 
     /**
      * Used to attach the Call History Service to existing or
-     * just registered protocol provider. Checks if the provider has implementation
-     * of OperationSetBasicTelephony
+     * just registered protocol provider. Checks if the provider has
+     * implementation of OperationSetBasicTelephony
      *
      * @param provider ProtocolProviderService
      */
@@ -779,34 +806,6 @@ public class CallHistoryServiceImpl
     }
 
     /**
-     * Gets all the history readers for the contacts in the given MetaContact
-     *
-     * @param contact MetaContact
-     * @return Hashtable
-     */
-    private Map<Contact, HistoryReader> getHistoryReaders(MetaContact contact)
-    {
-        Map<Contact, HistoryReader> readers =
-            new Hashtable<Contact, HistoryReader>();
-        Iterator<Contact> iter = contact.getContacts();
-        while (iter.hasNext())
-        {
-            Contact item = iter.next();
-
-            try
-            {
-                History history = this.getHistory(null, item);
-                readers.put(item, history.getReader());
-            }
-            catch (IOException e)
-            {
-                logger.error("Could not read history", e);
-            }
-        }
-        return readers;
-    }
-
-    /**
      * CallListener implementation for incoming calls
      * @param event CallEvent
      */
@@ -830,17 +829,8 @@ public class CallHistoryServiceImpl
      */
     public void callEnded(CallEvent event)
     {
-        CallRecordImpl callRecord = findCallRecord(event.getSourceCall());
-
-        // no such call
-        if (callRecord == null)
-            return;
-
-        callRecord.setEndTime(new Date());
-
-        writeCall(callRecord, null, null);
-
-        currentCallRecords.remove(callRecord);
+        // We store the call in the callStateChangeEvent where we
+        // have more information on the previous state of the call.
     }
 
     /**
@@ -1027,9 +1017,11 @@ public class CallHistoryServiceImpl
          */
         private int getProgressMapping(int historyProgress)
         {
-            currentProgress += (historyProgress - lastHistoryProgress)/contactCount;
+            currentProgress
+                += (historyProgress - lastHistoryProgress)/contactCount;
 
-            if(historyProgress == HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE)
+            if(historyProgress
+                == HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE)
             {
                 currentContactCount++;
                 lastHistoryProgress = 0;
@@ -1074,18 +1066,93 @@ public class CallHistoryServiceImpl
     /**
      * Receive events for adding or removing peers from a call
      */
-    private class HistoryCallChangeListener
-        extends CallChangeAdapter
+    private class HistoryCallChangeListener implements CallChangeListener
     {
+        /**
+         * Indicates that a new call peer has joined the source call.
+         *
+         * @param evt the <tt>CallPeerEvent</tt> containing the source call
+         * and call peer.
+         */
         public void callPeerAdded(CallPeerEvent evt)
         {
             handlePeerAdded(evt.getSourceCallPeer());
         }
 
+        /**
+         * Indicates that a call peer has left the source call.
+         *
+         * @param evt the <tt>CallPeerEvent</tt> containing the source call
+         * and call peer.
+         */
         public void callPeerRemoved(CallPeerEvent evt)
         {
             handlePeerRemoved(evt.getSourceCallPeer(),
                                      evt.getSourceCall());
         }
+
+        /**
+         * A dummy implementation of this listener's callStateChanged() method.
+         *
+         * @param evt the <tt>CallChangeEvent</tt> instance containing the source
+         * calls and its old and new state.
+         */
+        public void callStateChanged(CallChangeEvent evt)
+        {
+            CallRecordImpl callRecord = findCallRecord(evt.getSourceCall());
+
+            // no such call
+            if (callRecord == null)
+                return;
+
+            if (evt.getNewValue().equals(CallState.CALL_ENDED)
+                && evt.getOldValue().equals(CallState.CALL_INITIALIZATION))
+            {
+                callRecord.setEndTime(callRecord.getStartTime());
+            }
+            else
+                callRecord.setEndTime(new Date());
+
+            writeCall(callRecord, null, null);
+
+            currentCallRecords.remove(callRecord);
+        }
+    }
+
+    /**
+     * Returns the <tt>ProtocolProviderService</tt> corresponding to the given
+     * account identifier.
+     * @param accountUID the identifier of the account.
+     * @return the <tt>ProtocolProviderService</tt> corresponding to the given
+     * account identifier
+     */
+    private ProtocolProviderService getProtocolProvider(String accountUID)
+    {
+        for (ProtocolProviderFactory providerFactory
+                : CallHistoryActivator.getProtocolProviderFactories().values())
+        {
+            ServiceReference serRef;
+
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+            {
+                if (accountID.getAccountUniqueID().equals(accountUID))
+                {
+                    serRef = providerFactory.getProviderForAccount(accountID);
+
+                    return (ProtocolProviderService) CallHistoryActivator
+                        .bundleContext.getService(serRef);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Cancels the current find. If there's no find going on, then does nothing.
+     */
+    public void cancelCurrentFind()
+    {
+        if (historyReader != null)
+            historyReader.cancelCurrentFind();
     }
 }

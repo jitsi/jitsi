@@ -16,13 +16,13 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * A TransferHandler that we use to handle dropping of <tt>MetaContact</tt>s or
+ * A TransferHandler that we use to handle dropping of <tt>UIContact</tt>s or
  * simple string addresses to an existing <tt>Call</tt>. Dropping of a such data
  * in the <tt>CallDialog</tt> would result in the creation of a call conference.
  *
@@ -31,9 +31,21 @@ import net.java.sip.communicator.util.swing.*;
 public class CallTransferHandler
     extends ExtendedTransferHandler
 {
+    /**
+     * The data flavor used when transferring <tt>UIContact</tt>s.
+     */
+    protected static final DataFlavor uiContactDataFlavor
+        = new DataFlavor(UIContact.class, "UIContact");
+
+    /**
+     * The logger.
+     */
     private static final Logger logger
         = Logger.getLogger(CallTransferHandler.class);
 
+    /**
+     * The call corresponding to the transfer.
+     */
     private final Call call;
 
     /**
@@ -63,7 +75,7 @@ public class CallTransferHandler
         for (int i = 0, n = flavor.length; i < n; i++)
         {
             if (flavor[i].equals(DataFlavor.stringFlavor)
-                || flavor[i].equals(metaContactDataFlavor))
+                || flavor[i].equals(uiContactDataFlavor))
             {
                 if (comp instanceof JPanel)
                 {
@@ -89,13 +101,13 @@ public class CallTransferHandler
      */
     public boolean importData(JComponent comp, Transferable t)
     {
-        if (t.isDataFlavorSupported(metaContactDataFlavor))
+        if (t.isDataFlavorSupported(uiContactDataFlavor))
         {
             Object o = null;
 
             try
             {
-                o = t.getTransferData(metaContactDataFlavor);
+                o = t.getTransferData(uiContactDataFlavor);
             }
             catch (UnsupportedFlavorException e)
             {
@@ -110,16 +122,29 @@ public class CallTransferHandler
 
             if (o instanceof ContactNode)
             {
-                MetaContact metaContact = ((ContactNode) o).getMetaContact();
+                UIContact uiContact
+                    = ((ContactNode) o).getContactDescriptor();
+
                 ProtocolProviderService callProvider
                     = call.getProtocolProvider();
 
-                Iterator<Contact> contacts
-                    = metaContact.getContactsForProvider(callProvider);
+                Iterator<UIContactDetail> contactDetails
+                    = uiContact.getContactDetailsForOperationSet(
+                        OperationSetBasicTelephony.class).iterator();
 
                 String callee = null;
-                if (contacts.hasNext())
-                    callee = contacts.next().getAddress();
+                while (contactDetails.hasNext())
+                {
+                    UIContactDetail detail = contactDetails.next();
+
+                    ProtocolProviderService detailProvider
+                        = detail.getPreferredProtocolProvider(
+                            OperationSetBasicTelephony.class);
+
+                    if (detailProvider != null
+                        && detailProvider.equals(callProvider))
+                        callee = detail.getAddress();
+                }
 
                 if (callee != null)
                 {
@@ -137,7 +162,7 @@ public class CallTransferHandler
                             new String[]{
                                 callProvider.getAccountID().getService(),
                                 callProvider.getAccountID().getUserID(),
-                                metaContact.getDisplayName()}))
+                                uiContact.getDisplayName()}))
                     .showDialog();
             }
         }

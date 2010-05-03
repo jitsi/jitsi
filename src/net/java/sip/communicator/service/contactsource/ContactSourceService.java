@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.service.contactsource;
 
-import net.java.sip.communicator.service.protocol.*;
-
 /**
  * The <tt>ContactSourceService</tt> interface is meant to be implemented
  * by modules supporting large lists of contacts and wanting to enable searching
@@ -17,6 +15,16 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public interface ContactSourceService
 {
+    public static final String CALL_HISTORY = "CallHistory";
+
+    /**
+     * Returns the identifier of this contact source. Some of the common
+     * identifiers are defined here (For example the CALL_HISTORY identifier
+     * should be returned by all call history implementations of this interface)
+     * @return the identifier of this contact source
+     */
+    public String getIdentifier();
+
     /**
      * Returns a user-friendly string that identifies this contact source.
      * @return the display name of this contact source
@@ -29,11 +37,4 @@ public interface ContactSourceService
      * @return the created query
      */
     public ContactQuery queryContactSource(String queryString);
-
-    /**
-     * Returns the telephony provider preferred for calling items from this
-     * source.
-     * @return the preferred telephony provider
-     */
-    public ProtocolProviderService getPreferredTelephonyProvider();
 }

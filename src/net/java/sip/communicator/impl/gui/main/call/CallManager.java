@@ -40,6 +40,17 @@ public class CallManager
                                             = new Hashtable<Call, CallDialog>();
 
     /**
+     * Indicates the number of missed calls that the user should be notified
+     * about.
+     */
+    private static int missedCalls = 0;
+
+    /**
+     * Listener notified for changes in missed calls count.
+     */
+    private static MissedCallsListener missedCallsListener;
+
+    /**
      * A call listener.
      */
     public static class GuiCallListener implements CallListener
@@ -214,7 +225,7 @@ public class CallManager
         ProtocolProviderService telProvider = null;
         int status = 0;
 
-        Vector<ProtocolProviderService> telProviders = getTelephonyProviders();
+        List<ProtocolProviderService> telProviders = getTelephonyProviders();
 
         for (ProtocolProviderService provider : telProviders)
         {
@@ -398,10 +409,10 @@ public class CallManager
      * Returns a list of all currently registered telephony providers.
      * @return a list of all currently registered telephony providers
      */
-    public static Vector<ProtocolProviderService> getTelephonyProviders()
+    public static List<ProtocolProviderService> getTelephonyProviders()
     {
-        Vector<ProtocolProviderService> telephonyProviders
-            = new Vector<ProtocolProviderService>();
+        List<ProtocolProviderService> telephonyProviders
+            = new LinkedList<ProtocolProviderService>();
 
         for (ProtocolProviderFactory providerFactory : GuiActivator
             .getProtocolProviderFactories().values())
@@ -426,6 +437,44 @@ public class CallManager
             }
         }
         return telephonyProviders;
+    }
+
+    /**
+     * Sets the given <tt>MissedCallsListener</tt> that would be notified on
+     * any changes in missed calls count.
+     * @param l the listener to set
+     */
+    public static void setMissedCallsListener(MissedCallsListener l)
+    {
+        missedCallsListener = l;
+    }
+
+    /**
+     * Adds a missed call.
+     */
+    public static void addMissedCall()
+    {
+        missedCalls ++;
+        fireMissedCallCountChangeEvent(missedCalls);
+    }
+
+    /**
+     * Clears the count of missed calls. Sets it to 0.
+     */
+    public static void clearMissedCalls()
+    {
+        missedCalls = 0;
+    }
+
+    /**
+     * Notifies interested <tt>MissedCallListener</tt> that the count has
+     * changed.
+     * @param missedCallsCount the new missed calls count
+     */
+    private static void fireMissedCallCountChangeEvent(int missedCallsCount)
+    {
+        if (missedCallsListener != null)
+            missedCallsListener.missedCallCountChanged(missedCallsCount);
     }
 
     /**

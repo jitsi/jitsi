@@ -67,17 +67,14 @@ public class ContactDetail
      * Creates a <tt>ContactDetail</tt> by specifying the corresponding contact
      * address and a mapping of preferred <tt>ProtocolProviderServices</tt> for
      * a specific <tt>OperationSet</tt>.
-     * @param contactAddress the contact address corresponding to this detail
      * @param preferredProviders a mapping of preferred
      * <tt>ProtocolProviderService</tt>s for specific <tt>OperationSet</tt>
      * classes
      */
-    public ContactDetail(String contactAddress,
+    public void setPreferredProviders(
         Map<Class<? extends OperationSet>, ProtocolProviderService>
                                                             preferredProviders)
     {
-        this(contactAddress);
-
         this.preferredProviders = preferredProviders;
     }
 
@@ -86,16 +83,13 @@ public class ContactDetail
      * address and a list of all <tt>supportedOpSets</tt>, indicating what are
      * the supporting actions with this contact detail (e.g. sending a message,
      * making a call, etc.)
-     * @param contactAddress the address of the contact
      * @param supportedOpSets a list of all <tt>supportedOpSets</tt>, indicating
      * what are the supporting actions with this contact detail (e.g. sending a
      * message, making a call, etc.)
      */
-    public ContactDetail(   String contactAddress,
+    public void setSupportedOpSets(
                             List<Class<? extends OperationSet>> supportedOpSets)
     {
-        this(contactAddress);
-
         this.supportedOpSets = supportedOpSets;
     }
 
@@ -119,7 +113,10 @@ public class ContactDetail
     public ProtocolProviderService getPreferredProtocolProvider(
         Class<? extends OperationSet> opSetClass)
     {
-        return preferredProviders.get(opSetClass);
+        if (preferredProviders != null && preferredProviders.size() > 0)
+            return preferredProviders.get(opSetClass);
+
+        return null;
     }
 
     /**
@@ -131,31 +128,5 @@ public class ContactDetail
     public List<Class<? extends OperationSet>> getSupportedOperationSets()
     {
         return supportedOpSets;
-    }
-
-    /**
-     * Sets the list of supported <tt>OperationSet</tt> classes. These are meant
-     * to indicate what are the supported actions (sending an IM message,
-     * making a call, etc.).
-     * @param opSets the list of supported <tt>OperationSet</tt> classes
-     */
-    public void setSupportedOperationSets(
-        List<Class<? extends OperationSet>> opSets)
-    {
-        this.supportedOpSets = opSets;
-    }
-
-    /**
-     * Sets a mapping of preferred <tt>ProtocolProviderServices</tt> for
-     * <tt>OperationSet</tt> classes.
-     * @param preferredProviders a mapping of preferred
-     * <tt>ProtocolProviderService</tt>s for specific <tt>OperationSet</tt>
-     * classes
-     */
-    public void setPreferredProtocolProviders(
-        Map<Class<? extends OperationSet>, ProtocolProviderService>
-            preferredProviders)
-    {
-        this.preferredProviders = preferredProviders;
     }
 }

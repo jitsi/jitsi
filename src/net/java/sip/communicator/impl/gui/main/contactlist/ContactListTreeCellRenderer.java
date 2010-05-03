@@ -10,7 +10,6 @@ import java.awt.*;
 
 import java.awt.event.*;
 import java.awt.image.*;
-import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
@@ -72,13 +71,6 @@ public class ContactListTreeCellRenderer
     private static final int EXTENDED_AVATAR_WIDTH = 45;
 
     /**
-     * The key of the user data in <tt>MetaContact</tt> which specifies
-     * the avatar cached from previous invocations.
-     */
-    private static final String AVATAR_DATA_KEY
-        = ContactListCellRenderer.class.getName() + ".avatar";
-
-    /**
      * The icon used for opened groups.
      */
     private final ImageIcon openedGroupIcon =
@@ -108,7 +100,7 @@ public class ContactListTreeCellRenderer
     /**
      * The status message label.
      */
-    private final JLabel statusMessageLabel = new JLabel();
+    private final JLabel displayDetailsLabel = new JLabel();
 
     /**
      * The call button.
@@ -148,7 +140,7 @@ public class ContactListTreeCellRenderer
     /**
      * The icon showing the contact status.
      */
-    protected final ImageIcon statusIcon = new ImageIcon();
+    protected ImageIcon statusIcon = new ImageIcon();
 
     /**
      * Indicates if the current list cell is selected.
@@ -194,8 +186,8 @@ public class ContactListTreeCellRenderer
         this.setOpaque(false);
         this.nameLabel.setOpaque(false);
 
-        this.statusMessageLabel.setFont(getFont().deriveFont(9f));
-        this.statusMessageLabel.setForeground(Color.GRAY);
+        this.displayDetailsLabel.setFont(getFont().deriveFont(9f));
+        this.displayDetailsLabel.setForeground(Color.GRAY);
 
         this.rightLabel.setFont(rightLabel.getFont().deriveFont(9f));
         this.rightLabel.setHorizontalAlignment(JLabel.RIGHT);
@@ -239,27 +231,56 @@ public class ContactListTreeCellRenderer
         {
             public void actionPerformed(ActionEvent e)
             {
+                ChooseCallAccountPopupMenu chooseAccountDialog = null;
+
                 if (treeNode != null && treeNode instanceof ContactNode)
                 {
-                    List<Contact> telephonyContacts
-                        = ((ContactNode) treeNode).getMetaContact()
-                            .getContactsForOperationSet(
+                    List<UIContactDetail> telephonyContacts
+                        = ((ContactNode) treeNode).getContactDescriptor()
+                            .getContactDetailsForOperationSet(
                                 OperationSetBasicTelephony.class);
 
                     if (telephonyContacts.size() == 1)
                     {
-                        Contact contact = telephonyContacts.get(0);
-                        CallManager.createCall(
-                            telephonyContacts.get(0).getProtocolProvider(),
-                            contact);
+                        UIContactDetail detail
+                            = telephonyContacts.get(0);
+
+                        ProtocolProviderService preferredProvider
+                            = detail.getPreferredProtocolProvider(
+                                OperationSetBasicTelephony.class);
+
+                        if (preferredProvider != null)
+                            CallManager.createCall(
+                                preferredProvider,
+                                detail.getAddress());
+                        else
+                        {
+                            List<ProtocolProviderService> providers
+                                = CallManager.getTelephonyProviders();
+
+                            int providersCount = providers.size();
+
+                            if (providersCount == 1)
+                                CallManager.createCall(
+                                    providers.get(0),
+                                    detail.getAddress());
+                            else if (providersCount > 1)
+                                chooseAccountDialog
+                                    = new ChooseCallAccountPopupMenu(
+                                        tree, providers);
+                        }
                     }
                     else if (telephonyContacts.size() > 1)
                     {
-                        ChooseCallAccountPopupMenu chooseAccountDialog
+                        chooseAccountDialog
                             = new ChooseCallAccountPopupMenu(
                                 tree,
                                 telephonyContacts);
+                    }
 
+                    // If the choose dialog is created we're going to show it.
+                    if (chooseAccountDialog != null)
+                    {
                         Point location = new Point(callButton.getX(),
                             callButton.getY() + callButton.getHeight());
 
@@ -281,8 +302,16 @@ public class ContactListTreeCellRenderer
             {
                 if (treeNode != null && treeNode instanceof ContactNode)
                 {
-                    GuiActivator.getUIService().getChatWindowManager()
-                        .startChat(((ContactNode) treeNode).getMetaContact());
+                    UIContact contactDescriptor
+                        = ((ContactNode) treeNode).getContactDescriptor();
+
+                    if (contactDescriptor.getDescriptor()
+                            instanceof MetaContact)
+                    {
+                        GuiActivator.getUIService().getChatWindowManager()
+                            .startChat(
+                                (MetaContact) contactDescriptor.getDescriptor());
+                    }
                 }
             }
         });
@@ -318,9 +347,10 @@ public class ContactListTreeCellRenderer
 
         if (value instanceof ContactNode)
         {
-            MetaContact metaContact = ((ContactNode) value).getMetaContact();
+            UIContact contact
+                = ((ContactNode) value).getContactDescriptor();
 
-            String displayName = metaContact.getDisplayName();
+            String displayName = contact.getDisplayName();
 
             if (displayName == null || displayName.length() < 1)
             {
@@ -330,14 +360,13 @@ public class ContactListTreeCellRenderer
 
             this.nameLabel.setText(displayName);
 
-            if(contactList.isContactActive(metaContact))
+            if(contactList.isContactActive(contact))
             {
                 statusIcon.setImage(msgReceivedImage);
             }
             else
             {
-                statusIcon.setImage(Constants.getStatusIcon(
-                    contactList.getMetaContactStatus(metaContact)));
+                statusIcon = contact.getStatusIcon();
             }
             this.statusLabel.setIcon(statusIcon);
 
@@ -348,30 +377,35 @@ public class ContactListTreeCellRenderer
 
             // Initializes status message components if the given meta contact
             // contains a status message.
-            this.initStatusMessage(metaContact);
+            this.initDisplayDetails(contact);
 
-            this.initButtonsPanel(metaContact);
+            this.initButtonsPanel(contact);
 
-            ImageIcon avatar = getAvatar(metaContact);
+            ImageIcon avatar = isSelected
+                ? contact.getAvatar(
+                    isSelected, EXTENDED_AVATAR_WIDTH, EXTENDED_AVATAR_HEIGHT)
+                : contact.getAvatar(
+                    isSelected, AVATAR_WIDTH, AVATAR_HEIGHT);
+
             if (avatar != null)
                 this.rightLabel.setIcon(avatar);
             this.rightLabel.setText("");
 
-            this.setToolTipText(metaContact.getMetaUID());
+            this.setToolTipText(contact.getDescriptor().toString());
         }
         else if (value instanceof GroupNode)
         {
-            MetaContactGroup groupItem
-                = ((GroupNode) value).getMetaContactGroup();
+            UIGroup groupItem
+                = ((GroupNode) value).getGroupDescriptor();
 
-            this.nameLabel.setText(groupItem.getGroupName());
+            this.nameLabel.setText(groupItem.getDisplayName());
 
             this.nameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
 
             if (groupForegroundColor != null)
                 this.nameLabel.setForeground(groupForegroundColor);
 
-            this.remove(statusMessageLabel);
+            this.remove(displayDetailsLabel);
             this.remove(callButton);
             this.remove(chatButton);
 
@@ -382,71 +416,15 @@ public class ContactListTreeCellRenderer
 
             // We have no photo icon for groups.
             this.rightLabel.setIcon(null);
-            this.rightLabel.setText( groupItem.countOnlineChildContacts() 
-                    + "/" + groupItem.countChildContacts());
+ 
+            if (groupItem.countChildContacts() >= 0)
+                this.rightLabel.setText( groupItem.countOnlineChildContacts() 
+                                        + "/" + groupItem.countChildContacts());
 
-            this.setToolTipText(groupItem.getMetaUID());
+            this.setToolTipText(groupItem.getDescriptor().toString());
         }
 
         return this;
-    }
-
-    /**
-     * Gets the avatar of a specific <tt>MetaContact</tt> in the form of an
-     * <tt>ImageIcon</tt> value.
-     * 
-     * @param metaContact the <tt>MetaContact</tt> to retrieve the avatar of
-     * @return an <tt>ImageIcon</tt> which represents the avatar of the
-     * specified <tt>MetaContact</tt>
-     */
-    private ImageIcon getAvatar(MetaContact metaContact)
-    {
-        byte[] avatarBytes = metaContact.getAvatar(true);
-        ImageIcon avatar = null;
-
-        // If there'rs no avatar we have nothing more to do here.
-        if((avatarBytes == null) || (avatarBytes.length <= 0))
-            return null;
-
-        // If the cell is selected we return a zoomed version of the avatar
-        // image.
-        if (isSelected)
-            return ImageUtils.getScaledRoundedIcon(
-                avatarBytes,
-                EXTENDED_AVATAR_WIDTH,
-                EXTENDED_AVATAR_HEIGHT);
-
-        // In any other case try to get the avatar from the cache.
-        Object[] avatarCache = (Object[]) metaContact.getData(AVATAR_DATA_KEY);
-        if ((avatarCache != null) && (avatarCache[0] == avatarBytes)) 
-            avatar = (ImageIcon) avatarCache[1];
-
-        // Just 
-        int avatarWidth = AVATAR_WIDTH;
-        int avatarHeight = AVATAR_HEIGHT;
-
-        // If the avatar isn't available or it's not up-to-date, create it.
-        if (avatar == null)
-            avatar = ImageUtils.getScaledRoundedIcon(
-                        avatarBytes,
-                        avatarWidth,
-                        avatarHeight);
-
-        // Cache the avatar in case it has changed.
-        if (avatarCache == null)
-        {
-            if (avatar != null)
-                metaContact.setData(
-                    AVATAR_DATA_KEY,
-                    new Object[] { avatarBytes, avatar });
-        }
-        else
-        {
-            avatarCache[0] = avatarBytes;
-            avatarCache[1] = avatar;
-        }
-
-        return avatar;
     }
 
     /**
@@ -571,35 +549,25 @@ public class ContactListTreeCellRenderer
     }
 
     /**
-     * Returns the first found status message for the given
-     * <tt>metaContact</tt>.
-     * @param metaContact the <tt>MetaContact</tt>, for which we'd like to
-     * obtain a status message
+     * Initializes the display details component for the given
+     * <tt>UIContact</tt>.
+     * @param contact the <tt>UIContact</tt>, for which we initialize the
+     * details component
      */
-    private void initStatusMessage(MetaContact metaContact)
+    private void initDisplayDetails(UIContact contact)
     {
-        statusMessageLabel.setText("");
-        this.remove(statusMessageLabel);
+        displayDetailsLabel.setText("");
+        this.remove(displayDetailsLabel);
 
-        String statusMessage = null;
-        Iterator<Contact> protoContacts = metaContact.getContacts();
+        String displayDetails = contact.getDisplayDetails();
 
-        while (protoContacts.hasNext())
-        {
-            Contact protoContact = protoContacts.next();
-
-            statusMessage = protoContact.getStatusMessage();
-            if (statusMessage != null && statusMessage.length() > 0)
-                break;
-        }
-
-        if (statusMessage != null && statusMessage.length() > 0)
+        if (displayDetails != null && displayDetails.length() > 0)
         {
             // Replace all occurrences of new line with slash.
-            statusMessage = Html2Text.extractText(statusMessage);
-            statusMessage = statusMessage.replaceAll("\n|<br>|<br/>", " / ");
+            displayDetails = Html2Text.extractText(displayDetails);
+            displayDetails = displayDetails.replaceAll("\n|<br>|<br/>", " / ");
 
-            statusMessageLabel.setText(statusMessage);
+            displayDetailsLabel.setText(displayDetails);
 
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
@@ -610,16 +578,16 @@ public class ContactListTreeCellRenderer
             constraints.gridwidth = 2;
             constraints.gridheight = 1;
 
-            this.add(statusMessageLabel, constraints);
+            this.add(displayDetailsLabel, constraints);
         }
     }
 
     /**
      * Initializes buttons panel.
-     * @param metaContact the <tt>MetaContact</tt> for which we initialize the
+     * @param uiContact the <tt>UIContact</tt> for which we initialize the
      * button panel
      */
-    private void initButtonsPanel(MetaContact metaContact)
+    private void initButtonsPanel(UIContact uiContact)
     {
         this.remove(callButton);
         this.remove(chatButton);
@@ -628,13 +596,13 @@ public class ContactListTreeCellRenderer
             return;
 
         int statusMessageLabelHeight = 0;
-        if (statusMessageLabel.getText().length() > 0)
+        if (displayDetailsLabel.getText().length() > 0)
             statusMessageLabelHeight = 20;
         else
             statusMessageLabelHeight = 15;
 
-        Contact imContact = metaContact.getDefaultContact(
-            OperationSetBasicInstantMessaging.class);
+         UIContactDetail imContact = uiContact.getDefaultContactDetail(
+             OperationSetBasicInstantMessaging.class);
 
         if (imContact != null)
         {
@@ -656,8 +624,8 @@ public class ContactListTreeCellRenderer
                 28, 28);
         }
 
-        Contact telephonyContact
-            = metaContact.getDefaultContact(OperationSetBasicTelephony.class);
+        UIContactDetail telephonyContact
+            = uiContact.getDefaultContactDetail(OperationSetBasicTelephony.class);
 
         if (telephonyContact != null)
         {

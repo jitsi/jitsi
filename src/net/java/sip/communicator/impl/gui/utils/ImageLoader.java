@@ -278,6 +278,18 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.CHAT_CALL");
 
     /**
+     * The call history button image.
+     */
+    public static final ImageID CALL_HISTORY_BUTTON
+        = new ImageID("service.gui.buttons.CALL_HISTORY_BUTTON");
+
+    /**
+     * The call history pressed button image.
+     */
+    public static final ImageID CALL_HISTORY_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.CALL_HISTORY_BUTTON_PRESSED");
+
+    /**
      * The chat button small pressed image.
      */
     public static final ImageID CHAT_BUTTON_SMALL_PRESSED

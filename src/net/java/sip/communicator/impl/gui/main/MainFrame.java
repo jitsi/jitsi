@@ -39,7 +39,7 @@ import net.java.sip.communicator.util.swing.*;
 import org.osgi.framework.*;
 
 /**
- * The main application window. This class is the core of this ui
+ * The main application window. This class is the core of this UI
  * implementation. It stores all available protocol providers and their
  * operation sets, as well as all registered accounts, the
  * <tt>MetaContactListService</tt> and all sent messages that aren't
@@ -166,9 +166,19 @@ public class MainFrame
          */
         this.addWindowListener(new WindowAdapter()
         {
+            /**
+             * Invoked when a window has been closed.
+             */
             public void windowClosed(WindowEvent event)
             {
                 MainFrame.this.windowClosed(event);
+            }
+            /**
+             * Invoked when a window has been opened.
+             */
+            public void windowOpened(WindowEvent e)
+            {
+                GuiActivator.getContactList().requestFocusInWindow();
             }
         });
 
@@ -223,9 +233,11 @@ public class MainFrame
 
         northPanel.add(accountStatusPanel, BorderLayout.CENTER);
 
-        TransparentPanel searchPanel = new TransparentPanel(new BorderLayout());
+        TransparentPanel searchPanel
+            = new TransparentPanel(new BorderLayout(2, 0));
         searchPanel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
         searchPanel.add(searchField);
+        searchPanel.add(new CallHistoryButton(), BorderLayout.EAST);
 
         centerPanel.add(searchPanel, BorderLayout.NORTH);
         centerPanel.add(contactListPanel, BorderLayout.CENTER);
@@ -359,7 +371,7 @@ public class MainFrame
             presence.addProviderPresenceStatusListener(
                         new GUIProviderPresenceStatusListener());
             presence.addContactPresenceStatusListener(
-                        contactListPanel.getContactList());
+                        TreeContactList.presenceFilter);
         }
 
         // Obtain the basic instant messaging operation set.

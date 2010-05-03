@@ -85,7 +85,7 @@ public class UnknownContactPanel
                 if (searchText == null)
                     return;
 
-                Vector<ProtocolProviderService> telephonyProviders
+                List<ProtocolProviderService> telephonyProviders
                     = CallManager.getTelephonyProviders();
 
                 if (telephonyProviders.size() == 1)

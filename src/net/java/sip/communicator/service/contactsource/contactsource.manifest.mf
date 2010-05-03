@@ -3,5 +3,6 @@ Bundle-Description: ContactSource Service.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Import-Package: org.osgi.framework
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.service.protocol
 Export-Package: net.java.sip.communicator.service.contactsource

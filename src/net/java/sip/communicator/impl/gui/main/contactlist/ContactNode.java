@@ -8,11 +8,9 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import javax.swing.tree.*;
 
-import net.java.sip.communicator.service.contactlist.*;
-
 /**
  * The <tt>ContactNode</tt> is a <tt>ContactListNode</tt> corresponding to a
- * given <tt>MetaContact</tt>.
+ * given <tt>UIContact</tt>.
  *
  * @author Yana Stamcheva
  */
@@ -21,9 +19,9 @@ public class ContactNode
     implements ContactListNode
 {
     /**
-     * The <tt>MetaContact</tt> corresponding to this contact node.
+     * The <tt>UIContact</tt> corresponding to this contact node.
      */
-    private MetaContact metaContact;
+    private UIContact contact;
 
     /**
      * Indicates if this node is currently active. Has unread messages waiting.
@@ -32,32 +30,31 @@ public class ContactNode
 
     /**
      * Creates a <tt>ContactNode</tt> by specifying the corresponding
-     * <tt>metaContact</tt>.
-     * @param metaContact the <tt>MetaContact</tt> corresponding to this node
+     * <tt>contact</tt>.
+     * @param contact the <tt>UIContact</tt> corresponding to this node
      */
-    public ContactNode(MetaContact metaContact)
+    public ContactNode(UIContact contact)
     {
-        super(metaContact);
-        this.metaContact = metaContact;
+        super(contact);
+        this.contact = contact;
     }
 
     /**
-     * Returns the corresponding <tt>MetaContact</tt>.
-     * @return the corresponding <tt>MetaContact</tt>
+     * Returns the corresponding <tt>UIContact</tt>.
+     * @return the corresponding <tt>UIContact</tt>
      */
-    public MetaContact getMetaContact()
+    public UIContact getContactDescriptor()
     {
-        return (MetaContact) getUserObject();
+        return (UIContact) getUserObject();
     }
 
     /**
-     * Returns the index of this contact node in its parent group in
-     * the <tt>MetaContactListService</tt>.
-     * @return the index in the <tt>MetaContactListService</tt>
+     * Returns the index of this contact node in its parent group.
+     * @return the index of this contact node in its parent group
      */
-    public int getMetaContactListIndex()
+    public int getSourceIndex()
     {
-        return metaContact.getParentMetaContactGroup().indexOf(metaContact);
+        return contact.getSourceIndex();
     }
 
     /**

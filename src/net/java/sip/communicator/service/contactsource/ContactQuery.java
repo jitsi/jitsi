@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.contactsource;
 
+import java.util.*;
+
 /**
  * The <tt>ContactQuery</tt> corresponds to a particular query made through the
  * <tt>ContactSourceService</tt>. Each query once started could be
@@ -16,6 +18,20 @@ package net.java.sip.communicator.service.contactsource;
  */
 public interface ContactQuery
 {
+    /**
+     * Returns the <tt>ContactSourceService</tt>, where this query was first
+     * initiated.
+     * @return the <tt>ContactSourceService</tt>, where this query was first
+     * initiated
+     */
+    public ContactSourceService getContactSource();
+
+    /**
+     * Returns the list of <tt>SourceContact</tt>s returned by this query.
+     * @return the list of <tt>SourceContact</tt>s returned by this query
+     */
+    public List<SourceContact> getQueryResults();
+
     /**
      * Cancels this query.
      */

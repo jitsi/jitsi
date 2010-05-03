@@ -15,6 +15,7 @@ import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -28,9 +29,21 @@ import net.java.sip.communicator.util.swing.*;
 public class ContactListTransferHandler
     extends ExtendedTransferHandler
 {
+    /**
+     * The data flavor used when transferring <tt>UIContact</tt>s.
+     */
+    protected static final DataFlavor uiContactDataFlavor
+        = new DataFlavor(UIContact.class, "UIContact");
+
+    /**
+     * The logger.
+     */
     private static final Logger logger
         = Logger.getLogger(ContactListTransferHandler.class);
 
+    /**
+     * The contact list, where this transfer happens.
+     */
     private final DefaultTreeContactList contactList;
 
     /**
@@ -81,7 +94,7 @@ public class ContactListTransferHandler
     {
         for (int i = 0, n = flavor.length; i < n; i++)
         {
-            if (flavor[i].equals(metaContactDataFlavor))
+            if (flavor[i].equals(uiContactDataFlavor))
             {
                 return true;
             }
@@ -140,13 +153,13 @@ public class ContactListTransferHandler
                 }
             }
         }
-        else if (t.isDataFlavorSupported(metaContactDataFlavor))
+        else if (t.isDataFlavorSupported(uiContactDataFlavor))
         {
             Object o = null;
 
             try
             {
-                o = t.getTransferData(metaContactDataFlavor);
+                o = t.getTransferData(uiContactDataFlavor);
             }
             catch (UnsupportedFlavorException e)
             {
@@ -162,8 +175,13 @@ public class ContactListTransferHandler
             if (o instanceof ContactNode
                 && comp instanceof TreeContactList)
             {
-                MetaContact transferredContact
-                    = ((ContactNode) o).getMetaContact();
+                UIContact transferredContact
+                    = ((ContactNode) o).getContactDescriptor();
+
+                // We support darg&drop for MetaContacts only.
+                if (!(transferredContact instanceof MetaUIContact))
+                    return false;
+
                 TreeContactList list = (TreeContactList) comp;
 
                 Object dest
@@ -173,25 +191,36 @@ public class ContactListTransferHandler
                 {
                     if (dest instanceof ContactNode)
                     {
-                        MetaContact destContact
-                            = ((ContactNode) dest).getMetaContact();
+                        UIContact destContact
+                            = ((ContactNode) dest).getContactDescriptor();
+
+                        // We support darg&drop for MetaContacts only for now.
+                        if (!(destContact instanceof MetaUIContact))
+                            return false;
+
                         if (transferredContact != destContact)
                         {
                             MetaContactListManager.moveMetaContactToMetaContact(
-                                transferredContact, destContact);
+                                (MetaContact) transferredContact.getDescriptor(),
+                                (MetaContact) destContact.getDescriptor());
                         }
                         return true;
                     }
                     else if (dest instanceof GroupNode)
                     {
-                        MetaContactGroup destGroup
-                            = ((GroupNode) dest).getMetaContactGroup();
+                        UIGroup destGroup
+                            = ((GroupNode) dest).getGroupDescriptor();
 
-                        if (transferredContact.getParentMetaContactGroup()
-                                != destGroup)
+                        // We support darg&drop for MetaContacts only for now.
+                        if (!(destGroup instanceof MetaUIGroup))
+                            return false;
+
+                        if (!transferredContact
+                                .getParentGroup().equals(destGroup))
                         {
                             MetaContactListManager.moveMetaContactToGroup(
-                                transferredContact, destGroup);
+                                (MetaContact) transferredContact.getDescriptor(),
+                                (MetaContactGroup) destGroup.getDescriptor());
                         }
                         return true;
                     }
@@ -225,7 +254,7 @@ public class ContactListTransferHandler
                     contactList.getCellRenderer()
                         .getTreeCellRendererComponent(
                         contactList,
-                        transferable.getTransferData(metaContactDataFlavor),
+                        transferable.getTransferData(uiContactDataFlavor),
                         true, // is selected
                         false, // is expanded
                         true, // is leaf
@@ -303,7 +332,7 @@ public class ContactListTransferHandler
          */
         public DataFlavor[] getTransferDataFlavors()
         {
-            return new DataFlavor[] {   metaContactDataFlavor,
+            return new DataFlavor[] {   uiContactDataFlavor,
                                         DataFlavor.stringFlavor};
         }
 
@@ -316,7 +345,7 @@ public class ContactListTransferHandler
          */
         public boolean isDataFlavorSupported(DataFlavor flavor)
         {
-            return metaContactDataFlavor.equals(flavor)
+            return uiContactDataFlavor.equals(flavor)
                     || DataFlavor.stringFlavor.equals(flavor);
         }
 
@@ -333,7 +362,7 @@ public class ContactListTransferHandler
             throws  UnsupportedFlavorException,
                     IOException
         {
-            if (metaContactDataFlavor.equals(flavor))
+            if (uiContactDataFlavor.equals(flavor))
             {
                 return transferredObject;
             }
@@ -341,7 +370,7 @@ public class ContactListTransferHandler
             {
                 if (transferredObject instanceof ContactNode)
                     return ((ContactNode) transferredObject)
-                        .getMetaContact().getDisplayName();
+                        .getContactDescriptor().getDisplayName();
             }
             else
                 throw new UnsupportedFlavorException(flavor);

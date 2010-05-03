@@ -6,33 +6,41 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import net.java.sip.communicator.service.contactlist.*;
-
 /**
  * The <tt>ContactListFilter</tt> is an interface meant to be implemented by
  * modules interested in filtering the contact list. An implementation of this
- * interface should be able answer if a <tt>MetaContact</tt> or a
- * <tt>MetaContactGroup</tt> is matching the corresponding filter.
+ * interface should be able to answer if an <tt>UIContact</tt> or an
+ * <tt>UIGroup</tt> is matching the corresponding filter.
  *
  * @author Yana Stamcheva
  */
 public interface ContactListFilter
 {
     /**
-     * Returns <tt>true</tt> if the given <tt>metaContact</tt> is matching this
-     * filter, otherwise returns <tt>false</tt>
-     * @param metaContact the <tt>MetaContact</tt> to check
-     * @return <tt>true</tt> if the given <tt>metaContact</tt> is matching this
-     * filter, otherwise returns <tt>false</tt>
+     * Indicates if the given <tt>uiGroup</tt> is matching the current filter.
+     * @param uiContact the <tt>UIContact</tt> to check
+     * @return <tt>true</tt> to indicate that the given <tt>uiContact</tt>
+     * matches this filter, <tt>false</tt> - otherwise
      */
-    public boolean isMatching(MetaContact metaContact);
+    public boolean isMatching(UIContact uiContact);
 
     /**
-     * Returns <tt>true</tt> if the given <tt>metaGroup</tt> is matching this
-     * filter, otherwise returns <tt>false</tt>
-     * @param metaGroup the <tt>MetaContactGroup</tt> to check
-     * @return <tt>true</tt> if the given <tt>metaGroup</tt> is matching this
-     * filter, otherwise returns <tt>false</tt>
+     * Indicates if the given <tt>uiGroup</tt> is matching the current filter.
+     * @param uiGroup the <tt>UIGroup</tt> to check
+     * @return <tt>true</tt> to indicate that the given <tt>uiGroup</tt>
+     * matches this filter, <tt>false</tt> - otherwise
      */
-    public boolean isMatching(MetaContactGroup metaGroup);
+    public boolean isMatching(UIGroup uiGroup);
+
+    /**
+     * Applies this filter to any interested sources and stores the result in
+     * the given <tt>treeModel</tt>.
+     * @param treeModel the <tt>ContactListTreeModel</tt> to store the result in
+     */
+    public void applyFilter(ContactListTreeModel treeModel);
+
+    /**
+     * Stops this filter current queries.
+     */
+    public void stopFilter();
 }

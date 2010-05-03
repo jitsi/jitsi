@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -35,7 +36,7 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
-public class ContactRightButtonMenu
+public class MetaContactRightButtonMenu
     extends JPopupMenu
     implements  ActionListener,
                 PluginComponentListener,
@@ -46,7 +47,8 @@ public class ContactRightButtonMenu
      */
     private static final long serialVersionUID = 3033031652970285857L;
 
-    private final Logger logger = Logger.getLogger(ContactRightButtonMenu.class);
+    private final Logger logger
+        = Logger.getLogger(MetaContactRightButtonMenu.class);
 
     private static final String allContactsString
         = GuiActivator.getResources().getI18NString("service.gui.ALL_CONTACTS");
@@ -54,8 +56,9 @@ public class ContactRightButtonMenu
     private static final String moveToString = GuiActivator.getResources()
         .getI18NString("service.gui.MOVE_TO_GROUP");
 
-    private static final String moveSubcontactString = GuiActivator.getResources()
-        .getI18NString("service.gui.MOVE_SUBCONTACT");
+    private static final String moveSubcontactString
+        = GuiActivator.getResources()
+            .getI18NString("service.gui.MOVE_SUBCONTACT");
 
     private static final String removeContactString
         = GuiActivator.getResources()
@@ -71,7 +74,8 @@ public class ContactRightButtonMenu
         = GuiActivator.getResources().getI18NString("service.gui.SEND_FILE");
 
     private static final String renameContactString
-        = GuiActivator.getResources().getI18NString("service.gui.RENAME_CONTACT");
+        = GuiActivator.getResources()
+            .getI18NString("service.gui.RENAME_CONTACT");
 
     private static final String viewHistoryString
         = GuiActivator.getResources().getI18NString("service.gui.VIEW_HISTORY");
@@ -97,7 +101,8 @@ public class ContactRightButtonMenu
 
     private final JMenuItem sendMessageItem = new JMenuItem(
         sendMessageString,
-        new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
+        new ImageIcon(ImageLoader
+            .getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
 
     private final JMenuItem sendFileItem = new JMenuItem(
         sendFileString,
@@ -105,7 +110,8 @@ public class ContactRightButtonMenu
 
     private final JMenuItem sendSmsItem = new JMenuItem(
         sendSmsString,
-        new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
+        new ImageIcon(ImageLoader
+            .getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
 
     private final JMenuItem renameContactItem = new JMenuItem(
         renameContactString,
@@ -137,16 +143,14 @@ public class ContactRightButtonMenu
 
     /**
      * Creates an instance of ContactRightButtonMenu.
-     * @param contactItem The MetaContact for which the menu is opened.
-     * @param contactList The contact list over which this menu is shown.
+     * @param contactItem The MetaContact for which the menu is opened
      */
-    public ContactRightButtonMenu(  MetaContact contactItem,
-                                    TreeContactList contactList)
+    public MetaContactRightButtonMenu(  MetaContact contactItem)
     {
         super();
 
         this.mainFrame = GuiActivator.getUIService().getMainFrame();
-        this.contactList = contactList;
+        this.contactList = GuiActivator.getContactList();
 
         this.contactItem = contactItem;
 
@@ -621,11 +625,19 @@ public class ContactRightButtonMenu
      * the selected contact to the selected group.
      * @param evt the <tt>ContactListEvent</tt> has 
      */
-    public void groupSelected(ContactListEvent evt)
+    public void groupClicked(ContactListEvent evt)
     {
         this.moveDialog.dispose();
 
-        MetaContactGroup sourceGroup = evt.getSourceGroup();
+        UIGroup sourceGroup = evt.getSourceGroup();
+
+        // TODO: may be show a warning message to tell the user that she should
+        // select another group.
+        if (!(sourceGroup instanceof MetaUIGroup))
+            return;
+
+        MetaContactGroup metaGroup
+            = (MetaContactGroup) sourceGroup.getDescriptor();
 
         contactList.removeContactListListener(this);
 
@@ -636,12 +648,12 @@ public class ContactRightButtonMenu
         if(moveAllContacts)
         {
             MetaContactListManager
-                .moveMetaContactToGroup(contactItem, sourceGroup);
+                .moveMetaContactToGroup(contactItem, metaGroup);
         }
         else if(contactToMove != null)
         {
             MetaContactListManager
-                .moveContactToGroup(contactToMove, sourceGroup);
+                .moveContactToGroup(contactToMove, metaGroup);
         }
 
         contactList.setGroupClickConsumed(false);
@@ -654,17 +666,12 @@ public class ContactRightButtonMenu
      */
     public void contactClicked(ContactListEvent evt)
     {
-        this.moveContact(evt.getSourceContact());
-    }
+        UIContact descriptor = evt.getSourceContact();
+        // We're only interested in MetaContacts here.
+        if (!(descriptor instanceof MetaUIContact))
+            return;
 
-    /**
-     * Implements ContactListListener.contactSelected method in order
-     * to move the chosen sub-contact when a meta contact is selected.
-     * @param evt the <tt>ContactListEvent</tt> that notified us
-     */
-    public void protocolContactClicked(ContactListEvent evt)
-    {
-        this.moveContact(evt.getSourceContact());
+        this.moveContact((MetaContact) descriptor.getDescriptor());
     }
 
     /**
@@ -765,49 +772,5 @@ public class ContactRightButtonMenu
                 ImageLoader.getBytesInImage(
                     protoContact.getPresenceStatus().getStatusIcon()),
                 protoContact.getProtocolProvider());
-    }
-
-    /**
-     * A menu item that performs an action related to a specific protocol
-     * provider.
-     *
-     */
-    private static class ProviderAwareMenuItem extends JMenuItem
-    {
-        /**
-         * An eclipse generated serialVersionUID.
-         */
-        private static final long serialVersionUID = 6343418726839985645L;
-
-        private ProtocolProviderService provider = null;
-
-        /**
-         * Initializes the menu item and stores a reference to the specified 
-         * provider.
-         * 
-         * @param provider the provider that we are related to
-         * @param text the text string for this menu
-         * @param icon the icon to display when showing this menu
-         */
-        public ProviderAwareMenuItem(ProtocolProviderService provider,
-                                     String text,
-                                     Icon icon)
-        {
-            super(text, icon);
-
-            this.provider = provider;
-        }
-
-        /**
-         * Returns a reference to the <tt>ProtocolProviderService</tt> that 
-         * this item is related to.
-         * 
-         * @return a reference to the <tt>ProtocolProviderService</tt> that 
-         * this item is related to.
-         */
-        public ProtocolProviderService getProvider()
-        {
-            return provider;
-        }
     }
 }

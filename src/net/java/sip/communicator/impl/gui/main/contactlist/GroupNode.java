@@ -10,12 +10,9 @@ import java.util.*;
 
 import javax.swing.tree.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
-
 /**
  * The <tt>GroupNode</tt> is a <tt>ContactListNode</tt> corresponding to a
- * given <tt>MetaContactGroup</tt>.
+ * given <tt>UIGroup</tt>.
  *
  * @author Yana Stamcheva
  */
@@ -24,9 +21,14 @@ public class GroupNode
     implements  ContactListNode
 {
     /**
-     * The corresponding <tt>MetaContactGroup</tt>.
+     * The parent contact list model.
      */
-    private final MetaContactGroup metaGroup;
+    private final ContactListTreeModel treeModel;
+
+    /**
+     * The corresponding <tt>UIGroup</tt>.
+     */
+    private final UIGroup group;
 
     /**
      * A node comparator used to sort the list of children.
@@ -40,50 +42,50 @@ public class GroupNode
 
     /**
      * Creates a <tt>GroupNode</tt> by specifying the parent <tt>treeModel</tt>
-     * and the corresponding <tt>metaGroup</tt> in the
-     * <tt>MetaContactListService</tt>.
+     * and the corresponding <tt>uiGroup</tt>.
      *
      * @param treeModel the parent tree model containing this group
-     * @param metaGroup the corresponding <tt>MetaContactGroup</tt>
+     * @param uiGroup the corresponding <tt>UIGroup</tt>
      */
-    public GroupNode(ContactListTreeModel treeModel, MetaContactGroup metaGroup)
+    public GroupNode(   ContactListTreeModel treeModel,
+                        UIGroup uiGroup)
     {
-        super(metaGroup, true);
+        super(uiGroup, true);
 
-        this.metaGroup = metaGroup;
+        this.treeModel = treeModel;
+        this.group = uiGroup;
 
-        isCollapsed = ConfigurationManager
-            .isContactListGroupCollapsed(metaGroup.getMetaUID());
+        isCollapsed = group.isGroupCollapsed();
     }
 
     /**
-     * Creates a <tt>ContactNode</tt> for the given <tt>metaContact</tt> and
-     * adds it to this group.
-     * @param metaContact the <tt>MetaContact</tt> to add
+     * Creates a <tt>ContactNode</tt> for the given <tt>uiContact</tt>
+     * and adds it to this group.
+     * @param uiContact the <tt>UIContact</tt> to add
      * @return the created <tt>ContactNode</tt>
      */
-    public ContactNode addMetaContact(MetaContact metaContact)
+    public ContactNode addContact(UIContact uiContact)
     {
-        ContactNode contactNode = new ContactNode(metaContact);
+        ContactNode contactNode = new ContactNode(uiContact);
+        uiContact.setContactNode(contactNode);
+
         this.add(contactNode);
         return contactNode;
     }
 
     /**
-     * Creates a <tt>ContactNode</tt> for the given <tt>metaContact</tt>,
+     * Creates a <tt>ContactNode</tt> for the given <tt>uiContact</tt>,
      * adds it to this group and performs a sort at the end.
-     * @param treeModel the <tt>ContactListTreeModel</tt> to which the given
-     * <tt>metaContact</tt> is added
-     * @param metaContact the <tt>MetaContact</tt> to add
+     * @param uiContact the <tt>UIContact</tt> to add
      * @param isRefreshView indicates if the view should be refreshed
      * @return the created <tt>ContactNode</tt>
      */
     @SuppressWarnings("unchecked")
-    public ContactNode sortedAddMetaContact(ContactListTreeModel treeModel,
-                                            MetaContact metaContact,
-                                            boolean isRefreshView)
+    public ContactNode sortedAddContact(UIContact uiContact,
+                                        boolean isRefreshView)
     {
-        ContactNode contactNode = new ContactNode(metaContact);
+        ContactNode contactNode = new ContactNode(uiContact);
+        uiContact.setContactNode(contactNode);
 
         this.add(contactNode);
 
@@ -91,22 +93,19 @@ public class GroupNode
         Collections.sort(children, nodeComparator);
 
         if (isRefreshView)
-            this.fireNodeInserted(treeModel, getIndex(contactNode));
+            this.fireNodeInserted(getIndex(contactNode));
 
         return contactNode;
     }
 
     /**
-     * Removes the node corresponding to the given <tt>MetaContact</tt> from
-     * this group.
-     * @param treeModel the <tt>ContactListTreeModel</tt> from which the
-     * given <tt>metaContact</tt> is removed
-     * @param metaContact the <tt>MetaContact</tt> to remove
+     * Removes the node corresponding to the given <tt>uiContact</tt> from this
+     * group.
+     * @param uiContact the <tt>UIContact</tt> to remove
      */
-    public void removeMetaContact(  ContactListTreeModel treeModel,
-                                    MetaContact metaContact)
+    public void removeContact(UIContact uiContact)
     {
-        ContactNode contactNode = findContactNode(metaContact);
+        ContactNode contactNode = findContactNode(uiContact);
 
         if (contactNode != null)
         {
@@ -115,38 +114,35 @@ public class GroupNode
             // checks verifying if the node belongs to this parent.
             children.removeElementAt(index);
             contactNode.setParent(null);
+            uiContact.setContactNode(null);
 
-            fireNodeRemoved(treeModel, contactNode, index);
+            fireNodeRemoved(contactNode, index);
         }
     }
 
     /**
-     * Creates a <tt>GroupNode</tt> for the given <tt>metaGroup</tt> and adds it
-     * to this group.
-     * @param treeModel the <tt>ContactListTreeModel</tt> to which the given
-     * <tt>metaGroup</tt> is added
-     * @param metaGroup the <tt>MetaContactGroup</tt> to add
+     * Creates a <tt>GroupNode</tt> for the given <tt>uiGroup</tt> and
+     * adds it to this group.
+     * @param uiGroup the <tt>UIGroup</tt> to add
      * @return the created <tt>GroupNode</tt>
      */
-    public GroupNode addMetaContactGroup(   ContactListTreeModel treeModel,
-                                            MetaContactGroup metaGroup)
+    public GroupNode addContactGroup(UIGroup uiGroup)
     {
-        GroupNode groupNode = new GroupNode(treeModel, metaGroup);
+        GroupNode groupNode = new GroupNode(treeModel, uiGroup);
+        uiGroup.setGroupNode(groupNode);
+
         this.add(groupNode);
         return groupNode;
     }
 
     /**
-     * Removes the node corresponding to the given <tt>metaGroup</tt> from this
+     * Removes the node corresponding to the given <tt>uiGroup</tt> from this
      * group node.
-     * @param treeModel the <tt>ContactListTreeModel</tt> from which the given
-     * <tt>metaGroup</tt> is removed
-     * @param metaGroup the <tt>MetaContactGroup</tt> to remove
+     * @param uiGroup the <tt>UIGroup</tt> to remove
      */
-    public void removeMetaContactGroup( ContactListTreeModel treeModel,
-                                        MetaContactGroup metaGroup)
+    public void removeContactGroup(UIGroup uiGroup)
     {
-        GroupNode groupNode = findGroupNode(metaGroup);
+        GroupNode groupNode = uiGroup.getGroupNode();
 
         if (groupNode != null)
         {
@@ -155,26 +151,47 @@ public class GroupNode
             // checks verifying if the node belongs to this parent.
             children.removeElementAt(index);
             groupNode.setParent(null);
+            uiGroup.setGroupNode(null);
 
-            fireNodeRemoved(treeModel, groupNode, index);
+            fireNodeRemoved(groupNode, index);
         }
     }
 
     /**
-     * Creates a <tt>GroupNode</tt> for the given <tt>metaGroup</tt>, adds it
-     * to this group node and performs a sort at the end.
-     * @param treeModel the <tt>ContactListTreeModel</tt> to which the given
-     * <tt>metaGroup</tt> is added
-     * @param metaGroup the <tt>MetaContactGroup</tt> to add
+     * Removes all of this node's children, setting their parents to null.
+     * If this node has no children, this method does nothing.
+     */
+    public void removeAllChildren()
+    {
+        for (int i = getChildCount()-1; i >= 0; i--)
+        {
+            TreeNode treeNode = getChildAt(i);
+
+            if (treeNode instanceof ContactNode)
+                ((ContactNode) treeNode).getContactDescriptor()
+                    .setContactNode(null);
+            else if (treeNode instanceof GroupNode)
+                ((GroupNode) treeNode).getGroupDescriptor()
+                    .setGroupNode(null);
+
+            children.removeElementAt(i);
+            ((DefaultMutableTreeNode) treeNode).setParent(null);
+        }
+    }
+
+    /**
+     * Creates a <tt>GroupNode</tt> for the given <tt>uiGroup</tt>,
+     * adds it to this group node and performs a sort at the end.
+     * @param uiGroup the <tt>UIGroup</tt> to add
      * @param isRefreshView indicates if the view should be refreshed
      * @return the created <tt>GroupNode</tt>
      */
     @SuppressWarnings("unchecked")
-    public GroupNode sortedAddMetaContactGroup( ContactListTreeModel treeModel,
-                                                MetaContactGroup metaGroup,
-                                                boolean isRefreshView)
+    public GroupNode sortedAddContactGroup( UIGroup uiGroup,
+                                            boolean isRefreshView)
     {
-        GroupNode groupNode = new GroupNode(treeModel, metaGroup);
+        GroupNode groupNode = new GroupNode(treeModel, uiGroup);
+        uiGroup.setGroupNode(groupNode);
 
         this.add(groupNode);
 
@@ -182,77 +199,51 @@ public class GroupNode
         Collections.sort(children, nodeComparator);
 
         if (isRefreshView)
-            this.fireNodeInserted(treeModel, getIndex(groupNode));
+            this.fireNodeInserted(getIndex(groupNode));
 
         return groupNode;
     }
 
     /**
-     * Returns the <tt>MetaContactGroup</tt> corresponding to this
-     * <tt>GroupNode</tt>.
-     * @return the <tt>MetaContactGroup</tt> corresponding to this
-     * <tt>GroupNode</tt>
+     * Returns the <tt>UIGroup</tt> corresponding to this <tt>GroupNode</tt>.
+     * @return the <tt>UIGroup</tt> corresponding to this <tt>GroupNode</tt>
      */
-    public MetaContactGroup getMetaContactGroup()
+    public UIGroup getGroupDescriptor()
     {
-        return (MetaContactGroup) getUserObject();
-    }
-
-    /**
-     * Finds the <tt>GroupNode</tt> corresponding to the given
-     * <tt>metaGroup</tt> in the children of this node.
-     * @param metaGroup the <tt>MetaContactGroup</tt>, which node we're looking
-     * for
-     * @return the corresponding <tt>GroupNode</tt> or null if no group node
-     * was found
-     */
-    @SuppressWarnings("unchecked")
-    public GroupNode findGroupNode(MetaContactGroup metaGroup)
-    {
-        Enumeration<TreeNode> children = children();
-        while(children.hasMoreElements())
-        {
-            TreeNode treeNode = children.nextElement();
-            if (treeNode instanceof GroupNode
-                && ((GroupNode)treeNode).getMetaContactGroup().equals(metaGroup))
-                return (GroupNode) treeNode;
-        }
-        return null;
+        return (UIGroup) getUserObject();
     }
 
     /**
      * Finds the <tt>ContactNode</tt> corresponding to the given
-     * <tt>metaContact</tt> in the children of this node.
-     * @param metaContact the <tt>MetaContact</tt>, which node we're looking for
-     * @return the corresponding <tt>ContactNode</tt> or null if no contact node
-     * was found
+     * <tt>uiContact</tt> in the children of this node.
+     * @param uiContact the <tt>UIContact</tt>, which node we're looking for
+     * @return the corresponding <tt>ContactNode</tt> or null if no contact
+     * node was found
      */
     @SuppressWarnings("unchecked")
-    public ContactNode findContactNode(MetaContact metaContact)
+    public ContactNode findContactNode(UIContact uiContact)
     {
         Enumeration<TreeNode> children = children();
         while(children.hasMoreElements())
         {
             TreeNode treeNode = children.nextElement();
             if (treeNode instanceof ContactNode
-                && ((ContactNode)treeNode).getMetaContact().equals(metaContact))
+                && ((ContactNode) treeNode).getContactDescriptor()
+                    .equals(uiContact))
+            {
                 return (ContactNode) treeNode;
+            }
         }
         return null;
     }
 
     /**
-     * Returns the index of this node in its parent group in the
-     * <tt>MetaContactListService</tt>.
-     * @return the index of this node in its parent group in the
-     * <tt>MetaContactListService</tt>
+     * Returns the index of this node in its parent group.
+     * @return the index of this node in its parent group
      */
-    public int getMetaContactListIndex()
+    public int getSourceIndex()
     {
-        MetaContactGroup parentGroup = metaGroup.getParentMetaContactGroup();
-        if (parentGroup != null)
-            return parentGroup.indexOf(metaGroup);
-        else return 0; //this is the root group
+        return group.getSourceIndex();
     }
 
     /**
@@ -267,7 +258,7 @@ public class GroupNode
         {
             Collections.sort(children, nodeComparator);
 
-            fireNodesChanged(treeModel);
+            fireNodesChanged();
         }
     }
 
@@ -285,11 +276,9 @@ public class GroupNode
     /**
      * Notifies all interested listeners that a node has been inserted at the
      * given <tt>index</tt>.
-     * @param treeModel the <tt>ContactListTreeModel</tt> which should be
-     * notified
      * @param index the index of the newly inserted node
      */
-    private void fireNodeInserted(ContactListTreeModel treeModel, int index)
+    private void fireNodeInserted(int index)
     {
         int[] newIndexs = new int[1];
         newIndexs[0] = index;
@@ -299,13 +288,10 @@ public class GroupNode
     /**
      * Notifies all interested listeners that <tt>node</tt> has been removed
      * from the given <tt>index</tt>.
-     * @param treeModel the <tt>ContactListTreeModel</tt> which should
-     * be notified
      * @param node the node that has been removed
      * @param index the index of the removed node
      */
-    private void fireNodeRemoved(
-        ContactListTreeModel treeModel, ContactListNode node, int index)
+    private void fireNodeRemoved(ContactListNode node, int index)
     {
         int[] removedIndexs = new int[1];
         removedIndexs[0] = index;
@@ -314,10 +300,8 @@ public class GroupNode
 
     /**
      * Notifies all interested listeners that all nodes has changed.
-     * @param treeModel the <tt>ContactListTreeModel</tt> which should
-     * be notified
      */
-    private void fireNodesChanged(ContactListTreeModel treeModel)
+    private void fireNodesChanged()
     {
         int childCount = getChildCount();
         int[] changedIndexs = new int[childCount];
@@ -328,22 +312,39 @@ public class GroupNode
     }
 
     /**
-     * 
      * Note: this comparator imposes orderings that are inconsistent with
      * equals.
      */
     private class NodeComparator implements Comparator<ContactListNode>
     {
+        /**
+         * Compares its two arguments for order.  Returns a negative integer,
+         * zero, or a positive integer as the first argument is less than, equal
+         * to, or greater than the second.
+         * @param node1 the first <tt>ContactListNode</tt> to compare
+         * @param node2 the second <tt>ContactListNode</tt> to compare
+         * @return -1 if the first node should be positioned before the second
+         * one, 1 if the first argument should be positioned after the second
+         * one, 0 if there's no matter
+         */
         public int compare(ContactListNode node1, ContactListNode node2)
         {
-            int index1 = node1.getMetaContactListIndex();
-            int index2 = node2.getMetaContactListIndex();
+            int index1 = node1.getSourceIndex();
+            int index2 = node2.getSourceIndex();
 
             // Child groups are shown after child contacts.
             if (node1 instanceof GroupNode && node2 instanceof ContactNode) 
                 return 1;
 
             if (node1 instanceof ContactNode && node2 instanceof GroupNode)
+                return -1;
+
+            // If the first index is unknown then we position it to the end.
+            if (index1 < 0)
+                return 1;
+
+            // If the second index is unknown then we position it to the end.
+            if (index2 < 0)
                 return -1;
 
             if (index1 > index2) return 1;

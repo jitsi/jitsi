@@ -10,6 +10,8 @@ import java.util.*;
 
 import org.w3c.dom.*;
 
+import sun.nio.cs.ext.*;
+
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.event.*;
 import net.java.sip.communicator.service.history.records.*;
@@ -17,6 +19,7 @@ import net.java.sip.communicator.service.history.records.*;
 /**
  * @author Alexander Pelov
  * @author Damian Minkov
+ * @author Yana Stamcheva
  */
 public class HistoryReaderImpl
     implements HistoryReader
@@ -30,6 +33,15 @@ public class HistoryReaderImpl
     private static String REGEXP_SENSITIVE_START = "(?s)^.*";
     private static String REGEXP_INSENSITIVE_START = "(?si)^.*";
 
+    /**
+     * Indicates if the current find should be canceled.
+     */
+    private boolean isFindCanceled = false;
+
+    /**
+     * Creates an instance of <tt>HistoryReaderImpl</tt>.
+     * @param historyImpl the parent History implementation
+     */
     protected HistoryReaderImpl(HistoryImpl historyImpl)
     {
         this.historyImpl = historyImpl;
@@ -45,7 +57,8 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByStartDate(Date startDate)
+    public synchronized QueryResultSet<HistoryRecord> findByStartDate(
+                                                                Date startDate)
             throws RuntimeException
     {
         return find(startDate, null, null, null, false);
@@ -498,22 +511,26 @@ public class HistoryReaderImpl
         TreeSet<HistoryRecord> result
             = new TreeSet<HistoryRecord>(new HistoryRecordComparator());
 
-        Vector<String> filelist =
-            filterFilesByDate(this.historyImpl.getFileList(), startDate, endDate);
+        Vector<String> filelist
+            = filterFilesByDate(this.historyImpl.getFileList(),
+                                startDate, endDate);
 
-        double currentProgress = HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE;
-        double fileProgressStep = HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE;
+        double currentProgress
+            = HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE;
+        double fileProgressStep
+            = HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE;
 
         if(filelist.size() != 0)
-            fileProgressStep =
-                HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE / filelist.size();
+            fileProgressStep
+                = HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE
+                    / filelist.size();
 
         // start progress - minimum value
         fireProgressStateChanged(startDate, endDate,
             keywords, HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE);
 
         Iterator<String> fileIterator = filelist.iterator();
-        while (fileIterator.hasNext())
+        while (fileIterator.hasNext() && !isFindCanceled)
         {
             String filename = fileIterator.next();
 
@@ -530,7 +547,7 @@ public class HistoryReaderImpl
                 nodesProgressStep = fileProgressStep / nodes.getLength();
 
             Node node;
-            for (int i = 0; i < nodes.getLength(); i++)
+            for (int i = 0; i < nodes.getLength() && !isFindCanceled; i++)
             {
                 node = nodes.item(i);
 
@@ -560,12 +577,16 @@ public class HistoryReaderImpl
         }
 
 //      if maximum value is not reached fire an event
-        if((int)currentProgress < HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE)
+        if((int)currentProgress
+                < HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE)
         {
             fireProgressStateChanged(startDate, endDate, keywords,
                                      HistorySearchProgressListener.
                                      PROGRESS_MAXIMUM_VALUE);
         }
+
+        // Before returning we want to reset the isFindCanceled to false.
+        isFindCanceled = false;
 
         return new OrderedQueryResultSet<HistoryRecord>(result);
     }
@@ -901,5 +922,13 @@ public class HistoryReaderImpl
                 return h1.getTimestamp().
                     compareTo(h2.getTimestamp());
         }
+    }
+
+    /**
+     * Cancels the current find. If there's no find going on, then does nothing.
+     */
+    public void cancelCurrentFind()
+    {
+        isFindCanceled = true;
     }
 }

@@ -68,6 +68,22 @@ public class MetaContactGroupImpl
     private final MetaContactListServiceImpl mclServiceImpl;
 
     /**
+     * The user-specific key-value associations stored in this instance.
+     * <p>
+     * Like the Widget implementation of Eclipse SWT, the storage type takes
+     * into account that there are likely to be many
+     * <code>MetaContactGroupImpl</code> instances and <code>Map</code>s are
+     * thus likely to impose increased memory use. While an array may very well
+     * perform worse than a <code>Map</code> with respect to search, the
+     * mechanism of user-defined key-value associations explicitly states that
+     * it is not guaranteed to be optimized for any particular use and only
+     * covers the most basic cases and performance-savvy code will likely
+     * implement a more optimized solution anyway.
+     * </p>
+     */
+    private Object[] data;
+
+    /**
      * Creates an instance of the root meta contact group.
      *
      * @param mclServiceImpl
@@ -85,6 +101,8 @@ public class MetaContactGroupImpl
      * specified meta contact uid. This constructor MUST NOT be used for nothing
      * purposes else but restoring contacts extracted from the contactlist.xml
      *
+     * @param mclServiceImpl the implementation of the
+     * <tt>MetaContactListService</tt>, to which this group belongs
      * @param groupName the name of the group to create
      * @param metaUID a UID that has been stored earlier or null when a new
      * UID needs to be created.
@@ -932,8 +950,98 @@ public class MetaContactGroupImpl
         return subgroups.remove(group);
     }
 
+    /**
+     * Returns the implementation of the <tt>MetaContactListService</tt>, to
+     * which this group belongs.
+     * @return the implementation of the <tt>MetaContactListService</tt>
+     */
     final MetaContactListServiceImpl getMclServiceImpl()
     {
         return mclServiceImpl;
+    }
+
+    /**
+     * Implements {@link MetaContactGroup#getData(Object)}.
+     * @return the data value corresponding to the given key
+     */
+    public Object getData(Object key)
+    {
+        if (key == null)
+            throw new NullPointerException("key");
+
+        int index = dataIndexOf(key);
+
+        return (index == -1) ? null : data[index + 1];
+    }
+
+    /**
+     * Implements {@link MetaContactGroup#setData(Object, Object)}.
+     * @param key the of the data
+     * @param value the value of the data
+     */
+    public void setData(Object key, Object value)
+    {
+        if (key == null)
+            throw new NullPointerException("key");
+
+        int index = dataIndexOf(key);
+
+        if (index == -1)
+        {
+
+            /*
+             * If value is null, remove the association with key (or just don't
+             * add it).
+             */
+            if (data == null)
+                if (value != null)
+                    data = new Object[] { key, value };
+            else if (value == null)
+            {
+                int length = data.length - 2;
+
+                if (length > 0)
+                {
+                    Object[] newData = new Object[length];
+
+                    System.arraycopy(data, 0, newData, 0, index);
+                    System.arraycopy(
+                        data, index + 2, newData, index, length - index);
+                    data = newData;
+                }
+                else
+                    data = null;
+            }
+            else
+            {
+                int length = data.length;
+                Object[] newData = new Object[length + 2];
+
+                System.arraycopy(data, 0, newData, 0, length);
+                data[length++] = key;
+                data[length++] = value;
+                data = newData;
+            }
+        }
+        else
+            data[index + 1] = value;
+    }
+
+    /**
+     * Determines the index in <code>#data</code> of a specific key.
+     *
+     * @param key
+     *            the key to retrieve the index in <code>#data</code> of
+     * @return the index in <code>#data</code> of the specified <code>key</code>
+     *         if it is contained; <tt>-1</tt> if <code>key</code> is not
+     *         contained in <code>#data</code>
+     */
+    private int dataIndexOf(Object key)
+    {
+        if (data != null)
+            for (int index = 0; index < data.length; index += 2)
+                if (key.equals(data[index]))
+                    return index;
+        return -1;
     }
 }

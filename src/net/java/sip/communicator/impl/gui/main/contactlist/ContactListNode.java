@@ -7,9 +7,9 @@
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 /**
- * The <tt>ContactListNode</tt> represents a node in the contact list. An
- * implementation of this interface should be able to determine the index of
- * this node in the <tt>MetaContactListService</tt>.
+ * The <tt>ContactListNode</tt> represents a node in the contact list data
+ * model. An implementation of this interface should be able to determine the
+ * index of this node in its contact source.
  *
  * @author Yana Stamcheva
  */
@@ -19,5 +19,5 @@ public interface ContactListNode
      * Returns the index of this node in the <tt>MetaContactListService</tt>.
      * @return the index of this node in the <tt>MetaContactListService</tt>
      */
-    public int getMetaContactListIndex();
+    public int getSourceIndex();
 }

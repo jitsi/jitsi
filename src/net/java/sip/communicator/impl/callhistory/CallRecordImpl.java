@@ -96,4 +96,13 @@ public class CallRecordImpl
     {
         this.direction = direction;
     }
+
+    /**
+     * Sets the given <tt>ProtocolProviderService</tt> used for the call.
+     * @param pps the <tt>ProtocolProviderService</tt> to set
+     */
+    public void setProtocolProvider(ProtocolProviderService pps)
+    {
+        this.protocolProvider = pps;
+    }
 }

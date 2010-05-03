@@ -92,8 +92,20 @@ public class ContactListPane
     public void initList(MetaContactListService contactListService)
     {
         this.contactList = new TreeContactList();
-
+        // We should first set the contact list to the GuiActivator, so that
+        // anybody could get it from there.
         GuiActivator.setContactList(contactList);
+
+        // By default we set the current filter to be the presence filter.
+        new Thread()
+        {
+            public void run()
+            {
+                TreeContactList.presenceFilter
+                    .setShowOffline(ConfigurationManager.isShowOffline());
+                contactList.applyFilter(TreeContactList.presenceFilter);
+            }
+        }.start();
 
         TransparentPanel transparentPanel
             = new TransparentPanel(new BorderLayout());
@@ -146,7 +158,13 @@ public class ContactListPane
         if (evt.getClickCount() < 2)
             return;
 
-        MetaContact metaContact = evt.getSourceContact();
+        UIContact descriptor = evt.getSourceContact();
+
+        // We're currently only interested in MetaContacts.
+        if (!(descriptor.getDescriptor() instanceof MetaContact))
+            return;
+
+        MetaContact metaContact = (MetaContact) descriptor.getDescriptor();
 
         // Searching for the right proto contact to use as default for the
         // chat conversation.
@@ -200,22 +218,8 @@ public class ContactListPane
      * Implements the ContactListListener.groupSelected method.
      * @param evt the <tt>ContactListEvent</tt> that notified us
      */
-    public void groupSelected(ContactListEvent evt)
+    public void groupClicked(ContactListEvent evt)
     {}
-
-    /**
-     * Implements the ContactListListener.protocolContactSelected method.
-     * @param evt the <tt>ContactListEvent</tt> that notified us
-     */
-    public void protocolContactClicked(ContactListEvent evt)
-    {
-        Contact protoContact = evt.getSourceProtoContact();
-
-        ContactEventHandler contactHandler = mainFrame
-            .getContactHandler(protoContact.getProtocolProvider());
-
-        contactHandler.contactClicked(protoContact, evt.getClickCount());
-    }
 
     /**
      * When a message is received determines whether to open a new chat window
@@ -657,26 +661,6 @@ public class ContactListPane
         private void setMetaContact(MetaContact metaContact)
         {
             this.metaContact = metaContact;
-        }
-    }
-
-    /**
-     * Opens chat window when the selected value is a MetaContact and opens a
-     * group when the selected value is a MetaContactGroup.
-     */
-    private class ContactListPanelEnterAction extends AbstractAction
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            Object selectedValue
-                = contactList.getSelectionPath().getLastPathComponent();
-
-            if (selectedValue instanceof MetaContact)
-            {
-                MetaContact contact = (MetaContact) selectedValue;
-
-                chatWindowManager.startChat(contact);
-            }
         }
     }
 

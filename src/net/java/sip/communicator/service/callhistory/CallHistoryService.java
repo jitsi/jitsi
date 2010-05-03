@@ -21,7 +21,7 @@ public interface CallHistoryService
 {
     /**
      * Returns all the calls made by all the contacts
-     * in the supplied metacontact after the given date
+     * in the supplied <tt>contact</tt> after the given date.
      *
      * @param contact MetaContact which contacts participate in
      *      the returned calls
@@ -29,12 +29,13 @@ public interface CallHistoryService
      * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
-    public Collection<CallRecord> findByStartDate(MetaContact contact, Date startDate)
+    public Collection<CallRecord> findByStartDate(  MetaContact contact,
+                                                    Date startDate)
         throws RuntimeException;
 
     /**
      * Returns all the calls made by all the contacts
-     * in the supplied metacontact before the given date
+     * in the supplied <tt>contact</tt> before the given date.
      *
      * @param contact MetaContact which contacts participate in
      *      the returned calls
@@ -42,12 +43,13 @@ public interface CallHistoryService
      * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
-    public Collection<CallRecord> findByEndDate(MetaContact contact, Date endDate)
+    public Collection<CallRecord> findByEndDate(MetaContact contact,
+                                                Date endDate)
         throws RuntimeException;
 
     /**
      * Returns all the calls made by all the contacts
-     * in the supplied metacontact between the given dates
+     * in the supplied <tt>contact</tt> between the given dates.
      *
      * @param contact MetaContact which contacts participate in
      *      the returned calls
@@ -56,12 +58,14 @@ public interface CallHistoryService
      * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
-    public Collection<CallRecord> findByPeriod(MetaContact contact, Date startDate, Date endDate)
+    public Collection<CallRecord> findByPeriod( MetaContact contact,
+                                                Date startDate,
+                                                Date endDate)
         throws RuntimeException;
 
 
     /**
-     * Returns all the calls made after the given date
+     * Returns all the calls made after the given date.
      *
      * @param startDate Date the start date of the calls
      * @return Collection of CallRecords with CallPeerRecord
@@ -71,7 +75,7 @@ public interface CallHistoryService
         throws RuntimeException;
 
     /**
-     * Returns all the calls made before the given date
+     * Returns all the calls made before the given date.
      *
      * @param endDate Date the end date of the calls
      * @return Collection of CallRecords with CallPeerRecord
@@ -81,7 +85,7 @@ public interface CallHistoryService
         throws RuntimeException;
 
     /**
-     * Returns all the calls made between the given dates
+     * Returns all the calls made between the given dates.
      *
      * @param startDate Date the start date of the calls
      * @param endDate Date the end date of the calls
@@ -93,7 +97,7 @@ public interface CallHistoryService
 
     /**
      * Returns the supplied number of recent calls made by all the contacts
-     * in the supplied metacontact
+     * in the supplied <tt>contact</tt>.
      *
      * @param contact MetaContact which contacts participate in
      *      the returned calls
@@ -105,8 +109,7 @@ public interface CallHistoryService
         throws RuntimeException;
 
     /**
-     * Returns the supplied number of recent calls made by all the contacts
-     * in the supplied metacontact
+     * Returns the supplied number of recent calls.
      *
      * @param count calls count
      * @return Collection of CallRecords with CallPeerRecord
@@ -129,12 +132,19 @@ public interface CallHistoryService
      *
      * @param listener HistorySearchProgressListener
      */
-   public void addSearchProgressListener(CallHistorySearchProgressListener listener);
+    public void addSearchProgressListener(
+        CallHistorySearchProgressListener listener);
 
    /**
     * Removing progress listener
     *
     * @param listener HistorySearchProgressListener
     */
-   public void removeSearchProgressListener(CallHistorySearchProgressListener listener);
+    public void removeSearchProgressListener(
+        CallHistorySearchProgressListener listener);
+
+    /**
+     * Cancels the current find. If there's no find going on, then does nothing.
+     */
+    public void cancelCurrentFind();
 }

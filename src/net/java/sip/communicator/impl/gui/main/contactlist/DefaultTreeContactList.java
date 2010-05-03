@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -16,9 +15,9 @@ import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.protocol.*;
 
 /**
  * DeafultContactlist used to display <code>JList</code>s with contacts.
@@ -73,40 +72,28 @@ public class DefaultTreeContactList
      * Dummy method used and overridden from classes extending this
      * functionality such as ContactList.
      *
+     * @param contact the <tt>MetaContact</tt> to verify
+     * @return TRUE if the given <tt>MetaContact</tt> is active, FALSE -
+     * otherwise
+     */
+    public boolean isContactActive(UIContact contact)
+    {
+        return false;
+    }
+
+    /**
+     * Checks if the given contact is currently active.
+     * Dummy method used and overridden from classes extending this
+     * functionality such as ContactList.
+     *
      * @param metaContact the <tt>MetaContact</tt> to verify
      * @return TRUE if the given <tt>MetaContact</tt> is active, FALSE -
      * otherwise
      */
     public boolean isContactActive(MetaContact metaContact)
     {
-        return false;
-    }
-
-    /**
-     * Returns the general status of the given MetaContact. Detects the status
-     * using the priority status table. The priority is defined on the
-     * "availability" factor and here the most "available" status is returned.
-     *
-     * @param metaContact The metaContact for which the status is asked.
-     * @return PresenceStatus The most "available" status from all subcontact
-     *         statuses.
-     */
-    public PresenceStatus getMetaContactStatus(MetaContact metaContact)
-    {
-        PresenceStatus status = null;
-        Iterator<Contact> i = metaContact.getContacts();
-        while (i.hasNext()) {
-            Contact protoContact = i.next();
-            PresenceStatus contactStatus = protoContact.getPresenceStatus();
-
-            if (status == null) {
-                status = contactStatus;
-            } else {
-                status = (contactStatus.compareTo(status) > 0) ? contactStatus
-                        : status;
-            }
-        }
-        return status;
+        return isContactActive(
+            MetaContactListSource.getUIContact(metaContact));
     }
 
     /**
@@ -125,51 +112,26 @@ public class DefaultTreeContactList
 
         Object element = path.getLastPathComponent();
 
-        ExtendedTooltip tip = new ExtendedTooltip(true);
+        ExtendedTooltip tip = null;
         if (element instanceof ContactNode)
         {
-            MetaContact metaContact = ((ContactNode) element).getMetaContact();
+            UIContact contact
+                = ((ContactNode) element).getContactDescriptor();
 
-            byte[] avatarImage = metaContact.getAvatar();
-
-            if (avatarImage != null && avatarImage.length > 0)
-                tip.setImage(new ImageIcon(avatarImage));
-
-            tip.setTitle(metaContact.getDisplayName());
-
-            Iterator<Contact> i = metaContact.getContacts();
-
-            String statusMessage = null;
-            Contact protocolContact;
-            while (i.hasNext())
+            tip = contact.getToolTip();
+            if (tip == null)
             {
-                protocolContact = i.next();
-
-                ImageIcon protocolStatusIcon
-                    = new ImageIcon(
-                        protocolContact.getPresenceStatus().getStatusIcon());
-
-                String contactAddress = protocolContact.getAddress();
-                //String statusMessage = protocolContact.getStatusMessage();
-
-                tip.addLine(protocolStatusIcon, contactAddress);
-
-                // Set the first found status message.
-                if (statusMessage == null
-                    && protocolContact.getStatusMessage() != null
-                    && protocolContact.getStatusMessage().length() > 0)
-                    statusMessage = protocolContact.getStatusMessage();
+                tip = new ExtendedTooltip(true);
+                tip.setTitle(contact.getDisplayName());
             }
-
-            if (statusMessage != null)
-                tip.setBottomText(statusMessage);
         }
         else if (element instanceof GroupNode)
         {
-            MetaContactGroup metaGroup
-                = ((GroupNode) element).getMetaContactGroup();
+            UIGroup group
+                = ((GroupNode) element).getGroupDescriptor();
 
-            tip.setTitle(metaGroup.getGroupName());
+            tip = new ExtendedTooltip(true);
+            tip.setTitle(group.getDisplayName());
         }
         else if (element instanceof ChatContact)
         {
@@ -177,6 +139,7 @@ public class DefaultTreeContactList
 
             ImageIcon avatarImage = chatContact.getAvatar();
 
+            tip = new ExtendedTooltip(true);
             if (avatarImage != null)
                 tip.setImage(avatarImage);
 

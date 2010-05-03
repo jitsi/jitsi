@@ -10,6 +10,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.event.*;
 import net.java.sip.communicator.util.swing.plaf.*;
 
 /**
@@ -19,7 +20,7 @@ import net.java.sip.communicator.util.swing.plaf.*;
  */
 public class SearchField
     extends SIPCommTextField
-    implements DocumentListener
+    implements TextFieldChangeListener
 {
     private final Logger logger = Logger.getLogger(SearchField.class);
 
@@ -52,7 +53,7 @@ public class SearchField
         this.setPreferredSize(new Dimension(100, 22));
 
         this.setDragEnabled(true);
-        this.getDocument().addDocumentListener(this);
+        this.addTextChangeListener(this);
 
         InputMap imap = getInputMap(JComponent.WHEN_FOCUSED);
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escape");
@@ -70,9 +71,8 @@ public class SearchField
 
     /**
      * Handles the change when a char has been inserted in the field.
-     * @param e the <tt>DocumentEvent</tt> that notified us
      */
-    public void insertUpdate(DocumentEvent e)
+    public void textInserted()
     {
         // Should explicitly check if there's a text, because the default text
         // triggers also an insertUpdate event.
@@ -85,9 +85,8 @@ public class SearchField
 
     /**
      * Handles the change when a char has been removed from the field.
-     * @param e the <tt>DocumentEvent</tt> that notified us
      */
-    public void removeUpdate(DocumentEvent e)
+    public void textRemoved()
     {
         scheduleUpdate();
     }
@@ -171,10 +170,10 @@ public class SearchField
      */
     public void updateContactListView(String filterString)
     {
+        TreeContactList contactList = GuiActivator.getContactList();
+
         if (filterString != null && filterString.length() > 0)
         {
-            TreeContactList contactList = GuiActivator.getContactList();
-
             boolean hasMatching
                 = contactList.applyFilter(TreeContactList.searchFilter);
 
@@ -198,9 +197,7 @@ public class SearchField
         }
         else
         {
-            TreeContactList contactList = GuiActivator.getContactList();
-
-            contactList.applyFilter(TreeContactList.presenceFilter);
+            contactList.applyDefaultFilter();
 
             enableUnknownContactView(false);
         }

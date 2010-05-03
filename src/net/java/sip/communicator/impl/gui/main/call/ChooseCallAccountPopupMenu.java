@@ -15,6 +15,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -28,6 +29,9 @@ import net.java.sip.communicator.service.protocol.*;
 public class ChooseCallAccountPopupMenu
     extends JPopupMenu
 {
+    /**
+     * The invoker component.
+     */
     private final JComponent invoker;
 
     /**
@@ -64,8 +68,8 @@ public class ChooseCallAccountPopupMenu
 
         for (Object o : telephonyObjects)
         {
-            if (o instanceof Contact)
-                this.addTelephonyContactItem((Contact) o);
+            if (o instanceof UIContactDetail)
+                this.addTelephonyContactItem((UIContactDetail) o);
             else if (o instanceof ChatTransport)
                 this.addTelephonyChatTransportItem((ChatTransport) o);
         }
@@ -116,7 +120,7 @@ public class ChooseCallAccountPopupMenu
      * telephony contact.
      * @param telephonyContact the telephony contact to add
      */
-    private void addTelephonyContactItem(final Contact telephonyContact)
+    private void addTelephonyContactItem(final UIContactDetail telephonyContact)
     {
         final ContactMenuItem contactItem
             = new ContactMenuItem(telephonyContact);
@@ -125,8 +129,10 @@ public class ChooseCallAccountPopupMenu
         {
             public void actionPerformed(ActionEvent e)
             {
-                CallManager.createCall( telephonyContact.getProtocolProvider(),
-                                        telephonyContact);
+                CallManager.createCall(
+                    telephonyContact.getPreferredProtocolProvider(
+                        OperationSetBasicTelephony.class),
+                    telephonyContact.getAddress());
                 ChooseCallAccountPopupMenu.this.setVisible(false);
             }
         });
@@ -229,21 +235,26 @@ public class ChooseCallAccountPopupMenu
      */
     private class ContactMenuItem extends JMenuItem
     {
-        private final Contact contact;
+        private final UIContactDetail contact;
 
-        public ContactMenuItem(Contact contact)
+        public ContactMenuItem(UIContactDetail contact)
         {
             this.contact = contact;
             this.setText(contact.getDisplayName());
 
-            BufferedImage contactIcon
-                = Constants.getStatusIcon(contact.getPresenceStatus());
+            BufferedImage contactIcon = null;
+            PresenceStatus status = contact.getPresenceStatus();
+
+            if (status != null)
+                contactIcon = Constants.getStatusIcon(status);
+            else
+                contactIcon = Constants.getStatusIcon(Constants.OFFLINE_STATUS);
 
             if (contactIcon != null)
                 this.setIcon(new ImageIcon(contactIcon));
         }
 
-        public Contact getContact()
+        public UIContactDetail getContact()
         {
             return contact;
         }

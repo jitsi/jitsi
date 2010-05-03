@@ -119,8 +119,14 @@ public class ToolsMenu
 
             TreeContactList.presenceFilter.setShowOffline(!isShowOffline);
 
-            GuiActivator.getContactList()
-                .applyFilter(TreeContactList.presenceFilter);
+            new Thread()
+            {
+                public void run()
+                {
+                    GuiActivator.getContactList()
+                        .applyFilter(TreeContactList.presenceFilter);
+                }
+            }.start();
 
             ConfigurationManager.setShowOffline(!isShowOffline);
 

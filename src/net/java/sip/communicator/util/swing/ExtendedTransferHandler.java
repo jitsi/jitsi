@@ -17,14 +17,13 @@ import java.io.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.util.*;
 
 /**
  * A TransferHandler that we use to handle copying, pasting and DnD operations.
  * The string handler is heavily inspired by Sun's
  * <tt>DefaultTransferHandler</tt> with the main difference being that
- * we only accept pasting of plain text. We do this in order to avoid html
+ * we only accept pasting of plain text. We do this in order to avoid HTML
  * support problems that appear when pasting formatted text into our editable
  * area.
  * 
@@ -34,12 +33,6 @@ import net.java.sip.communicator.util.*;
 public class ExtendedTransferHandler
     extends TransferHandler
 {
-    /**
-     * The data flavor used when transferring <tt>MetaContact</tt>s.
-     */
-    protected static final DataFlavor metaContactDataFlavor
-        = new DataFlavor(MetaContact.class, "MetaContact");
-
     /**
      * Returns the type of transfer actions supported by the source;
      * any bitwise-OR combination of <tt>COPY</tt>, <tt>MOVE</tt>

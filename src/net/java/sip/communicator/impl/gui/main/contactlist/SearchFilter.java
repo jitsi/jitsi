@@ -9,8 +9,9 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.util.*;
 import java.util.regex.*;
 
-import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
+import net.java.sip.communicator.service.contactsource.*;
 
 /**
  * The <tt>SearchFilter</tt> is a <tt>ContactListFilter</tt> that filters the
@@ -19,19 +20,137 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class SearchFilter
-    implements ContactListFilter
+    implements  ContactListFilter,
+                ContactQueryListener
 {
+    /**
+     * The default contact source search type.
+     */
+    public static final int DEFAULT_SOURCE = 0;
+
+    /**
+     * The history contact source search type.
+     */
+    public static final int HISTORY_SOURCE = 1;
+
+    /**
+     * The string, which we're searching.
+     */
+    private String filterString;
+
+    /**
+     * The pattern to filter.
+     */
     private Pattern filterPattern;
+
+    /**
+     * The <tt>ContactListTreeModel</tt>, where results from the search
+     * are added.
+     */
+    private ContactListTreeModel resultTreeModel;
+
+    /**
+     * The <tt>MetaContactListSource</tt> to search in.
+     */
+    private final MetaContactListSource mclSource;
+
+    /**
+     * The list of external contact sources to search in.
+     */
+    private Collection<ExternalContactSource> contactSources;
+
+    /**
+     * The current operating query.
+     */
+    private ContactQuery currentQuery;
+
+    /**
+     * The type of the search source. One of the above defined DEFAUT_SOURCE or
+     * HISTORY_SOURCE.
+     */
+    private int searchSourceType;
+
+    /**
+     * Creates an instance of <tt>SearchFilter</tt>.
+     */
+    public SearchFilter()
+    {
+        this.mclSource = new MetaContactListSource();
+    }
+
+    /**
+     * Applies this filter and stores the result in the given <tt>treeModel</tt>.
+     * @param treeModel the <tt>ContactListTreeModel</tt>, in which we store
+     * results
+     */
+    public void applyFilter(ContactListTreeModel treeModel)
+    {
+        resultTreeModel = treeModel;
+
+        if (contactSources == null)
+            contactSources = TreeContactList.getContactSources();
+
+        if (searchSourceType == DEFAULT_SOURCE)
+            // First add the MetaContactListSource
+            mclSource.filter(filterPattern, treeModel);
+
+        for (ExternalContactSource contactSource : contactSources)
+        {
+            ContactSourceService sourceService
+                = contactSource.getContactSourceService();
+            if (sourceService instanceof ExtendedContactSourceService)
+                currentQuery
+                    = ((ExtendedContactSourceService) sourceService)
+                        .queryContactSource(filterPattern);
+            else
+                currentQuery = sourceService.queryContactSource(filterString);
+
+            // Add first available results.
+            this.addMatching(currentQuery.getQueryResults());
+
+            currentQuery.addContactQueryListener(this);
+        }
+    }
+
+    /**
+     * Indicates if the given <tt>uiGroup</tt> matches this filter.
+     * @param uiGroup the <tt>UIGroup</tt> to check
+     * @return <tt>true</tt> if the given <tt>uiGroup</tt> matches the current
+     * filter, <tt>false</tt> - otherwise
+     */
+    public boolean isMatching(UIContact uiGroup)
+    {
+        Iterator<String> searchStrings = uiGroup.getSearchStrings();
+
+        while (searchStrings != null && searchStrings.hasNext())
+        {
+            if (isMatching(searchStrings.next()))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * For all groups we return false. If some of the child contacts of this
+     * group matches this filter the group would be automatically added when
+     * the contact is added in the list.
+     * @param uiGroup the <tt>UIGroup</tt> to check
+     * @return false
+     */
+    public boolean isMatching(UIGroup uiGroup)
+    {
+        return false;
+    }
 
     /**
      * Creates the <tt>SearchFilter</tt> by specifying the string used for
      * filtering.
-     * @param filterString the String used for filtering
+     * @param filter the String used for filtering
      */
-    public void setFilterString(String filterString)
+    public void setFilterString(String filter)
     {
         // First escape all special characters from the given filter string.
-        filterString = Pattern.quote(filterString);
+        this.filterString = Pattern.quote(filter);
 
         // Then create the pattern.
         // By default, case-insensitive matching assumes that only characters
@@ -45,60 +164,138 @@ public class SearchFilter
     }
 
     /**
-     * Checks if the given <tt>metaContact</tt> is matching the current filter.
-     * A <tt>MetaContact</tt> would be matching the filter if one of the
-     * following is true:<br>
-     * - its display name contains the filter string
-     * - at least one of its child protocol contacts has a display name or an
-     * address that contains the filter string.
-     * @param metaContact the <tt>MetaContact</tt> to check
-     * @return <tt>true</tt> to indicate that the given <tt>metaContact</tt> is
+     * Stops the current query.
+     */
+    public void stopFilter()
+    {
+        if (currentQuery != null)
+            currentQuery.cancel();
+    }
+
+    /**
+     * Checks if the given <tt>contact</tt> is matching the current filter.
+     * A <tt>SourceContact</tt> would be matching the filter if its display
+     * name is matching the search string.
+     * @param contact the <tt>ContactListContactDescriptor</tt> to check
+     * @return <tt>true</tt> to indicate that the given <tt>contact</tt> is
      * matching the current filter, otherwise returns <tt>false</tt>
      */
-    public boolean isMatching(MetaContact metaContact)
+    private boolean isMatching(SourceContact contact)
     {
-        Matcher matcher = filterPattern.matcher(metaContact.getDisplayName());
+        return isMatching(contact.getDisplayName());
+    }
+
+    /**
+     * Indicates if the given string matches this filter.
+     * @param text the text to check
+     * @return <tt>true</tt> to indicate that the given <tt>text</tt> matches
+     * this filter, <tt>false</tt> - otherwise
+     */
+    private boolean isMatching(String text)
+    {
+        Matcher matcher = filterPattern.matcher(text);
 
         if(matcher.find())
             return true;
 
-        Iterator<Contact> contacts = metaContact.getContacts();
-        while (contacts.hasNext())
-        {
-            Contact contact = contacts.next();
-
-            matcher = filterPattern.matcher(contact.getDisplayName());
-
-            if (matcher.find())
-                return true;
-
-            matcher = filterPattern.matcher(contact.getAddress());
-
-            if (matcher.find())
-                return true;
-        }
         return false;
     }
 
     /**
-     * Checks if the given <tt>metaGroup</tt> is matching the current filter. A
-     * group is matching the current filter only if it contains at least one
-     * child <tt>MetaContact</tt>, which is matching the current filter.
-     * @param metaGroup the <tt>MetaContactGroup</tt> to check
-     * @return <tt>true</tt> to indicate that the given <tt>metaGroup</tt> is
-     * matching the current filter, otherwise returns <tt>false</tt>
+     * Indicates that a contact has been received for a query.
+     * @param event the <tt>ContactReceivedEvent</tt> that notified us
      */
-    public boolean isMatching(MetaContactGroup metaGroup)
+    public void contactReceived(ContactReceivedEvent event)
     {
-        Iterator<MetaContact> contacts = metaGroup.getChildContacts();
-
-        while (contacts.hasNext())
+        synchronized (resultTreeModel)
         {
-            MetaContact metaContact = contacts.next();
-
-            if (isMatching(metaContact))
-                return true;
+            addSourceContact(event.getContact());
         }
-        return false;
+    }
+
+    /**
+     * Indicates that the status of a query has changed.
+     * @param event the <tt>ContactQueryStatusEvent</tt> that notified us
+     */
+    public void queryStatusChanged(ContactQueryStatusEvent event)
+    {
+        int eventType = event.getEventType();
+
+        // Remove the current query when it's stopped for some reason.
+        // QUERY_COMPLETED, QUERY_COMPLETED, QUERY_ERROR
+        currentQuery = null;
+
+        if (eventType == ContactQueryStatusEvent.QUERY_ERROR)
+        {
+            //TODO: Show the error to the user??
+        }
+
+        event.getQuerySource().removeContactQueryListener(this);
+    }
+
+    /**
+     * Adds the list of <tt>sourceContacts</tt> in the current result tree model.
+     * @param sourceContacts the list of <tt>SourceContact</tt>s to add
+     */
+    private void addMatching(List<SourceContact> sourceContacts)
+    {
+        Iterator<SourceContact> contactsIter = sourceContacts.iterator();
+        while (contactsIter.hasNext())
+        {
+            addSourceContact(contactsIter.next());
+        }
+    }
+
+    /**
+     * Adds the given <tt>sourceContact</tt> to the result tree model.
+     * @param sourceContact the <tt>SourceContact</tt> to add
+     */
+    private void addSourceContact(SourceContact sourceContact)
+    {
+        ContactSourceService contactSource
+            = sourceContact.getContactSource();
+
+        ExternalContactSource sourceUI
+            = TreeContactList.getContactSource(contactSource);
+
+        if (sourceUI != null
+            // ExtendedContactSourceService has already matched the
+            // SourceContact over the pattern
+            && (contactSource instanceof ExtendedContactSourceService)
+                || isMatching(sourceContact))
+            GuiActivator.getContactList().addContact(
+                resultTreeModel,
+                sourceUI.getUIContact(sourceContact),
+                true,
+                false);
+    }
+
+    /**
+     * Sets the search source type: DEFAULT_SOURCE or HISTORY_SOURCE.
+     * @param searchSourceType the type of the search source to set
+     */
+    public void setSearchSourceType(int searchSourceType)
+    {
+        this.searchSourceType = searchSourceType;
+
+        switch(searchSourceType)
+        {
+            case DEFAULT_SOURCE:
+                contactSources = TreeContactList.getContactSources();
+                break;
+            case HISTORY_SOURCE:
+            {
+                ExternalContactSource historySource
+                    = TreeContactList.getContactSource(
+                        ContactSourceService.CALL_HISTORY);
+
+                Collection<ExternalContactSource> historySources
+                    = new LinkedList<ExternalContactSource>();
+
+                historySources.add(historySource);
+                contactSources = historySources;
+                break;
+            }
+        }
     }
 }

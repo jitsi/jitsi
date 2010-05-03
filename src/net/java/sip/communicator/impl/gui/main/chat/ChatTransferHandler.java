@@ -17,6 +17,7 @@ import javax.swing.text.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -26,7 +27,7 @@ import net.java.sip.communicator.util.swing.*;
  * A TransferHandler that we use to handle copying, pasting and DnD operations
  * in our <tt>ChatPanel</tt>. The string handler is heavily inspired
  * by Sun's <tt>DefaultTransferHandler</tt> with the main difference being that
- * we only accept pasting of plain text. We do this in order to avoid html
+ * we only accept pasting of plain text. We do this in order to avoid HTML
  * support problems that appear when pasting formatted text into our editable
  * area.
  *
@@ -36,6 +37,12 @@ import net.java.sip.communicator.util.swing.*;
 public class ChatTransferHandler
     extends ExtendedTransferHandler
 {
+    /**
+     * The data flavor used when transferring <tt>UIContact</tt>s.
+     */
+    protected static final DataFlavor uiContactDataFlavor
+        = new DataFlavor(UIContact.class, "UIContact");
+
     /**
      * This class logger.
      */
@@ -74,7 +81,7 @@ public class ChatTransferHandler
     {
         for (int i = 0, n = flavor.length; i < n; i++)
         {
-            if (flavor[i].equals(metaContactDataFlavor))
+            if (flavor[i].equals(uiContactDataFlavor))
             {
                 return true;
             }
@@ -124,13 +131,13 @@ public class ChatTransferHandler
                 logger.debug("Failed to drop files.", e);
             }
         }
-        else if (t.isDataFlavorSupported(metaContactDataFlavor))
+        else if (t.isDataFlavorSupported(uiContactDataFlavor))
         {
             Object o = null;
 
             try
             {
-                o = t.getTransferData(metaContactDataFlavor);
+                o = t.getTransferData(uiContactDataFlavor);
             }
             catch (UnsupportedFlavorException e)
             {
@@ -143,14 +150,18 @@ public class ChatTransferHandler
 
             if (o instanceof ContactNode)
             {
-                MetaContact metaContact
-                    = ((ContactNode) o).getMetaContact();
+                UIContact uiContact
+                    = ((ContactNode) o).getContactDescriptor();
+
+                // We only support drag&drop for MetaContacts for now.
+                if (!(uiContact instanceof MetaUIContact))
+                    return false;
 
                 ChatTransport currentChatTransport
                     = chatPanel.getChatSession().getCurrentChatTransport();
 
-                Iterator<Contact> contacts = metaContact
-                    .getContactsForProvider(
+                Iterator<Contact> contacts = ((MetaContact) uiContact
+                    .getDescriptor()).getContactsForProvider(
                         currentChatTransport.getProtocolProvider());
 
                 String contact = null;
@@ -173,7 +184,7 @@ public class ChatTransferHandler
                             "service.gui.ERROR"),
                         GuiActivator.getResources().getI18NString(
                             "service.gui.CONTACT_NOT_SUPPORTING_CHAT_CONF",
-                            new String[]{metaContact.getDisplayName()}))
+                            new String[]{uiContact.getDisplayName()}))
                     .showDialog();
             }
         }

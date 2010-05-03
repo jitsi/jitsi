@@ -16,6 +16,7 @@ import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.desktop.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
@@ -70,6 +71,8 @@ public class GuiActivator implements BundleActivator
     private static DesktopService desktopService;
 
     private static MediaService mediaService;
+
+    private static List<ContactSourceService> contactSources;
 
     private static final Map<Object, ProtocolProviderFactory>
         providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
@@ -546,6 +549,44 @@ public class GuiActivator implements BundleActivator
                 NotificationManager.registerGuiNotifications();
             }
         }
+    }
+
+    /**
+     * Returns a list of all registered contact sources.
+     * @return a list of all registered contact sources
+     */
+    public static List<ContactSourceService> getContactSources()
+    {
+        if (contactSources != null)
+            return contactSources;
+
+        contactSources = new Vector<ContactSourceService>();
+
+        ServiceReference[] serRefs = null;
+        try
+        {
+            // get all registered provider factories
+            serRefs =
+                bundleContext.getServiceReferences(
+                    ContactSourceService.class.getName(), null);
+        }
+        catch (InvalidSyntaxException e)
+        {
+            logger.error("GuiActivator : " + e);
+        }
+
+        if (serRefs != null) 
+        {
+            for (int i = 0; i < serRefs.length; i++)
+            {
+                ContactSourceService contactSource
+                    = (ContactSourceService) bundleContext
+                        .getService(serRefs[i]);
+
+                contactSources.add(contactSource);
+            }
+        }
+        return contactSources;
     }
 
     /**

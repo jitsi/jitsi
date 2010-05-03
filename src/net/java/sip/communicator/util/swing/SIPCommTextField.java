@@ -8,8 +8,12 @@ package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
+
+import net.java.sip.communicator.util.swing.event.*;
 
 /**
  * The <tt>SIPCommTextField</tt> is a <tt>JTextField</tt> that offers the
@@ -21,9 +25,24 @@ public class SIPCommTextField
     extends JTextField
     implements  MouseListener,
                 FocusListener,
-                KeyListener
+                KeyListener,
+                DocumentListener
 {
-    private final String defaultText;
+    /**
+     * The default text.
+     */
+    private String defaultText;
+
+    /**
+     * A list of all listeners registered for text field change events.
+     */
+    private Collection<TextFieldChangeListener> changeListeners
+        = new LinkedList<TextFieldChangeListener>();
+
+    /**
+     * Indicates if the default text is currently visible.
+     */
+    private boolean isDefaultTextVisible;
 
     /**
      * Creates an instance of <tt>SIPCommTextField</tt> by specifying the text
@@ -34,7 +53,11 @@ public class SIPCommTextField
     {
         super(text);
 
-        this.defaultText = text;
+        if (text != null && text.length() > 0)
+        {
+            this.defaultText = text;
+            isDefaultTextVisible = true;
+        }
 
         this.setFont(getFont().deriveFont(10f));
         this.setForeground(Color.GRAY);
@@ -43,6 +66,7 @@ public class SIPCommTextField
         this.addFocusListener(this);
 
         this.addKeyListener(this);
+        this.getDocument().addDocumentListener(this);
     }
 
     /**
@@ -154,4 +178,71 @@ public class SIPCommTextField
     }
 
     public void keyReleased(KeyEvent e){}
+
+    /**
+     * Adds the given <tt>TextFieldChangeListener</tt> to the list of listeners
+     * notified on changes of the text contained in this field.
+     * @param l the <tt>TextFieldChangeListener</tt> to add
+     */
+    public void addTextChangeListener(TextFieldChangeListener l)
+    {
+        synchronized (changeListeners)
+        {
+            changeListeners.add(l);
+        }
+    }
+
+    /**
+     * Removes the given <tt>TextFieldChangeListener</tt> from the list of
+     * listeners notified on changes of the text contained in this field.
+     * @param l the <tt>TextFieldChangeListener</tt> to add
+     */
+    public void removeTextChangeListener(TextFieldChangeListener l)
+    {
+        synchronized (changeListeners)
+        {
+            changeListeners.remove(l);
+        }
+    }
+
+    public void changedUpdate(DocumentEvent e) {}
+
+    /**
+     * Handles the change when a char has been inserted in the field.
+     * @param e the <tt>DocumentEvent</tt> that notified us
+     */
+    public void insertUpdate(DocumentEvent e)
+    {
+        if(!super.getText().equals(defaultText))
+            fireTextFieldChangeListener(0);
+        else
+            isDefaultTextVisible = true;
+    }
+
+    /**
+     * Handles the change when a char has been removed from the field.
+     * @param e the <tt>DocumentEvent</tt> that notified us
+     */
+    public void removeUpdate(DocumentEvent e)
+    {
+        if (!isDefaultTextVisible)
+            fireTextFieldChangeListener(1);
+        else
+            isDefaultTextVisible = false;
+    }
+
+    /**
+     * Notifies all registered <tt>TextFieldChangeListener</tt>s that a change
+     * has occurred in the text contained in this field.
+     * @param eventType the type of the event to transfer
+     */
+    private void fireTextFieldChangeListener(int eventType)
+    {
+        for (TextFieldChangeListener l : changeListeners)
+            switch (eventType)
+            {
+                case 0: l.textInserted(); break;
+                case 1: l.textRemoved(); break;
+            }
+    }
 }

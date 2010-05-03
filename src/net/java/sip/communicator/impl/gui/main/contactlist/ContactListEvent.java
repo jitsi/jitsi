@@ -8,12 +8,14 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.protocol.*;
-
+/**
+ * The <tt>ContactListEvent</tt> is triggered when a contact or a group is
+ * clicked in the contact list.
+ * @author Yana Stamcheva
+ */
 public class ContactListEvent
-    extends EventObject{
-
+    extends EventObject
+{
     private int eventID = -1;
 
     /**
@@ -23,27 +25,15 @@ public class ContactListEvent
     public static final int CONTACT_CLICKED = 1;
 
     /**
-     * Indicates that the ContactListEvent instance was triggered by
-     * selecting a protocol contact in the contact list.
-     */
-    public static final int PROTOCOL_CONTACT_CLICKED = 2;
-
-    /**
      * Indicates that the ContactListEvent instance was triggered by selecting
      * a group in the contact list.
      */
-    public static final int GROUP_CLICKED = 3;
+    public static final int GROUP_CLICKED = 2;
 
     /**
      * Indicated the number of click accompanying the event
      */
     private int clickCount;
-
-    /**
-     * Specific <tt>Contact</tt> of this <tt>MetaContact</tt> involved in
-     * the event if any, null otherwise.
-     */
-    private Contact sourceProtoContact;
 
     /**
      * Creates a new ContactListEvent according to the specified parameters.
@@ -56,26 +46,11 @@ public class ContactListEvent
     public ContactListEvent(Object source, int eventID, int clickCount)
     {
         super(source);
-        
+
         this.eventID = eventID;
         this.clickCount = clickCount;
     }
 
-    /**
-     * Creates a new ContactListEvent according to the specified parameters.
-     * @param source the MetaContact which was selected
-     * @param protocolContact the protocol specifique contact which was selected
-     * @param eventID one of the XXX_SELECTED static fields indicating the
-     * nature of the event.
-     */
-    public ContactListEvent(Object source,
-            Contact protocolContact, int eventID)
-    {
-        super(source);
-        this.eventID = eventID;
-        this.sourceProtoContact = protocolContact;
-    }
-    
     /**
      * Returns an event id specifying whether the type of this event
      * (CONTACT_SELECTED or PROTOCOL_CONTACT_SELECTED)
@@ -87,36 +62,27 @@ public class ContactListEvent
     }
 
     /**
-     * Returns the MetaContact for which this event occured.
-     * @return the MetaContact for which this event occured
+     * Returns the <tt>UIContactDescriptor</tt> for which this event occured.
+     * @return the </tt>UIContactDescriptor</tt> for which this event occured
      */
-    public MetaContact getSourceContact()
+    public UIContact getSourceContact()
     {
-        if(getSource() instanceof MetaContact)
-            return (MetaContact)getSource();
-        
+        if(getSource() instanceof UIContact)
+            return (UIContact) getSource();
+
         return null;
     }
     
     /**
-     * Returns the MetaContactGroup for which this event occured.
-     * @return the MetaContactGroup for which this event occured
+     * Returns the <tt>UIGroupDescriptor</tt> for which this event occured.
+     * @return the <tt>UIGroupDescriptor</tt> for which this event occured
      */
-    public MetaContactGroup getSourceGroup()
+    public UIGroup getSourceGroup()
     {
-        if(getSource() instanceof MetaContactGroup)
-            return (MetaContactGroup)getSource();
-        
-        return null;
-    }
+        if(getSource() instanceof UIGroup)
+            return (UIGroup) getSource();
 
-    /**
-     * Returns the protocol contact for which this event occured.
-     * @return the protocol contact for which this event occured
-     */
-    public Contact getSourceProtoContact()
-    {
-        return sourceProtoContact;
+        return null;
     }
 
     /**
