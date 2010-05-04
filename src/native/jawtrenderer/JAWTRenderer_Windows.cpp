@@ -70,13 +70,15 @@ jboolean JAWTRenderer_paint
     JAWT_Win32DrawingSurfaceInfo* dsi_win = 
         reinterpret_cast<JAWT_Win32DrawingSurfaceInfo*>(dsi->platformInfo);
     D3DBlitter* blitter = reinterpret_cast<D3DBlitter*>(handle);
-
+    HWND hwnd = WindowFromDC(dsi_win->hdc);
+    
     if(!blitter)
         return JNI_FALSE;
 
-    if(blitter->device == NULL)
+    if(blitter->device == NULL || blitter->hwnd != hwnd)
     {
-        blitter->hwnd = WindowFromDC(dsi_win->hdc);
+        blitter->hwnd = hwnd;
+        blitter->lost = true;
         return JNI_TRUE;
     }
 
