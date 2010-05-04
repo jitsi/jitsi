@@ -16,7 +16,6 @@ import javax.sip.header.ContentTypeHeader; // disambiguates MediaType
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;

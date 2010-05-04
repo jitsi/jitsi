@@ -111,6 +111,8 @@ public class AudioMediaFormatImpl
      * <tt>AudioMediaFormatImpl</tt> instance
      * @param formatParameters any codec-specific parameters that have been
      * received via SIP/SDP or XMPP/Jingle.
+     * @param advancedParameters set of advanced parameters that have been
+     * received by SIP/SDP or XMPP/Jingle
      */
     AudioMediaFormatImpl(
             String encoding,

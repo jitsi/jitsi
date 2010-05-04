@@ -101,6 +101,7 @@ public class VideoMediaFormatImpl
      * instance
      * @param formatParameters the set of format-specific parameters of the new
      * instance
+     * @param advancedParameters set of advanced parameters of the new instance
      */
     VideoMediaFormatImpl(
             VideoFormat format,

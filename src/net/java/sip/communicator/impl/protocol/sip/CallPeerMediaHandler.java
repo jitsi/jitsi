@@ -1130,6 +1130,58 @@ public class CallPeerMediaHandler
     }
 
     /**
+     * Get the advanced format parameters list of our device that match
+     * remote supported ones.
+     *
+     * @param remoteFormats remote advanced format parameters found in the
+     * SDP message
+     * @param localFormats local advanced format parameters of our device
+     * @return intersection between our local advanced parameters and remote
+     * advanced parameters
+     */
+    private List<MediaFormat> getAdvancedFormatParameters(
+            List<MediaFormat> remoteFormats, List<MediaFormat> localFormats )
+    {
+        List<MediaFormat> ret = new ArrayList<MediaFormat>();
+
+        for(MediaFormat format : remoteFormats)
+        {
+            MediaFormat mf = findMediaFormat(localFormats,
+                    format.getEncoding());
+
+            if(mf != null)
+            {
+                ret.add(mf);
+            }
+
+        }
+        return ret;
+    }
+
+    /**
+     * Find a <tt>MediaFormat</tt> specified by its encoding in the list of
+     * <tt>MediaFormat</tt>.
+     *
+     * @param formats list of <tt>MediaFormat</tt>
+     * @param encoding encoding of the <tt>MediaFormat</tt> to find
+     * @return <tt>MediaFormat</tt> if found in list of formats, null
+     * otherwise
+     */
+    private MediaFormat findMediaFormat(List<MediaFormat> formats,
+            String encoding)
+    {
+        for(MediaFormat f : formats)
+        {
+            if(f.getEncoding().equals(encoding))
+            {
+                return f;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Creates a number of <tt>MediaDescription</tt>s answering the descriptions
      * offered by the specified <tt>offer</tt> and reflecting the state of this
      * <tt>MediaHandler</tt>.
@@ -1170,6 +1222,11 @@ public class CallPeerMediaHandler
             MediaDevice dev = getDefaultDevice(mediaType);
             MediaDirection devDirection
                 = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
+
+            /* intersect the MediaFormat of our device with remote ones */
+            List<MediaFormat> supportedAdvancedParameters =
+                getAdvancedFormatParameters(supportedFormats,
+                        dev.getSupportedFormats());
 
             // Take the preference of the user with respect to streaming
             // mediaType into account.
@@ -1220,7 +1277,7 @@ public class CallPeerMediaHandler
             // create the answer description
             answerDescriptions.add(createMediaDescription(
                 dev.getFormat(),
-                supportedFormats, connector,
+                supportedAdvancedParameters, connector,
                 direction, rtpExtensions));
 
             atLeastOneValidDescription = true;

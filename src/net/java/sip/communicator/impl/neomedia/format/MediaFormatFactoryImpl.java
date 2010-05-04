@@ -285,6 +285,8 @@ public class MediaFormatFactoryImpl
      * <tt>encoding</tt>; otherwise, ignored
      * @param formatParams any codec specific parameters which have been
      * received via SIP/SDP or XMPP/Jingle
+     * @param advancedParams any parameters which have been
+     * received via SIP/SDP or XMPP/Jingle
      * @return a <tt>MediaFormat</tt> with the specified <tt>encoding</tt>,
      * <tt>clockRate</tt>, <tt>channels</tt> and set of format parameters which
      * is either an <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt>
