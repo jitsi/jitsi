@@ -73,21 +73,8 @@ public class MetaContactListSource
      */
     public static UIContact createUIContact(MetaContact metaContact)
     {
-        UIGroup uiGroup = null;
-        MetaContactGroup parentMetaGroup
-            = metaContact.getParentMetaContactGroup();
-        if (parentMetaGroup != null
-            && !parentMetaGroup.equals(
-                GuiActivator.getContactListService().getRoot()))
-        {
-            uiGroup = MetaContactListSource.getUIGroup(parentMetaGroup);
-
-            if (uiGroup == null)
-                uiGroup = MetaContactListSource.createUIGroup(parentMetaGroup);
-        }
-
         MetaUIContact descriptor
-            = new MetaUIContact(metaContact, uiGroup);
+            = new MetaUIContact(metaContact);
         metaContact.setData(UI_CONTACT_DATA_KEY, descriptor);
 
         return descriptor;
@@ -111,8 +98,7 @@ public class MetaContactListSource
      */
     public static UIGroup createUIGroup(MetaContactGroup metaGroup)
     {
-        MetaUIGroup descriptor
-            = new MetaUIGroup(metaGroup);
+        MetaUIGroup descriptor = new MetaUIGroup(metaGroup);
         metaGroup.setData(UI_GROUP_DATA_KEY, descriptor);
 
         return descriptor;
@@ -129,6 +115,16 @@ public class MetaContactListSource
         metaGroup.setData(UI_GROUP_DATA_KEY, null);
     }
 
+    /**
+     * Indicates if the given <tt>MetaContactGroup</tt> is the root group.
+     * @param group the <tt>MetaContactGroup</tt> to check
+     * @return <tt>true</tt> if the given <tt>group</tt> is the root group,
+     * <tt>false</tt> - otherwise
+     */
+    public static boolean isRootGroup(MetaContactGroup group)
+    {
+        return group.equals(GuiActivator.getContactListService().getRoot());
+    }
     /**
      * Filters the <tt>MetaContactListService</tt> to match the given
      * <tt>filterPattern</tt> and stores the result in the given
@@ -164,9 +160,21 @@ public class MetaContactListSource
 
             if (isMatching(filterPattern, metaContact))
             {
+                UIGroup uiGroup = null;
+                if (!MetaContactListSource.isRootGroup(parentGroup))
+                {
+                    uiGroup = MetaContactListSource
+                        .getUIGroup(parentGroup);
+
+                    if (uiGroup == null)
+                        uiGroup = MetaContactListSource
+                            .createUIGroup(parentGroup);
+                }
+ 
                 GuiActivator.getContactList().addContact(
                     treeModel,
                     MetaContactListSource.createUIContact(metaContact),
+                    uiGroup,
                     true,
                     false);
             }

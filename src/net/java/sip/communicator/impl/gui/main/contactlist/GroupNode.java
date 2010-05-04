@@ -115,6 +115,7 @@ public class GroupNode
             children.removeElementAt(index);
             contactNode.setParent(null);
             uiContact.setContactNode(null);
+            uiContact = null;
 
             fireNodeRemoved(contactNode, index);
         }

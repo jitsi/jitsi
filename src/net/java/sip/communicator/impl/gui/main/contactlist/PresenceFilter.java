@@ -171,11 +171,28 @@ public class PresenceFilter
             MetaContact metaContact = childContacts.next();
 
             if(isMatching(metaContact))
+            {
+                MetaContactGroup parentGroup
+                    = metaContact.getParentMetaContactGroup();
+
+                UIGroup uiGroup = null;
+                if (!MetaContactListSource.isRootGroup(parentGroup))
+                {
+                    uiGroup = MetaContactListSource
+                        .getUIGroup(parentGroup);
+
+                    if (uiGroup == null)
+                        uiGroup = MetaContactListSource
+                            .createUIGroup(parentGroup);
+                }
+ 
                 GuiActivator.getContactList().addContact(
                     resultTreeModel,
                     MetaContactListSource.createUIContact(metaContact),
+                    uiGroup,
                     true,
                     false);
+            }
         }
 
         Iterator<MetaContactGroup> subgroups = metaGroup.getSubgroups();

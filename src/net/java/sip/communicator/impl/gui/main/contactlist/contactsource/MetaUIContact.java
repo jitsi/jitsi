@@ -10,7 +10,6 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -61,12 +60,10 @@ public class MetaUIContact
      * underlying <tt>MetaContact</tt>, on which it's based.
      * @param metaContact the <tt>MetaContact</tt>, on which this implementation
      * is based
-     * @param group the parent <tt>UIGroup</tt>
      */
-    public MetaUIContact(MetaContact metaContact, UIGroup group)
+    public MetaUIContact(MetaContact metaContact)
     {
         this.metaContact = metaContact;
-        this.parentUIGroup = group;
 
         initSearchStrings();
     }
@@ -147,6 +144,16 @@ public class MetaUIContact
     public UIGroup getParentGroup()
     {
         return parentUIGroup;
+    }
+
+    /**
+     * Sets the given <tt>parentGroup</tt> to be the parent <tt>UIGroup</tt>
+     * of this <tt>MetaUIContact</tt>.
+     * @param parentGroup the parent <tt>UIGroup</tt> to set
+     */
+    public void setParentGroup(UIGroup parentGroup)
+    {
+        parentUIGroup = parentGroup;
     }
 
     /**

@@ -51,7 +51,7 @@ public class SourceUIContact
      * @param parentGroup the parent <tt>UIGroup</tt>
      */
     public SourceUIContact( SourceContact contact,
-                                    UIGroup parentGroup)
+                            UIGroup parentGroup)
     {
         this.sourceContact = contact;
         this.uiGroup = parentGroup;
@@ -74,6 +74,13 @@ public class SourceUIContact
     {
         return uiGroup;
     }
+
+    /**
+     * The parent group of source contacts could not be changed.
+     * @param parentGroup the parent group to set
+     */
+    public void setParentGroup(UIGroup parentGroup)
+    {}
 
     /**
      * Returns -1 to indicate that the source index of the underlying

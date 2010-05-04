@@ -84,6 +84,13 @@ public interface UIContact
     public UIGroup getParentGroup();
 
     /**
+     * Sets the given <tt>UIGroup</tt> to be the parent group of this
+     * <tt>UIContact</tt>.
+     * @param parentGroup the parent <tt>UIGroup</tt> of this contact
+     */
+    public void setParentGroup(UIGroup parentGroup);
+
+    /**
      * Returns an <tt>Iterator</tt> over a list of the search strings of this
      * contact.
      * @return an <tt>Iterator</tt> over a list of the search strings of this
