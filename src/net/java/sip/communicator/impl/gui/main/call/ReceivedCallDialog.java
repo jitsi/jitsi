@@ -230,8 +230,6 @@ public class ReceivedCallDialog
 
         if (sourceCall.equals(incomingCall))
         {
-            CallManager.addMissedCall();
-
             this.dispose();
         }
     }

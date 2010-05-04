@@ -78,6 +78,20 @@ public class CallManager
                     .getI18NString("service.gui.INCOMING_CALL",
                         new String[]{sourceCall.getCallPeers()
                                 .next().toString()}));
+
+            sourceCall.addCallChangeListener(new CallChangeAdapter()
+            {
+                public void callStateChanged(CallChangeEvent evt)
+                {
+                    if (evt.getNewValue().equals(CallState.CALL_ENDED)
+                        && evt.getOldValue()
+                            .equals(CallState.CALL_INITIALIZATION))
+                    {
+                        addMissedCall();
+                        evt.getSourceCall().removeCallChangeListener(this);
+                    }
+                }
+            });
         }
 
         /**
@@ -452,7 +466,7 @@ public class CallManager
     /**
      * Adds a missed call.
      */
-    public static void addMissedCall()
+    private static void addMissedCall()
     {
         missedCalls ++;
         fireMissedCallCountChangeEvent(missedCalls);
