@@ -22,6 +22,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -33,6 +35,7 @@ import net.java.sip.communicator.util.swing.*;
 public class TreeContactList
     extends DefaultTreeContactList
     implements  MetaContactListListener,
+                ContactPresenceStatusListener,
                 MouseListener,
                 MouseMotionListener,
                 TreeExpansionListener
@@ -124,6 +127,11 @@ public class TreeContactList
     private boolean isFiltering = false;
 
     /**
+     * The object locking the filter.
+     */
+    private final Object filterLock = new Object();
+
+    /**
      * Creates the <tt>TreeContactList</tt>.
      */
     public TreeContactList()
@@ -160,9 +168,6 @@ public class TreeContactList
     {
         final MetaContactGroup metaGroup = evt.getSourceMetaContactGroup();
 
-        final UIGroup uiGroup
-            = MetaContactListSource.getUIGroup(metaGroup);
-
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
@@ -171,8 +176,11 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
+                    UIGroup uiGroup
+                        = MetaContactListSource.getUIGroup(metaGroup);
+
                     if (uiGroup != null)
                     {
                         GroupNode groupNode = uiGroup.getGroupNode();
@@ -194,9 +202,6 @@ public class TreeContactList
     {
         final MetaContact metaContact = evt.getSourceMetaContact();
 
-        final UIContact uiContact
-            = MetaContactListSource.createUIContact(metaContact);
-
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
@@ -205,8 +210,11 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
+                    UIContact uiContact
+                        = MetaContactListSource.createUIContact(metaContact);
+
                     if (currentFilter.isMatching(uiContact))
                         addContact(uiContact);
                     else
@@ -225,9 +233,6 @@ public class TreeContactList
     {
         final MetaContactGroup metaGroup = evt.getSourceMetaContactGroup();
 
-        final UIGroup uiGroup
-            = MetaContactListSource.createUIGroup(metaGroup);
-
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
@@ -236,8 +241,11 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
+                    UIGroup uiGroup
+                        = MetaContactListSource.createUIGroup(metaGroup);
+
                     if (currentFilter.isMatching(uiGroup))
                         addGroup(uiGroup);
                     else
@@ -256,9 +264,6 @@ public class TreeContactList
     {
         final MetaContactGroup metaGroup = evt.getSourceMetaContactGroup();
 
-        final UIGroup uiGroup
-            = MetaContactListSource.getUIGroup(metaGroup);
-
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
@@ -267,8 +272,11 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
+                    UIGroup uiGroup
+                        = MetaContactListSource.getUIGroup(metaGroup);
+
                     if (uiGroup != null)
                     {
                         GroupNode groupNode = uiGroup.getGroupNode();
@@ -289,10 +297,6 @@ public class TreeContactList
      */
     public void metaContactGroupRemoved(final MetaContactGroupEvent evt)
     {
-        final UIGroup uiGroup
-            = MetaContactListSource.getUIGroup(
-                evt.getSourceMetaContactGroup());
-
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
@@ -301,9 +305,14 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
-                    removeGroup(uiGroup);
+                    UIGroup uiGroup
+                        = MetaContactListSource.getUIGroup(
+                                evt.getSourceMetaContactGroup());
+
+                    if (uiGroup != null)
+                        removeGroup(uiGroup);
                 }
             }
         });
@@ -314,12 +323,8 @@ public class TreeContactList
      * modified in the <tt>MetaContactListService</tt>.
      * @param evt the <tt>MetaContactEvent</tt> that notified us
      */
-    public void metaContactModified(MetaContactModifiedEvent evt)
+    public void metaContactModified(final MetaContactModifiedEvent evt)
     {
-        final UIContact uiContact
-            = MetaContactListSource.getUIContact(
-                evt.getSourceMetaContact());
-
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
@@ -328,8 +333,12 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
+                    UIContact uiContact
+                        = MetaContactListSource.getUIContact(
+                            evt.getSourceMetaContact());
+
                     if (uiContact != null)
                     {
                         ContactNode contactNode
@@ -350,16 +359,6 @@ public class TreeContactList
      */
     public void metaContactMoved(final MetaContactMovedEvent evt)
     {
-        final UIContact uiContact
-            = MetaContactListSource.getUIContact(
-                evt.getSourceMetaContact());
-
-        final UIGroup oldUIGroup
-            = MetaContactListSource.getUIGroup(evt.getOldParent());
-
-        final UIGroup newUIGroup
-            = MetaContactListSource.getUIGroup(evt.getNewParent());
-
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
@@ -368,8 +367,18 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
+                    UIContact uiContact
+                        = MetaContactListSource.getUIContact(
+                            evt.getSourceMetaContact());
+
+                    UIGroup oldUIGroup
+                        = MetaContactListSource.getUIGroup(evt.getOldParent());
+
+                    UIGroup newUIGroup
+                        = MetaContactListSource.getUIGroup(evt.getNewParent());
+
                     if (currentFilter.isMatching(uiContact))
                     {
                         GroupNode oldParent = oldUIGroup.getGroupNode();
@@ -401,7 +410,7 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
                     UIContact uiContact = MetaContactListSource.getUIContact(
                                             evt.getSourceMetaContact());
@@ -418,12 +427,8 @@ public class TreeContactList
      * renamed in the <tt>MetaContactListService</tt>.
      * @param evt the <tt>MetaContactRenamedEvent</tt> that notified us
      */
-    public void metaContactRenamed(MetaContactRenamedEvent evt)
+    public void metaContactRenamed(final MetaContactRenamedEvent evt)
     {
-        final UIContact uiContact
-            = MetaContactListSource.getUIContact(
-                evt.getSourceMetaContact());
-
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
@@ -432,8 +437,12 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
+                    UIContact uiContact
+                        = MetaContactListSource.getUIContact(
+                            evt.getSourceMetaContact());
+
                     if (uiContact != null)
                     {
                         ContactNode contactNode = uiContact.getContactNode();
@@ -451,12 +460,8 @@ public class TreeContactList
      * modified in the <tt>MetaContactListService</tt>.
      * @param evt the <tt>MetaContactEvent</tt> that notified us
      */
-    public void metaContactAvatarUpdated(MetaContactAvatarUpdateEvent evt)
+    public void metaContactAvatarUpdated(final MetaContactAvatarUpdateEvent evt)
     {
-        final UIContact uiContact
-            = MetaContactListSource.getUIContact(
-                evt.getSourceMetaContact());
-
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
@@ -465,8 +470,12 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
+                    UIContact uiContact
+                        = MetaContactListSource.getUIContact(
+                            evt.getSourceMetaContact());
+
                     if (uiContact != null)
                     {
                         ContactNode contactNode = uiContact.getContactNode();
@@ -489,9 +498,6 @@ public class TreeContactList
     {
         final MetaContact metaContact = evt.getNewParent();
 
-        final UIContact parentUIContact
-            = MetaContactListSource.getUIContact(metaContact);
-
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
@@ -500,8 +506,11 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
+                    UIContact parentUIContact
+                        = MetaContactListSource.getUIContact(metaContact);
+
                     if (parentUIContact == null)
                     {
                         UIContact uiContact
@@ -538,9 +547,9 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
-                    final UIContact oldUIContact
+                    UIContact oldUIContact
                         = MetaContactListSource.getUIContact(oldParent);
 
                     // Remove old parent if not matching.
@@ -587,7 +596,7 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
                     UIContact oldUIContact
                         = MetaContactListSource.getUIContact(oldParent);
@@ -634,7 +643,7 @@ public class TreeContactList
         // events on the tempTreeModel in order to prevent modification
         // to be done on the actual treeModel while we're working with
         // the temporary model.
-        synchronized (tempTreeModel)
+        synchronized (filterLock)
         {
             ContactNode contactNode
                 = MetaContactListSource.getUIContact(metaContact)
@@ -900,7 +909,7 @@ public class TreeContactList
         // We synchronize the matching and all MetaContactListener events on
         // the searchTreeModel in order to prevent modification to be done on
         // the actual treeModel while we're working with the temporary model.
-        synchronized (tempTreeModel)
+        synchronized (filterLock)
         {
             treeModel.clearDependencies();
 
@@ -940,12 +949,16 @@ public class TreeContactList
         // filtering.
         isFiltering = false;
 
+        boolean hasResults = false;
+
         // As we update the tree in the swing thread, we should check the
         // temporary model here in order to given correct results.
         if (tempTreeModel.getChildCount(tempTreeModel.getRoot()) > 0)
-            return true;
+            hasResults = true;
 
-        return false;
+        tempTreeModel = null;
+
+        return hasResults;
     }
 
     /**
@@ -980,7 +993,7 @@ public class TreeContactList
                 // events on the tempTreeModel in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
-                synchronized (tempTreeModel)
+                synchronized (filterLock)
                 {
                     ContactNode contactNode = treeModel.findFirstContactNode();
 
@@ -1593,5 +1606,60 @@ public class TreeContactList
                 break;
             }
         }
+    }
+
+    /**
+     * Indicates that a contact has changed its status.
+     *
+     * @param evt the presence event containing information about the
+     * contact status change
+     */
+    public void contactPresenceStatusChanged(
+            final ContactPresenceStatusChangeEvent evt)
+    {
+        final Contact sourceContact = evt.getSourceContact();
+
+        final MetaContact metaContact = GuiActivator.getContactListService()
+            .findMetaContactByContact(sourceContact);
+
+        if (metaContact == null
+            || (evt.getOldStatus() == evt.getNewStatus()))
+            return;
+
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                // We synchronize the matching and all MetaContactListener
+                // events on the tempTreeModel in order to prevent
+                // modification to be done on the actual treeModel while
+                // we're working with the temporary model.
+                synchronized (filterLock)
+                {
+                    UIContact uiContact
+                        = MetaContactListSource.getUIContact(metaContact);
+
+                    if (uiContact == null)
+                    {
+                        uiContact = MetaContactListSource
+                            .createUIContact(metaContact);
+
+                        if (currentFilter.isMatching(uiContact))
+                            addContact(uiContact);
+                        else
+                            MetaContactListSource
+                                .removeUIContact(metaContact);
+                    }
+                    else if (uiContact.getContactNode() != null)
+                    {
+                        if (!currentFilter.isMatching(uiContact))
+                            removeContact(uiContact);
+                        else
+                            treeModel
+                                .nodeChanged(uiContact.getContactNode());
+                    }
+                }
+            }
+        });
     }
 }

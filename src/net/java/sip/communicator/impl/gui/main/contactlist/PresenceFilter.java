@@ -8,14 +8,11 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.util.*;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * The <tt>PresenceFilter</tt> is used to filter offline contacts from the
@@ -24,8 +21,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Yana Stamcheva
  */
 public class PresenceFilter
-    implements  ContactListFilter,
-                ContactPresenceStatusListener
+    implements  ContactListFilter
 {
     /**
      * Indicates if this presence filter shows or hides the offline contacts.
@@ -36,8 +32,6 @@ public class PresenceFilter
      * Indicates if there's a presence filtering going on.
      */
     private boolean isFiltering = false;
-
-    private final Object lockedFiltering = new Object();
 
     /**
      * Creates an instance of <tt>PresenceFilter</tt>.
@@ -57,11 +51,8 @@ public class PresenceFilter
     {
         isFiltering = true;
 
-        synchronized (lockedFiltering)
-        {
-            addMatching(GuiActivator.getContactListService().getRoot(),
-                treeModel);
-        }
+        addMatching(GuiActivator.getContactListService().getRoot(),
+            treeModel);
 
         isFiltering = false;
     }
@@ -202,58 +193,6 @@ public class PresenceFilter
             else
                 addMatching(subgroup, resultTreeModel);
         }
-    }
-
-    /**
-     * Indicates that a contact has changed its status.
-     *
-     * @param evt the presence event containing information about the
-     * contact status change
-     */
-    public void contactPresenceStatusChanged(
-            final ContactPresenceStatusChangeEvent evt)
-    {
-        final Contact sourceContact = evt.getSourceContact();
-
-        final MetaContact metaContact = GuiActivator.getContactListService()
-            .findMetaContactByContact(sourceContact);
-
-        if (metaContact == null
-            || (evt.getOldStatus() == evt.getNewStatus()))
-            return;
-
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                UIContact cDescriptor
-                    = MetaContactListSource.getUIContact(metaContact);
-
-                if (cDescriptor == null)
-                    cDescriptor = MetaContactListSource
-                        .createUIContact(metaContact);
-
-                synchronized(lockedFiltering)
-                {
-                    if (GuiActivator.getContactList().getCurrentFilter()
-                            .equals(PresenceFilter.this)
-                        && isMatching(metaContact))
-                    {
-                        if (cDescriptor.getContactNode() == null)
-                            GuiActivator.getContactList()
-                                .addContact(cDescriptor);
-                        else
-                            GuiActivator.getContactList()
-                                .nodeChanged(cDescriptor.getContactNode());
-                    }
-                    else
-                    {
-                        GuiActivator.getContactList()
-                            .removeContact(cDescriptor);
-                    }
-                }
-            }
-        });
     }
 
     /**

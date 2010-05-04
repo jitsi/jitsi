@@ -371,7 +371,7 @@ public class MainFrame
             presence.addProviderPresenceStatusListener(
                         new GUIProviderPresenceStatusListener());
             presence.addContactPresenceStatusListener(
-                        TreeContactList.presenceFilter);
+                        GuiActivator.getContactList());
         }
 
         // Obtain the basic instant messaging operation set.
