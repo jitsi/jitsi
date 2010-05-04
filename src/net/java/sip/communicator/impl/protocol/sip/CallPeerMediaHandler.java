@@ -505,7 +505,8 @@ public class CallPeerMediaHandler
                             .or(MediaDirection.SENDONLY));
                 audioStream.setMute(locallyOnHold);
             }
-            if(videoStream != null)
+            if(videoStream != null
+                && videoStream.getDirection() != MediaDirection.INACTIVE)
             {
                 videoStream.setDirection(videoStream.getDirection()
                             .or(MediaDirection.SENDONLY));
