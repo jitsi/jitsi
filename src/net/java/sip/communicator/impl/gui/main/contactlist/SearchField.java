@@ -20,7 +20,8 @@ import net.java.sip.communicator.util.swing.plaf.*;
  */
 public class SearchField
     extends SIPCommTextField
-    implements TextFieldChangeListener
+    implements  TextFieldChangeListener,
+                FilterQueryListener
 {
     private final Logger logger = Logger.getLogger(SearchField.class);
 
@@ -174,26 +175,11 @@ public class SearchField
 
         if (filterString != null && filterString.length() > 0)
         {
-            boolean hasMatching
+            FilterQuery filterQuery
                 = contactList.applyFilter(TreeContactList.searchFilter);
 
-            // If don't have matching contacts we enter the unknown contact
-            // view.
-            if (!hasMatching)
-            {
-                enableUnknownContactView(true);
-            }
-            // If the unknown contact view was previously enabled, but we
-            // have found matching contacts we enter the normal view.
-            else
-            {
-                if (!lastHasMatching)
-                    enableUnknownContactView(false);
-
-                contactList.selectFirstContact();
-            }
-
-            lastHasMatching = hasMatching;
+            if (filterQuery != null)
+                filterQuery.setQueryListener(this);
         }
         else
         {
@@ -217,5 +203,38 @@ public class SearchField
                 mainFrame.enableUnknownContactView(isEnabled);
             }
         });
+    }
+
+    /**
+     * Indicates that the given <tt>query</tt> has finished with failure, i.e.
+     * no results for the filter were found.
+     * @param query the <tt>FilterQuery</tt>, where this listener is registered
+     */
+    public void filterQueryFailed(FilterQuery query)
+    {
+        /// If don't have matching contacts we enter the unknown contact
+        // view.
+        enableUnknownContactView(true);
+
+        lastHasMatching = false;
+        query.setQueryListener(null);
+    }
+
+    /**
+     * Indicates that the given <tt>query</tt> has finished with success, i.e.
+     * the filter has returned results.
+     * @param query the <tt>FilterQuery</tt>, where this listener is registered
+     */
+    public void filterQuerySucceeded(FilterQuery query)
+    {
+        // If the unknown contact view was previously enabled, but we
+        // have found matching contacts we enter the normal view.
+        if (!lastHasMatching)
+            enableUnknownContactView(false);
+
+        GuiActivator.getContactList().selectFirstContact();
+
+        lastHasMatching = true;
+        query.setQueryListener(null);
     }
 }

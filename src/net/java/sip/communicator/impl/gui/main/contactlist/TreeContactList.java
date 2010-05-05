@@ -36,6 +36,7 @@ public class TreeContactList
     extends DefaultTreeContactList
     implements  MetaContactListListener,
                 ContactPresenceStatusListener,
+                ContactQueryListener,
                 MouseListener,
                 MouseMotionListener,
                 TreeExpansionListener
@@ -50,13 +51,6 @@ public class TreeContactList
      * The default tree model.
      */
     private ContactListTreeModel treeModel;
-
-    /**
-     * The temporary tree model is used to collect the results from a filter
-     * operation. This is used in order to separate search and filter matching
-     * operations from the UI refresh operations.
-     */
-    private ContactListTreeModel tempTreeModel;
 
     /**
      * The right button menu.
@@ -132,6 +126,11 @@ public class TreeContactList
     private final Object filterLock = new Object();
 
     /**
+     * The filter query used to track advanced source filtering.
+     */
+    FilterQuery filterQuery;
+
+    /**
      * Creates the <tt>TreeContactList</tt>.
      */
     public TreeContactList()
@@ -173,7 +172,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -215,7 +214,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -259,7 +258,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -290,7 +289,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -323,7 +322,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -351,7 +350,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -389,7 +388,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -449,7 +448,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -476,7 +475,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -509,7 +508,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -545,7 +544,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -603,7 +602,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -669,7 +668,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -682,6 +681,65 @@ public class TreeContactList
                 }
             }
         });
+    }
+
+    /**
+     * Indicates that a contact has been received for a query.
+     * @param event the <tt>ContactReceivedEvent</tt> that notified us
+     */
+    public void contactReceived(ContactReceivedEvent event)
+    {
+        final SourceContact sourceContact = event.getContact();
+
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                // We synchronize the matching and all MetaContactListener
+                // events on the filterLock in order to prevent modification
+                // to be done on the actual treeModel while we're working with
+                // the temporary model.
+                synchronized (filterLock)
+                {
+                    ContactSourceService contactSource
+                        = sourceContact.getContactSource();
+
+                    ExternalContactSource sourceUI
+                        = TreeContactList.getContactSource(contactSource);
+
+                    UIContact uiContact = sourceUI.getUIContact(sourceContact);
+
+                    if (sourceUI == null)
+                        return;
+
+                    // ExtendedContactSourceService has already matched the
+                    // SourceContact over the pattern
+                    if((contactSource instanceof ExtendedContactSourceService)
+                        || currentFilter.isMatching(uiContact))
+                    {
+                        addContact(uiContact, sourceUI.getUIGroup());
+                    }
+                    else
+                        uiContact = null;
+                }
+            }
+        });
+    }
+
+    /**
+     * Indicates that the status of a query has changed.
+     * @param event the <tt>ContactQueryStatusEvent</tt> that notified us
+     */
+    public void queryStatusChanged(ContactQueryStatusEvent event)
+    {
+        int eventType = event.getEventType();
+
+        if (eventType == ContactQueryStatusEvent.QUERY_ERROR)
+        {
+            //TODO: Show the error to the user??
+        }
+
+        event.getQuerySource().removeContactQueryListener(this);
     }
 
     /**
@@ -716,7 +774,7 @@ public class TreeContactList
     public void setActiveContact(MetaContact metaContact, boolean isActive)
     {
         // We synchronize the matching and all MetaContactListener
-        // events on the tempTreeModel in order to prevent modification
+        // events on the filterLock in order to prevent modification
         // to be done on the actual treeModel while we're working with
         // the temporary model.
         synchronized (filterLock)
@@ -944,6 +1002,9 @@ public class TreeContactList
     {
         currentFilter.stopFilter();
         this.isFiltering = false;
+
+        if (filterQuery != null)
+            filterQuery.cancel();
     }
 
     /**
@@ -954,18 +1015,81 @@ public class TreeContactList
      */
     public boolean applyDefaultFilter()
     {
-        return applyFilter(defaultFilter);
+        return applyFilter(defaultFilter, new ContactListTreeModel(), null);
+    }
+
+    /**
+     * Applies the given <tt>filter</tt>.
+     * @param filter the <tt>ContactListFilter</tt> to apply.
+     * @return <tt>true</tt> if the filter has any matches, <tt>false</tt>
+     * otherwise
+     */
+    public boolean applyFilter(ContactListFilter filter)
+    {
+        return applyFilter(filter, new ContactListTreeModel(), null);
+    }
+
+    /**
+     * Applies the given <tt>ContactListSourceFilter</tt>.
+     * @param filter the <tt>ContactListSourceFilter</tt> to apply
+     * @return the <tt>FilterQuery</tt> through which the filter could be
+     * tracked
+     */
+    public FilterQuery applyFilter(final ContactListSourceFilter filter)
+    {
+        final ContactListTreeModel tempTreeModel = new ContactListTreeModel();
+
+        filterQuery = new FilterQuery();
+
+        // If the filter has a default contact source, we apply it first.
+        if (filter.hasDefaultSource())
+            filterQuery.setSucceeded(applyFilter(filter, tempTreeModel, null));
+
+        Iterator<ExternalContactSource> filterSources
+             = filter.getContactSources().iterator();
+
+        // Then we apply the filter on all its contact sources.
+        while (filterSources.hasNext())
+        {
+            final ExternalContactSource filterSource = filterSources.next();
+
+            if (filterQuery.isCanceled())
+                return filterQuery;
+
+            filterQuery.addWaitResult();
+            new Thread()
+            {
+                public void run()
+                {
+                    boolean isSucceeded
+                        = applyFilter(  filter,
+                                        tempTreeModel,
+                                        filterSource);
+
+                    if (!filterQuery.isSucceeded() && isSucceeded)
+                        filterQuery.setSucceeded(true);
+
+                    filterQuery.removeWaitResult();
+                }
+            }.start();
+        }
+        return filterQuery;
     }
 
     /**
      * Applies the given <tt>filter</tt> and changes the content of the
      * contact list according to it.
      * @param filter the new filter to set
+     * @param tempTreeModel the treeModel, where the filter results are stored
+     * @param contactSource the <tt>ExternalContactSource</tt> to apply the
+     * filter to
      * @return <tt>true</tt> to indicate that the filter has found a match, 
      * <tt>false</tt> if no matches were found and the contact list is then
      * empty.
      */
-    public boolean applyFilter(ContactListFilter filter)
+    private boolean applyFilter(ContactListFilter filter,
+                                ContactListTreeModel tempTreeModel,
+                                ExternalContactSource contactSource)
     {
         // We set the isFiltering to true to indicate that we're currently
         // filtering.
@@ -974,8 +1098,6 @@ public class TreeContactList
         if (currentFilter == null || !currentFilter.equals(filter))
             this.currentFilter = filter;
 
-        tempTreeModel = new ContactListTreeModel();
-
         // We synchronize the matching and all MetaContactListener events on
         // the searchTreeModel in order to prevent modification to be done on
         // the actual treeModel while we're working with the temporary model.
@@ -983,7 +1105,15 @@ public class TreeContactList
         {
             treeModel.clearDependencies();
 
-            currentFilter.applyFilter(tempTreeModel);
+            // If we have a specific contact source and we're dealing with
+            // a ContactListSourceFilter then we would apply the filter only
+            // to this source.
+            if (contactSource != null
+                    && filter instanceof ContactListSourceFilter)
+                ((ContactListSourceFilter) currentFilter)
+                    .applyFilter(contactSource, tempTreeModel);
+            else
+                currentFilter.applyFilter(tempTreeModel);
 
             treeModel = tempTreeModel;
         }
@@ -1026,8 +1156,6 @@ public class TreeContactList
         if (tempTreeModel.getChildCount(tempTreeModel.getRoot()) > 0)
             hasResults = true;
 
-        tempTreeModel = null;
-
         return hasResults;
     }
 
@@ -1060,7 +1188,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent modification
+                // events on the filterLock in order to prevent modification
                 // to be done on the actual treeModel while we're working with
                 // the temporary model.
                 synchronized (filterLock)
@@ -1668,8 +1796,9 @@ public class TreeContactList
             switch (event.getType())
             {
             case ServiceEvent.REGISTERED:
-                contactSources.add(
-                    new ExternalContactSource((ContactSourceService) service));
+                ExternalContactSource contactSource
+                    = new ExternalContactSource((ContactSourceService) service);
+                contactSources.add(contactSource);
                 break;
             case ServiceEvent.UNREGISTERING:
                 ExternalContactSource cSource
@@ -1704,7 +1833,7 @@ public class TreeContactList
             public void run()
             {
                 // We synchronize the matching and all MetaContactListener
-                // events on the tempTreeModel in order to prevent
+                // events on the filterLock in order to prevent
                 // modification to be done on the actual treeModel while
                 // we're working with the temporary model.
                 synchronized (filterLock)

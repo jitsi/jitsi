@@ -51,8 +51,7 @@ public class PresenceFilter
     {
         isFiltering = true;
 
-        addMatching(GuiActivator.getContactListService().getRoot(),
-            treeModel);
+        addMatching(GuiActivator.getContactListService().getRoot(), treeModel);
 
         isFiltering = false;
     }

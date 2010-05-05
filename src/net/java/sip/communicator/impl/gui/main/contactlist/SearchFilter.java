@@ -20,8 +20,7 @@ import net.java.sip.communicator.service.contactsource.*;
  * @author Yana Stamcheva
  */
 public class SearchFilter
-    implements  ContactListFilter,
-                ContactQueryListener
+    implements  ContactListSourceFilter
 {
     /**
      * The default contact source search type.
@@ -42,12 +41,6 @@ public class SearchFilter
      * The pattern to filter.
      */
     private Pattern filterPattern;
-
-    /**
-     * The <tt>ContactListTreeModel</tt>, where results from the search
-     * are added.
-     */
-    private ContactListTreeModel resultTreeModel;
 
     /**
      * The <tt>MetaContactListSource</tt> to search in.
@@ -85,31 +78,37 @@ public class SearchFilter
      */
     public void applyFilter(ContactListTreeModel treeModel)
     {
-        resultTreeModel = treeModel;
-
-        if (contactSources == null)
-            contactSources = TreeContactList.getContactSources();
-
         if (searchSourceType == DEFAULT_SOURCE)
             // First add the MetaContactListSource
             mclSource.filter(filterPattern, treeModel);
+    }
 
-        for (ExternalContactSource contactSource : contactSources)
-        {
-            ContactSourceService sourceService
-                = contactSource.getContactSourceService();
-            if (sourceService instanceof ExtendedContactSourceService)
-                currentQuery
-                    = ((ExtendedContactSourceService) sourceService)
-                        .queryContactSource(filterPattern);
-            else
-                currentQuery = sourceService.queryContactSource(filterString);
+    /**
+     * Applies this filter to the given <tt>contactSource</tt> and stores the
+     * result in the given <tt>treeModel</tt>.
+     *
+     * @param contactSource the <tt>ExternalContactSource</tt> to apply the
+     * filter to
+     * @param treeModel the <tt>ContactListTreeModel</tt> in which the results
+     * are stored
+     */
+    public void applyFilter(ExternalContactSource contactSource,
+                            ContactListTreeModel treeModel)
+    {
+        ContactSourceService sourceService
+            = contactSource.getContactSourceService();
 
-            // Add first available results.
-            this.addMatching(currentQuery.getQueryResults());
+        if (sourceService instanceof ExtendedContactSourceService)
+            currentQuery
+                = ((ExtendedContactSourceService) sourceService)
+                    .queryContactSource(filterPattern);
+        else
+            currentQuery = sourceService.queryContactSource(filterString);
 
-            currentQuery.addContactQueryListener(this);
-        }
+        // Add first available results.
+        this.addMatching(currentQuery.getQueryResults(), treeModel);
+
+        currentQuery.addContactQueryListener(GuiActivator.getContactList());
     }
 
     /**
@@ -202,55 +201,28 @@ public class SearchFilter
     }
 
     /**
-     * Indicates that a contact has been received for a query.
-     * @param event the <tt>ContactReceivedEvent</tt> that notified us
-     */
-    public void contactReceived(ContactReceivedEvent event)
-    {
-        synchronized (resultTreeModel)
-        {
-            addSourceContact(event.getContact());
-        }
-    }
-
-    /**
-     * Indicates that the status of a query has changed.
-     * @param event the <tt>ContactQueryStatusEvent</tt> that notified us
-     */
-    public void queryStatusChanged(ContactQueryStatusEvent event)
-    {
-        int eventType = event.getEventType();
-
-        // Remove the current query when it's stopped for some reason.
-        // QUERY_COMPLETED, QUERY_COMPLETED, QUERY_ERROR
-        currentQuery = null;
-
-        if (eventType == ContactQueryStatusEvent.QUERY_ERROR)
-        {
-            //TODO: Show the error to the user??
-        }
-
-        event.getQuerySource().removeContactQueryListener(this);
-    }
-
-    /**
-     * Adds the list of <tt>sourceContacts</tt> in the current result tree model.
+     * Adds the list of <tt>sourceContacts</tt> in the given <tt>treeModel</tt>.
      * @param sourceContacts the list of <tt>SourceContact</tt>s to add
+     * @param treeModel the <tt>ContactListTreeModel</tt>, where the contacts
+     * are added
      */
-    private void addMatching(List<SourceContact> sourceContacts)
+    private void addMatching(   List<SourceContact> sourceContacts,
+                                ContactListTreeModel treeModel)
     {
         Iterator<SourceContact> contactsIter = sourceContacts.iterator();
         while (contactsIter.hasNext())
         {
-            addSourceContact(contactsIter.next());
+            addSourceContact(contactsIter.next(), treeModel);
         }
     }
 
     /**
      * Adds the given <tt>sourceContact</tt> to the result tree model.
      * @param sourceContact the <tt>SourceContact</tt> to add
+     * @param treeModel the <tt>ContactListTreeModel</tt> storing the result
      */
-    private void addSourceContact(SourceContact sourceContact)
+    private void addSourceContact(  SourceContact sourceContact,
+                                    ContactListTreeModel treeModel)
     {
         ContactSourceService contactSource
             = sourceContact.getContactSource();
@@ -263,12 +235,14 @@ public class SearchFilter
             // SourceContact over the pattern
             && (contactSource instanceof ExtendedContactSourceService)
                 || isMatching(sourceContact))
+        {
             GuiActivator.getContactList().addContact(
-                resultTreeModel,
+                treeModel,
                 sourceUI.getUIContact(sourceContact),
                 sourceUI.getUIGroup(),
-                true,
+                false,
                 false);
+        }
     }
 
     /**
@@ -298,5 +272,26 @@ public class SearchFilter
                 break;
             }
         }
+    }
+
+    public Collection<ExternalContactSource> getContactSources()
+    {
+        if (contactSources == null)
+            contactSources = TreeContactList.getContactSources();
+
+        return contactSources;
+    }
+
+    /**
+     * Indicates if this filter contains a default source.
+     * @return <tt>true</tt> if this filter contains a default source,
+     * <tt>false</tt> otherwise
+     */
+    public boolean hasDefaultSource()
+    {
+        if (searchSourceType == DEFAULT_SOURCE)
+            return true;
+        else
+            return false;
     }
 }
