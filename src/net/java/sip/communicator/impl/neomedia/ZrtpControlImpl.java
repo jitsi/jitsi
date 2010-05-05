@@ -60,6 +60,21 @@ public class ZrtpControlImpl
     }
 
     /**
+     * Cleans up the current zrtp control and its engine.
+     */
+    void cleanup()
+    {
+        if(zrtpEngine != null)
+        {
+            zrtpEngine.stopZrtp();
+            zrtpEngine.cleanup();
+        }
+
+        zrtpEngine = null;
+        zrtpConnector = null;
+    }
+
+    /**
      * Sets a <tt>ZrtpListener</tt> that will listen for zrtp security events.
      *
      * @param zrtpListener the <tt>ZrtpListener</tt> to set

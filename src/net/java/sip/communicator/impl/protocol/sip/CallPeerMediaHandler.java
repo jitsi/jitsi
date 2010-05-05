@@ -905,11 +905,6 @@ public class CallPeerMediaHandler
             // when using zrtp multistreams
             ZrtpControl zrtpControl = stream.getZrtpControl();
 
-            if(zrtpControl.getSecureCommunicationStatus())
-            {
-                zrtpControl = stream.restartZrtpControl();
-            }
-
             zrtpControl.setZrtpListener(peer);
             zrtpControl.start(stream instanceof AudioMediaStream);
         }

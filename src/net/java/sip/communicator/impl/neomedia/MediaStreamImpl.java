@@ -197,6 +197,11 @@ public class MediaStreamImpl
         new Hashtable<String, String>();
 
     /**
+     * Needed when restarting zrtp control.
+     */
+    private boolean zrtpRestarted = false;
+
+    /**
      * Initializes a new <tt>MediaStreamImpl</tt> instance which will use the
      * specified <tt>MediaDevice</tt> for both capture and playback of media
      * exchanged via the specified <tt>StreamConnector</tt>.
@@ -431,6 +436,7 @@ public class MediaStreamImpl
             engine.stopZrtp();
             engine.cleanup();
         }
+        zrtpRestarted = false;
 
         if(csrcEngine != null)
         {
@@ -887,14 +893,15 @@ public class MediaStreamImpl
     /**
      * Resets the state of secure communication and restart the secure
      * communication negotiation.
-     * @return the newly created <tt>ZrtpControl</tt>.
      */
-    public ZrtpControl restartZrtpControl()
+    private void restartZrtpControl()
     {
-        ZrtpControlImpl oldZrtpControl = zrtpControl;
+        // if there is no current secure communication we don't need to do that
+        if(!zrtpControl.getSecureCommunicationStatus())
+            return;
 
-        this.zrtpControl = new ZrtpControlImpl();
-        
+        zrtpControl.cleanup();
+
         // as we are recreating this stream and it was obviously secured
         // it may happen we receive unencrepted data and we will hear
         // noise, so we mute it till secure connection is again established
@@ -902,19 +909,7 @@ public class MediaStreamImpl
 
         this.zrtpControl.setConnector(rtpConnector);
         rtpConnector.setEngine(createTransformEngineChain());
-
-        if(oldZrtpControl != null)
-        {
-            ZRTPTransformEngine engine = oldZrtpControl.getZrtpEngine();
-
-            if(engine != null)
-            {
-                engine.stopZrtp();
-                engine.cleanup();
-            }
-        }
-
-        return zrtpControl;
+        zrtpRestarted = true;
     }
 
     /**
@@ -963,6 +958,10 @@ public class MediaStreamImpl
         if (sendStreamsAreCreated)
         {
             closeSendStreams();
+
+            // this will restart and reinit zrtp control if needed.
+            restartZrtpControl();
+
             if ((getDeviceSession() != null) && (rtpManager != null))
             {
                 if (MediaDirection.SENDONLY.equals(startedDirection)
@@ -1657,6 +1656,17 @@ public class MediaStreamImpl
         else if (event instanceof TimeoutEvent)
         {
             ReceiveStream receiveStream = event.getReceiveStream();
+
+            // if we recreate streams we will already have restarted
+            // zrtp control
+            // but when on the other end some one has recreated his streams
+            // we will received a ByeEvent(TimeoutEvent) and so we must also
+            // restart our zrtp, this happens when we are already in a call
+            // and the other party starts an conf call
+            if(!zrtpRestarted)
+            {
+                restartZrtpControl();
+            }
 
             if (receiveStream != null)
             {

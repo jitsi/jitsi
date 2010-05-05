@@ -278,11 +278,4 @@ public interface MediaStream
      */
     public ZrtpControl getZrtpControl();
 
-    /**
-     * Resets the state of secure communication and restart the secure
-     * communication negotiation.
-     * @return the reseted <tt>ZrtpControl</tt>, which may be the old one
-     * or can be newly created one.
-     */
-    public ZrtpControl restartZrtpControl();
 }
