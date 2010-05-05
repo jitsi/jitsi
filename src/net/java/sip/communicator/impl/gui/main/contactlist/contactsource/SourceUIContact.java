@@ -99,7 +99,7 @@ public class SourceUIContact
      */
     public ImageIcon getStatusIcon()
     {
-        return null;
+        return new ImageIcon(Constants.getStatusIcon(Constants.OFFLINE_STATUS));
     }
 
     /**
