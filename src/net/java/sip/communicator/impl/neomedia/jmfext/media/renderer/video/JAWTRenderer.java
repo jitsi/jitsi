@@ -187,7 +187,10 @@ public class JAWTRenderer
                 @Override
                 public void update(Graphics g)
                 {
-                    /* do not clear screen since it cause flickering */
+                    /*
+                     * Skip the filling with the background color because it
+                     * causes flickering.
+                     */
                     paint(g);
                 }
             };
