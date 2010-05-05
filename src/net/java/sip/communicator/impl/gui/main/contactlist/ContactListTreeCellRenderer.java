@@ -267,7 +267,7 @@ public class ContactListTreeCellRenderer
                             else if (providersCount > 1)
                                 chooseAccountDialog
                                     = new ChooseCallAccountPopupMenu(
-                                        tree, providers);
+                                        tree, detail.getAddress(), providers);
                         }
                     }
                     else if (telephonyContacts.size() > 1)
