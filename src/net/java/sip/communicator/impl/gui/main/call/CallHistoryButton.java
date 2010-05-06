@@ -97,8 +97,7 @@ public class CallHistoryButton
                         .setSearchSourceType(SearchFilter.DEFAULT_SOURCE);
                     GuiActivator.getContactList()
                         .setDefaultFilter(TreeContactList.presenceFilter);
-                    GuiActivator.getContactList().applyFilter(
-                        TreeContactList.presenceFilter);
+                    GuiActivator.getContactList().applyDefaultFilter();
 
                     isHistoryVisible = false;
                 }
@@ -108,8 +107,7 @@ public class CallHistoryButton
                         .setSearchSourceType(SearchFilter.HISTORY_SOURCE);
                     GuiActivator.getContactList()
                         .setDefaultFilter(TreeContactList.historyFilter);
-                    GuiActivator.getContactList()
-                        .applyFilter(TreeContactList.historyFilter);
+                    GuiActivator.getContactList().applyDefaultFilter();
 
                     CallManager.clearMissedCalls();
 

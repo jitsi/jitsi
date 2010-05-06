@@ -711,6 +711,14 @@ public class MainFrame
     }
 
     /**
+     * Clears the current text in the search field.
+     */
+    public void clearCurrentSearchText()
+    {
+        searchField.setText("");
+    }
+
+    /**
      * Checks in the configuration xml if there is already stored index for
      * this provider and if yes, returns it, otherwise creates a new account
      * index and stores it.

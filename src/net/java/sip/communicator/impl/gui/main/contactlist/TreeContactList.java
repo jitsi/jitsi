@@ -17,6 +17,7 @@ import javax.swing.tree.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -1010,13 +1011,21 @@ public class TreeContactList
 
     /**
      * Applies the default filter.
-     * @return <tt>true</tt> to indicate that the filter has found a match, 
-     * <tt>false</tt> if no matches were found and the contact list is then
-     * empty.
      */
-    public boolean applyDefaultFilter()
+    public void applyDefaultFilter()
     {
-        return applyFilter(defaultFilter, new ContactListTreeModel(), null);
+        MainFrame mainFrame = GuiActivator.getUIService().getMainFrame();
+        String currentSearchText = mainFrame.getCurrentSearchText();
+
+        if (currentSearchText != null
+             && currentSearchText.length() > 0)
+        {
+            // The clear will automatically apply the default filter after
+            // the remove text event is triggered!
+            mainFrame.clearCurrentSearchText();
+        }
+        else
+            applyFilter(defaultFilter, new ContactListTreeModel(), null);
     }
 
     /**

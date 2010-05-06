@@ -124,7 +124,8 @@ public class ToolsMenu
                 public void run()
                 {
                     GuiActivator.getContactList()
-                        .applyFilter(TreeContactList.presenceFilter);
+                        .setDefaultFilter(TreeContactList.presenceFilter);
+                    GuiActivator.getContactList().applyDefaultFilter();
                 }
             }.start();
 
