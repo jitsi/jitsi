@@ -6,12 +6,17 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
+import java.util.*;
+
+import net.java.sip.communicator.service.contactsource.*;
+
 /**
  * The <tt>FilterQuery</tt> gives information about a current filtering.
  *
  * @author Yana Stamcheva
  */
 public class FilterQuery
+    implements ContactQueryListener
 {
     /**
      * A listener, which is notified when this query finishes.
@@ -30,29 +35,19 @@ public class FilterQuery
     private boolean isCanceled = false;
 
     /**
-     * The number of results we're waiting for, before notifying interested
-     * <tt>filterQueryListener</tt> that the query has finished.
+     * The list of filter queries.
      */
-    private int waitResults = 0;
+    private Collection<ContactQuery> filterQueries
+        = new LinkedList<ContactQuery>();
 
     /**
-     * Adds a wait result.
+     * Adds the given <tt>contactQuery</tt> to the list of filterQueries.
+     * @param contactQuery the <tt>ContactQuery</tt> to add
      */
-    public void addWaitResult()
+    public void addContactQuery(ContactQuery contactQuery)
     {
-        waitResults ++;
-    }
-
-    /**
-     * Removes a wait result. If no more results are waited then we notify
-     * interested listener that this query has finished.
-     */
-    public void removeWaitResult()
-    {
-        waitResults --;
-
-        if (waitResults == 0)
-            fireFilterQueryEvent();
+        filterQueries.add(contactQuery);
+        contactQuery.addContactQueryListener(this);
     }
 
     /**
@@ -74,14 +69,23 @@ public class FilterQuery
         return isSucceeded;
     }
 
+    /**
+     * Indicates if this query is canceled.
+     * @return <tt>true</tt> if this query is canceled, <tt>false</tt> otherwise
+     */
     public boolean isCanceled()
     {
         return isCanceled;
     }
 
+    /**
+     * Cancels this filter query.
+     */
     public void cancel()
     {
         isCanceled = true;
+        filterQueries.clear();
+        fireFilterQueryEvent();
     }
 
     /**
@@ -107,4 +111,32 @@ public class FilterQuery
         else
             filterQueryListener.filterQueryFailed(this);
     }
+
+    /**
+     * Indicates that a query has changed its status.
+     * @param event the <tt>ContactQueryStatusEvent</tt> that notified us
+     */
+    public void queryStatusChanged(ContactQueryStatusEvent event)
+    {
+        ContactQuery query = event.getQuerySource();
+
+        // Check if this query is in our filter queries list.
+        if (!filterQueries.contains(query))
+            return;
+
+        // First set the isSucceeded property.
+        setSucceeded(!isSucceeded() && !query.getQueryResults().isEmpty());
+
+        // Then remove the wait result from the filterQuery.
+        filterQueries.remove(query);
+        query.removeContactQueryListener(this);
+
+        // If no queries have rest we notify interested listeners that query
+        // has finished.
+        if (filterQueries.isEmpty())
+            fireFilterQueryEvent();
+    }
+
+    public void contactReceived(ContactReceivedEvent event)
+    {}
 }

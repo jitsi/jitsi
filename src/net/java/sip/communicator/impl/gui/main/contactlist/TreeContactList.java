@@ -734,12 +734,11 @@ public class TreeContactList
     public void queryStatusChanged(ContactQueryStatusEvent event)
     {
         int eventType = event.getEventType();
-System.out.println("EHOOOOOOOOOO=========" + event.getEventType());
+
         if (eventType == ContactQueryStatusEvent.QUERY_ERROR)
         {
             //TODO: Show the error to the user??
         }
-
         event.getQuerySource().removeContactQueryListener(this);
     }
 
@@ -1057,7 +1056,6 @@ System.out.println("EHOOOOOOOOOO=========" + event.getEventType());
             if (filterQuery.isCanceled())
                 return filterQuery;
 
-            filterQuery.addWaitResult();
             new Thread()
             {
                 public void run()
@@ -1067,10 +1065,8 @@ System.out.println("EHOOOOOOOOOO=========" + event.getEventType());
                                         tempTreeModel,
                                         filterSource);
 
-                    if (!filterQuery.isSucceeded() && isSucceeded)
-                        filterQuery.setSucceeded(true);
-
-                    filterQuery.removeWaitResult();
+                    filterQuery.setSucceeded(
+                        !filterQuery.isSucceeded() && isSucceeded);
                 }
             }.start();
         }
@@ -1111,8 +1107,13 @@ System.out.println("EHOOOOOOOOOO=========" + event.getEventType());
             // to this source.
             if (contactSource != null
                     && filter instanceof ContactListSourceFilter)
-                ((ContactListSourceFilter) currentFilter)
-                    .applyFilter(contactSource, tempTreeModel);
+            {
+                ContactQuery contactQuery
+                    = ((ContactListSourceFilter) currentFilter)
+                        .applyFilter(contactSource, tempTreeModel);
+
+                filterQuery.addContactQuery(contactQuery);
+            }
             else
                 currentFilter.applyFilter(tempTreeModel);
 

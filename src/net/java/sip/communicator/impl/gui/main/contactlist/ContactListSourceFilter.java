@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.util.*;
 
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
+import net.java.sip.communicator.service.contactsource.*;
 
 /**
  * The <tt>ContactListSourceFilter</tt> is a <tt>ContactListFilter</tt> that
@@ -25,9 +26,10 @@ public interface ContactListSourceFilter extends ContactListFilter
      * @param contactSource the <tt>ExternalContactSource</tt> to apply the
      * filter to
      * @param treeModel the <tt>ContactListTreeModel</tt> storing the results
+     * @return the <tt>ContactQuery</tt> that tracks this filter
      */
-    public void applyFilter(ExternalContactSource contactSource,
-                            ContactListTreeModel treeModel);
+    public ContactQuery applyFilter(ExternalContactSource contactSource,
+                                    ContactListTreeModel treeModel);
 
     /**
      * Returns the list of current <tt>ExternalContactSource</tt>s this filter

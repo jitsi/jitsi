@@ -141,7 +141,8 @@ public class CallHistoryContactSource implements ContactSourceService
          */
         public void cancel()
         {
-            callHistoryQuery.cancel();
+            if (callHistoryQuery != null)
+                callHistoryQuery.cancel();
         }
 
         /**

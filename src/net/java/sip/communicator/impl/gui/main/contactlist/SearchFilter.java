@@ -98,9 +98,10 @@ public class SearchFilter
      * filter to
      * @param treeModel the <tt>ContactListTreeModel</tt> in which the results
      * are stored
+     * @return the <tt>ContactQuery</tt> that tracks this filter
      */
-    public void applyFilter(ExternalContactSource contactSource,
-                            ContactListTreeModel treeModel)
+    public ContactQuery applyFilter(ExternalContactSource contactSource,
+                                    ContactListTreeModel treeModel)
     {
         logger.debug("Search filter applied on source: "
                 + contactSource.getContactSourceService());
@@ -119,6 +120,8 @@ public class SearchFilter
         this.addMatching(currentQuery.getQueryResults(), treeModel);
 
         currentQuery.addContactQueryListener(GuiActivator.getContactList());
+
+        return currentQuery;
     }
 
     /**
@@ -284,6 +287,12 @@ public class SearchFilter
         }
     }
 
+    /**
+     * Returns the list of <tt>ExternalContactSource</tt> this filter searches
+     * in.
+     * @return the list of <tt>ExternalContactSource</tt> this filter searches
+     * in
+     */
     public Collection<ExternalContactSource> getContactSources()
     {
         if (contactSources == null)
