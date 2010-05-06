@@ -12,6 +12,7 @@ import java.util.regex.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>SearchFilter</tt> is a <tt>ContactListFilter</tt> that filters the
@@ -22,6 +23,11 @@ import net.java.sip.communicator.service.contactsource.*;
 public class SearchFilter
     implements  ContactListSourceFilter
 {
+    /**
+     * This class logger.
+     */
+    private final Logger logger = Logger.getLogger(SearchFilter.class);
+
     /**
      * The default contact source search type.
      */
@@ -78,6 +84,7 @@ public class SearchFilter
      */
     public void applyFilter(ContactListTreeModel treeModel)
     {
+        logger.debug("Search filter applied on default source");
         if (searchSourceType == DEFAULT_SOURCE)
             // First add the MetaContactListSource
             mclSource.filter(filterPattern, treeModel);
@@ -95,6 +102,9 @@ public class SearchFilter
     public void applyFilter(ExternalContactSource contactSource,
                             ContactListTreeModel treeModel)
     {
+        logger.debug("Search filter applied on source: "
+                + contactSource.getContactSourceService());
+
         ContactSourceService sourceService
             = contactSource.getContactSourceService();
 

@@ -13,6 +13,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>PresenceFilter</tt> is used to filter offline contacts from the
@@ -23,6 +24,11 @@ import net.java.sip.communicator.service.protocol.*;
 public class PresenceFilter
     implements  ContactListFilter
 {
+    /**
+     * This class logger.
+     */
+    private final Logger logger = Logger.getLogger(PresenceFilter.class);
+
     /**
      * Indicates if this presence filter shows or hides the offline contacts.
      */
@@ -49,6 +55,8 @@ public class PresenceFilter
      */
     public void applyFilter(ContactListTreeModel treeModel)
     {
+        logger.debug("Presence filter applied.");
+
         isFiltering = true;
 
         addMatching(GuiActivator.getContactListService().getRoot(), treeModel);

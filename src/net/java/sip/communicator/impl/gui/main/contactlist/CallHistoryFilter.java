@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>CallHistoryFilter</tt> is a filter over the history contact sources.
@@ -21,6 +22,11 @@ public class CallHistoryFilter
     implements  ContactListFilter,
                 ContactQueryListener
 {
+    /**
+     * This class logger.
+     */
+    private final Logger logger = Logger.getLogger(CallHistoryFilter.class);
+
     /**
      * The <tt>ContactListTreeModel</tt>, where the results of this filter are
      * stored
@@ -40,6 +46,8 @@ public class CallHistoryFilter
      */
     public void applyFilter(ContactListTreeModel treeModel)
     {
+        logger.debug("Call history filter applied.");
+
         this.resultTreeModel = treeModel;
 
         Collection<ExternalContactSource> contactSources
