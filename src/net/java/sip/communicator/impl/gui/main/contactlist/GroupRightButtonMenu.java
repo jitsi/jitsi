@@ -36,7 +36,8 @@ public class GroupRightButtonMenu
 
     private final JMenuItem addContactItem =
         new JMenuItem(GuiActivator.getResources().getI18NString(
-            "service.gui.ADD_CONTACT") + "...");
+            "service.gui.ADD_CONTACT") + "...", new ImageIcon(ImageLoader
+            .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
 
     private final JMenuItem removeGroupItem =
         new JMenuItem(GuiActivator.getResources().getI18NString(
@@ -62,9 +63,6 @@ public class GroupRightButtonMenu
     {
         this.group = group;
         this.mainFrame = mainFrame;
-
-        this.addContactItem.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
 
         this.add(addContactItem);
 
