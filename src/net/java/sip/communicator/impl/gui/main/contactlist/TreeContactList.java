@@ -707,10 +707,11 @@ public class TreeContactList
                     ExternalContactSource sourceUI
                         = TreeContactList.getContactSource(contactSource);
 
-                    UIContact uiContact = sourceUI.getUIContact(sourceContact);
-
                     if (sourceUI == null)
                         return;
+
+                    UIContact uiContact
+                        = sourceUI.createUIContact(sourceContact);
 
                     // ExtendedContactSourceService has already matched the
                     // SourceContact over the pattern
@@ -733,7 +734,7 @@ public class TreeContactList
     public void queryStatusChanged(ContactQueryStatusEvent event)
     {
         int eventType = event.getEventType();
-
+System.out.println("EHOOOOOOOOOO=========" + event.getEventType());
         if (eventType == ContactQueryStatusEvent.QUERY_ERROR)
         {
             //TODO: Show the error to the user??

@@ -113,13 +113,13 @@ public class SearchFilter
 
     /**
      * Indicates if the given <tt>uiGroup</tt> matches this filter.
-     * @param uiGroup the <tt>UIGroup</tt> to check
+     * @param uiContact the <tt>UIGroup</tt> to check
      * @return <tt>true</tt> if the given <tt>uiGroup</tt> matches the current
      * filter, <tt>false</tt> - otherwise
      */
-    public boolean isMatching(UIContact uiGroup)
+    public boolean isMatching(UIContact uiContact)
     {
-        Iterator<String> searchStrings = uiGroup.getSearchStrings();
+        Iterator<String> searchStrings = uiContact.getSearchStrings();
 
         while (searchStrings != null && searchStrings.hasNext())
         {
@@ -238,7 +238,7 @@ public class SearchFilter
         {
             GuiActivator.getContactList().addContact(
                 treeModel,
-                sourceUI.getUIContact(sourceContact),
+                sourceUI.createUIContact(sourceContact),
                 sourceUI.getUIGroup(),
                 false,
                 false);

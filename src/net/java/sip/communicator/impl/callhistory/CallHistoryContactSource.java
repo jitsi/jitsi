@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.callhistory;
 import java.util.*;
 
 import net.java.sip.communicator.service.callhistory.*;
+import net.java.sip.communicator.service.callhistory.event.*;
 import net.java.sip.communicator.service.contactsource.*;
 
 /**
@@ -41,20 +42,21 @@ public class CallHistoryContactSource implements ContactSourceService
     public ContactQuery queryContactSource(String queryString)
     {
         if (queryString != null && queryString.length() > 0)
-            return new CallHistoryQuery(
+            return new CallHistoryContactQuery(
                 CallHistoryActivator.getCallHistoryService()
-                    .findByPeer(queryString));
+                    .findByPeer(queryString, 100));
         else
-            return new CallHistoryQuery(
+            return new CallHistoryContactQuery(
                 CallHistoryActivator.getCallHistoryService()
                     .findLast(50));
     }
 
     /**
-     * The <tt>CallHistoryQuery</tt> contains information about a current query
-     * to the contact source.
+     * The <tt>CallHistoryContactQuery</tt> contains information about a current
+     * query to the contact source.
      */
-    private class CallHistoryQuery implements ContactQuery
+    private class CallHistoryContactQuery
+        implements ContactQuery
     {
         /**
          * A list of all registered query listeners.
@@ -69,10 +71,18 @@ public class CallHistoryContactSource implements ContactSourceService
             = new LinkedList<SourceContact>();
 
         /**
-         * Creates a <tt>CallHistoryQuery</tt>.
-         * @param callRecords a collection of the result call records
+         * The underlying <tt>CallHistoryQuery</tt>, on which this
+         * <tt>ContactQuery</tt> is based.
          */
-        public CallHistoryQuery(Collection<CallRecord> callRecords)
+        private CallHistoryQuery callHistoryQuery;
+
+        /**
+         * Creates an instance of <tt>CallHistoryContactQuery</tt> by specifying
+         * the list of call records results.
+         * @param callRecords the list of call records, which are the result
+         * of this query
+         */
+        public CallHistoryContactQuery(Collection<CallRecord> callRecords)
         {
             Iterator<CallRecord> recordsIter = callRecords.iterator();
 
@@ -83,6 +93,34 @@ public class CallHistoryContactSource implements ContactSourceService
                         CallHistoryContactSource.this,
                         recordsIter.next()));
             }
+        }
+
+        /**
+         * Creates an instance of <tt>CallHistoryContactQuery</tt> based on the
+         * given <tt>callHistoryQuery</tt>.
+         * @param callHistoryQuery the query used to track the call history
+         */
+        public CallHistoryContactQuery(CallHistoryQuery callHistoryQuery)
+        {
+            this.callHistoryQuery = callHistoryQuery;
+
+            callHistoryQuery.addQueryListener(new CallHistoryQueryListener()
+            {
+                public void callRecordReceived(CallRecordEvent event)
+                {
+                    SourceContact contact = new CallHistorySourceContact(
+                                                CallHistoryContactSource.this,
+                                                event.getCallRecord());
+                    sourceContacts.add(contact);
+                    fireQueryEvent(contact);
+                }
+
+                public void queryStatusChanged(
+                    CallHistoryQueryStatusEvent event)
+                {
+                    fireQueryStatusEvent(event.getEventType());
+                }
+            });
         }
 
         /**
@@ -103,7 +141,7 @@ public class CallHistoryContactSource implements ContactSourceService
          */
         public void cancel()
         {
-            
+            callHistoryQuery.cancel();
         }
 
         /**
@@ -137,6 +175,47 @@ public class CallHistoryContactSource implements ContactSourceService
         public ContactSourceService getContactSource()
         {
             return CallHistoryContactSource.this;
+        }
+
+        /**
+         * Notifies all registered <tt>ContactQueryListener</tt>s that a new
+         * contact has been received.
+         * @param contact the <tt>SourceContact</tt> this event is about
+         */
+        private void fireQueryEvent(SourceContact contact)
+        {
+            ContactReceivedEvent event = new ContactReceivedEvent(this, contact);
+
+            Collection<ContactQueryListener> listeners;
+            synchronized (queryListeners)
+            {
+                listeners
+                    = new ArrayList<ContactQueryListener>(queryListeners);
+            }
+
+            for (ContactQueryListener l : listeners)
+                l.contactReceived(event);
+        }
+
+        /**
+         * Notifies all registered <tt>ContactQueryListener</tt>s that a new
+         * record has been received.
+         * @param newStatus the new status
+         */
+        private void fireQueryStatusEvent(int newStatus)
+        {
+            ContactQueryStatusEvent event
+                = new ContactQueryStatusEvent(this, newStatus);
+
+            Collection<ContactQueryListener> listeners;
+            synchronized (queryListeners)
+            {
+                listeners
+                    = new ArrayList<ContactQueryListener>(queryListeners);
+            }
+
+            for (ContactQueryListener l : listeners)
+                l.queryStatusChanged(event);
         }
     }
 

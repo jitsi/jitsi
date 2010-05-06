@@ -42,6 +42,11 @@ public class SourceUIContact
     private UIGroup uiGroup;
 
     /**
+     * The search strings for this <tt>UIContact</tt>.
+     */
+    private final List<String> searchStrings = new LinkedList<String>();
+
+    /**
      * Creates an instance of <tt>SourceUIContact</tt> by specifying the
      * <tt>SourceContact</tt>, on which this abstraction is based and the
      * parent <tt>UIGroup</tt>.
@@ -55,6 +60,8 @@ public class SourceUIContact
     {
         this.sourceContact = contact;
         this.uiGroup = parentGroup;
+
+        searchStrings.add(contact.getDisplayName());
     }
 
     /**
@@ -186,9 +193,14 @@ public class SourceUIContact
         return resultList;
     }
 
+    /**
+     * Returns an <tt>Iterator</tt> over a list of strings, which can be used
+     * to find this contact.
+     * @return an <tt>Iterator</tt> over a list of search strings
+     */
     public Iterator<String> getSearchStrings()
     {
-        return null;
+        return searchStrings.iterator();
     }
 
     /**

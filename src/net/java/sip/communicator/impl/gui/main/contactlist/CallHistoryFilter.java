@@ -138,7 +138,7 @@ public class CallHistoryFilter
     {
         GuiActivator.getContactList()
             .addContact(resultTreeModel,
-                        uiSource.getUIContact(sourceContact),
+                        uiSource.createUIContact(sourceContact),
                         uiSource.getUIGroup(),
                         false,
                         false);

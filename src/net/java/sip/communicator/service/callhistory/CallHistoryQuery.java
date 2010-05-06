@@ -42,12 +42,12 @@ public interface CallHistoryQuery
      * listeners interested in query result changes.
      * @param l the <tt>CallHistoryQueryListener</tt> to add
      */
-    public void addCallRecordsListener(CallHistoryQueryListener l);
+    public void addQueryListener(CallHistoryQueryListener l);
 
     /**
      * Removes the given <tt>CallHistoryQueryListener</tt> from the list of
      * listeners interested in query result changes.
      * @param l the <tt>CallHistoryQueryListener</tt> to remove
      */
-    public void removeCallRecordsListener(CallHistoryQueryListener l);
+    public void removeQueryListener(CallHistoryQueryListener l);
 }

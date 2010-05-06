@@ -218,9 +218,4 @@ public interface HistoryReader {
      */
     public int countRecords()
         throws UnsupportedOperationException;
-
-    /**
-     * Cancels the current find. If there's no find going on, then does nothing.
-     */
-    public void cancelCurrentFind();
 }

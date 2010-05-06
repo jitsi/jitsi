@@ -288,35 +288,34 @@ public class CallHistoryServiceImpl
     /**
      * Find the calls made by the supplied peer address
      * @param address String the address of the peer
+     * @param recordCount the number of records to return
      * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
-    public Collection<CallRecord> findByPeer(String address)
+    public CallHistoryQuery findByPeer(String address, int recordCount)
         throws RuntimeException
     {
-        TreeSet<CallRecord> result
-            = new TreeSet<CallRecord>(new CallRecordComparator());
+        CallHistoryQueryImpl callQuery = null;
+
         try
         {
             // the default ones
             History history = this.getHistory(null, null);
-            historyReader = history.getReader();
-            addHistorySearchProgressListeners(historyReader, 1);
-            QueryResultSet<HistoryRecord> rs
-                = historyReader.findByKeyword(address, "callParticipantIDs");
-            while (rs.hasNext())
-            {
-                HistoryRecord hr = rs.next();
-                result.add(convertHistoryRecordToCallRecord(hr));
-            }
-            removeHistorySearchProgressListeners(historyReader);
+            InteractiveHistoryReader historyReader
+                = history.getInteractiveReader();
+
+            HistoryQuery historyQuery
+                = historyReader.findByKeyword(
+                    address, "callParticipantIDs", recordCount);
+
+            callQuery = new CallHistoryQueryImpl(historyQuery);
         }
         catch (IOException ex)
         {
             logger.error("Could not read history", ex);
         }
 
-        return result;
+        return callQuery;
     }
 
     /**
@@ -363,7 +362,7 @@ public class CallHistoryServiceImpl
      * @param hr HistoryRecord
      * @return Object CallRecord
      */
-    private CallRecord convertHistoryRecordToCallRecord(HistoryRecord hr)
+    static CallRecord convertHistoryRecordToCallRecord(HistoryRecord hr)
     {
         CallRecordImpl result = new CallRecordImpl();
 
@@ -427,7 +426,7 @@ public class CallHistoryServiceImpl
      * @param str String
      * @return LinkedList
      */
-    private List<String> getCSVs(String str)
+    private static List<String> getCSVs(String str)
     {
         List<String> result = new LinkedList<String>();
         StringTokenizer toks = new StringTokenizer(str, DELIM);
@@ -444,7 +443,7 @@ public class CallHistoryServiceImpl
      * @param str String delimited string states
      * @return LinkedList the converted values list
      */
-    private List<CallPeerState> getStates(String str)
+    private static List<CallPeerState> getStates(String str)
     {
         List<CallPeerState> result =
             new LinkedList<CallPeerState>();
@@ -463,7 +462,7 @@ public class CallHistoryServiceImpl
      * @param state String the string
      * @return CallPeerState the state
      */
-    private CallPeerState convertStateStringToState(String state)
+    private static CallPeerState convertStateStringToState(String state)
     {
         if(state.equals(CallPeerState._CONNECTED))
             return CallPeerState.CONNECTED;
@@ -1132,7 +1131,7 @@ public class CallHistoryServiceImpl
      * @return the <tt>ProtocolProviderService</tt> corresponding to the given
      * account identifier
      */
-    private ProtocolProviderService getProtocolProvider(String accountUID)
+    private static ProtocolProviderService getProtocolProvider(String accountUID)
     {
         for (ProtocolProviderFactory providerFactory
                 : CallHistoryActivator.getProtocolProviderFactories().values())
@@ -1151,14 +1150,5 @@ public class CallHistoryServiceImpl
             }
         }
         return null;
-    }
-
-    /**
-     * Cancels the current find. If there's no find going on, then does nothing.
-     */
-    public void cancelCurrentFind()
-    {
-        if (historyReader != null)
-            historyReader.cancelCurrentFind();
     }
 }

@@ -19,9 +19,11 @@ import org.w3c.dom.*;
 
 /**
  * @author Alexander Pelov
+ * @author Yana Stamcheva
  */
-public class HistoryImpl implements History {
-
+public class HistoryImpl
+    implements History
+{
     private static Logger log = Logger.getLogger(HistoryImpl.class);
 
     public static final String SUPPORTED_FILETYPE = "xml";
@@ -35,6 +37,11 @@ public class HistoryImpl implements History {
     private File directory;
 
     private HistoryReader reader;
+
+    /**
+     * The <tt>InteractiveHistoryReader</tt>.
+     */
+    private InteractiveHistoryReader interactiveReader;
 
     private HistoryWriter writer;
 
@@ -123,6 +130,24 @@ public class HistoryImpl implements History {
         }
 
         return this.reader;
+    }
+
+    /**
+     * Returns an object that can be used to read and query this history. The
+     * <tt>InteractiveHistoryReader</tt> differs from the <tt>HistoryReader</tt>
+     * in the way it manages query results. It allows to cancel a search at
+     * any time and to track history results through a
+     * <tt>HistoryQueryListener</tt>.
+     * @return an object that can be used to read and query this history
+     */
+    public InteractiveHistoryReader getInteractiveReader()
+    {
+        if (this.interactiveReader == null)
+        {
+            this.interactiveReader = new InteractiveHistoryReaderImpl(this);
+        }
+
+        return this.interactiveReader;
     }
 
     public HistoryWriter getWriter()

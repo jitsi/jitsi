@@ -10,18 +10,29 @@ import net.java.sip.communicator.service.history.records.*;
 
 /**
  * @author Alexander Pelov
+ * @author Yana Stamcheva
  */
-public interface History {
-
+public interface History
+{
     /**
-     * @return Returns an object which can be used to read and query this
-     *         history.
+     * Returns an object which can be used to read and query this history.
+     * @return an object which can be used to read and query this history
      */
     HistoryReader getReader();
 
     /**
-     * @return Returns an object which can be used to append records to this
-     *         history.
+     * Returns an object that can be used to read and query this history. The
+     * <tt>InteractiveHistoryReader</tt> differs from the <tt>HistoryReader</tt>
+     * in the way it manages query results. It allows to cancel a search at
+     * any time and to track history results through a
+     * <tt>HistoryQueryListener</tt>.
+     * @return an object that can be used to read and query this history
+     */
+    InteractiveHistoryReader getInteractiveReader();
+
+    /**
+     * Returns an object which can be used to append records to this history.
+     * @return an object which can be used to append records to this history
      */
     HistoryWriter getWriter();
 
@@ -40,5 +51,5 @@ public interface History {
      * structure used in this history implementation.
      * @param structure the new <tt>HistoryRecordStructure</tt> to use
      */
-    void setHistoryRecordsStructure(HistoryRecordStructure struct);
+    void setHistoryRecordsStructure(HistoryRecordStructure structure);
 }

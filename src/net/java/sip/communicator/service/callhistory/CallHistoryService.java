@@ -121,10 +121,11 @@ public interface CallHistoryService
     /**
      * Find the calls made by the supplied peer address
      * @param address String the address of the peer
+     * @param recordCount the number of records to return
      * @return Collection of CallRecords with CallPeerRecord
      * @throws RuntimeException
      */
-    public Collection<CallRecord> findByPeer(String address)
+    public CallHistoryQuery findByPeer(String address, int recordCount)
         throws RuntimeException;
 
     /**
@@ -142,9 +143,4 @@ public interface CallHistoryService
     */
     public void removeSearchProgressListener(
         CallHistorySearchProgressListener listener);
-
-    /**
-     * Cancels the current find. If there's no find going on, then does nothing.
-     */
-    public void cancelCurrentFind();
 }

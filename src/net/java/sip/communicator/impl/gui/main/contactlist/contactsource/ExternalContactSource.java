@@ -66,7 +66,7 @@ public class ExternalContactSource
      * @return the <tt>UIContact</tt> corresponding to the given
      * <tt>sourceContact</tt>
      */
-    public UIContact getUIContact(SourceContact sourceContact)
+    public UIContact createUIContact(SourceContact sourceContact)
     {
         return new SourceUIContact(sourceContact, sourceUIGroup);
     }

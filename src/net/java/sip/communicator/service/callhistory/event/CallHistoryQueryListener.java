@@ -17,10 +17,17 @@ package net.java.sip.communicator.service.callhistory.event;
 public interface CallHistoryQueryListener
 {
     /**
-     * Indicates that new <tt>CallRecord</tt>s are received as a result of the
+     * Indicates that new <tt>CallRecord</tt> is received as a result of the
      * query.
      * @param event the <tt>CallRecordsEvent</tt> containing information about
      * the query results.
      */
-    public void callRecordsReceived(CallRecordsEvent event);
+    public void callRecordReceived(CallRecordEvent event);
+
+    /**
+     * Indicates that the status of the history has changed.
+     * @param event the <tt>HistoryQueryStatusEvent</tt> containing information
+     * about the status change
+     */
+    public void queryStatusChanged(CallHistoryQueryStatusEvent event);
 }

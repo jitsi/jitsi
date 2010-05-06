@@ -10,8 +10,6 @@ import java.util.*;
 
 import org.w3c.dom.*;
 
-import sun.nio.cs.ext.*;
-
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.event.*;
 import net.java.sip.communicator.service.history.records.*;
@@ -32,11 +30,6 @@ public class HistoryReaderImpl
     private static String REGEXP_END = ".*$";
     private static String REGEXP_SENSITIVE_START = "(?s)^.*";
     private static String REGEXP_INSENSITIVE_START = "(?si)^.*";
-
-    /**
-     * Indicates if the current find should be canceled.
-     */
-    private boolean isFindCanceled = false;
 
     /**
      * Creates an instance of <tt>HistoryReaderImpl</tt>.
@@ -530,7 +523,7 @@ public class HistoryReaderImpl
             keywords, HistorySearchProgressListener.PROGRESS_MINIMUM_VALUE);
 
         Iterator<String> fileIterator = filelist.iterator();
-        while (fileIterator.hasNext() && !isFindCanceled)
+        while (fileIterator.hasNext())
         {
             String filename = fileIterator.next();
 
@@ -547,7 +540,7 @@ public class HistoryReaderImpl
                 nodesProgressStep = fileProgressStep / nodes.getLength();
 
             Node node;
-            for (int i = 0; i < nodes.getLength() && !isFindCanceled; i++)
+            for (int i = 0; i < nodes.getLength(); i++)
             {
                 node = nodes.item(i);
 
@@ -585,9 +578,6 @@ public class HistoryReaderImpl
                                      PROGRESS_MAXIMUM_VALUE);
         }
 
-        // Before returning we want to reset the isFindCanceled to false.
-        isFindCanceled = false;
-
         return new OrderedQueryResultSet<HistoryRecord>(result);
     }
 
@@ -599,7 +589,7 @@ public class HistoryReaderImpl
      * @param endDate Date the end of the period
      * @return boolean
      */
-    private boolean isInPeriod(Date timestamp, Date startDate, Date endDate)
+    static boolean isInPeriod(Date timestamp, Date startDate, Date endDate)
     {
         if(startDate == null)
         {
@@ -629,11 +619,11 @@ public class HistoryReaderImpl
      * @param caseSensitive boolean
      * @return HistoryRecord
      */
-    private HistoryRecord filterByKeyword(NodeList propertyNodes,
-                                          Date timestamp,
-                                          String[] keywords,
-                                          String field,
-                                          boolean caseSensitive)
+    static HistoryRecord filterByKeyword(   NodeList propertyNodes,
+                                            Date timestamp,
+                                            String[] keywords,
+                                            String field,
+                                            boolean caseSensitive)
     {
         ArrayList<String> nameVals = new ArrayList<String>();
         int len = propertyNodes.getLength();
@@ -686,7 +676,7 @@ public class HistoryReaderImpl
      * @param caseSensitive boolean
      * @return boolean
      */
-    private boolean matchKeyword(String value, String[] keywords,
+    static boolean matchKeyword(String value, String[] keywords,
                                  boolean caseSensitive)
     {
         if(keywords != null)
@@ -721,7 +711,7 @@ public class HistoryReaderImpl
      * @param endDate Date
      * @return Iterator
      */
-    private Vector<String> filterFilesByDate(
+    static Vector<String> filterFilesByDate(
         Iterator<String> filelist, Date startDate, Date endDate)
     {
         if(startDate == null && endDate == null)
@@ -922,13 +912,5 @@ public class HistoryReaderImpl
                 return h1.getTimestamp().
                     compareTo(h2.getTimestamp());
         }
-    }
-
-    /**
-     * Cancels the current find. If there's no find going on, then does nothing.
-     */
-    public void cancelCurrentFind()
-    {
-        isFindCanceled = true;
     }
 }
