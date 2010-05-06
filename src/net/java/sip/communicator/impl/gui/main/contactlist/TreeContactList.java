@@ -739,6 +739,7 @@ public class TreeContactList
         {
             //TODO: Show the error to the user??
         }
+        searchFilter.removeCurrentQuery(event.getQuerySource());
         event.getQuerySource().removeContactQueryListener(this);
     }
 

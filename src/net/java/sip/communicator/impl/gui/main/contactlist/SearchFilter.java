@@ -59,9 +59,10 @@ public class SearchFilter
     private Collection<ExternalContactSource> contactSources;
 
     /**
-     * The current operating query.
+     * The list of currently running queries.
      */
-    private ContactQuery currentQuery;
+    private Collection<ContactQuery> currentQueries
+        = new LinkedList<ContactQuery>();
 
     /**
      * The type of the search source. One of the above defined DEFAUT_SOURCE or
@@ -109,19 +110,21 @@ public class SearchFilter
         ContactSourceService sourceService
             = contactSource.getContactSourceService();
 
+        ContactQuery contactQuery;
         if (sourceService instanceof ExtendedContactSourceService)
-            currentQuery
+            contactQuery
                 = ((ExtendedContactSourceService) sourceService)
                     .queryContactSource(filterPattern);
         else
-            currentQuery = sourceService.queryContactSource(filterString);
+            contactQuery = sourceService.queryContactSource(filterString);
 
         // Add first available results.
-        this.addMatching(currentQuery.getQueryResults(), treeModel);
+        this.addMatching(contactQuery.getQueryResults(), treeModel);
 
-        currentQuery.addContactQueryListener(GuiActivator.getContactList());
+        currentQueries.add(contactQuery);
+        contactQuery.addContactQueryListener(GuiActivator.getContactList());
 
-        return currentQuery;
+        return contactQuery;
     }
 
     /**
@@ -176,12 +179,22 @@ public class SearchFilter
     }
 
     /**
-     * Stops the current query.
+     * Stops all currently running queries.
      */
     public void stopFilter()
     {
-        if (currentQuery != null)
-            currentQuery.cancel();
+        Iterator<ContactQuery> queriesIter = currentQueries.iterator();
+        while (queriesIter.hasNext())
+            queriesIter.next().cancel();
+    }
+
+    /**
+     * Removes the given query from the list of currently processed queries.
+     * @param contactQuery the <tt>ContactQuery</tt> to remove
+     */
+    public void removeCurrentQuery(ContactQuery contactQuery)
+    {
+        currentQueries.remove(contactQuery);
     }
 
     /**
