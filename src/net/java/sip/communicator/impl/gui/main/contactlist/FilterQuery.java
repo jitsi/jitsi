@@ -125,7 +125,8 @@ public class FilterQuery
             return;
 
         // First set the isSucceeded property.
-        setSucceeded(!isSucceeded() && !query.getQueryResults().isEmpty());
+        if (!isSucceeded() && !query.getQueryResults().isEmpty())
+            setSucceeded(true);
 
         // Then remove the wait result from the filterQuery.
         filterQueries.remove(query);

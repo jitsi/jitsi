@@ -1075,8 +1075,8 @@ public class TreeContactList
                                         tempTreeModel,
                                         filterSource);
 
-                    filterQuery.setSucceeded(
-                        !filterQuery.isSucceeded() && isSucceeded);
+                    if (!filterQuery.isSucceeded() && isSucceeded)
+                        filterQuery.setSucceeded(true);
                 }
             }.start();
         }
