@@ -40,6 +40,11 @@ public class MetaContactListSource
         = MetaUIGroup.class.getName() + ".uiGroupDescriptor";
 
     /**
+     * Indicates if we should be filtering.
+     */
+    private boolean isFiltering = false;
+
+    /**
      * Returns the <tt>UIContact</tt> corresponding to the given
      * <tt>MetaContact</tt>.
      * @param metaContact the <tt>MetaContact</tt>, which corresponding UI
@@ -125,6 +130,15 @@ public class MetaContactListSource
     {
         return group.equals(GuiActivator.getContactListService().getRoot());
     }
+
+    /**
+     * Stops the meta contact list filtering.
+     */
+    public void stopFiltering()
+    {
+        isFiltering = false;
+    }
+
     /**
      * Filters the <tt>MetaContactListService</tt> to match the given
      * <tt>filterPattern</tt> and stores the result in the given
@@ -135,8 +149,12 @@ public class MetaContactListSource
      */
     public void filter(Pattern filterPattern, ContactListTreeModel treeModel)
     {
+        isFiltering = true;
+
         filter(filterPattern, treeModel,
             GuiActivator.getContactListService().getRoot());
+
+        isFiltering = false;
     }
 
     /**
@@ -154,7 +172,7 @@ public class MetaContactListSource
     {
         Iterator<MetaContact> childContacts = parentGroup.getChildContacts();
 
-        while (childContacts.hasNext())
+        while (childContacts.hasNext() && isFiltering)
         {
             MetaContact metaContact = childContacts.next();
 
@@ -181,7 +199,7 @@ public class MetaContactListSource
         }
 
         Iterator<MetaContactGroup> subgroups = parentGroup.getSubgroups();
-        while (subgroups.hasNext())
+        while (subgroups.hasNext() && isFiltering)
         {
             MetaContactGroup subgroup = subgroups.next();
 

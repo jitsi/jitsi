@@ -183,6 +183,7 @@ public class SearchFilter
      */
     public void stopFilter()
     {
+        mclSource.stopFiltering();
         Iterator<ContactQuery> queriesIter = currentQueries.iterator();
         while (queriesIter.hasNext())
             queriesIter.next().cancel();

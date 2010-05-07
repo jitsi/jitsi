@@ -1002,8 +1002,8 @@ public class TreeContactList
      */
     public void stopFiltering()
     {
-        currentFilter.stopFilter();
         this.isFiltering = false;
+        currentFilter.stopFilter();
 
         if (filterQuery != null)
             filterQuery.cancel();
