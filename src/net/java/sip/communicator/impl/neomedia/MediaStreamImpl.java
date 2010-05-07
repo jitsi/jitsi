@@ -20,6 +20,7 @@ import javax.media.rtp.event.*;
 
 import com.sun.media.rtp.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
@@ -173,11 +174,6 @@ public class MediaStreamImpl
     private boolean mute = false;
 
     /**
-     * The current <tt>ZrtpControl</tt>
-     */
-    private ZrtpControlImpl zrtpControl = null;
-
-    /**
      * The map of currently active <tt>RTPExtension</tt>s and the IDs that they
      * have been assigned for the lifetime of this <tt>MediaStream</tt>.
      */
@@ -197,6 +193,11 @@ public class MediaStreamImpl
         new Hashtable<String, String>();
 
     /**
+     * The current <tt>ZrtpControl</tt>.
+     */
+    private final ZrtpControlImpl zrtpControl;
+
+    /**
      * Needed when restarting zrtp control.
      */
     private boolean zrtpRestarted = false;
@@ -214,30 +215,53 @@ public class MediaStreamImpl
      * @param zrtpControl a control which is already created, used to control
      * the zrtp operations.
      */
-    public MediaStreamImpl(StreamConnector connector, MediaDevice device,
-        ZrtpControlImpl zrtpControl)
+    public MediaStreamImpl(
+            StreamConnector connector,
+            MediaDevice device,
+            ZrtpControlImpl zrtpControl)
     {
         /*
-         * XXX Set the device early in order to make sure that its of the right
-         * type because we do not support just about any MediaDevice yet.
+         * XXX Set the device early in order to make sure that it is of the
+         * right type because we do not support just about any MediaDevice yet.
          */
         setDevice(device);
 
-        this.rtpConnector = new RTPTransformConnector(connector);
+        rtpConnector
+            = new RTPTransformConnector(connector)
+            {
+                @Override
+                protected TransformOutputStream createDataOutputStream()
+                    throws IOException
+                {
+                    TransformOutputStream dataOutputStream
+                        = super.createDataOutputStream();
 
-        if(zrtpControl != null)
-        {
-            this.zrtpControl = zrtpControl;
-        }
-        else
-            this.zrtpControl = new ZrtpControlImpl();
+                    if (dataOutputStream != null)
+                        configureDataOutputStream(dataOutputStream);
+                    return dataOutputStream;
+                }
+            };
 
+        this.zrtpControl
+                = (zrtpControl == null) ? new ZrtpControlImpl() : zrtpControl;
         this.zrtpControl.setConnector(rtpConnector);
 
-        //register the transform engines that we will be using in this stream.
-        TransformEngineChain engineChain = createTransformEngineChain();
+        // Register the transform engines that we will be using in this stream.
+        rtpConnector.setEngine(createTransformEngineChain());
+    }
 
-        rtpConnector.setEngine(engineChain);
+    /**
+     * Performs any optional configuration on a specific
+     * <tt>RTPConnectorOuputStream</tt> of an <tt>RTPManager</tt> to be used by
+     * this <tt>MediaStreamImpl</tt>. Allows extenders to override.
+     *
+     * @param dataOutputStream the <tt>RTPConnectorOutputStream</tt> to be used
+     * by an <tt>RTPManager</tt> of this <tt>MediaStreamImpl</tt> and to be
+     * configured
+     */
+    protected void configureDataOutputStream(
+            RTPConnectorOutputStream dataOutputStream)
+    {
     }
 
     /**
@@ -269,25 +293,27 @@ public class MediaStreamImpl
     private TransformEngineChain createTransformEngineChain()
     {
         ArrayList<TransformEngine> engineChain
-                                        = new ArrayList<TransformEngine>(3);
+            = new ArrayList<TransformEngine>(3);
 
-        //CSRCs and audio levels
-        if(csrcEngine == null)
+        // CSRCs and audio levels
+        if (csrcEngine == null)
             csrcEngine = new CsrcTransformEngine(this);
 
         engineChain.add(csrcEngine);
 
-                //DTMF
+        // DTMF
         DtmfTransformEngine dtmfEngine = createDtmfTransformEngine();
 
-        if(dtmfEngine != null)
+        if (dtmfEngine != null)
             engineChain.add(dtmfEngine);
 
-        //ZRTP
+        // ZRTP
         engineChain.add(zrtpControl.getZrtpEngine());
 
-        return new TransformEngineChain( engineChain.toArray(
-                                    new TransformEngine[engineChain.size()]));
+        return
+            new TransformEngineChain(
+                    engineChain.toArray(
+                            new TransformEngine[engineChain.size()]));
     }
 
     /**
@@ -896,15 +922,21 @@ public class MediaStreamImpl
      */
     private void restartZrtpControl()
     {
-        // if there is no current secure communication we don't need to do that
+        /*
+         * If there is no current secure communication, we don't need to do
+         * that.
+         */
         if(!zrtpControl.getSecureCommunicationStatus())
             return;
 
         zrtpControl.cleanup();
 
-        // as we are recreating this stream and it was obviously secured
-        // it may happen we receive unencrepted data and we will hear
-        // noise, so we mute it till secure connection is again established
+        /*
+         * As we are recreating this stream and it was obviously secured, it may
+         * happen so that we receive unencrepted data. Which will produce noise
+         * for us to hear. So we mute it till a secure connection is again
+         * established.
+         */
         zrtpControl.getZrtpEngine().setStartMuted(true);
 
         this.zrtpControl.setConnector(rtpConnector);
@@ -1657,16 +1689,16 @@ public class MediaStreamImpl
         {
             ReceiveStream receiveStream = event.getReceiveStream();
 
-            // if we recreate streams we will already have restarted
-            // zrtp control
-            // but when on the other end some one has recreated his streams
-            // we will received a ByeEvent(TimeoutEvent) and so we must also
-            // restart our zrtp, this happens when we are already in a call
-            // and the other party starts an conf call
+            /*
+             * If we recreate streams, we will already have restarted
+             * zrtpControl. But when on the other end someone recreates his
+             * streams, we will receive a ByeEvent (which extends TimeoutEvent)
+             * and then we must also restart our ZRTP. This happens, for
+             * example, when we are already in a call and the remote peer
+             * converts his side of the call into a conference call.
+             */
             if(!zrtpRestarted)
-            {
                 restartZrtpControl();
-            }
 
             if (receiveStream != null)
             {

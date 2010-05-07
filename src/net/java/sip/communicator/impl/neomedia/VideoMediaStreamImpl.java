@@ -16,6 +16,7 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 import javax.media.rtp.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -269,6 +270,24 @@ public class VideoMediaStreamImpl
     }
 
     /**
+     * Performs any optional configuration on a specific
+     * <tt>RTPConnectorOuputStream</tt> of an <tt>RTPManager</tt> to be used by
+     * this <tt>MediaStreamImpl</tt>.
+     *
+     * @param dataOutputStream the <tt>RTPConnectorOutputStream</tt> to be used
+     * by an <tt>RTPManager</tt> of this <tt>MediaStreamImpl</tt> and to be
+     * configured
+     */
+    @Override
+    protected void configureDataOutputStream(
+            RTPConnectorOutputStream dataOutputStream)
+    {
+        super.configureDataOutputStream(dataOutputStream);
+
+        dataOutputStream.setMaxPacketsPerMillis(1, 10);
+    }
+
+    /**
      * Performs any optional configuration on the <tt>BufferControl</tt> of the
      * specified <tt>RTPManager</tt> which is to be used as the
      * <tt>RTPManager</tt> of this <tt>MediaStreamImpl</tt>.
@@ -283,6 +302,8 @@ public class VideoMediaStreamImpl
             RTPManager rtpManager,
             BufferControl bufferControl)
     {
+        super.configureRTPManagerBufferControl(rtpManager, bufferControl);
+
         bufferControl.setBufferLength(BufferControl.MAX_VALUE);
     }
 

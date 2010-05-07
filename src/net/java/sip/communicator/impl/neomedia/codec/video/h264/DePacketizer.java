@@ -47,6 +47,18 @@ public class DePacketizer
     private static final byte[] NAL_PREFIX = { 0, 0, 1 };
 
     /**
+     * The indicator which determines whether incomplete NAL units are output
+     * from the H.264 <tt>DePacketizer</tt> to the decoder. It is advisable to
+     * output incomplete NAL units because the FFmpeg H.264 decoder is able to
+     * decode them. If <tt>false</tt>, incomplete NAL units will be discarded
+     * and, consequently, the video quality will be worse (e.g. if the last RTP
+     * packet of a fragmented NAL unit carrying a keyframe does not arrive from
+     * the network, the whole keyframe will be discarded and thus all NAL units
+     * upto the next keyframe will be useless).
+     */
+    private static final boolean OUTPUT_INCOMPLETE_NAL_UNITS = true;
+
+    /**
      * Interval between a PLI request and its reemission (in milliseconds).
      */
     private static final long PLI_INTERVAL = 200;
@@ -99,8 +111,8 @@ public class DePacketizer
     private long remoteSSRC = -1;
 
     /**
-     * Use or not RTCP PLI message when depacketizer miss
-     * packets.
+     * The indicator which determines whether RTCP PLI is to be used when this
+     * <tt>DePacketizer</tt> detects that video data has been lost.
      */
     private boolean usePLI = false;
 
@@ -475,7 +487,8 @@ public class DePacketizer
          * are only given meaning for the purposes of the network and not the
          * H.264 decoder.
          */
-        if (fuaStartedAndNotEnded
+        if (OUTPUT_INCOMPLETE_NAL_UNITS
+                && fuaStartedAndNotEnded
                 && (outBuffer.getLength() >= (NAL_PREFIX.length + 1 + 1)))
         {
             Object outData = outBuffer.getData();
@@ -549,8 +562,9 @@ public class DePacketizer
     private class PLISendThread extends Thread
     {
         /**
-         * Entry point of the thread.
+         * Represents the entry point of <tt>PLISendThread</tt>.
          */
+        @Override
         public void run()
         {
             while(isPLIThreadRunning)
