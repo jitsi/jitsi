@@ -36,7 +36,7 @@ public class SecurityPanel
     private final SIPCommButton sasVerificationButton;
 
     private final JLabel securityStringLabel = new JLabel();
-
+    
     /**
      * Creates an instance of <tt>SecurityPanel</tt> by specifying the
      * corresponding <tt>peer</tt>.
@@ -50,11 +50,10 @@ public class SecurityPanel
         this.setBorder(null);
         this.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
 
-        this.setToolTipText(GuiActivator.getResources()
-            .getI18NString("service.gui.COMPARE_WITH_PARTNER"));
+        this.setToolTipText(GuiActivator.getResources().getI18NString(
+        "service.gui.COMPARE_WITH_PARTNER"));
 
-        iconEncrVerified
-            = ImageLoader.getImage(ImageLoader.ENCR_VERIFIED);
+        iconEncrVerified = ImageLoader.getImage(ImageLoader.ENCR_VERIFIED);
         iconEncr = ImageLoader.getImage(ImageLoader.ENCR);
         sasVerificationButton = new SIPCommButton(iconEncr);
 
@@ -70,7 +69,7 @@ public class SecurityPanel
         this.add(securityStringLabel);
 
         securityStringLabel
-            .setFont(securityStringLabel.getFont().deriveFont(10f));
+            .setFont(securityStringLabel.getFont().deriveFont(14f));
 
         // Action to trigger SAS verification
         sasVerificationButton.addActionListener(new ActionListener()
@@ -119,7 +118,9 @@ public class SecurityPanel
     {
         if (securityString != null)
         {
-            securityStringLabel.setText(securityString);
+            securityStringLabel.setText(GuiActivator.getResources().
+                    getI18NString("service.gui.COMPARE_WITH_PARTNER_SHORT", 
+                            new String[] {securityString}));
         }
 
         sasVerificationButton
