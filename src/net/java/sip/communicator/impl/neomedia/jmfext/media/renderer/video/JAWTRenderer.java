@@ -330,20 +330,16 @@ public class JAWTRenderer
             }
 
             Component component = getComponent();
-            boolean processed
+            boolean repaint
                 = process(
                     handle,
                     component,
                     (int[]) buffer.getData(), buffer.getOffset(), bufferLength,
                     size.width, size.height);
 
-            if (processed)
-            {
+            if (repaint)
                 component.repaint();
-                return BUFFER_PROCESSED_OK;
-            }
-            else
-                return BUFFER_PROCESSED_FAILED;
+            return BUFFER_PROCESSED_OK;
         }
     }
 

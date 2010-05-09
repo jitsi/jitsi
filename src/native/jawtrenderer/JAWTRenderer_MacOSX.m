@@ -5,15 +5,19 @@
 #include <string.h>
 
 #import <AppKit/NSOpenGL.h>
+#import <AppKit/NSView.h>
 #import <Foundation/NSAutoreleasePool.h>
+#import <Foundation/NSNotification.h>
+#import <Foundation/NSObject.h>
 #import <OpenGL/gl.h>
 
 #define JAWT_RENDERER_TEXTURE GL_TEXTURE_RECTANGLE_EXT
 #define JAWT_RENDERER_TEXTURE_FORMAT GL_BGRA
 #define JAWT_RENDERER_TEXTURE_TYPE GL_UNSIGNED_BYTE
 
-typedef struct _JAWTRenderer
+@interface JAWTRenderer : NSObject
 {
+@public
     NSOpenGLContext *glContext;
     jint height;
     GLuint texture;
@@ -28,8 +32,19 @@ typedef struct _JAWTRenderer
     CGFloat boundsWidth;
     CGFloat boundsX;
     CGFloat boundsY;
+
+    NSView *view;
 }
-JAWTRenderer;
+
+- (void)boundsDidChange:(NSNotification *)notification;
+- (void)dealloc;
+- (void)frameDidChange:(NSNotification *)notification;
+- (id)init;
+- (void)paint;
+- (void)reshape;
+- (void)setView:(NSView *)aView;
+- (void)update;
+@end /* JAWTRenderer */
 
 void
 JAWTRenderer_close
@@ -41,8 +56,7 @@ JAWTRenderer_close
     renderer = (JAWTRenderer *) handle;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
-    [renderer->glContext release];
-    free(renderer);
+    [renderer release];
 
     [autoreleasePool release];
 }
@@ -51,67 +65,11 @@ jlong
 JAWTRenderer_open(JNIEnv *jniEnv, jclass clazz, jobject component)
 {
     NSAutoreleasePool *autoreleasePool;
-    NSOpenGLPixelFormatAttribute pixelFormatAttribs[]
-        = { NSOpenGLPFAWindow, 0 };
-    NSOpenGLPixelFormat *pixelFormat;
     JAWTRenderer *renderer;
 
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
-    pixelFormat
-        = [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttribs];
-    if (pixelFormat)
-    {
-        NSOpenGLContext *glContext;
-
-        glContext
-            = [[NSOpenGLContext alloc]
-                    initWithFormat:pixelFormat
-                    shareContext:nil];
-        if (glContext)
-        {
-            renderer = malloc(sizeof(JAWTRenderer));
-            if (renderer)
-            {
-                GLint surfaceOpacity;
-
-                renderer->glContext = glContext;
-                renderer->height = 0;
-                renderer->texture = 0;
-                renderer->width = 0;
-
-                renderer->frameHeight = 0;
-                renderer->frameWidth = 0;
-                renderer->frameX = 0;
-                renderer->frameY = 0;
-
-                renderer->boundsHeight = 0;
-                renderer->boundsWidth = 0;
-                renderer->boundsX = 0;
-                renderer->boundsY = 0;
-
-                // prepareOpenGL
-                [glContext makeCurrentContext];
-
-                surfaceOpacity = 1;
-                [glContext
-                    setValues:&surfaceOpacity
-                    forParameter:NSOpenGLCPSurfaceOpacity];
-
-                glDisable(GL_BLEND);
-                glDisable(GL_DEPTH_TEST);
-                glDepthMask(GL_FALSE);
-                glDisable(GL_CULL_FACE);
-                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-            }
-        }
-        else
-            renderer = NULL;
-        [pixelFormat release];
-    }
-    else
-        renderer = NULL;
+    renderer = [[JAWTRenderer alloc] init];
 
     [autoreleasePool release];
     return (jlong) renderer;
@@ -127,76 +85,39 @@ JAWTRenderer_paint
         = ((JAWT_MacOSXDrawingSurfaceInfo *) (dsi->platformInfo))->cocoaViewRef;
     if (component)
     {
+        JAWTRenderer *renderer;
         NSAutoreleasePool *autoreleasePool;
 
+        renderer = (JAWTRenderer *) handle;
         autoreleasePool = [[NSAutoreleasePool alloc] init];
 
-        if ([component lockFocusIfCanDraw])
+        if (renderer->view != component)
+                [renderer setView:component];
+        else
         {
-            JAWTRenderer *renderer;
-            NSRect frame;
-            NSRect bounds;
-            
-            renderer = (JAWTRenderer *) handle;
-
-            [renderer->glContext makeCurrentContext];
-            if ([renderer->glContext view] != component)
-                [renderer->glContext setView:component];
-
             // update
+            NSRect frame;
+
             frame = [component frame];
             if ((renderer->frameX != frame.origin.x)
                     || (renderer->frameY != frame.origin.y)
                     || (renderer->frameWidth != frame.size.width)
                     || (renderer->frameHeight != frame.size.height))
+                [renderer update];
+            else
             {
-                renderer->frameHeight = frame.size.height;
-                renderer->frameWidth = frame.size.width;
-                renderer->frameX = frame.origin.x;
-                renderer->frameY = frame.origin.y;
-                [renderer->glContext update];
-            }
+                // reshape
+                NSRect bounds;
 
-            // reshape
-            bounds = [component bounds];
-            if ((renderer->boundsX != bounds.origin.x)
-                    || (renderer->boundsY != bounds.origin.y)
-                    || (renderer->boundsWidth != bounds.size.width)
-                    || (renderer->boundsHeight != bounds.size.height))
-            {
-                renderer->boundsHeight = bounds.size.height;
-                renderer->boundsWidth = bounds.size.width;
-                renderer->boundsX = bounds.origin.x;
-                renderer->boundsY = bounds.origin.y;
-                if ((bounds.size.width > 0) && (bounds.size.height > 0))
-                {
-                    glViewport(
-                        bounds.origin.x, bounds.origin.y,
-                        bounds.size.width, bounds.size.height);
-                }
+                bounds = [component bounds];
+                if ((renderer->boundsX != bounds.origin.x)
+                        || (renderer->boundsY != bounds.origin.y)
+                        || (renderer->boundsWidth != bounds.size.width)
+                        || (renderer->boundsHeight != bounds.size.height))
+                    [renderer reshape];
             }
-
-            // drawRect:
-            glClear(GL_COLOR_BUFFER_BIT);
-            if (renderer->texture)
-            {
-                glEnable(JAWT_RENDERER_TEXTURE);
-                glBegin(GL_QUADS);
-                glTexCoord2f(0, 0);
-                glVertex2f(-1.0, 1.0);
-                glTexCoord2f(renderer->width, 0);
-                glVertex2f(1.0, 1.0);
-                glTexCoord2f(renderer->width, renderer->height);
-                glVertex2f(1.0, -1.0);
-                glTexCoord2f(0, renderer->height);
-                glVertex2f(-1.0, -1.0);
-                glEnd();
-                glDisable(JAWT_RENDERER_TEXTURE);
-            }
-            glFlush();
-
-            [component unlockFocus];
         }
+        [renderer paint];
 
         [autoreleasePool release];
     }
@@ -212,14 +133,15 @@ JAWTRenderer_process
 {
     JAWTRenderer *renderer;
     NSAutoreleasePool *autoreleasePool;
+    jboolean repaint;
 
     renderer = (JAWTRenderer *) handle;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
-    [renderer->glContext makeCurrentContext];
-
     if (data && length)
     {
+        [renderer->glContext makeCurrentContext];
+
         if (renderer->texture
                 && ((width != renderer->width) || (height != renderer->height)))
         {
@@ -278,8 +200,234 @@ JAWTRenderer_process
         }
         renderer->width = width;
         renderer->height = height;
+
+        /*
+         * The component needs repainting now. Upon return, a paint of the
+         * component will be scheduled. But #paint and #process both want the
+         * lock on the renderer and it may turn out that #process will manage to
+         * execute once again without #paint being able to depict the current
+         * frame. So try to paint now and don't schedule a paint for later.
+         */
+        if (renderer->view)
+        {
+            [renderer paint];
+            repaint = JNI_FALSE;
+        }
+        else
+            repaint = JNI_TRUE;
     }
+    else
+        repaint = JNI_TRUE;
 
     [autoreleasePool release];
-    return JNI_TRUE;
+    return repaint;
 }
+
+@implementation JAWTRenderer
+- (void)boundsDidChange:(NSNotification *)notification
+{
+    if ([notification object] == view)
+        [self reshape];
+}
+
+- (void)dealloc
+{
+    [self setView:nil];
+    [glContext release];
+
+    [super dealloc];
+}
+
+- (void)frameDidChange:(NSNotification *)notification
+{
+    if ([notification object] == view)
+        [self update];
+}
+
+- (id)init
+{
+    if ((self = [super init]))
+    {
+        NSOpenGLPixelFormatAttribute pixelFormatAttribs[]
+            = { NSOpenGLPFAWindow, 0 };
+        NSOpenGLPixelFormat *pixelFormat;
+        
+        pixelFormat
+            = [[NSOpenGLPixelFormat alloc]
+                    initWithAttributes:pixelFormatAttribs];
+        if (pixelFormat)
+        {
+            glContext
+                = [[NSOpenGLContext alloc]
+                        initWithFormat:pixelFormat
+                        shareContext:nil];
+            if (glContext)
+            {
+                GLint surfaceOpacity;
+
+                height = 0;
+                texture = 0;
+                width = 0;
+
+                frameHeight = 0;
+                frameWidth = 0;
+                frameX = 0;
+                frameY = 0;
+
+                boundsHeight = 0;
+                boundsWidth = 0;
+                boundsX = 0;
+                boundsY = 0;
+
+                view = nil;
+
+                // prepareOpenGL
+                [glContext makeCurrentContext];
+
+                surfaceOpacity = 1;
+                [glContext
+                     setValues:&surfaceOpacity
+                     forParameter:NSOpenGLCPSurfaceOpacity];
+
+                glDisable(GL_BLEND);
+                glDisable(GL_DEPTH_TEST);
+                glDepthMask(GL_FALSE);
+                glDisable(GL_CULL_FACE);
+                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+            }
+            else
+            {
+                [self release];
+                self = nil;
+            }
+            [pixelFormat release];
+        }
+        else
+        {
+            [self release];
+            self = nil;
+        }
+    }
+    return self;
+}
+
+- (void)paint
+{
+    if ([view lockFocusIfCanDraw])
+    {
+        [glContext makeCurrentContext];
+
+        // drawRect:
+        glClear(GL_COLOR_BUFFER_BIT);
+        if (texture)
+        {
+            glEnable(JAWT_RENDERER_TEXTURE);
+            glBegin(GL_QUADS);
+            glTexCoord2f(0, 0);
+            glVertex2f(-1.0, 1.0);
+            glTexCoord2f(width, 0);
+            glVertex2f(1.0, 1.0);
+            glTexCoord2f(width, height);
+            glVertex2f(1.0, -1.0);
+            glTexCoord2f(0, height);
+            glVertex2f(-1.0, -1.0);
+            glEnd();
+            glDisable(JAWT_RENDERER_TEXTURE);
+        }
+        glFlush();
+
+        [view unlockFocus];
+    }
+}
+
+- (void)reshape
+{
+    NSRect bounds;
+
+    bounds = [view bounds];
+    boundsHeight = bounds.size.height;
+    boundsWidth = bounds.size.width;
+    boundsX = bounds.origin.x;
+    boundsY = bounds.origin.y;
+    if ((bounds.size.width > 0) && (bounds.size.height > 0))
+    {
+        [glContext makeCurrentContext];
+
+        glViewport(
+            bounds.origin.x, bounds.origin.y,
+            bounds.size.width, bounds.size.height);
+    }
+}
+
+- (void)setView:(NSView *)aView
+{
+    if (view != aView)
+    {
+        if (view)
+        {
+            NSNotificationCenter *notificationCenter;
+
+            notificationCenter = [NSNotificationCenter defaultCenter];
+            if (notificationCenter)
+            {
+                [notificationCenter
+                    removeObserver:self
+                    name:NSViewBoundsDidChangeNotification
+                    object:view];
+                [notificationCenter
+                    removeObserver:self
+                    name:NSViewFrameDidChangeNotification
+                    object:view];
+            }
+
+            [view release];
+        }
+
+        view = aView;
+
+        if (view)
+        {
+            NSNotificationCenter *notificationCenter;
+
+            [view retain];
+
+            if ([glContext view] != view)
+                [glContext setView:view];
+
+            notificationCenter = [NSNotificationCenter defaultCenter];
+            if (notificationCenter)
+            {
+                [view setPostsBoundsChangedNotifications:YES];
+                [notificationCenter
+                    addObserver:self
+                    selector:@selector(boundsDidChange:)
+                    name:NSViewBoundsDidChangeNotification
+                    object:view];
+                [view setPostsFrameChangedNotifications:YES];
+                [notificationCenter
+                    addObserver:self
+                    selector:@selector(frameDidChange:)
+                    name:NSViewFrameDidChangeNotification
+                    object:view];
+            }
+
+            [self update];
+        }
+    }
+}
+
+- (void)update
+{
+    NSRect frame;
+
+    frame = [view frame];
+    frameHeight = frame.size.height;
+    frameWidth = frame.size.width;
+    frameX = frame.origin.x;
+    frameY = frame.origin.y;
+    [glContext update];
+
+    [self reshape];
+}
+@end /* JAWTRenderer */
