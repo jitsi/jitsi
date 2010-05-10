@@ -11,7 +11,6 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.event.*;
-import net.java.sip.communicator.util.swing.plaf.*;
 
 /**
  * The field shown on the top of the main window, which allows the user to
@@ -46,7 +45,7 @@ public class SearchField
 
         this.mainFrame = frame;
 
-        SearchTextFieldUI textFieldUI = new SearchTextFieldUI();
+        SearchFieldUI textFieldUI = new SearchFieldUI();
         textFieldUI.setDeleteButtonEnabled(true);
         this.setUI(textFieldUI);
         this.setBorder(null);

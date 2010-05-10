@@ -22,12 +22,24 @@ import net.java.sip.communicator.util.swing.*;
 public class SIPCommTextFieldUI
     extends MetalTextFieldUI
 {
-    private boolean mouseOver = false;
+    /**
+     * Indicates if the mouse is currently over the delete button.
+     */
+    protected boolean isDeleteMouseOver = false;
 
-    private static int BUTTON_GAP = 5;
+    /**
+     * The gap between the delete button and the text in the field.
+     */
+    protected static int BUTTON_GAP = 5;
 
+    /**
+     * The image of the delete text button.
+     */
     private Image deleteButtonImg;
 
+    /**
+     * The rollover image of the delete text button.
+     */
     private Image deleteButtonRolloverImg;
 
     /**
@@ -36,7 +48,10 @@ public class SIPCommTextFieldUI
      */
     private boolean isDeleteButtonEnabled = false;
 
-    private SIPCommButton deleteButton;
+    /**
+     * The delete text button shown on the right of the field.
+     */
+    protected SIPCommButton deleteButton;
 
     /**
      * Creates a <tt>SIPCommTextFieldUI</tt>.
@@ -109,16 +124,15 @@ public class SIPCommTextFieldUI
             g2.setColor(Color.WHITE);
             g2.fillRoundRect(1, 1, c.getWidth() - 2, c.getHeight() - 2, 20, 20);
 
-            int dx = c.getX() + c.getWidth()
-                - deleteButton.getWidth() - BUTTON_GAP - 5;
-            int dy = (c.getY() + c.getHeight()) / 2
-                - deleteButton.getHeight()/2;
+            Rectangle deleteButtonRect = getDeleteButtonRect();
 
+            int dx = deleteButtonRect.x;
+            int dy = deleteButtonRect.y;
             if (c.getText() != null
                     && c.getText().length() > 0
                     && isDeleteButtonEnabled)
             {
-                if (mouseOver)
+                if (isDeleteMouseOver)
                     g2.drawImage(deleteButtonRolloverImg, dx, dy, null);
                 else
                     g2.drawImage(deleteButtonImg, dx, dy, null);
@@ -153,18 +167,14 @@ public class SIPCommTextFieldUI
 
         if (deleteRect.contains(x, y))
         {
-            mouseOver = true;
+            isDeleteMouseOver = true;
             getComponent().setCursor(Cursor.getDefaultCursor());
 
             if (evt.getID() == MouseEvent.MOUSE_CLICKED)
                 getComponent().setText("");
         }
         else
-        {
-            mouseOver = false;
-            getComponent().setCursor(
-                Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
-        }
+            isDeleteMouseOver = false;
 
         getComponent().repaint();
     }
@@ -176,9 +186,11 @@ public class SIPCommTextFieldUI
      */
     protected Rectangle getDeleteButtonRect()
     {
-        Rectangle rect = getVisibleEditorRect();
+        JTextComponent c = getComponent();
 
-        int dx = rect.x + rect.width;
+        Rectangle rect = c.getBounds();
+
+        int dx = rect.x + rect.width - deleteButton.getWidth() - BUTTON_GAP - 5;
         int dy = (rect.y + rect.height) / 2 - deleteButton.getHeight()/2;
 
         return new Rectangle(   dx,
@@ -232,6 +244,7 @@ public class SIPCommTextFieldUI
         public void mouseClicked(MouseEvent e)
         {
             updateDeleteIcon(e);
+            updateCursor(e);
         }
 
         /**
@@ -241,6 +254,7 @@ public class SIPCommTextFieldUI
         public void mouseEntered(MouseEvent e)
         {
             updateDeleteIcon(e);
+            updateCursor(e);
         }
 
         /**
@@ -250,6 +264,7 @@ public class SIPCommTextFieldUI
         public void mouseExited(MouseEvent e)
         {
             updateDeleteIcon(e);
+            updateCursor(e);
         }
 
         public void mousePressed(MouseEvent e) {}
@@ -270,6 +285,7 @@ public class SIPCommTextFieldUI
         public void mouseDragged(MouseEvent e)
         {
             updateDeleteIcon(e);
+            updateCursor(e);
         }
 
         /**
@@ -279,6 +295,16 @@ public class SIPCommTextFieldUI
         public void mouseMoved(MouseEvent e)
         {
             updateDeleteIcon(e);
+            updateCursor(e);
+        }
+    }
+
+    private void updateCursor(MouseEvent mouseEvent)
+    {
+        if (getVisibleEditorRect().contains(mouseEvent.getPoint()))
+        {
+            getComponent().setCursor(
+                Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
         }
     }
 }
