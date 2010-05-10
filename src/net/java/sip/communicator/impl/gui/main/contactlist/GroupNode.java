@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.util.*;
 
+import javax.swing.*;
 import javax.swing.tree.*;
 
 /**
@@ -69,7 +70,10 @@ public class GroupNode
         ContactNode contactNode = new ContactNode(uiContact);
         uiContact.setContactNode(contactNode);
 
-        this.add(contactNode);
+        add(contactNode);
+
+        fireNodeInserted(getIndex(contactNode));
+
         return contactNode;
     }
 
@@ -77,23 +81,20 @@ public class GroupNode
      * Creates a <tt>ContactNode</tt> for the given <tt>uiContact</tt>,
      * adds it to this group and performs a sort at the end.
      * @param uiContact the <tt>UIContact</tt> to add
-     * @param isRefreshView indicates if the view should be refreshed
      * @return the created <tt>ContactNode</tt>
      */
     @SuppressWarnings("unchecked")
-    public ContactNode sortedAddContact(UIContact uiContact,
-                                        boolean isRefreshView)
+    public ContactNode sortedAddContact(UIContact uiContact)
     {
         ContactNode contactNode = new ContactNode(uiContact);
         uiContact.setContactNode(contactNode);
 
-        this.add(contactNode);
+        add(contactNode);
 
         // TODO: Optimize!
         Collections.sort(children, nodeComparator);
 
-        if (isRefreshView)
-            this.fireNodeInserted(getIndex(contactNode));
+        fireNodeInserted(getIndex(contactNode));
 
         return contactNode;
     }
@@ -105,14 +106,15 @@ public class GroupNode
      */
     public void removeContact(UIContact uiContact)
     {
-        ContactNode contactNode = findContactNode(uiContact);
+        final ContactNode contactNode = uiContact.getContactNode();
 
         if (contactNode != null)
         {
             int index = getIndex(contactNode);
-            // We remove the node directly from the list, thus skipping all the
-            // checks verifying if the node belongs to this parent.
+            // We remove the node directly from the list, thus skipping all
+            // the checks verifying if the node belongs to this parent.
             children.removeElementAt(index);
+
             contactNode.setParent(null);
             uiContact.setContactNode(null);
             uiContact = null;
@@ -132,7 +134,10 @@ public class GroupNode
         GroupNode groupNode = new GroupNode(treeModel, uiGroup);
         uiGroup.setGroupNode(groupNode);
 
-        this.add(groupNode);
+        add(groupNode);
+
+        fireNodeInserted(getIndex(groupNode));
+
         return groupNode;
     }
 
@@ -151,6 +156,7 @@ public class GroupNode
             // We remove the node directly from the list, thus skipping all the
             // checks verifying if the node belongs to this parent.
             children.removeElementAt(index);
+
             groupNode.setParent(null);
             uiGroup.setGroupNode(null);
 
@@ -159,48 +165,24 @@ public class GroupNode
     }
 
     /**
-     * Removes all of this node's children, setting their parents to null.
-     * If this node has no children, this method does nothing.
-     */
-    public void removeAllChildren()
-    {
-        for (int i = getChildCount()-1; i >= 0; i--)
-        {
-            TreeNode treeNode = getChildAt(i);
-
-            if (treeNode instanceof ContactNode)
-                ((ContactNode) treeNode).getContactDescriptor()
-                    .setContactNode(null);
-            else if (treeNode instanceof GroupNode)
-                ((GroupNode) treeNode).getGroupDescriptor()
-                    .setGroupNode(null);
-
-            children.removeElementAt(i);
-            ((DefaultMutableTreeNode) treeNode).setParent(null);
-        }
-    }
-
-    /**
      * Creates a <tt>GroupNode</tt> for the given <tt>uiGroup</tt>,
      * adds it to this group node and performs a sort at the end.
      * @param uiGroup the <tt>UIGroup</tt> to add
-     * @param isRefreshView indicates if the view should be refreshed
      * @return the created <tt>GroupNode</tt>
      */
     @SuppressWarnings("unchecked")
-    public GroupNode sortedAddContactGroup( UIGroup uiGroup,
-                                            boolean isRefreshView)
+    public GroupNode sortedAddContactGroup(UIGroup uiGroup)
     {
         GroupNode groupNode = new GroupNode(treeModel, uiGroup);
+
         uiGroup.setGroupNode(groupNode);
 
-        this.add(groupNode);
+        add(groupNode);
 
         // TODO: Optimize!
         Collections.sort(children, nodeComparator);
 
-        if (isRefreshView)
-            this.fireNodeInserted(getIndex(groupNode));
+        fireNodeInserted(getIndex(groupNode));
 
         return groupNode;
     }
@@ -212,30 +194,6 @@ public class GroupNode
     public UIGroup getGroupDescriptor()
     {
         return (UIGroup) getUserObject();
-    }
-
-    /**
-     * Finds the <tt>ContactNode</tt> corresponding to the given
-     * <tt>uiContact</tt> in the children of this node.
-     * @param uiContact the <tt>UIContact</tt>, which node we're looking for
-     * @return the corresponding <tt>ContactNode</tt> or null if no contact
-     * node was found
-     */
-    @SuppressWarnings("unchecked")
-    public ContactNode findContactNode(UIContact uiContact)
-    {
-        Enumeration<TreeNode> children = children();
-        while(children.hasMoreElements())
-        {
-            TreeNode treeNode = children.nextElement();
-            if (treeNode instanceof ContactNode
-                && ((ContactNode) treeNode).getContactDescriptor()
-                    .equals(uiContact))
-            {
-                return (ContactNode) treeNode;
-            }
-        }
-        return null;
     }
 
     /**
@@ -257,9 +215,15 @@ public class GroupNode
     {
         if (children != null)
         {
-            Collections.sort(children, nodeComparator);
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    Collections.sort(children, nodeComparator);
 
-            fireNodesChanged();
+                    fireNodesChanged();
+                }
+            });
         }
     }
 
@@ -272,6 +236,34 @@ public class GroupNode
     public boolean isCollapsed()
     {
         return isCollapsed;
+    }
+
+    /**
+     * Clears all dependencies for all children in the given <tt>groupNode</tt>
+     * (i.e. GroupNode - UIGroup - MetaContactGroup or ContactNode - UIContact
+     * - SourceContact).
+     */
+    public void clear()
+    {
+        for (int i = 0; i < getChildCount(); i ++)
+        {
+            TreeNode treeNode = getChildAt(i);
+
+            if (treeNode instanceof ContactNode)
+            {
+                ((ContactNode) treeNode).getContactDescriptor()
+                    .setContactNode(null);
+            }
+            else if (treeNode instanceof GroupNode)
+            {
+                ((GroupNode) treeNode).getGroupDescriptor()
+                    .setGroupNode(null);
+
+                ((GroupNode) treeNode).clear();
+            }
+        }
+        if (children != null)
+            children.removeAllElements();
     }
 
     /**

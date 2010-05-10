@@ -20,16 +20,13 @@ import net.java.sip.communicator.service.contactsource.*;
 public interface ContactListSourceFilter extends ContactListFilter
 {
     /**
-     * Applies this filter to the given <tt>contactSource</tt> and stores the
-     * result in the given <tt>treeModel</tt>.
+     * Applies this filter to the given <tt>contactSource</tt>.
      *
      * @param contactSource the <tt>ExternalContactSource</tt> to apply the
      * filter to
-     * @param treeModel the <tt>ContactListTreeModel</tt> storing the results
      * @return the <tt>ContactQuery</tt> that tracks this filter
      */
-    public ContactQuery applyFilter(ExternalContactSource contactSource,
-                                    ContactListTreeModel treeModel);
+    public ContactQuery applyFilter(ExternalContactSource contactSource);
 
     /**
      * Returns the list of current <tt>ExternalContactSource</tt>s this filter

@@ -44,7 +44,7 @@ public class CallHistoryContactSource implements ContactSourceService
         if (queryString != null && queryString.length() > 0)
             return new CallHistoryContactQuery(
                 CallHistoryActivator.getCallHistoryService()
-                    .findByPeer(queryString, 100));
+                    .findByPeer(queryString, 50));
         else
             return new CallHistoryContactQuery(
                 CallHistoryActivator.getCallHistoryService()

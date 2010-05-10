@@ -50,16 +50,14 @@ public class PresenceFilter
     /**
      * Applies this filter. This filter is applied over the
      * <tt>MetaContactListService</tt>.
-     * @param treeModel the model to which we should add the results from the
-     * filtering operation
      */
-    public void applyFilter(ContactListTreeModel treeModel)
+    public void applyFilter()
     {
         logger.debug("Presence filter applied.");
 
         isFiltering = true;
 
-        addMatching(GuiActivator.getContactListService().getRoot(), treeModel);
+        addMatching(GuiActivator.getContactListService().getRoot());
 
         isFiltering = false;
     }
@@ -165,11 +163,8 @@ public class PresenceFilter
      * matching the current filter and not contained in the contact list.
      * @param metaGroup the <tt>MetaContactGroup</tt>, which matching contacts
      * to add
-     * @param resultTreeModel the <tt>ContactListTreeModel</tt>, where results
-     * should be added
      */
-    private void addMatching(   MetaContactGroup metaGroup,
-                                ContactListTreeModel resultTreeModel)
+    private void addMatching(MetaContactGroup metaGroup)
     {
         Iterator<MetaContact> childContacts = metaGroup.getChildContacts();
 
@@ -179,26 +174,7 @@ public class PresenceFilter
 
             if(isMatching(metaContact))
             {
-                MetaContactGroup parentGroup
-                    = metaContact.getParentMetaContactGroup();
-
-                UIGroup uiGroup = null;
-                if (!MetaContactListSource.isRootGroup(parentGroup))
-                {
-                    uiGroup = MetaContactListSource
-                        .getUIGroup(parentGroup);
-
-                    if (uiGroup == null)
-                        uiGroup = MetaContactListSource
-                            .createUIGroup(parentGroup);
-                }
- 
-                GuiActivator.getContactList().addContact(
-                    resultTreeModel,
-                    MetaContactListSource.createUIContact(metaContact),
-                    uiGroup,
-                    true,
-                    false);
+                MetaContactListSource.fireQueryEvent(metaContact);
             }
         }
 
@@ -210,12 +186,9 @@ public class PresenceFilter
             if (subgroup.countChildContacts() == 0
                     && subgroup.countSubgroups() == 0
                     && isMatching(subgroup))
-                GuiActivator.getContactList().addGroup(
-                    resultTreeModel,
-                    MetaContactListSource.createUIGroup(subgroup),
-                    false);
+                MetaContactListSource.fireQueryEvent(subgroup);
             else
-                addMatching(subgroup, resultTreeModel);
+                addMatching(subgroup);
         }
     }
 

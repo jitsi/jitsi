@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.contactsource.*;
  * @author Yana Stamcheva
  */
 public class FilterQuery
-    implements ContactQueryListener
+    implements  ContactQueryListener
 {
     /**
      * A listener, which is notified when this query finishes.
@@ -138,6 +138,5 @@ public class FilterQuery
             fireFilterQueryEvent();
     }
 
-    public void contactReceived(ContactReceivedEvent event)
-    {}
+    public void contactReceived(ContactReceivedEvent event) {}
 }

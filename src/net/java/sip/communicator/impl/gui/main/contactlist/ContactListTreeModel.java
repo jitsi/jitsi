@@ -56,39 +56,42 @@ public class ContactListTreeModel
     }
 
     /**
-     * Clears all dependencies in the abstraction path (i.e. GroupNode - UIGroup
-     * - MetaContactGroup or ContactNode - UIContact - SourceContact).
+     * Removes all nodes except the root node and clears all dependencies.
      */
-    public void clearDependencies()
+    public void clear()
     {
-        clearDependencies(rootGroupNode);
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                int childCount = rootGroupNode.getChildCount();
+                int[] removedIndexs = new int[childCount];
+                Object[] removedNodes = new Object[childCount];
+                for (int i = 0; i < childCount; i ++)
+                {
+                    removedIndexs[i] = i;
+                    removedNodes[i] = rootGroupNode.getChildAt(i);
+                }
+                rootGroupNode.clear();
+                nodesWereRemoved(rootGroupNode, removedIndexs, removedNodes);
+            }
+        });
     }
 
     /**
-     * Clears all dependencies for all children in the given <tt>groupNode</tt>
-     * (i.e. GroupNode - UIGroup - MetaContactGroup or ContactNode - UIContact
-     * - SourceContact).
-     * @param groupNode the <tt>TreeNode</tt> in which we clear dependencies
+     * Invoke this method after you've changed how node is to be
+     * represented in the tree.
+     * @param node the node that has changed
      */
-    private void clearDependencies(TreeNode groupNode)
+    public void nodeChanged(final TreeNode node)
     {
-        for (int i = 0; i < groupNode.getChildCount(); i ++)
+        SwingUtilities.invokeLater(new Runnable()
         {
-            TreeNode treeNode = groupNode.getChildAt(i);
-
-            if (treeNode instanceof ContactNode)
+            public void run()
             {
-                ((ContactNode) treeNode).getContactDescriptor()
-                    .setContactNode(null);
+                ContactListTreeModel.super.nodeChanged(node);
             }
-            else if (treeNode instanceof GroupNode)
-            {
-                ((GroupNode) treeNode).getGroupDescriptor()
-                    .setGroupNode(null);
-
-                clearDependencies(treeNode);
-            }
-        }
+        });
     }
 
     /**

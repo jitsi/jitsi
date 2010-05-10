@@ -19,19 +19,12 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class CallHistoryFilter
-    implements  ContactListFilter,
-                ContactQueryListener
+    implements  ContactListFilter
 {
     /**
      * This class logger.
      */
     private final Logger logger = Logger.getLogger(CallHistoryFilter.class);
-
-    /**
-     * The <tt>ContactListTreeModel</tt>, where the results of this filter are
-     * stored
-     */
-    private ContactListTreeModel resultTreeModel;
 
     /**
      * The current <tt>ContactQuery</tt>.
@@ -40,15 +33,10 @@ public class CallHistoryFilter
 
     /**
      * Applies this filter and stores the result in the given <tt>treeModel</tt>.
-     *
-     * @param treeModel the <tt>ContactListTreeModel</tt>, where the results
-     * of this filter are stored
      */
-    public void applyFilter(ContactListTreeModel treeModel)
+    public void applyFilter()
     {
         logger.debug("Call history filter applied.");
-
-        this.resultTreeModel = treeModel;
 
         Collection<ExternalContactSource> contactSources
             = TreeContactList.getContactSources();
@@ -69,15 +57,36 @@ public class CallHistoryFilter
             this.addMatching(   currentQuery.getQueryResults(),
                                 contactSource);
 
-            currentQuery.addContactQueryListener(this);
+            currentQuery.addContactQueryListener(GuiActivator.getContactList());
         }
     }
 
+    /**
+     * Indicates if the given <tt>uiContact</tt> is matching this filter.
+     * @param uiContact the <tt>UIContact</tt> to check for match
+     * @return <tt>true</tt> if the given <tt>uiContact</tt> is matching this
+     * filter, <tt>false</tt> otherwise
+     */
     public boolean isMatching(UIContact uiContact)
     {
+        Object descriptor = uiContact.getDescriptor();
+
+        if (descriptor instanceof SourceContact)
+        {
+            SourceContact sourceContact = (SourceContact) descriptor;
+
+            if ((sourceContact.getContactSource().getIdentifier()
+                    .equals(ContactSourceService.CALL_HISTORY)))
+                return true;
+        }
         return false;
     }
 
+    /**
+     * No group could match this filter.
+     * @param uiGroup the <tt>UIGroup</tt> to check for match
+     * @return <tt>false</tt> to indicate that no group could match this filter
+     */
     public boolean isMatching(UIGroup uiGroup)
     {
         return false;
@@ -96,60 +105,11 @@ public class CallHistoryFilter
 
         while (contactsIter.hasNext())
         {
-            addHistoryContact(contactsIter.next(), uiSource);
+            GuiActivator.getContactList()
+                .addContact(uiSource.createUIContact(contactsIter.next()),
+                            uiSource.getUIGroup(),
+                            false);
         }
-    }
-
-    /**
-     * Indicates that a contact has been received for a query.
-     * @param event the <tt>ContactReceivedEvent</tt> that notified us
-     */
-    public void contactReceived(ContactReceivedEvent event)
-    {
-        synchronized (resultTreeModel)
-        {
-            ExternalContactSource sourceUI
-                = TreeContactList.getContactSource(
-                    event.getQuerySource().getContactSource());
-
-            addHistoryContact(event.getContact(), sourceUI);
-        }
-    }
-
-    /**
-     * Indicates that the query status has changed.
-     * @param event the <tt>ContactQueryStatusEvent</tt> that notified us
-     */
-    public void queryStatusChanged(ContactQueryStatusEvent event)
-    {
-        int eventType = event.getEventType();
-
-        // Remove the current query when it's stopped for some reason.
-        // QUERY_COMPLETED, QUERY_COMPLETED, QUERY_ERROR
-        currentQuery = null;
-
-        if (eventType == ContactQueryStatusEvent.QUERY_ERROR)
-        {
-            //TODO: Show the error to the user??
-        }
-
-        event.getQuerySource().removeContactQueryListener(this);
-    }
-
-    /**
-     * Adds the given <tt>sourceContact</tt> to the contact list.
-     * @param sourceContact the <tt>SourceContact</tt> to add
-     * @param uiSource the UI adapter for the original contact source
-     */
-    private void addHistoryContact( SourceContact sourceContact,
-                                    ExternalContactSource uiSource)
-    {
-        GuiActivator.getContactList()
-            .addContact(resultTreeModel,
-                        uiSource.createUIContact(sourceContact),
-                        uiSource.getUIGroup(),
-                        false,
-                        false);
     }
 
     /**

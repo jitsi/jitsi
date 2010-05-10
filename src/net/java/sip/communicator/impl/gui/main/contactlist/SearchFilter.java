@@ -79,30 +79,26 @@ public class SearchFilter
     }
 
     /**
-     * Applies this filter and stores the result in the given <tt>treeModel</tt>.
-     * @param treeModel the <tt>ContactListTreeModel</tt>, in which we store
-     * results
+     * Applies this filter to the default contact source.
      */
-    public void applyFilter(ContactListTreeModel treeModel)
+    public void applyFilter()
     {
         logger.debug("Search filter applied on default source");
         if (searchSourceType == DEFAULT_SOURCE)
+        {
             // First add the MetaContactListSource
-            mclSource.filter(filterPattern, treeModel);
+            mclSource.filter(filterPattern);
+        }
     }
 
     /**
-     * Applies this filter to the given <tt>contactSource</tt> and stores the
-     * result in the given <tt>treeModel</tt>.
+     * Applies this filter to the given <tt>contactSource</tt>.
      *
      * @param contactSource the <tt>ExternalContactSource</tt> to apply the
      * filter to
-     * @param treeModel the <tt>ContactListTreeModel</tt> in which the results
-     * are stored
      * @return the <tt>ContactQuery</tt> that tracks this filter
      */
-    public ContactQuery applyFilter(ExternalContactSource contactSource,
-                                    ContactListTreeModel treeModel)
+    public ContactQuery applyFilter(ExternalContactSource contactSource)
     {
         logger.debug("Search filter applied on source: "
                 + contactSource.getContactSourceService());
@@ -119,7 +115,7 @@ public class SearchFilter
             contactQuery = sourceService.queryContactSource(filterString);
 
         // Add first available results.
-        this.addMatching(contactQuery.getQueryResults(), treeModel);
+        this.addMatching(contactQuery.getQueryResults());
 
         currentQueries.add(contactQuery);
         contactQuery.addContactQueryListener(GuiActivator.getContactList());
@@ -228,28 +224,23 @@ public class SearchFilter
     }
 
     /**
-     * Adds the list of <tt>sourceContacts</tt> in the given <tt>treeModel</tt>.
+     * Adds the list of <tt>sourceContacts</tt> to the contact list.
      * @param sourceContacts the list of <tt>SourceContact</tt>s to add
-     * @param treeModel the <tt>ContactListTreeModel</tt>, where the contacts
-     * are added
      */
-    private void addMatching(   List<SourceContact> sourceContacts,
-                                ContactListTreeModel treeModel)
+    private void addMatching(   List<SourceContact> sourceContacts)
     {
         Iterator<SourceContact> contactsIter = sourceContacts.iterator();
         while (contactsIter.hasNext())
         {
-            addSourceContact(contactsIter.next(), treeModel);
+            addSourceContact(contactsIter.next());
         }
     }
 
     /**
-     * Adds the given <tt>sourceContact</tt> to the result tree model.
+     * Adds the given <tt>sourceContact</tt> to the contact list.
      * @param sourceContact the <tt>SourceContact</tt> to add
-     * @param treeModel the <tt>ContactListTreeModel</tt> storing the result
      */
-    private void addSourceContact(  SourceContact sourceContact,
-                                    ContactListTreeModel treeModel)
+    private void addSourceContact(  SourceContact sourceContact)
     {
         ContactSourceService contactSource
             = sourceContact.getContactSource();
@@ -264,10 +255,8 @@ public class SearchFilter
                 || isMatching(sourceContact))
         {
             GuiActivator.getContactList().addContact(
-                treeModel,
                 sourceUI.createUIContact(sourceContact),
                 sourceUI.getUIGroup(),
-                false,
                 false);
         }
     }

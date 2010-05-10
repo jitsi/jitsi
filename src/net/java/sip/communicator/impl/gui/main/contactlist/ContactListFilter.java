@@ -33,11 +33,9 @@ public interface ContactListFilter
     public boolean isMatching(UIGroup uiGroup);
 
     /**
-     * Applies this filter to any interested sources and stores the result in
-     * the given <tt>treeModel</tt>.
-     * @param treeModel the <tt>ContactListTreeModel</tt> to store the result in
+     * Applies this filter to any interested sources
      */
-    public void applyFilter(ContactListTreeModel treeModel);
+    public void applyFilter();
 
     /**
      * Stops this filter current queries.
