@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import java.util.*;
+
 /**
  * The <tt>MissedCallsListener</tt> listens for changes in the missed calls
  * count. It is notified each time when a missed calls is registered by the
@@ -17,7 +19,7 @@ public interface MissedCallsListener
 {
     /**
      * Indicates the missed calls count has changed.
-     * @param newCallCount the new missed calls count
+     * @param missedCalls the new missed calls list
      */
-    public void missedCallCountChanged(int newCallCount);
+    public void missedCallCountChanged(Collection<MissedCall> missedCalls);
 }

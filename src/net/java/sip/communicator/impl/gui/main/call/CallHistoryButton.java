@@ -8,12 +8,14 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -123,15 +125,15 @@ public class CallHistoryButton
 
     /**
      * Indicates that missed calls count has changed.
-     * @param newCallCount the new call count
+     * @param missedCalls the list of missed calls
      */
-    public void missedCallCountChanged(int newCallCount)
+    public void missedCallCountChanged(Collection<MissedCall> missedCalls)
     {
-        if (newCallCount > 0)
+        if (!missedCalls.isEmpty())
         {
-            setMissedCallsView(newCallCount);
+            setMissedCallsView(missedCalls);
         }
-        else if (newCallCount <= 0)
+        else
         {
             setHistoryView();
         }
@@ -162,14 +164,34 @@ public class CallHistoryButton
 
     /**
      * Sets the missed calls view of this button.
-     * @param callCount the missed calls count
+     * @param missedCalls the list of missed calls
      */
-    private void setMissedCallsView(int callCount)
+    private void setMissedCallsView(Collection<MissedCall> missedCalls)
     {
         isMissedCallView = true;
         this.setBgImage(null);
-        this.setToolTipText(missedCallsToolTip);
+
+        String tooltipText = "<html><b>" + missedCallsToolTip + "</b><br/>";
+
+        int visibleCallCount = 5;
+        Iterator<MissedCall> callsIter = missedCalls.iterator();
+        while (callsIter.hasNext() && visibleCallCount > 0)
+        {
+            MissedCall missedCall = callsIter.next();
+            tooltipText += GuiUtils.formatTime(missedCall.getCallTime())
+                        + "    "+ missedCall.getCallName() + "<br/>";
+            visibleCallCount--;
+
+            if (visibleCallCount == 0 && callsIter.hasNext())
+                tooltipText
+                    += GuiActivator.getResources()
+                        .getI18NString("service.gui.MISSED_CALLS_MORE_TOOL_TIP",
+                            new String[]{
+                                new Integer(missedCalls.size() - 5).toString()});
+        }
+        this.setToolTipText(tooltipText + "</html>");
+
         this.setBackground(new Color(200, 0, 0));
-        this.setText(new Integer(callCount).toString());
+        this.setText(new Integer(missedCalls.size()).toString());
     }
 }

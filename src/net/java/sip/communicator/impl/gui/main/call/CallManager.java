@@ -40,10 +40,10 @@ public class CallManager
                                             = new Hashtable<Call, CallDialog>();
 
     /**
-     * Indicates the number of missed calls that the user should be notified
-     * about.
+     * A list of the currently missed calls. Only the names of the first
+     * participant of each call is stored in the list.
      */
-    private static int missedCalls = 0;
+    private static Collection<MissedCall> missedCalls;
 
     /**
      * Listener notified for changes in missed calls count.
@@ -71,13 +71,16 @@ public class CallManager
             receivedCallDialog.pack();
             receivedCallDialog.setVisible(true);
 
+            final String peerName
+                = sourceCall.getCallPeers().next().getDisplayName();
+            final Date callDate = new Date();
+
             NotificationManager.fireNotification(
                 NotificationManager.INCOMING_CALL,
                 "",
                 GuiActivator.getResources()
                     .getI18NString("service.gui.INCOMING_CALL",
-                        new String[]{sourceCall.getCallPeers()
-                                .next().toString()}));
+                        new String[]{peerName}));
 
             sourceCall.addCallChangeListener(new CallChangeAdapter()
             {
@@ -87,7 +90,7 @@ public class CallManager
                         && evt.getOldValue()
                             .equals(CallState.CALL_INITIALIZATION))
                     {
-                        addMissedCall();
+                        addMissedCall(new MissedCall(peerName, callDate));
                         evt.getSourceCall().removeCallChangeListener(this);
                     }
                 }
@@ -465,10 +468,16 @@ public class CallManager
 
     /**
      * Adds a missed call.
+     * @param missedCall the missed call to add to the list of missed calls
      */
-    private static void addMissedCall()
+    private static void addMissedCall(MissedCall missedCall)
     {
-        missedCalls ++;
+        if (missedCalls == null)
+        {
+            missedCalls = new LinkedList<MissedCall>();
+        }
+
+        missedCalls.add(missedCall);
         fireMissedCallCountChangeEvent(missedCalls);
     }
 
@@ -477,18 +486,19 @@ public class CallManager
      */
     public static void clearMissedCalls()
     {
-        missedCalls = 0;
+        missedCalls = null;
     }
 
     /**
      * Notifies interested <tt>MissedCallListener</tt> that the count has
      * changed.
-     * @param missedCallsCount the new missed calls count
+     * @param missedCalls the new missed calls
      */
-    private static void fireMissedCallCountChangeEvent(int missedCallsCount)
+    private static void fireMissedCallCountChangeEvent(
+        Collection<MissedCall> missedCalls)
     {
         if (missedCallsListener != null)
-            missedCallsListener.missedCallCountChanged(missedCallsCount);
+            missedCallsListener.missedCallCountChanged(missedCalls);
     }
 
     /**
