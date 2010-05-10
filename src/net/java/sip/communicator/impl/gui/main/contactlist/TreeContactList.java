@@ -860,7 +860,8 @@ public class TreeContactList
      */
     public void stopFiltering()
     {
-        currentFilter.stopFilter();
+        if (currentFilter != null)
+            currentFilter.stopFilter();
 
         if (filterQuery != null)
             filterQuery.cancel();
@@ -1638,7 +1639,7 @@ public class TreeContactList
             uiContact = MetaContactListSource
                 .createUIContact(metaContact);
 
-            if (currentFilter.isMatching(uiContact))
+            if (currentFilter != null && currentFilter.isMatching(uiContact))
             {
                 MetaContactGroup parentGroup
                     = metaContact.getParentMetaContactGroup();
@@ -1662,7 +1663,7 @@ public class TreeContactList
         }
         else
         {
-            if (!currentFilter.isMatching(uiContact))
+            if (currentFilter != null && !currentFilter.isMatching(uiContact))
                 removeContact(uiContact);
             else
                 treeModel
