@@ -16,10 +16,10 @@ import javax.media.protocol.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
-import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
+import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.event.*;

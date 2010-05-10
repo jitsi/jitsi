@@ -133,7 +133,6 @@ JAWTRenderer_process
 {
     JAWTRenderer *renderer;
     NSAutoreleasePool *autoreleasePool;
-    jboolean repaint;
 
     renderer = (JAWTRenderer *) handle;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
@@ -200,27 +199,10 @@ JAWTRenderer_process
         }
         renderer->width = width;
         renderer->height = height;
-
-        /*
-         * The component needs repainting now. Upon return, a paint of the
-         * component will be scheduled. But #paint and #process both want the
-         * lock on the renderer and it may turn out that #process will manage to
-         * execute once again without #paint being able to depict the current
-         * frame. So try to paint now and don't schedule a paint for later.
-         */
-        if (renderer->view)
-        {
-            [renderer paint];
-            repaint = JNI_FALSE;
-        }
-        else
-            repaint = JNI_TRUE;
     }
-    else
-        repaint = JNI_TRUE;
 
     [autoreleasePool release];
-    return repaint;
+    return JNI_TRUE;
 }
 
 @implementation JAWTRenderer
@@ -314,31 +296,26 @@ JAWTRenderer_process
 
 - (void)paint
 {
-    if ([view lockFocusIfCanDraw])
+    [glContext makeCurrentContext];
+
+    // drawRect:
+    glClear(GL_COLOR_BUFFER_BIT);
+    if (texture)
     {
-        [glContext makeCurrentContext];
-
-        // drawRect:
-        glClear(GL_COLOR_BUFFER_BIT);
-        if (texture)
-        {
-            glEnable(JAWT_RENDERER_TEXTURE);
-            glBegin(GL_QUADS);
-            glTexCoord2f(0, 0);
-            glVertex2f(-1.0, 1.0);
-            glTexCoord2f(width, 0);
-            glVertex2f(1.0, 1.0);
-            glTexCoord2f(width, height);
-            glVertex2f(1.0, -1.0);
-            glTexCoord2f(0, height);
-            glVertex2f(-1.0, -1.0);
-            glEnd();
-            glDisable(JAWT_RENDERER_TEXTURE);
-        }
-        glFlush();
-
-        [view unlockFocus];
+        glEnable(JAWT_RENDERER_TEXTURE);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0, 0);
+        glVertex2f(-1.0, 1.0);
+        glTexCoord2f(width, 0);
+        glVertex2f(1.0, 1.0);
+        glTexCoord2f(width, height);
+        glVertex2f(1.0, -1.0);
+        glTexCoord2f(0, height);
+        glVertex2f(-1.0, -1.0);
+        glEnd();
+        glDisable(JAWT_RENDERER_TEXTURE);
     }
+    glFlush();
 }
 
 - (void)reshape
@@ -366,6 +343,7 @@ JAWTRenderer_process
     {
         if (view)
         {
+#ifdef JAWT_RENDERER_USE_NSNOTIFICATIONCENTER
             NSNotificationCenter *notificationCenter;
 
             notificationCenter = [NSNotificationCenter defaultCenter];
@@ -380,6 +358,7 @@ JAWTRenderer_process
                     name:NSViewFrameDidChangeNotification
                     object:view];
             }
+#endif /* JAWT_RENDERER_USE_NSNOTIFICATIONCENTER */
 
             [view release];
         }
@@ -395,6 +374,7 @@ JAWTRenderer_process
             if ([glContext view] != view)
                 [glContext setView:view];
 
+#ifdef JAWT_RENDERER_USE_NSNOTIFICATIONCENTER
             notificationCenter = [NSNotificationCenter defaultCenter];
             if (notificationCenter)
             {
@@ -411,6 +391,7 @@ JAWTRenderer_process
                     name:NSViewFrameDidChangeNotification
                     object:view];
             }
+#endif /* JAWT_RENDERER_USE_NSNOTIFICATIONCENTER */
 
             [self update];
         }
