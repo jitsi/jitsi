@@ -55,7 +55,8 @@ public class SearchField
         this.setDragEnabled(true);
         this.addTextChangeListener(this);
 
-        InputMap imap = getInputMap(JComponent.WHEN_FOCUSED);
+        InputMap imap
+            = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escape");
         ActionMap amap = getActionMap();
         amap.put("escape", new AbstractAction()
