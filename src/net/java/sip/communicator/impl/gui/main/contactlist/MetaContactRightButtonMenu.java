@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -475,9 +476,15 @@ public class MetaContactRightButtonMenu
                 ConfigurationManager.setSendFileLastDir(
                         selectedFile.getParent());
 
+                // Obtain the corresponding chat panel.
+                ChatPanel chatPanel
+                    = GuiActivator.getUIService().
+                        getChatWindowManager().getContactChat(contactItem, true);
+
+                chatPanel.sendFile(selectedFile);
+
                 GuiActivator.getUIService().
-                getChatWindowManager().getSelectedChat().
-                    sendFile(selectedFile);
+                    getChatWindowManager().openChat(chatPanel, true);
             }
 
             GuiActivator.getUIService().getChatWindowManager()
