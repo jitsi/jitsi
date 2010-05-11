@@ -35,19 +35,20 @@ public class SearchFieldUI
     private Image callIcon;
 
     /**
-     * The rollover icon of the call button.
+     * The roll over icon of the call button.
      */
     private Image callRolloverIcon;
-
-    /**
-     * The call button in the search field.
-     */
-    private SIPCommButton callButton;
 
     /**
      * Indicates if the mouse is currently over the call button.
      */
     private boolean isCallMouseOver = false;
+
+    /**
+     * The call button tool tip string.
+     */
+    private final String callString
+        = GuiActivator.getResources().getI18NString("service.gui.CALL");
 
     /**
      * Creates a <tt>SIPCommTextFieldUI</tt>.
@@ -63,13 +64,6 @@ public class SearchFieldUI
         callRolloverIcon = UtilActivator.getResources()
             .getImage("service.gui.buttons.SEARCH_CALL_ROLLOVER_ICON")
                 .getImage();
-
-        callButton = new SIPCommButton(callIcon, callRolloverIcon);
-
-        callButton.setToolTipText(GuiActivator.getResources()
-            .getI18NString("service.gui.CALL_ANY_NUMBER"));
-        callButton.setSize (callRolloverIcon.getWidth(null),
-                            callRolloverIcon.getHeight(null));
     }
 
     /**
@@ -123,7 +117,8 @@ public class SearchFieldUI
             dy = callRect.y;
 
             if (c.getText() != null
-                && c.getText().length() > 0)
+                && c.getText().length() > 0
+                && CallManager.getTelephonyProviders().size() > 0)
             {
                 if (isCallMouseOver)
                     g2.drawImage(callRolloverIcon, dx, dy, null);
@@ -151,7 +146,8 @@ public class SearchFieldUI
         if ((rect.width > 0) && (rect.height > 0))
         {
             rect.x += searchIcon.getIconWidth() + 8;
-            rect.width -= searchIcon.getIconWidth() + callButton.getWidth() + 15;
+            rect.width -= searchIcon.getIconWidth()
+                        + callRolloverIcon.getWidth(null) + 15;
             return rect;
         }
         return null;
@@ -237,17 +233,26 @@ public class SearchFieldUI
 
         if (callButtonRect.contains(x, y))
         {
+            JTextComponent c = getComponent();
+            String searchText = c.getText();
+
+            if (searchText == null)
+                return;
+
+            // Show a tool tip over the call button.
+            getComponent().setToolTipText(callString + " " + searchText);
+            ToolTipManager.sharedInstance().mouseEntered(
+                new MouseEvent(getComponent(), 0, x, y,
+                        x, y, // X-Y of the mouse for the tool tip
+                        0, false));
+
+            // Update the default cursor.
             isCallMouseOver = true;
             getComponent().setCursor(Cursor.getDefaultCursor());
 
+            // Perform call action when the call button is clicked.
             if (evt.getID() == MouseEvent.MOUSE_CLICKED)
             {
-                JTextComponent c = getComponent();
-                String searchText = c.getText();
-
-                if (searchText == null)
-                    return;
-
                 List<ProtocolProviderService> telephonyProviders
                     = CallManager.getTelephonyProviders();
 
@@ -271,7 +276,17 @@ public class SearchFieldUI
             }
         }
         else
+        {
+            // Remove the call button tool tip when the mouse exits the call
+            // button area.
+            getComponent().setToolTipText("");
+            ToolTipManager.sharedInstance().mouseExited(
+                new MouseEvent(getComponent(), 0, x, y,
+                        x, y, // X-Y of the mouse for the tool tip
+                        0, false));
+
             isCallMouseOver = false;
+        }
 
         getComponent().repaint();
     }
@@ -286,12 +301,12 @@ public class SearchFieldUI
         Component c = getComponent();
         Rectangle rect = c.getBounds();
 
-        int dx = getDeleteButtonRect().x - callButton.getWidth() - 2;
-        int dy = (rect.y + rect.height) / 2 - callButton.getHeight()/2;
+        int dx = getDeleteButtonRect().x - callRolloverIcon.getWidth(null) - 2;
+        int dy = (rect.y + rect.height) / 2 - callRolloverIcon.getHeight(null)/2;
 
         return new Rectangle(   dx,
                                 dy,
-                                callButton.getWidth(),
-                                callButton.getHeight());
+                                callRolloverIcon.getWidth(null),
+                                callRolloverIcon.getHeight(null));
     }
 }
