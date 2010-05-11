@@ -101,16 +101,6 @@ public class VideoMediaDeviceSession
         = new VideoNotifierSupport(this);
 
     /**
-     * Previous output video width.
-     */
-    private int previousWidth = 0;
-
-    /**
-     * Previous output video height.
-     */
-    private int previousHeight = 0;
-
-    /**
      * Initializes a new <tt>VideoMediaDeviceSession</tt> instance which is to
      * represent the work of a <tt>MediaStream</tt> with a specific video
      * <tt>MediaDevice</tt>.
@@ -670,44 +660,7 @@ public class VideoMediaDeviceSession
                      * configured output size, we may never get SizeChangeEvent
                      * from the player. We'll generate it ourselves then.
                      */
-                    playerScaler = new SwScaler()
-                    {
-                        /**
-                         * The last size reported in the form of a
-                         * SizeChangeEvent.
-                         */
-                        private Dimension lastSize;
-
-                        @Override
-                        public int process(Buffer input, Buffer output)
-                        {
-                            int result = super.process(input, output);
-
-                            if (result == BUFFER_PROCESSED_OK)
-                            {
-                                Format inputFormat = input.getFormat();
-
-                                if (inputFormat != null)
-                                {
-                                    Dimension inputSize
-                                        = ((VideoFormat) inputFormat).getSize();
-
-                                    if ((inputSize != null)
-                                            && ((lastSize == null)
-                                                    || !lastSize
-                                                            .equals(inputSize)))
-                                    {
-                                        lastSize = inputSize;
-                                        playerSizeChange(
-                                            player,
-                                            lastSize.width,
-                                            lastSize.height);
-                                    }
-                                }
-                            }
-                            return result;
-                        }
-                    };
+                    playerScaler = new PlayerScaler(player);
 
                     /* for H264 codec, we will use RTCP feedback
                      * for example to advertise sender that we miss
@@ -765,7 +718,15 @@ public class VideoMediaDeviceSession
     {
         super.playerControllerUpdate(event);
 
-        if (event instanceof SizeChangeEvent)
+        /*
+         * If SwScaler is in the chain and it forces a specific size of the
+         * output, the SizeChangeEvents of the Player do not really notify about
+         * changes in the size of the input. Besides, playerScaler will take
+         * care of the events in such a case.
+         */
+        if ((event instanceof SizeChangeEvent)
+                && ((playerScaler == null)
+                        || (playerScaler.getOutputSize() == null)))
         {
             SizeChangeEvent sizeChangeEvent = (SizeChangeEvent) event;
 
@@ -850,6 +811,7 @@ public class VideoMediaDeviceSession
         Component visualComponent = getVisualComponent(player);
 
         if (visualComponent != null)
+        {
             fireVideoEvent(
                 new SizeChangeVideoEvent(
                         this,
@@ -857,6 +819,7 @@ public class VideoMediaDeviceSession
                         SizeChangeVideoEvent.REMOTE,
                         width,
                         height));
+        }
     }
 
     /**
@@ -889,12 +852,6 @@ public class VideoMediaDeviceSession
         float outputHeight = outputSize.height;
 
         if ((outputWidth < 1) || (outputHeight < 1))
-            return;
-
-        if (previousWidth - 2 <= outputWidth
-            && outputWidth <= previousWidth + 2
-            && previousHeight -2 <= outputHeight
-            && outputHeight <= previousHeight)
             return;
 
         /*
@@ -951,10 +908,31 @@ public class VideoMediaDeviceSession
 
         outputSize.width = (int) outputWidth;
         outputSize.height = (int) outputHeight;
-        previousWidth = outputSize.width;
-        previousHeight = outputSize.height;
 
-        playerScaler.setOutputSize(outputSize);
+        Dimension playerScalerOutputSize = playerScaler.getOutputSize();
+
+        if (playerScalerOutputSize == null)
+            playerScaler.setOutputSize(outputSize);
+        else
+        {
+            /*
+             * If we are not going to make much of a change, do not even bother
+             * because any scaling in the Renderer will not be noticeable
+             * anyway.
+             */
+            int outputWidthDelta
+                = outputSize.width - playerScalerOutputSize.width;
+            int outputHeightDelta
+                = outputSize.height - playerScalerOutputSize.height;
+
+            if ((outputWidthDelta < -1)
+                    || (outputWidthDelta > 1)
+                    || (outputHeightDelta < -1)
+                    || (outputHeightDelta > 1))
+            {
+                playerScaler.setOutputSize(outputSize);
+            }
+        }
     }
 
     /**
@@ -1208,6 +1186,116 @@ public class VideoMediaDeviceSession
                     visualComponent,
                     VideoEvent.REMOTE);
             }
+        }
+    }
+
+    /**
+     * Extends <tt>SwScaler</tt> in order to provide scaling with high quality
+     * to a specific <tt>Player</tt> of remote video.
+     */
+    private class PlayerScaler
+        extends SwScaler
+    {
+        /**
+         * The last size reported in the form of a <tt>SizeChangeEvent</tt>.
+         */
+        private Dimension lastSize;
+
+        /**
+         * The <tt>Player</tt> into the codec chain of which this
+         * <tt>SwScaler</tt> is set.
+         */
+        private final Player player;
+
+        /**
+         * Initializes a new <tt>PlayerScaler</tt> instance which is to provide
+         * scaling with high quality to a specific <tt>Player</tt> of remote
+         * video.
+         *
+         * @param player the <tt>Player</tt> of remote video into the codec
+         * chain of which the new instance is to be set
+         */
+        public PlayerScaler(Player player)
+        {
+            this.player = player;
+        }
+
+        /**
+         * Determines when the input video sizes changes and reports it as a
+         * <tt>SizeChangeVideoEvent</tt> because <tt>Player</tt> is unable to
+         * do it when this <tt>SwScaler</tt> is scaling to a specific
+         * <tt>outputSize</tt>. 
+         *
+         * @param input
+         * @param output
+         * @return
+         * @see SwScaler#process(Buffer, Buffer)
+         */
+        @Override
+        public int process(Buffer input, Buffer output)
+        {
+            int result = super.process(input, output);
+
+            if (result == BUFFER_PROCESSED_OK)
+            {
+                Format inputFormat = getInputFormat();
+
+                if (inputFormat != null)
+                {
+                    Dimension size = ((VideoFormat) inputFormat).getSize();
+
+                    if ((size != null)
+                            && ((lastSize == null) || !lastSize.equals(size)))
+                    {
+                        lastSize = size;
+                        playerSizeChange(
+                            player,
+                            lastSize.width, lastSize.height);
+                    }
+                }
+            }
+            return result;
+        }
+
+        /**
+         * Ensures that this <tt>SwScaler</tt> preserves the aspect ratio of its
+         * input video when scaling.
+         *
+         * @param inputFormat
+         * @return
+         * @see SwScaler#setInputFormat(Format)
+         */
+        @Override
+        public Format setInputFormat(Format inputFormat)
+        {
+            inputFormat = super.setInputFormat(inputFormat);
+            if (inputFormat instanceof VideoFormat)
+            {
+                Dimension inputSize = ((VideoFormat) inputFormat).getSize();
+
+                if ((inputSize != null) && (inputSize.width > 0))
+                {
+                    Dimension outputSize = getOutputSize();
+
+                    if ((outputSize != null) && (outputSize.width > 0))
+                    {
+                        int outputHeight
+                            = (int)
+                                (outputSize.width
+                                    * inputSize.height
+                                    / (float) inputSize.width);
+                        int outputHeightDelta
+                            = outputHeight - outputSize.height;
+
+                        if ((outputHeightDelta < -1) || (outputHeightDelta > 1))
+                        {
+                             outputSize.height = outputHeight;
+                             setOutputSize(outputSize);
+                        }
+                    }
+                }
+            }
+            return inputFormat;
         }
     }
 }

@@ -65,7 +65,7 @@ public class FitLayout
         else
             widthRatio = 1;
         if ((componentSize.height != bounds.height)
-            && (componentSize.height > 0))
+                && (componentSize.height > 0))
         {
             scale = true;
             heightRatio = bounds.height / (double) componentSize.height;
