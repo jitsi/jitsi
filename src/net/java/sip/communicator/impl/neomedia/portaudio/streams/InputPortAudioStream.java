@@ -66,6 +66,7 @@ public class InputPortAudioStream
         this.parentStream = parentStream;
     }
 
+    private Object readSync = new Object();
     /**
      * Reads audio data from this <tt>InputPortAudioStream</tt> into a specific
      * <tt>Buffer</tt> blocking until audio data is indeed available.
@@ -82,41 +83,53 @@ public class InputPortAudioStream
             buffer.setLength(0);
             return;
         }
-
-        synchronized (parentStream)
+        
+        synchronized (readSync)
         {
-            if (bufferData == null)
+            while (true)
             {
-                parentStream.read(buffer);
-            }
-            else
-            {
-                /*
-                 * If buffer conatins a data area then check if the type and 
-                 * length fits. If yes then use it, otherwise allocate a new
-                 * area and set it in buffer.
-                 * 
-                 * In case we can re-use the data area: copy the data, don't
-                 * just set the bufferData into buffer because bufferData 
-                 * points to a data area in another buffer instance.
-                 */
-                Object data = buffer.getData();
-                byte[] tmpArray;
-                if (data instanceof byte[] && ((byte[])data).length >= bufferLength) {
-                    tmpArray = (byte[])data;
+                if (bufferData == null) {
+                    // parent read returns false if read is already active, wait
+                    // until notified by setBuffer below.
+                    if (!parentStream.read(buffer)) {
+                        try {
+                            readSync.wait();
+                        } catch (InterruptedException e) {
+                            continue;
+                        }
+                        continue;  // bufferData was set by setBuffer
+                    }
+                    // parent read returned true, break loop below
                 }
                 else
                 {
-                    tmpArray = new byte[bufferLength];
-                    buffer.setData(tmpArray);
+                    /*
+                     * If buffer conatins a data area then check if the type and 
+                     * length fits. If yes then use it, otherwise allocate a new
+                     * area and set it in buffer.
+                     * 
+                     * In case we can re-use the data area: copy the data, don't
+                     * just set the bufferData into buffer because bufferData 
+                     * points to a data area in another buffer instance.
+                     */
+                    Object data = buffer.getData();
+                    byte[] tmpArray;
+                    if (data instanceof byte[] && ((byte[])data).length >= bufferLength) {
+                        tmpArray = (byte[])data;
+                    }
+                    else
+                    {
+                        tmpArray = new byte[bufferLength];
+                        buffer.setData(tmpArray);
+                    }
+                    System.arraycopy(bufferData, 0, tmpArray, 0, bufferLength);
+                    buffer.setFlags(Buffer.FLAG_SYSTEM_TIME);
+                    buffer.setLength(bufferLength);
+                    buffer.setOffset(0);
+                    buffer.setTimeStamp(bufferTimeStamp);
                 }
-                System.arraycopy(bufferData, 0, tmpArray, 0, bufferLength);
-                buffer.setFlags(Buffer.FLAG_SYSTEM_TIME);
-                buffer.setLength(bufferLength);
-                buffer.setOffset(0);
-                buffer.setTimeStamp(bufferTimeStamp);
+                break;
             }
-
             /*
              * The bufferData of this InputPortAudioStream has been consumed so
              * make sure a new piece of audio data will be read the next time.
@@ -142,11 +155,12 @@ public class InputPortAudioStream
      */
     void setBuffer(byte[] bufferData, int bufferLength, long bufferTimeStamp)
     {
-        synchronized (parentStream)
+        synchronized (readSync)
         {
             this.bufferData = bufferData;
             this.bufferLength = bufferLength;
             this.bufferTimeStamp = bufferTimeStamp;
+            readSync.notifyAll();
         }
     }
 

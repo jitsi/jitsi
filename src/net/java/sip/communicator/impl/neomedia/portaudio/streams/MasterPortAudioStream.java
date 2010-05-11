@@ -80,6 +80,10 @@ public class MasterPortAudioStream
     private long stream = 0;
 
     /**
+     * Whether a read is active.
+     */
+    private boolean readActive = false;
+    /**
      * Creates new stream.
      * @param deviceIndex the device to use.
      * @param channels the channels to serve.
@@ -144,6 +148,8 @@ public class MasterPortAudioStream
             null);
     }
 
+    private Object readSync = new Object();
+    
     /**
      * Reads audio data from this <tt>MasterPortAudioStream</tt> into a specific
      * <tt>Buffer</tt> blocking until audio data is indeed available.
@@ -151,14 +157,21 @@ public class MasterPortAudioStream
      * @param buffer the <tt>Buffer</tt> into which the audio data read from
      * this <tt>MasterPortAudioStream</tt> is to be returned
      * @throws PortAudioException if an error occurs while reading
-     */
-    public synchronized void read(Buffer buffer)
+     */    
+    public boolean read(Buffer buffer)
         throws PortAudioException
     {
-        if (!started)
-        {
-            buffer.setLength(0);
-            return;
+        synchronized (readSync) {
+            if (readActive)
+            {
+                return false;
+            }
+            readActive = true;
+            if (!started)
+            {
+                buffer.setLength(0);
+                return true;
+            }
         }
 
         /*
@@ -197,6 +210,11 @@ public class MasterPortAudioStream
                 .get(slaveIndex)
                     .setBuffer(bufferData, bytesPerBuffer, bufferTimeStamp);
         }
+        synchronized(readSync) {
+            readActive = false;
+            readSync.notify();
+        }
+        return true;
     }
 
     /**
@@ -281,11 +299,21 @@ public class MasterPortAudioStream
 
         if(slaves.isEmpty())
         {
-            // stop
-            PortAudio.Pa_CloseStream(stream);
-            stream = 0;
-            started = false;
-            PortAudioManager.getInstance().stoppedInputPortAudioStream(this);
+            synchronized (readSync) {
+                while (readActive) 
+                {
+                    try {
+                        readSync.wait();
+                    } catch (InterruptedException e) {
+                        continue;
+                    }
+                }
+                // stop
+                PortAudio.Pa_CloseStream(stream);
+                stream = 0;
+                started = false;
+                PortAudioManager.getInstance().stoppedInputPortAudioStream(this);
+            }
         }
     }
 }
