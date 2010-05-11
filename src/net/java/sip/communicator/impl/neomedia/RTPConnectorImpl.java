@@ -102,8 +102,17 @@ public class RTPConnectorImpl
      */
     public void close()
     {
-        dataOutputStream = null;
-        controlOutputStream = null;
+        if (dataOutputStream != null) 
+        {
+            dataOutputStream.close();
+            dataOutputStream = null;
+        }
+
+        if (controlOutputStream != null)
+        {
+            controlOutputStream.close();
+            controlOutputStream = null;
+        }
 
         if (dataInputStream != null)
         {
