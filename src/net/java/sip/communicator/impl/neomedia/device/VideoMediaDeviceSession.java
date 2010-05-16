@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
+import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -185,10 +186,10 @@ public class VideoMediaDeviceSession
             }
 
             /*
-             * FIXME Cloning a Desktop streaming CaptureDevice no longer works
-             * since it became a PullBufferCaptureDevice.
+             * FIXME AbstractPullBufferCaptureDevice (or PullBufferDataSource?)
+             * does not seem to be correctly cloned by JMF.
              */
-            if (!ImageStreamingUtils.LOCATOR_PROTOCOL.equals(protocol))
+            if (!(captureDevice instanceof AbstractPullBufferCaptureDevice))
             {
                 DataSource cloneableDataSource =
                     Manager.createCloneableDataSource(captureDevice);
