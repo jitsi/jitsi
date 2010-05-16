@@ -68,12 +68,12 @@ public class TestConfigurationService extends TestCase
      * A straightforward Vetoable change listener that throws an exception
      * upon any change
      */
-    VetoableChangeListener rudeVetoListener = new VetoableChangeListener()
+    ConfigVetoableChangeListener rudeVetoListener = new ConfigVetoableChangeListener()
     {
         public void vetoableChange(PropertyChangeEvent event) throws
-            PropertyVetoException
+            ConfigPropertyVetoException
         {
-            throw new PropertyVetoException("Just for the fun of it", event);
+            throw new ConfigPropertyVetoException("Just for the fun of it", event);
         }
     };
 
@@ -81,10 +81,10 @@ public class TestConfigurationService extends TestCase
      * A straightforward implementation of a vetoable change listener that that
      * does not throw a veto exception and only stored the last received event.
      */
-    VetoableChangeListener gentleVetoListener = new VetoableChangeListener()
+    ConfigVetoableChangeListener gentleVetoListener = new ConfigVetoableChangeListener()
     {
         public void vetoableChange(PropertyChangeEvent event) throws
-            PropertyVetoException
+            ConfigPropertyVetoException
         {
             propertyChangeEvent = event;
         }
@@ -473,7 +473,7 @@ public class TestConfigurationService extends TestCase
         propertyChangeEvent = null;
         configurationService.removeVetoableChangeListener(rudeVetoListener);
 
-        VetoableChangeListener vcListener = new VetoableChangeListener(){
+        ConfigVetoableChangeListener vcListener = new ConfigVetoableChangeListener(){
             public void vetoableChange(PropertyChangeEvent event)
             {
                 assertNull("propertyChangeEvent was not null which means that it has "
@@ -584,7 +584,7 @@ public class TestConfigurationService extends TestCase
     {
         String listenedPropertyValue = "19.2598";
         String listenedPropertyNewValue = "19.29581";
-        VetoableChangeListener vetoListener = new VetoableChangeListener()
+        ConfigVetoableChangeListener vetoListener = new ConfigVetoableChangeListener()
         {
             public void vetoableChange(PropertyChangeEvent event)
             {

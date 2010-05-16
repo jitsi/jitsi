@@ -267,7 +267,7 @@ public interface ConfigurationService
      * <p>
      * @param listener the VetoableChangeListener to be added
      */
-    public void addVetoableChangeListener(VetoableChangeListener listener);
+    public void addVetoableChangeListener(ConfigVetoableChangeListener listener);
 
     /**
      * Removes a VetoableChangeListener from the listener list.
@@ -275,7 +275,7 @@ public interface ConfigurationService
      *
      * @param listener the VetoableChangeListener to be removed
      */
-    public void removeVetoableChangeListener(VetoableChangeListener listener);
+    public void removeVetoableChangeListener(ConfigVetoableChangeListener listener);
 
     /**
      * Adds a VetoableChangeListener to the listener list for a specific
@@ -286,7 +286,7 @@ public interface ConfigurationService
      * @param listener the VetoableChangeListener to be added
      */
     public void addVetoableChangeListener(String propertyName,
-                                          VetoableChangeListener listener);
+                                          ConfigVetoableChangeListener listener);
 
     /**
      * Removes a VetoableChangeListener from the listener list for a specific
@@ -297,7 +297,7 @@ public interface ConfigurationService
      * @param listener the VetoableChangeListener to be removed
      */
     public void removeVetoableChangeListener(String propertyName,
-                         VetoableChangeListener listener);
+                         ConfigVetoableChangeListener listener);
 
     /**
      * Store the current set of properties back to the configuration file. The

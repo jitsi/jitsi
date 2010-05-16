@@ -29,7 +29,7 @@ public class ChangeEventDispatcher
     /**
      * All listeners registered for vetoable change events.
      */
-    private List<VetoableChangeListener> vetoableChangeListeners;
+    private List<ConfigVetoableChangeListener> vetoableChangeListeners;
 
     /**
      * Hashtable for managing property change listeners registered for specific
@@ -153,11 +153,11 @@ public class ChangeEventDispatcher
      * @param listener  The VetoableChangeListener to be added
      */
     public synchronized void addVetoableChangeListener(
-        VetoableChangeListener listener)
+            ConfigVetoableChangeListener listener)
     {
         if (vetoableChangeListeners == null)
         {
-            vetoableChangeListeners = new Vector<VetoableChangeListener>();
+            vetoableChangeListeners = new Vector<ConfigVetoableChangeListener>();
         }
 
         vetoableChangeListeners.add(listener);
@@ -171,7 +171,7 @@ public class ChangeEventDispatcher
      * @param listener  The VetoableChangeListener to be removed
      */
     public synchronized void removeVetoableChangeListener(
-        VetoableChangeListener listener)
+        ConfigVetoableChangeListener listener)
     {
         if (vetoableChangeListeners != null)
         {
@@ -190,7 +190,7 @@ public class ChangeEventDispatcher
 
     public synchronized void addVetoableChangeListener(
         String propertyName,
-        VetoableChangeListener listener)
+        ConfigVetoableChangeListener listener)
     {
         if (vetoableChangeChildren == null)
         {
@@ -213,7 +213,7 @@ public class ChangeEventDispatcher
      */
     public synchronized void removeVetoableChangeListener(
         String propertyName,
-        VetoableChangeListener listener)
+        ConfigVetoableChangeListener listener)
     {
         if (vetoableChangeChildren == null)
         {
@@ -280,7 +280,7 @@ public class ChangeEventDispatcher
             return;
         }
 
-        VetoableChangeListener[] targets = null;
+        ConfigVetoableChangeListener[] targets = null;
         ChangeEventDispatcher child = null;
         synchronized (this)
         {
@@ -288,7 +288,7 @@ public class ChangeEventDispatcher
             {
                 targets =
                     vetoableChangeListeners
-                        .toArray(new VetoableChangeListener[vetoableChangeListeners
+                        .toArray(new ConfigVetoableChangeListener[vetoableChangeListeners
                             .size()]);
             }
             if (vetoableChangeChildren != null && propertyName != null)
@@ -301,13 +301,8 @@ public class ChangeEventDispatcher
         {
             for (int i = 0; i < targets.length; i++)
             {
-                VetoableChangeListener target = targets[i];
-                // don't catch the exception - let it bounce to the caller.
-                try {
-                    target.vetoableChange(evt);
-                } catch (PropertyVetoException e) {
-                    throw new ConfigPropertyVetoException(e.getLocalizedMessage(), evt);
-                }
+                ConfigVetoableChangeListener target = targets[i];
+                target.vetoableChange(evt);
             }
         }
 

@@ -416,7 +416,7 @@ public class ConfigurationServiceImpl
      *
      * @param listener the VetoableChangeListener to be added
      */
-    public void addVetoableChangeListener(VetoableChangeListener listener)
+    public void addVetoableChangeListener(ConfigVetoableChangeListener listener)
     {
         changeEventDispatcher.addVetoableChangeListener(listener);
     }
@@ -426,7 +426,7 @@ public class ConfigurationServiceImpl
      *
      * @param listener the VetoableChangeListener to be removed
      */
-    public void removeVetoableChangeListener(VetoableChangeListener listener)
+    public void removeVetoableChangeListener(ConfigVetoableChangeListener listener)
     {
         changeEventDispatcher.removeVetoableChangeListener(listener);
     }
@@ -439,7 +439,7 @@ public class ConfigurationServiceImpl
      * @param listener the VetoableChangeListener to be added
      */
     public void addVetoableChangeListener(String propertyName,
-                                          VetoableChangeListener listener)
+            ConfigVetoableChangeListener listener)
     {
         changeEventDispatcher.addVetoableChangeListener(propertyName, listener);
     }
@@ -452,7 +452,7 @@ public class ConfigurationServiceImpl
      * @param listener the VetoableChangeListener to be removed
      */
     public void removeVetoableChangeListener(String propertyName,
-                                             VetoableChangeListener listener)
+            ConfigVetoableChangeListener listener)
     {
         changeEventDispatcher.removeVetoableChangeListener(propertyName,
             listener);

@@ -47,7 +47,7 @@ import net.java.stun4j.client.*;
  * @author Emil Ivov
  */
 public class NetworkAddressManagerServiceImpl
-    implements NetworkAddressManagerService,  VetoableChangeListener
+    implements NetworkAddressManagerService,  ConfigVetoableChangeListener
 {
     /**
      * Our class logger.
@@ -526,7 +526,7 @@ public class NetworkAddressManagerServiceImpl
      * @exception PropertyVetoException if we don't want the change to happen.
      */
     public void vetoableChange(PropertyChangeEvent evt) throws
-        PropertyVetoException
+        ConfigPropertyVetoException
     {
         if (evt.getPropertyName().equals(PROP_STUN_SERVER_ADDRESS))
         {
@@ -553,7 +553,7 @@ public class NetworkAddressManagerServiceImpl
                 else
                 {
                     // This was supposed to be a IPv6 address, but it's not!
-                    throw new PropertyVetoException(
+                    throw new ConfigPropertyVetoException(
                         "Invalid address string" + host, evt);
                 }
             }
@@ -567,7 +567,7 @@ public class NetworkAddressManagerServiceImpl
                 if( (c != '.' && c!= ':')
                     ||( c == '.' && ipv6Expected)
                     ||( c == ':' && !ipv6Expected))
-                    throw new PropertyVetoException(
+                    throw new ConfigPropertyVetoException(
                                 host + " is not a valid address nor host name",
                                 evt);
             }
@@ -589,7 +589,7 @@ public class NetworkAddressManagerServiceImpl
             }
             catch (NumberFormatException ex)
             {
-                throw new PropertyVetoException(
+                throw new ConfigPropertyVetoException(
                     port + " is not a valid port! " + ex.getMessage(), evt);
             }
         }
