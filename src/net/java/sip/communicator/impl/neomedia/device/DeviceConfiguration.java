@@ -12,8 +12,9 @@ import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
 
-import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.codec.video.*;
+import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
@@ -285,16 +286,24 @@ public class DeviceConfiguration
         else
         {
             logger.info("Scanning for configured Video Devices.");
-            videoCaptureDevice =
-                extractConfiguredVideoCaptureDevice(VideoFormat.RGB);
-            // no RGB camera found. And what about YUV ?
-            if (videoCaptureDevice == null)
+
+            Format[] formats
+                = new Format[]
+                        {
+                            new AVFrameFormat(),
+                            new VideoFormat(VideoFormat.RGB),
+                            new VideoFormat(VideoFormat.YUV)
+                        };
+
+            for (Format format : formats)
             {
-                videoCaptureDevice =
-                    extractConfiguredVideoCaptureDevice(VideoFormat.YUV);
-                if (videoCaptureDevice == null)
-                    logger.info("No Video Device was found.");
+                videoCaptureDevice
+                    = extractConfiguredVideoCaptureDevice(format);
+                if (videoCaptureDevice != null)
+                    break;
             }
+            if (videoCaptureDevice == null)
+                logger.info("No Video Device was found.");
         }
     }
 
@@ -304,17 +313,17 @@ public class DeviceConfiguration
      * @param format the output format of the video format.
      * @return CaptureDeviceInfo for the video device.
      */
-    private CaptureDeviceInfo extractConfiguredVideoCaptureDevice(String format)
+    private CaptureDeviceInfo extractConfiguredVideoCaptureDevice(Format format)
     {
-        List<CaptureDeviceInfo> videoCaptureDevices =
-            CaptureDeviceManager.getDeviceList(new VideoFormat(format));
+        List<CaptureDeviceInfo> videoCaptureDevices
+            = CaptureDeviceManager.getDeviceList(format);
         CaptureDeviceInfo videoCaptureDevice = null;
 
         if (videoCaptureDevices.size() > 0)
         {
             String videoDevName
-                = NeomediaActivator
-                    .getConfigurationService().getString(PROP_VIDEO_DEVICE);
+                = NeomediaActivator.getConfigurationService()
+                        .getString(PROP_VIDEO_DEVICE);
 
             if (videoDevName == null)
                 videoCaptureDevice = videoCaptureDevices.get(0);
@@ -331,8 +340,14 @@ public class DeviceConfiguration
             }
 
             if (videoCaptureDevice != null)
-                logger.info("Found " + videoCaptureDevice.getName()
-                    + " as an " + format + " Video Device.");
+            {
+                logger.info(
+                        "Found "
+                            + videoCaptureDevice.getName()
+                            + " as a "
+                            + format
+                            + " Video Device.");
+            }
         }
         return videoCaptureDevice;
     }
@@ -375,7 +390,6 @@ public class DeviceConfiguration
      *
      * @param soundSystem
      *         filter capture devices only from the supplied audio system.
-     *
      * @return an array of <code>CaptureDeviceInfo</code> describing the audio
      *         capture devices available through this
      *         <code>DeviceConfiguration</code>
@@ -383,6 +397,7 @@ public class DeviceConfiguration
     public CaptureDeviceInfo[] getAvailableAudioCaptureDevices(String soundSystem)
     {
         String protocol = null;
+
         if(soundSystem.equals(AUDIO_SYSTEM_JAVASOUND))
             protocol = "javasound";
         else if(soundSystem.equals(AUDIO_SYSTEM_PORTAUDIO))
@@ -392,17 +407,13 @@ public class DeviceConfiguration
 
         if(protocol != null)
         {
-            CaptureDeviceInfo[] all = getAvailableAudioCaptureDevices();
-            for(int i = 0; i < all.length; i++)
+            for(CaptureDeviceInfo cDeviceInfo
+                    : getAvailableAudioCaptureDevices())
             {
-                CaptureDeviceInfo cDeviceInfo = all[i];
                 if(cDeviceInfo.getLocator().getProtocol().equals(protocol))
-                {
                     res.add(cDeviceInfo);
-                }
             }
         }
-
         return res.toArray(NO_CAPTURE_DEVICES);
     }
 
@@ -429,13 +440,21 @@ public class DeviceConfiguration
      */
     public CaptureDeviceInfo[] getAvailableVideoCaptureDevices()
     {
+        Format[] formats
+            = new Format[]
+                    {
+                        new AVFrameFormat(),
+                        new VideoFormat(VideoFormat.RGB),
+                        new VideoFormat(VideoFormat.YUV)
+                    };
         Set<CaptureDeviceInfo> videoCaptureDevices =
             new HashSet<CaptureDeviceInfo>();
 
-        videoCaptureDevices.addAll(CaptureDeviceManager
-            .getDeviceList(new VideoFormat(VideoFormat.RGB)));
-        videoCaptureDevices.addAll(CaptureDeviceManager
-            .getDeviceList(new VideoFormat(VideoFormat.YUV)));
+        for (Format format : formats)
+        {
+            videoCaptureDevices.addAll(
+                    CaptureDeviceManager.getDeviceList(format));
+        }
         return videoCaptureDevices.toArray(NO_CAPTURE_DEVICES);
     }
 
@@ -501,16 +520,13 @@ public class DeviceConfiguration
 
             if(save)
             {
-                ConfigurationService config
-                    = NeomediaActivator.getConfigurationService();
-
-                if (audioCaptureDevice != null)
-                {
-                    config.setProperty(PROP_AUDIO_DEVICE, audioCaptureDevice
-                        .getName());
-                }
-                else
-                    config.setProperty(PROP_AUDIO_DEVICE, null);
+                NeomediaActivator
+                    .getConfigurationService()
+                        .setProperty(
+                            PROP_AUDIO_DEVICE,
+                            (audioCaptureDevice == null)
+                                ? null
+                                : audioCaptureDevice.getName());
             }
 
             firePropertyChange(AUDIO_CAPTURE_DEVICE, oldDevice, device);
@@ -595,11 +611,7 @@ public class DeviceConfiguration
                     res = asName;
             }
         }
-
-        if(res == null)
-            res = AUDIO_SYSTEM_NONE;
-
-        return res;
+        return (res == null) ? AUDIO_SYSTEM_NONE : res;
     }
 
     /**

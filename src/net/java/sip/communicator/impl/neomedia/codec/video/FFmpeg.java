@@ -58,6 +58,8 @@ public class FFmpeg
      */
     public static final int PIX_FMT_RGB32_1;
 
+    public static final int PIX_FMT_UYVY422 = 17;
+
     public static final int PIX_FMT_YUV420P;
 
     public static final int SWS_BICUBIC = 4;

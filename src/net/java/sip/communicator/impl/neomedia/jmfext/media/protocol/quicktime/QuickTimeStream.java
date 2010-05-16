@@ -47,9 +47,9 @@ public class QuickTimeStream
     /**
      * The pool of <tt>ByteBuffer</tt>s this instances is using to transfer the
      * media data captured by {@link #captureOutput} out of this instance
-     * through the <tt>Buffer</tt>s specified in its {@link #process(Buffer)}.
+     * through the <tt>Buffer</tt>s specified in its {@link #read(Buffer)}.
      */
-    private final List<ByteBuffer> buffers = new ArrayList<ByteBuffer>();
+    private final ByteBufferPool byteBufferPool = new ByteBufferPool();
 
     /**
      * The <tt>QTCaptureOutput</tt> represented by this <tt>SourceStream</tt>.
@@ -62,13 +62,6 @@ public class QuickTimeStream
      * {@link #captureOutput}.
      */
     private VideoFormat captureOutputFormat;
-
-    /**
-     * The indicator which determines whether this <tt>QuickTimeStream</tt> has
-     * been closed. Introduced to determine when <tt>ByteBuffer</tt>s are to be
-     * disposed of and no longer be pooled in {@link #buffers}.
-     */
-    private boolean closed = false;
 
     /**
      * The captured media data to be returned in {@link #read(Buffer)}.
@@ -148,7 +141,6 @@ public class QuickTimeStream
 
         automaticallyDropsLateVideoFrames
             = false;//captureOutput.setAutomaticallyDropsLateVideoFrames(true);
-
         captureOutput
             .setDelegate(
                 new QTCaptureDecompressedVideoOutput.Delegate()
@@ -204,11 +196,12 @@ public class QuickTimeStream
             {
                 if (nextData != null)
                 {
-                    returnFreeBuffer(nextData);
+                    byteBufferPool.returnFreeBuffer(nextData);
                     nextData = null;
                 }
 
-                nextData = getFreeBuffer(pixelBuffer.getByteCount());
+                nextData
+                    = byteBufferPool.getFreeBuffer(pixelBuffer.getByteCount());
                 if (nextData != null)
                 {
                     nextData.setLength(
@@ -224,11 +217,11 @@ public class QuickTimeStream
 
             if (data != null)
             {
-                returnFreeBuffer(data);
+                byteBufferPool.returnFreeBuffer(data);
                 data = null;
             }
 
-            data = getFreeBuffer(pixelBuffer.getByteCount());
+            data = byteBufferPool.getFreeBuffer(pixelBuffer.getByteCount());
             if (data != null)
             {
                 data.setLength(pixelBuffer.getBytes(data.ptr, data.capacity));
@@ -238,7 +231,7 @@ public class QuickTimeStream
             }
             if (nextData != null)
             {
-                returnFreeBuffer(nextData);
+                byteBufferPool.returnFreeBuffer(nextData);
                 nextData = null;
             }
 
@@ -274,31 +267,7 @@ public class QuickTimeStream
 
         captureOutput.setDelegate(null);
 
-        synchronized (buffers)
-        {
-            closed = true;
-
-            Iterator<ByteBuffer> bufferIter = buffers.iterator();
-            boolean loggerIsTraceEnabled = logger.isTraceEnabled();
-            int leakedCount = 0;
-
-            while (bufferIter.hasNext())
-            {
-                ByteBuffer buffer = bufferIter.next();
-
-                if (buffer.isFree())
-                {
-                    bufferIter.remove();
-                    FFmpeg.av_free(buffer.ptr);
-                } else if (loggerIsTraceEnabled)
-                    leakedCount++;
-            }
-            if (loggerIsTraceEnabled)
-            {
-                logger.trace(
-                        "Leaking " + leakedCount + " ByteBuffer instances.");
-            }
-        }
+        byteBufferPool.close();
     }
 
     /**
@@ -436,54 +405,6 @@ public class QuickTimeStream
     }
 
     /**
-     * Gets a <tt>ByteBuffer</tt> out of the pool of free <tt>ByteBuffer</tt>s
-     * (i.e. <tt>ByteBuffer</tt>s ready for writing captured media data into
-     * them) which is capable to receiving at least <tt>capacity</tt> number of
-     * bytes.
-     *
-     * @param capacity the minimal number of bytes that the returned
-     * <tt>ByteBuffer</tt> is to be capable of receiving
-     * @return a <tt>ByteBuffer</tt> which is ready for writing captured media
-     * data into and which is capable of receiving at least <tt>capacity</tt>
-     * number of bytes
-     */
-    private ByteBuffer getFreeBuffer(int capacity)
-    {
-        synchronized (buffers)
-        {
-            if (closed)
-                return null;
-
-            int bufferCount = buffers.size();
-            ByteBuffer freeBuffer = null;
-
-            /*
-             * XXX Pad with FF_INPUT_BUFFER_PADDING_SIZE or hell will break
-             * loose.
-             */
-            capacity += FFmpeg.FF_INPUT_BUFFER_PADDING_SIZE;
-
-            for (int bufferIndex = 0; bufferIndex < bufferCount; bufferIndex++)
-            {
-                ByteBuffer buffer = buffers.get(bufferIndex);
-
-                if (buffer.isFree() && (buffer.capacity >= capacity))
-                {
-                    freeBuffer = buffer;
-                    break;
-                }
-            }
-            if (freeBuffer == null)
-            {
-                freeBuffer = new ByteBuffer(capacity);
-                buffers.add(freeBuffer);
-            }
-            freeBuffer.setFree(false);
-            return freeBuffer;
-        }
-    }
-
-    /**
      * Gets the <tt>Format</tt> of the media data made available by this
      * <tt>PushBufferStream</tt> as indicated by a specific
      * <tt>CVPixelBuffer</tt>.
@@ -548,41 +469,11 @@ public class QuickTimeStream
             }
             if (bufferFormat instanceof AVFrameFormat)
             {
-                Object bufferData = buffer.getData();
-                AVFrame bufferFrame;
-                long bufferFramePtr;
-                long bufferPtrToReturnFree;
-
-                if (bufferData instanceof AVFrame)
-                {
-                    bufferFrame = (AVFrame) bufferData;
-                    bufferFramePtr = bufferFrame.getPtr();
-                    bufferPtrToReturnFree
-                        = FFmpeg.avpicture_get_data0(bufferFramePtr);
-                }
-                else
-                {
-                    bufferFrame = new FinalizableAVFrame();
-                    buffer.setData(bufferFrame);
-                    bufferFramePtr = bufferFrame.getPtr();
-                    bufferPtrToReturnFree = 0;
-                }
-
-                AVFrameFormat bufferFrameFormat = (AVFrameFormat) bufferFormat;
-                Dimension bufferFrameSize = bufferFrameFormat.getSize();
-
-                FFmpeg.avpicture_fill(
-                        bufferFramePtr,
-                        data.ptr,
-                        bufferFrameFormat.getPixFmt(),
-                        bufferFrameSize.width, bufferFrameSize.height);
-//System.err.println(
-//        "QuickTimeStream.read: bufferFramePtr= 0x"
-//            + Long.toHexString(bufferFramePtr)
-//            + ", data.ptr= 0x"
-//            + Long.toHexString(data.ptr));
-                if (bufferPtrToReturnFree != 0)
-                    returnFreeBuffer(bufferPtrToReturnFree);
+                FinalizableAVFrame.read(
+                        buffer,
+                        bufferFormat,
+                        data,
+                        byteBufferPool);
             }
             else
             {
@@ -608,7 +499,7 @@ public class QuickTimeStream
                 buffer.setLength(dataLength);
                 buffer.setOffset(0);
 
-                returnFreeBuffer(data);
+                byteBufferPool.returnFreeBuffer(data);
             }
 
             buffer.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
@@ -617,47 +508,6 @@ public class QuickTimeStream
             data = null;
             if (!automaticallyDropsLateVideoFrames)
                 dataSyncRoot.notifyAll();
-        }
-    }
-
-    /**
-     * Returns a specific <tt>ByteBuffer</tt> into the pool of free
-     * <tt>ByteBuffer</tt>s (i.e. <tt>ByteBuffer</tt>s ready for writing
-     * captured media data into them).
-     *
-     * @param buffer the <tt>ByteBuffer</tt> to be returned into the pool of
-     * free <tt>ByteBuffer</tt>s
-     */
-    private void returnFreeBuffer(ByteBuffer buffer)
-    {
-        synchronized (buffers)
-        {
-            buffer.setFree(true);
-            if (closed && buffers.remove(buffer))
-                FFmpeg.av_free(buffer.ptr);
-        }
-    }
-
-    /**
-     * Returns a specific <tt>ByteBuffer</tt> given by the pointer to the native
-     * memory that it represents into the pool of free <tt>ByteBuffer</tt>s
-     * (i.e. <tt>ByteBuffer</tt>s ready for writing captured media data into
-     * them).
-     *
-     * @param bufferPtr the pointer to the native memory represented by the
-     * <tt>ByteBuffer</tt> to be returned into the pool of free
-     * <tt>ByteBuffer</tt>s
-     */
-    private void returnFreeBuffer(long bufferPtr)
-    {
-        synchronized (buffers)
-        {
-            for (ByteBuffer buffer : buffers)
-                if (buffer.ptr == bufferPtr)
-                {
-                    returnFreeBuffer(buffer);
-                    break;
-                }
         }
     }
 
@@ -683,7 +533,7 @@ public class QuickTimeStream
                 {
                     if (data != null)
                     {
-                        returnFreeBuffer(data);
+                        byteBufferPool.returnFreeBuffer(data);
                         data = null;
                     }
 
@@ -863,75 +713,19 @@ public class QuickTimeStream
         {
             if (data != null)
             {
-                returnFreeBuffer(data);
+                byteBufferPool.returnFreeBuffer(data);
                 data = null;
             }
             dataFormat = null;
             if (nextData != null)
             {
-                returnFreeBuffer(nextData);
+                byteBufferPool.returnFreeBuffer(nextData);
                 nextData = null;
             }
             nextDataFormat = null;
 
             if (!automaticallyDropsLateVideoFrames)
                 dataSyncRoot.notifyAll();
-        }
-    }
-
-    /**
-     * Represents an <tt>AVFrame</tt> used by this instance to provide captured
-     * media data in native format without representing the very frame data in
-     * the Java heap. Since this instance cannot know when the <tt>AVFrame</tt>
-     * instances are really safe for deallocation, <tt>FinalizableAVFrame</tt>
-     * relies on the Java finalization mechanism to reclaim the represented
-     * native memory.
-     */
-    private class FinalizableAVFrame
-        extends AVFrame
-    {
-
-        /**
-         * The indicator which determines whether the native memory represented
-         * by this instance has already been freed/deallocated.
-         */
-        private boolean freed = false;
-
-        /**
-         * Initializes a new <tt>FinalizableAVFrame</tt> instance which is to
-         * allocate a new native FFmpeg <tt>AVFrame</tt> and represent it.
-         */
-        public FinalizableAVFrame()
-        {
-            super(FFmpeg.avcodec_alloc_frame());
-        }
-
-        /**
-         * Deallocates the native memory represented by this instance.
-         *
-         * @see Object#finalize()
-         */
-        @Override
-        protected void finalize()
-            throws Throwable
-        {
-            try
-            {
-                if (!freed)
-                {
-                    long ptr = getPtr();
-                    long bufferPtr = FFmpeg.avpicture_get_data0(ptr);
-
-                    if (bufferPtr != 0)
-                        returnFreeBuffer(bufferPtr);
-                    FFmpeg.av_free(ptr);
-                    freed = true;
-                }
-            }
-            finally
-            {
-                super.finalize();
-            }
         }
     }
 }

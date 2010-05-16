@@ -227,7 +227,7 @@ public abstract class AbstractPullBufferCaptureDevice
     }
 
     /**
-     * Create a new <tt>PullBufferStream</tt> which is to be at a specific
+     * Creates a new <tt>PullBufferStream</tt> which is to be at a specific
      * zero-based index in the list of streams of this
      * <tt>PullBufferDataSource</tt>. The <tt>Format</tt>-related information of
      * the new instance is to be abstracted by a specific

@@ -186,8 +186,8 @@ public class JmfDeviceDetector
             fmjVideoAvailable = false;
         }
 
-        // QuickTime
-        if (OSUtils.IS_MAC)
+        if (OSUtils.IS_MAC) // QuickTime
+        {
             try
             {
                 new QuickTimeAuto();
@@ -196,6 +196,18 @@ public class JmfDeviceDetector
             {
                 logger.debug("No QuickTime detected: " + t.getMessage(), t);
             }
+        }
+        else if (OSUtils.IS_LINUX) // Video4Linux2
+        {
+            try
+            {
+                new Video4Linux2Auto();
+            }
+            catch (Throwable t)
+            {
+                logger.debug("No Video4Linux2 detected: " + t.getMessage(), t);
+            }
+        }
 
         /* Desktop capture */
         try

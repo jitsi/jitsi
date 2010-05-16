@@ -16,8 +16,8 @@ import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 
 /**
- * DataSource for our image streaming (which is used for
- * Desktop streaming).
+ * Implements <tt>CaptureDevice</tt> and <tt>DataSource</tt> for the purposes of
+ * image and desktop streaming.
  *
  * @author Sebastien Vincent
  * @author Lubomir Marinov
@@ -28,35 +28,40 @@ public class DataSource
 {
 
     /**
-     * Array of supported formats.
+     * The list of supported formats.
      */
-    private static final Format[] formats
-        = new Format[]
-                {
-                    new AVFrameFormat(
-                            Toolkit.getDefaultToolkit().getScreenSize(),
-                            Format.NOT_SPECIFIED,
-                            FFmpeg.PIX_FMT_ARGB),
-                     new RGBFormat(
-                            Toolkit.getDefaultToolkit().getScreenSize(), // size
-                            Format.NOT_SPECIFIED, // maxDataLength
-                            Format.byteArray, // dataType
-                            Format.NOT_SPECIFIED, // frameRate
-                            32, // bitsPerPixel
-                            2, // red
-                            3, // green
-                            4) // blue
-                };
+    private static final Format[] FORMATS;
+
+    static
+    {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        FORMATS
+            = new Format[]
+                    {
+                        new AVFrameFormat(
+                                screenSize,
+                                Format.NOT_SPECIFIED,
+                                FFmpeg.PIX_FMT_ARGB),
+                        new RGBFormat(
+                                screenSize, // size
+                                Format.NOT_SPECIFIED, // maxDataLength
+                                Format.byteArray, // dataType
+                                Format.NOT_SPECIFIED, // frameRate
+                                32, // bitsPerPixel
+                                2 /* red */, 3 /* green */,  4 /* blue */)
+                    };
+    }
 
     /**
-     * Constructor.
+     * Initializes a new <tt>DataSource</tt> instance.
      */
     public DataSource()
     {
     }
 
     /**
-     * Constructor.
+     * Initializes a new <tt>DataSource</tt> instance.
      *
      * @param locator associated <tt>MediaLocator</tt>
      */
@@ -66,7 +71,7 @@ public class DataSource
     }
 
     /**
-     * Create a new <tt>PullBufferStream</tt> which is to be at a specific
+     * Creates a new <tt>PullBufferStream</tt> which is to be at a specific
      * zero-based index in the list of streams of this
      * <tt>PullBufferDataSource</tt>. The <tt>Format</tt>-related information of
      * the new instance is to be abstracted by a specific
@@ -90,12 +95,12 @@ public class DataSource
     }
 
     /**
-     * Get supported formats.
+     * Gets the list of supported formats.
      *
-     * @return supported formats
+     * @return the list of supported formats
      */
     public static Format[] getFormats()
     {
-        return formats;
+        return FORMATS;
     }
 }

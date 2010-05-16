@@ -125,16 +125,6 @@ public abstract class AbstractPullBufferStream
     {
         return false;
     }
-    
-    /**
-     * Determines if read will block.
-     *
-     * @return <tt>true</tt> if read block, <tt>false</tt> otherwise
-     */
-    public boolean willReadBlock()
-    {
-        return true;
-    }
 
     /**
      * Gets a <tt>ContentDescriptor</tt> which describes the type of the content
@@ -237,5 +227,15 @@ public abstract class AbstractPullBufferStream
     public void stop()
         throws IOException
     {
+    }
+
+    /**
+     * Determines if read will block.
+     *
+     * @return <tt>true</tt> if read block, <tt>false</tt> otherwise
+     */
+    public boolean willReadBlock()
+    {
+        return true;
     }
 }

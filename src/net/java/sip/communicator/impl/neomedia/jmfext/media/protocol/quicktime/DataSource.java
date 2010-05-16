@@ -87,7 +87,7 @@ public class DataSource
     }
 
     /**
-     * Create a new <tt>PushBufferStream</tt> which is to be at a specific
+     * Creates a new <tt>PushBufferStream</tt> which is to be at a specific
      * zero-based index in the list of streams of this
      * <tt>PushBufferDataSource</tt>. The <tt>Format</tt>-related information of
      * the new instance is to be abstracted by a specific
@@ -509,7 +509,7 @@ public class DataSource
      *
      * @param locator the <tt>MediaLocator</tt> which specifies the media source
      * of this <tt>DataSource</tt>
-     * @see DataSource#setLocator(MediaLocator)
+     * @see javax.media.protocol.DataSource#setLocator(MediaLocator)
      */
     @Override
     public void setLocator(MediaLocator locator)

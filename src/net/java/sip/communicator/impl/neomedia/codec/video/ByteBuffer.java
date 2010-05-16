@@ -17,8 +17,8 @@ public class ByteBuffer
 {
 
     /**
-     * The maximum number of bytes which can be written into the native
-     * memory represented by this instance.
+     * The maximum number of bytes which can be written into the native memory
+     * represented by this instance.
      */
     public final int capacity;
 
@@ -29,8 +29,8 @@ public class ByteBuffer
     private boolean free;
 
     /**
-     * The number of bytes of valid data that the native memory represented
-     * by this instance contains.
+     * The number of bytes of valid data that the native memory represented by
+     * this instance contains.
      */
     private int length;
 
@@ -43,8 +43,8 @@ public class ByteBuffer
      * Initializes a new <tt>ByteBuffer</tt> instance with a specific
      * <tt>capacity</tt>.
      *
-     * @param capacity the maximum number of bytes which can be written into
-     * the native memory represented by the new instance
+     * @param capacity the maximum number of bytes which can be written into the
+     * native memory represented by the new instance
      */
     public ByteBuffer(int capacity)
     {
@@ -65,8 +65,8 @@ public class ByteBuffer
     }
 
     /**
-     * Gets the number of bytes of valid data that the native memory
-     * represented by this instance contains.
+     * Gets the number of bytes of valid data that the native memory represented
+     * by this instance contains.
      *
      * @return the number of bytes of valid data that the native memory
      * represented by this instance contains
@@ -79,9 +79,9 @@ public class ByteBuffer
     /**
      * Determines whether this instance is free to be written bytes into.
      *
-     * @return <tt>true</tt> if this instance is free to be written bytes
-     * into or <tt>false</tt> is the native memory represented by this
-     * instance is already is use
+     * @return <tt>true</tt> if this instance is free to be written bytes into
+     * or <tt>false</tt> is the native memory represented by this instance is
+     * already is use
      */
     public boolean isFree()
     {
@@ -89,11 +89,11 @@ public class ByteBuffer
     }
 
     /**
-     * Sets the indicator which determines whether this instance is free to
-     * be written bytes into.
+     * Sets the indicator which determines whether this instance is free to be
+     * written bytes into.
      *
-     * @param free <tt>true</tt> if this instance is to be made available
-     * for writing bytes into; otherwise, <tt>false</tt>
+     * @param free <tt>true</tt> if this instance is to be made available for
+     * writing bytes into; otherwise, <tt>false</tt>
      */
     public void setFree(boolean free)
     {
@@ -103,11 +103,11 @@ public class ByteBuffer
     }
 
     /**
-     * Sets the number of bytes of valid data that the native memory
-     * represented by this instance contains.
+     * Sets the number of bytes of valid data that the native memory represented
+     * by this instance contains.
      *
-     * @param length the number of bytes of valid data that the native
-     * memory represented by this instance contains
+     * @param length the number of bytes of valid data that the native memory
+     * represented by this instance contains
      */
     public void setLength(int length)
     {

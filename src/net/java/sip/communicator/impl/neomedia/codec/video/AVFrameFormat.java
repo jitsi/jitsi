@@ -146,7 +146,7 @@ public class AVFrameFormat
      *
      * @param format the matching <tt>Format</tt> to intersect with this one
      * @return a <tt>Format</tt> with its attributes set to the attributes
-     * common to this instane and the specified <tt>format</tt>
+     * common to this instance and the specified <tt>format</tt>
      */
     @Override
     public Format intersects(Format format)
@@ -186,7 +186,7 @@ public class AVFrameFormat
 
         return
             (pixFmt == NOT_SPECIFIED
-                || avFrameFormat.pixFmt == NOT_SPECIFIED
+                || (avFrameFormat.pixFmt == NOT_SPECIFIED)
                 || (pixFmt == avFrameFormat.pixFmt));
     }
 }

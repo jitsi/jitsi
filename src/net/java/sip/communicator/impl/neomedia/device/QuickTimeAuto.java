@@ -58,10 +58,7 @@ public class QuickTimeAuto
                                     + inputDevice.uniqueID()),
                         new Format[]
                                 {
-                                    new AVFrameFormat(
-                                            null,
-                                            Format.NOT_SPECIFIED,
-                                            FFmpeg.PIX_FMT_ARGB),
+                                    new AVFrameFormat(FFmpeg.PIX_FMT_ARGB),
                                     new RGBFormat()
                                 });
 

@@ -484,18 +484,18 @@ public class MediaServiceImpl
      */
     public List<ScreenDevice> getAvailableScreenDevices()
     {
-      List<ScreenDevice> ret = new ArrayList<ScreenDevice>();
-      ScreenDevice screens[] = ScreenDeviceImpl.getAvailableScreenDevice();
+        ScreenDevice screens[] = ScreenDeviceImpl.getAvailableScreenDevice();
+        List<ScreenDevice> screenList;
 
-        if(screens != null)
+        if (screens != null)
         {
-            /* populates screen list */
-            for(ScreenDevice sc : screens)
-            {
-                ret.add(sc);
-            }
+            screenList = new ArrayList<ScreenDevice>(screens.length);
+            for (ScreenDevice screen : screens)
+                screenList.add(screen);
         }
-        return ret;
+        else
+            screenList = new ArrayList<ScreenDevice>();
+        return screenList;
     }
 
     /**
@@ -505,24 +505,23 @@ public class MediaServiceImpl
      */
     public ScreenDevice getDefaultScreenDevice()
     {
-      List<ScreenDevice> screens = getAvailableScreenDevices();
-      ScreenDevice best = null;
-      int width = 0;
-      int height = 0;
+        List<ScreenDevice> screens = getAvailableScreenDevices();
+        int width = 0;
+        int height = 0;
+        ScreenDevice best = null;
 
-      for(ScreenDevice sc : screens)
-      {
-        java.awt.Dimension res = sc.getSize();
-
-        if(res != null && (width < res.getSize().width ||
-                height < res.getSize().height))
+        for (ScreenDevice sc : screens)
         {
-          width = res.width;
-          height = res.height;
-          best = sc;
-        }
-      }
+            java.awt.Dimension res = sc.getSize();
 
-      return best;
+            if ((res != null)
+                    && ((width < res.width) || (height < res.height)))
+            {
+                width = res.width;
+                height = res.height;
+                best = sc;
+            }
+        }
+        return best;
     }
 }

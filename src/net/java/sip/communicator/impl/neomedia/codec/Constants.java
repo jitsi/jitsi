@@ -50,7 +50,7 @@ public class Constants
          * On Mac OS X, the Apple iSight camera reports two sizes 640x480 and
          * 320x240 if we use the default size 352x288 we must use source format
          * 640x480 in this situation we suffer from high cpu usage as every
-         * frame is scaled, so we use the non standard format 320x240.
+         * frame is scaled, so we use the non-standard format 320x240.
          */
         if (OSUtils.IS_MAC)
         {
