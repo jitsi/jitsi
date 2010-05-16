@@ -199,8 +199,10 @@ public class Video4Linux2Stream
                         int pixelformat
                             = Video4Linux2.v4l2_pix_format_getPixelformat(
                                     fmtPix);
+                        int ffmpegPixFmt
+                            = DataSource.getFFmpegPixFmt(pixelformat);
 
-                        if (Video4Linux2.V4L2_PIX_FMT_UYVY == pixelformat)
+                        if (FFmpeg.PIX_FMT_NONE != ffmpegPixFmt)
                         {
                             int width
                                 = Video4Linux2.v4l2_pix_format_getWidth(fmtPix);
@@ -212,7 +214,7 @@ public class Video4Linux2Stream
                                 = new AVFrameFormat(
                                         new Dimension(width, height),
                                         Format.NOT_SPECIFIED,
-                                        FFmpeg.PIX_FMT_UYVY422);
+                                        ffmpegPixFmt);
                         }
                     }
                 }
@@ -531,10 +533,9 @@ public class Video4Linux2Stream
         {
             int pixFmt = ((AVFrameFormat) format).getPixFmt();
 
-            if (FFmpeg.PIX_FMT_UYVY422 == pixFmt)
-                pixelformat = Video4Linux2.V4L2_PIX_FMT_UYVY;
+            pixelformat = DataSource.getV4L2PixFmt(pixFmt);
         }
-        if (pixelformat == 0)
+        if (Video4Linux2.V4L2_PIX_FMT_NONE == pixelformat)
             throw new IOException("Unsupported format " + format);
 
         long v4l2_format

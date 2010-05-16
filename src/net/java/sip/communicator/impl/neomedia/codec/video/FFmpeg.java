@@ -40,6 +40,8 @@ public class FFmpeg
      */
     public static final int PIX_FMT_BGR32_1;
 
+    public static final int PIX_FMT_NONE = -1;
+
     /**
      * RGB24 format handled in endian specific manner.
      * It is stored as RGB on big-endian and BGR on little-endian.
@@ -61,6 +63,8 @@ public class FFmpeg
     public static final int PIX_FMT_UYVY422 = 17;
 
     public static final int PIX_FMT_YUV420P;
+
+    public static final int PIX_FMT_YUYV422 = 1;
 
     public static final int SWS_BICUBIC = 4;
 

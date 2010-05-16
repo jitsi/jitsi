@@ -36,9 +36,13 @@ public class Video4Linux2
 
     public static final int V4L2_MEMORY_USERPTR = 2;
 
+    public static final int V4L2_PIX_FMT_NONE = 0;
+
     public static final int V4L2_PIX_FMT_RGB24;
 
     public static final int V4L2_PIX_FMT_UYVY;
+
+    public static final int V4L2_PIX_FMT_YUYV;
 
     public static final int VIDIOC_DQBUF;
 
@@ -64,6 +68,7 @@ public class Video4Linux2
 
         V4L2_PIX_FMT_RGB24 = V4L2_PIX_FMT_RGB24();
         V4L2_PIX_FMT_UYVY = V4L2_PIX_FMT_UYVY();
+        V4L2_PIX_FMT_YUYV = V4L2_PIX_FMT_YUYV();
         VIDIOC_DQBUF = VIDIOC_DQBUF();
         VIDIOC_G_FMT = VIDIOC_G_FMT();
         VIDIOC_QBUF = VIDIOC_QBUF();
@@ -130,6 +135,8 @@ public class Video4Linux2
     private static native int V4L2_PIX_FMT_RGB24();
 
     private static native int V4L2_PIX_FMT_UYVY();
+
+    private static native int V4L2_PIX_FMT_YUYV();
 
     public static native int v4l2_pix_format_getHeight(
             long v4l2_pix_format);
