@@ -423,6 +423,8 @@ public class Video4Linux2Stream
                 == -1)
             throw new IOException("ioctl: request= VIDIOC_DQBUF");
 
+        long timeStamp = System.nanoTime();
+
         try
         {
             int bytesused = Video4Linux2.v4l2_buffer_getBytesused(v4l2_buffer);
@@ -444,6 +446,9 @@ public class Video4Linux2Stream
                     == -1)
                 throw new IOException("ioctl: request= VIDIOC_QBUF");
         }
+
+        buffer.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
+        buffer.setTimeStamp(timeStamp);
     }
 
     /**

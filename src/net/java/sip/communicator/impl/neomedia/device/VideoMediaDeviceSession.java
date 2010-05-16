@@ -186,10 +186,10 @@ public class VideoMediaDeviceSession
             }
 
             /*
-             * FIXME AbstractPullBufferCaptureDevice (or PullBufferDataSource?)
-             * does not seem to be correctly cloned by JMF.
+             * FIXME PullBufferDataSource does not seem to be correctly cloned
+             * by JMF.
              */
-            if (!(captureDevice instanceof AbstractPullBufferCaptureDevice))
+            if (!(captureDevice instanceof PullBufferDataSource))
             {
                 DataSource cloneableDataSource =
                     Manager.createCloneableDataSource(captureDevice);
