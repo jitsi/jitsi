@@ -677,7 +677,6 @@ public class CallPeerMediaHandler
                 {
                     MediaDescription md =
                         createMediaDescription(
-                                        dev.getFormat(),
                                         dev.getSupportedFormats(),
                                         getStreamConnector(mediaType),
                                         direction,
@@ -1272,7 +1271,6 @@ public class CallPeerMediaHandler
 
             // create the answer description
             answerDescriptions.add(createMediaDescription(
-                dev.getFormat(),
                 supportedAdvancedParameters, connector,
                 direction, rtpExtensions));
 
@@ -1542,7 +1540,6 @@ public class CallPeerMediaHandler
      * taking account the local streaming preference for the corresponding
      * media type.
      *
-     * @param captureFormat capture <tt>MediaFormat</tt> of the device.
      * @param formats the list of <tt>MediaFormats</tt> that we'd like to
      * advertise.
      * @param connector the <tt>StreamConnector</tt> that we will be using
@@ -1559,15 +1556,13 @@ public class CallPeerMediaHandler
      * <tt>MediaDescription</tt> fails for some reason.
      */
     private MediaDescription createMediaDescription(
-                                             MediaFormat captureFormat,
                                              List<MediaFormat>  formats,
                                              StreamConnector    connector,
                                              MediaDirection     direction,
                                              List<RTPExtension> extensions )
         throws OperationFailedException
     {
-        return SdpUtils.createMediaDescription(
-           captureFormat, formats, connector,
+        return SdpUtils.createMediaDescription(formats, connector,
            direction, extensions,
            dynamicPayloadTypes, rtpExtensionsRegistry);
     }

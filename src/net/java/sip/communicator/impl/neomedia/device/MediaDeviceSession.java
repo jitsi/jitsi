@@ -362,22 +362,18 @@ public class MediaDeviceSession
         // Try to enable muting.
         if (captureDevice instanceof PushBufferDataSource)
         {
-            MutePushBufferDataSource mutePushBufferDataSource
+            captureDevice
                 = new MutePushBufferDataSource(
                         (PushBufferDataSource) captureDevice);
-
-            mutePushBufferDataSource.setMute(mute);
-            captureDevice = mutePushBufferDataSource;
         }
         else if (captureDevice instanceof PullBufferDataSource)
         {
-            MutePullBufferDataSource mutePullBufferDataSource
+            captureDevice
                 = new MutePullBufferDataSource(
                         (PullBufferDataSource) captureDevice);
-
-            mutePullBufferDataSource.setMute(mute);
-            captureDevice = mutePullBufferDataSource;
         }
+        if (captureDevice instanceof MuteDataSource)
+            ((MuteDataSource) captureDevice).setMute(mute);
 
         return captureDevice;
     }

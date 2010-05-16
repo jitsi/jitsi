@@ -108,8 +108,8 @@ public class MediaDeviceImpl
             {
                 captureDevice
                     = (CaptureDevice)
-                        Manager
-                            .createDataSource(captureDeviceInfo.getLocator());
+                        Manager.createDataSource(
+                                captureDeviceInfo.getLocator());
             }
             catch (IOException ioe)
             {

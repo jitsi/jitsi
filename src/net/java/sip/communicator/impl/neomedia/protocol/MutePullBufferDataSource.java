@@ -108,14 +108,14 @@ public class MutePullBufferDataSource
         }
 
         /**
-         * Implements PullBufferStream#willReadBlock(). Delegates to the wrapped
-         * PullSourceStream.
-         * @return <tt>true</tt> if read would block; otherwise returns
-         *          <tt>false</tt>.
+         * Implements {@link PullBufferStream#getFormat()}. Delegates to the
+         * wrapped <tt>PullBufferStream</tt>.
+         *
+         * @return the <tt>Format</tt> of the wrapped <tt>PullBufferStream</tt>
          */
-        public boolean willReadBlock()
+        public Format getFormat()
         {
-            return stream.willReadBlock();
+            return stream.getFormat();
         }
 
         /**
@@ -135,14 +135,14 @@ public class MutePullBufferDataSource
         }
 
         /**
-         * Implements {@link PullBufferStream#getFormat()}. Delegates to the
-         * wrapped <tt>PullBufferStream</tt>.
-         *
-         * @return the <tt>Format</tt> of the wrapped <tt>PullBufferStream</tt>
+         * Implements PullBufferStream#willReadBlock(). Delegates to the wrapped
+         * PullSourceStream.
+         * @return <tt>true</tt> if read would block; otherwise returns
+         *          <tt>false</tt>.
          */
-        public Format getFormat()
+        public boolean willReadBlock()
         {
-            return stream.getFormat();
+            return stream.willReadBlock();
         }
     }
 }

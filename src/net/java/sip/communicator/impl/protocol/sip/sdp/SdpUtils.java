@@ -1233,7 +1233,6 @@ public class SdpUtils
      * description is determined via from the type of the first
      * <tt>MediaFormat</tt> in the <tt>formats</tt> list.
      *
-     * @param captureFormat capture <tt>MediaFormat</tt> of the device.
      * @param formats the list of formats that should be advertised in the newly
      * created <tt>MediaDescription</tt>.
      * @param connector the socket couple that will be used for the media stream
@@ -1256,7 +1255,6 @@ public class SdpUtils
      * some other reason.
      */
     public static MediaDescription createMediaDescription(
-                    MediaFormat                  captureFormat,
                     List<MediaFormat>            formats,
                     StreamConnector              connector,
                     MediaDirection               direction,
@@ -1266,8 +1264,8 @@ public class SdpUtils
         throws OperationFailedException
     {
         int[] payloadTypesArray = new int[formats.size()];
-        Vector<Attribute> mediaAttributes = new Vector<Attribute>(
-                        2 * payloadTypesArray.length + 1);
+        Vector<Attribute> mediaAttributes
+            = new Vector<Attribute>(2 * payloadTypesArray.length + 1);
         MediaType mediaType = null;
 
         // a=sendonly|sendrecv|recvonly|inactive

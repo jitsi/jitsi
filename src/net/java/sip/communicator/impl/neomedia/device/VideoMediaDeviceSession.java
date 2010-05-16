@@ -170,8 +170,8 @@ public class VideoMediaDeviceSession
                  */
                 FrameRateControl frameRateControl
                     = (FrameRateControl)
-                        captureDevice
-                            .getControl(FrameRateControl.class.getName());
+                        captureDevice.getControl(
+                                FrameRateControl.class.getName());
                 float defaultFrameRate = 10;
 
                 if ((frameRateControl != null)
@@ -293,6 +293,49 @@ public class VideoMediaDeviceSession
     protected void fireVideoEvent(VideoEvent videoEvent)
     {
         videoNotifierSupport.fireVideoEvent(videoEvent);
+    }
+
+    /**
+     * Gets the JMF <tt>Format</tt> of the <tt>captureDevice</tt> of this
+     * <tt>MediaDeviceSession</tt>.
+     *
+     * @return the JMF <tt>Format</tt> of the <tt>captureDevice</tt> of this
+     * <tt>MediaDeviceSession</tt>
+     */
+    private Format getCaptureDeviceFormat()
+    {
+        DataSource captureDevice = getCaptureDevice();
+
+        if (captureDevice != null)
+        {
+            FormatControl[] formatControls = null;
+
+            if (captureDevice instanceof CaptureDevice)
+            {
+                formatControls
+                    = ((CaptureDevice) captureDevice).getFormatControls();
+            }
+            if ((formatControls == null) || (formatControls.length == 0))
+            {
+                FormatControl formatControl
+                    = (FormatControl)
+                        captureDevice.getControl(FormatControl.class.getName());
+
+                if (formatControl != null)
+                    formatControls = new FormatControl[] { formatControl };
+            }
+            if (formatControls != null)
+            {
+                for (FormatControl formatControl : formatControls)
+                {
+                    Format format = formatControl.getFormat();
+
+                    if (format != null)
+                        return format;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -1012,31 +1055,39 @@ public class VideoMediaDeviceSession
     @Override
     protected void setProcessorFormat(Processor processor, Format format)
     {
-        Format newFormat = null;
-        VideoFormat tmp = (VideoFormat)format;
-        Dimension deviceSize = ((VideoMediaFormat)getDevice().getFormat()).getSize();
-
-        /* Add a size in the output format. As VideoFormat has no setter, we
-         * recreate the object. Check also if capture device can output
-         * this size.
+        /*
+         * Add a size in the output format. As VideoFormat has no setter, we
+         * recreate the object. Also check whether capture device can output
+         * such a size.
          */
-        if((deviceSize != null && outputSize != null) &&
-                (outputSize.width > 0 && outputSize.height > 0) &&
-                (deviceSize.width > outputSize.width ||
-                deviceSize.height > outputSize.height))
+        if((outputSize != null)
+                && (outputSize.width > 0)
+                && (outputSize.height > 0))
         {
-            newFormat = new VideoFormat(tmp.getEncoding(), outputSize,
-                    tmp.getMaxDataLength(), tmp.getDataType(),
-                    tmp.getFrameRate());
+            Dimension deviceSize
+                = ((VideoFormat) getCaptureDeviceFormat()).getSize();
+
+            if ((deviceSize != null)
+                    && ((deviceSize.width > outputSize.width)
+                        || (deviceSize.height > outputSize.height)))
+            {
+                VideoFormat videoFormat = (VideoFormat) format;
+
+                format
+                    = new VideoFormat(
+                            videoFormat.getEncoding(),
+                            outputSize,
+                            videoFormat.getMaxDataLength(),
+                            videoFormat.getDataType(),
+                            videoFormat.getFrameRate());
+            }
+            else
+                outputSize = null;
         }
         else
-        {
             outputSize = null;
-        }
 
-        super.setProcessorFormat(
-                processor,
-                newFormat != null ? newFormat : format);
+        super.setProcessorFormat(processor, format);
     }
 
     /**
