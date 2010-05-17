@@ -13,6 +13,7 @@ import java.beans.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.netaddr.*;
+import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.stun4j.*;
 import net.java.stun4j.client.*;
@@ -115,6 +116,11 @@ public class NetworkAddressManagerServiceImpl
      */
     public static final int DEFAULT_STUN_SERVER_PORT = 3478;
 
+    /**
+     * A thread which periodically scans network interfaces and reports
+     * changes in network configuration.
+     */
+    private NetworkConfigurationWatcher networkConfigurationWatcher = null;
 
      /**
       * Initializes this network address manager service implementation and
@@ -221,6 +227,8 @@ public class NetworkAddressManagerServiceImpl
              configurationService
                  .removeVetoableChangeListener( PROP_STUN_SERVER_PORT, this);
 
+             if(networkConfigurationWatcher != null)
+                 networkConfigurationWatcher.stop();
          }
          finally
          {
@@ -808,5 +816,30 @@ public class NetworkAddressManagerServiceImpl
                         + minPort + " and " + (port -1));
     }
 
+    /**
+      * Adds new <tt>NetworkConfigurationChangeListener</tt> which will
+      * be informed for network configuration changes.
+      * @param listener the listener.
+      */
+     public void addNetworkConfigurationChangeListener(
+         NetworkConfigurationChangeListener listener)
+     {
+         if(networkConfigurationWatcher == null)
+             networkConfigurationWatcher = new NetworkConfigurationWatcher();
 
+         networkConfigurationWatcher
+             .addNetworkConfigurationChangeListener(listener);
+     }
+
+     /**
+      * Remove <tt>NetworkConfigurationChangeListener</tt>.
+      * @param listener the listener.
+      */
+     public void removeNetworkConfigurationChangeListener(
+         NetworkConfigurationChangeListener listener)
+     {
+        if(networkConfigurationWatcher != null)
+            networkConfigurationWatcher
+                .removeNetworkConfigurationChangeListener(listener);
+     }
 }

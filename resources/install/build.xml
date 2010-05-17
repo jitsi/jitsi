@@ -401,7 +401,7 @@
             <entry key="last_version" value="${sip-communicator.version}" />
             <entry key="download_link"
                     value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}.exe" />
-            <entry key="changes_html" value="changes.html" />
+            <entry key="changes_html" value="updates/index.html" />
         </propertyfile>
 
         <!--

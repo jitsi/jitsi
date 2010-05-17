@@ -909,7 +909,7 @@
         bundle-filehistory,bundle-metahistory,bundle-metahistory-slick,
         bundle-plugin-facebookaccregwizz,
         bundle-bouncycastle,bundle-plugin-otr,bundle-plugin-iptelaccregwizz,
-        bundle-contactsource"/>
+        bundle-contactsource,bundle-plugin-reconnect"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2323,6 +2323,16 @@ org.apache.http.util"/>
             manifest="${src}/net/java/sip/communicator/service/contactsource/contactsource.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/contactsource"
                 prefix="net/java/sip/communicator/service/contactsource"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-RECONNECT -->
+    <target name="bundle-plugin-reconnect">
+        <!-- Creates a bundle for the reconnect plugin.-->
+        <jar compress="false" destfile="${bundles.dest}/reconnectplugin.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/reconnectplugin/reconnectplugin.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/reconnectplugin"
+                prefix="net/java/sip/communicator/plugin/reconnectplugin"/>
         </jar>
     </target>
 </project>

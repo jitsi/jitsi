@@ -190,28 +190,29 @@ public class LoginManager
 
             logger.trace(evt.getReason());
         }
-        else if (newState.equals(RegistrationState.CONNECTION_FAILED))
-        {
-            String msgText = GuiActivator.getResources().getI18NString(
-                "service.gui.CONNECTION_FAILED_MSG",
-                new String[]
-                {   accountID.getUserID(),
-                    accountID.getService() });
-
-            int result = new MessageDialog(
-                null,
-                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
-                msgText,
-                GuiActivator.getResources().getI18NString("service.gui.RETRY"),
-                false).showDialog();
-
-            if (result == MessageDialog.OK_RETURN_CODE)
-            {
-                this.login(protocolProvider);
-            }
-
-            logger.trace(evt.getReason());
-        }
+//        CONNECTION_FAILED events are now dispatched in reconnect plugin
+//        else if (newState.equals(RegistrationState.CONNECTION_FAILED))
+//        {
+//            String msgText = GuiActivator.getResources().getI18NString(
+//                "service.gui.CONNECTION_FAILED_MSG",
+//                new String[]
+//                {   accountID.getUserID(),
+//                    accountID.getService() });
+//
+//            int result = new MessageDialog(
+//                null,
+//                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+//                msgText,
+//                GuiActivator.getResources().getI18NString("service.gui.RETRY"),
+//                false).showDialog();
+//
+//            if (result == MessageDialog.OK_RETURN_CODE)
+//            {
+//                this.login(protocolProvider);
+//            }
+//
+//            logger.trace(evt.getReason());
+//        }
         else if (newState.equals(RegistrationState.EXPIRED))
         {
             String msgText = GuiActivator.getResources().getI18NString(

@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.sf.jml.*;
 import net.sf.jml.impl.*;
 import net.sf.jml.net.*;
@@ -25,15 +26,30 @@ import net.sf.jml.protocol.incoming.*;
 public class EventManager
     extends SessionAdapter
 {
+    /**
+     * The class logger.
+     */
     private static final Logger logger = Logger.getLogger(EventManager.class);
 
+    /**
+     * Whether we are connected.
+     */
     private boolean connected = false;
 
+    /**
+     * The timer for monitoring connection.
+     */
     private Timer connectionTimer;
 
+    /**
+     * Event listeners.
+     */
     private final List<MsnContactListEventListener> listeners
         = new Vector<MsnContactListEventListener>();
 
+    /**
+     * The messenger.
+     */
     private final BasicMessenger msnMessenger;
 
     /**
@@ -143,6 +159,11 @@ public class EventManager
         }
     }
 
+    /**
+     * Called when there was timeout on the connection.
+     * @param socketSession
+     * @throws Exception
+     */
     public void sessionTimeout(Session socketSession) throws Exception
     {
         Timer connectionTimer;
@@ -164,8 +185,11 @@ public class EventManager
             {
                 if(!connected && msnProvider.isRegistered())
                 {
-                    msnProvider.unregister(false);
-                    msnProvider.reconnect(SecurityAuthority.CONNECTION_FAILED);
+                    msnProvider.fireRegistrationStateChanged(
+                        msnProvider.getRegistrationState(),
+                        RegistrationState.CONNECTION_FAILED,
+                        RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                    null);
                 }
             }
         }, 20000);

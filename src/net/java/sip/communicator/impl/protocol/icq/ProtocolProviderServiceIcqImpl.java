@@ -605,14 +605,6 @@ public class ProtocolProviderServiceIcqImpl
                                                int               reasonCode,
                                                String            reason)
     {
-        if(newState.equals(RegistrationState.CONNECTION_FAILED) &&
-            isRegistered())
-        {
-            // if for some reason (keep alive failed) and connection is
-            // still connected disconneted
-            unregister();
-        }
-
         lastRegistrationState = newState;
 
         super.fireRegistrationStateChanged(

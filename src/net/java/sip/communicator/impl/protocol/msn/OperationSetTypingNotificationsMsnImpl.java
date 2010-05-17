@@ -22,6 +22,9 @@ import net.sf.jml.message.*;
 public class OperationSetTypingNotificationsMsnImpl
     extends AbstractOperationSetTypingNotifications<ProtocolProviderServiceMsnImpl>
 {
+    /**
+     * This class logger.
+     */
     private static final Logger logger =
         Logger.getLogger(OperationSetTypingNotificationsMsnImpl.class);
 
@@ -31,6 +34,9 @@ public class OperationSetTypingNotificationsMsnImpl
      */
     private OperationSetPersistentPresenceMsnImpl opSetPersPresence = null;
 
+    /**
+     * The messenger.
+     */
     private MsnMessenger messenger = null;
 
     /**
@@ -99,12 +105,23 @@ public class OperationSetTypingNotificationsMsnImpl
     void setMessenger(MsnMessenger messenger)
     {
         this.messenger = messenger;
-        messenger.addMessageListener(new TypingListener());
+
+        if(messenger != null)
+            messenger.addMessageListener(new TypingListener());
     }
 
+    /**
+     * Listens for typing notifications coming from the protocol.
+     */
     private class TypingListener
         extends MsnAdapter
     {
+        /**
+         * Control message may indicate typing notification.
+         * @param switchboard
+         * @param message
+         * @param contact
+         */
         public void controlMessageReceived(MsnSwitchboard switchboard,
                                                MsnControlMessage message,
                                                MsnContact contact)

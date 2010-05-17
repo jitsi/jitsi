@@ -23,9 +23,15 @@ import ymsg.network.event.*;
 public class ProtocolProviderServiceYahooImpl
     extends AbstractProtocolProviderService
 {
+    /**
+     * This class logger.
+     */
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderServiceYahooImpl.class);
 
+    /**
+     * The current yahoo session.
+     */
     private YahooSession yahooSession = null;
 
     /**
@@ -48,8 +54,14 @@ public class ProtocolProviderServiceYahooImpl
      */
     private SecurityAuthority authority = null;
 
+    /**
+     * The persistent presence operations set.
+     */
     private OperationSetPersistentPresenceYahooImpl persistentPresence = null;
 
+    /**
+     * Typing notifications operations set.
+     */
     private OperationSetTypingNotificationsYahooImpl typingNotifications = null;
 
     /**
@@ -58,6 +70,10 @@ public class ProtocolProviderServiceYahooImpl
     private ProtocolIconYahooImpl yahooIcon
         = new ProtocolIconYahooImpl();
 
+    /**
+     * The connection listener.
+     */
+    private YahooConnectionListener connectionListener = null;
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -103,7 +119,6 @@ public class ProtocolProviderServiceYahooImpl
      * @param authority SecurityAuthority
      * @param authReasonCode the authentication reason code, which should
      * indicate why are making an authentication request
-     * @throws XMPPException if we cannot connect to the server - network problem
      * @throws  OperationFailedException if login parameters
      *          as server port are not correct
      */
@@ -152,7 +167,8 @@ public class ProtocolProviderServiceYahooImpl
             }
 
             yahooSession = new YahooSession();
-            yahooSession.addSessionListener(new YahooConnectionListener());
+            connectionListener = new YahooConnectionListener();
+            yahooSession.addSessionListener(connectionListener);
 
             try
             {
@@ -266,6 +282,12 @@ public class ProtocolProviderServiceYahooImpl
 
         try
         {
+            if(connectionListener != null && yahooSession != null)
+            {
+                yahooSession.removeSessionListener(connectionListener);
+                connectionListener = null;
+            }
+
             if((yahooSession != null)
                     && (yahooSession.getSessionStatus() == StatusConstants.MESSAGING))
                 yahooSession.logout();
@@ -422,8 +444,7 @@ public class ProtocolProviderServiceYahooImpl
                                                int               reasonCode,
                                                String            reason)
     {
-        if(newState.equals(RegistrationState.UNREGISTERED) ||
-            newState.equals(RegistrationState.CONNECTION_FAILED))
+        if(newState.equals(RegistrationState.UNREGISTERED))
         {
             unregister(false);
             yahooSession = null;
@@ -441,10 +462,11 @@ public class ProtocolProviderServiceYahooImpl
     {
         /**
          * Yahoo has logged us off the system, or the connection was lost
-         **/
+         *
+         * @param ev the event
+         */
         public void connectionClosed(SessionEvent ev)
         {
-            unregister(true);
             if(isRegistered())
                 fireRegistrationStateChanged(
                     getRegistrationState(),
@@ -452,6 +474,10 @@ public class ProtocolProviderServiceYahooImpl
                     RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
         }
 
+        /**
+         * Some exception has occurred in stack.
+         * @param ev
+         */
         public void inputExceptionThrown(SessionExceptionEvent ev)
         {
             if(ev.getException() instanceof YMSG9BadFormatException)

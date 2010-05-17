@@ -9,6 +9,8 @@ package net.java.sip.communicator.service.netaddr;
 import java.net.*;
 import java.io.*;
 
+import net.java.sip.communicator.service.netaddr.event.*;
+
 /**
  * The NetworkAddressManagerService takes care of problems such as
  * @author Emil Ivov
@@ -118,5 +120,20 @@ public interface NetworkAddressManagerService
          throws IllegalArgumentException,
                 IOException,
                 BindException;
+
+     /**
+      * Adds new <tt>NetworkConfigurationChangeListener</tt> which will
+      * be informed for network configuration changes.
+      * @param listener the listener.
+      */
+     public void addNetworkConfigurationChangeListener(
+         NetworkConfigurationChangeListener listener);
+
+     /**
+      * Remove <tt>NetworkConfigurationChangeListener</tt>.
+      * @param listener the listener.
+      */
+     public void removeNetworkConfigurationChangeListener(
+         NetworkConfigurationChangeListener listener);
 
 }

@@ -71,6 +71,11 @@ public class ServerStoredContactListMsnImpl
     private Vector<String> skipAddEvent = new Vector<String>();
 
     /**
+     * Contact list listener.
+     */
+    ContactListListener contactListListener = null;
+
+    /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
      *
      * @param parentOperationSet the operation set that created us and that
@@ -917,7 +922,7 @@ public class ServerStoredContactListMsnImpl
             parentOperationSet.earlyStatusesDispatch();
 
             // retreive offline messages
-            msnProvider.getMessenger().retreiveOfflineMessages();
+            messenger.retreiveOfflineMessages();
         }
 
         public void contactStatusChanged(MsnMessenger messenger,
@@ -1268,6 +1273,18 @@ public class ServerStoredContactListMsnImpl
      */
     void setMessenger(MsnMessenger messenger)
     {
+        if(messenger == null)
+        {
+            if(contactListModManager != null)
+                contactListModManager.removeModificationListener(
+                    contactListModListenerImpl);
+            this.contactListModManager = null;
+            if(contactListListener != null)
+                this.messenger.removeContactListListener(contactListListener);
+            this.contactListListener = null;
+            this.messenger = null;
+            return;
+        }
         this.messenger = messenger;
 
         contactListModManager =
@@ -1276,7 +1293,8 @@ public class ServerStoredContactListMsnImpl
         contactListModManager.
             addModificationListener(contactListModListenerImpl);
 
-        messenger.addContactListListener(new ContactListListener());
+        contactListListener = new ContactListListener();
+        messenger.addContactListListener(contactListListener);
     }
 
     /**

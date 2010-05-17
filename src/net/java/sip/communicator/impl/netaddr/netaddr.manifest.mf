@@ -9,3 +9,4 @@ Import-Package: net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.util,
  org.osgi.framework,
 Export-Package: net.java.sip.communicator.service.netaddr,
+ net.java.sip.communicator.service.netaddr.event

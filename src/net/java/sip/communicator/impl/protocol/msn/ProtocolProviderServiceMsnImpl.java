@@ -26,9 +26,15 @@ import net.sf.jml.impl.*;
 public class ProtocolProviderServiceMsnImpl
     extends AbstractProtocolProviderService
 {
+    /**
+     * Logger of this class
+     */
     private static final Logger logger
         = Logger.getLogger(ProtocolProviderServiceMsnImpl.class);
 
+    /**
+     * The lib messenger.
+     */
     private MsnMessenger messenger = null;
 
     /**
@@ -46,8 +52,14 @@ public class ProtocolProviderServiceMsnImpl
      */
     private SecurityAuthority authority = null;
 
+    /**
+     * Operation set for persistent presence.
+     */
     private OperationSetPersistentPresenceMsnImpl persistentPresence = null;
 
+    /**
+     * Operation set for typing notifications.
+     */
     private OperationSetTypingNotificationsMsnImpl typingNotifications = null;
 
     /**
@@ -125,6 +137,7 @@ public class ProtocolProviderServiceMsnImpl
     /**
      * Connects and logins to the server
      * @param authority SecurityAuthority
+     * @param reasonCode 
      * @throws  OperationFailedException if login parameters
      *          as server port are not correct
      */
@@ -234,6 +247,9 @@ public class ProtocolProviderServiceMsnImpl
         {
             if((messenger != null) && !logoutReceived)
                 messenger.logout();
+
+            persistentPresence.setMessenger(null);
+            typingNotifications.setMessenger(null);
         }
 
         if(fireEvent)
@@ -378,6 +394,10 @@ public class ProtocolProviderServiceMsnImpl
     private class MsnConnectionListener
         implements MsnMessengerListener
     {
+        /**
+         * Fired when login has completed.
+         * @param msnMessenger
+         */
         public void loginCompleted(MsnMessenger msnMessenger)
         {
             logger.trace("loginCompleted " + msnMessenger.getActualMsnProtocol());
@@ -388,6 +408,10 @@ public class ProtocolProviderServiceMsnImpl
                 null);
         }
 
+        /**
+         * Fire when lib logs out.
+         * @param msnMessenger
+         */
         public void logout(MsnMessenger msnMessenger)
         {
             logger.trace("logout");
@@ -400,6 +424,11 @@ public class ProtocolProviderServiceMsnImpl
             }
         }
 
+        /**
+         * Fired when an exception has occurred.
+         * @param msnMessenger
+         * @param throwable
+         */
         public void exceptionCaught(MsnMessenger msnMessenger,
                                     Throwable throwable)
         {
@@ -430,8 +459,6 @@ public class ProtocolProviderServiceMsnImpl
             }
             else if(throwable instanceof UnknownHostException)
             {
-                unregister(false);
-
                 fireRegistrationStateChanged(
                     getRegistrationState(),
                     RegistrationState.CONNECTION_FAILED,
@@ -483,6 +510,22 @@ public class ProtocolProviderServiceMsnImpl
             else
             {
                 logger.error("Error in Msn lib ", throwable);
+
+                if(throwable instanceof LoginException)
+                {
+                    MsnActivator.getProtocolProviderFactory().
+                        storePassword(getAccountID(), null);
+
+                    fireRegistrationStateChanged(
+                        getRegistrationState(),
+                        RegistrationState.AUTHENTICATION_FAILED,
+                        RegistrationStateChangeEvent
+                            .REASON_AUTHENTICATION_FAILED,
+                        null);
+                    // We try to reconnect and ask user to retype
+                    // password.
+                    reconnect(SecurityAuthority.WRONG_PASSWORD);
+                }
 
 //                We don't want to disconnect on any error, that's why we're
 //                commenting the following lines for now.
