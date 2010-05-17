@@ -271,7 +271,7 @@ public class UpdateCheckActivator
 
     /**
      * Shows dialog informing about new version with button Install
-     * which trigers the update process.
+     * which triggers the update process.
      */
     private void windowsUpdaterShow()
     {
@@ -312,7 +312,7 @@ public class UpdateCheckActivator
         contentPane.add(contentMessage, BorderLayout.NORTH);
 
         JScrollPane scrollChanges = new JScrollPane();
-        scrollChanges.setPreferredSize(new Dimension(400, 200));
+        scrollChanges.setPreferredSize(new Dimension(550, 200));
         JEditorPane changesHtml = new JEditorPane();
         changesHtml.setContentType("text/html");
         changesHtml.setEditable(false);
