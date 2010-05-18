@@ -33,6 +33,12 @@ public class SwScaler
     private static final Logger logger = Logger.getLogger(SwScaler.class);
 
     /**
+     * The indicator which determines whether this scaler will attempt to keep
+     * the width and height of YUV 420 output even.
+     */
+    private final boolean fixOddYuv420Size;
+
+    /**
      * The <tt>FrameProcessingControl</tt> of this <tt>Codec</tt> which allows
      * JMF to instruct it to drop frames because it's behind schedule.
      */
@@ -70,6 +76,20 @@ public class SwScaler
      */
     public SwScaler()
     {
+        this(false);
+    }
+
+    /**
+     * Initializes a new <tt>SwScaler</tt> instance which can optionally attempt
+     * to keep the width and height of YUV 420 output even.
+     *
+     * @param fixOddYuv420Size <tt>true</tt> to keep the width and height of YUV
+     * 420 output even; otherwise, <tt>false</tt>
+     */
+    protected SwScaler(boolean fixOddYuv420Size)
+    {
+        this.fixOddYuv420Size = fixOddYuv420Size;
+
         inputFormats = new Format[]
         {
             new AVFrameFormat(),
@@ -365,8 +385,6 @@ public class SwScaler
         }
         else
         {
-//System.err.println(
-//        "SwScaler.process: srcPicture= 0x" + Long.toHexString(srcPicture));
             FFmpeg.sws_scale(
                     swsContext,
                     srcPicture, 0, inputHeight,
@@ -437,6 +455,38 @@ public class SwScaler
     @Override
     public Format setOutputFormat(Format format)
     {
+        if (fixOddYuv420Size && (format instanceof YUVFormat))
+        {
+            YUVFormat yuvFormat = (YUVFormat) format;
+
+            if (YUVFormat.YUV_420 == yuvFormat.getYuvType())
+            {
+                Dimension size = yuvFormat.getSize();
+
+                if ((size != null) && (size.width > 2) && (size.height > 2))
+                {
+                    int width = (size.width >> 1) << 1;
+                    int height = (size.height >> 1) << 1;
+
+                    if ((width != size.width) || (height != size.height))
+                    {
+                        format
+                            = new YUVFormat(
+                                    new Dimension(width, height),
+                                    Format.NOT_SPECIFIED,
+                                    yuvFormat.getDataType(),
+                                    yuvFormat.getFrameRate(),
+                                    yuvFormat.getYuvType(),
+                                    Format.NOT_SPECIFIED,
+                                    Format.NOT_SPECIFIED,
+                                    0,
+                                    Format.NOT_SPECIFIED,
+                                    Format.NOT_SPECIFIED);
+                    }
+                }
+            }
+        }
+
         Format outputFormat = super.setOutputFormat(format);
 
         if (logger.isDebugEnabled() && (outputFormat != null))

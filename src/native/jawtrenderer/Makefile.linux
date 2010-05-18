@@ -1,0 +1,15 @@
+JAVA_HOME?=/usr/lib/jvm/java-6-sun
+
+ARCH=$(shell uname -m | sed -e s/x86_64/-64/ -e s/i.86//)
+TARGET=../../../lib/native/linux$(ARCH)/libjawtrenderer.so
+
+CC=gcc -g -std=c99
+CPPFLAGS=-DJNI_IMPLEMENTATION \
+         -fPIC \
+         -Wall -Wreturn-type \
+         -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
+LDFLAGS=-shared -Wl,--no-undefined
+LIBS=-L$(JAVA_HOME)/jre/lib/amd64 -ljawt -lXv -lX11
+
+$(TARGET): net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer.c JAWTRenderer_Linux.c net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer.h JAWTRenderer.h
+	$(CC) $(CPPFLAGS) $^ $(LDFLAGS) -o $@ $(LIBS)

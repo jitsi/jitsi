@@ -13,6 +13,7 @@ import javax.media.format.*;
 import javax.media.renderer.*;
 
 import net.java.sip.communicator.impl.neomedia.control.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements a <tt>VideoRenderer</tt> which uses JAWT to perform native
@@ -34,13 +35,25 @@ public class JAWTRenderer
     private static final Format[] SUPPORTED_INPUT_FORMATS
         = new Format[]
                 {
-                    new RGBFormat(
-                            null,
-                            Format.NOT_SPECIFIED,
-                            Format.intArray,
-                            Format.NOT_SPECIFIED,
-                            32,
-                            0x00FF0000, 0x0000FF00, 0x000000FF)
+                    OSUtils.IS_LINUX
+                        ? new YUVFormat(
+                                null /* size */,
+                                Format.NOT_SPECIFIED /* maxDataLength */,
+                                Format.intArray,
+                                Format.NOT_SPECIFIED /* frameRate */,
+                                YUVFormat.YUV_420,
+                                Format.NOT_SPECIFIED /* strideY */,
+                                Format.NOT_SPECIFIED /* strideUV */,
+                                Format.NOT_SPECIFIED /* offsetY */,
+                                Format.NOT_SPECIFIED /* offsetU */,
+                                Format.NOT_SPECIFIED /* offsetV */)
+                        : new RGBFormat(
+                                null,
+                                Format.NOT_SPECIFIED,
+                                Format.intArray,
+                                Format.NOT_SPECIFIED,
+                                32,
+                                0x00FF0000, 0x0000FF00, 0x000000FF)
                 };
 
     static

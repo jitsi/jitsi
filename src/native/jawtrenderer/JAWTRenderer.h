@@ -12,7 +12,7 @@
 #include <jawt.h>
 
 #ifdef __cplusplus
-extern "C" { /* } */
+extern "C" {
 #endif
 
 void JAWTRenderer_close
@@ -27,7 +27,7 @@ jboolean JAWTRenderer_process
      jint width, jint height);
 
 #ifdef __cplusplus
-}
+} /* extern "C" { */
 #endif
 
 #endif /* _JAWTRENDERER_H_ */

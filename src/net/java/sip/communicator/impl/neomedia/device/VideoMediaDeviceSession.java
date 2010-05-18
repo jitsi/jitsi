@@ -706,9 +706,9 @@ public class VideoMediaDeviceSession
                      */
                     playerScaler = new PlayerScaler(player);
 
-                    /* for H264 codec, we will use RTCP feedback
-                     * for example to advertise sender that we miss
-                     * a frame
+                    /*
+                     * For H.264, we will use RTCP feedback. For example, to
+                     * tell the sender that we've missed a frame.
                      */
                     if(format.getEncoding().equals("h264/rtp") && usePLI)
                     {
@@ -1269,6 +1269,8 @@ public class VideoMediaDeviceSession
          */
         public PlayerScaler(Player player)
         {
+            super(true);
+
             this.player = player;
         }
 
