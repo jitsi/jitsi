@@ -79,11 +79,6 @@ public class ProtocolProviderServiceJabberImpl
     private SecurityAuthority authority = null;
 
     /**
-     * True if we are reconnecting, false otherwise.
-     */
-    private boolean reconnecting = false;
-
-    /**
      * The icon corresponding to the jabber protocol.
      */
     private ProtocolIconJabberImpl jabberIcon;
@@ -261,7 +256,6 @@ public class ProtocolProviderServiceJabberImpl
             // to know we are not registered
             this.unregister(false);
 
-            this.reconnecting = true;
             // reset states
             this.abortConnecting = false;
             this.abortConnectingAndReconnect = false;
@@ -394,129 +388,112 @@ public class ProtocolProviderServiceJabberImpl
 
                 Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
 
-                try
+                //Getting global proxy information from configuration files
+                org.jivesoftware.smack.proxy.ProxyInfo proxy = null;
+                String globalProxyType =
+                    JabberActivator.getConfigurationService()
+                    .getString(ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
+                if(globalProxyType == null ||
+                   globalProxyType.equals(ProxyInfo.ProxyType.NONE.name()))
                 {
-                    //Getting global proxy information from configuration files
-                    org.jivesoftware.smack.proxy.ProxyInfo proxy = null;
-                    String globalProxyType =
-                        JabberActivator.getConfigurationService()
-                        .getString(ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
-                    if(globalProxyType == null || 
-                       globalProxyType.equals(ProxyInfo.ProxyType.NONE.name()))
-                    {
-                        proxy = org.jivesoftware.smack.proxy.ProxyInfo
-                            .forNoProxy();
-                    }
-                    else
-                    {
-                        String globalProxyAddress =
-                            JabberActivator.getConfigurationService().getString(
-                            ProxyInfo.CONNECTON_PROXY_ADDRESS_PROPERTY_NAME);
-                        String globalProxyPortStr =
-                            JabberActivator.getConfigurationService().getString(
-                            ProxyInfo.CONNECTON_PROXY_PORT_PROPERTY_NAME);
-                        int globalProxyPort;
-                        try
-                        {
-                            globalProxyPort = Integer.parseInt(
-                                globalProxyPortStr);
-                        }
-                        catch(NumberFormatException ex)
-                        {
-                            throw new OperationFailedException("Wrong port",
-                                OperationFailedException.INVALID_ACCOUNT_PROPERTIES,
-                                ex);
-                        }
-                        String globalProxyUsername =
-                            JabberActivator.getConfigurationService().getString(
-                            ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
-                        String globalProxyPassword =
-                            JabberActivator.getConfigurationService().getString(
-                            ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
-                        if(globalProxyAddress == null ||
-                            globalProxyAddress.length() <= 0)
-                        {
-                            throw new OperationFailedException(
-                                "Missing Proxy Address",
-                                OperationFailedException.INVALID_ACCOUNT_PROPERTIES);
-                        }
-                        if(globalProxyType.equals(
-                            ProxyInfo.ProxyType.HTTP.name()))
-                        {
-                            proxy = org.jivesoftware.smack.proxy.ProxyInfo
-                                .forHttpProxy(
-                                    globalProxyAddress,
-                                    globalProxyPort,
-                                    globalProxyUsername,
-                                    globalProxyPassword);
-                        }
-                        else if(globalProxyType.equals(
-                            ProxyInfo.ProxyType.SOCKS4.name()))
-                        {
-                             proxy = org.jivesoftware.smack.proxy.ProxyInfo
-                                 .forSocks4Proxy(
-                                    globalProxyAddress,
-                                    globalProxyPort,
-                                    globalProxyUsername,
-                                    globalProxyPassword);
-                        }
-                        else if(globalProxyType.equals(
-                            ProxyInfo.ProxyType.SOCKS5.name()))
-                        {
-                             proxy = org.jivesoftware.smack.proxy.ProxyInfo
-                                 .forSocks5Proxy(
-                                    globalProxyAddress,
-                                    globalProxyPort,
-                                    globalProxyUsername,
-                                    globalProxyPassword);
-                        }
-                    }
-
-                    ConnectionConfiguration confConn =
-                    new ConnectionConfiguration(
-                            serverAddress,
-                            Integer.parseInt(serverPort),
-                            serviceName,
-                            proxy
-                    );
-                    confConn.setReconnectionAllowed(false);
-
-                    connection = new XMPPConnection(confConn);
-
+                    proxy = org.jivesoftware.smack.proxy.ProxyInfo
+                        .forNoProxy();
+                }
+                else
+                {
+                    String globalProxyAddress =
+                        JabberActivator.getConfigurationService().getString(
+                        ProxyInfo.CONNECTON_PROXY_ADDRESS_PROPERTY_NAME);
+                    String globalProxyPortStr =
+                        JabberActivator.getConfigurationService().getString(
+                        ProxyInfo.CONNECTON_PROXY_PORT_PROPERTY_NAME);
+                    int globalProxyPort;
                     try
                     {
-                        CertificateVerificationService gvs =
-                        getCertificateVerificationService();
-                        if(gvs != null)
-                            connection.setCustomTrustManager(
-                                new HostTrustManager(gvs.getTrustManager(
-                                    serverAddress,
-                                    Integer.parseInt(serverPort))));
+                        globalProxyPort = Integer.parseInt(
+                            globalProxyPortStr);
                     }
-                    catch(GeneralSecurityException e)
+                    catch(NumberFormatException ex)
                     {
-                        logger.error("Error creating custom trust manager", e);
+                        throw new OperationFailedException("Wrong port",
+                            OperationFailedException.INVALID_ACCOUNT_PROPERTIES,
+                            ex);
                     }
-
-                    connection.connect();
-
-                    connection.addConnectionListener(
-                        new JabberConnectionListener());
+                    String globalProxyUsername =
+                        JabberActivator.getConfigurationService().getString(
+                        ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
+                    String globalProxyPassword =
+                        JabberActivator.getConfigurationService().getString(
+                        ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
+                    if(globalProxyAddress == null ||
+                        globalProxyAddress.length() <= 0)
+                    {
+                        throw new OperationFailedException(
+                            "Missing Proxy Address",
+                            OperationFailedException.INVALID_ACCOUNT_PROPERTIES);
+                    }
+                    if(globalProxyType.equals(
+                        ProxyInfo.ProxyType.HTTP.name()))
+                    {
+                        proxy = org.jivesoftware.smack.proxy.ProxyInfo
+                            .forHttpProxy(
+                                globalProxyAddress,
+                                globalProxyPort,
+                                globalProxyUsername,
+                                globalProxyPassword);
+                    }
+                    else if(globalProxyType.equals(
+                        ProxyInfo.ProxyType.SOCKS4.name()))
+                    {
+                         proxy = org.jivesoftware.smack.proxy.ProxyInfo
+                             .forSocks4Proxy(
+                                globalProxyAddress,
+                                globalProxyPort,
+                                globalProxyUsername,
+                                globalProxyPassword);
+                    }
+                    else if(globalProxyType.equals(
+                        ProxyInfo.ProxyType.SOCKS5.name()))
+                    {
+                         proxy = org.jivesoftware.smack.proxy.ProxyInfo
+                             .forSocks5Proxy(
+                                globalProxyAddress,
+                                globalProxyPort,
+                                globalProxyUsername,
+                                globalProxyPassword);
+                    }
                 }
-                catch (XMPPException exc)
+
+                ConnectionConfiguration confConn =
+                new ConnectionConfiguration(
+                        serverAddress,
+                        Integer.parseInt(serverPort),
+                        serviceName,
+                        proxy
+                );
+                confConn.setReconnectionAllowed(false);
+
+                connection = new XMPPConnection(confConn);
+
+                try
                 {
-                    if (logger.isInfoEnabled()) 
-                    {
-                        logger.info("Failed to establish a Jabber connection for "
-                                + getAccountID().getAccountUniqueID(), exc);
-                    }
-
-                    throw new OperationFailedException(
-                        "Failed to establish a Jabber connection for "
-                        + getAccountID().getAccountUniqueID()
-                        , OperationFailedException.NETWORK_FAILURE
-                        , exc);
+                    CertificateVerificationService gvs =
+                    getCertificateVerificationService();
+                    if(gvs != null)
+                        connection.setCustomTrustManager(
+                            new HostTrustManager(gvs.getTrustManager(
+                                serverAddress,
+                                Integer.parseInt(serverPort))));
                 }
+                catch(GeneralSecurityException e)
+                {
+                    logger.error("Error creating custom trust manager", e);
+                }
+
+                connection.connect();
+
+                connection.addConnectionListener(
+                    new JabberConnectionListener());
 
                 if(abortConnecting)
                 {
@@ -606,8 +583,6 @@ public class ProtocolProviderServiceJabberImpl
 
                 if(connection.isAuthenticated())
                 {
-                    this.reconnecting = false;
-
                     connection.getRoster().
                         setSubscriptionMode(Roster.SubscriptionMode.manual);
 
@@ -685,7 +660,7 @@ public class ProtocolProviderServiceJabberImpl
     {
         RegistrationState currRegState = getRegistrationState();
 
-        if(connection != null && connection.isConnected())
+        if(connection != null)
             connection.disconnect();
 
         if(fireEvent)
@@ -1006,10 +981,11 @@ public class ProtocolProviderServiceJabberImpl
                 return;
             }
 
-            if(!reconnecting)
-                reregister(SecurityAuthority.CONNECTION_FAILED);
-            else
-                reconnecting = false;
+
+            fireRegistrationStateChanged(getRegistrationState(),
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                exception.getMessage());
         }
 
         /**
