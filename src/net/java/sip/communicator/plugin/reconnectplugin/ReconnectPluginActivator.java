@@ -10,12 +10,14 @@ import java.net.*;
 import java.util.*;
 import java.util.ArrayList;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -46,6 +48,17 @@ public class ReconnectPluginActivator
      * The ui service.
      */
     private static UIService uiService;
+
+    /**
+     * The resources service.
+     */
+    private static ResourceManagementService resourcesService;
+
+    /**
+     * A reference to the ConfigurationService implementation instance that
+     * is currently registered with the bundle context.
+     */
+    private static ConfigurationService configurationService = null;
 
     /**
      * Notification service.
@@ -118,6 +131,13 @@ public class ReconnectPluginActivator
      * Network notifications event type.
      */
     public static final String NETWORK_NOTIFICATIONS = "NetowrkNotifications";
+
+    /**
+     *
+     */
+    public static final String ATLEAST_ONE_CONNECTION_PROP =
+        "net.java.sip.communicator.plugin.reconnectplugin." +
+            "ATLEAST_ONE_SUCCESSFUL_CONNECTION";
 
     /**
      * Starts this bundle
@@ -220,6 +240,48 @@ public class ReconnectPluginActivator
     }
 
     /**
+     * Returns resource service.
+     * @return the resource service.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
+
+            if(serviceReference == null)
+                return null;
+
+            resourcesService = (ResourceManagementService) bundleContext
+                .getService(serviceReference);
+        }
+
+        return resourcesService;
+    }
+
+    /**
+     * Returns a reference to a ConfigurationService implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     *
+     * @return a currently valid implementation of the ConfigurationService.
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if (configurationService == null)
+        {
+            ServiceReference confReference
+                = bundleContext.getServiceReference(
+                    ConfigurationService.class.getName());
+            configurationService
+                = (ConfigurationService) bundleContext
+                                        .getService(confReference);
+        }
+        return configurationService;
+    }
+
+    /**
      * Returns the <tt>NotificationService</tt> obtained from the bundle context.
      *
      * @return the <tt>NotificationService</tt> obtained from the bundle context
@@ -254,7 +316,7 @@ public class ReconnectPluginActivator
         ServiceReference serviceRef = serviceEvent.getServiceReference();
 
         // if the event is caused by a bundle being stopped, we don't want to
-        // know
+        // know we are shutting down
         if (serviceRef.getBundle().getState() == Bundle.STOPPING)
         {
             return;
@@ -311,24 +373,37 @@ public class ReconnectPluginActivator
      */
     private void handleProviderAdded(ProtocolProviderService provider)
     {
-        logger.debug("Adding protocol provider " + provider.getProtocolName());
+        logger.trace("New protocol provider is comming "
+            + provider.getProtocolName());
 
-        if(provider instanceof ProtocolProviderService)
-        {
-            provider.addRegistrationStateChangeListener(this);
-        }
+        provider.addRegistrationStateChangeListener(this);
     }
 
     /**
      * Stop listening for events as the provider is removed.
+     * Providers are removed this way only when there are modified
+     * in the configuration. So as the provider is modified we will erase
+     * every instance we got.
      *
      * @param provider the ProtocolProviderService that has been unregistered.
      */
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
-        if(provider instanceof ProtocolProviderService)
+        logger.trace("Provider modified forget every instance of it");
+
+        if(hasAtLeastOneSuccessfulConnection(provider))
         {
-            provider.removeRegistrationStateChangeListener(this);
+            setAtLeastOneSuccessfulConnection(provider, false);
+        }
+
+        provider.removeRegistrationStateChangeListener(this);
+
+        autoReconnEnabledProviders.remove(provider);
+        needsReconnection.remove(provider);
+
+        if(currentlyReconnecting.containsKey(provider))
+        {
+            currentlyReconnecting.remove(provider).cancel();
         }
     }
 
@@ -452,6 +527,25 @@ public class ReconnectPluginActivator
 
         if(evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
         {
+            if(!hasAtLeastOneSuccessfulConnection(pp))
+            {
+                // ignore providers which haven't registered successfully
+                // till now, they maybe misconfigured
+                // todo show dialog
+                String msgText = getResources().getI18NString(
+                    "plugin.reconnectplugin.CONNECTION_FAILED_MSG",
+                    new String[]
+                    {   pp.getAccountID().getUserID(),
+                        pp.getAccountID().getService() });
+
+                getUIService().getPopupDialog().showMessagePopupDialog(
+                    msgText,
+                    getResources().getI18NString("service.gui.ERROR"),
+                    PopupDialog.ERROR_MESSAGE);
+
+                return;
+            }
+
             // if this pp is already in needsReconnection, it means
             // we got conn failed cause the pp has tried to unregister
             // with sending network packet
@@ -474,16 +568,20 @@ public class ReconnectPluginActivator
         }
         else if(evt.getNewState().equals(RegistrationState.REGISTERED))
         {
+            if(!hasAtLeastOneSuccessfulConnection(pp))
+            {
+                setAtLeastOneSuccessfulConnection(pp, true);
+            }
+
             autoReconnEnabledProviders.put(
-                (ProtocolProviderService)evt.getSource(),
+                pp,
                 new ArrayList<String>(connectedInterfaces));
 
             currentlyReconnecting.remove(pp);
         }
         else if(evt.getNewState().equals(RegistrationState.UNREGISTERED))
         {
-            autoReconnEnabledProviders.remove(
-                (ProtocolProviderService)evt.getSource());
+            autoReconnEnabledProviders.remove(pp);
 
             if(!unregisteredProviders.contains(pp)
                 && currentlyReconnecting.containsKey(pp))
@@ -577,5 +675,37 @@ public class ReconnectPluginActivator
                 logger.error("cannot reregister provider will keep going", ex);
             }
         }
+    }
+
+    /**
+     * Check does the supplied protocol has the property set for at least
+     * one successful connection.
+     * @param pp the protocol provider
+     * @return true if property exists.
+     */
+    private boolean hasAtLeastOneSuccessfulConnection(ProtocolProviderService pp)
+    {
+       String value = (String)getConfigurationService().getProperty(
+           ATLEAST_ONE_CONNECTION_PROP + "." 
+           + pp.getAccountID().getAccountUniqueID());
+       
+       if(value == null || !value.equals(Boolean.TRUE.toString()))
+           return false;
+       else
+           return true;
+    }
+
+    /**
+     * Changes the property about at least one successful connection.
+     * @param pp the protocol provider
+     * @param value the new value true or false.
+     */
+    private void setAtLeastOneSuccessfulConnection(
+        ProtocolProviderService pp, boolean value)
+    {
+       getConfigurationService().setProperty(
+           ATLEAST_ONE_CONNECTION_PROP + "."
+            + pp.getAccountID().getAccountUniqueID(),
+           Boolean.valueOf(value).toString());
     }
 }

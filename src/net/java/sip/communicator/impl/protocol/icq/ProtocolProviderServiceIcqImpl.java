@@ -31,15 +31,30 @@ import net.kano.joustsim.oscar.proxy.*;
 public class ProtocolProviderServiceIcqImpl
     extends AbstractProtocolProviderService
 {
+    /**
+     * This class logger.
+     */
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderServiceIcqImpl.class);
 
+    /**
+     * Application session.
+     */
     private DefaultAppSession session = null;
 
+    /**
+     * Protocol stack session.
+     */
     private AimSession aimSession = null;
 
+    /**
+     * Protocol stack connection.
+     */
     private AimConnection aimConnection = null;
 
+    /**
+     * Messenger service.
+     */
     private IcbmService icbmService = null;
 
     /**
@@ -233,6 +248,7 @@ public class ProtocolProviderServiceIcqImpl
     /**
      * Connects and logins to the server
      * @param authority SecurityAuthority
+     * @param reasonCode reason code in case of reconnect.
      * @throws  OperationFailedException if login parameters
      *          as server port are not correct
      */
@@ -630,6 +646,10 @@ public class ProtocolProviderServiceIcqImpl
      */
     private class AimConnStateListener implements StateListener
     {
+        /**
+         * Connection state changes being reported here.
+         * @param event
+         */
         public void handleStateChange(StateEvent event)
         {
             State newState = event.getNewState();
@@ -671,6 +691,17 @@ public class ProtocolProviderServiceIcqImpl
                     logger.debug(
                         "The aim Connection was disconnected! with reason : "
                         + reasonStr);
+                }
+
+                if(reasonCode == RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+                   && event.getNewStateInfo() instanceof DisconnectedStateInfo)
+                {
+                    // if its on purpose it is user request
+                    if(((DisconnectedStateInfo)event.getNewStateInfo()).isOnPurpose())
+                    {
+                        reasonCode =
+                            RegistrationStateChangeEvent.REASON_USER_REQUEST;
+                    }
                 }
                 else
                     logger.debug("The aim Connection was disconnected!");
@@ -742,6 +773,11 @@ public class ProtocolProviderServiceIcqImpl
         }
     }
 
+    /**
+     * Throw registered with 2 seconds delay.
+     * We must wait a little bit before firing registered
+     * event , waiting for ClientReadyCommand to be sent successfully
+     */
     private class RegisteredEventThread extends Thread
     {
         public void run()
@@ -782,21 +818,41 @@ public class ProtocolProviderServiceIcqImpl
         return aimConnection;
     }
 
+    /**
+     * Message listener.
+     */
     public static class AimIcbmListener implements IcbmListener
     {
 
+        /**
+         * New conversations.
+         * @param service the messenger service.
+         * @param conv the new conversation.
+         */
         public void newConversation(IcbmService service, Conversation conv)
         {
             logger.debug("Received a new conversation event");
             conv.addConversationListener(new AimConversationListener());
         }
 
+        /**
+         * Does nothing.
+         * @param service
+         * @param buddy
+         * @param info
+         */
         public void buddyInfoUpdated(IcbmService service, Screenname buddy,
                                      IcbmBuddyInfo info)
         {
             logger.debug("Got a BuddINFO event");
         }
 
+        /**
+         * Does nothing.
+         * @param service
+         * @param message
+         * @param triedConversations
+         */
         public void sendAutomaticallyFailed(
             IcbmService service,
             net.kano.joustsim.oscar.oscar.service.icbm.Message message,
