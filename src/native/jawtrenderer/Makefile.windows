@@ -1,6 +1,6 @@
 ##
-# \file Makefile
-# \brief Windows (Visual C++) makefile.
+# \file Makefile.windows
+# \brief Windows (Visual C++) makefile for jawtrenderer.dll.
 # \author Sebastien Vincent
 
 CC = cl
@@ -13,6 +13,13 @@ OBJS = net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTR
 
 jawtrenderer.dll: clean 
 	$(CC) $(CFLAGS) /LD $(OBJS) $(LIBS) d3d9.lib d3dx9.lib user32.lib jawt.lib
+
+install64: jawtrenderer.dll
+	copy jawtrenderer.dll ..\..\..\lib\native\windows-64\
+
+install32: jawtrenderer.dll
+	copy jawtrenderer.dll ..\..\..\lib\native\windows
+
 clean:
 	del *.exp *.lib *.dll *.obj *.manifest 
 

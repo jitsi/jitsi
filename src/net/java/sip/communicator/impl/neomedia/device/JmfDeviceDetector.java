@@ -83,10 +83,10 @@ public class JmfDeviceDetector
         if (FMJConditionals.USE_JMF_INTERNAL_REGISTRY)
         {
             // This uses JMF internals:
-            // see if the registry has already been "tagged" by us, 
+            // see if the registry has already been "tagged" by us,
             // skip auto-detection if it has.
-            // This was probably done because JMF auto-detection is very slow, 
-            // especially for video devices.  FMJ does this quickly, 
+            // This was probably done because JMF auto-detection is very slow,
+            // especially for video devices.  FMJ does this quickly,
             // so there is no need for this kind of workaround
             // (besides the fact that these internal functions are not
             // implemented in FMJ).
@@ -206,6 +206,17 @@ public class JmfDeviceDetector
             catch (Throwable t)
             {
                 logger.debug("No Video4Linux2 detected: " + t.getMessage(), t);
+            }
+        }
+        else if (OSUtils.IS_WINDOWS) /* DirectShow */
+        {
+            try
+            {
+                new DirectShowAuto();
+            }
+            catch(Throwable t)
+            {
+                logger.debug("No DirectShow detected: " + t.getMessage(), t);
             }
         }
 
