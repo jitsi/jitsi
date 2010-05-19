@@ -8,11 +8,11 @@ package net.java.sip.communicator.impl.osdependent.jdic;
 
 import com.apple.eawt.*;
 
-import java.awt.*;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.*;
 import java.net.*;
 import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;

@@ -499,14 +499,25 @@ public class ReconnectPluginActivator
                 connectedInterfaces.clear();
 
                 logger.trace("Network is down!");
-                getNotificationService().fireNotification(
-                    NETWORK_NOTIFICATIONS,
-                    "Network is down!",
-                    "",
-                    null,
-                    null);
+                notify("", "plugin.reconnectplugin.NETWORK_DOWN", new String[0]);
             }
         }
+    }
+
+    /**
+     * Sends network notification.
+     * @param title the title.
+     * @param i18nKey the resource key of the notification.
+     * @param params and parameters in any.
+     */
+    private void notify(String title, String i18nKey, String[] params)
+    {
+        getNotificationService().fireNotification(
+                    NETWORK_NOTIFICATIONS,
+                    title,
+                    getResources().getI18NString(i18nKey, params),
+                    null,
+                    null);
     }
 
     /**
@@ -532,16 +543,12 @@ public class ReconnectPluginActivator
                 // ignore providers which haven't registered successfully
                 // till now, they maybe misconfigured
                 // todo show dialog
-                String msgText = getResources().getI18NString(
+                notify(
+                    getResources().getI18NString("service.gui.ERROR"),
                     "plugin.reconnectplugin.CONNECTION_FAILED_MSG",
                     new String[]
                     {   pp.getAccountID().getUserID(),
                         pp.getAccountID().getService() });
-
-                getUIService().getPopupDialog().showMessagePopupDialog(
-                    msgText,
-                    getResources().getI18NString("service.gui.ERROR"),
-                    PopupDialog.ERROR_MESSAGE);
 
                 return;
             }
