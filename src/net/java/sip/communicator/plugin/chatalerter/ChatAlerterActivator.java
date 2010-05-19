@@ -52,13 +52,16 @@ public class ChatAlerterActivator
 
     /**
      * Starts this bundle.
+     * @param bc bundle context.
+     * @throws Exception 
      */
     public void start(BundleContext bc) throws Exception
     {
         try
         {
             // try to load native libs, if it fails don't do anything
-            Alerter.newInstance();
+            if(!OSUtils.IS_MAC)
+                Alerter.newInstance();
         }
         catch (Exception exception)
         {
@@ -111,6 +114,11 @@ public class ChatAlerterActivator
         
     }
 
+    /**
+     * Stops bundle.
+     * @param bc context.
+     * @throws Exception
+     */
     public void stop(BundleContext bc) throws Exception
     {
         // start listening for newly register or removed protocol providers
@@ -297,11 +305,15 @@ public class ChatAlerterActivator
 
             JFrame fr = (JFrame) winSource;
 
-            Alerter.newInstance().alert(fr);
+            if(OSUtils.IS_MAC)
+                com.apple.eawt.Application.getApplication()
+                    .requestUserAttention(true);
+            else
+                Alerter.newInstance().alert(fr);
         }
         catch (Throwable ex)
         {
-            logger.error("Cannot alert chat window!");
+            logger.error("Cannot alert chat window!", ex);
         }
     }
 

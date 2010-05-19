@@ -1789,7 +1789,6 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/desktop"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/osdependent"
                 prefix="net/java/sip/communicator/impl/osdependent"/>
-            <zipfileset src="${lib.mac.noinst}/dock.jar" prefix=""/>
         </jar>
     </target>
 

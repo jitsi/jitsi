@@ -6,15 +6,18 @@
  */
 package net.java.sip.communicator.impl.osdependent.jdic;
 
+import com.apple.eawt.*;
+
+import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.osdependent.*;
-import net.java.sip.communicator.impl.systray.mac.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -105,6 +108,8 @@ public class SystrayServiceJdicImpl
     private URL dockIconAway;
 
     private URL dockIconFFC;
+
+    private Image originalDockImage = null;
 
     private boolean initialized = false;
 
@@ -507,12 +512,24 @@ public class SystrayServiceJdicImpl
 
             try
             {
-                if(OSUtils.IS_MAC32)
+                if(OSUtils.IS_MAC)
                 {
+                    if(originalDockImage == null)
+                        originalDockImage =
+                            Application.getApplication().getDockIconImage();
+
                     if (toChangeDockIcon != null)
-                        Dock.setDockTileImage(toChangeDockIcon);
+                    {
+                        Application.getApplication().setDockIconImage(
+                            Toolkit.getDefaultToolkit()
+                                .getImage(toChangeDockIcon));
+                    }
                     else
-                        Dock.restoreDockTileImage();
+                    {
+                        if(originalDockImage != null)
+                            Application.getApplication().setDockIconImage(
+                                originalDockImage);
+                    }
                 }
             }
             catch (Exception e)
@@ -624,7 +641,10 @@ public class SystrayServiceJdicImpl
     private class ServiceListenerImpl implements ServiceListener
     {
 
-        /** implements <tt>ServiceListener.serviceChanged</tt> */
+        /**
+         * implements <tt>ServiceListener.serviceChanged</tt>
+         * @param serviceEvent
+         */
         public void serviceChanged(ServiceEvent serviceEvent)
         {
             try
