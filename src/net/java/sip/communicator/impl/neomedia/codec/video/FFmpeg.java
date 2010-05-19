@@ -66,6 +66,8 @@ public class FFmpeg
 
     public static final int PIX_FMT_YUYV422 = 1;
 
+    public static final int PIX_FMT_NV12 = 25;
+
     public static final int SWS_BICUBIC = 4;
 
     public static final int X264_RC_ABR = 2;

@@ -45,6 +45,26 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     private DSManager manager = null;
 
     /**
+     * The map of DirectShow pixel formats to FFmpeg
+     * pixel formats which allows converting between the two.
+     */
+    private static final long[] DS_TO_FFMPEG_PIX_FMT
+        = new long[]
+                {
+                    DSFormat.RGB24,
+                    FFmpeg.PIX_FMT_RGB24,
+                    DSFormat.RGB32,
+                    FFmpeg.PIX_FMT_RGB32,
+                    DSFormat.ARGB32,
+                    FFmpeg.PIX_FMT_ARGB,
+                    DSFormat.YUY2,
+                    FFmpeg.PIX_FMT_YUYV422,
+                    DSFormat.UYVY,
+                    FFmpeg.PIX_FMT_UYVY422,
+                    DSFormat.NV12,
+                    FFmpeg.PIX_FMT_NV12,
+                };
+    /**
      * The default width of <tt>DataSource</tt>.
      */
     static final int DEFAULT_WIDTH = 640;
@@ -188,26 +208,11 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         for(DSFormat fmt : fmts)
         {
             Dimension size = new Dimension(fmt.getWidth(), fmt.getHeight());
-            int colorSpace = 0;
-
-            switch(fmt.getColorSpace())
-            {
-            case DSFormat.RGB32:
-                colorSpace = FFmpeg.PIX_FMT_RGB32;
-                break;
-            case DSFormat.ARGB32:
-                colorSpace = FFmpeg.PIX_FMT_ARGB;
-                break;
-            case DSFormat.RGB24:
-                colorSpace = FFmpeg.PIX_FMT_RGB24;
-                break;
-            default:
-                /* does not support other for the moment */
-                continue;
-            }
+            long f = fmt.getPixelFormat();
+            int pixelFormat = (int)getFFmpegPixFmt(f);
 
             formats.add(new AVFrameFormat(size, Format.NOT_SPECIFIED,
-                    colorSpace));
+                    pixelFormat));
         }
 
         return formats.toArray(new Format[formats.size()]);
@@ -270,31 +275,18 @@ public class DataSource extends AbstractPushBufferCaptureDevice
 
             if(newValue instanceof AVFrameFormat)
             {
-
                 AVFrameFormat f = (AVFrameFormat)newValue;
-                int colorSpace = DSFormat.UNKNOWN;
+                long pixelFormat = -1;
                 int pixFmt = f.getPixFmt();
 
-                if(pixFmt == FFmpeg.PIX_FMT_ARGB)
-                {
-                    colorSpace = DSFormat.ARGB32;
-                }
-                else if(pixFmt == FFmpeg.PIX_FMT_RGB32)
-                {
-                    colorSpace = DSFormat.RGB32;
-                }
-                else if(pixFmt == FFmpeg.PIX_FMT_RGB24)
-                {
-                    colorSpace = DSFormat.RGB24;
-                }
-                else
-                {
-                    /* unsupported */
-                }
+                pixelFormat = getDSPixFmt(pixFmt);
 
-                DSFormat fmt = new DSFormat(newSize.width, newSize.height,
-                        colorSpace);
-                device.setFormat(fmt);
+                if(pixelFormat != -1)
+                {
+                    DSFormat fmt = new DSFormat(newSize.width, newSize.height,
+                            pixelFormat);
+                    device.setFormat(fmt);
+                }
             }
 
             return newValue;
@@ -377,6 +369,37 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         /* close capture */
         super.doStop();
         device.close();
+    }
+    
+    /**
+     * Gets the DirectShow pixel format matching a specific FFmpeg pixel
+     * format.
+     *
+     * @param dsPixFmt the DirectShow pixel format to get the matching 
+     * Ffmpeg pixel format of
+     * @return the FFmpeg pixel format matching the specified DirectShow pixel
+     */
+    public static long getFFmpegPixFmt(long dsPixFmt)
+    {
+        for (int i = 0; i < DS_TO_FFMPEG_PIX_FMT.length; i += 2)
+            if (DS_TO_FFMPEG_PIX_FMT[i] == dsPixFmt)
+                return DS_TO_FFMPEG_PIX_FMT[i + 1];
+        return FFmpeg.PIX_FMT_NONE;
+    }
+
+    /**
+     * Gets the FFmpeg pixel format matching a specific DirectShow 
+     * Specification pixel format.
+     *
+     * @param ffmpegPixFmt FFmpeg format
+     * @return the DirectShow pixel format matching the specified FFmpeg format
+     */
+    public static long getDSPixFmt(int ffmpegPixFmt)
+    {
+        for (int i = 0; i < DS_TO_FFMPEG_PIX_FMT.length; i += 2)
+            if (DS_TO_FFMPEG_PIX_FMT[i + 1] == ffmpegPixFmt)
+                return DS_TO_FFMPEG_PIX_FMT[i];
+        return -1;
     }
 }
 

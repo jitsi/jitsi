@@ -80,15 +80,20 @@ public:
             {
                 BYTE* data = NULL;
                 size_t length = 0;
-                bool flipImage = true;
+                bool flipImage = false;
                 size_t width = 0;
                 size_t height = 0;
                 size_t bytesPerPixel = 0;
-                
+                VideoFormat format = m_dev->getFormat();
                 /* get width and height */
-                width = m_dev->getWidth();
-                height = m_dev->getHeight();
+                width = format.width;
+                height = format.height;
                 bytesPerPixel = m_dev->getBitPerPixel() / 8;
+
+                /* flip image for RGB content */
+                flipImage = (format.mediaType == MEDIASUBTYPE_ARGB32 ||
+                    format.mediaType == MEDIASUBTYPE_RGB32 || 
+                    format.mediaType == MEDIASUBTYPE_RGB24);
 
                 sample->GetPointer(&data);
                 length = sample->GetActualDataLength();
@@ -223,17 +228,52 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_D
     {
         jfieldID fieldH = env->GetFieldID(clazz, "height", "I");
         jfieldID fieldW = env->GetFieldID(clazz, "width", "I");
-        jfieldID fieldF = env->GetFieldID(clazz, "colorSpace", "I");
-        jint f = env->GetIntField(format, fieldF);
+        jfieldID fieldF = env->GetFieldID(clazz, "pixelFormat", "J");
+        jlong f = env->GetLongField(format, fieldF);
         jint w = env->GetIntField(format, fieldW);
         jint h = env->GetIntField(format, fieldH);
     
         fmt.width = w;
         fmt.height = h;
-        fmt.format = (ColorSpace)f;
+        fmt.pixelFormat = (unsigned long)f;
     
         dev->setFormat(fmt);
     }
+}
+
+/**
+ * \brief Get current format.
+ * \param env JNI environment
+ * \param obj object
+ * \param native pointer
+ * \return current format
+ */
+JNIEXPORT jobject JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_DSCaptureDevice_getFormat
+  (JNIEnv* env, jobject obj, jlong ptr)
+{
+    DSCaptureDevice* dev = reinterpret_cast<DSCaptureDevice*>(ptr);
+    VideoFormat fmt = dev->getFormat();
+    jclass clazzDSFormat = NULL;
+    jmethodID initDSFormat = NULL;
+    jobject ret = NULL;
+
+    /* get DSFormat class to instantiate some object */
+    clazzDSFormat = env->FindClass("net/java/sip/communicator/impl/neomedia/directshow/DSFormat");
+    if(clazzDSFormat == NULL)
+    {
+        return NULL;
+    }
+
+    initDSFormat = env->GetMethodID(clazzDSFormat, "<init>", "(IIJ)V");
+
+    if(initDSFormat == NULL)
+    {
+        return NULL;
+    }
+
+    ret = env->NewObject(clazzDSFormat, initDSFormat, static_cast<size_t>(fmt.width),
+            static_cast<size_t>(fmt.height), static_cast<jlong>(fmt.pixelFormat));
+    return ret;
 }
 
 /**
@@ -260,7 +300,7 @@ JNIEXPORT jobjectArray JNICALL Java_net_java_sip_communicator_impl_neomedia_dire
         return NULL;
     }
 
-    initDSFormat = env->GetMethodID(clazzDSFormat, "<init>", "(III)V");
+    initDSFormat = env->GetMethodID(clazzDSFormat, "<init>", "(IIJ)V");
 
     if(initDSFormat == NULL)
     {
@@ -274,7 +314,7 @@ JNIEXPORT jobjectArray JNICALL Java_net_java_sip_communicator_impl_neomedia_dire
     {
         VideoFormat tmp = (*it);
         jobject o = env->NewObject(clazzDSFormat, initDSFormat, static_cast<size_t>(tmp.width),
-            static_cast<size_t>(tmp.height), tmp.format);
+            static_cast<size_t>(tmp.height), static_cast<jlong>(tmp.pixelFormat));
 
         if(o == NULL)
         {

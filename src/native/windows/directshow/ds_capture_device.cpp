@@ -189,7 +189,6 @@ bool DSCaptureDevice::setFormat(const VideoFormat& format)
 	if(!FAILED(ret))
 	{
 		VIDEOINFOHEADER* videoFormat = NULL;
-		GUID fmt;
         size_t bitCount = 0;
 
 		/* get the current format and change resolution */
@@ -198,28 +197,31 @@ bool DSCaptureDevice::setFormat(const VideoFormat& format)
 		videoFormat->bmiHeader.biWidth = (LONG)format.width;
 		videoFormat->bmiHeader.biHeight = (LONG)format.height;
 
-		switch(format.format)
-		{
-		case ARGB32:
-			fmt = MEDIASUBTYPE_ARGB32;
+        if(format.pixelFormat == MEDIASUBTYPE_ARGB32.Data1 ||
+            format.pixelFormat == MEDIASUBTYPE_RGB32.Data1)
+        {
             bitCount = 32;
-			break;
-		case RGB32:
-			fmt = MEDIASUBTYPE_RGB32;
-            bitCount = 32;
-			break;
-		case RGB24:
-			fmt = MEDIASUBTYPE_RGB24;
+        }
+        else if(format.pixelFormat == MEDIASUBTYPE_RGB24.Data1)
+        {
             bitCount = 24;
-			break;
-		default:
-			/* try to set resolution with current color space */
-			fmt = mediaType->subtype;
+        }
+        else
+        {
             bitCount = videoFormat->bmiHeader.biBitCount;
-			break;
 		}
 
-		mediaType->subtype = fmt;
+        /* find the media type */
+        for(std::list<VideoFormat>::iterator it = m_formats.begin() ; 
+                it != m_formats.end() ; ++it)
+        {
+            if(format.pixelFormat == (*it).pixelFormat)
+            {
+                mediaType->subtype = (*it).mediaType;
+                break;
+            }
+        }
+
 		ret = streamConfig->SetFormat(mediaType);
 
 		if(FAILED(ret))
@@ -229,9 +231,9 @@ bool DSCaptureDevice::setFormat(const VideoFormat& format)
 		}
         else
         {
-            m_width = format.width;
-            m_height = format.height;
             m_bitPerPixel = bitCount;
+            m_format = format;
+            m_format.mediaType = mediaType->subtype;
         }
 
 		DeleteMediaType(mediaType);
@@ -389,30 +391,20 @@ void DSCaptureDevice::initSupportedFormats()
 				{
 					format.height = hdr->bmiHeader.biHeight;
 					format.width = hdr->bmiHeader.biWidth;
+                    format.pixelFormat = mediaType->subtype.Data1;
+                    format.mediaType = mediaType->subtype;
 
-					if(mediaType->subtype == MEDIASUBTYPE_ARGB32)
-					{
-						format.format = ARGB32;
-					}
-					else if(mediaType->subtype == MEDIASUBTYPE_RGB32)
-					{
-						format.format = RGB32;
-					}
-					else if(mediaType->subtype == MEDIASUBTYPE_RGB24)
-					{
-						format.format = RGB24;
-					}
-					
-                    m_formats.push_back(format);
+                    if(format.pixelFormat != 0x30323449)
+                    {
+                        m_formats.push_back(format);
+                    }
 				}
 			}
 		}
 
 		delete allocBytes;
 	}
-
 }
-
 
 std::list<VideoFormat> DSCaptureDevice::getSupportedFormats() const
 {
@@ -481,14 +473,9 @@ bool DSCaptureDevice::stop()
 	return true;
 }
 
-size_t DSCaptureDevice::getWidth()
+VideoFormat DSCaptureDevice::getFormat() const
 {
-    return m_width;
-}
-
-size_t DSCaptureDevice::getHeight()
-{
-    return m_height;
+    return m_format;
 }
 
 size_t DSCaptureDevice::getBitPerPixel()

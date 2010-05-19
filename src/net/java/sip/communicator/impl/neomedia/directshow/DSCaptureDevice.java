@@ -80,6 +80,16 @@ public class DSCaptureDevice
     }
 
     /**
+     * Get current format.
+     *
+     * @return current format used
+     */
+    public DSFormat getFormat()
+    {
+        return getFormat(ptr);
+    }
+
+    /**
      * Get the supported video format this capture device supports.
      *
      * @return array of <tt>DSFormat</tt>
@@ -128,12 +138,20 @@ public class DSCaptureDevice
     private native String getName(long ptr);
 
     /**
-     * Native method to get name of the capture device.
+     * Native method to set format on the capture device.
      *
      * @param ptr native pointer of <tt>DSCaptureDevice</tt>
      * @param format format to set
      */
     private native void setFormat(long ptr, DSFormat format);
+
+    /**
+     * Native method to get format on the capture device.
+     *
+     * @param ptr native pointer of <tt>DSCaptureDevice</tt>
+     * @return format current format
+     */
+    private native DSFormat getFormat(long ptr);
 
     /**
      * Native method to get supported formats from capture device.

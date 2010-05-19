@@ -160,16 +160,10 @@ public:
 	bool stop();
 
     /**
-     * \brief Get current width.
-     * \return width
+     * \brief Get current format.
+     * \return current format
      */
-    size_t getWidth();
-
-    /**
-     * \brief Get current height.
-     * \return height
-     */
-    size_t getHeight();
+    VideoFormat getFormat() const;
 
     /**
      * \brief Get current bit per pixel.
@@ -234,14 +228,9 @@ private:
 	ISampleGrabber* m_sampleGrabber;
 
     /**
-     * \brief Current width.
+     * \brief Current format.
      */
-    size_t m_width;
-
-    /**
-     * \brief Current height.
-     */
-    size_t m_height;
+    VideoFormat m_format;
 
     /**
      * \brief Current bit per pixel.

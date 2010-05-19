@@ -13,25 +13,26 @@ package net.java.sip.communicator.impl.neomedia.directshow;
  */
 public class DSFormat
 {
-    /**
-     * ARGB32 format type.
-     */
-    public static final int ARGB32 = 0;
 
-    /**
-     * RGB32 format type (first byte is ignored).
-     */
-    public static final int RGB32 = 1;
+    static
+    {
+        System.loadLibrary("jdirectshow");
 
-    /**
-     * RBG24 format type.
-     */
-    public static final int RGB24 = 2;
+        RGB24 = getRGB24PixelFormat();
+        RGB32 = getRGB32PixelFormat();
+        ARGB32 = getARGBPixelFormat();
+        YUY2 = getYUY2PixelFormat();
+        UYVY = getUYVYPixelFormat();
+        NV12 = getNV12PixelFormat();
+    }
 
-    /**
-     * Unknown format type.
-     */
-    public static final int UNKNOWN = 3;
+    /* supported formats */
+    public static final long RGB24;
+    public static final long RGB32;
+    public static final long ARGB32;
+    public static final long YUY2;
+    public static final long UYVY;
+    public static final long NV12;
 
     /**
      * Video width.
@@ -46,20 +47,20 @@ public class DSFormat
     /**
      * Color space.
      */
-    private int colorSpace = UNKNOWN;
+    private long pixelFormat = -1;
 
     /**
      * Constructor.
      *
      * @param width video width
      * @param height video height
-     * @param colorSpace color space
+     * @param pixelFormat pixel format
      */
-    public DSFormat(int width, int height, int colorSpace)
+    public DSFormat(int width, int height, long pixelFormat)
     {
         this.width = width;
         this.height = height;
-        this.colorSpace = colorSpace;
+        this.pixelFormat = pixelFormat;
     }
 
     /**
@@ -87,9 +88,32 @@ public class DSFormat
      *
      * @return color space
      */
-    public int getColorSpace()
+    public long getPixelFormat()
     {
-        return colorSpace;
+        return pixelFormat;
     }
+
+    /* RGB */
+    public static native long getRGB24PixelFormat();
+    public static native long getRGB32PixelFormat();
+    public static native long getARGBPixelFormat();
+
+    /* YUV */
+    public static native long getAYUVPixelFormat();
+    public static native long getYUY2PixelFormat();
+    public static native long getUYVYPixelFormat();
+    public static native long getIMC1PixelFormat();
+    public static native long getIMC2PixelFormat();
+    public static native long getIMC3PixelFormat();
+    public static native long getIMC4PixelFormat();
+    public static native long getYV12PixelFormat();
+    public static native long getNV12PixelFormat();
+    public static native long getIF09PixelFormat();
+    public static native long getIYUVPixelFormat();
+    public static native long getY211PixelFormat();
+    public static native long getY411PixelFormat();
+    public static native long getY41PPixelFormat();
+    public static native long getYVU9PixelFormat();
+    public static native long getYVYUPixelFormat();
 }
 

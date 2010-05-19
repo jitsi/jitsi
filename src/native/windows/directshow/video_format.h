@@ -15,19 +15,6 @@
 #define VIDEO_FORMAT_H
 
 /**
- * \struct ColorSpace
- * \brief Color space (RGB, YUV,...).
- */
-enum ColorSpace
-{
-	ARGB32 = 0, /**< ARGB color */
-	RGB32, /**< RGB on 32-bit (alpha not used) */
-	RGB24, /**< RGB on 24 bit */
-	UNKNOWN, /**< Unknown color space */
-	ANY = -1
-};
-
-/**
  * \struct VideoFormat
  * \brief Information about video format
  */
@@ -35,7 +22,8 @@ struct VideoFormat
 {
 	size_t width; /**< Video width */
 	size_t height; /**< Video height */
-    enum ColorSpace format; /**< Format */
+    unsigned long pixelFormat; /**< Pixel format */
+    GUID mediaType; /**< Media type */
 };
 
 #endif /* VIDEO_FORMAT_H */

@@ -5,11 +5,10 @@
 
 CC = cl /W4 /wd4996 /EHsc /O2
 JNI_HEADERS = /I%JAVA_HOME%\include /I%JAVA_HOME%\include\win32
-# DX_HEADERS = /I"C:\Program Files\Microsoft DirectX SDK (February 2010)\Include" /I"C:\Program Files (x86)\Microsoft DirectX SDK (February 2010)\Include"
 LIBS = /link /out:jdirectshow.dll
 CFLAGS = $(JNI_HEADERS)
 
-OBJS = net_java_sip_communicator_impl_neomedia_directshow_DSManager.cpp net_java_sip_communicator_impl_neomedia_directshow_DSCaptureDevice.cpp ds_manager.cpp ds_capture_device.cpp
+OBJS = net_java_sip_communicator_impl_neomedia_directshow_DSManager.cpp net_java_sip_communicator_impl_neomedia_directshow_DSCaptureDevice.cpp net_java_sip_communicator_impl_neomedia_directshow_DSFormat.cpp ds_manager.cpp ds_capture_device.cpp 
 
 jdirectshow.dll: clean 
 	$(CC) $(CFLAGS) /LD $(OBJS) $(LIBS) ole32.lib oleaut32.lib user32.lib
