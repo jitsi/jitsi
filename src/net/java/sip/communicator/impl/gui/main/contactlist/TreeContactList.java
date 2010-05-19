@@ -224,7 +224,7 @@ public class TreeContactList
             = MetaContactListSource.createUIGroup(metaGroup);
 
         if (currentFilter.isMatching(uiGroup))
-            addGroup(uiGroup);
+            addGroup(uiGroup, true);
         else
             MetaContactListSource.removeUIGroup(metaGroup);
     }
@@ -575,7 +575,7 @@ public class TreeContactList
     public void metaGroupReceived(MetaContactGroup metaGroup)
     {
         GuiActivator.getContactList().addGroup(
-            MetaContactListSource.createUIGroup(metaGroup));
+            MetaContactListSource.createUIGroup(metaGroup), true);
     }
 
     /**
@@ -702,7 +702,10 @@ public class TreeContactList
             {
                 GroupNode parentNode = treeModel.getRoot();
 
-                groupNode = parentNode.sortedAddContactGroup(group);
+                if (isSorted)
+                    groupNode = parentNode.sortedAddContactGroup(group);
+                else
+                    groupNode = parentNode.addContactGroup(group);
             }
         }
 
@@ -751,18 +754,22 @@ public class TreeContactList
         parentGroupNode.removeContact(contact);
 
         // If the parent group is empty remove it.
-        if (parentGroupNode.getChildCount() < 1
-            && parentGroupNode.getParent() != null)
+        if (parentGroupNode.getChildCount() == 0)
         {
-            treeModel.removeNodeFromParent(parentGroupNode);
+            GroupNode parent = (GroupNode) parentGroupNode.getParent();
+
+            if (parent != null)
+                parent.removeContactGroup(parentGroup);
         }
     }
 
     /**
      * Adds the given group to this list.
      * @param group the <tt>UIGroup</tt> to add
+     * @param isSorted indicates if the contact should be sorted regarding to
+     * the <tt>GroupNode</tt> policy
      */
-    public void addGroup(final UIGroup group)
+    public void addGroup(final UIGroup group, final boolean isSorted)
     {
         if (!SwingUtilities.isEventDispatchThread())
         {
@@ -770,7 +777,7 @@ public class TreeContactList
             {
                 public void run()
                 {
-                    addGroup(group);
+                    addGroup(group, isSorted);
                 }
             });
             return;
@@ -778,7 +785,10 @@ public class TreeContactList
 
         GroupNode parentNode = treeModel.getRoot();
 
-        parentNode.sortedAddContactGroup(group);
+        if (isSorted)
+            parentNode.sortedAddContactGroup(group);
+        else
+            parentNode.addContactGroup(group);
 
         expandGroup(treeModel.getRoot());
     }
@@ -813,8 +823,13 @@ public class TreeContactList
         parentGroupNode.removeContactGroup(group);
 
         // If the parent group is empty remove it.
-        if (parentGroupNode.getChildCount() < 1)
-            treeModel.removeNodeFromParent(parentGroupNode);
+        if (parentGroupNode.getChildCount() == 0)
+        {
+            GroupNode parent = (GroupNode) parentGroupNode.getParent();
+
+            if (parent != null)
+                parent.removeContactGroup(parentGroup);
+        }
     }
 
     /**
