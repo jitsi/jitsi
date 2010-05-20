@@ -61,6 +61,10 @@ public class DataSource extends AbstractPushBufferCaptureDevice
                     FFmpeg.PIX_FMT_YUYV422,
                     DSFormat.UYVY,
                     FFmpeg.PIX_FMT_UYVY422,
+                    DSFormat.Y411,
+                    FFmpeg.PIX_FMT_UYYVYY411,
+                    DSFormat.Y41P,
+                    FFmpeg.PIX_FMT_UYYVYY411,
                     DSFormat.NV12,
                     FFmpeg.PIX_FMT_NV12,
                 };
@@ -370,12 +374,12 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         super.doStop();
         device.close();
     }
-    
+
     /**
      * Gets the DirectShow pixel format matching a specific FFmpeg pixel
      * format.
      *
-     * @param dsPixFmt the DirectShow pixel format to get the matching 
+     * @param dsPixFmt the DirectShow pixel format to get the matching
      * Ffmpeg pixel format of
      * @return the FFmpeg pixel format matching the specified DirectShow pixel
      */
@@ -388,7 +392,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     }
 
     /**
-     * Gets the FFmpeg pixel format matching a specific DirectShow 
+     * Gets the FFmpeg pixel format matching a specific DirectShow
      * Specification pixel format.
      *
      * @param ffmpegPixFmt FFmpeg format

@@ -66,6 +66,8 @@ public class FFmpeg
 
     public static final int PIX_FMT_YUYV422 = 1;
 
+    public static final int PIX_FMT_UYYVYY411 = 18;
+
     public static final int PIX_FMT_NV12 = 25;
 
     public static final int SWS_BICUBIC = 4;
@@ -108,8 +110,8 @@ public class FFmpeg
     public static native int avcodeccontext_get_pix_fmt(long avctx);
 
     public static native int avcodeccontext_get_width(long avctx);
-    
-    public static native void avcodeccontext_set_b_frame_strategy(long avctx, 
+
+    public static native void avcodeccontext_set_b_frame_strategy(long avctx,
         int b_frame_strategy);
 
     public static native void avcodeccontext_set_bit_rate(long avctx,
@@ -117,13 +119,13 @@ public class FFmpeg
 
     public static native void avcodeccontext_set_bit_rate_tolerance(long avctx,
         int bit_rate_tolerance);
-    
-    public static native void avcodeccontext_set_chromaoffset(long avctx, 
+
+    public static native void avcodeccontext_set_chromaoffset(long avctx,
         int chromaoffset);
 
     public static native void avcodeccontext_set_crf(long avctx, float crf);
-    
-    public static native void avcodeccontext_set_deblockbeta(long avctx, 
+
+    public static native void avcodeccontext_set_deblockbeta(long avctx,
         int deblockbeta);
 
     public static native void avcodeccontext_set_gop_size(long avctx,
@@ -132,7 +134,7 @@ public class FFmpeg
     public static native void avcodeccontext_set_i_quant_factor(long avctx,
         float i_quant_factor);
 
-    public static native void avcodeccontext_set_max_b_frames(long avctx, 
+    public static native void avcodeccontext_set_max_b_frames(long avctx,
         int max_b_frames);
 
     public static native void avcodeccontext_set_mb_decision(long avctx,
@@ -164,8 +166,8 @@ public class FFmpeg
 
     public static native void avcodeccontext_set_rc_max_rate(long avctx,
         int rc_max_rate);
-    
-    public static native void avcodeccontext_set_refs(long avctx, 
+
+    public static native void avcodeccontext_set_refs(long avctx,
         int refs);
 
     public static native void avcodeccontext_set_rtp_payload_size(long avctx,
@@ -182,8 +184,8 @@ public class FFmpeg
 
     public static native void avcodeccontext_set_thread_count(long avctx,
         int thread_count);
-    
-    public static native void avcodeccontext_set_ticks_per_frame(long avctx, 
+
+    public static native void avcodeccontext_set_ticks_per_frame(long avctx,
         int ticks_per_frame);
 
     public static native void avcodeccontext_set_time_base(long avctx, int num,
@@ -227,7 +229,7 @@ public class FFmpeg
     private static native int PIX_FMT_RGB24();
 
     private static native int PIX_FMT_RGB32();
-    
+
     private static native int PIX_FMT_RGB32_1();
 
     private static native int PIX_FMT_YUV420P();

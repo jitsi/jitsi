@@ -24,6 +24,8 @@ public class DSFormat
         YUY2 = getYUY2PixelFormat();
         UYVY = getUYVYPixelFormat();
         NV12 = getNV12PixelFormat();
+        Y411 = getY411PixelFormat();
+        Y41P = getY41PPixelFormat();
     }
 
     /* supported formats */
@@ -32,6 +34,8 @@ public class DSFormat
     public static final long ARGB32;
     public static final long YUY2;
     public static final long UYVY;
+    public static final long Y411;
+    public static final long Y41P;
     public static final long NV12;
 
     /**
