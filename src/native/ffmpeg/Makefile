@@ -12,7 +12,7 @@ CPPFLAGS=-DJNI_IMPLEMENTATION \
 # Uncomment section for your OS AND comment out the others
 
 # Linux configuration
-CPPFLAGS+=-I$(JAVA_HOME)/include/linux
+CPPFLAGS+=-I$(JAVA_HOME)/include/linux -Wl,-Bsymbolic
 LDFLAGS=-fPIC -shared
 # Choose between 32-bit or 64-bit
 #TARGET=../../../lib/native/linux/libffmpeg.so
