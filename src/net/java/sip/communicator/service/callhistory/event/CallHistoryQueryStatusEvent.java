@@ -21,21 +21,6 @@ public class CallHistoryQueryStatusEvent
     extends EventObject
 {
     /**
-     * Indicates that a query has been completed.
-     */
-    public static final int QUERY_COMPLETED = 0;
-
-    /**
-     * Indicates that a query has been canceled.
-     */
-    public static final int QUERY_CANCELED = 1;
-
-    /**
-     * Indicates that a query has been stopped because of an error.
-     */
-    public static final int QUERY_ERROR = 2;
-
-    /**
      * Indicates the type of this event.
      */
     private final int eventType;
@@ -46,7 +31,7 @@ public class CallHistoryQueryStatusEvent
      * initially this event occurred.
      * @param source the <tt>CallHistoryQuery</tt> this event is about
      * @param eventType the type of the event. One of the QUERY_XXX constants
-     * defined in this class
+     * defined in the <tt>CallHistoryQuery</tt>
      */
     public CallHistoryQueryStatusEvent( CallHistoryQuery source,
                                         int eventType)

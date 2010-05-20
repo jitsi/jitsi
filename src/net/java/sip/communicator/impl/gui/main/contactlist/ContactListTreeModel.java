@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
+import java.lang.reflect.*;
+
 import javax.swing.*;
 import javax.swing.tree.*;
 
@@ -60,22 +62,38 @@ public class ContactListTreeModel
      */
     public void clear()
     {
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
+        if (!SwingUtilities.isEventDispatchThread())
+            try
             {
-                int childCount = rootGroupNode.getChildCount();
-                int[] removedIndexs = new int[childCount];
-                Object[] removedNodes = new Object[childCount];
-                for (int i = 0; i < childCount; i ++)
+                SwingUtilities.invokeAndWait(new Runnable()
                 {
-                    removedIndexs[i] = i;
-                    removedNodes[i] = rootGroupNode.getChildAt(i);
-                }
-                rootGroupNode.clear();
-                nodesWereRemoved(rootGroupNode, removedIndexs, removedNodes);
+                    public void run()
+                    {
+                        clear();
+                    }
+                });
             }
-        });
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+            catch (InvocationTargetException e)
+            {
+                e.printStackTrace();
+            }
+
+        // The following code is always invoked in the swing thread.
+        int childCount = rootGroupNode.getChildCount();
+        int[] removedIndexs = new int[childCount];
+        Object[] removedNodes = new Object[childCount];
+        for (int i = 0; i < childCount; i ++)
+        {
+            removedIndexs[i] = i;
+            removedNodes[i] = rootGroupNode.getChildAt(i);
+        }
+
+        rootGroupNode.clear();
+        nodesWereRemoved(rootGroupNode, removedIndexs, removedNodes);
     }
 
     /**

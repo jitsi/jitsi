@@ -114,10 +114,9 @@ public class TreeContactList
     private static final Collection<ExternalContactSource> contactSources
         = new LinkedList<ExternalContactSource>();
 
-    /**
-     * The filter query used to track advanced source filtering.
-     */
-    FilterQuery filterQuery;
+    private FilterQuery currentFilterQuery;
+
+    private FilterThread filterThread;
 
     /**
      * Creates the <tt>TreeContactList</tt>.
@@ -147,8 +146,6 @@ public class TreeContactList
         this.initKeyActions();
 
         this.initContactSources();
-
-        MetaContactListSource.setMetaContactQueryListener(this);
     }
 
     /**
@@ -532,7 +529,9 @@ public class TreeContactList
         if((contactSource instanceof ExtendedContactSourceService)
             || currentFilter.isMatching(uiContact))
         {
-            addContact(uiContact, sourceUI.getUIGroup(), false);
+            addContact(event.getQuerySource(),
+                uiContact,
+                sourceUI.getUIGroup(), false);
         }
         else
             uiContact = null;
@@ -541,14 +540,12 @@ public class TreeContactList
     /**
      * Indicates that a <tt>MetaContact</tt> has been received for a search in
      * the <tt>MetaContactListService</tt>.
-     * @param metaContact the received <tt>MetaContact</tt>
+     * @param event the received <tt>MetaContactQueryEvent</tt>
      */
-    public void metaContactReceived(MetaContact metaContact)
+    public void metaContactReceived(MetaContactQueryEvent event)
     {
+        MetaContact metaContact = event.getMetaContact();
         MetaContactGroup parentGroup = metaContact.getParentMetaContactGroup();
-
-        if (filterQuery != null)
-            filterQuery.setSucceeded(true);
 
         UIGroup uiGroup = null;
         if (!MetaContactListSource.isRootGroup(parentGroup))
@@ -561,21 +558,22 @@ public class TreeContactList
                     .createUIGroup(parentGroup);
         }
 
-        GuiActivator.getContactList().addContact(
-            MetaContactListSource.createUIContact(metaContact),
-            uiGroup,
-            true);
+        addContact( event.getQuerySource(),
+                    MetaContactListSource.createUIContact(metaContact),
+                    uiGroup,
+                    true);
     }
 
     /**
      * Indicates that a <tt>MetaGroup</tt> has been received from a search in
      * the <tt>MetaContactListService</tt>.
-     * @param metaGroup the <tt>MetaGroup</tt> that has been received
+     * @param event the <tt>MetaContactGroupQueryEvent</tt> that has been
+     * received
      */
-    public void metaGroupReceived(MetaContactGroup metaGroup)
+    public void metaGroupReceived(MetaGroupQueryEvent event)
     {
         GuiActivator.getContactList().addGroup(
-            MetaContactListSource.createUIGroup(metaGroup), true);
+            MetaContactListSource.createUIGroup(event.getMetaGroup()), true);
     }
 
     /**
@@ -590,7 +588,21 @@ public class TreeContactList
         {
             //TODO: Show the error to the user??
         }
-        searchFilter.removeCurrentQuery(event.getQuerySource());
+        event.getQuerySource().removeContactQueryListener(this);
+    }
+
+    /**
+     * Indicates that the status of a query has changed.
+     * @param event the <tt>ContactQueryStatusEvent</tt> that notified us
+     */
+    public void metaContactQueryStatusChanged(MetaContactQueryStatusEvent event)
+    {
+        int eventType = event.getEventType();
+
+        if (eventType == ContactQueryStatusEvent.QUERY_ERROR)
+        {
+            //TODO: Show the error to the user??
+        }
         event.getQuerySource().removeContactQueryListener(this);
     }
 
@@ -718,7 +730,62 @@ public class TreeContactList
 
         if ((!currentFilter.equals(presenceFilter)
             || !groupNode.isCollapsed()))
-                this.expandGroup(groupNode);
+            this.expandGroup(groupNode);
+    }
+
+    /**
+     * Adds the given <tt>contact</tt> to this list.
+     * @param query the <tt>MetaContactQuery</tt> that adds the given contact
+     * @param contact the <tt>UIContact</tt> to add
+     * @param group the <tt>UIGroup</tt> to add to
+     * @param isSorted indicates if the contact should be sorted regarding to
+     * the <tt>GroupNode</tt> policy
+     */
+    private void addContact(final MetaContactQuery query,
+                            final UIContact contact,
+                            final UIGroup group,
+                            final boolean isSorted)
+    {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            LowPriorityEventQueue.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    if (query != null && !query.isCanceled())
+                        addContact(contact, group, isSorted);
+                }
+            });
+            return;
+        }
+    }
+
+    /**
+     * Adds the given <tt>contact</tt> to this list.
+     * @param query the <tt>ContactQuery</tt> that adds the given contact
+     * @param contact the <tt>UIContact</tt> to add
+     * @param group the <tt>UIGroup</tt> to add to
+     * @param isSorted indicates if the contact should be sorted regarding to
+     * the <tt>GroupNode</tt> policy
+     */
+    private void addContact( final ContactQuery query,
+                            final UIContact contact,
+                            final UIGroup group,
+                            final boolean isSorted)
+    {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            LowPriorityEventQueue.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    if (query != null
+                        && query.getStatus() != ContactQuery.QUERY_CANCELED)
+                        addContact(contact, group, isSorted);
+                }
+            });
+            return;
+        }
     }
 
     /**
@@ -871,22 +938,13 @@ public class TreeContactList
     }
 
     /**
-     * Stops the current filtering if there's one active.
-     */
-    public void stopFiltering()
-    {
-        if (currentFilter != null)
-            currentFilter.stopFilter();
-
-        if (filterQuery != null)
-            filterQuery.cancel();
-    }
-
-    /**
      * Applies the default filter.
+     * @return the filter query that keeps track of the filtering results
      */
-    public void applyDefaultFilter()
+    public FilterQuery applyDefaultFilter()
     {
+        FilterQuery filterQuery = null;
+
         final MainFrame mainFrame = GuiActivator.getUIService().getMainFrame();
         String currentSearchText = mainFrame.getCurrentSearchText();
 
@@ -908,94 +966,88 @@ public class TreeContactList
         }
         else
         {
-            treeModel.clear();
-            applyFilter(defaultFilter, null);
+            filterQuery = applyFilter(defaultFilter);
         }
+
+        return filterQuery;
     }
 
     /**
      * Applies the given <tt>filter</tt>.
      * @param filter the <tt>ContactListFilter</tt> to apply.
+     * @return the filter query
      */
-    public void applyFilter(ContactListFilter filter)
+    public FilterQuery applyFilter(ContactListFilter filter)
     {
-        treeModel.clear();
-        applyFilter(filter, null);
-    }
+        if (currentFilterQuery != null && !currentFilterQuery.isCanceled())
+            currentFilterQuery.cancel();
 
-    /**
-     * Applies the given <tt>ContactListSourceFilter</tt>.
-     * @param filter the <tt>ContactListSourceFilter</tt> to apply
-     * @return the <tt>FilterQuery</tt> through which the filter could be
-     * tracked
-     */
-    public FilterQuery applyFilter(final ContactListSourceFilter filter)
-    {
-        filterQuery = new FilterQuery();
+        currentFilterQuery = new FilterQuery();
 
-        treeModel.clear();
-
-        // If the filter has a default contact source, we apply it first.
-        if (filter.hasDefaultSource())
-            applyFilter(filter, null);
-
-        Iterator<ExternalContactSource> filterSources
-             = filter.getContactSources().iterator();
-
-        // Then we apply the filter on all its contact sources.
-        while (filterSources.hasNext())
+        if (filterThread == null)
         {
-            final ExternalContactSource filterSource = filterSources.next();
-
-            if (filterQuery.isCanceled())
-                return filterQuery;
-
-            applyFilter(filter, filterSource);
-        }
-        return filterQuery;
-    }
-
-    /**
-     * Applies the given <tt>filter</tt> and changes the content of the
-     * contact list according to it.
-     * @param filter the new filter to set
-     * @param contactSource the <tt>ExternalContactSource</tt> to apply the
-     * filter to
-     */
-    private void applyFilter(   final ContactListFilter filter,
-                                final ExternalContactSource contactSource)
-    {
-     // If we're in the event dispatch thread we move to another thread
-        // for the filtering.
-        if (SwingUtilities.isEventDispatchThread())
-        {
-            new Thread()
-            {
-                public void run()
-                {
-                    applyFilter(filter, contactSource);
-                }
-            }.start();
-            return;
-        }
-
-        if (currentFilter == null || !currentFilter.equals(filter))
-            this.currentFilter = filter;
-
-        // If we have a specific contact source and we're dealing with
-        // a ContactListSourceFilter then we would apply the filter only
-        // to this source.
-        if (contactSource != null
-            && filter instanceof ContactListSourceFilter)
-        {
-            ContactQuery contactQuery
-                = ((ContactListSourceFilter) currentFilter)
-                    .applyFilter(contactSource);
-
-            filterQuery.addContactQuery(contactQuery);
+            filterThread = new FilterThread();
+            filterThread.setFilter(filter);
+            filterThread.start();
         }
         else
-            currentFilter.applyFilter();
+        {
+            filterThread.setFilter(filter);
+
+            synchronized (filterThread)
+            {
+                filterThread.notify();
+            }
+        }
+
+        return currentFilterQuery;
+    }
+
+    /**
+     * The <tt>SearchThread</tt> is meant to launch the search in a separate
+     * thread.
+     */
+    private class FilterThread extends Thread
+    {
+        private ContactListFilter filter;
+
+        public void setFilter(ContactListFilter filter)
+        {
+            this.filter = filter;
+        }
+
+        public void run()
+        {
+            while (true)
+            {
+                FilterQuery filterQuery = currentFilterQuery;
+
+                treeModel.clear();
+
+                if (!filterQuery.isCanceled())
+                {
+                    if (currentFilter == null || !currentFilter.equals(filter))
+                        currentFilter = filter;
+
+                    currentFilter.applyFilter(filterQuery);
+                }
+
+                synchronized (this)
+                {
+                    try
+                    {
+                        // If in the mean time someone has changed the filter
+                        // we don't wait here.
+                        if (filterQuery == currentFilterQuery)
+                            this.wait();
+                    }
+                    catch (InterruptedException e)
+                    {
+                        logger.debug("Search thread was interrupted.", e);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -1005,6 +1057,13 @@ public class TreeContactList
     public void setDefaultFilter(ContactListFilter filter)
     {
         this.defaultFilter = filter;
+
+        if (defaultFilter.equals(presenceFilter))
+            TreeContactList.searchFilter
+                .setSearchSourceType(SearchFilter.DEFAULT_SOURCE);
+        else if (defaultFilter.equals(historyFilter))
+            TreeContactList.searchFilter
+                .setSearchSourceType(SearchFilter.HISTORY_SOURCE);
     }
 
     /**
@@ -1014,6 +1073,16 @@ public class TreeContactList
     public ContactListFilter getCurrentFilter()
     {
         return currentFilter;
+    }
+
+    /**
+     * Indicates if this contact list is empty.
+     * @return <tt>true</tt> if this contact list contains no children,
+     * otherwise returns <tt>false</tt>
+     */
+    public boolean isEmpty()
+    {
+        return (treeModel.getRoot().getChildCount() <= 0);
     }
 
     /**
@@ -1107,9 +1176,7 @@ public class TreeContactList
                 });
             }
             else
-            {
                 expandPath(path);
-            }
     }
 
     /**
@@ -1681,8 +1748,7 @@ public class TreeContactList
             if (currentFilter != null && !currentFilter.isMatching(uiContact))
                 removeContact(uiContact);
             else
-                treeModel
-                    .nodeChanged(uiContact.getContactNode());
+                treeModel.nodeChanged(uiContact.getContactNode());
         }
     }
 }

@@ -11,7 +11,6 @@ import java.util.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactsource.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>CallHistoryFilter</tt> is a filter over the history contact sources.
@@ -22,22 +21,12 @@ public class CallHistoryFilter
     implements  ContactListFilter
 {
     /**
-     * This class logger.
-     */
-    private final Logger logger = Logger.getLogger(CallHistoryFilter.class);
-
-    /**
-     * The current <tt>ContactQuery</tt>.
-     */
-    private ContactQuery currentQuery;
-
-    /**
      * Applies this filter and stores the result in the given <tt>treeModel</tt>.
+     * @param filterQuery the <tt>FilterQuery</tt> that tracks the results of
+     * this filtering
      */
-    public void applyFilter()
+    public void applyFilter(FilterQuery filterQuery)
     {
-        logger.debug("Call history filter applied.");
-
         Collection<ExternalContactSource> contactSources
             = TreeContactList.getContactSources();
 
@@ -51,13 +40,16 @@ public class CallHistoryFilter
                 continue;
 
             // We're in a case of call history contact source.
-            currentQuery = sourceService.queryContactSource("");
+            ContactQuery query = sourceService.queryContactSource("");
+            filterQuery.addContactQuery(query);
 
             // Add first available results.
-            this.addMatching(   currentQuery.getQueryResults(),
+            this.addMatching(   query.getQueryResults(),
                                 contactSource);
 
-            currentQuery.addContactQueryListener(GuiActivator.getContactList());
+            // We know that this query should be finished here and we do not
+            // expect any further results from it.
+            filterQuery.removeQuery(query);
         }
     }
 
@@ -110,14 +102,5 @@ public class CallHistoryFilter
                             uiSource.getUIGroup(),
                             false);
         }
-    }
-
-    /**
-     * Stops this filter current queries.
-     */
-    public void stopFilter()
-    {
-        if (currentQuery != null)
-            currentQuery.cancel();
     }
 }

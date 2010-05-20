@@ -119,17 +119,9 @@ public class ToolsMenu
 
             TreeContactList.presenceFilter.setShowOffline(!isShowOffline);
 
-            new Thread()
-            {
-                public void run()
-                {
-                    GuiActivator.getContactList()
-                        .setDefaultFilter(TreeContactList.presenceFilter);
-                    GuiActivator.getContactList().applyDefaultFilter();
-                }
-            }.start();
-
-            ConfigurationManager.setShowOffline(!isShowOffline);
+            GuiActivator.getContactList()
+                .setDefaultFilter(TreeContactList.presenceFilter);
+            GuiActivator.getContactList().applyDefaultFilter();
 
             String itemTextKey = !isShowOffline
                     ? "service.gui.HIDE_OFFLINE_CONTACTS"

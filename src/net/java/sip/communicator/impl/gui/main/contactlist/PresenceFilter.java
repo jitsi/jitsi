@@ -13,7 +13,6 @@ import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>PresenceFilter</tt> is used to filter offline contacts from the
@@ -25,41 +24,48 @@ public class PresenceFilter
     implements  ContactListFilter
 {
     /**
-     * This class logger.
-     */
-    private final Logger logger = Logger.getLogger(PresenceFilter.class);
-
-    /**
      * Indicates if this presence filter shows or hides the offline contacts.
      */
     private boolean isShowOffline;
 
     /**
-     * Indicates if there's a presence filtering going on.
+     * The initial result count below which we insert all filter results
+     * directly to the contact list without firing events.
      */
-    private boolean isFiltering = false;
+    private final int INITIAL_CONTACT_COUNT = 30;
 
     /**
      * Creates an instance of <tt>PresenceFilter</tt>.
      */
     public PresenceFilter()
     {
-        this.setShowOffline(ConfigurationManager.isShowOffline());
+        isShowOffline = ConfigurationManager.isShowOffline();
     }
 
     /**
      * Applies this filter. This filter is applied over the
      * <tt>MetaContactListService</tt>.
+     * @param filterQuery the query which keeps track of the filtering results
      */
-    public void applyFilter()
+    public void applyFilter(FilterQuery filterQuery)
     {
-        logger.debug("Presence filter applied.");
+        // Create the query that will track filtering.
+        MetaContactQuery query = new MetaContactQuery();
 
-        isFiltering = true;
+        // Add this query to the filterQuery.
+        filterQuery.addContactQuery(query);
 
-        addMatching(GuiActivator.getContactListService().getRoot());
+        query.addContactQueryListener(GuiActivator.getContactList());
 
-        isFiltering = false;
+        int resultCount = 0;
+        addMatching(GuiActivator.getContactListService().getRoot(),
+                    query,
+                    resultCount);
+
+        if (!query.isCanceled())
+            query.fireQueryEvent(MetaContactQueryStatusEvent.QUERY_COMPLETED);
+        else
+            query.fireQueryEvent(MetaContactQueryStatusEvent.QUERY_CANCELED);
     }
 
     /**
@@ -99,6 +105,8 @@ public class PresenceFilter
     public void setShowOffline(boolean isShowOffline)
     {
         this.isShowOffline = isShowOffline;
+
+        ConfigurationManager.setShowOffline(isShowOffline);
     }
 
     /**
@@ -163,40 +171,65 @@ public class PresenceFilter
      * matching the current filter and not contained in the contact list.
      * @param metaGroup the <tt>MetaContactGroup</tt>, which matching contacts
      * to add
+     * @param query the <tt>MetaContactQuery</tt> that notifies interested
+     * listeners of the results of this matching
+     * @param resultCount the initial result count we would insert directly to
+     * the contact list without firing events
      */
-    private void addMatching(MetaContactGroup metaGroup)
+    private void addMatching(   MetaContactGroup metaGroup,
+                                MetaContactQuery query,
+                                int resultCount)
     {
         Iterator<MetaContact> childContacts = metaGroup.getChildContacts();
 
-        while(childContacts.hasNext() && isFiltering)
+        while(childContacts.hasNext() && !query.isCanceled())
         {
             MetaContact metaContact = childContacts.next();
 
             if(isMatching(metaContact))
             {
-                MetaContactListSource.fireQueryEvent(metaContact);
+                resultCount++;
+                if (resultCount <= INITIAL_CONTACT_COUNT)
+                {
+                    UIGroup uiGroup = null;
+                    if (!MetaContactListSource.isRootGroup(metaGroup))
+                    {
+                        uiGroup = MetaContactListSource
+                            .getUIGroup(metaGroup);
+
+                        if (uiGroup == null)
+                            uiGroup = MetaContactListSource
+                                .createUIGroup(metaGroup);
+                    }
+
+                    GuiActivator.getContactList().addContact(
+                            MetaContactListSource.createUIContact(metaContact),
+                            uiGroup,
+                            true);
+
+                    query.setInitialResultCount(resultCount);
+                }
+                else
+                    query.fireQueryEvent(metaContact);
             }
         }
 
+        // If in the meantime the filtering has been stopped we return here.
+        if (query.isCanceled())
+            return;
+
         Iterator<MetaContactGroup> subgroups = metaGroup.getSubgroups();
-        while(subgroups.hasNext() && isFiltering)
+        while(subgroups.hasNext() && !query.isCanceled())
         {
             MetaContactGroup subgroup = subgroups.next();
 
             if (subgroup.countChildContacts() == 0
                     && subgroup.countSubgroups() == 0
                     && isMatching(subgroup))
-                MetaContactListSource.fireQueryEvent(subgroup);
+                GuiActivator.getContactList().addGroup(
+                    MetaContactListSource.createUIGroup(subgroup), true);
             else
-                addMatching(subgroup);
+                addMatching(subgroup, query, resultCount);
         }
-    }
-
-    /**
-     * Stops this filter current queries.
-     */
-    public void stopFilter()
-    {
-        isFiltering = false;
     }
 }

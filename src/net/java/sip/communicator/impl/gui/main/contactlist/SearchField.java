@@ -22,8 +22,9 @@ public class SearchField
     implements  TextFieldChangeListener,
                 FilterQueryListener
 {
-    private final Logger logger = Logger.getLogger(SearchField.class);
-
+    /**
+     * The main application window.
+     */
     private final MainFrame mainFrame;
 
     /**
@@ -31,8 +32,6 @@ public class SearchField
      * we'll find matching contacts.
      */
     private boolean lastHasMatching = true;
-
-    private SearchThread searchThread = null;
 
     /**
      * Creates the <tt>SearchField</tt>.
@@ -81,7 +80,7 @@ public class SearchField
         if (filterString == null || filterString.length() <= 0)
             return;
 
-        scheduleUpdate();
+        updateContactListView();
     }
 
     /**
@@ -89,7 +88,7 @@ public class SearchField
      */
     public void textRemoved()
     {
-        scheduleUpdate();
+        updateContactListView();
     }
 
     /**
@@ -101,92 +100,39 @@ public class SearchField
     /**
      * Schedules an update if necessary.
      */
-    private void scheduleUpdate()
+    private void updateContactListView()
     {
-        GuiActivator.getContactList().stopFiltering();
+        String filterString = getText();
 
-        if (searchThread == null)
-        {
-            searchThread = new SearchThread();
-            searchThread.start();
-        }
-        else
-            synchronized (searchThread)
-            {
-                searchThread.notify();
-            }
-    }
-
-    /**
-     * The <tt>SearchThread</tt> is meant to launch the search in a separate
-     * thread.
-     */
-    private class SearchThread extends Thread
-    {
-        public void run()
-        {
-            while (true)
-            {
-                String filterString = getText();
-
-                if (filterString != null && filterString.length() > 0)
-                {
-                    TreeContactList.searchFilter
-                        .setFilterString(filterString);
-                }
-
-                updateContactListView(filterString);
-
-                synchronized (this)
-                {
-                    try
-                    {
-                        if (filterString == getText() //both are null or equal
-                            || (filterString != null
-                                && filterString.equals(getText())))
-                        {
-                            //filter still has the same value as the one
-                            //we did a search for, so we can wait for a
-                            //while
-                            this.wait();
-
-                            filterString = getText();
-                        }
-                    }
-                    catch (InterruptedException e)
-                    {
-                        logger.debug("Search thread was interrupted.", e);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Updates the current contact list view to match the given
-     * <tt>filterString</tt>. If the <tt>filterString</tt> is null or
-     * empty we reset the presence filter.
-     * @param filterString the current filter string entered in
-     * this search field
-     */
-    public void updateContactListView(String filterString)
-    {
-        TreeContactList contactList = GuiActivator.getContactList();
+        FilterQuery filterQuery = null;
 
         if (filterString != null && filterString.length() > 0)
         {
-            FilterQuery filterQuery
-                = contactList.applyFilter(TreeContactList.searchFilter);
+            TreeContactList.searchFilter
+                .setFilterString(filterString);
 
-            if (filterQuery != null)
-                filterQuery.setQueryListener(this);
+            filterQuery = GuiActivator.getContactList()
+                .applyFilter(TreeContactList.searchFilter);
         }
         else
         {
-            contactList.applyDefaultFilter();
-
-            enableUnknownContactView(false);
+            filterQuery = GuiActivator.getContactList().applyDefaultFilter();
         }
+
+        if (filterQuery != null && !filterQuery.isCanceled())
+        {
+            // If we already have a result here we update the interface.
+            if (filterQuery.isSucceeded())
+                enableUnknownContactView(false);
+            else
+                // Otherwise we will listen for events for changes in status
+                // of this query.
+                filterQuery.setQueryListener(this);
+        }
+        else
+            // If the query is null or is canceled, we would simply check the
+            // contact list content.
+            enableUnknownContactView(GuiActivator.getContactList().isEmpty());
     }
 
     /**

@@ -97,15 +97,7 @@ public class ContactListPane
         GuiActivator.setContactList(contactList);
 
         // By default we set the current filter to be the presence filter.
-        new Thread()
-        {
-            public void run()
-            {
-                TreeContactList.presenceFilter
-                    .setShowOffline(ConfigurationManager.isShowOffline());
-                contactList.applyFilter(TreeContactList.presenceFilter);
-            }
-        }.start();
+        contactList.applyFilter(TreeContactList.presenceFilter);
 
         TransparentPanel transparentPanel
             = new TransparentPanel(new BorderLayout());

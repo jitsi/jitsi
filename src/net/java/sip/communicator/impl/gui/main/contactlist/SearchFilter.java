@@ -12,7 +12,6 @@ import java.util.regex.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactsource.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>SearchFilter</tt> is a <tt>ContactListFilter</tt> that filters the
@@ -21,13 +20,8 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class SearchFilter
-    implements  ContactListSourceFilter
+    implements ContactListFilter
 {
-    /**
-     * This class logger.
-     */
-    private final Logger logger = Logger.getLogger(SearchFilter.class);
-
     /**
      * The default contact source search type.
      */
@@ -59,16 +53,10 @@ public class SearchFilter
     private Collection<ExternalContactSource> contactSources;
 
     /**
-     * The list of currently running queries.
-     */
-    private Collection<ContactQuery> currentQueries
-        = new LinkedList<ContactQuery>();
-
-    /**
      * The type of the search source. One of the above defined DEFAUT_SOURCE or
      * HISTORY_SOURCE.
      */
-    private int searchSourceType;
+    private int searchSourceType = DEFAULT_SOURCE;
 
     /**
      * Creates an instance of <tt>SearchFilter</tt>.
@@ -80,14 +68,40 @@ public class SearchFilter
 
     /**
      * Applies this filter to the default contact source.
+     * @param filterQuery the query that tracks this filter.
      */
-    public void applyFilter()
+    public void applyFilter(FilterQuery filterQuery)
     {
-        logger.debug("Search filter applied on default source");
+        // If the filter has a default contact source, we apply it first.
         if (searchSourceType == DEFAULT_SOURCE)
         {
+            MetaContactQuery defaultQuery
+                = mclSource.queryMetaContactSource(filterPattern);
+
+            defaultQuery.addContactQueryListener(GuiActivator.getContactList());
+
             // First add the MetaContactListSource
-            mclSource.filter(filterPattern);
+            filterQuery.addContactQuery(defaultQuery);
+        }
+
+        // If we have stopped filtering in the mean time we return here.
+        if (filterQuery.isCanceled())
+            return;
+
+        Iterator<ExternalContactSource> filterSources
+             = getContactSources().iterator();
+
+        // Then we apply the filter on all its contact sources.
+        while (filterSources.hasNext())
+        {
+            final ExternalContactSource filterSource = filterSources.next();
+
+            // If we have stopped filtering in the mean time we return here.
+            if (filterQuery.isCanceled())
+                return;
+
+            filterQuery.addContactQuery(
+                applyFilter(filterSource));
         }
     }
 
@@ -100,9 +114,6 @@ public class SearchFilter
      */
     public ContactQuery applyFilter(ExternalContactSource contactSource)
     {
-        logger.debug("Search filter applied on source: "
-                + contactSource.getContactSourceService());
-
         ContactSourceService sourceService
             = contactSource.getContactSourceService();
 
@@ -117,7 +128,6 @@ public class SearchFilter
         // Add first available results.
         this.addMatching(contactQuery.getQueryResults());
 
-        currentQueries.add(contactQuery);
         contactQuery.addContactQueryListener(GuiActivator.getContactList());
 
         return contactQuery;
@@ -172,26 +182,6 @@ public class SearchFilter
             filterString, Pattern.MULTILINE
                             | Pattern.CASE_INSENSITIVE
                             | Pattern.UNICODE_CASE);
-    }
-
-    /**
-     * Stops all currently running queries.
-     */
-    public void stopFilter()
-    {
-        mclSource.stopFiltering();
-        Iterator<ContactQuery> queriesIter = currentQueries.iterator();
-        while (queriesIter.hasNext())
-            queriesIter.next().cancel();
-    }
-
-    /**
-     * Removes the given query from the list of currently processed queries.
-     * @param contactQuery the <tt>ContactQuery</tt> to remove
-     */
-    public void removeCurrentQuery(ContactQuery contactQuery)
-    {
-        currentQueries.remove(contactQuery);
     }
 
     /**

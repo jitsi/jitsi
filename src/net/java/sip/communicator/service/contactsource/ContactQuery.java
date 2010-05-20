@@ -19,6 +19,26 @@ import java.util.*;
 public interface ContactQuery
 {
     /**
+     * Indicates that this query has been completed.
+     */
+    public static final int QUERY_COMPLETED = 0;
+
+    /**
+     * Indicates that this query has been canceled.
+     */
+    public static final int QUERY_CANCELED = 1;
+
+    /**
+     * Indicates that this query has been stopped because of an error.
+     */
+    public static final int QUERY_ERROR = 2;
+
+    /**
+     * Indicates that this query is in progress.
+     */
+    public static final int QUERY_IN_PROGRESS = 3;
+
+    /**
      * Returns the <tt>ContactSourceService</tt>, where this query was first
      * initiated.
      * @return the <tt>ContactSourceService</tt>, where this query was first
@@ -36,6 +56,13 @@ public interface ContactQuery
      * Cancels this query.
      */
     public void cancel();
+
+    /**
+     * Returns the status of this query. One of the static constants QUERY_XXXX
+     * defined in this class.
+     * @return the status of this query
+     */
+    public int getStatus();
 
     /**
      * Adds the given <tt>ContactQueryListener</tt> to the list of registered

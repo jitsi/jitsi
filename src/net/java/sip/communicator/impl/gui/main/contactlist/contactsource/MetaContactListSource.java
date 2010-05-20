@@ -40,15 +40,10 @@ public class MetaContactListSource
         = MetaUIGroup.class.getName() + ".uiGroupDescriptor";
 
     /**
-     * Indicates if we should be filtering.
+     * The initial result count below which we insert all filter results
+     * directly to the contact list without firing events.
      */
-    private boolean isFiltering = false;
-
-    /**
-     * The <tt>MetaContactQueryListener</tt> listens for <tt>MetaContact</tt>s
-     * and <tt>MetaGroup</tt>s received as a result of a filtering.
-     */
-    private static MetaContactQueryListener queryListener;
+    private final int INITIAL_CONTACT_COUNT = 30;
 
     /**
      * Returns the <tt>UIContact</tt> corresponding to the given
@@ -138,26 +133,37 @@ public class MetaContactListSource
     }
 
     /**
-     * Stops the meta contact list filtering.
-     */
-    public void stopFiltering()
-    {
-        isFiltering = false;
-    }
-
-    /**
      * Filters the <tt>MetaContactListService</tt> to match the given
      * <tt>filterPattern</tt> and stores the result in the given
      * <tt>treeModel</tt>.
      * @param filterPattern the pattern to filter through
+     * @return the created <tt>MetaContactQuery</tt> corresponding to the
+     * query this method does
      */
-    public void filter(Pattern filterPattern)
+    public MetaContactQuery queryMetaContactSource(final Pattern filterPattern)
     {
-        isFiltering = true;
+        final MetaContactQuery query = new MetaContactQuery();
 
-        filter(filterPattern, GuiActivator.getContactListService().getRoot());
+        new Thread()
+        {
+            public void run()
+            {
+                int resultCount = 0;
+                queryMetaContactSource( filterPattern,
+                        GuiActivator.getContactListService().getRoot(),
+                        query,
+                        resultCount);
 
-        isFiltering = false;
+                if (!query.isCanceled())
+                    query.fireQueryEvent(
+                        MetaContactQueryStatusEvent.QUERY_COMPLETED);
+                else
+                    query.fireQueryEvent(
+                        MetaContactQueryStatusEvent.QUERY_CANCELED);
+            }
+        }.start();
+
+        return query;
     }
 
     /**
@@ -166,28 +172,60 @@ public class MetaContactListSource
      * <tt>treeModel</tt>.
      * @param filterPattern the pattern to filter through
      * @param parentGroup the <tt>MetaContactGroup</tt> to filter
+     * @param query the object that tracks the query
+     * @param resultCount the initial result count we would insert directly to
+     * the contact list without firing events
      */
-    private void filter(Pattern filterPattern,
-                        MetaContactGroup parentGroup)
+    private void queryMetaContactSource(Pattern filterPattern,
+                                        MetaContactGroup parentGroup,
+                                        MetaContactQuery query,
+                                        int resultCount)
     {
         Iterator<MetaContact> childContacts = parentGroup.getChildContacts();
 
-        while (childContacts.hasNext() && isFiltering)
+        while (childContacts.hasNext() && !query.isCanceled())
         {
             MetaContact metaContact = childContacts.next();
 
             if (isMatching(filterPattern, metaContact))
             {
-                fireQueryEvent(metaContact);
+                resultCount++;
+
+                if (resultCount <= INITIAL_CONTACT_COUNT)
+                {
+                    UIGroup uiGroup = null;
+                    if (!MetaContactListSource.isRootGroup(parentGroup))
+                    {
+                        uiGroup = MetaContactListSource
+                            .getUIGroup(parentGroup);
+
+                        if (uiGroup == null)
+                            uiGroup = MetaContactListSource
+                                .createUIGroup(parentGroup);
+                    }
+
+                    GuiActivator.getContactList().addContact(
+                            MetaContactListSource.createUIContact(metaContact),
+                            uiGroup,
+                            true);
+
+                    query.setInitialResultCount(resultCount);
+                }
+                else
+                    query.fireQueryEvent(metaContact);
             }
         }
 
+        // If in the meantime the query is canceled we return here.
+        if(query.isCanceled())
+            return;
+
         Iterator<MetaContactGroup> subgroups = parentGroup.getSubgroups();
-        while (subgroups.hasNext() && isFiltering)
+        while (subgroups.hasNext() && !query.isCanceled())
         {
             MetaContactGroup subgroup = subgroups.next();
 
-            filter(filterPattern, subgroup);
+            queryMetaContactSource(filterPattern, subgroup, query, resultCount);
         }
     }
 
@@ -250,46 +288,5 @@ public class MetaContactListSource
                 return true;
         }
         return false;
-    }
-
-    /**
-     * Sets the given <tt>MetaContactQueryListener</tt> to listen for query
-     * events coming from <tt>MetaContactListService</tt> filtering.
-     * @param l the <tt>MetaContactQueryListener</tt> to set
-     */
-    public static void setMetaContactQueryListener(MetaContactQueryListener l)
-    {
-        queryListener = l;
-    }
-
-    /**
-     * Returns the currently registered <tt>MetaContactQueryListener</tt>.
-     * @return the currently registered <tt>MetaContactQueryListener</tt>
-     */
-    public static MetaContactQueryListener getMetaContactQueryListener()
-    {
-        return queryListener;
-    }
-
-    /**
-     * Notifies the <tt>MetaContactQueryListener</tt> that a new
-     * <tt>MetaContact</tt> has been received as a result of a search.
-     * @param metaContact the received <tt>MetaContact</tt>
-     */
-    public static void fireQueryEvent(MetaContact metaContact)
-    {
-        if (queryListener != null)
-            queryListener.metaContactReceived(metaContact);
-    }
-
-    /**
-     * Notifies the <tt>MetaContactQueryListener</tt> that a new
-     * <tt>MetaGroup</tt> has been received as a result of a search.
-     * @param metaGroup the received <tt>MetaGroup</tt>
-     */
-    public static void fireQueryEvent(MetaContactGroup metaGroup)
-    {
-        if (queryListener != null)
-            queryListener.metaGroupReceived(metaGroup);
     }
 }

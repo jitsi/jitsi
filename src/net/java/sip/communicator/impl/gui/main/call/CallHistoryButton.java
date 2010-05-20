@@ -95,8 +95,6 @@ public class CallHistoryButton
             {
                 if (isHistoryVisible && !isMissedCallView)
                 {
-                    TreeContactList.searchFilter
-                        .setSearchSourceType(SearchFilter.DEFAULT_SOURCE);
                     GuiActivator.getContactList()
                         .setDefaultFilter(TreeContactList.presenceFilter);
                     GuiActivator.getContactList().applyDefaultFilter();
@@ -105,8 +103,6 @@ public class CallHistoryButton
                 }
                 else
                 {
-                    TreeContactList.searchFilter
-                        .setSearchSourceType(SearchFilter.HISTORY_SOURCE);
                     GuiActivator.getContactList()
                         .setDefaultFilter(TreeContactList.historyFilter);
                     GuiActivator.getContactList().applyDefaultFilter();

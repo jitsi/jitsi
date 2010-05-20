@@ -72,7 +72,10 @@ public class GroupNode
 
         add(contactNode);
 
-        fireNodeInserted(getIndex(contactNode));
+        int contactIndex = getIndex(contactNode);
+
+        if (contactIndex > -1)
+            fireNodeInserted(contactIndex);
 
         return contactNode;
     }
@@ -94,7 +97,10 @@ public class GroupNode
         // TODO: Optimize!
         Collections.sort(children, nodeComparator);
 
-        fireNodeInserted(getIndex(contactNode));
+        int contactIndex = getIndex(contactNode);
+
+        if (contactIndex > -1)
+            fireNodeInserted(contactIndex);
 
         return contactNode;
     }
@@ -136,7 +142,10 @@ public class GroupNode
 
         add(groupNode);
 
-        fireNodeInserted(getIndex(groupNode));
+        int groupIndex = getIndex(groupNode);
+
+        if (groupIndex > -1)
+            fireNodeInserted(groupIndex);
 
         return groupNode;
     }
@@ -182,7 +191,10 @@ public class GroupNode
         // TODO: Optimize!
         Collections.sort(children, nodeComparator);
 
-        fireNodeInserted(getIndex(groupNode));
+        int contactIndex = getIndex(groupNode);
+
+        if (contactIndex > -1)
+            fireNodeInserted(contactIndex);
 
         return groupNode;
     }

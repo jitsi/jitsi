@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactsource.*;
 
 /**
@@ -16,7 +18,8 @@ import net.java.sip.communicator.service.contactsource.*;
  * @author Yana Stamcheva
  */
 public class FilterQuery
-    implements  ContactQueryListener
+    implements  ContactQueryListener,
+                MetaContactQueryListener
 {
     /**
      * A listener, which is notified when this query finishes.
@@ -37,17 +40,23 @@ public class FilterQuery
     /**
      * The list of filter queries.
      */
-    private Collection<ContactQuery> filterQueries
-        = new LinkedList<ContactQuery>();
+    private Collection<Object> filterQueries = new Vector<Object>();
+
+    private int runningQueries = 0;
 
     /**
      * Adds the given <tt>contactQuery</tt> to the list of filterQueries.
      * @param contactQuery the <tt>ContactQuery</tt> to add
      */
-    public void addContactQuery(ContactQuery contactQuery)
+    public void addContactQuery(Object contactQuery)
     {
         filterQueries.add(contactQuery);
-        contactQuery.addContactQueryListener(this);
+        runningQueries++;
+
+        if (contactQuery instanceof ContactQuery)
+            ((ContactQuery) contactQuery).addContactQueryListener(this);
+        else if (contactQuery instanceof MetaContactQuery)
+            ((MetaContactQuery) contactQuery).addContactQueryListener(this);
     }
 
     /**
@@ -84,8 +93,31 @@ public class FilterQuery
     public void cancel()
     {
         isCanceled = true;
-        filterQueries.clear();
-        fireFilterQueryEvent();
+
+        Iterator<Object> queriesIter = filterQueries.iterator();
+        while (queriesIter.hasNext())
+        {
+            Object query = queriesIter.next();
+            if (query instanceof ContactQuery)
+            {
+                ContactQuery contactQuery = ((ContactQuery) query);
+                contactQuery.cancel();
+
+                contactQuery.removeContactQueryListener(
+                    GuiActivator.getContactList());
+                if (!isSucceeded && contactQuery.getQueryResults().size() > 0)
+                    isSucceeded = true;
+            }
+            else if (query instanceof MetaContactQuery)
+            {
+                MetaContactQuery metaContactQuery = ((MetaContactQuery) query);
+                metaContactQuery.cancel();
+                metaContactQuery.removeContactQueryListener(
+                    GuiActivator.getContactList());
+                if (!isSucceeded && metaContactQuery.getResultCount() > 0)
+                    isSucceeded = true;
+            }
+        }
     }
 
     /**
@@ -121,22 +153,67 @@ public class FilterQuery
         ContactQuery query = event.getQuerySource();
 
         // Check if this query is in our filter queries list.
-        if (!filterQueries.contains(query))
+        if (!filterQueries.contains(query)
+            || event.getEventType() == ContactQuery.QUERY_IN_PROGRESS)
             return;
 
+        removeQuery(query);
+    }
+
+    /**
+     * Removes the given query from this filter query, updates the related data
+     * and notifies interested parties if this was the last query to process.
+     * @param query the <tt>ContactQuery</tt> to remove.
+     */
+    public void removeQuery(ContactQuery query)
+    {
         // First set the isSucceeded property.
         if (!isSucceeded() && !query.getQueryResults().isEmpty())
             setSucceeded(true);
 
         // Then remove the wait result from the filterQuery.
-        filterQueries.remove(query);
+        runningQueries--;
         query.removeContactQueryListener(this);
 
         // If no queries have rest we notify interested listeners that query
         // has finished.
-        if (filterQueries.isEmpty())
+        if (runningQueries == 0)
+            fireFilterQueryEvent();
+    }
+
+    /**
+     * Indicates that a query has changed its status.
+     * @param event the <tt>ContactQueryStatusEvent</tt> that notified us
+     */
+    public void metaContactQueryStatusChanged(MetaContactQueryStatusEvent event)
+    {
+        MetaContactQuery query = event.getQuerySource();
+
+        // Check if this query is in our filter queries list.
+        if (!filterQueries.contains(query))
+            return;
+
+        // First set the isSucceeded property.
+        if (!isSucceeded() && query.getResultCount() > 0)
+            setSucceeded(true);
+
+        // We don't remove the query from our list, because even if the query
+        // has finished its GUI part is scheduled in the Swing thread and we
+        // don't know anything about these events, so if someone calls cancel()
+        // we need to explicitly cancel all contained queries even they are
+        // finished.
+        runningQueries--;
+        query.removeContactQueryListener(this);
+
+        // If no queries have rest we notify interested listeners that query
+        // has finished.
+        if (runningQueries == 0)
             fireFilterQueryEvent();
     }
 
     public void contactReceived(ContactReceivedEvent event) {}
+
+    public void metaContactReceived(MetaContactQueryEvent event) {}
+
+    public void metaGroupReceived(MetaGroupQueryEvent event) {}
 }

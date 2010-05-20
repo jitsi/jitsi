@@ -77,6 +77,12 @@ public class CallHistoryContactSource implements ContactSourceService
         private CallHistoryQuery callHistoryQuery;
 
         /**
+         * Indicates the status of this query. When created this query is in
+         * progress.
+         */
+        private int status = QUERY_IN_PROGRESS;
+
+        /**
          * Creates an instance of <tt>CallHistoryContactQuery</tt> by specifying
          * the list of call records results.
          * @param callRecords the list of call records, which are the result
@@ -86,13 +92,16 @@ public class CallHistoryContactSource implements ContactSourceService
         {
             Iterator<CallRecord> recordsIter = callRecords.iterator();
 
-            while (recordsIter.hasNext())
+            while (recordsIter.hasNext() && status != QUERY_CANCELED)
             {
                 sourceContacts.add(
                     new CallHistorySourceContact(
                         CallHistoryContactSource.this,
                         recordsIter.next()));
             }
+
+            if (status != QUERY_CANCELED)
+                status = QUERY_COMPLETED;
         }
 
         /**
@@ -118,7 +127,8 @@ public class CallHistoryContactSource implements ContactSourceService
                 public void queryStatusChanged(
                     CallHistoryQueryStatusEvent event)
                 {
-                    fireQueryStatusEvent(event.getEventType());
+                    status = event.getEventType();
+                    fireQueryStatusEvent(status);
                 }
             });
         }
@@ -141,8 +151,20 @@ public class CallHistoryContactSource implements ContactSourceService
          */
         public void cancel()
         {
+            status = QUERY_CANCELED;
+
             if (callHistoryQuery != null)
                 callHistoryQuery.cancel();
+        }
+
+        /**
+         * Returns the status of this query. One of the static constants defined
+         * in this class.
+         * @return the status of this query
+         */
+        public int getStatus()
+        {
+            return status;
         }
 
         /**

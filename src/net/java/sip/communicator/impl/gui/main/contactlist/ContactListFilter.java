@@ -34,11 +34,8 @@ public interface ContactListFilter
 
     /**
      * Applies this filter to any interested sources
+     * @param filterQuery the <tt>FilterQuery</tt> that tracks the results of
+     * this filtering
      */
-    public void applyFilter();
-
-    /**
-     * Stops this filter current queries.
-     */
-    public void stopFilter();
+    public void applyFilter(FilterQuery filterQuery);
 }
