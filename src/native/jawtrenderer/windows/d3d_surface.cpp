@@ -13,6 +13,7 @@
  */
 
 #include "d3d_surface.h"
+#include "d3dx9_utils.h"
 
 D3DSurface::D3DSurface(LPDIRECT3DDEVICE9 device, size_t width, size_t height)
 {

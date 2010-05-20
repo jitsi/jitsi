@@ -3,16 +3,16 @@
 # \brief Windows (Visual C++) makefile for jawtrenderer.dll.
 # \author Sebastien Vincent
 
-CC = cl
+CC = cl /O2
 JNI_HEADERS = /I%JAVA_HOME%\include /I%JAVA_HOME%\include\win32
 DX_HEADERS = /I"C:\Program Files\Microsoft DirectX SDK (February 2010)\Include" /I"C:\Program Files (x86)\Microsoft DirectX SDK (February 2010)\Include"
 LIBS = /link /LIBPATH:"C:\Program Files\Microsoft DirectX SDK (February 2010)\lib\x86" /LIBPATH:"C:\Program Files (x86)\Microsoft DirectX SDK (February 2010)\lib\x64" /LIBPATH:%JAVA_HOME%\lib /out:jawtrenderer.dll
 CFLAGS = $(JNI_HEADERS) $(DX_HEADERS)
 
-OBJS = net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer.c JAwtRenderer_Windows.cpp windows\d3d_context.cpp windows\d3d_device.cpp windows\d3d_surface.cpp
+OBJS = net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer.c JAwtRenderer_Windows.cpp windows\d3d_context.cpp windows\d3d_device.cpp windows\d3d_surface.cpp windows\d3dx9_utils.c
 
 jawtrenderer.dll: clean 
-	$(CC) $(CFLAGS) /LD $(OBJS) $(LIBS) d3d9.lib d3dx9.lib user32.lib jawt.lib
+	$(CC) $(CFLAGS) /LD $(OBJS) $(LIBS) d3d9.lib user32.lib jawt.lib
 
 install64: jawtrenderer.dll
 	copy jawtrenderer.dll ..\..\..\lib\native\windows-64\
