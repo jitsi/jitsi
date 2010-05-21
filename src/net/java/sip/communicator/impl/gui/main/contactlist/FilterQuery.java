@@ -40,8 +40,12 @@ public class FilterQuery
     /**
      * The list of filter queries.
      */
-    private Collection<Object> filterQueries = new Vector<Object>();
+    private Collection<Object> filterQueries
+        = Collections.synchronizedCollection(new Vector<Object>());
 
+    /**
+     * Indicates the number of running queries.
+     */
     private int runningQueries = 0;
 
     /**
@@ -50,13 +54,25 @@ public class FilterQuery
      */
     public void addContactQuery(Object contactQuery)
     {
-        filterQueries.add(contactQuery);
-        runningQueries++;
+        synchronized (filterQueries)
+        {
+            // If this filter query has been already canceled and someone wants
+            // to add something to it, we just cancel the incoming query and
+            // return.
+            if (isCanceled)
+            {
+                cancelQuery(contactQuery);
+                return;
+            }
 
-        if (contactQuery instanceof ContactQuery)
-            ((ContactQuery) contactQuery).addContactQueryListener(this);
-        else if (contactQuery instanceof MetaContactQuery)
-            ((MetaContactQuery) contactQuery).addContactQueryListener(this);
+            filterQueries.add(contactQuery);
+            runningQueries++;
+
+            if (contactQuery instanceof ContactQuery)
+                ((ContactQuery) contactQuery).addContactQueryListener(this);
+            else if (contactQuery instanceof MetaContactQuery)
+                ((MetaContactQuery) contactQuery).addContactQueryListener(this);
+        }
     }
 
     /**
@@ -84,7 +100,10 @@ public class FilterQuery
      */
     public boolean isCanceled()
     {
-        return isCanceled;
+        synchronized (filterQueries)
+        {
+            return isCanceled;
+        }
     }
 
     /**
@@ -92,30 +111,15 @@ public class FilterQuery
      */
     public void cancel()
     {
-        isCanceled = true;
-
-        Iterator<Object> queriesIter = filterQueries.iterator();
-        while (queriesIter.hasNext())
+        Iterator<Object> queriesIter;
+        synchronized(filterQueries)
         {
-            Object query = queriesIter.next();
-            if (query instanceof ContactQuery)
-            {
-                ContactQuery contactQuery = ((ContactQuery) query);
-                contactQuery.cancel();
+            isCanceled = true;
 
-                contactQuery.removeContactQueryListener(
-                    GuiActivator.getContactList());
-                if (!isSucceeded && contactQuery.getQueryResults().size() > 0)
-                    isSucceeded = true;
-            }
-            else if (query instanceof MetaContactQuery)
+            queriesIter = filterQueries.iterator();
+            while (queriesIter.hasNext())
             {
-                MetaContactQuery metaContactQuery = ((MetaContactQuery) query);
-                metaContactQuery.cancel();
-                metaContactQuery.removeContactQueryListener(
-                    GuiActivator.getContactList());
-                if (!isSucceeded && metaContactQuery.getResultCount() > 0)
-                    isSucceeded = true;
+                cancelQuery(queriesIter.next());
             }
         }
     }
@@ -209,6 +213,32 @@ public class FilterQuery
         // has finished.
         if (runningQueries == 0)
             fireFilterQueryEvent();
+    }
+
+    /**
+     * Cancels the given query.
+     * @param query the query to cancel
+     */
+    private void cancelQuery(Object query)
+    {
+        if (query instanceof ContactQuery)
+        {
+            ContactQuery contactQuery = ((ContactQuery) query);
+            contactQuery.cancel();
+            contactQuery.removeContactQueryListener(
+                GuiActivator.getContactList());
+            if (!isSucceeded && contactQuery.getQueryResults().size() > 0)
+                isSucceeded = true;
+        }
+        else if (query instanceof MetaContactQuery)
+        {
+            MetaContactQuery metaContactQuery = ((MetaContactQuery) query);
+            metaContactQuery.cancel();
+            metaContactQuery.removeContactQueryListener(
+                GuiActivator.getContactList());
+            if (!isSucceeded && metaContactQuery.getResultCount() > 0)
+                isSucceeded = true;
+        }
     }
 
     public void contactReceived(ContactReceivedEvent event) {}

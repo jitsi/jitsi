@@ -752,6 +752,8 @@ public class TreeContactList
             {
                 public void run()
                 {
+                    // If in the meantime the corresponding query was canceled
+                    // we don't proceed with adding.
                     if (query != null && !query.isCanceled())
                         addContact(contact, group, isSorted);
                 }
@@ -768,7 +770,7 @@ public class TreeContactList
      * @param isSorted indicates if the contact should be sorted regarding to
      * the <tt>GroupNode</tt> policy
      */
-    private void addContact( final ContactQuery query,
+    private void addContact(final ContactQuery query,
                             final UIContact contact,
                             final UIGroup group,
                             final boolean isSorted)
@@ -779,6 +781,8 @@ public class TreeContactList
             {
                 public void run()
                 {
+                    // If in the meantime the corresponding query was canceled
+                    // we don't proceed with adding.
                     if (query != null
                         && query.getStatus() != ContactQuery.QUERY_CANCELED)
                         addContact(contact, group, isSorted);
@@ -1021,6 +1025,7 @@ public class TreeContactList
             while (true)
             {
                 FilterQuery filterQuery = currentFilterQuery;
+                ContactListFilter filter = this.filter;
 
                 treeModel.clear();
 
@@ -1043,7 +1048,7 @@ public class TreeContactList
                     }
                     catch (InterruptedException e)
                     {
-                        logger.debug("Search thread was interrupted.", e);
+                        logger.debug("Filter thread was interrupted.", e);
                     }
                 }
             }

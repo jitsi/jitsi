@@ -890,7 +890,6 @@
         bundle-sparkle, bundle-plugin-branding, bundle-audionotifier,
         bundle-osdependent,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
-        bundle-plugin-call-history-form,
         bundle-rss, bundle-rss-slick,bundle-plugin-rssaccregwizz,
         bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,bundle-plugin-whiteboard,
         bundle-irc,bundle-plugin-ircaccregwizz,
@@ -1811,17 +1810,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/pluginmanager/pluginmanager.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/pluginmanager"
                 prefix="net/java/sip/communicator/plugin/pluginmanager"/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-PLUGIN-EXTENDED CALL HISTORY SEARCH -->
-    <target name="bundle-plugin-call-history-form">
-        <!-- Creates a bundle for a extended callhistory search-->
-        <jar compress="false" destfile="${bundles.dest}/callhistoryform.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/callhistoryform/callhistoryform.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/callhistoryform"
-                prefix="net/java/sip/communicator/plugin/callhistoryform"/>
-            <zipfileset src="${lib.noinst}/jcalendar-1.3.2.jar" prefix=""/>
         </jar>
     </target>
 
