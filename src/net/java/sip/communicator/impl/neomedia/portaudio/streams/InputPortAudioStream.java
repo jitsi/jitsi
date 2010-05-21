@@ -43,6 +43,8 @@ public class InputPortAudioStream
      */
     private final MasterPortAudioStream parentStream;
 
+    private final Object readSync = new Object();
+
     /**
      * Is this stream started.
      */
@@ -66,7 +68,6 @@ public class InputPortAudioStream
         this.parentStream = parentStream;
     }
 
-    private Object readSync = new Object();
     /**
      * Reads audio data from this <tt>InputPortAudioStream</tt> into a specific
      * <tt>Buffer</tt> blocking until audio data is indeed available.
@@ -88,14 +89,18 @@ public class InputPortAudioStream
         {
             while (true)
             {
-                if (bufferData == null) {
+                if (bufferData == null)
+                {
                     // parent read returns false if read is already active, wait
                     // until notified by setBuffer below.
-                    if (!parentStream.read(buffer)) {
-                        try {
+                    if (!parentStream.read(buffer))
+                    {
+                        try
+                        {
                             readSync.wait();
-                        } catch (InterruptedException e) {
-                            continue;
+                        }
+                        catch (InterruptedException e)
+                        {
                         }
                         continue;  // bufferData was set by setBuffer
                     }
@@ -113,16 +118,21 @@ public class InputPortAudioStream
                      * points to a data area in another buffer instance.
                      */
                     Object data = buffer.getData();
-                    byte[] tmpArray;
-                    if (data instanceof byte[] && ((byte[])data).length >= bufferLength) {
-                        tmpArray = (byte[])data;
-                    }
-                    else
+                    byte[] dataArray = null;
+
+                    if (data instanceof byte[])
                     {
-                        tmpArray = new byte[bufferLength];
-                        buffer.setData(tmpArray);
+                        dataArray = (byte[]) data;
+                        if (dataArray.length < bufferLength)
+                            dataArray = null;
                     }
-                    System.arraycopy(bufferData, 0, tmpArray, 0, bufferLength);
+                    if (dataArray == null)
+                    {
+                        dataArray = new byte[bufferLength];
+                        buffer.setData(dataArray);
+                    }
+                    System.arraycopy(bufferData, 0, dataArray, 0, bufferLength);
+
                     buffer.setFlags(Buffer.FLAG_SYSTEM_TIME);
                     buffer.setLength(bufferLength);
                     buffer.setOffset(0);

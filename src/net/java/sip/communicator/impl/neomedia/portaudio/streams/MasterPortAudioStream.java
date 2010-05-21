@@ -83,6 +83,9 @@ public class MasterPortAudioStream
      * Whether a read is active.
      */
     private boolean readActive = false;
+
+    private final Object readSync = new Object();
+
     /**
      * Creates new stream.
      * @param deviceIndex the device to use.
@@ -148,8 +151,6 @@ public class MasterPortAudioStream
             null);
     }
 
-    private Object readSync = new Object();
-    
     /**
      * Reads audio data from this <tt>MasterPortAudioStream</tt> into a specific
      * <tt>Buffer</tt> blocking until audio data is indeed available.
@@ -161,58 +162,72 @@ public class MasterPortAudioStream
     public boolean read(Buffer buffer)
         throws PortAudioException
     {
-        synchronized (readSync) {
-            if (readActive)
-            {
-                return false;
-            }
-            readActive = true;
+        synchronized (readSync)
+        {
             if (!started)
             {
                 buffer.setLength(0);
+                /*
+                 * If we're going to return without turning off readActive, we'd
+                 * better not turn it on in the first place.
+                 */
                 return true;
             }
-        }
 
-        /*
-         * If buffer conatins a data area then check if the type and 
-         * length fits. If yes then use it, otherwise allocate a new
-         * area and set it in buffer.
-         */
-        Object data = buffer.getData();
-        byte[] bufferData;
-        if (data instanceof byte[] && ((byte[])data).length >= bytesPerBuffer) {
-            bufferData = (byte[])data;
+            if (readActive)
+                return false;
+            readActive = true;
         }
-        else
+        try
         {
-            bufferData = new byte[bytesPerBuffer];
-            buffer.setData(bufferData);
-        }
+            /*
+             * If buffer conatins a data area, then check if the type and length
+             * fit. If yes, then use it; otherwise, allocate a new area and set
+             * it in buffer.
+             */
+            Object data = buffer.getData();
+            byte[] bufferData = null;
+
+            if (data instanceof byte[])
+            {
+                bufferData = (byte[]) data;
+                if (bufferData.length < bytesPerBuffer)
+                    bufferData = null;
+            }
+            if (bufferData == null)
+            {
+                bufferData = new byte[bytesPerBuffer];
+                buffer.setData(bufferData);
+            }
         
-        synchronized (connectedToStreamSync)
-        {
-            PortAudio.Pa_ReadStream(stream, bufferData, framesPerBuffer);
+            synchronized (connectedToStreamSync)
+            {
+                PortAudio.Pa_ReadStream(stream, bufferData, framesPerBuffer);
+            }
+
+            long bufferTimeStamp = System.nanoTime();
+
+            buffer.setFlags(Buffer.FLAG_SYSTEM_TIME);
+            buffer.setLength(bytesPerBuffer);
+            buffer.setOffset(0);
+            buffer.setTimeStamp(bufferTimeStamp);
+
+            int slaveCount = slaves.size();
+
+            for(int slaveIndex = 0; slaveIndex < slaveCount; slaveIndex++)
+            {
+                slaves
+                    .get(slaveIndex)
+                        .setBuffer(bufferData, bytesPerBuffer, bufferTimeStamp);
+            }
         }
-
-        long bufferTimeStamp = System.nanoTime();
-
-        buffer.setFlags(Buffer.FLAG_SYSTEM_TIME);
-        buffer.setLength(bytesPerBuffer);
-        buffer.setOffset(0);
-        buffer.setTimeStamp(bufferTimeStamp);
-
-        int slaveCount = slaves.size();
-
-        for(int slaveIndex = 0; slaveIndex < slaveCount; slaveIndex++)
+        finally
         {
-            slaves
-                .get(slaveIndex)
-                    .setBuffer(bufferData, bytesPerBuffer, bufferTimeStamp);
-        }
-        synchronized(readSync) {
-            readActive = false;
-            readSync.notify();
+            synchronized(readSync)
+            {
+                readActive = false;
+                readSync.notify();
+            }
         }
         return true;
     }
@@ -299,13 +314,16 @@ public class MasterPortAudioStream
 
         if(slaves.isEmpty())
         {
-            synchronized (readSync) {
+            synchronized (readSync)
+            {
                 while (readActive) 
                 {
-                    try {
+                    try
+                    {
                         readSync.wait();
-                    } catch (InterruptedException e) {
-                        continue;
+                    }
+                    catch (InterruptedException e)
+                    {
                     }
                 }
                 // stop
