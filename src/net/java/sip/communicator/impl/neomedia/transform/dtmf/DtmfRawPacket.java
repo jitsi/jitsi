@@ -12,11 +12,12 @@ import net.java.sip.communicator.util.*;
 /**
  * <tt>DtmfRawPacket</tt> represent an RTP Packet.
  * You create your <tt>DtmfRawPacket</tt> by calling the constructor.
- * You specify the DTMF attributes : code=9, end=false, marker=truen ...
- * Then you fill the packet using fillRawPacket( ... dtmf attributes ... );
+ * You specify the DTMF attributes : code=9, end=false, marker=true ...
+ * Then you fill the packet using init( ... dtmf attributes ... );
  *
  * @author Romain Philibert
  * @author Emil Ivov
+ * @author Damian Minkov
  */
 public class DtmfRawPacket
         extends RawPacket
@@ -104,12 +105,11 @@ public class DtmfRawPacket
      */
     private void setDtmfPayload(int code, boolean end, int duration)
     {
-        byte[] buffer = getBuffer();
-        int offset = getOffset();
+        int at = getHeaderLength();
 
-        buffer[offset + 12]=(byte)code;
-        buffer[offset + 13]= end ? (byte)0x80 : (byte)0;
-        buffer[offset + 14]=(byte)(duration >> 8);
-        buffer[offset + 15]=(byte) duration;
+        writeByte(at++, (byte)code);
+        writeByte(at++, end ? (byte)0x80 : (byte)0);
+        writeByte(at++, (byte)(duration >> 8));
+        writeByte(at++, (byte)duration);
     }
 }

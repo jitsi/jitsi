@@ -6,247 +6,43 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.text.*;
-import javax.sip.*;
-import javax.sip.message.*;
+import java.util.*;
 
-import gov.nist.javax.sip.header.*;
+import net.java.sip.communicator.impl.neomedia.codec.*;
+import net.java.sip.communicator.impl.protocol.sip.dtmf.*;
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.DTMFTone;
 import net.java.sip.communicator.util.*;
 
 /**
- * Class responsible for sending a DTMF Tone using SIP INFO.
- *
- * @todo - remove the following comment once this class has been sufficiently
- * tested.
- *
- * It should actually only be considered as a draft, since it was not heavily
- * tested, and just developed enough to get the DTMF function work I copied
- * and adapted code of the OpSetBasicTelephony implementation for SIP to make
- * this code.
+ * Class responsible for sending a DTMF Tone using SIP INFO or using rfc4733.
  *
  * @author JM HEITZ
  */
 public class OperationSetDTMFSipImpl
-    implements MethodProcessor,
-               OperationSetDTMF
+    implements OperationSetDTMF
 {
     /**
-     * logger for the class
+     * DTMF mode sending DTMF as sip info.
      */
-    private static final Logger logger
-        = Logger.getLogger(OperationSetDTMFSipImpl.class);
+    private final DTMFInfo dtmfModeInfo;
 
     /**
-     * involved protocol provider service
+     * DTMF sending rfc4733.
      */
-    ProtocolProviderServiceSipImpl pps = null;
+    private final DTMF4733 dtmfModeRFC4733;
 
     /**
-     *Constructor
+     * Constructor.
      *
      * @param pps the SIP Protocol provider service
      */
     public OperationSetDTMFSipImpl(ProtocolProviderServiceSipImpl pps)
     {
-        this.pps = pps;
-        pps.registerMethodProcessor(Request.INFO, this);
-    }
-
-
-    /**
-     * This is just a copy of the bye method from the OpSetBasicTelephony,
-     * which was enhanced with a body in order to send the DTMF tone
-     *
-     * @param callPeer destination of the DTMF tone
-     * @param dtmftone DTMF tone to send
-     * @throws OperationFailedException
-     */
-    private void sayInfo(CallPeerSipImpl callPeer,
-                         String dtmftone)
-        throws OperationFailedException
-    {
-        Request info = pps.getMessageFactory().createRequest(
-                        callPeer.getDialog(), Request.INFO);
-
-        //here we add the body
-        ContentType ct = new ContentType("application", "dtmf-relay");
-        String content = "Signal=" + dtmftone + "\r\nDuration=250\r\n";
-        ContentLength cl = new ContentLength(content.length());
-        info.setContentLength(cl);
-
-        try
-        {
-            info.setContent(content.getBytes(), ct);
-        }
-        catch (ParseException ex)
-        {
-            logger.error("Failed to construct the INFO request", ex);
-            throw new OperationFailedException(
-                "Failed to construct a client the INFO request"
-                , OperationFailedException.INTERNAL_ERROR
-                , ex);
-
-        }
-        //body ended
-        ClientTransaction clientTransaction = null;
-        try
-        {
-            clientTransaction = callPeer.getJainSipProvider()
-                .getNewClientTransaction(info);
-        }
-        catch (TransactionUnavailableException ex)
-        {
-            logger.error(
-                "Failed to construct a client transaction from the INFO request"
-                , ex);
-            throw new OperationFailedException(
-                "Failed to construct a client transaction from the INFO request"
-                , OperationFailedException.INTERNAL_ERROR
-                , ex);
-        }
-
-        try
-        {
-            if (callPeer.getDialog().getState()
-                == DialogState.TERMINATED)
-            {
-                //this is probably because the call has just ended, so don't
-                //throw an exception. simply log and get lost.
-                logger.warn("Trying to send a dtmf tone inside a "
-                            +"TERMINATED dialog.");
-                return;
-            }
-
-            callPeer.getDialog().sendRequest(clientTransaction);
-            logger.debug("sent request:\n" + info);
-        }
-        catch (SipException ex)
-        {
-            throw new OperationFailedException(
-                "Failed to send the INFO request"
-                , OperationFailedException.NETWORK_FAILURE
-                , ex);
-        }
-    }
-
-    /**
-     * Does nothing
-     *
-     * @param requestEvent the event request
-     * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
-     */
-    public boolean processRequest(RequestEvent requestEvent)
-    {
-        if (requestEvent == null)
-        {
-            logger.debug("requestEvent null");
-        }
-        logger.error("We don't cope with requests" + requestEvent);
-        return false;
-    }
-
-    /**
-     * Just look if the DTMF signal was well received, and log it
-     *
-     * @param responseEvent the response event
-     * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
-     */
-    public boolean processResponse(ResponseEvent responseEvent)
-    {
-        if (responseEvent == null)
-        {
-            logger.debug("null responseEvent");
-            return false;
-        }
-        Response response = responseEvent.getResponse();
-        if (response == null)
-        {
-            logger.debug("null response");
-            return false;
-        }
-        int code = response.getStatusCode();
-        logger.debug("DTMF status code=" + code);
-        if (code != 200)
-        {
-            logger.error("DTMF Send failed :" + code);
-        }
-        else
-        {
-            logger.debug("DTMF succeeded");
-        }
-        return true;
-    }
-
-    /**
-     * In case of timeout, just terminate the transaction
-     *
-     * @param timeoutEvent the timeout event
-     * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
-     */
-    public boolean processTimeout(TimeoutEvent timeoutEvent)
-    {
-        //we do nothing
-        logger.error("ioexception :" + timeoutEvent);
-        return false;
-    }
-
-    /**
-     * Just log the exception
-     *
-     * @param exceptionEvent the event we have to handle
-     * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
-     */
-    public boolean processIOException(IOExceptionEvent exceptionEvent)
-    {
-        //we do nothing
-        if (exceptionEvent == null)
-        {
-            logger.debug("ioexception null");
-            return false;
-        }
-        logger.error("ioexception :" + exceptionEvent);
-        return false;
-    }
-
-    /**
-     * Just log the end of the transaction
-     *
-     * @param transactionTerminatedEvent the event we have to handle
-     * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
-     */
-    public boolean processTransactionTerminated(
-        TransactionTerminatedEvent transactionTerminatedEvent)
-    {
-        //we do nothing
-        logger.info("Transaction Terminated :" + transactionTerminatedEvent);
-        return false;
-    }
-
-    /**
-     * Just log the end of the dialog
-     *
-     * @param dialogTerminatedEvent the event we have to handle
-     * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
-     */
-    public boolean processDialogTerminated(
-        DialogTerminatedEvent dialogTerminatedEvent)
-    {
-        //we do nothing
-        logger.info("Dialog Terminated :" + dialogTerminatedEvent);
-        return false;
+        dtmfModeInfo = new DTMFInfo(pps);
+        dtmfModeRFC4733 = new DTMF4733();
     }
 
     /**
@@ -263,14 +59,12 @@ public class OperationSetDTMFSipImpl
      * @throws IllegalArgumentException in case the call peer does not
      * belong to the underlying implementation.
      */
-    public void sendDTMF(CallPeer callPeer, DTMFTone tone)
-        throws OperationFailedException,
-                NullPointerException,
-                IllegalArgumentException
+    public synchronized void startSendingDTMF(CallPeer callPeer, DTMFTone tone)
+        throws OperationFailedException
     {
         if (callPeer == null || tone == null)
         {
-            throw new NullPointerException();
+            throw new NullPointerException("Argument is null");
         }
         if (! (callPeer instanceof CallPeerSipImpl))
         {
@@ -278,7 +72,66 @@ public class OperationSetDTMFSipImpl
         }
 
         CallPeerSipImpl cp = (CallPeerSipImpl) (callPeer);
-        this.sayInfo(cp, tone.getValue());
+
+        if(isRFC4733Active(cp))
+        {
+            dtmfModeRFC4733.startSendingDTMF(
+                ((AudioMediaStream)cp.getMediaHandler()
+                    .getStream(MediaType.AUDIO)),
+                tone);
+        }
+        else
+        {
+            dtmfModeInfo.startSendingDTMF(cp, tone);
+        }
+    }
+
+    /**
+     * Stops sending DTMF.
+     * @param callPeer
+     */
+    public synchronized void stopSendingDTMF(CallPeer callPeer)
+    {
+        if (callPeer == null)
+        {
+            throw new NullPointerException("Argument is null");
+        }
+        if (! (callPeer instanceof CallPeerSipImpl))
+        {
+            throw new IllegalArgumentException();
+        }
+
+        CallPeerSipImpl cp = (CallPeerSipImpl) (callPeer);
+
+        if(isRFC4733Active(cp))
+        {
+            dtmfModeRFC4733.stopSendingDTMF(
+                ((AudioMediaStream)cp.getMediaHandler()
+                    .getStream(MediaType.AUDIO)));
+        }
+        else
+        {
+            dtmfModeInfo.stopSendingDTMF(cp);
+        }
+    }
+
+    /**
+     * Checks whether rfc4733 is negotiated for this call.
+     * @param peer the call peer.
+     * @return whether we can use rfc4733 in this call.
+     */
+    private boolean isRFC4733Active(CallPeerSipImpl peer)
+    {
+        Iterator<MediaFormat> iter =
+            peer.getMediaHandler().getStream(MediaType.AUDIO)
+                .getDynamicRTPPayloadTypes().values().iterator();
+        while (iter.hasNext())
+        {
+            MediaFormat mediaFormat = iter.next();
+            if(mediaFormat.getEncoding().equals(Constants.TELEPHONE_EVENT))
+                return true;
+        }
+
+        return false;
     }
 }
-

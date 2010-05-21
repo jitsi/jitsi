@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.transform.dtmf;
 
-
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
@@ -19,6 +18,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Emil Ivov
  * @author Romain Philibert
+ * @author Damian Minkov
  */
 public class DtmfTransformEngine
     implements TransformEngine,
@@ -91,6 +91,21 @@ public class DtmfTransformEngine
     private int currentDuration = 0;
 
     /**
+     * The current transmitting timestamp.
+     */
+    private long currentTimestamp = 0;
+
+    /**
+     * We send 3 end packets and this is the counter of remaining packets.
+     */
+    private int remainingsEndPackets = 0;
+
+    /**
+     * Current duration of every event we send.
+     */
+    private final int currentSpacingDuration;
+
+    /**
      * Creates an engine instance that will be replacing audio packets
      * with DTMF ones upon request.
      *
@@ -100,6 +115,9 @@ public class DtmfTransformEngine
     public DtmfTransformEngine(AudioMediaStreamImpl stream)
     {
         this.mediaStream = stream;
+
+        // the default is 50 ms. RECOMMENDED in rfc4733.
+        currentSpacingDuration = (int)stream.getFormat().getClockRate()/50;
     }
 
     /**
@@ -152,7 +170,7 @@ public class DtmfTransformEngine
      */
     public RawPacket transform(RawPacket pkt)
     {
-        if (this.toneTransmissionState == ToneTransmissionState.IDLE
+        if (this.toneTransmissionState.equals(ToneTransmissionState.IDLE)
              || currentTone == null)
         {
             return pkt;
@@ -173,80 +191,66 @@ public class DtmfTransformEngine
         boolean pktMarker = false;
         int pktDuration = 0;
 
-        /*
-        long pktTimestamp = engine.getCurrentTimestamp();
-
-        if (STATUS_START_SENDING))
+        if(toneTransmissionState == ToneTransmissionState.SEND_PENDING)
         {
-                logger.trace("START_SENDING");
-                 // The first packet is send with the RTP Marker set to 1.
-                pktMarker=true;
-                pktTimestamp = audioPacketTimestamp;
+            currentDuration = 0;
+            currentDuration += currentSpacingDuration;
+            pktDuration = currentDuration;
 
-                 // Save the audioPacketTimestamp value. T
-                 // This value will be used in the next dtmf packets.
-                logger.trace("Timestamp read = "+audioPacketTimestamp);
-                engine.setCurrentTimestamp(audioPacketTimestamp);
-                engine.setSendingState(DtmfTransformEngine.SENDING_UPDATE);
-            }
-            else if (engine.isSendingStateEquals(DtmfTransformEngine.SENDING_UPDATE))
-            {
-                logger.trace("SENDING_UPDATE");
-                int duration = (int)(audioPacketTimestamp-pktTimestamp);
+            pktMarker = true;
+            currentTimestamp = audioPacketTimestamp;
 
-                // Check for long state event
-                if (duration>0xFFFF)
-                {
-                    logger.trace("LONG_DURATION_EVENT");
-
-                     // When duration > 0xFFFF we first send a packet with
-                     // duration = 0xFFFF. For the next packet, the duration
-                     // start from begining but the audioPacketTimestamp is set to the
-                     // time when the long duration event occurs.
-                    pktDuration = 0xFFFF;
-                    pktTimestamp = audioPacketTimestamp;
-                    engine.setCurrentTimestamp(audioPacketTimestamp);
-                }
-                else
-                {
-                    pktDuration = duration;
-                }
-            }
-            else if (engine.isSendingStateEquals(DtmfTransformEngine.STOP_SENDING))
-            {
-                logger.trace("STOP_SENDING");
-
-                 // The first ending packet do have the End flag set.
-                 // But the 2 next will have the End flag set.
-                 //
-                 // The audioPacketTimestamp and the duration field stay unchanged for
-                 // the 3 last packets
-                pktDuration = (int)(audioPacketTimestamp-pktTimestamp);
-
-                engine.setEndTimestamp(audioPacketTimestamp);
-                engine.remainingsEndPackets = 2;
-                engine.setSendingState(DtmfTransformEngine.STOP_SENDING_REPEATING);
-            }
-            else if (engine.isSendingStateEquals(DtmfTransformEngine.STOP_SENDING_REPEATING))
-            {
-                logger.trace("STOP_SENDING_REPEATING");
-
-                 // We set the End flag for the 2 last packets.
-                 // The audioPacketTimestamp and the duration field stay unchanged for
-                 // the 3 last packets.
-                pktEnd=true;
-                pktDuration=(int)(engine.getEndTimestamp()-pktTimestamp);
-
-                engine.remainingsEndPackets --;
-                if (engine.remainingsEndPackets<=0)
-                {
-                    engine.disableTransformation();
-                }
-            }
-            dtmfPkt.fillRawPacket(pktCode, pktEnd, pktMarker, pktDuration, pktTimestamp);
-            pkt = dtmfPkt;
+            toneTransmissionState = ToneTransmissionState.SENDING;
         }
-        */
+        else if(toneTransmissionState == ToneTransmissionState.SENDING)
+        {
+            currentDuration += currentSpacingDuration;
+            pktDuration = currentDuration;
+            // Check for long state event
+            if (currentDuration > 0xFFFF)
+            {
+                 // When duration > 0xFFFF we first send a packet with
+                 // duration = 0xFFFF. For the next packet, the duration
+                 // start from begining but the audioPacketTimestamp is set to the
+                 // time when the long duration event occurs.
+                pktDuration = 0xFFFF;
+                currentDuration = 0;
+                currentTimestamp = audioPacketTimestamp;
+            }
+        }
+        else if(toneTransmissionState == ToneTransmissionState.END_REQUESTED)
+        {
+            // The first ending packet do have the End flag set.
+            // But the 2 next will have the End flag set.
+            //
+            // The audioPacketTimestamp and the duration field stay unchanged for
+            // the 3 last packets
+            currentDuration += currentSpacingDuration;
+            pktDuration = currentDuration;
+
+            pktEnd = true;
+            remainingsEndPackets = 2;
+
+            toneTransmissionState = ToneTransmissionState.END_SEQUENCE_INITIATED;            
+        }
+        else if(toneTransmissionState == ToneTransmissionState.END_SEQUENCE_INITIATED)
+        {
+            pktEnd = true;
+            pktDuration = currentDuration;
+            remainingsEndPackets--;
+
+            if(remainingsEndPackets == 0)
+                toneTransmissionState = ToneTransmissionState.IDLE;
+        }
+
+        dtmfPkt.init(
+            currentTone.getCode(),
+            pktEnd,
+            pktMarker,
+            pktDuration,
+            currentTimestamp);
+        pkt = dtmfPkt;
+
         return pkt;
     }
 
@@ -259,7 +263,24 @@ public class DtmfTransformEngine
      */
     public void startSending(DTMFTone tone)
     {
+        if(toneTransmissionState != ToneTransmissionState.IDLE)
+            throw new IllegalStateException(
+                "Calling start before stopping previous transmission");
 
+        currentTone = tone;
+        toneTransmissionState = ToneTransmissionState.SEND_PENDING;
+    }
+
+    /**
+     * Interrupts transmission of a <tt>DTMFTone</tt> started with the
+     * <tt>startSendingDTMF()</tt> method. Has no effect if no tone is currently
+     * being sent.
+     *
+     * @see AudioMediaStream#stopSendingDTMF()
+     */
+    public void stopSendingDTMF()
+    {
+        toneTransmissionState = ToneTransmissionState.END_REQUESTED;
     }
 
 }

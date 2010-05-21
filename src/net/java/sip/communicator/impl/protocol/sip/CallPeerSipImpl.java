@@ -1682,7 +1682,7 @@ public class CallPeerSipImpl
      * @return a reference to the <tt>CallPeerMediaHandler</tt> instance that
      * this peer uses for media related tips and tricks.
      */
-    CallPeerMediaHandler getMediaHandler()
+    public CallPeerMediaHandler getMediaHandler()
     {
         return mediaHandler;
     }

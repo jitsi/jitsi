@@ -41,7 +41,7 @@ public class AudioMediaStreamImpl
     /**
      * The transformer that we use for sending and receiving DTMF packets.
      */
-    private final DtmfTransformEngine dtmfTransfrmEngine ;
+    private DtmfTransformEngine dtmfTransfrmEngine ;
 
     /**
      * List of RTP format strings which are supported by SIP Communicator in
@@ -96,8 +96,6 @@ public class AudioMediaStreamImpl
                                 ZrtpControlImpl zrtpControl)
     {
         super(connector, device, zrtpControl);
-
-        this.dtmfTransfrmEngine = new DtmfTransformEngine(this);
     }
 
     /**
@@ -155,7 +153,10 @@ public class AudioMediaStreamImpl
     @Override
     protected DtmfTransformEngine createDtmfTransformEngine()
     {
-        return dtmfTransfrmEngine;
+        if(this.dtmfTransfrmEngine == null)
+            this.dtmfTransfrmEngine = new DtmfTransformEngine(this);
+
+        return this.dtmfTransfrmEngine;
     }
 
     /**
@@ -265,7 +266,10 @@ public class AudioMediaStreamImpl
      */
     public void startSendingDTMF(DTMFTone tone)
     {
-        // TODO Auto-generated method stub
+        if(dtmfTransfrmEngine == null)
+            return;
+
+        dtmfTransfrmEngine.startSending(tone);
     }
 
     /**
@@ -277,7 +281,10 @@ public class AudioMediaStreamImpl
      */
     public void stopSendingDTMF()
     {
-        // TODO Auto-generated method stub
+        if(dtmfTransfrmEngine == null)
+            return;
+
+        dtmfTransfrmEngine.stopSendingDTMF();
     }
 
     /**

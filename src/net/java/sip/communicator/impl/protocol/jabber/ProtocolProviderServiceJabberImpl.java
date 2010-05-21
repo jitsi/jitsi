@@ -214,7 +214,9 @@ public class ProtocolProviderServiceJabberImpl
 
             RegistrationState regState = RegistrationState.UNREGISTERED;
 
-            if(ex.getWrappedThrowable() instanceof UnknownHostException)
+            Throwable wrappedEx = ex.getWrappedThrowable();
+            if(wrappedEx instanceof UnknownHostException
+                || wrappedEx instanceof ConnectException)
             {
                 reason
                     = RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
@@ -658,17 +660,20 @@ public class ProtocolProviderServiceJabberImpl
      */
     private void unregister(boolean fireEvent)
     {
-        RegistrationState currRegState = getRegistrationState();
-
-        if(connection != null)
-            connection.disconnect();
-
-        if(fireEvent)
+        synchronized(initializationLock)
         {
-            fireRegistrationStateChanged(
-                currRegState,
-                RegistrationState.UNREGISTERED,
-                RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+            RegistrationState currRegState = getRegistrationState();
+
+            if(connection != null)
+                connection.disconnect();
+
+            if(fireEvent)
+            {
+                fireRegistrationStateChanged(
+                    currRegState,
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+            }
         }
     }
 

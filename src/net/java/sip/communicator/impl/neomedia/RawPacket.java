@@ -145,7 +145,7 @@ public class RawPacket
      */
     public void setTimestamp(long timestamp)
     {
-        writeInt(getOffset(), (int)timestamp);
+        writeInt(getOffset() + 4, (int)timestamp);
     }
 
     /**

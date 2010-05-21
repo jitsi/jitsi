@@ -25,13 +25,15 @@ public interface OperationSetDTMF
      * @throws OperationFailedException with code OPERATION_NOT_SUPPORTED if
      * DTMF tones are not supported for <tt>callPeer</tt>.
      *
-     * @throws NullPointerException if one of the arguments is null.
-     *
      * @throws IllegalArgumentException in case the call peer does not
      * belong to the underlying implementation.
      */
-    public void sendDTMF(CallPeer callPeer, DTMFTone tone)
-        throws OperationFailedException,
-               NullPointerException,
-               ClassCastException;
+    public void startSendingDTMF(CallPeer callPeer, DTMFTone tone)
+        throws OperationFailedException;
+
+    /**
+     * Stop sending of the currently transmitting DTMF tone.
+     * @param callPeer
+     */
+    public void stopSendingDTMF(CallPeer callPeer);
 }
