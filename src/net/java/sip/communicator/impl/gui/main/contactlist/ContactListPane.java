@@ -163,6 +163,10 @@ public class ContactListPane
         Contact defaultContact = metaContact.getDefaultContact(
                                     OperationSetBasicInstantMessaging.class);
 
+        // do nothing
+        if(defaultContact == null)
+            return;
+
         ProtocolProviderService defaultProvider
             = defaultContact.getProtocolProvider();
 

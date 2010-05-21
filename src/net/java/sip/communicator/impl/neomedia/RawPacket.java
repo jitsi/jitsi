@@ -105,11 +105,11 @@ public class RawPacket
     {
         if(marker)
         {
-             getBuffer()[getOffset() + 1] |= (byte) 0x80;
+             buffer[offset + 1] |= (byte) 0x80;
         }
         else
         {
-            getBuffer()[getOffset() + 1] &= (byte) 0x7F;
+            buffer[offset + 1] &= (byte) 0x7F;
         }
     }
 
@@ -125,7 +125,7 @@ public class RawPacket
         //bit is 0 so that we don't accidentally overwrite the marker.
         payload &= (byte)0x7F;
 
-        getBuffer()[getOffset() + 1] |= payload;
+        buffer[offset + 1] = (byte)((buffer[offset + 1] & 0x80) | payload);
     }
 
     /**
@@ -135,7 +135,7 @@ public class RawPacket
      */
     public long getTimestamp()
     {
-        return readInt(getOffset() + 4);
+        return readInt(offset + 4);
     }
 
     /**
@@ -145,7 +145,7 @@ public class RawPacket
      */
     public void setTimestamp(long timestamp)
     {
-        writeInt(getOffset() + 4, (int)timestamp);
+        writeInt(offset + 4, (int)timestamp);
     }
 
     /**
