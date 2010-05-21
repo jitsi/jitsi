@@ -70,15 +70,15 @@ D3DDevice::D3DDevice(HWND hwnd, LPDIRECT3D9 d3d, size_t width, size_t height,
 
 D3DDevice::~D3DDevice()
 {
+    if(m_backSurface)
+    {
+        m_backSurface->Release();
+    }
+
     if(m_device)
     {
         m_device->Release();
         m_device = NULL;
-    }
-
-    if(m_backSurface)
-    {
-        m_backSurface->Release();
     }
 }
 
@@ -185,7 +185,7 @@ void D3DDevice::render(D3DSurface* surface)
     /* copy content on surface */
     m_device->UpdateSurface(surfacePointer, NULL, m_backSurface, NULL);
 
-    /* finish scence and cleanup */
+    /* finish scene and cleanup */
     m_device->EndScene();
     m_backSurface->Release();
     m_backSurface = NULL;

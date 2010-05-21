@@ -36,17 +36,22 @@ void JAWTRenderer_close
     if(blitter->surface)
     {
         delete blitter->surface;
+        blitter->surface = NULL;
     }
 
     if(blitter->device)
     {
         delete blitter->device;
+        blitter->device = NULL;
     }
 
     if(blitter->d3d)
     {
         delete blitter->d3d;
+        blitter->d3d = NULL;
     }
+
+    delete blitter;
 }
 
 jlong JAWTRenderer_open(JNIEnv *jniEnv, jclass clazz, jobject component)
