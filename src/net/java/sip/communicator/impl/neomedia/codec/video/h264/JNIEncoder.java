@@ -181,6 +181,8 @@ public class JNIEncoder
     /**
      * Return the list of formats supported at the output.
      *
+     * @param in input <tt>Format</tt> to determine corresponding output
+     * <tt>Format/tt>s
      * @return array of formats supported at output
      */
     public Format[] getSupportedOutputFormats(Format in)

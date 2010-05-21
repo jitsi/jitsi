@@ -177,6 +177,8 @@ public class JNIDecoder
     /**
      * Get all supported output <tt>Format</tt>s.
      *
+     * @param in input <tt>Format</tt> to determine corresponding output
+     * <tt>Format/tt>s
      * @return array of supported <tt>Format</tt>
      */
     public Format[] getSupportedOutputFormats(Format in)

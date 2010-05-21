@@ -323,11 +323,13 @@ public class JmfDeviceDetector
 
         if(OSUtils.IS_WINDOWS)
         {
-            if (OSUtils.IS_WINDOWS_VISTA)
+            if (OSUtils.IS_WINDOWS32 &&
+                    (OSUtils.IS_WINDOWS_VISTA || OSUtils.IS_WINDOWS_7))
             {
                 /*
-                 * DDRenderer will cause Windows Vista to switch its theme from
-                 * Aero to Vista Basic so try to pick up a different Renderer.
+                 * DDRenderer will cause Windows Vista/7 32-bit to switch its
+                 * theme from Aero to Vista Basic so try to pick up a different
+                 * Renderer.
                  */
                 if (renderers
                         .contains("com.sun.media.renderer.video.GDIRenderer"))
