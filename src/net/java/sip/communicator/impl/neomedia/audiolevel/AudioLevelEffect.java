@@ -147,19 +147,27 @@ public class AudioLevelEffect
     public int process(Buffer inputBuffer, Buffer outputBuffer)
     {
         //copy the actual data from input to the output.
-        byte[] b = new byte[inputBuffer.getLength()];
+        Object data = outputBuffer.getData();
+        byte[] bufferData;
+        if (data instanceof byte[] && ((byte[])data).length >= inputBuffer.getLength()) {
+            bufferData = (byte[])data;
+        }
+        else
+        {
+            bufferData = new byte[inputBuffer.getLength()];
+            outputBuffer.setData(bufferData);
+        }
         outputBuffer.setLength(inputBuffer.getLength());
+        outputBuffer.setOffset(0);
 
         System.arraycopy(
-            inputBuffer.getData(), inputBuffer.getOffset(), b, 0, b.length);
-        outputBuffer.setData(b);
+            inputBuffer.getData(), inputBuffer.getOffset(), bufferData, 0, inputBuffer.getLength());
 
         //now copy the output to the level dispatcher.
         eventDispatcher.addData(outputBuffer);
 
         //now copy the rest of the data.
         outputBuffer.setFormat(inputBuffer.getFormat());
-        outputBuffer.setOffset(inputBuffer.getOffset());
         outputBuffer.setHeader(inputBuffer.getHeader());
         outputBuffer.setSequenceNumber(inputBuffer.getSequenceNumber());
         outputBuffer.setTimeStamp(inputBuffer.getTimeStamp());

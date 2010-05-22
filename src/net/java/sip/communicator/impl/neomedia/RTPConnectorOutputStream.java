@@ -53,6 +53,9 @@ public class RTPConnectorOutputStream
     protected final List<InetSocketAddress> targets
         = new LinkedList<InetSocketAddress>();
 
+    private final LinkedBlockingQueue<RawPacket> availRawPackets
+    = new LinkedBlockingQueue<RawPacket>();
+
     /**
      * Initializes a new <tt>RTPConnectorOutputStream</tt> which is to send
      * packet data out through a specific UDP socket.
@@ -105,7 +108,14 @@ public class RTPConnectorOutputStream
      */
     protected RawPacket createRawPacket(byte[] buffer, int offset, int length)
     {
-        return new RawPacket(buffer, offset, length);
+        RawPacket pkt = availRawPackets.poll();
+        if (pkt == null || pkt.getBuffer().length < length) 
+        {
+            pkt = null;
+            return new RawPacket(buffer, offset, length);        
+        }
+        System.arraycopy(buffer, offset, pkt.getBuffer(), 0, length);
+        return pkt;
     }
 
     /**
@@ -166,10 +176,12 @@ public class RTPConnectorOutputStream
             }
             catch (IOException ex)
             {
+                availRawPackets.offer(packet);
                 // TODO error handling
                 return false;
             }
         }
+        availRawPackets.offer(packet);
         return true;
     }
 

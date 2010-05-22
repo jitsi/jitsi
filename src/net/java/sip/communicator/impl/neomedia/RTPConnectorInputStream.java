@@ -103,11 +103,17 @@ public class RTPConnectorInputStream
      */
     protected RawPacket createRawPacket(DatagramPacket datagramPacket)
     {
-        return
-            new RawPacket(
+        if (pkt == null || pkt.getBuffer().length < datagramPacket.getLength()) 
+        {
+            pkt = null;
+            return new RawPacket(
                     datagramPacket.getData(),
                     datagramPacket.getOffset(),
-                    datagramPacket.getLength());
+                    datagramPacket.getLength());      
+        }
+        System.arraycopy(datagramPacket.getData(), datagramPacket.getOffset(), pkt.getBuffer(), 0, datagramPacket.getLength());
+        return pkt;
+
     }
 
     /**
@@ -143,7 +149,7 @@ public class RTPConnectorInputStream
      */
     public long getContentLength()
     {
-        return LENGTH_UNKNOWN;
+        return pkt.getLength();
     }
 
     /**
