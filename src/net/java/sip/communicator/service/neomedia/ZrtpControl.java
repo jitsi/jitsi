@@ -16,6 +16,11 @@ import net.java.sip.communicator.service.neomedia.event.*;
 public interface ZrtpControl
 {
     /**
+     * Cleans up the current zrtp control and its engine.
+     */
+    public void cleanup();
+    
+    /**
      * Sets a <tt>ZrtpListener</tt> that will listen for
      * zrtp security events.
      *

@@ -559,7 +559,12 @@ public class CallPeerMediaHandler
         }
 
         // clears the zrtp controls used for current call.
-        zrtpControls.remove(type);
+        ZrtpControl zrtpCtrl = zrtpControls.get(type);
+        if (zrtpCtrl != null)
+        {
+            zrtpCtrl.cleanup();
+            zrtpControls.remove(type);
+        }
     }
 
     /**

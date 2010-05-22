@@ -62,7 +62,7 @@ public class ZrtpControlImpl
     /**
      * Cleans up the current zrtp control and its engine.
      */
-    void cleanup()
+    public void cleanup()
     {
         if(zrtpEngine != null)
         {

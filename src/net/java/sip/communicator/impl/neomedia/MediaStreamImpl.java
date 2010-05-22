@@ -455,13 +455,7 @@ public class MediaStreamImpl
         stop();
         closeSendStreams();
 
-        ZRTPTransformEngine engine = zrtpControl.getZrtpEngine();
-
-        if(engine != null)
-        {
-            engine.stopZrtp();
-            engine.cleanup();
-        }
+        zrtpControl.cleanup();
         zrtpRestarted = false;
 
         if(csrcEngine != null)
