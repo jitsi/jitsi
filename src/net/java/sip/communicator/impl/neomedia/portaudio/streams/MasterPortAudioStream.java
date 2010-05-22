@@ -226,7 +226,7 @@ public class MasterPortAudioStream
             synchronized(readSync)
             {
                 readActive = false;
-                readSync.notify();
+                readSync.notifyAll();
             }
         }
         return true;
@@ -318,9 +318,16 @@ public class MasterPortAudioStream
             {
                 while (readActive) 
                 {
+                    /*
+                     * Use a timed wait here - in some (not yet known) cases
+                     * synchronized/notifyAll (see read() above) do not wakeup
+                     * the wait. Thus wait fo 100ms which is enough to check
+                     * again (we use 20ms read intervalls). 
+                     * TODO: check an clarify this problem - it's a workaround 
+                     */
                     try
                     {
-                        readSync.wait();
+                        readSync.wait(100);
                     }
                     catch (InterruptedException e)
                     {
