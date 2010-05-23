@@ -111,10 +111,13 @@ public class RTPConnectorOutputStream
         RawPacket pkt = availRawPackets.poll();
         if (pkt == null || pkt.getBuffer().length < length) 
         {
-            pkt = null;
-            return new RawPacket(buffer, offset, length);        
+            byte[] buf = new byte[length];
+            pkt = new RawPacket();        
+            pkt.setBuffer(buf);
         }
         System.arraycopy(buffer, offset, pkt.getBuffer(), 0, length);
+        pkt.setLength(length);
+        pkt.setOffset(0);
         return pkt;
     }
 
@@ -227,15 +230,6 @@ public class RTPConnectorOutputStream
      */
     public int write(byte[] buffer, int offset, int length)
     {
-        if (maxPacketsPerMillisPolicy != null)
-        {
-            byte[] newBuffer = new byte[length];
-
-            System.arraycopy(buffer, offset, newBuffer, 0, length);
-            buffer = newBuffer;
-            offset = 0;
-        }
-
         RawPacket packet = createRawPacket(buffer, offset, length);
 
         /*

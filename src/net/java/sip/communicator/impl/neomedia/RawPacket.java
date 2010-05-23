@@ -52,6 +52,14 @@ public class RawPacket
     private int length;
 
     /**
+     * Construct an empty RawPacket
+     *
+     */
+    public RawPacket()
+    {
+    }
+
+    /**
      * Construct a RawPacket using specified value.
      *
      * @param buffer Byte array holding the content of this Packet
@@ -94,6 +102,27 @@ public class RawPacket
     {
         return this.offset;
     }
+    
+    /**
+     * @param buffer the buffer to set
+     */
+    protected void setBuffer(byte[] buffer) {
+        this.buffer = buffer;
+    }
+    /**
+     * @param offset the offset to set
+     */
+    protected void setOffset(int offset) {
+        this.offset = offset;
+    }
+
+    /**
+     * @param length the length to set
+     */
+    protected void setLength(int length) {
+        this.length = length;
+    }
+
 
     /**
      * Sets or resets the marker bit of this packet according to the
@@ -281,7 +310,7 @@ public class RawPacket
     }
 
     /**
-     * Append a byte array to the end of the packet. This will change the data
+     * Append a byte array to the end of the packet. This may change the data
      * buffer of this packet.
      *
      * @param data byte array to append
@@ -292,11 +321,15 @@ public class RawPacket
         if (data == null || len == 0)
             return;
 
-        byte[] newBuffer = new byte[buffer.length + len];
-        System.arraycopy(this.buffer, 0, newBuffer, 0, buffer.length);
-        System.arraycopy(data, 0, newBuffer, buffer.length, len);
+        // check if old buffer can hold all data. If not allocate a new one.
+        if ((length + offset + len) > buffer.length)
+        {
+            byte[] newBuffer = new byte[length + offset + len];
+            System.arraycopy(this.buffer, 0, newBuffer, 0, length+offset);
+            this.buffer = newBuffer;
+        }
+        System.arraycopy(data, 0, buffer, length + offset, len);
         this.length += len;
-        this.buffer = newBuffer;
     }
 
     /**
@@ -355,16 +388,19 @@ public class RawPacket
         //the new buffer needs to be bigger than the new one in order to
         //accommodate the list of CSRC IDs (unless there were more of them
         //previously than after setting the new list).
-        byte[] newBuffer
-            = new byte[oldBuffer.length + csrcBuff.length - oldCsrcCount*4];
+        byte newBuffer[];
+        if (oldBuffer.length < (this.length + this.offset + csrcBuff.length - oldCsrcCount*4))
+        {
+            newBuffer = new byte[this.length + this.offset + csrcBuff.length - oldCsrcCount*4];
+        }
+        else
+        {
+            newBuffer = oldBuffer;
+        }
 
         //copy the part up to the CSRC list
         System.arraycopy(
-                    oldBuffer, 0, newBuffer, 0, offset + FIXED_HEADER_SIZE);
-
-        //copy the new CSRC list
-        System.arraycopy( csrcBuff, 0, newBuffer,
-                        offset + FIXED_HEADER_SIZE, csrcBuff.length);
+                oldBuffer, 0, newBuffer, 0, offset + FIXED_HEADER_SIZE);
 
         //now copy the payload from the old buff and make sure we don't copy
         //the CSRC list if there was one in the old packet
@@ -374,17 +410,22 @@ public class RawPacket
         int payloadOffsetForNewBuff
             = offset + FIXED_HEADER_SIZE + newCsrcCount*4;
 
-        System.arraycopy( oldBuffer, payloadOffsetForOldBuff,
-                          newBuffer, payloadOffsetForNewBuff,
-                          oldBuffer.length - payloadOffsetForOldBuff);
-
+        // First shift payload in its new position, then copy (insert)
+        // new cscr list into place. This works for in-buffer copy also.
+        System.arraycopy(oldBuffer, payloadOffsetForOldBuff,
+                newBuffer, payloadOffsetForNewBuff,
+                this.length - payloadOffsetForOldBuff);
+ 
+        //copy the new CSRC list
+        System.arraycopy(csrcBuff, 0, newBuffer,
+                offset + FIXED_HEADER_SIZE, csrcBuff.length);
+            
         //set the new CSRC count
         newBuffer[offset] = (byte)((newBuffer[offset] & 0xF0)
                                     | newCsrcCount);
 
         this.buffer = newBuffer;
-        this.length = payloadOffsetForNewBuff + oldBuffer.length
-                - payloadOffsetForOldBuff - offset;
+        this.length = this.length + payloadOffsetForNewBuff - payloadOffsetForOldBuff;
     }
 
     /**
@@ -566,7 +607,7 @@ public class RawPacket
      */
     public void addExtension(byte[] extBuff, int newExtensionLen)
     {
-        int newBuffLen = buffer.length + newExtensionLen;
+        int newBuffLen = length + offset + newExtensionLen;
         int bufferOffset = offset;
         int newBufferOffset = offset;
         int lengthToCopy = FIXED_HEADER_SIZE + getCsrcCount()*4;

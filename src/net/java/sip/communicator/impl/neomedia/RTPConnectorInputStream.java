@@ -103,15 +103,16 @@ public class RTPConnectorInputStream
      */
     protected RawPacket createRawPacket(DatagramPacket datagramPacket)
     {
-        if (pkt == null || pkt.getBuffer().length < datagramPacket.getLength()) 
+        if (pkt == null) 
         {
-            pkt = null;
             return new RawPacket(
                     datagramPacket.getData(),
                     datagramPacket.getOffset(),
                     datagramPacket.getLength());      
         }
-        System.arraycopy(datagramPacket.getData(), datagramPacket.getOffset(), pkt.getBuffer(), 0, datagramPacket.getLength());
+        pkt.setBuffer(datagramPacket.getData());
+        pkt.setLength(datagramPacket.getLength());
+        pkt.setOffset(0);
         return pkt;
 
     }
