@@ -26,6 +26,8 @@ typedef struct _JAWTRenderer
     size_t dataCapacity;
     jint dataHeight;
     jint dataLength;
+    int dataOffsets[3];
+    int dataPitches[3];
     jint dataWidth;
 }
 JAWTRenderer;
@@ -73,7 +75,9 @@ JAWTRenderer_open(JNIEnv *jniEnv, jclass clazz, jobject component)
                 renderer->image = NULL;
 
                 renderer->data = NULL;
+                renderer->dataHeight = 0;
                 renderer->dataLength = 0;
+                renderer->dataWidth = 0;
             }
         }
         else
@@ -187,10 +191,91 @@ JAWTRenderer_process
         }
         if (rendererData)
         {
-            memcpy(rendererData, data, dataLength);
+            /*
+             * If the image has already told us the offsets and the pitches with
+             * which the data should be, apply them now so that we end up with
+             * one copying.
+             */
+            if ((renderer->dataWidth == width)
+                    && (renderer->dataHeight == height))
+            {
+                int *rendererDataPitches;
+                int *rendererDataOffsets;
+                char *dataAsChars;
+                int planeIndex;
+
+                rendererDataPitches = renderer->dataPitches;
+                rendererDataOffsets = renderer->dataOffsets;
+                dataAsChars = (char *) data;
+                for (planeIndex = 0; planeIndex < 3; planeIndex++)
+                {
+                    int dataPitch;
+                    int rendererDataPitch;
+                    int planeHeight;
+                    int rendererDataOffset;
+
+                    dataPitch = planeIndex ? (width / 2) : width;
+                    rendererDataPitch = rendererDataPitches[planeIndex];
+                    planeHeight = planeIndex ? (height / 2) : height;
+                    rendererDataOffset = rendererDataOffsets[planeIndex];
+                    if (dataPitch == rendererDataPitch)
+                    {
+                        int planeSize;
+
+                        planeSize = dataPitch * planeHeight;
+                        memcpy(
+                            rendererData + rendererDataOffset,
+                            dataAsChars,
+                            planeSize);
+                        dataAsChars += planeSize;
+                    }
+                    else
+                    {
+                        char *rendererDataRow;
+                        int rowIndex;
+
+                        rendererDataRow = rendererData + rendererDataOffset;
+                        for (rowIndex = 0;
+                                rowIndex < planeHeight;
+                                rowIndex++)
+                        {
+                            memcpy(rendererDataRow, dataAsChars, dataPitch);
+                            rendererDataRow += rendererDataPitch;
+                            dataAsChars += dataPitch;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                /*
+                 * Since the image has not told us the offsets and the pitches
+                 * with which the data should be, assume the defaults.
+                 */
+                int *dataPitches;
+                int pitchY;
+                int pitchUV;
+                int *dataOffsets;
+                int offsetU;
+
+                memcpy(rendererData, data, dataLength);
+
+                renderer->dataWidth = width;
+                renderer->dataHeight = height;
+
+                dataPitches = renderer->dataPitches;
+                pitchY = width;
+                dataPitches[0] = pitchY;
+                pitchUV = width / 2;
+                dataPitches[1] = pitchUV;
+                dataPitches[2] = pitchUV;
+                dataOffsets = renderer->dataOffsets;
+                dataOffsets[0] = 0;
+                offsetU = pitchY * height;
+                dataOffsets[1] = offsetU;
+                dataOffsets[2] = offsetU + pitchUV * height / 2;
+            }
             renderer->dataLength = dataLength;
-            renderer->dataWidth = width;
-            renderer->dataHeight = height;
         }
         else
             return JNI_FALSE;
@@ -222,6 +307,10 @@ _JAWTRenderer_createImage(JAWTRenderer *renderer)
                 renderer->imageFormatID,
                 NULL,
                 width, height);
+        /*
+         * XvCreateImage is documented to enlarge width and height for some YUV
+         * formats. But I don't know how to handle such a situation.
+         */
         if (image && ((image->width != width) || (image->height != height)))
         {
             XFree(image);
@@ -253,7 +342,137 @@ _JAWTRenderer_createImage(JAWTRenderer *renderer)
         }
         if (image)
         {
-            image->data = renderer->data;
+            char *data;
+            int planeCount;
+            int *dataOffsets;
+            int *imageOffsets;
+            int planeIndexIncrement;
+            int planeIndex;
+            int beginPlaneIndex;
+            int endPlaneIndex;
+
+            data = renderer->data;
+            image->data = data;
+
+            /*
+             * The data may have different offsets and/or pitches than the image
+             * so the data has to be moved according to the offsets and the
+             * pitches of the image. Start by determining the direction in which
+             * the planes will be moving in order to begin either from the first
+             * plane or from the last plane so that no pixels get overwritten.
+             */
+            planeCount = image->num_planes;
+            dataOffsets = renderer->dataOffsets;
+            imageOffsets = image->offsets;
+            planeIndexIncrement = 0;
+            for (planeIndex = 0; planeIndex < planeCount; planeIndex++)
+            {
+                int dataOffset;
+                int imageOffset;
+
+                dataOffset = dataOffsets[planeIndex];
+                imageOffset = imageOffsets[planeIndex];
+                if (dataOffset == imageOffset)
+                    continue;
+                else
+                {
+                    if (dataOffset < imageOffset)
+                    {
+                        beginPlaneIndex = planeCount - 1;
+                        endPlaneIndex = -1;
+                        planeIndexIncrement =  -1;
+                    }
+                    else
+                    {
+                        beginPlaneIndex = 0;
+                        endPlaneIndex = planeCount;
+                        planeIndexIncrement = 1;
+                    }
+                    break;
+                }
+            }
+            if (planeIndexIncrement)
+            {
+                int *dataPitches;
+                int *imagePitches;
+
+                dataPitches = renderer->dataPitches;
+                imagePitches = image->pitches;
+                for (planeIndex = beginPlaneIndex;
+                        planeIndex != endPlaneIndex;
+                        planeIndex += planeIndexIncrement)
+                {
+                    int dataPitch;
+                    int imagePitch;
+                    int dataOffset;
+                    int imageOffset;
+                    int planeHeight;
+
+                    dataPitch = dataPitches[planeIndex];
+                    imagePitch = imagePitches[planeIndex];
+                    dataOffset = dataOffsets[planeIndex];
+                    imageOffset = imageOffsets[planeIndex];
+                    planeHeight = planeIndex ? (height / 2) : height;
+                    if (dataPitch == imagePitch)
+                    {
+                        if (dataOffset != imageOffset)
+                        {
+                            memmove(
+                                data + imageOffset,
+                                data + dataOffset,
+                                dataPitch * planeHeight);
+                            dataOffsets[planeIndex] = imageOffset;
+                        }
+                    }
+                    else
+                    {
+                        int planeWidth;
+                        char *dataRow;
+                        char *imageRow;
+                        int rowIndex;
+
+                        planeWidth = planeIndex ? (width / 2) : width;
+                        /*
+                         * The direction of the moving has to be applied to the
+                         * moving of the rows as well in order to avoid
+                         * overwriting.
+                         */
+                        if (planeIndexIncrement < 0)
+                        {
+                            dataRow
+                                = data
+                                    + (dataOffset + dataPitch * planeHeight);
+                            imageRow
+                                = data
+                                    + (imageOffset + imagePitch * planeHeight);
+                            for (rowIndex = planeHeight - 1;
+                                    rowIndex > -1;
+                                    rowIndex--)
+                            {
+                                dataRow -= dataPitch;
+                                imageRow -= imagePitch;
+                                memmove(imageRow, dataRow, planeWidth);
+                            }
+                        }
+                        else
+                        {
+                            dataRow = data + dataOffset;
+                            imageRow = data + imageOffset;
+                            for (rowIndex = 0;
+                                    rowIndex < planeHeight;
+                                    rowIndex++)
+                            {
+                                memmove(imageRow, dataRow, planeWidth);
+                                dataRow += dataPitch;
+                                imageRow += imagePitch;
+                            }
+                        }
+                        dataPitches[planeIndex] = imagePitch;
+                        dataOffsets[planeIndex] = imageOffset;
+                    }
+                }
+            }
+
             /*
              * We've just turned data into image and we don't want to do it
              * again.
