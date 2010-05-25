@@ -9,16 +9,12 @@ package net.java.sip.communicator.impl.gui.main.call;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
-import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.audionotifier.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -32,11 +28,6 @@ public class DialPanel
     implements MouseListener
 {
     /**
-     * Our class logger
-     */
-    private final Logger logger = Logger.getLogger(DialPanel.class);
-
-    /**
      * The dial panel.
      */
     private final JPanel dialPadPanel =
@@ -47,27 +38,20 @@ public class DialPanel
                 .getSettingsInt("impl.gui.DIAL_PAD_VERTICAL_GAP")));
 
     /**
-     * Current call peers.
+     * Handles DTMFs.
      */
-    private final java.util.List<CallPeer> callPeersList =
-        new LinkedList<CallPeer>();
+    private DTMFHandler dtmfHandler;
 
     /**
      * Creates an instance of <tt>DialPanel</tt> for a specific call, by
      * specifying the parent <tt>CallManager</tt> and the
      * <tt>CallPeer</tt>.
      *
-     * @param callPeers the <tt>CallPeer</tt>s, for which the
-     * dialpad will be opened.
+     * @param dtmfHandler handles DTMFs.
      */
-    public DialPanel(Iterator<? extends CallPeer> callPeers)
+    public DialPanel(DTMFHandler dtmfHandler)
     {
-        // We need to send DTMF tones to all peers each time the user
-        // presses a dial button, so we put the iterator into a list.
-        while (callPeers.hasNext())
-        {
-            this.callPeersList.add(callPeers.next());
-        }
+        this.dtmfHandler = dtmfHandler;
 
         this.init();
     }
@@ -89,26 +73,19 @@ public class DialPanel
 
         this.dialPadPanel.setPreferredSize(new Dimension(width, height));
 
-        ImageID[] images =
-            new ImageID[]
-            { ImageLoader.ONE_DIAL_BUTTON, ImageLoader.TWO_DIAL_BUTTON,
-                ImageLoader.THREE_DIAL_BUTTON, ImageLoader.FOUR_DIAL_BUTTON,
-                ImageLoader.FIVE_DIAL_BUTTON, ImageLoader.SIX_DIAL_BUTTON,
-                ImageLoader.SEVEN_DIAL_BUTTON, ImageLoader.EIGHT_DIAL_BUTTON,
-                ImageLoader.NINE_DIAL_BUTTON, ImageLoader.STAR_DIAL_BUTTON,
-                ImageLoader.ZERO_DIAL_BUTTON, ImageLoader.DIEZ_DIAL_BUTTON };
-        String[] names =
-            new String[]
-            { "one", "two", "three", "four", "five", "six", "seven", "eight",
-                "nine", "star", "zero", "diez" };
-        final int buttonCount = images.length;
-        if (buttonCount != names.length)
-            throw new IllegalStateException("names");
         Image bgImage = ImageLoader.getImage(ImageLoader.DIAL_BUTTON_BG);
 
-        for (int buttonIndex = 0; buttonIndex < buttonCount; buttonIndex++)
-            dialPadPanel.add(createDialButton(bgImage, images[buttonIndex],
-                names[buttonIndex]));
+        DTMFHandler.DTMFToneInfo[] availableTones = DTMFHandler.availableTones;
+        for (int i = 0; i < availableTones.length; i++)
+        {
+            DTMFHandler.DTMFToneInfo info = availableTones[i];
+            // we add only buttons having image
+            if(info.imageID == null)
+                continue;
+
+            dialPadPanel.add(
+                createDialButton(bgImage, info.imageID, info.tone.getValue()));
+        }
 
         this.add(dialPadPanel, BorderLayout.CENTER);
     }
@@ -153,74 +130,7 @@ public class DialPanel
     public void mousePressed(MouseEvent e)
     {
         JButton button = (JButton) e.getSource();
-        String buttonName = button.getName();
-
-        AudioNotifierService audioNotifier = GuiActivator.getAudioNotifier();
-        DTMFTone tone = null;
-
-        if (buttonName.equals("one"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_ONE).play();
-            tone = DTMFTone.DTMF_1;
-        }
-        else if (buttonName.equals("two"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_TWO).play();
-            tone = DTMFTone.DTMF_2;
-        }
-        else if (buttonName.equals("three"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_THREE).play();
-            tone = DTMFTone.DTMF_3;
-        }
-        else if (buttonName.equals("four"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_FOUR).play();
-            tone = DTMFTone.DTMF_4;
-        }
-        else if (buttonName.equals("five"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_FIVE).play();
-            tone = DTMFTone.DTMF_5;
-        }
-        else if (buttonName.equals("six"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_SIX).play();
-            tone = DTMFTone.DTMF_6;
-        }
-        else if (buttonName.equals("seven"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_SEVEN).play();
-            tone = DTMFTone.DTMF_7;
-        }
-        else if (buttonName.equals("eight"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_EIGHT).play();
-            tone = DTMFTone.DTMF_8;
-        }
-        else if (buttonName.equals("nine"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_NINE).play();
-            tone = DTMFTone.DTMF_9;
-        }
-        else if (buttonName.equals("zero"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_ZERO).play();
-            tone = DTMFTone.DTMF_0;
-        }
-        else if (buttonName.equals("diez"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_DIEZ).play();
-            tone = DTMFTone.DTMF_SHARP;
-        }
-        else if (buttonName.equals("star"))
-        {
-            audioNotifier.createAudio(SoundProperties.DIAL_STAR).play();
-            tone = DTMFTone.DTMF_STAR;
-        }
-
-        if(tone != null)
-            this.startSendingDtmfTone(tone);
+        dtmfHandler.startSendingDtmfTone(button.getName());
     }
 
     /**
@@ -230,7 +140,7 @@ public class DialPanel
      */
     public void mouseReleased(MouseEvent e)
     {
-        this.stopSendingDtmfTone();
+        dtmfHandler.stopSendingDtmfTone();
     }
 
     /**
@@ -279,62 +189,6 @@ public class DialPanel
                         this.getHeight() - bgImage.getHeight(),
                         this);
             }
-        }
-    }
-
-    /**
-     * Sends a DTMF tone to the current DTMF operation set.
-     *
-     * @param dtmfTone The DTMF tone to send.
-     */
-    private void startSendingDtmfTone(DTMFTone dtmfTone)
-    {
-        Iterator<? extends CallPeer> callPeers = this.callPeersList.iterator();
-
-        try
-        {
-            while (callPeers.hasNext())
-            {
-                CallPeer peer = callPeers.next();
-                OperationSetDTMF dtmfOpSet
-                    = peer
-                        .getProtocolProvider()
-                            .getOperationSet(OperationSetDTMF.class);
-
-                if (dtmfOpSet != null)
-                    dtmfOpSet.startSendingDTMF(peer, dtmfTone);
-            }
-        }
-        catch (Throwable e1)
-        {
-            logger.error("Failed to send a DTMF tone.", e1);
-        }
-    }
-
-    /**
-     * Stop sending DTMF tone.
-     */
-    private void stopSendingDtmfTone()
-    {
-        Iterator<? extends CallPeer> callPeers = this.callPeersList.iterator();
-
-        try
-        {
-            while (callPeers.hasNext())
-            {
-                CallPeer peer = callPeers.next();
-                OperationSetDTMF dtmfOpSet
-                    = peer
-                        .getProtocolProvider()
-                            .getOperationSet(OperationSetDTMF.class);
-
-                if (dtmfOpSet != null)
-                    dtmfOpSet.stopSendingDTMF(peer);
-            }
-        }
-        catch (Throwable e1)
-        {
-            logger.error("Failed to send a DTMF tone.", e1);
         }
     }
 }

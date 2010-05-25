@@ -151,11 +151,21 @@ public class DtmfTransformEngine
      * we determine it to be DTMF.
      *
      * @return the <tt>pkt</tt> if it is not a DTMF tone and <tt>null</tt>
-     * otherwise since we will be handling the packet ourselves and ther's
+     * otherwise since we will be handling the packet ourselves and their's
      * no point in feeding it to the application.
      */
     public RawPacket reverseTransform(RawPacket pkt)
     {
+        byte currentDtmfPayload = mediaStream.getDynamicRTPPayloadType(
+                        Constants.TELEPHONE_EVENT);
+
+        if(currentDtmfPayload == pkt.getPayloadType())
+        {
+            // ignore received dtmf packets
+            // if jmf receive change in rtp payload stops reception
+            return null;
+        }
+
         return pkt;
     }
 

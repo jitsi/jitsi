@@ -31,7 +31,6 @@ import net.java.sip.communicator.util.swing.border.*;
 public class CallDialog
     extends SIPCommFrame
     implements ActionListener,
-               MouseListener,
                CallChangeListener,
                CallPeerConferenceListener
 {
@@ -42,6 +41,8 @@ public class CallDialog
     private static final String HANGUP_BUTTON = "HANGUP_BUTTON";
 
     private DialpadDialog dialpadDialog;
+
+    private DTMFHandler dtmfHandler;
 
     private final Container contentPane = getContentPane();
 
@@ -145,14 +146,12 @@ public class CallDialog
         dialButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.DIALPAD"));
         dialButton.addActionListener(this);
-        dialButton.addMouseListener(this);
 
         conferenceButton.setName(CONFERENCE_BUTTON);
         conferenceButton.setToolTipText(
             GuiActivator.getResources().getI18NString(
                 "service.gui.CREATE_CONFERENCE_CALL"));
         conferenceButton.addActionListener(this);
-        conferenceButton.addMouseListener(this);
 
         contentPane.add(callPanel, BorderLayout.CENTER);
         contentPane.add(buttonsPanel, BorderLayout.SOUTH);
@@ -175,6 +174,9 @@ public class CallDialog
 
         buttonsPanel.setBorder(
             new ExtendedEtchedBorder(EtchedBorder.LOWERED, 1, 0, 0, 0));
+
+        dtmfHandler = new DTMFHandler(this.call);
+        dtmfHandler.addParent(this);
     }
 
     /**
@@ -193,7 +195,9 @@ public class CallDialog
         else if (buttonName.equals(DIAL_BUTTON))
         {
             if (dialpadDialog == null)
+            {
                 dialpadDialog = this.getDialpadDialog();
+            }
 
             if(!dialpadDialog.isVisible())
             {
@@ -205,11 +209,12 @@ public class CallDialog
                     this.getX() + 10,
                     getLocationOnScreen().y + getHeight());
 
+                dialpadDialog.addWindowFocusListener(dialpadDialog);
                 dialpadDialog.setVisible(true);
-                dialpadDialog.requestFocus();
             }
             else
             {
+                dialpadDialog.removeWindowFocusListener(dialpadDialog);
                 dialpadDialog.setVisible(false);
             }
         }
@@ -220,34 +225,6 @@ public class CallDialog
 
             inviteDialog.setVisible(true);
         }
-    }
-
-    public void mouseClicked(MouseEvent e) {}
-
-    public void mousePressed(MouseEvent e) {}
-
-    public void mouseReleased(MouseEvent e) {}
-
-    /**
-     * Updates the dial pad dialog and removes related focus listener.
-     * @param e the <tt>MouseEvent</tt> that was triggered
-     */
-    public void mouseEntered(MouseEvent e)
-    {
-        if (dialpadDialog == null)
-            dialpadDialog = this.getDialpadDialog();
-        dialpadDialog.removeWindowFocusListener(dialpadDialog);
-    }
-
-    /**
-     * Updates the dial pad dialog and adds related focus listener.
-     * @param e the <tt>MouseEvent</tt> that was triggered
-     */
-    public void mouseExited(MouseEvent e)
-    {
-        if (dialpadDialog == null)
-            dialpadDialog = this.getDialpadDialog();
-        dialpadDialog.addWindowFocusListener(dialpadDialog);
     }
 
     /**
@@ -297,12 +274,7 @@ public class CallDialog
      */
     private DialpadDialog getDialpadDialog()
     {
-        Iterator<? extends CallPeer> callPeers =
-            (call == null)
-                ? new Vector<CallPeer>().iterator()
-                : call.getCallPeers();
-
-        return new DialpadDialog(callPeers);
+        return new DialpadDialog(dtmfHandler);
     }
 
     /**

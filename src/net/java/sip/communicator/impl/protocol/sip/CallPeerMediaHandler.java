@@ -1223,11 +1223,6 @@ public class CallPeerMediaHandler
             MediaDirection devDirection
                 = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
 
-            /* intersect the MediaFormat of our device with remote ones */
-            List<MediaFormat> supportedAdvancedParameters =
-                getAdvancedFormatParameters(supportedFormats,
-                        dev.getSupportedFormats());
-
             // Take the preference of the user with respect to streaming
             // mediaType into account.
             devDirection
@@ -1250,6 +1245,11 @@ public class CallPeerMediaHandler
                 closeStream(mediaType);
                 continue;
             }
+
+            /* intersect the MediaFormat of our device with remote ones */
+            List<MediaFormat> supportedAdvancedParameters =
+                getAdvancedFormatParameters(supportedFormats,
+                        dev.getSupportedFormats());
 
             StreamConnector connector = getStreamConnector(mediaType);
 
@@ -1478,13 +1478,20 @@ public class CallPeerMediaHandler
             // not target port - try next media description
             if(target.getDataAddress().getPort() == 0)
             {
-                    closeStream(mediaType);
-                    continue;
+                closeStream(mediaType);
+                continue;
             }
             List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
                             mediaDescription, dynamicPayloadTypes);
 
             MediaDevice dev = getDefaultDevice(mediaType);
+
+            if(dev == null)
+            {
+                closeStream(mediaType);
+                continue;
+            }
+
             MediaDirection devDirection
                 = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
 

@@ -8,12 +8,10 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>DialpadDialog</tt> is a popup dialog containing a dialpad.
@@ -46,19 +44,21 @@ public class DialpadDialog
 
         this.setUndecorated(true);
         this.pack();
-        this.addWindowFocusListener(this);
     }
 
     /**
      * Creates an instance of the <tt>DialpadDialog</tt>.
      *
-     * @param callPeers The corresponding call peers.
+     * @param dtmfHandler handles DTMFs.
      */
-    public DialpadDialog(Iterator<? extends CallPeer> callPeers)
+    public DialpadDialog(
+        DTMFHandler dtmfHandler)
     {
-        this(new DialPanel(callPeers));
+        this(new DialPanel(dtmfHandler));
 
         this.setModal(false);
+
+        dtmfHandler.addParent(this);
     }
 
     /**
@@ -112,6 +112,7 @@ public class DialpadDialog
      */
     public void windowLostFocus(WindowEvent e)
     {
+        this.removeWindowFocusListener(this);
         this.setVisible(false);
     }
 }
