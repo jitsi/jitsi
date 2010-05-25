@@ -158,7 +158,10 @@ public class MediaUtils
         = new HashMap<String, String>();
 
         h264FormatParams.put("packetization-mode", "1");
-        h264AdvancedAttributes.put("rtcp-fb", "nack pli");
+        /* disable PLI since we use periodic intra-refresh feature
+         * of ffmpeg/x264
+         */
+        //h264AdvancedAttributes.put("rtcp-fb", "nack pli");
 
         ScreenDevice screen = NeomediaActivator.getMediaServiceImpl().
             getDefaultScreenDevice();

@@ -527,7 +527,7 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
         ret
             = sws_scale (
                 (struct SwsContext *) context,
-                (uint8_t **) srcPicture->data, (int *) srcPicture->linesize,
+                (const uint8_t * const *) srcPicture->data, (int *) srcPicture->linesize,
                 (int) srcSliceY, (int) srcSliceH,
                 (uint8_t **) dstPicture.data,
                 (int *) dstPicture.linesize);

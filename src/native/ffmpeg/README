@@ -1,14 +1,12 @@
-1. x264-snapshot-20091208-2245
+1. x264-snapshot-20100518-2245
 
 - Windows
 
-32-bit
+Download yasm for Windows (32-bit or 64-bit) at http://www.tortall.net/projects/yasm/wiki/Download
+and copy it to C:\MinGW\bin (or in a directory registered in the PATH environment variable).
+
 ./configure --disable-pthread
 make 
-
-64-bit
-./configure --disable-pthread --disable-avs-input --disable-asm
-make
 
 - FreeBSD
 
@@ -22,14 +20,14 @@ gmake
 ./configure --enable-pic
 make
 
-2. ffmpeg-r20783
+2. ffmpeg-r23181
 
-First patch ffmpeg with ffmpeg-libx264-keyframe.diff:
-$ patch -p0 < ffmpeg-libx264-keyframe.diff
+First patch ffmpeg with ffmpeg-23181.diff
+patch -p0 < ffmpeg-23181.diff
 
 - Windows
 
-32-bit
+32-bit:
 ./configure \
   --target-os=mingw32 \
   --enable-memalign-hack \
@@ -44,10 +42,10 @@ $ patch -p0 < ffmpeg-libx264-keyframe.diff
   --disable-ffserver --disable-ffplay --disable-ffmpeg \
   --disable-pthreads --enable-w32threads
 
-64-bit
-Edit configure script and remove the following lines:
-check_cpp_condition _mingw.h "(__MINGW32_MAJOR_VERSION > 3) || (__MINGW32_MAJOR_VERSION == 3 && __MINGW32_MINOR_VERSION >= 15)" ||
-    die "ERROR: MinGW runtime version must be >= 3.15."
+64-bit:
+
+Patch again ffmpeg with ffmpeg-win64.diff
+patch -p0 < ffmpeg-win64.diff
 
 Then run:
 ./configure \
@@ -108,13 +106,4 @@ Be careful to correctly set X264_HOME, FFMPEG_HOME and JAVA_HOME variables.
 
 Then run:
 make (gmake on FreeBSD)
-
-Note:
-If compilation errors related to "relocation" occured, you 
-have to patch ffmpeg, libswscale and x264.
-
-Apply the following patches in the relevant directory:
-- x264-20091208-visibility-hidden.patch
-- ffmpeg-visibility-hidden.patch
-- ffmpeg-libswcale-visibility-hidden.patch
 

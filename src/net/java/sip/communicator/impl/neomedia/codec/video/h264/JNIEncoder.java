@@ -35,9 +35,9 @@ public class JNIEncoder
         = { new VideoFormat(Constants.H264) };
 
     /**
-     * Key frame every 300 frames.
+     * Key frame every 45 frames.
      */
-    private static final int IFRAME_INTERVAL = 300;
+    private static final int IFRAME_INTERVAL = 45;
 
     /**
      * Padding size.
@@ -91,8 +91,19 @@ public class JNIEncoder
 
     /**
      * Force encoder to send a key frame.
+     * First frame have to be a keyframe.
      */
-    private boolean forceKeyFrame = false;
+    private boolean forceKeyFrame = true;
+
+    /**
+     * Peer that receive stream from latest ffmpeg/x264 aware peer does not
+     * manage to decode the first keyframe and must wait for the next periodic
+     * intra refresh to display the video to the user.
+     *
+     * Temporary solution for this probolem: send the two first frames as
+     * keyframe to display video stream.
+     */
+    private boolean secondKeyFrame = true;
 
     /**
      * Last keyframe request time.
@@ -233,7 +244,7 @@ public class JNIEncoder
         FFmpeg.avcodeccontext_set_bit_rate(avcontext, _bitRate);
         // so to be 1 in x264
         FFmpeg.avcodeccontext_set_bit_rate_tolerance(avcontext, _bitRate);
-        FFmpeg.avcodeccontext_set_rc_max_rate(avcontext, _bitRate);
+        //FFmpeg.avcodeccontext_set_rc_max_rate(avcontext, 0);
         FFmpeg.avcodeccontext_set_sample_aspect_ratio(avcontext, 0, 0);
         FFmpeg.avcodeccontext_set_thread_count(avcontext, 1);
         // time_base should be 1 / frame rate
@@ -265,7 +276,7 @@ public class JNIEncoder
         FFmpeg.avcodeccontext_set_gop_size(avcontext, IFRAME_INTERVAL);
         FFmpeg.avcodeccontext_set_i_quant_factor(avcontext, 1f / 1.4f);
 
-        FFmpeg.avcodeccontext_set_refs(avcontext, 4);
+        FFmpeg.avcodeccontext_set_refs(avcontext, 1);
         FFmpeg.avcodeccontext_set_trellis(avcontext, 2);
 
         /*
@@ -343,11 +354,21 @@ public class JNIEncoder
                 (byte[]) inBuffer.getData(), inBuffer.getOffset(),
                 encFrameLen);
 
-        if (framesSinceLastIFrame >= IFRAME_INTERVAL || forceKeyFrame)
+        if (/* framesSinceLastIFrame >= IFRAME_INTERVAL || */ forceKeyFrame)
         {
             FFmpeg.avframe_set_key_frame(avframe, true);
             framesSinceLastIFrame = 0;
-            forceKeyFrame = false;
+
+            /* send keyframe for the first two frames */
+            if(secondKeyFrame)
+            {
+                secondKeyFrame = false;
+                forceKeyFrame = true;
+            }
+            else
+            {
+                forceKeyFrame = false;
+            }
         }
         else
         {
@@ -518,7 +539,8 @@ public class JNIEncoder
                             + PLI_INTERVAL)
                     {
                         lastKeyframeRequestTime = System.currentTimeMillis();
-                        forceKeyFrame = true;
+                        /* disable PLI */
+                        //forceKeyFrame = true;
                     }
                     break;
                 default:

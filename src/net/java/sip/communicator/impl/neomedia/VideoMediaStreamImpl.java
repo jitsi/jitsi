@@ -284,7 +284,7 @@ public class VideoMediaStreamImpl
     {
         super.configureDataOutputStream(dataOutputStream);
 
-        dataOutputStream.setMaxPacketsPerMillis(1, 10);
+        dataOutputStream.setMaxPacketsPerMillis(-1, 10);
     }
 
     /**
