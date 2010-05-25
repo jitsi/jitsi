@@ -102,6 +102,7 @@ public class EditTextToolBar
 
         colorLabel.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mousePressed(MouseEvent event)
             {
                 Color newColor =
@@ -126,9 +127,12 @@ public class EditTextToolBar
 
         chatEditorPane.addKeyListener(new KeyAdapter()
         {
+            @Override
             public void keyTyped(KeyEvent e)
             {
-                if (chatWritePanel.getText().length() > 0)
+                String chatWritePanelText = chatWritePanel.getText();
+                if (chatWritePanelText != null &&
+                        chatWritePanelText.length() > 0)
                 {
                     Color currentColor
                         = (Color) ((HTMLEditorKit) chatEditorPane
@@ -145,6 +149,7 @@ public class EditTextToolBar
 
         chatEditorPane.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mouseClicked(MouseEvent e)
             {
                 selectColor(StyleConstants.Foreground, colorLabel);
@@ -205,6 +210,7 @@ public class EditTextToolBar
         });
         chatEditorPane.addKeyListener(new KeyAdapter()
         {
+            @Override
             public void keyTyped(KeyEvent e)
             {
                 if (chatEditorPane.getText().length() > 0)
@@ -225,6 +231,7 @@ public class EditTextToolBar
         });
         chatEditorPane.addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mouseClicked(MouseEvent e)
             {
                 selectStyleToggleButtons(styleConstants, buttons);
@@ -397,6 +404,7 @@ public class EditTextToolBar
 
     private static class ColorLabel extends JLabel
     {
+        @Override
         public void paintComponent(Graphics g)
         {
             g = g.create();
