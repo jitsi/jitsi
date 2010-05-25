@@ -53,12 +53,19 @@ public class JNIDecoder
     private final boolean[] got_picture = new boolean[1];
 
     /**
+     * The last known height of {@link #avcontext} i.e. the video output by this
+     * <tt>JNIDecoder</tt>. Used to detect changes in the output size.
+     */
+    private int height;
+
+    /**
      * Array of output <tt>VideoFormat</tt>s.
      */
     private final VideoFormat[] outputFormats;
 
     /**
-     * Current width of video, so we can detect changes in video size.
+     * The last known width of {@link #avcontext} i.e. the video output by this
+     * <tt>JNIDecoder</tt>. Used to detect changes in the output size.
      */
     private int width;
 
@@ -81,7 +88,10 @@ public class JNIDecoder
                         FFmpeg.PIX_FMT_YUV420P)
             };
 
-        width = outputFormats[0].getSize().width;
+        Dimension outputSize = outputFormats[0].getSize();
+
+        width = outputSize.width;
+        height = outputSize.height;
     }
 
     /**
@@ -260,15 +270,18 @@ public class JNIDecoder
         }
 
         // format
-        int avctxWidth = FFmpeg.avcodeccontext_get_width(avcontext);
-        int avctxHeight = FFmpeg.avcodeccontext_get_height(avcontext);
+        int width = FFmpeg.avcodeccontext_get_width(avcontext);
+        int height = FFmpeg.avcodeccontext_get_height(avcontext);
 
-        if ((avctxWidth != 0) && (avctxWidth != width))
+        if ((width > 0)
+                && (height > 0)
+                && ((this.width != width) || (this.height != height)))
         {
-            width = avctxWidth;
+            this.width = width;
+            this.height = height;
 
             // Output in same size and frame rate as input.
-            Dimension outSize = new Dimension(avctxWidth, avctxHeight);
+            Dimension outSize = new Dimension(this.width, this.height);
             VideoFormat inFormat = (VideoFormat) inBuffer.getFormat();
             float outFrameRate = ensureFrameRate(inFormat.getFrameRate());
 
@@ -306,9 +319,14 @@ public class JNIDecoder
     }
 
     /**
-     * Set the data input format.
+     * Sets the <tt>Format</tt> of the media data to be input for processing in
+     * this <tt>Codec</tt>.
      *
-     * @return false if the format is not supported.
+     * @param format the <tt>Format</tt> of the media data to be input for
+     * processing in this <tt>Codec</tt>
+     * @return the <tt>Format</tt> of the media data to be input for processing
+     * in this <tt>Codec</tt> if <tt>format</tt> is compatible with this
+     * <tt>Codec</tt>; otherwise, <tt>null</tt>
      */
     @Override
     public Format setInputFormat(Format format)

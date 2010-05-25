@@ -9,17 +9,12 @@
 
 #include <math.h>
 #include <portaudio.h>
-#include <speex/speex_resampler.h>
-#include <speex/speex_preprocess.h>
 #include <speex/speex_echo.h>
+#include <speex/speex_preprocess.h>
+#include <speex/speex_resampler.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <sys/time.h> /* used on Windows */
-#include <time.h>
-
-#ifndef _WIN32
-#include <sys/select.h> /* for struct timeval */
-#endif
+#include <sys/time.h>
 
 typedef struct
 {

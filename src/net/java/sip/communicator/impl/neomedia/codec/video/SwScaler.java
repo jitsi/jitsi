@@ -312,8 +312,8 @@ public class SwScaler
         if (outputFormat instanceof YUVFormat)
         {
             dstFmt = FFmpeg.PIX_FMT_YUV420P;
-            /* YUV420P is 12 bpp (bit per pixel) => 1,5 bytes */
-            dstLength = (int)(outputWidth * outputHeight * 1.5);
+            /* YUV420P is 12 bits per pixel i.e. 1.5 bytes. */
+            dstLength = (int) (outputWidth * outputHeight * 1.5);
         }
         else /* RGB format */
         {
@@ -331,15 +331,15 @@ public class SwScaler
         }
         else if (Format.intArray.equals(outputDataType))
         {
-            /* Java int is always 4 bytes */
-            dstLength = (dstLength % 4) + dstLength / 4;
+            /* Java int is always 4 bytes. */
+            dstLength = dstLength / 4 + ((dstLength % 4 == 0) ? 0 : 1);
             if(dst == null || ((int[])dst).length < dstLength)
                 dst = new int[dstLength];
         }
         else if (Format.shortArray.equals(outputDataType))
         {
-            /* Java short is always 2 bytes */
-            dstLength = (dstLength % 2) + dstLength / 2;
+            /* Java short is always 2 bytes. */
+            dstLength = dstLength / 2 + ((dstLength % 2 == 0) ? 0 : 1);
             if(dst == null || ((short[])dst).length < dstLength)
                 dst = new short[dstLength];
         }

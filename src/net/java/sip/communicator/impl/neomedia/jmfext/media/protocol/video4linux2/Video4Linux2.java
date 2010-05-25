@@ -38,11 +38,20 @@ public class Video4Linux2
 
     public static final int V4L2_PIX_FMT_NONE = 0;
 
-    public static final int V4L2_PIX_FMT_RGB24;
+    public static final int V4L2_PIX_FMT_RGB24
+        = v4l2_fourcc('R', 'G', 'B', '3');
 
-    public static final int V4L2_PIX_FMT_UYVY;
+    public static final int V4L2_PIX_FMT_UYVY
+        = v4l2_fourcc('U', 'Y', 'V', 'Y');
 
-    public static final int V4L2_PIX_FMT_YUYV;
+    public static final int V4L2_PIX_FMT_VYUY
+        = v4l2_fourcc('V', 'Y', 'U', 'Y');
+
+    public static final int V4L2_PIX_FMT_YUV420
+        = v4l2_fourcc('Y', 'U', '1', '2');
+
+    public static final int V4L2_PIX_FMT_YUYV
+        = v4l2_fourcc('Y', 'U', 'Y', 'V');
 
     public static final int VIDIOC_DQBUF;
 
@@ -66,9 +75,6 @@ public class Video4Linux2
     {
         System.loadLibrary("jvideo4linux2");
 
-        V4L2_PIX_FMT_RGB24 = V4L2_PIX_FMT_RGB24();
-        V4L2_PIX_FMT_UYVY = V4L2_PIX_FMT_UYVY();
-        V4L2_PIX_FMT_YUYV = V4L2_PIX_FMT_YUYV();
         VIDIOC_DQBUF = VIDIOC_DQBUF();
         VIDIOC_G_FMT = VIDIOC_G_FMT();
         VIDIOC_QBUF = VIDIOC_QBUF();
@@ -128,15 +134,18 @@ public class Video4Linux2
     public static native String v4l2_capability_getCard(
             long v4l2_capability);
 
+    private static int v4l2_fourcc(char a, char b, char c, char d)
+    {
+        return
+            (a & 0xFF)
+                | ((b & 0xFF) << 8)
+                | ((c & 0xFF) << 16)
+                | ((d & 0xFF) << 24);
+    }
+
     public static native long v4l2_format_alloc(int type);
 
     public static native long v4l2_format_getFmtPix(long v4l2_format);
-
-    private static native int V4L2_PIX_FMT_RGB24();
-
-    private static native int V4L2_PIX_FMT_UYVY();
-
-    private static native int V4L2_PIX_FMT_YUYV();
 
     public static native int v4l2_pix_format_getHeight(
             long v4l2_pix_format);

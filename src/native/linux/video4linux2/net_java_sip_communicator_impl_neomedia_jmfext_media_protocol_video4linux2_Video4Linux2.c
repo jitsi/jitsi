@@ -192,27 +192,6 @@ Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_V4L2_1PIX_1FMT_1RGB24
-    (JNIEnv *jniEnv, jclass clazz)
-{
-    return (jint) V4L2_PIX_FMT_RGB24;
-}
-
-JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_V4L2_1PIX_1FMT_1UYVY
-    (JNIEnv *jniEnv, jclass clazz)
-{
-    return (jint) V4L2_PIX_FMT_UYVY;
-}
-
-JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_V4L2_1PIX_1FMT_1YUYV
-    (JNIEnv *jniEnv, jclass clazz)
-{
-    return (jint) V4L2_PIX_FMT_YUYV;
-}
-
-JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_v4l2_1pix_1format_1getHeight
     (JNIEnv *jniEnv, jclass clazz, jlong v4l2_pix_format)
 {

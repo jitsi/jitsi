@@ -176,30 +176,6 @@ JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_medi
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2
- * Method:    V4L2_PIX_FMT_RGB24
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_V4L2_1PIX_1FMT_1RGB24
-  (JNIEnv *, jclass);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2
- * Method:    V4L2_PIX_FMT_UYVY
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_V4L2_1PIX_1FMT_1UYVY
-  (JNIEnv *, jclass);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2
- * Method:    V4L2_PIX_FMT_YUYV
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_V4L2_1PIX_1FMT_1YUYV
-  (JNIEnv *, jclass);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2
  * Method:    v4l2_pix_format_getHeight
  * Signature: (J)I
  */

@@ -28,6 +28,13 @@ public class JNIEncoder
     extends AbstractCodec
     implements RTCPFeedbackListener
 {
+
+    /**
+     * The frame rate to be assumed by <tt>JNIEncoder</tt> instance in the
+     * absence of any other frame rate indication.
+     */
+    private static final int DEFAULT_FRAME_RATE = 15;
+
     /**
      * Default output formats.
      */
@@ -40,24 +47,14 @@ public class JNIEncoder
     private static final int IFRAME_INTERVAL = 45;
 
     /**
-     * Padding size.
-     */
-    private static final int INPUT_BUFFER_PADDING_SIZE = 8;
-
-    /**
-     * Name of the code.
-     */
-    private static final String PLUGIN_NAME = "H.264 Encoder";
-
-    /**
      * Minimum interval between two PLI request processing (in milliseconds).
      */
     private static final long PLI_INTERVAL = 3000;
 
     /**
-     * The frame rate we will use
+     * Name of the code.
      */
-    private static final int TARGET_FRAME_RATE = 15;
+    private static final String PLUGIN_NAME = "H.264 Encoder";
 
     /**
      * The codec we will use.
@@ -80,20 +77,25 @@ public class JNIEncoder
     private int encFrameLen;
 
     /**
+     * Force encoder to send a key frame.
+     * First frame have to be a keyframe.
+     */
+    private boolean forceKeyFrame = true;
+
+    /**
      * Next interval for an automatic keyframe.
      */
     private int framesSinceLastIFrame = IFRAME_INTERVAL + 1;
 
     /**
+     * Last keyframe request time.
+     */
+    private long lastKeyframeRequestTime = System.currentTimeMillis();
+
+    /**
      * The raw frame buffer.
      */
     private long rawFrameBuffer;
-
-    /**
-     * Force encoder to send a key frame.
-     * First frame have to be a keyframe.
-     */
-    private boolean forceKeyFrame = true;
 
     /**
      * Peer that receive stream from latest ffmpeg/x264 aware peer does not
@@ -104,11 +106,6 @@ public class JNIEncoder
      * keyframe to display video stream.
      */
     private boolean secondKeyFrame = true;
-
-    /**
-     * Last keyframe request time.
-     */
-    private long lastKeyframeRequestTime = System.currentTimeMillis();
 
     /**
      * Initializes a new <tt>JNIEncoder</tt> instance.
@@ -122,7 +119,7 @@ public class JNIEncoder
                         null,
                         Format.NOT_SPECIFIED,
                         Format.byteArray,
-                        TARGET_FRAME_RATE,
+                        DEFAULT_FRAME_RATE,
                         YUVFormat.YUV_420,
                         Format.NOT_SPECIFIED, Format.NOT_SPECIFIED,
                         0, Format.NOT_SPECIFIED, Format.NOT_SPECIFIED)
@@ -225,9 +222,10 @@ public class JNIEncoder
         if (outputFormat == null)
             throw new ResourceUnavailableException("No output format selected");
 
-        Dimension outputFormatSize = ((VideoFormat) outputFormat).getSize();
-        int width = outputFormatSize.width;
-        int height = outputFormatSize.height;
+        VideoFormat outputVideoFormat = (VideoFormat) outputFormat;
+        Dimension size = outputVideoFormat.getSize();
+        int width = size.width;
+        int height = size.height;
 
         long avcodec = FFmpeg.avcodec_find_encoder(FFmpeg.CODEC_ID_H264);
 
@@ -238,17 +236,22 @@ public class JNIEncoder
 
         FFmpeg.avcodeccontext_set_qcompress(avcontext, 0.6f);
 
-        //int _bitRate = 768000;
-        int _bitRate = 128000;
+        int bitRate = 128000;
+
         // average bit rate
-        FFmpeg.avcodeccontext_set_bit_rate(avcontext, _bitRate);
+        FFmpeg.avcodeccontext_set_bit_rate(avcontext, bitRate);
         // so to be 1 in x264
-        FFmpeg.avcodeccontext_set_bit_rate_tolerance(avcontext, _bitRate);
+        FFmpeg.avcodeccontext_set_bit_rate_tolerance(avcontext, bitRate);
         //FFmpeg.avcodeccontext_set_rc_max_rate(avcontext, 0);
         FFmpeg.avcodeccontext_set_sample_aspect_ratio(avcontext, 0, 0);
         FFmpeg.avcodeccontext_set_thread_count(avcontext, 1);
+
         // time_base should be 1 / frame rate
-        FFmpeg.avcodeccontext_set_time_base(avcontext, 1, TARGET_FRAME_RATE);
+        int frameRate = (int) outputVideoFormat.getFrameRate();
+
+        if (frameRate == Format.NOT_SPECIFIED)
+            frameRate = DEFAULT_FRAME_RATE;
+        FFmpeg.avcodeccontext_set_time_base(avcontext, 1, frameRate);
         FFmpeg.avcodeccontext_set_quantizer(avcontext, 22, 30, 4);
 
         // avcontext.chromaoffset = -2;
@@ -303,8 +306,14 @@ public class JNIEncoder
         rawFrameBuffer = FFmpeg.av_malloc(encFrameLen);
 
         avframe = FFmpeg.avcodec_alloc_frame();
-        int size = width * height;
-        FFmpeg.avframe_set_data(avframe, rawFrameBuffer, size, size / 4);
+
+        int sizeInBytes = width * height;
+
+        FFmpeg.avframe_set_data(
+                avframe,
+                rawFrameBuffer,
+                sizeInBytes,
+                sizeInBytes / 4);
         FFmpeg.avframe_set_linesize(avframe, width, width / 2, width / 2);
 
         encFrameBuffer = new byte[encFrameLen];
@@ -440,26 +449,26 @@ public class JNIEncoder
             return null;
 
         YUVFormat yuv = (YUVFormat) in;
-        Dimension inSize = yuv.getSize();
-
-        if (inSize == null)
-            inSize
-                = new Dimension(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT);
 
         if (yuv.getOffsetU() > yuv.getOffsetV())
             return null;
 
-        int strideY = inSize.width;
-        int strideUV = strideY / 2;
-        int offsetU = strideY * inSize.height;
-        int offsetV = offsetU + strideUV * inSize.height / 2;
+        Dimension size = yuv.getSize();
 
-        int inYUVLength = (strideY + strideUV) * inSize.height;
+        if (size == null)
+            size = new Dimension(Constants.VIDEO_WIDTH, Constants.VIDEO_HEIGHT);
+
+        int strideY = size.width;
+        int strideUV = strideY / 2;
+        int offsetU = strideY * size.height;
+        int offsetV = offsetU + strideUV * size.height / 2;
+
+        int yuvMaxDataLength = (strideY + strideUV) * size.height;
 
         inputFormat
             = new YUVFormat(
-                    inSize,
-                    inYUVLength + INPUT_BUFFER_PADDING_SIZE,
+                    size,
+                    yuvMaxDataLength + FFmpeg.FF_INPUT_BUFFER_PADDING_SIZE,
                     Format.byteArray,
                     yuv.getFrameRate(),
                     YUVFormat.YUV_420,
@@ -510,7 +519,7 @@ public class JNIEncoder
             = new VideoFormat(
                     videoOut.getEncoding(),
                     outSize,
-                    outSize.width * outSize.height,
+                    Format.NOT_SPECIFIED,
                     Format.byteArray,
                     videoOut.getFrameRate());
 

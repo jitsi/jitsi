@@ -504,14 +504,6 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg
- * Method:    PIX_FMT_YUV420P
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_PIX_1FMT_1YUV420P
-  (JNIEnv *, jclass);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg
  * Method:    sws_freeContext
  * Signature: (J)V
  */

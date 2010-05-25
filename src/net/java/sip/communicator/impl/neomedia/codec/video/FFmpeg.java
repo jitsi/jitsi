@@ -42,6 +42,8 @@ public class FFmpeg
 
     public static final int PIX_FMT_NONE = -1;
 
+    public static final int PIX_FMT_NV12 = 25;
+
     /**
      * RGB24 format handled in endian specific manner.
      * It is stored as RGB on big-endian and BGR on little-endian.
@@ -62,13 +64,11 @@ public class FFmpeg
 
     public static final int PIX_FMT_UYVY422 = 17;
 
-    public static final int PIX_FMT_YUV420P;
-
-    public static final int PIX_FMT_YUYV422 = 1;
-
     public static final int PIX_FMT_UYYVYY411 = 18;
 
-    public static final int PIX_FMT_NV12 = 25;
+    public static final int PIX_FMT_YUV420P = 0;
+
+    public static final int PIX_FMT_YUYV422 = 1;
 
     public static final int SWS_BICUBIC = 4;
 
@@ -232,8 +232,6 @@ public class FFmpeg
 
     private static native int PIX_FMT_RGB32_1();
 
-    private static native int PIX_FMT_YUV420P();
-
     public static native void sws_freeContext(long context);
 
     public static native long sws_getCachedContext(
@@ -265,6 +263,5 @@ public class FFmpeg
         PIX_FMT_RGB24 = PIX_FMT_RGB24();
         PIX_FMT_RGB32 = PIX_FMT_RGB32();
         PIX_FMT_RGB32_1 = PIX_FMT_RGB32_1();
-        PIX_FMT_YUV420P = PIX_FMT_YUV420P();
     }
 }

@@ -46,6 +46,8 @@ public class DataSource
                 {
                     Video4Linux2.V4L2_PIX_FMT_UYVY,
                     FFmpeg.PIX_FMT_UYVY422,
+                    Video4Linux2.V4L2_PIX_FMT_YUV420,
+                    FFmpeg.PIX_FMT_YUV420P,
                     Video4Linux2.V4L2_PIX_FMT_YUYV,
                     FFmpeg.PIX_FMT_YUYV422
                 };

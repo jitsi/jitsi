@@ -483,12 +483,6 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_PIX_1FMT_1RGB32_
     return PIX_FMT_RGB32_1;
 }
 
-JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_PIX_1FMT_1YUV420P (
-        JNIEnv *env, jclass clazz) {
-    return PIX_FMT_YUV420P;
-}
-
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_sws_1freeContext (
         JNIEnv *jniEnv, jclass clazz, jlong context) {
