@@ -388,19 +388,16 @@ public class RawPacket
         //the new buffer needs to be bigger than the new one in order to
         //accommodate the list of CSRC IDs (unless there were more of them
         //previously than after setting the new list).
-        byte newBuffer[];
-        if (oldBuffer.length < (this.length + this.offset + csrcBuff.length - oldCsrcCount*4))
-        {
-            newBuffer = new byte[this.length + this.offset + csrcBuff.length - oldCsrcCount*4];
-        }
-        else
-        {
-            newBuffer = oldBuffer;
-        }
+        byte[] newBuffer
+            = new byte[length + offset + csrcBuff.length - oldCsrcCount*4];
 
         //copy the part up to the CSRC list
         System.arraycopy(
-                oldBuffer, 0, newBuffer, 0, offset + FIXED_HEADER_SIZE);
+                    oldBuffer, 0, newBuffer, 0, offset + FIXED_HEADER_SIZE);
+
+        //copy the new CSRC list
+        System.arraycopy( csrcBuff, 0, newBuffer,
+                        offset + FIXED_HEADER_SIZE, csrcBuff.length);
 
         //now copy the payload from the old buff and make sure we don't copy
         //the CSRC list if there was one in the old packet
@@ -410,22 +407,17 @@ public class RawPacket
         int payloadOffsetForNewBuff
             = offset + FIXED_HEADER_SIZE + newCsrcCount*4;
 
-        // First shift payload in its new position, then copy (insert)
-        // new cscr list into place. This works for in-buffer copy also.
-        System.arraycopy(oldBuffer, payloadOffsetForOldBuff,
-                newBuffer, payloadOffsetForNewBuff,
-                this.length - payloadOffsetForOldBuff);
- 
-        //copy the new CSRC list
-        System.arraycopy(csrcBuff, 0, newBuffer,
-                offset + FIXED_HEADER_SIZE, csrcBuff.length);
-            
+        System.arraycopy( oldBuffer, payloadOffsetForOldBuff,
+                          newBuffer, payloadOffsetForNewBuff,
+                          length - payloadOffsetForOldBuff);
+
         //set the new CSRC count
         newBuffer[offset] = (byte)((newBuffer[offset] & 0xF0)
                                     | newCsrcCount);
 
         this.buffer = newBuffer;
-        this.length = this.length + payloadOffsetForNewBuff - payloadOffsetForOldBuff;
+        this.length = payloadOffsetForNewBuff + length
+                - payloadOffsetForOldBuff - offset;
     }
 
     /**
