@@ -112,7 +112,7 @@ public class RTPConnectorInputStream
         }
         pkt.setBuffer(datagramPacket.getData());
         pkt.setLength(datagramPacket.getLength());
-        pkt.setOffset(0);
+        pkt.setOffset(datagramPacket.getOffset());
         return pkt;
 
     }
