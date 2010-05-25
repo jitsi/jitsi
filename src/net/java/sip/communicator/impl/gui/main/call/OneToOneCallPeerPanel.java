@@ -656,14 +656,26 @@ public class OneToOneCallPeerPanel
             }
         }
 
-        int zOrder = 0;
-
         videoContainer.removeAll();
+
+        // REMOTE
+        Component video = videoTelephony.getVisualComponent(callPeer);
+
+        if (video != null)
+        {
+            if (video.getParent() != null)
+                video.getParent().remove(video);
+
+            videoContainer.add(video, VideoLayout.CENTER_REMOTE, -1);
+        }
 
         // LOCAL
         if (localVideo != null)
         {
-            videoContainer.add(localVideo, VideoLayout.LOCAL, zOrder++);
+            if (localVideo.getParent() != null)
+                localVideo.getParent().remove(localVideo);
+
+            videoContainer.add(localVideo, VideoLayout.LOCAL, 0);
 
             /*
              * If the local video is turned on, we ensure that the button is
@@ -672,12 +684,6 @@ public class OneToOneCallPeerPanel
             if (!callDialog.isVideoButtonSelected())
                 callDialog.setVideoButtonSelected(true);
         }
-
-        // REMOTE
-        Component video = videoTelephony.getVisualComponent(callPeer);
-
-        if (video != null)
-            videoContainer.add(video, VideoLayout.CENTER_REMOTE, zOrder++);
 
         videoContainer.validate();
 
