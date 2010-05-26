@@ -246,7 +246,7 @@ public class JNIEncoder
         FFmpeg.avcodeccontext_set_bit_rate(avcontext, bitRate);
         // so to be 1 in x264
         FFmpeg.avcodeccontext_set_bit_rate_tolerance(avcontext, (int)(bitRate /
-                DEFAULT_FRAME_RATE));
+                frameRate));
         FFmpeg.avcodeccontext_set_rc_max_rate(avcontext, bitRate);
         FFmpeg.avcodeccontext_set_sample_aspect_ratio(avcontext, 0, 0);
         FFmpeg.avcodeccontext_set_thread_count(avcontext, 1);
