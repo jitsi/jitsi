@@ -27,8 +27,8 @@ public class FilterQuery
     private FilterQueryListener filterQueryListener;
 
     /**
-     * Indicates if the query succeeded, i.e. if the filter has returned any
-     * results.
+     * Indicates if the query succeeded, i.e. if any of the filters associated
+     * with this query has returned any results.
      */
     private boolean isSucceeded = false;
 
@@ -36,6 +36,14 @@ public class FilterQuery
      * Indicates if this query has been canceled.
      */
     private boolean isCanceled = false;
+
+    /**
+     * Indicates if this query is closed, means no more queries could be added
+     * to it. A <tt>FilterQuery</tt>, which is closed knows that it has to wait
+     * for a final number of queries to finish before notifying interested
+     * parties of the result.
+     */
+    private boolean isClosed = false;
 
     /**
      * The list of filter queries.
@@ -125,6 +133,18 @@ public class FilterQuery
     }
 
     /**
+     * Closes this query to indicate that no more contact sub-queries would be
+     * added to it.
+     */
+    public void close()
+    {
+        isClosed = true;
+
+        if (runningQueries == 0)
+            fireFilterQueryEvent();
+    }
+
+    /**
      * Sets the given <tt>FilterQueryListener</tt>.
      * @param l the <tt>FilterQueryListener</tt> to set
      */
@@ -181,7 +201,7 @@ public class FilterQuery
 
         // If no queries have rest we notify interested listeners that query
         // has finished.
-        if (runningQueries == 0)
+        if (runningQueries == 0 && isClosed)
             fireFilterQueryEvent();
     }
 
@@ -211,7 +231,7 @@ public class FilterQuery
 
         // If no queries have rest we notify interested listeners that query
         // has finished.
-        if (runningQueries == 0)
+        if (runningQueries == 0 && isClosed)
             fireFilterQueryEvent();
     }
 

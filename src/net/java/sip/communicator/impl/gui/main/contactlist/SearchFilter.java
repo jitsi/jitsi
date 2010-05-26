@@ -103,6 +103,9 @@ public class SearchFilter
             filterQuery.addContactQuery(
                 applyFilter(filterSource));
         }
+
+        // Closes this filter to indicate that we finished adding queries to it.
+        filterQuery.close();
     }
 
     /**

@@ -1742,6 +1742,8 @@ public class TreeContactList
                             .createUIGroup(parentGroup);
                 }
 
+                logger.info("Add matching contact due to status change: "
+                    + uiContact.getDisplayName());
                 addContact(uiContact, uiGroup, true);
             }
             else
@@ -1751,7 +1753,11 @@ public class TreeContactList
         else
         {
             if (currentFilter != null && !currentFilter.isMatching(uiContact))
+            {
+                logger.info("Remove unmatching contact due to status change: "
+                    + uiContact.getDisplayName());
                 removeContact(uiContact);
+            }
             else
                 treeModel.nodeChanged(uiContact.getContactNode());
         }

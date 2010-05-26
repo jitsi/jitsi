@@ -54,6 +54,8 @@ public class PresenceFilter
 
         // Add this query to the filterQuery.
         filterQuery.addContactQuery(query);
+        // Closes this filter to indicate that we finished adding queries to it.
+        filterQuery.close();
 
         query.addContactQueryListener(GuiActivator.getContactList());
 

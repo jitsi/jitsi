@@ -314,17 +314,26 @@ public class MainFrame
             if (unknownContactPanel == null)
                 unknownContactPanel = new UnknownContactPanel(this);
 
-            contactListPanel.setVisible(false);
-            unknownContactPanel.setVisible(true);
-            centerPanel.remove(contactListPanel);
-            centerPanel.add(unknownContactPanel, BorderLayout.CENTER);
+            if (unknownContactPanel.getParent() != centerPanel)
+            {
+                contactListPanel.setVisible(false);
+                unknownContactPanel.setVisible(true);
+                centerPanel.remove(contactListPanel);
+                centerPanel.add(unknownContactPanel, BorderLayout.CENTER);
+            }
         }
-        else if (unknownContactPanel != null)
+        else
         {
-            unknownContactPanel.setVisible(false);
-            contactListPanel.setVisible(true);
-            centerPanel.remove(unknownContactPanel);
-            centerPanel.add(contactListPanel, BorderLayout.CENTER);
+            if (contactListPanel.getParent() != centerPanel)
+            {
+                if (unknownContactPanel != null)
+                {
+                    unknownContactPanel.setVisible(false);
+                    centerPanel.remove(unknownContactPanel);
+                }
+                contactListPanel.setVisible(true);
+                centerPanel.add(contactListPanel, BorderLayout.CENTER);
+            }
         }
         centerPanel.revalidate();
         centerPanel.repaint();

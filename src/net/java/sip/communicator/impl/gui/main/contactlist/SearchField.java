@@ -28,12 +28,6 @@ public class SearchField
     private final MainFrame mainFrame;
 
     /**
-     * We save the last status of hasMatching. By default we consider that
-     * we'll find matching contacts.
-     */
-    private boolean lastHasMatching = true;
-
-    /**
      * Creates the <tt>SearchField</tt>.
      * @param frame the main application window
      */
@@ -162,7 +156,6 @@ public class SearchField
         // view.
         enableUnknownContactView(true);
 
-        lastHasMatching = false;
         query.setQueryListener(null);
     }
 
@@ -175,12 +168,10 @@ public class SearchField
     {
         // If the unknown contact view was previously enabled, but we
         // have found matching contacts we enter the normal view.
-        if (!lastHasMatching)
-            enableUnknownContactView(false);
+        enableUnknownContactView(false);
 
         GuiActivator.getContactList().selectFirstContact();
 
-        lastHasMatching = true;
         query.setQueryListener(null);
     }
 }

@@ -51,6 +51,8 @@ public class CallHistoryFilter
             // expect any further results from it.
             filterQuery.removeQuery(query);
         }
+        // Closes this filter to indicate that we finished adding queries to it.
+        filterQuery.close();
     }
 
     /**
