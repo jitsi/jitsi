@@ -31,16 +31,13 @@ public class VideoContainer
             Component local = ((VideoLayout) container.getLayout()).getLocal();
             Component added = event.getChild();
 
-            if ((local != null) && (added == local))
+            if ((local != null) && (local == added))
                 return;
 
-            Component[] components = container.getComponents();
             boolean validate = false;
 
-            for (int i = 0; i < components.length; i++)
+            for (Component component : container.getComponents())
             {
-                Component component = components[i];
-
                 if ((component != added) && (component != local))
                 {
                     container.remove(component);
@@ -96,6 +93,7 @@ public class VideoContainer
      * will detect that a new Component has been added while dispatching the
      * event and will then try to remove the new Component.
      */
+    @Override
     public void removeAll()
     {
         removeContainerListener(containerListener);

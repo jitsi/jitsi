@@ -29,6 +29,7 @@ public class VideoLayout extends FitLayout
 
     private float remoteAlignmentX = Component.CENTER_ALIGNMENT;
 
+    @Override
     public void addLayoutComponent(String name, Component comp)
     {
         super.addLayoutComponent(name, comp);
@@ -47,6 +48,7 @@ public class VideoLayout extends FitLayout
             local = comp;
     }
 
+    @Override
     protected Component getComponent(Container parent)
     {
         return getRemote();
@@ -75,6 +77,10 @@ public class VideoLayout extends FitLayout
             int height = Math.round(parentSize.height * LOCAL_TO_REMOTE_RATIO);
             int width = Math.round(parentSize.width * LOCAL_TO_REMOTE_RATIO);
 
+            /*
+             * XXX The remote Component being a JLabel is meant to signal that
+             * there is no remote video and the remote is the photoLabel.
+             */
             if (remote instanceof JLabel)
             {
                 super.layoutComponent(
@@ -114,6 +120,7 @@ public class VideoLayout extends FitLayout
         return super.preferredLayoutSize(parent);
     }
 
+    @Override
     public void removeLayoutComponent(Component comp)
     {
         super.removeLayoutComponent(comp);

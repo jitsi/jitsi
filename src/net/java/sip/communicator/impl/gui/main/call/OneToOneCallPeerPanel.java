@@ -33,6 +33,11 @@ public class OneToOneCallPeerPanel
     extends TransparentPanel
     implements CallPeerRenderer
 {
+
+    /**
+     * The <tt>Logger</tt> used by the <tt>OneToOneCallPeerPanel</tt> class and
+     * its instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(OneToOneCallPeerPanel.class);
 
@@ -64,16 +69,28 @@ public class OneToOneCallPeerPanel
     private final JLabel holdStatusLabel = new JLabel();
 
     /**
-     * The component showing the avatar of the underlying call peer.
+     * The <tt>Component</tt>s showing the avatar of the underlying call peer.
+     * <p>
+     * Because the <tt>Component</tt>s showing the avatar of the underlying call
+     * peer are managed by their respective <tt>VideoContainer</tt>s and are
+     * automatically displayed whenever there is no associated remote video,
+     * each <tt>VideoContainer</tt> must have its own. Otherwise, the various
+     * <tt>VideoContainer</tt>s might start fighting over which one is to
+     * contain the one and only photoLabel.
+     * </p>
      */
-    private final JLabel photoLabel
-        = new JLabel(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.DEFAULT_USER_PHOTO)));
+    private final List<JLabel> photoLabels = new LinkedList<JLabel>();
 
     /**
      * The panel containing security related components.
      */
     private SecurityPanel securityPanel;
+
+    /**
+     * The <tt>Icon</tt> which represents the avatar of the associated call
+     * peer.
+     */
+    private ImageIcon peerImage;
 
     /**
      * The name of the peer.
@@ -83,8 +100,8 @@ public class OneToOneCallPeerPanel
     /**
      * The list containing all video containers.
      */
-    private final java.util.List<Container> videoContainers =
-        new ArrayList<Container>();
+    private final List<Container> videoContainers
+        = new LinkedList<Container>();
 
     /**
      * The operation set through which we do all video operations.
@@ -190,6 +207,8 @@ public class OneToOneCallPeerPanel
      */
     private Component createCenter()
     {
+        final JLabel photoLabel = new JLabel(getPhotoLabelIcon());
+
         photoLabel.setPreferredSize(new Dimension(90, 90));
 
         final Container videoContainer = createVideoContainer(photoLabel);
@@ -210,9 +229,14 @@ public class OneToOneCallPeerPanel
                         {
                             if (!videoContainers.contains(videoContainer))
                                 changed = videoContainers.add(videoContainer);
+                            if (!photoLabels.contains(photoLabel))
+                                photoLabels.add(photoLabel);
                         }
                         else
+                        {
                             changed = videoContainers.remove(videoContainer);
+                            photoLabels.remove(photoLabel);
+                        }
                         if (changed)
                             handleVideoEvent(null);
                     }
@@ -663,8 +687,10 @@ public class OneToOneCallPeerPanel
 
         if (video != null)
         {
-            if (video.getParent() != null)
-                video.getParent().remove(video);
+            Container videoParent = video.getParent();
+
+            if (videoParent != null)
+                videoParent.remove(video);
 
             videoContainer.add(video, VideoLayout.CENTER_REMOTE, -1);
         }
@@ -672,8 +698,10 @@ public class OneToOneCallPeerPanel
         // LOCAL
         if (localVideo != null)
         {
-            if (localVideo.getParent() != null)
-                localVideo.getParent().remove(localVideo);
+            Container localVideoParent = localVideo.getParent();
+
+            if (localVideoParent != null)
+                localVideoParent.remove(localVideo);
 
             videoContainer.add(localVideo, VideoLayout.LOCAL, 0);
 
@@ -1036,7 +1064,28 @@ public class OneToOneCallPeerPanel
      */
     public void setPeerImage(ImageIcon peerImage)
     {
-        this.photoLabel.setIcon(peerImage);
+        this.peerImage = peerImage;
+
+        peerImage = getPhotoLabelIcon();
+        synchronized (videoContainers)
+        {
+            for (JLabel photoLabel : photoLabels)
+                photoLabel.setIcon(peerImage);
+        }
+    }
+
+    /**
+     * Gets the <tt>Icon</tt> to be displayed in {@link #photoLabels}.
+     *
+     * @return the <tt>Icon</tt> to be displayed in {@link #photoLabels}
+     */
+    private ImageIcon getPhotoLabelIcon()
+    {
+        return
+            (peerImage == null)
+                ? new ImageIcon(
+                        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO))
+                : peerImage;
     }
 
     /**
