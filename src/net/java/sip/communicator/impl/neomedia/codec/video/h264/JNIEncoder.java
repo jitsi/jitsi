@@ -42,9 +42,9 @@ public class JNIEncoder
         = { new VideoFormat(Constants.H264) };
 
     /**
-     * Key frame every 45 frames.
+     * Key frame every 150 frames.
      */
-    private static final int IFRAME_INTERVAL = 45;
+    private static final int IFRAME_INTERVAL = 150;
 
     /**
      * Minimum interval between two PLI request processing (in milliseconds).
@@ -237,22 +237,24 @@ public class JNIEncoder
         FFmpeg.avcodeccontext_set_qcompress(avcontext, 0.6f);
 
         int bitRate = 128000;
-
-        // average bit rate
-        FFmpeg.avcodeccontext_set_bit_rate(avcontext, bitRate);
-        // so to be 1 in x264
-        FFmpeg.avcodeccontext_set_bit_rate_tolerance(avcontext, bitRate);
-        //FFmpeg.avcodeccontext_set_rc_max_rate(avcontext, 0);
-        FFmpeg.avcodeccontext_set_sample_aspect_ratio(avcontext, 0, 0);
-        FFmpeg.avcodeccontext_set_thread_count(avcontext, 1);
-
-        // time_base should be 1 / frame rate
         int frameRate = (int) outputVideoFormat.getFrameRate();
 
         if (frameRate == Format.NOT_SPECIFIED)
             frameRate = DEFAULT_FRAME_RATE;
+
+        // average bit rate
+        FFmpeg.avcodeccontext_set_bit_rate(avcontext, bitRate);
+        // so to be 1 in x264
+        FFmpeg.avcodeccontext_set_bit_rate_tolerance(avcontext, (int)(bitRate /
+                DEFAULT_FRAME_RATE));
+        FFmpeg.avcodeccontext_set_rc_max_rate(avcontext, bitRate);
+        FFmpeg.avcodeccontext_set_sample_aspect_ratio(avcontext, 0, 0);
+        FFmpeg.avcodeccontext_set_thread_count(avcontext, 1);
+
+        // time_base should be 1 / frame rate
         FFmpeg.avcodeccontext_set_time_base(avcontext, 1, frameRate);
-        FFmpeg.avcodeccontext_set_quantizer(avcontext, 22, 30, 4);
+        FFmpeg.avcodeccontext_set_ticks_per_frame(avcontext, 2);
+        FFmpeg.avcodeccontext_set_quantizer(avcontext, 30, 31, 4);
 
         // avcontext.chromaoffset = -2;
 
@@ -269,18 +271,18 @@ public class JNIEncoder
         FFmpeg.avcodeccontext_add_flags(avcontext,
             FFmpeg.CODEC_FLAG_LOOP_FILTER);
         FFmpeg.avcodeccontext_set_me_method(avcontext, 7);
-        FFmpeg.avcodeccontext_set_me_subpel_quality(avcontext, 6);
+        FFmpeg.avcodeccontext_set_me_subpel_quality(avcontext, 2);
         FFmpeg.avcodeccontext_set_me_range(avcontext, 16);
         FFmpeg.avcodeccontext_set_me_cmp(avcontext, FFmpeg.FF_CMP_CHROMA);
         FFmpeg.avcodeccontext_set_scenechange_threshold(avcontext, 40);
         // Constant quality mode (also known as constant ratefactor)
-        // FFmpeg.avcodeccontext_set_crf(avcontext, 0);
-        FFmpeg.avcodeccontext_set_rc_buffer_size(avcontext, 0);
+        FFmpeg.avcodeccontext_set_crf(avcontext, 0);
+        FFmpeg.avcodeccontext_set_rc_buffer_size(avcontext, 10);
         FFmpeg.avcodeccontext_set_gop_size(avcontext, IFRAME_INTERVAL);
         FFmpeg.avcodeccontext_set_i_quant_factor(avcontext, 1f / 1.4f);
 
         FFmpeg.avcodeccontext_set_refs(avcontext, 1);
-        FFmpeg.avcodeccontext_set_trellis(avcontext, 2);
+        //FFmpeg.avcodeccontext_set_trellis(avcontext, 2);
 
         /*
          * AVCodecContext's rtp_payload_size is supposed to try to provide an
