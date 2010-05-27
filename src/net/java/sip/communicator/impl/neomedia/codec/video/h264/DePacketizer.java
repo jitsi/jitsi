@@ -384,15 +384,18 @@ public class DePacketizer
                 return ret;
         }
 
-        // If the RTP time stamp changes, we're receiving a new NAL unit.
         long timeStamp = inBuffer.getTimeStamp();
 
+        /* ignore timestamp */
+        /*
+        // If the RTP time stamp changes, we're receiving a new NAL unit.
         if(timeStamp != lastTimeStamp)
         {
             ret = reset(outBuffer);
             if ((ret & OUTPUT_BUFFER_NOT_FILLED) == 0)
                 return ret;
         }
+        */
 
         lastSequenceNumber = sequenceNumber;
         lastTimeStamp = timeStamp;
