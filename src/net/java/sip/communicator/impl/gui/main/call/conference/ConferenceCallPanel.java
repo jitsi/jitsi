@@ -26,6 +26,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class ConferenceCallPanel
     extends JScrollPane
+    implements CallRenderer
 {
     /**
      * The conference call.
@@ -372,5 +373,60 @@ public class ConferenceCallPanel
             vp.setViewPosition(viewPosition);
             vp.setViewSize(viewSize);
         }
+    }
+
+    /**
+     * Ensures the size of the window.
+     * @param component the component, which size should be considered
+     * @param width the desired width
+     * @param height the desired height
+     */
+    public void ensureSize(Component component, int width, int height) {}
+
+    /**
+     * Enters in full screen view mode.
+     */
+    public void enterFullScreen()
+    {
+        // TODO: Implement full screen mode for this renderer.
+    }
+
+    /**
+     * Exits from the full screen view mode.
+     */
+    public void exitFullScreen()
+    {
+        // TODO: Implement full screen mode for this renderer.
+    }
+
+    /**
+     * Returns the parent call dialog, where this renderer is contained.
+     * @return the parent call dialog, where this renderer is contained
+     */
+    public CallDialog getCallDialog()
+    {
+        return callDialog;
+    }
+
+    /**
+     * Returns the <tt>CallPeerRenderer</tt> corresponding to the given
+     * <tt>callPeer</tt>.
+     * @param callPeer the <tt>CallPeer</tt>, for which we're looking for a
+     * renderer
+     * @return the <tt>CallPeerRenderer</tt> corresponding to the given
+     * <tt>callPeer</tt>
+     */
+    public CallPeerRenderer getCallPeerRenderer(CallPeer callPeer)
+    {
+        return callPeerPanels.get(callPeer);
+    }
+
+    /**
+     * Returns the call represented by this call renderer.
+     * @return the call represented by this call renderer
+     */
+    public Call getCall()
+    {
+        return call;
     }
 }

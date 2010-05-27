@@ -62,6 +62,11 @@ public class ConferencePeerPanel
     private SecurityStatusLabel securityStatusLabel = new SecurityStatusLabel();
 
     /**
+     * The DTMF label.
+     */
+    private final JLabel dtmfLabel = new JLabel();
+
+    /**
      * The component showing the security details.
      */
     private SecurityPanel securityPanel;
@@ -308,22 +313,12 @@ public class ConferencePeerPanel
     }
 
     /**
-     * Enters in full screen view mode.
+     * Prints the given DTMG character through this <tt>CallPeerRenderer</tt>.
+     * @param dtmfChar the DTMF char to print
      */
-    public void enterFullScreen()
+    public void printDTMFTone(char dtmfChar)
     {
-        // TODO: Implement full screen mode for this renderer.
-    }
-
-    /**
-     * Exits from the full screen view mode by specifying the full screen window
-     * previously created.
-     *
-     * @param fullScreenWindow the window previously shown in full screen mode
-     */
-    public void exitFullScreen(Window fullScreenWindow)
-    {
-        // TODO: Implement full screen mode for this renderer.
+        dtmfLabel.setText(dtmfLabel.getText() + dtmfChar);
     }
 
     /**
@@ -338,6 +333,7 @@ public class ConferencePeerPanel
         this.addToStatusBar(securityStatusLabel);
         this.addToStatusBar(holdStatusLabel);
         this.addToStatusBar(muteStatusLabel);
+        this.addToStatusBar(dtmfLabel);
     }
 
     /**

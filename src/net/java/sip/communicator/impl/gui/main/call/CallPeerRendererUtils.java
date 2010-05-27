@@ -13,7 +13,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -26,56 +25,6 @@ import net.java.sip.communicator.util.swing.*;
 public class CallPeerRendererUtils
 {
     /**
-     * Creates a new <code>Component</code> representing a UI means to transfer
-     * the <code>Call</code> of the associated <code>callPeer</code> or
-     * <tt>null</tt> if call-transfer is unsupported.
-     *
-     * @param callPeer the <tt>CallPeer</tt>, for which we create the button
-     * @return a new <code>Component</code> representing the UI means to
-     *         transfer the <code>Call</code> of <code>callPeer</code> or
-     *         <tt>null</tt> if call-transfer is unsupported
-     */
-    public static Component createTransferCallButton(CallPeer callPeer)
-    {
-        if (callPeer != null)
-        {
-            OperationSetAdvancedTelephony telephony =
-                callPeer.getProtocolProvider()
-                    .getOperationSet(OperationSetAdvancedTelephony.class);
-
-            if (telephony != null)
-                return new TransferCallButton(callPeer);
-        }
-        return null;
-    }
-
-    /**
-     * Creates a new <tt>Component</tt> through which the user would be able to
-     * enter in full screen mode.
-     *
-     * @param renderer the renderer through which we enter in full screen mode
-     * @return the newly created component
-     */
-    public static Component createEnterFullScreenButton(
-        final CallPeerRenderer renderer)
-    {
-        SIPCommButton button =
-            new SIPCommButton(ImageLoader
-                .getImage(ImageLoader.ENTER_FULL_SCREEN_BUTTON));
-
-        button.setToolTipText(GuiActivator.getResources().getI18NString(
-            "service.gui.ENTER_FULL_SCREEN_TOOL_TIP"));
-        button.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent event)
-            {
-                renderer.enterFullScreen();
-            }
-        });
-        return button;
-    }
-
-    /**
      * Creates a new <tt>Component</tt> through which the user would be able to
      * exit the full screen mode.
      *
@@ -83,7 +32,7 @@ public class CallPeerRendererUtils
      * @return the newly created component
      */
     public static Component createExitFullScreenButton(
-            final CallPeerRenderer renderer)
+            final CallRenderer renderer)
     {
         JButton button =
             new SIPCommButton(
@@ -96,12 +45,7 @@ public class CallPeerRendererUtils
         {
             public void actionPerformed(ActionEvent event)
             {
-                Object source = event.getSource();
-                Frame fullScreenFrame =
-                    (source instanceof Component) ? TransferCallButton
-                        .getFrame((Component) source) : null;
-
-                renderer.exitFullScreen(fullScreenFrame);
+                renderer.exitFullScreen();
             }
         });
         return button;
@@ -163,5 +107,33 @@ public class CallPeerRendererUtils
                 buttonBar.add(button);
         }
         return buttonBar;
+    }
+
+    /**
+     * Gets the first <tt>Frame</tt> in the ancestor <tt>Component</tt>
+     * hierarchy of a specific <tt>Component</tt>.
+     * <p>
+     * The located <tt>Frame</tt> (if any) is often used as the owner of
+     * <tt>Dialog</tt>s opened by the specified <tt>Component</tt> in
+     * order to provide natural <tt>Frame</tt> ownership.
+     *
+     * @param component the <tt>Component</tt> which is to have its
+     * <tt>Component</tt> hierarchy examined for <tt>Frame</tt>
+     * @return the first <tt>Frame</tt> in the ancestor
+     * <tt>Component</tt> hierarchy of the specified <tt>Component</tt>;
+     * <tt>null</tt>, if no such <tt>Frame</tt> was located
+     */
+    public static Frame getFrame(Component component)
+    {
+        while (component != null)
+        {
+            Container container = component.getParent();
+
+            if (container instanceof Frame)
+                return (Frame) container;
+
+            component = container;
+        }
+        return null;
     }
 }

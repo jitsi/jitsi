@@ -6,8 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -19,35 +19,43 @@ import net.java.sip.communicator.util.swing.*;
  * <tt>CallPariticant</tt>.
  *
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public class TransferCallButton
     extends SIPCommButton
 {
     /**
-     * The <tt>CallPeer</tt> (whose <tt>Call</tt> is) to be
-     * transfered.
+     * The <tt>Call</tt> to be transfered.
      */
-    private final CallPeer callPeer;
+    private final Call call;
 
     /**
      * Initializes a new <tt>TransferCallButton</tt> instance which is to
      * transfer (the <tt>Call</tt> of) a specific
      * <tt>CallPeer</tt>.
      *
-     * @param peer the <tt>CallPeer</tt> to be associated
-     *            with the new instance and to be transfered
+     * @param c the <tt>Call</tt> to be associated with the new instance and
+     * to be transfered
      */
-    public TransferCallButton(CallPeer peer)
+    public TransferCallButton(Call c)
     {
-        super(ImageLoader.getImage(ImageLoader.TRANSFER_CALL_BUTTON));
+        super(  ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
+                ImageLoader.getImage(ImageLoader.TRANSFER_CALL_BUTTON));
 
-        this.callPeer = peer;
+        this.call = c;
 
         setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.TRANSFER_BUTTON_TOOL_TIP"));
+
+        OperationSetAdvancedTelephony telephony =
+            call.getProtocolProvider()
+                .getOperationSet(OperationSetAdvancedTelephony.class);
+
+        if (telephony == null)
+            this.setEnabled(false);
+
         addActionListener(new ActionListener()
         {
-
             /**
              * Invoked when an action occurs.
              *
@@ -57,36 +65,12 @@ public class TransferCallButton
              */
             public void actionPerformed(ActionEvent evt)
             {
-                CallManager.transferCall(callPeer);
+                Iterator<? extends CallPeer> callPeers = call.getCallPeers();
+                while (callPeers.hasNext())
+                {
+                    CallManager.transferCall(callPeers.next());
+                }
             }
         });
-    }
-
-    /**
-     * Gets the first <tt>Frame</tt> in the ancestor <tt>Component</tt>
-     * hierarchy of a specific <tt>Component</tt>.
-     * <p>
-     * The located <tt>Frame</tt> (if any) is often used as the owner of
-     * <tt>Dialog</tt>s opened by the specified <tt>Component</tt> in
-     * order to provide natural <tt>Frame</tt> ownership.
-     *
-     * @param component the <tt>Component</tt> which is to have its
-     * <tt>Component</tt> hierarchy examined for <tt>Frame</tt>
-     * @return the first <tt>Frame</tt> in the ancestor
-     * <tt>Component</tt> hierarchy of the specified <tt>Component</tt>;
-     * <tt>null</tt>, if no such <tt>Frame</tt> was located
-     */
-    public static Frame getFrame(Component component)
-    {
-        while (component != null)
-        {
-            Container container = component.getParent();
-
-            if (container instanceof Frame)
-                return (Frame) container;
-
-            component = container;
-        }
-        return null;
     }
 }

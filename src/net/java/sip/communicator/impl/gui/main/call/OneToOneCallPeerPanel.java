@@ -69,6 +69,11 @@ public class OneToOneCallPeerPanel
     private final JLabel holdStatusLabel = new JLabel();
 
     /**
+     * The DTMF label.
+     */
+    private final JLabel dtmfLabel = new JLabel();
+
+    /**
      * The <tt>Component</tt>s showing the avatar of the underlying call peer.
      * <p>
      * Because the <tt>Component</tt>s showing the avatar of the underlying call
@@ -109,9 +114,9 @@ public class OneToOneCallPeerPanel
     private OperationSetVideoTelephony videoTelephony;
 
     /**
-     * The parent dialog, where this panel is contained.
+     * The renderer of the call.
      */
-    private final CallDialog callDialog;
+    private final CallRenderer callRenderer;
 
     /**
      * The component showing the local video.
@@ -119,25 +124,20 @@ public class OneToOneCallPeerPanel
     private Component localVideo;
 
     /**
-     * The current <code>Window</code> being displayed in full-screen. Because
-     * the AWT API with respect to the full-screen support doesn't seem
-     * sophisticated enough, the field is used sparingly i.e. when there are no
-     * other means (such as a local variable) of acquiring the instance.
+     * The <tt>CallPeer</tt>, which is rendered in this panel.
      */
-    private Window fullScreenWindow;
-
     private CallPeer callPeer;
 
     /**
      * Creates a <tt>CallPeerPanel</tt> for the given call peer.
      *
-     * @param callDialog the parent dialog containing this call peer panel
+     * @param callRenderer the renderer of the call
      * @param callPeer the <tt>CallPeer</tt> represented in this panel
      */
-    public OneToOneCallPeerPanel(   CallDialog callDialog,
+    public OneToOneCallPeerPanel(   CallRenderer callRenderer,
                                     CallPeer callPeer)
     {
-        this.callDialog = callDialog;
+        this.callRenderer = callRenderer;
         this.callPeer = callPeer;
         this.peerName = callPeer.getDisplayName();
 
@@ -205,7 +205,7 @@ public class OneToOneCallPeerPanel
      *         area of this <code>CallPeerPanel</code> which displays the
      *         photo of the <code>CallPeer</code> or the video if any
      */
-    private Component createCenter()
+    Component createCenter()
     {
         final JLabel photoLabel = new JLabel(getPhotoLabelIcon());
 
@@ -281,33 +281,17 @@ public class OneToOneCallPeerPanel
     {
         // stateLabel
         callStatusLabel.setForeground(Color.WHITE);
+        dtmfLabel.setForeground(Color.WHITE);
         callStatusLabel.setText(callPeer.getState().getStateString());
 
         PeerStatusPanel statusPanel = new PeerStatusPanel(
-                new FlowLayout(FlowLayout.CENTER, 10, 0));
-
-        TransparentPanel statusIconsPanel
-            = new TransparentPanel(
                 new FlowLayout(FlowLayout.CENTER, 5, 0));
 
-        statusIconsPanel.add(securityStatusLabel);
-        statusIconsPanel.add(holdStatusLabel);
-        statusIconsPanel.add(muteStatusLabel);
-        statusIconsPanel.add(callStatusLabel);
-
-        statusPanel.add(statusIconsPanel);
-
-        Component[] buttons =
-            new Component[]
-            {
-                CallPeerRendererUtils.createTransferCallButton(callPeer),
-                CallPeerRendererUtils.createEnterFullScreenButton(this)
-            };
-
-        Component buttonBar
-            = CallPeerRendererUtils.createButtonBar(false, buttons);
-
-        statusPanel.add(buttonBar);
+        statusPanel.add(securityStatusLabel);
+        statusPanel.add(holdStatusLabel);
+        statusPanel.add(muteStatusLabel);
+        statusPanel.add(callStatusLabel);
+        statusPanel.add(dtmfLabel);
 
         return statusPanel;
     }
@@ -545,7 +529,7 @@ public class OneToOneCallPeerPanel
                         videoTelephony = null;
                 }
 
-                exitFullScreen(fullScreenWindow);
+                callRenderer.exitFullScreen();
             }
         };
         call.addCallChangeListener(callListener);
@@ -653,7 +637,7 @@ public class OneToOneCallPeerPanel
                 }
                 else if (isAncestor(videoContainer, visualComponent))
                 {
-                    ensureSize(visualComponent, width, height);
+                    callRenderer.ensureSize(visualComponent, width, height);
 
                     /*
                      * Even if ensureSize hasn't changed the Frame size,
@@ -709,8 +693,8 @@ public class OneToOneCallPeerPanel
              * If the local video is turned on, we ensure that the button is
              * selected.
              */
-            if (!callDialog.isVideoButtonSelected())
-                callDialog.setVideoButtonSelected(true);
+            if (!callRenderer.getCallDialog().isVideoButtonSelected())
+                callRenderer.getCallDialog().setVideoButtonSelected(true);
         }
 
         videoContainer.validate();
@@ -765,252 +749,6 @@ public class OneToOneCallPeerPanel
         return peerName;
     }
 
-    private Component createFullScreenButtonBar()
-    {
-        Call call = callPeer.getCall();
-        Component[] buttons
-            = new Component[]
-            {
-                new HoldButton(call,
-                               true,
-                               CallPeerState.isOnHold(callPeer.getState())),
-                new MuteButton(call,
-                               true,
-                               callPeer.isMute()),
-                CallPeerRendererUtils.createExitFullScreenButton(this)
-            };
-
-        return CallPeerRendererUtils.createButtonBar(true, buttons);
-    }
-
-    /**
-     * Attempts to give a specific <tt>Component</tt> a visible rectangle with a
-     * specific width and a specific height if possible and sane.
-     *
-     * @param component the <tt>Component</tt> to be given a visible rectangle
-     * with the specified width and height
-     * @param width the width of the visible rectangle to be given to the
-     * specified <tt>Component</tt>
-     * @param height the height of the visible rectangle to be given to the
-     * specified <tt>Component</tt>
-     * @return <tt>true</tt> if an actual attempt has been made because it
-     * seemed possible and sounded sane; otherwise, <tt>false</tt>
-     */
-    private boolean ensureSize(Component component, int width, int height)
-    {
-        Frame frame = TransferCallButton.getFrame(component);
-
-        if (frame == null)
-            return false;
-        else if ((frame.getExtendedState() & Frame.MAXIMIZED_BOTH)
-                == Frame.MAXIMIZED_BOTH)
-        {
-            /*
-             * Forcing the size of a Component which is displayed in a maximized
-             * window does not sound like anything we want to do.
-             */
-            return false;
-        }
-        else if (frame.equals(frame.getGraphicsConfiguration()
-                                .getDevice().getFullScreenWindow()))
-        {
-            /*
-             * Forcing the size of a Component which is displayed in a
-             * full-screen window does not sound like anything we want to do.
-             */
-            return false;
-        }
-        else
-        {
-            Insets frameInsets = frame.getInsets();
-
-            /*
-             * XXX This is a very wild guess and it is very easy to break
-             * because it wants to have the component with the specified width
-             * yet it forces the Frame to have nearly the same width without
-             * knowing anything about the layouts of the containers between the
-             * Frame and the component.
-             */
-            int newFrameWidth = width + frameInsets.left + frameInsets.right;
-
-            Dimension frameSize = frame.getSize();
-            Dimension componentSize = component.getSize();
-
-            int newFrameHeight
-                = frameSize.height + height - componentSize.height;
-
-            // Don't get bigger than the screen.
-            Rectangle screenBounds
-                = frame.getGraphicsConfiguration().getBounds();
-
-            if (newFrameWidth > screenBounds.width)
-                newFrameWidth = screenBounds.width;
-            if (newFrameHeight > screenBounds.height)
-                newFrameHeight = screenBounds.height;
-
-            // Don't go out of the screen.
-            Point frameLocation = frame.getLocation();
-            int newFrameX = frameLocation.x;
-            int newFrameY = frameLocation.y;
-            int xDelta
-                = (newFrameX + newFrameWidth)
-                    - (screenBounds.x + screenBounds.width);
-            int yDelta
-                = (newFrameY + newFrameHeight)
-                    - (screenBounds.y + screenBounds.height);
-
-            if (xDelta > 0)
-            {
-                newFrameX -= xDelta;
-                if (newFrameX < screenBounds.x)
-                    newFrameX = screenBounds.x;
-            }
-            if (yDelta > 0)
-            {
-                newFrameY -= yDelta;
-                if (newFrameY < screenBounds.y)
-                    newFrameY = screenBounds.y;
-            }
-
-            /*
-             * XXX Unreliable because VideoRenderer Components such as the
-             * Component of the AWTRenderer on Linux overrides its
-             * #getPreferredSize().
-             */
-            component.setPreferredSize(new Dimension(width, height));
-
-            /*
-             * If we're going to make too small a change, don't even bother.
-             * Besides, we don't want some weird recursive resizing.
-             */
-            int frameWidthDelta = newFrameWidth - frameSize.width;
-            int frameHeightDelta = newFrameHeight - frameSize.height;
-
-            if ((frameWidthDelta < -1)
-                    || (frameWidthDelta > 1)
-                    || (frameHeightDelta < -1)
-                    || (frameHeightDelta > 1))
-            {
-                frame.setBounds(
-                        newFrameX, newFrameY,
-                        newFrameWidth, newFrameHeight);
-            }
-
-            return true;
-        }
-    }
-
-    /**
-     * Enters full screen mode. Initializes all components for the full screen
-     * user interface.
-     */
-    public void enterFullScreen()
-    {
-        // Create the main Components of the UI.
-        final JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        frame.setTitle(getPeerName());
-        frame.setUndecorated(true);
-
-        Component center = createCenter();
-        final Component buttonBar = createFullScreenButtonBar();
-
-        // Lay out the main Components of the UI.
-        final Container contentPane = frame.getContentPane();
-        contentPane.setLayout(new FullScreenLayout(false));
-        if (buttonBar != null)
-            contentPane.add(buttonBar, FullScreenLayout.SOUTH);
-        if (center != null)
-            contentPane.add(center, FullScreenLayout.CENTER);
-
-        // Full-screen windows usually have black backgrounds.
-        Color background = Color.black;
-        contentPane.setBackground(background);
-        CallPeerRendererUtils.setBackground(center, background);
-
-        class FullScreenListener
-            implements ContainerListener, KeyListener, WindowStateListener
-        {
-            public void componentAdded(ContainerEvent event)
-            {
-                Component child = event.getChild();
-
-                child.addKeyListener(this);
-            }
-
-            public void componentRemoved(ContainerEvent event)
-            {
-                Component child = event.getChild();
-
-                child.removeKeyListener(this);
-            }
-
-            public void keyPressed(KeyEvent event)
-            {
-                if (!event.isConsumed()
-                    && (event.getKeyCode() == KeyEvent.VK_ESCAPE))
-                {
-                    event.consume();
-                    exitFullScreen(frame);
-                }
-            }
-
-            public void keyReleased(KeyEvent event)
-            {
-            }
-
-            public void keyTyped(KeyEvent event)
-            {
-            }
-
-            public void windowStateChanged(WindowEvent event)
-            {
-                switch (event.getID())
-                {
-                case WindowEvent.WINDOW_CLOSED:
-                case WindowEvent.WINDOW_DEACTIVATED:
-                case WindowEvent.WINDOW_ICONIFIED:
-                case WindowEvent.WINDOW_LOST_FOCUS:
-                    exitFullScreen(frame);
-                    break;
-                }
-            }
-        }
-        FullScreenListener listener = new FullScreenListener();
-
-        // Exit on Escape.
-        CallPeerRendererUtils.addKeyListener(frame, listener);
-        // Activate the above features for the local and remote videos.
-        if (center instanceof Container)
-            ((Container) center).addContainerListener(listener);
-        // Exit when the "full screen" looses its focus.
-        frame.addWindowStateListener(listener);
-
-        getGraphicsConfiguration().getDevice().setFullScreenWindow(frame);
-        this.fullScreenWindow = frame;
-    }
-
-    /**
-     * Exits the full screen mode.
-     * @param fullScreenWindow the window shown in the full screen mode
-     */
-    public void exitFullScreen(Window fullScreenWindow)
-    {
-        GraphicsConfiguration graphicsConfig = getGraphicsConfiguration();
-        if (graphicsConfig != null)
-            graphicsConfig.getDevice().setFullScreenWindow(null);
-
-        if (fullScreenWindow != null)
-        {
-            if (fullScreenWindow.isVisible())
-                fullScreenWindow.setVisible(false);
-            fullScreenWindow.dispose();
-
-            if (this.fullScreenWindow == fullScreenWindow)
-                this.fullScreenWindow = null;
-        }
-    }
-
     private static class PeerStatusPanel
         extends TransparentPanel
     {
@@ -1024,7 +762,7 @@ public class OneToOneCallPeerPanel
         public PeerStatusPanel(LayoutManager layout)
         {
             super(layout);
-            this.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+            this.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
         }
 
         @Override
@@ -1257,6 +995,15 @@ public class OneToOneCallPeerPanel
      */
     public CallDialog getCallDialog()
     {
-        return callDialog;
+        return callRenderer.getCallDialog();
+    }
+
+    /**
+     * Prints the given DTMG character through this <tt>CallPeerRenderer</tt>.
+     * @param dtmfChar the DTMF char to print
+     */
+    public void printDTMFTone(char dtmfChar)
+    {
+        dtmfLabel.setText(dtmfLabel.getText() + dtmfChar);
     }
 }

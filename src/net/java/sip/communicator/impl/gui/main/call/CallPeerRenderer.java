@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.*;
-
 import javax.swing.*;
 
 /**
@@ -69,19 +67,6 @@ public interface CallPeerRenderer
     public void securityOff();
 
     /**
-     * Enters in full screen view mode.
-     */
-    public void enterFullScreen();
-
-    /**
-     * Exits from the full screen view mode by specifying the full screen window
-     * previously created.
-     *
-     * @param fullScreenWindow the window previously shown in full screen mode
-     */
-    public void exitFullScreen(Window fullScreenWindow);
-
-    /**
      * Sets the audio security on or off.
      *
      * @param isAudioSecurityOn indicates if the audio security is turned on or
@@ -116,6 +101,12 @@ public interface CallPeerRenderer
      * @return the call peer adapter
      */
     public CallPeerAdapter getCallPeerAdapter();
+
+    /**
+     * Prints the given DTMG character through this <tt>CallPeerRenderer</tt>.
+     * @param dtmfChar the DTMF char to print
+     */
+    public void printDTMFTone(char dtmfChar);
 
     /**
      * Returns the parent <tt>CallDialog</tt> containing this renderer.

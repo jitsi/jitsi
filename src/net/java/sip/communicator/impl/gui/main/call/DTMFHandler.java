@@ -32,9 +32,9 @@ public class DTMFHandler
     private final Logger logger = Logger.getLogger(DTMFHandler.class);
 
     /**
-     * Current call.
+     * The call dialog, where this handler is registered.
      */
-    private Call call;
+    private CallDialog callDialog;
 
     /**
      * Parent windows we listen key entering on them.
@@ -56,92 +56,111 @@ public class DTMFHandler
         new DTMFToneInfo(
             DTMFTone.DTMF_1,
             KeyEvent.VK_1,
+            '1',
             ImageLoader.ONE_DIAL_BUTTON,
             SoundProperties.DIAL_ONE),
         new DTMFToneInfo(
             DTMFTone.DTMF_2,
             KeyEvent.VK_2,
+            '2',
             ImageLoader.TWO_DIAL_BUTTON,
             SoundProperties.DIAL_TWO),
         new DTMFToneInfo(
             DTMFTone.DTMF_3,
             KeyEvent.VK_3,
+            '3',
             ImageLoader.THREE_DIAL_BUTTON,
             SoundProperties.DIAL_THREE),
         new DTMFToneInfo(
             DTMFTone.DTMF_4,
             KeyEvent.VK_4,
+            '4',
             ImageLoader.FOUR_DIAL_BUTTON,
             SoundProperties.DIAL_FOUR),
         new DTMFToneInfo(
             DTMFTone.DTMF_5,
             KeyEvent.VK_5,
+            '5',
             ImageLoader.FIVE_DIAL_BUTTON,
             SoundProperties.DIAL_FIVE),
         new DTMFToneInfo(
             DTMFTone.DTMF_6,
             KeyEvent.VK_6,
+            '6',
             ImageLoader.SIX_DIAL_BUTTON,
             SoundProperties.DIAL_SIX),
         new DTMFToneInfo(
             DTMFTone.DTMF_7,
             KeyEvent.VK_7,
+            '7',
             ImageLoader.SEVEN_DIAL_BUTTON,
             SoundProperties.DIAL_SEVEN),
         new DTMFToneInfo(
             DTMFTone.DTMF_8,
             KeyEvent.VK_8,
+            '8',
             ImageLoader.EIGHT_DIAL_BUTTON,
             SoundProperties.DIAL_EIGHT),
         new DTMFToneInfo(
             DTMFTone.DTMF_9,
             KeyEvent.VK_9,
+            '9',
             ImageLoader.NINE_DIAL_BUTTON,
             SoundProperties.DIAL_NINE),
         new DTMFToneInfo(
             DTMFTone.DTMF_A,
             KeyEvent.VK_A,
+            'a',
             null,
             null),
         new DTMFToneInfo(
             DTMFTone.DTMF_B,
             KeyEvent.VK_B,
+            'b',
             null,
             null),
         new DTMFToneInfo(
             DTMFTone.DTMF_C,
             KeyEvent.VK_C,
+            'c',
             null,
             null),
         new DTMFToneInfo(
             DTMFTone.DTMF_D,
             KeyEvent.VK_D,
+            'd',
             null,
             null),
         new DTMFToneInfo(
             DTMFTone.DTMF_STAR,
             KeyEvent.VK_ASTERISK,
+            '*',
             ImageLoader.STAR_DIAL_BUTTON,
             SoundProperties.DIAL_STAR),
         new DTMFToneInfo(
             DTMFTone.DTMF_0,
             KeyEvent.VK_0,
+            '0',
             ImageLoader.ZERO_DIAL_BUTTON,
             SoundProperties.DIAL_ZERO),
         new DTMFToneInfo(
             DTMFTone.DTMF_SHARP,
             KeyEvent.VK_NUMBER_SIGN,
+            '#',
             ImageLoader.DIEZ_DIAL_BUTTON,
             SoundProperties.DIAL_DIEZ)
     };
 
     /**
      * Creates DTMF handler for a call.
-     * @param call
+     * @param callDialog the <tt>CallDialog</tt>, where this handler is
+     * registered
      */
-    public DTMFHandler(Call call)
+    public DTMFHandler(CallDialog callDialog)
     {
-        this.call = call;
+        this.callDialog = callDialog;
+
+        this.addParent(callDialog);
 
         KeyboardFocusManager keyManager
             = KeyboardFocusManager.getCurrentKeyboardFocusManager();
@@ -186,7 +205,8 @@ public class DTMFHandler
         for (int i = 0; i < availableTones.length; i++)
         {
             DTMFToneInfo info = availableTones[i];
-            if(info.keyCode == e.getKeyCode())
+
+            if(info.keyChar == e.getKeyChar())
             {
                 if(e.getID() == KeyEvent.KEY_PRESSED)
                 {
@@ -228,7 +248,6 @@ public class DTMFHandler
      */
     private synchronized void startSendingDtmfTone(DTMFToneInfo info)
     {
-
         AudioNotifierService audioNotifier = GuiActivator.getAudioNotifier();
 
         if(info.sound != null)
@@ -243,7 +262,8 @@ public class DTMFHandler
             currentlyPlayingAudio.playInLoop(10);
         }
 
-        Iterator<? extends CallPeer> callPeers = this.call.getCallPeers();
+        Iterator<? extends CallPeer> callPeers
+            = this.callDialog.getCurrentCallRenderer().getCall().getCallPeers();
 
         try
         {
@@ -251,12 +271,19 @@ public class DTMFHandler
             {
                 CallPeer peer = callPeers.next();
                 OperationSetDTMF dtmfOpSet
-                    = peer
-                        .getProtocolProvider()
-                            .getOperationSet(OperationSetDTMF.class);
+                    = peer.getProtocolProvider()
+                        .getOperationSet(OperationSetDTMF.class);
 
                 if (dtmfOpSet != null)
+                {
                     dtmfOpSet.startSendingDTMF(peer, info.tone);
+
+                    CallPeerRenderer peerRenderer
+                        = callDialog.getCurrentCallRenderer()
+                            .getCallPeerRenderer(peer);
+                    if (peerRenderer != null)
+                        peerRenderer.printDTMFTone(info.keyChar);
+                }
             }
         }
         catch (Throwable e1)
@@ -275,7 +302,8 @@ public class DTMFHandler
 
         currentlyPlayingAudio = null;
 
-        Iterator<? extends CallPeer> callPeers = this.call.getCallPeers();
+        Iterator<? extends CallPeer> callPeers
+            = this.callDialog.getCurrentCallRenderer().getCall().getCallPeers();
 
         try
         {
@@ -313,6 +341,11 @@ public class DTMFHandler
         int keyCode;
 
         /**
+         * The char associated with this DTMF tone.
+         */
+        char keyChar;
+
+        /**
          * The image to display in buttons sending DTMFs.
          */
         ImageID imageID;
@@ -326,14 +359,17 @@ public class DTMFHandler
          * Creates DTMF extended info.
          * @param tone the tone.
          * @param keyCode its key code.
+         * @param keyChar the char associated with the DTMF
          * @param imageID the image if any.
          * @param sound the sound if any.
          */
         public DTMFToneInfo(
-            DTMFTone tone, int keyCode, ImageID imageID, String sound)
+            DTMFTone tone, int keyCode, char keyChar,
+            ImageID imageID, String sound)
         {
             this.tone = tone;
             this.keyCode = keyCode;
+            this.keyChar = keyChar;
             this.imageID = imageID;
             this.sound = sound;
         }

@@ -34,36 +34,96 @@ public class CallDialog
                CallChangeListener,
                CallPeerConferenceListener
 {
+    /**
+     * The dial button name.
+     */
     private static final String DIAL_BUTTON = "DIAL_BUTTON";
 
+    /**
+     * The conference button name.
+     */
     private static final String CONFERENCE_BUTTON = "CONFERENCE_BUTTON";
 
+    /**
+     * The hang up button name.
+     */
     private static final String HANGUP_BUTTON = "HANGUP_BUTTON";
 
+    /**
+     * The dial pad dialog opened when the dial button is clicked.
+     */
     private DialpadDialog dialpadDialog;
 
+    /**
+     * The handler for DTMF tones.
+     */
     private DTMFHandler dtmfHandler;
 
+    /**
+     * The content pane of this dialog.
+     */
     private final Container contentPane = getContentPane();
 
+    /**
+     * The panel containing call settings.
+     */
     private final TransparentPanel settingsPanel = new TransparentPanel();
 
+    /**
+     * The panel representing the call. For conference calls this would be an
+     * instance of <tt>ConferenceCallPanel</tt> and for one-to-one calls this
+     * would be an instance of <tt>OneToOneCallPanel</tt>.
+     */
     private JComponent callPanel = null;
 
+    /**
+     * The hold button.
+     */
     private HoldButton holdButton;
 
+    /**
+     * The mute button.
+     */
     private MuteButton muteButton;
 
+    /**
+     * The video button.
+     */
     private LocalVideoButton videoButton;
 
+    /**
+     * The transfer call button.
+     */
+    private TransferCallButton transferCallButton;
+
+    /**
+     * The full screen button.
+     */
+    private FullScreenButton fullScreenButton;
+
+    /**
+     * The call represented in this dialog.
+     */
     private final Call call;
 
+    /**
+     * Indicates if the last call was a conference call.
+     */
     private boolean isLastConference = false;
 
+    /**
+     * The start date time of the call.
+     */
     private Date callStartDate;
 
+    /**
+     * Indicates if the call timer has been started.
+     */
     private boolean isCallTimerStarted = false;
 
+    /**
+     * A timer to count call duration.
+     */
     private Timer callDurationTimer;
 
     /**
@@ -141,6 +201,8 @@ public class CallDialog
         holdButton = new HoldButton(call);
         muteButton = new MuteButton(call);
         videoButton = new LocalVideoButton(call);
+        transferCallButton = new TransferCallButton(call);
+        fullScreenButton = new FullScreenButton(this);
 
         dialButton.setName(DIAL_BUTTON);
         dialButton.setToolTipText(
@@ -167,7 +229,11 @@ public class CallDialog
         settingsPanel.add(muteButton);
 
         if (!isLastConference)
+        {
             settingsPanel.add(videoButton);
+            settingsPanel.add(transferCallButton);
+            settingsPanel.add(fullScreenButton);
+        }
 
         buttonsPanel.add(settingsPanel, BorderLayout.WEST);
         buttonsPanel.add(hangupButton, BorderLayout.EAST);
@@ -175,8 +241,7 @@ public class CallDialog
         buttonsPanel.setBorder(
             new ExtendedEtchedBorder(EtchedBorder.LOWERED, 1, 0, 0, 0));
 
-        dtmfHandler = new DTMFHandler(this.call);
-        dtmfHandler.addParent(this);
+        dtmfHandler = new DTMFHandler(this);
     }
 
     /**
@@ -391,8 +456,8 @@ public class CallDialog
                     if (isLastConference)
                     {
                         contentPane.remove(callPanel);
-                        callPanel
-                            = new ConferenceCallPanel(CallDialog.this, call);
+                        updateCurrentCallPanel(
+                            new ConferenceCallPanel(CallDialog.this, call));
                         contentPane.add(callPanel, BorderLayout.CENTER);
                     }
                     // We're still in one-to-one call and we receive the
@@ -463,8 +528,8 @@ public class CallDialog
                     {
                         settingsPanel.remove(videoButton);
                         contentPane.remove(callPanel);
-                        callPanel
-                            = new ConferenceCallPanel(CallDialog.this, call);
+                        updateCurrentCallPanel(
+                            new ConferenceCallPanel(CallDialog.this, call));
                         contentPane.add(callPanel, BorderLayout.CENTER);
                     }
                 }
@@ -595,8 +660,8 @@ public class CallDialog
                             // his members
                             if (singlePeer != null
                                 && !singlePeer.isConferenceFocus())
-                                callPanel = new OneToOneCallPanel(
-                                    CallDialog.this, call, singlePeer);
+                                updateCurrentCallPanel(new OneToOneCallPanel(
+                                    CallDialog.this, call, singlePeer));
                             else if(singlePeer.isConferenceFocus())
                             {
                                 ((ConferenceCallPanel) callPanel)
@@ -663,5 +728,37 @@ public class CallDialog
             pack();
         else
             contentPane.repaint();
+    }
+
+    /**
+     * Returns the currently used <tt>CallRenderer</tt>.
+     * @return the currently used <tt>CallRenderer</tt>
+     */
+    public CallRenderer getCurrentCallRenderer()
+    {
+        return (CallRenderer) callPanel;
+    }
+
+    /**
+     * Replaces the current call panel with the given one.
+     * @param callPanel the <tt>JComponent</tt> to replace the current
+     * call panel
+     */
+    private void updateCurrentCallPanel(JComponent callPanel)
+    {
+        this.callPanel = callPanel;
+
+        if (callPanel instanceof OneToOneCallPanel)
+        {
+            settingsPanel.add(videoButton);
+            settingsPanel.add(transferCallButton);
+            settingsPanel.add(fullScreenButton);
+        }
+        else
+        {
+            settingsPanel.remove(videoButton);
+            settingsPanel.remove(transferCallButton);
+            settingsPanel.remove(fullScreenButton);
+        }
     }
 }
