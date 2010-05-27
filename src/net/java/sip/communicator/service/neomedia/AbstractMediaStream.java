@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.neomedia;
 
 import java.beans.*;
 
+import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
  * Abstract base implementation of <tt>MediaStream</tt> to ease the
@@ -60,6 +61,59 @@ public abstract class AbstractMediaStream
         Object newValue)
     {
         propertyChangeSupport.firePropertyChange(property, oldValue, newValue);
+    }
+
+    /**
+     * Determines whether a specific <tt>MediaFormat</tt> has specific values
+     * for its properties <tt>mediaType</tt>, <tt>encoding</tt>,
+     * <tt>clockRate</tt> and <tt>channels</tt> for <tt>MediaFormat</tt>s with
+     * <tt>mediaType</tt> equal to {@link MediaType#AUDIO}.
+     *
+     * @param format
+     * @param mediaType
+     * @param encoding
+     * @param clockRate
+     * @param channels
+     * @return
+     */
+    public static boolean matches(
+            MediaFormat format,
+            MediaType mediaType,
+            String encoding,
+            double clockRate,
+            int channels)
+    {
+        // mediaType
+        // encoding
+        if (!format.getMediaType().equals(mediaType)
+                || !format.getEncoding().equals(encoding))
+            return false;
+
+        // clockRate
+        if (clockRate != MediaFormatFactory.CLOCK_RATE_NOT_SPECIFIED)
+        {
+            double formatClockRate = format.getClockRate();
+
+            if ((formatClockRate != MediaFormatFactory.CLOCK_RATE_NOT_SPECIFIED)
+                    && (formatClockRate != clockRate))
+                return false;
+        }
+
+        // channels
+        if (MediaType.AUDIO.equals(mediaType))
+        {
+            if (channels == MediaFormatFactory.CHANNELS_NOT_SPECIFIED)
+                channels = 1;
+
+            int formatChannels = ((AudioMediaFormat) format).getChannels();
+
+            if (formatChannels == MediaFormatFactory.CHANNELS_NOT_SPECIFIED)
+                formatChannels = 1;
+            if (formatChannels != channels)
+                return false;
+        }
+
+        return true;
     }
 
     /**

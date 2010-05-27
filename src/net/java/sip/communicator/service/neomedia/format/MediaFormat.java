@@ -92,6 +92,16 @@ public interface MediaFormat
     public boolean equals(Object mediaFormat);
 
     /**
+     * Returns a <tt>Map</tt> containing advanced parameters specific to this
+     * particular <tt>MediaFormat</tt>. The parameters returned here are meant
+     * for use in SIP/SDP or XMPP session descriptions.
+     *
+     * @return a <tt>Map</tt> containing advanced parameters specific to this
+     * particular <tt>MediaFormat</tt>
+     */
+    public Map<String, String> getAdvancedAttributes();
+
+    /**
      * Returns a <tt>Map</tt> containing parameters specific to this particular
      * <tt>MediaFormat</tt>. The parameters returned here are meant for use in
      * SIP/SDP or XMPP session descriptions where they get transported through
@@ -103,25 +113,6 @@ public interface MediaFormat
     public Map<String, String> getFormatParameters();
 
     /**
-     * Returns a <tt>Map</tt> containing advanced parameters specific to this
-     * particular <MediaFormat</tt>. The parameters returned here are meant for
-     * use in SIP/SDP or XMPP session descriptions.
-     *
-     * @return a <tt>Map</tt> containing advanced parameters specific to this
-     * particular <tt>MediaFormat</tt>
-     */
-    public Map<String, String> getAdvancedAttributes();
-
-    /**
-     * Returns a <tt>String</tt> representation of this <tt>MediaFormat</tt>
-     * containing important format attributes such as the encoding for example.
-     *
-     * @return a <tt>String</tt> representation of this <tt>MediaFormat</tt>.
-     */
-    @Override
-    public String toString();
-
-    /**
      * Gets the RTP payload type (number) of this <tt>MediaFormat</tt> as it is
      * known in RFC 3551 "RTP Profile for Audio and Video Conferences with
      * Minimal Control".
@@ -131,4 +122,13 @@ public interface MediaFormat
      * Control"; otherwise, {@link #RTP_PAYLOAD_TYPE_UNKNOWN}
      */
     public byte getRTPPayloadType();
+
+    /**
+     * Returns a <tt>String</tt> representation of this <tt>MediaFormat</tt>
+     * containing important format attributes such as the encoding for example.
+     *
+     * @return a <tt>String</tt> representation of this <tt>MediaFormat</tt>.
+     */
+    @Override
+    public String toString();
 }

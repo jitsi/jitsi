@@ -677,13 +677,11 @@ public class SdpUtils
         Map<String, String> fmtParamsMap = null;
         Map<String, String> advancedAttrMap = null;
 
-        if ( fmtp != null)
+        if (fmtp != null)
             fmtParamsMap = parseFmtpAttribute(fmtp);
 
-        if(advp != null)
-        {
+        if (advp != null)
             advancedAttrMap = parseAdvancedAttributes(advp);
-        }
 
         //now create the format.
         MediaFormat format
@@ -1279,9 +1277,7 @@ public class SdpUtils
 
             // determine whether we are dealing with audio or video.
             if (mediaType == null)
-            {
                 mediaType = fmtMediaType;
-            }
 
             byte payloadType = format.getRTPPayloadType();
 

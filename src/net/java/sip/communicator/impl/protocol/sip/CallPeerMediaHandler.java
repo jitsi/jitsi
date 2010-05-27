@@ -1130,7 +1130,7 @@ public class CallPeerMediaHandler
     }
 
     /**
-     * Get the advanced format parameters list of our device that match
+     * Gets the advanced format parameters list of our device that match
      * remote supported ones.
      *
      * @param remoteFormats remote advanced format parameters found in the
@@ -1140,44 +1140,50 @@ public class CallPeerMediaHandler
      * advanced parameters
      */
     private List<MediaFormat> getAdvancedFormatParameters(
-            List<MediaFormat> remoteFormats, List<MediaFormat> localFormats )
+            List<MediaFormat> remoteFormats, List<MediaFormat> localFormats)
     {
         List<MediaFormat> ret = new ArrayList<MediaFormat>();
 
-        for(MediaFormat format : remoteFormats)
+        for(MediaFormat remoteFormat : remoteFormats)
         {
-            MediaFormat mf = findMediaFormat(localFormats,
-                    format.getEncoding());
+            MediaFormat localFormat
+                = findMediaFormat(localFormats, remoteFormat);
 
-            if(mf != null)
-            {
-                ret.add(mf);
-            }
-
+            if(localFormat != null)
+                ret.add(localFormat);
         }
         return ret;
     }
 
     /**
-     * Find a <tt>MediaFormat</tt> specified by its encoding in the list of
-     * <tt>MediaFormat</tt>.
+     * Finds a <tt>MediaFormat</tt> in a specific list of <tt>MediaFormat</tt>s
+     * which matches a specific <tt>MediaFormat</tt>.
      *
-     * @param formats list of <tt>MediaFormat</tt>
+     * @param formats the list of <tt>MediaFormat</tt>s to find the specified
+     * matching <tt>MediaFormat</tt> into
      * @param encoding encoding of the <tt>MediaFormat</tt> to find
-     * @return <tt>MediaFormat</tt> if found in list of formats, null
-     * otherwise
+     * @return the <tt>MediaFormat</tt> from <tt>formats</tt> which matches
+     * <tt>format</tt> if such a match exists in <tt>formats</tt>; otherwise,
+     * <tt>null</tt>
      */
-    private MediaFormat findMediaFormat(List<MediaFormat> formats,
-            String encoding)
+    private MediaFormat findMediaFormat(
+            List<MediaFormat> formats, MediaFormat format)
     {
-        for(MediaFormat f : formats)
-        {
-            if(f.getEncoding().equals(encoding))
-            {
-                return f;
-            }
-        }
+        MediaType mediaType = format.getMediaType();
+        String encoding = format.getEncoding();
+        double clockRate = format.getClockRate();
+        int channels
+            = MediaType.AUDIO.equals(mediaType)
+                ? ((AudioMediaFormat) format).getChannels()
+                : MediaFormatFactory.CHANNELS_NOT_SPECIFIED;
 
+        for(MediaFormat match : formats)
+        {
+            if (AbstractMediaStream.matches(
+                        match,
+                        mediaType, encoding, clockRate, channels))
+                return match;
+        }
         return null;
     }
 
@@ -1246,7 +1252,7 @@ public class CallPeerMediaHandler
                 continue;
             }
 
-            /* intersect the MediaFormat of our device with remote ones */
+            // intersect the MediaFormats of our device with remote ones
             List<MediaFormat> supportedAdvancedParameters =
                 getAdvancedFormatParameters(supportedFormats,
                         dev.getSupportedFormats());

@@ -217,9 +217,9 @@ public abstract class MediaFormatImpl<T extends Format>
                 ? EMPTY_FORMAT_PARAMETERS
                 : new HashMap<String, String>(formatParameters);
         this.advancedParameters
-        = ((advancedParameters == null) || advancedParameters.isEmpty())
-            ? EMPTY_FORMAT_PARAMETERS
-            : new HashMap<String, String>(advancedParameters);
+            = ((advancedParameters == null) || advancedParameters.isEmpty())
+                ? EMPTY_FORMAT_PARAMETERS
+                : new HashMap<String, String>(advancedParameters);
     }
 
     /**
@@ -373,7 +373,8 @@ public abstract class MediaFormatImpl<T extends Format>
     {
         double clockRate = getClockRate();
         long   clockRateL = (long)clockRate;
-        if ( clockRateL == clockRate)
+
+        if (clockRateL == clockRate)
             return Long.toString(clockRateL);
         else
             return Double.toString(clockRate);

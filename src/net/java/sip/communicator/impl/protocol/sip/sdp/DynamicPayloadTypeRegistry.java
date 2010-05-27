@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.sip.sdp;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
@@ -60,10 +61,29 @@ public class DynamicPayloadTypeRegistry
     public byte obtainPayloadTypeNumber(MediaFormat format)
         throws IllegalStateException
     {
-        Byte payloadType = payloadTypeMappings.get(format);
+        MediaType mediaType = format.getMediaType();
+        String encoding = format.getEncoding();
+        double clockRate = format.getClockRate();
+        int channels
+            = MediaType.AUDIO.equals(mediaType)
+                ? ((AudioMediaFormat) format).getChannels()
+                : MediaFormatFactory.CHANNELS_NOT_SPECIFIED;
+        Byte payloadType = null;
+
+        for (Map.Entry<MediaFormat, Byte> payloadTypeMapping
+                : payloadTypeMappings.entrySet())
+        {
+            if (AbstractMediaStream.matches(
+                    payloadTypeMapping.getKey(),
+                    mediaType, encoding, clockRate, channels))
+            {
+                payloadType = payloadTypeMapping.getValue();
+                break;
+            }
+        }
 
         //hey, we already had this one, let's return it ;)
-        if( payloadType == null)
+        if (payloadType == null)
         {
             payloadType = nextPayloadTypeNumber();
             payloadTypeMappings.put(format, payloadType);
