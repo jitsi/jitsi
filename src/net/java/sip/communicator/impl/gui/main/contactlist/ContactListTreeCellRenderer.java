@@ -16,6 +16,7 @@ import javax.swing.*;
 import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -231,67 +232,9 @@ public class ContactListTreeCellRenderer
         {
             public void actionPerformed(ActionEvent e)
             {
-                ChooseCallAccountPopupMenu chooseAccountDialog = null;
-
                 if (treeNode != null && treeNode instanceof ContactNode)
                 {
-                    List<UIContactDetail> telephonyContacts
-                        = ((ContactNode) treeNode).getContactDescriptor()
-                            .getContactDetailsForOperationSet(
-                                OperationSetBasicTelephony.class);
-
-                    if (telephonyContacts.size() == 1)
-                    {
-                        UIContactDetail detail
-                            = telephonyContacts.get(0);
-
-                        ProtocolProviderService preferredProvider
-                            = detail.getPreferredProtocolProvider(
-                                OperationSetBasicTelephony.class);
-
-                        if (preferredProvider != null)
-                            CallManager.createCall(
-                                preferredProvider,
-                                detail.getAddress());
-                        else
-                        {
-                            List<ProtocolProviderService> providers
-                                = CallManager.getTelephonyProviders();
-
-                            int providersCount = providers.size();
-
-                            if (providersCount == 1)
-                                CallManager.createCall(
-                                    providers.get(0),
-                                    detail.getAddress());
-                            else if (providersCount > 1)
-                                chooseAccountDialog
-                                    = new ChooseCallAccountPopupMenu(
-                                        tree, detail.getAddress(), providers);
-                        }
-                    }
-                    else if (telephonyContacts.size() > 1)
-                    {
-                        chooseAccountDialog
-                            = new ChooseCallAccountPopupMenu(
-                                tree,
-                                telephonyContacts);
-                    }
-
-                    // If the choose dialog is created we're going to show it.
-                    if (chooseAccountDialog != null)
-                    {
-                        Point location = new Point(callButton.getX(),
-                            callButton.getY() + callButton.getHeight());
-
-                        SwingUtilities.convertPointToScreen(
-                            location, tree);
-
-                        location.y = location.y
-                            + tree.getPathBounds(tree.getSelectionPath()).y;
-                        chooseAccountDialog
-                            .showPopupMenu(location.x + 8, location.y - 8);
-                    }
+                    call(treeNode);
                 }
             }
         });
@@ -700,5 +643,76 @@ public class ContactListTreeCellRenderer
     public JButton getCallButton()
     {
         return callButton;
+    }
+
+    /**
+     * Calls the given treeNode.
+     * @param treeNode the <tt>TreeNode</tt> to call
+     */
+    private void call(TreeNode treeNode)
+    {
+        List<UIContactDetail> telephonyContacts
+            = ((ContactNode) treeNode).getContactDescriptor()
+                .getContactDetailsForOperationSet(
+                    OperationSetBasicTelephony.class);
+
+        ChooseCallAccountPopupMenu chooseAccountDialog = null;
+
+        if (telephonyContacts.size() == 1)
+        {
+            UIContactDetail detail = telephonyContacts.get(0);
+
+            ProtocolProviderService preferredProvider
+                = detail.getPreferredProtocolProvider(
+                    OperationSetBasicTelephony.class);
+
+            if (preferredProvider != null && preferredProvider.isRegistered())
+            {
+                CallManager.createCall(preferredProvider, detail.getAddress());
+            }
+            else
+            {
+                List<ProtocolProviderService> providers
+                    = CallManager.getTelephonyProviders();
+
+                int providersCount = providers.size();
+
+                if (providersCount <= 0)
+                {
+                    new ErrorDialog(null,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.CALL_FAILED"),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
+                    .showDialog();
+                }
+                else if (providersCount == 1)
+                {
+                    CallManager.createCall(providers.get(0), detail.getAddress());
+                }
+                else if (providersCount > 1)
+                    chooseAccountDialog = new ChooseCallAccountPopupMenu(
+                            tree, detail.getAddress(), providers);
+            }
+        }
+        else if (telephonyContacts.size() > 1)
+        {
+            chooseAccountDialog
+                = new ChooseCallAccountPopupMenu(tree, telephonyContacts);
+        }
+
+        // If the choose dialog is created we're going to show it.
+        if (chooseAccountDialog != null)
+        {
+            Point location = new Point(callButton.getX(),
+                callButton.getY() + callButton.getHeight());
+
+            SwingUtilities.convertPointToScreen(location, tree);
+
+            location.y = location.y
+                + tree.getPathBounds(tree.getSelectionPath()).y;
+
+            chooseAccountDialog.showPopupMenu(location.x + 8, location.y - 8);
+        }
     }
 }
