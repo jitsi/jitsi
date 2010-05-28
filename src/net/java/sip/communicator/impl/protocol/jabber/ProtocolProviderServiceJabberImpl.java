@@ -128,12 +128,6 @@ public class ProtocolProviderServiceJabberImpl
     private boolean abortConnecting = false;
 
     /**
-     * Used with tls. When certificate was confirmed we abort current
-     * connecting and try connecting again.
-     */
-    private boolean abortConnectingAndReconnect = false;
-
-    /**
      * Shows whether we have already checked the certificate for current server.
      * In case we use TLS.
      */
@@ -200,7 +194,6 @@ public class ProtocolProviderServiceJabberImpl
         {
             // reset states
             abortConnecting = false;
-            abortConnectingAndReconnect = false;
 
             connectAndLogin(authority,
                             SecurityAuthority.AUTHENTICATION_REQUIRED);
@@ -209,37 +202,7 @@ public class ProtocolProviderServiceJabberImpl
         {
             logger.error("Error registering", ex);
 
-            int reason
-                = RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
-
-            RegistrationState regState = RegistrationState.UNREGISTERED;
-
-            Throwable wrappedEx = ex.getWrappedThrowable();
-            if(wrappedEx instanceof UnknownHostException
-                || wrappedEx instanceof ConnectException)
-            {
-                reason
-                    = RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
-                regState = RegistrationState.CONNECTION_FAILED;
-            }
-            else
-                if((connection.getSASLAuthentication() != null &&
-                    connection.getSASLAuthentication().isAuthenticated()) ||
-                    !connection.isAuthenticated())
-                {
-                    JabberActivator.getProtocolProviderFactory().
-                        storePassword(getAccountID(), null);
-                    reason = RegistrationStateChangeEvent
-                        .REASON_AUTHENTICATION_FAILED;
-
-                    regState = RegistrationState.AUTHENTICATION_FAILED;
-
-                    // Try to reregister and to ask user for a new password.
-                    reregister(SecurityAuthority.WRONG_PASSWORD);
-                }
-
-            fireRegistrationStateChanged(
-                getRegistrationState(), regState, reason, null);
+            fireRegistrationStateChanged(ex);
         }
     }
 
@@ -260,7 +223,7 @@ public class ProtocolProviderServiceJabberImpl
 
             // reset states
             this.abortConnecting = false;
-            this.abortConnectingAndReconnect = false;
+
             connectAndLogin(authority,
                             authReasonCode);
         }
@@ -276,15 +239,7 @@ public class ProtocolProviderServiceJabberImpl
         {
             logger.error("Error ReRegistering", ex);
 
-            int reason =
-                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
-
-            if(ex.getWrappedThrowable() instanceof UnknownHostException)
-                reason =
-                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
-
-            fireRegistrationStateChanged(getRegistrationState(),
-                RegistrationState.CONNECTION_FAILED, reason, null);
+            fireRegistrationStateChanged(ex);
         }
     }
 
@@ -499,15 +454,9 @@ public class ProtocolProviderServiceJabberImpl
 
                 if(abortConnecting)
                 {
-                    if(abortConnectingAndReconnect)
-                    {
-                        reregister(SecurityAuthority.CONNECTION_FAILED);
-                    }
-                    else
-                    {
-                        abortConnecting = false;
-                        connection.disconnect();
-                    }
+                    abortConnecting = false;
+                    connection.disconnect();
+
                     return;
                 }
 
@@ -555,15 +504,9 @@ public class ProtocolProviderServiceJabberImpl
 
                         if(abortConnecting)
                         {
-                            if(abortConnectingAndReconnect)
-                            {
-                                reregister(SecurityAuthority.CONNECTION_FAILED);
-                            }
-                            else
-                            {
-                                abortConnecting = false;
-                                connection.disconnect();
-                            }
+                            abortConnecting = false;
+                            connection.disconnect();
+
                             return;
                         }
 
@@ -664,7 +607,7 @@ public class ProtocolProviderServiceJabberImpl
         {
             RegistrationState currRegState = getRegistrationState();
 
-            if(connection != null)
+            if(connection != null && connection.isConnected())
                 connection.disconnect();
 
             if(fireEvent)
@@ -936,6 +879,62 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
+     * Tries to determine the appropriate message and status to fire,
+     * according the exception.
+     * @param ex
+     */
+    private void fireRegistrationStateChanged(XMPPException ex)
+    {
+        int reason = RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+        RegistrationState regState = RegistrationState.UNREGISTERED;
+
+        Throwable wrappedEx = ex.getWrappedThrowable();
+        if(wrappedEx != null
+            && (wrappedEx instanceof UnknownHostException
+                || wrappedEx instanceof ConnectException))
+        {
+            reason = RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
+            regState = RegistrationState.CONNECTION_FAILED;
+        }
+        else
+        {
+            String exMsg = ex.getMessage().toLowerCase();
+
+            // as there are no types or reasons for XMPPException
+            // we try determine the reason according to their message
+            // all messages that were found in smack 3.1.0 were took in count
+            if(exMsg.indexOf("authentication failed") != -1
+                || exMsg.indexOf("login failed") != -1
+                || exMsg.indexOf("unable to determine password") != -1)
+            {
+                JabberActivator.getProtocolProviderFactory().
+                    storePassword(getAccountID(), null);
+                reason = RegistrationStateChangeEvent
+                    .REASON_AUTHENTICATION_FAILED;
+
+                regState = RegistrationState.AUTHENTICATION_FAILED;
+
+                fireRegistrationStateChanged(
+                    getRegistrationState(), regState, reason, null);
+
+                // Try to reregister and to ask user for a new password.
+                reregister(SecurityAuthority.WRONG_PASSWORD);
+
+                return;
+            }
+            else if(exMsg.indexOf("no response from the server") != -1
+                || exMsg.indexOf("connection failed") != -1)
+            {
+                reason = RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+                regState = RegistrationState.CONNECTION_FAILED;
+            }
+        }
+
+        fireRegistrationStateChanged(
+            getRegistrationState(), regState, reason, null);
+    }
+
+    /**
      * Enable to listen for jabber connection events
      */
     private class JabberConnectionListener
@@ -985,7 +984,6 @@ public class ProtocolProviderServiceJabberImpl
             {
                 return;
             }
-
 
             fireRegistrationStateChanged(getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED,
@@ -1166,7 +1164,6 @@ public class ProtocolProviderServiceJabberImpl
                 return;
 
             abortConnecting = true;
-
             try
             {
                 certChecked = true;
@@ -1175,7 +1172,7 @@ public class ProtocolProviderServiceJabberImpl
             catch(CertificateException e)
             {
                 fireRegistrationStateChanged(getRegistrationState(),
-                            RegistrationState.CONNECTION_FAILED,
+                            RegistrationState.UNREGISTERED,
                             RegistrationStateChangeEvent.REASON_USER_REQUEST,
                             "Not trusted certificate");
                 throw e;
@@ -1183,11 +1180,15 @@ public class ProtocolProviderServiceJabberImpl
 
             if(abortConnecting)
             {
-                abortConnectingAndReconnect = true;
+                // connect hasn't finished we will continue normally
+                abortConnecting = false;
                 return;
             }
             else
             {
+                // in this situation connect method has finished
+                // and it was disconnected so we wont to connect.
+
                 // register.connect in new thread so we can release the
                 // current connecting thread, otherwise this blocks
                 // jabber
