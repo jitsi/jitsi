@@ -304,6 +304,14 @@ public class DePacketizer
 
         outBuffer.setLength(newOutLength);
 
+        /* coded slice of an IDR picture (keyframe) */
+        if(nal_unit_type == 5)
+        {
+            /* keyframe received */
+            missFrame = false;
+            lastReceivedKeyframeTime = System.currentTimeMillis();
+        }
+
         return BUFFER_PROCESSED_OK;
     }
 
