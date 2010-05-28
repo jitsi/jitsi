@@ -260,6 +260,9 @@
     <!-- Import installation build xml -->
     <import file="${inst.resrc}/build.xml"/>
 
+    <!-- Import JNI build xml -->
+    <import file="${src}/native/build.xml"/>
+
     <!-- default Ant target does nothing except print helpful options -->
     <!-- Ant-external target will appear in -projecthelp output       -->
     <target name="ant-usage"
