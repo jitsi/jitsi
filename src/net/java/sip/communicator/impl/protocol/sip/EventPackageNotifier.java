@@ -584,8 +584,9 @@ public abstract class EventPackageNotifier
                  * If the contact was already subscribed, we close the last
                  * subscription before accepting the new one.
                  */
-                logger.debug("refreshing subscription "
-                    + subscription+ ", we will remove the first subscription");
+                if (logger.isDebugEnabled())
+                    logger.debug("refreshing subscription "
+                            + subscription+ ", we will remove the first subscription");
 
                 // terminate the subscription with a closing NOTIFY
                 ClientTransaction transac = null;
@@ -852,7 +853,8 @@ public abstract class EventPackageNotifier
              * Any error causes the subscription to be removed as
              * recommended in rfc3265.
              */
-            logger.debug("error received from the network" + response);
+            if (logger.isDebugEnabled())
+                logger.debug("error received from the network" + response);
 
             removeSubscription(response, eventId, clientTransaction);
             break;

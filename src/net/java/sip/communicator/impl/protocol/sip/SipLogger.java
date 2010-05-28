@@ -38,7 +38,8 @@ public class SipLogger
      */
     public void logStackTrace()
     {
-        logger.trace("JAIN-SIP stack trace", new Throwable());
+        if (logger.isTraceEnabled())
+            logger.trace("JAIN-SIP stack trace", new Throwable());
     }
 
     /**
@@ -48,8 +49,8 @@ public class SipLogger
      */
     public void logStackTrace(int traceLevel)
     {
-        // FIXE ME: don't ignore the level?
-        logger.trace("JAIN-SIP stack trace", new Throwable());
+        if (logger.isTraceEnabled())
+            logger.trace("JAIN-SIP stack trace", new Throwable());
     }
 
     /**
@@ -70,7 +71,8 @@ public class SipLogger
     public void logException(Throwable ex)
     {
         logger.warn("Exception in the JAIN-SIP stack: " + ex.getMessage());
-        logger.info("JAIN-SIP exception stack trace is", ex);
+        if (logger.isInfoEnabled())
+            logger.info("JAIN-SIP exception stack trace is", ex);
 
     }
 
@@ -82,7 +84,8 @@ public class SipLogger
      */
     public void logDebug(String message)
     {
-        logger.debug("Debug output from the JAIN-SIP stack: " + message);
+        if (logger.isDebugEnabled())
+            logger.debug("Debug output from the JAIN-SIP stack: " + message);
     }
 
     /**
@@ -93,7 +96,8 @@ public class SipLogger
      */
     public void logFatalError(String message)
     {
-        logger.trace("Fatal error from the JAIN-SIP stack: " + message);
+        if (logger.isTraceEnabled())
+            logger.trace("Fatal error from the JAIN-SIP stack: " + message);
     }
 
     /**
@@ -125,6 +129,13 @@ public class SipLogger
      */
     public boolean isLoggingEnabled(int logLevel)
     {
+        if (logLevel == TRACE_DEBUG)
+            return logger.isDebugEnabled();
+        if (logLevel == TRACE_MESSAGES)         // same as TRACE_INFO
+            return logger.isInfoEnabled();
+        if (logLevel == TRACE_NONE)
+            return false;
+        
         return true;
     }
 
@@ -156,7 +167,8 @@ public class SipLogger
      */
     public void logInfo(String string)
     {
-        logger.info("Info from the JAIN-SIP stack: " + string);
+        if (logger.isInfoEnabled())
+            logger.info("Info from the JAIN-SIP stack: " + string);
     }
 
     /**
@@ -179,7 +191,8 @@ public class SipLogger
      */
     public void setBuildTimeStamp(String buildTimeStamp)
     {
-        logger.trace("JAIN-SIP RI build " + buildTimeStamp);
+        if (logger.isTraceEnabled())
+            logger.trace("JAIN-SIP RI build " + buildTimeStamp);
     }
 
     /**
@@ -205,6 +218,9 @@ public class SipLogger
     public void logMessage(SIPMessage message, String from, String to,
                            boolean sender, long time)
     {
+        if (!logger.isInfoEnabled())
+            return;
+
         String msgHeader;
 
         if(sender)
@@ -229,6 +245,9 @@ public class SipLogger
     public void logMessage(SIPMessage message, String from, String to,
                            String status, boolean sender, long time)
     {
+        if (!logger.isInfoEnabled())
+            return;
+        
         String msgHeader;
 
         if(sender)
@@ -252,13 +271,15 @@ public class SipLogger
     public void logMessage(SIPMessage message, String from, String to,
                            String status, boolean sender)
     {
+        if (!logger.isInfoEnabled())
+            return;
+
         String msgHeader;
 
         if(sender)
             msgHeader = "JAIN-SIP sent a message from=\"";
         else
             msgHeader = "JAIN-SIP received a message from=\"";
-
 
         logger.info(msgHeader + from + "\" to=\"" + to + "\" (status: "
                         + status + "):\n" + message);
@@ -299,7 +320,8 @@ public class SipLogger
      */
     public void logTrace(String message)
     {
-        logger.debug(message);
+        if (logger.isDebugEnabled())
+            logger.debug(message);
 
     }
 }

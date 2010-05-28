@@ -461,7 +461,8 @@ public class SipMessageFactory
         {
             //we just extracted the tag from a Dialog. This is therefore
             //very unlikely to happen and we are going to just log it.
-            logger.debug("Failed to attach a to tag", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to attach a to tag", e);
         }
 
     }
@@ -576,7 +577,8 @@ public class SipMessageFactory
             }
             catch (ParseException e)
             {
-                logger.debug(via + " does not seem to be a valid header.");
+                if (logger.isDebugEnabled())
+                    logger.debug(via + " does not seem to be a valid header.");
 
                 FromHeader from = (FromHeader)response.getHeader(From.NAME);
                 intendedDestinationURI = (SipURI)from.getAddress().getURI();
@@ -620,15 +622,17 @@ public class SipMessageFactory
     {
         ToHeader to = (ToHeader) response.getHeader(ToHeader.NAME);
         if (to == null) {
-            logger.debug("Strange ... no to To header in response:" + response);
+            if (logger.isDebugEnabled())
+                logger.debug("Strange ... no to To header in response:" + response);
             return;
         }
 
         if( containingDialog != null
             && containingDialog.getLocalTag() != null)
         {
-            logger.debug("We seem to already have a tag in this dialog. "
-                         +"Returning");
+            if (logger.isDebugEnabled())
+                logger.debug("We seem to already have a tag in this dialog. "
+                        +"Returning");
             return;
         }
 
@@ -639,7 +643,8 @@ public class SipMessageFactory
 
                 String toTag = generateLocalTag();
 
-                logger.debug("generated to tag: " + toTag);
+                if (logger.isDebugEnabled())
+                    logger.debug("generated to tag: " + toTag);
                 to.setTag(toTag);
             }
         }

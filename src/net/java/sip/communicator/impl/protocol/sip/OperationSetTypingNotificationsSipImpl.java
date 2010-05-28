@@ -144,9 +144,10 @@ public class OperationSetTypingNotificationsSipImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The provider changed state from: "
-                         + evt.getOldState()
-                         + " to: " + evt.getNewState());
+            if (logger.isDebugEnabled())
+                logger.debug("The provider changed state from: "
+                        + evt.getOldState()
+                        + " to: " + evt.getNewState());
 
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
@@ -224,7 +225,8 @@ public class OperationSetTypingNotificationsSipImpl
              return false;
         }
 
-        logger.debug("parsing:\n" + content);
+        if (logger.isDebugEnabled())
+            logger.debug("parsing:\n" + content);
 
         // <state>
         NodeList stateList = doc.getElementsByTagNameNS(NS_VALUE,
@@ -337,9 +339,9 @@ public class OperationSetTypingNotificationsSipImpl
 
         if (status >= 200 && status < 300)
         {
-            logger.debug(
-                "Ack received from the network : "
-                + responseEvent.getResponse().getReasonPhrase());
+            if (logger.isDebugEnabled())
+                logger.debug("Ack received from the network : "
+                        + responseEvent.getResponse().getReasonPhrase());
 
             // we don't need this message anymore
             sentMsg.remove(key);
@@ -512,9 +514,10 @@ public class OperationSetTypingNotificationsSipImpl
         }
         catch (InvalidArgumentException exc)
         {
-            logger.debug("Invalid argument for createResponse : "
-                         + exc.getMessage(),
-                         exc);
+            if (logger.isDebugEnabled())
+                logger.debug("Invalid argument for createResponse : "
+                        + exc.getMessage(),
+                        exc);
         }
     }
 

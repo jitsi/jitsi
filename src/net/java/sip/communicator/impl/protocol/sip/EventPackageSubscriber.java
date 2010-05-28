@@ -496,7 +496,8 @@ public class EventPackageSubscriber
         if (!Request.NOTIFY.equals(request.getMethod()))
             return false;
 
-        logger.debug("notify received");
+        if (logger.isDebugEnabled())
+            logger.debug("notify received");
 
         SubscriptionStateHeader sstateHeader
             = (SubscriptionStateHeader)
@@ -523,7 +524,8 @@ public class EventPackageSubscriber
         if ((subscription == null)
                 && !SubscriptionStateHeader.TERMINATED.equalsIgnoreCase(sstate))
         {
-            logger.debug("subscription not found for callId " + callId);
+            if (logger.isDebugEnabled())
+                logger.debug("subscription not found for callId " + callId);
 
             // send a 481 response (rfc3625)
             Response response;
@@ -795,9 +797,10 @@ public class EventPackageSubscriber
          else if((statusCode >= Response.MULTIPLE_CHOICES)
                  && (statusCode < Response.BAD_REQUEST))
          {
-             logger.info(
-                 "Response to subscribe to " + subscription.getAddress()
-                     + ": " + response.getReasonPhrase());
+             if (logger.isInfoEnabled())
+                 logger.info(
+                         "Response to subscribe to " + subscription.getAddress()
+                         + ": " + response.getReasonPhrase());
          }
          else if(statusCode >= Response.BAD_REQUEST)
          {
@@ -877,7 +880,8 @@ public class EventPackageSubscriber
              }
              else
              {
-                 logger.debug("error received from the network:\n" + response);
+                 if (logger.isDebugEnabled())
+                     logger.debug("error received from the network:\n" + response);
 
                  removeSubscription(callId, subscription);
                  subscription.processFailureResponse(responseEvent, statusCode);
@@ -1072,7 +1076,8 @@ public class EventPackageSubscriber
             }
             catch (OperationFailedException e)
             {
-                logger.debug("failed to create the unsubscription", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("failed to create the unsubscription", e);
                 throw e;
             }
 
@@ -1087,7 +1092,8 @@ public class EventPackageSubscriber
             }
             catch (SipException e)
             {
-                logger.debug("Can't send the request", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Can't send the request", e);
                 throw
                     new OperationFailedException(
                             "Failed to send the subscription message",

@@ -565,12 +565,14 @@ public class ProtocolProviderServiceSipImpl
      */
     public void processResponse(ResponseEvent responseEvent)
     {
-        logger.debug("received response=\n" + responseEvent.getResponse());
+        if (logger.isDebugEnabled())
+            logger.debug("received response=\n" + responseEvent.getResponse());
         ClientTransaction clientTransaction = responseEvent
             .getClientTransaction();
         if (clientTransaction == null)
         {
-            logger.debug("ignoring a transactionless response");
+            if (logger.isDebugEnabled())
+                logger.debug("ignoring a transactionless response");
             return;
         }
 
@@ -584,8 +586,9 @@ public class ProtocolProviderServiceSipImpl
 
         if (processors != null)
         {
-            logger.debug("Found " + processors.size()
-                + " processor(s) for method " + method);
+            if (logger.isDebugEnabled())
+                logger.debug("Found " + processors.size()
+                        + " processor(s) for method " + method);
 
             for (MethodProcessor processor : processors)
                 if (processor.processResponse(responseEvent))
@@ -617,12 +620,14 @@ public class ProtocolProviderServiceSipImpl
 
         if (transaction == null)
         {
-            logger.debug("ignoring a transactionless timeout event");
+            if (logger.isDebugEnabled())
+                logger.debug("ignoring a transactionless timeout event");
             return;
         }
 
         Request request = transaction.getRequest();
-        logger.debug("received timeout for req=" + request);
+        if (logger.isDebugEnabled())
+            logger.debug("received timeout for req=" + request);
 
         //find the object that is supposed to take care of responses with the
         //corresponding method
@@ -631,7 +636,8 @@ public class ProtocolProviderServiceSipImpl
 
         if (processors != null)
         {
-            logger.debug("Found " + processors.size()
+            if (logger.isDebugEnabled())
+                logger.debug("Found " + processors.size()
                 + " processor(s) for method " + method);
 
             for (MethodProcessor processor : processors)
@@ -666,8 +672,9 @@ public class ProtocolProviderServiceSipImpl
 
         if (transaction == null)
         {
-            logger.debug(
-                "ignoring a transactionless transaction terminated event");
+            if (logger.isDebugEnabled())
+                logger.debug(
+                        "ignoring a transactionless transaction terminated event");
             return;
         }
 
@@ -681,8 +688,9 @@ public class ProtocolProviderServiceSipImpl
 
         if (processors != null)
         {
-            logger.debug("Found " + processors.size()
-                + " processor(s) for method " + method);
+            if (logger.isDebugEnabled())
+                logger.debug("Found " + processors.size()
+                        + " processor(s) for method " + method);
 
             for (MethodProcessor processor : processors)
             {
@@ -709,8 +717,9 @@ public class ProtocolProviderServiceSipImpl
     public void processDialogTerminated(DialogTerminatedEvent
                                         dialogTerminatedEvent)
     {
-        logger.debug("Dialog terminated for req="
-                     + dialogTerminatedEvent.getDialog());
+        if (logger.isDebugEnabled())
+            logger.debug("Dialog terminated for req="
+                    + dialogTerminatedEvent.getDialog());
     }
 
     /**
@@ -722,7 +731,8 @@ public class ProtocolProviderServiceSipImpl
      */
     public void processRequest(RequestEvent requestEvent)
     {
-        logger.debug("received request=\n" + requestEvent.getRequest());
+        if (logger.isDebugEnabled())
+            logger.debug("received request=\n" + requestEvent.getRequest());
 
         Request request = requestEvent.getRequest();
 
@@ -811,8 +821,9 @@ public class ProtocolProviderServiceSipImpl
 
         if (processors != null)
         {
-            logger.debug("Found " + processors.size()
-                + " processor(s) for method " + method);
+            if (logger.isDebugEnabled())
+                logger.debug("Found " + processors.size()
+                        + " processor(s) for method " + method);
 
             for (MethodProcessor processor : processors)
             {
@@ -857,7 +868,8 @@ public class ProtocolProviderServiceSipImpl
          */
         public void run()
         {
-            logger.trace("Killing the SIP Protocol Provider.");
+            if (logger.isTraceEnabled())
+                logger.trace("Killing the SIP Protocol Provider.");
             //kill all active calls
             OperationSetBasicTelephonySipImpl telephony
                 = (OperationSetBasicTelephonySipImpl)getOperationSet(
@@ -972,7 +984,8 @@ public class ProtocolProviderServiceSipImpl
                 null
                 );
             viaHeaders.add(viaHeader);
-            logger.debug("generated via headers:" + viaHeader);
+            if (logger.isDebugEnabled())
+                logger.debug("generated via headers:" + viaHeader);
             return viaHeaders;
         }
         catch (ParseException ex)
@@ -1029,8 +1042,9 @@ public class ProtocolProviderServiceSipImpl
             {
                 maxForwardsHeader = headerFactory.createMaxForwardsHeader(
                     MAX_FORWARDS);
-                logger.debug("generated max forwards: "
-                             + maxForwardsHeader.toString());
+                if (logger.isDebugEnabled())
+                    logger.debug("generated max forwards: "
+                            + maxForwardsHeader.toString());
             }
             catch (InvalidArgumentException ex)
             {
@@ -1136,8 +1150,9 @@ public class ProtocolProviderServiceSipImpl
             registrationContactHeader = headerFactory.createContactHeader(
                 contactAddress);
 
-            logger.debug("generated contactHeader:"
-                         + registrationContactHeader);
+            if (logger.isDebugEnabled())
+                logger.debug("generated contactHeader:"
+                        + registrationContactHeader);
         }
         catch (ParseException ex)
         {
@@ -1243,7 +1258,8 @@ public class ProtocolProviderServiceSipImpl
         }
         catch(InvalidSyntaxException ex)
         {
-            logger.debug("Problem parcing an osgi expression", ex);
+            if (logger.isDebugEnabled())
+                logger.debug("Problem parcing an osgi expression", ex);
             // should never happen so crash if it ever happens
             throw new RuntimeException(
                     "getServiceReferences() wasn't supposed to fail!"
@@ -1269,7 +1285,8 @@ public class ProtocolProviderServiceSipImpl
         //override the transport in case we have an outbound proxy.
         if(getOutboundProxy() != null)
         {
-            logger.trace("Will use proxy address");
+            if (logger.isTraceEnabled())
+                logger.trace("Will use proxy address");
             transport = outboundProxyTransport;
         }
 
@@ -1436,10 +1453,11 @@ public class ProtocolProviderServiceSipImpl
         }
         catch (UnknownHostException ex)
         {
-            logger.debug(registrarAddressStr
-                            + " appears to be an either invalid"
-                            + " or inaccessible address.",
-                            ex);
+            if (logger.isDebugEnabled())
+                logger.debug(registrarAddressStr
+                        + " appears to be an either invalid"
+                        + " or inaccessible address.",
+                        ex);
 
             boolean isServerValidated =
                 accountID.getAccountPropertyBoolean(
@@ -1641,7 +1659,8 @@ public class ProtocolProviderServiceSipImpl
         }
         catch (ParseException exc)
         {
-            logger.trace("Failed to create our SIP AOR address", exc);
+            if (logger.isTraceEnabled())
+                logger.trace("Failed to create our SIP AOR address", exc);
             // this should never happen since we are using InetAddresses
             // everywhere so parsing could hardly go wrong.
             throw new IllegalArgumentException(
@@ -1727,7 +1746,8 @@ public class ProtocolProviderServiceSipImpl
 
             proxyAddressStr = proxyAddress.getHostName();
 
-            logger.trace("Setting proxy address = " + proxyAddressStr);
+            if (logger.isTraceEnabled())
+                logger.trace("Setting proxy address = " + proxyAddressStr);
 
             // We should set here the property to indicate that the proxy
             // address is validated. When we load stored accounts we check
@@ -2052,8 +2072,9 @@ public class ProtocolProviderServiceSipImpl
         }
         catch (OperationFailedException exc)
         {
-            logger.debug("Failed to send an error " + errorCode + " response",
-                            exc);
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to send an error " + errorCode + " response",
+                        exc);
         }
     }
 
@@ -2169,7 +2190,8 @@ public class ProtocolProviderServiceSipImpl
                 logger);
         }
 
-        logger.debug("Sent request:\n" + request);
+        if (logger.isDebugEnabled())
+            logger.debug("Sent request:\n" + request);
     }
 
     /**
@@ -2208,14 +2230,16 @@ public class ProtocolProviderServiceSipImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("Received a RegistrationStateChangeEvent: " + evt);
+            if (logger.isDebugEnabled())
+                logger.debug("Received a RegistrationStateChangeEvent: " + evt);
 
             collectedNewStates.add(evt.getNewState());
 
             if (evt.getNewState().equals(RegistrationState.UNREGISTERED))
             {
-                logger.debug(
-                    "We're unregistered and will notify those who wait");
+                if (logger.isDebugEnabled())
+                    logger.debug(
+                            "We're unregistered and will notify those who wait");
                 synchronized (this)
                 {
                     notifyAll();
@@ -2232,16 +2256,18 @@ public class ProtocolProviderServiceSipImpl
          */
         public void waitForEvent(long waitFor)
         {
-            logger.trace("Waiting for a "
-                         +"RegistrationStateChangeEvent.UNREGISTERED");
+            if (logger.isTraceEnabled())
+                logger.trace("Waiting for a "
+                        +"RegistrationStateChangeEvent.UNREGISTERED");
 
             synchronized (this)
             {
                 if (collectedNewStates.contains(
                         RegistrationState.UNREGISTERED))
                 {
-                    logger.trace("Event already received. "
-                                 + collectedNewStates);
+                    if (logger.isTraceEnabled())
+                        logger.trace("Event already received. "
+                                + collectedNewStates);
                     return;
                 }
 
@@ -2250,20 +2276,23 @@ public class ProtocolProviderServiceSipImpl
                     wait(waitFor);
 
                     if (collectedNewStates.size() > 0)
-                        logger.trace(
-                            "Received a RegistrationStateChangeEvent.");
+                        if (logger.isTraceEnabled())
+                            logger.trace(
+                                    "Received a RegistrationStateChangeEvent.");
                     else
-                        logger.trace(
-                            "No RegistrationStateChangeEvent received for "
-                            + waitFor + "ms.");
+                        if (logger.isTraceEnabled())
+                            logger.trace(
+                                    "No RegistrationStateChangeEvent received for "
+                                    + waitFor + "ms.");
 
                 }
                 catch (InterruptedException ex)
                 {
-                    logger.debug(
-                        "Interrupted while waiting for a "
-                        +"RegistrationStateChangeEvent"
-                        , ex);
+                    if (logger.isDebugEnabled())
+                        logger.debug(
+                                "Interrupted while waiting for a "
+                                +"RegistrationStateChangeEvent"
+                                , ex);
                 }
             }
         }
@@ -2388,7 +2417,8 @@ public class ProtocolProviderServiceSipImpl
             {
                 sockAddr = NetworkUtils.getSRVRecord("sip", transport, address);
             }
-            logger.trace("Returned SRV " + sockAddr);
+            if (logger.isTraceEnabled())
+                logger.trace("Returned SRV " + sockAddr);
         }
         catch (ParseException e)
         {
@@ -2512,7 +2542,8 @@ public class ProtocolProviderServiceSipImpl
 
         if(outboundProxy != null)
         {
-            logger.trace("Will use proxy address");
+            if (logger.isTraceEnabled())
+                logger.trace("Will use proxy address");
             destinationInetAddress = outboundProxy.getAddress();
         }
         else

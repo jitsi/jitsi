@@ -197,7 +197,8 @@ public class OperationSetBasicInstantMessagingSipImpl
                 sipStatusEnum.getStatus(SipStatusEnum.OFFLINE))
             && !offlineMessageSupported)
         {
-            logger.debug("trying to send a message to an offline contact");
+            if (logger.isDebugEnabled())
+                logger.debug("trying to send a message to an offline contact");
             fireMessageDeliveryFailed(
                 message,
                 to,
@@ -521,9 +522,10 @@ public class OperationSetBasicInstantMessagingSipImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The provider changed state from: "
-                         + evt.getOldState()
-                         + " to: " + evt.getNewState());
+            if (logger.isDebugEnabled())
+                logger.debug("The provider changed state from: "
+                        + evt.getOldState()
+                        + " to: " + evt.getNewState());
 
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
@@ -651,7 +653,8 @@ public class OperationSetBasicInstantMessagingSipImpl
             }
             catch (UnsupportedEncodingException ex)
             {
-                logger.debug("failed to convert the message charset");
+                if (logger.isDebugEnabled())
+                    logger.debug("failed to convert the message charset");
                 content = new String(requestEvent.getRequest().getRawContent());
             }
 
@@ -691,8 +694,9 @@ public class OperationSetBasicInstantMessagingSipImpl
             Message newMessage = createMessage(content, ctype, cencoding, null);
 
             if (from == null) {
-                logger.debug("received a message from an unknown contact: "
-                             + fromHeader.getAddress().getURI().toString());
+                if (logger.isDebugEnabled())
+                    logger.debug("received a message from an unknown contact: "
+                            + fromHeader.getAddress().getURI().toString());
                 //create the volatile contact
                 from = opSetPersPresence
                     .createVolatileContact(fromHeader.getAddress());
@@ -718,9 +722,9 @@ public class OperationSetBasicInstantMessagingSipImpl
             }
             catch (InvalidArgumentException exc)
             {
-                logger.debug("Invalid argument for createResponse : "
-                             + exc.getMessage(),
-                             exc);
+                if (logger.isDebugEnabled())
+                    logger.debug("Invalid argument for createResponse : "
+                            + exc.getMessage(), exc);
             }
 
             // fire an event
@@ -762,7 +766,8 @@ public class OperationSetBasicInstantMessagingSipImpl
             }
             catch (UnsupportedEncodingException exc)
             {
-                logger.debug("failed to convert the message charset", exc);
+                if (logger.isDebugEnabled())
+                    logger.debug("failed to convert the message charset", exc);
                 content = new String(req.getRawContent());
             }
 
@@ -821,10 +826,10 @@ public class OperationSetBasicInstantMessagingSipImpl
             // status 401/407 = proxy authentification
             if (status >= 400 && status != 401 && status != 407)
             {
-                logger.info(
-                    responseEvent.getResponse().getStatusCode()
-                    + " "
-                    + responseEvent.getResponse().getReasonPhrase());
+                if (logger.isInfoEnabled())
+                    logger.info(responseEvent.getResponse().getStatusCode()
+                            + " " 
+                            + responseEvent.getResponse().getReasonPhrase());
 
                 // error for delivering the message
                 MessageDeliveryFailedEvent evt =
@@ -842,11 +847,11 @@ public class OperationSetBasicInstantMessagingSipImpl
             else if (status == 401 || status == 407)
             {
                 // proxy ask for authentification
-                logger.debug(
-                    "proxy asks authentication : "
-                        + responseEvent.getResponse().getStatusCode()
-                        + " "
-                        + responseEvent.getResponse().getReasonPhrase());
+                if (logger.isDebugEnabled())
+                    logger.debug("proxy asks authentication : "
+                            + responseEvent.getResponse().getStatusCode()
+                            + " "
+                            + responseEvent.getResponse().getReasonPhrase());
 
                 ClientTransaction clientTransaction = responseEvent
                     .getClientTransaction();
@@ -877,11 +882,11 @@ public class OperationSetBasicInstantMessagingSipImpl
             }
             else if (status >= 200)
             {
-                logger.debug(
-                    "Ack received from the network : "
-                    + responseEvent.getResponse().getStatusCode()
-                    + " "
-                    + responseEvent.getResponse().getReasonPhrase());
+                if (logger.isDebugEnabled())
+                    logger.debug("Ack received from the network : "
+                            + responseEvent.getResponse().getStatusCode()
+                            + " "
+                            + responseEvent.getResponse().getReasonPhrase());
 
                 // we delivered the message
                 MessageDeliveredEvent msgDeliveredEvt
@@ -937,7 +942,8 @@ public class OperationSetBasicInstantMessagingSipImpl
         {
             try
             {
-                logger.debug("Authenticating a message request.");
+                if (logger.isDebugEnabled())
+                    logger.debug("Authenticating a message request.");
 
                 ClientTransaction retryTran
                     = sipProvider.getSipSecurityManager().handleChallenge(
@@ -947,7 +953,8 @@ public class OperationSetBasicInstantMessagingSipImpl
 
                 if(retryTran == null)
                 {
-                    logger.trace("No password supplied or error occured!");
+                    if (logger.isTraceEnabled())
+                        logger.trace("No password supplied or error occured!");
                     return;
                 }
 

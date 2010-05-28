@@ -936,7 +936,8 @@ public class CallPeerMediaHandler
      */
     private void sendHolePunchPacket(MediaStreamTarget target)
     {
-        logger.info("Try to open port on NAT if any");
+        if (logger.isInfoEnabled())
+            logger.info("Try to open port on NAT if any");
         try
         {
             /* data port (RTP) */

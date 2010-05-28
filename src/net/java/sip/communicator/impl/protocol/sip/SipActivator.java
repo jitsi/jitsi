@@ -52,7 +52,8 @@ public class SipActivator
      */
     public void start(BundleContext context) throws Exception
     {
-        logger.debug("Started.");
+        if (logger.isDebugEnabled())
+            logger.debug("Started.");
 
         SipActivator.bundleContext = context;
 
@@ -73,7 +74,8 @@ public class SipActivator
                     sipProviderFactory,
                     properties);
 
-        logger.debug("SIP Protocol Provider Factory ... [REGISTERED]");
+        if (logger.isDebugEnabled())
+            logger.debug("SIP Protocol Provider Factory ... [REGISTERED]");
     }
 
     /**

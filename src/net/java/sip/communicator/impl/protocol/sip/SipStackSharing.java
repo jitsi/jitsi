@@ -107,7 +107,8 @@ public class SipStackSharing
 
             // Create SipStack object
             this.stack = sipFactory.createSipStack(sipStackProperties);
-            logger.trace("Created stack: " + this.stack);
+            if (logger.isTraceEnabled())
+                logger.trace("Created stack: " + this.stack);
 
             // set our custom address resolver managing SRV records
             AddressResolverImpl addressResolver =
@@ -141,7 +142,8 @@ public class SipStackSharing
             if(this.listeners.size() == 0)
                 startListening();
             this.listeners.add(listener);
-            logger.trace(this.listeners.size() + " listeners now");
+            if (logger.isTraceEnabled())
+                logger.trace(this.listeners.size() + " listeners now");
         }
     }
 
@@ -159,7 +161,8 @@ public class SipStackSharing
             this.listeners.remove(listener);
 
             int listenerCount = listeners.size();
-            logger.trace(listenerCount + " listeners left");
+            if (logger.isTraceEnabled())
+                logger.trace(listenerCount + " listeners left");
             if(listenerCount == 0)
                 stopListening();
         }
@@ -223,7 +226,8 @@ public class SipStackSharing
             this.createProvider(this.getPreferredSecurePort(),
                             bindRetriesValue, true);
             this.stack.start();
-            logger.trace("started listening");
+            if (logger.isTraceEnabled())
+                logger.trace("started listening");
         }
         catch(Exception ex)
         {
@@ -292,7 +296,8 @@ public class SipStackSharing
                         NetworkUtils.IN_ADDR_ANY
                         , preferredPort
                         , ListeningPoint.TLS);
-                logger.trace("TLS secure ListeningPoint has been created.");
+                if (logger.isTraceEnabled())
+                    logger.trace("TLS secure ListeningPoint has been created.");
 
                 this.secureJainSipProvider =
                     this.stack.createSipProvider(tlsLP);
@@ -308,8 +313,9 @@ public class SipStackSharing
                         NetworkUtils.IN_ADDR_ANY
                         , preferredPort
                         , ListeningPoint.TCP);
-                logger.trace("UDP and TCP clear ListeningPoints have "
-                        + "been created.");
+                if (logger.isTraceEnabled())
+                    logger.trace("UDP and TCP clear ListeningPoints have "
+                            + "been created.");
 
                 this.clearJainSipProvider =
                     this.stack.createSipProvider(udpLP);
@@ -318,7 +324,8 @@ public class SipStackSharing
                 this.clearJainSipProvider.addSipListener(this);
             }
 
-            logger.trace(context + "SipProvider has been created.");
+            if (logger.isTraceEnabled())
+                logger.trace(context + "SipProvider has been created.");
         }
         catch(InvalidArgumentException ex)
         {
@@ -339,12 +346,14 @@ public class SipStackSharing
             // another software is probably using the port
             if(ex.getCause() instanceof java.io.IOException)
             {
-                logger.debug("Port " + preferredPort
-                        + " seems in use for either TCP or UDP.");
+                if (logger.isDebugEnabled())
+                    logger.debug("Port " + preferredPort
+                            + " seems in use for either TCP or UDP.");
 
                 // tries again on a new random port
                 int currentlyTriedPort = NetworkUtils.getRandomPortNumber();
-                logger.debug("Retrying bind on port " + currentlyTriedPort);
+                if (logger.isDebugEnabled())
+                    logger.debug("Retrying bind on port " + currentlyTriedPort);
                 this.createProvider(currentlyTriedPort, retries-1, secure);
             }
             else
@@ -383,7 +392,8 @@ public class SipStackSharing
             }
 
             this.stack.stop();
-            logger.trace("stopped listening");
+            if (logger.isTraceEnabled())
+                logger.trace("stopped listening");
         }
         catch(ObjectInUseException ex)
         {
@@ -472,7 +482,8 @@ public class SipStackSharing
             }
             else
             {
-                logger.trace("service was found with dialog data");
+                if (logger.isTraceEnabled())
+                    logger.trace("service was found with dialog data");
                 recipient.processDialogTerminated(event);
             }
         }
@@ -495,10 +506,12 @@ public class SipStackSharing
     {
         try
         {
-            logger.trace(event);
+            if (logger.isTraceEnabled())
+                logger.trace(event);
 
             // impossible to dispatch, log here
-            logger.debug("@todo implement processIOException()");
+            if (logger.isDebugEnabled())
+                logger.debug("@todo implement processIOException()");
         }
         catch(Throwable exc)
         {
@@ -520,7 +533,8 @@ public class SipStackSharing
         try
         {
             Request request = event.getRequest();
-            logger.trace("received request: " + request.getMethod());
+            if (logger.isTraceEnabled())
+                logger.trace("received request: " + request.getMethod());
 
             /*
              * Create the transaction if it doesn't exist yet. If it is a
@@ -556,9 +570,10 @@ public class SipStackSharing
                         }
                         else
                         {
-                            logger.trace(
-                                "Ignoring request without Max-Forwards header: "
-                                + event);
+                            if (logger.isTraceEnabled())
+                                logger.trace(
+                                        "Ignoring request without Max-Forwards header: "
+                                        + event);
                             return;
                         }
                     }
@@ -652,9 +667,10 @@ public class SipStackSharing
             // we don't have to accept the transaction since we
             //created the request
             ClientTransaction transaction = event.getClientTransaction();
-            logger.trace("received response: "
-                            + event.getResponse().getStatusCode()
-                            + " " + event.getResponse().getReasonPhrase());
+            if (logger.isTraceEnabled())
+                logger.trace("received response: "
+                        + event.getResponse().getStatusCode()
+                        + " " + event.getResponse().getReasonPhrase());
 
             if(transaction == null)
             {
@@ -822,8 +838,9 @@ public class SipStackSharing
                 //logger.trace(ourUserID + " *** " + requestUser);
                 if(ourUserID.equals(requestUser))
                 {
-                    logger.trace("suitable candidate found: "
-                            + listener.getAccountID());
+                    if (logger.isTraceEnabled())
+                        logger.trace("suitable candidate found: "
+                                + listener.getAccountID());
                     candidates.add(listener);
                 }
             }
@@ -834,8 +851,9 @@ public class SipStackSharing
             {
                 ProtocolProviderServiceSipImpl perfectMatch = candidates.get(0);
 
-                logger.trace("Will dispatch to \""
-                    + perfectMatch.getAccountID() + "\"");
+                if (logger.isTraceEnabled())
+                    logger.trace("Will dispatch to \""
+                            + perfectMatch.getAccountID() + "\"");
                 return perfectMatch;
             }
 
@@ -853,9 +871,10 @@ public class SipStackSharing
                     if (hostValue.equals(candidate
                                 .getContactAddressCustomParamValue()))
                     {
-                        logger.trace("Will dispatch to \""
-                                + candidate.getAccountID() + "\" because "
-                                + "\" the custom param was set");
+                        if (logger.isTraceEnabled())
+                            logger.trace("Will dispatch to \""
+                                    + candidate.getAccountID() + "\" because "
+                                    + "\" the custom param was set");
                         return candidate;
                     }
                 }
@@ -884,9 +903,10 @@ public class SipStackSharing
                     //logger.trace(toHost + "***" + ourHost);
                     if(toHost.equals(ourHost))
                     {
-                        logger.trace("Will dispatch to \""
-                                + candidate.getAccountID() + "\" because "
-                                + "host in the To: is the same as in our AOR");
+                        if (logger.isTraceEnabled())
+                            logger.trace("Will dispatch to \""
+                                    + candidate.getAccountID() + "\" because "
+                                    + "host in the To: is the same as in our AOR");
                         return candidate;
                     }
                 }
@@ -898,17 +918,20 @@ public class SipStackSharing
                         + target.getAccountID()
                         + "\" because there is ambiguity on the username from"
                         + " the Request-URI");
-                logger.trace("\n" + request);
+                if (logger.isTraceEnabled())
+                    logger.trace("\n" + request);
                 return target;
             }
 
             // fallback on any account
             ProtocolProviderServiceSipImpl target =
                 currentListeners.iterator().next();
-            logger.info("Will randomly dispatch to \"" + target.getAccountID()
-                + "\" because the username in the Request-URI "
-                + "is unknown or empty");
-            logger.trace("\n" + request);
+            if (logger.isInfoEnabled())
+                logger.info("Will randomly dispatch to \"" + target.getAccountID()
+                        + "\" because the username in the Request-URI "
+                        + "is unknown or empty");
+            if (logger.isTraceEnabled())
+                logger.trace("\n" + request);
             return target;
         }
         else
@@ -940,7 +963,8 @@ public class SipStackSharing
 
         if (service != null)
         {
-            logger.trace("service was found in request data");
+            if (logger.isTraceEnabled())
+                logger.trace("service was found in request data");
             return service;
         }
 
@@ -949,7 +973,8 @@ public class SipStackSharing
                     SipApplicationData.KEY_SERVICE);
         if (service != null)
         {
-            logger.trace("service was found in dialog data");
+            if (logger.isTraceEnabled())
+                logger.trace("service was found in dialog data");
         }
 
         return service;

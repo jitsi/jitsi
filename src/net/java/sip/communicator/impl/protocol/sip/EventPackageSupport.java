@@ -346,7 +346,8 @@ public class EventPackageSupport
 
             if(retryTran == null)
             {
-                logger.trace("No password supplied or error occured!");
+                if (logger.isTraceEnabled())
+                    logger.trace("No password supplied or error occured!");
                 return;
             }
 

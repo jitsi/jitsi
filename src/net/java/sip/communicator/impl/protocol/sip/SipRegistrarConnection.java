@@ -244,7 +244,8 @@ public class SipRegistrarConnection
         try
         {
             regTrans.sendRequest();
-            logger.debug("sent request=\n" + request);
+            if (logger.isDebugEnabled())
+                logger.debug("sent request=\n" + request);
         }
         //we sometimes get a null pointer exception here so catch them all
         catch (Exception ex)
@@ -410,7 +411,8 @@ public class SipRegistrarConnection
     {
         if (getRegistrationState() == RegistrationState.UNREGISTERED)
         {
-            logger.trace("Trying to unregister when already unresgistered");
+            if (logger.isTraceEnabled())
+                logger.trace("Trying to unregister when already unresgistered");
             return;
         }
 
@@ -479,7 +481,8 @@ public class SipRegistrarConnection
             callIdHeader = null;
 
             unregisterTransaction.sendRequest();
-            logger.info("sent request:\n" + unregisterRequest);
+            if (logger.isInfoEnabled())
+                logger.info("sent request:\n" + unregisterRequest);
 
             //if we're currently registered or in a process of unregistering
             //we'll wait for an ok response before changing the status.
@@ -487,7 +490,8 @@ public class SipRegistrarConnection
             if(!(getRegistrationState().equals(RegistrationState.REGISTERED) ||
             getRegistrationState().equals(RegistrationState.UNREGISTERING)))
             {
-                logger.info("Setting state to UNREGISTERED.");
+                if (logger.isInfoEnabled())
+                    logger.info("Setting state to UNREGISTERED.");
                 setRegistrationState(
                     RegistrationState.UNREGISTERED
                     , RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
@@ -497,9 +501,11 @@ public class SipRegistrarConnection
                     && regTrans.getState().getValue()
                             <= TransactionState.PROCEEDING.getValue())
                 {
-                    logger.trace("Will try to terminate reg tran ...");
+                    if (logger.isTraceEnabled())
+                        logger.trace("Will try to terminate reg tran ...");
                     regTrans.terminate();
-                    logger.trace("Transaction terminated!");
+                    if (logger.isTraceEnabled())
+                        logger.trace("Transaction terminated!");
                 }
             }
         }
@@ -802,7 +808,8 @@ public class SipRegistrarConnection
     {
         try
         {
-            logger.debug("Authenticating a Register request.");
+            if (logger.isDebugEnabled())
+                logger.debug("Authenticating a Register request.");
 
             ClientTransaction retryTran;
 
@@ -825,7 +832,8 @@ public class SipRegistrarConnection
 
             if(retryTran == null)
             {
-                logger.trace("No password supplied or error occured!");
+                if (logger.isTraceEnabled())
+                    logger.trace("No password supplied or error occured!");
                 unregister(false);
                 return;
             }

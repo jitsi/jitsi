@@ -279,13 +279,14 @@ public class OperationSetPresenceSipImpl
         this.parentProvider.registerMethodProcessor(Request.PUBLISH, this);
         this.parentProvider.registerEvent("presence");
 
-        logger.debug(
-            "presence initialized with :"
-                + presenceEnabled + ", "
-                + forceP2PMode + ", "
-                + pollingPeriod + ", "
-                + subscriptionExpiration
-                + " for " + this.parentProvider.getOurDisplayName());
+        if (logger.isDebugEnabled())
+            logger.debug(
+                    "presence initialized with :"
+                    + presenceEnabled + ", "
+                    + forceP2PMode + ", "
+                    + pollingPeriod + ", "
+                    + subscriptionExpiration
+                    + " for " + this.parentProvider.getOurDisplayName());
 
         // retrieve the options for this account
         this.pollingTaskPeriod
@@ -907,7 +908,8 @@ public class OperationSetPresenceSipImpl
                IllegalStateException,
                OperationFailedException
     {
-        logger.debug("let's subscribe " + contactIdentifier);
+        if (logger.isDebugEnabled())
+            logger.debug("let's subscribe " + contactIdentifier);
 
         //if the contact is already in the contact list
         ContactSipImpl contact = resolveContactID(contactIdentifier);
@@ -1126,7 +1128,8 @@ public class OperationSetPresenceSipImpl
                 // must be one (rfc3903)
                 if (etHeader == null)
                 {
-                    logger.debug("can't find the ETag header");
+                    if (logger.isDebugEnabled())
+                        logger.debug("can't find the ETag header");
                     return false;
                 }
 
@@ -1278,15 +1281,17 @@ public class OperationSetPresenceSipImpl
             }
             else
             {
-                logger.debug("error received from the network" + response);
+                if (logger.isDebugEnabled())
+                    logger.debug("error received from the network" + response);
 
                 this.distantPAET = null;
 
                 if (this.useDistantPA)
                 {
-                    logger.debug(
-                        "we enter into the peer-to-peer mode"
-                            + " as the distant PA mode fails");
+                    if (logger.isDebugEnabled())
+                        logger.debug(
+                                "we enter into the peer-to-peer mode"
+                                + " as the distant PA mode fails");
 
                     setUseDistantPA(false);
 
@@ -1325,7 +1330,8 @@ public class OperationSetPresenceSipImpl
                 contact.getParentContactGroup(),
                 SubscriptionEvent.SUBSCRIPTION_RESOLVED);
 
-        logger.debug("contact " + contact + " resolved");
+        if (logger.isDebugEnabled())
+            logger.debug("contact " + contact + " resolved");
     }
 
     /**
@@ -2004,7 +2010,8 @@ public class OperationSetPresenceSipImpl
          if (doc == null)
              return;
 
-         logger.debug("parsing:\n" + presenceDoc);
+         if (logger.isDebugEnabled())
+             logger.debug("parsing:\n" + presenceDoc);
 
          // <presence>
          NodeList presList = doc.getElementsByTagNameNS(NS_VALUE,
@@ -2189,8 +2196,9 @@ public class OperationSetPresenceSipImpl
                      }
                      catch (NumberFormatException e)
                      {
-                         logger.debug("contact priority is not a valid float",
-                                 e);
+                         if (logger.isDebugEnabled())
+                             logger.debug("contact priority is not a valid float",
+                                     e);
                          prio = new Float(0f);
                      }
 
@@ -2239,7 +2247,8 @@ public class OperationSetPresenceSipImpl
 
              if (sipcontact.isEmpty())
              {
-                 logger.debug("no contact found for id: " + contactID);
+                 if (logger.isDebugEnabled())
+                     logger.debug("no contact found for id: " + contactID);
                  continue;
              }
 
@@ -2276,7 +2285,8 @@ public class OperationSetPresenceSipImpl
 
              if (statusNode == null)
              {
-                 logger.debug("no valid status in this tuple");
+                 if (logger.isDebugEnabled())
+                     logger.debug("no valid status in this tuple");
              }
              else
              {
@@ -2303,7 +2313,8 @@ public class OperationSetPresenceSipImpl
 
                  if (basicNode == null)
                  {
-                     logger.debug("no valid <basic> in this status");
+                     if (logger.isDebugEnabled())
+                         logger.debug("no valid <basic> in this status");
                  }
                  else
                  {
@@ -2367,8 +2378,9 @@ public class OperationSetPresenceSipImpl
              {
                  if (changed == false)
                  {
-                     logger.debug("no suitable presence state found in this "
-                            + "tuple");
+                     if (logger.isDebugEnabled())
+                         logger.debug("no suitable presence state found in this "
+                                 + "tuple");
                  }
              }
          } // for each <tuple>
@@ -2546,7 +2558,8 @@ public class OperationSetPresenceSipImpl
       */
      public void unsubscribeToAllContact()
      {
-         logger.debug("trying to unsubscribe to every contact");
+         if (logger.isDebugEnabled())
+             logger.debug("trying to unsubscribe to every contact");
 
          // send event notifications saying that all our buddies are
          // offline. SIMPLE does not implement top level buddies
@@ -2732,8 +2745,9 @@ public class OperationSetPresenceSipImpl
                       }
                       catch (InterruptedException e)
                       {
-                          logger.debug("abnormal behavior, may cause " +
-                                "unnecessary CPU use", e);
+                          if (logger.isDebugEnabled())
+                              logger.debug("abnormal behavior, may cause " +
+                                      "unnecessary CPU use", e);
                       }
                   }
               }
@@ -2741,7 +2755,8 @@ public class OperationSetPresenceSipImpl
           else if (evt.getNewState().equals(
                   RegistrationState.REGISTERED))
           {
-               logger.debug("enter registered state");
+              if (logger.isDebugEnabled())
+                  logger.debug("enter registered state");
 
                /*
                 * If presence support is enabled and the keep-alive method
@@ -2771,8 +2786,9 @@ public class OperationSetPresenceSipImpl
 
                        if (contact.isResolved())
                        {
-                           logger.debug("contact " + contact
-                                   + " already resolved");
+                           if (logger.isDebugEnabled())
+                               logger.debug("contact " + contact
+                                       + " already resolved");
                            continue;
                        }
 
@@ -2817,9 +2833,10 @@ public class OperationSetPresenceSipImpl
                             }
                             catch (OperationFailedException ex)
                             {
-                                logger.debug(
-                                    "Failed to remove subscription to contact "
-                                        + contact);
+                                if (logger.isDebugEnabled())
+                                    logger.debug(
+                                            "Failed to remove subscription to contact "
+                                            + contact);
                             }
 
                         if(!oldContactStatus.isOnline())
@@ -2928,7 +2945,8 @@ public class OperationSetPresenceSipImpl
                 // </tricky time>
             }
 
-            logger.debug(contact + " wants to watch your presence status");
+            if (logger.isDebugEnabled())
+                    logger.debug(contact + " wants to watch your presence status");
 
             this.contact = contact;
         }
@@ -3095,9 +3113,10 @@ public class OperationSetPresenceSipImpl
                 catch (NullPointerException e)
                 {
                     // should not happen
-                    logger.debug(
-                        "failed to finalize the subscription of the contact",
-                        e);
+                    if (logger.isDebugEnabled())
+                        logger.debug(
+                                "failed to finalize the subscription of the contact",
+                                e);
                 }
                 break;
             }

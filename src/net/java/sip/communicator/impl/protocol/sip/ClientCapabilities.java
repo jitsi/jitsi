@@ -118,9 +118,11 @@ public class ClientCapabilities
             //of a transaction which could mean that someone is simply sending
             //us b****hit to keep a NAT connection alive, so let's not get too
             //excited.
-            logger.info("Failed to respond to an incoming "
-                            +"transactionless OPTIONS request");
-            logger.trace("Exception was:", ex);
+            if (logger.isInfoEnabled())
+                logger.info("Failed to respond to an incoming "
+                        +"transactionless OPTIONS request");
+            if (logger.isTraceEnabled())
+                logger.trace("Exception was:", ex);
             return false;
         }
         catch (InvalidArgumentException ex)
@@ -326,7 +328,8 @@ public class ClientCapabilities
                 try
                 {
                     optionsTrans.sendRequest();
-                    logger.debug("sent request= " + request);
+                    if (logger.isDebugEnabled())
+                        logger.debug("sent request= " + request);
                 }
                 catch (SipException ex)
                 {
@@ -377,7 +380,8 @@ public class ClientCapabilities
                     provider.getAccountID().getAccountPropertyString(
                         ProtocolProviderServiceSipImpl.KEEP_ALIVE_METHOD);
 
-                logger.trace("Keep alive method " + keepAliveMethod);
+                if (logger.isTraceEnabled())
+                    logger.trace("Keep alive method " + keepAliveMethod);
                 if(keepAliveMethod == null ||
                     !keepAliveMethod.equalsIgnoreCase("options"))
                     return;
@@ -386,14 +390,16 @@ public class ClientCapabilities
                     provider.getAccountID().getAccountPropertyInt(
                         ProtocolProviderServiceSipImpl.KEEP_ALIVE_INTERVAL, -1);
 
-                logger.trace("Keep alive inerval is " + keepAliveInterval);
+                if (logger.isTraceEnabled())
+                    logger.trace("Keep alive inerval is " + keepAliveInterval);
                 if (keepAliveInterval > 0
                     && !provider.getRegistrarConnection().isRegistrarless())
                 {
                     if (keepAliveTimer == null)
                         keepAliveTimer = new Timer();
 
-                    logger.debug("Scheduling OPTIONS keep alives");
+                    if (logger.isDebugEnabled())
+                        logger.debug("Scheduling OPTIONS keep alives");
 
                     keepAliveTimer.schedule(new KeepAliveTask(), 0,
                         keepAliveInterval * 1000);

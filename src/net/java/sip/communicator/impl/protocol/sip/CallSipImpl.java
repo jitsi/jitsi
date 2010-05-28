@@ -308,13 +308,15 @@ public class CallSipImpl
 
             if (cp.getDialog() == dialog)
             {
-                logger.trace("Returing cp=" + cp);
+                if (logger.isTraceEnabled())
+                    logger.trace("Returing cp=" + cp);
                 return cp;
             }
             else
             {
-                logger.trace("Ignoring cp=" + cp + " because cp.dialog="
-                    + cp.getDialog() + " while dialog=" + dialog);
+                if (logger.isTraceEnabled())
+                    logger.trace("Ignoring cp=" + cp + " because cp.dialog="
+                            + cp.getDialog() + " while dialog=" + dialog);
             }
         }
 
@@ -503,10 +505,12 @@ public class CallSipImpl
         Response response = null;
         try
         {
-            logger.trace("will send ringing response: ");
+            if (logger.isTraceEnabled())
+                logger.trace("will send ringing response: ");
             response = messageFactory.createResponse(Response.RINGING, invite);
             serverTran.sendResponse(response);
-            logger.debug("sent a ringing response: " + response);
+            if (logger.isDebugEnabled())
+                logger.debug("sent a ringing response: " + response);
         }
         catch (Exception ex)
         {

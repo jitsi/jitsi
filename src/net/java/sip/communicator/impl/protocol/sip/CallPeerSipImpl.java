@@ -548,9 +548,11 @@ public class CallPeerSipImpl
                 .getHeaderFactory().createContentTypeHeader(
                                 "application", "sdp"));
 
-            logger.trace("will send an OK response: " + response);
+            if (logger.isTraceEnabled())
+                logger.trace("will send an OK response: " + response);
             serverTransaction.sendResponse(response);
-            logger.debug("OK response sent");
+            if (logger.isDebugEnabled())
+                logger.debug("OK response sent");
         }
         catch (Exception ex)//no need to distinguish among exceptions.
         {
@@ -658,7 +660,8 @@ public class CallPeerSipImpl
             try
             {
                 byeTran.sendResponse(ok);
-                logger.debug("sent response " + ok);
+                if (logger.isDebugEnabled())
+                    logger.debug("sent response " + ok);
             }
             catch (Exception ex)
             {
@@ -712,7 +715,8 @@ public class CallPeerSipImpl
             Response ok = messageFactory.createResponse(Response.OK, cancel);
             serverTransaction.sendResponse(ok);
 
-            logger.debug("sent an ok response to a CANCEL request:\n" + ok);
+            if (logger.isDebugEnabled())
+                logger.debug("sent an ok response to a CANCEL request:\n" + ok);
         }
         catch (ParseException ex)
         {
@@ -834,7 +838,8 @@ public class CallPeerSipImpl
     {
         if (response.getContentLength().getContentLength() == 0)
         {
-            logger.debug("Ignoring a 183 with no content");
+            if (logger.isDebugEnabled())
+                logger.debug("Ignoring a 183 with no content");
             return;
         }
 
@@ -951,8 +956,9 @@ public class CallPeerSipImpl
         if (CallPeerState.DISCONNECTED.equals(getState())
             || CallPeerState.FAILED.equals(getState()))
         {
-            logger.debug("Ignoring a request to hangup a call peer "
-                + "that is already DISCONNECTED");
+            if (logger.isDebugEnabled())
+                logger.debug("Ignoring a request to hangup a call peer "
+                        + "that is already DISCONNECTED");
             return;
         }
 
@@ -1036,7 +1042,8 @@ public class CallPeerSipImpl
         try
         {
             serverTransaction.sendResponse(busyHere);
-            logger.debug("sent response:\n" + busyHere);
+            if (logger.isDebugEnabled())
+                logger.debug("sent response:\n" + busyHere);
         }
         catch (Exception ex)
         {
@@ -1072,7 +1079,8 @@ public class CallPeerSipImpl
                 getJainSipProvider().getNewClientTransaction(
                     cancel);
             cancelTransaction.sendRequest();
-            logger.debug("sent request:\n" + cancel);
+            if (logger.isDebugEnabled())
+                logger.debug("sent request:\n" + cancel);
         }
         catch (SipException ex)
         {
@@ -1149,8 +1157,9 @@ public class CallPeerSipImpl
         if (peerState.equals(CallPeerState.CONNECTED)
             || CallPeerState.isOnHold(peerState))
         {
-            logger.info("Ignoring user request to answer a CallPeer "
-                + "that is already connected. CP:");
+            if (logger.isInfoEnabled())
+                logger.info("Ignoring user request to answer a CallPeer "
+                        + "that is already connected. CP:");
             return;
         }
 

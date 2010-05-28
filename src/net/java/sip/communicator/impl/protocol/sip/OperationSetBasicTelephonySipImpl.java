@@ -306,7 +306,8 @@ public class OperationSetBasicTelephonySipImpl
         // INVITE
         if (requestMethod.equals(Request.INVITE))
         {
-            logger.debug("received INVITE");
+            if (logger.isDebugEnabled())
+                logger.debug("received INVITE");
             DialogState dialogState = serverTransaction.getDialog().getState();
             if ((dialogState == null)
                 || dialogState.equals(DialogState.CONFIRMED))
@@ -344,14 +345,16 @@ public class OperationSetBasicTelephonySipImpl
         // REFER
         else if (requestMethod.equals(Request.REFER))
         {
-            logger.debug("received REFER");
+            if (logger.isDebugEnabled())
+                logger.debug("received REFER");
             processRefer(serverTransaction, request, jainSipProvider);
             processed = true;
         }
         // NOTIFY
         else if (requestMethod.equals(Request.NOTIFY))
         {
-            logger.debug("received NOTIFY");
+            if (logger.isDebugEnabled())
+                logger.debug("received NOTIFY");
             processed = processNotify(serverTransaction, request);
         }
 
@@ -540,7 +543,8 @@ public class OperationSetBasicTelephonySipImpl
 
         if (callPeer == null)
         {
-            logger.debug("Received a stray trying response.");
+            if (logger.isDebugEnabled())
+                logger.debug("Received a stray trying response.");
             return;
         }
 
@@ -572,7 +576,8 @@ public class OperationSetBasicTelephonySipImpl
 
         if (callPeer == null)
         {
-            logger.debug("Received a stray trying response.");
+            if (logger.isDebugEnabled())
+                logger.debug("Received a stray trying response.");
             return;
         }
 
@@ -654,7 +659,8 @@ public class OperationSetBasicTelephonySipImpl
             if (callPeer == null)
             {
                 //there's definitely no dialog.
-                logger.debug("Received a stray ok response.");
+                if (logger.isDebugEnabled())
+                    logger.debug("Received a stray ok response.");
                 return;
             }
 
@@ -682,7 +688,8 @@ public class OperationSetBasicTelephonySipImpl
 
         if (callPeer == null)
         {
-            logger.debug("Received a stray busyHere response.");
+            if (logger.isDebugEnabled())
+                logger.debug("Received a stray busyHere response.");
             return;
         }
 
@@ -709,7 +716,8 @@ public class OperationSetBasicTelephonySipImpl
 
         try
         {
-            logger.debug("Authenticating an INVITE request.");
+            if (logger.isDebugEnabled())
+                logger.debug("Authenticating an INVITE request.");
 
             ClientTransaction retryTran = protocolProvider
                 .getSipSecurityManager().handleChallenge(
@@ -717,7 +725,8 @@ public class OperationSetBasicTelephonySipImpl
 
             if (retryTran == null)
             {
-                logger.trace("No password supplied or error occured!");
+                if (logger.isTraceEnabled())
+                    logger.trace("No password supplied or error occured!");
                 return;
             }
 
@@ -773,7 +782,8 @@ public class OperationSetBasicTelephonySipImpl
 
         if (callPeer == null)
         {
-            logger.debug("Got a headless timeout event." + timeoutEvent);
+            if (logger.isDebugEnabled())
+                logger.debug("Got a headless timeout event." + timeoutEvent);
             return false;
         }
 
@@ -907,7 +917,8 @@ public class OperationSetBasicTelephonySipImpl
 
         if (callPeer == null)
         {
-            logger.debug("Received a stray bye request.");
+            if (logger.isDebugEnabled())
+                logger.debug("Received a stray bye request.");
             return;
         }
 
@@ -930,7 +941,8 @@ public class OperationSetBasicTelephonySipImpl
 
         if (callPeer == null)
         {
-            logger.debug("received a stray CANCEL req. ignoring");
+            if (logger.isDebugEnabled())
+                logger.debug("received a stray CANCEL req. ignoring");
             return;
         }
 
@@ -954,7 +966,8 @@ public class OperationSetBasicTelephonySipImpl
         if (peer == null)
         {
             // this is most probably the ack for a killed call - don't signal it
-            logger.debug("didn't find an ack's call, returning");
+            if (logger.isDebugEnabled())
+                logger.debug("didn't find an ack's call, returning");
             return;
         }
 
@@ -1186,7 +1199,8 @@ public class OperationSetBasicTelephonySipImpl
 
         if (peer == null)
         {
-            logger.debug("Received a stray refer NOTIFY request.");
+            if (logger.isDebugEnabled())
+                logger.debug("Received a stray refer NOTIFY request.");
             return false;
         }
 
@@ -1460,7 +1474,8 @@ public class OperationSetBasicTelephonySipImpl
      */
     public synchronized void shutdown()
     {
-        logger.trace("Ending all active calls.");
+        if (logger.isTraceEnabled())
+            logger.trace("Ending all active calls.");
         Iterator<CallSipImpl> activeCalls
             = this.activeCallsRepository.getActiveCalls();
 
