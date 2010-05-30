@@ -118,8 +118,9 @@ public class OperationSetTelephonyConferencingGibberishImpl
              CallGibberishImpl sourceCall = (CallGibberishImpl) this.activeCalls
                  .remove(evt.getSourceCall().getCallID());
 
-             logger.trace(  "Removing call " + sourceCall + " from the list of "
-                          + "active calls because it entered an ENDED state");
+             if (logger.isTraceEnabled())
+                 logger.trace(  "Removing call " + sourceCall + " from the list of "
+                         + "active calls because it entered an ENDED state");
 
              telephonyOpSet.fireCallEvent(CallEvent.CALL_ENDED, sourceCall);
          }

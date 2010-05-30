@@ -150,7 +150,8 @@ public class OperationSetTypingNotificationsIcqImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The ICQ provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The ICQ provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
             if (evt.getNewState() == RegistrationState.FINALIZING_REGISTRATION)
@@ -186,7 +187,8 @@ public class OperationSetTypingNotificationsIcqImpl
         public void buddyInfoUpdated(IcbmService service, Screenname buddy,
                                      IcbmBuddyInfo info)
         {
-            logger.debug("buddyInfoUpdated for:"+buddy+" info: " +info);
+            if (logger.isDebugEnabled())
+                logger.debug("buddyInfoUpdated for:"+buddy+" info: " +info);
         }
 
         public void sendAutomaticallyFailed(
@@ -210,7 +212,8 @@ public class OperationSetTypingNotificationsIcqImpl
 
             if(sourceContact == null)
             {
-                logger.debug("Received a typing notification from an unknown "+
+                if (logger.isDebugEnabled())
+                    logger.debug("Received a typing notification from an unknown "+
                              "buddy=" + conversation.getBuddy());
                 //create the volatile contact
                 sourceContact = opSetPersPresence

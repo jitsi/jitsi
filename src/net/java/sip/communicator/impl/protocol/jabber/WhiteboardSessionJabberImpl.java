@@ -475,7 +475,8 @@ public class WhiteboardSessionJabberImpl
     public WhiteboardObject createWhiteboardObject(String name)
     {
         WhiteboardObjectJabberImpl wbObj = null;
-        logger.debug("[log] WhiteboardObjectXXX.NAME: " + name);
+        if (logger.isDebugEnabled())
+            logger.debug("[log] WhiteboardObjectXXX.NAME: " + name);
         if (name.equals(WhiteboardObjectPath.NAME))
         {
             wbObj = new WhiteboardObjectPathJabberImpl();
@@ -792,7 +793,8 @@ public class WhiteboardSessionJabberImpl
             new WhiteboardParticipantEvent(this, sourceWhiteboardParticipant,
                 eventID);
 
-        logger.debug("Dispatching a WhiteboardParticipant event to "
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a WhiteboardParticipant event to "
             + whiteboardListeners.size() + " listeners. event is: "
             + cpEvent.toString());
 
@@ -838,7 +840,8 @@ public class WhiteboardSessionJabberImpl
         WhiteboardChangeEvent ccEvent =
             new WhiteboardChangeEvent(this, type, oldValue, newValue);
 
-        logger.debug("Dispatching a WhiteboardChange event to "
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a WhiteboardChange event to "
             + whiteboardListeners.size() + " listeners. event is: "
             + ccEvent.toString());
 
@@ -895,7 +898,8 @@ public class WhiteboardSessionJabberImpl
      */
     public void fireMessageEvent(EventObject evt)
     {
-        logger.debug("Dispatching a WhiteboardMessageEvent event to "
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a WhiteboardMessageEvent event to "
             + messageListeners.size() + " listeners. event is: "
             + evt.toString());
 
@@ -1167,7 +1171,8 @@ public class WhiteboardSessionJabberImpl
             if (msg.getType()
                     == org.jivesoftware.smack.packet.Message.Type.error)
             {
-                logger.info("WBObject error received from " + fromUserID);
+                if (logger.isInfoEnabled())
+                    logger.info("WBObject error received from " + fromUserID);
 
                 int errorCode = packet.getError().getCode();
                 int errorResultCode =

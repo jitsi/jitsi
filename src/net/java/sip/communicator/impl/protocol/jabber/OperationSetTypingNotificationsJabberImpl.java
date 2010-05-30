@@ -142,7 +142,8 @@ public class OperationSetTypingNotificationsJabberImpl
      */
     private void sendXep85ChatState(Contact contact, int state)
     {
-        logger.trace("Sending XEP-0085 chat state=" + state
+        if (logger.isTraceEnabled())
+            logger.trace("Sending XEP-0085 chat state=" + state
             + " to " + contact.getAddress());
 
         Chat chat = parentProvider.getConnection()
@@ -222,7 +223,8 @@ public class OperationSetTypingNotificationsJabberImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
             if (evt.getNewState() == RegistrationState.REGISTERED)
@@ -269,7 +271,8 @@ public class OperationSetTypingNotificationsJabberImpl
          */
         public void chatCreated(Chat chat, boolean isLocal)
         {
-            logger.trace("Created a chat with "
+            if (logger.isTraceEnabled())
+                logger.trace("Created a chat with "
                 + chat.getParticipant() + " local="+isLocal);
 
             if(smackChatStateListener == null)
@@ -376,7 +379,8 @@ public class OperationSetTypingNotificationsJabberImpl
          */
         public void stateChanged(Chat chat, ChatState state)
         {
-            logger.trace(chat.getParticipant() + " entered the "
+            if (logger.isTraceEnabled())
+                logger.trace(chat.getParticipant() + " entered the "
                 + state.name()+ " state.");
 
             String fromID = StringUtils.parseBareAddress(chat.getParticipant());
@@ -414,7 +418,8 @@ public class OperationSetTypingNotificationsJabberImpl
         public void processMessage(Chat chat,
                                     org.jivesoftware.smack.packet.Message msg)
         {
-            logger.trace("ignoring a process message");
+            if (logger.isTraceEnabled())
+                logger.trace("ignoring a process message");
 
         }
     }

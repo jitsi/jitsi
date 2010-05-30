@@ -656,7 +656,8 @@ public class ProtocolProviderServiceIcqImpl
             State oldState = event.getOldState();
 
             AimConnection conn = event.getAimConnection();
-            logger.debug("ICQ protocol provider " + getProtocolName()
+            if (logger.isDebugEnabled())
+                logger.debug("ICQ protocol provider " + getProtocolName()
                          + " changed registration status from "
                          + oldState + " to " + newState);
 
@@ -688,7 +689,8 @@ public class ProtocolProviderServiceIcqImpl
                             discconectCode);
                     reasonStr = ConnectionClosedListener
                         .convertCodeToStringReason(discconectCode);
-                    logger.debug(
+                    if (logger.isDebugEnabled())
+                        logger.debug(
                         "The aim Connection was disconnected! with reason : "
                         + reasonStr);
                 }
@@ -704,12 +706,14 @@ public class ProtocolProviderServiceIcqImpl
                     }
                 }
                 else
-                    logger.debug("The aim Connection was disconnected!");
+                    if (logger.isDebugEnabled())
+                        logger.debug("The aim Connection was disconnected!");
             }
             else
                 if(newState == State.FAILED)
                 {
-                    logger.debug("The aim Connection failed! "
+                    if (logger.isDebugEnabled())
+                        logger.debug("The aim Connection failed! "
                                  + event.getNewStateInfo());
                 }
 
@@ -722,7 +726,8 @@ public class ProtocolProviderServiceIcqImpl
                 if(loginFailure instanceof AuthFailureInfo)
                 {
                     AuthFailureInfo afi = (AuthFailureInfo)loginFailure;
-                    logger.debug("AuthFailureInfo code : " +
+                    if (logger.isDebugEnabled())
+                        logger.debug("AuthFailureInfo code : " +
                                  afi.getErrorCode());
                     int code =  ConnectionClosedListener
                         .convertAuthCodeToReasonCode(afi);
@@ -831,7 +836,8 @@ public class ProtocolProviderServiceIcqImpl
          */
         public void newConversation(IcbmService service, Conversation conv)
         {
-            logger.debug("Received a new conversation event");
+            if (logger.isDebugEnabled())
+                logger.debug("Received a new conversation event");
             conv.addConversationListener(new AimConversationListener());
         }
 
@@ -844,7 +850,8 @@ public class ProtocolProviderServiceIcqImpl
         public void buddyInfoUpdated(IcbmService service, Screenname buddy,
                                      IcbmBuddyInfo info)
         {
-            logger.debug("Got a BuddINFO event");
+            if (logger.isDebugEnabled())
+                logger.debug("Got a BuddINFO event");
         }
 
         /**
@@ -867,53 +874,62 @@ public class ProtocolProviderServiceIcqImpl
         public void sentOtherEvent(Conversation conversation,
                                    ConversationEventInfo event)
         {
-            logger.debug("reveived ConversationEventInfo:" + event);
+            if (logger.isDebugEnabled())
+                logger.debug("reveived ConversationEventInfo:" + event);
         }
 
         // This may be called without ever calling conversationOpened
         public void conversationClosed(Conversation co)
         {
-            logger.debug("conversation closed");
+            if (logger.isDebugEnabled())
+                logger.debug("conversation closed");
         }
 
         public void gotOtherEvent(Conversation conversation,
                                   ConversationEventInfo event)
         {
-            logger.debug("goet other event");
+            if (logger.isDebugEnabled())
+                logger.debug("goet other event");
             if(event instanceof TypingInfo)
             {
                 TypingInfo ti = (TypingInfo)event;
-                logger.debug("got typing info and state is: "
+                if (logger.isDebugEnabled())
+                    logger.debug("got typing info and state is: "
                              + ti.getTypingState());
             }
             else if (event instanceof MessageInfo)
             {
                 MessageInfo ti = (MessageInfo)event;
-                logger.debug("got message info for msg: " + ti.getMessage());
+                if (logger.isDebugEnabled())
+                    logger.debug("got message info for msg: " + ti.getMessage());
             }
         }
 
         public void canSendMessageChanged(Conversation con, boolean canSend)
         {
-            logger.debug("can send message event");
+            if (logger.isDebugEnabled())
+                logger.debug("can send message event");
         }
 
         // This may never be called
         public void conversationOpened(Conversation con)
         {
-            logger.debug("conversation opened event");
+            if (logger.isDebugEnabled())
+                logger.debug("conversation opened event");
         }
 
         // This may be called after conversationClosed is called
         public void sentMessage(Conversation con, MessageInfo minfo)
         {
-            logger.debug("sent message event");
+            if (logger.isDebugEnabled())
+                logger.debug("sent message event");
         }
 
         // This may be called after conversationClosed is called.
         public void gotMessage(Conversation con, MessageInfo minfo)
         {
-            logger.debug("got message event"
+            if (logger.isDebugEnabled())
+                logger.debug("got message event"
                          + minfo.getMessage().getMessageBody());
         }
 
@@ -973,7 +989,8 @@ public class ProtocolProviderServiceIcqImpl
             if (flapCommand instanceof CloseFlapCmd)
             {
                 CloseFlapCmd closeCmd = (CloseFlapCmd)flapCommand;
-                logger.trace("received close command with code : "
+                if (logger.isTraceEnabled())
+                    logger.trace("received close command with code : "
                              + closeCmd.getCode());
 
                 aimConnection.disconnect();

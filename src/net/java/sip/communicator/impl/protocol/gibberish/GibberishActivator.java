@@ -71,7 +71,8 @@ public class GibberishActivator
                     gibberishProviderFactory,
                     hashtable);
 
-        logger.info("Gibberish protocol implementation [STARTED].");
+        if (logger.isInfoEnabled())
+            logger.info("Gibberish protocol implementation [STARTED].");
     }
 
     /**
@@ -112,7 +113,8 @@ public class GibberishActivator
     {
         gibberishProviderFactory.stop();
         gibberishPpFactoryServReg.unregister();
-        logger.info("Gibberish protocol implementation [STOPPED].");
+        if (logger.isInfoEnabled())
+            logger.info("Gibberish protocol implementation [STOPPED].");
     }
     
     public static ResourceManagementService getResources()

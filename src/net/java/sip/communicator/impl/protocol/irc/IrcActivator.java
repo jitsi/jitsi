@@ -66,7 +66,8 @@ public class IrcActivator
                     ircProviderFactory,
                     hashtable);
 
-        logger.info("IRC protocol implementation [STARTED].");
+        if (logger.isInfoEnabled())
+            logger.info("IRC protocol implementation [STARTED].");
     }
 
     /**
@@ -93,7 +94,8 @@ public class IrcActivator
     public void stop(BundleContext context)
         throws Exception
     {
-        logger.info("IRC protocol implementation [STOPPED].");
+        if (logger.isInfoEnabled())
+            logger.info("IRC protocol implementation [STOPPED].");
     }
 
     /**

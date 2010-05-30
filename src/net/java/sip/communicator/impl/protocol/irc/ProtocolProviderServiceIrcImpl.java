@@ -63,7 +63,8 @@ public class ProtocolProviderServiceIrcImpl
      */
     public ProtocolProviderServiceIrcImpl()
     {
-        logger.trace("Creating a irc provider.");
+        if (logger.isTraceEnabled())
+            logger.trace("Creating a irc provider.");
     }
 
     /**
@@ -229,7 +230,8 @@ public class ProtocolProviderServiceIrcImpl
         {
             return;
         }
-        logger.trace("Killing the Irc Protocol Provider.");
+        if (logger.isTraceEnabled())
+            logger.trace("Killing the Irc Protocol Provider.");
 
         if(isRegistered())
         {

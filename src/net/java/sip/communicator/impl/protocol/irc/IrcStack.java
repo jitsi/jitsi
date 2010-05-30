@@ -213,7 +213,8 @@ public class IrcStack
                                 String hostname,
                                 String messageContent)
     {
-        logger.trace("MESSAGE received in chat room : " + channel
+        if (logger.isTraceEnabled())
+            logger.trace("MESSAGE received in chat room : " + channel
                         + ": from " + sender
                         + " " + login + "@" + hostname
                         + " the message: " + messageContent);
@@ -257,7 +258,8 @@ public class IrcStack
                                     String hostname,
                                     String messageContent)
     {
-        logger.trace("PRIVATE MESSAGE received from " + sender
+        if (logger.isTraceEnabled())
+            logger.trace("PRIVATE MESSAGE received from " + sender
                         + " " + login + "@" + hostname
                         + " the message: " + messageContent);
 
@@ -315,7 +317,8 @@ public class IrcStack
                             String target,
                             String action)
     {
-        logger.trace("ACTION on " + target + " : Received from " + sender
+        if (logger.isTraceEnabled())
+            logger.trace("ACTION on " + target + " : Received from " + sender
                 + " " + login + "@" + hostname + " the action: " + action);
         
         MessageIrcImpl actionMessage = new MessageIrcImpl(
@@ -379,7 +382,8 @@ public class IrcStack
                           String sourceHostname,
                           String recipient)
     {
-        logger.trace("DEOP on " + channel + ": Received from " + sourceNick
+        if (logger.isTraceEnabled())
+            logger.trace("DEOP on " + channel + ": Received from " + sourceNick
                 + " " + sourceLogin + "@" + sourceHostname + "on " + recipient);
 
         ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(channel);
@@ -445,7 +449,8 @@ public class IrcStack
                             String sourceHostname,
                             String channel)
     {
-        logger.trace("INVITE on " + channel + ": Received from "
+        if (logger.isTraceEnabled())
+            logger.trace("INVITE on " + channel + ": Received from "
                 + sourceNick + " " + sourceLogin + "@" + sourceHostname);
 
         ChatRoom targetChatRoom = ircMUCOpSet.findRoom(channel);
@@ -470,7 +475,8 @@ public class IrcStack
                             String login,
                             String hostname)
     {
-        logger.trace("JOIN on " + channel + ": Received from " + sender
+        if (logger.isTraceEnabled())
+            logger.trace("JOIN on " + channel + ": Received from " + sender
                 + " " + login + "@" + hostname);
 
         ChatRoomIrcImpl chatRoom
@@ -528,7 +534,8 @@ public class IrcStack
                             String recipientNick,
                             String reason)
     {
-        logger.trace("KICK on " + channel
+        if (logger.isTraceEnabled())
+            logger.trace("KICK on " + channel
                     + ": Received from " + kickerNick
                     + " " + kickerLogin + "@" + kickerHostname);
 
@@ -579,7 +586,8 @@ public class IrcStack
                                 String hostname,
                                 String newNick)
     {
-        logger.trace("NICK changed: from " + oldNick + " changed to "
+        if (logger.isTraceEnabled())
+            logger.trace("NICK changed: from " + oldNick + " changed to "
                 + newNick);
 
         this.notifyChatRoomOperation(0);
@@ -626,7 +634,8 @@ public class IrcStack
                             String target,
                             String notice)
     {
-        logger.trace("NOTICE on " + target + ": Received from "
+        if (logger.isTraceEnabled())
+            logger.trace("NOTICE on " + target + ": Received from "
                 + sourceNick + " " + sourceLogin + "@" + sourceHostname
                 + " the message: " + notice);
 
@@ -1216,7 +1225,8 @@ public class IrcStack
                     && code != RPL_LISTEND
                     && code != RPL_ENDOFNAMES)
         {
-            logger.trace(
+            if (logger.isTraceEnabled())
+                logger.trace(
                 "Server response: Code : "
                 + code
                 + " Response : "
@@ -1464,7 +1474,8 @@ public class IrcStack
                             long date,
                             boolean changed)
     {
-        logger.trace("TOPIC on " + channel + ": " + topic + " setBy: "
+        if (logger.isTraceEnabled())
+            logger.trace("TOPIC on " + channel + ": " + topic + " setBy: "
                 + setBy + " on: " + date);
 
         this.notifyChatRoomOperation(0);
@@ -1493,7 +1504,8 @@ public class IrcStack
      */
     protected void onUnknown(String line)
     {
-        logger.trace("Unknown message received from the server : " + line);
+        if (logger.isTraceEnabled())
+            logger.trace("Unknown message received from the server : " + line);
     }
 
     /**
@@ -1795,7 +1807,8 @@ public class IrcStack
         if((chatRoom == null) || !chatRoom.isJoined())
             return;
 
-        logger.trace("WHOIS on: " + userInfo.getNickName() + "!"
+        if (logger.isTraceEnabled())
+            logger.trace("WHOIS on: " + userInfo.getNickName() + "!"
                 + userInfo.getLogin() + "@" + userInfo.getHostname());
 
         String whoisMessage

@@ -174,7 +174,8 @@ public class IncomingFileTransferRequestIcqImpl
         }
         catch(IllegalStateException e)
         {
-            logger.debug("Error rejecting file",e);
+            if (logger.isDebugEnabled())
+                logger.debug("Error rejecting file",e);
             return;
         }
     }

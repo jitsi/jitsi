@@ -441,7 +441,8 @@ public class AdHocChatRoomIcqImpl
         }
         catch (Exception e)
         {
-            logger.debug("Failed to send a conference message.");
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to send a conference message.");
             throw new OperationFailedException(
                 "Failed to send a conference message.",
                 OperationFailedException.GENERAL_ERROR);
@@ -504,7 +505,8 @@ public class AdHocChatRoomIcqImpl
             new AdHocChatRoomParticipantPresenceChangeEvent(this, member,
                 eventID, eventReason);
 
-        logger.trace("Will dispatch the following ChatRoom event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
         Iterator<AdHocChatRoomParticipantPresenceListener> listeners = null;
         synchronized (memberListeners)
@@ -558,7 +560,8 @@ public class AdHocChatRoomIcqImpl
         public void handleIncomingMessage(ChatRoomSession chatRoomSession,
             ChatRoomUser chatRoomUser, ChatMessage chatMessage)
         {
-            logger.debug("Incoming multi user chat message received: "
+            if (logger.isDebugEnabled())
+                logger.debug("Incoming multi user chat message received: "
                 + chatMessage.getMessage());
 
             String msgBody = chatMessage.getMessage();
@@ -603,7 +606,8 @@ public class AdHocChatRoomIcqImpl
             ChatSessionState oldChatSessionState,
             ChatSessionState newChatSessionState)
         {
-            logger.debug("ChatRoomSessionState changed to: "
+            if (logger.isDebugEnabled())
+                logger.debug("ChatRoomSessionState changed to: "
                 + newChatSessionState);
 
             if (chatInvitation == null
@@ -615,7 +619,8 @@ public class AdHocChatRoomIcqImpl
                 }
                 catch (Exception e)
                 {
-                    logger.debug("Failed to join the chat room: " + e);
+                    if (logger.isDebugEnabled())
+                        logger.debug("Failed to join the chat room: " + e);
                 }
             }
 

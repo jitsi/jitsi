@@ -61,7 +61,8 @@ public class ProtocolProviderServiceGibberishImpl
      */
     public ProtocolProviderServiceGibberishImpl()
     {
-        logger.trace("Creating a gibberish provider.");
+        if (logger.isTraceEnabled())
+            logger.trace("Creating a gibberish provider.");
     }
 
     /**
@@ -246,7 +247,8 @@ public class ProtocolProviderServiceGibberishImpl
         {
             return;
         }
-        logger.trace("Killing the Gibberish Protocol Provider.");
+        if (logger.isTraceEnabled())
+            logger.trace("Killing the Gibberish Protocol Provider.");
 
         if(isRegistered())
         {

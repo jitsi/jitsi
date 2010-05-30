@@ -415,7 +415,8 @@ public class OperationSetAdHocMultiUserChatIcqImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The ICQ provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The ICQ provider changed state from: "
                 + evt.getOldState() + " to: " + evt.getNewState());
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
@@ -444,7 +445,8 @@ public class OperationSetAdHocMultiUserChatIcqImpl
         public void handleInvitation(ChatRoomManager chatRoomManager,
             ChatInvitation chatInvitation)
         {
-            logger.debug(
+            if (logger.isDebugEnabled())
+                logger.debug(
                 "Invitation received: " + chatInvitation.getRoomName());
 
             AdHocChatRoom chatRoom

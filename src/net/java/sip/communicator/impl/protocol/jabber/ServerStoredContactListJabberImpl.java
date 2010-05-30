@@ -139,7 +139,8 @@ public class ServerStoredContactListJabberImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -150,7 +151,8 @@ public class ServerStoredContactListJabberImpl
                 , jabberProvider
                 , parentOperationSet);
 
-        logger.trace("Will dispatch the following grp event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following grp event: " + evt);
 
         Iterable<ServerStoredGroupListener> listeners;
         synchronized (serverStoredGroupListeners)
@@ -205,10 +207,12 @@ public class ServerStoredContactListJabberImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
-        logger.trace("Removing " + contact.getAddress()
+        if (logger.isTraceEnabled())
+            logger.trace("Removing " + contact.getAddress()
                         + " from " + parentGroup.getGroupName());
 
         // dispatch
@@ -230,7 +234,8 @@ public class ServerStoredContactListJabberImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -375,7 +380,8 @@ public class ServerStoredContactListJabberImpl
     public void addContact(ContactGroup parent, String id)
         throws OperationFailedException
     {
-        logger.trace("Adding contact " + id + " to parent=" + parent);
+        if (logger.isTraceEnabled())
+            logger.trace("Adding contact " + id + " to parent=" + parent);
 
         //if the contact is already in the contact list and is not volatile,
         //then only broadcast an event
@@ -512,13 +518,15 @@ public class ServerStoredContactListJabberImpl
     public void createGroup(String groupName)
         throws OperationFailedException
     {
-        logger.trace("Creating group: " + groupName);
+        if (logger.isTraceEnabled())
+            logger.trace("Creating group: " + groupName);
 
         ContactGroupJabberImpl existingGroup = findContactGroup(groupName);
 
         if( existingGroup != null && existingGroup.isPersistent() )
         {
-            logger.debug("ContactGroup " + groupName + " already exists.");
+            if (logger.isDebugEnabled())
+                logger.debug("ContactGroup " + groupName + " already exists.");
             throw new OperationFailedException(
                            "ContactGroup " + groupName + " already exists.",
                 OperationFailedException.CONTACT_GROUP_ALREADY_EXISTS);
@@ -535,7 +543,8 @@ public class ServerStoredContactListJabberImpl
 
         fireGroupEvent(newGroup, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
 
-        logger.trace("Group " +groupName+ " created.");
+        if (logger.isTraceEnabled())
+            logger.trace("Group " +groupName+ " created.");
     }
 
     /**
@@ -741,7 +750,8 @@ public class ServerStoredContactListJabberImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -770,7 +780,8 @@ public class ServerStoredContactListJabberImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -808,7 +819,8 @@ public class ServerStoredContactListJabberImpl
          */
         public void entriesAdded(Collection<String> addresses)
         {
-            logger.trace("entriesAdded " + addresses);
+            if (logger.isTraceEnabled())
+                logger.trace("entriesAdded " + addresses);
 
             for (String id : addresses)
             {
@@ -860,7 +872,8 @@ public class ServerStoredContactListJabberImpl
          */
         public void entriesUpdated(Collection<String> addresses)
         {
-            logger.trace("entriesUpdated  " + addresses);
+            if (logger.isTraceEnabled())
+                logger.trace("entriesUpdated  " + addresses);
 
             // will search for group renamed
             for (String contactID : addresses)
@@ -932,13 +945,15 @@ public class ServerStoredContactListJabberImpl
             while (iter.hasNext())
             {
                 String address = iter.next();
-                logger.trace("entry deleted " + address);
+                if (logger.isTraceEnabled())
+                    logger.trace("entry deleted " + address);
 
                 ContactJabberImpl contact = findContactById(address);
 
                 if(contact == null)
                 {
-                    logger.trace("Could not find contact for deleted entry:"
+                    if (logger.isTraceEnabled())
+                        logger.trace("Could not find contact for deleted entry:"
                                     + address);
                     continue;
                 }
@@ -947,7 +962,8 @@ public class ServerStoredContactListJabberImpl
 
                 if(group == null)
                 {
-                    logger.trace("Could not find ParentGroup for deleted entry:"
+                    if (logger.isTraceEnabled())
+                        logger.trace("Could not find ParentGroup for deleted entry:"
                                     + address);
                     continue;
                 }
@@ -1098,7 +1114,8 @@ public class ServerStoredContactListJabberImpl
             }
             catch (Exception exc)
             {
-                logger.debug("Cannot load image for contact "
+                if (logger.isDebugEnabled())
+                    logger.debug("Cannot load image for contact "
                     + this + " : " + exc.getMessage()
                     , exc);
 

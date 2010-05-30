@@ -394,7 +394,8 @@ public class OperationSetWhiteboardingJabberImpl
 
             if (sourceContact == null)
             {
-                logger.debug("Received a message from an unknown contact: "
+                if (logger.isDebugEnabled())
+                    logger.debug("Received a message from an unknown contact: "
                     + fromUserID);
 
                 //create the volatile contact
@@ -442,7 +443,8 @@ public class OperationSetWhiteboardingJabberImpl
             = new WhiteboardInvitationReceivedEvent(this, invitation,
                 new Date(System.currentTimeMillis()));
 
-        logger.debug("Dispatching a WhiteboardInvitation event to "
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a WhiteboardInvitation event to "
             + invitationListeners.size() + " listeners. event is: "
             + evt.toString());
 

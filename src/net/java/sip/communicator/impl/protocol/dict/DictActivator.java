@@ -63,7 +63,8 @@ public class DictActivator
                     dictProviderFactory,
                     hashtable);
 
-        logger.info("DICT protocol implementation [STARTED].");
+        if (logger.isInfoEnabled())
+            logger.info("DICT protocol implementation [STARTED].");
     }
 
     /**
@@ -93,7 +94,8 @@ public class DictActivator
         dictProviderFactory.stop();
         dictPpFactoryServReg.unregister();
         
-        logger.info("DICT protocol implementation [STOPPED].");
+        if (logger.isInfoEnabled())
+            logger.info("DICT protocol implementation [STOPPED].");
     }
     
     /**

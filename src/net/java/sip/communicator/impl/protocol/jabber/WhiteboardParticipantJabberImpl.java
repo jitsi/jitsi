@@ -353,7 +353,8 @@ public class WhiteboardParticipantJabberImpl
             new WhiteboardParticipantChangeEvent(this, eventType, oldValue,
                 newValue, reason);
 
-        logger.debug("Dispatching a WhiteboardParticipantChangeEvent event to "
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a WhiteboardParticipantChangeEvent event to "
             + whiteboardParticipantListeners.size() + " listeners. event is: "
             + evt.toString());
 

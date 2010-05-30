@@ -165,42 +165,50 @@ public class InfoRetreiver
 
             if (snac instanceof MetaBasicInfoCmd)
             {
-                logger.info("received basic info");
+                if (logger.isInfoEnabled())
+                    logger.info("received basic info");
                 readBasicUserInfo((MetaBasicInfoCmd)snac);
             }
             else if (snac instanceof MetaMoreInfoCmd)
             {
-                logger.info("received meta more info");
+                if (logger.isInfoEnabled())
+                    logger.info("received meta more info");
                 readMoreUserInfo((MetaMoreInfoCmd)snac);
             }
             else if (snac instanceof MetaEmailInfoCmd)
             {
-                logger.info("received email info");
+                if (logger.isInfoEnabled())
+                    logger.info("received email info");
                 readEmailUserInfo((MetaEmailInfoCmd)snac);
             }
             else if (snac instanceof MetaHomepageCategoryInfoCmd)
             {
-                logger.info("received home page info");
+                if (logger.isInfoEnabled())
+                    logger.info("received home page info");
                 readHomePageUserInfo((MetaHomepageCategoryInfoCmd)snac);
             }
             else if (snac instanceof MetaWorkInfoCmd)
             {
-                logger.info("received work info");
+                if (logger.isInfoEnabled())
+                    logger.info("received work info");
                 readWorkUserInfo((MetaWorkInfoCmd)snac);
             }
             else if (snac instanceof MetaNotesInfoCmd)
             {
-                logger.info("received notes info");
+                if (logger.isInfoEnabled())
+                    logger.info("received notes info");
                 readUserAboutInfo((MetaNotesInfoCmd)snac);
             }
             else if (snac instanceof MetaInterestsInfoCmd)
             {
-                logger.info("received interest info");
+                if (logger.isInfoEnabled())
+                    logger.info("received interest info");
                 readInterestsUserInfo((MetaInterestsInfoCmd)snac);
             }
             else if (snac instanceof MetaAffiliationsInfoCmd)
             {
-                logger.info("received affiliations info");
+                if (logger.isInfoEnabled())
+                    logger.info("received affiliations info");
                 readAffilationsUserInfo((MetaAffiliationsInfoCmd)snac);
 
                 result =
@@ -220,7 +228,8 @@ public class InfoRetreiver
                 }
                 catch (InterruptedException ex)
                 {
-                    logger.debug(
+                    if (logger.isDebugEnabled())
+                        logger.debug(
                         "Interrupted while waiting for a subscription evt", ex);
                 }
             }

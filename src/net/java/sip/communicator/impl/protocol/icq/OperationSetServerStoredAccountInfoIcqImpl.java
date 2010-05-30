@@ -767,7 +767,8 @@ public class OperationSetServerStoredAccountInfoIcqImpl
 
         public void handleTimeout(SnacRequestTimeoutEvent event)
         {
-            logger.trace("Timeout!");
+            if (logger.isTraceEnabled())
+                logger.trace("Timeout!");
 
             synchronized(waitingForResponseLock)
             {
@@ -1517,7 +1518,8 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                 }
                 catch (InterruptedException ex)
                 {
-                    logger.debug(
+                    if (logger.isDebugEnabled())
+                        logger.debug(
                         "Interrupted while waiting for a subscription evt", ex);
                 }
             }

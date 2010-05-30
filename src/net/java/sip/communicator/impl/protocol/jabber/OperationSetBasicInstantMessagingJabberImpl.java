@@ -384,7 +384,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             msg.setTo(toJID);
 
-            logger.trace("Will send a message to:" + toJID
+            if (logger.isTraceEnabled())
+                logger.trace("Will send a message to:" + toJID
                             + " chat.jid=" + chat.getParticipant()
                             + " chat.tid=" + chat.getThreadID());
 
@@ -487,7 +488,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
 
@@ -565,7 +567,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             if(logger.isDebugEnabled())
             {
-                logger.debug("Received from "
+                if (logger.isDebugEnabled())
+                    logger.debug("Received from "
                              + fromUserID
                              + " the message "
                              + msg.toXML());
@@ -614,7 +617,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
             if(msg.getType()
                             == org.jivesoftware.smack.packet.Message.Type.error)
             {
-                logger.info("Message error received from " + fromUserID);
+                if (logger.isInfoEnabled())
+                    logger.info("Message error received from " + fromUserID);
 
                 int errorCode = packet.getError().getCode();
                 int errorResultCode = MessageDeliveryFailedEvent.UNKNOWN_ERROR;
@@ -649,13 +653,15 @@ public class OperationSetBasicInstantMessagingJabberImpl
             //that they contacted us from.
             putJidForAddress(fromUserID, msg.getFrom());
 
-            logger.trace("just mapped: " + fromUserID + " to " + msg.getFrom());
+            if (logger.isTraceEnabled())
+                logger.trace("just mapped: " + fromUserID + " to " + msg.getFrom());
 
             // In the second condition we filter all group chat messages,
             // because they are managed by the multi user chat operation set.
             if(sourceContact == null)
             {
-                logger.debug("received a message from an unknown contact: "
+                if (logger.isDebugEnabled())
+                    logger.debug("received a message from an unknown contact: "
                                    + fromUserID);
                 //create the volatile contact
                 sourceContact = opSetPersPresence
@@ -695,7 +701,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             if(logger.isDebugEnabled())
             {
-                logger.debug("Received keepAliveEvent from "
+                if (logger.isDebugEnabled())
+                    logger.debug("Received keepAliveEvent from "
                              + keepAliveEvent.getFromUserID()
                              + " the message : "
                              + keepAliveEvent.toXML());
@@ -720,7 +727,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
             // if we are not registerd do nothing
             if(!jabberProvider.isRegistered())
             {
-                logger.trace("provider not registered. "
+                if (logger.isTraceEnabled())
+                    logger.trace("provider not registered. "
                              +"won't send keep alive. acc.id="
                              + jabberProvider.getAccountID()
                                 .getAccountUniqueID());
@@ -738,7 +746,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
             keepAliveTimer.schedule(
                 new KeepAliveCheckTask(), KEEPALIVE_WAIT);
 
-            logger.trace(
+            if (logger.isTraceEnabled())
+                logger.trace(
                 "send keepalive for acc: "
                 + jabberProvider.getAccountID().getAccountUniqueID());
 
@@ -862,13 +871,15 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
         if (!notificationsAreSupported)
         {
-            logger.debug(jabberProvider.getAccountID().getService()
+            if (logger.isDebugEnabled())
+                logger.debug(jabberProvider.getAccountID().getService()
                         +" does not seem to provide a GMail notification "
                         +" service so we won't be trying to subscribe for it");
             return;
         }
 
-        logger.debug(jabberProvider.getAccountID().getService()
+        if (logger.isDebugEnabled())
+            logger.debug(jabberProvider.getAccountID().getService()
                         +" seems to provide a GMail notification "
                         +" service so we will try to subscribe for it");
 
@@ -894,7 +905,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
         //create a query with -1 values for newer-than-tid and
         //newer-than-time attributes
         MailboxQueryIQ mailboxQuery = new MailboxQueryIQ();
-        logger.trace("sending mailNotification for acc: "
+        if (logger.isTraceEnabled())
+            logger.trace("sending mailNotification for acc: "
                     + jabberProvider.getAccountID().getAccountUniqueID());
 
         jabberProvider.getConnection().sendPacket(mailboxQuery);
@@ -949,7 +961,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
         }
         catch (NumberFormatException e)
         {
-            logger.debug("Failed to parse max threads count: "+maxThreads
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to parse max threads count: "+maxThreads
                             +". Going for default.");
         }
 
@@ -1058,7 +1071,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 mailboxQueryIQ.setNewerThanTime(
                                 lastReceivedMailboxResultTime);
 
-            logger.trace(
+            if (logger.isTraceEnabled())
+                logger.trace(
                 "send mailNotification for acc: "
                 + jabberProvider.getAccountID().getAccountUniqueID());
 

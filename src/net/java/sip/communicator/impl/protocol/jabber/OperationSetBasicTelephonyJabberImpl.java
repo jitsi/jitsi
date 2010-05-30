@@ -112,7 +112,8 @@ public class OperationSetBasicTelephonyJabberImpl
             jingleManager.addCreationListener(this);
             jingleManager.addJingleSessionRequestListener(this);
 
-            logger.info("Jingle : ON ");
+            if (logger.isInfoEnabled())
+                logger.info("Jingle : ON ");
         }
         else if ((evt.getNewState() == RegistrationState.UNREGISTERED))
         {
@@ -122,7 +123,8 @@ public class OperationSetBasicTelephonyJabberImpl
                 jingleManager.removeJingleSessionRequestListener(this);
                 jingleManager = null;
 
-                logger.info("Jingle : OFF ");
+                if (logger.isInfoEnabled())
+                    logger.info("Jingle : OFF ");
             }
         }
     }
@@ -187,7 +189,8 @@ public class OperationSetBasicTelephonyJabberImpl
     {
         OutgoingJingleSession outJS;
 
-        logger.info("creating outgoing call...");
+        if (logger.isInfoEnabled())
+            logger.info("creating outgoing call...");
         if (protocolProvider.getConnection() == null) {
             throw new OperationFailedException(
                     "Failed to create OutgoingJingleSession.\n"
@@ -226,11 +229,13 @@ public class OperationSetBasicTelephonyJabberImpl
                     .discoverInfo(fullCalleeURI);
             if (di.containsFeature("http://www.xmpp.org/extensions/xep-0166.html#ns"))
             {
-                logger.info(fullCalleeURI + ": jingle supported ");
+                if (logger.isInfoEnabled())
+                    logger.info(fullCalleeURI + ": jingle supported ");
             }
             else
             {
-                logger.info(calleeAddress + ": jingle not supported ??? ");
+                if (logger.isInfoEnabled())
+                    logger.info(calleeAddress + ": jingle not supported ??? ");
 //
 //                throw new OperationFailedException(
 //                        "Failed to create OutgoingJingleSession.\n"
@@ -371,7 +376,8 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void shutdown()
     {
-        logger.trace("Ending all active calls. ");
+        if (logger.isTraceEnabled())
+            logger.trace("Ending all active calls. ");
         Iterator<CallJabberImpl> activeCalls
             = this.activeCallsRepository.getActiveCalls();
 
@@ -410,7 +416,8 @@ public class OperationSetBasicTelephonyJabberImpl
     public void sessionRequested(JingleSessionRequest jingleSessionRequest)
     {
         IncomingJingleSession inJS;
-        logger.info("session requested ");
+        if (logger.isInfoEnabled())
+            logger.info("session requested ");
         try
         {
             inJS = jingleSessionRequest.accept();
@@ -449,7 +456,8 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void sessionCreated(JingleSession jingleSession)
     {
-        logger.info("session created : " + jingleSession);
+        if (logger.isInfoEnabled())
+            logger.info("session created : " + jingleSession);
 
         jingleSession.addListener(this);
         jingleSession.addMediaListener(this);
@@ -464,7 +472,8 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void mediaClosed(PayloadType payloadType)
     {
-        logger.info(" media closed ");
+        if (logger.isInfoEnabled())
+            logger.info(" media closed ");
     }
 
     /**
@@ -474,7 +483,8 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void mediaEstablished(PayloadType payloadType)
     {
-        logger.info("media established ");
+        if (logger.isInfoEnabled())
+            logger.info("media established ");
     }
 
     /**
@@ -485,7 +495,8 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void transportClosed(TransportCandidate transportCandidate)
     {
-        logger.info("transport closed ");
+        if (logger.isInfoEnabled())
+            logger.info("transport closed ");
     }
 
     /**
@@ -507,7 +518,8 @@ public class OperationSetBasicTelephonyJabberImpl
     public void transportEstablished(TransportCandidate local,
             TransportCandidate remote)
     {
-        logger.info("transport established " + local + " -:- " + remote);
+        if (logger.isInfoEnabled())
+            logger.info("transport established " + local + " -:- " + remote);
     }
 
     /**
@@ -582,7 +594,8 @@ public class OperationSetBasicTelephonyJabberImpl
                     activeCallsRepository.findCallPeer(session);
             if (callPeer == null)
             {
-                logger.debug("Received a stray trying response.");
+                if (logger.isDebugEnabled())
+                    logger.debug("Received a stray trying response.");
                 return;
             }
             try
@@ -606,7 +619,8 @@ public class OperationSetBasicTelephonyJabberImpl
     public void afterChanged(JingleNegotiator.State oldState,
             JingleNegotiator.State newState)
     {
-        logger.info("session state changed : " + oldState + " => " + newState);
+        if (logger.isInfoEnabled())
+            logger.info("session state changed : " + oldState + " => " + newState);
     }
 
     /**
@@ -623,7 +637,8 @@ public class OperationSetBasicTelephonyJabberImpl
             TransportCandidate localCandidate,
             JingleSession jingleSession)
     {
-        logger.info("session established ");
+        if (logger.isInfoEnabled())
+            logger.info("session established ");
     }
 
     /**
@@ -634,7 +649,8 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void sessionDeclined(String reason, JingleSession jingleSession)
     {
-        logger.info("session declined : " + reason);
+        if (logger.isInfoEnabled())
+            logger.info("session declined : " + reason);
     }
 
     /**
@@ -646,7 +662,8 @@ public class OperationSetBasicTelephonyJabberImpl
     public void sessionRedirected(String redirection,
             JingleSession jingleSession)
     {
-        logger.info("session redirected : " + redirection);
+        if (logger.isInfoEnabled())
+            logger.info("session redirected : " + redirection);
     }
 
     /**
@@ -657,7 +674,8 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void sessionClosed(String reason, JingleSession jingleSession)
     {
-        logger.info("session closed : " + reason);
+        if (logger.isInfoEnabled())
+            logger.info("session closed : " + reason);
     }
 
     /**
@@ -680,7 +698,8 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void sessionMediaReceived(JingleSession jingleSession, String peer)
     {
-        logger.info("session media received ");
+        if (logger.isInfoEnabled())
+            logger.info("session media received ");
     }
 }
 

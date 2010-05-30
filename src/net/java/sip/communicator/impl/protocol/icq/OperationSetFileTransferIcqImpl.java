@@ -106,7 +106,8 @@ public class OperationSetFileTransferIcqImpl
         }
         catch (IOException e)
         {
-            logger.debug("Error sending file",e);
+            if (logger.isDebugEnabled())
+                logger.debug("Error sending file",e);
             return null;
         }
 
@@ -216,7 +217,8 @@ public class OperationSetFileTransferIcqImpl
     {
         if (transfer instanceof IncomingFileTransfer)
         {
-            logger.trace("Incoming Icq file transfer request " + transfer.getClass());
+            if (logger.isTraceEnabled())
+                logger.trace("Incoming Icq file transfer request " + transfer.getClass());
 
             if(!(transfer instanceof IncomingFileTransfer))
             {
@@ -388,7 +390,8 @@ public class OperationSetFileTransferIcqImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
 

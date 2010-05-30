@@ -97,7 +97,8 @@ public class ChatRoomConfigurationFormJabberImpl
     public void submit()
         throws OperationFailedException
     {
-        logger.trace("Sends chat room configuration form to the server.");
+        if (logger.isTraceEnabled())
+            logger.trace("Sends chat room configuration form to the server.");
         
         try
         {

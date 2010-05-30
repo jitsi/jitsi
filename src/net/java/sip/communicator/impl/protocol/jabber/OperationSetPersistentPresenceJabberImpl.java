@@ -750,7 +750,8 @@ public class OperationSetPersistentPresenceJabberImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The Jabber provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The Jabber provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
 
@@ -852,7 +853,8 @@ public class OperationSetPersistentPresenceJabberImpl
             {
                 String userID =
                     StringUtils.parseBareAddress(presence.getFrom());
-                logger.info("Received a status update for buddy=" + userID);
+                if (logger.isInfoEnabled())
+                    logger.info("Received a status update for buddy=" + userID);
 
                 // all contact statuses that are received from all its resources
                 // ordered by priority
@@ -948,7 +950,8 @@ public class OperationSetPersistentPresenceJabberImpl
                 ContactGroup parent
                     = ssContactList.findContactGroup(sourceContact);
 
-                logger.debug("Will Dispatch the contact status event.");
+                if (logger.isDebugEnabled())
+                    logger.debug("Will Dispatch the contact status event.");
                 fireContactPresenceStatusChangeEvent(sourceContact, parent,
                     oldStatus, newStatus);
             }
@@ -990,7 +993,8 @@ public class OperationSetPersistentPresenceJabberImpl
 
             if (presenceType == Presence.Type.subscribe)
             {
-                logger.trace(fromID + " wants to add you to its contact list");
+                if (logger.isTraceEnabled())
+                    logger.trace(fromID + " wants to add you to its contact list");
 
                 // buddy want to add you to its roster
                 ContactJabberImpl srcContact
@@ -1009,12 +1013,14 @@ public class OperationSetPersistentPresenceJabberImpl
                            .equals(AuthorizationResponse.ACCEPT))
                 {
                     responsePresenceType = Presence.Type.subscribed;
-                    logger.info("Sending Accepted Subscription");
+                    if (logger.isInfoEnabled())
+                        logger.info("Sending Accepted Subscription");
                 }
                 else
                 {
                     responsePresenceType = Presence.Type.unsubscribed;
-                    logger.info("Sending Rejected Subscription");
+                    if (logger.isInfoEnabled())
+                        logger.info("Sending Rejected Subscription");
                 }
 
                 Presence responsePacket = new Presence(responsePresenceType);
@@ -1025,7 +1031,8 @@ public class OperationSetPersistentPresenceJabberImpl
             }
             else if (presenceType == Presence.Type.unsubscribed)
             {
-                logger.trace(fromID + " does not allow your subscription");
+                if (logger.isTraceEnabled())
+                    logger.trace(fromID + " does not allow your subscription");
 
                 ContactJabberImpl contact
                     = ssContactList.findContactById(fromID);

@@ -873,7 +873,8 @@ public class ChatRoomJabberImpl
          */
         public void banned(String participant, String actor, String reason)
         {
-            logger.info(participant + " has been banned from "
+            if (logger.isInfoEnabled())
+                logger.info(participant + " has been banned from "
                 + getName() + " chat room.");
 
             ChatRoomMember member = smackParticipantToScMember(participant);
@@ -941,7 +942,8 @@ public class ChatRoomJabberImpl
          */
         public void joined(String participant)
         {
-            logger.info(participant + " has joined the "
+            if (logger.isInfoEnabled())
+                logger.info(participant + " has joined the "
                 + getName() + " chat room.");
 
             String participantName = StringUtils.parseResource(participant);
@@ -980,7 +982,8 @@ public class ChatRoomJabberImpl
          */
         public void left(String participant)
         {
-            logger.info(participant + " has left the "
+            if (logger.isInfoEnabled())
+                logger.info(participant + " has left the "
                 + getName() + " chat room.");
 
             ChatRoomMember member
@@ -1418,7 +1421,8 @@ public class ChatRoomJabberImpl
             = new ChatRoomMemberPresenceChangeEvent(
                 this, member, eventID, eventReason);
 
-        logger.trace("Will dispatch the following ChatRoom event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
         Iterator<ChatRoomMemberPresenceListener> listeners = null;
         synchronized (memberListeners)
@@ -1454,7 +1458,8 @@ public class ChatRoomJabberImpl
             = new ChatRoomMemberPresenceChangeEvent(
                 this, member, actor, eventID, eventReason);
 
-        logger.trace("Will dispatch the following ChatRoom event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
         Iterable<ChatRoomMemberPresenceListener> listeners;
         synchronized (memberListeners)
@@ -1485,7 +1490,8 @@ public class ChatRoomJabberImpl
             = new ChatRoomMemberRoleChangeEvent(
                 this, member, previousRole, newRole);
 
-        logger.trace("Will dispatch the following ChatRoom event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
         Iterable<ChatRoomMemberRoleListener> listeners;
         synchronized (memberRoleListeners)
@@ -1588,7 +1594,8 @@ public class ChatRoomJabberImpl
 
             if(logger.isDebugEnabled())
             {
-                logger.debug("Received from "
+                if (logger.isDebugEnabled())
+                    logger.debug("Received from "
                              + fromUserName
                              + " the message "
                              + msg.toXML());
@@ -1598,7 +1605,8 @@ public class ChatRoomJabberImpl
 
             if(msg.getType() == org.jivesoftware.smack.packet.Message.Type.error)
             {
-                logger.info("Message error received from " + fromUserName);
+                if (logger.isInfoEnabled())
+                    logger.info("Message error received from " + fromUserName);
 
                 int errorCode = packet.getError().getCode();
                 int errorResultCode
@@ -1821,7 +1829,8 @@ public class ChatRoomJabberImpl
             = new ChatRoomLocalUserRoleChangeEvent(
                     this, previousRole, newRole);
 
-        logger.trace("Will dispatch the following ChatRoom event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
         Iterable<ChatRoomLocalUserRoleListener> listeners;
         synchronized (localUserRoleListeners)

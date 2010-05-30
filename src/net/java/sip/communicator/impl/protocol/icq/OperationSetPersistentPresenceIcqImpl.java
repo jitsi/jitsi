@@ -536,7 +536,8 @@ public class OperationSetPersistentPresenceIcqImpl
             return;
         }
 
-        logger.trace("Going to remove contact from ss-list : " + contact);
+        if (logger.isTraceEnabled())
+            logger.trace("Going to remove contact from ss-list : " + contact);
 
         if( !contactGroup.isPersistent()
             && contactIcqImpl.getJoustSimBuddy().isAwaitingAuthorization())
@@ -603,7 +604,8 @@ public class OperationSetPersistentPresenceIcqImpl
             throw new IllegalArgumentException(
                             status + " is not a valid ICQ/AIM status");
 
-        logger.debug("Will set status: " + status);
+        if (logger.isDebugEnabled())
+            logger.debug("Will set status: " + status);
 
         MainBosService bosService
             = parentProvider.getAimConnection().getBosService();
@@ -641,7 +643,8 @@ public class OperationSetPersistentPresenceIcqImpl
         {
             long icqStatus = presenceStatusToStatusLong(status);
 
-            logger.debug("Will set status: " + status + " long=" + icqStatus);
+            if (logger.isDebugEnabled())
+                logger.debug("Will set status: " + status + " long=" + icqStatus);
 
             bosService.getOscarConnection().sendSnac(new SetExtraInfoCmd(icqStatus));
 
@@ -926,7 +929,8 @@ public class OperationSetPersistentPresenceIcqImpl
                     //whatever it is it means that to us the buddy in question
                     //is as good as offline so leave status at -1 and notify.
 
-                    logger.debug("status is" + status);
+                    if (logger.isDebugEnabled())
+                        logger.debug("status is" + status);
                     synchronized(this){
                         this.notifyAll();
                     }
@@ -1010,7 +1014,8 @@ public class OperationSetPersistentPresenceIcqImpl
         PresenceStatus newStatus = statusLongToPresenceStatus(newStatusL);
 
         if (oldStatus.equals(newStatus))
-            logger.debug(
+            if (logger.isDebugEnabled())
+                logger.debug(
                 "Ignored prov stat. change evt. old==new = "
                     + oldStatus);
         else
@@ -1033,12 +1038,14 @@ public class OperationSetPersistentPresenceIcqImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The ICQ provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The ICQ provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
             if(evt.getNewState() == RegistrationState.FINALIZING_REGISTRATION)
             {
-                logger.debug("adding a Bos Service Listener");
+                if (logger.isDebugEnabled())
+                    logger.debug("adding a Bos Service Listener");
                 parentProvider.getAimConnection().getBosService()
                     .addMainBosServiceListener(joustSimBosListener);
 
@@ -1165,7 +1172,8 @@ public class OperationSetPersistentPresenceIcqImpl
          */
         public void handleYourExtraInfo(List<ExtraInfoBlock> extraInfos)
         {
-            logger.debug("Got extra info: " + extraInfos);
+            if (logger.isDebugEnabled())
+                logger.debug("Got extra info: " + extraInfos);
             // @xxx we should one day probably do something here, like check
             // whether the status message has been changed for example.
             for (ExtraInfoBlock block : extraInfos)
@@ -1173,10 +1181,12 @@ public class OperationSetPersistentPresenceIcqImpl
                 if (block.getType() == ExtraInfoBlock.TYPE_AVAILMSG){
                     String statusMessage = ExtraInfoData.readAvailableMessage(
                                                     block.getExtraData());
-                    logger.debug("Received a status message:" + statusMessage);
+                    if (logger.isDebugEnabled())
+                        logger.debug("Received a status message:" + statusMessage);
 
                     if ( getCurrentStatusMessage().equals(statusMessage)){
-                        logger.debug("Status message is same as old. Ignoring");
+                        if (logger.isDebugEnabled())
+                            logger.debug("Status message is same as old. Ignoring");
                         return;
                     }
 
@@ -1202,9 +1212,12 @@ public class OperationSetPersistentPresenceIcqImpl
         public void handleYourInfo(MainBosService service,
                                    FullUserInfo userInfo)
         {
-            logger.debug("Received our own user info: " + userInfo);
-            logger.debug("previous status was: " + currentIcqStatus);
-            logger.debug("new status is: " + userInfo.getIcqStatus());
+            if (logger.isDebugEnabled())
+                logger.debug("Received our own user info: " + userInfo);
+            if (logger.isDebugEnabled())
+                logger.debug("previous status was: " + currentIcqStatus);
+            if (logger.isDebugEnabled())
+                logger.debug("new status is: " + userInfo.getIcqStatus());
 
             //update the last received field.
             long oldStatus  = currentIcqStatus;
@@ -1265,8 +1278,10 @@ public class OperationSetPersistentPresenceIcqImpl
         public void gotBuddyStatus(BuddyService service, Screenname buddy,
                                    FullUserInfo info)
         {
-            logger.debug("Received a status update for buddy=" + buddy);
-            logger.debug("Updated user info is " + info);
+            if (logger.isDebugEnabled())
+                logger.debug("Received a status update for buddy=" + buddy);
+            if (logger.isDebugEnabled())
+                logger.debug("Updated user info is " + info);
 
             ContactIcqImpl sourceContact
                 = ssContactList.findContactByScreenName(buddy.getFormatted());
@@ -1305,13 +1320,15 @@ public class OperationSetPersistentPresenceIcqImpl
                     {
                         String status = ExtraInfoData.readAvailableMessage(
                             block.getExtraData());
-                        logger.info("Status Message is: " + status + ".");
+                        if (logger.isInfoEnabled())
+                            logger.info("Status Message is: " + status + ".");
                         sourceContact.setStatusMessage(status);
                     }
                 }
             }
 
-            logger.debug("Will Dispatch the contact status event.");
+            if (logger.isDebugEnabled())
+                logger.debug("Will Dispatch the contact status event.");
             fireContactPresenceStatusChangeEvent(sourceContact, parent,
                                                  oldStatus, newStatus);
         }
@@ -1326,7 +1343,8 @@ public class OperationSetPersistentPresenceIcqImpl
          */
         public void buddyOffline(BuddyService service, Screenname buddy)
         {
-            logger.debug("Received a status update for buddy=" + buddy);
+            if (logger.isDebugEnabled())
+                logger.debug("Received a status update for buddy=" + buddy);
 
             ContactIcqImpl sourceContact
                 = ssContactList.findContactByScreenName(buddy.getFormatted());
@@ -1361,10 +1379,14 @@ public class OperationSetPersistentPresenceIcqImpl
                                          Screenname buddy, BuddyInfo info)
         {
             String statusMessage = info.getStatusMessage();
-            logger.debug("buddy=" + buddy);
-            logger.debug("info.getAwayMessage()=" + info.getAwayMessage());
-            logger.debug("info.getOnlineSince()=" + info.getOnlineSince());
-            logger.debug("info.getStatusMessage()=" + statusMessage);
+            if (logger.isDebugEnabled())
+                logger.debug("buddy=" + buddy);
+            if (logger.isDebugEnabled())
+                logger.debug("info.getAwayMessage()=" + info.getAwayMessage());
+            if (logger.isDebugEnabled())
+                logger.debug("info.getOnlineSince()=" + info.getOnlineSince());
+            if (logger.isDebugEnabled())
+                logger.debug("info.getStatusMessage()=" + statusMessage);
 
             ContactIcqImpl sourceContact
                 = ssContactList.findContactByScreenName(buddy.getFormatted());
@@ -1383,7 +1405,8 @@ public class OperationSetPersistentPresenceIcqImpl
     {
         public void authorizationDenied(Screenname screenname, String reason)
         {
-            logger.trace("authorizationDenied from " + screenname);
+            if (logger.isTraceEnabled())
+                logger.trace("authorizationDenied from " + screenname);
             Contact srcContact = findContactByID(screenname.getFormatted());
 
             authorizationHandler.processAuthorizationResponse(
@@ -1400,7 +1423,8 @@ public class OperationSetPersistentPresenceIcqImpl
 
         public void authorizationAccepted(Screenname screenname, String reason)
         {
-            logger.trace("authorizationAccepted from " + screenname);
+            if (logger.isTraceEnabled())
+                logger.trace("authorizationAccepted from " + screenname);
             Contact srcContact = findContactByID(screenname.getFormatted());
             ssContactList.moveAwaitingAuthorizationContact(
                 (ContactIcqImpl)srcContact);
@@ -1413,7 +1437,8 @@ public class OperationSetPersistentPresenceIcqImpl
         public void authorizationRequestReceived(Screenname screenname,
                                                  String reason)
         {
-            logger.trace("authorizationRequestReceived from " + screenname);
+            if (logger.isTraceEnabled())
+                logger.trace("authorizationRequestReceived from " + screenname);
             Contact srcContact = findContactByID(screenname.getFormatted());
 
             if(srcContact == null)
@@ -1439,9 +1464,11 @@ public class OperationSetPersistentPresenceIcqImpl
 
         public boolean authorizationRequired(Screenname screenname, Group parentGroup)
         {
-            logger.trace("authorizationRequired from " + screenname);
+            if (logger.isTraceEnabled())
+                logger.trace("authorizationRequired from " + screenname);
 
-            logger.trace("finding buddy : " + screenname);
+            if (logger.isTraceEnabled())
+                logger.trace("finding buddy : " + screenname);
             ContactIcqImpl srcContact =
                 ssContactList.findContactByScreenName(screenname.getFormatted());
 
@@ -1519,12 +1546,14 @@ public class OperationSetPersistentPresenceIcqImpl
         public void futureAuthorizationGranted(Screenname screenname,
                                                String reason)
         {
-            logger.trace("futureAuthorizationGranted from " + screenname);
+            if (logger.isTraceEnabled())
+                logger.trace("futureAuthorizationGranted from " + screenname);
         }
 
         public void youWereAdded(Screenname screenname)
         {
-            logger.trace("youWereAdded from " + screenname);
+            if (logger.isTraceEnabled())
+                logger.trace("youWereAdded from " + screenname);
         }
     }
 
@@ -1582,7 +1611,8 @@ public class OperationSetPersistentPresenceIcqImpl
     {
         public void run()
         {
-            logger.trace("Running status retreiver for AwaitingAuthorizationContacts");
+            if (logger.isTraceEnabled())
+                logger.trace("Running status retreiver for AwaitingAuthorizationContacts");
 
             ContactGroupIcqImpl theAwaitingAuthorizationGroup =
                 ssContactList.findContactGroup(

@@ -174,7 +174,8 @@ public class OutgoingFileTransferJabberImpl
         if (!(file instanceof ThumbnailedFile))
             return;
 
-        logger.debug("File transfer packet intercepted"
+        if (logger.isDebugEnabled())
+            logger.debug("File transfer packet intercepted"
                     + " in order to add thumbnail.");
 
         StreamInitiation fileTransferPacket = (StreamInitiation) packet;
@@ -197,7 +198,8 @@ public class OutgoingFileTransferJabberImpl
 
             fileTransferPacket.setFile(fileElement);
 
-            logger.debug("The file transfer packet with thumbnail: "
+            if (logger.isDebugEnabled())
+                logger.debug("The file transfer packet with thumbnail: "
                 + fileTransferPacket.toXML());
 
             // Add the request listener in order to listen for requests coming
@@ -243,7 +245,8 @@ public class OutgoingFileTransferJabberImpl
                     thumbnailedFile.getThumbnailData(),
                     IQ.Type.RESULT);
 
-                logger.debug("Send thumbnail response to the receiver: "
+                if (logger.isDebugEnabled())
+                    logger.debug("Send thumbnail response to the receiver: "
                         + thumbnailResponse.toXML());
 
                 protocolProvider.getConnection()

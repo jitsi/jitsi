@@ -215,7 +215,8 @@ public class ProtocolProviderServiceJabberImpl
     {
         try
         {
-            logger.trace("Trying to reregister us!");
+            if (logger.isTraceEnabled())
+                logger.trace("Trying to reregister us!");
 
             // sets this if any is tring to use us through registration
             // to know we are not registered
@@ -826,7 +827,8 @@ public class ProtocolProviderServiceJabberImpl
     {
         synchronized(initializationLock)
         {
-            logger.trace("Killing the Jabber Protocol Provider.");
+            if (logger.isTraceEnabled())
+                logger.trace("Killing the Jabber Protocol Provider.");
 
             //kill all active calls
             OperationSetBasicTelephonyJabberImpl telephony
@@ -998,7 +1000,8 @@ public class ProtocolProviderServiceJabberImpl
          */
         public void reconnectingIn(int i)
         {
-            logger.info("reconnectingIn " + i);
+            if (logger.isInfoEnabled())
+                logger.info("reconnectingIn " + i);
         }
 
         /**
@@ -1006,7 +1009,8 @@ public class ProtocolProviderServiceJabberImpl
          */
         public void reconnectionSuccessful()
         {
-            logger.info("reconnectionSuccessful");
+            if (logger.isInfoEnabled())
+                logger.info("reconnectionSuccessful");
         }
 
         /**
@@ -1017,7 +1021,8 @@ public class ProtocolProviderServiceJabberImpl
          */
         public void reconnectionFailed(Exception exception)
         {
-            logger.info("reconnectionFailed ", exception);
+            if (logger.isInfoEnabled())
+                logger.info("reconnectionFailed ", exception);
         }
     }
 
@@ -1073,7 +1078,8 @@ public class ProtocolProviderServiceJabberImpl
         }
         catch (XMPPException e)
         {
-            logger.debug("Failed to discover info.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to discover info.", e);
         }
 
         return isFeatureListSupported;

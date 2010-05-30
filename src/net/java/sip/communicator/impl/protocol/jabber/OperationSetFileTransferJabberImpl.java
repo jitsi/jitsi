@@ -259,7 +259,8 @@ public class OperationSetFileTransferJabberImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
 
@@ -331,7 +332,8 @@ public class OperationSetFileTransferJabberImpl
             if (!(packet instanceof StreamInitiation))
                 return;
 
-            logger.debug("Incoming Jabber file transfer request.");
+            if (logger.isDebugEnabled())
+                logger.debug("Incoming Jabber file transfer request.");
 
             StreamInitiation streamInitiation = (StreamInitiation) packet;
 
@@ -368,7 +370,8 @@ public class OperationSetFileTransferJabberImpl
                                             thumbnailElement.getCid(),
                                             IQ.Type.GET);
 
-                    logger.debug("Sending thumbnail request:"
+                    if (logger.isDebugEnabled())
+                        logger.debug("Sending thumbnail request:"
                         + thumbnailRequest.toXML());
 
                     jabberProvider.getConnection().sendPacket(thumbnailRequest);
@@ -541,7 +544,8 @@ public class OperationSetFileTransferJabberImpl
                 }
                 catch (InterruptedException e)
                 {
-                    logger.debug("Unable to sleep thread.", e);
+                    if (logger.isDebugEnabled())
+                        logger.debug("Unable to sleep thread.", e);
                 }
             }
 

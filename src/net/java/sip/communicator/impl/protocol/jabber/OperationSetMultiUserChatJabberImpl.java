@@ -105,7 +105,8 @@ public class OperationSetMultiUserChatJabberImpl
 
         if (room == null)
         {
-            logger.info("Find room returns null.");
+            if (logger.isInfoEnabled())
+                logger.info("Find room returns null.");
             MultiUserChat muc = new MultiUserChat(
                 getXmppConnection(), getCanonicalRoomName(roomName));
 
@@ -651,7 +652,8 @@ public class OperationSetMultiUserChatJabberImpl
         {
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                logger.debug("adding an Invitation listener to the smack muc");
+                if (logger.isDebugEnabled())
+                    logger.debug("adding an Invitation listener to the smack muc");
 
                 MultiUserChat.addInvitationListener(
                     jabberProvider.getConnection(),

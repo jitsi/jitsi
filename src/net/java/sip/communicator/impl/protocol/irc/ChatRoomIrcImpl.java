@@ -935,7 +935,8 @@ public class ChatRoomIrcImpl
             evt = new ChatRoomMemberPresenceChangeEvent(
                 this, member, eventID, eventReason);
 
-        logger.trace("Will dispatch the following ChatRoom event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
         Iterable<ChatRoomMemberPresenceListener> listeners;
         synchronized (memberListeners)
@@ -968,7 +969,8 @@ public class ChatRoomIrcImpl
                                                 previousRole,
                                                 newRole);
         
-        logger.trace("Will dispatch the following ChatRoom event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following ChatRoom event: " + evt);
     
         Iterable<ChatRoomMemberRoleListener> listeners;
         synchronized (memberRoleListeners)

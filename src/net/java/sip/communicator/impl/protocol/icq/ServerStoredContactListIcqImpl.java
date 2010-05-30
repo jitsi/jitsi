@@ -181,7 +181,8 @@ public class ServerStoredContactListIcqImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -192,7 +193,8 @@ public class ServerStoredContactListIcqImpl
                 , icqProvider
                 , parentOperationSet);
 
-        logger.trace("Will dispatch the following grp event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following grp event: " + evt);
 
         Iterable<ServerStoredGroupListener> listeners;
         synchronized (serverStoredGroupListeners)
@@ -233,7 +235,8 @@ public class ServerStoredContactListIcqImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -253,7 +256,8 @@ public class ServerStoredContactListIcqImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -279,7 +283,8 @@ public class ServerStoredContactListIcqImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -300,7 +305,8 @@ public class ServerStoredContactListIcqImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -490,7 +496,8 @@ public class ServerStoredContactListIcqImpl
      */
     ContactIcqImpl createVolatileContact(Screenname screenname)
     {
-        logger.trace("createVolatileContact " + screenname);
+        if (logger.isTraceEnabled())
+            logger.trace("createVolatileContact " + screenname);
         //First create the new volatile contact;
         Buddy volatileBuddy = new VolatileBuddy(screenname);
 
@@ -539,7 +546,8 @@ public class ServerStoredContactListIcqImpl
     ContactIcqImpl createUnresolvedContact(ContactGroupIcqImpl parentGroup,
                                            Screenname  screenname)
     {
-        logger.trace("createUnresolvedContact " + screenname);
+        if (logger.isTraceEnabled())
+            logger.trace("createUnresolvedContact " + screenname);
         //First create the new volatile contact;
         Buddy volatileBuddy = new VolatileBuddy(screenname);
 
@@ -587,7 +595,8 @@ public class ServerStoredContactListIcqImpl
      */
     public void addContact(ContactGroupIcqImpl parent, String screenname)
     {
-        logger.trace("Adding contact " + screenname
+        if (logger.isTraceEnabled())
+            logger.trace("Adding contact " + screenname
                      + " to parent=" + parent.getGroupName());
 
         //if the contact is already in the contact list and is not volatile,
@@ -598,7 +607,8 @@ public class ServerStoredContactListIcqImpl
         if( existingContact != null
             && existingContact.isPersistent() )
         {
-            logger.debug("Contact " + screenname + " already exists. Gen. evt.");
+            if (logger.isDebugEnabled())
+                logger.debug("Contact " + screenname + " already exists. Gen. evt.");
             //broadcast the event in a separate thread so that we don't
             //block the calling thread.
             new Thread(){
@@ -612,7 +622,8 @@ public class ServerStoredContactListIcqImpl
             return;
         }
 
-        logger.trace("Adding the contact to the specified group.");
+        if (logger.isTraceEnabled())
+            logger.trace("Adding the contact to the specified group.");
         //extract the top level group
         AddMutableGroup group = parent.getJoustSimSourceGroup();
 
@@ -625,9 +636,11 @@ public class ServerStoredContactListIcqImpl
      */
     public void createGroup(String groupName)
     {
-        logger.trace("Creating group: " + groupName);
+        if (logger.isTraceEnabled())
+            logger.trace("Creating group: " + groupName);
         buddyList.addGroup(groupName);
-        logger.trace("Group " +groupName+ " created.");
+        if (logger.isTraceEnabled())
+            logger.trace("Group " +groupName+ " created.");
     }
 
     /**
@@ -878,8 +891,10 @@ public class ServerStoredContactListIcqImpl
                                Group group,
                                List<? extends Buddy> buddies)
         {
-            logger.trace("Group added: " + group.getName());
-            logger.trace("Buddies: " + buddies);
+            if (logger.isTraceEnabled())
+                logger.trace("Group added: " + group.getName());
+            if (logger.isTraceEnabled())
+                logger.trace("Buddies: " + buddies);
 
             ContactGroupIcqImpl newGroup = findContactGroup(group.getName());
 
@@ -951,12 +966,14 @@ public class ServerStoredContactListIcqImpl
                                  List<? extends Group> newItems,
                                  Group group)
         {
-            logger.trace("Group Removed: " + group.getName());
+            if (logger.isTraceEnabled())
+                logger.trace("Group Removed: " + group.getName());
             int index = findContactGroupIndex(group);
 
             if (index == -1)
             {
-                logger.debug("non existing group: " + group.getName());
+                if (logger.isDebugEnabled())
+                    logger.debug("non existing group: " + group.getName());
                 return;
             }
 
@@ -986,7 +1003,8 @@ public class ServerStoredContactListIcqImpl
                                 List<? extends Buddy> newItems,
                                 Buddy buddy)
         {
-            logger.trace("Received buddyAdded " + buddy);
+            if (logger.isTraceEnabled())
+                logger.trace("Received buddyAdded " + buddy);
             //it is possible that the buddy being added is already in our
             //contact list. For example if they have sent a message to us they
             //would have been added to the local contact list as a
@@ -1002,7 +1020,8 @@ public class ServerStoredContactListIcqImpl
 
             if (parentGroup == null)
             {
-                logger.debug("no parent group "
+                if (logger.isDebugEnabled())
+                    logger.debug("no parent group "
                              + joustSimGroup + " found for buddy: " + buddy);
                 return;
             }
@@ -1178,13 +1197,15 @@ public class ServerStoredContactListIcqImpl
         public void groupNameChanged(Group group, String oldName,
                                      String newName)
         {
-            logger.trace("Group name for "+group.getName()+"changed from="
+            if (logger.isTraceEnabled())
+                logger.trace("Group name for "+group.getName()+"changed from="
                          + oldName + " to=" + newName);
             ContactGroupIcqImpl contactGroup = findContactGroup(group);
 
             if (contactGroup == null)
             {
-                logger.debug(
+                if (logger.isDebugEnabled())
+                    logger.debug(
                     "group name changed event received for unknown group"
                     + group);
                 return;
@@ -1195,14 +1216,16 @@ public class ServerStoredContactListIcqImpl
             //and values of oldName and newName would almost always be null)
             if (contactGroup.getGroupName()
                     .equals( contactGroup.getNameCopy() )){
-                logger.trace("Group name hasn't really changed("
+                if (logger.isTraceEnabled())
+                    logger.trace("Group name hasn't really changed("
                              +contactGroup.getGroupName()+"). Ignoring");
                 return;
             }
 
             //we do have a new name. store a copy of it for our next deteciton
             //and fire the corresponding event.
-            logger.trace("Dispatching group change event.");
+            if (logger.isTraceEnabled())
+                logger.trace("Dispatching group change event.");
             contactGroup.initNameCopy();
 
             fireGroupEvent(contactGroup,
@@ -1224,8 +1247,10 @@ public class ServerStoredContactListIcqImpl
                                       Screenname newScreenname)
         {
             /** @todo implement screennameChanged() */
-            logger.debug("/** @todo implement screennameChanged() */=");
-            logger.debug("buddy="+buddy);
+            if (logger.isDebugEnabled())
+                logger.debug("/** @todo implement screennameChanged() */=");
+            if (logger.isDebugEnabled())
+                logger.debug("buddy="+buddy);
         }
 
         /**
@@ -1239,7 +1264,8 @@ public class ServerStoredContactListIcqImpl
                                        int newAlertAction)
         {
             /** @todo implement alertActionChanged() */
-            logger.debug("/** @todo implement alertActionChanged() */=");
+            if (logger.isDebugEnabled())
+                logger.debug("/** @todo implement alertActionChanged() */=");
         }
 
         /**
@@ -1253,7 +1279,8 @@ public class ServerStoredContactListIcqImpl
                                       String newAlertSound)
         {
             /** @todo implement alertSoundChanged() */
-            logger.debug("/** @todo implement alertSoundChanged() */");
+            if (logger.isDebugEnabled())
+                logger.debug("/** @todo implement alertSoundChanged() */");
         }
 
         /**
@@ -1267,7 +1294,8 @@ public class ServerStoredContactListIcqImpl
                                      int newAlertEvent)
         {
             /** @todo implement alertTimeChanged() */
-            logger.debug("/** @todo implement alertTimeChanged() */");
+            if (logger.isDebugEnabled())
+                logger.debug("/** @todo implement alertTimeChanged() */");
         }
 
         /**
@@ -1280,7 +1308,8 @@ public class ServerStoredContactListIcqImpl
         public void aliasChanged(Buddy buddy, String oldAlias, String newAlias)
         {
             /** @todo implement aliasChanged() */
-            logger.debug("/** @todo implement aliasChanged() */");
+            if (logger.isDebugEnabled())
+                logger.debug("/** @todo implement aliasChanged() */");
         }
 
         /**
@@ -1294,7 +1323,8 @@ public class ServerStoredContactListIcqImpl
                                         String newComment)
         {
             /** @todo implement buddyCommentChanged() */
-            logger.debug("/** @todo implement buddyCommentChanged() */");
+            if (logger.isDebugEnabled())
+                logger.debug("/** @todo implement buddyCommentChanged() */");
         }
 
         public void awaitingAuthChanged(Buddy simpleBuddy,
@@ -1302,7 +1332,8 @@ public class ServerStoredContactListIcqImpl
                                         boolean newAwaitingAuth)
         {
             /** @todo  */
-            logger.debug("awaitingAuthChanged for " + simpleBuddy
+            if (logger.isDebugEnabled())
+                logger.debug("awaitingAuthChanged for " + simpleBuddy
                 + " oldAwaitingAuth: " + oldAwaitingAuth
                 + " newAwaitingAuth: " + newAwaitingAuth);
         }
@@ -1319,20 +1350,23 @@ public class ServerStoredContactListIcqImpl
         public void handleItemCreated(SsiItem item)
         {
             /** @todo implement handleItemCreated() */
-            logger.debug("!!! TODO: implement handleItemCreated() !!!" + item
+            if (logger.isDebugEnabled())
+                logger.debug("!!! TODO: implement handleItemCreated() !!!" + item
                          + " DATA=" + item.getData().toString());
         }
 
         public void handleItemDeleted(SsiItem item)
         {
             /** @todo implement handleItemDeleted() */
-            logger.debug("!!! TODO: implement handleItemDeleted()!!!" + item);
+            if (logger.isDebugEnabled())
+                logger.debug("!!! TODO: implement handleItemDeleted()!!!" + item);
         }
 
         public void handleItemModified(SsiItem item)
         {
             /** @todo implement handleItemModified() */
-            logger.debug("!!! TODO: implement handleItemModified() !!!" + item
+            if (logger.isDebugEnabled())
+                logger.debug("!!! TODO: implement handleItemModified() !!!" + item
                          + " DATA=" + item.getData().toString());
         }
     }

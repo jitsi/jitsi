@@ -244,7 +244,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
         public void handleResponse(SnacResponseEvent evt)
         {
             SnacCommand snac = evt.getSnacCommand();
-            logger.debug("Received a response to our offline message request: " +
+            if (logger.isDebugEnabled())
+                logger.debug("Received a response to our offline message request: " +
                          snac);
 
             if (snac instanceof OfflineMsgIcqCmd)
@@ -256,7 +257,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
                     opSetPersPresence.findContactByID(contactUIN);
                 if (sourceContact == null)
                 {
-                    logger.debug(
+                    if (logger.isDebugEnabled())
+                        logger.debug(
                         "received a message from a unknown contact: "
                         + contactUIN);
                     //create the volatile contact
@@ -284,14 +286,16 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 
                 if (msgReceivedEvt != null)
                 {
-                    logger.debug("fire msg received for : " +
+                    if (logger.isDebugEnabled())
+                        logger.debug("fire msg received for : " +
                                  offlineMsgCmd.getContents());
                     fireMessageEvent(msgReceivedEvt);
                 }
             }
             else if (snac instanceof OfflineMsgDoneCmd)
             {
-                logger.debug("send ack to delete offline messages");
+                if (logger.isDebugEnabled())
+                    logger.debug("send ack to delete offline messages");
 
                 OfflineMsgIcqAckCmd offlineMsgDeleteReq = new
                     OfflineMsgIcqAckCmd(
@@ -305,7 +309,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
             }
             else if (snac instanceof SnacError)
             {
-                logger.debug("error receiving offline messages");
+                if (logger.isDebugEnabled())
+                    logger.debug("error receiving offline messages");
             }
         }
     }
@@ -383,12 +388,14 @@ public class OperationSetBasicInstantMessagingIcqImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The ICQ provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The ICQ provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
             if(evt.getNewState() == RegistrationState.FINALIZING_REGISTRATION)
             {
-                logger.debug("adding a Bos Service Listener");
+                if (logger.isDebugEnabled())
+                    logger.debug("adding a Bos Service Listener");
                 icqProvider.getAimConnection().getIcbmService()
                     .addIcbmListener(joustSimIcbmListener);
 
@@ -462,7 +469,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
         public void buddyInfoUpdated(IcbmService service, Screenname buddy,
                                      IcbmBuddyInfo info)
         {
-            logger.debug("buddy info pudated for " + buddy
+            if (logger.isDebugEnabled())
+                logger.debug("buddy info pudated for " + buddy
                                 + " new info is: " + info);
         }
 
@@ -471,7 +479,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
             net.kano.joustsim.oscar.oscar.service.icbm.Message message,
             Set<Conversation> triedConversations)
         {
-            logger.debug("sendAutomaticallyFailed message : " + message);
+            if (logger.isDebugEnabled())
+                logger.debug("sendAutomaticallyFailed message : " + message);
         }
     }
 
@@ -497,9 +506,9 @@ public class OperationSetBasicInstantMessagingIcqImpl
 
             if (logger.isDebugEnabled())
                 logger.debug("Received from "
-                             + conversation.getBuddy()
-                             + " the message "
-                             + msgBody);
+                        + conversation.getBuddy()
+                        + " the message "
+                        + msgBody);
 
             if(msgBody.startsWith(SYS_MSG_PREFIX_TEST)
                 && conversation.getBuddy().getFormatted().
@@ -534,7 +543,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
                                                              .getFormatted());
             if(sourceContact == null)
             {
-                logger.debug("received a message from a unknown contact: "
+                if (logger.isDebugEnabled())
+                    logger.debug("received a message from a unknown contact: "
                                    + conversation.getBuddy());
                 //create the volatile contact
                 sourceContact = opSetPersPresence
@@ -633,7 +643,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
                 keepAliveTimer.schedule(
                     new KeepAliveCheckTask(), KEEPALIVE_WAIT);
 
-                logger.trace("send keepalive");
+                if (logger.isTraceEnabled())
+                    logger.trace("send keepalive");
                 imConversation.sendMessage(new SimpleMessage(sysMsg.toString()));
             }
             catch (Exception ex)
@@ -681,7 +692,8 @@ public class OperationSetBasicInstantMessagingIcqImpl
         {
             String receivedStr = receivedKeepAlivePackets.removeLast();
 
-            logger.trace("Last keep alive message is: " + receivedStr);
+            if (logger.isTraceEnabled())
+                logger.trace("Last keep alive message is: " + receivedStr);
 
             receivedStr = receivedStr.replaceAll(SYS_MSG_PREFIX_TEST, "");
             String[] ss = receivedStr.split("&");

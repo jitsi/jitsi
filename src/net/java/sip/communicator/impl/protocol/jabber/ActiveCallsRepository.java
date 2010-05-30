@@ -76,7 +76,8 @@ public class ActiveCallsRepository
             CallJabberImpl sourceCall = this.activeCalls
                 .remove(evt.getSourceCall().getCallID());
 
-            logger.trace(  "Removing call " + sourceCall + " from the list of "
+            if (logger.isTraceEnabled())
+                logger.trace(  "Removing call " + sourceCall + " from the list of "
                          + "active calls because it entered an ENDED state");
 
             this.parentOperationSet.fireCallEvent(
@@ -109,14 +110,16 @@ public class ActiveCallsRepository
 
         if(session == null)
         {
-            logger.debug("Cannot find a peer with a null session. "
+            if (logger.isDebugEnabled())
+                logger.debug("Cannot find a peer with a null session. "
                          +"Returning null");
             return null;
         }
 
         if(logger.isTraceEnabled())
         {
-            logger.trace("Looking for peer with session: " + session
+            if (logger.isTraceEnabled())
+                logger.trace("Looking for peer with session: " + session
                          + " among " + this.activeCalls.size() + " calls");
         }
 
@@ -146,14 +149,16 @@ public class ActiveCallsRepository
 
         if(session == null)
         {
-            logger.debug("Cannot find a peer with a null session. "
+            if (logger.isDebugEnabled())
+                logger.debug("Cannot find a peer with a null session. "
                          + "Returning null");
             return null;
         }
 
         if(logger.isTraceEnabled())
         {
-            logger.trace("Looking for peer with session: " + session
+            if (logger.isTraceEnabled())
+                logger.trace("Looking for peer with session: " + session
                          + " among " + this.activeCalls.size() + " calls");
         }
 
@@ -164,7 +169,8 @@ public class ActiveCallsRepository
 
             if(callPeer != null)
             {
-                logger.trace("Returning peer " + callPeer);
+                if (logger.isTraceEnabled())
+                    logger.trace("Returning peer " + callPeer);
                 return callPeer;
             }
         }

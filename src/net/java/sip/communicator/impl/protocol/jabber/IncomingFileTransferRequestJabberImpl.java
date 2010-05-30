@@ -154,7 +154,8 @@ public class IncomingFileTransferRequestJabberImpl
         }
         catch (XMPPException e)
         {
-            logger.debug("Receiving file failed.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Receiving file failed.", e);
         }
 
         return incomingTransfer;
@@ -221,7 +222,8 @@ public class IncomingFileTransferRequestJabberImpl
             if (!(packet instanceof ThumbnailIQ))
                 return;
 
-            logger.debug("Thumbnail response received.");
+            if (logger.isDebugEnabled())
+                logger.debug("Thumbnail response received.");
 
             ThumbnailIQ thumbnailResponse = (ThumbnailIQ) packet;
 

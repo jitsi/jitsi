@@ -69,7 +69,8 @@ public class ProtocolProviderServiceDictImpl
      */
     public ProtocolProviderServiceDictImpl()
     {
-        logger.trace("Creating a Dict provider.");
+        if (logger.isTraceEnabled())
+            logger.trace("Creating a Dict provider.");
     }
 
     /**
@@ -237,7 +238,8 @@ public class ProtocolProviderServiceDictImpl
         }
         catch (DictException dx)
         {
-            logger.info(dx);
+            if (logger.isInfoEnabled())
+                logger.info(dx);
         }
         
         return false;
@@ -254,8 +256,9 @@ public class ProtocolProviderServiceDictImpl
         {
             return;
         }
-        logger.trace("Killing the Dict Protocol Provider for account "
-                + this.accountID.getUserID());
+        if (logger.isTraceEnabled())
+            logger.trace("Killing the Dict Protocol Provider for account "
+                    + this.accountID.getUserID());
         
         closeConnection();
 
@@ -310,7 +313,8 @@ public class ProtocolProviderServiceDictImpl
         }
         catch (DictException dx)
         {
-            logger.info(dx);
+            if (logger.isInfoEnabled())
+                logger.info(dx);
         }
     }
     

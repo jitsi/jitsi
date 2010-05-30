@@ -162,7 +162,8 @@ public class OperationSetGeolocationJabberImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The Jabber provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The Jabber provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
 
@@ -226,7 +227,8 @@ public class OperationSetGeolocationJabberImpl
 
             if (geolocExt != null)
             {
-                logger.debug("GeolocationExtension found from " + from + ":" +
+                if (logger.isDebugEnabled())
+                    logger.debug("GeolocationExtension found from " + from + ":" +
                              geolocExt.toXML());
 
                 Map<String, String> newGeolocation
@@ -248,7 +250,8 @@ public class OperationSetGeolocationJabberImpl
                 String sourceContact,
                 Map<String, String> newGeolocation)
         {
-            logger.debug("Trying to dispatch geolocation contact update for "
+            if (logger.isDebugEnabled())
+                logger.debug("Trying to dispatch geolocation contact update for "
                          + sourceContact);
 
             Contact source = opsetprez.findContactByID(sourceContact);
@@ -260,7 +263,8 @@ public class OperationSetGeolocationJabberImpl
                     , newGeolocation
                     , OperationSetGeolocationJabberImpl.this);
 
-            logger.debug("Dispatching  geolocation contact update. Listeners="
+            if (logger.isDebugEnabled())
+                logger.debug("Dispatching  geolocation contact update. Listeners="
                          + geolocationContactsListeners.size()
                          + " evt=" + evt);
 

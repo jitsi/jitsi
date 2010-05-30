@@ -205,7 +205,8 @@ public class CallJabberImpl
 
         if(logger.isTraceEnabled())
         {
-            logger.trace("Looking for peer with session: " + session
+            if (logger.isTraceEnabled())
+                logger.trace("Looking for peer with session: " + session
                          + "among " + this.callPeers.size() + " calls");
         }
 
@@ -217,12 +218,14 @@ public class CallJabberImpl
 
             if( cp.getJingleSession() == session)
             {
-                logger.trace("Returing cp="+cp);
+                if (logger.isTraceEnabled())
+                    logger.trace("Returing cp="+cp);
                 return cp;
             }
             else
             {
-                logger.trace("Ignoring cp="+cp
+                if (logger.isTraceEnabled())
+                    logger.trace("Ignoring cp="+cp
                              + " because cp.jingleSession="+cp.getJingleSession()
                              + " while session="+session);
             }

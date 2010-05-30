@@ -109,15 +109,17 @@ public class AccountManagerImpl
         List<String> storedAccounts =
             configService.getPropertyNamesByPrefix(factoryPackage, true);
 
-        logger.debug("Discovered " + storedAccounts.size() + " stored "
-            + factoryPackage + " accounts");
+        if (logger.isDebugEnabled())
+            logger.debug("Discovered " + storedAccounts.size() + " stored "
+                    + factoryPackage + " accounts");
 
         for (Iterator<String> storedAccountIter = storedAccounts.iterator(); storedAccountIter
             .hasNext();)
         {
             String storedAccount = storedAccountIter.next();
 
-            logger.debug("Loading account " + storedAccount);
+            if (logger.isDebugEnabled())
+                logger.debug("Loading account " + storedAccount);
 
             List<String> storedAccountProperties =
                 configService.getPropertyNamesByPrefix(storedAccount, true);
@@ -557,8 +559,9 @@ public class AccountManagerImpl
         if (configurationProperties.size() > 0)
             configurationService.setProperties(configurationProperties);
 
-        logger.debug("Stored account for id " + accountID.getAccountUniqueID()
-            + " for package " + factoryPackage);
+        if (logger.isDebugEnabled())
+            logger.debug("Stored account for id " + accountID.getAccountUniqueID()
+                    + " for package " + factoryPackage);
     }
 
     private String stripPackagePrefix(String property)
