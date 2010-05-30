@@ -347,10 +347,13 @@ public class GeneralConfigurationPanel
                     while (iter.hasNext())
                     {
                         Locale locale = iter.next();
-                        localesConfigComboBox.addItem(locale.getDisplayLanguage());
+                        localesConfigComboBox.addItem(
+                            locale.getDisplayLanguage(locale));
                     }
-                    localesConfigComboBox.setSelectedItem(
-                        ConfigurationManager.getCurrentLanguage().getDisplayLanguage());
+                    Locale currLocale =
+                        ConfigurationManager.getCurrentLanguage();
+                    localesConfigComboBox.setSelectedItem(currLocale
+                        .getDisplayLanguage(currLocale));
 
                     localesConfigComboBox.addActionListener(new ActionListener()
                     {
@@ -367,7 +370,8 @@ public class GeneralConfigurationPanel
                             while (iter.hasNext())
                             {
                                 Locale locale = iter.next();
-                                if(locale.getDisplayLanguage().equals(language))
+                                if(locale.getDisplayLanguage(locale)
+                                    .equals(language))
                                 {
                                     ConfigurationManager.setLanguage(locale);
                                     break;
