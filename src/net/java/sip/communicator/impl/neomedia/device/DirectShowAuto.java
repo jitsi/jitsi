@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.device;
 
-import java.util.*;
-
 import javax.media.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.video.*;

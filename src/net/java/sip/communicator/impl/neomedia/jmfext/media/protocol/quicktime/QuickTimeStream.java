@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.quicktime;
 
 import java.awt.Dimension; // disambiguation
 import java.io.*;
-import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -18,7 +17,6 @@ import javax.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.quicktime.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements a <tt>PushBufferStream</tt> using QuickTime/QTKit.
@@ -28,13 +26,6 @@ import net.java.sip.communicator.util.*;
 public class QuickTimeStream
     extends AbstractPushBufferStream
 {
-
-    /**
-     * The <tt>Logger</tt> used by the <tt>QuickTimeStream</tt> class and its
-     * instances for logging output.
-     */
-    private static final Logger logger
-        = Logger.getLogger(QuickTimeStream.class);
 
     /**
      * The indicator which determines whether {@link #captureOutput}

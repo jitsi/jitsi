@@ -16,7 +16,6 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 import javax.media.rtp.*;
 
-import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.*;

@@ -481,7 +481,6 @@ public class DataSource
                     && (newSize.height < DEFAULT_HEIGHT))
             {
                 String encoding = newVideoFormatValue.getEncoding();
-                int maxDataLength = newVideoFormatValue.getMaxDataLength();
                 Class<?> dataType = newVideoFormatValue.getDataType();
                 float frameRate = newVideoFormatValue.getFrameRate();
 

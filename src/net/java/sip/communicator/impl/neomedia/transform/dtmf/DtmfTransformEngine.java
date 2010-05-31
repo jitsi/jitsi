@@ -10,7 +10,6 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The class is responsible for sending DTMF tones in an RTP audio stream as
@@ -24,10 +23,6 @@ public class DtmfTransformEngine
     implements TransformEngine,
                PacketTransformer
 {
-    /**
-     * Our class logger.
-     */
-    private Logger logger = Logger.getLogger(DtmfTransformEngine.class);
 
     /**
      * The <tt>AudioMediaStreamImpl</tt> that this transform engine was created

@@ -16,7 +16,6 @@ import javax.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.directshow.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements a <tt>PushBufferStream</tt> using DirectShow.
@@ -26,12 +25,6 @@ import net.java.sip.communicator.util.*;
  */
 public class DirectShowStream extends AbstractPushBufferStream
 {
-    /**
-     * The <tt>Logger</tt> used by the <tt>DirectShowStream</tt> class and its
-     * instances for logging output.
-     */
-    private static final Logger logger
-        = Logger.getLogger(DirectShowStream.class);
 
     /**
      * The pool of <tt>ByteBuffer</tt>s this instances is using to transfer the

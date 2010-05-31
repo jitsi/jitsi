@@ -394,16 +394,20 @@ public class DePacketizer
 
         long timeStamp = inBuffer.getTimeStamp();
 
-        /* ignore timestamp */
         /*
+         * Ignore the RTP time stamp reported by JMF because it is not the
+         * actual RTP packet time stamp send by the remote peer but some locally
+         * calculated JMF value.
+         */
+/*
         // If the RTP time stamp changes, we're receiving a new NAL unit.
-        if(timeStamp != lastTimeStamp)
+        if (timeStamp != lastTimeStamp)
         {
             ret = reset(outBuffer);
             if ((ret & OUTPUT_BUFFER_NOT_FILLED) == 0)
                 return ret;
         }
-        */
+*/
 
         lastSequenceNumber = sequenceNumber;
         lastTimeStamp = timeStamp;

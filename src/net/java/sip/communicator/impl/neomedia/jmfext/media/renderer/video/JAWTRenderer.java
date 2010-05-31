@@ -184,7 +184,7 @@ public class JAWTRenderer
                         if (wantsPaint && (handle != 0))
                         {
                             wantsPaint
-                                = JAWTRenderer.this.paint(handle, this, g);
+                                = JAWTRenderer.paint(handle, this, g);
                         }
                     }
                 }
