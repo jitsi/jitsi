@@ -721,4 +721,14 @@ public class VideoMediaStreamImpl
         ((VideoMediaDeviceSession)deviceSession).setRemoteSSRC(ssrc);
     }
 
+    /**
+     * The priority of the video is 5, which is meant to be higher than
+     * other threads and lower than the audio one.
+     * @return video priority.
+     */
+    @Override
+    protected int getPriority()
+    {
+        return 5;
+    }
 }

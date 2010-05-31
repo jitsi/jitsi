@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
  * @author Damian Minkov
  */
 public class DtmfRawPacket
-        extends RawPacket
+    extends RawPacket
 {
     /**
      * Our class logger.
@@ -32,6 +32,21 @@ public class DtmfRawPacket
      * The fixed size of a DTMF packet.
      */
     public static final int DTMF_PACKET_SIZE = 16;
+
+    /**
+     * The event code to send.
+     */
+    private int code;
+
+    /**
+     * Is this an end packet.
+     */
+    private boolean end;
+
+    /**
+     * The duration of the current packet.
+     */
+    private int duration;
 
     /**
      * Creates a <tt>DtmfRawPacket</tt> using the specified buffer.
@@ -47,6 +62,23 @@ public class DtmfRawPacket
         super (buffer, offset, DTMF_PACKET_SIZE);
 
         setPayload(payload);
+    }
+
+    /**
+     * Used for incoming DTMF packets, creating <tt>DtmfRawPacket</tt>
+     * from RTP one.
+     * @param pkt the RTP packet.
+     */
+    public DtmfRawPacket(RawPacket pkt)
+    {
+        super(pkt.getBuffer(), pkt.getOffset(), pkt.getLength());
+
+        int at = getHeaderLength();
+
+        code = readByte(at++);
+        end = (readByte(at++) & 0x80) != 0;
+
+        duration = ((readByte(at++) & 0xFF) << 8) | (readByte(at++) & 0xFF);
     }
 
     /**
@@ -105,11 +137,42 @@ public class DtmfRawPacket
      */
     private void setDtmfPayload(int code, boolean end, int duration)
     {
+        this.code = code;
+        this.end = end;
+        this.duration = duration;
+
         int at = getHeaderLength();
 
         writeByte(at++, (byte)code);
         writeByte(at++, end ? (byte)0x80 : (byte)0);
         writeByte(at++, (byte)(duration >> 8));
         writeByte(at++, (byte)duration);
+    }
+
+    /**
+     * The event code of the current packet.
+     * @return the code
+     */
+    public int getCode()
+    {
+        return code;
+    }
+
+    /**
+     * Is this an end packet.
+     * @return the end
+     */
+    public boolean isEnd()
+    {
+        return end;
+    }
+
+    /**
+     * The duration of the current event.
+     * @return the duration
+     */
+    public int getDuration()
+    {
+        return duration;
     }
 }

@@ -65,6 +65,11 @@ public class RTPConnectorInputStream
     private SourceTransferHandler transferHandler;
 
     /**
+     * The Thread receiving packets.
+     */
+    private Thread receiverThread = null;
+
+    /**
      * Initializes a new <tt>RTPConnectorInputStream</tt> which is to receive
      * packet data from a specific UDP socket.
      *
@@ -75,7 +80,8 @@ public class RTPConnectorInputStream
         this.socket = socket;
 
         closed = false;
-        new Thread(this).start();
+        receiverThread = new Thread(this);
+        receiverThread.start();
     }
 
     /**
@@ -269,5 +275,18 @@ public class RTPConnectorInputStream
     {
         if (!closed)
             this.transferHandler = transferHandler;
+    }
+
+    /**
+     * Changes current thread priority.
+     * @param priority the new priority.
+     */
+    public void setPriority(int priority)
+    {
+        // currently no priority is set
+//        if(receiverThread != null)
+//        {
+//            receiverThread.setPriority(priority);
+//        }
     }
 }

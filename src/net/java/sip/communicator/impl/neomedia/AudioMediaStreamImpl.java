@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import java.util.*;
 import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
@@ -42,6 +43,11 @@ public class AudioMediaStreamImpl
      * The transformer that we use for sending and receiving DTMF packets.
      */
     private DtmfTransformEngine dtmfTransfrmEngine ;
+
+    /**
+     * List of DTMF listeners;
+     */
+    private List<DTMFListener> dtmfListeners = new ArrayList<DTMFListener>();
 
     /**
      * List of RTP format strings which are supported by SIP Communicator in
@@ -171,7 +177,10 @@ public class AudioMediaStreamImpl
      */
     public void addDTMFListener(DTMFListener listener)
     {
-        // TODO Auto-generated method stub
+        if(!dtmfListeners.contains(listener))
+        {
+            dtmfListeners.add(listener);
+        }
     }
 
     /**
@@ -249,7 +258,7 @@ public class AudioMediaStreamImpl
      */
     public void removeDTMFListener(DTMFListener listener)
     {
-        // TODO Auto-generated method stub
+        dtmfListeners.remove(listener);
     }
 
     /**
@@ -379,5 +388,55 @@ public class AudioMediaStreamImpl
 
         if (csrcAudioLevelListener != null)
             csrcAudioLevelListener.audioLevelsReceived(audioLevels);
+    }
+
+    /**
+     * Delivers the <tt>DTMF</tt> tones. This
+     * method is meant for use primarily by the transform engine handling
+     * incoming RTP packets (currently <tt>DtmfTransformEngine</tt>).
+     *
+     * @param tone the new tone
+     * @param end is end or start of tone.
+     */
+    public void fireDTMFEvent(DTMFTone tone, boolean end)
+    {
+        Iterator<DTMFListener> iter = dtmfListeners.iterator();
+        DTMFToneEvent ev = new DTMFToneEvent(this, tone);
+        while (iter.hasNext())
+        {
+            DTMFListener listener = iter.next();
+            if(end)
+                listener.dtmfToneReceptionEnded(ev);
+            else
+                listener.dtmfToneReceptionStarted(ev);
+        }
+    }
+
+    /**
+     * Releases the resources allocated by this instance in the course of its
+     * execution and prepares it to be garbage collected.
+     *
+     * @see MediaStream#close()
+     */
+    public void close()
+    {
+        super.close();
+
+        if(dtmfTransfrmEngine != null)
+        {
+           dtmfTransfrmEngine.stop();
+           dtmfTransfrmEngine = null;
+        }
+    }
+
+    /**
+     * The priority of the audio is 3, which is meant to be higher than
+     * other threads and higher than the video one.
+     * @return audio priority.
+     */
+    @Override
+    protected int getPriority()
+    {
+        return 3;
     }
 }

@@ -250,6 +250,18 @@ public class RTPConnectorOutputStream
     }
 
     /**
+     * Changes current thread priority.
+     * @param priority the new priority.
+     */
+    public void setPriority(int priority)
+    {
+        // currently no priority is set
+//        if(maxPacketsPerMillisPolicy != null &&
+//            maxPacketsPerMillisPolicy.sendThread != null)
+//            maxPacketsPerMillisPolicy.sendThread.setPriority(priority);
+    }
+
+    /**
      * Implements the functionality which allows this <tt>OutputDataStream</tt>
      * to control how many RTP packets it sends through its
      * <tt>DatagramSocket</tt> per a specific number of milliseconds.

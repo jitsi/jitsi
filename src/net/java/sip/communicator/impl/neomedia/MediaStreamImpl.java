@@ -20,7 +20,6 @@ import javax.media.rtp.event.*;
 
 import com.sun.media.rtp.*;
 
-import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
@@ -240,6 +239,18 @@ public class MediaStreamImpl
                         configureDataOutputStream(dataOutputStream);
                     return dataOutputStream;
                 }
+
+                @Override
+                protected TransformInputStream createDataInputStream()
+                    throws IOException
+                {
+                    TransformInputStream dataInputStream
+                        = super.createDataInputStream();
+
+                    if (dataInputStream != null)
+                        configureDataInputStream(dataInputStream);
+                    return dataInputStream;
+                }
             };
 
         this.zrtpControl
@@ -262,6 +273,22 @@ public class MediaStreamImpl
     protected void configureDataOutputStream(
             RTPConnectorOutputStream dataOutputStream)
     {
+        dataOutputStream.setPriority(getPriority());
+    }
+
+    /**
+     * Performs any optional configuration on a specific
+     * <tt>RTPConnectorInputStream</tt> of an <tt>RTPManager</tt> to be used by
+     * this <tt>MediaStreamImpl</tt>. Allows extenders to override.
+     *
+     * @param dataInputStream the <tt>RTPConnectorInputStream</tt> to be used
+     * by an <tt>RTPManager</tt> of this <tt>MediaStreamImpl</tt> and to be
+     * configured
+     */
+    protected void configureDataInputStream(
+            RTPConnectorInputStream dataInputStream)
+    {
+        dataInputStream.setPriority(getPriority());
     }
 
     /**
@@ -1807,5 +1834,17 @@ public class MediaStreamImpl
         // TODO implement
 
         return remoteSsrcList;
+    }
+
+    /**
+     * Used to set the priority of the receive/send streams. Underling
+     * implementations can override this and return different than
+     * current default value.
+     *
+     * @return the priority for the current thread.
+     */
+    protected int getPriority()
+    {
+        return Thread.currentThread().getPriority();
     }
 }
