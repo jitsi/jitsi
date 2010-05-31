@@ -790,9 +790,15 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 if(failedKeepalivePackets == 3)
                 {
                     logger.error("unregistering.");
-//                    fireUnregisterd();
-                    jabberProvider
-                        .reregister(SecurityAuthority.CONNECTION_FAILED);
+
+                    jabberProvider.unregister(false);
+
+                    jabberProvider.fireRegistrationStateChanged(
+                        jabberProvider.getRegistrationState(),
+                        RegistrationState.CONNECTION_FAILED,
+                        RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
+                        null);
+
                     failedKeepalivePackets = 0;
                 }
             }

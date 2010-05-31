@@ -602,7 +602,7 @@ public class ProtocolProviderServiceJabberImpl
      * Unregister and fire the event if requested
      * @param fireEvent boolean
      */
-    private void unregister(boolean fireEvent)
+    void unregister(boolean fireEvent)
     {
         synchronized(initializationLock)
         {
