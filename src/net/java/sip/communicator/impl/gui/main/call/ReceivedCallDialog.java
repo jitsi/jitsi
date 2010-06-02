@@ -50,6 +50,11 @@ public class ReceivedCallDialog
         this.setUndecorated(true);
         this.setAlwaysOnTop(true);
 
+        // prevents dialog window to get unwanted key events and when going on top
+        // on linux, it steals focus and if we are accedently
+        // writing something and pressing enter a call get answered
+        this.setFocusableWindowState(false);
+
         this.initComponents();
 
         OperationSetBasicTelephony telephonyOpSet
