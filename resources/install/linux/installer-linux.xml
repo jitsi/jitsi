@@ -82,7 +82,7 @@
                         <include name="*.jar"/>
                         <exclude name="junit.jar"/>
                     </fileset>
-                    <file targetdir="$INSTALL_PATH/lib" src="lib/felix.client.run.properties" override="true"/>
+                    <file targetdir="$INSTALL_PATH/lib" src="resources/install/linux/felix.client.run.properties" override="true"/>
                     <file targetdir="$INSTALL_PATH/lib" src="resources/install/logging.properties" override="true"/>
 		</pack>
 

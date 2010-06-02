@@ -259,6 +259,16 @@
             filtering="yes"
         />
 
+        <!-- Prepare felix.client.run.properties and put some specific bundles -->
+        <copy file="${lib}/felix.client.run.properties"
+            tofile="${inst.resrc}/linux/felix.client.run.properties"
+            overwrite="true"/>
+        <replace file="${inst.resrc}/linux/felix.client.run.properties"
+            token="reference:file:sc-bundles/swingnotification.jar \">
+            <replacevalue><![CDATA[reference:file:sc-bundles/galagonotification.jar \
+ reference:file:sc-bundles/swingnotification.jar \]]></replacevalue>
+        </replace>
+
         <!-- create izpack installer jar file -->
         <izpack input="${linux.app.dir}/tmp/tmp-installer-linux.xml"
                 output="${linux.app.dir}/tmp/${package.name}-${sip-communicator.version}-linux.jar"
@@ -284,6 +294,7 @@
 
         <!-- Delete the temp directory-->
         <delete dir="${linux.app.dir}/tmp"/>
+        <delete file="${inst.resrc}/linux/felix.client.run.properties"/>
         <delete quiet="yes" failonerror="false">
             <fileset dir="${linux.app.dir}">
                 <include name="tmp-*"/>
@@ -991,6 +1002,16 @@
         token="_DATE_"
         value="${date}"/>
 
+    <!-- Prepare felix.client.run.properties and put some specific bundles -->
+    <copy file="${lib}/felix.client.run.properties"
+        tofile="${inst.resrc}/debian/felix.client.run.properties"
+        overwrite="true"/>
+    <replace file="${inst.resrc}/debian/felix.client.run.properties"
+        token="reference:file:sc-bundles/swingnotification.jar \">
+        <replacevalue><![CDATA[reference:file:sc-bundles/galagonotification.jar \
+ reference:file:sc-bundles/swingnotification.jar \]]></replacevalue>
+       </replace>
+
     <!-- Build i386 binary package -->
     <exec executable="${dpkg-buildpackage}" dir="${inst.resrc}">
         <arg value="-rfakeroot"/>
@@ -1044,6 +1065,7 @@
             <include name="control"/>
             <include name="rules"/>
             <include name="sip-communicator.sh"/>
+            <include name="felix.client.run.properties"/>
         </fileset>
     </delete>
 
