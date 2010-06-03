@@ -13,17 +13,17 @@ package net.java.sip.communicator.service.history;
  */
 public class HistoryID
 {
-    private String[] id;
+    private final String[] id;
 
-    private String stringRepresentation;
+    private final String stringRepresentation;
 
-    private int hashCode;
+    private final int hashCode;
 
     private HistoryID(String[] id)
     {
         this.id = id;
 
-        StringBuffer buff = new StringBuffer();
+        StringBuilder buff = new StringBuilder();
         for (int i = 0; i < id.length; i++)
         {
             if (i > 0)
@@ -142,7 +142,7 @@ public class HistoryID
      */
     public static String readableHash(String rawString)
     {
-        StringBuffer encodedString = new StringBuffer(rawString);
+        StringBuilder encodedString = new StringBuilder(rawString);
         boolean addHash = false;
 
         for (int i = 0; i < encodedString.length(); i++)
@@ -191,11 +191,13 @@ public class HistoryID
                 if (isValid)
                 {
                     // OK; Check Y..Y
-                    try {
+                    try
+		    {
                         Integer.parseInt(end, 16);
                         // OK
                         isValid = true;
-                    } catch (Exception e)
+                    }
+		    catch (Exception e)
                     {
                         // Not OK
                         isValid = false;
