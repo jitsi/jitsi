@@ -20,12 +20,13 @@ import net.java.sip.communicator.util.*;
  * @author Alexander Pelov
  * @author Lubomir Marinov
  */
-public class FileAccessServiceImpl implements FileAccessService {
+public class FileAccessServiceImpl implements FileAccessService 
+{
 
     /**
      * The logger for this class.
      */
-    private static Logger logger = Logger
+    private static final Logger logger = Logger
             .getLogger(FileAccessServiceImpl.class);
 
     /**
@@ -113,7 +114,7 @@ public class FileAccessServiceImpl implements FileAccessService {
             logger.logEntry();
 
             String fullPath = getFullPath(fileName);
-            file = this.accessibleFile(fullPath, fileName);
+            file = accessibleFile(fullPath, fileName);
 
             if (file == null)
             {
@@ -189,7 +190,7 @@ public class FileAccessServiceImpl implements FileAccessService {
     public File getPrivatePersistentDirectory(String[] dirNames)
         throws Exception
     {
-        StringBuffer dirName = new StringBuffer();
+        StringBuilder dirName = new StringBuilder();
         for (int i = 0; i < dirNames.length; i++)
         {
             if (i > 0)
@@ -210,7 +211,7 @@ public class FileAccessServiceImpl implements FileAccessService {
      */
     private String getFullPath(String fileName)
     {
-        // bypass the configurationService here to remove the dependancy
+        // bypass the configurationService here to remove the dependency
         String userhome =  getScHomeDirLocation();
         String sipSubdir = getScHomeDirName();
 
@@ -310,7 +311,7 @@ public class FileAccessServiceImpl implements FileAccessService {
      * @throws IOException
      *             Thrown if the home directory cannot be created
      */
-    private File accessibleFile(String homedir, String fileName)
+    private static File accessibleFile(String homedir, String fileName)
             throws IOException
     {
         File file = null;
@@ -320,12 +321,14 @@ public class FileAccessServiceImpl implements FileAccessService {
             logger.logEntry();
 
             homedir = homedir.trim();
-            if (!homedir.endsWith(File.separator)) {
+            if (!homedir.endsWith(File.separator))
+	    {
                 homedir += File.separator;
             }
 
             file = new File(homedir + fileName);
-            if (file.canRead() || file.canWrite()) {
+            if (file.canRead() || file.canWrite())
+	    {
                 return file;
             }
 
@@ -336,7 +339,8 @@ public class FileAccessServiceImpl implements FileAccessService {
                 if (logger.isDebugEnabled())
                     logger.debug("Creating home directory : "
                         + homedirFile.getAbsolutePath());
-                if (!homedirFile.mkdirs()) {
+                if (!homedirFile.mkdirs())
+		{
                     String message = "Could not create the home directory : "
                             + homedirFile.getAbsolutePath();
 
@@ -405,7 +409,7 @@ public class FileAccessServiceImpl implements FileAccessService {
 
         if ((osVersion != null) && (osVersion.length() > 0))
         {
-            int majorOSVersionEnd = osVersion.indexOf(".");
+            int majorOSVersionEnd = osVersion.indexOf('.');
             String majorOSVersionString
                 = (majorOSVersionEnd > -1)
                     ? osVersion.substring(0, majorOSVersionEnd)
