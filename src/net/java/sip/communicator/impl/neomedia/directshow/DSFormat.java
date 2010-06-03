@@ -26,6 +26,7 @@ public class DSFormat
         NV12 = getNV12PixelFormat();
         Y411 = getY411PixelFormat();
         Y41P = getY41PPixelFormat();
+        I420 = getI420PixelFormat();
     }
 
     /* supported formats */
@@ -37,6 +38,7 @@ public class DSFormat
     public static final long Y411;
     public static final long Y41P;
     public static final long NV12;
+    public static final long I420;
 
     /**
      * Video width.
@@ -119,5 +121,6 @@ public class DSFormat
     public static native long getY41PPixelFormat();
     public static native long getYVU9PixelFormat();
     public static native long getYVYUPixelFormat();
+    public static native long getI420PixelFormat();
 }
 

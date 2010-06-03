@@ -67,6 +67,8 @@ public class DataSource extends AbstractPushBufferCaptureDevice
                     FFmpeg.PIX_FMT_UYYVYY411,
                     DSFormat.NV12,
                     FFmpeg.PIX_FMT_NV12,
+                    DSFormat.I420,
+                    FFmpeg.PIX_FMT_YUV420P,
                 };
     /**
      * The default width of <tt>DataSource</tt>.
@@ -180,7 +182,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         for(int i = 0 ; i < fmts.length ; i++)
         {
             System.out.println(fmts[i].getWidth() + " " + fmts[i].getHeight()
-                    + fmts[i].getColorSpace());
+                    + "  " + fmts[i].getPixelFormat());
         }
         */
 

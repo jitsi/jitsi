@@ -159,6 +159,14 @@ JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_
 JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_DSFormat_getYVYUPixelFormat
   (JNIEnv *, jclass);
 
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_directshow_DSFormat
+ * Method:    getI420PixelFormat
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_DSFormat_getI420PixelFormat
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif

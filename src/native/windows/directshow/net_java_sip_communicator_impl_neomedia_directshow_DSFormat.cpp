@@ -3,7 +3,7 @@
 
 #include <windows.h>
 #include <dshow.h>
-#include <wmcodecdsp.h>
+#include <uuids.h>
 
 JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_DSFormat_getRGB24PixelFormat
   (JNIEnv *, jclass)
@@ -117,5 +117,11 @@ JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_
   (JNIEnv *, jclass)
 {
     return MEDIASUBTYPE_YVYU.Data1;
+}
+
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_DSFormat_getI420PixelFormat
+  (JNIEnv *, jclass)
+{
+    return 0x30323449; //MEDIASUBTYPE_I420.Data1;
 }
 

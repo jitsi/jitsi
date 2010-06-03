@@ -394,10 +394,7 @@ void DSCaptureDevice::initSupportedFormats()
                     format.pixelFormat = mediaType->subtype.Data1;
                     format.mediaType = mediaType->subtype;
 
-                    if(format.pixelFormat != 0x30323449)
-                    {
-                        m_formats.push_back(format);
-                    }
+                    m_formats.push_back(format);
 				}
 			}
 		}

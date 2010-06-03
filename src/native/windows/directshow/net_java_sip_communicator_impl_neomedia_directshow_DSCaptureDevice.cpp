@@ -238,6 +238,7 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_D
         fmt.pixelFormat = (unsigned long)f;
     
         dev->setFormat(fmt);
+        dev->start();
     }
 }
 
