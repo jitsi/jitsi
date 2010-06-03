@@ -61,7 +61,8 @@ public class FileHistoryServiceImpl
      */
     public void start(BundleContext bc)
     {
-        logger.debug("Starting the file history implementation.");
+        if (logger.isDebugEnabled())
+            logger.debug("Starting the file history implementation.");
         this.bundleContext = bc;
 
         // start listening for newly register or removed protocol providers
@@ -86,7 +87,8 @@ public class FileHistoryServiceImpl
         // in case we found any
         if (protocolProviderRefs != null)
         {
-            logger.debug("Found "
+            if (logger.isDebugEnabled())
+                logger.debug("Found "
                          + protocolProviderRefs.length
                          + " already installed providers.");
             for (int i = 0; i < protocolProviderRefs.length; i++)
@@ -145,7 +147,8 @@ public class FileHistoryServiceImpl
      */
     private void handleProviderAdded(ProtocolProviderService provider)
     {
-        logger.debug("Adding protocol provider " + provider.getProtocolName());
+        if (logger.isDebugEnabled())
+            logger.debug("Adding protocol provider " + provider.getProtocolName());
 
         // check whether the provider has a file transfer operation set
         OperationSetFileTransfer opSetFileTransfer
@@ -157,7 +160,8 @@ public class FileHistoryServiceImpl
         }
         else
         {
-            logger.trace("Service did not have a file transfer op. set.");
+            if (logger.isTraceEnabled())
+                logger.trace("Service did not have a file transfer op. set.");
         }
     }
 
@@ -610,7 +614,8 @@ public class FileHistoryServiceImpl
     {
         Object sService = bundleContext.getService(serviceEvent.getServiceReference());
 
-        logger.trace("Received a service event for: " + sService.getClass().getName());
+        if (logger.isTraceEnabled())
+            logger.trace("Received a service event for: " + sService.getClass().getName());
 
         // we don't care if the source service is not a protocol provider
         if (! (sService instanceof ProtocolProviderService))
@@ -618,10 +623,12 @@ public class FileHistoryServiceImpl
             return;
         }
 
-        logger.debug("Service is a protocol provider.");
+        if (logger.isDebugEnabled())
+            logger.debug("Service is a protocol provider.");
         if (serviceEvent.getType() == ServiceEvent.REGISTERED)
         {
-            logger.debug("Handling registration of a new Protocol Provider.");
+            if (logger.isDebugEnabled())
+                logger.debug("Handling registration of a new Protocol Provider.");
 
             this.handleProviderAdded((ProtocolProviderService)sService);
         }

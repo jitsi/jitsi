@@ -54,7 +54,8 @@ public class GrowlNotificationActivator
      */
     public void start(BundleContext bc) throws Exception
     {
-        logger.info("Growl Notification ...[Starting]");
+        if (logger.isInfoEnabled())
+            logger.info("Growl Notification ...[Starting]");
         bundleContext  = bc;
         
         getConfigurationService();
@@ -67,17 +68,20 @@ public class GrowlNotificationActivator
             bc.registerService(PopupMessageHandler.class.getName(), handler, null);
         } else 
         {
-            logger.info("Growl Notification ...[Aborted]");
+            if (logger.isInfoEnabled())
+                logger.info("Growl Notification ...[Aborted]");
             return;
         }
         
-        logger.info("Growl Notification ...[Started]");
+        if (logger.isInfoEnabled())
+            logger.info("Growl Notification ...[Started]");
     }
 
     public void stop(BundleContext bContext) throws Exception
     {
         handler.stop(bContext);
-        logger.info("Growl Notification Service ...[Stopped]");
+        if (logger.isInfoEnabled())
+            logger.info("Growl Notification Service ...[Stopped]");
     }
 
     /**

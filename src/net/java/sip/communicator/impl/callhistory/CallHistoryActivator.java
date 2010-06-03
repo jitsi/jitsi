@@ -85,7 +85,8 @@ public class CallHistoryActivator
                 ContactSourceService.class.getName(),
                 new CallHistoryContactSource(), null);
 
-            logger.info("Call History Service ...[REGISTERED]");
+            if (logger.isInfoEnabled())
+                logger.info("Call History Service ...[REGISTERED]");
         }
         finally
         {

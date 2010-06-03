@@ -35,7 +35,8 @@ public class BrowserLauncherActivator
         //Create the browser launcher service
         BrowserLauncherService browserLauncher = new BrowserLauncherImpl();
 
-        logger.info("Browser Launcher Service STARTED");
+        if (logger.isInfoEnabled())
+            logger.info("Browser Launcher Service STARTED");
 
         bundleContext
             .registerService(
@@ -43,7 +44,8 @@ public class BrowserLauncherActivator
                 browserLauncher,
                 null);
 
-        logger.info("Browser Launcher Service REGISTERED");
+        if (logger.isInfoEnabled())
+            logger.info("Browser Launcher Service REGISTERED");
     }
 
     public void stop(BundleContext bundleContext)

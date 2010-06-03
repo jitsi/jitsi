@@ -52,7 +52,8 @@ public class GrowlNotificationServiceImpl
      */
     public void start(BundleContext bc)
     {
-        logger.debug("Starting the Growl Notification implementation.");
+        if (logger.isDebugEnabled())
+            logger.debug("Starting the Growl Notification implementation.");
         
         if(Growl.isGrowlRunning())
         {
@@ -139,7 +140,8 @@ public class GrowlNotificationServiceImpl
             synchronized(shownPopups) {
                 shownPopups.remove(context);
             }
-            logger.trace("Growl notification timed-out :" + 
+            if (logger.isTraceEnabled())
+                logger.trace("Growl notification timed-out :" + 
                 m.getMessageTitle() + ": " + m.getMessage());
         }
     }
@@ -158,7 +160,8 @@ public class GrowlNotificationServiceImpl
             }
             
             firePopupMessageClicked(new SystrayPopupMessageEvent(this, m.getTag()));
-            logger.trace("Growl message clicked :" + 
+            if (logger.isTraceEnabled())
+                logger.trace("Growl message clicked :" + 
                 m.getMessageTitle() + ": " + m.getMessage());
         }
     }

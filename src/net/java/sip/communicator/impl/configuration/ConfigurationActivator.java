@@ -35,7 +35,8 @@ public class ConfigurationActivator
     public void start(BundleContext bundleContext)
         throws Exception
     {
-        logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
+        if (logger.isDebugEnabled())
+            logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
 
         impl.start(bundleContext);
 
@@ -43,7 +44,8 @@ public class ConfigurationActivator
                                       impl,
                                       null);
 
-        logger.debug("Service Impl: " + getClass().getName() + " [REGISTERED]");
+        if (logger.isDebugEnabled())
+            logger.debug("Service Impl: " + getClass().getName() + " [REGISTERED]");
     }
 
     /**
@@ -58,6 +60,7 @@ public class ConfigurationActivator
     {
         logger.logEntry();
         impl.stop();
-        logger.info("The ConfigurationService stop method has been called.");
+        if (logger.isInfoEnabled())
+            logger.info("The ConfigurationService stop method has been called.");
     }
 }

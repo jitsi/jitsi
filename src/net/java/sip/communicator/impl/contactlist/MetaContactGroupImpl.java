@@ -189,7 +189,8 @@ public class MetaContactGroupImpl
         } 
         catch(Exception e) 
         {
-            logger.debug("Failed to count online contacts.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to count online contacts.", e);
         }
 
         return onlineContactsNumber;
@@ -918,7 +919,8 @@ public class MetaContactGroupImpl
      */
     void addSubgroup(MetaContactGroup subgroup)
     {
-        logger.trace("Adding subgroup " + subgroup.getGroupName()
+        if (logger.isTraceEnabled())
+            logger.trace("Adding subgroup " + subgroup.getGroupName()
                      + " to" + getGroupName());
         this.subgroups.add((MetaContactGroupImpl)subgroup);
         ((MetaContactGroupImpl)subgroup).parentMetaContactGroup = this;

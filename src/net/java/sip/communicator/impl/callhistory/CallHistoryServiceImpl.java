@@ -497,7 +497,8 @@ public class CallHistoryServiceImpl
      */
     public void start(BundleContext bc)
     {
-        logger.debug("Starting the call history implementation.");
+        if (logger.isDebugEnabled())
+            logger.debug("Starting the call history implementation.");
         this.bundleContext = bc;
 
         // start listening for newly register or removed protocol providers
@@ -522,7 +523,8 @@ public class CallHistoryServiceImpl
         // in case we found any
         if (protocolProviderRefs != null)
         {
-            logger.debug("Found "
+            if (logger.isDebugEnabled())
+                logger.debug("Found "
                          + protocolProviderRefs.length
                          + " already installed providers.");
             for (int i = 0; i < protocolProviderRefs.length; i++)
@@ -644,7 +646,8 @@ public class CallHistoryServiceImpl
         {
             this.historyService = historyService;
 
-            logger.debug("New history service registered.");
+            if (logger.isDebugEnabled())
+                logger.debug("New history service registered.");
         }
     }
 
@@ -661,7 +664,8 @@ public class CallHistoryServiceImpl
             {
                 this.historyService = null;
 
-                logger.debug("History service unregistered.");
+                if (logger.isDebugEnabled())
+                    logger.debug("History service unregistered.");
             }
         }
     }
@@ -677,7 +681,8 @@ public class CallHistoryServiceImpl
         Object sService
             = bundleContext.getService(serviceEvent.getServiceReference());
 
-        logger.trace("Received a service event for: "
+        if (logger.isTraceEnabled())
+            logger.trace("Received a service event for: "
             + sService.getClass().getName());
 
         // we don't care if the source service is not a protocol provider
@@ -686,10 +691,12 @@ public class CallHistoryServiceImpl
             return;
         }
 
-        logger.debug("Service is a protocol provider.");
+        if (logger.isDebugEnabled())
+            logger.debug("Service is a protocol provider.");
         if (serviceEvent.getType() == ServiceEvent.REGISTERED)
         {
-            logger.debug("Handling registration of a new Protocol Provider.");
+            if (logger.isDebugEnabled())
+                logger.debug("Handling registration of a new Protocol Provider.");
 
             this.handleProviderAdded((ProtocolProviderService)sService);
         }
@@ -708,7 +715,8 @@ public class CallHistoryServiceImpl
      */
     private void handleProviderAdded(ProtocolProviderService provider)
     {
-        logger.debug("Adding protocol provider " + provider.getProtocolName());
+        if (logger.isDebugEnabled())
+            logger.debug("Adding protocol provider " + provider.getProtocolName());
 
         // check whether the provider has a basic telephony operation set
         OperationSetBasicTelephony opSetTelephony
@@ -720,7 +728,8 @@ public class CallHistoryServiceImpl
         }
         else
         {
-            logger.trace("Service did not have a basic telephony op. set.");
+            if (logger.isTraceEnabled())
+                logger.trace("Service did not have a basic telephony op. set.");
         }
     }
 

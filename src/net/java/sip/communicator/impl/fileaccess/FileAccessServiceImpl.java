@@ -333,16 +333,19 @@ public class FileAccessServiceImpl implements FileAccessService {
 
             if (!homedirFile.exists())
             {
-                logger.debug("Creating home directory : "
+                if (logger.isDebugEnabled())
+                    logger.debug("Creating home directory : "
                         + homedirFile.getAbsolutePath());
                 if (!homedirFile.mkdirs()) {
                     String message = "Could not create the home directory : "
                             + homedirFile.getAbsolutePath();
 
-                    logger.debug(message);
+                    if (logger.isDebugEnabled())
+                        logger.debug(message);
                     throw new IOException(message);
                 }
-                logger.debug("Home directory created : "
+                if (logger.isDebugEnabled())
+                    logger.debug("Home directory created : "
                         + homedirFile.getAbsolutePath());
             }
             else if (!homedirFile.canWrite())

@@ -37,7 +37,8 @@ public class ContactlistActivator
     {
         bundleContext = context;
 
-        logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
+        if (logger.isDebugEnabled())
+            logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
 
         mclServiceImpl = new MetaContactListServiceImpl();
 
@@ -47,7 +48,8 @@ public class ContactlistActivator
 
         mclServiceImpl.start(context);
 
-        logger.debug("Service Impl: " + getClass().getName() + " [REGISTERED]");
+        if (logger.isDebugEnabled())
+            logger.debug("Service Impl: " + getClass().getName() + " [REGISTERED]");
     }
 
     /**
@@ -62,7 +64,8 @@ public class ContactlistActivator
      */
     public void stop(BundleContext context) throws Exception
     {
-        logger.trace("Stopping the contact list.");
+        if (logger.isTraceEnabled())
+            logger.trace("Stopping the contact list.");
         if(mclServiceImpl != null)
             mclServiceImpl.stop(context);
     }

@@ -146,7 +146,8 @@ public class MetaContactListServiceImpl
      */
     public void start(BundleContext bc)
     {
-        logger.debug("Starting the meta contact list implementation.");
+        if (logger.isDebugEnabled())
+            logger.debug("Starting the meta contact list implementation.");
         this.bundleContext = bc;
 
         //initialize the meta contact list from what has been stored locally.
@@ -184,7 +185,8 @@ public class MetaContactListServiceImpl
         // providers and create the meta contact list
         if (protocolProviderRefs != null)
         {
-            logger.debug("Found "
+            if (logger.isDebugEnabled())
+                logger.debug("Found "
                          + protocolProviderRefs.length
                          + " already installed providers.");
             for (ServiceReference providerRef : protocolProviderRefs)
@@ -504,7 +506,8 @@ public class MetaContactListServiceImpl
             findParentMetaContactGroup(metaGroup);
         if (parentMetaGroup == null)
         {
-            logger.debug("Resolve failed at group" + metaGroup);
+            if (logger.isDebugEnabled())
+                logger.debug("Resolve failed at group" + metaGroup);
             throw new NullPointerException("Internal Error. Orphan group.");
         }
 
@@ -1218,7 +1221,8 @@ public class MetaContactListServiceImpl
     {
         this.storageManager.storeContactListAndStopStorageManager();
         this.storageManager.removeContactListFile();
-        logger.trace("Removed meta contact list storage file.");
+        if (logger.isTraceEnabled())
+            logger.trace("Removed meta contact list storage file.");
     }
 
     /**
@@ -1513,9 +1517,11 @@ public class MetaContactListServiceImpl
         if (rootProtoGroup != null)
         {
 
-            logger.trace("subgroups: "
+            if (logger.isTraceEnabled())
+                logger.trace("subgroups: "
                          + rootProtoGroup.countSubgroups());
-            logger.trace("child contacts: "
+            if (logger.isTraceEnabled())
+                logger.trace("child contacts: "
                          + rootProtoGroup.countContacts());
 
             addContactGroupToMetaGroup(rootProtoGroup, rootMetaGroup, true);
@@ -1620,7 +1626,8 @@ public class MetaContactListServiceImpl
     private synchronized void handleProviderAdded(
                         ProtocolProviderService provider)
     {
-        logger.debug("Adding protocol provider "
+        if (logger.isDebugEnabled())
+            logger.debug("Adding protocol provider "
                      + provider.getAccountID().getAccountUniqueID());
 
         // check whether the provider has a persistent presence op set
@@ -1641,7 +1648,8 @@ public class MetaContactListServiceImpl
             {
                 storageManager.extractContactsForAccount(
                     provider.getAccountID().getAccountUniqueID());
-                logger.debug("All contacts loaded for account "
+                if (logger.isDebugEnabled())
+                    logger.debug("All contacts loaded for account "
                                 + provider.getAccountID().getAccountUniqueID());
             }
             catch (XMLException exc)
@@ -1653,7 +1661,8 @@ public class MetaContactListServiceImpl
         }
         else
         {
-            logger.debug("Service did not have a pers. pres. op. set.");
+            if (logger.isDebugEnabled())
+                logger.debug("Service did not have a pers. pres. op. set.");
         }
 
         /** @todo implement handling non persistent presence operation sets */
@@ -1676,7 +1685,8 @@ public class MetaContactListServiceImpl
     private void handleProviderRemoved(
         ProtocolProviderService provider)
     {
-        logger.debug("Removing protocol provider "
+        if (logger.isDebugEnabled())
+            logger.debug("Removing protocol provider "
                      + provider.getProtocolName());
 
         this.currentlyInstalledProviders.
@@ -1936,7 +1946,8 @@ public class MetaContactListServiceImpl
         Object sService = bundleContext.getService(event
             .getServiceReference());
 
-        logger.trace("Received a service event for: "
+        if (logger.isTraceEnabled())
+            logger.trace("Received a service event for: "
                      + sService.getClass().getName());
 
         // we don't care if the source service is not a protocol provider
@@ -1945,7 +1956,8 @@ public class MetaContactListServiceImpl
             return;
         }
 
-        logger.debug("Service is a protocol provider.");
+        if (logger.isDebugEnabled())
+            logger.debug("Service is a protocol provider.");
 
         ProtocolProviderService provider =
             (ProtocolProviderService)sService;
@@ -1971,7 +1983,8 @@ public class MetaContactListServiceImpl
 
         if (event.getType() == ServiceEvent.REGISTERED)
         {
-            logger.debug("Handling registration of a new Protocol Provider.");
+            if (logger.isDebugEnabled())
+                logger.debug("Handling registration of a new Protocol Provider.");
             // if we have the PROVIDER_MASK property set, make sure that this
             // provider has it and if not ignore it.
             String providerMask = System
@@ -1987,7 +2000,8 @@ public class MetaContactListServiceImpl
                 if (servRefMask == null
                     || !servRefMask.equals(providerMask))
                 {
-                    logger.debug("Ignoing masked provider: "
+                    if (logger.isDebugEnabled())
+                        logger.debug("Ignoing masked provider: "
                                         + provider.getAccountID());
                     return;
                 }
@@ -1997,7 +2011,8 @@ public class MetaContactListServiceImpl
                && currentlyInstalledProviders.containsKey(
                                provider.getAccountID().getAccountUniqueID()))
             {
-                logger.debug("Ignoing an already installed account: "
+                if (logger.isDebugEnabled())
+                    logger.debug("Ignoing an already installed account: "
                                 + provider.getAccountID());
                 // the account is already installed and this event is coming
                 // from a modification. we don't need to do anything.
@@ -2021,7 +2036,8 @@ public class MetaContactListServiceImpl
                 return;
             }
 
-            logger.debug("Account uninstalled. acc.id="
+            if (logger.isDebugEnabled())
+                logger.debug("Account uninstalled. acc.id="
                          +provider.getAccountID() +". Removing from meta "
                          +"contact list.");
             this.handleProviderRemoved( (ProtocolProviderService) sService);
@@ -2046,7 +2062,8 @@ public class MetaContactListServiceImpl
          */
         public void subscriptionCreated(SubscriptionEvent evt)
         {
-            logger.trace("Subscription created: " + evt);
+            if (logger.isTraceEnabled())
+                logger.trace("Subscription created: " + evt);
 
             //ignore the event if the source contact is in the ignore list
             if (isContactInEventIgnoreList(
@@ -2111,7 +2128,8 @@ public class MetaContactListServiceImpl
          */
         public void subscriptionMoved(SubscriptionMovedEvent evt)
         {
-            logger.trace("Subscription moved: " + evt);
+            if (logger.isTraceEnabled())
+                logger.trace("Subscription moved: " + evt);
 
             //ignore the event if the source contact is in the ignore list
             if (isContactInEventIgnoreList(
@@ -2194,7 +2212,8 @@ public class MetaContactListServiceImpl
 
         public void subscriptionFailed(SubscriptionEvent evt)
         {
-            logger.trace("Subscription failed: " + evt);
+            if (logger.isTraceEnabled())
+                logger.trace("Subscription failed: " + evt);
         }
 
         /**
@@ -2277,7 +2296,8 @@ public class MetaContactListServiceImpl
         public void subscriptionRemoved(SubscriptionEvent evt)
         {
 
-            logger.trace("Subscription removed: " + evt);
+            if (logger.isTraceEnabled())
+                logger.trace("Subscription removed: " + evt);
 
             MetaContactImpl metaContact = (MetaContactImpl)
                 findMetaContactByContact(evt.getSourceContact());
@@ -2387,7 +2407,8 @@ public class MetaContactListServiceImpl
         public void groupCreated(ServerStoredGroupEvent evt)
         {
 
-            logger.trace("ContactGroup created: " + evt);
+            if (logger.isTraceEnabled())
+                logger.trace("ContactGroup created: " + evt);
 
             //ignore the event if the source group is in the ignore list
             if (isGroupInEventIgnoreList(evt.getSourceGroup().getGroupName()
@@ -2448,7 +2469,8 @@ public class MetaContactListServiceImpl
         public void groupRemoved(ServerStoredGroupEvent evt)
         {
 
-            logger.trace("ContactGroup removed: " + evt);
+            if (logger.isTraceEnabled())
+                logger.trace("ContactGroup removed: " + evt);
 
             MetaContactGroupImpl metaContactGroup = (MetaContactGroupImpl)
                 findMetaContactGroupByContactGroup(evt.getSourceGroup());
@@ -2478,7 +2500,8 @@ public class MetaContactListServiceImpl
          */
         public void groupNameChanged(ServerStoredGroupEvent evt)
         {
-            logger.trace("ContactGroup renamed: " + evt);
+            if (logger.isTraceEnabled())
+                logger.trace("ContactGroup renamed: " + evt);
 
             MetaContactGroup metaContactGroup
                 = findMetaContactGroupByContactGroup(evt.getSourceGroup());
@@ -2507,7 +2530,8 @@ public class MetaContactListServiceImpl
     {
         MetaContactEvent evt
             = new MetaContactEvent(sourceContact, parentGroup, eventID);
-        logger.trace("Will dispatch the following mcl event: "
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following mcl event: "
                      + evt);
 
         for (MetaContactListListener listener : getMetaContactListListeners())
@@ -2558,7 +2582,8 @@ public class MetaContactListServiceImpl
      */
     void fireMetaContactEvent(MetaContactPropertyChangeEvent event)
     {
-        logger.trace("Will dispatch the following mcl property change event: "
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following mcl property change event: "
                      + event);
 
         for (MetaContactListListener listener : getMetaContactListListeners())
@@ -2606,7 +2631,8 @@ public class MetaContactListServiceImpl
         ProtoContactEvent event
             = new ProtoContactEvent(source, eventName, oldParent, newParent );
 
-        logger.trace("Will dispatch the following mcl property change event: "
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following mcl property change event: "
                      + event);
 
         for (MetaContactListListener listener : getMetaContactListListeners())
@@ -2821,7 +2847,8 @@ public class MetaContactListServiceImpl
 
         parentGroup.addMetaContact(newMetaContact);
 
-        logger.trace("Created meta contact: " + newMetaContact);
+        if (logger.isTraceEnabled())
+            logger.trace("Created meta contact: " + newMetaContact);
     }
 
     /**
@@ -2848,7 +2875,8 @@ public class MetaContactListServiceImpl
         MetaContactGroupEvent evt = new MetaContactGroupEvent(
             source, provider, sourceProtoGroup, eventID);
 
-        logger.trace("Will dispatch the following mcl event: "
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following mcl event: "
                      + evt);
 
         for (MetaContactListListener listener : getMetaContactListListeners())

@@ -55,7 +55,8 @@ public class ArgDelegationPeerImpl
         {
             // this shouldn't happen because we aren't using a filter
             // but let's log just the same.
-            logger.info("An error occurred while retrieving UriHandlers", exc);
+            if (logger.isInfoEnabled())
+                logger.info("An error occurred while retrieving UriHandlers", exc);
             return;
         }
 
@@ -135,7 +136,8 @@ public class ArgDelegationPeerImpl
      */
     public void handleUri(String uriArg)
     {
-        logger.trace("Handling URI: " + uriArg);
+        if (logger.isTraceEnabled())
+            logger.trace("Handling URI: " + uriArg);
         //first parse the uri and determine the scheme/protocol
         //the parsing is currently a bit oversimplified so we'd probably need
         //to revisit it at some point.
@@ -163,7 +165,8 @@ public class ArgDelegationPeerImpl
         //if handler is null we need to tell the user.
         if(handler == null)
         {
-            logger.trace("Couldn't open " + uriArg
+            if (logger.isTraceEnabled())
+                logger.trace("Couldn't open " + uriArg
                          + "No handler found for protocol"+ scheme);
             ArgDelegationActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(

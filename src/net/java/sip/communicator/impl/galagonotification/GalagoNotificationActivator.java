@@ -96,7 +96,8 @@ public class GalagoNotificationActivator
                         .debug(
                             "org.freedesktop.Notifications.GetCapabilities:");
                     for (String capability : capabilities)
-                        logger.debug("\t" + capability);
+                        if (logger.isDebugEnabled())
+                            logger.debug("\t" + capability);
                 }
 
                 /*

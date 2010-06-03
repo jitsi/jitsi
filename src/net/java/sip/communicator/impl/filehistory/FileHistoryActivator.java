@@ -52,7 +52,8 @@ public class FileHistoryActivator
             bundleContext.registerService(
                 FileHistoryService.class.getName(), fileHistoryService, null);
 
-            logger.info("File History Service ...[REGISTERED]");
+            if (logger.isInfoEnabled())
+                logger.info("File History Service ...[REGISTERED]");
         }
         finally
         {

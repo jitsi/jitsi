@@ -116,7 +116,8 @@ public class ConfigurationServiceImpl
         //no exception was thrown - lets change the property and fire a
         //change event
 
-        logger.trace(propertyName + "( oldValue=" + oldValue
+        if (logger.isTraceEnabled())
+            logger.trace(propertyName + "( oldValue=" + oldValue
                      + ", newValue=" + property + ".");
 
         doSetProperty(propertyName, property, isSystem);
@@ -274,7 +275,8 @@ public class ConfigurationServiceImpl
         //no exception was thrown - lets change the property and fire a
         //change event
 
-        logger.trace("Will remove prop: " + propertyName + ".");
+        if (logger.isTraceEnabled())
+            logger.trace("Will remove prop: " + propertyName + ".");
 
         store.removeProperty(propertyName);
         
@@ -889,7 +891,8 @@ public class ConfigurationServiceImpl
         File configFileInCurrentDir = new File(pFileName);
         if (configFileInCurrentDir.exists())
         {
-            logger.debug(
+            if (logger.isDebugEnabled())
+                logger.debug(
                 "Using config file in current dir: "
                     + configFileInCurrentDir.getAbsolutePath());
             return configFileInCurrentDir;
@@ -907,7 +910,8 @@ public class ConfigurationServiceImpl
 
         if (configFileInUserHomeDir.exists())
         {
-            logger.debug(
+            if (logger.isDebugEnabled())
+                logger.debug(
                 "Using config file in $HOME/.sip-communicator: "
                     + configFileInUserHomeDir.getAbsolutePath());
             return configFileInUserHomeDir;
@@ -926,13 +930,15 @@ public class ConfigurationServiceImpl
                 configDir.mkdirs();
                 configFileInUserHomeDir.createNewFile();
             }
-            logger.debug(
+            if (logger.isDebugEnabled())
+                logger.debug(
                 "Created an empty file in $HOME: "
                     + configFileInUserHomeDir.getAbsolutePath());
             return configFileInUserHomeDir;
         }
 
-        logger.trace(
+        if (logger.isTraceEnabled())
+            logger.trace(
             "Copying config file from JAR into "
                 + configFileInUserHomeDir.getAbsolutePath());
         configDir.mkdirs();
@@ -1134,7 +1140,8 @@ public class ConfigurationServiceImpl
         {
             for (Map.Entry<Object, Object> entry
                     : System.getProperties().entrySet())
-                logger.debug(entry.getKey() + "=" + entry.getValue());
+                if (logger.isDebugEnabled())
+                    logger.debug(entry.getKey() + "=" + entry.getValue());
         }
     }
 

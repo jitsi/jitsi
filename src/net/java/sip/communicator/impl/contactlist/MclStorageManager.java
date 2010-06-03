@@ -234,7 +234,8 @@ public class MclStorageManager
      */
     public void stop()
     {
-        logger.trace("Stopping the MCL XML storage manager.");
+        if (logger.isTraceEnabled())
+            logger.trace("Stopping the MCL XML storage manager.");
         this.started = false;
         synchronized (contactListRWLock)
         {
@@ -391,9 +392,11 @@ public class MclStorageManager
      */
     private void storeContactList0() throws IOException
     {
-        logger.trace("storing contact list. because is started =="
+        if (logger.isTraceEnabled())
+            logger.trace("storing contact list. because is started =="
             + isStarted());
-        logger.trace("storing contact list. because is modified =="
+        if (logger.isTraceEnabled())
+            logger.trace("storing contact list. because is modified =="
             + isModified);
         if (isStarted())
         {
@@ -1013,8 +1016,10 @@ public class MclStorageManager
         if(logger.isTraceEnabled()
                         && protoContact.getParentContactGroup() == null)
         {
-            logger.trace("the following contact looks weird:" + protoContact);
-            logger.trace("group:" + protoContact.getParentContactGroup());
+            if (logger.isTraceEnabled())
+                logger.trace("the following contact looks weird:" + protoContact);
+            if (logger.isTraceEnabled())
+                logger.trace("group:" + protoContact.getParentContactGroup());
         }
 
         protoContactElement.setAttribute(PARENT_PROTO_GROUP_UID_ATTR_NAME,
