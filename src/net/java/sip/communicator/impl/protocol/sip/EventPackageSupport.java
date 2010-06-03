@@ -334,7 +334,8 @@ public class EventPackageSupport
     {
         try
         {
-            logger.debug("Authenticating a message request.");
+            if (logger.isDebugEnabled())
+                logger.debug("Authenticating a message request.");
 
             ClientTransaction retryTran
                 = protocolProvider

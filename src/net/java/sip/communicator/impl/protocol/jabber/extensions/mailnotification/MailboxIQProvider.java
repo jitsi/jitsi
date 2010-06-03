@@ -82,7 +82,8 @@ public class MailboxIQProvider
                 if(logger.isTraceEnabled())
                 {
                     logger.trace("xml parser returned eventType=" + eventType);
-                    logger.trace("parser="+parser.getText());
+                    if (logger.isTraceEnabled())
+                        logger.trace("parser="+parser.getText());
                 }
             }
             eventType = parser.next();

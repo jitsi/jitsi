@@ -184,7 +184,8 @@ public class StatusSelector
 
     public void updateStatus(PresenceStatus presenceStatus)
     {
-        logger.trace("Systray update status for provider: "
+        if (logger.isTraceEnabled())
+            logger.trace("Systray update status for provider: "
             + provider.getAccountID().getAccountAddress()
             + ". The new status will be: " + presenceStatus.getStatusName());
 

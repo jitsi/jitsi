@@ -135,7 +135,8 @@ public class UriHandlerRssImpl
         catch (OperationFailedException exc)
         {
             // The operation has been canceled by the user. Bail out.
-            logger.trace("User canceled handling of uri " + uri);
+            if (logger.isTraceEnabled())
+                logger.trace("User canceled handling of uri " + uri);
             return;
         }
 

@@ -416,7 +416,8 @@ public class OperationSetPersistentPresenceMsnImpl
         ContactMsnImpl contact = ssContactList.findContactById(contactIdentifier);
         if(contact == null)
         {
-            logger.info("Contact not found id :" + contactIdentifier);
+            if (logger.isInfoEnabled())
+                logger.info("Contact not found id :" + contactIdentifier);
             return null;
         }
         else
@@ -653,7 +654,8 @@ public class OperationSetPersistentPresenceMsnImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The msn provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The msn provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
 
@@ -775,7 +777,8 @@ public class OperationSetPersistentPresenceMsnImpl
             ContactGroup parent
                 = ssContactList.findContactGroup(sourceContact);
 
-            logger.debug("Will Dispatch the contact status event.");
+            if (logger.isDebugEnabled())
+                logger.debug("Will Dispatch the contact status event.");
             fireContactPresenceStatusChangeEvent(sourceContact, parent,
                 oldStatus, newStatus);
         }
@@ -804,7 +807,8 @@ public class OperationSetPersistentPresenceMsnImpl
          */
         public void ownerStatusChanged(MsnMessenger messenger)
         {
-            logger.trace("Own status changed to " + messenger.getOwner().getStatus());
+            if (logger.isTraceEnabled())
+                logger.trace("Own status changed to " + messenger.getOwner().getStatus());
             PresenceStatus oldStatus = currentStatus;
             currentStatus =
                 msnStatusToPresenceStatus(messenger.getOwner().getStatus());
@@ -819,7 +823,8 @@ public class OperationSetPersistentPresenceMsnImpl
         public void contactStatusChanged(   MsnMessenger messenger,
                                             MsnContact contact)
         {
-            logger.debug("Received a status update for contact=" + contact);
+            if (logger.isDebugEnabled())
+                logger.debug("Received a status update for contact=" + contact);
 
             ContactMsnImpl sourceContact
                 = ssContactList
@@ -827,7 +832,8 @@ public class OperationSetPersistentPresenceMsnImpl
 
             if (sourceContact == null)
             {
-                logger.debug("No source contact found for msncontact=" + contact);
+                if (logger.isDebugEnabled())
+                    logger.debug("No source contact found for msncontact=" + contact);
 
                 // maybe list is not inited yet will store till init
                 earlyStatusChange.put(contact.getEmail().getEmailAddress(),
@@ -852,7 +858,8 @@ public class OperationSetPersistentPresenceMsnImpl
             ContactGroup parent
                 = ssContactList.findContactGroup(sourceContact);
 
-            logger.debug("Will Dispatch the contact status event.");
+            if (logger.isDebugEnabled())
+                logger.debug("Will Dispatch the contact status event.");
             fireContactPresenceStatusChangeEvent(sourceContact, parent,
                 oldStatus, newStatus);
         }

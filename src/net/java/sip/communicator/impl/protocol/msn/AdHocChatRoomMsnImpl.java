@@ -393,7 +393,8 @@ public class AdHocChatRoomMsnImpl
      */
     public void sendMessage(Message message) throws OperationFailedException 
     {
-        logger.info("switchboard="+this.switchboard);
+        if (logger.isInfoEnabled())
+            logger.info("switchboard="+this.switchboard);
         this.switchboard.sendText(message.getContent());
 
         AdHocChatRoomMessageDeliveredEvent msgDeliveredEvt
@@ -433,7 +434,8 @@ public class AdHocChatRoomMsnImpl
             new AdHocChatRoomParticipantPresenceChangeEvent(
                     this, participant, eventID, eventReason);
 
-        logger.trace("Will dispatch the following AdHocChatRoom event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following AdHocChatRoom event: " + evt);
 
         Iterator<AdHocChatRoomParticipantPresenceListener> listeners = null;
         synchronized (this.participantsPresenceListeners)

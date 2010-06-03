@@ -95,15 +95,18 @@ public class WhiteboardObjectPolygonJabberImpl
         }
         catch (ParserConfigurationException ex)
         {
-            logger.debug ("Problem WhiteboardObject : "+xml);
+            if (logger.isDebugEnabled())
+                logger.debug ("Problem WhiteboardObject : "+xml);
         }
         catch (IOException ex)
         {
-            logger.debug ("Problem WhiteboardObject : "+xml);
+            if (logger.isDebugEnabled())
+                logger.debug ("Problem WhiteboardObject : "+xml);
         }
         catch (Exception ex)
         {
-            logger.debug ("Problem WhiteboardObject : "+xml);
+            if (logger.isDebugEnabled())
+                logger.debug ("Problem WhiteboardObject : "+xml);
         }
     }
 

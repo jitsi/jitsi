@@ -322,7 +322,8 @@ public class SSHFileTransferDaemon
 //        }
         
         command += file.getName() + "\n";
-        logger.trace(command);
+        if (logger.isTraceEnabled())
+            logger.trace(command);
         scpOutputStream.write(command.getBytes());
         scpOutputStream.flush();
         

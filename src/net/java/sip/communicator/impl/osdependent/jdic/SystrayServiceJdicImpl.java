@@ -314,7 +314,8 @@ public class SystrayServiceJdicImpl
                 if (!popupHandlerSet.containsKey(handlerName))
                 {
                     popupHandlerSet.put(handlerName, handler);
-                    logger.info("added the following popup handler : " +
+                    if (logger.isInfoEnabled())
+                        logger.info("added the following popup handler : " +
                         handler);
                     if (configuredHandler != null && 
                         configuredHandler.equals(handler.getClass().getName()))
@@ -573,7 +574,8 @@ public class SystrayServiceJdicImpl
         {
             newHandler.addPopupMessageListener(popupMessageListener);
         }
-        logger.info(
+        if (logger.isInfoEnabled())
+            logger.info(
             "setting the following popup handler as active : " + newHandler);
         activePopupHandler = newHandler;
 
@@ -658,7 +660,8 @@ public class SystrayServiceJdicImpl
                     if (!popupHandlerSet.containsKey(
                         handler.getClass().getName()))
                     {
-                        logger.info(
+                        if (logger.isInfoEnabled())
+                            logger.info(
                             "adding the following popup handler : " + handler);
                         popupHandlerSet.put(
                             handler.getClass().getName(), handler);
@@ -686,7 +689,8 @@ public class SystrayServiceJdicImpl
                     }
                 } else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
                 {
-                    logger.info(
+                    if (logger.isInfoEnabled())
+                        logger.info(
                         "removing the following popup handler : " + handler);
                     popupHandlerSet.remove(handler.getClass().getName());
                     if (activePopupHandler == handler)
@@ -702,7 +706,8 @@ public class SystrayServiceJdicImpl
                 }
             } catch (IllegalStateException e)
             {
-                logger.debug(e);
+                if (logger.isDebugEnabled())
+                    logger.debug(e);
             }
         }
     }

@@ -166,7 +166,8 @@ public class JmDNS
     {
         //String SLevel = System.getProperty("jmdns.debug");
 
-        logger.debug("JmDNS instance created");
+        if (logger.isDebugEnabled())
+            logger.debug("JmDNS instance created");
         try
         {
             InetAddress addr = InetAddress.getLocalHost();
@@ -279,7 +280,8 @@ public class JmDNS
 
     private void closeMulticastSocket()
     {
-        logger.debug("closeMulticastSocket()");
+        if (logger.isDebugEnabled())
+            logger.debug("closeMulticastSocket()");
         if (socket != null)
         {
             // close socket
@@ -642,7 +644,8 @@ public class JmDNS
         {
             logger.error(e.getMessage(), e);
         }
-        logger.debug("registerService() JmDNS registered service as " + info);
+        if (logger.isDebugEnabled())
+            logger.debug("registerService() JmDNS registered service as " + info);
     }
 
     /**
@@ -686,7 +689,8 @@ public class JmDNS
      */
     public void unregisterAllServices()
     {
-        logger.debug("unregisterAllServices()");
+        if (logger.isDebugEnabled())
+            logger.debug("unregisterAllServices()");
         if (services.size() == 0)
         {
             return;
@@ -779,7 +783,8 @@ public class JmDNS
                     DNSRecord.Service s = (DNSRecord.Service) a;
                     if (s.port != info.port || !s.server.equals(localHost.getName()))
                     {
-                        logger.debug("makeServiceNameUnique() " +
+                        if (logger.isDebugEnabled())
+                            logger.debug("makeServiceNameUnique() " +
                             "JmDNS.makeServiceNameUnique srv collision:" +
                             a + " s.server=" + s.server + " " +
                             localHost.getName() + " equals:" +
@@ -958,11 +963,13 @@ public class JmDNS
         boolean hostConflictDetected = false;
         boolean serviceConflictDetected = false;
 
-        logger.trace("JMDNS/handleResponse received " +
+        if (logger.isTraceEnabled())
+            logger.trace("JMDNS/handleResponse received " +
             msg.answers.size()+ " messages");
         for (DNSRecord rec : msg.answers)
         {
-          logger.trace("PRINT: "+ rec);
+          if (logger.isTraceEnabled())
+              logger.trace("PRINT: "+ rec);
           //cache.add(rec);
         }
 
@@ -971,13 +978,15 @@ public class JmDNS
             boolean isInformative = false;
             boolean expired = rec.isExpired(now);
 
-            logger.trace("JMDNS received : " + rec + " expired: "+expired);
+            if (logger.isTraceEnabled())
+                logger.trace("JMDNS received : " + rec + " expired: "+expired);
 
             // update the cache
             DNSRecord c = (DNSRecord) cache.get(rec);
             if (c != null)
             {
-                logger.trace("JMDNS has found "+rec+" in cache");
+                if (logger.isTraceEnabled())
+                    logger.trace("JMDNS has found "+rec+" in cache");
                 if (expired)
                 {
                     isInformative = true;
@@ -994,7 +1003,8 @@ public class JmDNS
 //                            isInformative = true;
 //                    c.resetTTL(rec);
 //                    rec = c;
-                    logger.trace(
+                    if (logger.isTraceEnabled())
+                        logger.trace(
                         new Boolean(c.isUnique()).toString() +
                         c.getType()+c.getClazz() + "/" +
                         DNSConstants.TYPE_TXT + " "+DNSConstants.CLASS_IN);
@@ -1003,7 +1013,8 @@ public class JmDNS
                       && ((rec.getType() & DNSConstants.TYPE_TXT) != 0)
                       && ((rec.getClazz() & DNSConstants.CLASS_IN) != 0)))
                     {
-                        logger.trace("UPDATING CACHE !! ");
+                        if (logger.isTraceEnabled())
+                            logger.trace("UPDATING CACHE !! ");
                         isInformative = true;
                         cache.remove(c);
                         cache.add(rec);
@@ -1020,7 +1031,8 @@ public class JmDNS
                 if (!expired)
                 {
                     isInformative = true;
-                    logger.trace("Adding "+rec+" to the cache");
+                    if (logger.isTraceEnabled())
+                        logger.trace("Adding "+rec+" to the cache");
                     cache.add(rec);
                 }
             }
@@ -1165,7 +1177,8 @@ public class JmDNS
             try
             {
                 DNSIncoming msg = new DNSIncoming(packet);
-                logger.trace("send() JmDNS out:" + msg.print(true));
+                if (logger.isTraceEnabled())
+                    logger.trace("send() JmDNS out:" + msg.print(true));
             }
             catch (IOException exc)
             {
@@ -1204,7 +1217,8 @@ public class JmDNS
                         }
 
                         DNSIncoming msg = new DNSIncoming(packet);
-                        logger.trace("SocketListener.run() JmDNS in:" +
+                        if (logger.isTraceEnabled())
+                            logger.trace("SocketListener.run() JmDNS in:" +
                             msg.print(true));
 
                         synchronized (ioLock)
@@ -1263,7 +1277,8 @@ public class JmDNS
                 {
                     return;
                 }
-                logger.trace("run() JmDNS reaping cache");
+                if (logger.isTraceEnabled())
+                    logger.trace("run() JmDNS reaping cache");
 
                 // Remove expired answers from the cache
                 // -------------------------------------
@@ -1444,7 +1459,8 @@ public class JmDNS
                                 info.task == this)
                             {
                                 info.advanceState();
-                                logger.debug("run() JmDNS probing " +
+                                if (logger.isDebugEnabled())
+                                    logger.debug("run() JmDNS probing " +
                                     info.getQualifiedName() + " state " +
                                     info.getState());
 
@@ -1473,7 +1489,8 @@ public class JmDNS
                     }
                     if (out != null)
                     {
-                        logger.debug("run() JmDNS probing #" + taskState);
+                        if (logger.isDebugEnabled())
+                            logger.debug("run() JmDNS probing #" + taskState);
                         send(out);
                     }
                     else
@@ -1612,7 +1629,8 @@ public class JmDNS
                         if (info.getState() == taskState && info.task == this)
                         {
                             info.advanceState();
-                            logger.debug("run() JmDNS announcing " +
+                            if (logger.isDebugEnabled())
+                                logger.debug("run() JmDNS announcing " +
                                 info.getQualifiedName() +
                                 " state " + info.getState());
 
@@ -1651,7 +1669,8 @@ public class JmDNS
                 }
                 if (out != null)
                 {
-                    logger.debug("run() JmDNS announcing #" + taskState);
+                    if (logger.isDebugEnabled())
+                        logger.debug("run() JmDNS announcing #" + taskState);
                     send(out);
                 }
                 else
@@ -1783,7 +1802,8 @@ public class JmDNS
                         if (info.getState() == taskState && info.task == this)
                         {
                             info.advanceState();
-                            logger.debug("run() JmDNS announced " +
+                            if (logger.isDebugEnabled())
+                                logger.debug("run() JmDNS announced " +
                                 info.getQualifiedName() + " state " + info.getState());
 
                             if (out == null)
@@ -1821,7 +1841,8 @@ public class JmDNS
                 }
                 if (out != null)
                 {
-                    logger.debug("run() JmDNS announced");
+                    if (logger.isDebugEnabled())
+                        logger.debug("run() JmDNS announced");
                     send(out);
                 }
                 else
@@ -1881,7 +1902,8 @@ public class JmDNS
                 if (entry instanceof DNSQuestion)
                 {
                     DNSQuestion q = (DNSQuestion) entry;
-                    logger.trace("start() question=" + q);
+                    if (logger.isTraceEnabled())
+                        logger.trace("start() question=" + q);
                     iAmTheOnlyOne &= (q.type == DNSConstants.TYPE_SRV
                             || q.type == DNSConstants.TYPE_TXT
                             || q.type == DNSConstants.TYPE_A
@@ -1905,7 +1927,8 @@ public class JmDNS
             {
                 delay = 0;
             }
-            logger.trace("start() Responder chosen delay=" + delay);
+            if (logger.isTraceEnabled())
+                logger.trace("start() Responder chosen delay=" + delay);
             timer.schedule(this, delay);
         }
 
@@ -2138,7 +2161,8 @@ public class JmDNS
                             if (knownAnswer.ttl > DNSConstants.DNS_TTL / 2 &&
                                 answers.remove(knownAnswer))
                             {
-                                logger.debug(
+                                if (logger.isDebugEnabled())
+                                    logger.debug(
                                     "JmDNS Responder Known Answer Removed");
                             }
                         }
@@ -2147,7 +2171,8 @@ public class JmDNS
                         // responde if we have answers
                         if (answers.size() != 0)
                         {
-                            logger.debug("run() JmDNS responding");
+                            if (logger.isDebugEnabled())
+                                logger.debug("run() JmDNS responding");
                             DNSOutgoing out = null;
                             if (isUnicast)
                             {
@@ -2211,7 +2236,8 @@ public class JmDNS
                 {
                     if (count++ < 3)
                     {
-                        logger.debug("run() JmDNS querying type");
+                        if (logger.isDebugEnabled())
+                            logger.debug("run() JmDNS querying type");
                         DNSOutgoing out =
                             new DNSOutgoing(DNSConstants.FLAGS_QR_QUERY);
                         out.addQuestion(
@@ -2289,7 +2315,8 @@ public class JmDNS
                 {
                     if (count++ < 3)
                     {
-                        logger.debug("run() JmDNS querying service");
+                        if (logger.isDebugEnabled())
+                            logger.debug("run() JmDNS querying service");
                         long now = System.currentTimeMillis();
                         DNSOutgoing out =
                             new DNSOutgoing(DNSConstants.FLAGS_QR_QUERY);
@@ -2511,7 +2538,8 @@ public class JmDNS
             {
                 if (++count < 3)
                 {
-                    logger.debug("run() JmDNS canceling service");
+                    if (logger.isDebugEnabled())
+                        logger.debug("run() JmDNS canceling service");
                     // announce the service
                     //long now = System.currentTimeMillis();
                     DNSOutgoing out =
@@ -2581,7 +2609,8 @@ public class JmDNS
      */
     protected void recover()
     {
-        logger.debug("recover()");
+        if (logger.isDebugEnabled())
+            logger.debug("recover()");
         // We have an IO error so lets try to recover if anything happens lets close it.
         // This should cover the case of the IP address changing under our feet
         if (DNSState.CANCELED != state)
@@ -2589,7 +2618,8 @@ public class JmDNS
             synchronized (this)
             { // Synchronize only if we are not already in process to prevent dead locks
                 //
-                logger.debug("recover() Cleanning up");
+                if (logger.isDebugEnabled())
+                    logger.debug("recover() Cleanning up");
                 // Stop JmDNS
                 state = DNSState.CANCELED; // This protects against recursive calls
 
@@ -2604,7 +2634,8 @@ public class JmDNS
                 closeMulticastSocket();
                 //
                 cache.clear();
-                logger.debug("recover() All is clean");
+                if (logger.isDebugEnabled())
+                    logger.debug("recover() All is clean");
                 //
                 // All is clear now start the services
                 //
@@ -2652,9 +2683,11 @@ public class JmDNS
      */
     void print()
     {
-        logger.info("---- cache ----\n");
+        if (logger.isInfoEnabled())
+            logger.info("---- cache ----\n");
         cache.print();
-        logger.info("\n");
+        if (logger.isInfoEnabled())
+            logger.info("\n");
     }
 
     /**
@@ -2664,7 +2697,8 @@ public class JmDNS
 
     public void printServices()
     {
-        logger.info(toString());
+        if (logger.isInfoEnabled())
+            logger.info(toString());
     }
 
     public String toString()
@@ -2769,7 +2803,8 @@ public class JmDNS
      */
     private void disposeServiceCollectors()
     {
-        logger.debug("disposeServiceCollectors()");
+        if (logger.isDebugEnabled())
+            logger.debug("disposeServiceCollectors()");
         synchronized (serviceCollectors)
         {
             for (Iterator<ServiceCollector> i = serviceCollectors.values().iterator(); i.hasNext();)
@@ -2903,7 +2938,8 @@ public class JmDNS
 
         synchronized (info)
         {
-            logger.debug("updateInfos() JmDNS updating " +
+            if (logger.isDebugEnabled())
+                logger.debug("updateInfos() JmDNS updating " +
                 info.getQualifiedName() + " state " +
                 info.getState());
 
@@ -2950,7 +2986,8 @@ public class JmDNS
                         DNSConstants.DNS_TTL,
                         info.text), 0);
 
-                logger.debug("updateInfos() JmDNS updated infos for "+info);
+                if (logger.isDebugEnabled())
+                    logger.debug("updateInfos() JmDNS updated infos for "+info);
 
                 send(out);
                 Thread.sleep(1000);

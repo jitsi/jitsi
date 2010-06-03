@@ -114,7 +114,8 @@ public class BonjourService extends Thread
 
         port = sock.getLocalPort();
 
-        logger.debug("ZEROCONF: ServerSocket bound to port "+port);
+        if (logger.isDebugEnabled())
+            logger.debug("ZEROCONF: ServerSocket bound to port "+port);
 
         props.put("port.p2pj", Integer.toString(port));
         this.setDaemon(true);
@@ -129,7 +130,8 @@ public class BonjourService extends Thread
      */
     public void run()
     {
-        logger.debug("ZEROCONF: Bonjour Service Thread up and running!");
+        if (logger.isDebugEnabled())
+            logger.debug("ZEROCONF: Bonjour Service Thread up and running!");
 
         /* Put jmDNS in DEBUD Mode :
          * Following verbosity levels can be chosen :
@@ -180,7 +182,8 @@ public class BonjourService extends Thread
             }
         }
 
-        logger.debug("ZEROCONF: Going Offline - "
+        if (logger.isDebugEnabled())
+            logger.debug("ZEROCONF: Going Offline - "
                           +"BonjourService Thread exiting!");
     }
 
@@ -189,7 +192,8 @@ public class BonjourService extends Thread
      */
     public void shutdown()
     {
-        logger.debug("ZEROCONF: Shutdown!");
+        if (logger.isDebugEnabled())
+            logger.debug("ZEROCONF: Shutdown!");
 
         dead = true;
         try
@@ -240,7 +244,8 @@ public class BonjourService extends Thread
         /* [new_status == OFFLINE ?] => clean up everything */
         if (stat.equals(ZeroconfStatusEnum.OFFLINE))
         {
-            logger.debug("ZEROCONF: Going OFFLINE");
+            if (logger.isDebugEnabled())
+                logger.debug("ZEROCONF: Going OFFLINE");
             //jmdns.unregisterAllServices();
             jmdns.removeServiceListener("_presence._tcp.local.", this);
             jmdns.close();
@@ -263,7 +268,8 @@ public class BonjourService extends Thread
         /* [old_status == OFFLINE ?] => register service */
         else if (status.equals(ZeroconfStatusEnum.OFFLINE))
         {
-            logger.debug("ZEROCONF: Getting out of OFFLINE state");
+            if (logger.isDebugEnabled())
+                logger.debug("ZEROCONF: Getting out of OFFLINE state");
             props.put("status", stat.getStatusName());
             service = new ServiceInfo("_presence._tcp.local.", id,
                                       port, 0, 0, props);
@@ -287,7 +293,8 @@ public class BonjourService extends Thread
         }
         else
         {
-            logger.debug("ZEROCONF : Changing status");
+            if (logger.isDebugEnabled())
+                logger.debug("ZEROCONF : Changing status");
 
             props.put("status", stat.getStatusName());
 
@@ -367,7 +374,8 @@ public class BonjourService extends Thread
         if (name.equals(id))
             return;
 
-        logger.debug("BONJOUR: "+name
+        if (logger.isDebugEnabled())
+            logger.debug("BONJOUR: "+name
                           +"["+type+"] detected! Trying to get information...");
         try
         {
@@ -400,7 +408,8 @@ public class BonjourService extends Thread
 
         opSetPersPresence.changePresenceStatusForContact(contact,
                                             ZeroconfStatusEnum.OFFLINE);
-        logger.debug("BONJOUR: Received announcement that "
+        if (logger.isDebugEnabled())
+            logger.debug("BONJOUR: Received announcement that "
                           +name+" went offline!");
 
     }
@@ -419,7 +428,8 @@ public class BonjourService extends Thread
         String type = event.getType();
         ServiceInfo info = event.getInfo();
 
-        logger.debug("BONJOUR:    Information about "
+        if (logger.isDebugEnabled())
+            logger.debug("BONJOUR:    Information about "
                           +contactID+" discovered");
 
         handleResolvedService(contactID, type, info);
@@ -434,7 +444,8 @@ public class BonjourService extends Thread
 
         if (info.getAddress().toString().length() > 15)
         {
-              logger.debug("ZEROCONF: Temporarily ignoring IPv6 addresses!");
+              if (logger.isDebugEnabled())
+                  logger.debug("ZEROCONF: Temporarily ignoring IPv6 addresses!");
               return;
         }
 
@@ -444,21 +455,25 @@ public class BonjourService extends Thread
         {
             if (getContact(contactID, info.getAddress()) != null)
             {
-                logger.debug("Contact "
+                if (logger.isDebugEnabled())
+                    logger.debug("Contact "
                               +contactID+" already in contact list! Skipping.");
                 return;
             };
-            logger.debug("ZEROCNF: ContactID " + contactID +
+            if (logger.isDebugEnabled())
+                logger.debug("ZEROCNF: ContactID " + contactID +
                 " Address " + info.getAddress());
 
-            logger.debug("            Address=>"+info.getAddress()
+            if (logger.isDebugEnabled())
+                logger.debug("            Address=>"+info.getAddress()
                           +":"+info.getPort());
 
             for (Iterator<String> names = info.getPropertyNames();
                     names.hasNext();)
             {
                 String prop = names.next();
-                logger.debug("            "+prop+"=>"
+                if (logger.isDebugEnabled())
+                    logger.debug("            "+prop+"=>"
                               +info.getPropertyString(prop));
             }
 
@@ -477,7 +492,8 @@ public class BonjourService extends Thread
                 return;
             }
 
-            logger.debug("ZEROCONF: Detected client "+name);
+            if (logger.isDebugEnabled())
+                logger.debug("ZEROCONF: Detected client "+name);
 
             newFriend =
                     opSetPersPresence.createVolatileContact(
@@ -499,7 +515,8 @@ public class BonjourService extends Thread
             clientType = ContactZeroconfImpl.ICHAT;
 
         newFriend.setClientType(clientType);
-        logger.debug("ZEROCONF: CLIENT TYPE "+clientType);
+        if (logger.isDebugEnabled())
+            logger.debug("ZEROCONF: CLIENT TYPE "+clientType);
 
         ZeroconfStatusEnum status =
                 ZeroconfStatusEnum.statusOf(info.getPropertyString("status"));
@@ -524,7 +541,8 @@ public class BonjourService extends Thread
                                             long now,
                                             DNSRecord record)
     {
-        logger.debug("ZEROCONF/JMDNS: Received record update for "+record);
+        if (logger.isDebugEnabled())
+            logger.debug("ZEROCONF/JMDNS: Received record update for "+record);
 
         int clazz = record.getClazz();
         int type = record.getType();
@@ -552,7 +570,8 @@ public class BonjourService extends Thread
             }
         }
 
-        logger.debug("ZEROCONF: "+ name
+        if (logger.isDebugEnabled())
+            logger.debug("ZEROCONF: "+ name
                          + " changed status. Requesting fresh data!");
 
         /* Since a record was updated, we can be sure that we can do a blocking

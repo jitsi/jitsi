@@ -228,7 +228,8 @@ public class SipLogger
         else
             msgHeader = "JAIN-SIP received a message from=\"";
 
-        logger.info( msgHeader + from + "\" to=\"" + to + "\" at=" + time
+        if (logger.isInfoEnabled())
+            logger.info( msgHeader + from + "\" to=\"" + to + "\" at=" + time
                         + ":\n" + message);
     }
 
@@ -255,7 +256,8 @@ public class SipLogger
         else
             msgHeader = "JAIN-SIP received a message from=\"";
 
-        logger.info(msgHeader + from + "\" to=\"" + to + "\" at " + time
+        if (logger.isInfoEnabled())
+            logger.info(msgHeader + from + "\" to=\"" + to + "\" at " + time
                         + " (status: " + status + "):\n" + message);
     }
 
@@ -281,7 +283,8 @@ public class SipLogger
         else
             msgHeader = "JAIN-SIP received a message from=\"";
 
-        logger.info(msgHeader + from + "\" to=\"" + to + "\" (status: "
+        if (logger.isInfoEnabled())
+            logger.info(msgHeader + from + "\" to=\"" + to + "\" (status: "
                         + status + "):\n" + message);
     }
 

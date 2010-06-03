@@ -56,7 +56,8 @@ public class MockOperationSetBasicTelephony
             = (MockCallPeer)peer;
         if(peer.getState().equals(CallPeerState.CONNECTED))
         {
-            logger.info("Ignoring user request to answer a CallPeer "
+            if (logger.isInfoEnabled())
+                logger.info("Ignoring user request to answer a CallPeer "
                         + "that is already connected. CP:" + peer);
             return;
         }
@@ -139,7 +140,8 @@ public class MockOperationSetBasicTelephony
         //do nothing if the call is already ended
         if (peer.getState().equals(CallPeerState.DISCONNECTED))
         {
-            logger.debug("Ignoring a request to hangup a call peer "
+            if (logger.isDebugEnabled())
+                logger.debug("Ignoring a request to hangup a call peer "
                          +"that is already DISCONNECTED");
             return;
         }
@@ -147,7 +149,8 @@ public class MockOperationSetBasicTelephony
         MockCallPeer callPeer
             = (MockCallPeer)peer;
 
-        logger.info("hangupCallPeer");
+        if (logger.isInfoEnabled())
+            logger.info("hangupCallPeer");
         callPeer.setState(CallPeerState.DISCONNECTED, null);
     }
 
@@ -230,7 +233,8 @@ public class MockOperationSetBasicTelephony
             MockCall sourceCall = (MockCall)this.activeCalls
                 .remove(evt.getSourceCall().getCallID());
 
-            logger.trace(  "Removing call " + sourceCall + " from the list of "
+            if (logger.isTraceEnabled())
+                logger.trace(  "Removing call " + sourceCall + " from the list of "
                          + "active calls because it entered an ENDED state");
 
             fireCallEvent(CallEvent.CALL_ENDED, sourceCall);

@@ -519,7 +519,8 @@ public class OperationSetPersistentPresenceRssImpl
 
         if(findContactByID(contactIdentifier) != null)
         {
-            logger.debug(
+            if (logger.isDebugEnabled())
+                logger.debug(
                 "contact with same id already exists - " + contactIdentifier);
             return;
         }
@@ -572,7 +573,8 @@ public class OperationSetPersistentPresenceRssImpl
             //ignore and subscribe the contact so that the exception would
             //occur while we try to refresh it. This way we would ask the
             //user whether they want it removed.
-            logger.debug("failed to create a URL for address "
+            if (logger.isDebugEnabled())
+                logger.debug("failed to create a URL for address "
                 + contactIdentifier
                 + ". Error was: "
                 + ex.getMessage()
@@ -749,7 +751,8 @@ public class OperationSetPersistentPresenceRssImpl
             //ignore and subscribe the contact so that the exception would
             //occur while we try to refresh it. This way we would ask the
             //user whether they want it removed.
-            logger.debug("failed to create a URL for address "
+            if (logger.isDebugEnabled())
+                logger.debug("failed to create a URL for address "
                     + rssURL
                     + ". Error was: "
                     + ex.getMessage()
@@ -757,7 +760,8 @@ public class OperationSetPersistentPresenceRssImpl
         }
         catch(OperationFailedException ex)
         {
-            logger.debug("failed to create a URL for address "
+            if (logger.isDebugEnabled())
+                logger.debug("failed to create a URL for address "
                     + rssURL
                     + ". Error was: "
                     + ex.getMessage()

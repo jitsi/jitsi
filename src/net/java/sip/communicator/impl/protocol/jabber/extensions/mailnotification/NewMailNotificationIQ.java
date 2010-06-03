@@ -46,7 +46,8 @@ public class NewMailNotificationIQ extends IQ
     @Override
     public String getChildElementXML()
     {
-        logger.trace("NewMailNotification.getChildElementXML usage");
+        if (logger.isTraceEnabled())
+            logger.trace("NewMailNotification.getChildElementXML usage");
         return "<iq type='"+"result"+"' "+
                 "from='"+getFrom()+"' "+
                 "to='"+getTo()+"' "+

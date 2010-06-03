@@ -163,7 +163,8 @@ public class ServerStoredContactListMsnImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -174,7 +175,8 @@ public class ServerStoredContactListMsnImpl
                 , msnProvider
                 , parentOperationSet);
 
-        logger.trace("Will dispatch the following grp event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following grp event: " + evt);
 
         Iterator<ServerStoredGroupListener> listeners = null;
         synchronized (serverStoredGroupListeners)
@@ -209,7 +211,8 @@ public class ServerStoredContactListMsnImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -232,7 +235,8 @@ public class ServerStoredContactListMsnImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -367,7 +371,8 @@ public class ServerStoredContactListMsnImpl
     public void addContact(final ContactGroupMsnImpl parent, final String id)
         throws OperationFailedException
     {
-        logger.trace("Adding contact " + id + " to parent=" + parent);
+        if (logger.isTraceEnabled())
+            logger.trace("Adding contact " + id + " to parent=" + parent);
 
         //if the contact is already in the contact list and is not volatile,
         //then only broadcast an event
@@ -376,7 +381,8 @@ public class ServerStoredContactListMsnImpl
         if( existingContact != null
             && existingContact.isPersistent() )
         {
-            logger.debug("Contact " + id + " already exists.");
+            if (logger.isDebugEnabled())
+                logger.debug("Contact " + id + " already exists.");
             throw new OperationFailedException(
                 "Contact " + id + " already exists.",
                 OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
@@ -534,13 +540,15 @@ public class ServerStoredContactListMsnImpl
     public void createGroup(String groupName)
         throws OperationFailedException
     {
-        logger.trace("Creating group: " + groupName);
+        if (logger.isTraceEnabled())
+            logger.trace("Creating group: " + groupName);
 
         ContactGroupMsnImpl existingGroup = findContactGroup(groupName);
 
         if( existingGroup != null && existingGroup.isPersistent() )
         {
-            logger.debug("ContactGroup " + groupName + " already exists.");
+            if (logger.isDebugEnabled())
+                logger.debug("ContactGroup " + groupName + " already exists.");
             throw new OperationFailedException(
                            "ContactGroup " + groupName + " already exists.",
                 OperationFailedException.CONTACT_GROUP_ALREADY_EXISTS);
@@ -560,7 +568,8 @@ public class ServerStoredContactListMsnImpl
         if(groupToRemove.getSourceGroup().getGroupId().equals("0"))
             return;
 
-        logger.trace("removing group " + groupToRemove);
+        if (logger.isTraceEnabled())
+            logger.trace("removing group " + groupToRemove);
         MsnContact[] contacts = groupToRemove.getSourceGroup().getContacts();
 
         ModListenerRemoveGroup removedContactsListener =
@@ -569,7 +578,8 @@ public class ServerStoredContactListMsnImpl
 
         for (int i = 0; i < contacts.length; i++)
         {
-            logger.trace("removing contact from group " + contacts[i]);
+            if (logger.isTraceEnabled())
+                logger.trace("removing contact from group " + contacts[i]);
 
             msnProvider.getMessenger().removeFriend(contacts[i].getEmail(),
                 groupToRemove.getSourceGroup().getGroupId());
@@ -590,7 +600,8 @@ public class ServerStoredContactListMsnImpl
      */
     void removeContact(ContactMsnImpl contactToRemove)
     {
-        logger.trace("Removing msn contact "
+        if (logger.isTraceEnabled())
+            logger.trace("Removing msn contact "
                         + contactToRemove.getSourceContact());
 
         Email contactsEmail = contactToRemove.getSourceContact().getEmail();
@@ -634,7 +645,8 @@ public class ServerStoredContactListMsnImpl
 
         if(oldParent instanceof RootContactGroupMsnImpl)
         {
-            logger.trace("Will Move from root " + contact);
+            if (logger.isTraceEnabled())
+                logger.trace("Will Move from root " + contact);
             msnProvider.getMessenger().
                 copyFriend(
                     contact.getSourceContact().getEmail(),
@@ -675,7 +687,8 @@ public class ServerStoredContactListMsnImpl
             }
             else
             {
-                logger.trace("Will Move from "
+                if (logger.isTraceEnabled())
+                    logger.trace("Will Move from "
                                 +  contact.getParentContactGroup()
                     + " to : " + newParent + " - contact: " + contact);
 //                contactListModListenerImpl.waitForMove(contact.getAddress());
@@ -740,7 +753,8 @@ public class ServerStoredContactListMsnImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -789,7 +803,8 @@ public class ServerStoredContactListMsnImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -835,7 +850,8 @@ public class ServerStoredContactListMsnImpl
 
         public void contactListInitCompleted(MsnMessenger messenger)
         {
-            logger.trace("contactListInitCompleted");
+            if (logger.isTraceEnabled())
+                logger.trace("contactListInitCompleted");
             isInitialized = true;
 
             if(logger.isDebugEnabled())
@@ -937,7 +953,8 @@ public class ServerStoredContactListMsnImpl
         public void contactAddedMe(MsnMessenger messenger,
             MsnContactPending[] pendingContacts)
         {
-            logger.trace("Contact add us ");
+            if (logger.isTraceEnabled())
+                logger.trace("Contact add us ");
             /**
              * TODO this method introduced for msn15 currently used.
              * the old one below no more used.
@@ -948,7 +965,8 @@ public class ServerStoredContactListMsnImpl
         {
 //            try
 //            {
-                logger.trace("Contact add us " + contact);
+                if (logger.isTraceEnabled())
+                    logger.trace("Contact add us " + contact);
 
                 if(parentOperationSet.getAuthorizationHandler() == null)
                     return;
@@ -1034,7 +1052,8 @@ public class ServerStoredContactListMsnImpl
 
             if(contactToRemove == null)
             {
-                logger.trace("Contact not found!" + contact);
+                if (logger.isTraceEnabled())
+                    logger.trace("Contact not found!" + contact);
                 return;
             }
 
@@ -1055,7 +1074,8 @@ public class ServerStoredContactListMsnImpl
 
         public void groupAddCompleted(MsnMessenger messenger, MsnGroup group)
         {
-            logger.trace("groupAdded " + group);
+            if (logger.isTraceEnabled())
+                logger.trace("groupAdded " + group);
             ContactGroupMsnImpl newGroup =
                 new ContactGroupMsnImpl(group,
                                new MsnContact[]{},
@@ -1071,7 +1091,8 @@ public class ServerStoredContactListMsnImpl
 
             if(group == null)
             {
-                logger.trace("Group not found!" + g);
+                if (logger.isTraceEnabled())
+                    logger.trace("Group not found!" + g);
                 return;
             }
 
@@ -1155,7 +1176,8 @@ public class ServerStoredContactListMsnImpl
 
             if(g == null)
             {
-                logger.trace("Group is null! ");
+                if (logger.isTraceEnabled())
+                    logger.trace("Group is null! ");
                 return;
             }
 
@@ -1164,13 +1186,15 @@ public class ServerStoredContactListMsnImpl
 
             if(contactToRemove == null)
             {
-                logger.trace("Contact not found " + c);
+                if (logger.isTraceEnabled())
+                    logger.trace("Contact not found " + c);
                 return;
             }
 
             if(dstGroup == null)
             {
-                logger.trace("Group not found " + g);
+                if (logger.isTraceEnabled())
+                    logger.trace("Group not found " + g);
                 return;
             }
 
@@ -1225,7 +1249,8 @@ public class ServerStoredContactListMsnImpl
                 }
                 catch (InterruptedException ex)
                 {
-                    logger.debug(
+                    if (logger.isDebugEnabled())
+                        logger.debug(
                         "Interrupted while waiting for a subscription evt", ex);
                 }
             }
@@ -1246,7 +1271,8 @@ public class ServerStoredContactListMsnImpl
                 findContactGroupByMsnId(group.getGroupId());
 
             if(groupToRename == null){
-                logger.trace("Group not found!" + group);
+                if (logger.isTraceEnabled())
+                    logger.trace("Group not found!" + group);
                 return;
             }
 
@@ -1323,59 +1349,74 @@ public class ServerStoredContactListMsnImpl
     {
         MsnMessenger messenger = msnProvider.getMessenger();
 
-        logger.info("---=Start Printing contact list=---");
+        if (logger.isInfoEnabled())
+            logger.info("---=Start Printing contact list=---");
 
         MsnContactList list = messenger.getContactList();
 
-        logger.info("Forward list");
+        if (logger.isInfoEnabled())
+            logger.info("Forward list");
         MsnContact[] c = list.getContactsInList(MsnList.FL);
         for(int i = 0; i < c.length; i++)
         {
-            logger.info("c : " + c[i]);
+            if (logger.isInfoEnabled())
+                logger.info("c : " + c[i]);
             MsnGroup[] groups = c[i].getBelongGroups();
             for(int j = 0; j < groups.length; j++)
             {
-                logger.info("in group " + groups[j]);
+                if (logger.isInfoEnabled())
+                    logger.info("in group " + groups[j]);
             }
         }
 
-        logger.info("Allow list");
+        if (logger.isInfoEnabled())
+            logger.info("Allow list");
         c = list.getContactsInList(MsnList.AL);
         for(int i = 0; i < c.length; i++)
         {
-            logger.info("c : " + c[i] + " g:" + c[i].getBelongGroups().length);
+            if (logger.isInfoEnabled())
+                logger.info("c : " + c[i] + " g:" + c[i].getBelongGroups().length);
         }
 
-        logger.info("Block list");
+        if (logger.isInfoEnabled())
+            logger.info("Block list");
         c = list.getContactsInList(MsnList.BL);
         for(int i = 0; i < c.length; i++)
         {
-            logger.info("c : " + c[i] + " g:" + c[i].getBelongGroups().length);
+            if (logger.isInfoEnabled())
+                logger.info("c : " + c[i] + " g:" + c[i].getBelongGroups().length);
         }
 
-        logger.info("pending list");
+        if (logger.isInfoEnabled())
+            logger.info("pending list");
         c = list.getContactsInList(MsnList.PL);
         for(int i = 0; i < c.length; i++)
         {
-            logger.info("c : " + c[i] + " g:" + c[i].getBelongGroups().length);
+            if (logger.isInfoEnabled())
+                logger.info("c : " + c[i] + " g:" + c[i].getBelongGroups().length);
         }
 
-        logger.info("Reverse list");
+        if (logger.isInfoEnabled())
+            logger.info("Reverse list");
         c = list.getContactsInList(MsnList.RL);
         for(int i = 0; i < c.length; i++)
         {
-            logger.info("c : " + c[i] + " g:" +
+            if (logger.isInfoEnabled())
+                logger.info("c : " + c[i] + " g:" +
                                c[i].getBelongGroups().length);
         }
 
-        logger.info("Number of groups : "
+        if (logger.isInfoEnabled())
+            logger.info("Number of groups : "
                         + messenger.getContactList().getGroups().length);
         MsnGroup[] groups = messenger.getContactList().getGroups();
         for(int j = 0; j < groups.length; j++)
         {
-            logger.info("group " + groups[j]);
+            if (logger.isInfoEnabled())
+                logger.info("group " + groups[j]);
         }
-        logger.info("---=End Printing contact list=---");
+        if (logger.isInfoEnabled())
+            logger.info("---=End Printing contact list=---");
     }
 
     private class ImageUpdater

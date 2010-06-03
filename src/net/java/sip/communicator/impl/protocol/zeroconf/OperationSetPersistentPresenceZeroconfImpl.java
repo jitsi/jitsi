@@ -712,7 +712,8 @@ public class OperationSetPersistentPresenceZeroconfImpl
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
             
-            logger.debug("ZEROCONF : The Zeroconf provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("ZEROCONF : The Zeroconf provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
             

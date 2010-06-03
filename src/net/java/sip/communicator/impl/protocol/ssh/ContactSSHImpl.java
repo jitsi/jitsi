@@ -353,7 +353,8 @@ public class ContactSSHImpl
             int fifthCommaIndex = this.persistentData.indexOf(separator,
                     fourthCommaIndex +1);
 
-            logger.debug("Commas: " + firstCommaIndex + " " + secondCommaIndex + " "
+            if (logger.isDebugEnabled())
+                logger.debug("Commas: " + firstCommaIndex + " " + secondCommaIndex + " "
                     + thirdCommaIndex + " " +fourthCommaIndex + " "
                     +fifthCommaIndex);
 

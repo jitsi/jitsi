@@ -67,7 +67,8 @@ public class ContactTimerSSHImpl
                     persistentPresence.changeContactPresenceStatus(
                             sshContact, SSHStatusEnum.ONLINE);
 
-                    logger.debug("SSH Host " + sshContact
+                    if (logger.isDebugEnabled())
+                        logger.debug("SSH Host " + sshContact
                         .getSSHConfigurationForm().getHostName() + ": Online");
                 }
 
@@ -84,7 +85,8 @@ public class ContactTimerSSHImpl
                 persistentPresence.changeContactPresenceStatus(
                         sshContact, SSHStatusEnum.OFFLINE);
 
-                logger.debug("SSH Host " + sshContact.getSSHConfigurationForm()
+                if (logger.isDebugEnabled())
+                    logger.debug("SSH Host " + sshContact.getSSHConfigurationForm()
                 .getHostName() + ": Offline");
             }
         }

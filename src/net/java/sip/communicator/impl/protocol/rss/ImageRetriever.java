@@ -151,7 +151,8 @@ public class ImageRetriever extends Thread
         }
         catch (Exception exc)
         {
-            logger.trace("Cannot load image for contact " + this + " : "
+            if (logger.isTraceEnabled())
+                logger.trace("Cannot load image for contact " + this + " : "
                             + exc.getMessage(), exc);
 
             return null;
@@ -234,7 +235,8 @@ public class ImageRetriever extends Thread
         }
         catch (Exception exc)
         {
-            logger.trace("Failed to retrieve link image.", exc);
+            if (logger.isTraceEnabled())
+                logger.trace("Failed to retrieve link image.", exc);
         }
 
         return null;
@@ -271,7 +273,8 @@ public class ImageRetriever extends Thread
 
             ICOFile favicon = new ICOFile(location);
 
-            logger.trace("Icon has " + favicon.getImageCount() + " pages");
+            if (logger.isTraceEnabled())
+                logger.trace("Icon has " + favicon.getImageCount() + " pages");
 
             for (int i = 0; i < favicon.getDescriptors().size(); i++)
             {
@@ -305,8 +308,10 @@ public class ImageRetriever extends Thread
             ImageIO.write((BufferedImage) selectedIcon, "PNG", output);
             result = output.toByteArray();
 
-            logger.trace("Result has " + result.length + " bytes");
-            logger.trace("Icon is " + maxWidth + " px X " + maxWidth + " px @ "
+            if (logger.isTraceEnabled())
+                logger.trace("Result has " + result.length + " bytes");
+            if (logger.isTraceEnabled())
+                logger.trace("Icon is " + maxWidth + " px X " + maxWidth + " px @ "
                             + maxColors + " colors");
 
             output.close();
@@ -320,13 +325,15 @@ public class ImageRetriever extends Thread
         catch (IOException ioex)
         {
             logger.warn("I/O Error on favicon retrieval. " + ioex.getMessage());
-            logger.debug("I/O Error on favicon retrieval. " + ioex, ioex);
+            if (logger.isDebugEnabled())
+                logger.debug("I/O Error on favicon retrieval. " + ioex, ioex);
         }
         catch (Exception ex)
         {
             logger.warn("Unknown error on favicon retrieval. " + ex +
                     ". Error for location: " + location, ex);
-            logger.debug("", ex);
+            if (logger.isDebugEnabled())
+                logger.debug("", ex);
         }
 
         return null;
@@ -341,7 +348,8 @@ public class ImageRetriever extends Thread
      */
     private byte[] getDefaultRssIcon()
     {
-        logger.trace("Loading default icon at " + defaultIconId);
+        if (logger.isTraceEnabled())
+            logger.trace("Loading default icon at " + defaultIconId);
 
         return ProtocolIconRssImpl.getImageInBytes(defaultIconId);
     }

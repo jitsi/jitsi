@@ -213,7 +213,8 @@ public class SdpUtils
         catch (Exception e)
         {
             // can't happen, ignore
-            logger.info("Something very odd just happened.", e);
+            if (logger.isInfoEnabled())
+                logger.info("Something very odd just happened.", e);
         }
 
         //now, RFC 3264 says all previous m= fields must be present and new ones
@@ -264,7 +265,8 @@ public class SdpUtils
         {
             // never thrown, unless completeMediaDescList is null and that
             // can't be since we just created it.
-            logger.info("A crazy thing just happened.", e);
+            if (logger.isInfoEnabled())
+                logger.info("A crazy thing just happened.", e);
         }
 
         return update;
@@ -344,7 +346,8 @@ public class SdpUtils
             //this is never thrown by the implementation because it doesn't
             //do lazy parsing ... and whose idea was it to have an exception
             //here anyway ?!?
-            logger.debug("A funny thing just happened ...", exc);
+            if (logger.isDebugEnabled())
+                logger.debug("A funny thing just happened ...", exc);
             return mediaFmts;
         }
 
@@ -359,7 +362,8 @@ public class SdpUtils
             catch (NumberFormatException e)
             {
                 //weird payload type. contact is sending rubbish. try to ignore
-                logger.debug(ptStr + " is not a valid payload type", e);
+                if (logger.isDebugEnabled())
+                    logger.debug(ptStr + " is not a valid payload type", e);
                 continue;
             }
 
@@ -373,7 +377,8 @@ public class SdpUtils
             catch (SdpException e)
             {
                 //there was a problem parsing the rtpmap. try to ignore.
-                logger.debug(
+                if (logger.isDebugEnabled())
+                    logger.debug(
                    rtpmap + " does not seem like a valid rtpmap: attribute", e);
             }
 
@@ -387,7 +392,8 @@ public class SdpUtils
             catch (SdpException exc)
             {
                 //there was a problem parsing the fmtp: try to ignore.
-                logger.debug(
+                if (logger.isDebugEnabled())
+                    logger.debug(
                    fmtp + " does not seem like a valid fmtp: attribute", exc);
             }
 
@@ -400,7 +406,8 @@ public class SdpUtils
             }
             catch(SdpException exc)
             {
-                logger.debug("Problem parsing advanced attributes", exc);
+                if (logger.isDebugEnabled())
+                    logger.debug("Problem parsing advanced attributes", exc);
             }
 
             MediaFormat mediaFormat = null;
@@ -413,7 +420,8 @@ public class SdpUtils
                 //this is never thrown by the implementation because it doesn't
                 //do lazy parsing ... and whose idea was it to have an exception
                 //here anyway ?!?
-                logger.debug("A funny thing just happened ...", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("A funny thing just happened ...", e);
                 continue;
             }
 
@@ -469,7 +477,8 @@ public class SdpUtils
                 //this is never thrown by the implementation because it doesn't
                 //do lazy parsing ... and whose idea was it to have an exception
                 //here anyway ?!?
-                logger.debug("A funny thing just happened ...", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("A funny thing just happened ...", e);
                 continue;
             }
 
@@ -657,7 +666,8 @@ public class SdpUtils
                 }
                 catch(NumberFormatException exc)
                 {
-                    logger.debug(
+                    if (logger.isDebugEnabled())
+                        logger.debug(
                             nChansStr + " is not a valid number of channels.",
                             exc);
                 }
@@ -744,7 +754,8 @@ public class SdpUtils
             catch (SdpParseException e)
             {
                 //can't happen. jain sip doesn't do lazy parsing
-                logger.debug("The impossible has just occurred!", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("The impossible has just occurred!", e);
                 return null;
             }
             int idx = -1;
@@ -1178,7 +1189,8 @@ public class SdpUtils
             catch (SdpParseException e)
             {
                 //can't happen (checkout the jain-sdp code if you wish)
-                logger.debug("The impossible has just occurred!", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("The impossible has just occurred!", e);
             }
 
             for (MediaDirection value : MediaDirection.values())
@@ -1206,7 +1218,8 @@ public class SdpUtils
 
         if (sdpUriField == null)
         {
-            logger.trace("Call URI was null.");
+            if (logger.isTraceEnabled())
+                logger.trace("Call URI was null.");
             return null;
         }
 
@@ -1480,7 +1493,8 @@ public class SdpUtils
         catch (SdpException exc)
         {
             // impossible to happen for reasons mentioned many times here :)
-            logger.debug("Invalid media type in m= line: " + description, exc);
+            if (logger.isDebugEnabled())
+                logger.debug("Invalid media type in m= line: " + description, exc);
             throw new IllegalArgumentException(
                          "Invalid media type in m= line: " + description, exc);
         }

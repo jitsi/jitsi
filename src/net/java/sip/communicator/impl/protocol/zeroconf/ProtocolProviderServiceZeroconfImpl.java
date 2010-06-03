@@ -62,7 +62,8 @@ public class ProtocolProviderServiceZeroconfImpl
      */
     public ProtocolProviderServiceZeroconfImpl()
     {
-        logger.trace("Creating a zeroconf provider.");
+        if (logger.isTraceEnabled())
+            logger.trace("Creating a zeroconf provider.");
     }
     
     /**
@@ -184,7 +185,8 @@ public class ProtocolProviderServiceZeroconfImpl
 
         
         //ICI : creer le service Zeroconf !!
-        logger.info("ZEROCONF: Starting the service");
+        if (logger.isInfoEnabled())
+            logger.info("ZEROCONF: Starting the service");
         this.bonjourService = new BonjourService(5298, this);
         
         //bonjourService.changeStatus(ZeroconfStatusEnum.ONLINE);
@@ -207,7 +209,8 @@ public class ProtocolProviderServiceZeroconfImpl
         {
             return;
         }
-        logger.trace("Killing the Zeroconf Protocol Provider.");
+        if (logger.isTraceEnabled())
+            logger.trace("Killing the Zeroconf Protocol Provider.");
 
         if(isRegistered())
         {

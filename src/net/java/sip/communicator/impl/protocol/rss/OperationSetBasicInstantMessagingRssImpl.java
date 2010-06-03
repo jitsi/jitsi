@@ -151,7 +151,8 @@ public class OperationSetBasicInstantMessagingRssImpl
 
             logger.warn("RSS flow no longer exists. Error was: "
                          + ex.getMessage());
-            logger.debug(ex);
+            if (logger.isDebugEnabled())
+                logger.debug(ex);
             return;
         }
         catch (OperationFailedException ex)
@@ -237,14 +238,16 @@ public class OperationSetBasicInstantMessagingRssImpl
         if (timer != null )
             return;
 
-        logger.trace("Creating rss timer and task.");
+        if (logger.isTraceEnabled())
+            logger.trace("Creating rss timer and task.");
         RssTimerRefreshFeed refresh = new RssTimerRefreshFeed(this);
         this.timer = new Timer();
         this.timer.scheduleAtFixedRate(refresh,
                                        INITIAL_RSS_LOAD_DELAY,
                                        PERIOD_REFRESH_RSS);
 
-        logger.trace("Done.");
+        if (logger.isTraceEnabled())
+            logger.trace("Done.");
     }
 
     /**
@@ -466,7 +469,8 @@ public class OperationSetBasicInstantMessagingRssImpl
                 }
                 catch (OperationFailedException exc)
                 {
-                    logger.info("We could not remove a dead contact", exc);
+                    if (logger.isInfoEnabled())
+                        logger.info("We could not remove a dead contact", exc);
                 }
             }
         }

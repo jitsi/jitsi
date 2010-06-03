@@ -58,7 +58,8 @@ public class GeolocationPacketExtensionProvider
 
         GeolocationPacketExtension result = new GeolocationPacketExtension();
 
-        logger.trace("Trying to map XML Geolocation Extension");
+        if (logger.isTraceEnabled())
+            logger.trace("Trying to map XML Geolocation Extension");
 
         boolean done = false;
         while (!done)
@@ -162,7 +163,8 @@ public class GeolocationPacketExtensionProvider
                             GeolocationPacketExtensionProvider.ELEMENT_NAME))
                     {
                         done = true;
-                        logger.trace("Parsing finish");
+                        if (logger.isTraceEnabled())
+                            logger.trace("Parsing finish");
                     }
                 }
             }

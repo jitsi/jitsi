@@ -168,19 +168,23 @@ public class WhiteboardObjectPacketExtension implements PacketExtension
                 this.action = WhiteboardObjectPacketExtension.ACTION_DELETE;
             }
             else //we have a problem :p
-                logger.debug ("elementName unknow\n");
+                if (logger.isDebugEnabled())
+                    logger.debug ("elementName unknow\n");
         }
         catch (ParserConfigurationException ex)
         {
-            logger.debug ("Problem WhiteboardObject : " + xml, ex);
+            if (logger.isDebugEnabled())
+                logger.debug ("Problem WhiteboardObject : " + xml, ex);
         }
         catch (IOException ex)
         {
-            logger.debug ("Problem WhiteboardObject : " + xml, ex);
+            if (logger.isDebugEnabled())
+                logger.debug ("Problem WhiteboardObject : " + xml, ex);
         }
         catch (Exception ex)
         {
-            logger.debug ("Problem WhiteboardObject : " + xml, ex);
+            if (logger.isDebugEnabled())
+                logger.debug ("Problem WhiteboardObject : " + xml, ex);
         }
         
     }

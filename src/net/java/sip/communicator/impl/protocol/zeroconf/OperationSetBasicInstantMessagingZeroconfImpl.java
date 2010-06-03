@@ -100,7 +100,8 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
                 if (thread == null) 
                 {
                     Socket sock;
-                    logger.debug("ZEROCONF: Creating a chat connexion to "
+                    if (logger.isDebugEnabled())
+                        logger.debug("ZEROCONF: Creating a chat connexion to "
                             +to.getIpAddress()+":"+to.getPort());
                     sock = new Socket(to.getIpAddress(), to.getPort());
                     thread = new ClientThread(sock, to.getBonjourService());

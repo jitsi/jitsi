@@ -116,19 +116,23 @@ public class ThumbnailElement
                   this.setHeight(Integer.parseInt(e.getAttribute(WIDTH)));
               }
               else
-                  logger.debug ("Element name unknown!");
+                  if (logger.isDebugEnabled())
+                      logger.debug ("Element name unknown!");
           }
           catch (ParserConfigurationException ex)
           {
-              logger.debug ("Problem parsing Thumbnail Element : " + xml, ex);
+              if (logger.isDebugEnabled())
+                  logger.debug ("Problem parsing Thumbnail Element : " + xml, ex);
           }
           catch (IOException ex)
           {
-              logger.debug ("Problem parsing Thumbnail Element : " + xml, ex);
+              if (logger.isDebugEnabled())
+                  logger.debug ("Problem parsing Thumbnail Element : " + xml, ex);
           }
           catch (Exception ex)
           {
-              logger.debug ("Problem parsing Thumbnail Element : " + xml, ex);
+              if (logger.isDebugEnabled())
+                  logger.debug ("Problem parsing Thumbnail Element : " + xml, ex);
           }
     }
 
@@ -286,11 +290,13 @@ public class ThumbnailElement
         }
         catch (NoSuchAlgorithmException e)
         {
-            logger.debug("Failed to encode the thumbnail in SHA-1.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to encode the thumbnail in SHA-1.", e);
         }
         catch (UnsupportedEncodingException e)
         {
-            logger.debug("Failed to encode the thumbnail in SHA-1.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to encode the thumbnail in SHA-1.", e);
         }
 
         return null;

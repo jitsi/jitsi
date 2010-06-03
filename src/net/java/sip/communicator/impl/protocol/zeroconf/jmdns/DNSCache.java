@@ -4,7 +4,7 @@
 package net.java.sip.communicator.impl.protocol.zeroconf.jmdns;
 
 import java.util.*;
-import java.util.logging.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A table of DNS entries. This is a hash table which
@@ -84,9 +84,10 @@ class DNSCache
         public CacheNode(DNSEntry value)
         {
             this.value = value;
-            String SLevel = System.getProperty("jmdns.debug");
-            if (SLevel == null) SLevel = "INFO";
-            logger.setLevel(Level.parse(SLevel));
+//            String SLevel = System.getProperty("jmdns.debug");
+//            if (SLevel == null)
+//                SLevel = "INFO";
+//            logger.setLevel(Level.parse(SLevel));
         }
 
         public CacheNode next()
@@ -109,9 +110,9 @@ class DNSCache
     {
         hashtable = new HashMap<String, CacheNode>(size);
 
-        String SLevel = System.getProperty("jmdns.debug");
-        if (SLevel == null) SLevel = "INFO";
-        logger.setLevel(Level.parse(SLevel));
+//        String SLevel = System.getProperty("jmdns.debug");
+//        if (SLevel == null) SLevel = "INFO";
+//        logger.setLevel(Level.parse(SLevel));
     }
 
     /**
@@ -256,7 +257,8 @@ class DNSCache
         {
             for (CacheNode n = i.next(); n != null; n = n.next)
             {
-                logger.info(n.value.toString());
+                if (logger.isInfoEnabled())
+                    logger.info(n.value.toString());
             }
         }
     }

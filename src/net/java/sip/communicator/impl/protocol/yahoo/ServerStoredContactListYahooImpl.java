@@ -157,7 +157,8 @@ public class ServerStoredContactListYahooImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -168,7 +169,8 @@ public class ServerStoredContactListYahooImpl
                 , yahooProvider
                 , parentOperationSet);
 
-        logger.trace("Will dispatch the following grp event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following grp event: " + evt);
 
         Iterable<ServerStoredGroupListener> listeners;
         synchronized (serverStoredGroupListeners)
@@ -206,7 +208,8 @@ public class ServerStoredContactListYahooImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -229,7 +232,8 @@ public class ServerStoredContactListYahooImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -368,7 +372,8 @@ public class ServerStoredContactListYahooImpl
     public void addContact(final ContactGroupYahooImpl parent, String id)
         throws OperationFailedException
     {
-        logger.trace("Adding contact " + id + " to parent=" + parent);
+        if (logger.isTraceEnabled())
+            logger.trace("Adding contact " + id + " to parent=" + parent);
 
         //if the contact is already in the contact list and is not volatile,
         //then only broadcast an event
@@ -377,7 +382,8 @@ public class ServerStoredContactListYahooImpl
         if( existingContact != null
             && existingContact.isPersistent() )
         {
-            logger.debug("Contact " + id + " already exists.");
+            if (logger.isDebugEnabled())
+                logger.debug("Contact " + id + " already exists.");
             throw new OperationFailedException(
                 "Contact " + id + " already exists.",
                 OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
@@ -409,7 +415,8 @@ public class ServerStoredContactListYahooImpl
      */
     ContactYahooImpl createVolatileContact(String id)
     {
-        logger.trace("Creating volatile contact " + id);
+        if (logger.isTraceEnabled())
+            logger.trace("Creating volatile contact " + id);
         ContactYahooImpl newVolatileContact =
             new ContactYahooImpl(id, this, false, false, true);
 
@@ -456,7 +463,8 @@ public class ServerStoredContactListYahooImpl
     ContactYahooImpl createUnresolvedContact(ContactGroup parentGroup,
                                             String id)
     {
-        logger.trace("Creating unresolved contact " + id
+        if (logger.isTraceEnabled())
+            logger.trace("Creating unresolved contact " + id
                         + " to parent=" + parentGroup);
         ContactYahooImpl newUnresolvedContact
             = new ContactYahooImpl(id, this, false, false, false);
@@ -486,7 +494,8 @@ public class ServerStoredContactListYahooImpl
 
         if( existingGroup != null && existingGroup.isPersistent() )
         {
-            logger.debug("ContactGroup " + groupName + " already exists.");
+            if (logger.isDebugEnabled())
+                logger.debug("ContactGroup " + groupName + " already exists.");
             throw new IllegalArgumentException(
                            "ContactGroup " + groupName + " already exists.");
         }
@@ -511,13 +520,15 @@ public class ServerStoredContactListYahooImpl
     public void createGroup(String groupName)
         throws OperationFailedException
     {
-        logger.trace("Creating group: " + groupName);
+        if (logger.isTraceEnabled())
+            logger.trace("Creating group: " + groupName);
 
         ContactGroupYahooImpl existingGroup = findContactGroup(groupName);
 
         if( existingGroup != null && existingGroup.isPersistent() )
         {
-            logger.debug("ContactGroup " + groupName + " already exists.");
+            if (logger.isDebugEnabled())
+                logger.debug("ContactGroup " + groupName + " already exists.");
             throw new OperationFailedException(
                            "ContactGroup " + groupName + " already exists.",
                 OperationFailedException.CONTACT_GROUP_ALREADY_EXISTS);
@@ -536,7 +547,8 @@ public class ServerStoredContactListYahooImpl
     {
         // to remove group just remove all the contacts in it
 
-        logger.trace("removing group " + groupToRemove);
+        if (logger.isTraceEnabled())
+            logger.trace("removing group " + groupToRemove);
 
         // if its not persistent group just remove it
         if(!groupToRemove.isPersistent() || !groupToRemove.isResolved())
@@ -574,7 +586,8 @@ public class ServerStoredContactListYahooImpl
             }
             catch(IOException ex)
             {
-                logger.info("Cannot Remove contact " + item.getId());
+                if (logger.isInfoEnabled())
+                    logger.info("Cannot Remove contact " + item.getId());
             }
         }
     }
@@ -586,7 +599,8 @@ public class ServerStoredContactListYahooImpl
      */
     void removeContact(ContactYahooImpl contactToRemove)
     {
-        logger.trace("Removing yahoo contact "
+        if (logger.isTraceEnabled())
+            logger.trace("Removing yahoo contact "
                         + contactToRemove.getSourceContact());
 
         if(contactToRemove.isVolatile())
@@ -607,7 +621,8 @@ public class ServerStoredContactListYahooImpl
         }
         catch(IOException ex)
         {
-            logger.info("Cannot Remove contact " + contactToRemove);
+            if (logger.isInfoEnabled())
+                logger.info("Cannot Remove contact " + contactToRemove);
         }
     }
 
@@ -626,7 +641,8 @@ public class ServerStoredContactListYahooImpl
             }
             catch(IOException ex)
             {
-                logger.info("Cannot rename group " + groupToRename);
+                if (logger.isInfoEnabled())
+                    logger.info("Cannot rename group " + groupToRename);
             }
 
             fireGroupEvent(groupToRename,
@@ -710,7 +726,8 @@ public class ServerStoredContactListYahooImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -730,7 +747,8 @@ public class ServerStoredContactListYahooImpl
     {
         //bail out if no one's listening
         if(parentOperationSet == null){
-            logger.debug("No presence op. set available. Bailing out.");
+            if (logger.isDebugEnabled())
+                logger.debug("No presence op. set available. Bailing out.");
             return;
         }
 
@@ -746,7 +764,8 @@ public class ServerStoredContactListYahooImpl
     @SuppressWarnings("unchecked") //jymsg legacy code
     private void initList()
     {
-        logger.trace("Start init list of "
+        if (logger.isTraceEnabled())
+            logger.trace("Start init list of "
                         + yahooProvider.getAccountID().getUserID());
 
         for (YahooGroup item : yahooSession.getGroups())
@@ -778,7 +797,8 @@ public class ServerStoredContactListYahooImpl
                 /** @todo  if something to delete . delete it */
             }
 
-            logger.trace("Init of group done! : " + group);
+            if (logger.isTraceEnabled())
+                logger.trace("Init of group done! : " + group);
         }
     }
 
@@ -893,13 +913,15 @@ public class ServerStoredContactListYahooImpl
          */
         public void friendAddedReceived(SessionFriendEvent ev)
         {
-            logger.trace("Receive event for adding a friend : " + ev);
+            if (logger.isTraceEnabled())
+                logger.trace("Receive event for adding a friend : " + ev);
 
             ContactGroupYahooImpl group =
                 findContactGroup(ev.getGroup());
 
             if(group == null){
-                logger.trace("Group not found!" + ev.getGroup());
+                if (logger.isTraceEnabled())
+                    logger.trace("Group not found!" + ev.getGroup());
                 return;
             }
 
@@ -976,7 +998,8 @@ public class ServerStoredContactListYahooImpl
                 }
                 catch(IOException ex)
                 {
-                    logger.info("Cannot Remove(till moving) contact :" +
+                    if (logger.isInfoEnabled())
+                        logger.info("Cannot Remove(till moving) contact :" +
                         contactToAdd + " from group " + oldParent);
                 }
                 return;
@@ -1017,7 +1040,8 @@ public class ServerStoredContactListYahooImpl
          */
         public void friendRemovedReceived(SessionFriendEvent ev)
         {
-            logger.trace("Receive event for removing a friend : " + ev);
+            if (logger.isTraceEnabled())
+                logger.trace("Receive event for removing a friend : " + ev);
 
             String contactID = ev.getFriend().getId();
 
@@ -1072,7 +1096,8 @@ public class ServerStoredContactListYahooImpl
          */
         public void contactRequestReceived(SessionEvent ev)
         {
-            logger.info("contactRequestReceived : " + ev);
+            if (logger.isInfoEnabled())
+                logger.info("contactRequestReceived : " + ev);
 
             if(handler == null || ev.getFrom() == null)
                 return;
@@ -1106,7 +1131,8 @@ public class ServerStoredContactListYahooImpl
          */
         public void contactRejectionReceived(SessionEvent ev)
         {
-            logger.info("contactRejectionReceived : " + ev);
+            if (logger.isInfoEnabled())
+                logger.info("contactRejectionReceived : " + ev);
 
             if(handler == null)
                 return;
@@ -1145,11 +1171,13 @@ public class ServerStoredContactListYahooImpl
         {
             if(ev.isAuthorizationAccepted())
             {
-                logger.trace("authorizationAccepted from " + ev.getFrom());
+                if (logger.isTraceEnabled())
+                    logger.trace("authorizationAccepted from " + ev.getFrom());
                 Contact srcContact = findContactById(ev.getFrom());
 
                 if(srcContact == null)
-                    logger.trace("No contact found");
+                    if (logger.isTraceEnabled())
+                        logger.trace("No contact found");
                 else
                     handler.processAuthorizationResponse(
                         new AuthorizationResponse(
@@ -1159,11 +1187,13 @@ public class ServerStoredContactListYahooImpl
             }
             else if(ev.isAuthorizationDenied())
             {
-                logger.trace("authorizationDenied from " + ev.getFrom());
+                if (logger.isTraceEnabled())
+                    logger.trace("authorizationDenied from " + ev.getFrom());
                 Contact srcContact = findContactById(ev.getFrom());
 
                 if(srcContact == null)
-                    logger.trace("No contact found");
+                    if (logger.isTraceEnabled())
+                        logger.trace("No contact found");
                 else
                 {
                     handler.processAuthorizationResponse(
@@ -1183,7 +1213,8 @@ public class ServerStoredContactListYahooImpl
             }
             else if(ev.isAuthorizationRequest())
             {
-                logger.trace("authorizationRequestReceived from "
+                if (logger.isTraceEnabled())
+                    logger.trace("authorizationRequestReceived from "
                              + ev.getFrom());
                 processAuthorizationRequest(ev);
             }

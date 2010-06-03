@@ -55,26 +55,30 @@ public class OsDependentActivator
             // Create the notification service implementation
             SystrayService systrayService = new SystrayServiceJdicImpl();
 
-            logger.info("Systray Service...[  STARTED ]");
+            if (logger.isInfoEnabled())
+                logger.info("Systray Service...[  STARTED ]");
 
             bundleContext.registerService(
                     SystrayService.class.getName(),
                     systrayService,
                     null);
 
-            logger.info("Systray Service ...[REGISTERED]");
+            if (logger.isInfoEnabled())
+                logger.info("Systray Service ...[REGISTERED]");
 
             // Create the desktop service implementation
             DesktopService desktopService = new DesktopServiceImpl();
 
-            logger.info("Desktop Service...[  STARTED ]");
+            if (logger.isInfoEnabled())
+                logger.info("Desktop Service...[  STARTED ]");
 
             bundleContext.registerService(
                     DesktopService.class.getName(),
                     desktopService,
                     null);
 
-            logger.info("Desktop Service ...[REGISTERED]");
+            if (logger.isInfoEnabled())
+                logger.info("Desktop Service ...[REGISTERED]");
 
             logger.logEntry();
         }

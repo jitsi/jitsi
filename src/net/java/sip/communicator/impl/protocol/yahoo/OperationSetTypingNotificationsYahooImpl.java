@@ -123,7 +123,8 @@ public class OperationSetTypingNotificationsYahooImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
             if (evt.getNewState() == RegistrationState.REGISTERED)

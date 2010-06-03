@@ -170,7 +170,8 @@ public class DTMFInfo
             }
 
             callPeer.getDialog().sendRequest(clientTransaction);
-            logger.debug("sent request:\n" + info);
+            if (logger.isDebugEnabled())
+                logger.debug("sent request:\n" + info);
         }
         catch (SipException ex)
         {
@@ -193,7 +194,8 @@ public class DTMFInfo
     {
         if (requestEvent == null)
         {
-            logger.debug("requestEvent null");
+            if (logger.isDebugEnabled())
+                logger.debug("requestEvent null");
         }
         logger.error("We don't cope with requests" + requestEvent);
         return false;
@@ -211,24 +213,28 @@ public class DTMFInfo
     {
         if (responseEvent == null)
         {
-            logger.debug("null responseEvent");
+            if (logger.isDebugEnabled())
+                logger.debug("null responseEvent");
             return false;
         }
         Response response = responseEvent.getResponse();
         if (response == null)
         {
-            logger.debug("null response");
+            if (logger.isDebugEnabled())
+                logger.debug("null response");
             return false;
         }
         int code = response.getStatusCode();
-        logger.debug("DTMF status code=" + code);
+        if (logger.isDebugEnabled())
+            logger.debug("DTMF status code=" + code);
         if (code != 200)
         {
             logger.error("DTMF Send failed :" + code);
         }
         else
         {
-            logger.debug("DTMF succeeded");
+            if (logger.isDebugEnabled())
+                logger.debug("DTMF succeeded");
         }
         return true;
     }
@@ -261,7 +267,8 @@ public class DTMFInfo
         //we do nothing
         if (exceptionEvent == null)
         {
-            logger.debug("ioexception null");
+            if (logger.isDebugEnabled())
+                logger.debug("ioexception null");
             return false;
         }
         logger.error("ioexception :" + exceptionEvent);
@@ -280,7 +287,8 @@ public class DTMFInfo
         TransactionTerminatedEvent transactionTerminatedEvent)
     {
         //we do nothing
-        logger.info("Transaction Terminated :" + transactionTerminatedEvent);
+        if (logger.isInfoEnabled())
+            logger.info("Transaction Terminated :" + transactionTerminatedEvent);
         return false;
     }
 
@@ -296,7 +304,8 @@ public class DTMFInfo
         DialogTerminatedEvent dialogTerminatedEvent)
     {
         //we do nothing
-        logger.info("Dialog Terminated :" + dialogTerminatedEvent);
+        if (logger.isInfoEnabled())
+            logger.info("Dialog Terminated :" + dialogTerminatedEvent);
         return false;
     }
 }

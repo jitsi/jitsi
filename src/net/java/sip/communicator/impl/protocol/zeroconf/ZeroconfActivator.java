@@ -71,7 +71,8 @@ public class ZeroconfActivator
                     zeroconfProviderFactory,
                     hashtable);
         
-        logger.info("Zeroconf protocol implementation [STARTED].");
+        if (logger.isInfoEnabled())
+            logger.info("Zeroconf protocol implementation [STARTED].");
     }
 
     /**
@@ -112,6 +113,7 @@ public class ZeroconfActivator
         zeroconfProviderFactory.stop();
         zeroconfPpFactoryServReg.unregister();
         
-        logger.info("Zeroconf protocol implementation [STOPPED].");
+        if (logger.isInfoEnabled())
+            logger.info("Zeroconf protocol implementation [STOPPED].");
     }
 }

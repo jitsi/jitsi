@@ -275,7 +275,8 @@ implements OperationSetAdHocMultiUserChat
             String errorMessage
             = "Failed to create chat room with name: " + roomName;
 
-            logger.debug(errorMessage, e);
+            if (logger.isDebugEnabled())
+                logger.debug(errorMessage, e);
             throw new OperationFailedException(errorMessage,
                 OperationFailedException.CHAT_ROOM_NOT_JOINED, e);
         }
@@ -377,7 +378,8 @@ implements OperationSetAdHocMultiUserChat
         }
         catch (IOException e)
         {
-            logger.debug("Failed to reject Invitation: " + e);
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to reject Invitation: " + e);
         }
     }
 
@@ -537,7 +539,8 @@ implements OperationSetAdHocMultiUserChat
 
         public void conferenceInviteDeclinedReceived(SessionConferenceEvent ev)
         {
-            logger.debug("Group Chat invite declined received. "
+            if (logger.isDebugEnabled())
+                logger.debug("Group Chat invite declined received. "
                 + ev.toString());
             try
             {
@@ -548,13 +551,15 @@ implements OperationSetAdHocMultiUserChat
             }
             catch (Exception e)
             {
-                logger.debug("Error: " + e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Error: " + e);
             }
         }
 
         public void conferenceInviteReceived(SessionConferenceEvent ev)
         {
-            logger.debug("Conference Invite Received: " + ev.toString());
+            if (logger.isDebugEnabled())
+                logger.debug("Conference Invite Received: " + ev.toString());
 
             try
             {
@@ -572,13 +577,15 @@ implements OperationSetAdHocMultiUserChat
             }
             catch (Exception e)
             {
-                logger.debug("Error: " + e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Error: " + e);
             }
         }
 
         public void conferenceLogoffReceived(SessionConferenceEvent ev)
         {
-            logger.debug("Conference Logoff Received: " + ev.toString());
+            if (logger.isDebugEnabled())
+                logger.debug("Conference Logoff Received: " + ev.toString());
 
             try
             {
@@ -602,7 +609,8 @@ implements OperationSetAdHocMultiUserChat
 
         public void conferenceLogonReceived(SessionConferenceEvent ev)
         {
-            logger.debug("Conference Logon Received: " + ev.toString());
+            if (logger.isDebugEnabled())
+                logger.debug("Conference Logon Received: " + ev.toString());
 
             try
             {
@@ -624,18 +632,21 @@ implements OperationSetAdHocMultiUserChat
             }
             catch (Exception e)
             {
-                logger.debug("Failed to add a user to the chat room. " + e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to add a user to the chat room. " + e);
             }
         }
 
         public void conferenceMessageReceived(SessionConferenceEvent ev)
         {
-            logger.debug("Conference Message Received: " + ev.toString());
+            if (logger.isDebugEnabled())
+                logger.debug("Conference Message Received: " + ev.toString());
 
             try
             {
                 String formattedMessage = ev.getMessage();
-                logger.debug("original message received : " + formattedMessage);
+                if (logger.isDebugEnabled())
+                    logger.debug("original message received : " + formattedMessage);
 
                 // if the message is decorated by Yahoo, we try to "decode" it
                 // first.
@@ -656,7 +667,8 @@ implements OperationSetAdHocMultiUserChat
                         "(<font) (.*) size=\"(\\d+)\">",
                     "$1 $2 style=\"font-size: $3px;\">");
 
-                logger.debug("formatted Message : " + formattedMessage);
+                if (logger.isDebugEnabled())
+                    logger.debug("formatted Message : " + formattedMessage);
                 // As no indications in the protocol is it html or not. No harm
                 // to set all messages html - doesn't affect the appearance of
                 // the gui
@@ -699,7 +711,8 @@ implements OperationSetAdHocMultiUserChat
 
         public void connectionClosed(SessionEvent ev)
         {
-            logger.debug("Connection Closed: " + ev.toString());
+            if (logger.isDebugEnabled())
+                logger.debug("Connection Closed: " + ev.toString());
         }
     }
 

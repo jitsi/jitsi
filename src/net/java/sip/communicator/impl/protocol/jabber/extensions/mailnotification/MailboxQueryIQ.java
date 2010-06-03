@@ -49,7 +49,8 @@ public class MailboxQueryIQ extends IQ
     @Override
     public String getChildElementXML()
     {
-        logger.debug("QueryNotify.getChildElementXML usage");
+        if (logger.isDebugEnabled())
+            logger.debug("QueryNotify.getChildElementXML usage");
 
         StringBuffer xml = new StringBuffer(
                         "<query xmlns='google:mail:notify'");

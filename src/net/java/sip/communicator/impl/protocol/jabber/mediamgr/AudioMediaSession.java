@@ -105,7 +105,8 @@ public class AudioMediaSession
         localIp = getLocal().getLocalIp();
         localPort = getLocal().getPort();
         remotePort = getRemote().getPort();
-        logger.info("AudioMediaSession : " + localIp + ":" + localPort + 
+        if (logger.isInfoEnabled())
+            logger.info("AudioMediaSession : " + localIp + ":" + localPort + 
                     " <-> " + remoteIp + ":" + remotePort);
 //        }
 

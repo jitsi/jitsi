@@ -109,7 +109,8 @@ public class EventManager
      */
     public void messageSent(Session session, Message message) throws Exception
     {
-        logger.trace(msnMessenger.getOwner().getEmail().getEmailAddress() +
+        if (logger.isTraceEnabled())
+            logger.trace(msnMessenger.getOwner().getEmail().getEmailAddress() +
                      " outgoing " + message);
     }
 
@@ -125,7 +126,8 @@ public class EventManager
         MsnIncomingMessage incoming = (MsnIncomingMessage)((WrapperMessage)message)
             .getMessage();
 
-        logger.trace(msnMessenger.getOwner().getEmail().getEmailAddress() +
+        if (logger.isTraceEnabled())
+            logger.trace(msnMessenger.getOwner().getEmail().getEmailAddress() +
                      " incoming : " + incoming);
 
         if(incoming instanceof IncomingACK)

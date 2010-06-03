@@ -199,7 +199,8 @@ public class ClientThread
         String temp =
                 str.substring(str.indexOf("<body>")+6, str.indexOf("</body>"));
 
-        logger.debug("ZEROCONF: received message ["+temp+"]");
+        if (logger.isDebugEnabled())
+            logger.debug("ZEROCONF: received message ["+temp+"]");
 
         int messageType = MessageZeroconfImpl.MESSAGE;
 
@@ -243,7 +244,8 @@ public class ClientThread
                 /* NORMAL MESSAGE */
             case MessageZeroconfImpl.MESSAGE:
                 if (!isStreamOpened())
-                    logger.debug("ZEROCONF: client on the other side "
+                    if (logger.isDebugEnabled())
+                        logger.debug("ZEROCONF: client on the other side "
                             +"isn't polite (sending messages without "
                             +"saying hello :P");
                 if (contact == null)
@@ -272,7 +274,8 @@ public class ClientThread
 
             case MessageZeroconfImpl.TYPING:
                 if (!isStreamOpened())
-                    logger.debug("ZEROCONF: client on the other side "
+                    if (logger.isDebugEnabled())
+                        logger.debug("ZEROCONF: client on the other side "
                             +"isn't polite (sending messages without "
                             +"saying hello :P");
                 if (contact == null)
@@ -423,12 +426,14 @@ public class ClientThread
      */
     public void sendMessage(MessageZeroconfImpl msg)
     {
-        logger.debug("ZEROCONF: Sending messag ["
+        if (logger.isDebugEnabled())
+            logger.debug("ZEROCONF: Sending messag ["
                 +msg.getContent()+"] to "
                 + contact.getDisplayName());
         if (!isStreamOpened())
         {
-            logger.debug("ZEROCONF: Stream not opened... "
+            if (logger.isDebugEnabled())
+                logger.debug("ZEROCONF: Stream not opened... "
                     +"will send the message later");
             messagesQueue += toXHTML(msg);
         }
@@ -440,7 +445,8 @@ public class ClientThread
      */
     public void run()
     {
-        logger.debug("Bonjour: NEW CONNEXION from "
+        if (logger.isDebugEnabled())
+            logger.debug("Bonjour: NEW CONNEXION from "
                 + sock.getInetAddress().getCanonicalHostName()
                 +" / "+sock.getInetAddress().getHostAddress());
         String input;
@@ -456,7 +462,8 @@ public class ClientThread
             msg = parseMessage(input);
         }
 
-        logger.debug("ZEROCONF : OUT OF LOOP !! Closed chat.");
+        if (logger.isDebugEnabled())
+            logger.debug("ZEROCONF : OUT OF LOOP !! Closed chat.");
         cleanThread();
     }
 

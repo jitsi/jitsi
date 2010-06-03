@@ -154,12 +154,14 @@ public class SipSecurityManager
                 {
                     //there's a stored password though so let's try it.
                     ccEntry = createCcEntryWithStoredPassword(storedPassword);
-                    logger.trace("seem to have a stored pass! Try with it.");
+                    if (logger.isTraceEnabled())
+                        logger.trace("seem to have a stored pass! Try with it.");
                 }
                 else
                 {
                     //obtain new credentials
-                    logger.trace("We don't seem to have a good pass! Get one.");
+                    if (logger.isTraceEnabled())
+                        logger.trace("We don't seem to have a good pass! Get one.");
 
                     ccEntry = createCcEntryWithNewCredentials(
                         realm, SecurityAuthority.AUTHENTICATION_REQUIRED);
@@ -198,7 +200,8 @@ public class SipSecurityManager
                     //we have a cache entry and it has not seen this transaction
                     //lets use it again.
                     //(this "else" is here for readability only)
-                    logger.trace( "We seem to have a pass in the cache. "
+                    if (logger.isTraceEnabled())
+                        logger.trace( "We seem to have a pass in the cache. "
                                   +"Let's try with it.");
                 }
             }
@@ -226,7 +229,8 @@ public class SipSecurityManager
             ccEntry.pushBranchID(retryTran.getBranchId());
             cachedCredentials.cacheEntry(realm, ccEntry);
 
-            logger.debug("Created authorization header: " +
+            if (logger.isDebugEnabled())
+                logger.debug("Created authorization header: " +
                          authorization.toString());
 
             // get the unique Call-ID
@@ -243,7 +247,8 @@ public class SipSecurityManager
             reoriginatedRequest.addHeader(authorization);
         }
 
-        logger.debug("Returning authorization transaction.");
+        if (logger.isDebugEnabled())
+            logger.debug("Returning authorization transaction.");
         return retryTran;
     }
 
@@ -340,7 +345,8 @@ public class SipSecurityManager
             cachedCredentials.cacheEntry(realmsIter.next(), ccEntry);
         }
 
-        logger.debug("Returning authorization transaction.");
+        if (logger.isDebugEnabled())
+            logger.debug("Returning authorization transaction.");
         return retryTran;
     }
 
@@ -618,7 +624,8 @@ public class SipSecurityManager
         {
             // we are using the host port and transport of an existing Via
             // header so it would be quite weird to get this exception.
-            logger.debug("failed to reset a Via header");
+            if (logger.isDebugEnabled())
+                logger.debug("failed to reset a Via header");
         }
     }
 

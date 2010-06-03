@@ -179,7 +179,8 @@ public class ContactYahooImpl
         }
         catch (Exception e)
         {
-            logger.info("Error requesting image!", e);
+            if (logger.isInfoEnabled())
+                logger.info("Error requesting image!", e);
         }
 
         if(logger.isDebugEnabled())
@@ -196,7 +197,8 @@ public class ContactYahooImpl
     protected void setImage(byte[] image)
     {
         if(logger.isDebugEnabled())
-            logger.info("setting image " + image);
+            if (logger.isInfoEnabled())
+                logger.info("setting image " + image);
 
         this.image = image;
     }

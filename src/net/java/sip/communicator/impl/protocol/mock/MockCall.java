@@ -70,7 +70,8 @@ public class MockCall
 
         this.callPeers.add(callPeer);
 
-        logger.info("Will fire peer added");
+        if (logger.isInfoEnabled())
+            logger.info("Will fire peer added");
 
         fireCallPeerEvent(
             callPeer, CallPeerEvent.CALL_PEER_ADDED);

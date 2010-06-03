@@ -173,7 +173,8 @@ public class MailboxIQ extends IQ
     @Override
     public String getChildElementXML()
     {
-        logger.debug("Mailbox.getChildElementXML usage");
+        if (logger.isDebugEnabled())
+            logger.debug("Mailbox.getChildElementXML usage");
         String totalString = totalEstimate ? " total-estimate='1' " : "";
         return "<mailbox result-time='" + resultTime + "' total-matched='"
                 + totalMatched + "'" + totalString + "/>";

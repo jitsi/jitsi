@@ -42,7 +42,8 @@ public class NewMailNotificationProvider
      */
     public IQ parseIQ(final XmlPullParser parser) throws Exception
     {
-        logger.debug("NewMailNotificationProvider.getChildElementXML usage");
+        if (logger.isDebugEnabled())
+            logger.debug("NewMailNotificationProvider.getChildElementXML usage");
         NewMailNotificationIQ iq = new NewMailNotificationIQ();
 
         return iq;

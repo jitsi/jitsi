@@ -158,7 +158,8 @@ public abstract class MediaUtils
                 return "G729";
             default:
                 //throw new IllegalStateException("Unknown payload type");
-                logger.debug("unknown payload type : " + payloadType);
+                if (logger.isDebugEnabled())
+                    logger.debug("unknown payload type : " + payloadType);
                 return null;
         }
     }
@@ -209,7 +210,8 @@ public abstract class MediaUtils
                 return 18;
             default:
                 //throw new IllegalStateException("Unknown sdp constant");
-                logger.debug("unknown sdp constant : " + sdpConstant);
+                if (logger.isDebugEnabled())
+                    logger.debug("unknown sdp constant : " + sdpConstant);
                 return -1;
         }
     }

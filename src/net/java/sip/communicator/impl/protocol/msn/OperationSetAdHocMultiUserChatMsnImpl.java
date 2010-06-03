@@ -459,7 +459,8 @@ implements OperationSetAdHocMultiUserChat
 
             Message newMessage = createMessage(message.getContent());
 
-            logger.debug("Group chat message received.");
+            if (logger.isDebugEnabled())
+                logger.debug("Group chat message received.");
 
             AdHocChatRoomMsnImpl chatRoom
             = getLocalAdHocChatRoomInstance(switchboard);

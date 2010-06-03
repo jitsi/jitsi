@@ -434,7 +434,8 @@ public class OperationSetPersistentPresenceYahooImpl
         ContactYahooImpl contact = ssContactList.findContactById(contactIdentifier);
         if(contact == null)
         {
-            logger.info("Contact not found id :" + contactIdentifier);
+            if (logger.isInfoEnabled())
+                logger.info("Contact not found id :" + contactIdentifier);
             return null;
         }
         else
@@ -708,7 +709,8 @@ public class OperationSetPersistentPresenceYahooImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The yahoo provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The yahoo provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
 
@@ -802,7 +804,8 @@ public class OperationSetPersistentPresenceYahooImpl
                 equals(yFriend.getId()))
             {
                 // thats my own status
-                logger.trace("Own status changed to " + yFriend.getStatus());
+                if (logger.isTraceEnabled())
+                    logger.trace("Own status changed to " + yFriend.getStatus());
                 PresenceStatus oldStatus = currentStatus;
                 currentStatus =
                     yahooStatusToPresenceStatus(yFriend.getStatus());
@@ -831,7 +834,8 @@ public class OperationSetPersistentPresenceYahooImpl
         // when old and new status are the same do nothing - no change
         if(oldStatus.equals(newStatus))
         {
-            logger.debug("old(" + oldStatus + ") and new("+ newStatus + ") statuses are the same!");
+            if (logger.isDebugEnabled())
+                logger.debug("old(" + oldStatus + ") and new("+ newStatus + ") statuses are the same!");
             return;
         }
 
@@ -840,7 +844,8 @@ public class OperationSetPersistentPresenceYahooImpl
         ContactGroup parent
             = ssContactList.findContactGroup(sourceContact);
 
-        logger.debug("Will Dispatch the contact status event.");
+        if (logger.isDebugEnabled())
+            logger.debug("Will Dispatch the contact status event.");
         fireContactPresenceStatusChangeEvent(sourceContact, parent,
             oldStatus, newStatus);
     }
@@ -850,7 +855,8 @@ public class OperationSetPersistentPresenceYahooImpl
     {
         public void friendsUpdateReceived(SessionFriendEvent evt)
         {
-            logger.debug("Received a status update for contact " + evt);
+            if (logger.isDebugEnabled())
+                logger.debug("Received a status update for contact " + evt);
 
             if(evt.getFriend() != null)
             {
@@ -908,7 +914,8 @@ public class OperationSetPersistentPresenceYahooImpl
         {
             if(ev.isAuthorizationRequest())
             {
-                logger.trace("authorizationRequestReceived from " +
+                if (logger.isTraceEnabled())
+                    logger.trace("authorizationRequestReceived from " +
                         ev.getFrom());
                 receivedAuthorizations.add(ev);
             }

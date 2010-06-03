@@ -101,19 +101,23 @@ public class WhiteboardSessionPacketExtension
                 this.action = WhiteboardSessionPacketExtension.ACTION_LEAVE;
             }
             else
-                logger.debug ("Element name unknown!");
+                if (logger.isDebugEnabled())
+                    logger.debug ("Element name unknown!");
         }
         catch (ParserConfigurationException ex)
         {
-            logger.debug ("Problem WhiteboardSession : " + xml, ex);
+            if (logger.isDebugEnabled())
+                logger.debug ("Problem WhiteboardSession : " + xml, ex);
         }
         catch (IOException ex)
         {
-            logger.debug ("Problem WhiteboardSession : " + xml, ex);
+            if (logger.isDebugEnabled())
+                logger.debug ("Problem WhiteboardSession : " + xml, ex);
         }
         catch (Exception ex)
         {
-            logger.debug ("Problem WhiteboardSession : " + xml, ex);
+            if (logger.isDebugEnabled())
+                logger.debug ("Problem WhiteboardSession : " + xml, ex);
         }
     }
 

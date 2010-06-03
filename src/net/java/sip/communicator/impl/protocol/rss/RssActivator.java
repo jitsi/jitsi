@@ -88,7 +88,8 @@ public class RssActivator
                     rssProviderFactory,
                     hashtable);
 
-        logger.info("RSS protocol implementation [STARTED].");
+        if (logger.isInfoEnabled())
+            logger.info("RSS protocol implementation [STARTED].");
 
         uriHandler = new UriHandlerRssImpl();
         bundleContext.addServiceListener(uriHandler);
@@ -134,7 +135,8 @@ public class RssActivator
 
         context.removeServiceListener(uriHandler);
 
-        logger.info("RSS protocol implementation [STOPPED].");
+        if (logger.isInfoEnabled())
+            logger.info("RSS protocol implementation [STOPPED].");
     }
 
     /**

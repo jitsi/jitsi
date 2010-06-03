@@ -65,7 +65,8 @@ public class ProtocolProviderServiceRssImpl
      */
     public ProtocolProviderServiceRssImpl()
     {
-        logger.trace("Creating a rss provider.");
+        if (logger.isTraceEnabled())
+            logger.trace("Creating a rss provider.");
     }
 
     /**
@@ -186,7 +187,8 @@ public class ProtocolProviderServiceRssImpl
         {
             return;
         }
-        logger.trace("Killing the Rss Protocol Provider.");
+        if (logger.isTraceEnabled())
+            logger.trace("Killing the Rss Protocol Provider.");
 
         if(isRegistered())
         {

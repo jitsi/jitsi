@@ -105,7 +105,8 @@ public class ProtocolProviderServiceSSHImpl
      */
     public ProtocolProviderServiceSSHImpl()
     {
-        logger.trace("Creating a ssh provider.");
+        if (logger.isTraceEnabled())
+            logger.trace("Creating a ssh provider.");
         
         try
         {
@@ -363,7 +364,8 @@ public class ProtocolProviderServiceSSHImpl
             OperationFailedException,
             InterruptedException
     {
-        logger.info("Creating a new SSH Session to "
+        if (logger.isInfoEnabled())
+            logger.info("Creating a new SSH Session to "
                 + sshContact.getHostName());
         
         // creating a new JSch Stack identifier for contact
@@ -414,7 +416,8 @@ public class ProtocolProviderServiceSSHImpl
         {
             Thread.sleep(1000);
             count += 1000;
-            logger.trace("SSH:" + sshContact.getHostName()
+            if (logger.isTraceEnabled())
+                logger.trace("SSH:" + sshContact.getHostName()
                     + ": Sleep zzz .. " );
         }
         
@@ -435,7 +438,8 @@ public class ProtocolProviderServiceSSHImpl
         sshContact.setJSch(jsch);
         sshContact.setSSHSession(session);
         
-        logger.info("A new SSH Session to " + sshContact.getHostName()
+        if (logger.isInfoEnabled())
+            logger.info("A new SSH Session to " + sshContact.getHostName()
                 + " Created");
     }
     
@@ -480,7 +484,8 @@ public class ProtocolProviderServiceSSHImpl
         //one line output of testCommand
         sshContact.getLine();
 */
-        logger.debug("SSH: Welcome message shown");
+        if (logger.isDebugEnabled())
+            logger.debug("SSH: Welcome message shown");
     }
     
     /**
@@ -571,7 +576,8 @@ public class ProtocolProviderServiceSSHImpl
         {
             return;
         }
-        logger.trace("Killing the SSH Protocol Provider.");
+        if (logger.isTraceEnabled())
+            logger.trace("Killing the SSH Protocol Provider.");
         
         if(isRegistered())
         {

@@ -76,7 +76,8 @@ public class SSHActivator
                 sshProviderFactory,
                 hashtable);
         
-        logger.info("SSH protocol implementation [STARTED].");
+        if (logger.isInfoEnabled())
+            logger.info("SSH protocol implementation [STARTED].");
     }
     
     /**
@@ -117,7 +118,8 @@ public class SSHActivator
     {
         this.sshProviderFactory.stop();
         sshPpFactoryServReg.unregister();
-        logger.info("SSH protocol implementation [STOPPED].");
+        if (logger.isInfoEnabled())
+            logger.info("SSH protocol implementation [STOPPED].");
     }
     
     public static ResourceManagementService getResources()

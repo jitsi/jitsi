@@ -87,15 +87,18 @@ public class WhiteboardObjectLineJabberImpl
         }
         catch (ParserConfigurationException ex)
         {
-            logger.debug ("Problem WhiteboardObject : " + xml, ex);
+            if (logger.isDebugEnabled())
+                logger.debug ("Problem WhiteboardObject : " + xml, ex);
         }
         catch (IOException ex)
         {
-            logger.debug ("Problem WhiteboardObject : " + xml, ex);
+            if (logger.isDebugEnabled())
+                logger.debug ("Problem WhiteboardObject : " + xml, ex);
         }
         catch (Exception ex)
         {
-            logger.debug ("Problem WhiteboardObject : " + xml, ex);
+            if (logger.isDebugEnabled())
+                logger.debug ("Problem WhiteboardObject : " + xml, ex);
         }
     }
     

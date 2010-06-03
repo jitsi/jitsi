@@ -172,7 +172,8 @@ public class OperationSetBasicInstantMessagingMsnImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
 
@@ -212,7 +213,8 @@ public class OperationSetBasicInstantMessagingMsnImpl
 
             if(sourceContact == null)
             {
-                logger.debug("received a message from an unknown contact: "
+                if (logger.isDebugEnabled())
+                    logger.debug("received a message from an unknown contact: "
                                    + contact);
                 //create the volatile contact
                 sourceContact = opSetPersPresence.
@@ -250,7 +252,8 @@ public class OperationSetBasicInstantMessagingMsnImpl
 
             if(sourceContact == null)
             {
-                logger.debug("received a message from an unknown contact: "
+                if (logger.isDebugEnabled())
+                    logger.debug("received a message from an unknown contact: "
                                    + contact);
                 //create the volatile contact
                 sourceContact = opSetPersPresence.
@@ -319,7 +322,8 @@ public class OperationSetBasicInstantMessagingMsnImpl
 
              if (sourceContact == null)
              {
-                 logger.debug("received a new mail from an unknown contact: "
+                 if (logger.isDebugEnabled())
+                     logger.debug("received a new mail from an unknown contact: "
                                     + messageFrom
                                     + " &lt;" + messageFromAddr + "&gt;");
                  //create the volatile contact

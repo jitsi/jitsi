@@ -58,7 +58,8 @@ public class MessageDigestAlgorithm
                                     String entity_body,
                                     String qop_value)
     {
-        logger.debug("trying to authenticate using : " + algorithm + ", "
+        if (logger.isDebugEnabled())
+            logger.debug("trying to authenticate using : " + algorithm + ", "
                 + username_value + ", " + realm_value + ", " + (passwd != null
                 && passwd.trim().length() > 0) + ", " + nonce_value + ", "
                 + nc_value + ", " + cnonce_value + ", " + method + ", "

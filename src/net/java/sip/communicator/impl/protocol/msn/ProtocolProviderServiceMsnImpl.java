@@ -400,7 +400,8 @@ public class ProtocolProviderServiceMsnImpl
          */
         public void loginCompleted(MsnMessenger msnMessenger)
         {
-            logger.trace("loginCompleted " + msnMessenger.getActualMsnProtocol());
+            if (logger.isTraceEnabled())
+                logger.trace("loginCompleted " + msnMessenger.getActualMsnProtocol());
             fireRegistrationStateChanged(
                 getRegistrationState(),
                 RegistrationState.REGISTERED,
@@ -414,7 +415,8 @@ public class ProtocolProviderServiceMsnImpl
          */
         public void logout(MsnMessenger msnMessenger)
         {
-            logger.trace("logout");
+            if (logger.isTraceEnabled())
+                logger.trace("logout");
 
             // The synchronization is for logoutReceived at least.
             synchronized (initializationLock)

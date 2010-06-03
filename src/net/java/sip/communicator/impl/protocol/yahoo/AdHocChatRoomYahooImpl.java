@@ -277,7 +277,8 @@ public class AdHocChatRoomYahooImpl
         }
         catch (IOException ioe)
         {
-            logger.debug("Failed to invite the user: " + userAddress
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to invite the user: " + userAddress
                 + " Error: " + ioe);
         }
     }
@@ -315,7 +316,8 @@ public class AdHocChatRoomYahooImpl
         }
         catch (Exception e)
         {
-            logger.debug("Couldn't join the chat room: "
+            if (logger.isDebugEnabled())
+                logger.debug("Couldn't join the chat room: "
                 + yahooConference.getName() + e);
         }
     }
@@ -348,7 +350,8 @@ public class AdHocChatRoomYahooImpl
         }
         catch (IOException ioe)
         {
-            logger.debug("Failed to leave the chat room: "
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to leave the chat room: "
                 + yahooConference.getName() + " Error: " + ioe);
         }
 
@@ -383,7 +386,8 @@ public class AdHocChatRoomYahooImpl
         }
         catch (Exception e)
         {
-            logger.debug("Failed to send a conference message.");
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to send a conference message.");
         }
     }
 
@@ -443,7 +447,8 @@ public class AdHocChatRoomYahooImpl
                 eventID,
                 eventReason);
 
-        logger.trace("Will dispatch the following ChatRoom event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following ChatRoom event: " + evt);
 
         Iterator<AdHocChatRoomParticipantPresenceListener> listeners = null;
         synchronized (memberListeners)

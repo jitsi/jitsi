@@ -243,7 +243,8 @@ public class OperationSetBasicInstantMessagingYahooImpl
          */
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            logger.debug("The provider changed state from: "
+            if (logger.isDebugEnabled())
+                logger.debug("The provider changed state from: "
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
 
@@ -292,7 +293,8 @@ public class OperationSetBasicInstantMessagingYahooImpl
         
         if (filtered) 
         {
-            logger.trace("Message event filtered.");
+            if (logger.isTraceEnabled())
+                logger.trace("Message event filtered.");
             return;
         }
 
@@ -379,7 +381,8 @@ public class OperationSetBasicInstantMessagingYahooImpl
 
              if (sourceContact == null)
              {
-                 logger.debug("received a new mail from an unknown contact: "
+                 if (logger.isDebugEnabled())
+                     logger.debug("received a new mail from an unknown contact: "
                                     + ev.getFrom()
                                     + " &lt;" + ev.getEmailAddress() + "&gt;");
                  //create the volatile contact
@@ -404,14 +407,16 @@ public class OperationSetBasicInstantMessagingYahooImpl
          */
         private void handleNewMessage(SessionEvent ev)
         {
-            logger.debug("Message received : " + ev);
+            if (logger.isDebugEnabled())
+                logger.debug("Message received : " + ev);
 
             // to keep things simple, we can decodeToText()
             //String formattedMessage = processLinks(
             //        messageDecoder.decodeToText(ev.getMessage()));
 
             String formattedMessage = ev.getMessage();
-            logger.debug("original message received : " + formattedMessage);
+            if (logger.isDebugEnabled())
+                logger.debug("original message received : " + formattedMessage);
 
             // make sure we always decode message
             formattedMessage = processLinks(
@@ -427,7 +432,8 @@ public class OperationSetBasicInstantMessagingYahooImpl
                     formattedMessage.replaceAll("(<font) (.*) size=\"(\\d+)\">",
                     "$1 $2 style=\"font-size: $3px;\">");
 
-            logger.debug("formatted Message : " + formattedMessage);
+            if (logger.isDebugEnabled())
+                logger.debug("formatted Message : " + formattedMessage);
             // As no indications in the protocol is it html or not. No harm
             // to set all messages html - doesn't affect the appearance of the
             // gui
@@ -440,7 +446,8 @@ public class OperationSetBasicInstantMessagingYahooImpl
 
              if(sourceContact == null)
             {
-                logger.debug("received a message from an unknown contact: "
+                if (logger.isDebugEnabled())
+                    logger.debug("received a message from an unknown contact: "
                                    + ev.getFrom());
                 //create the volatile contact
                 sourceContact = opSetPersPresence
