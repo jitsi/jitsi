@@ -1447,7 +1447,8 @@ public class ImageLoader
         }
         catch (URISyntaxException e)
         {
-            logger.debug("Unable to parse image URL to URI.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Unable to parse image URL to URI.", e);
         }
 
         return null;

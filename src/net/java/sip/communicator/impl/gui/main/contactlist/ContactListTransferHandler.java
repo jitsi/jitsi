@@ -127,11 +127,13 @@ public class ContactListTransferHandler
             }
             catch (UnsupportedFlavorException e)
             {
-                logger.debug("Failed to drop files.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to drop files.", e);
             }
             catch (IOException e)
             {
-                logger.debug("Failed to drop files.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to drop files.", e);
             }
 
             if (o instanceof Collection)

@@ -188,7 +188,8 @@ public class UIServiceImpl
         PluginComponentEvent evt =
             new PluginComponentEvent(pluginComponent, eventID);
 
-        logger.debug("Will dispatch the following plugin component event: "
+        if (logger.isDebugEnabled())
+            logger.debug("Will dispatch the following plugin component event: "
             + evt);
 
         synchronized (pluginComponentListeners)
@@ -940,14 +941,16 @@ public class UIServiceImpl
         switch (event.getType())
         {
         case ServiceEvent.REGISTERED:
-            logger.info("Handling registration of a new Plugin Component.");
+            if (logger.isInfoEnabled())
+                logger.info("Handling registration of a new Plugin Component.");
 
             Object component = pluginComponent.getComponent();
             if (!(component instanceof Component))
             {
                 logger.error("Plugin Component type is not supported."
                     + "Should provide a plugin in AWT, SWT or Swing.");
-                logger.debug("Logging exception to show the calling plugin",
+                if (logger.isDebugEnabled())
+                    logger.debug("Logging exception to show the calling plugin",
                     new Exception(""));
                 return;
             }

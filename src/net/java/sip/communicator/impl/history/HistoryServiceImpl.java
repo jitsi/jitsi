@@ -287,7 +287,8 @@ public class HistoryServiceImpl
     {
         // get the history directory corresponding the given id
         File dir = this.createHistoryDirectories(id);
-        logger.trace("Removing history directory " + dir);
+        if (logger.isTraceEnabled())
+            logger.trace("Removing history directory " + dir);
         deleteDirAndContent(dir);
     }
 
@@ -382,7 +383,8 @@ public class HistoryServiceImpl
 
         if(!oldDir.renameTo(newDir))
         {
-            logger.info("Cannot move history!");
+            if (logger.isInfoEnabled())
+                logger.info("Cannot move history!");
             throw new IOException("Cannot move history!");
         }
 

@@ -164,13 +164,15 @@ public class ReceiveFileConversationComponent
                     logger.error("Could not create the download directory : "
                         + downloadDir.getAbsolutePath());
                 }
-                logger.debug("Download directory created : "
+                if (logger.isDebugEnabled())
+                    logger.debug("Download directory created : "
                         + downloadDir.getAbsolutePath());
             }
         }
         catch (IOException e)
         {
-            logger.debug("Unable to find download directory.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Unable to find download directory.", e);
         }
 
         downloadFile = new File(downloadDir, incomingFileName);

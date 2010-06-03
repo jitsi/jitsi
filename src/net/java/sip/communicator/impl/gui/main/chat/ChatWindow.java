@@ -345,7 +345,8 @@ public class ChatWindow
      */
     public void removeChat(ChatPanel chatPanel)
     {
-        logger.debug("Removes chat for contact: "
+        if (logger.isDebugEnabled())
+            logger.debug("Removes chat for contact: "
                 + chatPanel.getChatSession().getChatName());
 
         //if there's no tabs remove the chat panel directly from the content
@@ -390,7 +391,8 @@ public class ChatWindow
      */
     public void removeAllChats()
     {
-        logger.debug("Remove all tabs from the chat window.");
+        if (logger.isDebugEnabled())
+            logger.debug("Remove all tabs from the chat window.");
 
         if(getChatTabCount() > 0)
         {
@@ -415,7 +417,8 @@ public class ChatWindow
     {
         ChatSession chatSession = chatPanel.getChatSession();
 
-        logger.debug("Set current chat panel to: " + chatSession.getChatName());
+        if (logger.isDebugEnabled())
+            logger.debug("Set current chat panel to: " + chatSession.getChatName());
 
         if(getChatTabCount() > 0)
             this.chatTabbedPane.setSelectedComponent(chatPanel);

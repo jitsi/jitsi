@@ -1048,7 +1048,8 @@ public class TreeContactList
                     }
                     catch (InterruptedException e)
                     {
-                        logger.debug("Filter thread was interrupted.", e);
+                        if (logger.isDebugEnabled())
+                            logger.debug("Filter thread was interrupted.", e);
                     }
                 }
             }
@@ -1742,7 +1743,8 @@ public class TreeContactList
                             .createUIGroup(parentGroup);
                 }
 
-                logger.info("Add matching contact due to status change: "
+                if (logger.isInfoEnabled())
+                    logger.info("Add matching contact due to status change: "
                     + uiContact.getDisplayName());
                 addContact(uiContact, uiGroup, true);
             }
@@ -1754,7 +1756,8 @@ public class TreeContactList
         {
             if (currentFilter != null && !currentFilter.isMatching(uiContact))
             {
-                logger.info("Remove unmatching contact due to status change: "
+                if (logger.isInfoEnabled())
+                    logger.info("Remove unmatching contact due to status change: "
                     + uiContact.getDisplayName());
                 removeContact(uiContact);
             }

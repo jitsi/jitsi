@@ -174,7 +174,8 @@ public abstract class ChatConversationComponent
         }
         catch (IllegalArgumentException e)
         {
-            logger.debug("Unable to open file.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Unable to open file.", e);
 
             this.showErrorMessage(
                 resources.getI18NString(
@@ -182,7 +183,8 @@ public abstract class ChatConversationComponent
         }
         catch (NullPointerException e)
         {
-            logger.debug("Unable to open file.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Unable to open file.", e);
 
             this.showErrorMessage(
                 resources.getI18NString(
@@ -190,7 +192,8 @@ public abstract class ChatConversationComponent
         }
         catch (UnsupportedOperationException e)
         {
-            logger.debug("Unable to open file.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Unable to open file.", e);
 
             this.showErrorMessage(
                 resources.getI18NString(
@@ -198,7 +201,8 @@ public abstract class ChatConversationComponent
         }
         catch (SecurityException e)
         {
-            logger.debug("Unable to open file.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Unable to open file.", e);
 
             this.showErrorMessage(
                 resources.getI18NString(
@@ -206,7 +210,8 @@ public abstract class ChatConversationComponent
         }
         catch (IOException e)
         {
-            logger.debug("Unable to open file.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Unable to open file.", e);
 
             this.showErrorMessage(
                 resources.getI18NString(
@@ -214,7 +219,8 @@ public abstract class ChatConversationComponent
         }
         catch (Exception e)
         {
-            logger.debug("Unable to open file.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Unable to open file.", e);
 
             this.showErrorMessage(
                 resources.getI18NString(

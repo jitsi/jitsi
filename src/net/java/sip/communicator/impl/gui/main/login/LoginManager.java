@@ -132,7 +132,8 @@ public class LoginManager
         ProtocolProviderService protocolProvider = evt.getProvider();
         AccountID accountID = protocolProvider.getAccountID();
 
-        logger.trace("Protocol provider: " + protocolProvider
+        if (logger.isTraceEnabled())
+            logger.trace("Protocol provider: " + protocolProvider
             + " changed its state to: " + evt.getNewState().getStateName());
 
         if (newState.equals(RegistrationState.REGISTERED))
@@ -188,7 +189,8 @@ public class LoginManager
                     msgText).showDialog();
             }
 
-            logger.trace(evt.getReason());
+            if (logger.isTraceEnabled())
+                logger.trace(evt.getReason());
         }
 //        CONNECTION_FAILED events are now dispatched in reconnect plugin
 //        else if (newState.equals(RegistrationState.CONNECTION_FAILED))
@@ -271,7 +273,8 @@ public class LoginManager
                             .getI18NString("service.gui.ERROR"),
                         msgText).showDialog();
                 }
-                logger.trace(evt.getReason());
+                if (logger.isTraceEnabled())
+                    logger.trace(evt.getReason());
             }
         }
     }
@@ -321,7 +324,8 @@ public class LoginManager
      */
     private void handleProviderAdded(ProtocolProviderService protocolProvider)
     {
-        logger.trace("The following protocol provider was just added: "
+        if (logger.isTraceEnabled())
+            logger.trace("The following protocol provider was just added: "
             + protocolProvider.getAccountID().getAccountAddress());
 
         protocolProvider.addRegistrationStateChangeListener(this);

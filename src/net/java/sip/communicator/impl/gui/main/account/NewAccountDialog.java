@@ -152,7 +152,8 @@ public class NewAccountDialog
         // in case we found any, add them in this container.
         if (accountWizardRefs != null)
         {
-            logger.debug("Found "
+            if (logger.isDebugEnabled())
+                logger.debug("Found "
                          + accountWizardRefs.length
                          + " already installed providers.");
 
@@ -377,7 +378,8 @@ public class NewAccountDialog
                 // If the sign in operation has failed we don't want to close
                 // the dialog in order to give the user the possibility to
                 // retry.
-                logger.debug("The sign in operation has failed.");
+                if (logger.isDebugEnabled())
+                    logger.debug("The sign in operation has failed.");
 
                 if (e.getErrorCode()
                         == OperationFailedException.ILLEGAL_ARGUMENT)
@@ -403,7 +405,8 @@ public class NewAccountDialog
                 // If the sign in operation has failed we don't want to close
                 // the dialog in order to give the user the possibility to
                 // retry.
-                logger.debug("The sign in operation has failed.");
+                if (logger.isDebugEnabled())
+                    logger.debug("The sign in operation has failed.");
 
                 loadErrorMessage(GuiActivator.getResources().getI18NString(
                                 "service.gui.ACCOUNT_CREATION_FAILED",

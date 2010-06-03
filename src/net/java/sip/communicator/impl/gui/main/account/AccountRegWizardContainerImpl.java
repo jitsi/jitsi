@@ -75,7 +75,8 @@ public class AccountRegWizardContainerImpl
         // in case we found any, add them in this container.
         if (accountWizardRefs != null)
         {
-            logger.debug("Found "
+            if (logger.isDebugEnabled())
+                logger.debug("Found "
                          + accountWizardRefs.length
                          + " already installed providers.");
             for (ServiceReference serRef : accountWizardRefs)

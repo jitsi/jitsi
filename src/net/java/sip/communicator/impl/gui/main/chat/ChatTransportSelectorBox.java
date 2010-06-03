@@ -139,7 +139,8 @@ public class ChatTransportSelectorBox
             }
         }
 
-        logger.debug( "Could not find contact for menu item "
+        if (logger.isDebugEnabled())
+            logger.debug( "Could not find contact for menu item "
                       + menuItem.getText() + ". contactsTable("
                       + transportMenuItems.size()+") is : "
                       + transportMenuItems);

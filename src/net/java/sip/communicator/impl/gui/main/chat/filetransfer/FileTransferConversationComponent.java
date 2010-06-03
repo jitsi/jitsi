@@ -362,7 +362,8 @@ public abstract class FileTransferConversationComponent
             }
             catch (IllegalArgumentException e)
             {
-                logger.debug("Unable to open folder.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Unable to open folder.", e);
 
                 this.showErrorMessage(
                     resources.getI18NString(
@@ -370,7 +371,8 @@ public abstract class FileTransferConversationComponent
             }
             catch (NullPointerException e)
             {
-                logger.debug("Unable to open folder.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Unable to open folder.", e);
 
                 this.showErrorMessage(
                     resources.getI18NString(
@@ -378,7 +380,8 @@ public abstract class FileTransferConversationComponent
             }
             catch (UnsupportedOperationException e)
             {
-                logger.debug("Unable to open folder.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Unable to open folder.", e);
 
                 this.showErrorMessage(
                     resources.getI18NString(
@@ -386,7 +389,8 @@ public abstract class FileTransferConversationComponent
             }
             catch (SecurityException e)
             {
-                logger.debug("Unable to open folder.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Unable to open folder.", e);
 
                 this.showErrorMessage(
                     resources.getI18NString(
@@ -394,7 +398,8 @@ public abstract class FileTransferConversationComponent
             }
             catch (IOException e)
             {
-                logger.debug("Unable to open folder.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Unable to open folder.", e);
 
                 this.showErrorMessage(
                     resources.getI18NString(
@@ -402,7 +407,8 @@ public abstract class FileTransferConversationComponent
             }
             catch (Exception e)
             {
-                logger.debug("Unable to open file.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Unable to open file.", e);
 
                 this.showErrorMessage(
                     resources.getI18NString(

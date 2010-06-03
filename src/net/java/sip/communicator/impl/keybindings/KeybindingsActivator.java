@@ -33,7 +33,8 @@ public class KeybindingsActivator
     {
         if (this.keybindingsService == null)
         {
-            logger.debug("Service Impl: " + getClass().getName()
+            if (logger.isDebugEnabled())
+                logger.debug("Service Impl: " + getClass().getName()
                 + " [  STARTED ]");
             this.keybindingsService = new KeybindingsServiceImpl();
             this.keybindingsService.start(context);

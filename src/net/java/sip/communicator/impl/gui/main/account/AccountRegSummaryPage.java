@@ -170,7 +170,8 @@ public class AccountRegSummaryPage
         }
         catch (OperationFailedException e)
         {
-            logger.debug("The sign in operation has failed.");
+            if (logger.isDebugEnabled())
+                logger.debug("The sign in operation has failed.");
 
             if (e.getErrorCode()
                     == OperationFailedException.ILLEGAL_ARGUMENT)

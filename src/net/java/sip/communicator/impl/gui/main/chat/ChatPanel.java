@@ -2011,7 +2011,8 @@ public class ChatPanel
     {
         ChatFocusEvent evt = new ChatFocusEvent(this, eventID);
 
-        logger.trace("Will dispatch the following chat event: " + evt);
+        if (logger.isTraceEnabled())
+            logger.trace("Will dispatch the following chat event: " + evt);
 
         Iterable<ChatFocusListener> listeners;
         synchronized (focusListeners)

@@ -124,11 +124,13 @@ public class ChatTransferHandler
             }
             catch (UnsupportedFlavorException e)
             {
-                logger.debug("Failed to drop files.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to drop files.", e);
             }
             catch (IOException e)
             {
-                logger.debug("Failed to drop files.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to drop files.", e);
             }
         }
         else if (t.isDataFlavorSupported(uiContactDataFlavor))
@@ -141,11 +143,13 @@ public class ChatTransferHandler
             }
             catch (UnsupportedFlavorException e)
             {
-                logger.debug("Failed to drop meta contact.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to drop meta contact.", e);
             }
             catch (IOException e)
             {
-                logger.debug("Failed to drop meta contact.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to drop meta contact.", e);
             }
 
             if (o instanceof ContactNode)
@@ -219,11 +223,13 @@ public class ChatTransferHandler
             }
             catch (UnsupportedFlavorException ufe)
             {
-                logger.debug("Failed to drop string.", ufe);
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to drop string.", ufe);
             }
             catch (IOException ioe)
             {
-                logger.debug("Failed to drop string.", ioe);
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to drop string.", ioe);
             }
         }
         return false;

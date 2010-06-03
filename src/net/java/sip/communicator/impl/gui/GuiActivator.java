@@ -110,12 +110,14 @@ public class GuiActivator implements BundleActivator
             // Create the ui service
             uiService = new UIServiceImpl();
 
-            logger.info("UI Service...[  STARTED ]");
+            if (logger.isInfoEnabled())
+                logger.info("UI Service...[  STARTED ]");
 
             bundleContext.registerService(UIService.class.getName(),
                                           uiService,
                                           null);
-            logger.info("UI Service ...[REGISTERED]");
+            if (logger.isInfoEnabled())
+                logger.info("UI Service ...[REGISTERED]");
 
             // UIServiceImpl also implements ShutdownService.
             bundleContext.registerService(ShutdownService.class.getName(),
@@ -154,7 +156,8 @@ public class GuiActivator implements BundleActivator
      */
     public void stop(BundleContext bContext) throws Exception
     {
-        logger.info("UI Service ...[STOPPED]");
+        if (logger.isInfoEnabled())
+            logger.info("UI Service ...[STOPPED]");
         isStarted = false;
 
         GuiActivator.getConfigurationService()

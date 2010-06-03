@@ -149,7 +149,8 @@ public class ConferenceChatManager
     {
         ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
 
-        logger.trace(
+        if (logger.isTraceEnabled())
+            logger.trace(
                 "MESSAGE DELIVERED to chat room: " + sourceChatRoom.getName());
 
         ChatPanel chatPanel = GuiActivator.getUIService().getChatWindowManager()
@@ -211,7 +212,8 @@ public class ConferenceChatManager
             break;
         }
 
-        logger.trace("MESSAGE RECEIVED from contact: "
+        if (logger.isTraceEnabled())
+            logger.trace("MESSAGE RECEIVED from contact: "
             + sourceMember.getContactAddress());
 
         Message message = evt.getMessage();
@@ -1022,11 +1024,13 @@ public class ConferenceChatManager
         }
         catch (InterruptedException e)
         {
-            logger.trace("FindRoomTask has been interrupted.", e);
+            if (logger.isTraceEnabled())
+                logger.trace("FindRoomTask has been interrupted.", e);
         }
         catch (ExecutionException e)
         {
-            logger.trace("Execution exception occurred in FindRoomTask.", e);
+            if (logger.isTraceEnabled())
+                logger.trace("Execution exception occurred in FindRoomTask.", e);
         }
 
         if (chatRoom != null)
@@ -1130,11 +1134,13 @@ public class ConferenceChatManager
         }
         catch (InterruptedException e)
         {
-            logger.trace("FindAllRoomsTask has been interrupted.", e);
+            if (logger.isTraceEnabled())
+                logger.trace("FindAllRoomsTask has been interrupted.", e);
         }
         catch (ExecutionException e)
         {
-            logger.trace("Execution exception occurred in FindAllRoomsTask", e);
+            if (logger.isTraceEnabled())
+                logger.trace("Execution exception occurred in FindAllRoomsTask", e);
         }
 
         return chatRooms;
@@ -1436,7 +1442,8 @@ public class ConferenceChatManager
             }
             catch (OperationFailedException e)
             {
-                logger.trace("Failed to join chat room: "
+                if (logger.isTraceEnabled())
+                    logger.trace("Failed to join chat room: "
                     + chatRoom.getName(), e);
 
                 switch (e.getErrorCode())
@@ -1572,7 +1579,8 @@ public class ConferenceChatManager
             }
             catch (OperationFailedException e)
             {
-                logger.trace("Failed to join ad-hoc chat room: "
+                if (logger.isTraceEnabled())
+                    logger.trace("Failed to join ad-hoc chat room: "
                     + chatRoom.getName(), e);
 
                 switch (e.getErrorCode())
@@ -1685,7 +1693,8 @@ public class ConferenceChatManager
             }
             catch (Exception e)
             {
-                logger.trace("Un exception occurred while searching for room:"
+                if (logger.isTraceEnabled())
+                    logger.trace("Un exception occurred while searching for room:"
                     + chatRoomName, e);
             }
 
@@ -1729,12 +1738,14 @@ public class ConferenceChatManager
             }
             catch (OperationFailedException e)
             {
-                logger.trace("Failed to obtain existing chat rooms for server: "
+                if (logger.isTraceEnabled())
+                    logger.trace("Failed to obtain existing chat rooms for server: "
                     + protocolProvider.getAccountID().getService(), e);
             }
             catch (OperationNotSupportedException e)
             {
-                logger.trace("Failed to obtain existing chat rooms for server: "
+                if (logger.isTraceEnabled())
+                    logger.trace("Failed to obtain existing chat rooms for server: "
                     + protocolProvider.getAccountID().getService(), e);
             }
 
@@ -1750,7 +1761,8 @@ public class ConferenceChatManager
      */
     public void invitationReceived(AdHocChatRoomInvitationReceivedEvent evt)
     {
-        logger.info("Invitation received: "+evt.toString());
+        if (logger.isInfoEnabled())
+            logger.info("Invitation received: "+evt.toString());
         OperationSetAdHocMultiUserChat multiUserChatOpSet
             = evt.getSourceOperationSet();
 
@@ -1773,7 +1785,8 @@ public class ConferenceChatManager
     {
         AdHocChatRoom sourceChatRoom = (AdHocChatRoom) evt.getSource();
 
-        logger.info("MESSAGE DELIVERED to ad-hoc chat room: "
+        if (logger.isInfoEnabled())
+            logger.info("MESSAGE DELIVERED to ad-hoc chat room: "
             + sourceChatRoom.getName());
 
         ChatPanel chatPanel
@@ -1909,7 +1922,8 @@ public class ConferenceChatManager
             break;
         }
 
-        logger.info("MESSAGE RECEIVED from contact: "
+        if (logger.isInfoEnabled())
+            logger.info("MESSAGE RECEIVED from contact: "
             + sourceParticipant.getAddress());
 
         Message message = evt.getMessage();

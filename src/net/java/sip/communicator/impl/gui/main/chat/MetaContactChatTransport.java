@@ -533,7 +533,8 @@ public class MetaContactChatTransport
             }
             catch (MalformedURLException e)
             {
-                logger.debug("Could not locate image.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Could not locate image.", e);
             }
         }
         return bytes;

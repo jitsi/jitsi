@@ -188,7 +188,8 @@ public class ConfigurationFrame
         switch (event.getType())
         {
         case ServiceEvent.REGISTERED:
-            logger.info("Handling registration of a new Configuration Form.");
+            if (logger.isInfoEnabled())
+                logger.info("Handling registration of a new Configuration Form.");
 
             this.addConfigurationForm(configForm);
             break;

@@ -201,7 +201,8 @@ public class PresenceStatusMenu
         OperationSetPresence presence
             = MainFrame.getProtocolPresenceOpSet(protocolProvider);
 
-        logger.trace("Update status for provider: "
+        if (logger.isTraceEnabled())
+            logger.trace("Update status for provider: "
             + protocolProvider.getAccountID().getAccountAddress()
             + ". The new status will be: " + presenceStatus.getStatusName());
 

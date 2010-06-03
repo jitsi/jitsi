@@ -228,7 +228,8 @@ public class ContactListPane
      */
     public void messageReceived(MessageReceivedEvent evt)
     {
-        logger.trace("MESSAGE RECEIVED from contact: "
+        if (logger.isTraceEnabled())
+            logger.trace("MESSAGE RECEIVED from contact: "
             + evt.getSourceContact().getAddress());
 
         Contact protocolContact = evt.getSourceContact();
@@ -309,7 +310,8 @@ public class ContactListPane
         }
         else
         {
-            logger.trace("MetaContact not found for protocol contact: "
+            if (logger.isTraceEnabled())
+                logger.trace("MetaContact not found for protocol contact: "
                     + protocolContact + ".");
         }
     }
@@ -325,7 +327,8 @@ public class ContactListPane
         MetaContact metaContact = GuiActivator.getContactListService()
             .findMetaContactByContact(contact);
 
-        logger.trace("MESSAGE DELIVERED to contact: " + contact.getAddress());
+        if (logger.isTraceEnabled())
+            logger.trace("MESSAGE DELIVERED to contact: " + contact.getAddress());
 
         ChatPanel chatPanel
             = chatWindowManager.getContactChat(metaContact, false);
@@ -336,7 +339,8 @@ public class ContactListPane
             ProtocolProviderService protocolProvider
                 = contact.getProtocolProvider();
 
-            logger.trace(
+            if (logger.isTraceEnabled())
+                logger.trace(
                 "MESSAGE DELIVERED: process message to chat for contact: "
                 + contact.getAddress()
                 + " MESSAGE: " + msg.getContent());

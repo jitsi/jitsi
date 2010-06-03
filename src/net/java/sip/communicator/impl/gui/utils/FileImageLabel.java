@@ -119,7 +119,8 @@ public class FileImageLabel
             }
             catch (MalformedURLException e)
             {
-                logger.debug("Could not locate image.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Could not locate image.", e);
                 this.setIcon(new ImageIcon(
                     ImageLoader.getImage(ImageLoader.DEFAULT_FILE_ICON)));
             }

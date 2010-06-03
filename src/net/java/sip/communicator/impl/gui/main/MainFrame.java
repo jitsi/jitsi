@@ -507,7 +507,8 @@ public class MainFrame
      */
     public void addProtocolProvider(ProtocolProviderService protocolProvider)
     {
-        logger.trace("Add the following protocol provider to the gui: "
+        if (logger.isTraceEnabled())
+            logger.trace("Add the following protocol provider to the gui: "
             + protocolProvider.getAccountID().getAccountAddress());
 
         this.protocolProviders.put(protocolProvider,
@@ -547,7 +548,8 @@ public class MainFrame
     {
         if (!accountStatusPanel.containsAccount(protocolProvider))
         {
-            logger.trace("Add the following account to the status bar: "
+            if (logger.isTraceEnabled())
+                logger.trace("Add the following account to the status bar: "
                 + protocolProvider.getAccountID().getAccountAddress());
 
             accountStatusPanel.addAccount(protocolProvider);
