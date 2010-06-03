@@ -235,7 +235,8 @@ public class RtpFlowImpl
                 }
 
                 rtpMgrs[i].addTarget(destAddr);
-                logger.info("Created RTP session at " + localPort +
+                if (logger.isInfoEnabled())
+                    logger.info("Created RTP session at " + localPort +
                         " to: " + remoteAddress + " " + port);
                 sendStream = rtpMgrs[i].createSendStream(dataSource, i);
                 sendStreams.add(sendStream);
@@ -281,7 +282,8 @@ public class RtpFlowImpl
      */
      public void resume()
      {
-        logger.info("resuming transmission... ");
+        if (logger.isInfoEnabled())
+            logger.info("resuming transmission... ");
 
         for (SendStream sendStream : sendStreams)
         {
@@ -301,7 +303,8 @@ public class RtpFlowImpl
      */
      public void pause()
      {
-        logger.info("pausing transmission... ");
+        if (logger.isInfoEnabled())
+            logger.info("pausing transmission... ");
 
         for (SendStream sendStream : sendStreams)
         {
@@ -326,7 +329,8 @@ public class RtpFlowImpl
         if (evt instanceof NewParticipantEvent)
         {
             Participant p = ((NewParticipantEvent) evt).getParticipant();
-            logger.info("A new participant had just joined: " + p.getCNAME());
+            if (logger.isInfoEnabled())
+                logger.info("A new participant had just joined: " + p.getCNAME());
         }
     }
 
@@ -358,17 +362,21 @@ public class RtpFlowImpl
                         (RTPControl) ds.getControl("javax.jmf.rtp.RTPControl");
                 if (ctl != null)
                 {
-                    logger.info("Recevied new RTP stream: " + ctl.getFormat());
+                    if (logger.isInfoEnabled())
+                        logger.info("Recevied new RTP stream: " + ctl.getFormat());
                 }
                 else
-                    logger.info("Recevied new RTP stream");
+                    if (logger.isInfoEnabled())
+                        logger.info("Recevied new RTP stream");
 
                 if (participant == null)
-                    logger.info("The sender of this stream" +
+                    if (logger.isInfoEnabled())
+                        logger.info("The sender of this stream" +
                             "had yet to be identified.");
                 else
                 {
-                    logger.info("The stream comes from: " +
+                    if (logger.isInfoEnabled())
+                        logger.info("The stream comes from: " +
                             participant.getCNAME());
                 }
 
@@ -398,16 +406,20 @@ public class RtpFlowImpl
                 // Find out the formats.
                 RTPControl ctl =
                         (RTPControl) ds.getControl("javax.jmf.rtp.RTPControl");
-                logger.info("The previously unidentified stream ");
+                if (logger.isInfoEnabled())
+                    logger.info("The previously unidentified stream ");
                 if (ctl != null)
-                    logger.info(": " + ctl.getFormat());
-                logger.info(" had now been identified as sent by: "
+                    if (logger.isInfoEnabled())
+                        logger.info(": " + ctl.getFormat());
+                if (logger.isInfoEnabled())
+                    logger.info(" had now been identified as sent by: "
                         + participant.getCNAME());
             }
         }
         else if (evt instanceof ByeEvent)
         {
-            logger.info("Got \"bye\" from: " + participant.getCNAME());
+            if (logger.isInfoEnabled())
+                logger.info("Got \"bye\" from: " + participant.getCNAME());
         }
 
     }

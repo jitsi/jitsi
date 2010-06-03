@@ -58,9 +58,11 @@ public class LogMessageNotificationHandlerImpl
         if (logType.equals(LogMessageNotificationHandler.ERROR_LOG_TYPE))
             logger.error(message);
         else if(logType.equals(LogMessageNotificationHandler.INFO_LOG_TYPE))
-            logger.info(message);
+            if (logger.isInfoEnabled())
+                logger.info(message);
         else if(logType.equals(LogMessageNotificationHandler.TRACE_LOG_TYPE))
-            logger.trace(message);
+            if (logger.isTraceEnabled())
+                logger.trace(message);
     }
 
     /**

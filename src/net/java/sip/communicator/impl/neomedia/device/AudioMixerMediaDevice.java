@@ -383,7 +383,8 @@ public class AudioMixerMediaDevice
             {
                 // can't happen since CSRC_AUDIO_LEVEL_URN is a valid URI and
                 // never changes.
-                logger.info("Aha! Someone messed with the source!", e);
+                if (logger.isInfoEnabled())
+                    logger.info("Aha! Someone messed with the source!", e);
                 return null;
             }
 

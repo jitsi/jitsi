@@ -49,7 +49,8 @@ public class JavaSoundAuto
             logger.error("Failed detecting java sound audio", thr);
         }
 
-        logger.info("JavaSound Capture Supported = " + supported);
+        if (logger.isInfoEnabled())
+            logger.info("JavaSound Capture Supported = " + supported);
 
         if (supported)
         {
@@ -82,7 +83,8 @@ public class JavaSoundAuto
                 try
                 {
                     CaptureDeviceManager.commit();
-                    logger.info("JavaSoundAuto: Committed ok");
+                    if (logger.isInfoEnabled())
+                        logger.info("JavaSoundAuto: Committed ok");
                 }
                 catch (IOException ioex)
                 {

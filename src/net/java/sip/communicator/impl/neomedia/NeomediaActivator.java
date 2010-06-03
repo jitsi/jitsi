@@ -93,7 +93,8 @@ public class NeomediaActivator
     public void start(BundleContext bundleContext)
         throws Exception
     {
-        logger.debug("Started.");
+        if (logger.isDebugEnabled())
+            logger.debug("Started.");
 
         NeomediaActivator.bundleContext = bundleContext;
 
@@ -107,7 +108,8 @@ public class NeomediaActivator
                     MediaService.class.getName(),
                     mediaServiceImpl,
                     null);
-        logger.debug("Media Service ... [REGISTERED]");
+        if (logger.isDebugEnabled())
+            logger.debug("Media Service ... [REGISTERED]");
 
         // MediaConfigurationForm
         bundleContext
@@ -158,7 +160,8 @@ public class NeomediaActivator
                 audioNotifier,
                 null);
 
-        logger.info("Audio Notifier Service ...[REGISTERED]");
+        if (logger.isInfoEnabled())
+            logger.info("Audio Notifier Service ...[REGISTERED]");
     }
 
     /**

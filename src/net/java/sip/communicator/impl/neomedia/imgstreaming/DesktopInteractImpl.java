@@ -183,10 +183,12 @@ public class DesktopInteractImpl implements DesktopInteract
             return null;
         }
 
-        logger.info("Begin capture: " + System.nanoTime());
+        if (logger.isInfoEnabled())
+            logger.info("Begin capture: " + System.nanoTime());
         rect = new Rectangle(x, y, width, height);
         img = robot.createScreenCapture(rect);
-        logger.info("End capture: " + System.nanoTime());
+        if (logger.isInfoEnabled())
+            logger.info("End capture: " + System.nanoTime());
 
         return img;
     }

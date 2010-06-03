@@ -446,7 +446,8 @@ public class MediaServiceImpl
                     audioNotifier,
                     null);
 
-            logger.info("Audio Notifier Service ...[REGISTERED]");
+            if (logger.isInfoEnabled())
+                logger.info("Audio Notifier Service ...[REGISTERED]");
     }
 
     /**

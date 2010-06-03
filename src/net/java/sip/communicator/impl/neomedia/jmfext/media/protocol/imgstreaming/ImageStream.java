@@ -213,7 +213,8 @@ public class ImageStream
     @Override
     public void stop()
     {
-        logger.info("Stop stream");
+        if (logger.isInfoEnabled())
+            logger.info("Stop stream");
     }
 
     /**

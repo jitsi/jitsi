@@ -372,7 +372,8 @@ public class MediaControl
     public void initDataSourceFromURL(URL dataSourceURL)
         throws MediaException
     {
-        logger.debug("Using a data source from url: " + dataSourceURL);
+        if (logger.isDebugEnabled())
+            logger.debug("Using a data source from url: " + dataSourceURL);
 
         avDataSource = createDataSource(new MediaLocator(dataSourceURL));
 
@@ -493,7 +494,8 @@ public class MediaControl
         //check out the formats that our processor supports and update our
         //supported formats arrays.
         TrackControl[] trackControls = sourceProcessor.getTrackControls();
-        logger.debug("We will be able to transmit in:");
+        if (logger.isDebugEnabled())
+            logger.debug("We will be able to transmit in:");
         List<String> transmittableAudioEncodings = new ArrayList<String>();
         List<String> transmittableVideoEncodings = new ArrayList<String>();
 
@@ -537,7 +539,8 @@ public class MediaControl
                 }
                 else
                 {
-                    logger.debug("unknown encoding format " + encoding);
+                    if (logger.isDebugEnabled())
+                        logger.debug("unknown encoding format " + encoding);
                 }
             }
         }
@@ -628,7 +631,8 @@ public class MediaControl
     public static DataSource createDataSource(MediaLocator locator)
     {
         try {
-            logger.info("Creating datasource for:"
+            if (logger.isInfoEnabled())
+                logger.info("Creating datasource for:"
                     + ((locator != null)
                         ? locator.toExternalForm()
                         : "null"));
@@ -701,7 +705,8 @@ public class MediaControl
         }
         if (    logger.isDebugEnabled()
              && (sourceProcessor.getState() > Processor.Configured))
-            logger.debug(
+            if (logger.isDebugEnabled())
+                logger.debug(
                 "sourceProcessor is in state "
                     + sourceProcessor.getState()
                     + " which is > Processor.Configured"
@@ -721,7 +726,8 @@ public class MediaControl
             Format[] supported = tracks[i].getSupportedFormats();
             if (supported.length == 0)
             {
-                logger.debug("No available encodings.");
+                if (logger.isDebugEnabled())
+                    logger.debug("No available encodings.");
                 tracks[i].setEnabled(false);
                 continue;
             }
@@ -731,7 +737,8 @@ public class MediaControl
                 logger.debug("Available encodings are:");
                 for (int j = 0; j < supported.length; j++)
                 {
-                    logger.debug("track[" + i + "] format[" + j + "]="
+                    if (logger.isDebugEnabled())
+                        logger.debug("track[" + i + "] format[" + j + "]="
                                  + supported[j].getEncoding());
                 }
             }
@@ -751,7 +758,8 @@ public class MediaControl
                         (VideoFormat)supported[index]);
 
                     tracks[i].setFormat(chosenFormat);
-                    logger.debug("Track " + i + " is set to transmit "
+                    if (logger.isDebugEnabled())
+                        logger.debug("Track " + i + " is set to transmit "
                                  + "as: " + chosenFormat);
                     atLeastOneTrack = true;
                 }
@@ -847,7 +855,8 @@ public class MediaControl
                         {
                             qc = (QualityControl) c;
                             qc.setQuality(val);
-                            logger.debug("Setting quality to "
+                            if (logger.isDebugEnabled())
+                                logger.debug("Setting quality to "
                                          + val + " on " + qc);
                             break;
                         }

@@ -88,7 +88,8 @@ public class ProcessorUtility
             if (ce instanceof ControllerErrorEvent)
                 logger.warn("ControllerErrorEvent: " + ce);
             else
-                logger.debug("ControllerClosedEvent: " + ce);
+                if (logger.isDebugEnabled())
+                    logger.debug("ControllerClosedEvent: " + ce);
 
             setFailed(true);
 

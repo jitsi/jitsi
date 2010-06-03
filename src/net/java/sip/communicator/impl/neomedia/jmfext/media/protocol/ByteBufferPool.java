@@ -69,7 +69,8 @@ public class ByteBufferPool
             }
             if (loggerIsTraceEnabled)
             {
-                logger.trace(
+                if (logger.isTraceEnabled())
+                    logger.trace(
                         "Leaking " + leakedCount + " ByteBuffer instances.");
             }
         }

@@ -57,7 +57,8 @@ public class MessageHistoryActivator
             bundleContext.registerService(
                 MessageHistoryService.class.getName(), msgHistoryService, null);
 
-            logger.info("Message History Service ...[REGISTERED]");
+            if (logger.isInfoEnabled())
+                logger.info("Message History Service ...[REGISTERED]");
         }
         finally
         {

@@ -161,7 +161,8 @@ public class DeviceConfiguration
     {
         ConfigurationService config = MediaActivator.getConfigurationService();
 
-        logger.info("Scanning for configured Audio Devices.");
+        if (logger.isInfoEnabled())
+            logger.info("Scanning for configured Audio Devices.");
         CaptureDeviceInfo[] audioCaptureDevices =
             getAvailableAudioCaptureDevices();
         if (config.getBoolean(PROP_AUDIO_DEVICE_IS_DISABLED, false))
@@ -177,7 +178,8 @@ public class DeviceConfiguration
         }
         else
         {
-            logger.debug("Found " + audioCaptureDevices.length
+            if (logger.isDebugEnabled())
+                logger.debug("Found " + audioCaptureDevices.length
                 + " capture devices: " + audioCaptureDevices);
 
             String audioDevName = config.getString(PROP_AUDIO_DEVICE);
@@ -212,7 +214,8 @@ public class DeviceConfiguration
                 }
             }
             if (audioCaptureDevice != null)
-                logger.info("Found " + audioCaptureDevice.getName()
+                if (logger.isInfoEnabled())
+                    logger.info("Found " + audioCaptureDevice.getName()
                     + " as an audio capture device.");
 
             // now extract other sound related configs
@@ -256,7 +259,8 @@ public class DeviceConfiguration
             videoCaptureDevice = null;
         else
         {
-            logger.info("Scanning for configured Video Devices.");
+            if (logger.isInfoEnabled())
+                logger.info("Scanning for configured Video Devices.");
             videoCaptureDevice =
                 extractConfiguredVideoCaptureDevice(VideoFormat.RGB);
             // no RGB camera found. And what about YUV ?
@@ -265,7 +269,8 @@ public class DeviceConfiguration
                 videoCaptureDevice =
                     extractConfiguredVideoCaptureDevice(VideoFormat.YUV);
                 if (videoCaptureDevice == null)
-                    logger.info("No Video Device was found.");
+                    if (logger.isInfoEnabled())
+                        logger.info("No Video Device was found.");
             }
         }
     }
@@ -303,7 +308,8 @@ public class DeviceConfiguration
             }
 
             if (videoCaptureDevice != null)
-                logger.info("Found " + videoCaptureDevice.getName()
+                if (logger.isInfoEnabled())
+                    logger.info("Found " + videoCaptureDevice.getName()
                     + " as an RGB Video Device.");
         }
         return videoCaptureDevice;

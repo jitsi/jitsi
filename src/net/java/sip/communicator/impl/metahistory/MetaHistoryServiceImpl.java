@@ -860,7 +860,8 @@ public class MetaHistoryServiceImpl
      */
     public void start(BundleContext bc)
     {
-        logger.debug("Starting the call history implementation.");
+        if (logger.isDebugEnabled())
+            logger.debug("Starting the call history implementation.");
         this.bundleContext = bc;
 
         services.clear();

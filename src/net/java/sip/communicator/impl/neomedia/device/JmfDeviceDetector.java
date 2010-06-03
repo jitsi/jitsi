@@ -123,7 +123,8 @@ public class JmfDeviceDetector
      */
     private void detectCaptureDevices()
     {
-        logger.info("Looking for Audio capturer");
+        if (logger.isInfoEnabled())
+            logger.info("Looking for Audio capturer");
 
         // check if JavaSound capture is available
         try
@@ -132,7 +133,8 @@ public class JmfDeviceDetector
         }
         catch (Throwable exc)
         {
-            logger.debug("No JMF javasound detected: " + exc.getMessage());
+            if (logger.isDebugEnabled())
+                logger.debug("No JMF javasound detected: " + exc.getMessage());
         }
 
         // check if we have FMJJavaSoundAuto capture is available
@@ -142,7 +144,8 @@ public class JmfDeviceDetector
         }
         catch (Throwable exc)
         {
-            logger.debug("No FMJ javasound detected: " + exc.getMessage());
+            if (logger.isDebugEnabled())
+                logger.debug("No FMJ javasound detected: " + exc.getMessage());
         }
         try
         {
@@ -150,7 +153,8 @@ public class JmfDeviceDetector
         }
         catch (Throwable exc)
         {
-            logger.info("No portaudio detected: " + exc.getMessage());
+            if (logger.isInfoEnabled())
+                logger.info("No portaudio detected: " + exc.getMessage());
         }
 
         // after javasound and portaudio eventually add them to available
@@ -170,7 +174,8 @@ public class JmfDeviceDetector
 
         // Try to configgure capture devices for any operating system.
         // those that do not apply will silently fail.
-        logger.info("Looking for video capture devices");
+        if (logger.isInfoEnabled())
+            logger.info("Looking for video capture devices");
 
         //FMJ
         boolean fmjVideoAvailable = isFMJVideoAvailable();
@@ -182,7 +187,8 @@ public class JmfDeviceDetector
         }
         catch (Throwable exc)
         {
-            logger.debug("No FMJ CIVIL video detected: " + exc.getMessage(), exc);
+            if (logger.isDebugEnabled())
+                logger.debug("No FMJ CIVIL video detected: " + exc.getMessage(), exc);
             fmjVideoAvailable = false;
         }
 
@@ -194,7 +200,8 @@ public class JmfDeviceDetector
             }
             catch (Throwable t)
             {
-                logger.debug("No QuickTime detected: " + t.getMessage(), t);
+                if (logger.isDebugEnabled())
+                    logger.debug("No QuickTime detected: " + t.getMessage(), t);
             }
         }
         else if (OSUtils.IS_LINUX) // Video4Linux2
@@ -205,7 +212,8 @@ public class JmfDeviceDetector
             }
             catch (Throwable t)
             {
-                logger.debug("No Video4Linux2 detected: " + t.getMessage(), t);
+                if (logger.isDebugEnabled())
+                    logger.debug("No Video4Linux2 detected: " + t.getMessage(), t);
             }
         }
         else if (OSUtils.IS_WINDOWS) /* DirectShow */
@@ -216,7 +224,8 @@ public class JmfDeviceDetector
             }
             catch(Throwable t)
             {
-                logger.debug("No DirectShow detected: " + t.getMessage(), t);
+                if (logger.isDebugEnabled())
+                    logger.debug("No DirectShow detected: " + t.getMessage(), t);
             }
         }
 

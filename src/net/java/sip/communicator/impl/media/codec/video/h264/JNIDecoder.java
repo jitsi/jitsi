@@ -248,7 +248,8 @@ public class JNIDecoder
             long oldRecv = lastReceivedSeq;
             lastReceivedSeq = inputBuffer.getSequenceNumber();
             waitingForMarker = true;
-            logger.trace("DROP rtp data! " + oldRecv + "/" + lastReceivedSeq);
+            if (logger.isTraceEnabled())
+                logger.trace("DROP rtp data! " + oldRecv + "/" + lastReceivedSeq);
             parser.reset();
             reset();
             return OUTPUT_BUFFER_NOT_FILLED;

@@ -816,7 +816,8 @@ public class MessageHistoryServiceImpl
             "impl.msghistory.IS_MESSAGE_HISTORY_ENABLED",
             msgHistoryPropListener);
 
-        logger.debug("Starting the msg history implementation.");
+        if (logger.isDebugEnabled())
+            logger.debug("Starting the msg history implementation.");
 
         this.loadMessageHistoryService();
     }
@@ -1016,7 +1017,8 @@ public class MessageHistoryServiceImpl
         {
             this.historyService = historyService;
 
-            logger.debug("New history service registered.");
+            if (logger.isDebugEnabled())
+                logger.debug("New history service registered.");
         }
     }
 
@@ -1033,7 +1035,8 @@ public class MessageHistoryServiceImpl
             {
                 this.historyService = null;
 
-                logger.debug("History service unregistered.");
+                if (logger.isDebugEnabled())
+                    logger.debug("History service unregistered.");
             }
         }
     }
@@ -1048,7 +1051,8 @@ public class MessageHistoryServiceImpl
     {
         Object sService = bundleContext.getService(serviceEvent.getServiceReference());
 
-        logger.trace("Received a service event for: " + sService.getClass().getName());
+        if (logger.isTraceEnabled())
+            logger.trace("Received a service event for: " + sService.getClass().getName());
 
         // we don't care if the source service is not a protocol provider
         if (! (sService instanceof ProtocolProviderService))
@@ -1056,10 +1060,12 @@ public class MessageHistoryServiceImpl
             return;
         }
 
-        logger.debug("Service is a protocol provider.");
+        if (logger.isDebugEnabled())
+            logger.debug("Service is a protocol provider.");
         if (serviceEvent.getType() == ServiceEvent.REGISTERED)
         {
-            logger.debug("Handling registration of a new Protocol Provider.");
+            if (logger.isDebugEnabled())
+                logger.debug("Handling registration of a new Protocol Provider.");
 
             this.handleProviderAdded((ProtocolProviderService)sService);
         }
@@ -1079,7 +1085,8 @@ public class MessageHistoryServiceImpl
      */
     private void handleProviderAdded(ProtocolProviderService provider)
     {
-        logger.debug("Adding protocol provider "
+        if (logger.isDebugEnabled())
+            logger.debug("Adding protocol provider "
                 + provider.getProtocolDisplayName());
 
         // check whether the provider has a basic im operation set
@@ -1092,7 +1099,8 @@ public class MessageHistoryServiceImpl
         }
         else
         {
-            logger.trace("Service did not have a im op. set.");
+            if (logger.isTraceEnabled())
+                logger.trace("Service did not have a im op. set.");
         }
 
         OperationSetMultiUserChat opSetMultiUChat =
@@ -1113,7 +1121,8 @@ public class MessageHistoryServiceImpl
         }
         else
         {
-            logger.trace("Service did not have a multi im op. set.");
+            if (logger.isTraceEnabled())
+                logger.trace("Service did not have a multi im op. set.");
         }
     }
 
@@ -2142,7 +2151,8 @@ public class MessageHistoryServiceImpl
         // in case we found any
         if (protocolProviderRefs != null)
         {
-            logger.debug("Found "
+            if (logger.isDebugEnabled())
+                logger.debug("Found "
                          + protocolProviderRefs.length
                          + " already installed providers.");
             for (int i = 0; i < protocolProviderRefs.length; i++)

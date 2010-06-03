@@ -44,7 +44,8 @@ public class MetaHistoryActivator
             bundleContext.registerService(
                 MetaHistoryService.class.getName(), metaHistoryService, null);
 
-            logger.info("Meta History Service ...[REGISTERED]");
+            if (logger.isInfoEnabled())
+                logger.info("Meta History Service ...[REGISTERED]");
         }
         finally
         {

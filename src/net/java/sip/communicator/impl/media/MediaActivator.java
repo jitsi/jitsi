@@ -52,7 +52,8 @@ public class MediaActivator
     public void start(BundleContext context)
         throws Exception
     {
-        logger.debug("Started.");
+        if (logger.isDebugEnabled())
+            logger.debug("Started.");
 /*
         MediaActivator.bundleContext = context;
 
@@ -63,7 +64,8 @@ public class MediaActivator
         mediaServiceRegistration =
             context.registerService(MediaService.class.getName(),
                 mediaServiceImpl, null);
-        logger.debug("Media Service ... [REGISTERED]");
+        if (logger.isDebugEnabled())
+            logger.debug("Media Service ... [REGISTERED]");
 
         // MediaConfigurationForm
         context.registerService(ConfigurationForm.class.getName(),

@@ -355,7 +355,8 @@ public class EncodingConfiguration
 
             if (registeredPlugins.contains(className))
             {
-                logger.debug("Codec : " + className + " is already registered");
+                if (logger.isDebugEnabled())
+                    logger.debug("Codec : " + className + " is already registered");
             }
             else
             {
@@ -383,14 +384,16 @@ public class EncodingConfiguration
                 }
                 if (registered)
                 {
-                    logger.debug(
+                    if (logger.isDebugEnabled())
+                        logger.debug(
                             "Codec "
                                 + className
                                 + " is successfully registered");
                 }
                 else
                 {
-                    logger.debug(
+                    if (logger.isDebugEnabled())
+                        logger.debug(
                             "Codec "
                                 + className
                                 + " is NOT succsefully registered", exception);
@@ -441,7 +444,8 @@ public class EncodingConfiguration
             {
                 packages.add(customPackage);
                 if (loggerIsDebugEnabled)
-                    logger.debug("Adding package  : " + customPackage);
+                    if (logger.isDebugEnabled())
+                        logger.debug("Adding package  : " + customPackage);
             }
         }
 
@@ -449,7 +453,8 @@ public class EncodingConfiguration
         PackageManager.commitProtocolPrefixList();
         if (loggerIsDebugEnabled)
         {
-            logger.debug(
+            if (logger.isDebugEnabled())
+                logger.debug(
                     "Registering new protocol prefix list: " + packages);
         }
     }

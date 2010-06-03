@@ -128,7 +128,8 @@ public class JmfDeviceDetector
      */
     private void detectCaptureDevices()
     {
-        logger.info("Looking for Audio capturer");
+        if (logger.isInfoEnabled())
+            logger.info("Looking for Audio capturer");
 
         // check if JavaSound capture is available
         try
@@ -137,7 +138,8 @@ public class JmfDeviceDetector
         }
         catch (Throwable exc)
         {
-            logger.debug("No JMF javasound detected: " + exc.getMessage());
+            if (logger.isDebugEnabled())
+                logger.debug("No JMF javasound detected: " + exc.getMessage());
         }
 
         // check if we have FMJJavaSoundAuto capture is available
@@ -147,7 +149,8 @@ public class JmfDeviceDetector
         }
         catch (Throwable exc)
         {
-            logger.debug("No FMJ javasound detected: " + exc.getMessage());
+            if (logger.isDebugEnabled())
+                logger.debug("No FMJ javasound detected: " + exc.getMessage());
         }
         try
         {
@@ -155,7 +158,8 @@ public class JmfDeviceDetector
         }
         catch (Throwable exc)
         {
-            logger.info("No portaudio detected: " + exc.getMessage());
+            if (logger.isInfoEnabled())
+                logger.info("No portaudio detected: " + exc.getMessage());
         }
 
         // after javasound and portaudio eventually add them to available
@@ -173,20 +177,23 @@ public class JmfDeviceDetector
 
         // Try to configgure capture devices for any operating system.
         //those that do not apply will silently fail.
-        logger.info("Looking for video capture devices");
+        if (logger.isInfoEnabled())
+            logger.info("Looking for video capture devices");
 /*        int nDevices = 0;
         //Windows
         try
         {
             VFWAuto vfwAuto = new VFWAuto();
             vfwAuto.autoDetectDevices();
-            logger.info("Detected "
+            if (logger.isInfoEnabled())
+                logger.info("Detected "
                         + nDevices
                         +" VFW video capture device(s).");
         }
         catch (Throwable exc)
         {
-            logger.debug("No VFW video detected: " + exc.getMessage());
+            if (logger.isDebugEnabled())
+                logger.debug("No VFW video detected: " + exc.getMessage());
         }
 
         //SunVideo
@@ -195,13 +202,15 @@ public class JmfDeviceDetector
             SunVideoAuto sunVideoAuto = new SunVideoAuto();
             nDevices = sunVideoAuto.autoDetectDevices();
 
-            logger.info("Detected "
+            if (logger.isInfoEnabled())
+                logger.info("Detected "
                         + nDevices
                         +" SUN Video capture device(s).");
         }
         catch (Throwable exc)
         {
-            logger.debug("No SUN Video detected: " + exc.getMessage());
+            if (logger.isDebugEnabled())
+                logger.debug("No SUN Video detected: " + exc.getMessage());
         }
 
         //SunVideoPlus
@@ -210,13 +219,15 @@ public class JmfDeviceDetector
             SunVideoPlusAuto sunVideoAutoPlus = new SunVideoPlusAuto();
             nDevices = sunVideoAutoPlus.autoDetectDevices();
 
-            logger.info("Detected "
+            if (logger.isInfoEnabled())
+                logger.info("Detected "
                         + nDevices
                         + " SUN Video Plus device(s).");
         }
         catch (Throwable exc)
         {
-            logger.debug("No SUN Video Plus detected: " + exc.getMessage());
+            if (logger.isDebugEnabled())
+                logger.debug("No SUN Video Plus detected: " + exc.getMessage());
         }
 
         //Linux
@@ -224,13 +235,15 @@ public class JmfDeviceDetector
         {
             V4LAuto v4lAuto = new V4LAuto();
             nDevices = v4lAuto.autoDetectDevices();
-            logger.info("Detected "
+            if (logger.isInfoEnabled())
+                logger.info("Detected "
                         + nDevices
                         +" V4L video capture device.");
         }
         catch (Throwable exc)
         {
-            logger.debug("No V4l video detected: " + exc.getMessage());
+            if (logger.isDebugEnabled())
+                logger.debug("No V4l video detected: " + exc.getMessage());
         }
 */
 
@@ -243,7 +256,8 @@ public class JmfDeviceDetector
         }
         catch (Throwable exc)
         {
-            logger.debug("No FMJ CIVIL video detected: " + exc.getMessage(), exc);
+            if (logger.isDebugEnabled())
+                logger.debug("No FMJ CIVIL video detected: " + exc.getMessage(), exc);
         }
     }
 
@@ -312,12 +326,14 @@ public class JmfDeviceDetector
             }
             catch (Throwable throwable)
             {
-                logger.debug("Detection for direct audio failed.", throwable);
+                if (logger.isDebugEnabled())
+                    logger.debug("Detection for direct audio failed.", throwable);
             }
         }
         catch (Throwable tt)
         {
-            logger.debug("Detection for direct audio failed.", tt);
+            if (logger.isDebugEnabled())
+                logger.debug("Detection for direct audio failed.", tt);
         }
     }
 

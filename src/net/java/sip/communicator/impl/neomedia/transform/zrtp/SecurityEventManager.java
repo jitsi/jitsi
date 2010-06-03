@@ -142,7 +142,8 @@ public class SecurityEventManager extends ZrtpUserCallback
     @Override
     public void secureOn(String cipher)
     {
-        logger.debug(sessionTypeToString(sessionType) 
+        if (logger.isDebugEnabled())
+            logger.debug(sessionTypeToString(sessionType) 
             + ": cipher enabled: " + cipher);
 
         this.cipher = cipher;
@@ -158,7 +159,8 @@ public class SecurityEventManager extends ZrtpUserCallback
     @Override
     public void showSAS(String sas, boolean isVerified)
     {
-        logger.debug(sessionTypeToString(sessionType) + ": SAS is: " + sas);
+        if (logger.isDebugEnabled())
+            logger.debug(sessionTypeToString(sessionType) + ": SAS is: " + sas);
 
         this.sas = sas;
         this.isSasVerified = isVerified;
@@ -303,7 +305,8 @@ public class SecurityEventManager extends ZrtpUserCallback
             securityListener
                 .securityMessageReceived(message, i18nMessage, severity);
 
-        logger.debug(sessionTypeToString(sessionType) + ": "
+        if (logger.isDebugEnabled())
+            logger.debug(sessionTypeToString(sessionType) + ": "
             + "ZRTP message: severity: " + sev + ", sub code: " + msgCode
             + ", DH session: " + isDHSession + ", multi: " + multiStreams);
     }
@@ -321,7 +324,8 @@ public class SecurityEventManager extends ZrtpUserCallback
         Iterator<?> ii = subCode.iterator();
         Object msgCode = ii.next();
 
-        logger.debug(sessionTypeToString(sessionType)
+        if (logger.isDebugEnabled())
+            logger.debug(sessionTypeToString(sessionType)
                 + ": ZRTP key negotiation failed, sub code: " + msgCode);
     }
 
@@ -331,7 +335,8 @@ public class SecurityEventManager extends ZrtpUserCallback
     @Override
     public void secureOff()
     {
-        logger.debug(sessionTypeToString(sessionType) + ": Security off");
+        if (logger.isDebugEnabled())
+            logger.debug(sessionTypeToString(sessionType) + ": Security off");
 
         securityListener.securityTurnedOff(sessionType);
     }
@@ -342,7 +347,8 @@ public class SecurityEventManager extends ZrtpUserCallback
     @Override
     public void zrtpNotSuppOther()
     {
-        logger.debug(sessionTypeToString(sessionType)
+        if (logger.isDebugEnabled())
+            logger.debug(sessionTypeToString(sessionType)
             + ": Other party does not support ZRTP key negotiation protocol,"
             + " no secure calls possible.");
     }
@@ -353,7 +359,8 @@ public class SecurityEventManager extends ZrtpUserCallback
     @Override
     public void confirmGoClear()
     {
-        logger.debug(sessionTypeToString(sessionType)
+        if (logger.isDebugEnabled())
+            logger.debug(sessionTypeToString(sessionType)
             + ": GoClear confirmation requested.");
     }
 

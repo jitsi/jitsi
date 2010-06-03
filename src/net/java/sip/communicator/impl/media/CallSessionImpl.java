@@ -396,7 +396,8 @@ public class CallSessionImpl
         List<SendStream> sendStreams = rtpManager.getSendStreams();
         if((sendStreams != null) && (sendStreams.size() > 0))
         {
-            logger.trace("Will be starting " + sendStreams.size()
+            if (logger.isTraceEnabled())
+                logger.trace("Will be starting " + sendStreams.size()
                          + " audio send streams.");
 
             for (SendStream stream : sendStreams)
@@ -416,7 +417,8 @@ public class CallSessionImpl
         }
         else
         {
-            logger.trace("No audio send streams will be started.");
+            if (logger.isTraceEnabled())
+                logger.trace("No audio send streams will be started.");
         }
 
         //start video streams
@@ -428,7 +430,8 @@ public class CallSessionImpl
                 && ((sendStreams = rtpManager.getSendStreams()) != null)
                 && (sendStreams.size() > 0))
         {
-            logger.trace("Will be starting " + sendStreams.size()
+            if (logger.isTraceEnabled())
+                logger.trace("Will be starting " + sendStreams.size()
                          + " video send streams.");
 
             for (SendStream stream : sendStreams)
@@ -446,7 +449,8 @@ public class CallSessionImpl
         }
         else
         {
-            logger.trace("No video send streams will be started.");
+            if (logger.isTraceEnabled())
+                logger.trace("No video send streams will be started.");
         }
         setLocalVideoStreaming(startedAtLeastOneVideoStream);
 
@@ -622,7 +626,8 @@ public class CallSessionImpl
         //it gracefully
         catch (Exception e)
         {
-            logger.trace("Failed to retrieve receive streams", e);
+            if (logger.isTraceEnabled())
+                logger.trace("Failed to retrieve receive streams", e);
             receiveStreams = new Vector<ReceiveStream>();
         }
         for (ReceiveStream stream : receiveStreams)
@@ -703,7 +708,8 @@ public class CallSessionImpl
         //print flow statistics.
         GlobalTransmissionStats s = rtpManager.getGlobalTransmissionStats();
 
-        logger.debug(
+        if (logger.isDebugEnabled())
+            logger.debug(
             "global transmission stats (" + rtpManagerDescription + "): \n" +
             "bytes sent: " + s.getBytesSent() + "\n" +
             "local colls: " + s.getLocalColls() + "\n" +
@@ -715,7 +721,8 @@ public class CallSessionImpl
 
         GlobalReceptionStats rs = rtpManager.getGlobalReceptionStats();
 
-        logger.debug(
+        if (logger.isDebugEnabled())
+            logger.debug(
             "global reception stats (" + rtpManagerDescription + "): \n" +
             "bad RTCP packets: " + rs.getBadRTCPPkts() + "\n" +
             "bad RTP packets: " + rs.getBadRTPkts() + "\n" +
@@ -1193,7 +1200,8 @@ public class CallSessionImpl
     {
         String answerStr = answer ? "answer" : "offer";
 
-        logger.trace("Parsing SDP " + answerStr + ": " + sdpStr);
+        if (logger.isTraceEnabled())
+            logger.trace("Parsing SDP " + answerStr + ": " + sdpStr);
 
         //first parse the answer
         SessionDescription sdp;
@@ -1345,7 +1353,8 @@ public class CallSessionImpl
     {
         if (sdpURI == null)
         {
-            logger.trace("Call URI was null.");
+            if (logger.isTraceEnabled())
+                logger.trace("Call URI was null.");
             return;
         }
 
@@ -1443,7 +1452,8 @@ public class CallSessionImpl
                         = (ZRTPTransformEngine) transConnector.getEngine();
                     engine.setOwnSSRC(ssrc);
                 }
-                logger.trace("Created a send stream for format " + format);
+                if (logger.isTraceEnabled())
+                    logger.trace("Created a send stream for format " + format);
             }
             catch (Exception exc)
             {
@@ -1550,7 +1560,8 @@ public class CallSessionImpl
                         rtpManager.addTarget(target);
                     }
 
-                    logger.trace("added target " + target
+                    if (logger.isTraceEnabled())
+                        logger.trace("added target " + target
                                  + " for type " + type);
                 }
                 catch (Throwable exc)
@@ -1654,7 +1665,8 @@ public class CallSessionImpl
                         }
                         catch (UnknownHostException e)
                         {
-                            logger.debug("Couldn't determine indtended "
+                            if (logger.isDebugEnabled())
+                                logger.debug("Couldn't determine indtended "
                                 + "destination from address"
                                 + conn.getAddress(), e);
                         }
@@ -1727,7 +1739,8 @@ public class CallSessionImpl
                         ? null
                         : offer.getMediaDescriptions(false);
 
-            logger.debug("Will create media descs with: audio public address="
+            if (logger.isDebugEnabled())
+                logger.debug("Will create media descs with: audio public address="
                          + audioPublicAddress
                          + " and video public address="
                          + videoPublicAddress);
@@ -2109,7 +2122,8 @@ public class CallSessionImpl
                     mediaEncodings.put(mediaType, jmfEncodings);
             }
         }
-        logger.trace("Possible media encodings="+mediaEncodings);
+        if (logger.isTraceEnabled())
+            logger.trace("Possible media encodings="+mediaEncodings);
         return mediaEncodings;
     }
 
@@ -2267,7 +2281,8 @@ public class CallSessionImpl
 
         if (logger.isDebugEnabled()) {
             logger.debug("AudioSessionAddress=" + audioSessionAddress);
-            logger.debug("AudioPublicAddress=" + audioPublicAddress);
+            if (logger.isDebugEnabled())
+                logger.debug("AudioPublicAddress=" + audioPublicAddress);
         }
 
         //initialize video rtp manager.
@@ -2398,7 +2413,8 @@ public class CallSessionImpl
                         EnumSet.of(ZRTPCustomInfoCodes.ZRTPNotEnabledByUser));
                 }
 
-                logger.trace(
+                if (logger.isTraceEnabled())
+                    logger.trace(
                     "RTP"
                     + (rtpManager.equals(audioRtpManager)?" audio ":"video")
                     + "manager initialized through connector");
@@ -2456,7 +2472,8 @@ public class CallSessionImpl
             {
                 rtpManager.initialize(bindAddress);
 
-                logger.trace("RTP"+
+                if (logger.isTraceEnabled())
+                    logger.trace("RTP"+
                         (rtpManager.equals(audioRtpManager)?" audio ":"video")+
                         "manager initialized normally");
             }
@@ -2495,7 +2512,8 @@ public class CallSessionImpl
             }
 
             buff = bc.setBufferLength(buff);
-            logger.trace("set receiver buffer len to=" + buff);
+            if (logger.isTraceEnabled())
+                logger.trace("set receiver buffer len to=" + buff);
             bc.setEnabledThreshold(true);
             bc.setMinimumThreshold(100);
         }
@@ -2530,7 +2548,8 @@ public class CallSessionImpl
         for (int i=0; i<CUSTOM_CODEC_FORMATS.length; i++)
         {
             javax.media.Format format = CUSTOM_CODEC_FORMATS[i];
-            logger.debug("registering format " + format + " with RTP manager");
+            if (logger.isDebugEnabled())
+                logger.debug("registering format " + format + " with RTP manager");
             /*
              * NOTE (mkoch@rowa.de): com.sun.media.rtp.RtpSessionMgr.addFormat
              * leaks memory, since it stores the Format in a static Vector.
@@ -2555,7 +2574,8 @@ public class CallSessionImpl
         }
 
         javax.media.Format format = new VideoFormat(Constants.H264_RTP);
-        logger.debug("registering format " + format + " with RTP manager");
+        if (logger.isDebugEnabled())
+            logger.debug("registering format " + format + " with RTP manager");
             /*
              * NOTE (mkoch@rowa.de): com.sun.media.rtp.RtpSessionMgr.addFormat
              * leaks memory, since it stores the Format in a static Vector.
@@ -2596,7 +2616,8 @@ public class CallSessionImpl
         {
             try
             {
-                logger.debug("call connected. starting streaming");
+                if (logger.isDebugEnabled())
+                    logger.debug("call connected. starting streaming");
                 startStreamingAndProcessingMedia();
             }
             catch (MediaException ex)
@@ -2694,12 +2715,14 @@ public class CallSessionImpl
                 Participant participant
                     = ((NewParticipantEvent) event).getParticipant();
 
-                logger.debug("A new participant had just joined: "
+                if (logger.isDebugEnabled())
+                    logger.debug("A new participant had just joined: "
                                  + participant.getCNAME());
             }
             else
             {
-                logger.debug("Received the following JMF Session event - "
+                if (logger.isDebugEnabled())
+                    logger.debug("Received the following JMF Session event - "
                                  + event.getClass().getName()
                                  + "="
                                  + event);
@@ -2715,7 +2738,8 @@ public class CallSessionImpl
      */
     public synchronized void update(SendStreamEvent event)
     {
-        logger.debug(
+        if (logger.isDebugEnabled())
+            logger.debug(
             "received the following JMF SendStreamEvent - "
             + event.getClass().getName() + "="+ event);
     }
@@ -2735,7 +2759,8 @@ public class CallSessionImpl
         {
             try
             {
-                logger.debug("received a new incoming stream. " + evt);
+                if (logger.isDebugEnabled())
+                    logger.debug("received a new incoming stream. " + evt);
                 DataSource ds = stream.getDataSource();
                 // Find out the formats.
                 RTPControl ctl = (RTPControl) ds.getControl(
@@ -2744,12 +2769,14 @@ public class CallSessionImpl
                 {
                     if (ctl != null)
                     {
-                        logger.debug("Received new RTP stream: "
+                        if (logger.isDebugEnabled())
+                            logger.debug("Received new RTP stream: "
                                      + ctl.getFormat());
                     }
                     else
                     {
-                        logger.debug("Received new RTP stream");
+                        if (logger.isDebugEnabled())
+                            logger.debug("Received new RTP stream");
                     }
                 }
 
@@ -2801,13 +2828,15 @@ public class CallSessionImpl
                     }
                     msg += " had now been identified as sent by: "
                         + participant.getCNAME();
-                    logger.debug(msg);
+                    if (logger.isDebugEnabled())
+                        logger.debug(msg);
                 }
             }
         }
         else if (evt instanceof ByeEvent)
         {
-            logger.debug("Got \"bye\" from: " + participant.getCNAME());
+            if (logger.isDebugEnabled())
+                logger.debug("Got \"bye\" from: " + participant.getCNAME());
         }
     }
 
@@ -2819,7 +2848,8 @@ public class CallSessionImpl
      */
     public synchronized void controllerUpdate(ControllerEvent ce)
     {
-        logger.debug("Received a ControllerEvent: " + ce);
+        if (logger.isDebugEnabled())
+            logger.debug("Received a ControllerEvent: " + ce);
         Player player = (Player) ce.getSourceController();
 
         if (player == null)
@@ -2860,13 +2890,15 @@ public class CallSessionImpl
             // else
             // logger.debug("Player does not have gain control.");
 
-            logger.debug("A player was realized and will be started.");
+            if (logger.isDebugEnabled())
+                logger.debug("A player was realized and will be started.");
 
             if (dataSink != null)
             {
                 try
                 {
-                    logger.info("starting recording to file: " + dataSink);
+                    if (logger.isInfoEnabled())
+                        logger.info("starting recording to file: " + dataSink);
                     MediaLocator dest = new MediaLocator(dataSink);
                     DataSink sink =
                         Manager.createDataSink(((Processor) player)
@@ -2895,7 +2927,8 @@ public class CallSessionImpl
         }
         else if (ce instanceof StartEvent)
         {
-            logger.debug("Received a StartEvent");
+            if (logger.isDebugEnabled())
+                logger.debug("Received a StartEvent");
         }
         else if (ce instanceof ControllerErrorEvent)
         {
@@ -2911,7 +2944,8 @@ public class CallSessionImpl
              * the check for the latter should be kept in front of the check for
              * the former.
              */
-            logger.debug("Received a ControllerClosedEvent");
+            if (logger.isDebugEnabled())
+                logger.debug("Received a ControllerClosedEvent");
         }
     }
 

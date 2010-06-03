@@ -45,7 +45,8 @@ public class JavaSoundAuto {
             logger.error("Failed detecting java sound audio", thr);
         }
 
-        logger.info("JavaSound Capture Supported = " + supported);
+        if (logger.isInfoEnabled())
+            logger.info("JavaSound Capture Supported = " + supported);
 
         if (supported) {
             // It's there, start to register JavaSound with CaptureDeviceManager
@@ -73,7 +74,8 @@ public class JavaSoundAuto {
                     CaptureDeviceManager.addDevice(cdi[i]);
                 try {
                     CaptureDeviceManager.commit();
-                    logger.info("JavaSoundAuto: Committed ok");
+                    if (logger.isInfoEnabled())
+                        logger.info("JavaSoundAuto: Committed ok");
                 } catch (java.io.IOException ioe) {
                     logger.error("JavaSoundAuto: error committing cdm");
                 }

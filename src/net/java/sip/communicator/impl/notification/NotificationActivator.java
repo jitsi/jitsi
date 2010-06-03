@@ -42,12 +42,14 @@ public class NotificationActivator
             NotificationService notificationService =
                 new NotificationServiceImpl();
 
-            logger.info("Notification Service...[  STARTED ]");
+            if (logger.isInfoEnabled())
+                logger.info("Notification Service...[  STARTED ]");
 
             bundleContext.registerService(NotificationService.class.getName(),
                 notificationService, null);
 
-            logger.info("Notification Service ...[REGISTERED]");
+            if (logger.isInfoEnabled())
+                logger.info("Notification Service ...[REGISTERED]");
             
             logger.logEntry();
         }
@@ -58,7 +60,8 @@ public class NotificationActivator
 
     public void stop(BundleContext bc) throws Exception
     {
-        logger.info("UI Service ...[STOPPED]");
+        if (logger.isInfoEnabled())
+            logger.info("UI Service ...[STOPPED]");
     }
 
     /**

@@ -145,7 +145,8 @@ public class NetworkAddressManagerServiceImpl
          {
             useStun = false;
 
-            logger.info("Stun server address("
+            if (logger.isInfoEnabled())
+                logger.info("Stun server address("
                         +stunAddressStr+")/port("
                         +portStr
                         +") not set (or invalid). Disabling STUN.");
@@ -161,7 +162,8 @@ public class NetworkAddressManagerServiceImpl
              }
              catch (NumberFormatException ex)
              {
-                 logger.info(portStr + " is not a valid port number. "
+                 if (logger.isInfoEnabled())
+                     logger.info(portStr + " is not a valid port number. "
                              +"Defaulting to 3478",
                              ex);
                  port = DEFAULT_STUN_SERVER_PORT;
@@ -178,7 +180,8 @@ public class NetworkAddressManagerServiceImpl
                      + stunAddressStr + ":" + port);
              }
              detector.start();
-             logger.debug("STUN server detector started;");
+             if (logger.isDebugEnabled())
+                 logger.debug("STUN server detector started;");
 
              //make sure that someone doesn't set invalid stun address and port
              configurationService
@@ -299,7 +302,8 @@ public class NetworkAddressManagerServiceImpl
         //better on windows so lets hope it'll do the trick.
         if( localHost.isAnyLocalAddress())
         {
-            logger.trace("Socket returned the AnyLocalAddress. "+
+            if (logger.isTraceEnabled())
+                logger.trace("Socket returned the AnyLocalAddress. "+
                             "Trying a workaround.");
             try
             {
@@ -469,7 +473,8 @@ public class NetworkAddressManagerServiceImpl
     {
         if (!useStun || (dst instanceof Inet6Address))
         {
-            logger.debug(
+            if (logger.isDebugEnabled())
+                logger.debug(
                 "Stun is disabled for destination "
                 + dst
                 +", skipping mapped address recovery (useStun="
@@ -656,11 +661,13 @@ public class NetworkAddressManagerServiceImpl
                     return null;
                 }
                 //port seems to be taken. try another one.
-                logger.debug("Port " + currentlyTriedPort
+                if (logger.isDebugEnabled())
+                    logger.debug("Port " + currentlyTriedPort
                              + " seems in use.");
                 currentlyTriedPort
                     = NetworkUtils.getRandomPortNumber();
-                logger.debug("Retrying bind on port "
+                if (logger.isDebugEnabled())
+                    logger.debug("Retrying bind on port "
                              + currentlyTriedPort);
             }
         }
@@ -689,7 +696,8 @@ public class NetworkAddressManagerServiceImpl
                     if (stunAddress != null)
                     {
                         useStun = true;
-                        logger.trace(
+                        if (logger.isTraceEnabled())
+                            logger.trace(
                             "StunServer check succeeded for server: "
                             + detector.getServerAddress()
                             + " and local port: "
@@ -698,7 +706,8 @@ public class NetworkAddressManagerServiceImpl
                     else
                     {
                         useStun = false;
-                        logger.trace(
+                        if (logger.isTraceEnabled())
+                            logger.trace(
                             "StunServer check failed for server: "
                             + detector.getServerAddress()
                             + " and local port: "
@@ -801,7 +810,8 @@ public class NetworkAddressManagerServiceImpl
             }
             catch (SocketException se)
             {
-                logger.info(
+                if (logger.isInfoEnabled())
+                    logger.info(
                     "Retrying a bind because of a failure to bind to address "
                         + laddr + " and port " + port, se);
             }

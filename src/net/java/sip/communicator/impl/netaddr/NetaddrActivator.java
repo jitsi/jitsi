@@ -56,12 +56,14 @@ public class NetaddrActivator
             // give references to the NetworkAddressManager implementation
             networkAMS.start();
 
-            logger.info("Network Address Manager         ...[  STARTED ]");
+            if (logger.isInfoEnabled())
+                logger.info("Network Address Manager         ...[  STARTED ]");
 
             bundleContext.registerService(
                 NetworkAddressManagerService.class.getName(), networkAMS, null);
 
-            logger.info("Network Address Manager Service ...[REGISTERED]");
+            if (logger.isInfoEnabled())
+                logger.info("Network Address Manager Service ...[REGISTERED]");
         }
         finally
         {
@@ -99,6 +101,7 @@ public class NetaddrActivator
     {
         if(networkAMS != null)
             networkAMS.stop();
-        logger.info("Network Address Manager Service ...[STOPPED]");
+        if (logger.isInfoEnabled())
+            logger.info("Network Address Manager Service ...[STOPPED]");
     }
 }

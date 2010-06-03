@@ -132,7 +132,8 @@ public class AddressDiagnosticsKit
      */
     public void run()
     {
-        logger.debug("Started a diag kit for entry: " + addressEntry);
+        if (logger.isDebugEnabled())
+            logger.debug("Started a diag kit for entry: " + addressEntry);
 
         //implements the algorithm from AssigningAddressPreferences.png
 
@@ -204,7 +205,8 @@ public class AddressDiagnosticsKit
 
                 stunClient = new StunClient(localStunAddress);
                 stunClient.start();
-                logger.debug("Successfully started StunClient for  "
+                if (logger.isDebugEnabled())
+                    logger.debug("Successfully started StunClient for  "
                                  + localStunAddress + ".");
                 break;
             }
@@ -213,9 +215,11 @@ public class AddressDiagnosticsKit
                 if (ex.getCause() instanceof SocketException
                     && i < bindRetries)
                 {
-                    logger.debug("Failed to bind to "
+                    if (logger.isDebugEnabled())
+                        logger.debug("Failed to bind to "
                                  + localStunAddress + ". Retrying ...");
-                    logger.debug("Exception was ", ex);
+                    if (logger.isDebugEnabled())
+                        logger.debug("Exception was ", ex);
                     continue;
                 }
                 logger.error("Failed to start a stun client for address entry ["
@@ -248,11 +252,13 @@ public class AddressDiagnosticsKit
             //server is down
             /** @todo if possible try another stun server here. we should
              * support multiple stun servers*/
-            logger.debug("There seems to be no inet connectivity for "
+            if (logger.isDebugEnabled())
+                logger.debug("There seems to be no inet connectivity for "
                          + addressEntry);
             setDiagnosticsStatus(DIAGNOSTICS_STATUS_TERMINATED);
             stunClient.shutDown();
-            logger.debug("stun test 1 failed");
+            if (logger.isDebugEnabled())
+                logger.debug("stun test 1 failed");
             return;
         }
 
@@ -301,7 +307,8 @@ public class AddressDiagnosticsKit
                 + addressEntry.toString(), ex);
             setDiagnosticsStatus(DIAGNOSTICS_STATUS_TERMINATED);
             stunClient.shutDown();
-            logger.debug("stun test 2 failed");
+            if (logger.isDebugEnabled())
+                logger.debug("stun test 2 failed");
             return;
         }
 
@@ -319,7 +326,8 @@ public class AddressDiagnosticsKit
         try
         {
             event = stunClient.doStunTestI(secondaryStunServerAddress);
-            logger.debug("stun test 1 succeeded with s server 2");
+            if (logger.isDebugEnabled())
+                logger.debug("stun test 1 succeeded with s server 2");
         }
         catch (StunException ex)
         {
@@ -350,7 +358,8 @@ public class AddressDiagnosticsKit
         if(!mappedAddrFromTestI.equals(mappedAddrFromSecServer))
         {
             //secondary stun server is down
-            logger.debug("We are behind a symmetric nat"
+            if (logger.isDebugEnabled())
+                logger.debug("We are behind a symmetric nat"
                          + addressEntry.toString());
             setDiagnosticsStatus(DIAGNOSTICS_STATUS_TERMINATED);
             stunClient.shutDown();
@@ -362,7 +371,8 @@ public class AddressDiagnosticsKit
         try
         {
             event = stunClient.doStunTestIII(primaryStunServerAddress);
-            logger.debug("stun test 3 succeeded with s server 1");
+            if (logger.isDebugEnabled())
+                logger.debug("stun test 3 succeeded with s server 1");
         }
         catch (StunException ex)
         {
@@ -375,14 +385,16 @@ public class AddressDiagnosticsKit
 
         if (event == null)
         {
-            logger.debug("We are behind a port restricted NAT or fw"
+            if (logger.isDebugEnabled())
+                logger.debug("We are behind a port restricted NAT or fw"
                          + addressEntry.toString());
             setDiagnosticsStatus(DIAGNOSTICS_STATUS_TERMINATED);
             stunClient.shutDown();
             return;
         }
 
-        logger.debug("We are behind a restricted NAT or fw"
+        if (logger.isDebugEnabled())
+            logger.debug("We are behind a restricted NAT or fw"
                      + addressEntry.toString());
         setDiagnosticsStatus(DIAGNOSTICS_STATUS_TERMINATED);
         stunClient.shutDown();

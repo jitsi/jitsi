@@ -1365,7 +1365,8 @@ public class MediaStreamImpl
              * NullPointerException could be thrown. Make sure we handle it
              * gracefully.
              */
-            logger.trace("Failed to retrieve receive streams", ex);
+            if (logger.isTraceEnabled())
+                logger.trace("Failed to retrieve receive streams", ex);
             receiveStreams = null;
         }
 
@@ -1530,7 +1531,8 @@ public class MediaStreamImpl
              * NullPointerException could be thrown. Make sure we handle it
              * gracefully.
              */
-            logger.trace("Failed to retrieve receive streams", ex);
+            if (logger.isTraceEnabled())
+                logger.trace("Failed to retrieve receive streams", ex);
             receiveStreams = null;
         }
 

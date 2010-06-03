@@ -182,7 +182,8 @@ public class NotificationServiceImpl
                                                 String actionDescriptor,
                                                 String defaultMessage)
     {
-        logger.debug("Registering event " + eventType + "/" + 
+        if (logger.isDebugEnabled())
+            logger.debug("Registering event " + eventType + "/" + 
             actionType + "/" + actionDescriptor + "/" + defaultMessage);
         
         if (actionType.equals(NotificationService.ACTION_SOUND))
@@ -756,7 +757,8 @@ public class NotificationServiceImpl
     private void fireNotificationEventTypeEvent(String eventType,
                                                 String sourceEventType)
     {
-        logger.debug("Dispatching NotificationEventType Change. Listeners="
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching NotificationEventType Change. Listeners="
                      + changeListeners.size()
                      + " evt=" + eventType);
         
@@ -956,7 +958,8 @@ public class NotificationServiceImpl
                                                         String actionDescriptor,
                                                         String defaultMessage)
     {
-        logger.debug("Registering default event " + eventType + "/" + 
+        if (logger.isDebugEnabled())
+            logger.debug("Registering default event " + eventType + "/" + 
             actionType + "/" + actionDescriptor + "/" + defaultMessage);
         
         if(isDefault(eventType, actionType))

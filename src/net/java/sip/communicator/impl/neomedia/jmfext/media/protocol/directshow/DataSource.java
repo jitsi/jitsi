@@ -312,7 +312,8 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     @Override
     protected void doConnect() throws IOException
     {
-        logger.info("doConnect");
+        if (logger.isInfoEnabled())
+            logger.info("doConnect");
 
         if(manager == null)
         {
@@ -330,7 +331,8 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     @Override
     protected void doDisconnect()
     {
-        logger.info("doDisconnect");
+        if (logger.isInfoEnabled())
+            logger.info("doDisconnect");
         super.doDisconnect();
 
         if(manager != null)
@@ -353,7 +355,8 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     @Override
     protected void doStart() throws IOException
     {
-        logger.info("start");
+        if (logger.isInfoEnabled())
+            logger.info("start");
         /* open and start capture */
         device.open();
         super.doStart();
@@ -369,7 +372,8 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     @Override
     protected void doStop() throws IOException
     {
-        logger.info("stop");
+        if (logger.isInfoEnabled())
+            logger.info("stop");
         /* close capture */
         super.doStop();
         device.close();
