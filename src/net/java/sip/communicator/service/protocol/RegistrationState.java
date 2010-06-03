@@ -148,8 +148,7 @@ public class RegistrationState
      */
     public String toString()
     {
-        return new StringBuffer("RegistrationState=")
-            .append(getStateName()).toString();
+        return "RegistrationState=" +getStateName();
     }
 
     /**
