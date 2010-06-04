@@ -117,7 +117,8 @@ public class OtrActivator
 
         if (protocolProviderRefs != null && protocolProviderRefs.length > 0)
         {
-            logger.debug("Found " + protocolProviderRefs.length
+            if (logger.isDebugEnabled())
+                logger.debug("Found " + protocolProviderRefs.length
                 + " already installed providers.");
             for (ServiceReference protocolProviderRef : protocolProviderRefs)
             {
@@ -186,7 +187,8 @@ public class OtrActivator
         }
         else
         {
-            logger.trace("Service did not have a transform op. set.");
+            if (logger.isTraceEnabled())
+                logger.trace("Service did not have a transform op. set.");
         }
     }
 
@@ -262,17 +264,20 @@ public class OtrActivator
         Object sService =
             bundleContext.getService(serviceEvent.getServiceReference());
 
-        logger.trace("Received a service event for: "
+        if (logger.isTraceEnabled())
+            logger.trace("Received a service event for: "
             + sService.getClass().getName());
 
         // we don't care if the source service is not a protocol provider
         if (!(sService instanceof ProtocolProviderService))
             return;
 
-        logger.debug("Service is a protocol provider.");
+        if (logger.isDebugEnabled())
+            logger.debug("Service is a protocol provider.");
         if (serviceEvent.getType() == ServiceEvent.REGISTERED)
         {
-            logger.debug("Handling registration of a new Protocol Provider.");
+            if (logger.isDebugEnabled())
+                logger.debug("Handling registration of a new Protocol Provider.");
 
             this.handleProviderAdded((ProtocolProviderService) sService);
         }

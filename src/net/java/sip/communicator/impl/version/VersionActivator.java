@@ -39,7 +39,8 @@ public class VersionActivator
      */
     public void start(BundleContext context) throws Exception
     {
-        logger.debug("Started.");
+        if (logger.isDebugEnabled())
+            logger.debug("Started.");
         VersionActivator.bundleContext = context;
 
         VersionServiceImpl versionServiceImpl = new VersionServiceImpl();
@@ -49,8 +50,10 @@ public class VersionActivator
                     VersionService.class.getName(),
                     versionServiceImpl,
                     null);
-        logger.debug("SIP Protocol Provider Factory ... [REGISTERED]");
-        logger.debug("SIP Communicator Version: sip-communicator-"
+        if (logger.isDebugEnabled())
+            logger.debug("SIP Protocol Provider Factory ... [REGISTERED]");
+        if (logger.isDebugEnabled())
+            logger.debug("SIP Communicator Version: sip-communicator-"
                      + VersionImpl.currentVersion().toString());
 
         //register properties for those that would like to use them

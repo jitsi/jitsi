@@ -42,7 +42,8 @@ public class GibberishAccRegWizzActivator
      */
     public void start(BundleContext bc)
     {
-        logger.info("Loading gibberish account wizard.");
+        if (logger.isInfoEnabled())
+            logger.info("Loading gibberish account wizard.");
 
         bundleContext = bc;
 
@@ -68,7 +69,8 @@ public class GibberishAccRegWizzActivator
             gibberishWizard,
             containerFilter);
 
-        logger.info("Gibberish account registration wizard [STARTED].");
+        if (logger.isInfoEnabled())
+            logger.info("Gibberish account registration wizard [STARTED].");
     }
 
     /**

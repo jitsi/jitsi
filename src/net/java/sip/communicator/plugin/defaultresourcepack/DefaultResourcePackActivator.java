@@ -89,7 +89,8 @@ public class DefaultResourcePackActivator
                                         sndPackImpl,
                                         sndProps);
 
-        logger.info("Default resources ... [REGISTERED]");
+        if (logger.isInfoEnabled())
+            logger.info("Default resources ... [REGISTERED]");
     }
 
     public void stop(BundleContext bc) throws Exception

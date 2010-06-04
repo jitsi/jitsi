@@ -301,7 +301,8 @@ public class NetworkUtils
             logger.trace("DNS SRV query for domain " + domain + " returned:");
             for (int i = 0; i < sortedHostNames.length; i++)
             {
-                logger.trace(sortedHostNames[i]);
+                if (logger.isTraceEnabled())
+                    logger.trace(sortedHostNames[i]);
             }
         }
         return sortedHostNames;
@@ -425,7 +426,8 @@ public class NetworkUtils
         }
         catch (SocketException e)
         {
-            logger.debug("Couldn't retrieve local interfaces.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Couldn't retrieve local interfaces.", e);
             return IN4_ADDR_ANY;
         }
 

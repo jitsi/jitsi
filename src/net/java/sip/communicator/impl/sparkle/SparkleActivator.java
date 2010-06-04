@@ -73,7 +73,8 @@ public class SparkleActivator
         catch(Throwable t)
         {
             logger.warn("Couldn't load sparkle library.");
-            logger.debug("Couldn't load sparkle library.", t);
+            if (logger.isDebugEnabled())
+                logger.debug("Couldn't load sparkle library.", t);
 
             return;
         }
@@ -82,7 +83,8 @@ public class SparkleActivator
         initSparkle(System.getProperty("user.dir")
                     + "/../../Frameworks/Sparkle.framework",
                     updateAtStartup, checkInterval);
-        logger.info("Sparkle Plugin ...[Started]");
+        if (logger.isInfoEnabled())
+            logger.info("Sparkle Plugin ...[Started]");
     }
 
     /**
@@ -95,6 +97,7 @@ public class SparkleActivator
      */
     public void stop(BundleContext bundleContext) throws Exception
     {
-        logger.info("Sparkle Plugin ...[Stopped]");
+        if (logger.isInfoEnabled())
+            logger.info("Sparkle Plugin ...[Stopped]");
     }
 }

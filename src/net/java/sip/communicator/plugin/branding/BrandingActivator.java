@@ -216,7 +216,8 @@ public class BrandingActivator
                                             Container.CONTAINER_HELP_MENU),
                                         helpMenuFilter);
 
-        logger.info("ABOUT WINDOW ... [REGISTERED]");
+        if (logger.isInfoEnabled())
+            logger.info("ABOUT WINDOW ... [REGISTERED]");
 
         // Register the about window plugin component in the chat help menu.
         Hashtable<String, String> chatHelpMenuFilter
@@ -229,7 +230,8 @@ public class BrandingActivator
                                             Container.CONTAINER_CHAT_HELP_MENU),
                                         chatHelpMenuFilter);
 
-        logger.info("CHAT ABOUT WINDOW ... [REGISTERED]");
+        if (logger.isInfoEnabled())
+            logger.info("CHAT ABOUT WINDOW ... [REGISTERED]");
     }
 
     static BundleContext getBundleContext()

@@ -47,7 +47,8 @@ public class GeneralConfigPluginActivator implements BundleActivator
                     0),
                 null);
 
-        logger.info("PREFERENCES PLUGIN... [REGISTERED]");
+        if (logger.isInfoEnabled())
+            logger.info("PREFERENCES PLUGIN... [REGISTERED]");
     }
 
     public void stop(BundleContext bc) throws Exception

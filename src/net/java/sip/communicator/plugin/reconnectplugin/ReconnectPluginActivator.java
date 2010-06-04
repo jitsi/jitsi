@@ -190,7 +190,8 @@ public class ReconnectPluginActivator
         // in case we found any
         if (protocolProviderRefs != null)
         {
-            logger.debug("Found "
+            if (logger.isDebugEnabled())
+                logger.debug("Found "
                          + protocolProviderRefs.length
                          + " already installed providers.");
             for (int i = 0; i < protocolProviderRefs.length; i++)
@@ -324,7 +325,8 @@ public class ReconnectPluginActivator
 
         Object sService = bundleContext.getService(serviceRef);
 
-        logger.trace("Received a service event for: " +
+        if (logger.isTraceEnabled())
+            logger.trace("Received a service event for: " +
             sService.getClass().getName());
 
         if(sService instanceof NetworkAddressManagerService)
@@ -353,7 +355,8 @@ public class ReconnectPluginActivator
         if (!(sService instanceof ProtocolProviderService))
             return;
 
-        logger.debug("Service is a protocol provider.");
+        if (logger.isDebugEnabled())
+            logger.debug("Service is a protocol provider.");
         switch (serviceEvent.getType())
         {
         case ServiceEvent.REGISTERED:
@@ -373,7 +376,8 @@ public class ReconnectPluginActivator
      */
     private void handleProviderAdded(ProtocolProviderService provider)
     {
-        logger.trace("New protocol provider is comming "
+        if (logger.isTraceEnabled())
+            logger.trace("New protocol provider is comming "
             + provider.getProtocolName());
 
         provider.addRegistrationStateChangeListener(this);
@@ -389,7 +393,8 @@ public class ReconnectPluginActivator
      */
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
-        logger.trace("Provider modified forget every instance of it");
+        if (logger.isTraceEnabled())
+            logger.trace("Provider modified forget every instance of it");
 
         if(hasAtLeastOneSuccessfulConnection(provider))
         {
@@ -498,7 +503,8 @@ public class ReconnectPluginActivator
 
                 connectedInterfaces.clear();
 
-                logger.trace("Network is down!");
+                if (logger.isTraceEnabled())
+                    logger.trace("Network is down!");
                 notify("", "plugin.reconnectplugin.NETWORK_DOWN", new String[0]);
             }
         }
@@ -637,7 +643,8 @@ public class ReconnectPluginActivator
         task.delay = delay;
         currentlyReconnecting.put(pp, task);
         
-        logger.trace("Reconnect " + pp + " after " + delay + " ms.");
+        if (logger.isTraceEnabled())
+            logger.trace("Reconnect " + pp + " after " + delay + " ms.");
         timer.schedule(task, delay);
     }
 
@@ -673,7 +680,8 @@ public class ReconnectPluginActivator
         {
             try
             {
-                logger.trace("Start reconnecting!");
+                if (logger.isTraceEnabled())
+                    logger.trace("Start reconnecting!");
 
                 provider.register(
                     getUIService().getDefaultSecurityAuthority(provider));

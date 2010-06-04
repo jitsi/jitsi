@@ -38,7 +38,8 @@ public class IrcAccRegWizzActivator
      */
     public void start(BundleContext bc)
     {
-        logger.info("Loading irc account wizard.");
+        if (logger.isInfoEnabled())
+            logger.info("Loading irc account wizard.");
 
         bundleContext = bc;
 
@@ -66,7 +67,8 @@ public class IrcAccRegWizzActivator
             ircWizard,
             containerFilter);
 
-        logger.info("IRC account registration wizard [STARTED].");
+        if (logger.isInfoEnabled())
+            logger.info("IRC account registration wizard [STARTED].");
     }
 
     /**

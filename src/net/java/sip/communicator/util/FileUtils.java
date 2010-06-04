@@ -68,7 +68,8 @@ public class FileUtils
         }
         catch (Exception e)
         {
-            logger.debug("Failed to obtain file icon from ShellFolder.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to obtain file icon from ShellFolder.", e);
 
             /* try with another method to obtain file icon */
             try
@@ -77,7 +78,8 @@ public class FileUtils
             }
             catch (Exception e1)
             {
-                logger.debug("Failed to obtain file icon from JFileChooser.", e1);
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to obtain file icon from JFileChooser.", e1);
             }
         }
 

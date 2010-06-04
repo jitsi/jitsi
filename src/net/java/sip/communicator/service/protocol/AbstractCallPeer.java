@@ -195,7 +195,8 @@ public abstract class AbstractCallPeer
         CallPeerChangeEvent evt = new CallPeerChangeEvent(
             this, eventType, oldValue, newValue, reason);
 
-        logger.debug("Dispatching a CallPeerChangeEvent event to "
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a CallPeerChangeEvent event to "
                      + callPeerListeners.size()
                      +" listeners. event is: " + evt.toString());
 
@@ -248,7 +249,8 @@ public abstract class AbstractCallPeer
             = new CallPeerSecurityOnEvent(
                 this, sessionType, cipher, securityString, isVerified);
 
-        logger.debug("Dispatching a CallPeerSecurityStatusEvent event to "
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a CallPeerSecurityStatusEvent event to "
                      + callPeerSecurityListeners.size()
                      +" listeners. event is: " + evt.toString());
 
@@ -279,7 +281,8 @@ public abstract class AbstractCallPeer
         CallPeerSecurityOffEvent event
             = new CallPeerSecurityOffEvent( this, sessionType);
 
-        logger.debug(
+        if (logger.isDebugEnabled())
+            logger.debug(
             "Dispatching a CallPeerSecurityAuthenticationEvent event to "
                      + callPeerSecurityListeners.size()
                      +" listeners. event is: " + event.toString());
@@ -319,7 +322,8 @@ public abstract class AbstractCallPeer
                                                         i18nMessage,
                                                         severity);
 
-        logger.debug("Dispatching a CallPeerSecurityFailedEvent event to "
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a CallPeerSecurityFailedEvent event to "
                      + callPeerSecurityListeners.size()
                      +" listeners. event is: " + evt.toString());
 

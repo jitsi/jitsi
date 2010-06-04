@@ -522,7 +522,8 @@ public class SipCommunicatorLock extends Thread
                 .substring((ARG_COUNT + "=").length());
 
             int serverReadArgCount = Integer.parseInt(serverReadArgCountStr);
-            logger.debug("Server read " + serverReadArgCount + " args.");
+            if (logger.isDebugEnabled())
+                logger.debug("Server read " + serverReadArgCount + " args.");
 
             if(serverReadArgCount != args.length)
                 return LOCK_ERROR;
@@ -534,7 +535,8 @@ public class SipCommunicatorLock extends Thread
         //catch IOExceptions, NPEs and NumberFormatExceptions here.
         catch (Exception e)
         {
-            logger.debug("Failed to connect to a running sc instance.");
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to connect to a running sc instance.");
             return LOCK_ERROR;
         }
 
@@ -595,7 +597,8 @@ public class SipCommunicatorLock extends Thread
                     wait(runDuration);
                 }
 
-                logger.debug("Done waiting. Will close socket");
+                if (logger.isDebugEnabled())
+                    logger.debug("Done waiting. Will close socket");
                 interInstanceSocket.close();
             }
             catch (Exception exception)
@@ -619,7 +622,8 @@ public class SipCommunicatorLock extends Thread
 
                 //we only need to read a single line and then bail out.
                 message = lineReader.readLine();
-                logger.debug("Message is " + message);
+                if (logger.isDebugEnabled())
+                    logger.debug("Message is " + message);
                 synchronized(this)
                 {
                     notifyAll();
@@ -629,7 +633,8 @@ public class SipCommunicatorLock extends Thread
             {
                 // does not necessarily mean something is wrong. Could be
                 // that we got tired of waiting and want to quit.
-                logger.info("An IOException is thrown while reading sock", exc);
+                if (logger.isInfoEnabled())
+                    logger.info("An IOException is thrown while reading sock", exc);
             }
         }
     }
@@ -729,7 +734,8 @@ public class SipCommunicatorLock extends Thread
 
             ArrayList<String> argsList = new ArrayList<String>();
 
-            logger.debug("Handling incoming connection");
+            if (logger.isDebugEnabled())
+                logger.debug("Handling incoming connection");
 
             int argCount = 1024;
             try
@@ -741,7 +747,8 @@ public class SipCommunicatorLock extends Thread
                 {
                     String line = lineReader.readLine();
 
-                    logger.debug(line);
+                    if (logger.isDebugEnabled())
+                        logger.debug(line);
 
                     if (line.startsWith(ARG_COUNT))
                     {
@@ -776,7 +783,8 @@ public class SipCommunicatorLock extends Thread
             }
             catch (IOException exc)
             {
-                logger.info("An IOException is thrown while "
+                if (logger.isInfoEnabled())
+                    logger.info("An IOException is thrown while "
                                 + "processing remote args", exc);
 
                 printer.print(ERROR_ARG + "=" + exc.getMessage());

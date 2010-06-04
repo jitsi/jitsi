@@ -38,7 +38,8 @@ public class Resources
             File configPropsFile = new File(CONFIG_PROP_FILE_NAME);
             if (!configPropsFile.exists())
             {
-                logger.info("No config file specified for update checker. Disabling update checks");
+                if (logger.isInfoEnabled())
+                    logger.info("No config file specified for update checker. Disabling update checks");
                 return null;
             }
 
@@ -51,7 +52,8 @@ public class Resources
             catch (IOException ex)
             {
                 logger.error("Could not open config file.");
-                logger.debug("Error was: " + ex);
+                if (logger.isDebugEnabled())
+                    logger.debug("Error was: " + ex);
                 return null;
             }
             finally

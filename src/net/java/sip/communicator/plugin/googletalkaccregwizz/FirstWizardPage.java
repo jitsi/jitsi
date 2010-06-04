@@ -238,7 +238,8 @@ public class FirstWizardPage
         {
             public void actionPerformed(ActionEvent evt)
             {
-                logger.debug("Reg OK");
+                if (logger.isDebugEnabled())
+                    logger.debug("Reg OK");
 
                 /*
                  * We don't have our own implementation of registering/signing
@@ -246,7 +247,8 @@ public class FirstWizardPage
                  */
                 FirstWizardPage.this.wizard.webSignup();
 
-                logger.debug("Reg End");
+                if (logger.isDebugEnabled())
+                    logger.debug("Reg End");
             }
         });
 

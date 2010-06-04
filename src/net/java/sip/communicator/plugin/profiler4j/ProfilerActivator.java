@@ -38,7 +38,8 @@ public class ProfilerActivator implements BundleActivator {
         menuRegistration = bc.registerService(PluginComponent.class
                 .getName(), menuEntry, toolsMenuFilter);
 
-        logger.info("PROFILER4J [REGISTERED]");
+        if (logger.isInfoEnabled())
+            logger.info("PROFILER4J [REGISTERED]");
 
     }
 
@@ -46,7 +47,8 @@ public class ProfilerActivator implements BundleActivator {
         if (menuRegistration != null)
         {
             menuRegistration.unregister();
-            logger.info("PROFILER4J [UNREGISTERED]");
+            if (logger.isInfoEnabled())
+                logger.info("PROFILER4J [UNREGISTERED]");
         }
     }
 

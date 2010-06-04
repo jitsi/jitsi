@@ -237,7 +237,8 @@ public class UpdateCheckActivator
 
             if(configString == null)
             {
-                logger.debug("Updates are disabled. Faking latest version.");
+                if (logger.isDebugEnabled())
+                    logger.debug("Updates are disabled. Faking latest version.");
                 return true;
             }
 
@@ -261,7 +262,8 @@ public class UpdateCheckActivator
         catch (Exception e)
         {
             logger.warn("Cannot get and compare versions!");
-            logger.debug("Error was: ", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Error was: ", e);
             // if we get an exception this mean we were unable to compare versions
             // will return that current is newest to prevent opening info dialog
             // about new version
@@ -517,7 +519,8 @@ public class UpdateCheckActivator
         }
         catch (Exception e)
         {
-            logger.info("Error starting update process!", e);
+            if (logger.isInfoEnabled())
+                logger.info("Error starting update process!", e);
             tempF.delete();
         }
     }

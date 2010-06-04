@@ -65,7 +65,8 @@ public class ChatAlerterActivator
         }
         catch (Exception exception)
         {
-            logger.info("The Alerter not supported or problem loading it!", 
+            if (logger.isInfoEnabled())
+                logger.info("The Alerter not supported or problem loading it!", 
                 exception);
             return;
         }
@@ -99,7 +100,8 @@ public class ChatAlerterActivator
         // in case we found any
         if (protocolProviderRefs != null)
         {
-            logger.debug("Found "
+            if (logger.isDebugEnabled())
+                logger.debug("Found "
                          + protocolProviderRefs.length
                          + " already installed providers.");
             for (ServiceReference protocolProviderRef : protocolProviderRefs)
@@ -163,7 +165,8 @@ public class ChatAlerterActivator
      */
     private void handleProviderAdded(ProtocolProviderService provider)
     {
-        logger.debug("Adding protocol provider " + provider.getProtocolName());
+        if (logger.isDebugEnabled())
+            logger.debug("Adding protocol provider " + provider.getProtocolName());
 
         // check whether the provider has a basic im operation set
         OperationSetBasicInstantMessaging opSetIm
@@ -176,7 +179,8 @@ public class ChatAlerterActivator
         }
         else
         {
-            logger.trace("Service did not have a im op. set.");
+            if (logger.isTraceEnabled())
+                logger.trace("Service did not have a im op. set.");
         }
         
         // check whether the provider has a sms operation set
@@ -189,7 +193,8 @@ public class ChatAlerterActivator
         }
         else
         {
-            logger.trace("Service did not have a sms op. set.");
+            if (logger.isTraceEnabled())
+                logger.trace("Service did not have a sms op. set.");
         }
         
         OperationSetMultiUserChat opSetMultiUChat
@@ -204,7 +209,8 @@ public class ChatAlerterActivator
         }
         else
         {
-            logger.trace("Service did not have a multi im op. set.");
+            if (logger.isTraceEnabled())
+                logger.trace("Service did not have a multi im op. set.");
         }
     }
 
@@ -328,14 +334,16 @@ public class ChatAlerterActivator
         Object sService
             = bundleContext.getService(serviceEvent.getServiceReference());
 
-        logger.trace("Received a service event for: " + 
+        if (logger.isTraceEnabled())
+            logger.trace("Received a service event for: " + 
             sService.getClass().getName());
 
         // we don't care if the source service is not a protocol provider
         if (!(sService instanceof ProtocolProviderService))
             return;
 
-        logger.debug("Service is a protocol provider.");
+        if (logger.isDebugEnabled())
+            logger.debug("Service is a protocol provider.");
         switch (serviceEvent.getType())
         {
         case ServiceEvent.REGISTERED:

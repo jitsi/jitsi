@@ -65,7 +65,8 @@ public abstract class AbstractOperationSetBasicTelephony
             listeners = new ArrayList<CallListener>(callListeners);
         }
 
-        logger.debug("Dispatching a CallEvent to " + listeners.size()
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a CallEvent to " + listeners.size()
             + " listeners. event is: " + cEvent);
 
         for (Iterator<CallListener> listenerIter

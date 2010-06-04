@@ -60,7 +60,8 @@ public class FacebookAccRegWizzActivator
      */
     public void start(BundleContext bc)
     {
-        logger.info("Loading facebook account wizard.");
+        if (logger.isInfoEnabled())
+            logger.info("Loading facebook account wizard.");
 
         bundleContext = bc;
 
@@ -86,7 +87,8 @@ public class FacebookAccRegWizzActivator
             facebookWizard,
             containerFilter);
 
-        logger.info("Facebook account registration wizard [STARTED].");
+        if (logger.isInfoEnabled())
+            logger.info("Facebook account registration wizard [STARTED].");
     }
 
     /**

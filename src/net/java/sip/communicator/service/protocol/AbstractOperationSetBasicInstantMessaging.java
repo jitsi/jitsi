@@ -149,7 +149,8 @@ public abstract class AbstractOperationSetBasicInstantMessaging
             listeners = new ArrayList<MessageListener>(this.messageListeners);
         }
 
-        logger.debug("Dispatching Message Listeners=" + listeners.size()
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching Message Listeners=" + listeners.size()
             + " evt=" + evt);
 
         /*

@@ -110,7 +110,8 @@ public abstract class AbstractOperationSetTypingNotifications<T extends Protocol
                                 typingNotificationsListeners.size()]);
         }
 
-        logger.debug(
+        if (logger.isDebugEnabled())
+            logger.debug(
             "Dispatching a TypingNotificationEvent to "
                 + listeners.length
                 + " listeners. Contact "

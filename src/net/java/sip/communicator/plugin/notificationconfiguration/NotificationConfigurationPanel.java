@@ -420,7 +420,8 @@ public class NotificationConfigurationPanel
                     NotificationsTableEntry tmpNTE = dataVector.elementAt(index);
                     
                     //This is where a real application would open the file.
-                    logger.debug("Opening: "
+                    if (logger.isDebugEnabled())
+                        logger.debug("Opening: "
                             + file.toURI().toURL().toExternalForm());
                     tmpNTE.setSoundFile(file.toURI().toURL().toExternalForm());
                     tmpNTE.setSound(true);
@@ -437,7 +438,8 @@ public class NotificationConfigurationPanel
             }
             else
             {
-                logger.debug("Open command cancelled by user.");
+                if (logger.isDebugEnabled())
+                    logger.debug("Open command cancelled by user.");
             }
             noListener = false;
         }
@@ -451,7 +453,8 @@ public class NotificationConfigurationPanel
                 NotificationsTableEntry tmpNTE = dataVector.elementAt(index);
                 
                 //This is where a real application would open the file.
-                logger.debug("Opening: " +file.getAbsolutePath());
+                if (logger.isDebugEnabled())
+                    logger.debug("Opening: " +file.getAbsolutePath());
                 tmpNTE.setProgramFile(file.getAbsolutePath());
                 tmpNTE.setProgram(true);
                 tmpNTE.setModify(true);
@@ -461,7 +464,8 @@ public class NotificationConfigurationPanel
             }
             else
             {
-                logger.debug("Open command cancelled by user.");
+                if (logger.isDebugEnabled())
+                    logger.debug("Open command cancelled by user.");
             }
             noListener = false;
         }
@@ -471,7 +475,8 @@ public class NotificationConfigurationPanel
             {
                 String soundFile = soundFileTextField.getText();
 
-                logger.debug("****"+soundFile+"****"+soundFile.length());
+                if (logger.isDebugEnabled())
+                    logger.debug("****"+soundFile+"****"+soundFile.length());
                 if(soundFile.length() != 0)
                 {
                     AudioNotifierService audioNotifServ
@@ -483,12 +488,14 @@ public class NotificationConfigurationPanel
                 }
                 else
                 {
-                    logger.debug("No file specified");
+                    if (logger.isDebugEnabled())
+                        logger.debug("No file specified");
                 }
             }
             else
             {
-                logger.debug("Its non-active");
+                if (logger.isDebugEnabled())
+                    logger.debug("Its non-active");
             }
         }
         else if(e.getSource() == turnOnAll)
@@ -609,7 +616,8 @@ public class NotificationConfigurationPanel
 
                 if(tmpNTE.isModified())
                 {
-                    logger.debug("Event modify : "+tmpNTE.getEvent());
+                    if (logger.isDebugEnabled())
+                        logger.debug("Event modify : "+tmpNTE.getEvent());
 
                     notificationService.setActive(tmpNTE.getEvent(),
                             tmpNTE.getEnabled());
@@ -620,14 +628,16 @@ public class NotificationConfigurationPanel
                                 NotificationService.ACTION_SOUND,
                                 tmpNTE.getSoundFile(),
                                 "");
-                        logger.debug("Adding Sound");
+                        if (logger.isDebugEnabled())
+                            logger.debug("Adding Sound");
                     }
                     else
                     {
                         notificationService.removeEventNotificationAction(
                                 tmpNTE.getEvent(),
                                 NotificationService.ACTION_SOUND);
-                        logger.debug("Deleting Sound");
+                        if (logger.isDebugEnabled())
+                            logger.debug("Deleting Sound");
                     }
 
                     if(tmpNTE.getProgram() == true)
@@ -637,14 +647,16 @@ public class NotificationConfigurationPanel
                                 NotificationService.ACTION_COMMAND,
                                 tmpNTE.getProgramFile(),
                                 "");
-                        logger.debug("Program");
+                        if (logger.isDebugEnabled())
+                            logger.debug("Program");
                     }
                     else
                     {
                         notificationService.removeEventNotificationAction(
                                 tmpNTE.getEvent(),
                                 NotificationService.ACTION_COMMAND);
-                        logger.debug("Deleting Program");
+                        if (logger.isDebugEnabled())
+                            logger.debug("Deleting Program");
                     }
 
                     if(tmpNTE.getPopup())
@@ -654,14 +666,16 @@ public class NotificationConfigurationPanel
                                 NotificationService.ACTION_POPUP_MESSAGE,
                                 "",
                                 "");
-                        logger.debug("Popup");
+                        if (logger.isDebugEnabled())
+                            logger.debug("Popup");
                     }
                     else
                     {
                         notificationService.removeEventNotificationAction(
                                 tmpNTE.getEvent(),
                                 NotificationService.ACTION_POPUP_MESSAGE);
-                        logger.debug("Deleting Popup");
+                        if (logger.isDebugEnabled())
+                            logger.debug("Deleting Popup");
                     }
                     tmpNTE.setModify(false);
                 }
@@ -788,7 +802,8 @@ public class NotificationConfigurationPanel
      */
     public void actionAdded(NotificationActionTypeEvent event)
     {
-        logger.debug("Start action added");
+        if (logger.isDebugEnabled())
+            logger.debug("Start action added");
         String eventName = event.getSourceEventType();
         Iterator<NotificationsTableEntry> it = null;
         int row = 0;
@@ -827,7 +842,8 @@ public class NotificationConfigurationPanel
             this.addRowAtVector(tmpNTE);
             notificationList.setRowSelectionInterval(0, 0);
             updatePanel(tmpNTE);
-            logger.debug("End action added");
+            if (logger.isDebugEnabled())
+                logger.debug("End action added");
             return;
         }
         /*
@@ -864,7 +880,8 @@ public class NotificationConfigurationPanel
                 this.updateTableRow(tmpNTE,row);
                 updatePanel(tmpNTE);
                 notificationList.setRowSelectionInterval(row, row);
-                logger.debug("End action added");
+                if (logger.isDebugEnabled())
+                    logger.debug("End action added");
                 return;
             }
             row ++;
@@ -901,13 +918,15 @@ public class NotificationConfigurationPanel
             notificationList.getRowCount() - 1,
             notificationList.getRowCount() - 1);
 
-        logger.debug("End action added");
+        if (logger.isDebugEnabled())
+            logger.debug("End action added");
         return;
     }
 
     public void actionRemoved(NotificationActionTypeEvent event)
     {
-        logger.debug("Start action remove");
+        if (logger.isDebugEnabled())
+            logger.debug("Start action remove");
         String eventName = event.getSourceEventType();
         Iterator<NotificationsTableEntry> it = null;
         NotificationsTableEntry tmpNTE = null;
@@ -937,7 +956,8 @@ public class NotificationConfigurationPanel
                     tmpNTE.setSound(false);
                     tmpNTE.setSoundFile("");
                 }
-                logger.debug("End action remove");
+                if (logger.isDebugEnabled())
+                    logger.debug("End action remove");
                 return;
             }
         }
@@ -945,7 +965,8 @@ public class NotificationConfigurationPanel
 
     public void actionChanged(NotificationActionTypeEvent event)
     {
-        logger.debug("Start action changed");
+        if (logger.isDebugEnabled())
+            logger.debug("Start action changed");
         String eventName = event.getSourceEventType();
         Iterator<NotificationsTableEntry> it = null;
         int row = 0;
@@ -970,7 +991,8 @@ public class NotificationConfigurationPanel
                             .getActionHandler()).getDescriptor());
                 }
                 this.updateTableRow(tmpNTE,row);
-                logger.debug("End action changed");
+                if (logger.isDebugEnabled())
+                    logger.debug("End action changed");
                 return;
             }
             row ++;

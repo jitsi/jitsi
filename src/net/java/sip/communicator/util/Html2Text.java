@@ -52,7 +52,8 @@ public class Html2Text
         }
         catch (Exception exc)
         {
-            logger.info("Failed to extract plain text from html="+html, exc);
+            if (logger.isInfoEnabled())
+                logger.info("Failed to extract plain text from html="+html, exc);
             return html;
         }
     }

@@ -109,7 +109,8 @@ public class Mailbox
         }
         catch(NumberFormatException e)
         {
-            logger.info("failed to load the wait time out of the config file"+
+            if (logger.isInfoEnabled())
+                logger.info("failed to load the wait time out of the config file"+
                         ", using default value of 30 seconds",e);
             timeDelay = 30000;
         }
@@ -140,7 +141,8 @@ public class Mailbox
         }
         catch (NumberFormatException e)
         {
-            logger.info("failed to load the max msg time out of the config"+
+            if (logger.isInfoEnabled())
+                logger.info("failed to load the max msg time out of the config"+
                         "file, using default value of 60 seconds",e);
             duration = 60000;
         }
@@ -260,7 +262,8 @@ public class Mailbox
     */
     public void start(BundleContext bc)
     {
-        logger.debug("Starting the mailbox implementation.");
+        if (logger.isDebugEnabled())
+            logger.debug("Starting the mailbox implementation.");
         this.bundleContext = bc;
 
         // start listening for newly registered or removed protocol providers
@@ -285,7 +288,8 @@ public class Mailbox
         // in case we found any
         if (protocolProviderRefs != null)
         {
-            logger.debug("Found "
+            if (logger.isDebugEnabled())
+                logger.debug("Found "
                          + protocolProviderRefs.length
                          + " already installed providers.");
             for (int i = 0; i < protocolProviderRefs.length; i++)
@@ -345,7 +349,8 @@ public class Mailbox
      */
     public void handleProviderAdded(ProtocolProviderService provider)
     {
-        logger.debug("Adding protocol provider " + provider.getProtocolName());
+        if (logger.isDebugEnabled())
+            logger.debug("Adding protocol provider " + provider.getProtocolName());
 
         // check whether the provider has a basic telephony operation set
         OperationSetBasicTelephony opSetTelephony =
@@ -357,7 +362,8 @@ public class Mailbox
         }
         else
         {
-            logger.trace("Service did not have a basic telephony op. set.");
+            if (logger.isTraceEnabled())
+                logger.trace("Service did not have a basic telephony op. set.");
         }
     }
 
@@ -390,7 +396,8 @@ public class Mailbox
         Object sService = bundleContext.getService(
                                 serviceEvent.getServiceReference());
 
-        logger.trace("Received a service event for: "
+        if (logger.isTraceEnabled())
+            logger.trace("Received a service event for: "
                                     + sService.getClass().getName());
 
         // we don't care if the source service is not a protocol provider
@@ -399,10 +406,12 @@ public class Mailbox
             return;
         }
 
-        logger.debug("Service is a protocol provider.");
+        if (logger.isDebugEnabled())
+            logger.debug("Service is a protocol provider.");
         if (serviceEvent.getType() == ServiceEvent.REGISTERED)
         {
-            logger.debug("Handling registration of a new Protocol Provider.");
+            if (logger.isDebugEnabled())
+                logger.debug("Handling registration of a new Protocol Provider.");
 
             this.handleProviderAdded((ProtocolProviderService)sService);
         }
@@ -476,7 +485,8 @@ public class Mailbox
                 return;
             }
 
-            logger.info("Call waited long enough, picking up the phone");
+            if (logger.isInfoEnabled())
+                logger.info("Call waited long enough, picking up the phone");
 
             //add our datasource to our rtp manager and answer the call
             MediaService mediaService = MailboxActivator.getMediaService();
@@ -607,7 +617,8 @@ public class Mailbox
                 = call
                     .getProtocolProvider()
                         .getOperationSet(OperationSetBasicTelephony.class);
-            logger.info("Max Message Length Reached, Mailbox is"
+            if (logger.isInfoEnabled())
+                logger.info("Max Message Length Reached, Mailbox is"
                         +" disconnecting the call");
             Iterator<? extends CallPeer> callPeers = call.getCallPeers();
 

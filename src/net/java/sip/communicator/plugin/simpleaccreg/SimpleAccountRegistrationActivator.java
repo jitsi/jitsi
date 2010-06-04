@@ -49,7 +49,8 @@ public class SimpleAccountRegistrationActivator
             accountRegFrame.setVisible(true);
         }
         
-        logger.info("SIMPLE ACCOUNT REGISTRATION ...[STARTED]");
+        if (logger.isInfoEnabled())
+            logger.info("SIMPLE ACCOUNT REGISTRATION ...[STARTED]");
     }
 
     public void stop(BundleContext bc) throws Exception

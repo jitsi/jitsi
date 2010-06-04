@@ -53,7 +53,8 @@ public class WhiteboardActivator implements BundleActivator
                                         whiteboardPlugin,
                                         containerFilter);
 
-        logger.info("WHITEBOARD... [REGISTERED]");
+        if (logger.isInfoEnabled())
+            logger.info("WHITEBOARD... [REGISTERED]");
     }
 
     /**

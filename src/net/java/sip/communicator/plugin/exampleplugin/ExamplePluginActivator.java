@@ -45,7 +45,8 @@ public class ExamplePluginActivator
                                         examplePlugin,
                                         containerFilter);
 
-        logger.info("CONTACT INFO... [REGISTERED]");
+        if (logger.isInfoEnabled())
+            logger.info("CONTACT INFO... [REGISTERED]");
     }
 
     /**

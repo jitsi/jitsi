@@ -176,7 +176,8 @@ public class ResourceManagementServiceImpl
 
         if (event.getType() == ServiceEvent.REGISTERED)
         {
-            logger.info("Resource registered " + resourcePack);
+            if (logger.isInfoEnabled())
+                logger.info("Resource registered " + resourcePack);
 
             Map<String, String> resources = getResources(resourcePack);
 
@@ -351,7 +352,8 @@ public class ResourceManagementServiceImpl
 
         if (path == null || path.length() == 0)
         {
-            logger.info("Missing resource for key: " + urlKey);
+            if (logger.isInfoEnabled())
+                logger.info("Missing resource for key: " + urlKey);
             return null;
         }
         return getImageURLForPath(path);

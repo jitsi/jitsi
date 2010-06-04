@@ -41,7 +41,8 @@ public class ContactInfoActivator implements BundleActivator
                                         cinfoMenuItem,
                                         containerFilter);
 
-        logger.info("CONTACT INFO... [REGISTERED]");
+        if (logger.isInfoEnabled())
+            logger.info("CONTACT INFO... [REGISTERED]");
     }
 
     public void stop(BundleContext bc) throws Exception

@@ -88,7 +88,8 @@ public class FileDragLabel
         }
         catch (Exception ex)
         {
-            logger.debug("Unable to drop label.", ex);
+            if (logger.isDebugEnabled())
+                logger.debug("Unable to drop label.", ex);
             event.rejectDrop();
         }
     }

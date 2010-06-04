@@ -38,7 +38,8 @@ public class ZeroconfAccRegWizzActivator
      */
     public void start(BundleContext bc)
     {
-        logger.info("Loading zeroconf account wizard.");
+        if (logger.isInfoEnabled())
+            logger.info("Loading zeroconf account wizard.");
 
         bundleContext = bc;
 
@@ -65,7 +66,8 @@ public class ZeroconfAccRegWizzActivator
             zeroconfWizard,
             containerFilter);
 
-        logger.info("Zeroconf account registration wizard [STARTED].");
+        if (logger.isInfoEnabled())
+            logger.info("Zeroconf account registration wizard [STARTED].");
     }
 
     /**

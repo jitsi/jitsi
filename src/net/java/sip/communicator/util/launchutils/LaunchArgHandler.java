@@ -151,7 +151,8 @@ public class LaunchArgHandler
         }
         if (!versionPropertiesAreLoaded)
         {
-            logger.trace("Couldn't open version.properties");
+            if (logger.isTraceEnabled())
+                logger.trace("Couldn't open version.properties");
         }
 
         // Start url handler for Mac OS X.
@@ -191,7 +192,8 @@ public class LaunchArgHandler
 
         for(int i = 0; i < args.length; i++)
         {
-            logger.trace("handling arg " + i);
+            if (logger.isTraceEnabled())
+                logger.trace("handling arg " + i);
 
             if (args[i].equals("--version") || args[i].equals("-v"))
             {
@@ -295,7 +297,8 @@ public class LaunchArgHandler
      */
     private void handleUri(String uri)
     {
-        logger.trace("Handling uri "+ uri);
+        if (logger.isTraceEnabled())
+            logger.trace("Handling uri "+ uri);
         argDelegator.handleUri(uri);
     }
 

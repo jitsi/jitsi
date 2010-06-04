@@ -143,7 +143,8 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
         PresenceStatus newValue = source.getPresenceStatus();
 
         if (oldValue.equals(newValue)) {
-            logger.debug("Ignored prov stat. change evt. old==new = "
+            if (logger.isDebugEnabled())
+                logger.debug("Ignored prov stat. change evt. old==new = "
                          + oldValue);
             return;
         }
@@ -176,7 +177,8 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
                         contactPresenceStatusListeners);
         }
 
-        logger.debug(
+        if (logger.isDebugEnabled())
+            logger.debug(
             "Dispatching Contact Status Change. Listeners=" + listeners.size()
                 + " evt=" + evt);
 
@@ -213,7 +215,8 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
                 = new ArrayList<SubscriptionListener>(subscriptionListeners);
         }
 
-        logger.debug("Dispatching a Contact Property Change Event to"
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a Contact Property Change Event to"
             + listeners.size() + " listeners. Evt=" + evt);
 
         for (SubscriptionListener listener : listeners)
@@ -257,7 +260,8 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
                         providerPresenceStatusListeners);
         }
 
-        logger.debug(
+        if (logger.isDebugEnabled())
+            logger.debug(
             "Dispatching Provider Status Change. Listeners="
                 + listeners.size()
                 + " evt=" + evt);
@@ -265,7 +269,8 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
         for (ProviderPresenceStatusListener listener : listeners)
             listener.providerStatusChanged(evt);
 
-        logger.debug("status dispatching done.");
+        if (logger.isDebugEnabled())
+            logger.debug("status dispatching done.");
     }
 
     /**
@@ -296,7 +301,8 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
                         providerPresenceStatusListeners);
         }
 
-        logger.debug(
+        if (logger.isDebugEnabled())
+            logger.debug(
             "Dispatching  stat. msg change. Listeners="
                 + listeners.size()
                 + " evt=" + evt);
@@ -379,7 +385,8 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
                 new ArrayList<SubscriptionListener>(subscriptionListeners);
         }
 
-        logger.debug("Dispatching a Subscription Event to" + listeners.size()
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a Subscription Event to" + listeners.size()
             + " listeners. Evt=" + evt);
 
         for (SubscriptionListener listener : listeners)
@@ -422,7 +429,8 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
                 = new ArrayList<SubscriptionListener>(subscriptionListeners);
         }
 
-        logger.debug("Dispatching a Subscription Event to" + listeners.size()
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a Subscription Event to" + listeners.size()
             + " listeners. Evt=" + evt);
 
         for (SubscriptionListener listener : listeners)

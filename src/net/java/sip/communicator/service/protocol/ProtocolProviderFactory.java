@@ -783,7 +783,8 @@ public abstract class ProtocolProviderFactory
      */
     public void stop()
     {
-        logger.trace("Preparing to stop all protocol providers of" + this);
+        if (logger.isTraceEnabled())
+            logger.trace("Preparing to stop all protocol providers of" + this);
 
         synchronized (registeredAccounts)
         {

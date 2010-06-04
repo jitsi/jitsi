@@ -462,7 +462,8 @@ public class InitialAccountRegistrationFrame
                     }
                     catch (OperationFailedException e)
                     {
-                        logger.debug("The sign in operation has failed.");
+                        if (logger.isDebugEnabled())
+                            logger.debug("The sign in operation has failed.");
 
                         PopupDialog popupDialog
                             = SimpleAccountRegistrationActivator.getUIService()

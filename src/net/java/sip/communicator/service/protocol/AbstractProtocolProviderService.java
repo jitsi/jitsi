@@ -158,7 +158,8 @@ public abstract class AbstractProtocolProviderService
                     throwable);
             }
 
-        logger.trace("Done.");
+        if (logger.isTraceEnabled())
+            logger.trace("Done.");
     }
 
     /**

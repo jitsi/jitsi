@@ -189,7 +189,8 @@ public abstract class Call
         CallPeerEvent cpEvent = new CallPeerEvent(
             sourceCallPeer, this, eventID);
 
-        logger.debug("Dispatching a CallPeer event to "
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a CallPeer event to "
                      + callListeners.size()
                      +" listeners. event is: " + cpEvent.toString());
 
@@ -242,7 +243,8 @@ public abstract class Call
         CallChangeEvent ccEvent = new CallChangeEvent(
             this, type, oldValue, newValue);
 
-        logger.debug("Dispatching a CallChange event to "
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a CallChange event to "
                      + callListeners.size()
                      +" listeners. event is: " + ccEvent.toString());
 

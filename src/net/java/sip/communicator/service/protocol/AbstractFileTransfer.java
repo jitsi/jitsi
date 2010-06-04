@@ -154,7 +154,8 @@ public abstract class AbstractFileTransfer
                 = new ArrayList<FileTransferStatusListener>(statusListeners);
         }
 
-        logger.debug("Dispatching a FileTransfer Event to" + listeners.size()
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a FileTransfer Event to" + listeners.size()
             + " listeners. Status=" + status);
 
         FileTransferStatusChangeEvent statusEvent

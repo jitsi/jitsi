@@ -46,7 +46,8 @@ public class NotificationConfigurationActivator implements BundleActivator
                     30),
                 null);
 
-        logger.trace("Notification Configuration: [ STARTED ]");
+        if (logger.isTraceEnabled())
+            logger.trace("Notification Configuration: [ STARTED ]");
     }
 
     /**

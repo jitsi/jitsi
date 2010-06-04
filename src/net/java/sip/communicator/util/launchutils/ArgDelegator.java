@@ -69,13 +69,15 @@ class ArgDelegator
     {
         synchronized(recordedArgs)
         {
-            logger.trace("Someone set a delegationPeer. "
+            if (logger.isTraceEnabled())
+                logger.trace("Someone set a delegationPeer. "
                             +"Will dispatch "+ recordedArgs.size() +" args");
             this.uriDelegationPeer = delegationPeer;
 
             for (String arg : recordedArgs)
             {
-                logger.trace("Dispatching arg: " + arg);
+                if (logger.isTraceEnabled())
+                    logger.trace("Dispatching arg: " + arg);
                 uriDelegationPeer.handleUri(arg);
             }
 

@@ -67,7 +67,8 @@ public class MailboxActivator
      */
     public void start(BundleContext bundleContext) throws Exception
     {
-        logger.info("Mailbox plug-in...[STARTING]");
+        if (logger.isInfoEnabled())
+            logger.info("Mailbox plug-in...[STARTING]");
         MailboxActivator.bundleContext = bundleContext;
 
         //Create and start the Mailbox Service
@@ -85,7 +86,8 @@ public class MailboxActivator
                     500),
                 null);
 
-        logger.info("Mailbox plug-in...[STARTED]");
+        if (logger.isInfoEnabled())
+            logger.info("Mailbox plug-in...[STARTED]");
     }
 
     /**

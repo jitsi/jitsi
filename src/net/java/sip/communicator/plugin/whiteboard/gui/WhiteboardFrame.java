@@ -1738,7 +1738,8 @@ public class WhiteboardFrame
      */
     private void polyOperation(MouseEvent e)
     {
-        logger.debug("[log] : polyOperation");
+        if (logger.isDebugEnabled())
+            logger.debug("[log] : polyOperation");
         Graphics g = drawCanvas.getGraphics();
         g.setColor(currentColor);
 
@@ -2119,7 +2120,8 @@ public class WhiteboardFrame
      */
     private void releasedPolyline(boolean fill)
     {
-        logger.debug("[log] : releasedPolyline");
+        if (logger.isDebugEnabled())
+            logger.debug("[log] : releasedPolyline");
         doneDrawing = true;
         appendAndSend(new WhiteboardShapePolyLine(id(), spinModel.getNumber()
             .intValue(), currentColor, pathList, fill, s2w));
@@ -2232,7 +2234,8 @@ public class WhiteboardFrame
             }
             catch (NoninvertibleTransformException e)
             {
-                logger.debug(e.getMessage());
+                if (logger.isDebugEnabled())
+                    logger.debug(e.getMessage());
             }
             repaint();
         }
@@ -2314,7 +2317,8 @@ public class WhiteboardFrame
      */
     public void receiveWhiteboardObject(WhiteboardObject wbo)
     {
-        logger.debug("receiveWhiteboardObject: " + wbo.getID());
+        if (logger.isDebugEnabled())
+            logger.debug("receiveWhiteboardObject: " + wbo.getID());
         WhiteboardShape ws = createWhiteboardShape(wbo);
         for (int i = 0; i < displayList.size(); i++)
         {
@@ -2337,7 +2341,8 @@ public class WhiteboardFrame
      */
     public void receiveDeleteWhiteboardObject(String id)
     {
-        logger.debug("receiveDeleteWhiteboardObject");
+        if (logger.isDebugEnabled())
+            logger.debug("receiveDeleteWhiteboardObject");
         int i = 0;
         while (i < displayList.size())
         {
@@ -2359,7 +2364,8 @@ public class WhiteboardFrame
      */
     private WhiteboardShape createWhiteboardShape(WhiteboardObject wbo)
     {
-        logger.debug("CreateWhiteboardShape");
+        if (logger.isDebugEnabled())
+            logger.debug("CreateWhiteboardShape");
         WhiteboardShape wShape = null;
         String id = wbo.getID();
         int color = wbo.getColor();
@@ -2368,7 +2374,8 @@ public class WhiteboardFrame
         if (wbo instanceof WhiteboardObjectPath)
         {
             WhiteboardObjectPath path = (WhiteboardObjectPath) wbo;
-            logger.debug("[log] : WB_PATH");
+            if (logger.isDebugEnabled())
+                logger.debug("[log] : WB_PATH");
             Color c = Color.getColor("", color);
             List<WhiteboardPoint> points = path.getPoints();
             wShape = new WhiteboardShapePath(id, t, c, points);
@@ -2376,7 +2383,8 @@ public class WhiteboardFrame
         else if (wbo instanceof WhiteboardObjectPolyLine)
         {
             WhiteboardObjectPolyLine pLine = (WhiteboardObjectPolyLine) wbo;
-            logger.debug("[log] : WB_POLYLINE");
+            if (logger.isDebugEnabled())
+                logger.debug("[log] : WB_POLYLINE");
             Color c = Color.getColor("", color);
             List<WhiteboardPoint> points = pLine.getPoints();
             wShape = new WhiteboardShapePolyLine(id, t, c, points, false);
@@ -2385,7 +2393,8 @@ public class WhiteboardFrame
         else if (wbo instanceof WhiteboardObjectPolygon)
         {
             WhiteboardObjectPolygon polygon = (WhiteboardObjectPolygon) wbo;
-            logger.debug("[log] : WB_POLYGON");
+            if (logger.isDebugEnabled())
+                logger.debug("[log] : WB_POLYGON");
             Color c = Color.getColor("", color);
             List<WhiteboardPoint> points = polygon.getPoints();
             boolean fill = polygon.isFill();
@@ -2395,7 +2404,8 @@ public class WhiteboardFrame
         else if (wbo instanceof WhiteboardObjectLine)
         {
             WhiteboardObjectLine line = (WhiteboardObjectLine) wbo;
-            logger.debug("[log] : WB_LINE");
+            if (logger.isDebugEnabled())
+                logger.debug("[log] : WB_LINE");
             WhiteboardPoint pStart = line.getWhiteboardPointStart();
             WhiteboardPoint pEnd = line.getWhiteboardPointEnd();
             Color c = Color.getColor("", color);
@@ -2405,7 +2415,8 @@ public class WhiteboardFrame
         else if (wbo instanceof WhiteboardObjectRect)
         {
             WhiteboardObjectRect rect = (WhiteboardObjectRect) wbo;
-            logger.debug("[log] : WB_RECT");
+            if (logger.isDebugEnabled())
+                logger.debug("[log] : WB_RECT");
             Color c = Color.getColor("", color);
             double height, width;
             WhiteboardPoint p = rect.getWhiteboardPoint();
@@ -2418,7 +2429,8 @@ public class WhiteboardFrame
         else if (wbo instanceof WhiteboardObjectCircle)
         {
             WhiteboardObjectCircle circle = (WhiteboardObjectCircle) wbo;
-            logger.debug("[log] : WB_CIRCLE");
+            if (logger.isDebugEnabled())
+                logger.debug("[log] : WB_CIRCLE");
             Color c = Color.getColor("", color);
             WhiteboardPoint p = circle.getWhiteboardPoint();
             double r = circle.getRadius();
@@ -2429,7 +2441,8 @@ public class WhiteboardFrame
         else if (wbo instanceof WhiteboardObjectText)
         {
             WhiteboardObjectText text = (WhiteboardObjectText) wbo;
-            logger.debug("[log] : WB_TEXT");
+            if (logger.isDebugEnabled())
+                logger.debug("[log] : WB_TEXT");
             Color c = Color.getColor("", color);
             WhiteboardPoint p = text.getWhiteboardPoint();
             int size = text.getFontSize();
@@ -2440,7 +2453,8 @@ public class WhiteboardFrame
         else if (wbo instanceof WhiteboardObjectImage)
         {
             WhiteboardObjectImage img = (WhiteboardObjectImage) wbo;
-            logger.debug("[log] : WB_IMAGE");
+            if (logger.isDebugEnabled())
+                logger.debug("[log] : WB_IMAGE");
             double height, width;
             WhiteboardPoint p = img.getWhiteboardPoint();
             width = img.getWidth();
@@ -2561,7 +2575,8 @@ public class WhiteboardFrame
 
         public void whiteboardParticipantRemoved(WhiteboardParticipantEvent evt)
         {
-            logger.trace("Whiteboard participant has left.");
+            if (logger.isTraceEnabled())
+                logger.trace("Whiteboard participant has left.");
 
             WhiteboardActivator.getUiService().getPopupDialog()
                 .showMessagePopupDialog(contact.getAddress()

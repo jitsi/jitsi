@@ -53,7 +53,8 @@ public class UtilActivator
     public void start(BundleContext context)
         throws Exception
     {
-        logger.trace("Setting default uncaught exception handler.");
+        if (logger.isTraceEnabled())
+            logger.trace("Setting default uncaught exception handler.");
 
         bundleContext = context;
 

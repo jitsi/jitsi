@@ -60,7 +60,8 @@ public class GlobalProxyPluginActivator implements BundleActivator
 
         initProperties();
 
-        logger.info("GLOBAL PROXY CONFIGURATION PLUGIN... [REGISTERED]");
+        if (logger.isInfoEnabled())
+            logger.info("GLOBAL PROXY CONFIGURATION PLUGIN... [REGISTERED]");
     }
 
     /**

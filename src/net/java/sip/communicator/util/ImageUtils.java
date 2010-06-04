@@ -154,7 +154,8 @@ public class ImageUtils
             }
             catch (IOException e)
             {
-                logger.debug("Could not scale image in bytes.", e);
+                if (logger.isDebugEnabled())
+                    logger.debug("Could not scale image in bytes.", e);
             }
 
         }
@@ -221,11 +222,13 @@ public class ImageUtils
             if(image != null)
                 imageIcon = getScaledRoundedIcon(image, width, height);
             else
-                logger.trace("Unknown image format or error reading image");
+                if (logger.isTraceEnabled())
+                    logger.trace("Unknown image format or error reading image");
         }
         catch (Exception e)
         {
-            logger.debug("Could not create image.", e);
+            if (logger.isDebugEnabled())
+                logger.debug("Could not create image.", e);
         }
 
         return imageIcon;
@@ -250,7 +253,8 @@ public class ImageUtils
             }
             catch (IOException ex)
             {
-                logger.debug("Failed to load image:" + imagePath, ex);
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to load image:" + imagePath, ex);
             }
         }
         return image;

@@ -82,7 +82,8 @@ public class ThreadManager
         }
         catch (InterruptedException e)
         {
-            logger.info(e);
+            if (logger.isInfoEnabled())
+                logger.info(e);
             return false;
         }
         return true;

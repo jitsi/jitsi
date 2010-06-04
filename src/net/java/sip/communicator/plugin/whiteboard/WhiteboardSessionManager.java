@@ -66,7 +66,8 @@ public class WhiteboardSessionManager
         
         if (opSetWb == null)
         {
-            logger.info("Contact does not support whiteboarding");
+            if (logger.isInfoEnabled())
+                logger.info("Contact does not support whiteboarding");
             return;
         }
         
@@ -340,7 +341,8 @@ public class WhiteboardSessionManager
 
         if(wbFrame == null)
         {
-            logger.debug ("New WBParticipant"
+            if (logger.isDebugEnabled())
+                logger.debug ("New WBParticipant"
               + evt.getSourceContact ().getDisplayName ());
 
             wbFrame = new WhiteboardFrame (
@@ -365,7 +367,8 @@ public class WhiteboardSessionManager
      */
     public void whiteboardObjectDelivered (WhiteboardObjectDeliveredEvent evt)
     {
-        logger.debug ("WBObjectDeliveredEvent: The following object: "
+        if (logger.isDebugEnabled())
+            logger.debug ("WBObjectDeliveredEvent: The following object: "
             + evt.getSourceWhiteboardObject()
             + " has been delivered to "
             + evt.getDestinationContact().getDisplayName());
@@ -423,7 +426,8 @@ public class WhiteboardSessionManager
                 + " because of the following error: "
                 + errorMessage;
 
-        logger.debug (debugErrorMessage);
+        if (logger.isDebugEnabled())
+            logger.debug (debugErrorMessage);
 
         WhiteboardActivator.getUiService().getPopupDialog()
             .showMessagePopupDialog(errorMessage,

@@ -48,7 +48,8 @@ public class SSHAccRegWizzActivator
      */
     public void start(BundleContext bc)
     {
-        logger.info("Loading ssh account wizard.");
+        if (logger.isInfoEnabled())
+            logger.info("Loading ssh account wizard.");
 
         bundleContext = bc;
 
@@ -75,7 +76,8 @@ public class SSHAccRegWizzActivator
             sshWizard,
             containerFilter);
 
-        logger.info("SSH account registration wizard [STARTED].");
+        if (logger.isInfoEnabled())
+            logger.info("SSH account registration wizard [STARTED].");
     }
 
     /**

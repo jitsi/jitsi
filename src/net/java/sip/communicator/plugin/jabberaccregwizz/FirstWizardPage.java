@@ -245,7 +245,8 @@ public class FirstWizardPage
         {
             public void actionPerformed(ActionEvent evt)
             {
-                logger.debug("Reg OK");
+                if (logger.isDebugEnabled())
+                    logger.debug("Reg OK");
 
                 // Open the new account dialog.
 
@@ -262,7 +263,8 @@ public class FirstWizardPage
 
                     passField.setText(jabberNewAccountDialog.password);
                 }
-                logger.debug("Reg End");
+                if (logger.isDebugEnabled())
+                    logger.debug("Reg End");
             }
         });
 

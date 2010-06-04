@@ -16,6 +16,10 @@ import java.util.logging.*;
 public class Logger
 {
     private final java.util.logging.Logger loggerDelegate;
+    
+    static private long trc = 0;
+    static private long dbg = 0;
+    static private long inf = 0;
 
     /**
      * Base constructor
@@ -115,6 +119,7 @@ public class Logger
      */
     public void trace(Object msg)
     {
+        if ((++trc % 10) == 0) System.out.println("Trace: " + trc);
         loggerDelegate.finer(msg!=null?msg.toString():"null");
     }
 
@@ -126,6 +131,7 @@ public class Logger
      */
     public void trace(Object msg, Throwable t)
     {
+        if ((++trc % 10) == 0) System.out.println("Trace: " + trc);
         loggerDelegate.log(Level.FINER, msg!=null?msg.toString():"null", t);
     }
 
@@ -151,6 +157,7 @@ public class Logger
      */
     public void debug(Object msg)
     {
+        if ((++dbg % 10) == 0) System.out.println("Debug: " + dbg);
         loggerDelegate.fine(msg!=null?msg.toString():"null");
     }
 
@@ -162,6 +169,7 @@ public class Logger
      */
     public void debug(Object msg, Throwable t)
     {
+        if ((++dbg % 10) == 0) System.out.println("Debug: " + dbg);
         loggerDelegate.log(Level.FINE, msg!=null?msg.toString():"null", t);
     }
 
@@ -187,6 +195,7 @@ public class Logger
      */
     public void info(Object msg)
     {
+        if ((++inf % 10) == 0) System.out.println("Info: " + inf);
         loggerDelegate.info(msg!=null?msg.toString():"null");
     }
 
@@ -198,6 +207,7 @@ public class Logger
      */
     public void info(Object msg, Throwable t)
     {
+        if ((++inf % 10) == 0) System.out.println("Info: " + inf);
         loggerDelegate.log(Level.INFO, msg!=null?msg.toString():"null", t);
     }
 

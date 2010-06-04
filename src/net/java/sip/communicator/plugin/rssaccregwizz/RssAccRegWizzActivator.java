@@ -38,7 +38,8 @@ public class RssAccRegWizzActivator
      */
     public void start(BundleContext bc)
     {
-        logger.info("Loading rss account wizard.");
+        if (logger.isInfoEnabled())
+            logger.info("Loading rss account wizard.");
 
         bundleContext = bc;
 
@@ -65,7 +66,8 @@ public class RssAccRegWizzActivator
             rssWizard,
             containerFilter);
 
-        logger.info("RSS account registration wizard [STARTED].");
+        if (logger.isInfoEnabled())
+            logger.info("RSS account registration wizard [STARTED].");
     }
 
     /**

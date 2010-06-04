@@ -49,7 +49,8 @@ public class ShutdownTimeout
     public void start(BundleContext context)
         throws Exception
     {
-        logger.debug("Starting the ShutdownTimeout service.");
+        if (logger.isDebugEnabled())
+            logger.debug("Starting the ShutdownTimeout service.");
     }
 
     /**
@@ -72,18 +73,21 @@ public class ShutdownTimeout
                 synchronized(this)
                 {
                     try{
-                        logger.trace("Starting shutdown countdown of "
+                        if (logger.isTraceEnabled())
+                            logger.trace("Starting shutdown countdown of "
                                      + SHUTDOWN_TIMEOUT + "ms.");
                         wait(SHUTDOWN_TIMEOUT);
                         logger.error("Failed to gently shutdown. Forcing exit.");
                         System.exit(500);
                     }catch (InterruptedException ex){
-                        logger.debug("Interrupted shutdown timer.");
+                        if (logger.isDebugEnabled())
+                            logger.debug("Interrupted shutdown timer.");
                     }
                 }
             }
         };
-        logger.trace("Created the shutdown timer thread.");
+        if (logger.isTraceEnabled())
+            logger.trace("Created the shutdown timer thread.");
         shutdownTimeoutThread.setDaemon(true);
         shutdownTimeoutThread.start();
     }

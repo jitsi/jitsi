@@ -47,7 +47,8 @@ public class SwingNotificationActivator implements BundleActivator
      */
     public void start(BundleContext bc) throws Exception
     {
-        logger.info("Swing Notification ...[  STARTING ]");
+        if (logger.isInfoEnabled())
+            logger.info("Swing Notification ...[  STARTING ]");
 
         bundleContext = bc;
 
@@ -61,7 +62,8 @@ public class SwingNotificationActivator implements BundleActivator
                 , handler
                 , null);
 
-        logger.info("Swing Notification ...[REGISTERED]");
+        if (logger.isInfoEnabled())
+            logger.info("Swing Notification ...[REGISTERED]");
     }
 
     public void stop(BundleContext arg0) throws Exception

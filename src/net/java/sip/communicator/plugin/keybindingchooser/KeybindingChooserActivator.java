@@ -36,7 +36,8 @@ public class KeybindingChooserActivator
     {
         bundleContext = context;
 
-        logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
+        if (logger.isDebugEnabled())
+            logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
 
         context
             .registerService(
