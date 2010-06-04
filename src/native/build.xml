@@ -200,6 +200,7 @@
     if="is.running.windows">
     <cc outtype="shared" name="msvc" outfile="${native_install_dir}/jawtrenderer" objdir="${obj}">
       <compilerarg value="/O2" />
+      <compilerarg value="/MT" location="end" />
       <compilerarg value="/IC:\Program Files\Microsoft DirectX SDK (February 2010)\Include" />
       <compilerarg value="/IC:\Program Files (x86)\Microsoft DirectX SDK (February 2010)\Include" />
       <compilerarg value="-I${system.JAVA_HOME}/include" />
@@ -430,6 +431,7 @@
     depends="init-native">
     <cc outtype="shared" name="msvc" outfile="${native_install_dir}/LocalhostRetriever" objdir="${obj}">
       <compilerarg value="/O2" />
+      <compilerarg value="/MT" location="end" />
       <compilerarg value="-I${system.JAVA_HOME}/include" />
       <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
 
@@ -447,6 +449,7 @@
       <compilerarg value="/W4" />
       <compilerarg value="/wd4996" />
       <compilerarg value="/EHsc" />
+      <compilerarg value="/MT" location="end" />
       <compilerarg value="-I${system.JAVA_HOME}/include" />
       <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
 
