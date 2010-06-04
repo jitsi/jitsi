@@ -171,6 +171,10 @@ public class EncodingConfiguration
         // not selected by default as a proprietary one
         setEncodingPreference("G729", 8000, 0);
 
+        // enables by default telephone event(DTMF rfc4733), with lowest
+        // priority as it is not needed to order it with audio codecs
+        setEncodingPreference(Constants.TELEPHONE_EVENT, 8000, 1);
+
         // now override with those that are specified by the user.
         ConfigurationService confService
             = NeomediaActivator.getConfigurationService();
