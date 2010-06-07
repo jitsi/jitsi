@@ -183,6 +183,20 @@ public class CallPeerState
                                       new CallPeerState(_DISCONNECTED);
 
     /**
+     * This constant value indicates a String representation of the REFERRED
+     * call state.
+     * <br>This constant has the String value "Referred".
+     */
+    public static final String _REFERRED = "Referred";
+
+    /**
+     * This constant value indicates that the state of the call peer is
+     * is REFERRED - which means that this peer has transfered us to another
+     * peer.
+     */
+    public static final CallPeerState REFERRED = new CallPeerState(_REFERRED);
+
+    /**
      * This constant value indicates a String representation of the BUSY
      * call state.
      * <br>This constant has the String value "Busy".

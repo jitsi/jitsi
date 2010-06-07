@@ -240,6 +240,26 @@ public class GlobalStatusSelectorBox
     }
 
     /**
+     * Starts connecting user interface for the given <tt>protocolProvider</tt>.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> to start
+     * connecting for
+     */
+    public void startConnecting(ProtocolProviderService protocolProvider)
+    {
+        accountMenus.get(protocolProvider).startConnecting();
+    }
+
+    /**
+     * Stops connecting user interface for the given <tt>protocolProvider</tt>.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> to stop
+     * connecting for
+     */
+    public void stopConnecting(ProtocolProviderService protocolProvider)
+    {
+        accountMenus.get(protocolProvider).stopConnecting();
+    }
+
+    /**
      * Returns <tt>true</tt> if there are selected status selector boxes,
      * otherwise returns <tt>false</tt>.
      * @return <tt>true</tt> if there are selected status selector boxes,

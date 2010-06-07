@@ -17,6 +17,7 @@ import org.osgi.framework.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -330,79 +331,51 @@ public class CallManager
     }
 
     /**
-     * Transfers the given <tt>callPeer</tt>.
-     * @param callPeer the <tt>CallPeer</tt> to transfer
+     * Transfers the given <tt>peer</tt> to the given <tt>target</tt>.
+     * @param peer the <tt>CallPeer</tt> to transfer
+     * @param target the <tt>CallPeer</tt> target to transfer to
      */
-    public static void transferCall(CallPeer callPeer)
+    public static void transferCall(CallPeer peer, CallPeer target)
     {
-        final Call call = callPeer.getCall();
+        OperationSetAdvancedTelephony telephony
+            = peer.getCall().getProtocolProvider()
+                .getOperationSet(OperationSetAdvancedTelephony.class);
 
-        if (call != null)
+        if (telephony != null)
         {
-            OperationSetAdvancedTelephony telephony
-                = call.getProtocolProvider()
-                    .getOperationSet(OperationSetAdvancedTelephony.class);
-
-            if (telephony != null)
+            try
             {
-                final TransferCallDialog dialog = new TransferCallDialog(null);
+                telephony.transfer(peer, target);
+            }
+            catch (OperationFailedException ex)
+            {
+                logger.error("Failed to transfer " + peer.getAddress()
+                    + " to " + target, ex);
+            }
+        }
+    }
 
-                /*
-                 * Transferring a call works only when the call is in progress
-                 * so close the dialog (if it's not already closed, of course)
-                 * once the dialog ends.
-                 */
-                CallChangeListener callChangeListener = new CallChangeAdapter()
-                {
-                    /*
-                     * Implements
-                     * CallChangeAdapter#callStateChanged(CallChangeEvent).
-                     */
-                    public void callStateChanged(CallChangeEvent evt)
-                    {
-                        // we are interested only in CALL_STATE_CHANGEs
-                        if(!evt.getEventType().equals(
-                                CallChangeEvent.CALL_STATE_CHANGE))
-                            return;
+    /**
+     * Transfers the given <tt>peer</tt> to the given <tt>target</tt>.
+     * @param peer the <tt>CallPeer</tt> to transfer
+     * @param target the target of the transfer
+     */
+    public static void transferCall(CallPeer peer, String target)
+    {
+        OperationSetAdvancedTelephony telephony
+            = peer.getCall().getProtocolProvider()
+                .getOperationSet(OperationSetAdvancedTelephony.class);
 
-                        if (!CallState.CALL_IN_PROGRESS.equals(call
-                            .getCallState()))
-                        {
-                            dialog.setVisible(false);
-                            dialog.dispose();
-                        }
-                    }
-                };
-                call.addCallChangeListener(callChangeListener);
-                try
-                {
-                    dialog.setModal(true);
-                    dialog.pack();
-                    dialog.setVisible(true);
-                }
-                finally
-                {
-                    call.removeCallChangeListener(callChangeListener);
-                }
-
-                String target = dialog.getTarget();
-                if ((target != null) && (target.length() > 0))
-                {
-                    try
-                    {
-                        CallPeer targetPeer = findCallPeer(target);
-
-                        if (targetPeer == null)
-                            telephony.transfer(callPeer, target);
-                        else
-                            telephony.transfer(callPeer, targetPeer);
-                    }
-                    catch (OperationFailedException ex)
-                    {
-                        logger.error("Failed to transfer call " + call + " to "
-                            + target, ex);
-                    }
-                }
+        if (telephony != null)
+        {
+            try
+            {
+                telephony.transfer(peer, target);
+            }
+            catch (OperationFailedException ex)
+            {
+                logger.error("Failed to transfer " + peer.getAddress()
+                    + " to " + target, ex);
             }
         }
     }
@@ -457,6 +430,15 @@ public class CallManager
     }
 
     /**
+     * Returns an <tt>Iterator</tt> over a list of all currently active calls.
+     * @return an <tt>Iterator</tt> over a list of all currently active calls
+     */
+    public static Iterator<Call> getActiveCalls()
+    {
+        return activeCalls.keySet().iterator();
+    }
+
+    /**
      * Sets the given <tt>MissedCallsListener</tt> that would be notified on
      * any changes in missed calls count.
      * @param l the listener to set
@@ -499,6 +481,34 @@ public class CallManager
     {
         if (missedCallsListener != null)
             missedCallsListener.missedCallCountChanged(missedCalls);
+    }
+
+    /**
+     * Returns the image corresponding to the given <tt>peer</tt>.
+     *
+     * @param peer the call peer, for which we're returning an image
+     * @return the peer image
+     */
+    public static byte[] getPeerImage(CallPeer peer)
+    {
+        byte[] image = null;
+        // We search for a contact corresponding to this call peer and
+        // try to get its image.
+        if (peer.getContact() != null)
+        {
+            MetaContact metaContact = GuiActivator.getContactListService()
+                .findMetaContactByContact(peer.getContact());
+
+            image = metaContact.getAvatar();
+        }
+
+        // If the icon is still null we try to get an image from the call
+        // peer.
+        if ((image == null || image.length == 0)
+                && peer.getImage() != null)
+            image = peer.getImage();
+
+        return image;
     }
 
     /**
@@ -898,87 +908,5 @@ public class CallManager
         NotificationManager.stopSound(NotificationManager.BUSY_CALL);
         NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
         NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
-    }
-
-    /**
-     * Returns the first <tt>CallPeer</tt> among all existing ones
-     * who has a specific address.
-     *
-     * @param address the address of the <tt>CallPeer</tt> to be located
-     * @return the first <tt>CallPeer</tt> among all existing ones
-     * who has the specified <tt>address</tt>
-     *
-     * @throws OperationFailedException in case we fail retrieving a reference
-     * to <tt>ProtocolProviderService</tt>s
-     */
-    private static CallPeer findCallPeer(String address)
-        throws OperationFailedException
-    {
-        BundleContext bundleContext = GuiActivator.bundleContext;
-        ServiceReference[] serviceReferences;
-
-        try
-        {
-            serviceReferences =
-                bundleContext.getServiceReferences(
-                    ProtocolProviderService.class.getName(), null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            throw new OperationFailedException(
-                "Failed to retrieve ProtocolProviderService references.",
-                OperationFailedException.INTERNAL_ERROR, ex);
-        }
-
-        Class<OperationSetBasicTelephony> telephonyClass
-            = OperationSetBasicTelephony.class;
-        CallPeer peer = null;
-
-        for (ServiceReference serviceReference : serviceReferences)
-        {
-            ProtocolProviderService service = (ProtocolProviderService)
-                bundleContext.getService(serviceReference);
-            OperationSetBasicTelephony telephony =
-                service.getOperationSet(telephonyClass);
-
-            if (telephony != null)
-            {
-                peer = findCallPeer(telephony, address);
-                if (peer != null)
-                    break;
-            }
-        }
-        return peer;
-    }
-
-    /**
-     * Returns the first <tt>CallPeer</tt> known to a specific
-     * <tt>OperationSetBasicTelephony</tt> to have a specific address.
-     *
-     * @param telephony the <tt>OperationSetBasicTelephony</tt> to have its
-     * <tt>CallPeer</tt>s examined in search for one which has a specific
-     * address
-     * @param address the address to locate the associated <tt>CallPeer</tt> of
-     * @return the first <tt>CallPeer</tt> known to the specified
-     * <tt>OperationSetBasicTelephony</tt> to have the specified address
-     */
-    private static CallPeer findCallPeer(
-        OperationSetBasicTelephony telephony, String address)
-    {
-        for (Iterator<? extends Call> callIter = telephony.getActiveCalls();
-                callIter.hasNext();)
-        {
-            Call call = callIter.next();
-
-            for (Iterator<? extends CallPeer> peerIter = call.getCallPeers();
-                    peerIter.hasNext();)
-            {
-                CallPeer peer = peerIter.next();
-
-                if (address.equals(peer.getAddress()))
-                    return peer;
-            }
-        }
-        return null;
     }
 }

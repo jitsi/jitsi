@@ -24,10 +24,10 @@ public interface CallPeerRenderer
     public void setPeerName(String name);
 
     /**
-     * Sets the <tt>icon</tt> of the peer.
-     * @param icon the icon to set
+     * Sets the <tt>image</tt> of the peer.
+     * @param image the image to set
      */
-    public void setPeerImage(ImageIcon icon);
+    public void setPeerImage(byte[] image);
 
     /**
      * Sets the state of the contained call peer by specifying the

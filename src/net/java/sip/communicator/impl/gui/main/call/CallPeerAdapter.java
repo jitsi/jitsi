@@ -167,7 +167,7 @@ public class CallPeerAdapter
     public void peerImageChanged(CallPeerChangeEvent evt)
     {
         if (callPeer.equals(evt.getSourceCallPeer()))
-            renderer.setPeerImage(new ImageIcon( (byte[]) evt.getNewValue()));
+            renderer.setPeerImage((byte[]) evt.getNewValue());
     }
 
     /**

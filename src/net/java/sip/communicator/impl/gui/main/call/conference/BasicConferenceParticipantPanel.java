@@ -13,6 +13,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -25,6 +26,16 @@ public class BasicConferenceParticipantPanel
     extends TransparentPanel
 {
     private static final Color bgColor = new Color(255, 255, 255);
+
+    /**
+     * The avatar icon height.
+     */
+    private static final int AVATAR_HEIGHT = 50;
+
+    /**
+     * The avatar icon width.
+     */
+    private static final int AVATAR_WIDTH = 50;
 
     /**
      * The label showing the name of the participant.
@@ -106,7 +117,9 @@ public class BasicConferenceParticipantPanel
     {
         ImageIcon avatarIcon = new ImageIcon
             (ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)
-                .getScaledInstance(50, 50, Image.SCALE_SMOOTH));
+                .getScaledInstance( AVATAR_WIDTH,
+                                    AVATAR_HEIGHT,
+                                    Image.SCALE_SMOOTH));
 
         peerDetailsPanel.setLayout(new GridBagLayout());
         peerDetailsPanel.setBackground(new Color(255, 255, 255));
@@ -154,11 +167,16 @@ public class BasicConferenceParticipantPanel
 
     /**
      * Sets the image of the participant.
-     * @param icon the image to set
+     * @param image the image to set
      */
-    public void setParticipantImage(ImageIcon icon)
+    public void setParticipantImage(byte[] image)
     {
-        imageLabel.setIcon(icon);
+        ImageIcon icon = ImageUtils.getScaledRoundedIcon(image,
+                                                        AVATAR_WIDTH,
+                                                        AVATAR_HEIGHT);
+
+        if (icon != null)
+            imageLabel.setIcon(icon);
     }
 
     /**

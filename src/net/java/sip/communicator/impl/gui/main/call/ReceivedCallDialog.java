@@ -158,7 +158,10 @@ public class ReceivedCallDialog
                     + GuiActivator.getResources()
                         .getI18NString("service.gui.IS_CALLING");
 
-                imageIcon = getPeerImage(peer);
+                byte[] image = CallManager.getPeerImage(peer);
+
+                if (image != null && image.length > 0)
+                    imageIcon = new ImageIcon(image);
             }
         }
 
@@ -192,37 +195,6 @@ public class ReceivedCallDialog
         }
 
         this.dispose();
-    }
-
-    /**
-     * Returns the peer image.
-     *
-     * @param peer The call peer, for which we're returning an
-     * image.
-     * @return the peer image.
-     */
-    private ImageIcon getPeerImage(CallPeer peer)
-    {
-        ImageIcon icon = null;
-        // We search for a contact corresponding to this call peer and
-        // try to get its image.
-        if (peer.getContact() != null)
-        {
-            MetaContact metaContact = GuiActivator.getContactListService()
-                .findMetaContactByContact(peer.getContact());
-
-            byte[] avatar = metaContact.getAvatar();
-
-            if(avatar != null && avatar.length > 0)
-                icon = new ImageIcon(avatar);
-        }
-
-        // If the icon is still null we try to get an image from the call
-        // peer.
-        if (icon == null && peer.getImage() != null)
-            icon = new ImageIcon(peer.getImage());
-
-        return icon;
     }
 
     /**

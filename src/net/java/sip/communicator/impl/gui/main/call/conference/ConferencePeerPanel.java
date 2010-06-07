@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.call.CallPeerAdapter; // disambiguation
+import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -107,6 +108,14 @@ public class ConferencePeerPanel
         this.callDialog = callDialog;
         this.callPeer = null;
 
+        // Try to set the same image as the one in the main window. This way
+        // we improve our chances to have an image, instead of looking only at
+        // the protocol provider avatar, which could be null, we look for any
+        // image coming from one of our accounts.
+        byte[] globalAccountImage = AccountStatusPanel.getGlobalAccountImage();
+        if (globalAccountImage != null && globalAccountImage.length > 0)
+            this.setPeerImage(globalAccountImage);
+
         this.setPeerName(protocolProvider.getAccountID().getUserID()
             + " (" + GuiActivator.getResources()
                 .getI18NString("service.gui.ACCOUNT_ME").toLowerCase() + ")");
@@ -128,6 +137,8 @@ public class ConferencePeerPanel
     {
         this.callDialog = callDialog;
         this.callPeer = callPeer;
+
+        this.setPeerImage(CallManager.getPeerImage(callPeer));
 
         this.setPeerName(callPeer.getDisplayName());
 
@@ -230,9 +241,10 @@ public class ConferencePeerPanel
      * Sets the <tt>icon</tt> of the peer.
      * @param icon the icon to set
      */
-    public void setPeerImage(ImageIcon icon)
+    public void setPeerImage(byte[] icon)
     {
-        if (!callPeer.isConferenceFocus())
+        // If this is the local peer (i.e. us) or any peer, but the focus peer.
+        if (callPeer == null || !callPeer.isConferenceFocus())
             this.setParticipantImage(icon);
     }
 

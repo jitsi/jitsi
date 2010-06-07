@@ -6,174 +6,95 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.*;
 import java.awt.event.*;
-
-import javax.swing.*;
-import javax.swing.event.*;
+import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Represents a <code>Dialog</code> which allows specifying the target contact
  * address of a transfer-call operation.
  * 
- * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public class TransferCallDialog
-    extends SIPCommDialog
+    extends OneChoiceInviteDialog
 {
-    private final JButton cancelButton;
-
-    private final JButton okButton;
-
     /**
-     * The target contact address which is the result of this dialog.
+     * Creates a <tt>TransferCallDialog</tt> by specifying the peer to transfer
+     * @param peer the peer to transfer
      */
-    private String target;
-
-    private final JComboBox targetComboBox;
-
-    public TransferCallDialog(Frame owner)
+    public TransferCallDialog(final CallPeer peer)
     {
-        super(owner);
-
-        setTitle(GuiActivator.getResources()
+        super(GuiActivator.getResources()
             .getI18NString("service.gui.TRANSFER_CALL_TITLE"));
 
-        JPanel mainPanel = new TransparentPanel(new BorderLayout(5, 5));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        getContentPane().add(mainPanel);
+        this.initContactListData(peer.getProtocolProvider());
 
-        JPanel contentPanel =
-            new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-        mainPanel.add(contentPanel, BorderLayout.NORTH);
+        this.setInfoText(GuiActivator.getResources()
+            .getI18NString("service.gui.TRANSFER_CALL_MSG"));
+        this.setOkButtonText(GuiActivator.getResources()
+            .getI18NString("service.gui.TRANSFER"));
 
-        JLabel targetLabel =
-            new JLabel(
-                GuiActivator.getResources().getI18NString("service.gui.TO"));
-
-        contentPanel.add(targetLabel);
-
-        targetComboBox = new SIPCommSmartComboBox();
-        targetComboBox.setUI(new SIPCommCallComboBoxUI());
-        contentPanel.add(targetComboBox);
-
-        JPanel buttonPanel =
-            new TransparentPanel(new FlowLayout(FlowLayout.TRAILING));
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        okButton =
-            new JButton(GuiActivator.getResources()
-                .getI18NString("service.gui.TRANSFER"));
-
-        buttonPanel.add(okButton);
-        getRootPane().setDefaultButton(okButton);
-
-        cancelButton = new JButton(
-            GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
-
-        buttonPanel.add(cancelButton);
-
-        /*
-         * The UI hierarchy has been created and it's now safe to install the
-         * listeners to react to its actions.
-         */
-
-        /*
-         * Enable/disable okButton (i.e. Transfer) in accord with the validity
-         * of the target contact address specified in targetComboBox.
-         */
-        JTextField targetTextField =
-            (JTextField) targetComboBox.getEditor().getEditorComponent();
-        targetTextField.getDocument().addDocumentListener(
-            new DocumentListener()
-            {
-
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see
-                 * javax.swing.event.DocumentListener#changedUpdate(javax.swing
-                 * .event.DocumentEvent)
-                 */
-                public void changedUpdate(DocumentEvent e)
-                {
-                    TransferCallDialog.this.documentChanged(e);
-                }
-
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see
-                 * javax.swing.event.DocumentListener#insertUpdate(javax.swing
-                 * .event.DocumentEvent)
-                 */
-                public void insertUpdate(DocumentEvent e)
-                {
-                    TransferCallDialog.this.documentChanged(e);
-                }
-
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see
-                 * javax.swing.event.DocumentListener#removeUpdate(javax.swing
-                 * .event.DocumentEvent)
-                 */
-                public void removeUpdate(DocumentEvent e)
-                {
-                    TransferCallDialog.this.documentChanged(e);
-                }
-            });
-        documentChanged(null);
-
-        ActionListener actionListener = new ActionListener()
+        addOkButtonListener(new ActionListener()
         {
-
-            /**
-             * Invoked when an action occurs.
-             * 
-             * @param evt the <code>ActionEvent</code> instance containing the
-             *            data associated with the action and the act of its
-             *            performing
-             */
-            public void actionPerformed(ActionEvent evt)
+            public void actionPerformed(ActionEvent e)
             {
-                TransferCallDialog.this.actionPerformed(this, evt);
+                String transferString = getSelectedString();
+
+                if (transferString != null && transferString.length() > 0)
+                    CallManager.transferCall(peer, transferString);
+                else
+                {
+                    MetaContact metaContact = getSelectedMetaContact();
+
+                    if (metaContact != null)
+                    {
+                        Iterator<Contact> contactsIter = metaContact
+                            .getContactsForProvider(peer.getProtocolProvider());
+
+                        if (contactsIter.hasNext())
+                            CallManager.transferCall(peer,
+                                contactsIter.next().getAddress());
+                    }
+                }
+                setVisible(false);
+                dispose();
             }
-        };
-        okButton.addActionListener(actionListener);
-        cancelButton.addActionListener(actionListener);
+        });
+        addCancelButtonListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                setVisible(false);
+                dispose();
+            }
+        });
     }
 
     /**
-     * Handles actions performed on this dialog on behalf of a specific
-     * <code>ActionListener</code>.
-     * 
-     * @param listener the <code>ActionListener</code> notified about the
-     *            performing of the action
-     * @param evt the <code>ActionEvent</code> containing the data associated
-     *            with the action and the act of its performing
+     * Initializes the left contact list with the contacts that could be added
+     * to the current chat session.
+     * @param protocolProvider the protocol provider from which to initialize
+     * the contact list data
      */
-    private void actionPerformed(ActionListener listener, ActionEvent evt)
+    private void initContactListData(ProtocolProviderService protocolProvider)
     {
-        Object source = evt.getSource();
+        MetaContactListService metaContactListService
+            = GuiActivator.getContactListService();
 
-        if (okButton.equals(source))
-        {
-            this.target = getValidTarget();
-        }
-        else if (cancelButton.equals(source))
-        {
-            this.target = null;
-        }
+        Iterator<MetaContact> contactListIter = metaContactListService
+            .findAllMetaContactsForProvider(protocolProvider);
 
-        setVisible(false);
-        dispose();
+        while (contactListIter.hasNext())
+        {
+            MetaContact metaContact = contactListIter.next();
+
+            this.addMetaContact(metaContact);
+        }
     }
 
     /*
@@ -183,50 +104,5 @@ public class TransferCallDialog
      * net.java.sip.communicator.impl.gui.customcontrols.SIPCommDialog#close
      * (boolean)
      */
-    protected void close(boolean isEscaped)
-    {
-        cancelButton.doClick();
-    }
-
-    /**
-     * Handles changes in the <code>Document</code> associated with
-     * <code>targetComboBox</code> in order to dynamically enable/disable
-     * <code>okButton</code> in accord with the validity of the specified target
-     * contact address.
-     * 
-     * @param e the <code>DocumentEvent</code> containing the data associated
-     *            with the change
-     */
-    private void documentChanged(DocumentEvent e)
-    {
-        okButton.setEnabled(getValidTarget() != null);
-    }
-
-    /**
-     * Gets the target contact address specified through this dialog or
-     * <tt>null</code> if this dialog was canceled.
-     * 
-     * @return the target contact address specified through this dialog or
-     *         <tt>null</code> if this dialog was canceled
-     */
-    public String getTarget()
-    {
-        return target;
-    }
-
-    /**
-     * Gets the target contact address specified in the UI of this dialog if the
-     * specified value is valid or <tt>null</code> if there is no valid value
-     * specified in the UI of this dialog.
-     * 
-     * @return the target contact address specified in the UI of this dialog if
-     *         the specified value is valid or <tt>null</code> if there is no
-     *         valid value specified in the UI of this dialog
-     */
-    private String getValidTarget()
-    {
-        String target = targetComboBox.getEditor().getItem().toString().trim();
-
-        return ((target == null) || (target.length() <= 0)) ? null : target;
-    }
+    protected void close(boolean isEscaped) {}
 }

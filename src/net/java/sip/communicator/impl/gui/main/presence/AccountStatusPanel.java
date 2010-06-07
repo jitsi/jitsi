@@ -12,9 +12,11 @@ import java.awt.image.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -28,7 +30,8 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class AccountStatusPanel
     extends TransparentPanel
-    implements  RegistrationStateChangeListener
+    implements  RegistrationStateChangeListener,
+                PluginComponentListener
 {
     /**
      * The desired height of the avatar.
@@ -77,6 +80,22 @@ public class AccountStatusPanel
     private final TexturePaint texture;
 
     /**
+     * The tool bar plug-in container.
+     */
+    private final TransparentPanel toolbarPluginPanel;
+
+    /**
+     * The south plug-in container.
+     */
+    private final TransparentPanel southPluginPanel;
+
+    private static byte[] currentImage;
+
+    private String currentFirstName;
+
+    private String currentLastName;
+
+    /**
      * Creates an instance of <tt>AccountStatusPanel</tt> by specifying the
      * main window, where this panel is added.
      * @param mainFrame the main window, where this panel is added
@@ -113,12 +132,13 @@ public class AccountStatusPanel
         statusMenuBar.add(statusComboBox);
         statusToolsPanel.add(statusMenuBar, BorderLayout.WEST);
 
-        TransparentPanel pluginPanel
+        toolbarPluginPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        new PluginContainer(pluginPanel, Container.CONTAINER_MAIN_TOOL_BAR);
+        new PluginContainer(toolbarPluginPanel,
+                            Container.CONTAINER_MAIN_TOOL_BAR);
 
-        statusToolsPanel.add(pluginPanel, BorderLayout.EAST);
+        statusToolsPanel.add(toolbarPluginPanel, BorderLayout.EAST);
 
         TransparentPanel rightPanel = new TransparentPanel();
         rightPanel.setLayout(new BorderLayout(0, 0));
@@ -129,8 +149,7 @@ public class AccountStatusPanel
         this.add(accountImageLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
 
-        TransparentPanel southPluginPanel
-            = new TransparentPanel(new BorderLayout());
+        southPluginPanel = new TransparentPanel(new BorderLayout());
 
         new PluginContainer(
             southPluginPanel,
@@ -149,6 +168,8 @@ public class AccountStatusPanel
                             0,
                             bgImage.getWidth(null),
                             bgImage.getHeight(null)));
+
+        GuiActivator.getUIService().addPluginComponentListener(this);
     }
 
     /**
@@ -240,6 +261,26 @@ public class AccountStatusPanel
     }
 
     /**
+     * Starts connecting user interface for the given <tt>protocolProvider</tt>.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> to start
+     * connecting for
+     */
+    public void startConnecting(ProtocolProviderService protocolProvider)
+    {
+        statusComboBox.startConnecting(protocolProvider);
+    }
+
+    /**
+     * Stops connecting user interface for the given <tt>protocolProvider</tt>.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> to stop
+     * connecting for
+     */
+    public void stopConnecting(ProtocolProviderService protocolProvider)
+    {
+        statusComboBox.stopConnecting(protocolProvider);
+    }
+
+    /**
      * Returns <tt>true</tt> if there are selected status selector boxes,
      * otherwise returns <tt>false</tt>.
      * @return <tt>true</tt> if there are selected status selector boxes,
@@ -289,40 +330,58 @@ public class AccountStatusPanel
                 {
                     public void run()
                     {
-                        byte[] accountImage
-                            = AccountInfoUtils.getImage(accountInfoOpSet);
-
-                        // do not set empty images
-                        if ((accountImage != null) && (accountImage.length > 0))
-                            accountImageLabel.setImageIcon(accountImage);
-
-                        String firstName
-                            = AccountInfoUtils.getFirstName(accountInfoOpSet);
-                        String lastName
-                            = AccountInfoUtils.getLastName(accountInfoOpSet);
-                        String accountName;
-
-                        if (firstName != null)
-                            if (lastName != null)
-                                accountName = firstName + " " + lastName;
-                            else
-                                accountName = firstName;
-                        else if (lastName != null)
-                            accountName = lastName;
-                        else
-                            accountName = "";
-
-                        if (accountName.length() == 0)
+                        if (currentImage == null)
                         {
-                            String displayName
-                                = AccountInfoUtils
-                                    .getDisplayName(accountInfoOpSet);
+                            byte[] accountImage
+                                = AccountInfoUtils.getImage(accountInfoOpSet);
+
+                            // do not set empty images
+                            if ((accountImage != null)
+                                    && (accountImage.length > 0))
+                            {
+                                currentImage = accountImage;
+                                accountImageLabel.setImageIcon(currentImage);
+                            }
+                        }
+
+                        String accountName = null;
+                        if (currentFirstName == null)
+                        {
+                            String firstName = AccountInfoUtils
+                                .getFirstName(accountInfoOpSet);
+
+                            if (firstName != null && firstName.length() > 0)
+                            {
+                                currentFirstName = firstName;
+                                accountName = currentFirstName;
+                            }
+                        }
+
+                        if (currentLastName == null)
+                        {
+                            String lastName = AccountInfoUtils
+                                .getLastName(accountInfoOpSet);
+
+                            if (lastName != null && lastName.length() > 0)
+                            {
+                                currentLastName = lastName;
+                                if (accountName != null)
+                                    accountName += " ";
+
+                                accountName += currentLastName;
+                            }
+                        }
+
+                        if (currentFirstName == null && currentLastName == null)
+                        {
+                            String displayName = AccountInfoUtils
+                                .getDisplayName(accountInfoOpSet);
 
                             if (displayName != null)
                                 accountName = displayName;
                         }
 
-                        if (accountName.length() > 0)
+                        if (accountName != null && accountName.length() > 0)
                             accountNameLabel.setText(accountName);
                     }
                 }.start();
@@ -351,5 +410,63 @@ public class AccountStatusPanel
                 0,
                 null);
         }
+    }
+
+    /**
+     * Indicates that a plug-in component is registered to be added in a
+     * container. If the plug-in component in the given event is registered for
+     * this container then we add it.
+     * @param event <tt>PluginComponentEvent</tt> that notified us
+     */
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
+        PluginComponent pluginComponent = event.getPluginComponent();
+        String containerID = pluginComponent.getContainer().getID();
+        Object component = pluginComponent.getComponent();
+
+        if (!(component instanceof Component))
+            return;
+
+        if (containerID.equals(Container.CONTAINER_MAIN_TOOL_BAR))
+            toolbarPluginPanel.add((Component) component);
+        else if (containerID.equals(Container.CONTAINER_ACCOUNT_SOUTH))
+            southPluginPanel.add((Component) component);
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    /**
+     * Indicates that a plug-in component is registered to be removed from a
+     * container. If the plug-in component in the given event is registered for
+     * this container then we remove it.
+     * @param event <tt>PluginComponentEvent</tt> that notified us
+     */
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        PluginComponent pluginComponent = event.getPluginComponent();
+        Container pluginContainer = pluginComponent.getContainer();
+        Object component = pluginComponent.getComponent();
+
+        if (!(component instanceof Component))
+            return;
+
+        if (pluginContainer.equals(Container.CONTAINER_MAIN_TOOL_BAR))
+            toolbarPluginPanel.remove((Component) component);
+        else if (pluginContainer.equals(Container.CONTAINER_ACCOUNT_SOUTH))
+            southPluginPanel.remove((Component) component);
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    /**
+     * Returns the global account image currently shown on the top of the
+     * application window.
+     * @return the global account image
+     */
+    public static byte[] getGlobalAccountImage()
+    {
+        return currentImage;
     }
 }

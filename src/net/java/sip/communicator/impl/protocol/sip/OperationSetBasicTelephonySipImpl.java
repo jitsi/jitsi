@@ -1087,6 +1087,14 @@ public class OperationSetBasicTelephonySipImpl
             }
         }
 
+        // Before creating the outgoing call  to the refer address we change
+        // the call state of the refer peer to referred.
+        CallPeerSipImpl callPeer = activeCallsRepository.findCallPeer(
+            serverTransaction.getDialog());
+
+        if (callPeer != null)
+            callPeer.setState(CallPeerState.REFERRED);
+
         /*
          * Regardless of whether the Accepted, NOTIFY, etc. succeeded, try to
          * transfer the call because it's the most important goal.
@@ -1133,7 +1141,8 @@ public class OperationSetBasicTelephonySipImpl
             public synchronized void callStateChanged(CallChangeEvent evt)
             {
                 // we are interested only in CALL_STATE_CHANGEs
-                if(!evt.getEventType().equals(CallChangeEvent.CALL_STATE_CHANGE))
+                if(evt != null && !evt.getEventType()
+                    .equals(CallChangeEvent.CALL_STATE_CHANGE))
                     return;
 
                 if (!done

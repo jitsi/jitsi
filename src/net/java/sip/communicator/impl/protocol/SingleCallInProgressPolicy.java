@@ -257,10 +257,12 @@ public class SingleCallInProgressPolicy
             synchronized (calls)
             {
                 for (Call otherCall : calls)
+                {
                     if (!call.equals(otherCall)
                             && CallState.CALL_IN_PROGRESS
                                     .equals(otherCall.getCallState()))
                         putOnHold(otherCall);
+                }
             }
         }
     }

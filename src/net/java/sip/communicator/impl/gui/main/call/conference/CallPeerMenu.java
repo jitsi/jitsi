@@ -82,18 +82,6 @@ public class CallPeerMenu
         this.add(holdMenuItem);
         this.add(muteMenuItem);
 
-        this.addItem(
-            GuiActivator.getResources().getI18NString(
-                "service.gui.TRANSFER_BUTTON_TOOL_TIP"),
-            null,
-            new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    CallManager.transferCall(callPeer);
-                }
-            });
-
         // Add the call peer listener that would notify us for call peer state
         // changes. We'll be using these notifications in order to update the
         // hold menu item state.

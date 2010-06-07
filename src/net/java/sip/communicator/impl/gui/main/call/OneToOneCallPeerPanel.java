@@ -141,6 +141,8 @@ public class OneToOneCallPeerPanel
         this.callPeer = callPeer;
         this.peerName = callPeer.getDisplayName();
 
+        this.setPeerImage(CallManager.getPeerImage(callPeer));
+
         /* Create the main Components of the UI. */
         nameLabel.setText(peerName);
         nameLabel.setAlignmentX(JLabel.CENTER);
@@ -798,17 +800,20 @@ public class OneToOneCallPeerPanel
     /**
      * Set the image of the peer
      *
-     * @param peerImage new image
+     * @param image new image
      */
-    public void setPeerImage(ImageIcon peerImage)
+    public void setPeerImage(byte[] image)
     {
-        this.peerImage = peerImage;
+        if (image == null || image.length <= 0)
+            return;
 
-        peerImage = getPhotoLabelIcon();
+        this.peerImage = ImageUtils.getScaledRoundedIcon(image, 100, 100);
+
+        this.peerImage = getPhotoLabelIcon();
         synchronized (videoContainers)
         {
             for (JLabel photoLabel : photoLabels)
-                photoLabel.setIcon(peerImage);
+                photoLabel.setIcon(this.peerImage);
         }
     }
 

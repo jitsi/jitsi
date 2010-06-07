@@ -64,6 +64,8 @@ public class LoginManager
         SecurityAuthorityImpl secAuth = new SecurityAuthorityImpl(mainFrame,
             protocolProvider);
 
+        mainFrame.getAccountStatusPanel().startConnecting(protocolProvider);
+
         new RegisterProvider(protocolProvider, secAuth).start();
     }
 
@@ -135,6 +137,17 @@ public class LoginManager
         if (logger.isTraceEnabled())
             logger.trace("Protocol provider: " + protocolProvider
             + " changed its state to: " + evt.getNewState().getStateName());
+
+        if (newState.equals(RegistrationState.REGISTERED)
+            || newState.equals(RegistrationState.UNREGISTERED)
+            || newState.equals(RegistrationState.EXPIRED)
+            || newState.equals(RegistrationState.AUTHENTICATION_FAILED)
+            || newState.equals(RegistrationState.CONNECTION_FAILED)
+            || newState.equals(RegistrationState.CHALLENGED_FOR_AUTHENTICATION)
+            || newState.equals(RegistrationState.REGISTERED))
+        {
+            mainFrame.getAccountStatusPanel().stopConnecting(protocolProvider);
+        }
 
         if (newState.equals(RegistrationState.REGISTERED))
         {

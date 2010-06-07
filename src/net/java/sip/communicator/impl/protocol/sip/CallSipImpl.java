@@ -267,6 +267,10 @@ public class CallSipImpl
         {
             setCallState(CallState.CALL_IN_PROGRESS);
         }
+        else if (CallPeerState.REFERRED.equals(newState))
+        {
+            setCallState(CallState.CALL_REFERRED);
+        }
     }
 
     /**

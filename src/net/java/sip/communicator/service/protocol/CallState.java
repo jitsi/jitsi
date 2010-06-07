@@ -68,6 +68,20 @@ public class CallState
     public static final CallState CALL_ENDED = new CallState(_CALL_ENDED);
 
     /**
+     * This constant containing a String representation of the CALL_REFERED
+     * state.
+     * <p>
+     * This constant has the String value "Referred".
+     */
+    public static final String _CALL_REFERRED = "Refered";
+
+    /**
+     * This constant value indicates that the associated call is currently
+     * referred.
+     */
+    public static final CallState CALL_REFERRED = new CallState(_CALL_REFERRED);
+
+    /**
      * A string representation of this Call State. Could be
      * _CALL_INITIALIZATION, _CALL_IN_PROGRESS, _CALL_ENDED.
      */
