@@ -52,7 +52,7 @@ public class OneChoiceInviteDialog
     /**
      * The contact list.
      */
-    private final DefaultContactList contactList = new DefaultContactList();
+    private DefaultContactList contactList;
 
     /**
      * The contact list model.
@@ -134,7 +134,8 @@ public class OneChoiceInviteDialog
             public void focusGained(FocusEvent e)
             {
                 contactList.removeSelectionInterval(
-                    0, contactList.getMaxSelectionIndex());
+                    contactList.getMinSelectionIndex(),
+                    contactList.getMaxSelectionIndex());
             }
         });
 
@@ -275,7 +276,7 @@ public class OneChoiceInviteDialog
      */
     private Component createContactListComponent()
     {
-        final DefaultContactList contactList = new DefaultContactList();
+        contactList = new DefaultContactList();
 
         contactList.setModel(contactListModel);
 
