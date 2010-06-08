@@ -26,47 +26,116 @@ public class ConfigurationManager
      */
     private static boolean autoPopupNewMessage = false;
 
+    /**
+     * The send message command. ENTER ou Ctrl-ENTER
+     */
     private static String sendMessageCommand;
 
+    /**
+     * Indicates if the call panel is shown.
+     */
     private static boolean isCallPanelShown = true;
 
+    /**
+     * Indicates if the offline contacts are shown.
+     */
     private static boolean isShowOffline = true;
 
+    /**
+     * Indicates if the application main window is visible by default.
+     */
     private static boolean isApplicationVisible = true;
 
+    /**
+     * Indicates if the quit warning should be shown.
+     */
     private static boolean isQuitWarningShown = true;
 
+    /**
+     * Indicates if typing notifications should be sent.
+     */
     private static boolean isSendTypingNotifications;
 
+    /**
+     * Indicates if confirmation should be requested before really moving a
+     * contact.
+     */
     private static boolean isMoveContactConfirmationRequested = true;
 
+    /**
+     * Indicates if tabs in chat window are enabled.
+     */
     private static boolean isMultiChatWindowEnabled;
 
+    /**
+     * Indicates if history logging is enabled.
+     */
     private static boolean isHistoryLoggingEnabled;
 
+    /**
+     * Indicates if the history should be shown in the chat window.
+     */
     private static boolean isHistoryShown;
 
+    /**
+     * The size of the chat history to show in chat window.
+     */
     private static int chatHistorySize;
 
+    /**
+     * The size of the chat write area.
+     */
     private static int chatWriteAreaSize;
 
+    /**
+     * The transparency of the window.
+     */
     private static int windowTransparency;
 
+    /**
+     * Indicates if transparency is enabled.
+     */
     private static boolean isTransparentWindowEnabled;
 
+    /**
+     * Indicates if the window is decorated.
+     */
     private static boolean isWindowDecorated;
 
+    /**
+     * Indicates if the chat tool bar is visible.
+     */
     private static boolean isChatToolbarVisible;
 
+    /**
+     * Indicates if the chat style bar is visible.
+     */
     private static boolean isChatStylebarVisible;
 
+    /**
+     * Indicates if the smileys are shown.
+     */
+    private static boolean isShowSmileys;
+
+    /**
+     * The last directory used in file transfer.
+     */
     private static String sendFileLastDir;
 
+    /**
+     * The configuration service.
+     */
     private static ConfigurationService configService
         = GuiActivator.getConfigurationService();
 
+    /**
+     * The parent of the last contact.
+     */
     private static String lastContactParent = null;
 
+    /**
+     * The last conference call provider.
+     */
     private static ProtocolProviderService lastCallConferenceProvider = null;
 
     /**
@@ -322,6 +391,12 @@ public class ConfigurationManager
                 "net.java.sip.communicator.impl.gui.chat.ChatWindow.showStylebar",
                 true);
 
+        // Load the "isShowSmileys" property
+        isShowSmileys
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.chat.ChatWindow.showSmileys",
+                true);
+
         // Load the "lastContactParent" property.
         lastContactParent = configService.getString(
             "net.java.sip.communicator.impl.gui.addcontact.lastContactParent");
@@ -484,6 +559,17 @@ public class ConfigurationManager
     public static boolean isChatStylebarVisible()
     {
         return isChatStylebarVisible;
+    }
+
+    /**
+     * Returns <code>true</code> if the "isShowSmileys" property is
+     * true, otherwise - returns <code>false</code>..
+     * @return <code>true</code> if the "isShowSmileys" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isShowSmileys()
+    {
+        return isShowSmileys;
     }
 
     /**
@@ -747,7 +833,22 @@ public class ConfigurationManager
                 "net.java.sip.communicator.impl.gui.chat.ChatWindow.showToolbar",
                 Boolean.toString(isChatToolbarVisible));
     }
-    
+
+    /**
+     * Updates the "isShowSmileys" property through the
+     * <tt>ConfigurationService</tt>.
+     * 
+     * @param isVisible indicates if the smileys are visible
+     */
+    public static void setShowSmileys(boolean isVisible)
+    {
+        isShowSmileys = isVisible;
+
+        configService.setProperty(
+                "net.java.sip.communicator.impl.gui.chat.ChatWindow.showSmileys",
+                Boolean.toString(isShowSmileys));
+    }
+
     /**
      * Updates the "isChatStylebarVisible" property through the
      * <tt>ConfigurationService</tt>.

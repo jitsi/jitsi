@@ -218,11 +218,11 @@ public class ChatWindow
     public void setStylebarVisible(boolean b)
     {
         ChatPanel p = this.getCurrentChatPanel();
-        
+
         // Set the value for the current chat panel
         if (p != null)
             p.setStylebarVisible(b);
-        
+
         // if there is tabs, set it for all
         for (int i = 0, imax = this.getChatTabCount(); i < imax; i++)
         {

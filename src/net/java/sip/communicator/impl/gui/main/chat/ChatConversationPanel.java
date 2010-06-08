@@ -703,7 +703,10 @@ public class ChatConversationPanel
             message = processImgTags(processBrTags(message));
         }
 
-        return processSmileys(message, contentType);
+        if (ConfigurationManager.isShowSmileys())
+            message = processSmileys(message, contentType);
+
+        return message;
     }
 
     /**
