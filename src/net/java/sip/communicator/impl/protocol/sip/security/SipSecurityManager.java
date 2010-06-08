@@ -121,11 +121,25 @@ public class SipSecurityManager
         Request reoriginatedRequest = cloneReqForAuthentication(
                                             challengedRequest, challenge);
 
+        //rfc 3261 says that the cseq header should be augmented for the new
+        //request. do it here so that the new dialog (created together with
+        //the new client transaction) takes it into account.
+        //Bug report - Fredrik Wickstrom
+        incrementRequestSeqNo(reoriginatedRequest);
+
         ListIterator<WWWAuthenticateHeader> authHeaders
             = extractChallenges(challenge);
 
         ClientTransaction retryTran =
             transactionCreator.getNewClientTransaction(reoriginatedRequest);
+
+        // We have previously incremented the request sequence number and we
+        // want to make sure that the dialog (if it exists) has its local
+        // sequence number also incremented.
+        Dialog tranDialog = retryTran.getDialog();
+        if (tranDialog != null && tranDialog.getLocalSeqNumber()
+                != getRequestSeqNo(reoriginatedRequest))
+            tranDialog.incrementLocalSequenceNumber();
 
         //obtain authentication credentials for all authentication challenges.
         while (authHeaders.hasNext())
@@ -326,13 +340,22 @@ public class SipSecurityManager
         //request and remove the authorization headers.
         List<String> realms = removeAuthHeaders(reoriginatedRequest);
 
-        //increment cseq (as per 3261)
-        CSeqHeader cSeq =
-            (CSeqHeader) reoriginatedRequest.getHeader( (CSeqHeader.NAME));
-        cSeq.setSeqNumber(cSeq.getSeqNumber() + 1l);
+        //rfc 3261 says that the cseq header should be augmented for the new
+        //request. do it here so that the new dialog (created together with
+        //the new client transaction) takes it into account.
+        //Bug report - Fredrik Wickstrom
+        incrementRequestSeqNo(reoriginatedRequest);
 
         ClientTransaction retryTran =
             transactionCreator.getNewClientTransaction(reoriginatedRequest);
+
+        // We have previously incremented the request sequence number and we
+        // want to make sure that the dialog (if it exists) has its local
+        // sequence number also incremented.
+        Dialog tranDialog = retryTran.getDialog();
+        if (tranDialog != null && tranDialog.getLocalSeqNumber()
+                != getRequestSeqNo(reoriginatedRequest))
+            tranDialog.incrementLocalSequenceNumber();
 
         //create a credentials entry with an empty password so that we can
         //store the transaction and when we get the next challenge notify the
@@ -414,13 +437,9 @@ public class SipSecurityManager
      *
      * @return the list of authentication challenge headers that we'd need to
      * reply to.
-     *
-     * @throws InvalidArgumentException if we fail to increase the value of the
-     * cseq header.
      */
     private Request cloneReqForAuthentication( Request  challengedRequest,
                                                Response challenge)
-        throws InvalidArgumentException
     {
         Request reoriginatedRequest = (Request) challengedRequest.clone();
 
@@ -439,14 +458,6 @@ public class SipSecurityManager
         {
             reoriginatedRequest.removeHeader(ProxyAuthorizationHeader.NAME);
         }
-
-        //rfc 3261 says that the cseq header should be augmented for the new
-        //request. do it here so that the new dialog (created together with
-        //the new client transaction) takes it into account.
-        //Bug report - Fredrik Wickstrom
-        CSeqHeader cSeq =
-            (CSeqHeader) reoriginatedRequest.getHeader(CSeqHeader.NAME);
-        cSeq.setSeqNumber(cSeq.getSeqNumber() + 1l);
 
         return reoriginatedRequest;
     }
@@ -717,5 +728,33 @@ public class SipSecurityManager
     public AuthorizationHeader getCachedAuthorizationHeader(String callID)
     {
         return this.cachedCredentials.getCachedAuthorizationHeader(callID);
+    }
+
+    /**
+     * Increments the given <tt>request</tt> sequence number.
+     * @param request the <tt>Request</tt>, which sequence number we would like
+     * to increment
+     *
+     * @throws InvalidArgumentException if we fail to increase the value of the
+     * cSeq header.
+     */
+    private void incrementRequestSeqNo(Request request)
+        throws InvalidArgumentException
+    {
+        CSeqHeader cSeq = (CSeqHeader) request.getHeader(CSeqHeader.NAME);
+
+        cSeq.setSeqNumber(cSeq.getSeqNumber() + 1l);
+    }
+
+    /**
+     * Returns the request sequence number.
+     * @param request the <tt>Request</tt>, for which we're returning a sequence
+     * number
+     * @return the sequence number of the given request
+     */
+    private long getRequestSeqNo(Request request)
+    {
+        CSeqHeader cSeq = (CSeqHeader) request.getHeader(CSeqHeader.NAME);
+        return cSeq.getSeqNumber();
     }
 }
