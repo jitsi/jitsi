@@ -1238,7 +1238,8 @@ public class OperationSetBasicTelephonySipImpl
             return false;
         }
 
-        if (SubscriptionStateHeader.TERMINATED.equals(ssHeader.getState())
+        if (SubscriptionStateHeader.TERMINATED
+                .equalsIgnoreCase(ssHeader.getState())
             && !EventPackageUtils
                 .removeSubscriptionThenIsDialogAlive(dialog, "refer"))
         {
