@@ -522,6 +522,13 @@ public class EncodingConfiguration
         Integer pref2 = encodingPreferences.get(enc2);
         int pref2IntValue = (pref2 == null) ? 0 : pref2;
 
-        return pref2IntValue - pref1IntValue;
+        int res = pref2IntValue - pref1IntValue;
+
+        // if the encodings are with same priority
+        // compare them by name, if we return equals TreeSet wont add
+        // equal encodings
+        if(res == 0)
+            return enc1.getEncoding().compareTo(enc2.getEncoding());
+        return res;
     }
 }
