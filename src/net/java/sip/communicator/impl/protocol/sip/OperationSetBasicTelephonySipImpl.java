@@ -1631,7 +1631,7 @@ public class OperationSetBasicTelephonySipImpl
         try
         {
             sipURI.setHeader(ReplacesHeader.NAME,
-                    URLEncoder.encode(replacesHeader.encodeBody(), "UTF-8"));
+                    URLEncoder.encode(replacesHeader.encode(), "UTF-8"));
         }
         catch (Exception ex)
         {
