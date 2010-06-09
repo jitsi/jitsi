@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
@@ -38,6 +39,8 @@ public class TransferCallDialog
             .getI18NString("service.gui.TRANSFER_CALL_MSG"));
         this.setOkButtonText(GuiActivator.getResources()
             .getI18NString("service.gui.TRANSFER"));
+
+        this.setMinimumSize(new Dimension(300, 300));
 
         addOkButtonListener(new ActionListener()
         {
