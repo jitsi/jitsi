@@ -1,7 +1,6 @@
 package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
-import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 

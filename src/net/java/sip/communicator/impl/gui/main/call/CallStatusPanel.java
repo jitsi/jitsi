@@ -7,7 +7,8 @@ import javax.swing.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * Represents the background status panel of a peer
+ * Represents the background status panel of a peer.
+ * @author Yana Stamcheva
  */
 public class CallStatusPanel
     extends TransparentPanel
@@ -19,6 +20,11 @@ public class CallStatusPanel
      */
     private static final long serialVersionUID = 0L;
 
+    /**
+     * Creates a <tt>CallStatusPanel</tt> by specifying a layout manager.
+     * @param layout the <tt>LayoutManager</tt>, which would handle laying out
+     * components
+     */
     public CallStatusPanel(LayoutManager layout)
     {
         super(layout);
@@ -26,6 +32,10 @@ public class CallStatusPanel
         this.setBackground(Color.WHITE);
     }
 
+    /**
+     * Custom paint for the call status panel.
+     * @param g the <tt>Graphics</tt> object
+     */
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);

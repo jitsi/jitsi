@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import javax.swing.*;
-
 /**
  * The <tt>CallPeerRenderer</tt> interface is meant to be implemented by
  * different renderers of <tt>CallPeer</tt>s. Through this interface they would
