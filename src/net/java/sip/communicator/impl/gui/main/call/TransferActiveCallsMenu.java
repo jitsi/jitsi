@@ -38,16 +38,16 @@ public class TransferActiveCallsMenu
     /**
      * Creates an instance of the <tt>TransferActiveCallsMenu</tt>.
      * @param invoker the invoker component
-     * @param initialPeer the initial peer we're aiming to transfer
+     * @param peer the initial peer we're aiming to transfer
      * @param callPeers a list of all possible call peers to transfer to
      */
     public TransferActiveCallsMenu(
         JComponent invoker,
-        CallPeer initialPeer,
+        CallPeer peer,
         Collection<CallPeer> callPeers)
     {
         this.invoker = invoker;
-        this.initialPeer = initialPeer;
+        this.initialPeer = peer;
 
         this.init();
 
@@ -55,6 +55,24 @@ public class TransferActiveCallsMenu
         {
             this.addCallPeerItem(callPeer);
         }
+
+        this.addSeparator();
+
+        // At the end add the possibility to transfer to anyone
+        // (Unattended transfer).
+        JMenuItem transferToMenuItem = new JMenuItem(
+            GuiActivator.getResources()
+                .getI18NString("service.gui.TRANSFER_TO"));
+
+        transferToMenuItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                CallManager.openCallTransferDialog(initialPeer);
+            }
+        });
+
+        this.add(transferToMenuItem);
     }
 
     /**

@@ -142,10 +142,6 @@ public class ConferencePeerPanel
 
         this.setPeerName(callPeer.getDisplayName());
 
-        // If we have any members we switch to the focus UI.
-        if (callPeer.getConferenceMemberCount() > 0)
-            setFocusUI(true);
-
         // We initialize the status bar for call peers only.
         this.initStatusBar(callPeer);
 
@@ -357,6 +353,28 @@ public class ConferencePeerPanel
      */
     private void addConferenceMemberPanel(ConferenceMember member)
     {
+        String localUserAddress
+            = callPeer.getProtocolProvider().getAccountID().getAccountAddress();
+
+        boolean isLocalMember
+            = addressesAreEqual(member.getAddress(), localUserAddress);
+
+        // We don't want to add the local member to the list of members.
+        if (isLocalMember)
+            return;
+
+        // If we're not in a focus UI, when a new member is added we
+        // switch to it.
+        if (!isFocusUI())
+            setFocusUI(true);
+
+        // If this is the only call peer we switch to the single focus user
+        // interface.
+        if (callPeer.getCall().getCallPeerCount() > 1)
+            setSingleFocusUI(false);
+        else
+            setSingleFocusUI(true);
+
         // It's already there.
         if (conferenceMembersPanels.containsKey(member))
             return;
@@ -418,26 +436,7 @@ public class ConferencePeerPanel
      */
     public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
     {
-        ConferenceMember member = conferenceEvent.getConferenceMember();
-        String memberAddress = member.getAddress();
-        String localUserAddress
-            = callPeer.getProtocolProvider().getAccountID().getAccountAddress();
-
-        // If we're not in a focus UI, when a new member is added we switch to it.
-        if (!isFocusUI() && !addressesAreEqual(memberAddress, localUserAddress))
-            setFocusUI(true);
-
-        if (conferenceEvent.getSourceCallPeer().getCall().getCallPeerCount() > 1)
-            setSingleFocusUI(false);
-        else
-            setSingleFocusUI(true);
-
-        /*
-         * The local user isn't depicted by this ConferencePeerPanel and its
-         * ConferenceMemberPanels.
-         */
-        if (!addressesAreEqual(memberAddress, localUserAddress))
-            addConferenceMemberPanel(member);
+        addConferenceMemberPanel(conferenceEvent.getConferenceMember());
 
         callDialog.refreshWindow();
     }

@@ -512,6 +512,56 @@ public class CallManager
     }
 
     /**
+     * Opens a call transfer dialog to transfer the given <tt>peer</tt>.
+     * @param peer the <tt>CallPeer</tt> to transfer
+     */
+    public static void openCallTransferDialog(CallPeer peer)
+    {
+        final TransferCallDialog dialog
+            = new TransferCallDialog(peer);
+
+        final Call call = peer.getCall();
+
+        /*
+         * Transferring a call works only when the call is in progress
+         * so close the dialog (if it's not already closed, of course)
+         * once the dialog ends.
+         */
+        CallChangeListener callChangeListener = new CallChangeAdapter()
+        {
+            /*
+             * Implements
+             * CallChangeAdapter#callStateChanged(CallChangeEvent).
+             */
+            public void callStateChanged(CallChangeEvent evt)
+            {
+                // we are interested only in CALL_STATE_CHANGEs
+                if(!evt.getEventType().equals(
+                        CallChangeEvent.CALL_STATE_CHANGE))
+                    return;
+
+                if (!CallState.CALL_IN_PROGRESS.equals(call
+                    .getCallState()))
+                {
+                    dialog.setVisible(false);
+                    dialog.dispose();
+                }
+            }
+        };
+        call.addCallChangeListener(callChangeListener);
+        try
+        {
+            dialog.setModal(true);
+            dialog.pack();
+            dialog.setVisible(true);
+        }
+        finally
+        {
+            call.removeCallChangeListener(callChangeListener);
+        }
+    }
+
+    /**
      * Creates a call from a given Contact or a given String.
      */
     private static class CreateCallThread
