@@ -98,8 +98,8 @@ public class ReconnectPluginActivator
      * way to differ our unregister calls from calls coming from user, wanting
      * to stop all reconnects.
      */
-    private List<ProtocolProviderService> unregisteredProviders
-        = new ArrayList<ProtocolProviderService>();
+    private Set<ProtocolProviderService> unregisteredProviders
+        = new HashSet<ProtocolProviderService>();
 
     /**
      * A list of currently connected interfaces. If empty network is down.
@@ -325,10 +325,6 @@ public class ReconnectPluginActivator
 
         Object sService = bundleContext.getService(serviceRef);
 
-        if (logger.isTraceEnabled())
-            logger.trace("Received a service event for: " +
-            sService.getClass().getName());
-
         if(sService instanceof NetworkAddressManagerService)
         {
             switch (serviceEvent.getType())
@@ -355,8 +351,6 @@ public class ReconnectPluginActivator
         if (!(sService instanceof ProtocolProviderService))
             return;
 
-        if (logger.isDebugEnabled())
-            logger.debug("Service is a protocol provider.");
         switch (serviceEvent.getType())
         {
         case ServiceEvent.REGISTERED:
@@ -438,8 +432,7 @@ public class ReconnectPluginActivator
                     {
                         // now lets cancel it and schedule it again
                         // so it will use this iface
-                        currentlyReconnecting.get(pp).cancel();
-                        currentlyReconnecting.remove(pp);
+                        currentlyReconnecting.remove(pp).cancel();
                     }
 
                     reconnect(pp);
@@ -473,8 +466,7 @@ public class ReconnectPluginActivator
                         // schedule it again
                         if(currentlyReconnecting.containsKey(pp))
                         {
-                            currentlyReconnecting.get(pp).cancel();
-                            currentlyReconnecting.remove(pp);
+                            currentlyReconnecting.remove(pp).cancel();
                         }
 
                         reconnect(pp);
@@ -493,6 +485,13 @@ public class ReconnectPluginActivator
                     ProtocolProviderService pp = iter.next();
                     try
                     {
+                        // if provider is scheduled for reconnect,
+                        // cancel it there is no network
+                        if(currentlyReconnecting.containsKey(pp))
+                        {
+                            currentlyReconnecting.remove(pp).cancel();
+                        }
+
                         unregisteredProviders.add(pp);
                         pp.unregister();
                     } catch (Exception e)
@@ -508,6 +507,29 @@ public class ReconnectPluginActivator
                 notify("", "plugin.reconnectplugin.NETWORK_DOWN", new String[0]);
             }
         }
+        
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("Event received " + event
+                    + " src=" + event.getSource());
+            traceCurrentPPState();
+        }
+    }
+
+    /**
+     * Trace prints of current status of the lists with protocol providers,
+     * that are currently in interest of the reconnect plugin.
+     */
+    private void traceCurrentPPState()
+    {
+        logger.trace("connectedInterfaces: " + connectedInterfaces);
+        logger.trace("autoReconnEnabledProviders: "
+            + autoReconnEnabledProviders.keySet());
+        logger.trace("currentlyReconnecting: "
+            + currentlyReconnecting.keySet());
+        logger.trace("needsReconnection: " + needsReconnection);
+        logger.trace("unregisteredProviders: " + unregisteredProviders);
+        logger.trace("----");
     }
 
     /**
@@ -567,7 +589,12 @@ public class ReconnectPluginActivator
                 return;
 
             if(connectedInterfaces.size() == 0)
+            {
                 needsReconnection.add(pp);
+                
+                if(currentlyReconnecting.containsKey(pp))
+                    currentlyReconnecting.remove(pp).cancel();
+            }
             else
             {
                 // network is up but something happen and cannot reconnect
@@ -578,6 +605,12 @@ public class ReconnectPluginActivator
             // unregister can finish and with connection failed,
             // the protocol is unable to unregister
             unregisteredProviders.remove(pp);
+
+            if(logger.isTraceEnabled())
+            {
+                logger.trace("Got Connection Failed for " + pp);
+                traceCurrentPPState();
+            }
         }
         else if(evt.getNewState().equals(RegistrationState.REGISTERED))
         {
@@ -590,7 +623,14 @@ public class ReconnectPluginActivator
                 pp,
                 new ArrayList<String>(connectedInterfaces));
 
-            currentlyReconnecting.remove(pp);
+            if(currentlyReconnecting.containsKey(pp))
+                currentlyReconnecting.remove(pp).cancel();
+
+            if(logger.isTraceEnabled())
+            {
+                logger.trace("Got Registered for " + pp);
+                traceCurrentPPState();
+            }
         }
         else if(evt.getNewState().equals(RegistrationState.UNREGISTERED))
         {
@@ -602,6 +642,12 @@ public class ReconnectPluginActivator
                 currentlyReconnecting.remove(pp).cancel();
             }
             unregisteredProviders.remove(pp);
+
+            if(logger.isTraceEnabled())
+            {
+                logger.trace("Got Unregistered for " + pp);
+                traceCurrentPPState();
+            }
         }
     }
 
