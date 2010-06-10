@@ -11,6 +11,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * The <tt>GroupNode</tt> is a <tt>ContactListNode</tt> corresponding to a
  * given <tt>UIGroup</tt>.
@@ -21,6 +23,11 @@ public class GroupNode
     extends DefaultMutableTreeNode
     implements  ContactListNode
 {
+    /**
+     * The Group node logger.
+     */
+    private final Logger logger = Logger.getLogger(GroupNode.class);
+
     /**
      * The parent contact list model.
      */
@@ -67,6 +74,10 @@ public class GroupNode
      */
     public ContactNode addContact(UIContact uiContact)
     {
+        if (logger.isDebugEnabled())
+            logger.debug("Group node add contact: "
+                    + uiContact.getDisplayName());
+
         ContactNode contactNode = new ContactNode(uiContact);
         uiContact.setContactNode(contactNode);
 
@@ -89,6 +100,10 @@ public class GroupNode
     @SuppressWarnings("unchecked")
     public ContactNode sortedAddContact(UIContact uiContact)
     {
+        if (logger.isDebugEnabled())
+            logger.debug("Group node sorted add contact: "
+                    + uiContact.getDisplayName());
+
         ContactNode contactNode = new ContactNode(uiContact);
         uiContact.setContactNode(contactNode);
 
