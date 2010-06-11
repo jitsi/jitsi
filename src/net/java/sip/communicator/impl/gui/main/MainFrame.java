@@ -1605,6 +1605,7 @@ public class MainFrame
             }
 
             if (!searchField.isFocusOwner()
+                && keyManager.getFocusOwner() != null
                 && keyManager.getFocusOwner()
                     .equals(keyManager.getPermanentFocusOwner()))
             {

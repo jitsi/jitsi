@@ -2847,6 +2847,10 @@ public class MetaContactListServiceImpl
 
         parentGroup.addMetaContact(newMetaContact);
 
+        fireMetaContactEvent(   newMetaContact,
+                                parentGroup,
+                                MetaContactEvent.META_CONTACT_ADDED);
+
         if (logger.isTraceEnabled())
             logger.trace("Created meta contact: " + newMetaContact);
     }
