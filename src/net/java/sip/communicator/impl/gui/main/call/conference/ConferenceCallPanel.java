@@ -167,7 +167,7 @@ public class ConferenceCallPanel
         // Add the renderer component to this container.
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridx = 0;
-        constraints.gridy = mainPanel.getComponentCount() + 1;
+        constraints.gridy++;
         constraints.weightx = 1;
         constraints.weighty = 0;
         constraints.insets = new Insets(0, 0, 10, 0);
