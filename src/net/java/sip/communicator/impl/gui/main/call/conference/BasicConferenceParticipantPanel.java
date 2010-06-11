@@ -45,7 +45,7 @@ public class BasicConferenceParticipantPanel
     /**
      * The panel containing the title of the participant.
      */
-    private final JPanel titleBar = new CallTitlePanel(new BorderLayout());
+    private final JPanel titleBar = new CallTitlePanel(new GridBagLayout());
 
     /**
      * The label showing the image of the participant.
@@ -58,10 +58,16 @@ public class BasicConferenceParticipantPanel
     private final JLabel callStatusLabel = new JLabel();
 
     private final JPanel statusBar
-        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        = new TransparentPanel(new GridBagLayout());
+
+    private final GridBagConstraints statusBarConstraints
+        = new GridBagConstraints();
 
     private final JPanel nameBar
-        = new TransparentPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        = new TransparentPanel(new GridBagLayout());
+
+    private final GridBagConstraints nameBarConstraints
+        = new GridBagConstraints();
 
     private final TransparentPanel peerDetailsPanel = new TransparentPanel();
 
@@ -277,7 +283,9 @@ public class BasicConferenceParticipantPanel
      */
     public void addToStatusBar(Component component)
     {
-        this.statusBar.add(component);
+        statusBarConstraints.gridx = statusBarConstraints.gridx + 1;
+        statusBarConstraints.weightx = 0f;
+        this.statusBar.add(component, statusBarConstraints);
     }
 
     /**
@@ -286,7 +294,9 @@ public class BasicConferenceParticipantPanel
      */
     public void addToNameBar(Component component)
     {
-        this.nameBar.add(component);
+        nameBarConstraints.gridx = nameBarConstraints.gridx + 1;
+        nameBarConstraints.weightx = 0f;
+        this.nameBar.add(component, nameBarConstraints);
     }
 
     /**
@@ -315,13 +325,31 @@ public class BasicConferenceParticipantPanel
     {
         titleBar.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
 
-        nameBar.add(nameLabel);
+        nameBar.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+        nameBarConstraints.gridx = 0;
+        nameBarConstraints.gridy = 0;
+        nameBarConstraints.weightx = 1f;
+        nameBar.add(nameLabel, nameBarConstraints);
 
         statusBar.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-        statusBar.add(callStatusLabel);
+        statusBarConstraints.gridx = 0;
+        statusBarConstraints.gridy = 0;
+        statusBarConstraints.weightx = 1f;
+        statusBar.add(callStatusLabel, statusBarConstraints);
 
-        titleBar.add(nameBar, BorderLayout.WEST);
-        titleBar.add(statusBar, BorderLayout.EAST);
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 1f;
+        constraints.anchor = GridBagConstraints.WEST;
+        titleBar.add(nameBar, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        constraints.weightx = 1f;
+        constraints.anchor = GridBagConstraints.EAST;
+        titleBar.add(statusBar, constraints);
     }
 
     /**

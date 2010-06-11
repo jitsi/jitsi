@@ -40,6 +40,8 @@ public class SIPCommMenu
     /**
      * Creates an instance of <tt>SIPCommMenu</tt> by specifying
      * the text and the icon.
+     * @param text the text of the menu
+     * @param defaultIcon the menu icon
      */
     public SIPCommMenu(String text, Icon defaultIcon)
     {
@@ -140,15 +142,16 @@ public class SIPCommMenu
      */
     public void paintComponent(Graphics g)
     {
-        g = g.create();
+        Graphics g2 = g.create();
         try
         {
-            internalPaintComponent(g);
+            internalPaintComponent(g2);
         }
         finally
         {
-            g.dispose();
+            g2.dispose();
         }
+        super.paintComponent(g);
     }
 
     /**
@@ -175,8 +178,6 @@ public class SIPCommMenu
         g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 20, 20);
 
         g.setColor(UIManager.getColor("Menu.foreground"));
-
-        super.paintComponent(g);
     }
 
     /**

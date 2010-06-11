@@ -57,11 +57,13 @@ public class CallPeerMenu
         this.callPeer = peer;
 
         this.setOpaque(false);
-        this.setPreferredSize(new Dimension(20, 20));
 
         // Should explicitly remove any border in order to align correctly the
         // icon.
         this.setBorder(BorderFactory.createEmptyBorder());
+        this.setPreferredSize(new Dimension(16, 16));
+        this.setHorizontalAlignment(SwingConstants.CENTER);
+
         this.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.CALL_PEER_TOOLS)));
         this.setIconTextGap(0);

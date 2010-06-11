@@ -19,8 +19,6 @@ import net.java.sip.communicator.util.swing.plaf.*;
 public class SIPCommMenuBar
     extends JMenuBar
 {
-    private boolean isRollover;
-
     public SIPCommMenuBar()
     {
         this.setBorder(BorderFactory.createEmptyBorder());

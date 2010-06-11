@@ -286,14 +286,26 @@ public class OneToOneCallPeerPanel
         dtmfLabel.setForeground(Color.WHITE);
         callStatusLabel.setText(callPeer.getState().getStateString());
 
-        PeerStatusPanel statusPanel = new PeerStatusPanel(
-                new FlowLayout(FlowLayout.CENTER, 5, 0));
+        PeerStatusPanel statusPanel = new PeerStatusPanel(new GridBagLayout());
 
-        statusPanel.add(securityStatusLabel);
-        statusPanel.add(holdStatusLabel);
-        statusPanel.add(muteStatusLabel);
-        statusPanel.add(callStatusLabel);
-        statusPanel.add(dtmfLabel);
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        statusPanel.add(securityStatusLabel, constraints);
+
+        constraints.gridx++;
+        statusPanel.add(holdStatusLabel, constraints);
+
+        constraints.gridx++;
+        statusPanel.add(muteStatusLabel, constraints);
+
+        constraints.gridx++;
+        statusPanel.add(callStatusLabel, constraints);
+
+        constraints.gridx++;
+        constraints.weightx = 1f;
+        statusPanel.add(dtmfLabel, constraints);
 
         return statusPanel;
     }
