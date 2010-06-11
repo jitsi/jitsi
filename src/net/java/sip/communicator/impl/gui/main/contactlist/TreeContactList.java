@@ -186,8 +186,14 @@ public class TreeContactList
         final MetaContact metaContact = evt.getSourceMetaContact();
         final MetaContactGroup parentGroup = evt.getParentGroup();
 
-        UIContact uiContact
-            = MetaContactListSource.createUIContact(metaContact);
+        UIContact uiContact = MetaContactListSource.getUIContact(metaContact);
+
+        // If there's already an UIContact for this meta contact, we have
+        // nothing to do here.
+        if (uiContact != null)
+            return;
+
+        uiContact = MetaContactListSource.createUIContact(metaContact);
 
         if (currentFilter.isMatching(uiContact))
         {
@@ -217,8 +223,14 @@ public class TreeContactList
     {
         final MetaContactGroup metaGroup = evt.getSourceMetaContactGroup();
 
-        UIGroup uiGroup
-            = MetaContactListSource.createUIGroup(metaGroup);
+        UIGroup uiGroup = MetaContactListSource.getUIGroup(metaGroup);
+
+        // If there's already an UIGroup for this meta contact, we have
+        // nothing to do here.
+        if (uiGroup != null)
+            return;
+
+        uiGroup = MetaContactListSource.createUIGroup(metaGroup);
 
         if (currentFilter.isMatching(uiGroup))
             addGroup(uiGroup, true);
