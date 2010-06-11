@@ -14,6 +14,7 @@ import javax.media.control.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.control.*;
+import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -25,7 +26,8 @@ import net.java.sip.communicator.util.*;
  */
 public class AudioMixingPushBufferDataSource
     extends PushBufferDataSource
-    implements CaptureDevice
+    implements CaptureDevice,
+               MuteDataSource
 {
 
     /**
@@ -60,6 +62,12 @@ public class AudioMixingPushBufferDataSource
      * started.
      */
     private boolean started;
+
+    /**
+     * The indicator which determines whether this <tt>DataSource</tt> is set
+     * to transmit "silence" instead of the actual media.
+     */
+    private boolean mute = false;
 
     /**
      * Initializes a new <tt>AudioMixingPushBufferDataSource</tt> instance which
@@ -328,6 +336,31 @@ public class AudioMixingPushBufferDataSource
             started = false;
             if (outputStream != null)
                 outputStream.stop();
+        }
+    }
+
+    /**
+     * Determines whether this <tt>DataSource</tt> is mute.
+     *
+     * @return <tt>true</tt> if this <tt>DataSource</tt> is mute; otherwise,
+     *         <tt>false</tt>
+     */
+    public boolean isMute()
+    {
+        return this.mute;
+    }
+
+    /**
+     * Sets the mute state of this <tt>DataSource</tt>.
+     *
+     * @param mute <tt>true</tt> to mute this <tt>DataSource</tt>; otherwise,
+     *            <tt>false</tt>
+     */
+    public void setMute(boolean mute)
+    {
+        if (this.mute != mute)
+        {
+            this.mute = mute;
         }
     }
 }

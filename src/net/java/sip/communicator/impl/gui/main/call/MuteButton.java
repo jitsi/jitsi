@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.event.*;
-import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -98,18 +97,9 @@ public class MuteButton
                 = call.getProtocolProvider()
                     .getOperationSet(OperationSetBasicTelephony.class);
 
-            Iterator<? extends CallPeer> peers = call.getCallPeers();
-
             // Obtain the isSelected property before invoking setMute.
             boolean isMuteSelected = isSelected();
-
-            while (peers.hasNext())
-            {
-                CallPeer callPeer = peers.next();
-
-                telephony.setMute(  callPeer,
-                                    isMuteSelected);
-            }
+            telephony.setMute(call, isMuteSelected);
         }
     }
 }

@@ -79,16 +79,19 @@ public class CallPeerMenu
             });
 
         initHoldMenuItem();
-        initMuteMenuItem();
 
         this.add(holdMenuItem);
-        this.add(muteMenuItem);
 
         // Add the call peer listener that would notify us for call peer state
         // changes. We'll be using these notifications in order to update the
         // hold menu item state.
         peer.addCallPeerListener(this);
+
+        /* Disable per peer muting
+        initMuteMenuItem();
+        this.add(muteMenuItem);
         peer.addPropertyChangeListener(this);
+        */
     }
 
     /**

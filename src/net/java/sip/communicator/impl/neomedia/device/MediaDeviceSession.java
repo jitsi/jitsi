@@ -359,21 +359,24 @@ public class MediaDeviceSession
     {
         DataSource captureDevice = getDevice().createOutputDataSource();
 
-        // Try to enable muting.
-        if (captureDevice instanceof PushBufferDataSource)
+        if(!(captureDevice instanceof MuteDataSource))
         {
-            captureDevice
-                = new MutePushBufferDataSource(
-                        (PushBufferDataSource) captureDevice);
+            // Try to enable muting.
+            if (captureDevice instanceof PushBufferDataSource)
+            {
+                captureDevice
+                    = new MutePushBufferDataSource(
+                            (PushBufferDataSource) captureDevice);
+            }
+            else if (captureDevice instanceof PullBufferDataSource)
+            {
+                captureDevice
+                    = new MutePullBufferDataSource(
+                            (PullBufferDataSource) captureDevice);
+            }
         }
-        else if (captureDevice instanceof PullBufferDataSource)
-        {
-            captureDevice
-                = new MutePullBufferDataSource(
-                        (PullBufferDataSource) captureDevice);
-        }
-        if (captureDevice instanceof MuteDataSource)
-            ((MuteDataSource) captureDevice).setMute(mute);
+
+        ((MuteDataSource) captureDevice).setMute(mute);
 
         return captureDevice;
     }

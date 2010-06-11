@@ -122,4 +122,24 @@ public abstract class AbstractOperationSetBasicTelephony
          * this implementation takes inspiration from them.
          */
     }
+
+    /**
+     * Sets the mute state of the <tt>Call</tt>.
+     * <p>
+     * Muting audio streams sent from the call is implementation specific
+     * and one of the possible approaches to it is sending silence.
+     * </p>
+     *
+     * @param call the <tt>Call</tt> whos mute state is set
+     * @param mute <tt>true</tt> to mute the call streams being sent to
+     *            <tt>peers</tt>; otherwise, <tt>false</tt>
+     */
+    public void setMute(Call call, boolean mute)
+    {
+        /*
+         * While throwing UnsupportedOperationException may be a possible
+         * approach, putOnHold/putOffHold just do nothing when not supported so
+         * this implementation takes inspiration from them.
+         */
+    }
 }

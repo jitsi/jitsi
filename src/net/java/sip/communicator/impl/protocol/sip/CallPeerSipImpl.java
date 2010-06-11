@@ -821,6 +821,11 @@ public class CallPeerSipImpl
         if (!CallPeerState.isOnHold(peerState))
         {
             setState(CallPeerState.CONNECTED);
+
+            // as its connected, set initial mute status,
+            // corresponding call status
+            if(isMute() != this.getCall().isMute())
+                setMute(this.getCall().isMute());
         }
     }
 
@@ -937,7 +942,14 @@ public class CallPeerSipImpl
 
         // change status
         if (!CallPeerState.isOnHold(getState()))
+        {
             setState(CallPeerState.CONNECTED);
+
+            // as its connected, set initial mute status, 
+            // corresponding call status
+            if(isMute() != this.getCall().isMute())
+                setMute(this.getCall().isMute());
+        }
 
         fireResponseProcessed(ok, null);
     }

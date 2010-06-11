@@ -80,6 +80,12 @@ public class CallSipImpl
         = new ArrayList<SoundLevelListener>();
 
     /**
+     * The indicator which determines whether this <tt>Call</tt> is set
+     * to transmit "silence" instead of the actual media.
+     */
+    private boolean mute = false;
+
+    /**
      * The listener that would actually subscribe for level events from the
      * media handler if there's at least one listener in
      * <tt>localUserAudioLevelListeners</tt>.
@@ -797,6 +803,37 @@ public class CallSipImpl
         {
             for(SoundLevelListener listener : localUserAudioLevelListeners)
                  listener.soundLevelChanged(evt);
+        }
+    }
+
+    /**
+     * Determines whether this call is mute.
+     *
+     * @return <tt>true</tt> if an audio streams being sent to the call
+     *         peers are currently muted; <tt>false</tt>, otherwise
+     */
+    public boolean isMute()
+    {
+        return this.mute;
+    }
+
+    /**
+     * Sets the mute property for this call.
+     *
+     * @param newMuteValue the new value of the mute property for this call
+     */
+    public void setMute(boolean newMuteValue)
+    {
+        if (this.mute != newMuteValue)
+        {
+            this.mute = newMuteValue;
+
+            Iterator<CallPeerSipImpl> peers = getCallPeers();
+            while (peers.hasNext())
+            {
+                CallPeerSipImpl peer = peers.next();
+                peer.setMute(newMuteValue);
+            }
         }
     }
 }

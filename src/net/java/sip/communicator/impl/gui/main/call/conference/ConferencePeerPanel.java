@@ -138,6 +138,8 @@ public class ConferencePeerPanel
         this.callDialog = callDialog;
         this.callPeer = callPeer;
 
+        this.setMute(callPeer.isMute());
+
         this.setPeerImage(CallManager.getPeerImage(callPeer));
 
         this.setPeerName(callPeer.getDisplayName());

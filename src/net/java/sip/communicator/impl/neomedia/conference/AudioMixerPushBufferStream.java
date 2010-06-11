@@ -861,6 +861,14 @@ class AudioMixerPushBufferStream
 
             if (outputDataSource.equals(inputStreamDesc.getOutputDataSource()))
                 inputSamples[i] = null;
+            else if(outputDataSource.isMute())
+            {
+                if(inputStreamDesc.inputDataSourceDesc.inputDataSource
+                   == audioMixer.captureDevice)
+                {
+                    inputSamples[i] = null;
+                }
+            }
         }
 
         outputStream

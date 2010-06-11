@@ -1534,6 +1534,25 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
+     * Sets the mute state of the <tt>Call</tt>.
+     * <p>
+     * Muting audio streams sent from the call is implementation specific
+     * and one of the possible approaches to it is sending silence.
+     * </p>
+     *
+     * @param call the <tt>Call</tt> whos mute state is set
+     * @param mute <tt>true</tt> to mute the call streams being sent to
+     *            <tt>peers</tt>; otherwise, <tt>false</tt>
+     */
+    @Override
+    public void setMute(Call call, boolean mute)
+    {
+        CallSipImpl sipCall = (CallSipImpl)call;
+
+        sipCall.setMute(mute);
+    }
+
+    /**
      * Returns <tt>true</tt> to indicate that the call associated with the
      * given peer is secured, otherwise returns <tt>false</tt>.
      *
