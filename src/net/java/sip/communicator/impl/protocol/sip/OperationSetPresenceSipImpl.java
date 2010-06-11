@@ -2771,7 +2771,7 @@ public class OperationSetPresenceSipImpl
                    return;
                }
 
-               // send a subscription for every contact
+               // send a subscription for every contact in the subgroups
                Iterator<ContactGroup> groupsIter
                    = getServerStoredContactListRoot().subgroups();
                while (groupsIter.hasNext())
@@ -2795,6 +2795,26 @@ public class OperationSetPresenceSipImpl
                        // try to subscribe to this contact
                        forcePollContact(contact);
                    }
+               }
+
+               // send a subscription for every contact in root group
+               Iterator<Contact> rootContactsIter
+                   = getServerStoredContactListRoot().contacts();
+               while (rootContactsIter.hasNext())
+               {
+                   ContactSipImpl contact
+                       = (ContactSipImpl) rootContactsIter.next();
+
+                   if (contact.isResolved())
+                   {
+                       if (logger.isDebugEnabled())
+                           logger.debug("contact " + contact
+                                   + " already resolved");
+                       continue;
+                   }
+
+                   // try to subscribe to this contact
+                   forcePollContact(contact);
                }
 
                // create the new polling task
