@@ -171,6 +171,14 @@ public class ContactYahooImpl
         {
             if(retrieveIfNecessary)
             {
+                if(ssclCallback.getParentProvider() == null
+                    || !ssclCallback.getParentProvider().isRegistered())
+                {
+                    throw new IllegalStateException(
+                        "The provider must be signed on the service before "
+                        +"being able to communicate.");
+                }
+
                 YahooSession ses = ssclCallback.getParentProvider().
                     getYahooSession();
                 if(image == null && ses != null)
