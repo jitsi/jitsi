@@ -40,6 +40,12 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     private DSCaptureDevice device = null;
 
     /**
+     * Delegate grabber. Each frame captured by device
+     * will be pass through this grabber.
+     */
+    private DSCaptureDevice.GrabberDelegate grabber = null;
+
+    /**
      * DirectShow manager.
      */
     private DSManager manager = null;
@@ -112,7 +118,11 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     public void setLocator(MediaLocator locator)
     {
         DSCaptureDevice device = null;
-        super.setLocator(locator);
+
+        if(getLocator() == null)
+        {
+            super.setLocator(locator);
+        }
 
         locator = getLocator();
 
@@ -186,7 +196,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         }
         */
 
-        device.setDelegate(stream.grabber);
+        grabber = stream.grabber;
         return stream;
     }
 
@@ -320,6 +330,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         if(manager == null)
         {
             manager = DSManager.getInstance();
+            setLocator(getLocator());
         }
         super.doConnect();
     }
@@ -361,6 +372,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
             logger.info("start");
         /* open and start capture */
         device.open();
+        device.setDelegate(grabber);
         super.doStart();
     }
 
