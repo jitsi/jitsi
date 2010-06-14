@@ -183,7 +183,7 @@ public class SpeexResampler
             int sampleSizeInBytes = inputAudioFormat.getSampleSizeInBits() / 8;
             int inputSampleCount = inputLength / sampleSizeInBytes;
             int outputLength
-                = (int) ((inputLength * outputSampleRate) / inputSampleRate);
+                = (inputLength * outputSampleRate) / inputSampleRate;
             byte[] output = validateByteArraySize(outputBuffer, outputLength);
             int outputSampleCount = outputLength / sampleSizeInBytes;
 
