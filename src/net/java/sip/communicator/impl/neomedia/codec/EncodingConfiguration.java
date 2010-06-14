@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 
 import javax.media.*;
+import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
@@ -45,6 +46,9 @@ public class EncodingConfiguration
      */
     public static final boolean G729 = false;
 
+    private static final String SPEEX_RESAMPLER
+        = "net.java.sip.communicator.impl.neomedia.codec.audio.speex.SpeexResampler";
+
     private static final String[] CUSTOM_CODECS =
         {
             FMJConditionals.FMJ_CODECS
@@ -65,6 +69,9 @@ public class EncodingConfiguration
             "net.java.sip.communicator.impl.neomedia.codec.video.h264.Packetizer",
             //"net.java.sip.communicator.impl.neomedia.codec.video.ImageScaler",
             "net.java.sip.communicator.impl.neomedia.codec.video.SwScaler",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JNIEncoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JNIDecoder",
+            SPEEX_RESAMPLER,
             "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JavaEncoder",
             "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JavaDecoder",
             "net.java.sip.communicator.impl.neomedia.codec.audio.ilbc.JavaEncoder",
@@ -402,6 +409,26 @@ public class EncodingConfiguration
                                 + className
                                 + " is NOT succsefully registered", exception);
                 }
+            }
+        }
+
+        /*
+         * Move the Speex resampler at the top of the Codec list so that it gets
+         * picked instead of the JMF resampler.
+         */
+        @SuppressWarnings("unchecked")
+        Vector<String> codecs
+            = PlugInManager.getPlugInList(null, null, PlugInManager.CODEC);
+
+        if (codecs != null)
+        {
+            int speexResamplerIndex = codecs.indexOf(SPEEX_RESAMPLER);
+
+            if (speexResamplerIndex != -1)
+            {
+                codecs.remove(speexResamplerIndex);
+                codecs.add(0, SPEEX_RESAMPLER);
+                PlugInManager.setPlugInList(codecs, PlugInManager.CODEC);
             }
         }
 

@@ -854,20 +854,21 @@ class AudioMixerPushBufferStream
 
         AudioMixingPushBufferDataSource outputDataSource
             = outputStream.getDataSource();
+        boolean outputDataSourceIsMute = outputDataSource.isMute();
 
         for (int i = 0; i < inputSamples.length; i++)
         {
             InputStreamDesc inputStreamDesc = inputStreams[i];
 
             if (outputDataSource.equals(inputStreamDesc.getOutputDataSource()))
-                inputSamples[i] = null;
-            else if(outputDataSource.isMute())
             {
-                if(inputStreamDesc.inputDataSourceDesc.inputDataSource
-                   == audioMixer.captureDevice)
-                {
-                    inputSamples[i] = null;
-                }
+                inputSamples[i] = null;
+            }
+            else if (outputDataSourceIsMute
+                    && (inputStreamDesc.inputDataSourceDesc.inputDataSource
+                            == audioMixer.captureDevice))
+            {
+                inputSamples[i] = null;
             }
         }
 

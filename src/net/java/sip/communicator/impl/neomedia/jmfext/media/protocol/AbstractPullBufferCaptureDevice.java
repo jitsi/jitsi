@@ -353,35 +353,7 @@ public abstract class AbstractPullBufferCaptureDevice
      */
     public CaptureDeviceInfo getCaptureDeviceInfo()
     {
-        return getCaptureDeviceInfo(this);
-    }
-
-    /**
-     * Gets the <tt>CaptureDeviceInfo</tt> of a specific <tt>CaptureDevice</tt>
-     * by locating its registration in JMF using its <tt>MediaLocator</tt>.
-     *
-     * @param captureDevice the <tt>CaptureDevice</tt> to gets the
-     * <tt>CaptureDeviceInfo</tt> of
-     * @return the <tt>CaptureDeviceInfo</tt> of the specified
-     * <tt>CaptureDevice</tt> as registered in JMF
-     */
-    public static CaptureDeviceInfo getCaptureDeviceInfo(
-            DataSource captureDevice)
-    {
-        /*
-         * TODO The implemented search for the CaptureDeviceInfo of this
-         * CaptureDevice by looking for its MediaLocator is inefficient.
-         */
-        @SuppressWarnings("unchecked")
-        Vector<CaptureDeviceInfo> captureDeviceInfos
-            = (Vector<CaptureDeviceInfo>)
-                CaptureDeviceManager.getDeviceList(null);
-        MediaLocator locator = captureDevice.getLocator();
-
-        for (CaptureDeviceInfo captureDeviceInfo : captureDeviceInfos)
-            if (captureDeviceInfo.getLocator().equals(locator))
-                return captureDeviceInfo;
-        return null;
+        return AbstractPushBufferCaptureDevice.getCaptureDeviceInfo(this);
     }
 
     /**

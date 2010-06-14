@@ -1098,6 +1098,50 @@ public class ConfigurationServiceImpl
         }
         return intValue;
     }
+    
+    /**
+     * Gets the value of a specific property as a signed decimal long integer.
+     * If the specified property name is associated with a value in this
+     * <tt>ConfigurationService</tt>, the string representation of the value is
+     * parsed into a signed decimal long integer according to the rules of
+     * {@link Long#parseLong(String)} . If parsing the value as a signed
+     * decimal long integer fails or there is no value associated with the
+     * specified property name, <tt>defaultValue</tt> is returned.
+     * 
+     * @param propertyName the name of the property to get the value of as a
+     * signed decimal long integer
+     * @param defaultValue the value to be returned if parsing the value of the
+     * specified property name as a signed decimal long integer fails or there
+     * is no value associated with the specified property name in this
+     * <tt>ConfigurationService</tt>
+     * @return the value of the property with the specified name in this
+     * <tt>ConfigurationService</tt> as a signed decimal long integer;
+     * <tt>defaultValue</tt> if parsing the value of the specified property name
+     * fails or no value is associated in this <tt>ConfigurationService</tt>
+     * with the specified property name
+     */
+    public long getLong(String propertyName, long defaultValue)
+    {
+        String stringValue = getString(propertyName);
+        long longValue = defaultValue;
+        
+        if ((stringValue != null) && (stringValue.length() > 0))
+        {
+            try
+            {
+                longValue = Long.parseLong(stringValue);
+            }
+            catch (NumberFormatException ex)
+            {
+                logger.error(
+                    propertyName
+                        + " does not appear to be a longinteger. "
+                        + "Defaulting to " + defaultValue + ".",
+                ex);
+            }
+        }
+        return longValue;
+    }
 
     /**
      * Determines whether the property with the specified
