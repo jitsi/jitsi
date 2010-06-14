@@ -608,8 +608,8 @@ public class GlobalStatusSelectorBox
      */
     private void setSystrayIcon(int status)
     {
-        SystrayService trayServce = GuiActivator.getSystrayService();
-        if(trayServce == null)
+        SystrayService trayService = GuiActivator.getSystrayService();
+        if(trayService == null)
             return;
 
         int imgType = SystrayService.SC_IMG_OFFLINE_TYPE;
@@ -631,7 +631,7 @@ public class GlobalStatusSelectorBox
             imgType = SystrayService.SC_IMG_FFC_TYPE;
         }
 
-        trayServce.setSystrayIcon(imgType);
+        trayService.setSystrayIcon(imgType);
     }
 
     /**
@@ -657,6 +657,7 @@ public class GlobalStatusSelectorBox
             this.status = status;
         }
 
+        @Override
         public void run()
         {
             try
@@ -825,6 +826,7 @@ public class GlobalStatusSelectorBox
      * provide a new look and the mouse moves over this component.
      * @param g the <tt>Graphics</tt> object used for painting
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
