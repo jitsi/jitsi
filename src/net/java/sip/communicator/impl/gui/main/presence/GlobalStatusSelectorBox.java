@@ -256,7 +256,9 @@ public class GlobalStatusSelectorBox
      */
     public void stopConnecting(ProtocolProviderService protocolProvider)
     {
-        accountMenus.get(protocolProvider).stopConnecting();
+        StatusSelectorMenu selectorMenu = accountMenus.get(protocolProvider);
+        if (selectorMenu != null)
+            selectorMenu.stopConnecting();
     }
 
     /**
