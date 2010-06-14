@@ -27,31 +27,31 @@ public class AuthenticationWindow
     extends SIPCommFrame
     implements ActionListener
 {
-    private JTextArea realmTextArea = new JTextArea();
+    private final JTextArea realmTextArea = new JTextArea();
 
     private JComponent uinValue;
 
-    private JPasswordField passwdField = new JPasswordField(15);
+    private final JPasswordField passwdField = new JPasswordField(15);
 
-    private JButton loginButton = new JButton(
+    private final JButton loginButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.OK"));
 
-    private JButton cancelButton = new JButton(
+    private final JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
-    private TransparentPanel labelsPanel
+    private final TransparentPanel labelsPanel
         = new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
-    private TransparentPanel textFieldsPanel
+    private final TransparentPanel textFieldsPanel
         = new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
-    private TransparentPanel mainPanel
+    private final TransparentPanel mainPanel
         = new TransparentPanel(new BorderLayout(10, 10));
 
-    private TransparentPanel buttonsPanel
+    private final TransparentPanel buttonsPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JCheckBox rememberPassCheckBox
+    private final JCheckBox rememberPassCheckBox
         = new SIPCommCheckBox(GuiActivator.getResources()
             .getI18NString("service.gui.REMEMBER_PASSWORD"));
 
@@ -117,7 +117,7 @@ public class AuthenticationWindow
 
         this.setResizable(false);
 
-        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         this.enableKeyActions();
     }
@@ -172,7 +172,8 @@ public class AuthenticationWindow
                 this.uinValue = new JTextField(userCredentials.getUserName());
 
             char[] password = userCredentials.getPassword();
-            if (password != null) {
+            if (password != null)
+            {
                 this.passwdField.setText(String.valueOf(password));
             }
         }
@@ -247,7 +248,8 @@ public class AuthenticationWindow
      * @param transparent <code>true</code> to set a transparent background,
      * <code>false</code> otherwise.
      */
-    private void setTransparent(boolean transparent) {
+    private void setTransparent(boolean transparent)
+    {
         this.mainPanel.setOpaque(!transparent);
         this.labelsPanel.setOpaque(!transparent);
         this.textFieldsPanel.setOpaque(!transparent);
@@ -261,12 +263,13 @@ public class AuthenticationWindow
      *
      * @param evt the action event that has just occurred.
      */
-    public void actionPerformed(ActionEvent evt) {
-
+    public void actionPerformed(ActionEvent evt)
+    {
         JButton button = (JButton) evt.getSource();
         String buttonName = button.getName();
 
-        if (buttonName.equals("ok")) {
+        if ("ok".equals(buttonName))
+        {
             if(uinValue instanceof JLabel)
                 userCredentials.setUserName(((JLabel)uinValue).getText());
             else if(uinValue instanceof JTextField)
@@ -277,14 +280,19 @@ public class AuthenticationWindow
             userCredentials.setPasswordPersistent(
                     rememberPassCheckBox.isSelected());
         }
-        else {
+        else
+        {
             // if userCredentials are created outside the exported window
             // by specifying null username we note that the window was canceled
-            this.userCredentials.setUserName(null);
-            this.userCredentials = null;
+            if (this.userCredentials != null)
+            {
+                this.userCredentials.setUserName(null);
+                this.userCredentials = null;
+            }
         }
 
-        synchronized (lock) {
+        synchronized (lock)
+        {
             lock.notify();
         }
 
@@ -301,11 +309,12 @@ public class AuthenticationWindow
     {
         private final Image bgImage;
 
-        public LoginWindowBackground(Image bgImage)
+        LoginWindowBackground(Image bgImage)
         {
             this.bgImage = bgImage;
         }
 
+        @Override
         protected void paintComponent(Graphics g)
         {
             super.paintComponent(g);
@@ -348,6 +357,7 @@ public class AuthenticationWindow
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
     }
 
+    @Override
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
@@ -359,6 +369,7 @@ public class AuthenticationWindow
      * @param isVisible specifies whether we should be showing or hiding the
      * window.
      */
+    @Override
     public void setVisible(boolean isVisible)
     {
         this.setName("AUTHENTICATION");
@@ -369,11 +380,14 @@ public class AuthenticationWindow
         {
             this.passwdField.requestFocus();
 
-            synchronized (lock) {
-                try {
+            synchronized (lock)
+            {
+                try
+                {
                     lock.wait();
                 }
-                catch (InterruptedException e) {
+                catch (InterruptedException e)
+                {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
