@@ -136,21 +136,6 @@ public interface OperationSetBasicTelephony
     public Iterator<? extends Call> getActiveCalls();
 
     /**
-     * Sets the mute state of the audio stream being sent to a specific
-     * <tt>CallPeer</tt>.
-     * <p>
-     * Muting an audio stream is implementation specific and one of the possible
-     * approaches to it is sending silence.
-     * </p>
-     *
-     * @param peer the <tt>CallPeer</tt> who receives the audio
-     *            stream to have its mute state set
-     * @param mute <tt>true</tt> to mute the audio stream being sent to
-     *            <tt>peer</tt>; otherwise, <tt>false</tt>
-     */
-    public void setMute(CallPeer peer, boolean mute);
-
-    /**
      * Sets the mute state of the <tt>Call</tt>.
      * <p>
      * Muting audio streams sent from the call is implementation specific

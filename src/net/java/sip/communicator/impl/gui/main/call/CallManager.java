@@ -321,16 +321,6 @@ public class CallManager
     }
 
     /**
-     * Mutes the given <tt>callPeer</tt>.
-     * @param callPeer the peer to mute
-     * @param isMute indicates the action (disable or enable mute)
-     */
-    public static void mute(CallPeer callPeer, boolean isMute)
-    {
-        new MuteCallPeerThread(callPeer, isMute).start();
-    }
-
-    /**
      * Transfers the given <tt>peer</tt> to the given <tt>target</tt>.
      * @param peer the <tt>CallPeer</tt> to transfer
      * @param target the <tt>CallPeer</tt> target to transfer to
@@ -920,32 +910,6 @@ public class CallManager
                     logger.error("Failed to put"
                         + callPeerAddress + " off hold.", ex);
             }
-        }
-    }
-
-    /**
-     * Mutes the given <tt>CallPeer</tt>.
-     */
-    private static class MuteCallPeerThread
-        extends Thread
-    {
-        private final CallPeer callPeer;
-
-        private final boolean isMute;
-
-        public MuteCallPeerThread(CallPeer callPeer, boolean isMute)
-        {
-            this.callPeer = callPeer;
-            this.isMute = isMute;
-        }
-
-        public void run()
-        {
-            OperationSetBasicTelephony telephony =
-                callPeer.getProtocolProvider()
-                    .getOperationSet(OperationSetBasicTelephony.class);
-
-            telephony.setMute(callPeer, isMute);
         }
     }
 

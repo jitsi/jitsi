@@ -28,8 +28,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class CallPeerMenu
     extends SIPCommMenu
-    implements  CallPeerListener,
-                PropertyChangeListener
+    implements  CallPeerListener
 {
     private final CallPeer callPeer;
 
@@ -44,8 +43,6 @@ public class CallPeerMenu
         .getI18NString("service.gui.MUTE");
     private final String unmuteText = GuiActivator.getResources()
         .getI18NString("service.gui.UNMUTE");
-
-    private final JMenuItem muteMenuItem = new JMenuItem(muteText);
 
     /**
      * Creates a <tt>CallPeerActionMenuBar</tt> by specifying the associated
@@ -86,12 +83,6 @@ public class CallPeerMenu
         // changes. We'll be using these notifications in order to update the
         // hold menu item state.
         peer.addCallPeerListener(this);
-
-        /* Disable per peer muting
-        initMuteMenuItem();
-        this.add(muteMenuItem);
-        peer.addPropertyChangeListener(this);
-        */
     }
 
     /**
@@ -113,30 +104,6 @@ public class CallPeerMenu
                     {
                         CallManager.putOnHold(callPeer, false);
                         holdMenuItem.setText(onHoldText);
-                    }
-                }
-            });
-    }
-
-    /**
-     * Initializes the mute menu item.
-     */
-    private void initMuteMenuItem()
-    {
-        muteMenuItem.addActionListener(
-            new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    if (muteMenuItem.getText().equals(muteText))
-                    {
-                        CallManager.mute(callPeer, true);
-                        muteMenuItem.setText(unmuteText);
-                    }
-                    else
-                    {
-                        CallManager.mute(callPeer, false);
-                        muteMenuItem.setText(muteText);
                     }
                 }
             });
@@ -174,28 +141,4 @@ public class CallPeerMenu
     public void peerImageChanged(CallPeerChangeEvent evt) {}
 
     public void peerTransportAddressChanged(CallPeerChangeEvent evt) {}
-
-    /**
-     * Implements <tt>
-     * {@link PropertyChangeListener#propertyChange(PropertyChangeEvent)}</tt>
-     * in order to update the "Mute/Unmute" menu item to fit the current state
-     * of the mute property for this call peer.
-     *
-     * @param evt the <tt>PropertyChangeEvent</tt> that notified us of the
-     * property change
-     */
-    public void propertyChange(PropertyChangeEvent evt)
-    {
-        String propertyName = evt.getPropertyName();
-
-        if (propertyName.equals(CallPeer.MUTE_PROPERTY_NAME))
-        {
-            boolean isMute = (Boolean) evt.getNewValue();
-
-            if (isMute)
-                muteMenuItem.setText(unmuteText);
-            else
-                muteMenuItem.setText(muteText);
-        }
-    }
 }

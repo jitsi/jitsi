@@ -1514,26 +1514,6 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Sets the mute state of the audio stream being sent to a specific
-     * <tt>CallPeer</tt>.
-     * <p>
-     * The implementation sends silence through the audio stream.
-     * </p>
-     *
-     * @param peer the <tt>CallPeer</tt> who receives the audio stream to have
-     * its mute state set
-     * @param mute <tt>true</tt> to mute the audio stream being sent to
-     * <tt>peer</tt>; otherwise, <tt>false</tt>
-     */
-    @Override
-    public void setMute(CallPeer peer, boolean mute)
-    {
-        CallPeerSipImpl sipPeer = (CallPeerSipImpl) peer;
-
-        sipPeer.setMute(mute);
-    }
-
-    /**
      * Sets the mute state of the <tt>Call</tt>.
      * <p>
      * Muting audio streams sent from the call is implementation specific
