@@ -91,8 +91,42 @@ public class NetworkConfigurationWatcher
         {
             long curr = System.currentTimeMillis();
 
+            // if time spent between checks is more than 2 times
+            // longer than the check interval we consider it as a
+            // new check after standby
             if(!isAfterStandby && last != 0)
-                isAfterStandby = (last + CHECK_INTERVAL + 100 - curr) < 0;
+                isAfterStandby = (last + 2*CHECK_INTERVAL - curr) < 0;
+
+            if(isAfterStandby)
+            {
+                // oo standby lets fire down to all interfaces
+                // so they can reconnect
+                Iterator<NetworkInterface> iter = activeInterfaces.iterator();
+                while (iter.hasNext())
+                {
+                    NetworkInterface niface = iter.next();
+                    fireChangeEvent(new ChangeEvent(niface,
+                            ChangeEvent.IFACE_DOWN, isAfterStandby));
+                }
+                activeInterfaces.clear();
+
+                // we have fired events for standby, make it to false now
+                // so we can calculate it again next time
+                isAfterStandby = false;
+
+                last = curr;
+
+                // give time to interfaces
+                synchronized(this)
+                {
+                    try{
+                        wait(CHECK_INTERVAL);
+                    }
+                    catch (Exception e){}
+                }
+
+                continue;
+            }
 
             try
             {

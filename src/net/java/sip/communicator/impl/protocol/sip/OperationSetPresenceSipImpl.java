@@ -2562,9 +2562,27 @@ public class OperationSetPresenceSipImpl
              logger.debug("trying to unsubscribe to every contact");
 
          // send event notifications saying that all our buddies are
-         // offline. SIMPLE does not implement top level buddies
-         // nor subgroups for top level groups so a simple nested loop
-         // is enough.
+         // offline.
+         Iterator<Contact> rootContactsIter
+             = getServerStoredContactListRoot().contacts();
+
+         while (rootContactsIter.hasNext())
+         {
+             ContactSipImpl contact = (ContactSipImpl) rootContactsIter.next();
+
+             try
+             {
+                 unsubscribe(contact, false);
+             }
+             catch (OperationFailedException ex)
+             {
+                 logger.error(
+                     "Failed to unsubscribe to contact " + contact,
+                     ex);
+                 return;
+             }
+         }
+
          Iterator<ContactGroup> groupsIter
              = getServerStoredContactListRoot().subgroups();
 
@@ -2676,6 +2694,18 @@ public class OperationSetPresenceSipImpl
          public void run()
          {
              // send a subscription for every contact
+             Iterator<Contact> rootContactsIter
+                = getServerStoredContactListRoot().contacts();
+
+            while (rootContactsIter.hasNext())
+            {
+                ContactSipImpl contact =
+                    (ContactSipImpl) rootContactsIter.next();
+
+                 // poll this contact
+                 forcePollContact(contact);
+             }
+
              Iterator<ContactGroup> groupsIter
                  = getServerStoredContactListRoot().subgroups();
 
@@ -2828,6 +2858,44 @@ public class OperationSetPresenceSipImpl
            {
                 // if connection failed we have lost network connectivity
                 // we must fire that all contacts has gone offline
+                Iterator<Contact> rootcontactsIter
+                    = getServerStoredContactListRoot().contacts();
+
+                while(rootcontactsIter.hasNext())
+                {
+                    ContactSipImpl contact
+                        = (ContactSipImpl)rootcontactsIter.next();
+
+                    PresenceStatus oldContactStatus
+                        = contact.getPresenceStatus();
+
+                    contact.setResolved(false);
+                    if (subscriber != null)
+                        try
+                        {
+                            subscriber
+                                .removeSubscription(getAddress(contact));
+                        }
+                        catch (OperationFailedException ex)
+                        {
+                            if (logger.isDebugEnabled())
+                                logger.debug(
+                                        "Failed to remove subscription to contact "
+                                        + contact);
+                        }
+
+                    if(!oldContactStatus.isOnline())
+                        continue;
+
+                    contact.setPresenceStatus(
+                        sipStatusEnum.getStatus(SipStatusEnum.OFFLINE));
+
+                    fireContactPresenceStatusChangeEvent(
+                          contact
+                        , contact.getParentContactGroup()
+                        , oldContactStatus);
+                }
+
                 Iterator<ContactGroup> groupsIter
                     = getServerStoredContactListRoot().subgroups();
 
