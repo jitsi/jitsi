@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -35,6 +36,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.event.*;
 
 import org.osgi.framework.*;
 
@@ -727,6 +729,26 @@ public class MainFrame
     public void clearCurrentSearchText()
     {
         searchField.setText("");
+    }
+
+    /**
+     * Adds the given <tt>TextFieldChangeListener</tt> to listen for any changes
+     * that occur in the search field.
+     * @param l the <tt>TextFieldChangeListener</tt> to add
+     */
+    public void addSearchFieldListener(TextFieldChangeListener l)
+    {
+        searchField.addTextChangeListener(l);
+    }
+
+    /**
+     * Removes the given <tt>TextFieldChangeListener</tt> that listens for any
+     * changes that occur in the search field.
+     * @param l the <tt>TextFieldChangeListener</tt> to remove
+     */
+    public void removeSearchFieldListener(TextFieldChangeListener l)
+    {
+        searchField.addTextChangeListener(l);
     }
 
     /**
