@@ -70,10 +70,10 @@ public class JavaDecoder
      * Returns the name of this plugin/codec.
      * @return the name.
      */
-	public String getName()
-	{
-		return "Speex Decoder";
-	}
+    public String getName()
+    {
+        return "Speex Java Decoder";
+    }
 
     /**
      * Return the list of formats supported at the output.
