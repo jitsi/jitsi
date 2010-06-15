@@ -35,11 +35,6 @@ public class CallDialog
                CallPeerConferenceListener
 {
     /**
-     * The logger.
-     */
-    private final Logger logger = Logger.getLogger(CallDialog.class);
-
-    /**
      * The dial button name.
      */
     private static final String DIAL_BUTTON = "DIAL_BUTTON";
