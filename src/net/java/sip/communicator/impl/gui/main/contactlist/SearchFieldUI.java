@@ -51,6 +51,11 @@ public class SearchFieldUI
         = GuiActivator.getResources().getI18NString("service.gui.CALL");
 
     /**
+     * Indicates if the call icon is currently visible.
+     */
+    private boolean isCallIconVisible = false;
+
+    /**
      * Creates a <tt>SIPCommTextFieldUI</tt>.
      */
     public SearchFieldUI()
@@ -124,7 +129,11 @@ public class SearchFieldUI
                     g2.drawImage(callRolloverIcon, dx, dy, null);
                 else
                     g2.drawImage(callIcon, dx, dy, null);
+
+                isCallIconVisible = true;
             }
+            else
+                isCallIconVisible = false;
 
         }
         finally
@@ -231,7 +240,7 @@ public class SearchFieldUI
 
         Rectangle callButtonRect = getCallButtonRect();
 
-        if (callButtonRect.contains(x, y))
+        if (isCallIconVisible && callButtonRect.contains(x, y))
         {
             JTextComponent c = getComponent();
             String searchText = c.getText();

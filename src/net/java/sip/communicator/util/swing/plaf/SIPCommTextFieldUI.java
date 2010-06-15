@@ -54,6 +54,11 @@ public class SIPCommTextFieldUI
     protected SIPCommButton deleteButton;
 
     /**
+     * Indicates if the delete icon is visible.
+     */
+    private boolean isDeleteIconVisible = false;
+
+    /**
      * Creates a <tt>SIPCommTextFieldUI</tt>.
      */
     public SIPCommTextFieldUI()
@@ -128,6 +133,7 @@ public class SIPCommTextFieldUI
 
             int dx = deleteButtonRect.x;
             int dy = deleteButtonRect.y;
+
             if (c.getText() != null
                     && c.getText().length() > 0
                     && isDeleteButtonEnabled)
@@ -136,7 +142,11 @@ public class SIPCommTextFieldUI
                     g2.drawImage(deleteButtonRolloverImg, dx, dy, null);
                 else
                     g2.drawImage(deleteButtonImg, dx, dy, null);
+
+                isDeleteIconVisible = true;
             }
+            else
+                isDeleteIconVisible = false;
 
             g2.setStroke(new BasicStroke(1f));
             g2.setColor(Color.GRAY);
@@ -160,12 +170,13 @@ public class SIPCommTextFieldUI
     {
         int x = evt.getX();
         int y = evt.getY();
+
         if (!isDeleteButtonEnabled)
             return;
 
         Rectangle deleteRect = getDeleteButtonRect();
 
-        if (deleteRect.contains(x, y))
+        if (isDeleteIconVisible && deleteRect.contains(x, y))
         {
             isDeleteMouseOver = true;
             getComponent().setCursor(Cursor.getDefaultCursor());
