@@ -24,6 +24,34 @@ import net.java.sip.communicator.impl.neomedia.portaudio.*;
 public class DataSource
     extends AbstractPullBufferCaptureDevice
 {
+    private final boolean audioQualityImprovement;
+
+    private final Format[] supportedFormats;
+
+    public DataSource()
+    {
+        this.supportedFormats = null;
+        this.audioQualityImprovement = true;
+    }
+
+    public DataSource(MediaLocator locator)
+    {
+        this(locator, null, true);
+    }
+
+    public DataSource(
+            MediaLocator locator,
+            Format[] supportedFormats,
+            boolean audioQualityImprovement)
+    {
+        super(locator);
+
+        this.supportedFormats
+            = (supportedFormats == null)
+                ? null
+                : supportedFormats.clone();
+        this.audioQualityImprovement = audioQualityImprovement;
+    }
 
     /**
      * Creates a new <tt>PullBufferStream</tt> which is to be at a specific
@@ -46,7 +74,7 @@ public class DataSource
             int streamIndex,
             FormatControl formatControl)
     {
-        return new PortAudioStream(formatControl);
+        return new PortAudioStream(formatControl, audioQualityImprovement);
     }
 
     /**
@@ -143,5 +171,29 @@ public class DataSource
         {
             throw new IllegalArgumentException("locator.protocol");
         }
+    }
+
+    /**
+     * Gets the <tt>Format</tt>s which are to be reported by a
+     * <tt>FormatControl</tt> as supported formats for a
+     * <tt>PullBufferStream</tt> at a specific zero-based index in the list of
+     * streams of this <tt>PullBufferDataSource</tt>.
+     *
+     * @param streamIndex the zero-based index of the <tt>PullBufferStream</tt>
+     * for which the specified <tt>FormatControl</tt> is to report the list of
+     * supported <tt>Format</tt>s
+     * @return an array of <tt>Format</tt>s to be reported by a
+     * <tt>FormatControl</tt> as the supported formats for the
+     * <tt>PullBufferStream</tt> at the specified <tt>streamIndex</tt> in the
+     * list of streams of this <tt>PullBufferDataSource</tt>
+     * @see AbstractPullBufferCaptureDevice#getSupportedFormats(int)
+     */
+    @Override
+    protected Format[] getSupportedFormats(int streamIndex)
+    {
+        return
+            (supportedFormats == null)
+                ? super.getSupportedFormats(streamIndex)
+                : supportedFormats;
     }
 }

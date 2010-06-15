@@ -24,6 +24,7 @@ import net.java.sip.communicator.impl.neomedia.portaudio.*;
 public class PortAudioStream
     extends AbstractPullBufferStream
 {
+    private final boolean audioQualityImprovement;
 
     /**
      * The number of bytes to read from a native PortAudio stream in a single
@@ -69,10 +70,15 @@ public class PortAudioStream
      *
      * @param formatControl the <tt>FormatControl</tt> which is to abstract the
      * <tt>Format</tt>-related information of the new instance
+     * @param audioQualityImprovement
      */
-    public PortAudioStream(FormatControl formatControl)
+    public PortAudioStream(
+            FormatControl formatControl,
+            boolean audioQualityImprovement)
     {
         super(formatControl);
+
+        this.audioQualityImprovement = audioQualityImprovement;
     }
 
     /**
@@ -274,10 +280,14 @@ public class PortAudioStream
                             Format.NOT_SPECIFIED /* frameRate */,
                             Format.byteArray);
 
-            PortAudio.setDenoise(stream, PortAudioManager.isEnabledDeNoise());
+            PortAudio.setDenoise(
+                    stream,
+                    audioQualityImprovement
+                        && PortAudioManager.isEnabledDeNoise());
             PortAudio.setEchoFilterLengthInMillis(
                     stream,
-                    PortAudioManager.isEnabledEchoCancel()
+                    (audioQualityImprovement
+                            && PortAudioManager.isEnabledEchoCancel())
                         ? PortAudioManager.getFilterLengthInMillis()
                         : 0);
         }

@@ -136,7 +136,9 @@ public class NeomediaActivator
                 1100),
             null);
 
-        GatherEntropy entropy = new GatherEntropy(mediaServiceImpl.getDeviceConfiguration());
+        GatherEntropy entropy
+            = new GatherEntropy(mediaServiceImpl.getDeviceConfiguration());
+
         entropy.setEntropy();
         
         //we use the nist-sdp stack to make parse sdp and we need to set the
