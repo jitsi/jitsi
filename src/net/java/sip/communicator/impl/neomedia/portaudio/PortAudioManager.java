@@ -6,9 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.portaudio;
 
-import java.util.*;
-
-import net.java.sip.communicator.impl.neomedia.portaudio.streams.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -20,56 +17,21 @@ import net.java.sip.communicator.util.*;
  */
 public class PortAudioManager
 {
-
-    /**
-     * The number of frames to be read from or written to a native PortAudio
-     * stream in a single transfer of data. The current value is based on 20ms
-     * of audio with 8kHz frame rate which is equal to 160 frames.
-     */
-    private static final int FRAMES_PER_BUFFER = 160;
-
-    /**
-     * The static instance of portaudio manager.
-     */
-    private static PortAudioManager instance = null;
-
-    /**
-     * We keep track of created inputstreams.
-     */
-    private Hashtable<Integer, MasterPortAudioStream> inputStreams =
-        new Hashtable<Integer, MasterPortAudioStream>();
-
-    /**
-     * We keep track of created outputstreams.
-     */
-    private ArrayList<OutputPortAudioStream> outputStreams =
-        new ArrayList<OutputPortAudioStream>();
-
-    /**
-     * default values for the params.
-     */
     /**
      * Echo cancel enabled by default.
      */
-    private boolean enabledEchoCancel = true;
+    private static boolean enabledEchoCancel = true;
 
     /**
      * Denoise enabled by default.
      */
-    private boolean enabledDeNoise = true;
+    private static boolean enabledDeNoise = true;
 
     /**
-     * The number of frames to be read from or written to a native PortAudio
-     * stream in a single transfer of data. The current value is based on 20ms
-     * of audio with 8kHz frame rate which is equal to 160 frames.
+     * The number of milliseconds of echo to cancel. The default value is 256
+     * ms.
      */
-    private final int framesPerBuffer = FRAMES_PER_BUFFER;
-
-    /**
-     * The default value for number of samples of echo to cancel.
-     * Currently set to 256ms.
-     */
-    private int filterLength = 2048;
+    private static long filterLengthInMillis = 256;
 
     /**
      * The default value for suggested latency used to open devices.
@@ -80,176 +42,30 @@ public class PortAudioManager
     private static double suggestedLatency = PortAudio.LATENCY_UNSPECIFIED;
 
     /**
-     * Private constructor as we have one static instance of this manager.
-     * @throws PortAudioException
-     */
-    private PortAudioManager()
-        throws PortAudioException
-    {
-        PortAudio.initialize();
-    }
-
-    /**
-     * Gets the only instance of PortAudioManager, if its not already created
-     * will be created.
-     * @return the static instance.
-     * @throws PortAudioException if portaudio cannot be initialized for
-     *          some reason.
-     */
-    public static PortAudioManager getInstance()
-        throws PortAudioException
-    {
-        if(instance == null)
-            instance = new PortAudioManager();
-        return instance;
-    }
-
-    /**
-     * Creates input stream from the device with given index.
-     * @param deviceIndex the device index.
-     * @param sampleRate the sample rate to use, its the sample rate of the
-     *        input stream.
-     * @param channels the channels that the stream will serve.
-     * @return the stream.
-     * @throws PortAudioException if opening of the stream fails.
-     */
-    public InputPortAudioStream getInputStream(
-        int deviceIndex, double sampleRate, int channels)
-        throws PortAudioException
-    {
-        MasterPortAudioStream st = inputStreams.get(deviceIndex);
-
-        if(st == null)
-        {
-            st = new MasterPortAudioStream(deviceIndex, sampleRate, channels);
-            inputStreams.put(deviceIndex, st);
-
-            /*
-             * If there are output streams, get the latest one and connect them.
-             */
-            // TODO We must link input to all outputs???
-            boolean echoCancelIsEnabled = isEnabledEchoCancel();
-            int outputStreamCount;
-            OutputPortAudioStream out;
-
-            if(echoCancelIsEnabled
-                    && ((outputStreamCount = outputStreams.size()) > 0))
-                out = outputStreams.get(outputStreamCount - 1);
-            else
-                out = null;
-
-            st.setParams(
-                    out,
-                    isEnabledDeNoise(),
-                    echoCancelIsEnabled,
-                    getFramesPerBuffer(),
-                    getFilterLength());
-        }
-
-        return new InputPortAudioStream(st);
-    }
-
-    /**
-     * Creates output stream from the device with given index.
-     * @param deviceIndex the device index.
-     * @param sampleRate the sample rate to use, its the sample rate of the
-     *        output stream.
-     * @param channels the channels that the stream will serve.
-     * @return the stream.
-     * @throws PortAudioException if opening of the stream fails.
-     */
-    public OutputPortAudioStream getOutputStream(int deviceIndex,
-                                                 double sampleRate,
-                                                 int channels)
-        throws PortAudioException
-    {
-        OutputPortAudioStream out
-            = new OutputPortAudioStream(deviceIndex, sampleRate, channels);
-
-        outputStreams.add(out);
-
-        /*
-         * If there are input streams created, get the first one and link it to
-         * this output.
-         */
-        // TODO What to do with the others?
-        boolean echoCancelIsEnabled = isEnabledEchoCancel();
-
-        if (echoCancelIsEnabled && (inputStreams.size() > 0))
-        {
-            MasterPortAudioStream st = inputStreams.values().iterator().next();
-
-            st.setParams(
-                    out,
-                    echoCancelIsEnabled,
-                    isEnabledDeNoise(),
-                    getFramesPerBuffer(),
-                    getFilterLength());
-        }
-
-        return out;
-    }
-
-    /**
-     * Output stream is closed.
-     * @param st the stream that is closed.
-     */
-    public void closedOutputPortAudioStream(OutputPortAudioStream st)
-    {
-        outputStreams.remove(st);
-    }
-
-    /**
-     * Input stream is stopped.
-     * @param st the input stream that is stopped.
-     */
-    public void stoppedInputPortAudioStream(MasterPortAudioStream st)
-    {
-        inputStreams.remove(st.getDeviceIndex());
-    }
-
-    /**
-     * Creates output stream from the device with given index.
-     * @param deviceIndex the device index.
-     * @param sampleRate the sample rate to use, its the sample rate of the
-     *        output stream.
-     * @param channels the channels that the stream will serve.
-     * @param sampleFormat the format the will be used by the stream.
-     * @return the stream.
-     * @throws PortAudioException if opening of the stream failes.
-     */
-    public OutputPortAudioStream getOutputStream(
-        int deviceIndex, double sampleRate, int channels, long sampleFormat)
-        throws PortAudioException
-    {
-        return new OutputPortAudioStream(
-            deviceIndex, sampleRate, channels, sampleFormat);
-    }
-
-    /**
      * Enables or disables echo cancel.
+     *
      * @param enabled should we enable or disable echo cancellation
-     * @param filterLength Number of samples of echo to cancel
-     *          (should generally correspond to 100-500 ms)
+     * @param filterLengthInMillis the number of milliseconds of echo to cancel.
+     * Should generally correspond to 100-500 ms.
      */
-    public void setEchoCancel(boolean enabled, int filterLength)
+    public static void setEchoCancel(boolean enabled, long filterLengthInMillis)
     {
-        this.enabledEchoCancel = enabled;
-        this.filterLength = filterLength;
+        PortAudioManager.enabledEchoCancel = enabled;
+        PortAudioManager.filterLengthInMillis = filterLengthInMillis;
     }
 
     /**
      * Enables or disables noise suppression.
      * @param enabled should we enable or disable noise suppression.
      */
-    public void setDeNoise(boolean enabled)
+    public static void setDeNoise(boolean enabled)
     {
-        this.enabledDeNoise = enabled;
+        PortAudioManager.enabledDeNoise = enabled;
     }
 
     /**
      * Returns the default values of the latency to be used when
-     * openning new streams.
+     * opening new streams.
      * @return the latency.
      */
     public static double getSuggestedLatency()
@@ -278,7 +94,7 @@ public class PortAudioManager
      * Is echo cancel enabled.
      * @return true if echo cancel is enabled, false otherwise.
      */
-    public boolean isEnabledEchoCancel()
+    public static boolean isEnabledEchoCancel()
     {
         return enabledEchoCancel;
     }
@@ -287,29 +103,18 @@ public class PortAudioManager
      * Is noise reduction enabled.
      * @return true if noise reduction is enabled, false otherwise.
      */
-    public boolean isEnabledDeNoise()
+    public static boolean isEnabledDeNoise()
     {
         return enabledDeNoise;
     }
 
     /**
-     * Gets the number of frames to process at a time (should correspond to
-     * 10-20ms).
+     * Gets the number of milliseconds of echo to cancel.
      *
-     * @return the number of frames to process at a time
+     * @return the number of milliseconds of echo to cancel
      */
-    public int getFramesPerBuffer()
+    public static long getFilterLengthInMillis()
     {
-        return framesPerBuffer;
-    }
-
-    /**
-     * Number of samples of echo to cancel
-     * (should generally correspond to 100-500 ms)
-     * @return the filterLength.
-     */
-    public int getFilterLength()
-    {
-        return filterLength;
+        return filterLengthInMillis;
     }
 }

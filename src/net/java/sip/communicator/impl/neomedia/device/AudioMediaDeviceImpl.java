@@ -137,10 +137,12 @@ public class AudioMediaDeviceImpl
                 if (captureDeviceInfo != null)
                 {
                     MediaLocator locator = captureDeviceInfo.getLocator();
+                    String locatorProtocol
+                        = (locator == null) ? null : locator.getProtocol();
 
-                    if ((locator != null)
-                            && "javasound"
-                                    .equalsIgnoreCase(locator.getProtocol()))
+                    if ("javasound".equalsIgnoreCase(locatorProtocol)
+                            || PortAudioAuto.LOCATOR_PROTOCOL
+                                    .equalsIgnoreCase(locatorProtocol))
                     {
                         captureDevice = super.createCaptureDevice();
                         createCaptureDeviceIfNull = false;

@@ -232,6 +232,7 @@ public class JNIDecoder
 
         /* At long last, do the actual decoding. */
         int outputLength = this.frameSize;
+        boolean inputBufferNotConsumed;
 
         if (outputLength > 0)
         {
@@ -243,20 +244,23 @@ public class JNIDecoder
                 outputBuffer.setFormat(getOutputFormat());
                 outputBuffer.setLength(outputLength);
                 outputBuffer.setOffset(0);
+                inputBufferNotConsumed = (Speex.speex_bits_remaining(bits) > 0);
             }
             else
             {
                 outputBuffer.setLength(0);
                 discardOutputBuffer(outputBuffer);
+                inputBufferNotConsumed = false;
             }
         }
         else
         {
             outputBuffer.setLength(0);
             discardOutputBuffer(outputBuffer);
+            inputBufferNotConsumed = false;
         }
 
-        if ((inputLength < 1) && (Speex.speex_bits_remaining(bits) < 1))
+        if ((inputLength < 1) && !inputBufferNotConsumed)
             return BUFFER_PROCESSED_OK;
         else
             return BUFFER_PROCESSED_OK | INPUT_BUFFER_NOT_CONSUMED;

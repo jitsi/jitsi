@@ -9,7 +9,7 @@ CPPFLAGS=-DJNI_IMPLEMENTATION \
          -Wall -Wreturn-type \
          -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
 LDFLAGS=-shared -Wl,--no-undefined
-LIBS=-L$(JAVA_HOME)/jre/lib/amd64 -ljawt -lXv -lX11
+LIBS=-L$(JAVA_HOME)/jre/lib/i386 -ljawt -lXv -lX11
 
 $(TARGET): net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer.c JAWTRenderer_Linux.c net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer.h JAWTRenderer.h
 	$(CC) $(CPPFLAGS) $^ $(LDFLAGS) -o $@ $(LIBS)

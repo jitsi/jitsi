@@ -1,15 +1,15 @@
-JAVA_HOME?=/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Home
-SPEEX_HOME?=/Users/Lubomir/src/speex-1.2rc1
+JAVA_HOME?=/usr/lib/jvm/java-6-sun
+SPEEX_HOME?=/home/lubomir/src/speex-1.2rc1
 
-TARGET=../../../lib/native/mac/libjspeex.jnilib
+TARGET=../../../lib/native/linux/libjspeex.so
 
-CC=gcc -arch i386 -arch ppc -arch x86_64 -mmacosx-version-min=10.4
+CC=gcc
 CPPFLAGS=-DJNI_IMPLEMENTATION \
          -Wall -Wreturn-type \
          -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux \
          -I$(SPEEX_HOME)/include
-LDFLAGS=-dynamiclib
-LIBS=-L$(SPEEX_HOME)/libspeex/.libs -dynamic -lspeex -lspeexdsp -lm
+LDFLAGS=-shared -fPIC
+LIBS=-L$(SPEEX_HOME)/libspeex/.libs -Wl,-Bstatic -lspeex -lspeexdsp -Wl,-Bdynamic -lm
 
 $(TARGET): net_java_sip_communicator_impl_neomedia_codec_audio_speex_Speex.c net_java_sip_communicator_impl_neomedia_codec_audio_speex_Speex.h
 	$(CC) $(CPPFLAGS) $< $(LDFLAGS) -o $@ $(LIBS)

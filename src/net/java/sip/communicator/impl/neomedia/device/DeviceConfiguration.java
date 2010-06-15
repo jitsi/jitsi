@@ -14,6 +14,7 @@ import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
+import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
@@ -120,8 +121,8 @@ public class DeviceConfiguration
     /**
      * Property used to store the echo cancel tail used for cancelation.
      */
-    static final String PROP_AUDIO_ECHOCANCEL_TAIL =
-        "net.java.sip.communicator.impl.neomedia.echocancel.tail";
+    static final String PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS
+        = "net.java.sip.communicator.impl.neomedia.echocancel.filterLengthInMillis";
 
     /**
      * Property used to store is denoise enabled or disabled.
@@ -241,7 +242,7 @@ public class DeviceConfiguration
 
             if(audioDevName == null)
             {
-                // the default behaviour if nothing set is to use portaudio
+                // the default behaviour if nothing set is to use PortAudio
                 // this will also choose the capture device
                 if(PortAudioAuto.isSupported())
                 {
@@ -738,33 +739,10 @@ public class DeviceConfiguration
 
         if(save)
         {
-            config.setProperty(PROP_AUDIO_DEVICE_IS_DISABLED,
-                audioCaptureDevice == null);
+            config.setProperty(
+                    PROP_AUDIO_DEVICE_IS_DISABLED,
+                    audioCaptureDevice == null);
         }
-    }
-
-    /**
-     * Installs the PortAudio Renderer
-     */
-    protected static void initPortAudioRenderer()
-    {
-        PlugInManager.addPlugIn(
-        "net.java.sip.communicator.impl.neomedia.jmfext" +
-                ".media.renderer.audio.PortAudioRenderer",
-        net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.
-            PortAudioRenderer.supportedInputFormats,
-        null,
-        PlugInManager.RENDERER);
-    }
-
-    /**
-     * Removes javasound renderer.
-     */
-    private void removeJavaSoundRenderer()
-    {
-        PlugInManager.removePlugIn(
-            "com.sun.media.renderer.audio.JavaSoundRenderer",
-            PlugInManager.RENDERER);
     }
 
     /**
@@ -788,7 +766,7 @@ public class DeviceConfiguration
             PlugInManager.addPlugIn(
                 "com.sun.media.renderer.audio.JavaSoundRenderer",
                 new com.sun.media.renderer.audio.JavaSoundRenderer()
-                    .getSupportedInputFormats(),
+                        .getSupportedInputFormats(),
                 null,
                 PlugInManager.RENDERER);
         }
@@ -796,27 +774,6 @@ public class DeviceConfiguration
         {
             // if class is missing
             logger.error("Problem init javasound renderer", e);
-        }
-    }
-
-    /**
-     * Sets the device to be used by portaudio renderer.
-     * @param devInfo
-     */
-    private void setDeviceToRenderer(CaptureDeviceInfo devInfo)
-    {
-        // no need to change device to renderer it will not be used anyway
-        if(devInfo == null)
-            return;
-
-        try
-        {
-            net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.
-                PortAudioRenderer.setDevice(devInfo.getLocator());
-        }
-        catch (Exception e)
-        {
-            logger.error("error setting device to renderer", e);
         }
     }
 
@@ -847,14 +804,30 @@ public class DeviceConfiguration
         if(this.audioPlaybackDevice != audioPlaybackDevice)
         {
             CaptureDeviceInfo oldDev = this.audioPlaybackDevice;
-            this.audioPlaybackDevice = audioPlaybackDevice;
-            setDeviceToRenderer(audioPlaybackDevice);
 
-            // we changed playback device, so we are using portaudio
-            // lets use it, remove javasound renderer to be sure
-            // its not used anymore and install the portaudio one
-            removeJavaSoundRenderer();
-            initPortAudioRenderer();
+            this.audioPlaybackDevice = audioPlaybackDevice;
+
+            if (this.audioPlaybackDevice != null)
+            {
+                /*
+                 * The audioPlaybackDevice is non-null only for PortAudio for
+                 * now i.e. we currently want to use PortAudio instead of
+                 * JavaSound. So we have to disable JavaSound and enable
+                 * PortAudio.
+                 */
+                PlugInManager.removePlugIn(
+                    "com.sun.media.renderer.audio.JavaSoundRenderer",
+                    PlugInManager.RENDERER);
+
+                PortAudioRenderer.setDefaultLocator(
+                        this.audioPlaybackDevice.getLocator());
+                PlugInManager.addPlugIn(
+                        "net.java.sip.communicator.impl.neomedia.jmfext.media"
+                            + ".renderer.audio.PortAudioRenderer",
+                        new PortAudioRenderer().getSupportedInputFormats(),
+                        null,
+                        PlugInManager.RENDERER);
+            }
 
             if(save)
             {
@@ -920,21 +893,13 @@ public class DeviceConfiguration
      */
     public void setEchoCancel(boolean enabled, boolean save)
     {
-        try
-        {
-            PortAudioManager portAudioManager = PortAudioManager.getInstance();
+        PortAudioManager.setEchoCancel(
+            enabled,
+            PortAudioManager.getFilterLengthInMillis());
 
-            portAudioManager
-                .setEchoCancel(enabled, portAudioManager.getFilterLength());
-
-            if(save)
-                NeomediaActivator.getConfigurationService()
+        if(save)
+            NeomediaActivator.getConfigurationService()
                     .setProperty(PROP_AUDIO_ECHOCANCEL_ENABLED, enabled);
-        }
-        catch (PortAudioException ex)
-        {
-            logger.error("Error setting echocancel config", ex);
-        }
     }
 
     /**
@@ -944,18 +909,11 @@ public class DeviceConfiguration
      */
     public void setDenoise(boolean enabled, boolean save)
     {
-        try
-        {
-            PortAudioManager.getInstance().setDeNoise(enabled);
+        PortAudioManager.setDeNoise(enabled);
 
-            if(save)
-                NeomediaActivator.getConfigurationService()
+        if(save)
+            NeomediaActivator.getConfigurationService()
                     .setProperty(PROP_AUDIO_DENOISE_ENABLED, enabled);
-        }
-        catch (PortAudioException ex)
-        {
-            logger.error("Error setting denoise config", ex);
-        }
     }
 
     /**
@@ -964,14 +922,7 @@ public class DeviceConfiguration
      */
     public boolean isEchoCancelEnabled()
     {
-        try
-        {
-            return PortAudioManager.getInstance().isEnabledEchoCancel();
-        }
-        catch (PortAudioException e)
-        {
-            return false;
-        }
+        return PortAudioManager.isEnabledEchoCancel();
     }
 
     /**
@@ -980,14 +931,7 @@ public class DeviceConfiguration
      */
     public boolean isDenoiseEnabled()
     {
-        try
-        {
-            return PortAudioManager.getInstance().isEnabledDeNoise();
-        }
-        catch (PortAudioException e)
-        {
-            return false;
-        }
+        return PortAudioManager.isEnabledDeNoise();
     }
 
     /**

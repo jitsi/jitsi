@@ -10,8 +10,8 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.control.*;
+import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
-import net.java.sip.communicator.impl.neomedia.portaudio.streams.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -37,56 +37,149 @@ public class PortAudioRenderer
     private static final String PLUGIN_NAME = "PortAudio Renderer";
 
     /**
-     * The list of the standard sample rates supported by
-     * <tt>PortAudioRenderer</tt>.
+     * The list of JMF <tt>Format</tt>s of audio data which
+     * <tt>PortAudioRenderer</tt> instances are capable of rendering.
      */
-    private static final double[] SUPPORTED_SAMPLE_RATES
-        = new double[] { 8000, 16000, 22050, 44100, 48000 };
+    private static final Format[] SUPPORTED_INPUT_FORMATS;
 
     /**
-     * The PortAudio index of the device to be used by the
-     * <tt>PortAudioRenderer</tt> instance which are to be opened.
+     * The list of the sample rates supported by <tt>PortAudioRenderer</tt> as
+     * input.
      */
-    private static int deviceIndex = -1;
+    private static final double[] SUPPORTED_INPUT_SAMPLE_RATES
+        = new double[] { 8000, 11025, 16000, 22050, 32000, 44100, 48000 };
+
+    static
+    {
+        int count = SUPPORTED_INPUT_SAMPLE_RATES.length;
+
+        SUPPORTED_INPUT_FORMATS = new Format[count];
+        for (int i = 0; i < count; i++)
+        {
+            SUPPORTED_INPUT_FORMATS[i]
+                = new AudioFormat(
+                        AudioFormat.LINEAR,
+                        SUPPORTED_INPUT_SAMPLE_RATES[i],
+                        16 /* sampleSizeInBits */,
+                        Format.NOT_SPECIFIED /* channels */,
+                        AudioFormat.LITTLE_ENDIAN,
+                        AudioFormat.SIGNED,
+                        Format.NOT_SPECIFIED /* frameSizeInBits */,
+                        Format.NOT_SPECIFIED /* frameRate */,
+                        Format.byteArray);
+        }
+    }
 
     /**
-     * The supported input formats. Changed when {@link #deviceIndex} is set.
+     * The <tt>MediaLocator</tt> which specifies the device index of the
+     * PortAudio device to be used by <tt>PortAudioRenderer</tt> instances which
+     * are to be opened later on and which don't have a specified
+     * <tt>MediaLocator</tt> at the time of opening.
      */
-    public static Format[] supportedInputFormats = new Format[0];
+    private static MediaLocator defaultLocator;
+
+    /**
+     * The audio samples left unwritten by a previous call to
+     * {@link #process(Buffer)}. As {@link #bytesPerBuffer} number of
+     * bytes are always written, the number of the unwritten audio samples is
+     * always less than that.
+     */
+    private byte[] bufferLeft;
+
+    /**
+     * The number of bytes in {@link #bufferLeft} representing unwritten audio
+     * samples.
+     */
+    private int bufferLeftLength = 0;
+
+    /**
+     * The number of bytes to write to the native PortAudio stream represented
+     * by this instance with a single invocation. Based on
+     * {@link #framesPerBuffer}.
+     */
+    private int bytesPerBuffer;
+
+    /**
+     * The number of frames to write to the native PortAudio stream represented
+     * by this instance with a single invocation.
+     */
+    private int framesPerBuffer;
 
     /**
      * The JMF <tt>Format</tt> in which this <tt>PortAudioRenderer</tt> is
      * currently configured to read the audio data to be rendered.
      */
-    private AudioFormat inputFormat = null;
+    private AudioFormat inputFormat;
+
+    /**
+     * The <tt>MediaLocator</tt> which specifies the device index of the
+     * PortAudio device used by this instance for rendering.
+     */
+    private MediaLocator locator;
+
+    /**
+     * The indicator which determines whether this <tt>Renderer</tt> is started.
+     */
+    private boolean started = false;
 
     /**
      * The output PortAudio stream represented by this instance.
      */
-    private OutputPortAudioStream stream = null;
+    private long stream = 0;
 
     /**
-     *  Closes the plug-in.
+     * The indicator which determines whether {@link #stream} is busy and should
+     * not, for example, be closed.
      */
-    public void close()
+    private boolean streamIsBusy = false;
+
+    /**
+     * Initializes a new <tt>PortAudioRenderer</tt> instance.
+     */
+    public PortAudioRenderer()
     {
-        if (stream != null)
+    }
+
+    /**
+     * Closes this <tt>PlugIn</tt>.
+     */
+    public synchronized void close()
+    {
+        try
         {
             stop();
-
-            try
+        }
+        finally
+        {
+            if (stream != 0)
             {
-                stream.close();
-            }
-            catch (PortAudioException paex)
-            {
-                logger.error("Failed to close stream", paex);
+                try
+                {
+                    PortAudio.Pa_CloseStream(stream);
+                    stream = 0;
+                }
+                catch (PortAudioException paex)
+                {
+                    logger.error("Failed to close PortAudio stream.", paex);
+                }
             }
         }
     }
 
     /**
-     * Gets the descriptive/human-readble name of this JMF plug-in.
+     * Gets the <tt>MediaLocator</tt> which specifies the device index of the
+     * PortAudio device used by this instance for rendering.
+     *
+     * @return the <tt>MediaLocator</tt> which specifies the device index of the
+     * PortAudio device used by this instance for rendering
+     */
+    public MediaLocator getLocator()
+    {
+        return (this.locator == null) ? defaultLocator : this.locator;
+    }
+
+    /**
+     * Gets the descriptive/human-readable name of this JMF plug-in.
      *
      * @return the descriptive/human-readable name of this JMF plug-in
      */
@@ -104,7 +197,24 @@ public class PortAudioRenderer
      */
     public Format[] getSupportedInputFormats()
     {
-        return supportedInputFormats;
+        /*
+         * We want to try to match the PortAudio CaptureDevice when rendering
+         * for the output device of the PortAudio audio system in order to make
+         * echo cancellation and denoise possible (if enabled, of course).
+         * Otherwise i.e. when rendering for the notification device of the
+         * PortAudio audio system, we will not try to make echo cancellation and
+         * denoise possible here.
+         */
+//        if (getLocator() == defaultLocator)
+//        {
+//            for (Format supportedInputFormat : SUPPORTED_INPUT_FORMATS)
+//            {
+//                if (((AudioFormat) supportedInputFormat).getSampleRate()
+//                        == PortAudio.DEFAULT_SAMPLE_RATE)
+//                    return new Format[] { supportedInputFormat };
+//            }
+//        }
+        return SUPPORTED_INPUT_FORMATS.clone();
     }
 
     /**
@@ -114,25 +224,57 @@ public class PortAudioRenderer
      * @throws ResourceUnavailableException if the PortAudio device or output
      * stream cannot be created or opened
      */
-    public void open()
+    public synchronized void open()
         throws ResourceUnavailableException
     {
-        if (stream == null)
+        if (stream == 0)
         {
+            int deviceIndex = DataSource.getDeviceIndex(getLocator());
+            AudioFormat inputFormat = this.inputFormat;
+            int channels = inputFormat.getChannels();
+
+            if (channels == Format.NOT_SPECIFIED)
+                channels = 1;
+
+            long sampleFormat
+                = PortAudio.getPaSampleFormat(
+                    inputFormat.getSampleSizeInBits());
+            double sampleRate = inputFormat.getSampleRate();
+
             try
             {
+                long outputParameters
+                    = PortAudio.PaStreamParameters_new(
+                            deviceIndex,
+                            channels,
+                            sampleFormat,
+                            PortAudioManager.getSuggestedLatency());
+
                 stream
-                    = PortAudioManager
-                        .getInstance()
-                            .getOutputStream(
-                                deviceIndex,
-                                inputFormat.getSampleRate(),
-                                inputFormat.getChannels());
+                    = PortAudio.Pa_OpenStream(
+                            0 /* inputParameters */,
+                            outputParameters,
+                            sampleRate,
+                            PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
+                            PortAudio.STREAM_FLAGS_CLIP_OFF
+                                | PortAudio.STREAM_FLAGS_DITHER_OFF,
+                            null /* streamCallback */);
             }
             catch (PortAudioException paex)
             {
                 throw new ResourceUnavailableException(paex.getMessage());
             }
+            if (stream == 0)
+                throw new ResourceUnavailableException("Pa_OpenStream");
+
+            framesPerBuffer
+                = (int)
+                    ((sampleRate * PortAudio.DEFAULT_MILLIS_PER_BUFFER)
+                        / (channels * 1000));
+            bytesPerBuffer
+                = PortAudio.Pa_GetSampleSize(sampleFormat)
+                    * channels
+                    * framesPerBuffer;
         }
     }
 
@@ -147,58 +289,129 @@ public class PortAudioRenderer
      */
     public int process(Buffer buffer)
     {
+        synchronized (this)
+        {
+            if (!started || (stream == 0))
+                return BUFFER_PROCESSED_OK;
+            else
+                streamIsBusy = true;
+        }
         try
         {
-            stream
-                .write(
-                    (byte[]) buffer.getData(),
-                    buffer.getOffset(),
-                    buffer.getLength());
+            process(
+                (byte[]) buffer.getData(),
+                buffer.getOffset(),
+                buffer.getLength());
         }
         catch (PortAudioException paex)
         {
-            logger.error("Error writing to device", paex);
+            logger.error("Failed to process Buffer.", paex);
+        }
+        finally
+        {
+            synchronized (this)
+            {
+                streamIsBusy = false;
+                notifyAll();
+            }
         }
         return BUFFER_PROCESSED_OK;
     }
 
+    private void process(byte[] buffer, int offset, int length)
+        throws PortAudioException
+    {
+
+        /*
+         * If there are audio samples left unwritten from a previous write,
+         * prepend them to the specified buffer. If it's possible to write them
+         * now, do it.
+         */
+        if ((bufferLeft != null) && (bufferLeftLength > 0))
+        {
+            int numberOfBytesInBufferLeftToBytesPerBuffer
+                = bytesPerBuffer - bufferLeftLength;
+            int numberOfBytesToCopyToBufferLeft
+                = (numberOfBytesInBufferLeftToBytesPerBuffer < length)
+                    ? numberOfBytesInBufferLeftToBytesPerBuffer
+                    : length;
+
+            System
+                .arraycopy(
+                    buffer,
+                    offset,
+                    bufferLeft,
+                    bufferLeftLength,
+                    numberOfBytesToCopyToBufferLeft);
+            offset += numberOfBytesToCopyToBufferLeft;
+            length -= numberOfBytesToCopyToBufferLeft;
+            bufferLeftLength += numberOfBytesToCopyToBufferLeft;
+
+            if (bufferLeftLength == bytesPerBuffer)
+            {
+                PortAudio.Pa_WriteStream(stream, bufferLeft, framesPerBuffer);
+                bufferLeftLength = 0;
+            }
+        }
+
+        // Write the audio samples from the specified buffer.
+        int numberOfWrites = length / bytesPerBuffer;
+
+        if (numberOfWrites > 0)
+        {
+            PortAudio
+                .Pa_WriteStream(
+                    stream,
+                    buffer,
+                    offset,
+                    framesPerBuffer,
+                    numberOfWrites);
+
+            int bytesWritten = numberOfWrites * bytesPerBuffer;
+
+            offset += bytesWritten;
+            length -= bytesWritten;
+        }
+
+        // If anything was left unwritten, remember it for next time.
+        if (length > 0)
+        {
+            if (bufferLeft == null)
+                bufferLeft = new byte[bytesPerBuffer];
+            System.arraycopy(buffer, offset, bufferLeft, 0, length);
+            bufferLeftLength = length;
+        }
+    }
+
     /**
-     * Resets the state of the plug-in.
+     * Resets this <tt>PlugIn</tt>.
      */
     public void reset()
     {
     }
 
     /**
-     * Sets the PortAudio index of the device to be used by the
-     * <tt>PortAudioRenderer</tt> instances which are to be opened later on.
-     * Changes the <tt>supportedInputFormats</tt> property of all
-     * <tt>PortAudioRenderer</tt> instances.
+     * Sets the <tt>MediaLocator</tt> which specifies the device index of the
+     * PortAudio device to be used by <tt>PortAudioRenderer</tt> instances which
+     * are to be opened later on and which don't have a specified
+     * <tt>MediaLocator</tt> at the time of opening.
      *
-     * @param locator the <tt>MediaLocator</tt> specifying the PortAudio device
-     * index
+     * @param defaultLocator the <tt>MediaLocator</tt> which specifies the
+     * device index of the PortAudio device to be used by
+     * <tt>PortAudioRenderer</tt> instances which are to be opened later on and
+     * which don't have a specified <tt>MediaLocator</tt> at the time of opening
      */
-    public static void setDevice(MediaLocator locator)
+    public static void setDefaultLocator(MediaLocator defaultLocator)
     {
-        deviceIndex = PortAudioUtils.getDeviceIndexFromLocator(locator);
-
-        int outputChannels = 1;
-
-        supportedInputFormats = new Format[SUPPORTED_SAMPLE_RATES.length];
-        for(int i = 0; i < SUPPORTED_SAMPLE_RATES.length; i++)
+        if (PortAudioRenderer.defaultLocator == null)
         {
-            supportedInputFormats[i]
-                = new AudioFormat(
-                        AudioFormat.LINEAR,
-                        SUPPORTED_SAMPLE_RATES[i],
-                        16,
-                        outputChannels,
-                        AudioFormat.LITTLE_ENDIAN,
-                        AudioFormat.SIGNED,
-                        16,
-                        Format.NOT_SPECIFIED,
-                        Format.byteArray);
+            if (defaultLocator == null)
+                return;
         }
+        else if (PortAudioRenderer.defaultLocator.equals(defaultLocator))
+            return;
+
+        PortAudioRenderer.defaultLocator = defaultLocator;
     }
 
     /**
@@ -213,11 +426,41 @@ public class PortAudioRenderer
      */
     public Format setInputFormat(Format format)
     {
-        if(!(format instanceof AudioFormat))
+        Format matchingFormat = null;
+
+        for (Format supportedInputFormat : getSupportedInputFormats())
+        {
+            if (supportedInputFormat.matches(format))
+            {
+                matchingFormat = supportedInputFormat.intersects(format);
+                break;
+            }
+        }
+        if (matchingFormat == null)
             return null;
 
-        this.inputFormat = (AudioFormat) format;
-        return this.inputFormat;
+        inputFormat = (AudioFormat) matchingFormat;
+        return inputFormat;
+    }
+
+    /**
+     * Sets the <tt>MediaLocator</tt> which specifies the device index of the
+     * PortAudio device to be used by this instance for rendering.
+     *
+     * @param locator a <tt>MediaLocator</tt> which specifies the device index
+     * of the PortAudio device to be used by this instance for rendering
+     */
+    public void setLocator(MediaLocator locator)
+    {
+        if (this.locator == null)
+        {
+            if (locator == null)
+                return;
+        }
+        else if (this.locator.equals(locator))
+            return;
+
+        this.locator = locator;
     }
 
     /**
@@ -225,30 +468,56 @@ public class PortAudioRenderer
      * resources associated with this <tt>PortAudioRenderer</tt> will begin
      * being rendered.
      */
-    public void start()
+    public synchronized void start()
     {
-        try
+        if (!started && (stream != 0))
         {
-            stream.start();
-        }
-        catch (PortAudioException paex)
-        {
-            logger.error("Starting PortAudio stream failed", paex);
+            try
+            {
+                PortAudio.Pa_StartStream(stream);
+                started = true;
+            }
+            catch (PortAudioException paex)
+            {
+                logger.error("Failed to start PortAudio stream.", paex);
+            }
         }
     }
 
     /**
      * Stops the rendering process.
      */
-    public void stop()
+    public synchronized void stop()
     {
-        try
+        boolean interrupted = false;
+
+        while (streamIsBusy)
         {
-            stream.stop();
+            try
+            {
+                wait();
+            }
+            catch (InterruptedException iex)
+            {
+                interrupted = true;
+            }
         }
-        catch (PortAudioException paex)
+        if (interrupted)
+            Thread.currentThread().interrupt();
+
+        if (started && (stream != 0))
         {
-            logger.error("Closing PortAudio stream failed", paex);
+            try
+            {
+                PortAudio.Pa_StopStream(stream);
+                started = false;
+
+                bufferLeft = null;
+            }
+            catch (PortAudioException paex)
+            {
+                logger.error("Failed to close PortAudio stream.", paex);
+            }
         }
     }
 }

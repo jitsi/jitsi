@@ -221,7 +221,8 @@ public class JNIEncoder
 
             sampleRate = inputSampleRate;
             this.frameSize = frameSize * 2 /* (sampleSizeInBits / 8) */;
-            duration = (long) ((frameSize * 1000 * 1000000) / sampleRate);
+            duration
+                = (((long) frameSize) * 1000 * 1000000) / ((long) sampleRate);
         }
 
         /*
@@ -384,6 +385,42 @@ public class JNIEncoder
     }
 
     /**
+     * @return
+     * @see AbstractCodec#getOutputFormat()
+     */
+    @Override
+    public Format getOutputFormat()
+    {
+        Format outputFormat = super.getOutputFormat();
+
+        if ((outputFormat != null)
+                && (outputFormat.getClass() == AudioFormat.class))
+        {
+            AudioFormat outputAudioFormat = (AudioFormat) outputFormat;
+
+            setOutputFormat(
+                new AudioFormat(
+                            outputAudioFormat.getEncoding(),
+                            outputAudioFormat.getSampleRate(),
+                            outputAudioFormat.getSampleSizeInBits(),
+                            outputAudioFormat.getChannels(),
+                            outputAudioFormat.getEndian(),
+                            outputAudioFormat.getSigned(),
+                            outputAudioFormat.getFrameSizeInBits(),
+                            outputAudioFormat.getFrameRate(),
+                            outputAudioFormat.getDataType())
+                        {
+                            @Override
+                            public long computeDuration(long length)
+                            {
+                                return JNIEncoder.this.duration;
+                            }
+                        });
+        }
+        return outputFormat;
+    }
+
+    /**
      * @param format
      * @return
      * @see AbstractCodecExt#setInputFormat(Format)
@@ -397,13 +434,11 @@ public class JNIEncoder
         {
             double outputSampleRate;
             int outputChannels;
-            long outputDuration;
 
             if (outputFormat == null)
             {
                 outputSampleRate = Format.NOT_SPECIFIED;
                 outputChannels = Format.NOT_SPECIFIED;
-                outputDuration = Format.NOT_SPECIFIED;
             }
             else
             {
@@ -411,7 +446,6 @@ public class JNIEncoder
 
                 outputSampleRate = outputAudioFormat.getSampleRate();
                 outputChannels = outputAudioFormat.getChannels();
-                outputDuration = outputAudioFormat.computeDuration(0);
             }
 
             AudioFormat inputAudioFormat = (AudioFormat) inputFormat;
@@ -419,8 +453,7 @@ public class JNIEncoder
             int inputChannels = inputAudioFormat.getChannels();
 
             if ((outputSampleRate != inputSampleRate)
-                    || (outputChannels != inputChannels)
-                    || (outputDuration == Format.NOT_SPECIFIED))
+                    || (outputChannels != inputChannels))
             {
                 setOutputFormat(
                     new AudioFormat(
@@ -432,14 +465,7 @@ public class JNIEncoder
                             AudioFormat.SIGNED,
                             Format.NOT_SPECIFIED,
                             Format.NOT_SPECIFIED,
-                            Format.byteArray)
-                        {
-                            @Override
-                            public long computeDuration(long length)
-                            {
-                                return duration;
-                            }
-                        });
+                            Format.byteArray));
             }
         }
         return inputFormat;

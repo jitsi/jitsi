@@ -9,10 +9,10 @@ package net.java.sip.communicator.impl.neomedia.notify;
 import java.io.*;
 import java.net.*;
 
+import javax.media.*;
 import javax.sound.sampled.*;
 
-import net.java.sip.communicator.impl.neomedia.portaudio.*;
-import net.java.sip.communicator.impl.neomedia.portaudio.streams.*;
+import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -40,12 +40,12 @@ public class PortAudioClipImpl
     private final Object syncObject = new Object();
 
     /**
-     * Creates the audio clip and initialize the listener used from the
+     * Creates the audio clip and initializes the listener used from the
      * loop timer.
      *
-     * @param url the url pointing to the audio file
+     * @param url the URL pointing to the audio file
      * @param audioNotifier the audio notify service
-     * @throws IOException cannot audio clip with supplied url.
+     * @throws IOException cannot audio clip with supplied URL.
      */
     public PortAudioClipImpl(URL url, AudioNotifierServiceImpl audioNotifier)
         throws IOException
@@ -62,7 +62,14 @@ public class PortAudioClipImpl
         if ((url != null) && !audioNotifier.isMute())
         {
             started = true;
-            new Thread(new PlayThread()).start();
+            new Thread()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            runInPlayThread();
+                        }
+                    }.start();
         }
     }
 
@@ -106,92 +113,163 @@ public class PortAudioClipImpl
         }
     }
 
-    private class PlayThread
-        implements Runnable
+    /**
+     * Runs in a separate thread to perform the actual playback of the audio
+     * stream pointed to by {@link #url} looping as necessary.
+     */
+    private void runInPlayThread()
     {
-        private final byte[] buffer = new byte[1024];
+        Buffer buffer = new Buffer();
+        byte[] bufferData = new byte[1024];
+        PortAudioRenderer renderer = new PortAudioRenderer();
 
-        private OutputPortAudioStream portAudioStream = null;
-
-        public void run()
+        buffer.setData(bufferData);
+        while (started)
         {
             try
             {
-                while(true)
+                if (!runOnceInPlayThread(renderer, buffer, bufferData))
+                    break;
+            }
+            finally
+            {
+                try
                 {
-                    AudioInputStream audioStream =
-                        AudioSystem.getAudioInputStream(url);
-                    AudioFormat audioStreamFormat = audioStream.getFormat();
+                    renderer.stop();
+                }
+                finally
+                {
+                    renderer.close();
+                }
+            }
 
-                    if (portAudioStream == null)
+            if(isLooping())
+            {
+                synchronized(syncObject)
+                {
+                    if (started)
                     {
-                        int deviceIndex
-                            = PortAudioUtils.getDeviceIndexFromLocator(
-                                        audioNotifier.getDeviceConfiguration().
-                                        getAudioNotifyDevice().getLocator());
-
-                        portAudioStream
-                            = PortAudioManager
-                                .getInstance()
-                                    .getOutputStream(
-                                        deviceIndex,
-                                        audioStreamFormat.getSampleRate(),
-                                        audioStreamFormat.getChannels(),
-                                        PortAudioUtils
-                                            .getPortAudioSampleFormat(
-                                                audioStreamFormat
-                                                    .getSampleSizeInBits()));
-                        portAudioStream.start();
-                    }
-
-                    if(!started)
-                    {
-                        portAudioStream.stop();
-                        portAudioStream.close();
-                        return;
-                    }
-
-                    int bufferLength;
-
-                    while(started
-                            && ((bufferLength = audioStream.read(buffer))
-                                    != -1))
-                        portAudioStream.write(buffer, 0, bufferLength);
-
-                    if(!isLooping())
-                    {
-                        portAudioStream.stop();
-                        portAudioStream.close();
-                        break;
-                    }
-                    else
-                    {
-                        synchronized(syncObject) {
-                            if (started)
-                                try
-                                {
-                                    syncObject.wait(getLoopInterval());
-                                }
-                                catch (InterruptedException e)
-                                {
-                                }
+                        try
+                        {
+                            syncObject.wait(getLoopInterval());
+                        }
+                        catch (InterruptedException e)
+                        {
                         }
                     }
                 }
             }
-            catch (PortAudioException e)
+            else
+                break;
+        }
+    }
+
+    /**
+     * Runs in a separate thread to perform the actual playback of the audio
+     * stream pointed to by {@link #url} once using a specific
+     * <tt>PortAudioRenderer</tt> and giving it the audio data for processing
+     * through a specific JMF <tt>Buffer</tt>.
+     *
+     * @param renderer the <tt>PortAudioRenderer</tt> which is to render the
+     * audio data read from the audio stream pointed to by {@link #url}
+     * @param buffer the JMF <tt>Buffer</tt> through which the audio data to be
+     * rendered is to be given to <tt>renderer</tt>
+     * @param bufferData the value of the <tt>data</tt> property of
+     * <tt>buffer</tt> explicitly specified for performance reasons so that it
+     * doesn't have to be read and cast during every iteration of the playback
+     * loop
+     * @return <tt>true</tt> if the playback was successful and it is to be
+     * carried out again in accord with the <tt>looping</tt> property value of
+     * this <tt>SCAudioClipImpl</tt>; otherwise, <tt>false</tt>
+     */
+    private boolean runOnceInPlayThread(
+            PortAudioRenderer renderer,
+            Buffer buffer,
+            byte[] bufferData)
+    {
+        /*
+         * If the user has configured PortAudio to use no notification device,
+         * don't try to play this clip.
+         */
+        MediaLocator rendererLocator
+            = audioNotifier
+                .getDeviceConfiguration().getAudioNotifyDevice().getLocator();
+
+        if (rendererLocator == null)
+            return false;
+        renderer.setLocator(rendererLocator);
+
+        AudioInputStream audioStream = null;
+
+        try
+        {
+            audioStream = AudioSystem.getAudioInputStream(url);
+        }
+        catch (IOException ioex)
+        {
+            logger.error("Failed to get audio stream " + url, ioex);
+        }
+        catch (UnsupportedAudioFileException uafex)
+        {
+            logger.error("Unsupported format of audio stream " + url, uafex);
+        }
+        if (audioStream == null)
+            return false;
+
+        try
+        {
+            AudioFormat audioStreamFormat = audioStream.getFormat();
+            javax.media.format.AudioFormat rendererFormat
+                = new javax.media.format.AudioFormat(
+                        javax.media.format.AudioFormat.LINEAR,
+                        audioStreamFormat.getSampleRate(),
+                        audioStreamFormat.getSampleSizeInBits(),
+                        audioStreamFormat.getChannels());
+
+            renderer.setInputFormat(rendererFormat);
+            buffer.setFormat(rendererFormat);
+
+            try
             {
-                logger.error(
-                    "Cannot open portaudio device for notifications", e);
+                renderer.open();
+                renderer.start();
+
+                int bufferLength;
+
+                while(started
+                        && ((bufferLength = audioStream.read(bufferData))
+                                != -1))
+                {
+                    buffer.setLength(bufferLength);
+                    buffer.setOffset(0);
+                    renderer.process(buffer);
+                }
             }
-            catch (IOException e)
+            catch (IOException ioex)
             {
-                logger.error("Error reading from audio resource", e);
+                logger.error("Failed to read from audio stream " + url, ioex);
+                return false;
             }
-            catch (UnsupportedAudioFileException e)
+            catch (ResourceUnavailableException ruex)
             {
-                logger.error("Unknown file format", e);
+                logger.error("Failed to open PortAudioRenderer.", ruex);
+                return false;
             }
         }
+        finally
+        {
+            try
+            {
+                audioStream.close();
+            }
+            catch (IOException ioex)
+            {
+                /*
+                 * The audio stream failed to close but it doesn't mean the URL
+                 * will fail to open again so ignore the exception.
+                 */
+            }
+        }
+        return true;
     }
 }

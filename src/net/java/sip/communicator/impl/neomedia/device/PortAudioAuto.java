@@ -9,10 +9,10 @@ package net.java.sip.communicator.impl.neomedia.device;
 import java.util.*;
 
 import javax.media.*;
+import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
-import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.configuration.*;
 
@@ -31,6 +31,12 @@ public class PortAudioAuto
      * instances for logging output.
      */
     private static final Logger logger = Logger.getLogger(PortAudioAuto.class);
+
+    /**
+     * The protocol of the <tt>MediaLocator</tt>s identifying PortAudio
+     * <tt>CaptureDevice</tt>s
+     */
+    public static final String LOCATOR_PROTOCOL = "portaudio";
 
     /**
      * An array of the devices that can be used for playback.
@@ -62,15 +68,13 @@ public class PortAudioAuto
     PortAudioAuto()
         throws Exception
     {
-        // if PortAudio has a problem initializing like missing native
-        // components it will trow exception here and PortAudio rendering will
-        // not be inited.
-        PortAudioManager portAudioManager = PortAudioManager.getInstance();
-
         // enable jmf logging, so we can track codec chains and formats
         if(logger.isDebugEnabled())
             Registry.set("allowLogging", true);
 
+        // if PortAudio has a problem initializing like missing native
+        // components it will trow exception here and PortAudio rendering will
+        // not be inited.
         int deviceCount = PortAudio.Pa_GetDeviceCount();
 
         int defaultInputDeviceIx = PortAudio.Pa_GetDefaultInputDevice();
@@ -92,26 +96,31 @@ public class PortAudioAuto
             if (devName != null)
                 devName = devName.trim();
 
-            CaptureDeviceInfo jmfInfo =
-                    new CaptureDeviceInfo(
+            CaptureDeviceInfo jmfInfo
+                = new CaptureDeviceInfo(
                         devName,
-                        new MediaLocator(
-                            PortAudioUtils.LOCATOR_PREFIX + deviceIndex),
-                        new Format[]{DataSource.getCaptureFormat()});
+                        new MediaLocator(LOCATOR_PROTOCOL + ":#" + deviceIndex),
+                        new Format[]
+                                {
+                                    new AudioFormat(
+                                            AudioFormat.LINEAR,
+                                            PortAudio.DEFAULT_SAMPLE_RATE,
+                                            16 /* sampleSizeInBits */,
+                                            1 /* channels */,
+                                            AudioFormat.LITTLE_ENDIAN,
+                                            AudioFormat.SIGNED,
+                                            16 /* frameSizeInBits */,
+                                            Format.NOT_SPECIFIED /* frameRate */,
+                                            Format.byteArray)
+                                });
 
             if(maxInputChannels > 0)
-            {
                 CaptureDeviceManager.addDevice(jmfInfo);
-            }
-
             if(maxOutputChannels > 0)
-            {
                 playbackDevVector.add(jmfInfo);
-            }
 
             if(deviceIndex == defaultInputDeviceIx)
                 defaultCaptureDevice = jmfInfo;
-
             if(deviceIndex == defaultOutputDeviceIx)
                 defaultPlaybackDevice = jmfInfo;
         }
@@ -133,23 +142,25 @@ public class PortAudioAuto
             boolean echoCancelEnabled =
                 config.getBoolean(
                     DeviceConfiguration.PROP_AUDIO_ECHOCANCEL_ENABLED,
-                    portAudioManager.isEnabledEchoCancel());
+                    PortAudioManager.isEnabledEchoCancel());
             if(echoCancelEnabled)
             {
-                int echoCancelTail =
-                    config.getInt(
-                        DeviceConfiguration.PROP_AUDIO_ECHOCANCEL_TAIL,
-                        portAudioManager.getFilterLength());
-                portAudioManager.setEchoCancel(
+                long echoCancelFilterLengthInMillis =
+                    config.getLong(
+                        DeviceConfiguration
+                            .PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS,
+                        PortAudioManager.getFilterLengthInMillis());
+
+                PortAudioManager.setEchoCancel(
                     echoCancelEnabled,
-                    echoCancelTail);
+                    echoCancelFilterLengthInMillis);
             }
 
             boolean denoiseEnabled =
                 config.getBoolean(
                     DeviceConfiguration.PROP_AUDIO_DENOISE_ENABLED,
-                    portAudioManager.isEnabledDeNoise());
-            portAudioManager.setDeNoise(denoiseEnabled);
+                    PortAudioManager.isEnabledDeNoise());
+            PortAudioManager.setDeNoise(denoiseEnabled);
 
             // suggested latency is saved in configuration as
             // milliseconds but PortAudioManager use it as seconds

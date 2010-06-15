@@ -14,19 +14,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#undef net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_UNSPECIFIED
-#define net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_UNSPECIFIED 0.0
 #undef net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_HIGH
 #define net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_HIGH -1.0
 #undef net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_LOW
 #define net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_LOW -2.0
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    setEchoCancelParams
- * Signature: (JJZZII)V
+ * Method:    Pa_AbortStream
+ * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_setEchoCancelParams
-  (JNIEnv *, jclass, jlong, jlong, jboolean, jboolean, jint, jint);
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1AbortStream
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    Pa_CloseStream
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1CloseStream
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
@@ -46,22 +52,6 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_Po
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    Pa_CloseStream
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1CloseStream
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    Pa_AbortStream
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1AbortStream
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
  * Method:    Pa_GetDeviceCount
  * Signature: ()I
  */
@@ -78,6 +68,38 @@ JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_P
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    Pa_GetHostApiInfo
+ * Signature: (I)J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetHostApiInfo
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    Pa_GetSampleSize
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetSampleSize
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    Pa_GetStreamReadAvailable
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetStreamReadAvailable
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    Pa_GetStreamWriteAvailable
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetStreamWriteAvailable
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
  * Method:    Pa_Initialize
  * Signature: ()V
  */
@@ -86,11 +108,27 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_Po
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    Pa_IsFormatSupported
+ * Signature: (JJD)Z
+ */
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1IsFormatSupported
+  (JNIEnv *, jclass, jlong, jlong, jdouble);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
  * Method:    Pa_OpenStream
  * Signature: (JJDJJLnet/java/sip/communicator/impl/neomedia/portaudio/PortAudioStreamCallback;)J
  */
 JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream
   (JNIEnv *, jclass, jlong, jlong, jdouble, jlong, jlong, jobject);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    Pa_ReadStream
+ * Signature: (J[BJ)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1ReadStream
+  (JNIEnv *, jclass, jlong, jbyteArray, jlong);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
@@ -118,43 +156,51 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_Po
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    Pa_ReadStream
- * Signature: (J[BJ)V
+ * Method:    PaDeviceInfo_getDefaultHighInputLatency
+ * Signature: (J)D
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1ReadStream
-  (JNIEnv *, jclass, jlong, jbyteArray, jlong);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    Pa_GetStreamReadAvailable
- * Signature: (J)J
- */
-JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetStreamReadAvailable
+JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighInputLatency
   (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    Pa_GetStreamWriteAvailable
- * Signature: (J)J
+ * Method:    PaDeviceInfo_getDefaultHighOutputLatency
+ * Signature: (J)D
  */
-JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetStreamWriteAvailable
+JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighOutputLatency
   (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    Pa_GetSampleSize
+ * Method:    PaDeviceInfo_getDefaultLowInputLatency
+ * Signature: (J)D
+ */
+JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowInputLatency
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    PaDeviceInfo_getDefaultLowOutputLatency
+ * Signature: (J)D
+ */
+JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowOutputLatency
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    PaDeviceInfo_getDefaultSampleRate
+ * Signature: (J)D
+ */
+JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultSampleRate
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    PaDeviceInfo_getHostApi
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetSampleSize
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getHostApi
   (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    Pa_IsFormatSupported
- * Signature: (JJD)Z
- */
-JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1IsFormatSupported
-  (JNIEnv *, jclass, jlong, jlong, jdouble);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
@@ -190,98 +236,42 @@ JNIEXPORT jbyteArray JNICALL Java_net_java_sip_communicator_impl_neomedia_portau
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    PaDeviceInfo_getDefaultSampleRate
- * Signature: (J)D
- */
-JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultSampleRate
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    PaDeviceInfo_getHostApi
+ * Method:    PaHostApiInfo_getDefaultInputDevice
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getHostApi
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1getDefaultInputDevice
   (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    PaDeviceInfo_getDefaultLowInputLatency
- * Signature: (J)D
- */
-JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowInputLatency
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    PaDeviceInfo_getDefaultLowOutputLatency
- * Signature: (J)D
- */
-JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultLowOutputLatency
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    PaDeviceInfo_getDefaultHighInputLatency
- * Signature: (J)D
- */
-JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighInputLatency
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    PaDeviceInfo_getDefaultHighOutputLatency
- * Signature: (J)D
- */
-JNIEXPORT jdouble JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getDefaultHighOutputLatency
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    Pa_GetHostApiInfo
- * Signature: (I)J
- */
-JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1GetHostApiInfo
-  (JNIEnv *, jclass, jint);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    PaHostApiInfo_GetType
+ * Method:    PaHostApiInfo_getDefaultOutputDevice
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1GetType
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1getDefaultOutputDevice
   (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    PaHostApiInfo_GetName
+ * Method:    PaHostApiInfo_getDeviceCount
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1getDeviceCount
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    PaHostApiInfo_getName
  * Signature: (J)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1GetName
+JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1getName
   (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    PaHostApiInfo_GetDeviceCount
+ * Method:    PaHostApiInfo_getType
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1GetDeviceCount
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    PaHostApiInfo_GetDefaultInputDevice
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1GetDefaultInputDevice
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    PaHostApiInfo_GetDefaultOutputDevice
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1GetDefaultOutputDevice
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaHostApiInfo_1getType
   (JNIEnv *, jclass, jlong);
 
 /*
@@ -291,6 +281,22 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_Po
  */
 JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaStreamParameters_1new
   (JNIEnv *, jclass, jint, jint, jlong, jdouble);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    setDenoise
+ * Signature: (JZ)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_setDenoise
+  (JNIEnv *, jclass, jlong, jboolean);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    setEchoFilterLengthInMillis
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_setEchoFilterLengthInMillis
+  (JNIEnv *, jclass, jlong, jlong);
 
 #ifdef __cplusplus
 }
