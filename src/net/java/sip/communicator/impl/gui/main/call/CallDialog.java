@@ -35,6 +35,11 @@ public class CallDialog
                CallPeerConferenceListener
 {
     /**
+     * The logger.
+     */
+    private final Logger logger = Logger.getLogger(CallDialog.class);
+
+    /**
      * The dial button name.
      */
     private static final String DIAL_BUTTON = "DIAL_BUTTON";
@@ -797,6 +802,13 @@ public class CallDialog
         }
         else
         {
+            // First disable video.
+            if (videoButton.isSelected())
+                videoButton.setSelected(false);
+
+            if (fullScreenButton.isSelected())
+                fullScreenButton.setSelected(false);
+
             settingsPanel.remove(videoButton);
             settingsPanel.remove(transferCallButton);
             settingsPanel.remove(fullScreenButton);
