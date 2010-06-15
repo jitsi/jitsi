@@ -189,6 +189,13 @@ public class ChatTransportSelectorBox
         }
 
         menuItem = transportMenuItems.get(chatTransport);
+
+        // sometimes it may happen that menuItem is null
+        // it was removed for some reason, this maybe due to other bug
+        // anyway detect it to avoid NPE
+        if(menuItem == null)
+            return;
+
         icon = new ImageIcon(createTransportStatusImage(chatTransport));
 
         menuItem.setIcon(icon);

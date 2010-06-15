@@ -2604,7 +2604,7 @@ public class OperationSetPresenceSipImpl
                  {
                      unsubscribe(contact, false);
                  }
-                 catch (OperationFailedException ex)
+                 catch (Throwable ex)
                  {
                      logger.error(
                          "Failed to unsubscribe to contact " + contact,
