@@ -119,7 +119,7 @@ public class SearchField
         }
 
         if (logger.isDebugEnabled())
-            logger.debug("Is filter query for string "
+            logger.debug("Filter query for string "
                 + filterString + " : " + filterQuery);
 
         if (filterQuery != null && !filterQuery.isCanceled())
