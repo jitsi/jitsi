@@ -799,10 +799,10 @@ public class CallDialog
         {
             // First disable video.
             if (videoButton.isSelected())
-                videoButton.setSelected(false);
+                videoButton.doClick();
 
             if (fullScreenButton.isSelected())
-                fullScreenButton.setSelected(false);
+                fullScreenButton.doClick();
 
             settingsPanel.remove(videoButton);
             settingsPanel.remove(transferCallButton);
