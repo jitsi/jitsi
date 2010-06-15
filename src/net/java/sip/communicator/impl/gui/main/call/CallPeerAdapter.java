@@ -117,6 +117,9 @@ public class CallPeerAdapter
 
                 if (!renderer.getCallDialog().isCallTimerStarted())
                     renderer.getCallDialog().startCallTimer();
+
+                // Enabling all buttons when the call is connected.
+                renderer.getCallDialog().enableButtons();
             }
             else
             {

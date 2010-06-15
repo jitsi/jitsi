@@ -102,6 +102,20 @@ public class CallDialog
     private FullScreenButton fullScreenButton;
 
     /**
+     * The dial button, which opens a keypad dialog.
+     */
+    private SIPCommButton dialButton = new SIPCommButton(
+        ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
+        ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
+
+    /**
+     * The conference button.
+     */
+    private SIPCommButton conferenceButton = new SIPCommButton(
+        ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
+        ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
+
+    /**
      * The call represented in this dialog.
      */
     private final Call call;
@@ -190,14 +204,6 @@ public class CallDialog
         SIPCommButton hangupButton = new SIPCommButton(
             ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
 
-        SIPCommButton dialButton = new SIPCommButton(
-            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-            ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
-
-        SIPCommButton conferenceButton = new SIPCommButton(
-            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-            ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
-
         holdButton = new HoldButton(call);
         muteButton = new MuteButton(call);
         videoButton = new LocalVideoButton(call);
@@ -223,6 +229,13 @@ public class CallDialog
             GuiActivator.getResources().getI18NString("service.gui.HANG_UP"));
         hangupButton.addActionListener(this);
 
+        // Buttons would be enabled once the call has entered in state
+        // connected.
+        dialButton.setEnabled(false);
+        conferenceButton.setEnabled(false);
+        holdButton.setEnabled(false);
+        muteButton.setEnabled(false);
+
         settingsPanel.add(dialButton);
         settingsPanel.add(conferenceButton);
         settingsPanel.add(holdButton);
@@ -230,6 +243,12 @@ public class CallDialog
 
         if (!isLastConference)
         {
+            // Buttons would be enabled once the call has entered in state
+            // connected.
+            videoButton.setEnabled(false);
+            transferCallButton.setEnabled(false);
+            fullScreenButton.setEnabled(false);
+
             settingsPanel.add(videoButton);
             settingsPanel.add(transferCallButton);
             settingsPanel.add(fullScreenButton);
@@ -422,6 +441,28 @@ public class CallDialog
     public void setVideoButtonSelected(boolean isSelected)
     {
         this.videoButton.setSelected(true);
+    }
+
+    /**
+     * Enables all setting buttons.
+     */
+    public void enableButtons()
+    {
+     // Buttons would be enabled once the call has entered in state
+        // connected.
+        dialButton.setEnabled(true);
+        conferenceButton.setEnabled(true);
+        holdButton.setEnabled(true);
+        muteButton.setEnabled(true);
+
+        if (!isLastConference)
+        {
+            // Buttons would be enabled once the call has entered in state
+            // connected.
+            videoButton.setEnabled(true);
+            transferCallButton.setEnabled(true);
+            fullScreenButton.setEnabled(true);
+        }
     }
 
     /**
