@@ -8,6 +8,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.event.*;
 
@@ -21,6 +22,11 @@ public class SearchField
     implements  TextFieldChangeListener,
                 FilterQueryListener
 {
+    /**
+     * The logger used by this class.
+     */
+    private final Logger logger = Logger.getLogger(SearchField.class);
+
     /**
      * The main application window.
      */
@@ -111,6 +117,10 @@ public class SearchField
         {
             filterQuery = GuiActivator.getContactList().applyDefaultFilter();
         }
+
+        if (logger.isDebugEnabled())
+            logger.debug("Is filter query for string "
+                + filterString + " : " + filterQuery);
 
         if (filterQuery != null && !filterQuery.isCanceled())
         {
