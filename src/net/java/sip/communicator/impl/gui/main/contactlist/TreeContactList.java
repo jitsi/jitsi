@@ -995,6 +995,9 @@ public class TreeContactList
      */
     public FilterQuery applyFilter(ContactListFilter filter)
     {
+        if (logger.isDebugEnabled())
+            logger.debug("Contact list filter applied: " + filter);
+
         if (currentFilterQuery != null && !currentFilterQuery.isCanceled())
             currentFilterQuery.cancel();
 
