@@ -567,8 +567,8 @@ public class EncodingConfiguration
         if (res == 0)
         {
             res = enc1.getEncoding().compareTo(enc2.getEncoding());
-//            if (res == 0)
-//                res = Double.compare(enc1.getClockRate(), enc2.getClockRate());
+            if (res == 0)
+                res = Double.compare(enc1.getClockRate(), enc2.getClockRate());
         }
         return res;
     }
