@@ -191,10 +191,21 @@ public class EncodingConfiguration
                     .getPropertyNamesByPrefix(PROP_SDP_PREFERENCE, false))
         {
             String prefStr = confService.getString(pName);
-            String fmtName
-                = pName
-                    .substring(pName.lastIndexOf('.') + 1)
-                        .replaceAll("sdp", ""); // legacy
+            String fmtName = pName.substring(pName.lastIndexOf('.') + 1);
+
+            // legacy
+            if (fmtName.contains("sdp"))
+            {
+                fmtName = fmtName.replaceAll("sdp", "");
+                /*
+                 * If the current version of the property name is also
+                 * associated with a value, ignore the value for the legacy one.
+                 */
+                if (confService.getString(PROP_SDP_PREFERENCE + "." + fmtName)
+                        != null)
+                    continue;
+            }
+
             int preference = -1;
             String encoding;
             double clockRate;
@@ -532,14 +543,12 @@ public class EncodingConfiguration
      * Compares the two formats for order. Returns a negative integer, zero, or
      * a positive integer as the first format has been assigned a preference
      * higher, equal to, or greater than the one of the second.
-     * <p>
      *
      * @param enc1 the first format to compare for preference.
-     * @param enc2 the second format to compare for preference.
-     *
+     * @param enc2 the second format to compare for preference
      * @return a negative integer, zero, or a positive integer as the first
-     *         format has been assigned a preference higher, equal to, or
-     *         greater than the one of the second.
+     * format has been assigned a preference higher, equal to, or greater than
+     * the one of the second
      */
     private int compareEncodingPreferences(MediaFormat enc1, MediaFormat enc2)
     {
@@ -551,11 +560,16 @@ public class EncodingConfiguration
 
         int res = pref2IntValue - pref1IntValue;
 
-        // if the encodings are with same priority
-        // compare them by name, if we return equals TreeSet wont add
-        // equal encodings
-        if(res == 0)
-            return enc1.getEncoding().compareTo(enc2.getEncoding());
+        /*
+         * If the encodings are with same priority, compare them by name. If we
+         * return equals TreeSet will not add equal encodings.
+         */
+        if (res == 0)
+        {
+            res = enc1.getEncoding().compareTo(enc2.getEncoding());
+//            if (res == 0)
+//                res = Double.compare(enc1.getClockRate(), enc2.getClockRate());
+        }
         return res;
     }
 }

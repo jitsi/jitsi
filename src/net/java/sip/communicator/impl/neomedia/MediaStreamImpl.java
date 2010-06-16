@@ -589,23 +589,25 @@ public class MediaStreamImpl
             }
             catch (IOException ioe)
             {
-                exception = ioe;
-            }
-            catch (UnsupportedFormatException ufe)
-            {
-                exception = ufe;
-            }
-
-            if (exception != null)
-            {
-                // TODO
                 logger
                     .error(
                         "Failed to create send stream for data source "
                             + dataSource
                             + " and stream index "
                             + streamIndex,
-                        exception);
+                        ioe);
+            }
+            catch (UnsupportedFormatException ufe)
+            {
+                logger
+                    .error(
+                        "Failed to create send stream for data source "
+                            + dataSource
+                            + " and stream index "
+                            + streamIndex
+                            + " because of failed format "
+                            + ufe.getFailedFormat(),
+                        ufe);
             }
         }
         sendStreamsAreCreated = true;
