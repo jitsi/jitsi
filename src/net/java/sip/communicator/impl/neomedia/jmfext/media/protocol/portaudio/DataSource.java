@@ -24,21 +24,53 @@ import net.java.sip.communicator.impl.neomedia.portaudio.*;
 public class DataSource
     extends AbstractPullBufferCaptureDevice
 {
+
+    /**
+     * The indicator which determines whether this <tt>DataSource</tt> will
+     * use audio quality improvement in accord with the preferences of the user.
+     */
     private final boolean audioQualityImprovement;
 
+    /**
+     * The list of <tt>Format</tt>s in which this <tt>DataSource</tt> is
+     * capable of capturing audio data.
+     */
     private final Format[] supportedFormats;
 
+    /**
+     * Initializes a new <tt>DataSource</tt> instance.
+     */
     public DataSource()
     {
         this.supportedFormats = null;
         this.audioQualityImprovement = true;
     }
 
+    /**
+     * Initializes a new <tt>DataSource</tt> instance from a specific
+     * <tt>MediaLocator</tt>.
+     *
+     * @param locator the <tt>MediaLocator</tt> to create the new instance from
+     */
     public DataSource(MediaLocator locator)
     {
         this(locator, null, true);
     }
 
+    /**
+     * Initializes a new <tt>DataSource</tt> instance from a specific
+     * <tt>MediaLocator</tt> and which has a specific list of <tt>Format</tt>
+     * in which it is capable of capturing audio data overriding its
+     * registration with JMF and optionally uses audio quality improvement in
+     * accord with the preferences of the user.
+     *
+     * @param locator the <tt>MediaLocator</tt> to create the new instance from
+     * @param supportedFormats the list of <tt>Format</tt>s in which the new
+     * instance is to be capable of capturing audio data
+     * @param audioQuality <tt>true</tt> if audio quality improvement is to be
+     * enabled in accord with the preferences of the user or <tt>false</tt> to
+     * completely disable audio quality improvement
+     */
     public DataSource(
             MediaLocator locator,
             Format[] supportedFormats,

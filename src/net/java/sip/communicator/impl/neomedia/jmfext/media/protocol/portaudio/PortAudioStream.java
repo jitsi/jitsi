@@ -24,6 +24,12 @@ import net.java.sip.communicator.impl.neomedia.portaudio.*;
 public class PortAudioStream
     extends AbstractPullBufferStream
 {
+
+    /**
+     * The indicator which determines whether audio quality improvement is
+     * enabled for this <tt>PortAudioStream</tt> in accord with the preferences
+     * of the user.
+     */
     private final boolean audioQualityImprovement;
 
     /**
@@ -70,7 +76,9 @@ public class PortAudioStream
      *
      * @param formatControl the <tt>FormatControl</tt> which is to abstract the
      * <tt>Format</tt>-related information of the new instance
-     * @param audioQualityImprovement
+     * @param audioQualityImprovement <tt>true</tt> to enable audio quality
+     * improvement for the new instance in accord with the preferences of the
+     * user or <tt>false</tt> to completely disable audio quality improvement
      */
     public PortAudioStream(
             FormatControl formatControl,

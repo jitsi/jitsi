@@ -29,6 +29,7 @@ import net.java.sip.communicator.impl.neomedia.portaudio.*;
  * TODO: add JMF method to read audio (mic) data, check if we can use video?
  *
  * @author Werner Dittmann <Werner.Dittmann@t-online.de>
+ * @author Lubomir Marinov
  */
 public class GatherEntropy
 {
@@ -106,8 +107,15 @@ public class GatherEntropy
 
     private class GatherPortAudio extends Thread
     {
+        /**
+         * The PortAudio <tt>DataSource</tt> which provides
+         * {@link #portAudioStream}.
+         */
         private DataSource dataSource = null;
 
+        /**
+         * The <tt>PortAudioStream</tt> from which audio data is captured.
+         */
         private PortAudioStream portAudioStream = null;
 
         /**
@@ -161,8 +169,8 @@ public class GatherEntropy
          * 
          * The method gathers a number of samples and seeds the Fortuna PRNG.
          */
-        public void run() {
-
+        public void run()
+        {
             ZrtpFortuna fortuna = ZrtpFortuna.getInstance();
 
             Buffer firstBuf = new Buffer();
@@ -182,12 +190,11 @@ public class GatherEntropy
                     // others on the first pools. This method is adapted to
                     // SC requirements to get random data
                     if (i < 32)
-                    {
                         fortuna.addSeedMaterial(entropy);
-                    }
-                    else 
+                    else
                     {
-                        fortuna.addSeedMaterial((i%3), entropy, 0, entropy.length);
+                        fortuna
+                            .addSeedMaterial((i%3), entropy, 0, entropy.length);
                     }
                 }
                 entropyOk = true;
