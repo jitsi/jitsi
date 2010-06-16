@@ -105,6 +105,8 @@ public class SearchField
 
         FilterQuery filterQuery = null;
 
+        boolean isDefaultFilter = false;
+
         if (filterString != null && filterString.length() > 0)
         {
             TreeContactList.searchFilter
@@ -116,16 +118,16 @@ public class SearchField
         else
         {
             filterQuery = GuiActivator.getContactList().applyDefaultFilter();
+            isDefaultFilter = true;
         }
-
-        if (logger.isDebugEnabled())
-            logger.debug("Filter query for string "
-                + filterString + " : " + filterQuery);
 
         if (filterQuery != null && !filterQuery.isCanceled())
         {
             // If we already have a result here we update the interface.
-            if (filterQuery.isSucceeded())
+            // In the case of default filter we don't need to know if the
+            // query has succeeded, as event if it isn't we would like to
+            // remove the unknown contact view.
+            if (isDefaultFilter || filterQuery.isSucceeded())
                 enableUnknownContactView(false);
             else
                 // Otherwise we will listen for events for changes in status
