@@ -57,8 +57,8 @@ public class SpeexResampler
                         1 /* channels */,
                         AudioFormat.LITTLE_ENDIAN,
                         AudioFormat.SIGNED,
-                        16,
-                        SUPPORTED_SAMPLE_RATES[i],
+                        Format.NOT_SPECIFIED,
+                        Format.NOT_SPECIFIED,
                         Format.byteArray);
         }
     }
@@ -231,7 +231,7 @@ public class SpeexResampler
                         inputFormat.getEndian(),
                         inputFormat.getSigned(),
                         Format.NOT_SPECIFIED,
-                        inputFormat.getFrameSizeInBits(),
+                        Format.NOT_SPECIFIED,
                         inputFormat.getDataType()));
         }
         return inputFormat;

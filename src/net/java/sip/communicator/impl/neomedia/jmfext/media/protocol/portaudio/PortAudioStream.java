@@ -284,7 +284,7 @@ public class PortAudioStream
                             channels,
                             AudioFormat.LITTLE_ENDIAN,
                             AudioFormat.SIGNED,
-                            sampleSizeInBits * channels,
+                            Format.NOT_SPECIFIED /* frameSizeInBits */,
                             Format.NOT_SPECIFIED /* frameRate */,
                             Format.byteArray);
 

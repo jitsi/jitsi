@@ -582,6 +582,11 @@ public class MediaDeviceSession
             Format[] formats,
             Format format)
     {
+        double formatSampleRate
+            = (format instanceof AudioFormat)
+                ? ((AudioFormat) format).getSampleRate()
+                : Format.NOT_SPECIFIED;
+
         for (Format match : formats)
         {
             /*
@@ -590,7 +595,24 @@ public class MediaDeviceSession
              * have been specified are also necessary.
              */
             if (match.isSameEncoding(format))
+            {
+                /*
+                 * The encoding alone is, of course, not enough. For example,
+                 * AudioFormats may have different sample rates (i.e. clock
+                 * rates as we call them in MediaFormat).
+                 */
+                if ((formatSampleRate != Format.NOT_SPECIFIED)
+                        && (match instanceof AudioFormat))
+                {
+                    double matchSampleRate
+                        = ((AudioFormat) match).getSampleRate();
+
+                    if ((matchSampleRate != Format.NOT_SPECIFIED)
+                            && (matchSampleRate != formatSampleRate))
+                        continue;
+                }
                 return match;
+            }
         }
         return null;
     }

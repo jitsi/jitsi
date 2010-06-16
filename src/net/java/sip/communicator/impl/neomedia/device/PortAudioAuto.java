@@ -109,7 +109,7 @@ public class PortAudioAuto
                                             1 /* channels */,
                                             AudioFormat.LITTLE_ENDIAN,
                                             AudioFormat.SIGNED,
-                                            16 /* frameSizeInBits */,
+                                            Format.NOT_SPECIFIED /* frameSizeInBits */,
                                             Format.NOT_SPECIFIED /* frameRate */,
                                             Format.byteArray)
                                 });
