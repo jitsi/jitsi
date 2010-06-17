@@ -87,6 +87,11 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     static final int DEFAULT_HEIGHT = 480;
 
     /**
+     * Last known native DirectShow format.
+     */
+    private DSFormat nativeFormat = null;
+
+    /**
      * Constructor.
      */
     public DataSource()
@@ -301,7 +306,13 @@ public class DataSource extends AbstractPushBufferCaptureDevice
                 {
                     DSFormat fmt = new DSFormat(newSize.width, newSize.height,
                             pixelFormat);
-                    device.setFormat(fmt);
+                    /* we will set native format in doStart() because in case of
+                     * sequence connect/disconnect/connect native capture device
+                     * can ordered its formats in different way. Thus as
+                     * setFormat() is not called anymore by JMF it can cause
+                     * crash because of wrong format later (typically scaling)
+                     */
+                    nativeFormat = fmt;
                 }
             }
 
@@ -370,9 +381,16 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     {
         if (logger.isInfoEnabled())
             logger.info("start");
+
         /* open and start capture */
         device.open();
+        if(nativeFormat != null)
+        {
+            device.setFormat(nativeFormat);
+        }
+
         device.setDelegate(grabber);
+
         super.doStart();
     }
 
