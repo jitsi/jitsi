@@ -12,49 +12,6 @@
     </classpath>
   </taskdef>
 
-  <!-- initialize destination directory -->
-  <condition property="native_install_dir" value="${native.libs}/windows">
-    <and>
-      <isset property="is.running.windows"/>
-      <or>
-        <os arch="x86" />
-        <os arch="i386" />
-      </or>
-    </and>
-  </condition>
-
-  <condition property="native_install_dir" value="${native.libs}/windows-64">
-    <and>   
-      <isset property="is.running.windows"/>
-      <os arch="amd64" />
-    </and>                                    
-  </condition>
-
-  <condition property="native_install_dir" value="${native.libs}/linux">
-    <and>   
-      <isset property="is.running.linux"/>
-      <or>
-        <os arch="x86" />
-        <os arch="i386" />
-      </or>
-    </and>                                    
-  </condition>
-
-  <condition property="native_install_dir" value="${native.libs}/linux-64">
-    <and>   
-      <isset property="is.running.linux"/>
-      <os arch="amd64" />
-    </and>                                    
-  </condition>
-
-  <condition property="native_install_dir" value="${native.libs}/mac">
-    <isset property="is.running.macos"/>
-  </condition>
-
-  <condition property="native_install_dir" value="${native.libs}/mac">
-    <isset property="is.running.macos"/>
-  </condition>
-
   <!-- Cross compilation, this is mainly used for Linux (cross-compile 32-bit binaries
        from 64-bit host. It is also used to compile ffmpeg for Mac OS X for each 
        architecture before create universal binary with lupo tool. 
@@ -70,6 +27,57 @@
   <!-- Mac OS X only -->
   <condition property="cross_ppc" value="y" >
     <equals arg1="${arch}" arg2="ppc" />
+  </condition>
+
+  <!-- initialize destination directory -->
+  <condition property="native_install_dir" value="${native.libs}/windows">
+    <and>
+      <isset property="is.running.windows"/>
+      <or>
+        <os arch="x86" />
+        <os arch="i386" />
+        <equals arg1="${arch}" arg2="32" />
+      </or>
+    </and>
+  </condition>
+
+  <condition property="native_install_dir" value="${native.libs}/windows-64">
+    <and>
+      <isset property="is.running.windows"/>
+      <or>   
+        <os arch="amd64" />
+        <equals arg1="${arch}" arg2="64" />
+      </or>
+    </and>                                    
+  </condition>
+
+  <condition property="native_install_dir" value="${native.libs}/linux">
+    <and>   
+      <isset property="is.running.linux"/>
+      <or>
+        <os arch="x86" />
+        <os arch="i386" />
+        <equals arg1="${arch}" arg2="32" />
+      </or>
+    </and>                                    
+  </condition>
+
+  <condition property="native_install_dir" value="${native.libs}/linux-64">
+    <and>
+      <isset property="is.running.linux"/>
+      <or>   
+        <os arch="amd64" />
+        <equals arg1="${arch}" arg2="64" />
+      </or>
+    </and>                                    
+  </condition>
+
+  <condition property="native_install_dir" value="${native.libs}/mac">
+    <isset property="is.running.macos"/>
+  </condition>
+
+  <condition property="native_install_dir" value="${native.libs}/mac">
+    <isset property="is.running.macos"/>
   </condition>
 
   <!--
@@ -369,7 +377,9 @@
       <!-- Windows specific flags -->
       <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.windows" />
       <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
+      <compilerarg value="-I${pthread}" if="is.running.windows" />
       
+      <linkerarg value="-L${pthread}" if="is.running.windows" />
       <linkerarg value="-ojportaudio.dll" if="is.running.windows" />
       <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
       <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
@@ -377,6 +387,7 @@
       <linkerarg value="-lspeexdsp" location="end" if="is.running.windows" />
       <linkerarg value="-lwinmm" location="end" if="is.running.windows" />
       <linkerarg value="-lm" location="end" if="is.running.windows" />
+      <linkerarg value="-lpthreadGC2" location="end" if="is.running.windows" />
       <linkerarg value="-lstdc++" location="end" if="is.running.windows" />
       <linkerarg value="-lole32" location="end" if="is.running.windows" />
       <linkerarg value="-luuid" location="end" if="is.running.windows" />
@@ -388,7 +399,7 @@
   <!-- compile jvideo4linux2 library -->
   <target name="video4linux2" description="Build jvideo4linux2 shared library" if="is.running.linux"
     depends="init-native">
-    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/video4linux2" objdir="${obj}">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jvideo4linux2" objdir="${obj}">
       <compilerarg value="-std=c99" />
       <compilerarg value="-Wall" />
       <compilerarg value="-O2" />
@@ -577,6 +588,14 @@
     <echo message="'ant aegeturleventhandler (Mac OS X only)' to compile AEGetURLEventHandler shared library" />
     <echo message="'ant sparkle (Mac OS X only)' to compile sparkle shared library" />
     <echo message="'ant quicktime (Mac OS X only)' to compile jquicktime shared library" />
+    <echo message="" />
+    <echo message="Options:" />
+    <echo message="-Darch: cross-compile for 32-bit (-Darch=32), 64-bit (-Darch=64) or ppc (-Darch=ppc, Mac OS X only) targets. Windows users have to use gcc >= 4.5." />
+    <echo message="-Dx264: path to x264 directory (ffmpeg JNI compilation)." />
+    <echo message="-Dffmpeg: path to ffmpeg directory (ffmpeg JNI compilation)." />
+    <echo message="-Dportaudio path to portaudio directory (jportaudio JNI compilation)." />
+    <echo message="-Dspeex: path to speex directory (jportaudio/jspeex JNI compilation)." />
+    <echo message="-Dpthread: path to pthread directory (Windows only). If you already have pthread in MinGW don't use it." />
     <echo message="" />
     <echo message="Please note that external libraries such as ffmpeg, x264, portaudio and speex have to be compiled" />
     <echo message="(follow READMEs in relevant directory) before trying to compile libffmpeg and libjportaudio"  />
