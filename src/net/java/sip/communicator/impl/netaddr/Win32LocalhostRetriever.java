@@ -6,11 +6,9 @@
  */
 package net.java.sip.communicator.impl.netaddr;
 
-import java.net.*;
-
 /**
- * Class to retrieve local address to use for a 
- * specific destination.
+ * Class to retrieve local address to use for a specific destination.
+ * This class works only on Microsoft Windows system.
  *
  * @author Sebastien Vincent
  */
@@ -30,11 +28,13 @@ public class Win32LocalhostRetriever
     }
 
     /**
-     * Native function to retrieve source address to use for a specific destination.
+     * Native method to retrieve source address to use for a specific
+     * destination.
+     *
      * @param dst destination address
      * @return source address or null if error
-     * @note This function is only implemented for Microsoft Windows (>= XP SP1).
-     * Do not try to call it from another OS.
+     * @note This function is only implemented for Microsoft Windows
+     * (>= XP SP1). Do not try to call it from another OS.
      */
     public native static byte[] getSourceForDestination(byte[] dst);
 }

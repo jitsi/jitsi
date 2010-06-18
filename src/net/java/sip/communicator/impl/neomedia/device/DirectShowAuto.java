@@ -65,11 +65,11 @@ public class DirectShowAuto
             }
             else
             {
-                logger.warn("No support for this webcam: " + 
+                logger.warn("No support for this webcam: " +
                         devices[i].getName() + "(no format supported)");
                 continue;
             }
-            
+
             CaptureDeviceInfo device
                 = new CaptureDeviceInfo(devices[i].getName(),
                         new MediaLocator(LOCATOR_PROTOCOL + ':' + devices[i].
@@ -82,7 +82,7 @@ public class DirectShowAuto
             CaptureDeviceManager.addDevice(device);
             captureDeviceInfoIsAdded = true;
         }
-        
+
         if (captureDeviceInfoIsAdded)
             CaptureDeviceManager.commit();
 

@@ -250,7 +250,7 @@ public class MediaFormatFactoryImpl
                     = new VideoMediaFormatImpl(
                             videoMediaFormatImpl.getFormat(),
                             videoMediaFormatImpl.getClockRate(),
-                            null,
+                            formatParameters,
                             advancedParameters);
                 break;
             default:

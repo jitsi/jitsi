@@ -685,13 +685,11 @@ public class MediaDeviceSession
     }
 
     /**
-     * Gets the <tt>MediaFormat</tt> in which this instance captures media from
-     * its associated <tt>MediaDevice</tt>.
+     * Gets the JMF <tt>Format</tt> in which this instance captures media.
      *
-     * @return the <tt>MediaFormat</tt> in which this instance captures media
-     * from its associated <tt>MediaDevice</tt>
+     * @return the JMF <tt>Format</tt> in which this instance captures media.
      */
-    public MediaFormat getFormat()
+    public Format getProcessorFormat()
     {
         Processor processor = getProcessor();
 
@@ -706,12 +704,35 @@ public class MediaDeviceSession
                 if (!trackControl.isEnabled())
                     continue;
 
-                MediaFormat format
-                    = MediaFormatImpl.createInstance(trackControl.getFormat());
+                Format jmfFormat = trackControl.getFormat();
+                MediaType type = jmfFormat instanceof VideoFormat
+                    ? MediaType.VIDEO : MediaType.AUDIO;
 
-                if ((format != null) && format.getMediaType().equals(mediaType))
-                    return format;
+                if(mediaType.equals((type)))
+                {
+                    return jmfFormat;
+                }
             }
+        }
+        return null;
+    }
+
+    /**
+     * Gets the <tt>MediaFormat</tt> in which this instance captures media from
+     * its associated <tt>MediaDevice</tt>.
+     *
+     * @return the <tt>MediaFormat</tt> in which this instance captures media
+     * from its associated <tt>MediaDevice</tt>
+     */
+    public MediaFormat getFormat()
+    {
+        Format jmfFormat = getProcessorFormat();
+
+        if(jmfFormat != null)
+        {
+            MediaFormat format
+                = MediaFormatImpl.createInstance(jmfFormat);
+            return format;
         }
         return null;
     }
@@ -1236,8 +1257,10 @@ public class MediaDeviceSession
                 setProcessorFormat(processor, this.format);
             else if (processorIsPrematurelyClosed
                         || ((processorState > Processor.Configured)
-                                && !format.equals(getFormat())))
+                                && !this.format.equals(getProcessorFormat())))
+            {
                 setProcessor(null);
+            }
         }
     }
 

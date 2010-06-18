@@ -415,7 +415,7 @@ public class SwScaler
         if ((inFlags & Buffer.FLAG_SYSTEM_TIME) != 0)
             outFlags |= Buffer.FLAG_SYSTEM_TIME;
         output.setFlags(outFlags);
-
+            
         return BUFFER_PROCESSED_OK;
     }
 
