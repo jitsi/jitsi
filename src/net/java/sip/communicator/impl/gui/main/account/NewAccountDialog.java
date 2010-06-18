@@ -75,8 +75,8 @@ public class NewAccountDialog
     {
         super(GuiActivator.getUIService().getMainFrame());
 
-        this.setTitle(
-            GuiActivator.getResources().getI18NString("service.gui.NEW_ACCOUNT"));
+        this.setTitle(GuiActivator.getResources()
+            .getI18NString("service.gui.NEW_ACCOUNT"));
 
         this.getContentPane().add(mainPanel);
 
@@ -329,6 +329,7 @@ public class NewAccountDialog
 
     /**
      * Handles button actions.
+     * @param event the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent event)
     {
@@ -433,6 +434,7 @@ public class NewAccountDialog
 
     /**
      * Remove the newAccountDialog, when the window is closed.
+     * @param isEscaped indicates if the dialog has been escaped
      */
     protected void close(boolean isEscaped)
     {

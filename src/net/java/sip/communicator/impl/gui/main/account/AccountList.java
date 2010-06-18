@@ -30,8 +30,14 @@ public class AccountList
                 ServiceListener,
                 MouseListener
 {
+    /**
+     * The account list model.
+     */
     private final AccountListModel accountListModel = new AccountListModel();
 
+    /**
+     * The edit button.
+     */
     private final JButton editButton;
 
     /**
@@ -91,11 +97,15 @@ public class AccountList
                     presence.addProviderPresenceStatusListener(this);
                 }
 
-                accountListModel.addElement(new Account(protocolProvider));
+                accountListModel.addAccount(new Account(protocolProvider));
             }
         }
     }
 
+    /**
+     * Returns the selected account.
+     * @return the selected account
+     */
     public Account getSelectedAccount()
     {
         return (Account) this.getSelectedValue();
@@ -103,6 +113,8 @@ public class AccountList
 
     /**
      * Refreshes the account status icon, when the status has changed.
+     * @param evt the <tt>ProviderPresenceStatusChangeEvent</tt> that notified
+     * us
      */
     public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
     {
@@ -154,15 +166,14 @@ public class AccountList
             // Add a presence listener in order to listen for any status
             // changes.
             OperationSetPresence presence
-                = protocolProvider
-                    .getOperationSet(OperationSetPresence.class);
+                = protocolProvider.getOperationSet(OperationSetPresence.class);
 
             if (presence != null)
             {
                 presence.addProviderPresenceStatusListener(this);
             }
 
-            accountListModel.addElement(new Account(protocolProvider));
+            accountListModel.addAccount(new Account(protocolProvider));
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
@@ -178,6 +189,7 @@ public class AccountList
 
     /**
      * Listens for double mouse click events in order to open the edit form.
+     * @param e the <tt>MouseEvent</tt> that notified us
      */
     public void mouseClicked(MouseEvent e)
     {
@@ -187,17 +199,13 @@ public class AccountList
         }
     }
 
-    public void mouseEntered(MouseEvent e)
-    {}
+    public void mouseEntered(MouseEvent e) {}
 
-    public void mouseExited(MouseEvent e)
-    {}
+    public void mouseExited(MouseEvent e) {}
 
-    public void mousePressed(MouseEvent e)
-    {}
+    public void mousePressed(MouseEvent e) {}
 
-    public void mouseReleased(MouseEvent e)
-    {}
+    public void mouseReleased(MouseEvent e) {}
 
     /**
      * Refreshes the account status icon, when the status has changed.
@@ -240,6 +248,60 @@ public class AccountList
         {
             int index = this.indexOf(account);
             this.fireContentsChanged(this, index, index);
+        }
+
+        /**
+         * Adds the given <tt>account</tt> to this model.
+         * @param account the <tt>Account</tt> to add
+         */
+        public void addAccount(Account account)
+        {
+            // If this is the first account in our menu.
+            if (getSize() == 0)
+            {
+                addElement(account);
+                return;
+            }
+
+            boolean isAccountAdded = false;
+            Enumeration<Account> accounts = (Enumeration<Account>) elements();
+            AccountID accountID = account.getProtocolProvider().getAccountID();
+
+            // If we already have other accounts.
+            while (accounts.hasMoreElements())
+            {
+                Account a = accounts.nextElement();
+                AccountID listAccountID = a.getProtocolProvider().getAccountID();
+
+                int accountIndex = indexOf(a);
+
+                int protocolCompare
+                    = accountID.getProtocolDisplayName().compareTo(
+                        listAccountID.getProtocolDisplayName());
+
+                // If the new account protocol name is before the name of the
+                // menu we insert the new account before the given menu.
+                if (protocolCompare < 0)
+                {
+                    insertElementAt(account, accountIndex);
+                    isAccountAdded = true;
+                    break;
+                }
+                else if (protocolCompare == 0)
+                {
+                    // If we have the same protocol name, we check the account name.
+                    if (accountID.getDisplayName()
+                                .compareTo(listAccountID.getDisplayName()) < 0)
+                    {
+                        insertElementAt(account, accountIndex);
+                        isAccountAdded = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!isAccountAdded)
+                addElement(account);
         }
     }
 }

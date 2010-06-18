@@ -61,13 +61,6 @@ public class GlobalStatusSelectorBox
         = Logger.getLogger(GlobalStatusSelectorBox.class);
 
     /**
-     * Mapping of <tt>ProtocolProviderService</tt> and corresponding
-     * <tt>StatusSelectorMenu</tt>.
-     */
-    private final Map<ProtocolProviderService, StatusSelectorMenu> accountMenus
-        = new Hashtable<ProtocolProviderService, StatusSelectorMenu>();
-
-    /**
      * The main application window.
      */
     private final MainFrame mainFrame;
@@ -104,6 +97,11 @@ public class GlobalStatusSelectorBox
      * The width of the text.
      */
     private int textWidth = 0;
+
+    /**
+     * Indicates if this is the first account added.
+     */
+    private boolean isFirstAccount = true;
 
     /**
      * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
@@ -208,8 +206,53 @@ public class GlobalStatusSelectorBox
                 ? new PresenceStatusMenu(protocolProvider)
                 : new SimpleStatusMenu(protocolProvider);
 
-        this.add(statusSelectorMenu);
-        this.accountMenus.put(protocolProvider, statusSelectorMenu);
+        // If this is the first account in our menu.
+        if (isFirstAccount)
+        {
+            add(statusSelectorMenu);
+            isFirstAccount = false;
+            return;
+        }
+
+        boolean isMenuAdded = false;
+        AccountID accountId = protocolProvider.getAccountID();
+        // If we already have other accounts.
+        for (Component c : getPopupMenu().getComponents())
+        {
+            if (!(c instanceof StatusSelectorMenu))
+                continue;
+
+            StatusSelectorMenu menu = (StatusSelectorMenu) c;
+            int menuIndex = getPopupMenu().getComponentIndex(menu);
+
+            AccountID menuAccountID = menu.getProtocolProvider().getAccountID();
+
+            int protocolCompare = accountId.getProtocolDisplayName().compareTo(
+                menuAccountID.getProtocolDisplayName());
+
+            // If the new account protocol name is before the name of the menu
+            // we insert the new account before the given menu.
+            if (protocolCompare < 0)
+            {
+                insert(statusSelectorMenu, menuIndex);
+                isMenuAdded = true;
+                break;
+            }
+            else if (protocolCompare == 0)
+            {
+                // If we have the same protocol name, we check the account name.
+                if (accountId.getDisplayName()
+                        .compareTo(menuAccountID.getDisplayName()) < 0)
+                {
+                    insert( statusSelectorMenu, menuIndex);
+                    isMenuAdded = true;
+                    break;
+                }
+            }
+        }
+
+        if (!isMenuAdded)
+            add(statusSelectorMenu);
     }
 
     /**
@@ -220,11 +263,10 @@ public class GlobalStatusSelectorBox
      */
     public void removeAccount(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu statusSelectorMenu
-            = this.accountMenus.get(protocolProvider);
+        StatusSelectorMenu menu = getStatusSelectorMenu(protocolProvider);
 
-        this.remove(statusSelectorMenu);
-        this.accountMenus.remove(protocolProvider);
+        if (menu != null)
+            remove(menu);
     }
 
     /**
@@ -236,7 +278,12 @@ public class GlobalStatusSelectorBox
      */
     public boolean containsAccount(ProtocolProviderService protocolProvider)
     {
-        return accountMenus.containsKey(protocolProvider);
+        StatusSelectorMenu menu = getStatusSelectorMenu(protocolProvider);
+
+        if (menu != null)
+            return true;
+
+        return false;
     }
 
     /**
@@ -246,7 +293,10 @@ public class GlobalStatusSelectorBox
      */
     public void startConnecting(ProtocolProviderService protocolProvider)
     {
-        accountMenus.get(protocolProvider).startConnecting();
+        StatusSelectorMenu menu = getStatusSelectorMenu(protocolProvider);
+
+        if (menu != null)
+            menu.startConnecting();
     }
 
     /**
@@ -256,9 +306,10 @@ public class GlobalStatusSelectorBox
      */
     public void stopConnecting(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu selectorMenu = accountMenus.get(protocolProvider);
-        if (selectorMenu != null)
-            selectorMenu.stopConnecting();
+        StatusSelectorMenu menu = getStatusSelectorMenu(protocolProvider);
+
+        if (menu != null)
+            menu.stopConnecting();
     }
 
     /**
@@ -269,9 +320,16 @@ public class GlobalStatusSelectorBox
      */
     public boolean hasSelectedMenus()
     {
-        for (StatusSelectorMenu statusSelectorMenu : accountMenus.values())
-            if (statusSelectorMenu.isSelected())
+        for (Component c : getComponents())
+        {
+            if (!(c instanceof StatusSelectorMenu))
+                continue;
+
+            StatusSelectorMenu menu = (StatusSelectorMenu) c;
+
+            if (menu.isSelected())
                 return true;
+        }
         return false;
     }
 
@@ -497,7 +555,7 @@ public class GlobalStatusSelectorBox
      */
     public void updateStatus(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu accountMenu = accountMenus.get(protocolProvider);
+        StatusSelectorMenu accountMenu = getStatusSelectorMenu(protocolProvider);
 
         if (accountMenu == null)
             return;
@@ -543,7 +601,7 @@ public class GlobalStatusSelectorBox
     public void updateStatus(ProtocolProviderService protocolProvider,
                              PresenceStatus presenceStatus)
     {
-        StatusSelectorMenu accountMenu = accountMenus.get(protocolProvider);
+        StatusSelectorMenu accountMenu = getStatusSelectorMenu(protocolProvider);
 
         if (accountMenu == null)
             return;
@@ -866,5 +924,30 @@ public class GlobalStatusSelectorBox
 
         this.setPreferredSize(new Dimension(
             textWidth + 2*IMAGE_INDENT + arrowImage.getWidth(null) + 5, 20));
+    }
+
+    /**
+     * Returns the <tt>StatusSelectorMenu</tt> corresponding to the given
+     * <tt>protocolProvider</tt>.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>, which
+     * corresponding menu we're looking for
+     * @return the <tt>StatusSelectorMenu</tt> corresponding to the given
+     * <tt>protocolProvider</tt>
+     */
+    private StatusSelectorMenu getStatusSelectorMenu(
+                                    ProtocolProviderService protocolProvider)
+    {
+        for (Component c : getPopupMenu().getComponents())
+        {
+            if (!(c instanceof StatusSelectorMenu))
+                continue;
+
+            StatusSelectorMenu menu = (StatusSelectorMenu) c;
+
+            if (menu.getProtocolProvider() != null
+                && menu.getProtocolProvider().equals(protocolProvider))
+                return menu;
+        }
+        return null;
     }
 }

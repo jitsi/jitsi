@@ -153,13 +153,22 @@ public abstract class AccountID
     public String getDisplayName()
     {
         String returnValue = getUserID();
-        String protocolName =
-            getAccountPropertyString(ProtocolProviderFactory.PROTOCOL);
+        String protocolName = getProtocolDisplayName();
 
         if (protocolName != null && protocolName.trim().length() > 0)
             returnValue += " (" + protocolName + ")";
 
         return returnValue;
+    }
+
+    /**
+     * Returns the display name of the protocol.
+     *
+     * @return the display name of the protocol
+     */
+    public String getProtocolDisplayName()
+    {
+        return getAccountPropertyString(ProtocolProviderFactory.PROTOCOL);
     }
 
     /**

@@ -35,12 +35,6 @@ public class PresenceStatusMenu
 {
     private final Logger logger = Logger.getLogger(PresenceStatusMenu.class);
 
-    /**
-     * The <tt>ProtocolProviderService</tt> which has its presence status
-     * depicted and changed by this instance.
-     */
-    private final ProtocolProviderService protocolProvider;
-
     private Iterator<PresenceStatus> statusIterator;
 
     private PresenceStatus offlineStatus;
@@ -64,9 +58,8 @@ public class PresenceStatusMenu
     public PresenceStatusMenu(ProtocolProviderService protocolProvider)
     {
         super(protocolProvider.getAccountID().getDisplayName(),
-            ImageLoader.getAccountStatusImage(protocolProvider));
-
-        this.protocolProvider = protocolProvider;
+            ImageLoader.getAccountStatusImage(protocolProvider),
+            protocolProvider);
 
         this.presence
                 = protocolProvider.getOperationSet(OperationSetPresence.class);

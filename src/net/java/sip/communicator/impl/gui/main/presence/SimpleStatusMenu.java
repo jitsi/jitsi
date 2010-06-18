@@ -12,7 +12,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -32,8 +31,6 @@ public class SimpleStatusMenu
 {
     private static final Logger logger
         = Logger.getLogger(SimpleStatusMenu.class);
-
-    private final ProtocolProviderService protocolProvider;
 
     private final JMenuItem onlineItem;
 
@@ -57,9 +54,7 @@ public class SimpleStatusMenu
                              String displayName,
                              Image onlineImage)
     {
-        super(displayName, new ImageIcon(onlineImage));
-
-        this.protocolProvider = protocolProvider;
+        super(displayName, new ImageIcon(onlineImage), protocolProvider);
 
         this.setToolTipText("<html><b>" + displayName
             + "</b><br>Offline</html>");

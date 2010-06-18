@@ -29,11 +29,22 @@ public abstract class StatusSelectorMenu
     extends SIPCommMenu
     implements ImageObserver
 {
+    /**
+     * The connecting icon.
+     */
     private final Image connectingIcon
         = GuiActivator.getResources().getImage("service.gui.icons.CONNECTING")
             .getImage();
 
+    /**
+     * Indicates if this menu is currently connecting.
+     */
     private boolean isConnecting;
+
+    /**
+     * The <tt>ProtocolProviderService</tt> associated with this status menu.
+     */
+    protected ProtocolProviderService protocolProvider;
 
     /**
      * Creates a <tt>StatusSelectorMenu</tt>.
@@ -48,10 +59,16 @@ public abstract class StatusSelectorMenu
      * show.
      * @param text the text of the menu
      * @param defaultIcon the icon of the menu
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> associated
+     * with this status menu
      */
-    public StatusSelectorMenu(String text, Icon defaultIcon)
+    public StatusSelectorMenu(  String text,
+                                Icon defaultIcon,
+                                ProtocolProviderService protocolProvider)
     {
         super(text, defaultIcon);
+
+        this.protocolProvider = protocolProvider;
     }
 
     /**
@@ -186,5 +203,14 @@ public abstract class StatusSelectorMenu
     {
         repaint();
         return true;
+    }
+
+    /**
+     * Returns the protocol provider associated with this status menu.
+     * @return the protocol provider associated with this status menu
+     */
+    public ProtocolProviderService getProtocolProvider()
+    {
+        return protocolProvider;
     }
 }
