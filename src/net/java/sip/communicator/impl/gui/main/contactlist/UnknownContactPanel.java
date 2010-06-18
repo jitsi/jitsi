@@ -55,9 +55,13 @@ public class UnknownContactPanel
      */
     public UnknownContactPanel(MainFrame window)
     {
+        super(new BorderLayout());
+
         this.parentWindow = window;
 
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        TransparentPanel mainPanel = new TransparentPanel(new GridBagLayout());
+
+        this.add(mainPanel, BorderLayout.NORTH);
 
         addContact.setAlignmentX(JButton.CENTER_ALIGNMENT);
         callContact.setAlignmentX(JButton.CENTER_ALIGNMENT);
@@ -69,9 +73,23 @@ public class UnknownContactPanel
 
         initTextArea(parentWindow.getCurrentSearchText());
 
-        this.add(textArea);
-        this.add(addContact);
-        this.add(callContact);
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.anchor = GridBagConstraints.CENTER;
+        mainPanel.add(textArea, constraints);
+
+        TransparentPanel buttonPanel
+            = new TransparentPanel(new GridLayout(0, 1));
+
+        buttonPanel.add(addContact);
+        buttonPanel.add(callContact);
+
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.anchor = GridBagConstraints.CENTER;
+        mainPanel.add(buttonPanel, constraints);
 
         addContact.addActionListener(new ActionListener()
         {
