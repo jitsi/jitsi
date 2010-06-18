@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio;
 
+import java.util.*;
+
 import javax.media.*;
 import javax.media.format.*;
 
@@ -30,6 +32,9 @@ public class PortAudioRenderer
      */
     private static final Logger logger
         = Logger.getLogger(PortAudioRenderer.class);
+
+    private static final Format[] EMPTY_SUPPORTED_INPUT_FORMATS
+        = new Format[0];
 
     /**
      * The human-readable name of the <tt>PortAudioRenderer</tt> JMF plug-in.
@@ -117,6 +122,8 @@ public class PortAudioRenderer
      */
     private MediaLocator locator;
 
+    private long outputParameters = 0;
+
     /**
      * The indicator which determines whether this <tt>Renderer</tt> is started.
      */
@@ -132,6 +139,8 @@ public class PortAudioRenderer
      * not, for example, be closed.
      */
     private boolean streamIsBusy = false;
+
+    private Format[] supportedInputFormats;
 
     /**
      * Initializes a new <tt>PortAudioRenderer</tt> instance.
@@ -162,6 +171,11 @@ public class PortAudioRenderer
                 {
                     logger.error("Failed to close PortAudio stream.", paex);
                 }
+            }
+            if ((stream == 0) && (outputParameters != 0))
+            {
+                PortAudio.PaStreamParameters_free(outputParameters);
+                outputParameters = 0;
             }
         }
     }
@@ -197,24 +211,110 @@ public class PortAudioRenderer
      */
     public Format[] getSupportedInputFormats()
     {
-        /*
-         * We want to try to match the PortAudio CaptureDevice when rendering
-         * for the output device of the PortAudio audio system in order to make
-         * echo cancellation and denoise possible (if enabled, of course).
-         * Otherwise i.e. when rendering for the notification device of the
-         * PortAudio audio system, we will not try to make echo cancellation and
-         * denoise possible here.
-         */
-//        if (getLocator() == defaultLocator)
-//        {
-//            for (Format supportedInputFormat : SUPPORTED_INPUT_FORMATS)
-//            {
-//                if (((AudioFormat) supportedInputFormat).getSampleRate()
-//                        == PortAudio.DEFAULT_SAMPLE_RATE)
-//                    return new Format[] { supportedInputFormat };
-//            }
-//        }
-        return SUPPORTED_INPUT_FORMATS.clone();
+        if (supportedInputFormats == null)
+        {
+            MediaLocator locator = getLocator();
+            int deviceIndex;
+
+            if ((locator == null)
+                    || ((deviceIndex = DataSource.getDeviceIndex(locator))
+                            == PortAudio.paNoDevice))
+                supportedInputFormats = SUPPORTED_INPUT_FORMATS;
+            else
+            {
+                long deviceInfo = PortAudio.Pa_GetDeviceInfo(deviceIndex);
+
+                if (deviceInfo == 0)
+                    supportedInputFormats = SUPPORTED_INPUT_FORMATS;
+                else
+                {
+                    int minOutputChannels = 1;
+                    /*
+                     * The maximum output channels may be a lot and checking all
+                     * of them will take a lot of time. Besides, we currently
+                     * support at most 2.
+                     */
+                    int maxOutputChannels
+                        = Math.min(
+                                PortAudio.PaDeviceInfo_getMaxOutputChannels(
+                                        deviceInfo),
+                                2);
+                    List<Format> supportedInputFormats
+                        = new ArrayList<Format>(SUPPORTED_INPUT_FORMATS.length);
+
+                    for (Format supportedInputFormat : SUPPORTED_INPUT_FORMATS)
+                    {
+                        getSupportedInputFormats(
+                                supportedInputFormat,
+                                deviceIndex,
+                                minOutputChannels,
+                                maxOutputChannels,
+                                supportedInputFormats);
+                    }
+                    this.supportedInputFormats
+                        = supportedInputFormats.isEmpty()
+                            ? EMPTY_SUPPORTED_INPUT_FORMATS
+                            : supportedInputFormats.toArray(
+                                    EMPTY_SUPPORTED_INPUT_FORMATS);
+                }
+            }
+        }
+        return
+            (supportedInputFormats.length == 0)
+                ? EMPTY_SUPPORTED_INPUT_FORMATS
+                : supportedInputFormats.clone();
+    }
+
+    private void getSupportedInputFormats(
+            Format format,
+            int deviceIndex,
+            int minOutputChannels, int maxOutputChannels,
+            List<Format> supportedInputFormats)
+    {
+        AudioFormat audioFormat = (AudioFormat) format;
+        int sampleSizeInBits = audioFormat.getSampleSizeInBits();
+        long sampleFormat = PortAudio.getPaSampleFormat(sampleSizeInBits);
+        double sampleRate = audioFormat.getSampleRate();
+
+        for (int channels = minOutputChannels;
+                channels <= maxOutputChannels;
+                channels++)
+        {
+            long outputParameters
+                = PortAudio.PaStreamParameters_new(
+                        deviceIndex,
+                        channels,
+                        sampleFormat,
+                        PortAudio.LATENCY_UNSPECIFIED);
+
+            if (outputParameters != 0)
+            {
+                try
+                {
+                    if (PortAudio.Pa_IsFormatSupported(
+                            0,
+                            outputParameters,
+                            sampleRate))
+                    {
+                        supportedInputFormats.add(
+                                new AudioFormat(
+                                        audioFormat.getEncoding(),
+                                        sampleRate,
+                                        sampleSizeInBits,
+                                        channels,
+                                        audioFormat.getEndian(),
+                                        audioFormat.getSigned(),
+                                        Format.NOT_SPECIFIED /* frameSizeInBits */,
+                                        Format.NOT_SPECIFIED /* frameRate */,
+                                        audioFormat.getDataType()));
+                    }
+                }
+                finally
+                {
+                    PortAudio.PaStreamParameters_free(outputParameters);
+                }
+            }
+        }
     }
 
     /**
@@ -243,7 +343,7 @@ public class PortAudioRenderer
 
             try
             {
-                long outputParameters
+                outputParameters
                     = PortAudio.PaStreamParameters_new(
                             deviceIndex,
                             channels,
@@ -263,6 +363,14 @@ public class PortAudioRenderer
             catch (PortAudioException paex)
             {
                 throw new ResourceUnavailableException(paex.getMessage());
+            }
+            finally
+            {
+                if ((stream == 0) && (outputParameters != 0))
+                {
+                    PortAudio.PaStreamParameters_free(outputParameters);
+                    outputParameters = 0;
+                }
             }
             if (stream == 0)
                 throw new ResourceUnavailableException("Pa_OpenStream");
@@ -461,6 +569,7 @@ public class PortAudioRenderer
             return;
 
         this.locator = locator;
+        supportedInputFormats = null;
     }
 
     /**

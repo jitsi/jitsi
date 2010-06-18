@@ -23,6 +23,7 @@ import com.sun.media.util.*;
  * input channels.
  *
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class PortAudioAuto
 {
@@ -54,7 +55,7 @@ public class PortAudioAuto
     public static CaptureDeviceInfo defaultCaptureDevice = null;
 
     /**
-     * Is portaudio supported on current platform.
+     * Is PortAudio supported on current platform.
      */
     private static boolean supported = false;
 
@@ -82,6 +83,9 @@ public class PortAudioAuto
 
         Vector<CaptureDeviceInfo> playbackDevVector =
             new Vector<CaptureDeviceInfo>();
+        int channels = 1;
+        int sampleSizeInBits = 16;
+        long sampleFormat = PortAudio.getPaSampleFormat(sampleSizeInBits);
 
         for (int deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++)
         {
@@ -104,9 +108,15 @@ public class PortAudioAuto
                                 {
                                     new AudioFormat(
                                             AudioFormat.LINEAR,
-                                            PortAudio.DEFAULT_SAMPLE_RATE,
-                                            16 /* sampleSizeInBits */,
-                                            1 /* channels */,
+                                            (maxInputChannels > 0)
+                                                ? getSupportedSampleRate(
+                                                    true,
+                                                    deviceIndex,
+                                                    channels,
+                                                    sampleFormat)
+                                                : PortAudio.DEFAULT_SAMPLE_RATE,
+                                            sampleSizeInBits,
+                                            channels,
                                             AudioFormat.LITTLE_ENDIAN,
                                             AudioFormat.SIGNED,
                                             Format.NOT_SPECIFIED /* frameSizeInBits */,
@@ -179,6 +189,88 @@ public class PortAudioAuto
         }
 
         supported = true;
+    }
+
+    /**
+     * Gets a sample rate supported by a PortAudio device with a specific device
+     * index with which it is to be registered with JMF.
+     *
+     * @param <tt>true</tt> if the supported sample rate is to be retrieved for
+     * the PortAudio device with the specified device index as an input device
+     * or <tt>false</tt> for an output device
+     * @param deviceIndex the device index of the PortAudio device for which a
+     * supported sample rate is to be retrieved
+     * @param channelCount
+     * @param sampleFormat
+     * @return a sample rate supported by the PortAudio device with the
+     * specified device index with which it is to be registered with JMF
+     */
+    public static double getSupportedSampleRate(
+            boolean input,
+            int deviceIndex,
+            int channelCount,
+            long sampleFormat)
+    {
+        long deviceInfo = PortAudio.Pa_GetDeviceInfo(deviceIndex);
+        double supportedSampleRate;
+
+        if (deviceInfo != 0)
+        {
+            double defaultSampleRate
+                = PortAudio.PaDeviceInfo_getDefaultSampleRate(deviceInfo);
+
+            if (defaultSampleRate >= MediaUtils.MAX_AUDIO_SAMPLE_RATE)
+                supportedSampleRate = defaultSampleRate;
+            else
+            {
+                long streamParameters
+                    = PortAudio.PaStreamParameters_new(
+                            deviceIndex,
+                            channelCount,
+                            sampleFormat,
+                            PortAudio.LATENCY_UNSPECIFIED);
+
+                if (streamParameters == 0)
+                    supportedSampleRate = defaultSampleRate;
+                else
+                {
+                    try
+                    {
+                        long inputParameters;
+                        long outputParameters;
+
+                        if (input)
+                        {
+                            inputParameters = streamParameters;
+                            outputParameters = 0;
+                        }
+                        else
+                        {
+                            inputParameters = 0;
+                            outputParameters = streamParameters;
+                        }
+
+                        boolean formatIsSupported
+                            = PortAudio.Pa_IsFormatSupported(
+                                    inputParameters,
+                                    outputParameters,
+                                    PortAudio.DEFAULT_SAMPLE_RATE);
+
+                        supportedSampleRate
+                            = formatIsSupported
+                                ? PortAudio.DEFAULT_SAMPLE_RATE
+                                : defaultSampleRate;
+                    }
+                    finally
+                    {
+                        PortAudio.PaStreamParameters_free(streamParameters);
+                    }
+                }
+            }
+        }
+        else
+            supportedSampleRate = PortAudio.DEFAULT_SAMPLE_RATE;
+        return supportedSampleRate;
     }
 
     /**

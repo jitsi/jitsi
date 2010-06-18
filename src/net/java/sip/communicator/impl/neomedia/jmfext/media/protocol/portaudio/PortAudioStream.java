@@ -56,6 +56,8 @@ public class PortAudioStream
      */
     private int framesPerBuffer;
 
+    private long inputParameters = 0;
+
     private int sequenceNumber = 0;
 
     /**
@@ -212,6 +214,11 @@ public class PortAudioStream
                     throw ioex;
                 }
                 stream = 0;
+                if (inputParameters != 0)
+                {
+                    PortAudio.PaStreamParameters_free(inputParameters);
+                    inputParameters = 0;
+                }
 
                 /*
                  * Make sure this AbstractPullBufferStream asks its DataSource
@@ -238,7 +245,7 @@ public class PortAudioStream
 
             try
             {
-                long inputParameters
+                inputParameters
                     = PortAudio.PaStreamParameters_new(
                             this.deviceIndex,
                             channels,
@@ -261,6 +268,14 @@ public class PortAudioStream
 
                 ioex.initCause(paex);
                 throw ioex;
+            }
+            finally
+            {
+                if ((stream == 0) && (inputParameters != 0))
+                {
+                    PortAudio.PaStreamParameters_free(inputParameters);
+                    inputParameters = 0;
+                }
             }
             if (stream == 0)
                 throw new IOException("Pa_OpenStream");

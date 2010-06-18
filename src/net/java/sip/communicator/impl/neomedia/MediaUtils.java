@@ -34,6 +34,11 @@ public class MediaUtils
     public static final MediaFormat[] EMPTY_MEDIA_FORMATS = new MediaFormat[0];
 
     /**
+     * The maximum sample rate for audio that we advertise.
+     */
+    public static final double MAX_AUDIO_SAMPLE_RATE = 32000;
+
+    /**
      * The <tt>Map</tt> of JMF-specific encodings to well-known encodings as
      * defined in RFC 3551.
      */
@@ -158,20 +163,15 @@ public class MediaUtils
         = new HashMap<String, String>();
 
         h264FormatParams.put("packetization-mode", "1");
-        /* disable PLI since we use periodic intra-refresh feature
-         * of ffmpeg/x264
+        /*
+         * Disable PLI since we use periodic intra-refresh feature of
+         * FFmpeg/x264.
          */
         //h264AdvancedAttributes.put("rtcp-fb", "nack pli");
 
-        ScreenDevice screen = NeomediaActivator.getMediaServiceImpl().
-            getDefaultScreenDevice();
-
-        java.awt.Dimension res = null;
-
-        if(screen != null)
-        {
-            res = screen.getSize();
-        }
+        ScreenDevice screen
+            = NeomediaActivator.getMediaServiceImpl().getDefaultScreenDevice();
+        java.awt.Dimension res = (screen == null) ? null : screen.getSize();
 
         h264AdvancedAttributes.put("imageattr", createImageAttr(null, res));
 

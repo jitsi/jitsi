@@ -10,6 +10,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.nio.charset.*;
 
+import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -157,6 +158,8 @@ public final class PortAudio
      */
     public static final long
         STREAM_FLAGS_PRIME_OUTPUT_BUFFERS_USING_STREAM_CALLBACK = 0x00000008;
+
+    private static native void free(long ptr);
 
     /**
      * Gets the native <tt>PaSampleFormat</tt> with a specific size in bits.
@@ -563,6 +566,48 @@ public final class PortAudio
      *              paAudioScienceHPI
      */
     public static native int PaHostApiInfo_getType(long hostApiInfo);
+
+    public static void PaStreamParameters_free(long streamParameters)
+    {
+        try
+        {
+            free(streamParameters);
+            return;
+        }
+        catch (UnsatisfiedLinkError ulerr)
+        {
+            /*
+             * Ignore it because we'll try to fallback to another
+             * implementation.
+             */
+            logger.warn(
+                    "The JNI library jportaudio is out-of-date and needs to be"
+                        + " recompiled.",
+                    ulerr);
+        }
+        /*
+         * FFmpeg on Windows seems to be compiled with --enable-memalign-hack so
+         * av_free(void *) isn't the same as free(void *) and thus is not a
+         * suitable/safe fallback. 
+         */
+        if (OSUtils.IS_LINUX || OSUtils.IS_MAC)
+        {
+            try
+            {
+                FFmpeg.av_free(streamParameters);
+            }
+            catch (NoClassDefFoundError ncdferr)
+            {
+                // We'll warn bellow, don't fail.
+            }
+            catch (UnsatisfiedLinkError ulerr)
+            {
+                // We'll warn bellow, don't fail.
+            }
+            return;
+        }
+        logger.warn("Leaking a PaStreamParameters instance.");
+    }
 
     /**
      * Creates parameters used for opening streams.

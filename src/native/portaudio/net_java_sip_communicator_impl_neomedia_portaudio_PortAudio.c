@@ -55,6 +55,13 @@ static const char *AUDIO_QUALITY_IMPROVEMENT_STRING_ID = "portaudio";
 #define LATENCY_LOW net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_LOW
 
 JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_free
+    (JNIEnv *jniEnv, jclass clazz, jlong ptr)
+{
+    free((void *) ptr);
+}
+
+JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1AbortStream
     (JNIEnv *env, jclass clazz, jlong stream)
 {
