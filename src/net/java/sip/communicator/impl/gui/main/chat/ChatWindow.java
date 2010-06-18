@@ -1047,6 +1047,10 @@ public class ChatWindow
                             chatSession.getCurrentChatTransport()
                                 .getProtocolProvider());
 
+                        // this is the current contact address we want to add
+                        dialog.setContactAddress(
+                            chatSession.getCurrentChatTransport().getName());
+
                         dialog.setVisible(true);
                     }
                 }

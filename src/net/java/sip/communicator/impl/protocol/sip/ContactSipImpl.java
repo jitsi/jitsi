@@ -346,6 +346,10 @@ public class ContactSipImpl
         if(obj instanceof String)
         {
             String sobj = (String)obj;
+
+            if(sobj.startsWith("sip:"))
+                sobj = sobj.substring(4);
+
             if(getAddress().equalsIgnoreCase(sobj))
                 return true;
 

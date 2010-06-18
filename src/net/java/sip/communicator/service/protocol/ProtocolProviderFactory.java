@@ -756,7 +756,7 @@ public abstract class ProtocolProviderFactory
                 accountRootPropertyName //node id
                 + "." + ACCOUNT_UID); // propname
 
-            if (accountUID.equals(accountID.getAccountUniqueID()))
+            if (accountID.getAccountUniqueID().equals(accountUID))
             {
                 return accountRootPropertyName;
             }
