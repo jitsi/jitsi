@@ -34,8 +34,14 @@ static void AudioQualityImprovement_setFrameSize
 static void AudioQualityImprovement_updatePreprocess
     (AudioQualityImprovement *audioQualityImprovement);
 
+#ifndef _WIN32
 static pthread_mutex_t AudioQualityImprovement_sharedInstancesMutex
     = PTHREAD_MUTEX_INITIALIZER;
+#else /* Windows */
+static CRITICAL_SECTION AudioQualityImprovement_sharedInstancesMutex = {0};
+static int initialized = 0;
+#endif
+
 static AudioQualityImprovement *AudioQualityImprovement_sharedInstances
     = NULL;
 
@@ -70,7 +76,7 @@ static void
 AudioQualityImprovement_free(AudioQualityImprovement *audioQualityImprovement)
 {
     /* mutex */
-    pthread_mutex_destroy(audioQualityImprovement->mutex);
+    mutex_destroy(audioQualityImprovement->mutex);
     free(audioQualityImprovement->mutex);
     /* preprocess */
     if (audioQualityImprovement->preprocess)
@@ -98,7 +104,15 @@ AudioQualityImprovement_getSharedInstance(const char *stringID, jlong longID)
 {
     AudioQualityImprovement *theSharedInstance = NULL;
 
-    if (!pthread_mutex_lock(&AudioQualityImprovement_sharedInstancesMutex))
+#ifdef _WIN32
+    if(!initialized)
+    {
+        mutex_init(&AudioQualityImprovement_sharedInstancesMutex, NULL);
+        initialized = 1;
+    }
+#endif
+
+    if (!mutex_lock(&AudioQualityImprovement_sharedInstancesMutex))
     {
         AudioQualityImprovement *aSharedInstance
             = AudioQualityImprovement_sharedInstances;
@@ -126,7 +140,7 @@ AudioQualityImprovement_getSharedInstance(const char *stringID, jlong longID)
             if (theSharedInstance)
                 AudioQualityImprovement_sharedInstances = theSharedInstance;
         }
-        pthread_mutex_unlock(&AudioQualityImprovement_sharedInstancesMutex);
+        mutex_unlock(&AudioQualityImprovement_sharedInstancesMutex);
     }
     return theSharedInstance;
 }
@@ -156,9 +170,9 @@ AudioQualityImprovement_new
             return NULL;
         }
         /* mutex */
-        audioQualityImprovement->mutex = malloc(sizeof(pthread_mutex_t));
+        audioQualityImprovement->mutex = malloc(sizeof(Mutex));
         if (!(audioQualityImprovement->mutex)
-                || pthread_mutex_init(audioQualityImprovement->mutex, NULL))
+                || mutex_init(audioQualityImprovement->mutex, NULL))
         {
             AudioQualityImprovement_free(audioQualityImprovement);
             return NULL;
@@ -186,7 +200,7 @@ void AudioQualityImprovement_process
 {
     if ((sampleSizeInBits == 16)
             && (channels == 1)
-            && !pthread_mutex_lock(audioQualityImprovement->mutex))
+            && !mutex_lock(audioQualityImprovement->mutex))
     {
         switch (sampleOrigin)
         {
@@ -228,7 +242,7 @@ void AudioQualityImprovement_process
             }
             break;
         }
-        pthread_mutex_unlock(audioQualityImprovement->mutex);
+        mutex_unlock(audioQualityImprovement->mutex);
     }
 }
 
@@ -236,9 +250,9 @@ void
 AudioQualityImprovement_release
     (AudioQualityImprovement *audioQualityImprovement)
 {
-    if (!pthread_mutex_lock(&AudioQualityImprovement_sharedInstancesMutex))
+    if (!mutex_lock(&AudioQualityImprovement_sharedInstancesMutex))
     {
-        if (!pthread_mutex_lock(audioQualityImprovement->mutex))
+        if (!mutex_lock(audioQualityImprovement->mutex))
         {
             --(audioQualityImprovement->retainCount);
             if (audioQualityImprovement->retainCount < 1)
@@ -269,13 +283,13 @@ AudioQualityImprovement_release
                     }
                 }
 
-                pthread_mutex_unlock(audioQualityImprovement->mutex);
+                mutex_unlock(audioQualityImprovement->mutex);
                 AudioQualityImprovement_free(audioQualityImprovement);
             }
             else
-                pthread_mutex_unlock(audioQualityImprovement->mutex);
+                mutex_unlock(audioQualityImprovement->mutex);
         }
-        pthread_mutex_unlock(&AudioQualityImprovement_sharedInstancesMutex);
+        mutex_unlock(&AudioQualityImprovement_sharedInstancesMutex);
     }
 }
 static void
@@ -364,10 +378,10 @@ static void
 AudioQualityImprovement_retain
     (AudioQualityImprovement *audioQualityImprovement)
 {
-    if (!pthread_mutex_lock(audioQualityImprovement->mutex))
+    if (!mutex_lock(audioQualityImprovement->mutex))
     {
         ++(audioQualityImprovement->retainCount);
-        pthread_mutex_unlock(audioQualityImprovement->mutex);
+        mutex_unlock(audioQualityImprovement->mutex);
     }
 }
 
@@ -375,14 +389,14 @@ void
 AudioQualityImprovement_setDenoise
     (AudioQualityImprovement *audioQualityImprovement, jboolean denoise)
 {
-    if (!pthread_mutex_lock(audioQualityImprovement->mutex))
+    if (!mutex_lock(audioQualityImprovement->mutex))
     {
         if (audioQualityImprovement->denoise != denoise)
         {
             audioQualityImprovement->denoise = denoise;
             AudioQualityImprovement_updatePreprocess(audioQualityImprovement);
         }
-        pthread_mutex_unlock(audioQualityImprovement->mutex);
+        mutex_unlock(audioQualityImprovement->mutex);
     }
 }
 
@@ -393,7 +407,7 @@ AudioQualityImprovement_setEchoFilterLengthInMillis
 {
     if (echoFilterLengthInMillis < 0)
         echoFilterLengthInMillis = 0;
-    if (!pthread_mutex_lock(audioQualityImprovement->mutex))
+    if (!mutex_lock(audioQualityImprovement->mutex))
     {
         if (audioQualityImprovement->echoFilterLengthInMillis
                 != echoFilterLengthInMillis)
@@ -402,7 +416,7 @@ AudioQualityImprovement_setEchoFilterLengthInMillis
                 = echoFilterLengthInMillis;
             AudioQualityImprovement_updatePreprocess(audioQualityImprovement);
         }
-        pthread_mutex_unlock(audioQualityImprovement->mutex);
+        mutex_unlock(audioQualityImprovement->mutex);
     }
 }
 
@@ -421,14 +435,14 @@ void
 AudioQualityImprovement_setSampleRate
     (AudioQualityImprovement *audioQualityImprovement, int sampleRate)
 {
-    if (!pthread_mutex_lock(audioQualityImprovement->mutex))
+    if (!mutex_lock(audioQualityImprovement->mutex))
     {
         if (audioQualityImprovement->sampleRate != sampleRate)
         {
             audioQualityImprovement->sampleRate = sampleRate;
             AudioQualityImprovement_updatePreprocess(audioQualityImprovement);
         }
-        pthread_mutex_unlock(audioQualityImprovement->mutex);
+        mutex_unlock(audioQualityImprovement->mutex);
     }
 }
 

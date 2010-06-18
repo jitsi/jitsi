@@ -13,7 +13,65 @@
 #ifndef AUDIO_QUALITY_IMPROVEMENT_IMPLEMENTATION
 typedef void *AudioQualityImprovement;
 #else /* #ifndef AUDIO_QUALITY_IMPROVEMENT_IMPLEMENTATION */
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+typedef CRITICAL_SECTION Mutex;
+
+static inline int mutex_init(Mutex* mutex, void* arg)
+{
+    InitializeCriticalSection(mutex);
+    arg = NULL; /* unused */
+    return 0;
+}
+
+static inline int mutex_destroy(Mutex* mutex)
+{
+    DeleteCriticalSection(mutex);
+    return 0;
+}
+
+static inline int mutex_lock(Mutex* mutex)
+{
+    EnterCriticalSection(mutex);
+    return 0;
+}
+
+static inline int mutex_unlock(Mutex* mutex)
+{
+    LeaveCriticalSection(mutex);
+    return 0;
+}
+
+#else /* Unix */
 #include <pthread.h>
+
+typedef pthread_mutex_t Mutex;
+
+static inline int mutex_init(Mutex* mutex, void* arg)
+{
+    return pthread_mutex_init(mutex, arg);
+}
+
+static inline int mutex_destroy(Mutex* mutex)
+{
+    return pthread_mutex_destroy(mutex);
+}
+
+static inline int mutex_lock(Mutex* mutex)
+{
+    return pthread_mutex_lock(mutex);
+}
+
+static inline int mutex_unlock(Mutex* mutex)
+{
+    return pthread_mutex_unlock(mutex);
+    return 0;
+}
+#endif
+
 #include <speex/speex_echo.h>
 #include <speex/speex_preprocess.h>
 #include <speex/speex_resampler.h>
@@ -27,7 +85,7 @@ typedef struct _AudioQualityImprovement
     jint frameSize;
     int frameSizeOfPreprocess;
     jlong longID;
-    pthread_mutex_t *mutex;
+    Mutex *mutex;
     struct _AudioQualityImprovement *next;
     spx_int16_t *out;
     spx_uint32_t outCapacity;

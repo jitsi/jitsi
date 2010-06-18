@@ -377,8 +377,7 @@
       <!-- Windows specific flags -->
       <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.windows" />
       <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
-      <compilerarg value="-I${pthread}" if="is.running.windows" />
-      
+
       <linkerarg value="-L${pthread}" if="is.running.windows" />
       <linkerarg value="-ojportaudio.dll" if="is.running.windows" />
       <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
@@ -387,7 +386,6 @@
       <linkerarg value="-lspeexdsp" location="end" if="is.running.windows" />
       <linkerarg value="-lwinmm" location="end" if="is.running.windows" />
       <linkerarg value="-lm" location="end" if="is.running.windows" />
-      <linkerarg value="-lpthreadGC2" location="end" if="is.running.windows" />
       <linkerarg value="-lstdc++" location="end" if="is.running.windows" />
       <linkerarg value="-lole32" location="end" if="is.running.windows" />
       <linkerarg value="-luuid" location="end" if="is.running.windows" />
@@ -595,7 +593,6 @@
     <echo message="-Dffmpeg: path to ffmpeg directory (ffmpeg JNI compilation)." />
     <echo message="-Dportaudio path to portaudio directory (jportaudio JNI compilation)." />
     <echo message="-Dspeex: path to speex directory (jportaudio/jspeex JNI compilation)." />
-    <echo message="-Dpthread: path to pthread directory (Windows only). If you already have pthread in MinGW don't use it." />
     <echo message="" />
     <echo message="Please note that external libraries such as ffmpeg, x264, portaudio and speex have to be compiled" />
     <echo message="(follow READMEs in relevant directory) before trying to compile libffmpeg and libjportaudio"  />

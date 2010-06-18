@@ -98,6 +98,11 @@ public:
                 sample->GetPointer(&data);
                 length = sample->GetActualDataLength();
 
+                if(length == 0)
+                {
+                    return S_OK;
+                }
+
                 if(!m_bytes || m_bytesLength < length)
                 {
                     if(m_bytes)
