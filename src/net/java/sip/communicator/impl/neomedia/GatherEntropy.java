@@ -3,13 +3,14 @@ package net.java.sip.communicator.impl.neomedia;
 import java.io.*;
 
 import javax.media.*;
+import javax.media.control.FormatControl;
 import javax.media.format.*;
+import javax.media.protocol.*;
 
 import gnu.java.zrtp.utils.*;
 
 import net.java.sip.communicator.impl.neomedia.device.*;
-import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio.*;
-import net.java.sip.communicator.impl.neomedia.portaudio.*;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * GatherEntropy initializes the Fortuna PRNG with entropy data.
@@ -26,13 +27,17 @@ import net.java.sip.communicator.impl.neomedia.portaudio.*;
  * local sources only and that entropy data is never send out (via networks 
  * for example).
  *
- * TODO: add JMF method to read audio (mic) data, check if we can use video?
- *
  * @author Werner Dittmann <Werner.Dittmann@t-online.de>
  * @author Lubomir Marinov
  */
 public class GatherEntropy
 {
+    /**
+     * The <tt>Logger</tt> used by <tt>GetherEntropy</tt>
+     * class for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(GatherEntropy.class);
 
     /**
      * Device config to look for catpture devices.
@@ -51,10 +56,18 @@ public class GatherEntropy
     private int gatheredEntropy = 0;
 
     /**
-     * How many audio frames to read. The current value is based on 20ms
-     * frames (50 frames per second). Read 2 seconds of audio frames.
+     * How many audio buffer to read.
+     * 
+     * Javasound buffers contain audio data for 125ms mono, at 8000Hz this
+     * computes to 2000 bytes, in total we have 200000 bytes of randon data
+     * 
+     * Portaudio does not honor the format setting, it always captures
+     * at 44100 Hz.
+     * 
+     * Portaudio buffers contain audio data for 20ms mono, at 44100Hz this
+     * computes to 1764 bytes, in total we have 176400 bytes of random data
      */
-    final private static int NUM_OF_FRAMES = 2*50;
+    final private static int NUM_OF_BUFFERS = 100;
 
     public GatherEntropy(DeviceConfiguration deviceConfiguration) 
     {
@@ -89,23 +102,14 @@ public class GatherEntropy
     public boolean setEntropy()
     {
         boolean retValue = false;
-        if (deviceConfiguration.getAudioSystem().equals(
-                DeviceConfiguration.AUDIO_SYSTEM_JAVASOUND))
-        {
-            // retValue = readJMFAudioEntropy();
-        }
-        else if (deviceConfiguration.getAudioSystem().equals(
-                DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
-        {
-            GatherPortAudio gatherer = new GatherPortAudio();
-            retValue = gatherer.preparePortAudioEntropy();
-            if (retValue)
-                gatherer.start();
-        }
+        GatherAudio gatherer = new GatherAudio();
+        retValue = gatherer.preparePortAudioEntropy();
+        if (retValue)
+            gatherer.start();
         return retValue;
     }
 
-    private class GatherPortAudio extends Thread
+    private class GatherAudio extends Thread implements BufferTransferHandler
     {
         /**
          * The PortAudio <tt>DataSource</tt> which provides
@@ -116,8 +120,16 @@ public class GatherEntropy
         /**
          * The <tt>PortAudioStream</tt> from which audio data is captured.
          */
-        private PortAudioStream portAudioStream = null;
+        private SourceStream audioStream = null;
 
+        /**
+         * The next three elements control the push buffer that Javasound
+         * uses.
+         */
+        private Buffer firstBuf = new Buffer();
+        private boolean bufferAvailable = false;
+        private Object bufferSync = new Object();
+        
         /**
          * Prepares to read entropy data from portaudio capture device.
          * 
@@ -134,36 +146,51 @@ public class GatherEntropy
             if (audioCaptureDeviceLocator == null)
                 return false;
 
-            dataSource
-                = new DataSource(
-                        audioCaptureDeviceLocator,
-                        new Format[]
-                                {
-                                    new AudioFormat(
-                                            AudioFormat.LINEAR,
-                                            8000,
-                                            16 /* sampleSizeInBits */,
-                                            1 /* channels */,
-                                            AudioFormat.LITTLE_ENDIAN,
-                                            AudioFormat.SIGNED,
-                                            Format.NOT_SPECIFIED /* frameSizeInBits */,
-                                            Format.NOT_SPECIFIED /* frameRate */,
-                                            Format.byteArray)
-                                },
-                        false);
-
-            try
-            {
-                dataSource.connect();
-            }
-            catch (IOException ioex)
-            {
+            try {
+                dataSource = Manager.createDataSource(audioCaptureDeviceLocator);
+            } catch (NoDataSourceException e) {
+                logger.warn("No data source during entropy preparation", e);
+                return false;
+            } catch (IOException e) {
+                logger.warn("Got an IO Exception during entropy preparation", e);
                 return false;
             }
-            portAudioStream = (PortAudioStream) (dataSource.getStreams()[0]);
-            return (portAudioStream != null);
+            FormatControl fc = ((CaptureDevice)dataSource).getFormatControls()[0];
+
+            // Javasound honors this setting, Portaudio uses a fixed setting.
+            fc.setFormat(new AudioFormat(
+                    AudioFormat.LINEAR,
+                    8000,
+                    16 /* sampleSizeInBits */,
+                    1 /* channels */,
+                    AudioFormat.LITTLE_ENDIAN,
+                    AudioFormat.SIGNED,
+                    Format.NOT_SPECIFIED /* frameSizeInBits */,
+                    Format.NOT_SPECIFIED /* frameRate */,
+                    Format.byteArray)
+            );
+
+            if (dataSource instanceof PullBufferDataSource) {
+                audioStream = ((PullBufferDataSource) dataSource).getStreams()[0];
+            }
+            else {
+                audioStream = ((PushBufferDataSource) dataSource).getStreams()[0];
+                ((PushBufferStream)audioStream).setTransferHandler(this);
+            }
+            return (audioStream != null);
         }
 
+        public void transferData(PushBufferStream stream) {
+            try {
+                stream.read(firstBuf);
+            } catch (IOException e) {
+                logger.warn("Got IOException during transfer data", e);
+            }
+            synchronized (bufferSync) {
+                bufferAvailable = true;
+                bufferSync.notifyAll();
+            }
+        }
         /**
          * Gather entropy from portaudio capture device and seed Fortuna PRNG.
          * 
@@ -173,19 +200,31 @@ public class GatherEntropy
         {
             ZrtpFortuna fortuna = ZrtpFortuna.getInstance();
 
-            Buffer firstBuf = new Buffer();
-
-            if ((dataSource == null) || (portAudioStream == null))
+            if ((dataSource == null) || (audioStream == null))
                 return;
 
             try {
                 dataSource.start();
 
-                for (int i = 0; i < NUM_OF_FRAMES; i++) 
+                for (int i = 0; i < NUM_OF_BUFFERS; i++) 
                 {
-                    portAudioStream.read(firstBuf);
+                    if (audioStream instanceof PushBufferStream) {
+                        synchronized (bufferSync) {
+                            while (!bufferAvailable) {
+                                try {
+                                    bufferSync.wait();
+                                } catch (InterruptedException e) {
+                                    // ignore
+                                }
+                            }
+                            bufferAvailable = false;
+                        }
+                    }
+                    else
+                        ((PullBufferStream)audioStream).read(firstBuf);
                     byte[] entropy = (byte[])firstBuf.getData();
                     gatheredEntropy += entropy.length;
+
                     // distribute first buffers evenly over the pools, put
                     // others on the first pools. This method is adapted to
                     // SC requirements to get random data
@@ -198,6 +237,8 @@ public class GatherEntropy
                     }
                 }
                 entropyOk = true;
+                if (logger.isInfoEnabled())
+                    logger.info("GatherEntropy got: " + gatheredEntropy + " bytes");
             }
             catch (IOException ioex)
             {
@@ -205,7 +246,7 @@ public class GatherEntropy
             }
             finally
             {
-                portAudioStream = null;
+                audioStream = null;
                 dataSource.disconnect();
             }
             // this forces a Fortuna to use the new seed (entropy) data.
