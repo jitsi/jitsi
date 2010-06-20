@@ -56,18 +56,22 @@ public class GatherEntropy
     private int gatheredEntropy = 0;
 
     /**
-     * How many audio buffer to read.
-     * 
-     * Javasound buffers contain audio data for 125ms mono, at 8000Hz this
-     * computes to 2000 bytes, in total we have 200000 bytes of randon data
-     * 
-     * Portaudio does not honor the format setting, it always captures
-     * at 44100 Hz.
-     * 
-     * Portaudio buffers contain audio data for 20ms mono, at 44100Hz this
-     * computes to 1764 bytes, in total we have 176400 bytes of random data
+     * How many bytes to gather. This number depends on sample rate, sample
+     * size, number of channels and number of audio seconds to use for random
+     * data.
      */
-    final private static int NUM_OF_BUFFERS = 100;
+    private int bytesToGather = 0;
+    
+    /**
+     * Bytes per 20ms time slice.
+     */
+    private int bytes20ms = 0;
+    
+    /**
+     * How many seconds of audio to read.
+     * 
+     */
+    final private static int NUM_OF_SECONDS = 2;
 
     public GatherEntropy(DeviceConfiguration deviceConfiguration) 
     {
@@ -103,7 +107,7 @@ public class GatherEntropy
     {
         boolean retValue = false;
         GatherAudio gatherer = new GatherAudio();
-        retValue = gatherer.preparePortAudioEntropy();
+        retValue = gatherer.prepareAudioEntropy();
         if (retValue)
             gatherer.start();
         return retValue;
@@ -138,7 +142,7 @@ public class GatherEntropy
          * 
          * @return True if the PortAudio input stream is available. 
          */
-        private boolean preparePortAudioEntropy()
+        private boolean prepareAudioEntropy()
         {
             MediaLocator audioCaptureDeviceLocator
                 = deviceConfiguration.getAudioCaptureDevice().getLocator();
@@ -156,19 +160,11 @@ public class GatherEntropy
                 return false;
             }
             FormatControl fc = ((CaptureDevice)dataSource).getFormatControls()[0];
-
-            // Javasound honors this setting, Portaudio uses a fixed setting.
-            fc.setFormat(new AudioFormat(
-                    AudioFormat.LINEAR,
-                    8000,
-                    16 /* sampleSizeInBits */,
-                    1 /* channels */,
-                    AudioFormat.LITTLE_ENDIAN,
-                    AudioFormat.SIGNED,
-                    Format.NOT_SPECIFIED /* frameSizeInBits */,
-                    Format.NOT_SPECIFIED /* frameRate */,
-                    Format.byteArray)
-            );
+            AudioFormat af = (AudioFormat)fc.getFormat();
+            int framesToRead = (int)(af.getSampleRate() * NUM_OF_SECONDS);
+            int frameSize = (af.getSampleSizeInBits() / 8) * af.getChannels();
+            bytesToGather = framesToRead * frameSize;
+            bytes20ms = frameSize * (int)(af.getSampleRate() /50);
 
             if (dataSource instanceof PullBufferDataSource) {
                 audioStream = ((PullBufferDataSource) dataSource).getStreams()[0];
@@ -206,7 +202,8 @@ public class GatherEntropy
             try {
                 dataSource.start();
 
-                for (int i = 0; i < NUM_OF_BUFFERS; i++) 
+                int i = 0;
+                while (gatheredEntropy < bytesToGather) 
                 {
                     if (audioStream instanceof PushBufferStream) {
                         synchronized (bufferSync) {
@@ -235,6 +232,7 @@ public class GatherEntropy
                         fortuna
                             .addSeedMaterial((i%3), entropy, 0, entropy.length);
                     }
+                    i = gatheredEntropy / bytes20ms;
                 }
                 entropyOk = true;
                 if (logger.isInfoEnabled())
