@@ -38,8 +38,7 @@ static void AudioQualityImprovement_updatePreprocess
 static pthread_mutex_t AudioQualityImprovement_sharedInstancesMutex
     = PTHREAD_MUTEX_INITIALIZER;
 #else /* Windows */
-static CRITICAL_SECTION AudioQualityImprovement_sharedInstancesMutex = {0};
-static int initialized = 0;
+static CRITICAL_SECTION AudioQualityImprovement_sharedInstancesMutex = {(void*)-1, -1, 0, 0, 0, 0};
 #endif
 
 static AudioQualityImprovement *AudioQualityImprovement_sharedInstances
@@ -103,14 +102,6 @@ AudioQualityImprovement *
 AudioQualityImprovement_getSharedInstance(const char *stringID, jlong longID)
 {
     AudioQualityImprovement *theSharedInstance = NULL;
-
-#ifdef _WIN32
-    if(!initialized)
-    {
-        mutex_init(&AudioQualityImprovement_sharedInstancesMutex, NULL);
-        initialized = 1;
-    }
-#endif
 
     if (!mutex_lock(&AudioQualityImprovement_sharedInstancesMutex))
     {
