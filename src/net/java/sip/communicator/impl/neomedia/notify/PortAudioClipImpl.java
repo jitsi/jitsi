@@ -12,6 +12,7 @@ import java.net.*;
 import javax.media.*;
 import javax.sound.sampled.*;
 
+import net.java.sip.communicator.impl.neomedia.codec.audio.speex.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.*;
 import net.java.sip.communicator.util.*;
 
@@ -216,18 +217,65 @@ public class PortAudioClipImpl
         if (audioStream == null)
             return false;
 
+        Codec resampler = null;
+
         try
         {
             AudioFormat audioStreamFormat = audioStream.getFormat();
-            javax.media.format.AudioFormat rendererFormat
+            Format rendererFormat
                 = new javax.media.format.AudioFormat(
                         javax.media.format.AudioFormat.LINEAR,
                         audioStreamFormat.getSampleRate(),
                         audioStreamFormat.getSampleSizeInBits(),
                         audioStreamFormat.getChannels());
+            Format resamplerFormat = null;
 
-            renderer.setInputFormat(rendererFormat);
-            buffer.setFormat(rendererFormat);
+            if (renderer.setInputFormat(rendererFormat) == null)
+            {
+                /*
+                 * Try to negotiate a resampling of the audioStreamFormat to one
+                 * of the formats supported by the renderer.
+                 */
+                resampler = new SpeexResampler();
+                resamplerFormat = rendererFormat;
+                resampler.setInputFormat(resamplerFormat);
+
+                Format[] supportedResamplerFormats
+                    = resampler.getSupportedOutputFormats(resamplerFormat);
+
+                for (Format supportedRendererFormat
+                        : renderer.getSupportedInputFormats())
+                {
+                    for (Format supportedResamplerFormat
+                            : supportedResamplerFormats)
+                    {
+                        if (supportedRendererFormat.matches(
+                                supportedResamplerFormat))
+                        {
+                            rendererFormat = supportedRendererFormat;
+                            resampler.setOutputFormat(rendererFormat);
+                            renderer.setInputFormat(rendererFormat);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            Buffer rendererBuffer = buffer;
+            Buffer resamplerBuffer;
+
+            rendererBuffer.setFormat(rendererFormat);
+            if (resampler == null)
+                resamplerBuffer = null;
+            else
+            {
+                resamplerBuffer = new Buffer();
+                bufferData = new byte[bufferData.length];
+                resamplerBuffer.setData(bufferData);
+                resamplerBuffer.setFormat(resamplerFormat);
+
+                resampler.open();
+            }
 
             try
             {
@@ -240,9 +288,22 @@ public class PortAudioClipImpl
                         && ((bufferLength = audioStream.read(bufferData))
                                 != -1))
                 {
-                    buffer.setLength(bufferLength);
-                    buffer.setOffset(0);
-                    renderer.process(buffer);
+                    if (resampler == null)
+                    {
+                        rendererBuffer.setLength(bufferLength);
+                        rendererBuffer.setOffset(0);
+                    }
+                    else
+                    {
+                        resamplerBuffer.setLength(bufferLength);
+                        resamplerBuffer.setOffset(0);
+                        rendererBuffer.setLength(0);
+                        rendererBuffer.setOffset(0);
+                        resampler.process(resamplerBuffer, rendererBuffer);
+                    }
+                    while ((renderer.process(rendererBuffer)
+                                & Renderer.INPUT_BUFFER_NOT_CONSUMED)
+                            == Renderer.INPUT_BUFFER_NOT_CONSUMED);
                 }
             }
             catch (IOException ioex)
@@ -253,6 +314,14 @@ public class PortAudioClipImpl
             catch (ResourceUnavailableException ruex)
             {
                 logger.error("Failed to open PortAudioRenderer.", ruex);
+                return false;
+            }
+        }
+        catch (ResourceUnavailableException ruex)
+        {
+            if (resampler != null)
+            {
+                logger.error("Failed to open SpeexResampler.", ruex);
                 return false;
             }
         }
@@ -269,6 +338,9 @@ public class PortAudioClipImpl
                  * will fail to open again so ignore the exception.
                  */
             }
+
+            if (resampler != null)
+                resampler.close();
         }
         return true;
     }

@@ -329,8 +329,17 @@ public class PortAudioRenderer
     {
         if (stream == 0)
         {
-            int deviceIndex = DataSource.getDeviceIndex(getLocator());
+            MediaLocator locator = getLocator();
+
+            if (locator == null)
+                throw new ResourceUnavailableException("locator not set");
+
+            int deviceIndex = DataSource.getDeviceIndex(locator);
             AudioFormat inputFormat = this.inputFormat;
+
+            if (inputFormat == null)
+                throw new ResourceUnavailableException("inputFormat not set");
+
             int channels = inputFormat.getChannels();
 
             if (channels == Format.NOT_SPECIFIED)
