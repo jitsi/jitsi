@@ -33,14 +33,14 @@ import net.java.sip.communicator.util.Logger;
 public class GatherEntropy
 {
     /**
-     * The <tt>Logger</tt> used by <tt>GetherEntropy</tt>
+     * The <tt>Logger</tt> used by <tt>GatherEntropy</tt>
      * class for logging output.
      */
     private static final Logger logger
         = Logger.getLogger(GatherEntropy.class);
 
     /**
-     * Device config to look for catpture devices.
+     * Device config to look for capture devices.
      */
     private final DeviceConfiguration deviceConfiguration;
     
@@ -71,7 +71,7 @@ public class GatherEntropy
      * How many seconds of audio to read.
      * 
      */
-    final private static int NUM_OF_SECONDS = 2;
+    private static final int NUM_OF_SECONDS = 2;
 
     public GatherEntropy(DeviceConfiguration deviceConfiguration) 
     {
@@ -91,7 +91,8 @@ public class GatherEntropy
     /**
      * @return the number of gathered entropy bytes.
      */
-    protected int getGatheredEntropy() {
+    protected int getGatheredEntropy()
+    {
         return gatheredEntropy;
     }
     /**
@@ -130,9 +131,9 @@ public class GatherEntropy
          * The next three elements control the push buffer that Javasound
          * uses.
          */
-        private Buffer firstBuf = new Buffer();
+        private final Buffer firstBuf = new Buffer();
         private boolean bufferAvailable = false;
-        private Object bufferSync = new Object();
+        private final Object bufferSync = new Object();
         
         /**
          * Prepares to read entropy data from portaudio capture device.
@@ -150,12 +151,17 @@ public class GatherEntropy
             if (audioCaptureDeviceLocator == null)
                 return false;
 
-            try {
+            try
+            {
                 dataSource = Manager.createDataSource(audioCaptureDeviceLocator);
-            } catch (NoDataSourceException e) {
+            }
+            catch (NoDataSourceException e)
+            {
                 logger.warn("No data source during entropy preparation", e);
                 return false;
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 logger.warn("Got an IO Exception during entropy preparation", e);
                 return false;
             }
@@ -166,23 +172,30 @@ public class GatherEntropy
             bytesToGather = framesToRead * frameSize;
             bytes20ms = frameSize * (int)(af.getSampleRate() /50);
 
-            if (dataSource instanceof PullBufferDataSource) {
+            if (dataSource instanceof PullBufferDataSource)
+            {
                 audioStream = ((PullBufferDataSource) dataSource).getStreams()[0];
             }
-            else {
+            else
+            {
                 audioStream = ((PushBufferDataSource) dataSource).getStreams()[0];
                 ((PushBufferStream)audioStream).setTransferHandler(this);
             }
             return (audioStream != null);
         }
 
-        public void transferData(PushBufferStream stream) {
-            try {
+        public void transferData(PushBufferStream stream)
+        {
+            try
+            {
                 stream.read(firstBuf);
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 logger.warn("Got IOException during transfer data", e);
             }
-            synchronized (bufferSync) {
+            synchronized (bufferSync)
+            {
                 bufferAvailable = true;
                 bufferSync.notifyAll();
             }
@@ -192,6 +205,7 @@ public class GatherEntropy
          * 
          * The method gathers a number of samples and seeds the Fortuna PRNG.
          */
+        @Override
         public void run()
         {
             ZrtpFortuna fortuna = ZrtpFortuna.getInstance();
@@ -199,18 +213,25 @@ public class GatherEntropy
             if ((dataSource == null) || (audioStream == null))
                 return;
 
-            try {
+            try
+            {
                 dataSource.start();
 
                 int i = 0;
                 while (gatheredEntropy < bytesToGather) 
                 {
-                    if (audioStream instanceof PushBufferStream) {
-                        synchronized (bufferSync) {
-                            while (!bufferAvailable) {
-                                try {
+                    if (audioStream instanceof PushBufferStream)
+                    {
+                        synchronized (bufferSync)
+                        {
+                            while (!bufferAvailable)
+                            {
+                                try
+                                {
                                     bufferSync.wait();
-                                } catch (InterruptedException e) {
+                                }
+                                catch (InterruptedException e)
+                                {
                                     // ignore
                                 }
                             }
@@ -250,7 +271,6 @@ public class GatherEntropy
             // this forces a Fortuna to use the new seed (entropy) data.
             byte[] random = new byte[300];
             fortuna.nextBytes(random);
-            return;
         }
     }
 }
