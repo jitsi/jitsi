@@ -49,7 +49,8 @@ public class LocalVideoButton
             "service.gui.LOCAL_VIDEO_BUTTON_TOOL_TIP"));
 
         MediaDevice videoDevice
-            = GuiActivator.getMediaService().getDefaultDevice(MediaType.VIDEO);
+            = GuiActivator.getMediaService().getDefaultDevice(MediaType.VIDEO,
+                    MediaUseCase.CALL);
         if (videoDevice == null
             || videoDevice.getDirection().equals(MediaDirection.RECVONLY))
         {

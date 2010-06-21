@@ -8,9 +8,14 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.awt.*;
 import java.beans.*;
+import java.text.*;
 
+import javax.sip.address.Address;
+
+import net.java.sip.communicator.service.neomedia.MediaUseCase;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * Implements <tt>OperationSetVideoTelephony</tt> in order to give access to
@@ -30,6 +35,20 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class OperationSetVideoTelephonySipImpl
     implements OperationSetVideoTelephony
 {
+    /**
+     * The <tt>Logger</tt> used by the
+     * <tt>OperationSetTelephonyConferencingSipImpl</tt> class and its instances
+     * for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(OperationSetVideoTelephonySipImpl.class);
+
+    /**
+     * The SIP <tt>ProtocolProviderService</tt> implementation which created
+     * this instance and for which telephony conferencing services are being
+     * provided by this instance.
+     */
+    private final ProtocolProviderServiceSipImpl parentProvider;
 
     /**
      * The telephony-related functionality this extension builds upon.
@@ -41,13 +60,18 @@ public class OperationSetVideoTelephonySipImpl
      * which builds upon the telephony-related functionality of a specific
      * <tt>OperationSetBasicTelephonySipImpl</tt>.
      *
+     * @param parentProvider the SIP <tt>ProtocolProviderService</tt>
+     * implementation which has requested the creation of the new instance and
+     * for which the new instance is to provide video telephony
      * @param basicTelephony the <tt>OperationSetBasicTelephonySipImpl</tt>
      *            the new extension should build upon
      */
     public OperationSetVideoTelephonySipImpl(
+        ProtocolProviderServiceSipImpl parentProvider,
         OperationSetBasicTelephonySipImpl basicTelephony)
     {
         this.basicTelephony = basicTelephony;
+        this.parentProvider = parentProvider;
     }
 
     /**
@@ -153,7 +177,9 @@ public class OperationSetVideoTelephonySipImpl
     public void setLocalVideoAllowed(Call call, boolean allowed)
         throws OperationFailedException
     {
-        ((CallSipImpl)call).setLocalVideoAllowed(allowed);
+        ((CallSipImpl)call).setLocalVideoAllowed(allowed, MediaUseCase.CALL);
+        /* reinvite all peers */
+        ((CallSipImpl)call).reInvite();
     }
 
     /**
@@ -226,6 +252,95 @@ public class OperationSetVideoTelephonySipImpl
             PropertyChangeListener listener)
     {
         ((CallSipImpl) call).removeVideoPropertyChangeListener(listener);
+    }
+
+    /**
+     * Get the <tt>MediaUseCase</tt> of a video telephony operation set.
+     *
+     * @return <tt>MediaUseCase.CALL</tt>
+     */
+    public MediaUseCase getMediaUseCase()
+    {
+        return MediaUseCase.CALL;
+    }
+
+    /**
+     * Create a new video call and invite the specified CallPeer to it.
+     *
+     * @param uri the address of the callee that we should invite to a new
+     * call.
+     * @return CallPeer the CallPeer that will represented by the
+     * specified uri. All following state change events will be delivered
+     * through that call peer. The Call that this peer is a member
+     * of could be retrieved from the CallParticipatn instance with the use
+     * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the video call.
+     * @throws ParseException if <tt>callee</tt> is not a valid sip address
+     * string.
+     */
+    public Call createVideoCall(String uri)
+        throws OperationFailedException, ParseException
+    {
+        Address toAddress = parentProvider.parseAddressString(uri);
+
+        CallSipImpl call = basicTelephony.createOutgoingCall();
+        call.setLocalVideoAllowed(true, getMediaUseCase());
+        call.invite(toAddress, null);
+
+        return call;
+    }
+
+    /**
+     * Create a new video call and invite the specified CallPeer to it.
+     *
+     * @param callee the address of the callee that we should invite to a new
+     * call.
+     * @return CallPeer the CallPeer that will represented by the
+     * specified uri. All following state change events will be delivered
+     * through that call peer. The Call that this peer is a member
+     * of could be retrieved from the CallParticipatn instance with the use
+     * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the video call.
+     */
+    public Call createVideoCall(Contact callee) throws OperationFailedException
+    {
+        Address toAddress;
+
+        try
+        {
+            toAddress = parentProvider.parseAddressString(callee.getAddress());
+        }
+        catch (ParseException ex)
+        {
+            // couldn't happen
+            logger.error(ex.getMessage(), ex);
+            throw new IllegalArgumentException(ex.getMessage());
+        }
+
+        CallSipImpl call = basicTelephony.createOutgoingCall();
+        call.setLocalVideoAllowed(true, getMediaUseCase());
+        call.invite(toAddress, null);
+
+        return call;
+    }
+
+    /**
+     * Indicates a user request to answer an incoming call with video enabled
+     * from the specified CallPeer.
+     *
+     * @param peer the call peer that we'd like to answer.
+     * @throws OperationFailedException with the corresponding code if we
+     * encounter an error while performing this operation.
+     */
+    public void answerVideoCallPeer(CallPeer peer) throws OperationFailedException
+    {
+        CallPeerSipImpl callPeer = (CallPeerSipImpl) peer;
+
+        /* answer with video */
+        callPeer.getCall().setLocalVideoAllowed(true, getMediaUseCase());
+        callPeer.answer();
     }
 
     /**

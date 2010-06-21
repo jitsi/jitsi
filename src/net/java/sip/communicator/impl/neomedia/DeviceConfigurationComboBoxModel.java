@@ -12,6 +12,7 @@ import javax.media.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 
 /**
@@ -125,7 +126,7 @@ public class DeviceConfigurationComboBoxModel
     {
         if (deviceConfiguration == null)
             throw new IllegalArgumentException("deviceConfiguration");
-        if ((type != AUDIO_CAPTURE) && (type != AUDIO_NOTIFY) && 
+        if ((type != AUDIO_CAPTURE) && (type != AUDIO_NOTIFY) &&
             (type != AUDIO_PLAYBACK) &&
             (type != AUDIO) && (type != VIDEO))
             throw new IllegalArgumentException("type");
@@ -186,7 +187,8 @@ public class DeviceConfigurationComboBoxModel
             infos = deviceConfiguration.getAvailableAudioPlaybackDevices();
             break;
         case VIDEO:
-            infos = deviceConfiguration.getAvailableVideoCaptureDevices();
+            infos = deviceConfiguration.getAvailableVideoCaptureDevices(
+                    MediaUseCase.CALL);
             break;
         default:
             throw new IllegalStateException("type");
@@ -221,7 +223,7 @@ public class DeviceConfigurationComboBoxModel
             info = deviceConfiguration.getAudioPlaybackDevice();
             break;
         case VIDEO:
-            info = deviceConfiguration.getVideoCaptureDevice();
+            info = deviceConfiguration.getVideoCaptureDevice(MediaUseCase.ANY);
             break;
         default:
             throw new IllegalStateException("type");

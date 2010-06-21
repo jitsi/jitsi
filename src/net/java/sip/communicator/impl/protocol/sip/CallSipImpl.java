@@ -86,6 +86,11 @@ public class CallSipImpl
     private boolean mute = false;
 
     /**
+     * Device used in call will be choosen according to <tt>MediaUseCase</tt>.
+     */
+    MediaUseCase mediaUseCase = MediaUseCase.ANY;
+
+    /**
      * The listener that would actually subscribe for level events from the
      * media handler if there's at least one listener in
      * <tt>localUserAudioLevelListeners</tt>.
@@ -402,9 +407,30 @@ public class CallSipImpl
         CallPeerSipImpl callPeer
             = createCallPeerFor(inviteTransaction, jainSipProvider);
 
+        /* enable video if it is a videocall */
+        callPeer.getMediaHandler().setLocalVideoTransmissionEnabled(
+                localVideoAllowed);
+
         callPeer.invite();
 
         return callPeer;
+    }
+
+    /**
+     * Send a RE-INVITE request for all current <tt>CallPeer</tt> to reflect
+     * possible change in media setup (video start/stop, ...).
+     *
+     * @throws OperationFailedException if problem occurred during SDP
+     * generation or network problem
+     */
+    public void reInvite() throws OperationFailedException
+    {
+        Iterator<CallPeerSipImpl> peers = getCallPeers();
+        while (peers.hasNext())
+        {
+            CallPeerSipImpl peer = peers.next();
+            peer.sendReInvite();
+        }
     }
 
     /**
@@ -540,13 +566,16 @@ public class CallSipImpl
      *
      * @param allowed <tt>true</tt> if local video transmission is allowed and
      * <tt>false</tt> otherwise.
+     * @param useCase usecase for the video (i.e video call or desktop
+     * streaming/sharing session)
      *
      *  @throws OperationFailedException if video initialization fails.
      */
-    public void setLocalVideoAllowed(boolean allowed)
+    public void setLocalVideoAllowed(boolean allowed, MediaUseCase useCase)
         throws OperationFailedException
     {
         this.localVideoAllowed = allowed;
+        mediaUseCase = useCase;
 
         /*
          * Record the setting locally and notify all peers.
@@ -704,19 +733,19 @@ public class CallSipImpl
     MediaDevice getDefaultDevice(MediaType mediaType)
     {
         MediaService mediaService = SipActivator.getMediaService();
+        MediaDevice device = mediaService.getDefaultDevice(mediaType,
+                mediaUseCase);
 
         if (MediaType.AUDIO.equals(mediaType) && isConferenceFocus())
         {
             if (conferenceAudioMixer == null)
             {
-                MediaDevice device = mediaService.getDefaultDevice(mediaType);
-
                 if (device != null)
                     conferenceAudioMixer = mediaService.createMixer(device);
             }
             return conferenceAudioMixer;
         }
-        return mediaService.getDefaultDevice(mediaType);
+        return device;
     }
 
     /**

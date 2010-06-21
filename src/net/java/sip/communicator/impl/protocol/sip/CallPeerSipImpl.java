@@ -90,7 +90,7 @@ public class CallPeerSipImpl
     /**
      * The media handler class handles all media management for a single
      * <tt>CallPeer</tt>. This includes initializing and configuring streams,
-     * generating SDP, handling ICE, etc. One instance of <tt>CallPeer</tt> always
+     * generating SDP, handling ICE, etc. One instance of <tt>CallPeer</tt>always
      * corresponds to exactly one instance of <tt>CallPeerMediaHandler</tt> and
      * both classes are only separated for reasons of readability.
      */
@@ -935,7 +935,8 @@ public class CallPeerSipImpl
             }
             finally
             {
-                logAndFail("Remote party sent a faulty session description.", exc);
+                logAndFail("Remote party sent a faulty session description.",
+                        exc);
             }
             return;
         }
@@ -945,7 +946,7 @@ public class CallPeerSipImpl
         {
             setState(CallPeerState.CONNECTED);
 
-            // as its connected, set initial mute status, 
+            // as its connected, set initial mute status,
             // corresponding call status
             if(isMute() != this.getCall().isMute())
                 setMute(this.getCall().isMute());
@@ -1221,8 +1222,8 @@ public class CallPeerSipImpl
         try
         {
             // extract the SDP description.
-            // beware: SDP description may be in ACKs so it could be that there's
-            // nothing here - bug report Laurent Michel
+            // beware: SDP description may be in ACKs so it could be that
+            // there's nothing here - bug report Laurent Michel
             ContentLengthHeader cl = invite.getContentLength();
             if (cl != null && cl.getContentLength() > 0)
             {
@@ -1457,21 +1458,6 @@ public class CallPeerSipImpl
         // Modify the local media setup to reflect the requested setting for
         // the streaming of the local video.
         mediaHandler.setLocalVideoTransmissionEnabled(allowed);
-
-        String sdpOffer = null;
-
-        try
-        {
-            sdpOffer = mediaHandler.createOffer();
-        }
-        catch (Exception ex)
-        {
-            throw new OperationFailedException(
-                    "Failed to create re-invite offer for peer "
-                        + this,OperationFailedException.INTERNAL_ERROR, ex);
-        }
-
-        sendReInvite(sdpOffer);
     }
 
     /**
@@ -1732,8 +1718,8 @@ public class CallPeerSipImpl
      * interested in and notified about changes in the sound level of the audio
      * sent by the remote party. When the first listener is being registered
      * the method also registers its single listener with the media handler so
-     * that it would receive level change events and delegate them to the listeners
-     * that have registered with us.
+     * that it would receive level change events and delegate them to the
+     * listeners that have registered with us.
      *
      * @param listener the <tt>SoundLevelListener</tt> to add
      */

@@ -486,7 +486,13 @@ public class ProtocolProviderServiceSipImpl
             addSupportedOperationSet(
                 OperationSetVideoTelephony.class,
                 new OperationSetVideoTelephonySipImpl(
-                        opSetBasicTelephonySipImpl));
+                        this, opSetBasicTelephonySipImpl));
+
+            // OperationSetDesktopStreaming
+            addSupportedOperationSet(
+                OperationSetDesktopStreaming.class,
+                new OperationSetDesktopStreamingSipImpl(
+                        this, opSetBasicTelephonySipImpl));
 
             // init DTMF (from JM Heitz)
             addSupportedOperationSet(
@@ -1111,7 +1117,7 @@ public class ProtocolProviderServiceSipImpl
                 InetAddress intendedDestinationAddress =
                     NetworkUtils.getInetAddress(intendedDestination.getHost());
                 int dstPort = intendedDestination.getPort();
-                
+
                 // addresses are different it means we are using the outbound
                 // proxy we must use its port
                 if(!targetAddress.equals(intendedDestinationAddress) &&

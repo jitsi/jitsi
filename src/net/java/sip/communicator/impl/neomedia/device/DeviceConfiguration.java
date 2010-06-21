@@ -14,8 +14,10 @@ import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
+import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
@@ -441,11 +443,14 @@ public class DeviceConfiguration
      * {@link #getVideoCaptureDevice()} and represent acceptable values
      * for {@link #setVideoCaptureDevice(CaptureDeviceInfo, boolean)}
      *
+     * @param useCase extract video capture devices that correspond to this
+     * <tt>MediaUseCase</tt>
      * @return an array of <code>CaptureDeviceInfo</code> describing the video
      *         capture devices available through this
      *         <code>DeviceConfiguration</code>
      */
-    public CaptureDeviceInfo[] getAvailableVideoCaptureDevices()
+    public CaptureDeviceInfo[] getAvailableVideoCaptureDevices(
+            MediaUseCase useCase)
     {
         Format[] formats
             = new Format[]
@@ -459,21 +464,83 @@ public class DeviceConfiguration
 
         for (Format format : formats)
         {
-            videoCaptureDevices.addAll(
-                    CaptureDeviceManager.getDeviceList(format));
+            Vector<CaptureDeviceInfo> captureDeviceInfos =
+                CaptureDeviceManager.getDeviceList(format);
+
+            /* TODO remove this line (and use the comment part) when GUI will
+             * support initiating directly video call or desktop streaming
+             * session
+             */
+            videoCaptureDevices.addAll(captureDeviceInfos);
+
+            /*
+            if(useCase != MediaUseCase.ANY)
+            {
+                for(CaptureDeviceInfo dev : captureDeviceInfos)
+                {
+                    if(useCase == MediaUseCase.CALL &&
+                            !dev.getLocator().getProtocol().equals(
+                                    ImageStreamingUtils.LOCATOR_PROTOCOL))
+                    {
+                        // add only non-desktop capture device
+                        videoCaptureDevices.add(dev);
+                    }
+                    else if(useCase == MediaUseCase.DESKTOP &&
+                            dev.getLocator().getProtocol().equals(
+                                    ImageStreamingUtils.LOCATOR_PROTOCOL))
+                    {
+                        // add only desktop streaming devices
+                        videoCaptureDevices.add(dev);
+                    }
+                }
+            }
+            else
+            {
+                videoCaptureDevices.addAll(captureDeviceInfos);
+            }
+            */
         }
+
         return videoCaptureDevices.toArray(NO_CAPTURE_DEVICES);
     }
 
     /**
      * Returns a device that we could use for video capture.
      *
+     * @param useCase <tt>MediaUseCase</tt> that will determined device
+     * we will use
      * @return the CaptureDeviceInfo of a device that we could use for video
      *         capture.
      */
-    public CaptureDeviceInfo getVideoCaptureDevice()
+    public CaptureDeviceInfo getVideoCaptureDevice(MediaUseCase useCase)
     {
+        /* TODO remove this line (and use the comment part) when GUI will
+         * support initiating directly video call or desktop streaming session
+         */
         return videoCaptureDevice;
+
+        /*
+        CaptureDeviceInfo dev = null;
+
+        switch(useCase)
+        {
+        case ANY:
+        case CALL:
+            dev = videoCaptureDevice;
+            break;
+        case DESKTOP:
+            CaptureDeviceInfo devs[] =
+                getAvailableVideoCaptureDevices(MediaUseCase.DESKTOP);
+
+            if(devs.length > 0)
+                dev = devs[0];
+            break;
+        default:
+            break;
+        }
+
+        return dev;
+        */
     }
 
     /**
@@ -980,7 +1047,7 @@ public class DeviceConfiguration
         @SuppressWarnings("unchecked")
         Vector<String> plugins
             = PlugInManager.getPlugInList(null, null, pluginType);
-        
+
         if (plugins != null)
         {
             int pluginCount = plugins.size();
@@ -991,7 +1058,7 @@ public class DeviceConfiguration
                  pluginIndex >= pluginBeginIndex;)
             {
                 String plugin = plugins.get(pluginIndex);
-                
+
                 if (plugin.startsWith(preferred))
                 {
                     plugins.remove(pluginIndex);

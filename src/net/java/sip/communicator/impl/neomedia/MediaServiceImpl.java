@@ -49,8 +49,8 @@ public class MediaServiceImpl
 
     /**
      * The list of audio <tt>MediaDevice</tt>s reported by this instance when
-     * its {@link MediaService#getDevices(MediaType)} method is called with an
-     * argument {@link MediaType#AUDIO}.
+     * its {@link MediaService#getDevices(MediaType, MediaUseCase)} method is
+     * called with an argument {@link MediaType#AUDIO}.
      */
     private final List<MediaDeviceImpl> audioDevices
         = new ArrayList<MediaDeviceImpl>();
@@ -85,8 +85,8 @@ public class MediaServiceImpl
 
     /**
      * The list of video <tt>MediaDevice</tt>s reported by this instance when
-     * its {@link MediaService#getDevices(MediaType)} method is called with an
-     * argument {@link MediaType#VIDEO}.
+     * its {@link MediaService#getDevices(MediaType, MediaUseCase)} method is
+     * called with an argument {@link MediaType#VIDEO}.
      */
     private final List<MediaDeviceImpl> videoDevices
         = new ArrayList<MediaDeviceImpl>();
@@ -179,12 +179,15 @@ public class MediaServiceImpl
      *
      * @param mediaType a <tt>MediaType</tt> value indicating the type of media
      * to be handled by the <tt>MediaDevice</tt> to be obtained
+     * @param useCase the <tt>MediaUseCase</tt> to obtain the
+     * <tt>MediaDevice</tt> list for
      * @return the default <tt>MediaDevice</tt> for the specified
      * <tt>mediaType</tt> if such a <tt>MediaDevice</tt> exists; otherwise,
      * <tt>null</tt>
-     * @see MediaService#getDefaultDevice(MediaType)
+     * @see MediaService#getDefaultDevice(MediaType, MediaUseCase)
      */
-    public MediaDevice getDefaultDevice(MediaType mediaType)
+    public MediaDevice getDefaultDevice(MediaType mediaType,
+            MediaUseCase useCase)
     {
         CaptureDeviceInfo captureDeviceInfo;
 
@@ -196,7 +199,7 @@ public class MediaServiceImpl
             break;
         case VIDEO:
             captureDeviceInfo
-                = getDeviceConfiguration().getVideoCaptureDevice();
+                    = getDeviceConfiguration().getVideoCaptureDevice(useCase);
             break;
         default:
             captureDeviceInfo = null;
@@ -207,7 +210,7 @@ public class MediaServiceImpl
 
         if (captureDeviceInfo != null)
         {
-            for (MediaDevice device : getDevices(mediaType))
+            for (MediaDevice device : getDevices(mediaType, useCase))
             {
                 if ((device instanceof MediaDeviceImpl)
                         && captureDeviceInfo.equals(((MediaDeviceImpl) device)
@@ -263,6 +266,8 @@ public class MediaServiceImpl
      *
      * @param mediaType the <tt>MediaType</tt> to obtain the
      * <tt>MediaDevice</tt> list for
+     * @param useCase the <tt>MediaUseCase</tt> to obtain the
+     * <tt>MediaDevice</tt> list for
      * @return a new <tt>List</tt> of <tt>MediaDevice</tt>s known to this
      * <tt>MediaService</tt> and handling the specified <tt>MediaType</tt>. The
      * returned <tt>List</tt> is a copy of the internal storage and,
@@ -270,9 +275,10 @@ public class MediaServiceImpl
      * the fact that a new <tt>List</tt> instance is returned by each call to
      * this method, the <tt>MediaDevice</tt> instances are the same if they are
      * still known to this <tt>MediaService</tt> to be available.
-     * @see MediaService#getDevices(MediaType)
+     * @see MediaService#getDevices(MediaType, MediaUseCase)
      */
-    public List<MediaDevice> getDevices(MediaType mediaType)
+    public List<MediaDevice> getDevices(MediaType mediaType,
+            MediaUseCase useCase)
     {
         CaptureDeviceInfo[] captureDeviceInfos;
         List<MediaDeviceImpl> privateDevices;
@@ -286,7 +292,8 @@ public class MediaServiceImpl
             break;
         case VIDEO:
             captureDeviceInfos
-                = getDeviceConfiguration().getAvailableVideoCaptureDevices();
+                = getDeviceConfiguration().getAvailableVideoCaptureDevices(
+                        useCase);
             privateDevices = videoDevices;
             break;
         default:

@@ -146,7 +146,8 @@ public class OperationSetBasicTelephonySipImpl
      * Initializes a new outgoing <tt>Call</tt> with no peers in it. Intended
      * for use by other <tt>OperationSet</tt>s willing to initialize
      * <tt>Call</tt>s and willing to control their establishment in ways
-     * different than {@link #createOutgoingCall(Address, Message)}.
+     * different than {@link #createOutgoingCall(Address,
+     * javax.sip.message.Message)}.
      *
      * @return a new outgoing <tt>Call</tt> with no peers in it
      * @throws OperationFailedException if initializing the new outgoing

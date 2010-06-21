@@ -26,11 +26,14 @@ public interface MediaService
      *
      * @param mediaType a <tt>MediaType</tt> value indicating the kind of device
      * that we are trying to obtain.
+     * @param useCase <tt>MediaUseCase</tt> value indicating for the use-case of
+     * device that we are trying to obtain.
      *
      * @return the currently default <tt>MediaDevice</tt> for the specified
      * <tt>MediaType</tt>, or <tt>null</tt> if no such device exists.
      */
-    public MediaDevice getDefaultDevice(MediaType mediaType);
+    public MediaDevice getDefaultDevice(MediaType mediaType,
+            MediaUseCase useCase);
 
     /**
      * Returns a list containing all devices known to this service
@@ -38,11 +41,14 @@ public interface MediaService
      *
      * @param mediaType the media type (i.e. AUDIO or VIDEO) that we'd like
      * to obtain the device list for.
+     * @param useCase <tt>MediaUseCase</tt> value indicating for the use-case of
+     * device that we are trying to obtain.
      *
      * @return the list of <tt>MediaDevice</tt>s currently known to handle the
      * specified <tt>mediaType</tt>.
      */
-    public List<MediaDevice> getDevices(MediaType mediaType);
+    public List<MediaDevice> getDevices(MediaType mediaType,
+            MediaUseCase useCase);
 
     /**
      * Creates a <tt>MediaStream</tt> that will be using the specified
@@ -115,11 +121,11 @@ public interface MediaService
 
     /**
      * Get available <tt>ScreenDevice</tt>s.
-     * 
+     *
      * @return screens
      */
     public List<ScreenDevice> getAvailableScreenDevices();
-    
+
     /**
      * Get default <tt>ScreenDevice</tt> device.
      *

@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.protocol;
 
 import java.awt.*;
 import java.beans.*;
+import java.text.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -17,6 +18,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * video and listening to dynamic availability of such <tt>Component</tt>s.
  *
  * @author Lubomir Marinov
+ * @author Sebastien Vincent
  */
 public interface OperationSetVideoTelephony
     extends OperationSet
@@ -177,4 +179,48 @@ public interface OperationSetVideoTelephony
      */
     public void removePropertyChangeListener(Call                   call,
                                              PropertyChangeListener listener);
+
+    /**
+     * Create a new video call and invite the specified CallPeer to it.
+     *
+     * @param uri the address of the callee that we should invite to a new
+     * call.
+     * @return CallPeer the CallPeer that will represented by the
+     * specified uri. All following state change events will be delivered
+     * through that call peer. The Call that this peer is a member
+     * of could be retrieved from the CallParticipatn instance with the use
+     * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the video call.
+     * @throws ParseException if <tt>callee</tt> is not a valid sip address
+     * string.
+     */
+    public Call createVideoCall(String uri)
+        throws OperationFailedException, ParseException;
+
+    /**
+     * Create a new video call and invite the specified CallPeer to it.
+     *
+     * @param callee the address of the callee that we should invite to a new
+     * call.
+     * @return CallPeer the CallPeer that will represented by the
+     * specified uri. All following state change events will be delivered
+     * through that call peer. The Call that this peer is a member
+     * of could be retrieved from the CallParticipatn instance with the use
+     * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the video call.
+     */
+    public Call createVideoCall(Contact callee)
+        throws OperationFailedException;
+
+    /**
+     * Indicates a user request to answer an incoming call with video enabled
+     * from the specified CallPeer.
+     * @param peer the call peer that we'd like to answer.
+     * @throws OperationFailedException with the corresponding code if we
+     * encounter an error while performing this operation.
+     */
+    public void answerVideoCallPeer(CallPeer peer)
+        throws OperationFailedException;
 }
