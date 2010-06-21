@@ -145,8 +145,13 @@ public class GatherEntropy
          */
         private boolean prepareAudioEntropy()
         {
+            CaptureDeviceInfo audioCaptureDevice = 
+                    deviceConfiguration.getAudioCaptureDevice();
+            if (audioCaptureDevice == null)
+                return false;
+
             MediaLocator audioCaptureDeviceLocator
-                = deviceConfiguration.getAudioCaptureDevice().getLocator();
+                = audioCaptureDevice.getLocator();
 
             if (audioCaptureDeviceLocator == null)
                 return false;
