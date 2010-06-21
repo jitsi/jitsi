@@ -896,6 +896,11 @@ public class TreeContactList
 
         UIGroup parentGroup = group.getParentGroup();
 
+        // when metalist removes non empty group, first removes the
+        // contacts and with the last one it removes the group, as its non empty
+        if(parentGroup == null)
+            return;
+
         GroupNode parentGroupNode
             = parentGroup.getGroupNode();
 
