@@ -344,7 +344,8 @@ public class QuickTimeStream
                                     ? null
                                     : new Dimension(width, height)),
                                 Format.NOT_SPECIFIED,
-                                FFmpeg.PIX_FMT_ARGB);
+                                FFmpeg.PIX_FMT_ARGB,
+                                CVPixelFormatType.kCVPixelFormatType_32ARGB);
                 else
                     return
                         new RGBFormat(
@@ -360,7 +361,9 @@ public class QuickTimeStream
                 if ((width == 0) && (height == 0))
                 {
                     if (captureOutputFormat instanceof AVFrameFormat)
-                        return new AVFrameFormat(FFmpeg.PIX_FMT_YUV420P);
+                        return new AVFrameFormat(FFmpeg.PIX_FMT_YUV420P,
+                                CVPixelFormatType.
+                                    kCVPixelFormatType_420YpCbCr8Planar);
                     else
                         return new YUVFormat(YUVFormat.YUV_420);
                 }
@@ -370,7 +373,9 @@ public class QuickTimeStream
                         new AVFrameFormat(
                                 new Dimension(width, height),
                                 Format.NOT_SPECIFIED,
-                                FFmpeg.PIX_FMT_YUV420P);
+                                FFmpeg.PIX_FMT_YUV420P,
+                                CVPixelFormatType.
+                                kCVPixelFormatType_420YpCbCr8Planar);
                 }
                 else
                 {

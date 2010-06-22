@@ -48,6 +48,14 @@ JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_medi
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2
+ * Method:    convert_jpeg
+ * Signature: (JJI)J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_convert_1jpeg
+  (JNIEnv *, jclass, jlong, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2
  * Method:    mmap
  * Signature: (JIIIIJ)J
  */
@@ -264,6 +272,22 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2
+ * Method:    v4l2_streamparm_alloc
+ * Signature: (I)J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_v4l2_1streamparm_1alloc
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2
+ * Method:    v4l2_streamparm_setFps
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_v4l2_1streamparm_1setFps
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2
  * Method:    VIDIOC_DQBUF
  * Signature: ()I
  */
@@ -316,6 +340,14 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_VIDIOC_1S_1FMT
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2
+ * Method:    VIDIOC_S_PARM
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_VIDIOC_1S_1PARM
   (JNIEnv *, jclass);
 
 /*

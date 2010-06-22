@@ -25,7 +25,6 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 public class Video4Linux2Stream
     extends AbstractPullBufferStream
 {
-
     /**
      * The pool of <tt>ByteBuffer</tt>s this instances is using to transfer the
      * media data captured by the Video for Linux Two API Specification device
@@ -87,6 +86,16 @@ public class Video4Linux2Stream
      * instance in {@link #read(Buffer)}.
      */
     private long v4l2_buffer;
+
+    /**
+     * Native Video for Linux Two pixel format.
+     */
+    private int nativePixelFormat = 0;
+
+    /**
+     * Tell device to start capture in read() method.
+     */
+    private boolean startInRead = false;
 
     /**
      * Initializes a new <tt>Video4Linux2Stream</tt> instance which is to have
@@ -214,7 +223,8 @@ public class Video4Linux2Stream
                                 = new AVFrameFormat(
                                         new Dimension(width, height),
                                         Format.NOT_SPECIFIED,
-                                        ffmpegPixFmt);
+                                        ffmpegPixFmt,
+                                        pixelformat);
                         }
                     }
                 }
@@ -412,11 +422,36 @@ public class Video4Linux2Stream
 
         if (!(format instanceof AVFrameFormat))
             format = null;
+
         if (format == null)
         {
             format = getFormat();
             if (format != null)
                 buffer.setFormat(format);
+        }
+
+        if(startInRead)
+        {
+            startInRead = false;
+
+            long v4l2_buf_type
+                = Video4Linux2.v4l2_buf_type_alloc(
+                        Video4Linux2.V4L2_BUF_TYPE_VIDEO_CAPTURE);
+
+            if (0 == v4l2_buf_type)
+                throw new OutOfMemoryError("v4l2_buf_type_alloc");
+            try
+            {
+                if (Video4Linux2.ioctl(fd, Video4Linux2.VIDIOC_STREAMON,
+                        v4l2_buf_type) == -1)
+                {
+                    throw new IOException("ioctl: request= VIDIOC_STREAMON");
+                }
+            }
+            finally
+            {
+                Video4Linux2.free(v4l2_buf_type);
+            }
         }
 
         if (Video4Linux2.ioctl(fd, Video4Linux2.VIDIOC_DQBUF, v4l2_buffer)
@@ -427,18 +462,38 @@ public class Video4Linux2Stream
 
         try
         {
+            ByteBuffer data = null;
+            int index = Video4Linux2.v4l2_buffer_getIndex(v4l2_buffer);
+            long mmap = mmaps[index];
             int bytesused = Video4Linux2.v4l2_buffer_getBytesused(v4l2_buffer);
-            ByteBuffer data = byteBufferPool.getFreeBuffer(bytesused);
 
-            if (data != null)
+
+            if(nativePixelFormat == Video4Linux2.V4L2_PIX_FMT_MJPEG ||
+                    nativePixelFormat == Video4Linux2.V4L2_PIX_FMT_JPEG)
             {
-                int index = Video4Linux2.v4l2_buffer_getIndex(v4l2_buffer);
-                long mmap = mmaps[index];
+                /* JPEG/MJPEG are compressed formats, allocate bytes and
+                 * convert captured data to RGB24
+                 */
+                Dimension videoSize = ((VideoFormat)format).getSize();
+                int captured_bytes = bytesused;
+                bytesused = videoSize.width * videoSize.height * 3;
+                data = byteBufferPool.getFreeBuffer(bytesused);
 
-                Video4Linux2.memcpy(data.ptr, mmap, bytesused);
-                data.setLength(bytesused);
-                FinalizableAVFrame.read(buffer, format, data, byteBufferPool);
+                if(data != null)
+                    Video4Linux2.convert_jpeg(data.ptr, mmap, captured_bytes);
             }
+            else
+            {
+                data = byteBufferPool.getFreeBuffer(bytesused);
+
+                if (data != null)
+                {
+                    Video4Linux2.memcpy(data.ptr, mmap, bytesused);
+                }
+            }
+
+            data.setLength(bytesused);
+            FinalizableAVFrame.read(buffer, format, data, byteBufferPool);
         }
         finally
         {
@@ -536,9 +591,8 @@ public class Video4Linux2Stream
 
         if (format instanceof AVFrameFormat)
         {
-            int pixFmt = ((AVFrameFormat) format).getPixFmt();
-
-            pixelformat = DataSource.getV4L2PixFmt(pixFmt);
+            pixelformat = ((AVFrameFormat) format).getDevicePixFmt();
+            nativePixelFormat = pixelformat;
         }
         if (Video4Linux2.V4L2_PIX_FMT_NONE == pixelformat)
             throw new IOException("Unsupported format " + format);
@@ -571,6 +625,7 @@ public class Video4Linux2Stream
                             DataSource.DEFAULT_WIDTH,
                             DataSource.DEFAULT_HEIGHT);
             }
+
             if ((size != null)
                     && ((size.width != width) || (size.height != height)))
             {
@@ -585,8 +640,10 @@ public class Video4Linux2Stream
                 Video4Linux2.v4l2_pix_format_setPixelformat(
                         fmtPix,
                         pixelformat);
+
                 setFdFormat = true;
             }
+
             if (setFdFormat)
                 setFdFormat(v4l2_format, fmtPix, size, pixelformat);
         }
@@ -596,6 +653,21 @@ public class Video4Linux2Stream
         }
     }
 
+    /**
+     * Sets the <tt>Format</tt> in which the Video for Linux Two API
+     * Specification device represented by the <tt>fd</tt> of this instance is
+     * to capture media data.
+     *
+     * @param v4l2_format native format to set on the Video for Linux Two API
+     * Specification device
+     * @param fmtPix native pixel format of the device
+     * @param size size to set on the device
+     * @param pixelformat requested pixel format
+     * @throws IOException if anything goes wrong while setting the
+     * native format of the media data to be captured by the Video for Linux
+     * Two API Specification device represented by the <tt>fd</tt> of this
+     * instance
+     */
     private void setFdFormat(
             long v4l2_format,
             long fmtPix,
@@ -607,6 +679,7 @@ public class Video4Linux2Stream
                 fmtPix,
                 Video4Linux2.V4L2_FIELD_NONE);
         Video4Linux2.v4l2_pix_format_setBytesperline(fmtPix, 0);
+
         if (Video4Linux2.ioctl(
                     fd,
                     Video4Linux2.VIDIOC_S_FMT,
@@ -679,27 +752,13 @@ public class Video4Linux2Stream
             Video4Linux2.free(v4l2_buffer);
         }
 
-        long v4l2_buf_type
-            = Video4Linux2.v4l2_buf_type_alloc(
-                    Video4Linux2.V4L2_BUF_TYPE_VIDEO_CAPTURE);
-
-        if (0 == v4l2_buf_type)
-            throw new OutOfMemoryError("v4l2_buf_type_alloc");
-        try
-        {
-            if (Video4Linux2.ioctl(
-                        fd,
-                        Video4Linux2.VIDIOC_STREAMON,
-                        v4l2_buf_type)
-                    == -1)
-            {
-                throw new IOException("ioctl: request= VIDIOC_STREAMON");
-            }
-        }
-        finally
-        {
-            Video4Linux2.free(v4l2_buf_type);
-        }
+        /* we will start capture in read() method (i.e do the VIDIOC_STREAMON
+         * ioctl) because for some couple of fps/resolution the captured image
+         * will be weird (shift, not a JPEG for JPEG/MJPEG format, ...)
+         * if it is done here. Maybe it is due because sometime JMF do the
+         * sequence start/stop/start too quickly...
+         */
+        startInRead = true;
     }
 
     /**

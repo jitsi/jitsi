@@ -118,9 +118,9 @@ public class Video4Linux2Auto
      * API Specification with a specific device name, a specific <tt>open()</tt>
      * file descriptor and a specific <tt>v4l2_capability</tt> with JMF.
      *
-     * @param deviceName
-     * @param fd
-     * @param v4l2_capability
+     * @param deviceName name of the device (i.e. /dev/videoX)
+     * @param fd file descriptor of the device
+     * @param v4l2_capability device V4L2 capability
      * @return <tt>true</tt> if a <tt>CaptureDeviceInfo</tt> for the specified
      * <tt>CaptureDevice</tt> has been added to <tt>CaptureDeviceManager</tt>;
      * otherwise, <tt>false</tt>
@@ -185,7 +185,7 @@ public class Video4Linux2Auto
             int ffmpegPixFmt = DataSource.getFFmpegPixFmt(pixelformat);
 
             if (FFmpeg.PIX_FMT_NONE != ffmpegPixFmt)
-                format = new AVFrameFormat(ffmpegPixFmt);
+                format = new AVFrameFormat(ffmpegPixFmt, pixelformat);
             else
                 return false;
         }

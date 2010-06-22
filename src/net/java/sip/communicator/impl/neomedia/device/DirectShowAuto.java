@@ -61,7 +61,7 @@ public class DirectShowAuto
 
             if(ffmpegPixFmt != FFmpeg.PIX_FMT_NONE)
             {
-                format = new AVFrameFormat(ffmpegPixFmt);
+                format = new AVFrameFormat(ffmpegPixFmt, (int)pixelFormat);
             }
             else
             {

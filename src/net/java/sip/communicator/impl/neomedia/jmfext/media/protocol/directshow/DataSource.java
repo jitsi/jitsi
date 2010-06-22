@@ -233,7 +233,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
             int pixelFormat = (int)getFFmpegPixFmt(f);
 
             formats.add(new AVFrameFormat(size, Format.NOT_SPECIFIED,
-                    pixelFormat));
+                    pixelFormat, (int)f));
         }
 
         return formats.toArray(new Format[formats.size()]);
@@ -297,10 +297,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
             if(newValue instanceof AVFrameFormat)
             {
                 AVFrameFormat f = (AVFrameFormat)newValue;
-                long pixelFormat = -1;
-                int pixFmt = f.getPixFmt();
-
-                pixelFormat = getDSPixFmt(pixFmt);
+                long pixelFormat = f.getDevicePixFmt();
 
                 if(pixelFormat != -1)
                 {

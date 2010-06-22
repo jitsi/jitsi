@@ -36,12 +36,20 @@ public class AVFrameFormat
     private int pixFmt;
 
     /**
+     * Native format of the capture device. Because some native capture device
+     * formats can correspond to the same FFmpeg format, JMF's stream is unable
+     * to differentiate them. So having the native format here
+     * allow JMF stream to know it directly.
+     */
+    private int devicePixFmt;
+
+    /**
      * Initializes a new <tt>AVFrameFormat</tt> instance with unspecified size,
      * frame rate and FFmpeg colorspace.
      */
     public AVFrameFormat()
     {
-        this(NOT_SPECIFIED);
+        this(NOT_SPECIFIED, NOT_SPECIFIED);
     }
 
     /**
@@ -49,10 +57,12 @@ public class AVFrameFormat
      * colorspace and unspecified size and frame rate.
      *
      * @param pixFmt the FFmpeg colorspace to be represented by the new instance
+     * @param devicePixFmt the capture device colorspace to be represented by
+     * the new instance
      */
-    public AVFrameFormat(int pixFmt)
+    public AVFrameFormat(int pixFmt, int devicePixFmt)
     {
-        this(null, NOT_SPECIFIED, pixFmt);
+        this(null, NOT_SPECIFIED, pixFmt, devicePixFmt);
     }
 
     /**
@@ -62,12 +72,16 @@ public class AVFrameFormat
      * @param size the <tt>Dimension</tt> of the new instance
      * @param frameRate the frame rate of the new instance
      * @param pixFmt the FFmpeg colorspace to be represented by the new instance
+     * @param devicePixFmt the capture device colorspace to be represented by
+     * the new instance
      */
-    public AVFrameFormat(Dimension size, float frameRate, int pixFmt)
+    public AVFrameFormat(Dimension size, float frameRate, int pixFmt,
+            int devicePixFmt)
     {
         super(AVFRAME, size, NOT_SPECIFIED, AVFrame.class, frameRate);
 
         this.pixFmt = pixFmt;
+        this.devicePixFmt = devicePixFmt;
     }
 
     /**
@@ -80,7 +94,8 @@ public class AVFrameFormat
     @Override
     public Object clone()
     {
-        AVFrameFormat f = new AVFrameFormat(size, frameRate, pixFmt);
+        AVFrameFormat f = new AVFrameFormat(size, frameRate, pixFmt,
+                devicePixFmt);
 
         f.copy(this);
         return f;
@@ -137,6 +152,16 @@ public class AVFrameFormat
     public int getPixFmt()
     {
         return pixFmt;
+    }
+
+    /**
+     * Gets the native capture device format represented by this instance.
+     *
+     * @return native capture device format reprensented by this instance
+     */
+    public int getDevicePixFmt()
+    {
+        return devicePixFmt;
     }
 
     /**

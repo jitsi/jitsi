@@ -53,6 +53,12 @@ public class Video4Linux2
     public static final int V4L2_PIX_FMT_YUYV
         = v4l2_fourcc('Y', 'U', 'Y', 'V');
 
+    public static final int V4L2_PIX_FMT_MJPEG
+        = v4l2_fourcc('M', 'J', 'P', 'G');
+
+    public static final int V4L2_PIX_FMT_JPEG
+        = v4l2_fourcc('J', 'P', 'E', 'G');
+
     public static final int VIDIOC_DQBUF;
 
     public static final int VIDIOC_G_FMT;
@@ -66,6 +72,8 @@ public class Video4Linux2
     public static final int VIDIOC_REQBUFS;
 
     public static final int VIDIOC_S_FMT;
+
+    public static final int VIDIOC_S_PARM;
 
     public static final int VIDIOC_STREAMOFF;
 
@@ -82,6 +90,7 @@ public class Video4Linux2
         VIDIOC_QUERYCAP = VIDIOC_QUERYCAP();
         VIDIOC_REQBUFS = VIDIOC_REQBUFS();
         VIDIOC_S_FMT = VIDIOC_S_FMT();
+        VIDIOC_S_PARM = VIDIOC_S_PARM();
         VIDIOC_STREAMOFF = VIDIOC_STREAMOFF();
         VIDIOC_STREAMON = VIDIOC_STREAMON();
     }
@@ -93,6 +102,8 @@ public class Video4Linux2
     public static native int ioctl(int fd, int request, long argp);
 
     public static native long memcpy(long dest, long src, int n);
+
+    public static native long convert_jpeg(long dest, long src, int size);
 
     public static native long mmap(
             long start,
@@ -184,6 +195,10 @@ public class Video4Linux2
             long v4l2_requestbuffers,
             int memory);
 
+    public static native long v4l2_streamparm_alloc(int type);
+
+    public static native void v4l2_streamparm_setFps(long v4l2_streamparm, int fps);
+
     private static native int VIDIOC_DQBUF();
 
     private static native int VIDIOC_G_FMT();
@@ -197,6 +212,8 @@ public class Video4Linux2
     private static native int VIDIOC_REQBUFS();
 
     private static native int VIDIOC_S_FMT();
+
+    private static native int VIDIOC_S_PARM();
 
     private static native int VIDIOC_STREAMOFF();
 

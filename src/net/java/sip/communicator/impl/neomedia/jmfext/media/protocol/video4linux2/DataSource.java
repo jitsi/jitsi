@@ -49,7 +49,11 @@ public class DataSource
                     Video4Linux2.V4L2_PIX_FMT_YUV420,
                     FFmpeg.PIX_FMT_YUV420P,
                     Video4Linux2.V4L2_PIX_FMT_YUYV,
-                    FFmpeg.PIX_FMT_YUYV422
+                    FFmpeg.PIX_FMT_YUYV422,
+                    Video4Linux2.V4L2_PIX_FMT_MJPEG,
+                    FFmpeg.PIX_FMT_RGB24,
+                    Video4Linux2.V4L2_PIX_FMT_JPEG,
+                    FFmpeg.PIX_FMT_RGB24,
                 };
 
     /**
@@ -210,7 +214,7 @@ public class DataSource
      * Gets the Video for Linux Two API Specification pixel format matching a
      * specific FFmpeg pixel format.
      *
-     * @param ffmpegPixFmt the FFmpeg pixel format to get the matching Video for
+     * @param v4l2PixFmt the FFmpeg pixel format to get the matching Video for
      * Linux Two API Specification pixel format of
      * @return the Video for Linux Two API Specification pixel format matching
      * the specified FFmpeg format
@@ -227,7 +231,7 @@ public class DataSource
      * Gets the FFmpeg pixel format matching a specific Video for Linux Two API
      * Specification pixel format.
      *
-     * @param v4l2PixFmt the Video for Linux Two API Specification pixel format
+     * @param ffmpegPixFmt the Video for Linux Two API Specification pixel format
      * to get the matching FFmpeg pixel format of
      * @return the FFmpeg pixel format matching the specified Video for Linux
      * Two API Specification pixel format

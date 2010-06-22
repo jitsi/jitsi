@@ -42,7 +42,8 @@ public class DataSource
                         new AVFrameFormat(
                                 screenSize,
                                 Format.NOT_SPECIFIED,
-                                FFmpeg.PIX_FMT_ARGB),
+                                FFmpeg.PIX_FMT_ARGB,
+                                Format.NOT_SPECIFIED),
                         new RGBFormat(
                                 screenSize, // size
                                 Format.NOT_SPECIFIED, // maxDataLength

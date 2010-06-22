@@ -8,12 +8,51 @@
 #include "net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2.h"
 
 #include <fcntl.h>
-#include <linux/videodev2.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include <sys/select.h>
 #include <unistd.h>
+
+#include <linux/videodev2.h>
+
+#include "tinyjpeg.h"
+
+/* from lti-civil */
+static void jpeg2rgb (unsigned char *src, unsigned char *dest,
+        long srcFrameBytes, int flags)
+{
+    unsigned char *components[1];
+
+    struct jdec_private *jdec;
+
+    components[0] = dest;
+
+    jdec = tinyjpeg_init();
+
+    if (jdec == NULL)
+    {
+        return;
+    }
+    tinyjpeg_set_flags(jdec, flags);
+    tinyjpeg_set_components(jdec, components, 1);
+    if (tinyjpeg_parse_header(jdec, src, srcFrameBytes) < 0)
+    {
+      printf("parseheader!\n");
+      fflush(stdout);
+        free(jdec);
+        return;
+    }
+    // supplying TINYJPEG_FMT_RGB24 reverse colors : strange
+    if (tinyjpeg_decode(jdec, TINYJPEG_FMT_BGR24) < 0)
+    {
+        free(jdec);
+        return;
+    }
+
+    free(jdec);
+}
 
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_close
@@ -41,6 +80,19 @@ Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_
     (JNIEnv *jniEnv, jclass clazz, jlong dest, jlong src, jint n)
 {
     return (jlong) memcpy((void *) dest, (const void *) src, n);
+}
+
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_convert_1jpeg
+  (JNIEnv *jniEnv, jclass clazz, jlong dst, jlong src, jint size)
+{
+  unsigned char* s = (unsigned char*)src;
+  
+  if(size > 0xaf && s[0] == 0xFF && s[1] == 0xD8)
+  {
+    jpeg2rgb(s, (unsigned char*)dst, size, TINYJPEG_FLAGS_MJPEG_TABLE);
+  }
+
+  return 0;
 }
 
 JNIEXPORT jlong JNICALL
@@ -279,6 +331,24 @@ Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_
     ((struct v4l2_requestbuffers *) v4l2_requestbuffers)->memory = memory;
 }
 
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_v4l2_1streamparm_1alloc
+  (JNIEnv *jniEnv, jclass clazz, jint type)
+{
+    struct v4l2_streamparm* v4l2_streamparm = (struct v4l2_streamparm *)malloc(sizeof(struct v4l2_streamparm));
+
+    if(v4l2_streamparm)
+      v4l2_streamparm->type = type;
+
+    return (jlong)v4l2_streamparm;
+}
+
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_v4l2_1streamparm_1setFps
+  (JNIEnv *jniEnv, jclass clazz, jlong v4l2_streamparm, jint fps)
+{
+    ((struct v4l2_streamparm*)v4l2_streamparm)->parm.capture.timeperframe.numerator =  1;
+    ((struct v4l2_streamparm*)v4l2_streamparm)->parm.capture.timeperframe.denominator = fps;
+}
+
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_VIDIOC_1DQBUF
     (JNIEnv *jniEnv, jclass clazz)
@@ -326,6 +396,12 @@ Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_
     (JNIEnv *jniEnv, jclass clazz)
 {
     return VIDIOC_S_FMT;
+}
+
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_VIDIOC_1S_1PARM
+  (JNIEnv *jniEnv, jclass clazz)
+{
+  return VIDIOC_S_PARM;
 }
 
 JNIEXPORT jint JNICALL
