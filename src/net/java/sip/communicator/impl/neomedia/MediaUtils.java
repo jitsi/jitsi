@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.ScreenDevice;
 import net.java.sip.communicator.service.neomedia.format.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements static utility methods used by media classes.
@@ -68,25 +69,32 @@ public class MediaUtils
             MediaType.AUDIO,
             AudioFormat.ULAW_RTP,
             8000);
-        addMediaFormats(
-            (byte) SdpConstants.GSM,
-            "GSM",
-            MediaType.AUDIO,
-            AudioFormat.GSM_RTP,
-            8000);
 
-        Map<String, String> g723FormatParams
-            = new HashMap<String, String>();
-        g723FormatParams.put("annexa", "no");
-        g723FormatParams.put("bitrate", "6.3");
-        addMediaFormats(
-            (byte) SdpConstants.G723,
-            "G723",
-            MediaType.AUDIO,
-            AudioFormat.G723_RTP,
-            g723FormatParams,
-            null,
-            8000);
+        /* some codecs depend on JMF native libraries which are only available
+         * on Windows 32-bit and Linux 32-bit
+         */
+        if(OSUtils.IS_LINUX32 || OSUtils.IS_WINDOWS32)
+        {
+            Map<String, String> g723FormatParams
+                = new HashMap<String, String>();
+            g723FormatParams.put("annexa", "no");
+            g723FormatParams.put("bitrate", "6.3");
+            addMediaFormats(
+                    (byte) SdpConstants.G723,
+                    "G723",
+                    MediaType.AUDIO,
+                    AudioFormat.G723_RTP,
+                    g723FormatParams,
+                    null,
+                    8000);
+
+            addMediaFormats(
+                    (byte) SdpConstants.GSM,
+                    "GSM",
+                    MediaType.AUDIO,
+                    AudioFormat.GSM_RTP,
+                    8000);
+        }
 
         addMediaFormats(
             (byte) SdpConstants.DVI4_8000,
