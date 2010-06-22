@@ -394,6 +394,76 @@
     </cc>
   </target>
 
+  <!-- compile jspeex library -->
+  <target name="speex" description="Build jspeex shared library" depends="init-native">
+
+    <fail message="speex repository not set!" unless="speex" />
+
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jspeex" objdir="${obj}">
+      <!-- common compiler flags -->
+      <compilerarg value="-std=c99" />
+      <compilerarg value="-Wall" />
+      <compilerarg value="-O2" />
+      <compilerarg value="-I${speex}/include" />
+      <compilerarg value="-DJNI_IMPLEMENTATION" />
+
+      <linkerarg value="-L${speex}/libspeex/.libs" />
+
+      <!-- Linux specific flags -->
+      <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
+
+      <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+
+      <!-- static libraries MUST be at the end otherwise
+      they will not be added to shared library
+      -->
+      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.linux" />
+      <linkerarg value="-lspeex" location="end" if="is.running.linux" />
+      <linkerarg value="-lspeexdsp" location="end" if="is.running.linux" />
+      <linkerarg value="-Wl,-Bdynamic" location="end" if="is.running.linux" />
+      <linkerarg value="-lm" location="end" if="is.running.linux" />
+
+      <!-- Mac OS X specific flags -->
+      <compilerarg value="-arch"  if="is.running.macos" />
+      <compilerarg value="x86_64" if="is.running.macos" />
+      <compilerarg value="-arch" if="is.running.macos" />
+      <compilerarg value="i386" if="is.running.macos" />
+      <compilerarg value="-arch" if="is.running.macos" />
+      <compilerarg value="ppc" if="is.running.macos" />
+      <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
+
+      <linkerarg value="-o" location="end" if="is.running.macos" />
+      <linkerarg value="libjspeex.jnilib" location="end" if="is.running.macos" />
+      <linkerarg value="-dynamiclib" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="x86_64" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="i386" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="ppc" if="is.running.macos" />
+      <linkerarg value="-lspeex" location="end" if="is.running.macos" />
+      <linkerarg value="-lspeexdsp" location="end" if="is.running.macos" />
+
+      <!-- Windows specific flags -->
+      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.windows" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
+
+      <linkerarg value="-ojspeex.dll" if="is.running.windows" />
+      <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
+      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
+      <linkerarg value="-lspeex" location="end" if="is.running.windows" />
+      <linkerarg value="-lspeexdsp" location="end" if="is.running.windows" />
+      <linkerarg value="-Wl,-Bdynamic" location="end" if="is.running.windows" />
+      <linkerarg value="-lm" location="end" if="is.running.windows" />
+
+      <fileset dir="${src}/native/speex" includes="*.c"/>
+    </cc>
+  </target>
+
   <!-- compile jvideo4linux2 library -->
   <target name="video4linux2" description="Build jvideo4linux2 shared library" if="is.running.linux"
     depends="init-native">
@@ -579,6 +649,7 @@
     <echo message="'ant jawtrenderer' to compile jawtrenderer shared library" />
     <echo message="'ant ffmpeg' to compile ffmpeg shared library" />
     <echo message="'ant portaudio' to compile jportaudio shared library" />
+    <echo message="'ant speex' to compile jspeex shared library" />
     <echo message="'ant video4linux2 (Linux only)' to compile jvideo4linux2 shared library" />
     <echo message="'ant galagonotification (Linux only)' to compile galagonotification shared library" />
     <echo message="'ant localhostretriever (Windows only)' to compile LocalhostRetriever shared library" />
