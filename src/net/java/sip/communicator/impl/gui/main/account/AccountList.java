@@ -264,13 +264,13 @@ public class AccountList
             }
 
             boolean isAccountAdded = false;
-            Enumeration<Account> accounts = (Enumeration<Account>) elements();
+            Enumeration<?> accounts = elements();
             AccountID accountID = account.getProtocolProvider().getAccountID();
 
             // If we already have other accounts.
             while (accounts.hasMoreElements())
             {
-                Account a = accounts.nextElement();
+                Account a = (Account) accounts.nextElement();
                 AccountID listAccountID = a.getProtocolProvider().getAccountID();
 
                 int accountIndex = indexOf(a);
