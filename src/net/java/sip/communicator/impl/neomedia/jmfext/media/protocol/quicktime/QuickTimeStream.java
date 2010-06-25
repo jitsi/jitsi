@@ -180,6 +180,7 @@ public class QuickTimeStream
     {
         CVPixelBuffer pixelBuffer = (CVPixelBuffer) videoFrame;
         boolean transferData;
+        Format videoFrameFormat = getVideoFrameFormat(pixelBuffer);
 
         synchronized (dataSyncRoot)
         {
@@ -201,7 +202,7 @@ public class QuickTimeStream
                                     nextData.capacity));
                     nextDataTimeStamp = System.nanoTime();
                     if (nextDataFormat == null)
-                        nextDataFormat = getVideoFrameFormat(pixelBuffer);
+                        nextDataFormat = videoFrameFormat;
                 }
                 return;
             }
@@ -218,7 +219,7 @@ public class QuickTimeStream
                 data.setLength(pixelBuffer.getBytes(data.ptr, data.capacity));
                 dataTimeStamp = System.nanoTime();
                 if (dataFormat == null)
-                    dataFormat = getVideoFrameFormat(pixelBuffer);
+                    dataFormat = videoFrameFormat;
             }
             if (nextData != null)
             {
