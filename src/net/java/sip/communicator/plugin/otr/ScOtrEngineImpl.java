@@ -86,14 +86,7 @@ public class ScOtrEngineImpl
 
         public void showError(SessionID sessionID, String err)
         {
-            Contact contact = getContact(sessionID);
-            if (contact == null)
-                return;
-
-            OtrActivator.uiService.getChat(contact).addMessage(
-                contact.getDisplayName(), System.currentTimeMillis(),
-                Chat.ERROR_MESSAGE, err,
-                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+            showError(sessionID, err);
         }
 
         public void injectMessage(SessionID sessionID, String messageText)
@@ -115,6 +108,18 @@ public class ScOtrEngineImpl
         }
     }
 
+    public void showError(SessionID sessionID, String err)
+    {
+        Contact contact = getContact(sessionID);
+        if (contact == null)
+            return;
+
+        OtrActivator.uiService.getChat(contact).addMessage(
+            contact.getDisplayName(), System.currentTimeMillis(),
+            Chat.ERROR_MESSAGE, err,
+            OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+    }
+    
     public ScOtrEngineImpl()
     {
         this.otrEngine.addOtrEngineListener(new OtrEngineListener()
@@ -215,7 +220,15 @@ public class ScOtrEngineImpl
 
     public void endSession(Contact contact)
     {
-        otrEngine.endSession(getSessionID(contact));
+        SessionID sessionID = getSessionID(contact);
+        try
+        {
+            otrEngine.endSession(sessionID);
+        }
+        catch (OtrException e)
+        {
+            showError(sessionID, e.getMessage());
+        }
     }
 
     public SessionStatus getSessionStatus(Contact contact)
@@ -225,22 +238,56 @@ public class ScOtrEngineImpl
 
     public String transformReceiving(Contact contact, String msgText)
     {
-        return otrEngine.transformReceiving(getSessionID(contact), msgText);
+        SessionID sessionID = getSessionID(contact);
+        try
+        {
+            return otrEngine.transformReceiving(sessionID, msgText);
+        }
+        catch (OtrException e)
+        {
+            showError(sessionID, e.getMessage());
+            return null;
+        }
     }
 
     public String transformSending(Contact contact, String msgText)
     {
-        return otrEngine.transformSending(getSessionID(contact), msgText);
+        SessionID sessionID = getSessionID(contact);
+        try
+        {
+            return otrEngine.transformSending(sessionID, msgText);
+        }
+        catch (OtrException e)
+        {
+            showError(sessionID, e.getMessage());
+            return null;
+        }
     }
 
     public void refreshSession(Contact contact)
     {
-        otrEngine.refreshSession(getSessionID(contact));
+        SessionID sessionID = getSessionID(contact);
+        try
+        {
+            otrEngine.refreshSession(sessionID);
+        }
+        catch (OtrException e)
+        {
+            showError(sessionID, e.getMessage());
+        }
     }
 
     public void startSession(Contact contact)
     {
-        otrEngine.startSession(getSessionID(contact));
+        SessionID sessionID = getSessionID(contact);
+        try
+        {
+            otrEngine.startSession(sessionID);
+        }
+        catch (OtrException e)
+        {
+            showError(sessionID, e.getMessage());
+        }
     }
 
     public OtrPolicy getGlobalPolicy()
@@ -297,6 +344,5 @@ public class ScOtrEngineImpl
 
         for (ScOtrEngineListener l : listeners)
             l.contactPolicyChanged(contact);
-
     }
 }
