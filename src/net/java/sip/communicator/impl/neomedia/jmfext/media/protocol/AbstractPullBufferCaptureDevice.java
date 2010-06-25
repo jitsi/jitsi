@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol;
 
 import java.io.*;
 import java.lang.reflect.*;
-import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;

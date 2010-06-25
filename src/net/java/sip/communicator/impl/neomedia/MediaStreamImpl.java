@@ -560,8 +560,6 @@ public class MediaStreamImpl
 
         for (int streamIndex = 0; streamIndex < streamCount; streamIndex++)
         {
-            Throwable exception = null;
-
             try
             {
                 SendStream sendStream
