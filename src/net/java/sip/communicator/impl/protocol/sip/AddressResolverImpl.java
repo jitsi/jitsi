@@ -35,21 +35,39 @@ public class AddressResolverImpl
         try
         {
             String transport = inputAddress.getTransport();
+            String hostAddress = inputAddress.getHost();
 
             if (transport == null)
                 transport = ListeningPoint.UDP;
 
             InetSocketAddress host;
 
-            if (transport.equalsIgnoreCase(ListeningPoint.TLS))
+            // if it is a textual IP address, do no try to resolve it
+            if(NetworkUtils.isValidIPAddress(hostAddress))
+            {
+                byte[] addr = null;
+
+                addr = IPAddressUtil.textToNumericFormatV4(hostAddress);
+
+                // not an IPv4, try IPv6
+                if (addr == null)
+                {
+                    addr = IPAddressUtil.textToNumericFormatV6(hostAddress);
+                }
+
+                host = new InetSocketAddress(
+                        InetAddress.getByAddress(hostAddress, addr),
+                        inputAddress.getPort());
+            }
+            else if (transport.equalsIgnoreCase(ListeningPoint.TLS))
             {
                 host = NetworkUtils.getSRVRecord(
-                        "sips", ListeningPoint.TCP, inputAddress.getHost());
+                        "sips", ListeningPoint.TCP, hostAddress);
             }
             else
             {
                 host = NetworkUtils.getSRVRecord(
-                        "sip", transport, inputAddress.getHost());
+                        "sip", transport, hostAddress);
             }
 
             if (host != null)
