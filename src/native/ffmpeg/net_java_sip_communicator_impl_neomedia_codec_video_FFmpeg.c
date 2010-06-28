@@ -51,7 +51,7 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_avcodec_1close (
 }
 
 JNIEXPORT jint JNICALL
-Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_avcodec_1decode_1video (
+Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_avcodec_1decode_1video__JJ_3Z_3BI (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jlong frame,
         jbooleanArray got_picture, jbyteArray buf, jint buf_size) {
     jint ret;
@@ -86,6 +86,28 @@ Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_avcodec_1decode_
             ret = -1;
     } else
         ret = -1;
+    return ret;
+}
+
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_avcodec_1decode_1video__JJJI 
+  (JNIEnv *jniEnv, jclass clazz, jlong avcontext, jlong avframe, jlong src, 
+   jint src_length) 
+{
+    AVPacket avpkt;
+    int got_picture = 0;
+    int ret = -1;
+
+    av_init_packet(&avpkt);
+    avpkt.data = (uint8_t*)src;
+    avpkt.size = (int)src_length;
+    
+    ret = avcodec_decode_video2((AVCodecContext *) avcontext, 
+                      (AVFrame *)avframe, &got_picture,
+                      &avpkt);
+
+    if(!got_picture)
+      ret = -1;
+
     return ret;
 }
 

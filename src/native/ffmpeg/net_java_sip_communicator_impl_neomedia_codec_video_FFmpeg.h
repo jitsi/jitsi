@@ -67,8 +67,16 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_
  * Method:    avcodec_decode_video
  * Signature: (JJ[Z[BI)I
  */
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_avcodec_1decode_1video
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_avcodec_1decode_1video__JJ_3Z_3BI
   (JNIEnv *, jclass, jlong, jlong, jbooleanArray, jbyteArray, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg
+ * Method:    avcodec_decode_video
+ * Signature: (JJJI)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg_avcodec_1decode_1video__JJJI
+  (JNIEnv *, jclass, jlong, jlong, jlong, jint);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_video_FFmpeg

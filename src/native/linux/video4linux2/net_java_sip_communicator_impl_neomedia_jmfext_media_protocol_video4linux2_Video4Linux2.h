@@ -48,14 +48,6 @@ JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_medi
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2
- * Method:    convert_jpeg
- * Signature: (JJI)J
- */
-JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2_convert_1jpeg
-  (JNIEnv *, jclass, jlong, jlong, jint);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_protocol_video4linux2_Video4Linux2
  * Method:    mmap
  * Signature: (JIIIIJ)J
  */

@@ -98,6 +98,16 @@ public class Video4Linux2Stream
     private boolean startInRead = false;
 
     /**
+     * AVCodecContext for MJPEG conversion.
+     */
+    private long mjpeg_context = 0;
+
+    /**
+     * AVFrame that is used in case of JPEG/MJPEG conversion.
+     */
+    private long avframe = 0;
+
+    /**
      * Initializes a new <tt>Video4Linux2Stream</tt> instance which is to have
      * its <tt>Format</tt>-related information abstracted by a specific
      * <tt>FormatControl</tt>.
@@ -471,16 +481,36 @@ public class Video4Linux2Stream
             if(nativePixelFormat == Video4Linux2.V4L2_PIX_FMT_MJPEG ||
                     nativePixelFormat == Video4Linux2.V4L2_PIX_FMT_JPEG)
             {
-                /* JPEG/MJPEG are compressed formats, allocate bytes and
-                 * convert captured data to RGB24
-                 */
-                Dimension videoSize = ((VideoFormat)format).getSize();
-                int captured_bytes = bytesused;
-                bytesused = videoSize.width * videoSize.height * 3;
-                data = byteBufferPool.getFreeBuffer(bytesused);
+                /* initialize FFmpeg's MJPEG decoder if not already done */
+                if(mjpeg_context == 0)
+                {
+                    long avcodec = FFmpeg.avcodec_find_decoder(
+                            FFmpeg.CODEC_ID_MJPEG);
 
-                if(data != null)
-                    Video4Linux2.convert_jpeg(data.ptr, mmap, captured_bytes);
+                    mjpeg_context = FFmpeg.avcodec_alloc_context();
+                    FFmpeg.avcodeccontext_set_workaround_bugs(mjpeg_context,
+                        FFmpeg.FF_BUG_AUTODETECT);
+
+                    if (FFmpeg.avcodec_open(mjpeg_context, avcodec) < 0)
+                    {
+                        throw new RuntimeException("" +
+                                "Could not open codec CODEC_ID_MJPEG");
+                    }
+
+                    avframe = FFmpeg.avcodec_alloc_frame();
+                }
+
+                if(FFmpeg.avcodec_decode_video(mjpeg_context, avframe, mmap,
+                        bytesused) != -1)
+                {
+                    Object out = buffer.getData();
+
+                    if (!(out instanceof AVFrame) ||
+                            (((AVFrame) out).getPtr() != avframe))
+                    {
+                        buffer.setData(new AVFrame(avframe));
+                    }
+                }
             }
             else
             {
@@ -490,10 +520,9 @@ public class Video4Linux2Stream
                 {
                     Video4Linux2.memcpy(data.ptr, mmap, bytesused);
                 }
+                data.setLength(bytesused);
+                FinalizableAVFrame.read(buffer, format, data, byteBufferPool);
             }
-
-            data.setLength(bytesused);
-            FinalizableAVFrame.read(buffer, format, data, byteBufferPool);
         }
         finally
         {
@@ -799,6 +828,20 @@ public class Video4Linux2Stream
         finally
         {
             super.stop();
+
+            if(mjpeg_context > 0)
+            {
+                FFmpeg.avcodec_close(mjpeg_context);
+                FFmpeg.av_free(mjpeg_context);
+            }
+            mjpeg_context = 0;
+
+            if(avframe > 0)
+            {
+                FFmpeg.av_free(avframe);
+            }
+            avframe = 0;
+
         }
     }
 }

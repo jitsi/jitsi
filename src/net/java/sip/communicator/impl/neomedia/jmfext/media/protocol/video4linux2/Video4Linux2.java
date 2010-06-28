@@ -103,8 +103,6 @@ public class Video4Linux2
 
     public static native long memcpy(long dest, long src, int n);
 
-    public static native long convert_jpeg(long dest, long src, int size);
-
     public static native long mmap(
             long start,
             int length,

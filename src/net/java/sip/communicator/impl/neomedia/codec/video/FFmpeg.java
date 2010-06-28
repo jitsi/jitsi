@@ -16,6 +16,8 @@ public class FFmpeg
 
     public static final int CODEC_FLAG_LOOP_FILTER = 0x00000800;
 
+    public static final int CODEC_ID_MJPEG = 8;
+
     public static final int CODEC_ID_H264 = 28;
 
     public static final int FF_BUG_AUTODETECT = 1;
@@ -70,6 +72,8 @@ public class FFmpeg
 
     public static final int PIX_FMT_YUYV422 = 1;
 
+    public static final int PIX_FMT_YUVJ422P = 13;
+
     public static final int SWS_BICUBIC = 4;
 
     public static final int X264_RC_ABR = 2;
@@ -88,6 +92,9 @@ public class FFmpeg
 
     public static native int avcodec_decode_video(long avctx, long frame,
         boolean[] got_picture, byte[] buf, int buf_size);
+
+    public static native int avcodec_decode_video(long avcontext,
+            long avframe, long src, int src_length);
 
     public static native int avcodec_encode_video(long avctx, byte[] buff,
         int buf_size, long frame);

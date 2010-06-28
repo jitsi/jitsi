@@ -77,6 +77,7 @@ Note: mingw64-make failed to work (segmentation fault) that's why we fallback to
   --disable-network \
   --enable-libx264 --enable-gpl --enable-parser=h264 --enable-encoder=libx264 \
   --enable-decoder=h264 --enable-muxer=h264 --enable-demuxer=h264 \
+  --enable-decoder=mjpeg --enable-muxer=mjpeg --enable-demuxer=mjpeg --enable-parser=mjpeg \
   --extra-ldflags=-L$X264_HOME --extra-cflags=-I$X264_HOME \
   --disable-debug \
   --disable-ffserver --disable-ffplay --disable-ffmpeg \
