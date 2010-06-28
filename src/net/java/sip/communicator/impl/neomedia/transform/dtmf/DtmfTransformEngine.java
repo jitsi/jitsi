@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia.transform.dtmf;
 
+import javax.media.*;
+
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
@@ -113,7 +115,7 @@ public class DtmfTransformEngine
     /**
      * Current duration of every event we send.
      */
-    private final int currentSpacingDuration;
+    private int currentSpacingDuration = Format.NOT_SPECIFIED;
 
     /**
      * Creates an engine instance that will be replacing audio packets
@@ -125,11 +127,23 @@ public class DtmfTransformEngine
     public DtmfTransformEngine(AudioMediaStreamImpl stream)
     {
         this.mediaStream = stream;
-
-        // the default is 50 ms. RECOMMENDED in rfc4733.
-        currentSpacingDuration = (int)stream.getFormat().getClockRate()/50;
     }
 
+    /**
+     * Gets the current duration of every event we send.
+     *
+     * @return the current duration of every event we send
+     */
+    private int getCurrentSpacingDuration()
+    {
+        if (currentSpacingDuration == Format.NOT_SPECIFIED)
+        {
+            // the default is 50 ms. RECOMMENDED in rfc4733.
+            currentSpacingDuration
+                = (int) mediaStream.getFormat().getClockRate()/50;
+        }
+        return currentSpacingDuration;
+    }
     /**
      * Always returns <tt>null</tt> since this engine does not require any
      * RTCP transformations.
@@ -223,7 +237,7 @@ public class DtmfTransformEngine
         if(toneTransmissionState == ToneTransmissionState.SEND_PENDING)
         {
             currentDuration = 0;
-            currentDuration += currentSpacingDuration;
+            currentDuration += getCurrentSpacingDuration();
             pktDuration = currentDuration;
 
             pktMarker = true;
@@ -233,7 +247,7 @@ public class DtmfTransformEngine
         }
         else if(toneTransmissionState == ToneTransmissionState.SENDING)
         {
-            currentDuration += currentSpacingDuration;
+            currentDuration += getCurrentSpacingDuration();
             pktDuration = currentDuration;
             // Check for long state event
             if (currentDuration > 0xFFFF)
@@ -254,7 +268,7 @@ public class DtmfTransformEngine
             //
             // The audioPacketTimestamp and the duration field stay unchanged for
             // the 3 last packets
-            currentDuration += currentSpacingDuration;
+            currentDuration += getCurrentSpacingDuration();
             pktDuration = currentDuration;
 
             pktEnd = true;
