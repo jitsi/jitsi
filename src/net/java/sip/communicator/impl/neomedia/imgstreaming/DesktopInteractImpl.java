@@ -54,15 +54,16 @@ public class DesktopInteractImpl implements DesktopInteract
      * 9 MB of memory for grabbing and another 9 MB array for conversion
      * operation.
      *
+     * @param display index of display
      * @param output output buffer to store bytes in.
      * Be sure that output length is sufficient
      * @return true if success, false if JNI error or output length too short
      */
-    public boolean captureScreen(byte output[])
+    public boolean captureScreen(int display, byte output[])
     {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
-        return captureScreen(0, 0, dim.width, dim.height,
+        return captureScreen(display, 0, 0, dim.width, dim.height,
                 output);
     }
 
@@ -76,15 +77,16 @@ public class DesktopInteractImpl implements DesktopInteract
      * 9 MB of memory for grabbing and another 9 MB array for conversion
      * operation.
      *
+     * @param display index of display
      * @param buffer native output buffer to store bytes in.
      * Be sure that output length is sufficient
      * @param bufferLength length of native buffer
      * @return true if success, false if JNI error or output length too short
      */
-    public boolean captureScreen(long buffer, int bufferLength)
+    public boolean captureScreen(int display, long buffer, int bufferLength)
     {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        return captureScreen(0, 0, dim.width, dim.height, buffer, bufferLength);
+        return captureScreen(display, 0, 0, dim.width, dim.height, buffer, bufferLength);
     }
 
     /**
@@ -97,6 +99,7 @@ public class DesktopInteractImpl implements DesktopInteract
      * 9 MB of memory for grabbing and another 9 MB array for conversion
      * operation.
      *
+     * @param display index of display
      * @param x x position to start capture
      * @param y y position to start capture
      * @param width capture width
@@ -105,14 +108,14 @@ public class DesktopInteractImpl implements DesktopInteract
      * Be sure that output length is sufficient
      * @return true if success, false if JNI error or output length too short
      */
-    public boolean captureScreen(int x, int y, int width, int height,
+    public boolean captureScreen(int display, int x, int y, int width, int height,
             byte output[])
     {
         if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS
                 || OSUtils.IS_MAC)
         {
             return NativeScreenCapture.grabScreen(
-                        x, y, width, height, output);
+                    display, x, y, width, height, output);
         }
 
         return false;
@@ -128,6 +131,7 @@ public class DesktopInteractImpl implements DesktopInteract
      * 9 MB of memory for grabbing and another 9 MB array for conversion
      * operation.
      *
+     * @param display index of display
      * @param x x position to start capture
      * @param y y position to start capture
      * @param width capture width
@@ -137,14 +141,14 @@ public class DesktopInteractImpl implements DesktopInteract
      * @param bufferLength length of native buffer
      * @return true if success, false if JNI error or output length too short
      */
-    public boolean captureScreen(int x, int y, int width, int height,
+    public boolean captureScreen(int display, int x, int y, int width, int height,
             long buffer, int bufferLength)
     {
         if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS
                 || OSUtils.IS_MAC)
         {
             return NativeScreenCapture.grabScreen(
-                        x, y, width, height, buffer, bufferLength);
+                        display, x, y, width, height, buffer, bufferLength);
         }
 
         return false;

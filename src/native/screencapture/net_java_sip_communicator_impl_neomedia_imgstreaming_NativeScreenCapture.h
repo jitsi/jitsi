@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture
  * Method:    grabScreen
- * Signature: (IIII[B)Z
+ * Signature: (IIIII[B)Z
  */
-JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture_grabScreen__IIII_3B
-  (JNIEnv *, jclass, jint, jint, jint, jint, jbyteArray);
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture_grabScreen__IIIII_3B
+  (JNIEnv *, jclass, jint, jint, jint, jint, jint, jbyteArray);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture

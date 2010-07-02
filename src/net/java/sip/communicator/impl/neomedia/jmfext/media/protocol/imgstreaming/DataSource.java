@@ -26,34 +26,6 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 public class DataSource
     extends AbstractPullBufferCaptureDevice
 {
-
-    /**
-     * The list of supported formats.
-     */
-    private static final Format[] FORMATS;
-
-    static
-    {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-        FORMATS
-            = new Format[]
-                    {
-                        new AVFrameFormat(
-                                screenSize,
-                                Format.NOT_SPECIFIED,
-                                FFmpeg.PIX_FMT_ARGB,
-                                Format.NOT_SPECIFIED),
-                        new RGBFormat(
-                                screenSize, // size
-                                Format.NOT_SPECIFIED, // maxDataLength
-                                Format.byteArray, // dataType
-                                Format.NOT_SPECIFIED, // frameRate
-                                32, // bitsPerPixel
-                                2 /* red */, 3 /* green */,  4 /* blue */)
-                    };
-    }
-
     /**
      * Initializes a new <tt>DataSource</tt> instance.
      */
@@ -92,16 +64,9 @@ public class DataSource
             int streamIndex,
             FormatControl formatControl)
     {
-        return new ImageStream(formatControl);
-    }
-
-    /**
-     * Gets the list of supported formats.
-     *
-     * @return the list of supported formats
-     */
-    public static Format[] getFormats()
-    {
-        return FORMATS;
+        int index = Integer.parseInt(getLocator().getRemainder());
+        ImageStream stream = new ImageStream(formatControl);
+        stream.setDisplayIndex(index);
+        return stream;
     }
 }

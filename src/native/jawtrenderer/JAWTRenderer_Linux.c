@@ -293,7 +293,12 @@ _JAWTRenderer_createImage(JAWTRenderer *renderer)
     image = renderer->image;
     width = renderer->dataWidth;
     height = renderer->dataHeight;
-    if (image && ((image->width != width) || (image->height != height)))
+
+    /* XvCreateImage is limited to 2048x2048 image so do not drop image
+     * if size exceed the limit
+     */
+    if (image && ((image->width != width) || (image->height != height)) &&
+          width < 2048 && height < 2048)
     {
         XFree(image);
         image = NULL;
@@ -307,11 +312,16 @@ _JAWTRenderer_createImage(JAWTRenderer *renderer)
                 renderer->imageFormatID,
                 NULL,
                 width, height);
+
         /*
          * XvCreateImage is documented to enlarge width and height for some YUV
          * formats. But I don't know how to handle such a situation.
          */
-        if (image && ((image->width != width) || (image->height != height)))
+        /* XvCreateImage is limited to 2048x2048 image so do not drop image
+         * if size exceed this limit
+         */
+        if (image && ((image->width != width) || (image->height != height)) &&
+                width < 2048 && height < 2048)
         {
             XFree(image);
             image = NULL;

@@ -51,15 +51,82 @@ typedef unsigned __int8 uint8_t;
 #if defined(_WIN32) || defined (_WIN64)
 
 /**
+ * \struct monitor_data
+ * \brief Used with monitorCallback to pass index and receive DC
+ */
+struct monitor_data
+{
+    unsigned int  monitor_index; /**< Index of the specific monitor */
+    unsigned int current_index; /**< Internal index of monitor in callback */
+    HDC monitor_dc; /**< DC of the monitor (set by monitorCallback if any) */
+};
+
+/**
+ * \brief Callback when using EnumDisplayMonitors function.
+ * \param hMonitor monitor object
+ * \param hdcMonitor DC passed from EnumDisplayMonitors
+ * \param lpcrMonitor clipping rectangle
+ * \param dwData additionnal data
+ * \return true if enumeration have to be stopped, false otherwise
+ */
+BOOL CALLBACK monitorCallback(HMONITOR hMonitor, HDC hdcMonitor, 
+        LPRECT lprcMonitor, LPARAM dwData)
+{
+    struct monitor_data* data = (struct monitor_data*)dwData;
+  	MONITORINFOEX info;
+
+    /* avoid warnings */
+    hdcMonitor = hdcMonitor;
+    lprcMonitor = lprcMonitor;
+
+    if(data->current_index == data->monitor_index)
+    {
+	    info.cbSize = sizeof(MONITORINFOEX);
+	    GetMonitorInfo(hMonitor, (LPMONITORINFO)&info);
+
+        /* create the DC for this monitor */
+        data->monitor_dc = CreateDC(info.szDevice, info.szDevice, NULL, NULL);
+
+        /* found the right monitor, breaks */
+        return FALSE;
+    }
+
+    data->current_index++;
+    return TRUE;
+}
+
+/**
+ * \brief Get DC pointer for a specific display.
+ * \param display display index.
+ * \return DC pointer or NULL if failure
+ */
+static HDC get_dc(unsigned int index)
+{
+  HDC hDC = NULL;
+  struct monitor_data data;
+
+  data.monitor_index = index;
+  data.current_index = 0;
+  data.monitor_dc = NULL;
+
+  EnumDisplayMonitors(NULL, NULL, &monitorCallback, (LPARAM)&data);
+  
+  hDC = data.monitor_dc;
+
+  return hDC;
+}
+
+/**
  * \brief Grab Windows screen.
  * \param data array that will contain screen capture
+ * \param display display index
  * \param x x position to start capture
  * \param y y position to start capture
  * \param w capture width
  * \param h capture height 
  * \return 0 if success, -1 otherwise
  */
-static int windows_grab_screen(jbyte* data, int32_t x, int32_t y, int32_t w, int32_t h)
+static int windows_grab_screen(jbyte* data, unsigned int display, int x, int y, int w, int h)
 {
   static const RGBQUAD redColor = {0x00, 0x00, 0xFF, 0x00};
   static const RGBQUAD greenColor = {0x00, 0xFF, 0x00, 0x00};
@@ -79,8 +146,8 @@ static int windows_grab_screen(jbyte* data, int32_t x, int32_t y, int32_t w, int
   uint32_t test = 1;
   int little_endian = *((uint8_t*)&test);
 
-  /* get handle to the entire screen of Windows */
-  desktop = GetDC(NULL);
+  /* get handle corresponding to the display specified */
+  desktop = get_dc(display);
 
   if(!desktop)
   {
@@ -107,7 +174,7 @@ static int windows_grab_screen(jbyte* data, int32_t x, int32_t y, int32_t w, int
   
   if(!dest)
   {
-    fprintf(stderr, "CreateCompatibleDC failed!\n"); 
+    fprintf(stderr, "CreateCompatibleDC failed!\n");
     ReleaseDC(NULL, desktop);
     return -1;
   } 
@@ -224,13 +291,14 @@ static int windows_grab_screen(jbyte* data, int32_t x, int32_t y, int32_t w, int
 /**
  * \brief Grab Mac OS X screen (with Quartz API).
  * \param data array that will contain screen capture
+ * \param display display index
  * \param x x position to start capture
  * \param y y position to start capture
  * \param w capture width
  * \param h capture height
  * \return 0 if success, -1 otherwise
  */
-static int quartz_grab_screen(jbyte* data, int32_t x, int32_t y, int32_t w, int32_t h)
+static int quartz_grab_screen(jbyte* data, unsigned int display, int x, int y, int w, int h)
 {
   CGImageRef img = NULL;
   CGDataProviderRef provider = NULL;
@@ -242,8 +310,26 @@ static int quartz_grab_screen(jbyte* data, int32_t x, int32_t y, int32_t w, int3
   CGRect rect;
   uint32_t test = 1;
   int little_endian = *((uint8_t*)&test);
+  CGDirectDisplayID displayIds[16];
+  CGDisplayCount displayNb = 0;
 
-  rect = CGRectMake(x, y, w, h);
+  /* find display */
+  if(CGGetActiveDisplayList(display + 1, displayIds, &displayNb) != kCGErrorSuccess)
+  {
+    return -1;
+  }
+
+  if(displayNb < (display + 1))
+  {
+    /* request a non existent display */
+    return -1;
+  }
+  
+  rect = CGDisplayBounds(displayIds[display]);
+  rect.size.width = w;
+  rect.size.height = h;
+  rect.origin.x += x;
+  rect.origin.y += y;
   img = CGWindowListCreateImage(rect, kCGWindowListOptionOnScreenOnly, kCGNullWindowID, kCGWindowImageDefault);
 
   if(img == NULL)
@@ -291,13 +377,14 @@ static int quartz_grab_screen(jbyte* data, int32_t x, int32_t y, int32_t w, int3
  * \brief Grab X11 screen.
  * \param x11display display string (i.e. :0.0), if NULL getenv("DISPLAY") is used
  * \param data array that will contain screen capture
+ * \param displayIndex display index
  * \param x x position to start capture
  * \param y y position to start capture
  * \param w capture width
  * \param h capture height 
  * \return 0 if success, -1 otherwise
  */
-static int x11_grab_screen(const char* x11display, jbyte* data, int32_t x, int32_t y, int32_t w, int32_t h)
+static int x11_grab_screen(jbyte* data, unsigned int displayIndex, int x, int y, int w, int h)
 {
   const char* display_str; /* display string */
   Display* display = NULL; /* X11 display */
@@ -316,14 +403,10 @@ static int x11_grab_screen(const char* x11display, jbyte* data, int32_t x, int32
   size_t size = 0;
   uint32_t test = 1;
   int little_endian = *((uint8_t*)&test);
+  char buf[16];
   
-  display_str = x11display ? x11display : getenv("DISPLAY");
-
-  if(!display_str)
-  {
-    /* fprintf(stderr, "No display!\n"); */
-    return -1;
-  }
+  snprintf(buf, sizeof(buf), ":0.%u", displayIndex);
+  display_str = buf;
 
   /* open current X11 display */
   display = XOpenDisplay(display_str);
@@ -463,6 +546,7 @@ static int x11_grab_screen(const char* x11display, jbyte* data, int32_t x, int32
  * \brief JNI native method to grab desktop screen and retrieve ARGB pixels.
  * \param env JVM environment
  * \param clazz NativeScreenCapture Java class
+ * \param display display index
  * \param x x position to start capture
  * \param y y position to start capture
  * \param width capture width
@@ -470,8 +554,8 @@ static int x11_grab_screen(const char* x11display, jbyte* data, int32_t x, int32
  * \param output output buffer, screen bytes will be stored in
  * \return true if success, false otherwise
  */
-JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture_grabScreen__IIII_3B
-  (JNIEnv* env, jclass clazz, jint x, jint y, jint width, jint height, jbyteArray output)
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture_grabScreen__IIIII_3B
+  (JNIEnv* env, jclass clazz, jint display, jint x, jint y, jint width, jint height, jbyteArray output)
 {
   jint size = width * height * 4;
   jbyte* data = NULL;
@@ -491,11 +575,11 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstrea
   }
 
 #if defined (_WIN32) || defined(_WIN64)
-  if(windows_grab_screen(data, x, y, width, height) == -1)
+  if(windows_grab_screen(data, display, x, y, width, height) == -1)
 #elif defined(__APPLE__)
-    if(quartz_grab_screen(data, x, y, width, height) == -1)
+    if(quartz_grab_screen(data, display, x, y, width, height) == -1)
 #else /* Unix */
-  if(x11_grab_screen(NULL, data, x, y, width, height) == -1)
+  if(x11_grab_screen(data, display, x, y, width, height) == -1)
 #endif
   {
     (*env)->ReleasePrimitiveArrayCritical(env, output, data, 0);
@@ -510,6 +594,7 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstrea
  * \brief JNI native method to grab desktop screen and retrieve ARGB pixels.
  * \param env JVM environment
  * \param clazz NativeScreenCapture Java class
+ * \param display display index
  * \param x x position to start capture
  * \param y y position to start capture
  * \param width capture width
@@ -517,8 +602,8 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstrea
  * \param output native output buffer
  * \return true if success, false otherwise
  */
-JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture_grabScreen__IIIIJI
-  (JNIEnv* env, jclass clazz, jint x, jint y, jint width, jint height, jlong output, jint outputLength)
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstreaming_NativeScreenCapture_grabScreen__IIIIIJI
+  (JNIEnv* env, jclass clazz, jint display, jint x, jint y, jint width, jint height, jlong output, jint outputLength)
 {
   jint size = width * height * 4;
   jbyte* data = (jbyte*)output;
@@ -533,11 +618,11 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstrea
   }
 
 #if defined (_WIN32) || defined(_WIN64)
-  if(windows_grab_screen(data, x, y, width, height) == -1)
+  if(windows_grab_screen(data, display, x, y, width, height) == -1)
 #elif defined(__APPLE__)
-    if(quartz_grab_screen(data, x, y, width, height) == -1)
+    if(quartz_grab_screen(data, display, x, y, width, height) == -1)
 #else /* Unix */
-  if(x11_grab_screen(NULL, data, x, y, width, height) == -1)
+  if(x11_grab_screen(data, display, x, y, width, height) == -1)
 #endif
   {
     return JNI_FALSE;
@@ -545,4 +630,4 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_imgstrea
 
   return JNI_TRUE;
 }
-  
+

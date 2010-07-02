@@ -26,11 +26,12 @@ public interface DesktopInteract
      * 9 MB of memory for grabbing and another 9 MB array for conversion
      * operation.
      *
+     * @param display index of display
      * @param output output buffer to store bytes in.
      * Be sure that output length is sufficient
      * @return true if success, false if JNI error or output length too short
      */
-    public boolean captureScreen(byte output[]);
+    public boolean captureScreen(int display, byte output[]);
 
     /**
      * Capture the full desktop screen using native grabber.
@@ -42,12 +43,13 @@ public interface DesktopInteract
      * 9 MB of memory for grabbing and another 9 MB array for conversion
      * operation.
      *
+     * @param display index of display
      * @param buffer native output buffer to store bytes in.
      * Be sure that output length is sufficient
      * @param bufferLength length of native buffer
      * @return true if success, false if JNI error or output length too short
      */
-    public boolean captureScreen(long buffer, int bufferLength);
+    public boolean captureScreen(int display, long buffer, int bufferLength);
 
     /**
      * Capture a part of the desktop screen using native grabber.
@@ -59,6 +61,7 @@ public interface DesktopInteract
      * 9 MB of memory for grabbing and another 9 MB array for conversion
      * operation.
      *
+     * @param display index of display
      * @param x x position to start capture
      * @param y y position to start capture
      * @param width capture width
@@ -67,7 +70,7 @@ public interface DesktopInteract
      * Be sure that output length is sufficient
      * @return true if success, false if JNI error or output length too short
      */
-    public boolean captureScreen(int x, int y, int width, int height,
+    public boolean captureScreen(int display, int x, int y, int width, int height,
             byte output[]);
 
     /**
@@ -80,6 +83,7 @@ public interface DesktopInteract
      * 9 MB of memory for grabbing and another 9 MB array for conversion
      * operation.
      *
+     * @param display index of display
      * @param x x position to start capture
      * @param y y position to start capture
      * @param width capture width
@@ -89,7 +93,7 @@ public interface DesktopInteract
      * @param bufferLength length of native buffer
      * @return true if success, false if JNI error or output length too short
      */
-    public boolean captureScreen(int x, int y, int width, int height,
+    public boolean captureScreen(int display, int x, int y, int width, int height,
             long buffer, int bufferLength);
 
     /**

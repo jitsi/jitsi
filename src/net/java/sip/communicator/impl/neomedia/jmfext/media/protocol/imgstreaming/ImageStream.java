@@ -55,6 +55,11 @@ public class ImageStream
     private boolean reinit = false;
     
     /**
+     * Index of display that we will capture from.
+     */
+    private int displayIndex = -1;
+
+    /**
      * Initializes a new <tt>ImageStream</tt> instance which is to have a
      * specific <tt>FormatControl</tt>
      *
@@ -126,9 +131,15 @@ public class ImageStream
                         data.ptr,
                         bufferFrameFormat.getPixFmt(),
                         bufferFrameSize.width, bufferFrameSize.height);
+                buffer.setData(bufferFrame);
             }
-
-            buffer.setData(bufferFrame);
+            else
+            {
+                /* this can happen when we disconnect a monitor from computer
+                 * before or during grabbing
+                 */
+                throw new IOException("Failed to grab screen");
+            }
         }
         else
         {
@@ -137,7 +148,8 @@ public class ImageStream
 
             if((dataByte != null) || (dataLength != 0))
             {
-                byte buf[] = readScreen(dataByte);
+                Dimension bufferFrameSize = ((VideoFormat)bufferFormat).getSize();
+                byte buf[] = readScreen(dataByte, bufferFrameSize);
 
                 if(buf != dataByte)
                 {
@@ -184,6 +196,16 @@ public class ImageStream
     }
 
     /**
+     * Set display index.
+     *
+     * @param index display index
+     */
+    public void setDisplayIndex(int index)
+    {
+        displayIndex = index;
+    }
+
+    /**
      * Start desktop capture stream.
      *
      * @see AbstractPullBufferStream#start()
@@ -202,6 +224,7 @@ public class ImageStream
                 logger.warn("Cannot create DesktopInteract object!");
             }
         }
+
         reinit = true;
     }
 
@@ -247,17 +270,19 @@ public class ImageStream
         }
 
         /* get desktop screen via native grabber */
-        return desktopInteract.captureScreen(data.ptr, data.getLength());
+        return desktopInteract.captureScreen(displayIndex, 0, 0, dim.width, 
+                dim.height, data.ptr, data.getLength());
     }
 
     /**
      * Read screen.
      *
      * @param output output buffer for screen bytes
+     * @param dim dimension of the screen
      * @return raw bytes, it could be equal to output or not. Take care in the
      * caller to check if output is the returned value.
      */
-    public byte[] readScreen(byte output[])
+    public byte[] readScreen(byte output[], Dimension dim)
     {
         VideoFormat format = (VideoFormat) getFormat();
         Dimension formatSize = format.getSize();
@@ -278,7 +303,8 @@ public class ImageStream
         }
 
         /* get desktop screen via native grabber if available */
-        if(desktopInteract.captureScreen(output))
+        if(desktopInteract.captureScreen(displayIndex, 0, 0, dim.width,
+                    dim.height, output))
         {
             return output;
         }
@@ -290,6 +316,7 @@ public class ImageStream
          *
          * Note that it is very memory consuming since memory are allocated
          * to capture screen (via Robot) and then for converting to raw bytes
+         * Moreover support for multiple display has not yet been investigated
          *
          * Normally not of our supported platform (Windows (x86, x64),
          * Linux (x86, x86-64), Mac OS X (i386, x86-64, ppc) and
