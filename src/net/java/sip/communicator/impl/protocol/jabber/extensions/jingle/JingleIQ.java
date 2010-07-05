@@ -72,7 +72,7 @@ public class JingleIQ extends IQ
 
     // Sub-elements of a Jingle object.
 
-    private final List<JingleContent> contentList = new ArrayList<JingleContent>();
+    private final List<ContentPacketExtension> contentList = new ArrayList<ContentPacketExtension>();
 
     private JingleContentInfo contentInfo;
 
