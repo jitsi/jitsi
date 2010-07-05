@@ -12,6 +12,7 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.jingle.*;
 import org.jivesoftware.smackx.jingle.media.*;
+import org.jivesoftware.smackx.jingle.JingleNegotiator.*;
 import org.jivesoftware.smackx.jingle.listeners.*;
 import org.jivesoftware.smackx.jingle.nat.*;
 import org.jivesoftware.smackx.packet.DiscoverInfo;
@@ -220,27 +221,25 @@ public class OperationSetBasicTelephonyJabberImpl
 
         try
         {
-            // with discovered info, we can check if the remote clients
-            // supports telephony but not if he don't, because
-            // a non conforming client can supports a feature
-            // without advertising it. So we don't rely on it (for the moment)
+            // check if the remote client supports telephony.
             DiscoverInfo di = ServiceDiscoveryManager
                     .getInstanceFor(protocolProvider.getConnection())
                     .discoverInfo(fullCalleeURI);
-            if (di.containsFeature("http://www.xmpp.org/extensions/xep-0166.html#ns"))
+            if (di.containsFeature(ProtocolProviderServiceJabberImpl
+                            .URN_XMPP_JINGLE))
             {
                 if (logger.isInfoEnabled())
                     logger.info(fullCalleeURI + ": jingle supported ");
             }
             else
             {
-                if (logger.isInfoEnabled())
-                    logger.info(calleeAddress + ": jingle not supported ??? ");
-//
-//                throw new OperationFailedException(
-//                        "Failed to create OutgoingJingleSession.\n"
-//                        + fullCalleeURI + " do not supports jingle"
-//                        , OperationFailedException.INTERNAL_ERROR);
+                logger.info(calleeAddress + ": jingle not supported ??? ");
+                /* FIXME: this is only temporarily disabled
+                throw new OperationFailedException(
+                        "Failed to create OutgoingJingleSession.\n"
+                        + fullCalleeURI + " does not support jingle"
+                        , OperationFailedException.INTERNAL_ERROR);
+                */
             }
         }
         catch (XMPPException ex)
@@ -510,7 +509,8 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Implements method <tt>transportEstablished</tt> from JingleTransportListener.
+     * Implements method <tt>transportEstablished</tt> from
+     * {@link JingleTransportListener}.
      *
      * @param local local <tt>TransportCandidate</tt> for this transport link
      * @param remote remote <tt>TransportCandidate</tt> for this transport link
@@ -530,12 +530,12 @@ public class OperationSetBasicTelephonyJabberImpl
      * @param oldState old state of the session
      * @param newState state in which we will go
      *
-     * @throws JingleException we have the ability to cancel a state change by
-     * throwing a <tt>JingleException</tt>
+     * @throws JingleNegotiator.JingleException we have the ability to cancel a
+     * state change by throwing a {@link JingleException}
      */
-    public void beforeChange(JingleNegotiator.State oldState
-            , JingleNegotiator.State newState)
-                    throws JingleNegotiator.JingleException
+    public void beforeChange(JingleNegotiator.State oldState,
+                             JingleNegotiator.State newState)
+        throws JingleNegotiator.JingleException
     {
         if (newState instanceof IncomingJingleSession.Active)
         {

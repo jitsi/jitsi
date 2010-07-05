@@ -10,7 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
-//import net.java.sip.communicator.service.media.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 
@@ -45,7 +45,7 @@ public class JabberActivator
     /**
      * Media service.
      */
-//    private static MediaService mediaService = null;
+    private static MediaService mediaService = null;
 
     /**
      * The Jabber protocol provider factory.
@@ -223,5 +223,27 @@ public class JabberActivator
             resourcesService
                 = ResourceManagementServiceUtils.getService(bundleContext);
         return resourcesService;
+    }
+
+    /**
+     * Returns a reference to a {@link MediaService} implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     *
+     * @return a reference to a {@link MediaService} implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     */
+    public static MediaService getMediaService()
+    {
+        if(mediaService == null)
+        {
+            ServiceReference mediaServiceReference
+                = bundleContext.getServiceReference(
+                    MediaService.class.getName());
+            mediaService = (MediaService)bundleContext
+                .getService(mediaServiceReference);
+        }
+        return mediaService;
     }
 }

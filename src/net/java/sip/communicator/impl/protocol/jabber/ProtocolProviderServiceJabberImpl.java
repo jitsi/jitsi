@@ -54,6 +54,28 @@ public class ProtocolProviderServiceJabberImpl
             + ".impl.protocol.jabber.ENABLE_EXPERIMENTAL_JINGLE";
 
     /**
+     * Jingle's Discovery Info common URN.
+     */
+    public static final String URN_XMPP_JINGLE = "urn:xmpp:jingle:1";
+
+    /**
+     * Jingle's Discovery Info URN for RTP support.
+     */
+    public static final String URN_XMPP_JINGLE_RTP
+        = "urn:xmpp:jingle:apps:rtp:1";
+
+    /**
+     * Jingle's Discovery Info URN for RTP support with audio.
+     */
+    public static final String URN_XMPP_JINGLE_RTP_AUDIO
+        = "urn:xmpp:jingle:apps:rtp:audio";
+
+    /**
+     * Jingle's Discovery Info URN for RTP support with video.
+     */
+    public static final String URN_XMPP_JINGLE_RTP_VIDEO
+        = "urn:xmpp:jingle:apps:rtp:video";
+    /**
      * Used to connect to a XMPP server.
      */
     private XMPPConnection connection = null;
@@ -794,25 +816,16 @@ public class ProtocolProviderServiceJabberImpl
 
             //check if we are supposed to start telephony
 
-            //initialize the telephony opset
-//            boolean enableJingle
-//                = JabberActivator
-//                    .getConfigurationService()
-//                        .getBoolean(PNAME_ENABLE_JINGLE, false);
-//            if(enableJingle && JabberActivator.getMediaService() != null)
-//            {
-//                addSupportedOperationSet(
-//                    OperationSetBasicTelephony.class,
-//                    new OperationSetBasicTelephonyJabberImpl(this));
-//
-//                // Add Jingle features to supported features.
-//                supportedFeatures.add("urn:xmpp:jingle:1");
-//                supportedFeatures.add("urn:xmpp:jingle:apps:rtp:1");
-//                supportedFeatures.add("urn:xmpp:jingle:apps:rtp:audio");
-//
-//                //one day:
-//                //supportedFeatures.add("urn:xmpp:jingle:apps:rtp:video");
-//            }
+            //initialize the telephony operation set
+            addSupportedOperationSet(
+                OperationSetBasicTelephony.class,
+                new OperationSetBasicTelephonyJabberImpl(this));
+
+            // Add Jingle features to supported features.
+            supportedFeatures.add(URN_XMPP_JINGLE);
+            supportedFeatures.add(URN_XMPP_JINGLE_RTP);
+            supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
+            supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
 
             isInitialized = true;
         }

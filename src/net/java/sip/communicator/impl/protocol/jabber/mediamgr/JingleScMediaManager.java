@@ -17,7 +17,6 @@ import org.jivesoftware.smackx.jingle.nat.*;
 
 /**
  * Implements a JingleMediaManager backed by JMF.
- *
  * based on Thiago Camargo's media manager from jingle
  *
  * @author Symphorien Wanko
@@ -79,17 +78,17 @@ public class JingleScMediaManager extends JingleMediaManager
          */
         String[] audioEnc = null;
 
-//        try
-//        {
-//            audioEnc = JabberActivator.getMediaService().
-//                getSupportedAudioEncodings();
-//        }
-//        catch (Exception e)
-//        {
-//            audioEnc = null;
-//
-//            logger.warn("Cannot get Audio encodings!", e);
-//        }
+        try
+        {
+            audioEnc = null;// JabberActivator.getMediaService().
+                //getSupportedAudioEncodings();
+        }
+        catch (Exception e)
+        {
+            audioEnc = null;
+
+            logger.warn("Cannot get Audio encodings!", e);
+        }
 
         if (audioEnc != null)
         {
