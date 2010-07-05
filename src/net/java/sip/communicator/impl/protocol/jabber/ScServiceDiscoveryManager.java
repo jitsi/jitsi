@@ -169,7 +169,8 @@ public class ScServiceDiscoveryManager
         // Add Entity Capabilities (XEP-0115) feature node.
         response.addFeature(CapsPacketExtension.NAMESPACE);
 
-        for (Iterator<String> it = discoveryManager.getFeatures(); it.hasNext();)
+        for (Iterator<String> it = discoveryManager.getFeatures();
+             it.hasNext();)
         {
             response.addFeature(it.next());
         }
