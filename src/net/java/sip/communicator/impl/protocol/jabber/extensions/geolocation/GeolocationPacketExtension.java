@@ -244,8 +244,6 @@ public class GeolocationPacketExtension
      * Returns the XML representation of the PacketExtension.
      *
      * @return the packet extension as XML.
-     * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
-     *   method
      */
     public String toXML()
     {
