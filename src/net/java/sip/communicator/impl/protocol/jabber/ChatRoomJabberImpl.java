@@ -40,12 +40,12 @@ public class ChatRoomJabberImpl
      * The multi user chat smack object that we encapsulate in this room.
      */
     private MultiUserChat multiUserChat = null;
-    
+
     /**
      * Listeners that will be notified of changes in member status in the
      * room such as member joined, left or being kicked or dropped.
      */
-    private final Vector<ChatRoomMemberPresenceListener> memberListeners 
+    private final Vector<ChatRoomMemberPresenceListener> memberListeners
         = new Vector<ChatRoomMemberPresenceListener>();
 
     /**
@@ -53,22 +53,22 @@ public class ChatRoomJabberImpl
      * room such as member being granted admin permissions, or revoked admin
      * permissions.
      */
-    private final Vector<ChatRoomMemberRoleListener> memberRoleListeners 
+    private final Vector<ChatRoomMemberRoleListener> memberRoleListeners
         = new Vector<ChatRoomMemberRoleListener>();
-    
+
     /**
      * Listeners that will be notified of changes in local user role in the
      * room such as member being granted admin permissions, or revoked admin
      * permissions.
      */
-    private final Vector<ChatRoomLocalUserRoleListener> localUserRoleListeners 
+    private final Vector<ChatRoomLocalUserRoleListener> localUserRoleListeners
         = new Vector<ChatRoomLocalUserRoleListener>();
 
     /**
      * Listeners that will be notified every time
      * a new message is received on this chat room.
      */
-    private final Vector<ChatRoomMessageListener> messageListeners 
+    private final Vector<ChatRoomMessageListener> messageListeners
         = new Vector<ChatRoomMessageListener>();
 
     /**
@@ -82,8 +82,8 @@ public class ChatRoomJabberImpl
      * Listeners that will be notified every time
      * a chat room member property has been changed.
      */
-    private final Vector<ChatRoomMemberPropertyChangeListener> 
-        memberPropChangeListeners 
+    private final Vector<ChatRoomMemberPropertyChangeListener>
+        memberPropChangeListeners
             = new Vector<ChatRoomMemberPropertyChangeListener>();
 
     /**
@@ -368,7 +368,7 @@ public class ChatRoomJabberImpl
     {
         return multiUserChat.getRoom();
     }
-    
+
     /**
      * Returns the local user's nickname in the context of this chat room or
      * <tt>null</tt> if not currently joined.
@@ -515,7 +515,7 @@ public class ChatRoomJabberImpl
                         + " with nickname: "
                         + nickname
                         + ". The chat room requires registration.";
-                
+
                 logger.error(errorMessage, ex);
 
                 throw new OperationFailedException(
@@ -534,7 +534,7 @@ public class ChatRoomJabberImpl
                 logger.error(errorMessage, ex);
 
                 throw new OperationFailedException(
-                    errorMessage, 
+                    errorMessage,
                     OperationFailedException.GENERAL_ERROR,
                     ex);
             }
@@ -602,7 +602,7 @@ public class ChatRoomJabberImpl
                 logger.error(errorMessage, ex);
 
                 throw new OperationFailedException(
-                    errorMessage, 
+                    errorMessage,
                     OperationFailedException.GENERAL_ERROR,
                     ex);
             }
@@ -614,7 +614,7 @@ public class ChatRoomJabberImpl
                         + " with nickname: "
                         + nickname
                         + ". The chat room requests a password.";
-                
+
                 logger.error(errorMessage, ex);
 
                 throw new OperationFailedException(
@@ -630,7 +630,7 @@ public class ChatRoomJabberImpl
                         + " with nickname: "
                         + nickname
                         + ". The chat room requires registration.";
-                
+
                 logger.error(errorMessage, ex);
 
                 throw new OperationFailedException(
@@ -645,11 +645,11 @@ public class ChatRoomJabberImpl
                         + getName()
                         + " with nickname: "
                         + nickname;
-                
+
                 logger.error(errorMessage, ex);
 
                 throw new OperationFailedException(
-                    errorMessage, 
+                    errorMessage,
                     OperationFailedException.GENERAL_ERROR,
                     ex);
             }
@@ -664,7 +664,7 @@ public class ChatRoomJabberImpl
             logger.error(errorMessage, ex);
 
             throw new OperationFailedException(
-                errorMessage, 
+                errorMessage,
                 OperationFailedException.GENERAL_ERROR,
                 ex);
         }
@@ -697,7 +697,7 @@ public class ChatRoomJabberImpl
     /**
      * Returns the <tt>ChatRoomMember</tt> corresponding to the given smack
      * participant.
-     * 
+     *
      * @param participant the full participant name
      * (e.g. sc-testroom@conference.voipgw.u-strasbg.fr/testuser)
      * @return the <tt>ChatRoomMember</tt> corresponding to the given smack
@@ -713,7 +713,7 @@ public class ChatRoomJabberImpl
         while(chatRoomMembers.hasNext())
         {
             ChatRoomMember member = chatRoomMembers.next();
-            
+
             if(participantName.equals(member.getName())
                 || participant.equals(member.getContactAddress()))
                 return member;
@@ -764,11 +764,11 @@ public class ChatRoomJabberImpl
          {
              assertConnected();
 
-             org.jivesoftware.smack.packet.Message msg = 
+             org.jivesoftware.smack.packet.Message msg =
                 new org.jivesoftware.smack.packet.Message();
 
              msg.setBody(message.getContent());
-             msg.addExtension(new Version());
+             //msg.addExtension(new Version());
 
              MessageEventManager.
                  addNotificationsRequests(msg, true, false, false, true);
@@ -805,7 +805,7 @@ public class ChatRoomJabberImpl
      */
     public void setSubject(String subject)
         throws OperationFailedException
-    {   
+    {
         try
         {
             multiUserChat.changeSubject(subject);
@@ -923,10 +923,10 @@ public class ChatRoomJabberImpl
         public void adminRevoked(String participant)
         {
             ChatRoomMember member = smackParticipantToScMember(participant);
-            
+
             if(member == null)
                 return;
-            
+
             fireMemberRoleEvent(member, member.getRole(),
                 ChatRoomMemberRole.MEMBER);
         }
@@ -1220,7 +1220,7 @@ public class ChatRoomJabberImpl
     /**
      * Adds a listener that will be notified of changes in our role in the room
      * such as us being granded operator.
-     * 
+     *
      * @param listener a local user role listener.
      */
     public void addLocalUserRoleListener(
@@ -1236,7 +1236,7 @@ public class ChatRoomJabberImpl
     /**
      * Removes a listener that was being notified of changes in our role in this
      * chat room such as us being granded operator.
-     * 
+     *
      * @param listener a local user role listener.
      */
     public void removelocalUserRoleListener(
@@ -1251,7 +1251,7 @@ public class ChatRoomJabberImpl
     /**
      * Adds a listener that will be notified of changes of a member role in the
      * room such as being granded operator.
-     * 
+     *
      * @param listener a member role listener.
      */
     public void addMemberRoleListener(ChatRoomMemberRoleListener listener)
@@ -1266,7 +1266,7 @@ public class ChatRoomJabberImpl
     /**
      * Removes a listener that was being notified of changes of a member role in
      * this chat room such as us being granded operator.
-     * 
+     *
      * @param listener a member role listener.
      */
     public void removeMemberRoleListener(ChatRoomMemberRoleListener listener)
@@ -1291,7 +1291,7 @@ public class ChatRoomJabberImpl
     /**
      * Changes the local user nickname. If the new nickname already exist in the
      * chat room throws an OperationFailedException.
-     * 
+     *
      * @param nickname the new nickname within the room.
      *
      * @throws OperationFailedException if the new nickname already exist in
@@ -1377,7 +1377,7 @@ public class ChatRoomJabberImpl
         catch (XMPPException e)
         {
             logger.error("Failed to kick participant.", e);
-            
+
             // If a moderator or a user with an affiliation of "owner" or "admin"
             // was intended to be kicked.
             if (e.getXMPPError().getCode() == 405) //not allowed
@@ -1404,13 +1404,13 @@ public class ChatRoomJabberImpl
             }
         }
     }
-    
+
     /**
      * Creates the corresponding ChatRoomMemberPresenceChangeEvent and notifies
      * all <tt>ChatRoomMemberPresenceListener</tt>s that a ChatRoomMember has
      * joined or left this <tt>ChatRoom</tt>.
      *
-     * @param member the <tt>ChatRoomMember</tt> that this  
+     * @param member the <tt>ChatRoomMember</tt> that this
      * @param eventID the identifier of the event
      * @param eventReason the reason of the event
      */
@@ -1478,7 +1478,7 @@ public class ChatRoomJabberImpl
      * all <tt>ChatRoomMemberRoleListener</tt>s that a ChatRoomMember has
      * changed its role in this <tt>ChatRoom</tt>.
      *
-     * @param member the <tt>ChatRoomMember</tt> that has changed its role  
+     * @param member the <tt>ChatRoomMember</tt> that has changed its role
      * @param previousRole the previous role that member had
      * @param newRole the new role the member get
      */
@@ -1675,7 +1675,7 @@ public class ChatRoomJabberImpl
     /**
      * A listener that is fired anytime your participant's status in a room
      * is changed, such as the user being kicked, banned, or granted admin
-     * permissions. 
+     * permissions.
      */
     private class UserListener implements UserStatusListener
     {
@@ -1845,7 +1845,7 @@ public class ChatRoomJabberImpl
 
     /**
      * Delivers the specified event to all registered property change listeners.
-     * 
+     *
      * @param evt the <tt>PropertyChangeEvent</tt> that we'd like delivered to
      * all registered property change listeners.
      */
@@ -1876,7 +1876,7 @@ public class ChatRoomJabberImpl
 
     /**
      * Delivers the specified event to all registered property change listeners.
-     * 
+     *
      * @param evt the <tt>ChatRoomMemberPropertyChangeEvent</tt> that we'd like
      * deliver to all registered member property change listeners.
      */
@@ -1917,8 +1917,8 @@ public class ChatRoomJabberImpl
      * Returns the <tt>ChatRoomConfigurationForm</tt> containing all
      * configuration properties for this chat room. If the user doesn't have
      * permissions to see and change chat room configuration an
-     * <tt>OperationFailedException</tt> is thrown. 
-     * 
+     * <tt>OperationFailedException</tt> is thrown.
+     *
      * @return the <tt>ChatRoomConfigurationForm</tt> containing all
      * configuration properties for this chat room
      * @throws OperationFailedException if the user doesn't have
@@ -1928,11 +1928,11 @@ public class ChatRoomJabberImpl
         throws OperationFailedException
     {
         Form smackConfigForm = null;
-        
+
         try
         {
             smackConfigForm = multiUserChat.getConfigurationForm();
-            
+
             this.configForm
                 = new ChatRoomConfigurationFormJabberImpl(
                     multiUserChat, smackConfigForm);
@@ -1956,7 +1956,7 @@ public class ChatRoomJabberImpl
 
     /**
      * The Jabber multi user chat implementation doesn't support system rooms.
-     * 
+     *
      * @return false to indicate that the Jabber protocol implementation doesn't
      * support system rooms.
      */
@@ -1970,7 +1970,7 @@ public class ChatRoomJabberImpl
      * file or not. If the chat room is persistent it still will be shown after a
      * restart in the chat room list. A non-persistent chat room will be only in
      * the chat room list until the the program is running.
-     * 
+     *
      * @return true if this chat room is persistent, false otherwise
      */
     public boolean isPersistent()
@@ -1979,7 +1979,7 @@ public class ChatRoomJabberImpl
         String roomName = multiUserChat.getRoom();
         try
         {
-            // Do not use getRoomInfo, as it has bug and 
+            // Do not use getRoomInfo, as it has bug and
             // throws NPE
             DiscoverInfo info =
                 ServiceDiscoveryManager.getInstanceFor(provider.getConnection()).
@@ -1998,7 +1998,7 @@ public class ChatRoomJabberImpl
 
     /**
      * Finds the member of this chat room corresponding to the given nick name.
-     * 
+     *
      * @param jabberID the nick name to search for.
      * @return the member of this chat room corresponding to the given nick name.
      */
@@ -2058,7 +2058,7 @@ public class ChatRoomJabberImpl
     * Grants moderator privileges to a participant or visitor. Room
     * administrators may grant moderator privileges. A moderator is allowed to
     * kick users, grant and revoke voice, invite other users, modify room's
-    * subject plus all the partcipants privileges. 
+    * subject plus all the partcipants privileges.
     *
     * @param nickname the nickname of the occupant to grant moderator
     * privileges.
@@ -2156,7 +2156,7 @@ public class ChatRoomJabberImpl
     * membership. A user that becomes a room member will be able to enter a room
     * of type Members-Only (i.e. a room that a user cannot enter without being
     * on the member list). If the user is in the room and the room is of type
-    * members-only then the user will be removed from the room. 
+    * members-only then the user will be removed from the room.
     *
     * @param jid the bare XMPP user ID of the user to revoke membership
     * (e.g. "user@host.org").
@@ -2204,7 +2204,7 @@ public class ChatRoomJabberImpl
     * Revokes ownership privileges from another user. The occupant that loses
     * ownership privileges will become an administrator. Room owners may revoke
     * ownership privileges. Some room implementations will not allow to grant
-    * ownership privileges to other users. 
+    * ownership privileges to other users.
     *
     * @param jid the bare XMPP user ID of the user to revoke ownership
     * (e.g. "user@host.org").

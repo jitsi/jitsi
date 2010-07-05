@@ -422,7 +422,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 msg.setBody(content);
             }
 
-            msg.addExtension(new Version());
+            //msg.addExtension(new Version());
 
             MessageEventManager.
                 addNotificationsRequests(msg, true, false, false, true);

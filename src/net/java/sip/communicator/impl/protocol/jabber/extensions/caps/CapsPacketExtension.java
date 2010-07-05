@@ -18,6 +18,11 @@ import org.jivesoftware.smack.packet.*;
 public class CapsPacketExtension implements PacketExtension
 {
     /**
+     * The hash method we use for generating the ver string.
+     */
+    public static final String HASH_METHOD = "sha-1";
+
+    /**
      * The name space that the Entity Capabilities elements belong to.
      */
     public static final String NAMESPACE = "http://jabber.org/protocol/caps";

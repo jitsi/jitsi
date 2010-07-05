@@ -8,13 +8,14 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smackx.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smack.provider.*;
 
 /**
  * Implements all call management logic and exports basic telephony support by
@@ -57,6 +58,12 @@ public class OperationSetBasicTelephonyJabberImpl
 
         this.protocolProvider = protocolProvider;
         protocolProvider.addRegistrationStateChangeListener(this);
+
+        //register our home grown Jingle Provider.
+        //ProviderManager providerManager = ProviderManager.getInstance();
+        //providerManager.addIQProvider(
+        //    JingleIQ.ELEMENT_NAME, JingleIQ.NAMESPACE, new JingleIQProvider());
+
     }
 
     /**

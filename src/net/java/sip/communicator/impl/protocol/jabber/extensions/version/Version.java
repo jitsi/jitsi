@@ -1,3 +1,8 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license. See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.version;
 
 import org.jivesoftware.smack.packet.*;
@@ -43,7 +48,7 @@ public class Version
         StringBuffer buf = new StringBuffer();
         buf.append("<").append(getElementName()).
             append(" xmlns=\"").append(getNamespace()).append("\"").
-            append(" node=\"http://sip-communicator.org/caps\"").
+            append(" node=\"http://sip-communicator.org\"").
             append(" ver=\"").
             append(System.getProperty("sip-communicator.version")).
             append("\"/>");

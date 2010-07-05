@@ -375,7 +375,7 @@ public class OperationSetPersistentPresenceJabberImpl
             presence.setMode(presenceStatusToJabberMode(status));
             presence.setPriority(resourcePriority);
             presence.setStatus(statusMessage);
-            presence.addExtension(new Version());
+            //presence.addExtension(new Version());
 
             parentProvider.getConnection().sendPacket(presence);
         }

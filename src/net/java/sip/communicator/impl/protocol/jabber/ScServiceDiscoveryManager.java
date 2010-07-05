@@ -12,6 +12,7 @@ import java.util.concurrent.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
@@ -25,6 +26,8 @@ import org.jivesoftware.smackx.packet.*;
  * @author Emil Ivov
  */
 public class ScServiceDiscoveryManager
+    implements PacketInterceptor,
+               NodeInformationProvider
 {
     /**
      * A flag that indicates whether we are currently storing non-caps
@@ -55,6 +58,17 @@ public class ScServiceDiscoveryManager
     private final XMPPConnection connection;
 
     /**
+     * A local copy that we keep in sync with {@link ServiceDiscoveryManager}'s
+     * feature list that as we add and remove features to it.
+     */
+    private final List<String> features;
+
+    /**
+     * A {@link List} of the identities we use in our disco answers.
+     */
+    private final List<DiscoverInfo.Identity> identities;
+
+    /**
      * Creates a new <tt>ScServiceDiscoveryManager</tt> wrapping the default
      * discovery manager of the specified <tt>connection</tt>.
      *
@@ -66,6 +80,15 @@ public class ScServiceDiscoveryManager
         this.discoveryManager
             = ServiceDiscoveryManager.getInstanceFor(connection);
 
+        this.features = new ArrayList<String>();
+        this.identities = new ArrayList<DiscoverInfo.Identity>();
+
+        DiscoverInfo.Identity identity = new DiscoverInfo.Identity("client",
+                        ServiceDiscoveryManager.getIdentityName());
+        identity.setType(ServiceDiscoveryManager.getIdentityType());
+
+        identities.add(identity);
+
         //add support for capabilities
         discoveryManager.addFeature(CapsPacketExtension.NAMESPACE);
 
@@ -76,6 +99,17 @@ public class ScServiceDiscoveryManager
         capsManager.addPacketListener(connection);
 
         updateEntityCapsVersion();
+
+        // Now, make sure we intercept presence packages and add caps data when
+        // intended. XEP-0115 specifies that a client SHOULD include entity
+        // capabilities with every presence notification it sends.
+        PacketFilter capsPacketFilter = new PacketTypeFilter(Presence.class);
+
+        connection.addPacketWriterInterceptor(
+                            this, capsPacketFilter);
+
+
+        initFeatures();
     }
 
     /**
@@ -92,7 +126,13 @@ public class ScServiceDiscoveryManager
      */
     public void addFeature(String feature)
     {
-        discoveryManager.addFeature(feature);
+        synchronized (features)
+        {
+            features.add(feature);
+            discoveryManager.addFeature(feature);
+        }
+        updateEntityCapsVersion();
+
     }
 
     /**
@@ -110,10 +150,22 @@ public class ScServiceDiscoveryManager
                 capsManager.calculateEntityCapsVersion(getOwnDiscoverInfo(),
                         ServiceDiscoveryManager.getIdentityType(),
                         ServiceDiscoveryManager.getIdentityName(),
-                        discoveryManager.getFeatures(),
+                        getFeatures(),
                         null);
             }
         }
+    }
+
+    /**
+     * Returns a reference to our local copy of the feature list supported by
+     * this implementation.
+     *
+     * @return a reference to our local copy of the feature list supported by
+     * this implementation.
+     */
+    public List<String> getFeatures()
+    {
+        return features;
     }
 
     /**
@@ -152,11 +204,12 @@ public class ScServiceDiscoveryManager
         }
     }
 
-    /**
+    /*
      * Add discover info response data.
      *
      * @param response the discover info response packet
      */
+    // i really think we should remove this one
     public void addDiscoverInfoTo(DiscoverInfo response)
     {
         // Set this client identity
@@ -169,12 +222,123 @@ public class ScServiceDiscoveryManager
         // Add Entity Capabilities (XEP-0115) feature node.
         response.addFeature(CapsPacketExtension.NAMESPACE);
 
-        for (Iterator<String> it = discoveryManager.getFeatures();
-             it.hasNext();)
+        for (String feature : getFeatures())
         {
-            response.addFeature(it.next());
+            response.addFeature(feature);
         }
     }
 
+    /**
+     * Returns <tt>true</tt> if the specified feature is registered in our
+     * {@link ServiceDiscoveryManager} and <tt>false</tt> otherwise.
+     *
+     * @param feature the feature to look for.
+     *
+     * @return a boolean indicating if the specified featured is registered or
+     * not.
+     */
+    public boolean includesFeature(String feature)
+    {
+        return this.discoveryManager.includesFeature(feature);
+    }
 
+    /**
+     * Removes the specified feature from the supported features by the
+     * encapsulated ServiceDiscoveryManager.<p>
+     *
+     * Since no packet is actually sent to the server it is safe to perform
+     * this operation before logging to the server.
+     *
+     * @param feature the feature to remove from the supported features.
+     */
+    public void removeFeature(String feature)
+    {
+        synchronized (features)
+        {
+            features.remove(feature);
+            discoveryManager.removeFeature(feature);
+        }
+        updateEntityCapsVersion();
+    }
+
+    /**
+     * Intercepts outgoing presence packets and adds entity capabilities at
+     * their ends.
+     *
+     * @param packet the (hopefully presence) packet we need to add a "c"
+     * element to.
+     */
+    public void interceptPacket(Packet packet)
+    {
+        if(!(packet instanceof Presence))
+            return;
+
+        if (capsManager != null)
+        {
+            String ver = getEntityCapsVersion();
+            CapsPacketExtension caps = new CapsPacketExtension(
+                            null, capsManager.getNode(),
+                            CapsPacketExtension.HASH_METHOD, ver);
+
+            //make sure we'll be able to handle requests for the newly generated
+            //node once we've used it.
+            discoveryManager.setNodeInformationProvider(
+                            caps.getNode() + "#" + caps.getVersion(), this);
+
+            packet.addExtension(caps);
+        }
+    }
+
+    /**
+     * Returns a list of the Items {@link DiscoverItems.Item} defined in the
+     * node or in other words <tt>null</tt> since we don't support any.
+     *
+     * @return always <tt>null</tt> since we don't support items.
+     */
+    public List<DiscoverItems.Item> getNodeItems()
+    {
+        return null;
+    }
+
+    /**
+     * Returns a list of the features defined in the node. For
+     * example, the entity caps protocol specifies that an XMPP client
+     * should answer with each feature supported by the client version
+     * or extension.
+     *
+     * @return a list of the feature strings defined in the node.
+     */
+    public List<String> getNodeFeatures()
+    {
+        return getFeatures();
+    }
+
+    /**
+     * Returns a list of the indentities defined in the node. For
+     * example, the x-command protocol must provide an identity of
+     * category automation and type command-node for each command.
+     *
+     * @return a list of the Identities defined in the node.
+     */
+    public List<DiscoverInfo.Identity> getNodeIdentities()
+    {
+        return identities;
+    }
+
+    /**
+     * Initialize our local features copy in a way that would
+     */
+    private void initFeatures()
+    {
+        Iterator<String> defaultFeatures = discoveryManager.getFeatures();
+
+        synchronized (features)
+        {
+            while (defaultFeatures.hasNext())
+            {
+                String feature = defaultFeatures.next();
+                this.features.add( feature );
+            }
+        }
+    }
 }

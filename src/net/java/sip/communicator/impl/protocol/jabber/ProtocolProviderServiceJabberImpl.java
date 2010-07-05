@@ -76,6 +76,19 @@ public class ProtocolProviderServiceJabberImpl
      */
     public static final String URN_XMPP_JINGLE_RTP_VIDEO
         = "urn:xmpp:jingle:apps:rtp:video";
+
+    /**
+     * Jingle's Discovery Info URN for ICE_UDP transport support.
+     */
+    public static final String URN_XMPP_JINGLE_ICE_UDP_0
+        = "urn:xmpp:jingle:transports:ice-udp:0";
+
+    /**
+     * Jingle's Discovery Info URN for ICE_UDP transport support.
+     */
+    public static final String URN_XMPP_JINGLE_ICE_UDP_1
+        = "urn:xmpp:jingle:transports:ice-udp:1";
+
     /**
      * Used to connect to a XMPP server.
      */
@@ -130,7 +143,7 @@ public class ProtocolProviderServiceJabberImpl
      * <tt>supportedFeatures</tt> when asked by a remote client. It can also
      * be used to query remote clients for supported features.
      */
-    private ServiceDiscoveryManager discoveryManager = null;
+    private ScServiceDiscoveryManager discoveryManager = null;
 
     /**
      * The statuses.
@@ -473,6 +486,8 @@ public class ProtocolProviderServiceJabberImpl
 
                 connection.connect();
 
+                registerServiceDiscoveryManager();
+
                 connection.addConnectionListener(
                     new JabberConnectionListener());
 
@@ -576,43 +591,40 @@ public class ProtocolProviderServiceJabberImpl
                     OperationFailedException.INVALID_ACCOUNT_PROPERTIES, ex);
             }
         }
-
-        // we setup supported features
-        // List of features that smack already supports:
-        // http://jabber.org/protocol/xhtml-im
-        // http://jabber.org/protocol/muc
-        // http://jabber.org/protocol/commands
-        // http://jabber.org/protocol/chatstates
-        // http://jabber.org/protocol/si/profile/file-transfer
-        // http://jabber.org/protocol/si
-        // http://jabber.org/protocol/bytestreams
-        // http://jabber.org/protocol/ibb
-        if (getRegistrationState() == RegistrationState.REGISTERED)
-        {
-            discoveryManager = ServiceDiscoveryManager.
-                    getInstanceFor(connection);
-
-            ServiceDiscoveryManager.setIdentityName("sip-comm");
-            ServiceDiscoveryManager.setIdentityType("pc");
-            Iterator<String> it = supportedFeatures.iterator();
-
-            // Remove features supported by smack, but not supported in
-            // SIP Communicator.
-            discoveryManager.removeFeature(
-                "http://jabber.org/protocol/commands");
-
-            // Add features the SIP Communicator supports in plus of smack.
-            while (it.hasNext())
-            {
-                String feature = it.next();
-
-                if (!discoveryManager.includesFeature(feature))
-                    discoveryManager.addFeature(feature);
-            }
-        }
-
     }
 
+    /**
+     * Registers our ServiceDiscoveryManager
+     */
+    private void registerServiceDiscoveryManager()
+    {
+        // we setup supported features no packets are actually sent
+        //during feature registration so we'd better do it here so that
+        //our first presence update would contain a caps with the right
+        //features.
+        String name = System.getProperty("sip-communicator.application.name",
+                        "SIP Communicator ");
+
+        name += System.getProperty("sip-communicator.version","SVN");
+
+        ServiceDiscoveryManager.setIdentityName(name);
+
+        ServiceDiscoveryManager.setIdentityType("pc");
+
+        discoveryManager = new ScServiceDiscoveryManager(connection);
+
+        // Remove features supported by smack, but not supported in
+        // SIP Communicator.
+        discoveryManager.removeFeature(
+            "http://jabber.org/protocol/commands");
+
+        // Add features the SIP Communicator supports in plus of smack.
+        for(String feature : supportedFeatures)
+        {
+            if (!discoveryManager.includesFeature(feature))
+                discoveryManager.addFeature(feature);
+        }
+    }
     /**
      * Ends the registration of this protocol provider with the service.
      */
@@ -817,6 +829,7 @@ public class ProtocolProviderServiceJabberImpl
 
             //check if we are supposed to start telephony
 
+            /* temporarily disabled until completed.
             //initialize the telephony operation set
             addSupportedOperationSet(
                 OperationSetBasicTelephony.class,
@@ -825,9 +838,11 @@ public class ProtocolProviderServiceJabberImpl
             // Add Jingle features to supported features.
             supportedFeatures.add(URN_XMPP_JINGLE);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP);
+            supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_0);
+            supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
-
+             */
             isInitialized = true;
         }
     }
@@ -897,7 +912,8 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * Tries to determine the appropriate message and status to fire,
      * according the exception.
-     * @param ex
+     *
+     * @param ex the {@link XMPPException} that caused the state change.
      */
     private void fireRegistrationStateChanged(XMPPException ex)
     {
@@ -1151,7 +1167,8 @@ public class ProtocolProviderServiceJabberImpl
 
         /**
          * Not used.
-         * @return
+         *
+         * @return nothing.
          */
         public X509Certificate[] getAcceptedIssuers()
         {
@@ -1162,10 +1179,11 @@ public class ProtocolProviderServiceJabberImpl
          * Not used.
          * @param chain the cert chain.
          * @param authType authentication type like: RSA.
-         * @throws CertificateException
+         * @throws CertificateException never
+         * @throws UnsupportedOperationException always
          */
         public void checkClientTrusted(X509Certificate[] chain, String authType)
-            throws CertificateException
+            throws CertificateException, UnsupportedOperationException
         {
             throw new UnsupportedOperationException();
         }

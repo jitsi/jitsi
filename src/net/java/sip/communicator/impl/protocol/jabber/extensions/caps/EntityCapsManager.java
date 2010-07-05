@@ -25,12 +25,6 @@ import java.security.*;
  */
 public class EntityCapsManager
 {
-
-    /**
-     * The hash method we use for generating the ver string.
-     */
-    //public static final String HASH_METHOD = "sha-1";
-
     /**
      * The hash method we use for generating the ver string.
      */
@@ -343,7 +337,7 @@ public class EntityCapsManager
     public void calculateEntityCapsVersion(DiscoverInfo     discoverInfo,
                                            String           identityType,
                                            String           identityName,
-                                           Iterator<String> features,
+                                           List<String>     features,
                                            DataForm         extendedInfo)
     {
         StringBuilder bldr = new StringBuilder();
@@ -356,9 +350,8 @@ public class EntityCapsManager
         synchronized (features)
         {
             SortedSet<String> fs = new TreeSet<String>();
-            while(features.hasNext())
+            for(String f : features)
             {
-                String f = features.next();
                 fs.add(f);
             }
 

@@ -37,13 +37,13 @@ public class WhiteboardSessionJabberImpl
     /**
      * A list of listeners registered for message events.
      */
-    private Vector<WhiteboardObjectListener> messageListeners 
+    private Vector<WhiteboardObjectListener> messageListeners
         = new Vector<WhiteboardObjectListener>();
 
     /**
      * A list containing all <tt>WhiteboardParticipant</tt>s of this session.
      */
-    private Hashtable<String, WhiteboardParticipant> wbParticipants 
+    private Hashtable<String, WhiteboardParticipant> wbParticipants
         = new Hashtable<String, WhiteboardParticipant>();
 
     /**
@@ -66,7 +66,7 @@ public class WhiteboardSessionJabberImpl
      * A list of all listeners currently registered for
      * <tt>WhiteboardChangeEvent</tt>s
      */
-    private Vector<WhiteboardChangeListener> whiteboardListeners 
+    private Vector<WhiteboardChangeListener> whiteboardListeners
         = new Vector<WhiteboardChangeListener>();
 
     /**
@@ -87,7 +87,7 @@ public class WhiteboardSessionJabberImpl
 
     /**
      * WhiteboardSessionJabberImpl constructor.
-     * 
+     *
      * @param sourceProvider Jabber protocol provider
      * @param opSet the whiteboard operation set
      */
@@ -200,7 +200,7 @@ public class WhiteboardSessionJabberImpl
                     WhiteboardSessionPacketExtension.ACTION_LEAVE);
 
             msg.addExtension(extension);
-            msg.addExtension(new Version());
+            //msg.addExtension(new Version());
 
             MessageEventManager.addNotificationsRequests(
                 msg,
@@ -590,7 +590,7 @@ public class WhiteboardSessionJabberImpl
                     WhiteboardObjectPacketExtension.ACTION_DELETE);
 
             msg.addExtension(messageJI);
-            msg.addExtension(new Version());
+            //msg.addExtension(new Version());
 
             MessageEventManager.addNotificationsRequests(msg, true, false,
                 false, true);
@@ -655,7 +655,7 @@ public class WhiteboardSessionJabberImpl
                     WhiteboardObjectPacketExtension.ACTION_DRAW);
 
             msg.addExtension(messageJI);
-            msg.addExtension(new Version());
+            //msg.addExtension(new Version());
 
             MessageEventManager.addNotificationsRequests(msg, true, false,
                 false, true);
@@ -1234,7 +1234,7 @@ public class WhiteboardSessionJabberImpl
     /**
      * Checks if the participant given by <tt>participantName</tt> is contained
      * in this white-board session.
-     * 
+     *
      * @param participantName the name of the participant to search for
      * @return <code>true</code> if a participant with the given name is
      * contained in this session, <code>false</code> - otherwise
@@ -1250,7 +1250,7 @@ public class WhiteboardSessionJabberImpl
     /**
      * Searches all participants contained in this white board and returns the
      * one that corresponds to the given contact address.
-     * 
+     *
      * @param contactAddress the address of the contact to search for.
      * @return the <tt>WhiteboardParticipant</tt>, contained in this
      * white board session and corresponding to the given contact address
