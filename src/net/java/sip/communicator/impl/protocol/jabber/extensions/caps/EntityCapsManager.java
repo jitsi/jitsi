@@ -281,7 +281,8 @@ public class EntityCapsManager
     /**
      * Computes and returns the SHA-1 hash of the specified <tt>capsString</tt>.
      *
-     * @param capsString
+     * @param capsString the capabilities string that we'd like to compute a
+     * hash for.
      *
      * @return the SHA-1 hash of <tt>capsString</tt> or <tt>null</tt> if
      * generating the hash has failed.
@@ -300,30 +301,54 @@ public class EntityCapsManager
         }
     }
 
-    private static String formFieldValuesToCaps(Iterator<String> i)
+    /**
+     * Converts the form field values in the <tt>ffValuesIter</tt> into a
+     * caps string.
+     *
+     * @param ffValuesIter the {@link Iterator} containing the form field
+     * values.
+     *
+     * @return a <tt>String</tt> containing all the form field values.
+     */
+    private static String formFieldValuesToCaps(Iterator<String> ffValuesIter)
     {
-        String s = "";
+        StringBuilder bldr = new StringBuilder();
         SortedSet<String> fvs = new TreeSet<String>();
-        for (; i.hasNext();)
+
+        while( ffValuesIter.hasNext())
         {
-            fvs.add(i.next());
+            fvs.add(ffValuesIter.next());
         }
+
         for (String fv : fvs)
         {
-            s += fv + "<";
+            bldr.append( fv + "<");
         }
-        return s;
+
+        return bldr.toString();
     }
 
+    /**
+     * Calculates the ver string for the specified <tt>discoverInfo</tt>,
+     * identity type, name features, and extendedInfo.
+     *
+     * @param discoverInfo the {@link DiscoverInfo} we'd be creating a ver
+     * <tt>String</tt> for.
+     * @param identityType identity type (e.g. pc).
+     * @param identityName our identity name (the name of the application)
+     * @param features the list of features we'd like to encode.
+     * @param extendedInfo any extended information we'd like to add to the ver
+     * <tt>String</tt>
+     */
     void calculateEntityCapsVersion(DiscoverInfo discoverInfo,
                     String identityType, String identityName,
                     List<String> features, DataForm extendedInfo)
     {
-        String s = "";
+        StringBuilder bldr = new StringBuilder();
 
         // Add identity
         // FIXME language
-        s += "client/" + identityType + "//" + identityName + "<";
+        bldr.append( "client/" + identityType + "//" + identityName + "<");
 
         // Add features
         synchronized (features)
@@ -336,7 +361,7 @@ public class EntityCapsManager
 
             for (String f : fs)
             {
-                s += f + "<";
+                bldr.append( f + "<" );
             }
         }
 
@@ -355,32 +380,32 @@ public class EntityCapsManager
                                     }
                                 });
 
-                FormField ft = null;
+                FormField formType = null;
 
-                for (Iterator<FormField> i = extendedInfo.getFields(); i
-                                .hasNext();)
+                for (Iterator<FormField> fieldsIter = extendedInfo.getFields();
+                     fieldsIter.hasNext();)
                 {
-                    FormField f = i.next();
+                    FormField f = fieldsIter.next();
                     if (!f.getVariable().equals("FORM_TYPE"))
                     {
                         fs.add(f);
                     } else
                     {
-                        ft = f;
+                        formType = f;
                     }
                 }
 
                 // Add FORM_TYPE values
-                if (ft != null)
+                if (formType != null)
                 {
-                    s += formFieldValuesToCaps(ft.getValues());
+                    bldr.append( formFieldValuesToCaps(formType.getValues()) );
                 }
 
                 // Add the other values
                 for (FormField f : fs)
                 {
-                    s += f.getVariable() + "<";
-                    s += formFieldValuesToCaps(f.getValues());
+                    bldr.append( f.getVariable() + "<" );
+                    bldr.append( formFieldValuesToCaps(f.getValues()) );
                 }
             }
         }
