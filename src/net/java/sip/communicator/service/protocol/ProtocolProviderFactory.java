@@ -601,7 +601,11 @@ public abstract class ProtocolProviderFactory
      */
     public boolean loadAccount(AccountID accountID)
     {
-        String userID = accountID.getUserID();
+        // Need to obtain the original user id property, instead of calling
+        // accountID.getUserID(), because this method could return a modified
+        // version of the user id property.
+        String userID = accountID
+            .getAccountPropertyString(ProtocolProviderFactory.USER_ID);
 
         ProtocolProviderService service = createService(userID, accountID);
 

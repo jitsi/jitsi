@@ -102,7 +102,6 @@ public class TestAccountInstallation
             sipAccount2Properties.get(ProtocolProviderFactory.USER_ID)
             , sipAccount2Properties);
 
-
         //try to install one of the accounts one more time and verify that an
         //excepion is thrown.
         try{
@@ -126,7 +125,6 @@ public class TestAccountInstallation
 
         //Verify protocol providers corresponding to the new account have
         //been properly registered with the osgi framework.
-
         osgiFilter =
             "(&("+ProtocolProviderFactory.PROTOCOL +"="+ProtocolNames.SIP+")"
              +"(" + ProtocolProviderFactory.USER_ID
@@ -146,7 +144,7 @@ public class TestAccountInstallation
             fail(osgiFilter + "is not a valid osgi filter");
         }
 
-        assertTrue("An ICQ protocol provider was apparently not installed as "
+        assertTrue("A SIP protocol provider was apparently not installed as "
                 + "requested."
                 , serRefs != null && serRefs.length > 0);
 
