@@ -19,6 +19,7 @@ import org.xmlpull.v1.*;
  */
 public class CapsProvider implements PacketExtensionProvider
 {
+
     /**
      * Parses and returns an Entity Capabilities.
      *
