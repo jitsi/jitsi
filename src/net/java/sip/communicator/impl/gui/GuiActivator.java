@@ -243,10 +243,13 @@ public class GuiActivator implements BundleActivator
         try
         {
             ServiceReference[] serRefs
-                = GuiActivator.bundleContext.getServiceReferences(
+                = bundleContext.getServiceReferences(
                     ProtocolProviderFactory.class.getName(), osgiFilter);
-            protocolProviderFactory = (ProtocolProviderFactory) GuiActivator
-                    .bundleContext.getService(serRefs[0]);
+
+            if (serRefs != null && serRefs.length > 0)
+                protocolProviderFactory
+                    = (ProtocolProviderFactory) bundleContext
+                        .getService(serRefs[0]);
         }
         catch (InvalidSyntaxException ex)
         {
