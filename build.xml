@@ -155,7 +155,7 @@
     <condition property="is.running.freebsd" value="${os.name}">
         <equals arg1="${os.name}" arg2="freebsd" casesensitive="false" trim="true"/>
     </condition>
-    
+
     <!-- make sure we use the freebsd-64 natives if this is a 64 bit system-->
     <condition property="ld.library.path"
             value="${lib}/native/freebsd-64:${system.LD_LIBRARY_PATH}">
@@ -714,7 +714,7 @@
 
         <condition property="jvm.maxheapsize"
               value="-Xmx256m"
-              else="" > 
+              else="" >
              <os arch="i386" />
         </condition>
 
@@ -742,8 +742,8 @@
                     value="${user.home}/schome"/-->
 
              <!--sysproperty key="smack.debugEnabled"
-                     value="true"/>
-             <sysproperty key="smack.debuggerClass"
+                     value="true"/-->
+             <!--sysproperty key="smack.debuggerClass"
                      value="org.jivesoftware.smack.debugger.ConsoleDebugger"/-->
 
             <!-- Setting properties necessary for dependencies on native libs.-->
@@ -776,7 +776,7 @@
             <!-- add some eventual profiler args, prevent server-class
                  detection because -server uses much more memory for 32-bit OS
                  (64-bit always used -server) -->
-            <jvmarg line="${profiler.args} ${jvmarg.line} 
+            <jvmarg line="${profiler.args} ${jvmarg.line}
               -client ${jvm.maxheapsize}"/>
 
             <sysproperty key="apple.laf.useScreenMenuBar" value="true" />
@@ -1341,6 +1341,7 @@ javax.swing.event, javax.swing.border"/>
         <!-- Creates a bundle containing the smack lib.-->
         <jar compress="false" destfile="${bundles.dest}/smacklib.jar"
             manifest="${lib.noinst}/smack.manifest.mf">
+            <zipfileset src="${lib.noinst}/smackx-debug.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/smack.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/smackx.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/smackx-jingle.jar" prefix=""/>
@@ -2224,7 +2225,7 @@ org.apache.http.util"/>
                     org.bouncycastle.crypto.digests,
                     org.bouncycastle.crypto.macs,
                     org.bouncycastle.crypto.params,
-                	org.bouncycastle.crypto.prng,
+                    org.bouncycastle.crypto.prng,
                     org.bouncycastle.crypto.engines,
                     org.bouncycastle.crypto.modes"/>
                 <attribute name="Bundle-Name" value="ZRTP4J"/>
@@ -2266,7 +2267,7 @@ org.apache.http.util"/>
                     org.bouncycastle.crypto.digests,
                     org.bouncycastle.crypto.macs,
                     org.bouncycastle.crypto.params,
-                	org.bouncycastle.crypto.prng,
+                    org.bouncycastle.crypto.prng,
                     org.bouncycastle.crypto.engines,
                     org.bouncycastle.crypto.modes,
                     org.bouncycastle.crypto.generators,
@@ -2296,7 +2297,7 @@ org.apache.http.util"/>
         </jar>
     </target>
 
-	<!-- BUNDLE-PLUGIN-GLOBALPROXYCONFIG -->
+    <!-- BUNDLE-PLUGIN-GLOBALPROXYCONFIG -->
     <target name="bundle-plugin-globalproxyconfig">
         <!-- Creates a bundle for the global proxy configuration plugin.-->
         <jar compress="false" destfile="${bundles.dest}/globalproxyconfig.jar"
