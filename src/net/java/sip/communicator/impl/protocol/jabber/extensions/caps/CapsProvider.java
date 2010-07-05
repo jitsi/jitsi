@@ -13,7 +13,7 @@ import org.xmlpull.v1.*;
  * The provider that parses <tt>c</tt> packet extensions into {@link
  * CapsPacketExtension} instances.
  *
- * This work is based on Jonas Ådahl's smack fork.
+ * This work is based on Jonas Adahl's smack fork.
  *
  * @author Emil Ivov
  */

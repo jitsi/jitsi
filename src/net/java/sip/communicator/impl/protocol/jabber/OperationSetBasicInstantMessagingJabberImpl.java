@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.version.Version;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;

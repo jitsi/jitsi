@@ -10,7 +10,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.caps;
  * A listener use to notify interested parties about a change in our version
  * string.
  *
- * This work is based on Jonas Ådahl's smack fork.
+ * This work is based on Jonas Adahl's smack fork.
  */
 public interface CapsVerListener
 {

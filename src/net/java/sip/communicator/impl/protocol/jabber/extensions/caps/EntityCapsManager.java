@@ -21,7 +21,7 @@ import java.security.*;
 /**
  * Keeps track of entity capabilities.
  *
- * This work is based on Jonas Ådahl's smack fork.
+ * This work is based on Jonas Adahl's smack fork.
  */
 public class EntityCapsManager
 {

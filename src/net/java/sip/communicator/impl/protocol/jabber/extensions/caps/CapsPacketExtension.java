@@ -11,7 +11,7 @@ import org.jivesoftware.smack.packet.*;
 /**
  * A {@link PacketExtension} implementation for Entity Capabilities packets.
  *
- * This work is based on Jonas Ådahl's smack fork.
+ * This work is based on Jonas Adahl's smack fork.
  *
  * @author Emil Ivov
  */

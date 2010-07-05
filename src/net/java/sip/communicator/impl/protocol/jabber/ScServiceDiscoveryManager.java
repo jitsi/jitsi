@@ -21,7 +21,7 @@ import org.jivesoftware.smackx.packet.*;
  * An wrapper to smack's default {@link ServiceDiscoveryManager} that adds
  * support for XEP-0115 - Entity Capabilities.
  *
- * This work is based on Jonas Ådahl's smack fork.
+ * This work is based on Jonas Adahl's smack fork.
  *
  * @author Emil Ivov
  */

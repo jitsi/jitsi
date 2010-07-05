@@ -23,6 +23,7 @@ import org.jivesoftware.smackx.packet.*;
  * Implements all call management logic and exports basic telephony support by
  * implementing OperationSetBasicTelephony.
  *
+ * @author Emil Ivov
  * @author Symphorien Wanko
  */
 public class OperationSetBasicTelephonyJabberImpl
@@ -57,15 +58,13 @@ public class OperationSetBasicTelephonyJabberImpl
     public OperationSetBasicTelephonyJabberImpl(
             ProtocolProviderServiceJabberImpl protocolProvider)
     {
-
         this.protocolProvider = protocolProvider;
         protocolProvider.addRegistrationStateChangeListener(this);
 
         //register our home grown Jingle Provider.
-        //ProviderManager providerManager = ProviderManager.getInstance();
+        ProviderManager providerManager = ProviderManager.getInstance();
         //providerManager.addIQProvider(
         //    JingleIQ.ELEMENT_NAME, JingleIQ.NAMESPACE, new JingleIQProvider());
-
     }
 
     /**
