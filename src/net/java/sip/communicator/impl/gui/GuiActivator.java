@@ -179,7 +179,6 @@ public class GuiActivator implements BundleActivator
     public static Map<Object, ProtocolProviderFactory>
         getProtocolProviderFactories()
     {
-
         ServiceReference[] serRefs = null;
         try
         {
@@ -198,7 +197,6 @@ public class GuiActivator implements BundleActivator
         {
             for (int i = 0; i < serRefs.length; i++) 
             {
-
                 ProtocolProviderFactory providerFactory
                     = (ProtocolProviderFactory) bundleContext
                         .getService(serRefs[i]);
@@ -269,14 +267,25 @@ public class GuiActivator implements BundleActivator
     public static ProtocolProviderService getRegisteredProviderForAccount(
         AccountID accountID)
     {
-        ProtocolProviderFactory providerFactory
-            = getProtocolProviderFactory(accountID.getProtocolDisplayName());
+        Iterator<ProtocolProviderFactory> factories
+            = getProtocolProviderFactories().values().iterator();
 
-        ServiceReference serRef
-            = providerFactory.getProviderForAccount(accountID);
+        while (factories.hasNext())
+        {
+            ProtocolProviderFactory factory = factories.next();
 
-        return (ProtocolProviderService) GuiActivator.bundleContext
-                    .getService(serRef);
+            if (factory.getRegisteredAccounts().contains(accountID))
+            {
+                ServiceReference serRef
+                    = factory.getProviderForAccount(accountID);
+
+                if (serRef != null)
+                    return (ProtocolProviderService) bundleContext
+                        .getService(serRef);
+            }
+        }
+
+        return null;
     }
 
     /**
