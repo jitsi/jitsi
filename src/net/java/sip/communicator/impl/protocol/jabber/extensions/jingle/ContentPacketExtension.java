@@ -288,9 +288,21 @@ public class ContentPacketExtension implements PacketExtension
      * @return  a reference to the list of <tt>PacketExtension</tt>s that this
      * element contains.
      */
-    public List<PacketExtension> getChildExtensions()
+    public List<PacketExtension> getExtensions()
     {
         return childExtensions;
+    }
+
+    /**
+     * Adds <tt>extension</tt> to the list of <tt>PacketExtension</tt>s that
+     * this element contains.
+     *
+     * @param extension the new <tt>PacketExtension</tt>s that we need to
+     * add to this element.
+     */
+    public void addExtensions(PacketExtension extension)
+    {
+        childExtensions.add(extension);
     }
 
     /**
