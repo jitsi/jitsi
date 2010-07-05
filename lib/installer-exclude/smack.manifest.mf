@@ -14,7 +14,12 @@ Import-Package: javax.net,
  org.w3c.dom,
  org.xml.sax,
  org.xml.sax.helpers,
- org.apache.xml.serialize
+ org.apache.xml.serialize,
+ javax.swing,
+ javax.swing.border,
+ javax.swing.table,
+ javax.swing.text,
+ javax.swing.event
 Export-Package: org.jivesoftware.smack,
  org.jivesoftware.smack.packet,
  org.jivesoftware.smack.provider,
