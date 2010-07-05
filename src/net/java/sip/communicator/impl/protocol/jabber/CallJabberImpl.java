@@ -175,31 +175,6 @@ public class CallJabberImpl
     }
 
     /**
-     * Sets the <tt>CallSession</tt> that the media service has created for this
-     * call.
-     *
-     * @param callSession the <tt>CallSession</tt> that the media service has
-     * created for this call.
-     */
-//    public void setMediaCallSession(CallSession callSession)
-//    {
-//        this.mediaCallSession = callSession;
-//    }
-
-    /**
-     * Sets the <tt>CallSession</tt> that the media service has created for this
-     * call.
-     *
-     * @return the <tt>CallSession</tt> that the media service has
-     * created for this call or null if no call session has been created so
-     * far.
-     */
-//    public CallSession getMediaCallSession()
-//    {
-//        return this.mediaCallSession;
-//    }
-
-    /**
      * Gets the indicator which determines whether the local peer represented by
      * this <tt>Call</tt> is acting as a conference focus and thus should send
      * the &quot;isfocus&quot; parameter in the Contact headers of its outgoing
