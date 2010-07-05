@@ -341,8 +341,10 @@ public class EntityCapsManager
      * <tt>String</tt>
      */
     void calculateEntityCapsVersion(DiscoverInfo discoverInfo,
-                    String identityType, String identityName,
-                    List<String> features, DataForm extendedInfo)
+                                    String       identityType,
+                                    String       identityName,
+                                    List<String> features,
+                                    DataForm     extendedInfo)
     {
         StringBuilder bldr = new StringBuilder();
 
@@ -410,25 +412,32 @@ public class EntityCapsManager
             }
         }
 
-        setCurrentCapsVersion(discoverInfo, capsToHash(s));
+        setCurrentCapsVersion(discoverInfo, capsToHash(bldr.toString()));
     }
 
     /**
      * Set our own caps version.
      *
+     * @param discoverInfo the {@link DiscoverInfo} that we'd like to map to the
+     * <tt>capsVersion</tt>.
      * @param capsVersion the new caps version
      */
     public void setCurrentCapsVersion(DiscoverInfo discoverInfo,
-                    String capsVersion)
+                                      String capsVersion)
     {
         currentCapsVersion = capsVersion;
         addDiscoverInfoByNode(getNode() + "#" + capsVersion, discoverInfo);
         fireCapsVerChanged();
     }
 
+    /**
+     * The {@link PacketListener} that will be registering incoming caps.
+     */
     class CapsPacketListener implements PacketListener
     {
-
+        /**
+         * Handles incoming presence packets and maps jids to node#ver strings.
+         */
         public void processPacket(Packet packet)
         {
             CapsPacketExtension ext = (CapsPacketExtension) packet.getExtension(
