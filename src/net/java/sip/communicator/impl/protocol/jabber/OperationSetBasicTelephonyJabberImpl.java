@@ -218,8 +218,6 @@ public class OperationSetBasicTelephonyJabberImpl
     public void putOffHold(CallPeer peer)
     {
         /** @todo implement putOffHold() */
-        ((CallPeerJabberImpl) peer).getJingleSession().
-                getJingleMediaSession().setTrasmit(true);
     }
 
     /**
@@ -230,8 +228,6 @@ public class OperationSetBasicTelephonyJabberImpl
     public void putOnHold(CallPeer peer)
     {
         /** @todo implement putOnHold() */
-        ((CallPeerJabberImpl) peer).getJingleSession().
-                getJingleMediaSession().setTrasmit(false);
     }
 
     /**
@@ -252,18 +248,9 @@ public class OperationSetBasicTelephonyJabberImpl
     {
         CallPeerJabberImpl callPeer
                 = (CallPeerJabberImpl)peer;
-        try
-        {
-            callPeer.getJingleSession().terminate();
-        }
-        catch (XMPPException ex)
-        {
-            ex.printStackTrace();
-        }
-        finally
-        {
-            callPeer.setState(CallPeerState.DISCONNECTED);
-        }
+        /**
+         * @todo implement hangupCallPeer
+         */
     }
 
 
