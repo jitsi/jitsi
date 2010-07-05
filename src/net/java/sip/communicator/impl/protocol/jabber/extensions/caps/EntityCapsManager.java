@@ -6,28 +6,17 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.caps;
 
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.filter.PacketFilter;
-import org.jivesoftware.smack.filter.AndFilter;
-import org.jivesoftware.smack.filter.PacketTypeFilter;
-import org.jivesoftware.smack.filter.PacketExtensionFilter;
-import org.jivesoftware.smack.provider.ProviderManager;
-import org.jivesoftware.smack.util.Base64;
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
 
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.concurrent.*;
+import java.security.*;
 
 /**
  * Keeps track of entity capabilities.
@@ -38,12 +27,12 @@ public class EntityCapsManager
 {
 
     /**
-     * The has method we use for generating the ver string.
+     * The hash method we use for generating the ver string.
      */
-    public static final String HASH_METHOD = "sha-1";
+    //public static final String HASH_METHOD = "sha-1";
 
     /**
-     * The has method we use for generating the ver string.
+     * The hash method we use for generating the ver string.
      */
     public static final String HASH_METHOD_CAPS = "SHA-1";
 
@@ -69,23 +58,27 @@ public class EntityCapsManager
     /**
      * CapsVerListeners gets notified when the version string is changed.
      */
-    private Set<CapsVerListener>             capsVerListeners   = new CopyOnWriteArraySet<CapsVerListener>();
+    private Set<CapsVerListener> capsVerListeners
+                        = new CopyOnWriteArraySet<CapsVerListener>();
 
-    private String                           currentCapsVersion = null;
+    /**
+     * The current hash of our version and supported features.
+     */
+    private String currentCapsVersion = null;
 
     static
     {
         ProviderManager.getInstance().addExtensionProvider(
-                        CapsExtension.NODE_NAME, CapsExtension.XMLNS,
-                        new CapsExtensionProvider());
+            CapsPacketExtension.ELEMENT_NAME, CapsPacketExtension.NAMESPACE,
+                        new CapsProvider());
     }
 
     /**
-     * Add DiscoverInfo to the database.
+     * Add {@link DiscoverInfo} to the our caps database.
      *
      * @param node The node name. Could be for example
-     * "http://psi-im.org#q07IKJEyjvHSyhy//CH0CxmKi8w=".
-     * @param info DiscoverInfo for the specified node.
+     * "http://sip-communicator.org#q07IKJEyjvHSyhy//CH0CxmKi8w=".
+     * @param info {@link DiscoverInfo} for the specified node.
      */
     public static void addDiscoverInfoByNode(String node, DiscoverInfo info)
     {
@@ -188,6 +181,11 @@ public class EntityCapsManager
         return caps.get(node);
     }
 
+    /**
+     * Removes from, to and packet-id from <tt>info</tt>.
+     *
+     * @param info the {@link DiscoverInfo} that we'd like to cleanup.
+     */
     private static void cleanupDicsoverInfo(DiscoverInfo info)
     {
         info.setFrom(null);
@@ -195,30 +193,72 @@ public class EntityCapsManager
         info.setPacketID(null);
     }
 
-    public void addPacketListener(Connection connection)
+    /**
+     * Registers this Manager's listener with <tt>connection</tt>.
+     *
+     * @param connection the connection that we'd like this manager to register
+     * with.
+     */
+    public void addPacketListener(XMPPConnection connection)
     {
-        PacketFilter f = new AndFilter(new PacketTypeFilter(Presence.class),
-                        new PacketExtensionFilter(CapsExtension.NODE_NAME,
-                                        CapsExtension.XMLNS));
-        connection.addPacketListener(new CapsPacketListener(), f);
+        PacketFilter filter
+            = new AndFilter(new PacketTypeFilter(Presence.class),
+                   new PacketExtensionFilter(CapsPacketExtension.ELEMENT_NAME,
+                                             CapsPacketExtension.NAMESPACE));
+        connection.addPacketListener(new CapsPacketListener(), filter);
     }
 
+    /**
+     * Adds <tt>listener</tt> to the list of {@link CapsVerListener}s that we
+     * notify when new features occur and the version hash needs to be
+     * regenerated. The method would also notify <tt>listener</tt> if our
+     * current caps version has been generated and is different than
+     * <tt>null</tt>.
+     *
+     * @param listener the {@link CapsVerListener} we'd like to register.
+     */
     public void addCapsVerListener(CapsVerListener listener)
     {
-        capsVerListeners.add(listener);
+        synchronized (capsVerListeners)
+        {
+            if (capsVerListeners.contains(listener))
+                return;
 
-        if (currentCapsVersion != null)
-            listener.capsVerUpdated(currentCapsVersion);
+            capsVerListeners.add(listener);
+
+            if (currentCapsVersion != null)
+                listener.capsVerUpdated(currentCapsVersion);
+        }
     }
 
+    /**
+     * Removes <tt>listener</tt> from the list of currently registered
+     * {@link CapsVerListener}s.
+     *
+     * @param listener the {@link CapsVerListener} we'd like to unregister.
+     */
     public void removeCapsVerListener(CapsVerListener listener)
     {
-        capsVerListeners.remove(listener);
+        synchronized(capsVerListeners)
+        {
+            capsVerListeners.remove(listener);
+        }
     }
 
-    private void notifyCapsVerListeners()
+    /**
+     * Notifies all currently registered {@link CapsVerListener}s that the
+     * version hash has changed.
+     */
+    private void fireCapsVerChanged()
     {
-        for (CapsVerListener listener : capsVerListeners)
+        List<CapsVerListener> listenersCopy = null;
+
+        synchronized(capsVerListeners)
+        {
+            listenersCopy = new ArrayList<CapsVerListener>(capsVerListeners);
+        }
+
+        for (CapsVerListener listener : listenersCopy)
         {
             listener.capsVerUpdated(currentCapsVersion);
         }
@@ -238,6 +278,14 @@ public class EntityCapsManager
     // Calculate Entity Caps Version String
     // /////////
 
+    /**
+     * Computes and returns the SHA-1 hash of the specified <tt>capsString</tt>.
+     *
+     * @param capsString
+     *
+     * @return the SHA-1 hash of <tt>capsString</tt> or <tt>null</tt> if
+     * generating the hash has failed.
+     */
     private static String capsToHash(String capsString)
     {
         try
@@ -245,7 +293,8 @@ public class EntityCapsManager
             MessageDigest md = MessageDigest.getInstance(HASH_METHOD_CAPS);
             byte[] digest = md.digest(capsString.getBytes());
             return Base64.encodeBytes(digest);
-        } catch (NoSuchAlgorithmException nsae)
+        }
+        catch (NoSuchAlgorithmException nsae)
         {
             return null;
         }
@@ -349,7 +398,7 @@ public class EntityCapsManager
     {
         currentCapsVersion = capsVersion;
         addDiscoverInfoByNode(getNode() + "#" + capsVersion, discoverInfo);
-        notifyCapsVerListeners();
+        fireCapsVerChanged();
     }
 
     class CapsPacketListener implements PacketListener
@@ -357,8 +406,9 @@ public class EntityCapsManager
 
         public void processPacket(Packet packet)
         {
-            CapsExtension ext = (CapsExtension) packet.getExtension(
-                            CapsExtension.NODE_NAME, CapsExtension.XMLNS);
+            CapsPacketExtension ext = (CapsPacketExtension) packet.getExtension(
+                CapsPacketExtension.ELEMENT_NAME,
+                CapsPacketExtension.NAMESPACE);
 
             String nodeVer = ext.getNode() + "#" + ext.getVersion();
             String user = packet.getFrom();
