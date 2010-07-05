@@ -35,6 +35,7 @@ import org.osgi.framework.*;
  * @author Symphorien Wanko
  * @author Lubomir Marinov
  * @author Yana Stamcheva
+ * @author Emil Ivov
  */
 public class ProtocolProviderServiceJabberImpl
     extends AbstractProtocolProviderService
