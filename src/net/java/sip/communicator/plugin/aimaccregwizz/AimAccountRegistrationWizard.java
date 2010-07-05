@@ -99,7 +99,10 @@ public class AimAccountRegistrationWizard
     public Iterator<WizardPage> getPages()
     {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
-        firstWizardPage = new FirstWizardPage(this);
+
+        // If the first wizard page was already created
+        if (firstWizardPage == null)
+            firstWizardPage = new FirstWizardPage(this);
 
         pages.add(firstWizardPage);
 
@@ -171,6 +174,9 @@ public class AimAccountRegistrationWizard
         Hashtable<String, String> accountProperties
             = new Hashtable<String, String>();
 
+        accountProperties.put(  ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+                                "resources/images/protocol/aim/aim32x32.png");
+
         if (registration.isRememberPassword())
         {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
@@ -178,8 +184,7 @@ public class AimAccountRegistrationWizard
 
         if (isModification)
         {
-            providerFactory.modifyAccount(  protocolProvider,
-                accountProperties);
+            providerFactory.modifyAccount(protocolProvider, accountProperties);
 
             this.isModification  = false;
 
@@ -188,14 +193,14 @@ public class AimAccountRegistrationWizard
 
         try
         {
-            AccountID accountID =
-                providerFactory.installAccount(user, accountProperties);
+            AccountID accountID
+                = providerFactory.installAccount(user, accountProperties);
 
-            ServiceReference serRef =
-                providerFactory.getProviderForAccount(accountID);
+            ServiceReference serRef
+                = providerFactory.getProviderForAccount(accountID);
 
-            protocolProvider =
-                (ProtocolProviderService) AimAccRegWizzActivator.bundleContext
+            protocolProvider
+                = (ProtocolProviderService) AimAccRegWizzActivator.bundleContext
                     .getService(serRef);
         }
         catch (IllegalStateException exc)

@@ -21,11 +21,15 @@ import net.java.sip.communicator.util.*;
  */
 public class Account
 {
-    private final ProtocolProviderService protocolProvider;
+    private ProtocolProviderService protocolProvider;
+
+    private final AccountID accountID;
 
     private final String name;
 
     private final ImageIcon icon;
+
+    private boolean isEnabled;
 
     /**
      * Creates an <tt>Account</tt> instance from the given
@@ -37,9 +41,31 @@ public class Account
     {
         this.protocolProvider = protocolProvider;
 
-        this.name = protocolProvider.getAccountID().getDisplayName();
+        this.accountID = protocolProvider.getAccountID();
 
-        this.icon = this.getProtocolIcon();
+        this.name = accountID.getDisplayName();
+
+        this.icon = getProtocolIcon(protocolProvider);
+
+        this.isEnabled = accountID.isEnabled();
+    }
+
+    /**
+     * Creates an account object with the given <tt>accountName</tt> and
+     * <tt>icon</tt>.
+     * @param accountID the identifier of the account
+     */
+    public Account(AccountID accountID)
+    {
+        this.accountID = accountID;
+
+        this.name = accountID.getDisplayName();
+
+        this.icon = ImageLoader.getImageForPath(
+            accountID.getAccountPropertyString(
+                ProtocolProviderFactory.ACCOUNT_ICON_PATH));
+
+        this.isEnabled = accountID.isEnabled();
     }
 
     /**
@@ -52,6 +78,15 @@ public class Account
     }
 
     /**
+     * Returns the account identifier.
+     * @return the account identifier
+     */
+    public AccountID getAccountID()
+    {
+        return accountID;
+    }
+
+    /**
      * Returns the account name.
      * @return the account name
      */
@@ -61,10 +96,19 @@ public class Account
     }
 
     /**
+     * Returns the protocol name of the account.
+     * @return the protocol name of the account
+     */
+    public String getProtocolName()
+    {
+        return accountID.getProtocolDisplayName();
+    }
+
+    /**
      * The icon of the account.
      * @return the icon of the account
      */
-    public ImageIcon getIcon()
+    public Icon getIcon()
     {
         return icon;
     }
@@ -75,16 +119,41 @@ public class Account
      */
     public String getStatusName()
     {
-        return getAccountStatus(protocolProvider);
+        if (protocolProvider != null)
+            return getAccountStatus(protocolProvider);
+        else
+            return Constants.OFFLINE_STATUS;
     }
 
     /**
      * Returns the status icon of this account.
      * @return the status icon of this account
      */
-    public ImageIcon getStatusIcon()
+    public Icon getStatusIcon()
     {
-        return ImageLoader.getAccountStatusImage(protocolProvider);
+        if (protocolProvider != null)
+            return ImageLoader.getAccountStatusImage(protocolProvider);
+        else if (icon != null)
+        {
+            Image scaledImage
+                = ImageUtils.scaleImageWithinBounds(icon.getImage(), 16, 16);
+
+            if (scaledImage != null)
+                return new ImageIcon(
+                    GrayFilter.createDisabledImage(scaledImage));
+        }
+        return null;
+    }
+
+    /**
+     * Returns <tt>true</tt> to indicate that this account is enabled,
+     * <tt>false</tt> - otherwise.
+     * @return <tt>true</tt> to indicate that this account is enabled,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isEnabled()
+    {
+        return isEnabled;
     }
 
     /**
@@ -98,6 +167,12 @@ public class Account
     {
         String status;
 
+        // If our account doesn't have a registered protocol provider we return
+        // offline.
+        if (protocolProvider == null)
+            return GuiActivator.getResources()
+            .getI18NString("service.gui.OFFLINE");
+
         OperationSetPresence presence
             = protocolProvider.getOperationSet(OperationSetPresence.class);
 
@@ -107,13 +182,10 @@ public class Account
         }
         else
         {
-            status
-                = GuiActivator
-                    .getResources()
-                        .getI18NString(
-                            protocolProvider.isRegistered()
-                                ? "service.gui.ONLINE"
-                                : "service.gui.OFFLINE");
+            status = GuiActivator.getResources()
+                        .getI18NString( protocolProvider.isRegistered()
+                                        ? "service.gui.ONLINE"
+                                        : "service.gui.OFFLINE");
         }
 
         return status;
@@ -124,14 +196,15 @@ public class Account
      * otherwise tries to scale a bigger icon if available. If we didn't find
      * a bigger icon to scale, we return null.
      *
+     * @param protocolProvider the protocol provider, which icon we're looking
+     * for
      * @return the protocol icon
      */
-    private ImageIcon getProtocolIcon()
+    private ImageIcon getProtocolIcon(ProtocolProviderService protocolProvider)
     {
         ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
         Image protocolImage
-            = ImageLoader
-                .getBytesInImage(
+            = ImageLoader.getBytesInImage(
                     protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_32x32));
 
         if (protocolImage != null)
@@ -140,10 +213,9 @@ public class Account
         }
         else
         {
-            protocolImage
-                = ImageLoader
-                    .getBytesInImage(
-                        protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
+            protocolImage = ImageLoader.getBytesInImage(
+                protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
+
             if (protocolImage == null)
                 protocolImage
                     = ImageLoader
@@ -155,5 +227,25 @@ public class Account
         }
 
         return null;
+    }
+
+    /**
+     * Sets the given <tt>protocolProvider</tt> to this account.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>
+     * corresponding to this account
+     */
+    public void setProtocolProvider(ProtocolProviderService protocolProvider)
+    {
+        this.protocolProvider = protocolProvider;
+    }
+
+    /**
+     * Sets the <tt>isDisabled</tt> property.
+     * @param isEnabled indicates if this account is currently
+     * <tt>disabled</tt>
+     */
+    public void setEnabled(boolean isEnabled)
+    {
+        this.isEnabled = isEnabled;
     }
 }

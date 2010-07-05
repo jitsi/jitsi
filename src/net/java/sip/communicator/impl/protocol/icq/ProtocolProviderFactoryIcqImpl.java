@@ -66,7 +66,7 @@ public class ProtocolProviderFactoryIcqImpl
         // we are installing new aim account from the wizzard, so mark it as aim
         if(isAimFactory)
             accountProperties.put(IcqAccountID.IS_AIM, "true");
-        
+
         AccountID accountID = new IcqAccountID(userIDStr, accountProperties);
 
         //make sure we haven't seen this account id before.
@@ -107,6 +107,29 @@ public class ProtocolProviderFactoryIcqImpl
         }
 
         return super.loadAccount(accountProperties);
+    }
+
+    /**
+     * Initializes and creates an account corresponding to the specified
+     * accountProperties.
+     * 
+     * @param accountProperties a set of protocol (or implementation) specific
+     * properties defining the new account.
+     * @return the AccountID of the newly created account
+     */
+    public AccountID createAccount(Map<String, String> accountProperties)
+    {
+        // there are two factories - one for icq accounts and one for aim ones.
+        // if we are trying to load an icq account in aim factory - skip it
+        // and the same for aim accounts in icq factory
+        boolean accountPropertiesIsAIM = IcqAccountID.isAIM(accountProperties);
+        if ((accountPropertiesIsAIM && !isAimFactory)
+            || (!accountPropertiesIsAIM && isAimFactory))
+        {
+            return null;
+        }
+
+        return super.createAccount(accountProperties);
     }
 
     protected AccountID createAccountID(String userID, Map<String, String> accountProperties)

@@ -46,6 +46,13 @@ public abstract class ProtocolProviderFactory
     public static final String PROTOCOL_ICON_PATH = "PROTOCOL_ICON_PATH";
 
     /**
+     * The name of a property representing the path to the account icon to
+     * be used in the user interface, when the protocol provider service is not
+     * available.
+     */
+    public static final String ACCOUNT_ICON_PATH = "ACCOUNT_ICON_PATH";
+
+    /**
      * The name of a property which represents the AccountID of a
      * ProtocolProvider and that, together with a password is used to login
      * on the protocol network..
@@ -236,6 +243,12 @@ public abstract class ProtocolProviderFactory
     public static final String IS_PROTOCOL_HIDDEN = "IS_PROTOCOL_HIDDEN";
 
     /**
+     * The name of the property that would indicate if a given account is
+     * currently enabled or disabled.
+     */
+    public static final String IS_ACCOUNT_DISABLED = "IS_ACCOUNT_DISABLED";
+
+    /**
      * The <code>BundleContext</code> containing (or to contain) the service
      * registration of this factory.
      */
@@ -255,8 +268,8 @@ public abstract class ProtocolProviderFactory
      * achieved by also hiding it from protected into private access.
      * </p>
      */
-    protected final Hashtable<AccountID, ServiceRegistration> registeredAccounts =
-        new Hashtable<AccountID, ServiceRegistration>();
+    protected final Hashtable<AccountID, ServiceRegistration> registeredAccounts
+        = new Hashtable<AccountID, ServiceRegistration>();
 
     protected ProtocolProviderFactory(BundleContext bundleContext,
         String protocolName)
@@ -409,7 +422,7 @@ public abstract class ProtocolProviderFactory
         // Kill the service.
         registration.unregister();
 
-        return removeStoredAccount(bundleContext, accountID);
+        return removeStoredAccount(accountID);
     }
 
     /**
@@ -569,6 +582,111 @@ public abstract class ProtocolProviderFactory
      */
     public AccountID loadAccount(Map<String, String> accountProperties)
     {
+        AccountID accountID = createAccount(accountProperties);
+
+        loadAccount(accountID);
+
+        return accountID;
+    }
+
+    /**
+     * Creates a protocol provider for the given <tt>accountID</tt> and
+     * registers it in the bundle context. This method has a persistent
+     * effect. Once created the resulting account will remain installed until
+     * removed through the uninstallAccount method.
+     * 
+     * @param accountID the account identifier
+     * @return <tt>true</tt> if the account with the given <tt>accountID</tt> is
+     * successfully loaded, otherwise returns <tt>false</tt>
+     */
+    public boolean loadAccount(AccountID accountID)
+    {
+        String userID = accountID.getUserID();
+
+        ProtocolProviderService service = createService(userID, accountID);
+
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+        properties.put(PROTOCOL, protocolName);
+        properties.put(USER_ID, userID);
+
+        ServiceRegistration serviceRegistration =
+            bundleContext.registerService(ProtocolProviderService.class
+                .getName(), service, properties);
+
+        if (serviceRegistration == null)
+        {
+            return false;
+        }
+
+        synchronized (registeredAccounts)
+        {
+            registeredAccounts.put(accountID, serviceRegistration);
+        }
+
+        return true;
+    }
+
+    /**
+     * Unloads the account corresponding to the given <tt>accountID</tt>.
+     * Unregisters the corresponding protocol provider, but keeps the account in
+     * contrast to the uninstallAccount method.
+     * 
+     * @param accountID the account identifier
+     * @return true if an account with the specified ID existed and was unloaded
+     * and false otherwise.
+     */
+    public boolean unloadAccount(AccountID accountID)
+    {
+        // Unregister the protocol provider.
+        ServiceReference serRef = getProviderForAccount(accountID);
+
+        if (serRef == null)
+        {
+            return false;
+        }
+
+        BundleContext bundleContext = getBundleContext();
+        ProtocolProviderService protocolProvider =
+            (ProtocolProviderService) bundleContext.getService(serRef);
+
+        try
+        {
+            protocolProvider.unregister();
+        }
+        catch (OperationFailedException ex)
+        {
+            logger
+                .error("Failed to unregister protocol provider for account : "
+                    + accountID + " caused by: " + ex);
+        }
+
+        ServiceRegistration registration;
+
+        synchronized (registeredAccounts)
+        {
+            registration = registeredAccounts.remove(accountID);
+        }
+        if (registration == null)
+        {
+            return false;
+        }
+
+        // Kill the service.
+        registration.unregister();
+
+        return true;
+    }
+
+    /**
+     * Initializes and creates an account corresponding to the specified
+     * accountProperties.
+     * 
+     * @param accountProperties a set of protocol (or implementation) specific
+     * properties defining the new account.
+     * @return the AccountID of the newly created account
+     */
+    public AccountID createAccount(Map<String, String> accountProperties)
+    {
         BundleContext bundleContext = getBundleContext();
         if (bundleContext == null)
             throw new NullPointerException(
@@ -587,24 +705,7 @@ public abstract class ProtocolProviderFactory
         if (!accountProperties.containsKey(PROTOCOL))
             accountProperties.put(PROTOCOL, protocolName);
 
-        AccountID accountID = createAccountID(userID, accountProperties);
-
-        ProtocolProviderService service = createService(userID, accountID);
-
-        Dictionary<String, String> properties = new Hashtable<String, String>();
-        properties.put(PROTOCOL, protocolName);
-        properties.put(USER_ID, userID);
-
-        ServiceRegistration serviceRegistration =
-            bundleContext.registerService(ProtocolProviderService.class
-                .getName(), service, properties);
-
-        synchronized (registeredAccounts)
-        {
-            registeredAccounts.put(accountID, serviceRegistration);
-        }
-
-        return accountID;
+        return createAccountID(userID, accountProperties);
     }
 
     /**
@@ -664,60 +765,14 @@ public abstract class ProtocolProviderFactory
     /**
      * Removes the account with <tt>accountID</tt> from the set of accounts
      * that are persistently stored inside the configuration service.
-     * <p>
-     * @param bundleContext a currently valid bundle context.
+     *
      * @param accountID the AccountID of the account to remove.
-     * <p>
+     *
      * @return true if an account has been removed and false otherwise.
      */
-    protected boolean removeStoredAccount(BundleContext bundleContext,
-                                          AccountID     accountID)
+    protected boolean removeStoredAccount(AccountID accountID)
     {
-        String sourcePackageName = getFactoryImplPackageName();
-
-        ServiceReference confReference
-            = bundleContext.getServiceReference(
-                ConfigurationService.class.getName());
-        ConfigurationService configurationService
-            = (ConfigurationService) bundleContext.getService(confReference);
-
-        //first retrieve all accounts that we've registered
-        List<String> storedAccounts = configurationService.getPropertyNamesByPrefix(
-            sourcePackageName, true);
-
-        //find an account with the corresponding id.
-        for (String accountRootPropertyName : storedAccounts)
-        {
-            //unregister the account in the configuration service.
-            //all the properties must have been registered in the following
-            //hierarchy:
-            //net.java.sip.communicator.impl.protocol.PROTO_NAME.ACC_ID.PROP_NAME
-            String accountUID = configurationService.getString(
-                accountRootPropertyName //node id
-                + "." + ACCOUNT_UID); // propname
-
-            if (accountUID.equals(accountID.getAccountUniqueID()))
-            {
-                //retrieve the names of all properties registered for the
-                //current account.
-                List<String> accountPropertyNames
-                    = configurationService.getPropertyNamesByPrefix(
-                        accountRootPropertyName, false);
-
-                //set all account properties to null in order to remove them.
-                for (String propName : accountPropertyNames)
-                {
-                    configurationService.setProperty(propName, null);
-                }
-
-                //and now remove the parent too.
-                configurationService.setProperty(
-                    accountRootPropertyName, null);
-
-                return true;
-            }
-        }
-        return false;
+        return getAccountManager().removeStoredAccount(this, accountID);
     }
 
     /**

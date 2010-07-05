@@ -33,7 +33,13 @@ public class ProtocolIconSipImpl
      */
     private Hashtable<String, byte[]> iconsTable
         = new Hashtable<String, byte[]>();
-    
+
+    /**
+     * A hash table containing the path to the  protocol icon in different sizes.
+     */
+    private Hashtable<String, String> iconPathsTable
+        = new Hashtable<String, String>();
+
     private static ResourceManagementService resourcesService;
 
     /**
@@ -58,6 +64,17 @@ public class ProtocolIconSipImpl
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
             loadIcon(iconPath + "/sip64x64.png"));
 
+        iconPathsTable.put(ProtocolIcon.ICON_SIZE_16x16,
+            iconPath + "/sip16x16.png");
+
+        iconPathsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            iconPath + "/sip32x32.png");
+
+        iconPathsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+            iconPath + "/sip48x48.png");
+
+        iconPathsTable.put(ProtocolIcon.ICON_SIZE_64x64,
+            iconPath + "/sip64x64.png");
     }
 
     /**
@@ -94,6 +111,16 @@ public class ProtocolIconSipImpl
     public byte[] getIcon(String iconSize)
     {
         return iconsTable.get(iconSize);
+    }
+
+    /**
+     * Returns a path to the icon with the given size.
+     * @param iconSize the size of the icon we're looking for
+     * @return the path to the icon with the given size
+     */
+    public String getIconPath(String iconSize)
+    {
+        return iconPathsTable.get(iconSize);
     }
 
     /**

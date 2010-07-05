@@ -48,7 +48,31 @@ public class ProtocolIconGibberishImpl
         iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
             getImageInBytes("service.protocol.gibberish.GIBBERISH_64x64"));
     }
-        
+
+    /**
+     * A hash table containing the path to the protocol icon in different sizes.
+     */
+    private static Hashtable<String, String> iconPathsTable
+        = new Hashtable<String, String>();
+    static
+    {
+        iconPathsTable.put(ProtocolIcon.ICON_SIZE_16x16,
+            getResources().getImagePath(
+                "service.protocol.gibberish.GIBBERISH_16x16"));
+
+        iconPathsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            getResources().getImagePath(
+                "service.protocol.gibberish.GIBBERISH_32x32"));
+
+        iconPathsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+            getResources().getImagePath(
+                "service.protocol.gibberish.GIBBERISH_48x48"));
+
+        iconPathsTable.put(ProtocolIcon.ICON_SIZE_64x64,
+            getResources().getImagePath(
+                "service.protocol.gibberish.GIBBERISH_64x64"));
+    }
+
     /**
      * Implements the <tt>ProtocolIcon.getSupportedSizes()</tt> method. Returns
      * an iterator to a set containing the supported icon sizes.
@@ -75,7 +99,17 @@ public class ProtocolIconGibberishImpl
     {
         return iconsTable.get(iconSize);
     }
-    
+
+    /**
+     * Returns a path to the icon with the given size.
+     * @param iconSize the size of the icon we're looking for
+     * @return the path to the icon with the given size
+     */
+    public String getIconPath(String iconSize)
+    {
+        return iconPathsTable.get(iconSize);
+    }
+
     /**
      * Returns the icon image used to represent the protocol connecting state.
      * @return the icon image used to represent the protocol connecting state

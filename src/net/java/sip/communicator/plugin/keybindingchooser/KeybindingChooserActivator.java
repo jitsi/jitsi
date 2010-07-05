@@ -20,49 +20,67 @@ import org.osgi.framework.*;
 public class KeybindingChooserActivator
     implements BundleActivator
 {
+    /**
+     * The logger.
+     */
     private static final Logger logger =
         Logger.getLogger(KeybindingChooserActivator.class);
 
+    /**
+     * The bundle context.
+     */
     private static BundleContext bundleContext;
 
+    /**
+     * The service used to obtain resources.
+     */
     public static ResourceManagementService resourcesService;
 
     /**
-     * Called when this bundle is started.
-     * 
-     * @param context The execution context of the bundle being started.
+     * Starts this bundle and adds the
+     * <td>KeybindingsConfigPanel</tt> contained in it to the configuration
+     * window obtained from the <tt>UIService</tt>.
+     * @param bc the <tt>BundleContext</tt>
      */
-    public void start(BundleContext context)
+    public void start(BundleContext bc)
     {
-        bundleContext = context;
+        bundleContext = bc;
 
         if (logger.isDebugEnabled())
             logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
 
-        context
-            .registerService(
-                ConfigurationForm.class.getName(),
-                new LazyConfigurationForm(
-                    "net.java.sip.communicator.plugin.keybindingchooser.KeybindingsConfigPanel",
-                    getClass().getClassLoader(),
-                    "plugin.keybinding.PLUGIN_ICON",
-                    "plugin.keybindings.PLUGIN_NAME",
-                    900),
-                null);
+        bc.registerService(
+            ConfigurationForm.class.getName(),
+            new LazyConfigurationForm(
+                "net.java.sip.communicator.plugin.keybindingchooser.KeybindingsConfigPanel",
+                getClass().getClassLoader(),
+                "plugin.keybinding.PLUGIN_ICON",
+                "plugin.keybindings.PLUGIN_NAME",
+                900, true),
+            null);
     }
 
     /**
      * Stops this bundles.
+     * @param bc the <tt>BundleContext</tt>
+     * @throws Exception if one of the operation executed in the stop method
+     * fails
      */
-    public void stop(BundleContext arg0) throws Exception
-    {
-    }
+    public void stop(BundleContext bc) throws Exception {}
 
+    /**
+     * Returns the bundle context.
+     * @return the bundle context
+     */
     public static BundleContext getBundleContext()
     {
         return bundleContext;
     }
 
+    /**
+     * Returns the resources service.
+     * @return the resources service
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

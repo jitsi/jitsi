@@ -46,8 +46,6 @@ public class GlobalProxyPluginActivator implements BundleActivator
     {
         bundleContext = bc;
 
-        GlobalProxyConfigForm proxyConfigForm = new GlobalProxyConfigForm();
-
         bundleContext.registerService(
             ConfigurationForm.class.getName(),
             new LazyConfigurationForm(
@@ -55,7 +53,7 @@ public class GlobalProxyPluginActivator implements BundleActivator
                 getClass().getClassLoader(),
                 "plugin.globalproxy.PLUGIN_ICON",
                 "plugin.globalproxy.GLOBAL_PROXY_CONFIG",
-                51),
+                51, true),
             null);
 
         initProperties();

@@ -68,7 +68,6 @@ public class FirstWizardPage
      */
     public FirstWizardPage(FacebookAccountRegistrationWizard wizard)
     {
-
         super(new BorderLayout());
 
         this.wizard = wizard;

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.contactlist;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.fileaccess.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -24,6 +25,8 @@ public class ContactlistActivator
     private MetaContactListServiceImpl mclServiceImpl  = null;
 
     private static FileAccessService fileAccessService;
+
+    private static AccountManager accountManager;
 
     private static BundleContext bundleContext;
 
@@ -88,5 +91,23 @@ public class ContactlistActivator
         }
 
         return fileAccessService;
+    }
+
+    /**
+     * Returns the <tt>AccountManager</tt> obtained from the bundle context.
+     * @return the <tt>AccountManager</tt> obtained from the bundle context
+     */
+    public static AccountManager getAccountManager()
+    {
+        if(accountManager == null)
+        {
+            ServiceReference accountManagerRef = bundleContext
+                .getServiceReference(AccountManager.class.getName());
+
+            accountManager = (AccountManager) bundleContext
+                .getService(accountManagerRef);
+        }
+
+        return accountManager;
     }
 }

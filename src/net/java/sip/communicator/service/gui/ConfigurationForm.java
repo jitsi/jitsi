@@ -17,8 +17,8 @@ package net.java.sip.communicator.service.gui;
  * 
  * @author Yana Stamcheva
  */
-public interface ConfigurationForm {
-
+public interface ConfigurationForm
+{
     /**
      * Returns the title of this configuration form.
      * @return the title of this configuration form
@@ -54,4 +54,11 @@ public interface ConfigurationForm {
      * @return the index of this configuration form in the configuration window.
      */
     public int getIndex();
+
+    /**
+     * Indicates if this is an advanced configuration form.
+     * @return <tt>true</tt> if this is an advanced configuration form,
+     * otherwise it returns <tt>false</tt>
+     */
+    public boolean isAdvanced();
 }

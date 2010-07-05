@@ -899,8 +899,7 @@
         bundle-pluginmanager,bundle-notification,bundle-notification-config,
         bundle-ssh,bundle-plugin-sshaccregwizz,
         bundle-contacteventhandler,bundle-plugin-contactinfo,
-        bundle-plugin-accountinfo,bundle-plugin-chatalerter,
-        bundle-plugin-autoaway, bundle-keybindings,
+        bundle-plugin-accountinfo,bundle-plugin-chatalerter, bundle-keybindings,
         bundle-plugin-keybindingChooser,bundle-plugin-globalproxyconfig,
         bundle-jfontchooserlib,
         bundle-updatecheckplugin,
@@ -911,7 +910,8 @@
         bundle-filehistory,bundle-metahistory,bundle-metahistory-slick,
         bundle-plugin-facebookaccregwizz,
         bundle-bouncycastle,bundle-plugin-otr,bundle-plugin-iptelaccregwizz,
-        bundle-contactsource,bundle-plugin-reconnect"/>
+        bundle-contactsource,bundle-plugin-reconnect,
+        bundle-plugin-securityconfig,bundle-plugin-advancedconfig"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2060,15 +2060,6 @@ org.apache.http.util"/>
         </jar>
     </target>
 
-    <!--BUNDLE-AutoAwayPlugin-->
-    <target name="bundle-plugin-autoaway">
-        <jar compress="false" destfile="${bundles.dest}/autoaway.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/autoaway/autoaway.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/autoaway"
-                prefix="net/java/sip/communicator/plugin/autoaway" />
-        </jar>
-    </target>
-
    <!--BUNDLE-PLUGIN-PROFILER-->
    <target name="bundle-plugin-profiler4j">
         <jar compress="false" destfile="${bundles.dest}/profiler4j.jar"
@@ -2113,7 +2104,6 @@ org.apache.http.util"/>
                 prefix="net/java/sip/communicator/impl/keybindings"/>
             <zipfileset dir="${resources}/config/defaultkeybindings"
                 prefix="resources/config/defaultkeybindings"/>
-            <zipfileset src="${lib.noinst}/KeybindingUtil.jar" prefix=""/>
         </jar>
     </target>
 
@@ -2125,7 +2115,6 @@ org.apache.http.util"/>
                 prefix="net/java/sip/communicator/plugin/keybindingchooser"/>
             <zipfileset dir="${resources}/images/plugin/keybindingchooser"
                 prefix="resources/images/plugin/keybindingchooser"/>
-            <zipfileset src="${lib.noinst}/KeybindingUtil.jar" prefix=""/>
         </jar>
     </target>
 
@@ -2285,7 +2274,6 @@ org.apache.http.util"/>
         <jar compress="false" destfile="${bundles.dest}/otr.jar" manifest="${src}/net/java/sip/communicator/plugin/otr/otr.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/otr"
                 prefix="net/java/sip/communicator/plugin/otr"/>
-            <zipfileset src="${lib.noinst}/otr4j.jar"/>
         </jar>
     </target>
     <!--BUNDLE-METAHISTORY-SLICK-->
@@ -2324,6 +2312,26 @@ org.apache.http.util"/>
             manifest="${src}/net/java/sip/communicator/plugin/reconnectplugin/reconnectplugin.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/reconnectplugin"
                 prefix="net/java/sip/communicator/plugin/reconnectplugin"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-SECURITYCONFIG -->
+    <target name="bundle-plugin-securityconfig">
+        <!-- Creates a bundle for the reconnect plugin.-->
+        <jar compress="false" destfile="${bundles.dest}/securityconfig.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/securityconfig/securityconfig.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/securityconfig"
+                prefix="net/java/sip/communicator/plugin/securityconfig"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-ADVANCEDCONFIG -->
+    <target name="bundle-plugin-advancedconfig">
+        <!-- Creates a bundle for the reconnect plugin.-->
+        <jar compress="false" destfile="${bundles.dest}/advancedconfig.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/advancedconfig/advancedconfig.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/advancedconfig"
+                prefix="net/java/sip/communicator/plugin/advancedconfig"/>
         </jar>
     </target>
 </project>

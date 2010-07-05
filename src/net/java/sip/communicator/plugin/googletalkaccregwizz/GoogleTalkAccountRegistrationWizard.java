@@ -201,6 +201,9 @@ public class GoogleTalkAccountRegistrationWizard
             .put(ProtocolProviderFactory.PROTOCOL_ICON_PATH,
                 "resources/images/protocol/googletalk");
 
+        accountProperties.put(ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+                "resources/images/protocol/googletalk/logo32x32.png");
+
         if (registration.isRememberPassword())
         {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);

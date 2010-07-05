@@ -163,9 +163,11 @@ public class GibberishAccountRegistrationWizard
         String user)
         throws OperationFailedException
     {
-
         Hashtable<String, String> accountProperties 
             = new Hashtable<String, String>();
+
+        accountProperties.put(ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+            "resources/images/protocol/gibberish/gibberish32x32.png");
 
         if (registration.isRememberPassword())
         {

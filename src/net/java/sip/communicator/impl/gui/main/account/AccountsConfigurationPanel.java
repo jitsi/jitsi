@@ -194,17 +194,20 @@ public class AccountsConfigurationPanel
      */
     private void updateButtons()
     {
-        boolean enabled = (accountList.getSelectedAccount() != null);
+        Account account = accountList.getSelectedAccount();
+        boolean enabled = (account != null);
 
-        editButton.setEnabled(enabled);
+        editButton.setEnabled(enabled && account.isEnabled());
         removeButton.setEnabled(enabled);
     }
 
-    /*
+    /**
      * Implements ListSelectionListener#valueChanged(ListSelectionEvent).
+     * @param e the <tt>ListSelectionEvent</tt> that notified us
      */
     public void valueChanged(ListSelectionEvent e)
     {
-        updateButtons();
+        if (!e.getValueIsAdjusting())
+            updateButtons();
     }
 }

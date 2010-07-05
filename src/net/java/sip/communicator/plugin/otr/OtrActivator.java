@@ -29,14 +29,15 @@ public class OtrActivator
     private OtrTransformLayer otrTransformLayer;
 
     /**
-     * The {@link ScOtrEngine} of the {@link OtrActivator}.
+     * The {@link OtrEngineService} of the {@link OtrActivator}.
      */
-    public static ScOtrEngine scOtrEngine;
+    public static OtrEngineService scOtrEngine;
 
     /**
-     * The {@link ScOtrKeyManager} of the {@link OtrActivator}.
+     * The {@link OtrKeyManagerService} of the {@link OtrActivator}.
      */
-    public static ScOtrKeyManager scOtrKeyManager = new ScOtrKeyManagerImpl();
+    public static OtrKeyManagerService scOtrKeyManager
+        = new OtrKeyManagerServiceImpl();
 
     /**
      * The {@link ResourceManagementService} of the {@link OtrActivator}. Can
@@ -69,7 +70,7 @@ public class OtrActivator
         bundleContext = bc;
 
         // Init static variables, don't proceed without them.
-        scOtrEngine = new ScOtrEngineImpl();
+        scOtrEngine = new OtrEngineServiceImpl();
         otrTransformLayer = new OtrTransformLayer();
 
         resourceService =
@@ -130,6 +131,14 @@ public class OtrActivator
             }
         }
 
+        // Register the Otr engine service.
+        bundleContext.registerService(  OtrEngineService.class.getName(),
+                                        scOtrEngine, null);
+
+        // Register the Otr key manager service.
+        bundleContext.registerService(  OtrKeyManagerService.class.getName(),
+                                        scOtrKeyManager, null);
+
         Hashtable<String, String> containerFilter =
             new Hashtable<String, String>();
 
@@ -158,13 +167,6 @@ public class OtrActivator
         bundleContext.registerService(PluginComponent.class.getName(),
             new OtrMetaContactButton(Container.CONTAINER_CHAT_TOOL_BAR),
             containerFilter);
-
-        // Register the configuration form.
-        bundleContext.registerService(ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                "net.java.sip.communicator.plugin.otr.OtrConfigurationPanel",
-                getClass().getClassLoader(), "plugin.otr.configform.ICON",
-                "plugin.otr.configform.TITLE", 30), null);
     }
 
     private ServiceRegistration regRightClickMenu;
@@ -286,32 +288,6 @@ public class OtrActivator
             this.handleProviderRemoved((ProtocolProviderService) sService);
         }
 
-    }
-
-    /**
-     * Gets all the available accounts in SIP Communicator.
-     * 
-     * @return a {@link List} of {@link AccountID}.
-     */
-    public static List<AccountID> getAllAccountIDs()
-    {
-        Map<Object, ProtocolProviderFactory> providerFactoriesMap =
-            OtrActivator.getProtocolProviderFactories();
-
-        if (providerFactoriesMap == null)
-            return null;
-
-        List<AccountID> accountIDs = new Vector<AccountID>();
-        for (ProtocolProviderFactory providerFactory : providerFactoriesMap
-            .values())
-        {
-            for (AccountID accountID : providerFactory.getRegisteredAccounts())
-            {
-                accountIDs.add(accountID);
-            }
-        }
-
-        return accountIDs;
     }
 
     /**

@@ -27,30 +27,24 @@ import net.java.sip.communicator.util.swing.*;
  * @author Lubomir Marinov
  * @author Damian Minkov
  */
-public class MediaConfigurationPanel
-    extends TransparentPanel
+public class MediaConfiguration
 {
-    /**
-     * The horizontal gap between components.
-     */
-    private static final int HGAP = 5;
-
-    /**
-     * The vertical gap between the components.
-     */
-    private static final int VGAP = 5;
-
     /**
      * The logger.
      */
-    private final Logger logger
-        = Logger.getLogger(MediaConfigurationPanel.class);
+    private static final Logger logger
+        = Logger.getLogger(MediaConfiguration.class);
 
     /**
      * The current instance of the media service.
      */
-    private final MediaServiceImpl mediaService =
-        NeomediaActivator.getMediaServiceImpl();
+    private static final MediaServiceImpl mediaService
+        = NeomediaActivator.getMediaServiceImpl();
+
+    /**
+     * The preferred width of all panels.
+     */
+    private final static int WIDTH = 350;
 
     /**
      * The video <code>CaptureDeviceInfo</code> this instance started to create
@@ -62,30 +56,30 @@ public class MediaConfigurationPanel
      * (as is the case with LTI-CIVIL and video4linux2).
      * </p>
      */
-    private CaptureDeviceInfo videoDeviceInPreview;
+    private static CaptureDeviceInfo videoDeviceInPreview;
 
     /**
      * The <code>Player</code> depicting the preview of the currently selected
      * <code>CaptureDeviceInfo</code>.
      */
-    private Player videoPlayerInPreview;
+    private static Player videoPlayerInPreview;
 
     /**
-     * Creates the panel.
+     * Returns the audio configuration panel.
+     * @return the audio configuration panel
      */
-    public MediaConfigurationPanel()
+    public static Component createAudioConfigPanel()
     {
-        super(new GridLayout(0, 1, HGAP, VGAP));
+        return createControls(DeviceConfigurationComboBoxModel.AUDIO);
+    }
 
-        int[] types
-            = new int[]
-                    {
-                        DeviceConfigurationComboBoxModel.AUDIO,
-                        DeviceConfigurationComboBoxModel.VIDEO
-                    };
-
-        for (int type : types)
-            add(createControls(type));
+    /**
+     * Returns the video configuration panel.
+     * @return the video configuration panel
+     */
+    public static Component createVideoConfigPanel()
+    {
+        return createControls(DeviceConfigurationComboBoxModel.VIDEO);
     }
 
     /**
@@ -93,7 +87,7 @@ public class MediaConfigurationPanel
      * @param event the event when player has ready visual component.
      * @param videoContainer the container.
      */
-    private void controllerUpdateForPreview(ControllerEvent event,
+    private static void controllerUpdateForPreview(ControllerEvent event,
         Container videoContainer)
     {
         if (event instanceof ConfigureCompleteEvent)
@@ -150,10 +144,8 @@ public class MediaConfigurationPanel
     /**
      * Creates the ui controls for portaudio.
      * @param portAudioPanel the panel
-     * @param parentPanel the parent panel
      */
-    private void createPortAudioControls(
-        JPanel portAudioPanel, JPanel parentPanel)
+    private static void createPortAudioControls(JPanel portAudioPanel)
     {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -239,7 +231,7 @@ public class MediaConfigurationPanel
         });
         portAudioPanel.add(denoiseCheckBox, constraints);
 
-        parentPanel.setBorder(
+        portAudioPanel.setBorder(
                 BorderFactory.createTitledBorder(
                         NeomediaActivator.getResources().getI18NString(
                         "impl.media.configform.DEVICES")));
@@ -250,15 +242,13 @@ public class MediaConfigurationPanel
      * @param type the type.
      * @return the build Component.
      */
-    private Component createControls(int type)
+    private static Component createControls(int type)
     {
         final JComboBox comboBox = new JComboBox();
         comboBox.setEditable(false);
-        comboBox
-            .setModel(
-                new DeviceConfigurationComboBoxModel(
-                        mediaService.getDeviceConfiguration(),
-                        type));
+        comboBox.setModel(  new DeviceConfigurationComboBoxModel(
+                                mediaService.getDeviceConfiguration(),
+                            type));
 
         /*
          * We provide additional configuration properties for PortAudio such as
@@ -266,12 +256,12 @@ public class MediaConfigurationPanel
          * of notifications.
          */
         final JPanel portAudioPanel;
-        final JPanel portAudioParentPanel;
         if (type == DeviceConfigurationComboBoxModel.AUDIO)
         {
-            portAudioPanel
-                = new TransparentPanel(new GridBagLayout());
-            portAudioParentPanel = new TransparentPanel(new BorderLayout());
+            portAudioPanel = new TransparentPanel(new GridBagLayout());
+
+            portAudioPanel.setPreferredSize(new Dimension(WIDTH, 200));
+            portAudioPanel.setMaximumSize(new Dimension(WIDTH, 200));
 
             comboBox.addItemListener(new ItemListener()
             {
@@ -282,58 +272,47 @@ public class MediaConfigurationPanel
                         if(DeviceConfiguration
                                 .AUDIO_SYSTEM_PORTAUDIO.equals(e.getItem()))
                         {
-                            createPortAudioControls(
-                                portAudioPanel, portAudioParentPanel);
+                            createPortAudioControls(portAudioPanel);
                         }
                         else
                         {
                             portAudioPanel.removeAll();
-                            portAudioParentPanel.setBorder(null);
 
-                            revalidate();
-                            repaint();
+                            portAudioPanel.revalidate();
+                            portAudioPanel.repaint();
                         }
                     }
                 }
             });
-            if(comboBox
-                    .getSelectedItem()
-                        .equals(DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
-                createPortAudioControls(portAudioPanel, portAudioParentPanel);
+            if(comboBox.getSelectedItem()
+                .equals(DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
+                createPortAudioControls(portAudioPanel);
         }
         else
         {
             portAudioPanel = null;
-            portAudioParentPanel = null;
         }
 
         JLabel label = new JLabel(getLabelText(type));
         label.setDisplayedMnemonic(getDisplayedMnemonic(type));
         label.setLabelFor(comboBox);
 
-        Container firstContainer = new TransparentPanel(new GridBagLayout());
-        GridBagConstraints firstConstraints = new GridBagConstraints();
-        firstConstraints.anchor = GridBagConstraints.NORTHWEST;
-        firstConstraints.gridx = 0;
-        firstConstraints.gridy = 0;
-        firstConstraints.weightx = 0;
-        firstContainer.add(label, firstConstraints);
-        firstConstraints.gridx = 1;
-        firstConstraints.weightx = 1;
-        firstContainer.add(comboBox, firstConstraints);
+        Container firstContainer
+            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+        firstContainer.setMaximumSize(new Dimension(WIDTH, 25));
+        firstContainer.add(label);
+        firstContainer.add(comboBox);
 
-        Container secondContainer =
-            new TransparentPanel(new GridLayout(1, 0, HGAP, VGAP));
+        JPanel secondContainer = new TransparentPanel();
+
+        secondContainer.setLayout(
+            new BoxLayout(secondContainer, BoxLayout.Y_AXIS));
 
         // if creating controls for audio will add devices panel
         // otherwise it is video controls and will add preview panel
         if (portAudioPanel != null)
         {
-            // add portAudioPanel in new panel on north, as for some reason
-            // anchor = GridBagConstraints.NORTHWEST doesn't work
-            // and all components are vertically centered
-            portAudioParentPanel.add(portAudioPanel, BorderLayout.NORTH);
-            secondContainer.add(portAudioParentPanel);
+            secondContainer.add(portAudioPanel);
         }
         else
         {
@@ -343,18 +322,9 @@ public class MediaConfigurationPanel
 
         secondContainer.add(createEncodingControls(type));
 
-        Container container = new TransparentPanel(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.weightx = 1;
-        constraints.weighty = 0;
-        container.add(firstContainer, constraints);
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.gridy = 1;
-        constraints.weighty = 1;
-        container.add(secondContainer, constraints);
+        JPanel container = new TransparentPanel(new BorderLayout());
+        container.add(firstContainer, BorderLayout.NORTH);
+        container.add(secondContainer, BorderLayout.CENTER);
 
         return container;
     }
@@ -364,7 +334,7 @@ public class MediaConfigurationPanel
      * @param type the type
      * @return the component.
      */
-    private Component createEncodingControls(int type)
+    private static Component createEncodingControls(int type)
     {
         ResourceManagementService resources = NeomediaActivator.getResources();
         String key;
@@ -392,32 +362,16 @@ public class MediaConfigurationPanel
         buttonBar.add(upButton);
         buttonBar.add(downButton);
 
-        Container container = new TransparentPanel(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.anchor = GridBagConstraints.NORTHWEST;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridwidth = 2;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.weightx = 0;
-        constraints.weighty = 0;
-        container.add(label, constraints);
-        constraints.anchor = GridBagConstraints.CENTER;
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.gridwidth = 1;
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        constraints.weightx = 1;
-        constraints.weighty = 1;
-        container.add(new JScrollPane(table), constraints);
-        constraints.anchor = GridBagConstraints.NORTHEAST;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.gridwidth = 1;
-        constraints.gridx = 1;
-        constraints.gridy = 1;
-        constraints.weightx = 0;
-        constraints.weighty = 0;
-        container.add(buttonBar, constraints);
+        Container parentButtonBar = new TransparentPanel(new BorderLayout());
+        parentButtonBar.add(buttonBar, BorderLayout.NORTH);
+
+        Container container = new TransparentPanel(new BorderLayout());
+        container.setPreferredSize(new Dimension(WIDTH, 100));
+        container.setMaximumSize(new Dimension(WIDTH, 100));
+
+        container.add(label, BorderLayout.NORTH);
+        container.add(new JScrollPane(table), BorderLayout.CENTER);
+        container.add(parentButtonBar, BorderLayout.EAST);
 
         table.setModel(new EncodingConfigurationTableModel(mediaService
             .getEncodingConfiguration(), type));
@@ -484,7 +438,7 @@ public class MediaConfigurationPanel
      * @throws IOException a problem accessing the device.
      * @throws MediaException a problem getting preview.
      */
-    private void createPreview(CaptureDeviceInfo device,
+    private static void createPreview(CaptureDeviceInfo device,
                                final Container videoContainer)
         throws IOException,
                MediaException
@@ -534,7 +488,7 @@ public class MediaConfigurationPanel
      * @param comboBox the options.
      * @return the component.
      */
-    private Component createPreview(int type, final JComboBox comboBox)
+    private static Component createPreview(int type, final JComboBox comboBox)
     {
         final Container preview;
         if (type == DeviceConfigurationComboBoxModel.VIDEO)
@@ -546,6 +500,9 @@ public class MediaConfigurationPanel
             noPreview.setVerticalAlignment(SwingConstants.CENTER);
 
             preview = createVideoContainer(noPreview);
+
+            preview.setPreferredSize(new Dimension(WIDTH, 280));
+            preview.setMaximumSize(new Dimension(WIDTH, 280));
 
             final ActionListener comboBoxListener = new ActionListener()
             {
@@ -614,6 +571,7 @@ public class MediaConfigurationPanel
             });
         } else
             preview = new TransparentPanel();
+
         return preview;
     }
 
@@ -622,7 +580,7 @@ public class MediaConfigurationPanel
      * @param noVideoComponent the container component.
      * @return the video container.
      */
-    private Container createVideoContainer(Component noVideoComponent)
+    private static Container createVideoContainer(Component noVideoComponent)
     {
         return new VideoContainer(noVideoComponent);
     }
@@ -631,7 +589,7 @@ public class MediaConfigurationPanel
      * Dispose the player used for the preview.
      * @param player the player.
      */
-    private void disposePlayer(Player player)
+    private static void disposePlayer(Player player)
     {
         player.stop();
         player.deallocate();
@@ -647,7 +605,7 @@ public class MediaConfigurationPanel
      * @param type audio or video type.
      * @return the mnemonic.
      */
-    private char getDisplayedMnemonic(int type)
+    private static char getDisplayedMnemonic(int type)
     {
         switch (type)
         {
@@ -667,7 +625,7 @@ public class MediaConfigurationPanel
      * @param type the type.
      * @return the label.
      */
-    private String getLabelText(int type)
+    private static String getLabelText(int type)
     {
         switch (type)
         {
@@ -696,7 +654,7 @@ public class MediaConfigurationPanel
      * @param table the table with encodings
      * @param up move direction.
      */
-    private void move(JTable table, boolean up)
+    private static void move(JTable table, boolean up)
     {
         int index =
             ((EncodingConfigurationTableModel) table.getModel()).move(table
@@ -710,7 +668,7 @@ public class MediaConfigurationPanel
      * @param preview the preview component.
      * @param player the player.
      */
-    private void showPreview(final Container previewContainer,
+    private static void showPreview(final Container previewContainer,
         final Component preview, final Player player)
     {
         if (!SwingUtilities.isEventDispatchThread())

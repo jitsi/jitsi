@@ -12,7 +12,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The list containing all <tt>ConfigurationForm</tt>s.
@@ -27,20 +26,17 @@ public class ConfigFormList
 
     private final ConfigurationFrame configFrame;
 
-    private static final Color gradientStartColor
-        = new Color(255, 255, 255, 200);
-
-    private static final Color gradientEndColor
-        = new Color(255, 255, 255, 200);
-
     /**
      * Creates an instance of <tt>ConfigFormList</tt>
+     * @param configFrame the parent configuration frame
      */
     public ConfigFormList(ConfigurationFrame configFrame)
     {
         this.configFrame = configFrame;
 
         this.setOpaque(false);
+        this.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+        this.setVisibleRowCount(1);
         this.setCellRenderer(new ConfigFormListCellRenderer());
         this.setModel(listModel);
 
@@ -105,27 +101,5 @@ public class ConfigFormList
             if(configFormDescriptor != null)
                 configFrame.showFormContent(configFormDescriptor);
         }
-    }
-    
-    public void paintComponent(Graphics g)
-    {
-        Graphics2D g2 = (Graphics2D) g;
-
-        AntialiasingManager.activateAntialiasing(g2);
-
-        int width = getWidth();
-        int height = getHeight();
-        GradientPaint p =
-            new GradientPaint(width / 2,
-                              0,
-                              gradientStartColor,
-                              width / 2,
-                              height,
-                              gradientEndColor);
-
-        g2.setPaint(p);
-        g2.fillRoundRect(0, 0, width, height, 10, 10);
-
-        super.paintComponent(g2);
     }
 }

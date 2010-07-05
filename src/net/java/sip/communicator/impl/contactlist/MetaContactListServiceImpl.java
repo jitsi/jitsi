@@ -1638,7 +1638,7 @@ public class MetaContactListServiceImpl
                            provider.getAccountID().getAccountUniqueID(),
                            provider);
 
-        //If we have a persistent presence op set - then retrieve its contat
+        //If we have a persistent presence op set - then retrieve its contact
         //list and merge it with the local one.
         if (opSetPersPresence != null)
         {
@@ -2029,8 +2029,11 @@ public class MetaContactListServiceImpl
                 return;
             }
 
-            if(sourceFactory.getRegisteredAccounts().contains(
-                provider.getAccountID()))
+            AccountID accountID = provider.getAccountID();
+
+            // If the account is still registered or is just unloaded but
+            // remains stored we have nothing to do here.
+            if(sourceFactory.getRegisteredAccounts().contains(accountID))
             {
                 //the account is still installed. we don't need to do anything.
                 return;

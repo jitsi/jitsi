@@ -6,29 +6,88 @@
  */
 package net.java.sip.communicator.plugin.generalconfig;
 
+import java.awt.*;
+import java.util.*;
+
+import javax.swing.*;
+
+import net.java.sip.communicator.plugin.generalconfig.autoaway.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
-public class GeneralConfigPluginActivator implements BundleActivator
+/**
+ * The general configuration form activator.
+ *
+ * @author Yana Stamcheva
+ */
+public class GeneralConfigPluginActivator
+    implements  BundleActivator,
+                ServiceListener
 {
-    private Logger logger = Logger.getLogger(GeneralConfigPluginActivator.class);
+    /**
+     * The logger.
+     */
+    private static final Logger logger
+        = Logger.getLogger(GeneralConfigPluginActivator.class);
 
+    /**
+     * The configuration service.
+     */
     private static ConfigurationService configService;
 
+    /**
+     * The systray service.
+     */
     private static SystrayService systrayService;
 
+    /**
+     * The bundle context.
+     */
     protected static BundleContext bundleContext;
-    
+
+    /**
+     * The user interface service.
+     */
     private static UIService uiService;
 
-    public void start(BundleContext bc) throws Exception
+    /**
+     * The auto away thread.
+     */
+    private static Thread autoAwayThread = null;
+
+    /**
+     * The status update thread.
+     */
+    private static StatusUpdateThread runner = null;
+
+    /**
+     * The indicator which determines whether {@link #startThread()} has been
+     * called and thus prevents calling it more than once.
+     */
+    private static boolean startThreadIsCalled = false;
+
+    /**
+     * The resource management service.
+     */
+    private static ResourceManagementService resourceService;
+
+    /**
+     * Starts this bundle.
+     * @param bc the bundle context
+     * @throws Exception if something goes wrong
+     */
+    public void start(BundleContext bc)
+        throws Exception
     {
         bundleContext = bc;
-        
+
         ServiceReference uiServiceRef = bundleContext
             .getServiceReference(UIService.class.getName());
 
@@ -47,14 +106,26 @@ public class GeneralConfigPluginActivator implements BundleActivator
                     0),
                 null);
 
+        /*
+         * Wait for the first ProtocolProviderService to register in order to
+         * start the auto-away functionality i.e. to call #startThread().
+         */
+        bundleContext.addServiceListener(this);
+
         if (logger.isInfoEnabled())
             logger.info("PREFERENCES PLUGIN... [REGISTERED]");
     }
 
+    /**
+     * Stops this bundle.
+     * @param bc the bundle context
+     * @throws Exception if something goes wrong
+     */
     public void stop(BundleContext bc) throws Exception
     {
+        stopThread();
     }
-    
+
     /**
      * Returns the <tt>ConfigurationService</tt> obtained from the bundle
      * context.
@@ -79,7 +150,7 @@ public class GeneralConfigPluginActivator implements BundleActivator
      * @return the <tt>SystrayService</tt> obtained from the bundle
      * context
      */
-    public static SystrayService getSystrayService()
+    static SystrayService getSystrayService()
     {
         if(systrayService == null) {
             ServiceReference configReference = bundleContext
@@ -97,8 +168,161 @@ public class GeneralConfigPluginActivator implements BundleActivator
      * 
      * @return the <tt>UIService</tt>
      */
-    public static UIService getUIService()
+    static UIService getUIService()
     {
         return uiService;
+    }
+
+    /**
+     * Implements ServiceListener#serviceChanged(ServiceEvent). Waits for the
+     * first ProtocolProviderService to register in order to start the auto-away
+     * functionality i.e. to call #startThread().
+     * @param serviceEvent the <tt>ServiceEvent</tt> that notified us
+     */
+    public void serviceChanged(ServiceEvent serviceEvent)
+    {
+        switch (serviceEvent.getType())
+        {
+        case ServiceEvent.MODIFIED:
+        case ServiceEvent.REGISTERED:
+            Object service
+                = bundleContext.getService(serviceEvent.getServiceReference());
+            if (service instanceof ProtocolProviderService)
+            {
+                synchronized (GeneralConfigPluginActivator.class)
+                {
+                    if (!startThreadIsCalled)
+                    {
+                        startThread();
+                        startThreadIsCalled = true;
+                    }
+                }
+
+                bundleContext.removeServiceListener(this);
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    /**
+     * Starts the auto away thread.
+     */
+    private static void startThread()
+    {
+        /*
+         * FIXME Even if auto away is disabled at this point, it doesn't mean
+         * that it will not get enabled later on so this method likely has to
+         * also be called when the configuration property gets changed.
+         */
+        if (!getConfigurationService().getBoolean(Preferences.ENABLE, false))
+            return;
+
+        if (runner == null)
+            runner = new StatusUpdateThread();
+        if ((autoAwayThread == null) || !runner.isRunning())
+        {
+            autoAwayThread = new Thread(runner);
+            autoAwayThread.setName(GeneralConfigPluginActivator.class.getName());
+            autoAwayThread.setPriority(Thread.MIN_PRIORITY);
+            autoAwayThread.setDaemon(true);
+            autoAwayThread.start();
+        } else
+        {
+            autoAwayThread.interrupt();
+        }
+    }
+
+    /**
+     * Stops the auto away thread.
+     */
+    private static void stopThread()
+    {
+        if (runner != null)
+        {
+            runner.stop();
+            runner = null;
+        }
+        if (autoAwayThread != null)
+        {
+            autoAwayThread.interrupt();
+            autoAwayThread = null;
+        }
+    }
+
+    /**
+     * Returns an array of all available protocol providers.
+     * @return an array of all available protocol providers
+     */
+    public static ProtocolProviderService[] getProtocolProviders()
+    {
+        // get the protocol provider factory
+        BundleContext bundleContext = GeneralConfigPluginActivator.bundleContext;
+
+        ServiceReference[] serRefs = null;
+        // String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL + "="
+        // + ProtocolNames.SIP + ")";
+
+        try
+        {
+            // serRefs = bundleContext.getServiceReferences(
+            // ProtocolProviderFactory.class.getName(), osgiFilter);
+            serRefs = bundleContext.getAllServiceReferences(
+                    ProtocolProviderService.class.getName(), null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            logger.error(ex);
+        }
+
+        if (serRefs == null || serRefs[0] == null)
+        {
+            return null;
+        }
+
+        Set<ProtocolProviderService> pps = new HashSet<ProtocolProviderService>();
+
+        for (ServiceReference serviceReference : serRefs)
+        {
+            ProtocolProviderService protocolProvider
+                = (ProtocolProviderService)
+                    bundleContext.getService(serviceReference);
+            pps.add(protocolProvider);
+        }
+
+        return pps.toArray(new ProtocolProviderService[0]);
+    }
+
+    /**
+     * Gets the service giving access to all application resources.
+     * 
+     * @return the service giving access to all application resources.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+            resourceService
+                = ResourceManagementServiceUtils.getService(bundleContext);
+        return resourceService;
+    }
+
+    /**
+     * Creates a config section label from the given text.
+     * @param labelText the text of the label.
+     * @return the created label
+     */
+    public static Component createConfigSectionComponent(String labelText)
+    {
+        JLabel label = new JLabel(labelText);
+        label.setFont(label.getFont().deriveFont(Font.BOLD));
+        label.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        JPanel parentPanel = new TransparentPanel(new BorderLayout());
+        parentPanel.add(label, BorderLayout.NORTH);
+        parentPanel.setPreferredSize(new Dimension(180, 25));
+
+        return parentPanel;
     }
 }

@@ -298,6 +298,9 @@ public class IptelAccountRegistrationWizard
             .put(ProtocolProviderFactory.PROTOCOL_ICON_PATH,
                 "resources/images/protocol/iptel");
 
+        accountProperties.put(ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+                "resources/images/protocol/iptel/sip32x32.png");
+
         if(registration.isRememberPassword())
         {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);

@@ -1529,4 +1529,37 @@ public class ImageLoader
             badged = image;
         return badged;
     }
+    /**
+     * Loads an image icon from a given image path.
+     * @param imagePath The identifier of the image.
+     * @return The image for the given identifier.
+     */
+    public static ImageIcon getImageForPath(String imagePath)
+    {
+        InputStream is = null;
+
+        try
+        {
+            // try to load path it maybe valid url
+            is = new URL(imagePath).openStream();
+        }
+        catch (Exception e)
+        {}
+
+        if(is == null)
+            is = GuiActivator.getResources()
+                .getImageInputStreamForPath(imagePath);
+
+        byte[] icon = null;
+        try
+        {
+            icon = new byte[is.available()];
+            is.read(icon);
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to load icon: " + imagePath, e);
+        }
+        return new ImageIcon(icon);
+    }
 }

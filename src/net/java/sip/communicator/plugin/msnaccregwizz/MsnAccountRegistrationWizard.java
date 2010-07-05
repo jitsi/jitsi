@@ -176,6 +176,9 @@ public class MsnAccountRegistrationWizard
         Hashtable<String,String> accountProperties 
             = new Hashtable<String,String>();
 
+        accountProperties.put(ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+            "resources/images/protocol/msn/msn32x32.png");
+
         if (registration.isRememberPassword())
         {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);

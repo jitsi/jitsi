@@ -14,8 +14,6 @@ import javax.swing.*;
 
 import org.osgi.framework.*;
 
-import chooser.*;
-
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.*;

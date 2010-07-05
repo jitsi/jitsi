@@ -151,7 +151,7 @@ public interface ProtocolProviderService
      * @param opsetClass the <tt>Class</tt>  of the operation set that we're
      * looking for.
      * @return returns an OperationSet of the specified <tt>Class</tt> if the
-     * undelying implementation supports it or null otherwise.
+     * underlying implementation supports it or null otherwise.
      */
     public <T extends OperationSet> T getOperationSet(Class<T> opsetClass);
 

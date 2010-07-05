@@ -177,6 +177,9 @@ public class ZeroconfAccountRegistrationWizard
         Hashtable<String, String> accountProperties
             = new Hashtable<String, String>();
 
+        accountProperties.put(ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+            "resources/images/protocol/zeroconf/zeroconf32x32.png");
+
         accountProperties.put("first", registration.getFirst());
         accountProperties.put("last", registration.getLast());
         accountProperties.put("mail", registration.getMail());

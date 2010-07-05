@@ -18,39 +18,51 @@ import org.osgi.framework.*;
 public class PluginManagerActivator
     implements BundleActivator
 {
+    /**
+     * The bundle context.
+     */
     public static BundleContext bundleContext;
 
+    /**
+     * The user interface service.
+     */
     private static UIService uiService;
 
+    /**
+     * The configuration service.
+     */
     private static ConfigurationService configService;
 
     /**
      * Starts this bundle and adds the
      * <td>PluginManagerConfigForm</tt> contained in it to the configuration
      * window obtained from the <tt>UIService</tt>.
+     * @param bc the <tt>BundleContext</tt>
+     * @throws Exception if one of the operation executed in the start method
+     * fails
      */
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
 
-        bundleContext
-            .registerService(
-                ConfigurationForm.class.getName(),
-                new LazyConfigurationForm(
-                    "net.java.sip.communicator.plugin.pluginmanager.PluginManagerPanel",
-                    getClass().getClassLoader(),
-                    "plugin.pluginmanager.PLUGIN_ICON",
-                    "plugin.pluginmanager.PLUGINS",
-                    1000),
-                null);
+        bundleContext.registerService(
+            ConfigurationForm.class.getName(),
+            new LazyConfigurationForm(
+                "net.java.sip.communicator.plugin.pluginmanager.PluginManagerPanel",
+                getClass().getClassLoader(),
+                "plugin.pluginmanager.PLUGIN_ICON",
+                "plugin.pluginmanager.PLUGINS",
+                1000, true),
+            null);
     }
 
     /**
      * Stops this bundles.
+     * @param bc the <tt>BundleContext</tt>
+     * @throws Exception if one of the operation executed in the stop method
+     * fails
      */
-    public void stop(BundleContext arg0) throws Exception
-    {
-    }
+    public void stop(BundleContext bc) throws Exception {}
 
     /**
      * Returns the <tt>UIService</tt> obtained from the bundle context.

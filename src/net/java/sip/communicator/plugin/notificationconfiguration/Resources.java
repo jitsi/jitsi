@@ -17,7 +17,6 @@ import net.java.sip.communicator.service.resources.*;
  */
 public class Resources 
 {
-
     /**
      * Returns an internationalized string corresponding to the given key.
      * @param key The key of the string.
@@ -48,7 +47,6 @@ public class Resources
 
     private static ResourceManagementService getResources()
     {
-
         /*
          * TODO If the method is called more than once, the trend seems to be
          * caching the value.

@@ -6,14 +6,14 @@
  */
 package net.java.sip.communicator.impl.gui.utils;
 
-import java.util.*;
 import java.beans.*;
-
-import org.osgi.framework.*;
+import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 /**
  * 
@@ -1261,5 +1261,21 @@ public class ConfigurationManager
                 lastCallConferenceProvider = findProviderFromAccountId(newValue);
             }
         }
+    }
+
+    /**
+     * Returns the package name under which we would store information for the
+     * given factory.
+     * @param factory the <tt>ProtocolProviderFactory</tt>, which package name
+     * we're looking for
+     * @return the package name under which we would store information for the
+     * given factory
+     */
+    public static String getFactoryImplPackageName(
+                                                ProtocolProviderFactory factory)
+    {
+        String className = factory.getClass().getName();
+
+        return className.substring(0, className.lastIndexOf('.'));
     }
 }

@@ -27,26 +27,20 @@ public class FirstWizardPage
                 DocumentListener,
                 ActionListener
 {
+    /**
+     * The first page identifier.
+     */
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
+    /**
+     * The user name example.
+     */
     public static final String USER_NAME_EXAMPLE = "Ex: 83378997";
 
-    private JPanel uinPassPanel =
-        new TransparentPanel(new BorderLayout(10, 10));
-
-    private JPanel labelsPanel = new TransparentPanel();
-
-    private JPanel valuesPanel = new TransparentPanel();
-
-    private JLabel uinLabel = new JLabel(
-        Resources.getString("plugin.aimaccregwizz.USERNAME"));
-
-    private JPanel emptyPanel = new TransparentPanel();
-
-    private JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
-
-    private JLabel passLabel = new JLabel(
-        Resources.getString("service.gui.PASSWORD"));
+    /**
+     * The panel containing the user name and the password.
+     */
+    private final Component uinPassPanel;
 
     private JTextField uinField = new JTextField();
 
@@ -56,14 +50,8 @@ public class FirstWizardPage
         new SIPCommCheckBox(Resources.getString(
             "service.gui.REMEMBER_PASSWORD"));
 
-    private JPanel registerPanel = new TransparentPanel(new GridLayout(0, 1));
-
     private JPanel buttonPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-
-    private JTextArea registerArea =
-        new JTextArea(Resources.getString(
-            "plugin.aimaccregwizz.REGISTER_NEW_ACCOUNT_TEXT"));
 
     private JButton registerButton =
         new JButton(Resources.getString(
@@ -84,7 +72,6 @@ public class FirstWizardPage
      */
     public FirstWizardPage( AimAccountRegistrationWizard wizard)
     {
-
         super(new BorderLayout());
 
         this.wizard = wizard;
@@ -93,38 +80,57 @@ public class FirstWizardPage
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-        this.init();
-
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        this.labelsPanel
-            .setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
+        this.uinPassPanel = createUinPassPanel();
 
-        this.valuesPanel
-            .setLayout(new BoxLayout(valuesPanel, BoxLayout.Y_AXIS));
+        this.add(mainPanel, BorderLayout.NORTH);
     }
 
     /**
-     * Initializes all panels, buttons, etc.
+     * Initializes the advanced panel.
      */
-    private void init()
+    private void initAdvancedPanel()
     {
-        this.mainPanel.setOpaque(false);
-        this.labelsPanel.setOpaque(false);
-        this.valuesPanel.setOpaque(false);
-        this.uinPassPanel.setOpaque(false);
-        this.emptyPanel.setOpaque(false);
+        mainPanel.add(uinPassPanel);
 
-        this.registerButton.addActionListener(this);
+        mainPanel.add(createRegisterPanel());
+    }
+
+    /**
+     * Creates the user name and password panel.
+     * @return the created component
+     */
+    private Component createUinPassPanel()
+    {
+        JPanel uinPassPanel = new TransparentPanel(new BorderLayout(10, 10));
+
+        JPanel labelsPanel = new TransparentPanel();
+
+        JPanel valuesPanel = new TransparentPanel();
+
+        labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
+
+        valuesPanel.setLayout(new BoxLayout(valuesPanel, BoxLayout.Y_AXIS));
+
+        JLabel uinLabel = new JLabel(
+            Resources.getString("plugin.aimaccregwizz.USERNAME"));
+
+        JPanel emptyPanel = new TransparentPanel();
+
+        JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
+
+        JLabel passLabel = new JLabel(
+            Resources.getString("service.gui.PASSWORD"));
+
         this.uinField.getDocument().addDocumentListener(this);
         this.rememberPassBox.setSelected(
                 wizard.getRegistration().isRememberPassword());
 
-        this.uinExampleLabel.setForeground(Color.GRAY);
-        this.uinExampleLabel.setFont(uinExampleLabel.getFont().deriveFont(8));
-        this.emptyPanel.setMaximumSize(new Dimension(40, 35));
-        this.uinExampleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8,
-            0));
+        uinExampleLabel.setForeground(Color.GRAY);
+        uinExampleLabel.setFont(uinExampleLabel.getFont().deriveFont(8));
+        emptyPanel.setMaximumSize(new Dimension(40, 35));
+        uinExampleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
 
         labelsPanel.add(uinLabel);
         labelsPanel.add(emptyPanel);
@@ -141,24 +147,36 @@ public class FirstWizardPage
         uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
             .getString("plugin.aimaccregwizz.USERNAME_AND_PASSWORD")));
 
-        mainPanel.add(uinPassPanel);
+        return uinPassPanel;
+    }
+
+    /**
+     * Creates the register panel.
+     * @return the created panel
+     */
+    private Component createRegisterPanel()
+    {
+        JPanel registerPanel = new TransparentPanel(new GridLayout(0, 1));
+
+        this.registerButton.addActionListener(this);
 
         this.buttonPanel.add(registerButton);
 
-        this.registerArea.setEditable(false);
-        this.registerArea.setLineWrap(true);
-        this.registerArea.setWrapStyleWord(true);
-        this.registerArea.setOpaque(false);
+        JTextArea registerArea = new JTextArea(Resources.getString(
+            "plugin.aimaccregwizz.REGISTER_NEW_ACCOUNT_TEXT"));
 
-        this.registerPanel.add(registerArea);
-        this.registerPanel.add(buttonPanel);
+        registerArea.setEditable(false);
+        registerArea.setLineWrap(true);
+        registerArea.setWrapStyleWord(true);
+        registerArea.setOpaque(false);
 
-        this.registerPanel.setBorder(BorderFactory.createTitledBorder(Resources
+        registerPanel.add(registerArea);
+        registerPanel.add(buttonPanel);
+
+        registerPanel.setBorder(BorderFactory.createTitledBorder(Resources
             .getString("plugin.aimaccregwizz.REGISTER_NEW_ACCOUNT")));
 
-        mainPanel.add(registerPanel);
-
-        this.add(mainPanel, BorderLayout.NORTH);
+        return registerPanel;
     }
 
     /**
@@ -192,9 +210,12 @@ public class FirstWizardPage
     /**
      * Implements the <code>WizardPage.getWizardForm</code> to return this
      * panel.
+     * @return the advanced wizard form
      */
     public Object getWizardForm()
     {
+        initAdvancedPanel();
+
         return this;
     }
 
@@ -264,21 +285,13 @@ public class FirstWizardPage
         this.setNextButtonAccordingToUIN();
     }
 
-    public void changedUpdate(DocumentEvent e)
-    {
-    }
+    public void changedUpdate(DocumentEvent e) {}
 
-    public void pageHiding()
-    {
-    }
+    public void pageHiding() {}
 
-    public void pageShown()
-    {
-    }
+    public void pageShown() {}
 
-    public void pageBack()
-    {
-    }
+    public void pageBack() {}
 
     /**
      * Fills the UIN and Password fields in this panel with the data coming

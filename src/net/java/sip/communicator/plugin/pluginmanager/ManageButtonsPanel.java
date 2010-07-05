@@ -44,9 +44,6 @@ public class ManageButtonsPanel
     private JButton newButton
         = new JButton(Resources.getString("plugin.pluginmanager.NEW"));
 
-    private JCheckBox showSysBundlesCheckBox = new SIPCommCheckBox(
-            Resources.getString("plugin.pluginmanager.SHOW_SYSTEM_BUNDLES"));
-
     private JPanel buttonsPanel =
         new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
@@ -60,37 +57,17 @@ public class ManageButtonsPanel
 
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-        //Obtains previously saved value for the showSystemBundles check box.
-        String showSystemBundlesProp = PluginManagerActivator
-            .getConfigurationService().getString(
-            "net.java.sip.communicator.plugin.pluginManager.showSystemBundles");
-
-        if(showSystemBundlesProp != null)
-        {
-            boolean isShowSystemBundles
-                = new Boolean(showSystemBundlesProp).booleanValue();
-
-            this.showSysBundlesCheckBox.setSelected(isShowSystemBundles);
-
-            ((PluginTableModel)pluginTable.getModel())
-                .setShowSystemBundles(isShowSystemBundles);
-        }
-
-        this.showSysBundlesCheckBox
-            .addChangeListener(new ShowSystemBundlesChangeListener());
-
         this.newButton.setOpaque(false);
         this.activateButton.setOpaque(false);
         this.deactivateButton.setOpaque(false);
         this.uninstallButton.setOpaque(false);
         this.updateButton.setOpaque(false);
-        
+
         this.buttonsPanel.add(newButton);
         this.buttonsPanel.add(activateButton);
         this.buttonsPanel.add(deactivateButton);
         this.buttonsPanel.add(uninstallButton);
         this.buttonsPanel.add(updateButton);
-        this.buttonsPanel.add(showSysBundlesCheckBox);
 
         this.add(buttonsPanel, BorderLayout.NORTH);
 
@@ -220,7 +197,7 @@ public class ManageButtonsPanel
     /**
      * Default state of buttons, as nothing is selected
      */
-    private void defaultButtonState()
+    public void defaultButtonState()
     {
         enableActivateButton(false);
         enableDeactivateButton(false);
@@ -268,54 +245,5 @@ public class ManageButtonsPanel
     public void enableUpdateButton(boolean enable)
     {
         this.updateButton.setEnabled(enable);
-    }
-
-
-    /**
-     * Adds all system bundles to the bundles list when the check box is
-     * selected and removes them when user deselect it.
-     */
-    private class ShowSystemBundlesChangeListener implements ChangeListener
-    {
-        private boolean currentValue = false;
-
-        public ShowSystemBundlesChangeListener()
-        {
-            currentValue = showSysBundlesCheckBox.isSelected();
-        }
-
-        public void stateChanged(ChangeEvent e)
-        {
-            if (currentValue == showSysBundlesCheckBox.isSelected())
-            {
-                return;
-            }
-            currentValue = showSysBundlesCheckBox.isSelected();
-            //Save the current value of the showSystemBundles check box.
-            PluginManagerActivator.getConfigurationService().setProperty(
-                "net.java.sip.communicator.plugin.pluginManager.showSystemBundles",
-                new Boolean(showSysBundlesCheckBox.isSelected()));
-
-            PluginTableModel tableModel
-                = (PluginTableModel)pluginTable.getModel();
-
-            tableModel.setShowSystemBundles(showSysBundlesCheckBox.isSelected());
-
-            tableModel.update();
-
-            // as this changes the selection to none, make the buttons
-            // at defautl state
-            defaultButtonState();
-        }
-    }
-
-    /**
-     * Returns the current value of the "showSystemBundles" check box.
-     * @return TRUE if the the "showSystemBundles" check box is selected,
-     * FALSE - otherwise.
-     */
-    public boolean isShowSystemBundles()
-    {
-        return showSysBundlesCheckBox.isSelected();
     }
 }

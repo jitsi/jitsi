@@ -4,6 +4,7 @@ Bundle-Description: Support for secure, Off The Record messaging in SIP Communic
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
+Export-Package: net.java.sip.communicator.plugin.otr
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.browserlauncher,
  net.java.sip.communicator.service.configuration,
@@ -14,6 +15,8 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.swing,
+ net.java.otr4j,
+ net.java.otr4j.crypto,
  javax.imageio,
  javax.swing,
  javax.swing.border,

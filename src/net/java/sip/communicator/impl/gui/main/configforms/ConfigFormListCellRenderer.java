@@ -46,7 +46,7 @@ public class ConfigFormListCellRenderer
     {
         this.setBorder(BorderFactory.createEmptyBorder(3, 3, 5, 3));
         this.setLayout(new BorderLayout(0, 0));
-        this.setPreferredSize(new Dimension(100, 65));
+        this.setPreferredSize(new Dimension(60, 50));
 
         Font font = getFont();
         this.textLabel.setFont(font.deriveFont(Font.BOLD, font.getSize() - 2));
@@ -86,6 +86,7 @@ public class ConfigFormListCellRenderer
      * Overrides the <code>paintComponent</code> method of <tt>JPanel</tt>
      * to provide a custom look for this panel. A gradient background is
      * painted when the panel is selected and when the mouse is over it.
+     * @param g the <tt>Graphics</tt> object
      */
     public void paintComponent(Graphics g)
     {
@@ -94,27 +95,15 @@ public class ConfigFormListCellRenderer
         AntialiasingManager.activateAntialiasing(g);
 
         Graphics2D g2 = (Graphics2D) g;
-        int width = getWidth();
-        int height = getHeight();
-
-        g2.setColor(Color.LIGHT_GRAY);
-        g2.drawLine(5, height - 1, width - 5, height - 1);
 
         if (isSelected)
         {
-            GradientPaint p =
-                new GradientPaint(width / 2,
-                                  0,
-                                  Color.LIGHT_GRAY,
-                                  width / 2,
-                                  height,
-                                  Color.WHITE);
-
-            g2.setPaint(p);
+            g2.setPaint(new Color(100, 100, 100, 100));
             g2.fillRoundRect(   0, 0,
                                this.getWidth(), this.getHeight(),
                                10, 10);
-            g2.setColor(Color.LIGHT_GRAY);
+
+            g2.setColor(Color.GRAY);
             g2.drawRoundRect(   0, 0,
                                this.getWidth() - 1, this.getHeight() - 1,
                                10, 10);

@@ -129,7 +129,7 @@ public class IcqActivator
     {
         icqProviderFactory.stop();
         icqPpFactoryServReg.unregister();
-        
+
         aimPpFactoryServReg.unregister();
     }
     

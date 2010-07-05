@@ -10,7 +10,6 @@ import java.awt.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
@@ -34,8 +33,6 @@ public class ConfigurationFrame
 
     private final ConfigFormList configList;
 
-    private final TitlePanel titlePanel = new TitlePanel();
-
     private final JPanel centerPanel =
         new TransparentPanel(new BorderLayout(5, 5));
 
@@ -46,7 +43,7 @@ public class ConfigurationFrame
      */
     public ConfigurationFrame(MainFrame mainFrame)
     {
-        super(mainFrame);
+        super(mainFrame, false);
 
         this.configList = new ConfigFormList(this);
 
@@ -69,9 +66,18 @@ public class ConfigurationFrame
 
         TransparentPanel mainPanel
             = new TransparentPanel(new BorderLayout(5, 5));
+
+        centerPanel.setMinimumSize(new Dimension(600, 100));
+        centerPanel.setMaximumSize(
+            new Dimension(  600,
+                            Toolkit.getDefaultToolkit().getScreenSize().height));
+        this.setResizable(false);
+
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
-        mainPanel.add(configScrollList, BorderLayout.WEST);
+        mainPanel.add(centerPanel, BorderLayout.SOUTH);
+        mainPanel.add(configScrollList, BorderLayout.NORTH);
+
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         this.getContentPane().add(mainPanel);
 
@@ -96,7 +102,8 @@ public class ConfigurationFrame
                     = (ConfigurationForm) GuiActivator.bundleContext
                         .getService(confFormsRefs[i]);
 
-                this.addConfigurationForm(form);
+                if (!form.isAdvanced())
+                    this.addConfigurationForm(form);
             }
         }
     }
@@ -113,7 +120,7 @@ public class ConfigurationFrame
                 getClass().getClassLoader(),
                 "service.gui.icons.ACCOUNT_ICON",
                 "service.gui.ACCOUNTS",
-                10));
+                0));
     }
 
     /**
@@ -126,19 +133,20 @@ public class ConfigurationFrame
     {
         this.centerPanel.removeAll();
 
-        this.titlePanel.setTitleText(configFormDescriptor.getConfigFormTitle());
-
-        this.centerPanel.add(titlePanel, BorderLayout.NORTH);
-
         JComponent configFormPanel
             = (JComponent) configFormDescriptor.getConfigFormPanel();
 
         configFormPanel.setOpaque(false);
 
-        this.centerPanel.add(configFormPanel, BorderLayout.CENTER);
+        centerPanel.add(configFormPanel, BorderLayout.CENTER);
 
-        this.centerPanel.revalidate();
-        this.centerPanel.repaint();
+        centerPanel.revalidate();
+
+        centerPanel.setPreferredSize(
+            new Dimension(550, configFormPanel.getPreferredSize().height));
+
+        centerPanel.repaint();
+        pack();
 
     }
 
@@ -169,6 +177,7 @@ public class ConfigurationFrame
 
     /**
      * Handles registration of a new configuration form.
+     * @param event the <tt>ServiceEvent</tt> that notified us
      */
     public void serviceChanged(ServiceEvent event)
     {
@@ -184,6 +193,9 @@ public class ConfigurationFrame
         }
 
         ConfigurationForm configForm = (ConfigurationForm) sService;
+
+        if (configForm.isAdvanced())
+            return;
 
         switch (event.getType())
         {

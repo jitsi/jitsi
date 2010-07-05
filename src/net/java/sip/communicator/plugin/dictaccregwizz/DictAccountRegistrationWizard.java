@@ -178,7 +178,10 @@ public class DictAccountRegistrationWizard
     {
         Hashtable<String, String> accountProperties 
             = new Hashtable<String, String>();
-        
+
+        accountProperties.put(  ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+            "resources/images/protocol/dict/dict-32x32.png");
+
         // Set this property to indicate that Dict account does not require 
         // authentication.
         accountProperties.put(

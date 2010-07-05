@@ -4,11 +4,12 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.autoaway;
+package net.java.sip.communicator.plugin.generalconfig.autoaway;
 
 import java.awt.*;
 import java.util.*;
 
+import net.java.sip.communicator.plugin.generalconfig.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -50,7 +51,7 @@ public class StatusUpdateThread
                         // and
                         // reset this state to the former state.
                         for (ProtocolProviderService protocolProviderService
-                                : AutoAwayActivator.getProtocolProviders())
+                                : GeneralConfigPluginActivator.getProtocolProviders())
                         {
                             if (lastStates.get(protocolProviderService) != null)
                             {
@@ -80,7 +81,7 @@ public class StatusUpdateThread
                         // position has not changed!
                         // get all protocols and set them to away
                         for (ProtocolProviderService protocolProviderService
-                                : AutoAwayActivator.getProtocolProviders())
+                                : GeneralConfigPluginActivator.getProtocolProviders())
                         {
                             OperationSetPresence presence
                                 = protocolProviderService
@@ -168,7 +169,7 @@ public class StatusUpdateThread
     private int getTimer()
     {
         ConfigurationService configService
-            = AutoAwayActivator.getConfigService();
+            = GeneralConfigPluginActivator.getConfigurationService();
 
         return
             configService.getBoolean(Preferences.ENABLE, false)

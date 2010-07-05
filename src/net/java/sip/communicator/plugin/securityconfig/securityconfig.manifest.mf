@@ -1,0 +1,34 @@
+Bundle-Activator: net.java.sip.communicator.plugin.securityconfig.SecurityConfigActivator
+Bundle-Name: Security Configuration Form
+Bundle-Description: The configuration form for security
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+System-Bundle: yes
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.gui,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.event,
+ net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.util.swing,
+ net.java.sip.communicator.plugin.otr,
+ net.java.sip.communicator.service.contactlist,
+ net.java.otr4j,
+ gnu.java.zrtp,
+ javax.imageio,
+ javax.swing,
+ javax.swing.border,
+ javax.swing.table,
+ javax.swing.event,
+ javax.crypto,
+ javax.crypto.interfaces,
+ javax.crypto.spec,
+ org.bouncycastle.crypto,
+ org.bouncycastle.crypto.generators,
+ org.bouncycastle.crypto.params,
+ org.bouncycastle.crypto.signers,
+ org.bouncycastle.crypto.engines,
+ org.bouncycastle.crypto.modes,
+ org.bouncycastle.util,
+ org.bouncycastle.util.encoders

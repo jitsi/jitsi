@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.account;
 
+import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
@@ -65,40 +66,49 @@ public class AccountList
      */
     private void accountsInit()
     {
-        for (ProtocolProviderFactory providerFactory : GuiActivator
-            .getProtocolProviderFactories().values())
+        AccountManager accountManager = GuiActivator.getAccountManager();
+
+        Iterator<AccountID> storedAccounts
+            = accountManager.getStoredAccounts().iterator();
+
+        while (storedAccounts.hasNext())
         {
-            ServiceReference serRef;
-            ProtocolProviderService protocolProvider;
+            AccountID accountID = storedAccounts.next();
 
-            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+            boolean isHidden = accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_PROTOCOL_HIDDEN, false);
+
+            if (isHidden)
+                continue;
+
+            Account uiAccount = null;
+
+            if (accountManager.isAccountLoaded(accountID))
             {
-                boolean isHidden
-                    = (accountID.getAccountProperty
-                        (ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null);
+                ProtocolProviderService protocolProvider
+                    = GuiActivator.getRegisteredProviderForAccount(accountID);
 
-                if (isHidden)
-                    continue;
-
-                serRef = providerFactory.getProviderForAccount(accountID);
-
-                protocolProvider =
-                    (ProtocolProviderService) GuiActivator.bundleContext
-                        .getService(serRef);
-
-                protocolProvider.addRegistrationStateChangeListener(this);
-
-                OperationSetPresence presence
-                    = protocolProvider
-                        .getOperationSet(OperationSetPresence.class);
-
-                if (presence != null)
+                if (protocolProvider != null)
                 {
-                    presence.addProviderPresenceStatusListener(this);
-                }
+                    uiAccount = new Account(protocolProvider);
 
-                accountListModel.addAccount(new Account(protocolProvider));
+                    protocolProvider.addRegistrationStateChangeListener(this);
+
+                    OperationSetPresence presence
+                        = protocolProvider
+                            .getOperationSet(OperationSetPresence.class);
+    
+                    if (presence != null)
+                    {
+                        presence.addProviderPresenceStatusListener(this);
+                    }
+                }
             }
+            else
+                uiAccount = new Account(accountID);
+
+            if (uiAccount != null)
+                accountListModel.addAccount(uiAccount);
         }
     }
 
@@ -173,17 +183,25 @@ public class AccountList
                 presence.addProviderPresenceStatusListener(this);
             }
 
-            accountListModel.addAccount(new Account(protocolProvider));
+            Account account = accountListModel
+                .getAccount(protocolProvider.getAccountID());
+
+            if (account != null)
+                account.setProtocolProvider(protocolProvider);
+            else
+                accountListModel.addAccount(new Account(protocolProvider));
+
+            this.repaint();
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
-            for (Object accountListModelElement : accountListModel.toArray())
-            {
-                Account account = (Account) accountListModelElement;
+            Account account = accountListModel
+                .getAccount(protocolProvider.getAccountID());
 
-                if (account.getProtocolProvider().equals(protocolProvider))
-                    accountListModel.removeElement(account);
-            }
+            // If the unregistered account is a disabled one we don't want to
+            // remove it from our list.
+            if (account != null && account.isEnabled())
+                accountListModel.removeElement(account);
         }
     }
 
@@ -203,7 +221,14 @@ public class AccountList
 
     public void mouseExited(MouseEvent e) {}
 
-    public void mousePressed(MouseEvent e) {}
+    /**
+     * Dispatches the mouse event to the contained renderer check box.
+     * @param e the <tt>MouseEvent</tt> that notified us
+     */
+    public void mousePressed(MouseEvent e)
+    {
+        dispatchEventToCheckBox(e);
+    }
 
     public void mouseReleased(MouseEvent e) {}
 
@@ -217,7 +242,7 @@ public class AccountList
 
     /**
      * Notifies <code>accountListModel</code> that the <code>Account</code>s of
-     * a specific <code>ProtocolProviderService</code> have changed.
+     * a specific <code>ProtocolProviderService</code> has changed.
      * 
      * @param protocolProvider
      *            the <code>ProtocolProviderService</code> which had its
@@ -232,76 +257,68 @@ public class AccountList
         {
             Account account = (Account) accounts.nextElement();
 
-            if (account.getProtocolProvider().equals(protocolProvider))
+            ProtocolProviderService accountProvider
+                = account.getProtocolProvider();
+
+            if (accountProvider == protocolProvider)
                 accountListModel.contentChanged(account);
         }
     }
 
     /**
-     * A custom list model that allows us to refresh the content of a single
-     * row.
+     * Dispatches the given mouse <tt>event</tt> to the underlying buttons.
+     * @param event the <tt>MouseEvent</tt> to dispatch
      */
-    private class AccountListModel
-        extends DefaultListModel
+    private void dispatchEventToCheckBox(MouseEvent event)
     {
-        public void contentChanged(Account account)
+        int mouseIndex = this.locationToIndex(event.getPoint());
+        Object value = getModel().getElementAt(mouseIndex);
+
+        // If this is an invalid index we have nothing to do here
+        if (mouseIndex < 0)
+            return;
+
+        AccountListCellRenderer renderer
+            = (AccountListCellRenderer) getCellRenderer()
+                .getListCellRendererComponent(  this,
+                                                value,
+                                                mouseIndex,
+                                                true,
+                                                true);
+
+        // We need to translate coordinates here.
+        Rectangle r = this.getCellBounds(mouseIndex, mouseIndex);
+        int translatedX = event.getX() - r.x;
+        int translatedY = event.getY() - r.y;
+
+        Component mouseComponent
+            = renderer.findComponent(translatedX, translatedY);
+
+        if (mouseComponent instanceof JCheckBox)
         {
-            int index = this.indexOf(account);
-            this.fireContentsChanged(this, index, index);
+            JCheckBox checkBox = ((JCheckBox) mouseComponent);
+
+            checkBox.setSelected(!checkBox.isSelected());
+            enableAccount((Account) value, checkBox.isSelected());
+
+            this.repaint();
         }
+    }
 
-        /**
-         * Adds the given <tt>account</tt> to this model.
-         * @param account the <tt>Account</tt> to add
-         */
-        public void addAccount(Account account)
-        {
-            // If this is the first account in our menu.
-            if (getSize() == 0)
-            {
-                addElement(account);
-                return;
-            }
+    /**
+     * Enables or disables the current account.
+     * @param account the account to disable/enable
+     * @param isEnable indicates if the account should be enabled or disabled
+     */
+    private void enableAccount(Account account, boolean isEnable)
+    {
+        account.setEnabled(isEnable);
 
-            boolean isAccountAdded = false;
-            Enumeration<?> accounts = elements();
-            AccountID accountID = account.getProtocolProvider().getAccountID();
+        AccountID accountID = account.getAccountID();
 
-            // If we already have other accounts.
-            while (accounts.hasMoreElements())
-            {
-                Account a = (Account) accounts.nextElement();
-                AccountID listAccountID = a.getProtocolProvider().getAccountID();
-
-                int accountIndex = indexOf(a);
-
-                int protocolCompare
-                    = accountID.getProtocolDisplayName().compareTo(
-                        listAccountID.getProtocolDisplayName());
-
-                // If the new account protocol name is before the name of the
-                // menu we insert the new account before the given menu.
-                if (protocolCompare < 0)
-                {
-                    insertElementAt(account, accountIndex);
-                    isAccountAdded = true;
-                    break;
-                }
-                else if (protocolCompare == 0)
-                {
-                    // If we have the same protocol name, we check the account name.
-                    if (accountID.getDisplayName()
-                                .compareTo(listAccountID.getDisplayName()) < 0)
-                    {
-                        insertElementAt(account, accountIndex);
-                        isAccountAdded = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!isAccountAdded)
-                addElement(account);
-        }
+        if (isEnable)
+            GuiActivator.getAccountManager().loadAccount(accountID);
+        else
+            GuiActivator.getAccountManager().unloadAccount(accountID);
     }
 }

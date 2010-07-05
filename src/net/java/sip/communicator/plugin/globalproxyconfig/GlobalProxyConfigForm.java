@@ -70,7 +70,6 @@ public class GlobalProxyConfigForm
         usernameField.addKeyListener(this);
         passwordField.addKeyListener(this);
 
-        this.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         TransparentPanel centerPanel = new TransparentPanel(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();

@@ -28,7 +28,7 @@ public class NotificationServiceImpl
 
     private static final String NOTIFICATIONS_PREFIX = 
         "net.java.sip.communicator.impl.notifications";
-    
+
     /**
      * A set of all registered event notifications.
      */
@@ -133,9 +133,9 @@ public class NotificationServiceImpl
             this.fireNotificationEventTypeEvent(
                 NotificationEventTypeEvent.EVENT_TYPE_ADDED, eventType);
         }
-        
+
         Object existingAction = notification.addAction(actionType, handler);
-        
+
         // We fire the appropriate event depending on whether this is an
         // already existing actionType or a new one.
         if (existingAction != null)
@@ -154,7 +154,7 @@ public class NotificationServiceImpl
                 actionType,
                 handler);
         }
-        
+
         // Save the notification through the ConfigurationService.
         this.saveNotification(  eventType,
                                 actionType,
@@ -162,7 +162,7 @@ public class NotificationServiceImpl
                                 true,
                                 false);
     }
-    
+
     /**
      * Creates a new <tt>EventNotification</tt> or obtains the corresponding
      * existing one and registers a new action in it.
@@ -296,7 +296,8 @@ public class NotificationServiceImpl
         if(notification == null)
             return null;
 
-        Hashtable<String, NotificationActionHandler> actions = new Hashtable<String, NotificationActionHandler>();
+        Hashtable<String, NotificationActionHandler> actions
+            = new Hashtable<String, NotificationActionHandler>();
 
         for (Object value : notification.getActions().values())
         {
@@ -305,7 +306,7 @@ public class NotificationServiceImpl
 
             actions.put(action.getActionType(), handler);
         }
-        
+
         return actions;
     }
 
@@ -441,7 +442,7 @@ public class NotificationServiceImpl
     {
         this.fireNotification(eventType, null, null, null, null);
     }
-    
+
     /**
      * Saves the event notification given by these parameters through the
      * <tt>ConfigurationService</tt>.
@@ -482,7 +483,7 @@ public class NotificationServiceImpl
             
             configService.setProperty(eventTypeNodeName, eventType);
         }
-        
+
         // if we set active/inactive for the whole event notification
         if(actionType == null && actionHandler == null)
         {
@@ -491,10 +492,10 @@ public class NotificationServiceImpl
                 Boolean.toString(isActive));
             return;
         }
-        
+
         // Go through contained actions.
         String actionPrefix = eventTypeNodeName + ".actions";
-    
+
         List<String> actionTypes = configService
                 .getPropertyNamesByPrefix(actionPrefix, true);
 
@@ -516,27 +517,27 @@ public class NotificationServiceImpl
             actionTypeNodeName = actionPrefix
                                     + ".actionType"
                                     + Long.toString(System.currentTimeMillis());
-        
-            configProperties.put(actionTypeNodeName, actionType);        
+
+            configProperties.put(actionTypeNodeName, actionType);
         }
-        
+
         if(actionHandler instanceof SoundNotificationHandler)
         {
             SoundNotificationHandler soundHandler
                 = (SoundNotificationHandler) actionHandler;
-            
+
             configProperties.put(
                 actionTypeNodeName + ".soundFileDescriptor",
                 soundHandler.getDescriptor());
-            
+
             configProperties.put(
                 actionTypeNodeName + ".loopInterval",
                 soundHandler.getLoopInterval());
-            
+
             configProperties.put(
                 actionTypeNodeName + ".enabled",
                 Boolean.toString(isActive));
-            
+
             configProperties.put(
                 actionTypeNodeName + ".default",
                 Boolean.toString(isDefault));
@@ -545,15 +546,15 @@ public class NotificationServiceImpl
         {
             PopupMessageNotificationHandler messageHandler
                 = (PopupMessageNotificationHandler) actionHandler;
-        
+
             configProperties.put(
                 actionTypeNodeName + ".defaultMessage",
-                messageHandler.getDefaultMessage());      
-            
+                messageHandler.getDefaultMessage());
+
             configProperties.put(
                 actionTypeNodeName + ".enabled",
                 Boolean.toString(isActive));
-            
+
             configProperties.put(
                 actionTypeNodeName + ".default",
                 Boolean.toString(isDefault));
@@ -562,15 +563,15 @@ public class NotificationServiceImpl
         {
             LogMessageNotificationHandler logMessageHandler
                 = (LogMessageNotificationHandler) actionHandler;
-    
+
             configProperties.put(
                 actionTypeNodeName + ".logType",
                 logMessageHandler.getLogType());
-            
+
             configProperties.put(
                 actionTypeNodeName + ".enabled",
                 Boolean.toString(isActive));
-            
+
             configProperties.put(
                 actionTypeNodeName + ".default",
                 Boolean.toString(isDefault));
@@ -579,15 +580,15 @@ public class NotificationServiceImpl
         {
             CommandNotificationHandler commandHandler
                 = (CommandNotificationHandler) actionHandler;
-    
+
             configProperties.put(
                 actionTypeNodeName + ".commandDescriptor",
                 commandHandler.getDescriptor());
-            
+
             configProperties.put(
                 actionTypeNodeName + ".enabled",
                 Boolean.toString(isActive));
-            
+
             configProperties.put(
                 actionTypeNodeName + ".default",
                 Boolean.toString(isDefault));
@@ -596,7 +597,7 @@ public class NotificationServiceImpl
         if (configProperties.size() > 0)
             configService.setProperties(configProperties);
     }
-    
+
     /**
      * Loads all previously saved event notifications.
      */
@@ -609,10 +610,10 @@ public class NotificationServiceImpl
         {
             boolean isEventActive = 
                 isEnabled(eventTypeRootPropName + ".active");
-            
+
             String eventType
                 = configService.getString(eventTypeRootPropName);
-        
+
             List<String> actions = configService
                 .getPropertyNamesByPrefix(
                     eventTypeRootPropName + ".actions", true);
@@ -621,15 +622,15 @@ public class NotificationServiceImpl
             {
                 String actionType
                     = configService.getString(actionPropName);
-                
+
                 NotificationActionHandler handler = null;
-                
+
                 if(actionType.equals(ACTION_SOUND))
                 {
                     String soundFileDescriptor
                         = configService.getString(
                             actionPropName + ".soundFileDescriptor");
-                
+
                     String loopInterval
                         = configService.getString(
                             actionPropName + ".loopInterval");
@@ -637,7 +638,7 @@ public class NotificationServiceImpl
                     handler = new SoundNotificationHandlerImpl(
                         soundFileDescriptor,
                         Integer.parseInt(loopInterval));
-                    
+
                     handler.setEnabled(
                         isEnabled(actionPropName + ".enabled"));
                 }
@@ -646,7 +647,7 @@ public class NotificationServiceImpl
                     String defaultMessage
                         = configService.getString(
                             actionPropName + ".defaultMessage");
-            
+
                     handler = new PopupMessageNotificationHandlerImpl(
                                                                 defaultMessage);
                     handler.setEnabled(
@@ -657,9 +658,9 @@ public class NotificationServiceImpl
                     String logType
                         = configService.getString(
                             actionPropName + ".logType");
-            
+
                     handler = new LogMessageNotificationHandlerImpl(logType);
-                    
+
                     handler.setEnabled(isEnabled(actionPropName + ".enabled"));
                 }
                 else if(actionType.equals(ACTION_COMMAND))
@@ -667,12 +668,12 @@ public class NotificationServiceImpl
                     String commandDescriptor
                         = configService.getString(
                             actionPropName + ".commandDescriptor");
-        
+
                     handler = new CommandNotificationHandlerImpl(
                                                             commandDescriptor);
-                    handler.setEnabled(isEnabled(actionPropName + ".enabled"));                              
+                    handler.setEnabled(isEnabled(actionPropName + ".enabled"));
                 }
-                
+
                 // Load the data in the notifications table.
                 EventNotification notification
                     = notificationsTable.get(eventType);
@@ -688,11 +689,11 @@ public class NotificationServiceImpl
             }
         }
     }
-    
+
     private boolean isEnabled(String configProperty)
     {
         Object isEnabledObj = configService.getProperty(configProperty);
-            
+
         // if setting is missing we accept it is true 
         // this way we not affect old saved settings
         if(isEnabledObj == null)
@@ -744,7 +745,7 @@ public class NotificationServiceImpl
         
         return eventNotification.isActive();
     }
-    
+
     /**
      * Notifies all registered <tt>NotificationChangeListener</tt>s that a
      * <tt>NotificationEventTypeEvent</tt> has occurred.
@@ -761,7 +762,7 @@ public class NotificationServiceImpl
             logger.debug("Dispatching NotificationEventType Change. Listeners="
                      + changeListeners.size()
                      + " evt=" + eventType);
-        
+
         NotificationEventTypeEvent event
             = new NotificationEventTypeEvent(this, eventType, sourceEventType);
 
@@ -826,7 +827,7 @@ public class NotificationServiceImpl
             }
         }
     }
-    
+
     private boolean isDefault(String eventType, String actionType)
     {
         List<String> eventTypes = configService
@@ -836,10 +837,10 @@ public class NotificationServiceImpl
         {
             String eType
                 = configService.getString(eventTypeRootPropName);
-        
+
             if(!eType.equals(eventType))
                 continue;
-            
+
             List<String> actions = configService
                 .getPropertyNamesByPrefix(
                     eventTypeRootPropName + ".actions", true);
@@ -848,13 +849,13 @@ public class NotificationServiceImpl
             {
                 String aType
                     = configService.getString(actionPropName);
-                
+
                 if(!aType.equals(actionType))
                     continue;
-                
+
                 Object isDefaultdObj = 
                     configService.getProperty(actionPropName + ".default");
-            
+
                 // if setting is missing we accept it is true 
                 // this way we override old saved settings
                 if(isDefaultdObj == null)
@@ -863,13 +864,12 @@ public class NotificationServiceImpl
                     return Boolean.parseBoolean((String)isDefaultdObj);
             }
         }
-        
         return true;
     }
 
     /**
-     * Creates a new default <tt>EventNotification</tt> or obtains the corresponding
-     * existing one and registers a new action in it.
+     * Creates a new default <tt>EventNotification</tt> or obtains the
+     * corresponding existing one and registers a new action in it.
      * 
      * @param eventType the name of the event (as defined by the plugin that's
      * registering it) that we are setting an action for.
@@ -878,7 +878,7 @@ public class NotificationServiceImpl
      * @param handler the <tt>NotificationActionHandler</tt> responsible for
      * handling the given <tt>actionType</tt> 
      */
-    public void registerDefaultNotificationForEvent(   
+    public void registerDefaultNotificationForEvent(
         String eventType,
         String actionType,
         NotificationActionHandler handler)
@@ -913,9 +913,9 @@ public class NotificationServiceImpl
 
                 notificationsTable.put(eventType, notification);
             }
-            
+
             notification.addAction(actionType, handler);
-            
+
             // We fire the appropriate event depending on whether this is an
             // already existing actionType or a new one.
             fireNotificationActionTypeEvent(
@@ -923,7 +923,7 @@ public class NotificationServiceImpl
                     : NotificationActionTypeEvent.ACTION_CHANGED, eventType,
                 actionType, handler);
         }
-        
+
         // now store this default events if we want to restore them
         EventNotification notification = null;
 
@@ -935,7 +935,7 @@ public class NotificationServiceImpl
             
             defaultNotificationsTable.put(eventType, notification);
         }
-        
+
         notification.addAction(actionType, handler);
     }
 
@@ -961,17 +961,17 @@ public class NotificationServiceImpl
         if (logger.isDebugEnabled())
             logger.debug("Registering default event " + eventType + "/" + 
             actionType + "/" + actionDescriptor + "/" + defaultMessage);
-        
+
         if(isDefault(eventType, actionType))
         {
             NotificationActionHandler handler = 
                 getEventNotificationActionHandler(eventType, actionType);
             boolean isNew = false;
-            
+
             if(handler == null)
             {
                 isNew = true;
-                
+
                 if (actionType.equals(NotificationService.ACTION_SOUND))
                 {
                     handler = new SoundNotificationHandlerImpl(actionDescriptor, -1);
@@ -990,13 +990,13 @@ public class NotificationServiceImpl
                     handler = new CommandNotificationHandlerImpl(actionDescriptor);
                 }
             }
-            
+
             this.saveNotification(  eventType,
                                     actionType,
                                     handler,
                                     handler.isEnabled(),
                                     true);
-            
+
             EventNotification notification = null;
 
             if(notificationsTable.containsKey(eventType))
@@ -1066,7 +1066,7 @@ public class NotificationServiceImpl
             for (String actionType
                     : new Vector<String>(notification.getActions().keySet()))
                 removeEventNotificationAction(eventType, actionType);
-            
+
             removeEventNotification(eventType);
         }
 
@@ -1076,7 +1076,7 @@ public class NotificationServiceImpl
             String eventType = entry.getKey();
             EventNotification notification = entry.getValue();
 
-            for (String actionType : notification.getActions().keySet())                
+            for (String actionType : notification.getActions().keySet())
                 registerNotificationForEvent(
                     eventType, 
                     actionType, 

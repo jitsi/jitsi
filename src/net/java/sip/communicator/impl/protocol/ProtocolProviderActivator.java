@@ -10,6 +10,7 @@ import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements <code>BundleActivator</code> for the purposes of
@@ -17,10 +18,16 @@ import net.java.sip.communicator.service.protocol.*;
  * services independent of the specifics of a particular protocol.
  *
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public class ProtocolProviderActivator
     implements BundleActivator
 {
+    /**
+     * The object used for logging.
+     */
+    private final static Logger logger
+        = Logger.getLogger(ProtocolProviderActivator.class);
 
     /**
      * The <code>ServiceRegistration</code> of the <code>AccountManager</code>
@@ -70,6 +77,39 @@ public class ProtocolProviderActivator
                             ConfigurationService.class.getName()));
         }
         return configurationService;
+    }
+
+    /**
+     * Returns a <tt>ProtocolProviderFactory</tt> for a given protocol
+     * provider.
+     * @param protocolName the name of the protocol, which factory we're
+     * looking for
+     * @return a <tt>ProtocolProviderFactory</tt> for a given protocol
+     * provider
+     */
+    public static ProtocolProviderFactory getProtocolProviderFactory(
+            String protocolName)
+    {
+        String osgiFilter = "("
+            + ProtocolProviderFactory.PROTOCOL
+            + "="+protocolName+")";
+
+        ProtocolProviderFactory protocolProviderFactory = null;
+        try
+        {
+            ServiceReference[] serRefs
+                = bundleContext.getServiceReferences(
+                    ProtocolProviderFactory.class.getName(), osgiFilter);
+            protocolProviderFactory = (ProtocolProviderFactory)
+                bundleContext.getService(serRefs[0]);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            if (logger.isInfoEnabled())
+                logger.info("ProtocolProviderActivator : " + ex);
+        }
+
+        return protocolProviderFactory;
     }
 
     /**

@@ -166,9 +166,11 @@ public class RssAccountRegistrationWizard
         String user)
         throws OperationFailedException
     {
-
         Hashtable<String, String> accountProperties 
             = new Hashtable<String, String>();
+
+        accountProperties.put(ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+            "resources/images/protocol/rss/rss32x32.png");
 
         accountProperties.put(
             ProtocolProviderFactory.NO_PASSWORD_REQUIRED,

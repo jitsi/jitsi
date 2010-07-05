@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.neomedia;
+package net.java.sip.communicator.plugin.securityconfig.call;
 
 import java.util.*;
 
@@ -12,6 +12,10 @@ import javax.swing.table.*;
 
 import gnu.java.zrtp.*;
 
+/**
+ * 
+ * 
+ */
 public class ZrtpConfigureTableModel<T extends Enum<T>>
     extends AbstractTableModel
 {
@@ -25,59 +29,68 @@ public class ZrtpConfigureTableModel<T extends Enum<T>>
     boolean onOff[];
 
     public ZrtpConfigureTableModel(T algo, ZrtpConfigure act,
-            ZrtpConfigure inAct, String savedConf) {
+            ZrtpConfigure inAct, String savedConf)
+    {
         active = act;
         inActive = inAct;
         algorithm = algo;
-        
+
         clazz = algorithm.getDeclaringClass();
-        
+
         initialize(savedConf);
     }
 
-    private void initialize(String savedConf) {
-
+    private void initialize(String savedConf)
+    {
         // Get all enums constants of this Enum to process
         T enumValues[] = clazz.getEnumConstants();
 
         // first build a list of all available algorithms of this type
         ArrayList<String> fullList = new ArrayList<String>(enumValues.length);
-        for (T sh : enumValues) {
+        for (T sh : enumValues)
             fullList.add(sh.name());
-        }
 
         String savedAlgos[] = savedConf.split(";");
         // Configure saved algorithms as active, remove them from full list of
         // algos
-        for (String str : savedAlgos) {
-            try {
+        for (String str : savedAlgos)
+        {
+            try
+            {
                 T algoEnum = Enum.valueOf(clazz, str);
-                if (algoEnum != null) {
+                if (algoEnum != null)
+                {
                     active.addAlgo(algoEnum);
                     fullList.remove(str);
                 }
-            } catch (IllegalArgumentException e) {
+            }
+            catch (IllegalArgumentException e)
+            {
                 continue;
             }
         }
         // rest of algorithms are inactive
-        for (String str : fullList) {
+        for (String str : fullList)
+        {
             T algoEnum = Enum.valueOf(clazz, str);
-            if (algoEnum != null) {
+            if (algoEnum != null)
                 inActive.addAlgo(algoEnum);
-            }
         }
     }
 
-    public int getColumnCount() { 
+    public int getColumnCount()
+    {
         return 2;
     }
-    
-    public int getRowCount() { 
-        return active.getNumConfiguredAlgos(algorithm) + inActive.getNumConfiguredAlgos(algorithm);
+
+    public int getRowCount()
+    { 
+        return active.getNumConfiguredAlgos(algorithm)
+            + inActive.getNumConfiguredAlgos(algorithm);
     }
-    
-    public Object getValueAt(int row, int col) {
+
+    public Object getValueAt(int row, int col)
+    {
         switch (col)
         {
         case 0:
@@ -95,28 +108,31 @@ public class ZrtpConfigureTableModel<T extends Enum<T>>
         default:
             return null;
         }
-
     }
+
     public boolean isCellEditable(int rowIndex, int columnIndex)
     {
         return (columnIndex == 0);
     }
+
     public Class<?> getColumnClass(int columnIndex)
     {
         return (columnIndex == 0) ? Boolean.class : super
             .getColumnClass(columnIndex);
     }
-    
+
     public void setValueAt(Object value, int row, int column)
     {
         if ((column == 0) && (value instanceof Boolean))
         {
-            if (row >= active.getNumConfiguredAlgos(algorithm)) {
+            if (row >= active.getNumConfiguredAlgos(algorithm))
+            {
                 row -= active.getNumConfiguredAlgos(algorithm);
                 active.addAlgo(inActive.getAlgoAt(row, algorithm));
                 inActive.removeAlgo(inActive.getAlgoAt(row, algorithm));
             }
-            else {
+            else
+            {
                 inActive.addAlgo(active.getAlgoAt(row, algorithm));
                 active.removeAlgo(active.getAlgoAt(row, algorithm));
             }
@@ -140,8 +156,10 @@ public class ZrtpConfigureTableModel<T extends Enum<T>>
      *        an index return value.
      * @return new row index of entry
      */
-    public int move(int row, boolean up, boolean upSave) {
-        if (up) {
+    public int move(int row, boolean up, boolean upSave)
+    {
+        if (up)
+        {
             if (row <= 0)
                 throw new IllegalArgumentException("rowIndex");
 
@@ -179,27 +197,31 @@ public class ZrtpConfigureTableModel<T extends Enum<T>>
         fireTableRowsUpdated(0, getRowCount());
         return row + 1;
     }
-    
-    public boolean checkEnableUp(int row) {
+
+    public boolean checkEnableUp(int row)
+    {
         return (row < active.getNumConfiguredAlgos(algorithm));
     }
 
-    public boolean checkEnableDown(int row) {
+    public boolean checkEnableDown(int row)
+    {
         return (row < active.getNumConfiguredAlgos(algorithm) - 1);
     }
-    
+
     /**
      * Saves the ZrtpConfigure data for this algorithm to configure file
      */
-    public void saveConfig() {
+    public void saveConfig()
+    {
         StringBuffer algoStr = new StringBuffer();
-        for (T sh: active.algos(algorithm)) {
+        for (T sh: active.algos(algorithm))
+        {
             algoStr.append(sh.name());
             algoStr.append(';');
         }
         // save in configuration data using the appropriate key
     }
-    
+
     /**
      * Sets the ZrtpConfigure data for this algorithm to a predefined set.
      * 
@@ -207,9 +229,11 @@ public class ZrtpConfigureTableModel<T extends Enum<T>>
      * algorithms. Get the names and construct a string, then call initialize
      * to setup the inActive ZrtpConfigure data.
      */
-    public void setStandardConfig() {
+    public void setStandardConfig()
+    {
         StringBuffer algoStr = new StringBuffer();
-        for (T sh: active.algos(algorithm)) {
+        for (T sh: active.algos(algorithm))
+        {
             algoStr.append(sh.name());
             algoStr.append(';');
         }

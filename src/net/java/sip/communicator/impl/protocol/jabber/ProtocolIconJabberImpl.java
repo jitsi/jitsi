@@ -43,6 +43,12 @@ public class ProtocolIconJabberImpl
         = new Hashtable<String, byte[]>();
 
     /**
+     * A hash table containing the path to the protocol icon in different sizes.
+     */
+    private final Hashtable<String, String> iconPathsTable
+        = new Hashtable<String, String>();
+
+    /**
      * Creates an instance of this class by passing to it the path, where all
      * protocol icons are placed.
      * 
@@ -60,6 +66,15 @@ public class ProtocolIconJabberImpl
 
         iconsTable.put(ProtocolIcon.ICON_SIZE_48x48, loadIcon(iconPath
             + "/logo48x48.png"));
+
+        iconPathsTable.put(ProtocolIcon.ICON_SIZE_16x16,
+            iconPath + "/status16x16-online.png");
+
+        iconPathsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+            iconPath + "/logo32x32.png");
+
+        iconPathsTable.put(ProtocolIcon.ICON_SIZE_48x48, 
+            iconPath + "/logo48x48.png");
     }
  
     /**
@@ -90,7 +105,17 @@ public class ProtocolIconJabberImpl
     {
         return iconsTable.get(iconSize);
     }
-    
+
+    /**
+     * Returns a path to the icon with the given size.
+     * @param iconSize the size of the icon we're looking for
+     * @return the path to the icon with the given size
+     */
+    public String getIconPath(String iconSize)
+    {
+        return iconPathsTable.get(iconSize);
+    }
+
     /**
      * Returns the icon image used to represent the protocol connecting state.
      * @return the icon image used to represent the protocol connecting state

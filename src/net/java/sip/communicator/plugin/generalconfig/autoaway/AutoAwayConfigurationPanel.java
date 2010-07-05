@@ -4,15 +4,15 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.autoaway;
+package net.java.sip.communicator.plugin.generalconfig.autoaway;
 
 import java.awt.*;
-import java.awt.Container;
 import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.plugin.generalconfig.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -25,7 +25,6 @@ import net.java.sip.communicator.util.swing.*;
 public class AutoAwayConfigurationPanel
     extends TransparentPanel
 {
-
     /**
      * The default value to be displayed in {@link #timer} and to be considered
      * for {@link Preferences#TIMER}.
@@ -40,26 +39,29 @@ public class AutoAwayConfigurationPanel
      */
     public AutoAwayConfigurationPanel()
     {
-        super(new BorderLayout(10, 10));
+        super(new BorderLayout());
 
-        Component mainPanel = init();
+        add(GeneralConfigPluginActivator.createConfigSectionComponent(
+                Resources.getString("service.gui.STATUS")),
+            BorderLayout.WEST);
+        add(createMainPanel());
+
         initValues();
-
-        this.add(mainPanel);
     }
 
     /**
-     * Init the widgets
+     * Init the main panel.
+     * @return the created component
      */
-    private Component init()
+    private Component createMainPanel()
     {
-        JPanel fieldsPanel = new TransparentPanel(new BorderLayout(5, 5));
-        fieldsPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel mainPanel = new TransparentPanel(new BorderLayout(5, 5));
 
-        enable = new SIPCommCheckBox(AutoAwayActivator.getResources()
+        enable = new SIPCommCheckBox(GeneralConfigPluginActivator.getResources()
                 .getI18NString("plugin.autoaway.ENABLE_CHANGE_STATUS"));
 
-        fieldsPanel.add(enable, BorderLayout.NORTH);
+        mainPanel.add(enable, BorderLayout.NORTH);
+
         enable.addActionListener(new ActionListener()
         {
 
@@ -74,7 +76,7 @@ public class AutoAwayConfigurationPanel
             new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
         // Text
         timerPanel.add(new JLabel(
-                AutoAwayActivator.getResources()
+                GeneralConfigPluginActivator.getResources()
                     .getI18NString("plugin.autoaway.AWAY_MINUTES")));
         // Spinner
         timer = new JSpinner(new SpinnerNumberModel(DEFAULT_TIMER, 1, 180, 1));
@@ -88,10 +90,8 @@ public class AutoAwayConfigurationPanel
             }
         });
 
-        fieldsPanel.add(timerPanel, BorderLayout.WEST);
+        mainPanel.add(timerPanel, BorderLayout.WEST);
 
-        Container mainPanel = new TransparentPanel(new BorderLayout());
-        mainPanel.add(fieldsPanel, BorderLayout.NORTH);
         return mainPanel;
     }
 
@@ -101,7 +101,7 @@ public class AutoAwayConfigurationPanel
     private void initValues()
     {
         ConfigurationService configService 
-            = AutoAwayActivator.getConfigService();
+            = GeneralConfigPluginActivator.getConfigurationService();
 
         boolean e = configService.getBoolean(Preferences.ENABLE, false);
         this.enable.setSelected(e);
@@ -117,7 +117,7 @@ public class AutoAwayConfigurationPanel
     private void saveData()
     {
         ConfigurationService configService 
-            = AutoAwayActivator.getConfigService();
+            = GeneralConfigPluginActivator.getConfigurationService();
 
         configService.setProperty(Preferences.ENABLE, 
                                   Boolean.toString(enable.isSelected()));

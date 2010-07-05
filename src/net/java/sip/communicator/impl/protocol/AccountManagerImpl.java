@@ -8,12 +8,12 @@ package net.java.sip.communicator.impl.protocol;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Represents an implementation of <code>AccountManager</code> which loads the
@@ -58,6 +58,11 @@ public class AccountManagerImpl
      */
     private Thread loadStoredAccountsThread;
 
+    /**
+     * The list of <tt>AccountID</tt>s, corresponding to all stored accounts.
+     */
+    private Vector<AccountID> storedAccounts = new Vector<AccountID>();
+
     private final Logger logger = Logger.getLogger(AccountManagerImpl.class);
 
     /**
@@ -82,8 +87,9 @@ public class AccountManagerImpl
         });
     }
 
-    /*
+    /**
      * Implements AccountManager#addListener(AccountManagerListener).
+     * @param listener the <tt>AccountManagerListener</tt> to add
      */
     public void addListener(AccountManagerListener listener)
     {
@@ -106,15 +112,15 @@ public class AccountManagerImpl
         ConfigurationService configService
             = ProtocolProviderActivator.getConfigurationService();
         String factoryPackage = getFactoryImplPackageName(factory);
-        List<String> storedAccounts =
-            configService.getPropertyNamesByPrefix(factoryPackage, true);
+        List<String> accounts
+            = configService.getPropertyNamesByPrefix(factoryPackage, true);
 
         if (logger.isDebugEnabled())
-            logger.debug("Discovered " + storedAccounts.size() + " stored "
+            logger.debug("Discovered " + accounts.size() + " stored "
                     + factoryPackage + " accounts");
 
-        for (Iterator<String> storedAccountIter = storedAccounts.iterator(); storedAccountIter
-            .hasNext();)
+        for (Iterator<String> storedAccountIter = accounts.iterator();
+                storedAccountIter.hasNext();)
         {
             String storedAccount = storedAccountIter.next();
 
@@ -126,6 +132,8 @@ public class AccountManagerImpl
             Map<String, String> accountProperties =
                 new Hashtable<String, String>();
 
+            boolean isDisabled = false;
+
             for (Iterator<String> storedAccountPropertyIter =
                 storedAccountProperties.iterator(); storedAccountPropertyIter
                 .hasNext();)
@@ -135,8 +143,12 @@ public class AccountManagerImpl
 
                 property = stripPackagePrefix(property);
 
+                if (ProtocolProviderFactory.IS_ACCOUNT_DISABLED.equals(property))
+                {
+                    isDisabled = new Boolean(value).booleanValue();
+                }
                 // Decode passwords.
-                if (ProtocolProviderFactory.PASSWORD.equals(property))
+                else if (ProtocolProviderFactory.PASSWORD.equals(property))
                 {
                     if (value == null)
                     {
@@ -161,7 +173,20 @@ public class AccountManagerImpl
 
             try
             {
-                factory.loadAccount(accountProperties);
+                AccountID accountID = factory.createAccount(accountProperties);
+
+                // If for some reason the account id is not created we have
+                // nothing more to do here.
+                if (accountID == null)
+                    return;
+
+                synchronized (storedAccounts)
+                {
+                    storedAccounts.add(accountID);
+                }
+
+                if (!isDisabled)
+                    factory.loadAccount(accountID);
             }
             catch (Exception ex)
             {
@@ -199,7 +224,8 @@ public class AccountManagerImpl
                 new AccountManagerEvent(this,
                     AccountManagerEvent.STORED_ACCOUNTS_LOADED, factory);
 
-            for (int listenerIndex = 0; listenerIndex < listenerCount; listenerIndex++)
+            for (int listenerIndex = 0;
+                    listenerIndex < listenerCount; listenerIndex++)
             {
                 listeners[listenerIndex].handleAccountManagerEvent(event);
             }
@@ -248,8 +274,8 @@ public class AccountManagerImpl
                 }
 
                 String factoryPackage = getFactoryImplPackageName(factory);
-                List<String> storedAccounts =
-                    configService
+                List<String> storedAccounts
+                    = configService
                         .getPropertyNamesByPrefix(factoryPackage, true);
 
                 /* Ignore the hidden accounts. */
@@ -265,8 +291,8 @@ public class AccountManagerImpl
                     if (!includeHidden)
                     {
                         for (Iterator<String> storedAccountPropertyIter =
-                            storedAccountProperties.iterator(); storedAccountPropertyIter
-                            .hasNext();)
+                            storedAccountProperties.iterator();
+                            storedAccountPropertyIter.hasNext();)
                         {
                             String property = storedAccountPropertyIter.next();
                             String value = configService.getString(property);
@@ -360,8 +386,9 @@ public class AccountManagerImpl
         }
     }
 
-    /*
+    /**
      * Implements AccountManager#removeListener(AccountManagerListener).
+     * @param listener the <tt>AccountManagerListener</tt> to remove
      */
     public void removeListener(AccountManagerListener listener)
     {
@@ -492,6 +519,12 @@ public class AccountManagerImpl
     public void storeAccount(ProtocolProviderFactory factory,
         AccountID accountID)
     {
+        synchronized (storedAccounts)
+        {
+            if (!storedAccounts.contains(accountID))
+                storedAccounts.add(accountID);
+        }
+
         ConfigurationService configurationService
             = ProtocolProviderActivator.getConfigurationService();
         String factoryPackage = getFactoryImplPackageName(factory);
@@ -507,7 +540,8 @@ public class AccountManagerImpl
         {
             String storedAccount = storedAccountIter.next();
             String storedAccountUID =
-                configurationService.getString(storedAccount + ".ACCOUNT_UID");
+                configurationService.getString(storedAccount + "."
+                    + ProtocolProviderFactory.ACCOUNT_UID);
 
             if (storedAccountUID.equals(accountUID))
             {
@@ -562,6 +596,198 @@ public class AccountManagerImpl
         if (logger.isDebugEnabled())
             logger.debug("Stored account for id " + accountID.getAccountUniqueID()
                     + " for package " + factoryPackage);
+    }
+
+    /**
+     * Removes the account with <tt>accountID</tt> from the set of accounts
+     * that are persistently stored inside the configuration service.
+     * <p>
+     * @param factory the <code>ProtocolProviderFactory</code> which created the
+     * account to be stored
+     * @param accountID the AccountID of the account to remove.
+     * <p>
+     * @return true if an account has been removed and false otherwise.
+     */
+    public boolean removeStoredAccount(ProtocolProviderFactory factory,
+        AccountID accountID)
+    {
+        synchronized (storedAccounts)
+        {
+            if (storedAccounts.contains(accountID))
+                storedAccounts.remove(accountID);
+        }
+
+        String factoryPackage = getFactoryImplPackageName(factory);
+
+        ServiceReference confReference
+            = bundleContext.getServiceReference(
+                ConfigurationService.class.getName());
+        ConfigurationService configurationService
+            = (ConfigurationService) bundleContext.getService(confReference);
+
+        //first retrieve all accounts that we've registered
+        List<String> storedAccounts
+            = configurationService.getPropertyNamesByPrefix(
+                factoryPackage, true);
+
+        //find an account with the corresponding id.
+        for (String accountRootPropertyName : storedAccounts)
+        {
+            //unregister the account in the configuration service.
+            //all the properties must have been registered in the following
+            //hierarchy:
+            //net.java.sip.communicator.impl.protocol.PROTO_NAME.ACC_ID.PROP_NAME
+            String accountUID = configurationService.getString(
+                accountRootPropertyName //node id
+                + "." + ProtocolProviderFactory.ACCOUNT_UID); // propname
+
+            if (accountUID.equals(accountID.getAccountUniqueID()))
+            {
+                //retrieve the names of all properties registered for the
+                //current account.
+                List<String> accountPropertyNames
+                    = configurationService.getPropertyNamesByPrefix(
+                        accountRootPropertyName, false);
+
+                //set all account properties to null in order to remove them.
+                for (String propName : accountPropertyNames)
+                {
+                    configurationService.setProperty(propName, null);
+                }
+
+                //and now remove the parent too.
+                configurationService.setProperty(
+                    accountRootPropertyName, null);
+
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns an <tt>Iterator</tt> over a list of all stored
+     * <tt>AccountID</tt>s. The list of stored accounts include all registered
+     * accounts and all disabled accounts. In other words in this list we could
+     * find accounts that aren't loaded.
+     * <p>
+     * In order to check if an account is already loaded please use the
+     * #isAccountLoaded(AccountID accountID) method. To load an account use the
+     * #loadAccount(AccountID accountID) method.
+     *
+     * @return an <tt>Iterator</tt> over a list of all stored
+     * <tt>AccountID</tt>s
+     */
+    public Collection<AccountID> getStoredAccounts()
+    {
+        synchronized (storedAccounts)
+        {
+            return new Vector<AccountID>(storedAccounts);
+        }
+    }
+
+    /**
+     * Loads the account corresponding to the given <tt>AccountID</tt>. An
+     * account is loaded when its <tt>ProtocolProviderService</tt> is registered
+     * in the bundle context. This method is meant to load the account through
+     * the corresponding <tt>ProtocolProviderFactory</tt>.
+     *
+     * @param accountID the identifier of the account to load
+     */
+    public void loadAccount(AccountID accountID)
+    {
+        // If the account with the given id is already loaded we have nothing
+        // to do here.
+        if (isAccountLoaded(accountID))
+            return;
+
+        ProtocolProviderFactory providerFactory
+            = ProtocolProviderActivator.getProtocolProviderFactory(
+                accountID.getProtocolDisplayName());
+
+        if(providerFactory.loadAccount(accountID))
+        {
+            accountID.putAccountProperty(
+                ProtocolProviderFactory.IS_ACCOUNT_DISABLED,
+                String.valueOf(false));
+
+            // Finally store the modified properties.
+            storeAccount(providerFactory, accountID);
+        }
+    }
+
+    /**
+     * Unloads the account corresponding to the given <tt>AccountID</tt>. An
+     * account is unloaded when its <tt>ProtocolProviderService</tt> is
+     * unregistered in the bundle context. This method is meant to unload the
+     * account through the corresponding <tt>ProtocolProviderFactory</tt>.
+     *
+     * @param accountID the identifier of the account to load
+     */
+    public void unloadAccount(AccountID accountID)
+    {
+        // If the account with the given id is already unloaded we have nothing
+        // to do here.
+        if (!isAccountLoaded(accountID))
+            return;
+
+        ProtocolProviderFactory providerFactory
+            = ProtocolProviderActivator.getProtocolProviderFactory(
+                accountID.getProtocolDisplayName());
+
+        // Obtain the protocol provider.
+        ServiceReference serRef
+            = providerFactory.getProviderForAccount(accountID);
+
+        // If there's no such provider we have nothing to do here.
+        if (serRef == null)
+            return;
+
+        ProtocolProviderService protocolProvider =
+            (ProtocolProviderService) bundleContext.getService(serRef);
+
+        // Set the account icon path for unloaded accounts.
+        String iconPathProperty = accountID.getAccountPropertyString(
+            ProtocolProviderFactory.ACCOUNT_ICON_PATH);
+
+        if (iconPathProperty == null)
+        {
+            accountID.putAccountProperty(
+                ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+                protocolProvider.getProtocolIcon()
+                    .getIconPath(ProtocolIcon.ICON_SIZE_32x32));
+        }
+
+        accountID.putAccountProperty(
+            ProtocolProviderFactory.IS_ACCOUNT_DISABLED,
+            String.valueOf(true));
+
+        if (!providerFactory.unloadAccount(accountID))
+        {
+            accountID.putAccountProperty(
+                ProtocolProviderFactory.IS_ACCOUNT_DISABLED,
+                String.valueOf(false));
+
+            // Finally store the modified properties.
+            storeAccount(providerFactory, accountID);
+        }
+    }
+
+    /**
+     * Checks if the account corresponding to the given <tt>accountID</tt> is
+     * loaded. An account is loaded if its <tt>ProtocolProviderService</tt> is
+     * registered in the bundle context. By default all accounts are loaded.
+     * However the user could manually unload an account, which would be
+     * unregistered from the bundle context, but would remain in the
+     * configuration file.
+     *
+     * @param accountID the identifier of the account to load
+     * @return <tt>true</tt> to indicate that the account with the given
+     * <tt>accountID</tt> is loaded, <tt>false</tt> - otherwise
+     */
+    public boolean isAccountLoaded(AccountID accountID)
+    {
+        return storedAccounts.contains(accountID) && accountID.isEnabled();
     }
 
     private String stripPackagePrefix(String property)

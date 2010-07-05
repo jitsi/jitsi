@@ -339,6 +339,17 @@ public abstract class AccountID
     }
 
     /**
+     * Indicates if this account is currently enabled.
+     * @return <tt>true</tt> if this account is enabled, <tt>false</tt> -
+     * otherwise.
+     */
+    public boolean isEnabled()
+    {
+        return !getAccountPropertyBoolean(
+            ProtocolProviderFactory.IS_ACCOUNT_DISABLED, false);
+    }
+
+    /**
      * Set the account properties.
      *
      * @param accountProperties the properties of the account

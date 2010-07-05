@@ -72,6 +72,8 @@ public class GuiActivator implements BundleActivator
 
     private static MediaService mediaService;
 
+    private static AccountManager accountManager;
+
     private static List<ContactSourceService> contactSources;
 
     private static final Map<Object, ProtocolProviderFactory>
@@ -220,15 +222,29 @@ public class GuiActivator implements BundleActivator
     public static ProtocolProviderFactory getProtocolProviderFactory(
             ProtocolProviderService protocolProvider)
     {
+        return getProtocolProviderFactory(protocolProvider.getProtocolName());
+    }
+
+    /**
+     * Returns a <tt>ProtocolProviderFactory</tt> for a given protocol
+     * provider.
+     * @param protocolName the name of the protocol
+     * @return a <tt>ProtocolProviderFactory</tt> for a given protocol
+     * provider
+     */
+    public static ProtocolProviderFactory getProtocolProviderFactory(
+            String protocolName)
+    {
         String osgiFilter = "("
             + ProtocolProviderFactory.PROTOCOL
-            + "="+protocolProvider.getProtocolName()+")";
+            + "="+protocolName+")";
 
         ProtocolProviderFactory protocolProviderFactory = null;
         try
         {
-            ServiceReference[] serRefs = GuiActivator.bundleContext.getServiceReferences(
-                ProtocolProviderFactory.class.getName(), osgiFilter);
+            ServiceReference[] serRefs
+                = GuiActivator.bundleContext.getServiceReferences(
+                    ProtocolProviderFactory.class.getName(), osgiFilter);
             protocolProviderFactory = (ProtocolProviderFactory) GuiActivator
                     .bundleContext.getService(serRefs[0]);
         }
@@ -238,6 +254,44 @@ public class GuiActivator implements BundleActivator
         }
 
         return protocolProviderFactory;
+    }
+
+    /**
+     * Returns the <tt>ProtocolProviderService</tt> corresponding to the given
+     * account identifier that is registered in the given factory
+     * @param accountID the identifier of the account
+     * @return the <tt>ProtocolProviderService</tt> corresponding to the given
+     * account identifier that is registered in the given factory
+     */
+    public static ProtocolProviderService getRegisteredProviderForAccount(
+        AccountID accountID)
+    {
+        ProtocolProviderFactory providerFactory
+            = getProtocolProviderFactory(accountID.getProtocolDisplayName());
+
+        ServiceReference serRef
+            = providerFactory.getProviderForAccount(accountID);
+
+        return (ProtocolProviderService) GuiActivator.bundleContext
+                    .getService(serRef);
+    }
+
+    /**
+     * Returns the <tt>AccountManager</tt> obtained from the bundle context.
+     * @return the <tt>AccountManager</tt> obtained from the bundle context
+     */
+    public static AccountManager getAccountManager()
+    {
+        if(accountManager == null)
+        {
+            ServiceReference accountManagerRef = bundleContext
+                .getServiceReference(AccountManager.class.getName());
+
+            accountManager = (AccountManager) bundleContext
+                .getService(accountManagerRef);
+        }
+
+        return accountManager;
     }
 
     /**

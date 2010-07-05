@@ -187,7 +187,6 @@ public class Wizard
         // the CardLayout layout manager.
 
         Object wizardForm = page.getWizardForm();
-
         if (wizardForm instanceof Component)
             cardPanel.add((Component) wizardForm, id);
 

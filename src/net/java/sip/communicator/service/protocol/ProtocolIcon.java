@@ -23,22 +23,22 @@ public interface ProtocolIcon
      * Defines a 16x16 icon size.
      */
     public static final String ICON_SIZE_16x16 = "IconSize16x16";
-    
+
     /**
      * Defines a 32x32 icon size.
      */
     public static final String ICON_SIZE_32x32 = "IconSize32x32";
-    
+
     /**
      * Defines a 48x48 icon size.
      */
     public static final String ICON_SIZE_48x48 = "IconSize48x48";
-    
+
     /**logo
      * Defines a 64x64 icon size.
      */
     public static final String ICON_SIZE_64x64 = "IconSize64x64";
-    
+
     /**
      * Returns an iterator over a set, containing different predefined icon sizes.
      * Each icon size in the set is one of the ICON_SIZE_XXX constants. The
@@ -51,7 +51,7 @@ public interface ProtocolIcon
      * constants.
      */
     public Iterator<String> getSupportedSizes();
-    
+
     /**
      * Checks if the given icon size is supported by the current protocol
      * implementation. If the given <tt>iconSize</tt> is contained in the list of
@@ -63,7 +63,7 @@ public interface ProtocolIcon
      * implementation, FALSE - otherwise.
      */
     public boolean isSizeSupported(String iconSize);
-    
+
     /**
      * Returns the protocol icon image in the desired size.
      * @param iconSize the size of the protocol icon; one of the ICON_SIZE_XXX
@@ -71,7 +71,14 @@ public interface ProtocolIcon
      * @return the protocol icon image in the desired size
      */
     public byte[] getIcon(String iconSize);
-    
+
+    /**
+     * Returns a path to the icon with the given size.
+     * @param iconSize the size of the icon we're looking for
+     * @return the path to the icon with the given size
+     */
+    public String getIconPath(String iconSize);
+
     /**
      * Returns the icon that should be used when the protocol provider is in
      * a connecting state.

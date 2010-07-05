@@ -10,8 +10,6 @@ import java.util.*;
 
 import javax.swing.*;
 
-import chooser.*;
-
 /**
  * Wrapper for keybinding sets. Observers are notified when there's a change.
  * @author Damian Johnson

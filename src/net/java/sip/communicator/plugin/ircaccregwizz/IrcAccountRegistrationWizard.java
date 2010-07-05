@@ -191,6 +191,9 @@ public class IrcAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
             registration.getServer());
 
+        accountProperties.put(ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+                "resources/images/protocol/irc/irc32x32.png");
+
         if (password != null && !password.equals(""))
         {
             accountProperties.put(

@@ -117,30 +117,31 @@ public class NeomediaActivator
                 ConfigurationForm.class.getName(),
                 new LazyConfigurationForm(
                         "net.java.sip.communicator.impl.neomedia"
-                            + ".MediaConfigurationPanel",
+                            + ".AudioConfigurationPanel",
                         getClass().getClassLoader(),
-                        "plugin.mediaconfig.PLUGIN_ICON",
-                        "impl.neomedia.configform.TITLE",
-                        41),
+                        "plugin.mediaconfig.AUDIO_ICON",
+                        "impl.neomedia.configform.AUDIO",
+                        3),
                 null);
 
-        // ZRTPConfiguration panel
+        // VideoConfigurationForm
         bundleContext
-        .registerService(
-            ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                "net.java.sip.communicator.impl.neomedia.ZrtpConfigurePanel",
-                getClass().getClassLoader(),
-                "impl.media.security.zrtp.CONF_ICON",
-                "impl.media.security.zrtp.TITLE",
-                1100),
-            null);
+            .registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                        "net.java.sip.communicator.impl.neomedia"
+                            + ".VideoConfigurationPanel",
+                        getClass().getClassLoader(),
+                        "plugin.mediaconfig.VIDEO_ICON",
+                        "impl.neomedia.configform.VIDEO",
+                        4),
+                null);
 
         GatherEntropy entropy
             = new GatherEntropy(mediaServiceImpl.getDeviceConfiguration());
 
         entropy.setEntropy();
-        
+
         //we use the nist-sdp stack to make parse sdp and we need to set the
         //following property to make sure that it would accept java generated
         //IPv6 addresses that contain address scope zones.

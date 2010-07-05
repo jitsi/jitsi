@@ -14,9 +14,8 @@ import net.java.sip.communicator.service.protocol.*;
  * @author George Politis
  *
  */
-public interface ScOtrKeyManager
+public interface OtrKeyManagerService
 {
-
     public abstract void addListener(ScOtrKeyManagerListener l);
 
     public abstract void removeListener(ScOtrKeyManagerListener l);

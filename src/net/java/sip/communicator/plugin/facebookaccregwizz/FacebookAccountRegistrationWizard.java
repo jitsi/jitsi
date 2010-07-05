@@ -110,7 +110,6 @@ public class FacebookAccountRegistrationWizard
     {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
 
-        firstWizardPage = new FirstWizardPage(this);
         pages.add(firstWizardPage);
         return pages.iterator();
     }
@@ -173,6 +172,18 @@ public class FacebookAccountRegistrationWizard
             .put(ProtocolProviderFactory.PROTOCOL_ICON_PATH,
                 "resources/images/protocol/facebook");
 
+        accountProperties.put(ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+                "resources/images/protocol/facebook/logo32x32.png");
+
+        accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
+            SERVER_ADDRESS);
+
+        accountProperties.put(ProtocolProviderFactory.SERVER_PORT, "5222");
+
+        accountProperties.put(ProtocolProviderFactory.RESOURCE, "sip-comm");
+
+        accountProperties.put(ProtocolProviderFactory.RESOURCE_PRIORITY, "10");
+
         if (registration.isRememberPassword())
         {
             accountProperties.put(  ProtocolProviderFactory.PASSWORD,
@@ -183,19 +194,12 @@ public class FacebookAccountRegistrationWizard
 
         if (isModification)
         {
-            providerFactory.uninstallAccount(protocolProvider.getAccountID());
-            this.protocolProvider = null;
+            providerFactory.modifyAccount(protocolProvider, accountProperties);
+
             this.isModification  = false;
+
+            return protocolProvider;
         }
-
-        accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
-            SERVER_ADDRESS);
-
-        accountProperties.put(ProtocolProviderFactory.SERVER_PORT, "5222");
-
-        accountProperties.put(ProtocolProviderFactory.RESOURCE, "sip-comm");
-
-        accountProperties.put(ProtocolProviderFactory.RESOURCE_PRIORITY, "10");
 
         Throwable exception = null;
 
@@ -362,8 +366,10 @@ public class FacebookAccountRegistrationWizard
         return false;
     }
 
-    public Object getSimpleForm() {
+    public Object getSimpleForm()
+    {
         firstWizardPage = new FirstWizardPage(this);
+
         return firstWizardPage.getSimpleForm();
     }
 }
