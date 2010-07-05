@@ -62,8 +62,8 @@ public class OperationSetBasicTelephonyJabberImpl
     private JingleManager jingleManager = null;
 
     /**
-     * The transport manager is used by the <tt>jingleManager</tt> to handle transport
-     * method.
+     * The transport manager is used by the <tt>jingleManager</tt> to handle
+     * transport method.
      */
     private JingleTransportManager transportManager = null;
 

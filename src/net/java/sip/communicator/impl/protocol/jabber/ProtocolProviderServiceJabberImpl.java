@@ -750,7 +750,7 @@ public class ProtocolProviderServiceJabberImpl
                 new OperationSetServerStoredAccountInfoJabberImpl(this,
                         infoRetreiver,
                         screenname);
-            
+
             addSupportedOperationSet(OperationSetServerStoredAccountInfo.class,
                 accountInfo);
 
@@ -758,7 +758,7 @@ public class ProtocolProviderServiceJabberImpl
             OperationSetAvatar avatarOpSet =
                 new OperationSetAvatarJabberImpl(this, accountInfo);
             addSupportedOperationSet(OperationSetAvatar.class, avatarOpSet);
-            
+
             // initialize the file transfer operation set
             addSupportedOperationSet(
                 OperationSetFileTransfer.class,
