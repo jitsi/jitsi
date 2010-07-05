@@ -33,7 +33,6 @@
     <classpathentry kind="lib" path="lib/installer-exclude/json-20090723.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jspeex.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/junit.jar"/>
-    <classpathentry kind="lib" path="lib/installer-exclude/KeybindingUtil.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/laf-widget.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/log4j-1.2.8.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/lti-civil-no_s_w_t.jar"/>
