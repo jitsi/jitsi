@@ -340,11 +340,11 @@ public class EntityCapsManager
      * @param extendedInfo any extended information we'd like to add to the ver
      * <tt>String</tt>
      */
-    void calculateEntityCapsVersion(DiscoverInfo discoverInfo,
-                                    String       identityType,
-                                    String       identityName,
-                                    List<String> features,
-                                    DataForm     extendedInfo)
+    public void calculateEntityCapsVersion(DiscoverInfo     discoverInfo,
+                                           String           identityType,
+                                           String           identityName,
+                                           Iterator<String> features,
+                                           DataForm         extendedInfo)
     {
         StringBuilder bldr = new StringBuilder();
 
@@ -356,8 +356,9 @@ public class EntityCapsManager
         synchronized (features)
         {
             SortedSet<String> fs = new TreeSet<String>();
-            for (String f : features)
+            while(features.hasNext())
             {
+                String f = features.next();
                 fs.add(f);
             }
 

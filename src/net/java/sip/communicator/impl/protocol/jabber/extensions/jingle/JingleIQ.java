@@ -31,7 +31,7 @@ public class JingleIQ extends IQ
     /**
      * The name space that jingle belongs to.
      */
-    public static final String NAMESPACE = "urn:xmpp:tmp:jingle";
+    public static final String NAMESPACE = "urn:xmpp:tmp:jingle:1";
 
     /**
      * The name of the element that contains the jingle data.
