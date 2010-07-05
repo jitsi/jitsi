@@ -16,6 +16,8 @@ import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smackx.*;
+import org.jivesoftware.smackx.packet.*;
 
 /**
  * Implements all call management logic and exports basic telephony support by
