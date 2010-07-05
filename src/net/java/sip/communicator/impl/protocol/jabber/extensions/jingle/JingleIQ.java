@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 import java.util.*;
 
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smackx.packet.*;
 
 import net.java.sip.communicator.util.*;
 
@@ -64,26 +63,30 @@ public class JingleIQ extends IQ
      */
     private String sid;
 
+    /**
+     * The list of "content" elements included in this IQ.
+     */
+    private final List<ContentPacketExtension> contentList
+                                = new ArrayList<ContentPacketExtension>();
 
-
-
-
-
-
-    // Sub-elements of a Jingle object.
-
-    private final List<ContentPacketExtension> contentList = new ArrayList<ContentPacketExtension>();
-
-    private JingleContentInfo contentInfo;
-
-    /* (non-Javadoc)
-     * @see org.jivesoftware.smack.packet.IQ#getChildElementXML()
+    /**
+     * Returns the XML string of this Jingle IQ's "section" sub-element.
+     *
+     * Extensions of this class must override this method.
+     *
+     * @return the child element section of the IQ XML.
      */
     @Override
     public String getChildElementXML()
     {
-        // TODO Auto-generated method stub
-        return null;
+        StringBuilder bldr = new StringBuilder();
+
+        for(ContentPacketExtension cpe : contentList)
+        {
+            bldr.append(cpe.toXML());
+        }
+
+        return bldr.toString();
     }
 
 }
