@@ -9,8 +9,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
-import org.jivesoftware.smackx.jingle.*;
-
 /**
  * Our Jabber implementation of the default CallPeer;
  *
@@ -40,12 +38,6 @@ public class CallPeerJabberImpl
      * The call this peer belongs to.
      */
     private CallJabberImpl call;
-
-    /**
-     * The jingle session that has been created by the application for
-     * communication with this call peer.
-     */
-    private JingleSession jingleSession = null;
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
@@ -200,30 +192,6 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Sets the jingle session that has been created by the application for
-     * communication with this call peer.
-     * @param session the jingle session that has been created by the
-     * application for this call.
-     */
-    public void setJingleSession(JingleSession session)
-    {
-        this.jingleSession = session;
-    }
-
-    /**
-     * Returns the jingle session that has been created by the application for
-     * communication with this call peer.
-     *
-     * @return the jingle session that has been created by the application for
-     * communication with this call peer.
-     */
-
-    public JingleSession getJingleSession()
-    {
-        return jingleSession;
-    }
-
-    /**
      * Returns the protocol provider that this peer belongs to.
      * @return a reference to the ProtocolProviderService that this peer
      * belongs to.
@@ -259,7 +227,7 @@ public class CallPeerJabberImpl
     public void addStreamSoundLevelListener(
         SoundLevelListener listener)
     {
-        
+
     }
 
     /**
@@ -272,7 +240,7 @@ public class CallPeerJabberImpl
     public void removeStreamSoundLevelListener(
         SoundLevelListener listener)
     {
-        
+
     }
 
     /**
@@ -285,7 +253,7 @@ public class CallPeerJabberImpl
     public void addConferenceMembersSoundLevelListener(
         ConferenceMembersSoundLevelListener listener)
     {
-        
+
     }
 
     /**

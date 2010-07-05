@@ -11,7 +11,6 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import org.jivesoftware.smackx.jingle.*;
 
 /**
  * Keeps a list of all calls currently active and maintained by this protocol
@@ -93,88 +92,5 @@ public class ActiveCallsRepository
     public Iterator<CallJabberImpl> getActiveCalls()
     {
         return new LinkedList<CallJabberImpl>(activeCalls.values()).iterator();
-    }
-
-    /**
-     * Returns the call that contains the specified session (i.e. it is
-     * established  between us and one of the other call peers).
-     * <p>
-     * @param session the <tt>jingleSession</tt> whose containing call we're
-     * looking for.
-     * @return the <tt>CallJabberImpl</tt> containing <tt>session</tt> or null
-     * if no call contains the specified session.
-     */
-    public CallJabberImpl findCall(JingleSession session)
-    {
-        Iterator<CallJabberImpl> activeCalls = getActiveCalls();
-
-        if(session == null)
-        {
-            if (logger.isDebugEnabled())
-                logger.debug("Cannot find a peer with a null session. "
-                         +"Returning null");
-            return null;
-        }
-
-        if(logger.isTraceEnabled())
-        {
-            if (logger.isTraceEnabled())
-                logger.trace("Looking for peer with session: " + session
-                         + " among " + this.activeCalls.size() + " calls");
-        }
-
-
-        while(activeCalls.hasNext())
-        {
-            CallJabberImpl call = activeCalls.next();
-            if(call.contains(session))
-                return call;
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns the call peer whose associated jingle session matches
-     * <tt>session</tt>.
-     *
-     * @param session the jingle session whose corresponding peer we're
-     * looking for.
-     * @return the call peer whose jingle session is the same as the
-     * specified or null if no such call peer was found.
-     */
-    public CallPeerJabberImpl findCallPeer(JingleSession session)
-    {
-        Iterator<CallJabberImpl> activeCalls = getActiveCalls();
-
-        if(session == null)
-        {
-            if (logger.isDebugEnabled())
-                logger.debug("Cannot find a peer with a null session. "
-                         + "Returning null");
-            return null;
-        }
-
-        if(logger.isTraceEnabled())
-        {
-            if (logger.isTraceEnabled())
-                logger.trace("Looking for peer with session: " + session
-                         + " among " + this.activeCalls.size() + " calls");
-        }
-
-        while(activeCalls.hasNext())
-        {
-            CallJabberImpl call = activeCalls.next();
-            CallPeerJabberImpl callPeer = call.findCallPeer(session);
-
-            if(callPeer != null)
-            {
-                if (logger.isTraceEnabled())
-                    logger.trace("Returning peer " + callPeer);
-                return callPeer;
-            }
-        }
-
-        return null;
     }
 }

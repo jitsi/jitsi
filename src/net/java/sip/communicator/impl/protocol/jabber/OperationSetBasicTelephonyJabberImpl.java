@@ -8,19 +8,13 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import org.jivesoftware.smack.*;
-import org.jivesoftware.smackx.*;
-import org.jivesoftware.smackx.jingle.*;
-import org.jivesoftware.smackx.jingle.media.*;
-import org.jivesoftware.smackx.jingle.JingleNegotiator.*;
-import org.jivesoftware.smackx.jingle.listeners.*;
-import org.jivesoftware.smackx.jingle.nat.*;
-import org.jivesoftware.smackx.packet.DiscoverInfo;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.impl.protocol.jabber.mediamgr.*;
+
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smackx.*;
+import org.jivesoftware.smackx.packet.*;
 
 /**
  * Implements all call management logic and exports basic telephony support by
@@ -30,13 +24,7 @@ import net.java.sip.communicator.impl.protocol.jabber.mediamgr.*;
  */
 public class OperationSetBasicTelephonyJabberImpl
    extends AbstractOperationSetBasicTelephony
-   implements RegistrationStateChangeListener,
-        JingleMediaListener,
-        JingleTransportListener,
-        JingleSessionRequestListener,
-        CreatedJingleSessionListener,
-        JingleSessionStateListener,
-        JingleSessionListener
+   implements RegistrationStateChangeListener
 {
 
     /**
@@ -58,23 +46,6 @@ public class OperationSetBasicTelephonyJabberImpl
             = new ActiveCallsRepository(this);
 
     /**
-     * The manager we use to initiate, receive and ... manage jingle session.
-     */
-    private JingleManager jingleManager = null;
-
-    /**
-     * The transport manager is used by the <tt>jingleManager</tt> to handle
-     * transport method.
-     */
-    private JingleTransportManager transportManager = null;
-
-    /**
-     * The media manager is used by the <tt>jingleManager</tt> to handle media
-     * session.
-     */
-    private JingleMediaManager mediaManager = null;
-
-    /**
      * Creates a new instance.
      *
      * @param protocolProvider a reference to the
@@ -86,8 +57,6 @@ public class OperationSetBasicTelephonyJabberImpl
 
         this.protocolProvider = protocolProvider;
         protocolProvider.addRegistrationStateChangeListener(this);
-        transportManager = new BasicTransportManager();
-        mediaManager = new JingleScMediaManager();
     }
 
     /**
@@ -101,32 +70,15 @@ public class OperationSetBasicTelephonyJabberImpl
     {
         if ((evt.getNewState() == RegistrationState.REGISTERED))
         {
-            transportManager = new ICETransportManager(
-                    protocolProvider.getConnection(),
-                    "stun.iptel.org", 3478);
-
-            jingleManager = new JingleManager(
-                    protocolProvider.getConnection(),
-                    transportManager,
-                    mediaManager);
-
-            jingleManager.addCreationListener(this);
-            jingleManager.addJingleSessionRequestListener(this);
-
+            // TODO: plug jingle registraion
             if (logger.isInfoEnabled())
                 logger.info("Jingle : ON ");
         }
         else if ((evt.getNewState() == RegistrationState.UNREGISTERED))
         {
-            if (jingleManager != null)
-            {
-                jingleManager.removeCreationListener(this);
-                jingleManager.removeJingleSessionRequestListener(this);
-                jingleManager = null;
-
-                if (logger.isInfoEnabled())
-                    logger.info("Jingle : OFF ");
-            }
+            // TODO: plug jingle unregistraion
+            if (logger.isInfoEnabled())
+                logger.info("Jingle : OFF ");
         }
     }
 
@@ -146,7 +98,6 @@ public class OperationSetBasicTelephonyJabberImpl
     public Call createCall(String callee)
             throws OperationFailedException
     {
-
         return createOutgoingCall(callee);
     }
 
@@ -188,8 +139,6 @@ public class OperationSetBasicTelephonyJabberImpl
     private CallJabberImpl createOutgoingCall(String calleeAddress)
             throws OperationFailedException
     {
-        OutgoingJingleSession outJS;
-
         if (logger.isInfoEnabled())
             logger.info("creating outgoing call...");
         if (protocolProvider.getConnection() == null) {
@@ -247,34 +196,8 @@ public class OperationSetBasicTelephonyJabberImpl
             logger.warn("could not retrieve info for " + fullCalleeURI, ex);
         }
 
-        try
-        {
-            outJS = jingleManager.createOutgoingJingleSession(fullCalleeURI);
-        }
-        catch (XMPPException ex)
-        {
-            throw new OperationFailedException(
-                    "Failed to create OutgoingJingleSession.\n"
-                    + "This is most probably a network connection error."
-                    , OperationFailedException.INTERNAL_ERROR
-                    , ex);
-        }
-
-        CallJabberImpl call = new CallJabberImpl(protocolProvider);
-
-        CallPeerJabberImpl callPeer =
-                new CallPeerJabberImpl(calleeAddress, call);
-
-        callPeer.setJingleSession(outJS);
-        callPeer.setState(CallPeerState.INITIATING_CALL);
-
-        fireCallEvent(CallEvent.CALL_INITIATED, call);
-
-        activeCallsRepository.addCall(call);
-
-        outJS.start();
-
-        return (CallJabberImpl) callPeer.getCall();
+        //create the actual jingle call
+        return null;
     }
 
     /**
@@ -357,17 +280,10 @@ public class OperationSetBasicTelephonyJabberImpl
     {
         CallPeerJabberImpl callPeer
                 = (CallPeerJabberImpl)peer;
-        try
-        {
-            ((IncomingJingleSession)callPeer.getJingleSession()).
-                    start();
-        }
-        catch (XMPPException ex)
-        {
-            throw new OperationFailedException(
-                    "Failed to answer an incoming call"
-                    , OperationFailedException.INTERNAL_ERROR);
-        }
+
+        /**
+         * @todo implement
+         */
     }
 
     /**
@@ -408,298 +324,13 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Implements method sessionRequested from JingleSessionRequestListener.
-     *
-     * @param jingleSessionRequest the session requested
-     */
-    public void sessionRequested(JingleSessionRequest jingleSessionRequest)
-    {
-        IncomingJingleSession inJS;
-        if (logger.isInfoEnabled())
-            logger.info("session requested ");
-        try
-        {
-            inJS = jingleSessionRequest.accept();
-        }
-        catch (XMPPException ex)
-        {
-            logger.error("Failed to accept incoming jingle request : " + ex);
-            return;
-        }
-
-        CallJabberImpl call = new CallJabberImpl(protocolProvider);
-
-        String from = jingleSessionRequest.getFrom();
-
-        // we remove the ressource information at ends if any, as it is for
-        // no meaning for the user
-        if (from.indexOf("/") > 0)
-        {
-            from = from.substring(0, from.indexOf("/"));
-        }
-        CallPeerJabberImpl callPeer
-                = new CallPeerJabberImpl(from, call);
-
-        callPeer.setJingleSession(inJS);
-        callPeer.setState(CallPeerState.INCOMING_CALL);
-
-        activeCallsRepository.addCall(call);
-
-        fireCallEvent(CallEvent.CALL_RECEIVED, call);
-    }
-
-    /**
-     * Implements method sessionCreated from CreatedJingleSessionListener.
-     *
-     * @param jingleSession the newly created jingle session
-     */
-    public void sessionCreated(JingleSession jingleSession)
-    {
-        if (logger.isInfoEnabled())
-            logger.info("session created : " + jingleSession);
-
-        jingleSession.addListener(this);
-        jingleSession.addMediaListener(this);
-        jingleSession.addStateListener(this);
-        jingleSession.addTransportListener(this);
-    }
-
-    /**
-     * Implements method mediaClosed from JingleMediaListener.
-     *
-     * @param payloadType payload supported by the closed media
-     */
-    public void mediaClosed(PayloadType payloadType)
-    {
-        if (logger.isInfoEnabled())
-            logger.info(" media closed ");
-    }
-
-    /**
-     * Implements method <tt>mediaEstablished</tt> from JingleMediaListener.
-     *
-     * @param payloadType payload used by the established media
-     */
-    public void mediaEstablished(PayloadType payloadType)
-    {
-        if (logger.isInfoEnabled())
-            logger.info("media established ");
-    }
-
-    /**
-     * Implements method <tt>transportClosed</tt> from JingleTransportListener.
-     *
-     * @param transportCandidate <tt>transportCandiate</tt> with which
-     * we were dealing
-     */
-    public void transportClosed(TransportCandidate transportCandidate)
-    {
-        if (logger.isInfoEnabled())
-            logger.info("transport closed ");
-    }
-
-    /**
      * Implements method <tt>transportClosedOnError</tt> from JingleTransportListener.
      *
-     * @param ex the exception accompagning this error
+     * @param ex the exception accompanying this error
      */
     public void transportClosedOnError(XMPPException ex)
     {
         logger.error("transport closed on error ", ex);
-    }
-
-    /**
-     * Implements method <tt>transportEstablished</tt> from
-     * {@link JingleTransportListener}.
-     *
-     * @param local local <tt>TransportCandidate</tt> for this transport link
-     * @param remote remote <tt>TransportCandidate</tt> for this transport link
-     */
-    public void transportEstablished(TransportCandidate local,
-            TransportCandidate remote)
-    {
-        if (logger.isInfoEnabled())
-            logger.info("transport established " + local + " -:- " + remote);
-    }
-
-    /**
-     * Implements method <tt>beforeChange</tt> from JingleSessionStateListener.
-     * This method is called before the change occurs in the session.
-     * We can cancel the change by throwing a <tt>JingleException</tt>
-     *
-     * @param oldState old state of the session
-     * @param newState state in which we will go
-     *
-     * @throws JingleNegotiator.JingleException we have the ability to cancel a
-     * state change by throwing a {@link JingleException}
-     */
-    public void beforeChange(JingleNegotiator.State oldState,
-                             JingleNegotiator.State newState)
-        throws JingleNegotiator.JingleException
-    {
-        if (newState instanceof IncomingJingleSession.Active)
-        {
-            JingleSession session = (JingleSession) newState.getNegotiator();
-
-            CallPeerJabberImpl callPeer =
-                    activeCallsRepository.findCallPeer(session);
-            if (callPeer == null)
-            {
-                return;
-            }
-            callPeer.setState(CallPeerState.CONNECTED);
-        }
-        else if (newState instanceof OutgoingJingleSession.Inviting)
-        {
-            JingleSession session = (JingleSession) newState.getNegotiator();
-
-            CallPeerJabberImpl callPeer =
-                    activeCallsRepository.findCallPeer(session);
-            if (callPeer == null)
-            {
-                return;
-            }
-            callPeer.setState(CallPeerState.CONNECTING);
-        }
-        else if (newState instanceof OutgoingJingleSession.Pending)
-        {
-            JingleSession session = (JingleSession) newState.getNegotiator();
-
-            CallPeerJabberImpl callPeer =
-                    activeCallsRepository.findCallPeer(session);
-            if (callPeer == null)
-            {
-                return;
-            }
-            callPeer.setState(CallPeerState.ALERTING_REMOTE_SIDE);
-        }
-        else if (newState instanceof OutgoingJingleSession.Active)
-        {
-            JingleSession session = (JingleSession) newState.getNegotiator();
-
-            CallPeerJabberImpl callPeer =
-                    activeCallsRepository.findCallPeer(session);
-            if (callPeer == null)
-            {
-                return;
-            }
-            callPeer.setState(CallPeerState.CONNECTED);
-        }
-
-        if ((newState == null) && (oldState != null))
-        { //hanging
-            JingleSession session = (JingleSession) oldState.getNegotiator();
-
-            CallPeerJabberImpl callPeer =
-                    activeCallsRepository.findCallPeer(session);
-            if (callPeer == null)
-            {
-                if (logger.isDebugEnabled())
-                    logger.debug("Received a stray trying response.");
-                return;
-            }
-            try
-            {
-                hangupCallPeer(callPeer);
-            }
-            catch (Exception ex)
-            {
-                ex.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * Implements method <tt>afterChanged</tt> from JingleSessionStateListener.
-     * called when we are effectivly in the <tt>newState</tt>
-     *
-     * @param oldState old session state
-     * @param newState new session state
-     */
-    public void afterChanged(JingleNegotiator.State oldState,
-            JingleNegotiator.State newState)
-    {
-        if (logger.isInfoEnabled())
-            logger.info("session state changed : " + oldState + " => " + newState);
-    }
-
-    /**
-     * Implements <tt>sessionEstablished</tt> from <tt>JingleSessionListener</tt>
-     *
-     *
-     * @param payloadType the <tt>payloadType</tt> used for media in thi session
-     * @param remoteCandidate the remote end point of thi session
-     * @param localCandidate the local end point of this session
-     * @param jingleSession the session which is now fully established
-     */
-    public void sessionEstablished(PayloadType payloadType,
-            TransportCandidate remoteCandidate,
-            TransportCandidate localCandidate,
-            JingleSession jingleSession)
-    {
-        if (logger.isInfoEnabled())
-            logger.info("session established ");
-    }
-
-    /**
-     * Implements <tt>sessionDeclined</tt> from <tt>JingleSessionListener</tt>
-     *
-     * @param reason why the session has been declined
-     * @param jingleSession the declined session
-     */
-    public void sessionDeclined(String reason, JingleSession jingleSession)
-    {
-        if (logger.isInfoEnabled())
-            logger.info("session declined : " + reason);
-    }
-
-    /**
-     * Implements <tt>sessionRedirected</tt> from <tt>JingleSessionListener</tt>
-     *
-     * @param redirection redirection information
-     * @param jingleSession the session which redirected
-     */
-    public void sessionRedirected(String redirection,
-            JingleSession jingleSession)
-    {
-        if (logger.isInfoEnabled())
-            logger.info("session redirected : " + redirection);
-    }
-
-    /**
-     * Implements <tt>sessionClosed</tt> from <tt>JingleSessionListener</tt>
-     *
-     * @param reason why the session has been closed
-     * @param jingleSession the session which is closed
-     */
-    public void sessionClosed(String reason, JingleSession jingleSession)
-    {
-        if (logger.isInfoEnabled())
-            logger.info("session closed : " + reason);
-    }
-
-    /**
-     * Implements <tt>sessionClosedOnError</tt> from <tt>JingleSessionListener</tt>
-     *
-     * @param ex execption which caused the error
-     * @param jingleSession the session which is closed
-     */
-    public void sessionClosedOnError(XMPPException ex,
-            JingleSession jingleSession)
-    {
-        logger.error("session closed on error ", ex);
-    }
-
-    /**
-     * Implements <tt>sessionMediaReceived</tt> from <tt>JingleSessionListener</tt>
-     *
-     * @param jingleSession the session where the media is established
-     * @param peer the peer for this media session
-     */
-    public void sessionMediaReceived(JingleSession jingleSession, String peer)
-    {
-        if (logger.isInfoEnabled())
-            logger.info("session media received ");
     }
 }
 

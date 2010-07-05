@@ -13,8 +13,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
-import org.jivesoftware.smackx.jingle.*;
-
 /**
  * A Jabber implementation of the Call abstract class encapsulating Jabber
  *  jingle sessions.
@@ -177,64 +175,6 @@ public class CallJabberImpl
     }
 
     /**
-     * Returns <tt>true</tt> if <tt>session</tt> matches the jingle session
-     * established with one of the peers in this call.
-     *
-     * @param session the session whose corresponding peer we're looking
-     * for.
-     * @return true if this call contains a call peer whose jingleSession
-     * session is the same as the specified and false otherwise.
-     */
-    public boolean contains(JingleSession session)
-    {
-        return findCallPeer(session) != null;
-    }
-
-    /**
-     * Returns the call peer whose associated jingle session matches
-     * <tt>session</tt>.
-     *
-     * @param session the jingle session whose corresponding peer we're
-     * looking for.
-     * @return the call peer whose jingle session is the same as the
-     * specified or null if no such call peer was found.
-     */
-    public CallPeerJabberImpl findCallPeer(JingleSession session)
-    {
-        Iterator<CallPeer> callPeers = this.getCallPeers();
-
-        if(logger.isTraceEnabled())
-        {
-            if (logger.isTraceEnabled())
-                logger.trace("Looking for peer with session: " + session
-                         + "among " + this.callPeers.size() + " calls");
-        }
-
-
-        while (callPeers.hasNext())
-        {
-            CallPeerJabberImpl cp
-                = (CallPeerJabberImpl)callPeers.next();
-
-            if( cp.getJingleSession() == session)
-            {
-                if (logger.isTraceEnabled())
-                    logger.trace("Returing cp="+cp);
-                return cp;
-            }
-            else
-            {
-                if (logger.isTraceEnabled())
-                    logger.trace("Ignoring cp="+cp
-                             + " because cp.jingleSession="+cp.getJingleSession()
-                             + " while session="+session);
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Sets the <tt>CallSession</tt> that the media service has created for this
      * call.
      *
@@ -282,7 +222,7 @@ public class CallJabberImpl
     public void addLocalUserSoundLevelListener(
         SoundLevelListener l)
     {
-        
+
     }
 
     /**
