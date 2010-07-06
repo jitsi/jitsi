@@ -9,13 +9,16 @@ package net.java.sip.communicator.impl.neomedia;
 import javax.media.format.*;
 
 /**
- * Class to centralize workarounds or changes that need to be made for FMJ to work.
- * This is also a place to tweak which workarounds are used.
+ * Class to centralize workarounds or changes that need to be made for FMJ to
+ * work. This is also a place to tweak which workarounds are used.
  *
  * @author Ken Larson
  */
 public class FMJConditionals
 {
+    /**
+     * If FMJ is used.
+     */
     public static final boolean IS_FMJ = false;
 
     /**

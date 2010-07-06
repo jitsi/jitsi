@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.neomedia.transform.srtp;
 /**
  * SRTPPolicy holds the SRTP encryption / authentication policy of a SRTP
  * session.
- * 
+ *
  * @author Bing SU (nova.su@gmail.com)
  */
 public class SRTPPolicy
@@ -18,12 +18,12 @@ public class SRTPPolicy
      * Null Cipher, does not change the content of RTP payload
      */
     public final static int NULL_ENCRYPTION = 0;
-    
+
     /**
      * Counter Mode AES Cipher, defined in Section 4.1.1, RFC3711
      */
     public final static int AESCM_ENCRYPTION = 1;
-    
+
     /**
      * F8 mode AES Cipher, defined in Section 4.1.2, RFC 3711
      */
@@ -33,7 +33,7 @@ public class SRTPPolicy
      * Null Authentication, no authentication
      */
     public final static int NULL_AUTHENTICATION = 0;
-    
+
     /**
      * HMC SHA1 Authentication, defined in Section 4.2.1, RFC3711
      */
@@ -43,27 +43,27 @@ public class SRTPPolicy
      * SRTP encryption type
      */
     private int encType;
-    
+
     /**
      * SRTP encryption key length
      */
     private int encKeyLength;
-    
+
     /**
      * SRTP authentication type
      */
     private int authType;
-    
+
     /**
      * SRTP authentication key length
      */
     private int authKeyLength;
-    
+
     /**
      * SRTP authentication tag length
      */
     private int authTagLength;
-    
+
     /**
      * SRTP salt key length
      */
@@ -73,7 +73,7 @@ public class SRTPPolicy
      * Construct a SRTPPolicy object based on given parameters.
      * This class acts as a storage class, so all the parameters are passed in
      * through this constructor.
-     * 
+     *
      * @param encType SRTP encryption type
      * @param encKeyLength SRTP encryption key length
      * @param authType SRTP authentication type
@@ -189,7 +189,7 @@ public class SRTPPolicy
     /**
      * Set the encryption type
      *
-     * @param encType
+     * @param encType encryption type
      */
     public void setEncType(int encType)
     {

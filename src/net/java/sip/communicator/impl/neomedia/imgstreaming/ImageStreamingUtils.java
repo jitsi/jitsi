@@ -32,7 +32,7 @@ public class ImageStreamingUtils
      * @param src source image
      * @param width width of scaled image
      * @param height height of scaled image
-     * @param type
+     * @param type <tt>BufferedImage</tt> type
      * @return scaled <tt>BufferedImage</tt>
      */
     public static BufferedImage getScaledImage(BufferedImage src,
@@ -63,7 +63,7 @@ public class ImageStreamingUtils
      * @param output output buffer, if not null and if its length is at least
      * image's (width * height) * 4, method will put bytes in it.
      * @return raw bytes or null if src is not an ARGB
-     * <tt>BufferedImage</tt> 
+     * <tt>BufferedImage</tt>
      */
     public static byte[] getImageBytes(BufferedImage src, byte output[])
     {

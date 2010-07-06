@@ -28,8 +28,8 @@ public class DeviceConfigurationComboBoxModel
     {
         /**
          * Compares two CaptureDeviceInfo
-         * @param a
-         * @param b
+         * @param a first <tt>CaptureDeviceInfo</tt> to compare
+         * @param b second <tt>CaptureDeviceInfo</tt> to compare
          * @return whether a is equal to b
          */
         public static boolean equals(CaptureDeviceInfo a, CaptureDeviceInfo b)
@@ -206,7 +206,7 @@ public class DeviceConfigurationComboBoxModel
 
     /**
      * Extracts the devices selected by the configuration.
-     * @return
+     * @return <tt>CaptureDevice</tt> selected
      */
     private CaptureDevice getSelectedDevice()
     {

@@ -105,8 +105,8 @@ public class QuickTimeStream
      * The <tt>Thread</tt> which is to call
      * {@link BufferTransferHandler#transferData(PushBufferStream)} for this
      * <tt>QuickTimeStream</tt> so that the call is not made in QuickTime/QTKit
-     * and we can drop late frames when {@link #automaticallyDropsLateFrames} is
-     * <tt>false</tt>.
+     * and we can drop late frames when
+     * {@link #automaticallyDropsLateVideoFrames} is <tt>false</tt>.
      */
     private Thread transferDataThread;
 

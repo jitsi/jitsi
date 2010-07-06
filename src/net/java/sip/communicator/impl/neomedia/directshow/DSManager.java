@@ -175,7 +175,8 @@ public class DSManager
     /**
      * Native method to get capture devices pointers.
      *
-     * @return array of native pointer
+     * @param ptr native pointer of DSManager
+     * @return array of native pointer to DSCaptureDevice
      */
     private native long[] getCaptureDevices(long ptr);
 }

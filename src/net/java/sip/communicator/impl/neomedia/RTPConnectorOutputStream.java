@@ -53,6 +53,9 @@ public class RTPConnectorOutputStream
     protected final List<InetSocketAddress> targets
         = new LinkedList<InetSocketAddress>();
 
+    /**
+     * List of available raw packets.
+     */
     private final LinkedBlockingQueue<RawPacket> availRawPackets
     = new LinkedBlockingQueue<RawPacket>();
 
@@ -90,7 +93,7 @@ public class RTPConnectorOutputStream
         maxPacketsPerMillisPolicy = null;
         removeTargets();
     }
-    
+
     /**
      * Creates a new <tt>RawPacket</tt> from a specific <tt>byte[]</tt> buffer
      * in order to have this instance send its packet data through its
@@ -109,10 +112,10 @@ public class RTPConnectorOutputStream
     protected RawPacket createRawPacket(byte[] buffer, int offset, int length)
     {
         RawPacket pkt = availRawPackets.poll();
-        if (pkt == null || pkt.getBuffer().length < length) 
+        if (pkt == null || pkt.getBuffer().length < length)
         {
             byte[] buf = new byte[length];
-            pkt = new RawPacket();        
+            pkt = new RawPacket();
             pkt.setBuffer(buf);
         }
         System.arraycopy(buffer, offset, pkt.getBuffer(), 0, length);
@@ -223,10 +226,14 @@ public class RTPConnectorOutputStream
     /**
      * Implements {@link OutputDataStream#write(byte[], int, int)}.
      *
-     * @param buffer
-     * @param offset
-     * @param length
-     * @return
+     * @param buffer the <tt>byte[]</tt> that we'd like to copy the content
+     * of the packet to.
+     * @param offset the position where we are supposed to start writing in
+     * <tt>buffer</tt>.
+     * @param length the number of <tt>byte</tt>s available for writing in
+     * <tt>inBuffer</tt>.
+     *
+     * @return the number of bytes read
      */
     public int write(byte[] buffer, int offset, int length)
     {
@@ -287,7 +294,8 @@ public class RTPConnectorOutputStream
          * <tt>DatagramSocket</tt> of this <tt>OutputDataSource</tt>.
          */
         private final ArrayBlockingQueue<RawPacket> packetQueue
-            = new ArrayBlockingQueue<RawPacket>(MAX_PACKETS_PER_MILLIS_POLICY_PACKET_QUEUE_CAPACITY);
+            = new ArrayBlockingQueue<RawPacket>(
+                    MAX_PACKETS_PER_MILLIS_POLICY_PACKET_QUEUE_CAPACITY);
 
         /**
          * The number of RTP packets already sent during the current
@@ -308,7 +316,7 @@ public class RTPConnectorOutputStream
          * <tt>OutputDataSource</tt>.
          */
         private Thread sendThread;
-        
+
         /**
          * To signal run or stop condition to send thread.
          */
@@ -347,7 +355,10 @@ public class RTPConnectorOutputStream
                 }
             }
         }
-        
+
+        /**
+         * Closes the connector.
+         */
         synchronized void close()
         {
             if (!sendRun)
@@ -384,7 +395,7 @@ public class RTPConnectorOutputStream
                     }
                     if (!sendRun)
                         break;
-                    
+
                     long time = System.nanoTime();
                     long millisRemainingTime = time - millisStartTime;
 
@@ -397,7 +408,7 @@ public class RTPConnectorOutputStream
                     else if ((maxPackets > 0)
                             && (packetsSentInMillis >= maxPackets))
                     {
-                        while (true) 
+                        while (true)
                         {
                             millisRemainingTime = System.nanoTime()
                                     - millisStartTime;
@@ -463,7 +474,7 @@ public class RTPConnectorOutputStream
          */
         public void write(RawPacket packet)
         {
-            while (true) 
+            while (true)
             {
                 try
                 {

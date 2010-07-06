@@ -28,8 +28,8 @@ public class DirectShowStream extends AbstractPushBufferStream
 
     /**
      * The pool of <tt>ByteBuffer</tt>s this instances is using to transfer the
-     * media data captured by {@link #captureOutput} out of this instance
-     * through the <tt>Buffer</tt>s specified in its {@link #process(Buffer)}.
+     * media data captured by {@link #grabber} out of this instance
+     * through the <tt>Buffer</tt>s specified in its {@link #read(Buffer)}.
      */
     private final ByteBufferPool bufferPool = new ByteBufferPool();
 
@@ -72,13 +72,13 @@ public class DirectShowStream extends AbstractPushBufferStream
      * The <tt>Thread</tt> which is to call
      * {@link BufferTransferHandler#transferData(PushBufferStream)} for this
      * <tt>DirectShowStream</tt> so that the call is not made in DirectShow
-     * and we can drop late frames when {@link #automaticallyDropsLateFrames} is
-     * <tt>false</tt>.
+     * and we can drop late frames when
+     * {@link #automaticallyDropsLateVideoFrames} is <tt>false</tt>.
      */
     private Thread transferDataThread;
 
     /**
-     * The indicator which determines whether {@link #captureOutput}
+     * The indicator which determines whether {@link #grabber}
      * automatically drops late frames. If <tt>false</tt>, we have to drop them
      * ourselves because DirectShow will buffer them all and the video will
      * be late.
@@ -332,7 +332,7 @@ public class DirectShowStream extends AbstractPushBufferStream
                 bufferPool.returnFreeBuffer(data);
                 data = null;
             }
-            
+
             if(nextData != null)
             {
                 bufferPool.returnFreeBuffer(nextData);

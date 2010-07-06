@@ -12,8 +12,8 @@ import net.java.sip.communicator.impl.neomedia.transform.*;
  * SRTPTransformEngine class implements TransformEngine interface.
  * It stores important information / objects regarding SRTP processing.
  * Through SRTPTransformEngine, we can get the needed PacketTransformer, which
- * will be used by abstract TransformConnector classes. 
- * 
+ * will be used by abstract TransformConnector classes.
+ *
  * @author Bing SU (nova.su@gmail.com)
  *
  */
@@ -24,22 +24,22 @@ public class SRTPTransformEngine
      * Master key of this SRTP session
      */
     private final byte[] masterKey;
-    
+
     /**
      * Master salt key of this SRTP session
      */
     private final byte[] masterSalt;
-    
+
     /**
      * SRTP processing policy
      */
     private final SRTPPolicy srtpPolicy;
-    
+
     /**
      * SRTCP processing policy
      */
     private final SRTPPolicy srtcpPolicy;
-    
+
     /**
      * The default SRTPCryptoContext, which will be used to derivate other
      * contexts.
@@ -49,7 +49,7 @@ public class SRTPTransformEngine
     /**
      * Construct a SRTPTransformEngine based on given master encryption key,
      * master salt key and SRTP/SRTCP policy.
-     * 
+     *
      * @param masterKey the master encryption key
      * @param masterSalt the master salt key
      * @param srtpPolicy SRTP policy
@@ -60,19 +60,19 @@ public class SRTPTransformEngine
     {
         this.masterKey = new byte[masterKey.length];
         System.arraycopy(masterKey, 0, this.masterKey, 0, masterKey.length);
-        
+
         this.masterSalt = new byte[masterSalt.length];
         System.arraycopy(masterSalt, 0, this.masterSalt, 0, masterSalt.length);
-        
+
         this.srtpPolicy  = srtpPolicy;
         this.srtcpPolicy = srtcpPolicy;
 
-        this.defaultContext = new SRTPCryptoContext(0, 0, 0, 
+        this.defaultContext = new SRTPCryptoContext(0, 0, 0,
                                                     this.masterKey,
-                                                    this.masterSalt, 
+                                                    this.masterSalt,
                                                     this.srtpPolicy);
     }
-    
+
     /**
      * Gets the <tt>PacketTransformer</tt> for RTCP packets.
      *
@@ -83,7 +83,8 @@ public class SRTPTransformEngine
         return new SRTCPTransformer(this);
     }
 
-    /* (non-Javadoc)
+    /*
+     *  (non-Javadoc)
      * @see net.java.sip.communicator.impl.media.transform.
      * TransformEngine#getRTPTransformer()
      */
@@ -101,7 +102,7 @@ public class SRTPTransformEngine
     {
         return this.masterKey;
     }
-    
+
     /**
      * Get the master salt key
      *

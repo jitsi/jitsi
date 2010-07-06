@@ -32,6 +32,9 @@ public class JAWTRenderer
      */
     private static final String PLUGIN_NAME = "JAWT Renderer";
 
+    /**
+     * Array of supported input formats.
+     */
     private static final Format[] SUPPORTED_INPUT_FORMATS
         = new Format[]
                 {
@@ -374,6 +377,7 @@ public class JAWTRenderer
      * <tt>offset</tt> which represent the data to be processed and rendered
      * @param width the width of the video frame in <tt>data</tt>
      * @param height the height of the video frame in <tt>data</tt>
+     * @return <tt>true</tt> if data has been successfully processed
      */
     private static native boolean process(
             long handle,

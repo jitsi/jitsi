@@ -1276,11 +1276,11 @@ public class VideoMediaDeviceSession
          * Determines when the input video sizes changes and reports it as a
          * <tt>SizeChangeVideoEvent</tt> because <tt>Player</tt> is unable to
          * do it when this <tt>SwScaler</tt> is scaling to a specific
-         * <tt>outputSize</tt>. 
+         * <tt>outputSize</tt>.
          *
-         * @param input
-         * @param output
-         * @return
+         * @param input input buffer
+         * @param output output buffer
+         * @return the native <tt>PaSampleFormat</tt>
          * @see SwScaler#process(Buffer, Buffer)
          */
         @Override
@@ -1313,8 +1313,8 @@ public class VideoMediaDeviceSession
          * Ensures that this <tt>SwScaler</tt> preserves the aspect ratio of its
          * input video when scaling.
          *
-         * @param inputFormat
-         * @return
+         * @param inputFormat format to set
+         * @return format
          * @see SwScaler#setInputFormat(Format)
          */
         @Override

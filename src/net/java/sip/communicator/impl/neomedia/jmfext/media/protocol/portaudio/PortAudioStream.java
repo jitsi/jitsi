@@ -56,8 +56,14 @@ public class PortAudioStream
      */
     private int framesPerBuffer;
 
+    /**
+     * Native pointer to a PaStreamParameters object.
+     */
     private long inputParameters = 0;
 
+    /**
+     * Current sequence number.
+     */
     private int sequenceNumber = 0;
 
     /**
@@ -190,6 +196,7 @@ public class PortAudioStream
      *
      * @param deviceIndex the device index of the PortAudio device to be read
      * through this <tt>PullBufferStream</tt>
+     * @throws IOException if input/output error occurred
      */
     synchronized void setDeviceIndex(int deviceIndex)
         throws IOException

@@ -13,50 +13,50 @@ import net.java.sip.communicator.impl.neomedia.*;
 
 /**
  * ZRTP packet representation.
- * 
+ *
  * This class extends the RawPacket class and adds some methods
  * required by the ZRTP transformer.
- *  
+ *
  * @author Werner Dittmann <Werner.Dittmann@t-online.de>
  */
-public class ZrtpRawPacket extends RawPacket 
+public class ZrtpRawPacket extends RawPacket
 {
     /**
      * Each ZRTP packet contains this magic number.
      */
     public static byte[] zrtpMagic;
-    
+
     static {
         zrtpMagic = new byte[4];
-        zrtpMagic[0]= 0x5a; 
-        zrtpMagic[1]= 0x52;   
-        zrtpMagic[2]= 0x54; 
+        zrtpMagic[0]= 0x5a;
+        zrtpMagic[1]= 0x52;
+        zrtpMagic[2]= 0x54;
         zrtpMagic[3]= 0x50;
     }
 
     /**
      * Construct an input ZrtpRawPacket using a received RTP raw packet.
-     * 
-     * @param pkt a raw RTP packet as received 
+     *
+     * @param pkt a raw RTP packet as received
      */
-    public ZrtpRawPacket(RawPacket pkt)  
+    public ZrtpRawPacket(RawPacket pkt)
     {
         super (pkt.getBuffer(), pkt.getOffset(), pkt.getLength());
     }
 
     /**
      * Construct an output ZrtpRawPacket using specified value.
-     * 
+     *
      * Initialize this packet and set the ZRTP magic value
      * to mark it as a ZRTP packet.
-     * 
+     *
      * @param buf Byte array holding the content of this Packet
      * @param off Start offset of packet content inside buffer
      * @param len Length of the packet's data
      */
-    public ZrtpRawPacket(byte[] buf, int off, int len)  
+    public ZrtpRawPacket(byte[] buf, int off, int len)
     {
-        super (buf, off, len);  
+        super (buf, off, len);
         writeByte(0, (byte)0x10);
         writeByte(1, (byte)0);
 
@@ -69,13 +69,13 @@ public class ZrtpRawPacket extends RawPacket
 
     /**
      * Check if it could be a ZRTP packet.
-     * 
+     *
      * The method checks if the first byte of the received data
      * matches the defined ZRTP pattern 0x10
-     *  
+     *
      * @return true if could be a ZRTP packet, false otherwise.
      */
-    protected boolean isZrtpPacket() 
+    protected boolean isZrtpPacket()
     {
         return isZrtpData(this);
     }
@@ -99,13 +99,13 @@ public class ZrtpRawPacket extends RawPacket
 
     /**
      * Check if it is really a ZRTP packet.
-     * 
+     *
      * The method checks if the packet contains the ZRTP magic
      * number.
-     *  
+     *
      * @return true if packet contains the magic number, false otherwise.
      */
-    protected boolean hasMagic() 
+    protected boolean hasMagic()
     {
         return
             (readByte(4) == zrtpMagic[0])
@@ -116,9 +116,9 @@ public class ZrtpRawPacket extends RawPacket
 
     /**
      * Set the sequence number in this packet.
-     * @param seq
+     * @param seq sequence number
      */
-    protected void setSeqNum(short seq) 
+    protected void setSeqNum(short seq)
     {
         int at = 2;
         writeByte(at++, (byte)(seq>>8));
@@ -127,9 +127,9 @@ public class ZrtpRawPacket extends RawPacket
 
     /**
      * Set SSRC in this packet
-     * @param ssrc
+     * @param ssrc SSRC to set
      */
-    protected void setSSRC(int ssrc) 
+    protected void setSSRC(int ssrc)
     {
         writeInt(8, ssrc);
     }
@@ -139,7 +139,7 @@ public class ZrtpRawPacket extends RawPacket
      *
      * @return true if the CRC is valid, false otherwise
      */
-    protected boolean checkCrc() 
+    protected boolean checkCrc()
     {
         int crc = readInt(getLength()-ZrtpPacketBase.CRC_SIZE);
         return ZrtpCrc32.zrtpCheckCksum(getBuffer(), getOffset(),
@@ -149,7 +149,7 @@ public class ZrtpRawPacket extends RawPacket
     /**
      * Set ZRTP CRC in this packet
      */
-    protected void setCrc() 
+    protected void setCrc()
     {
         int crc = ZrtpCrc32.zrtpGenerateCksum(getBuffer(), getOffset(),
             getLength() - ZrtpPacketBase.CRC_SIZE);

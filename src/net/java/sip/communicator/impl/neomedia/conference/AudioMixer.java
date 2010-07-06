@@ -41,7 +41,7 @@ import net.java.sip.communicator.util.*;
  * multiple output audio streams at one and the same time, though, each of them
  * containing the mix of a subset of the input audio streams.
  * </p>
- * 
+ *
  * @author Lubomir Marinov
  */
 public class AudioMixer
@@ -131,7 +131,7 @@ public class AudioMixer
      * <tt>AudioMixingPushBufferDataSource</tt>s it creates. The specified
      * <tt>CaptureDevice</tt> is also added as the first input
      * <tt>DataSource</tt> of the new instance.
-     * 
+     *
      * @param captureDevice the <tt>CaptureDevice</tt> capabilities to be
      * provided to the <tt>AudioMixingPushBufferDataSource</tt>s created by the
      * new instance and its first input <tt>DataSource</tt>
@@ -167,7 +167,7 @@ public class AudioMixer
      * <tt>DataSource</tt>s from which this instance reads audio. If the
      * specified <tt>DataSource</tt> indeed provides audio, the respective
      * contributions to the mix are always included.
-     * 
+     *
      * @param inputDataSource a new <tt>DataSource</tt> to input audio to this
      * instance
      */
@@ -182,7 +182,7 @@ public class AudioMixer
      * specified <tt>DataSource</tt> indeed provides audio, the respective
      * contributions to the mix will be excluded from the mix output provided
      * through a specific <tt>AudioMixingPushBufferDataSource</tt>.
-     * 
+     *
      * @param inputDataSource a new <tt>DataSource</tt> to input audio to this
      * instance
      * @param outputDataSource the <tt>AudioMixingPushBufferDataSource</tt> to
@@ -258,8 +258,8 @@ public class AudioMixer
      * <tt>AudioMixingPushBufferDataSource</tt>s reading from this
      * <tt>AudioMixer</tt> which gets connected causes it to connect to the
      * input <tt>DataSource</tt>s it manages.
-     * 
-     * @throws IOException
+     *
+     * @throws IOException if input/output error occurred
      */
     void connect()
         throws IOException
@@ -377,7 +377,7 @@ public class AudioMixer
      * new input <tt>DataSources</tt> in this <tt>AudioMixer</tt> but
      * have their contributions not included in the mix available through the
      * returned <tt>AudioMixingPushBufferDataSource</tt>.
-     * 
+     *
      * @return a new <tt>AudioMixingPushBufferDataSource</tt> which gives access
      * to a single audio stream representing the mix of the audio streams input
      * into this <tt>AudioMixer</tt> through its input <tt>DataSource</tt>s
@@ -391,7 +391,7 @@ public class AudioMixer
      * Creates a <tt>DataSource</tt> which attempts to transcode the tracks of a
      * specific input <tt>DataSource</tt> into a specific output
      * <tt>Format</tt>.
-     * 
+     *
      * @param inputDataSourceDesc the <tt>InputDataSourceDesc</tt> describing
      * the input <tt>DataSource</tt> to be transcoded into the specified output
      * <tt>Format</tt> and to receive the transcoding <tt>DataSource</tt>
@@ -477,7 +477,7 @@ public class AudioMixer
      * Gets the <tt>CaptureDeviceInfo</tt> of the <tt>CaptureDevice</tt>
      * this <tt>AudioMixer</tt> provides through its output
      * <tt>AudioMixingPushBufferDataSource</tt>s.
-     * 
+     *
      * @return the <tt>CaptureDeviceInfo</tt> of the <tt>CaptureDevice</tt> this
      * <tt>AudioMixer</tt> provides through its output
      * <tt>AudioMixingPushBufferDataSource</tt>s
@@ -489,7 +489,7 @@ public class AudioMixer
 
     /**
      * Gets the content type of the data output by this <tt>AudioMixer</tt>.
-     * 
+     *
      * @return the content type of the data output by this <tt>AudioMixer</tt>
      */
     String getContentType()
@@ -544,7 +544,7 @@ public class AudioMixer
     /**
      * Gets the duration of each one of the output streams produced by this
      * <tt>AudioMixer</tt>.
-     * 
+     *
      * @return the duration of each one of the output streams produced by this
      * <tt>AudioMixer</tt>
      */
@@ -556,7 +556,7 @@ public class AudioMixer
     /**
      * Gets the <tt>Format</tt> in which a specific <tt>DataSource</tt>
      * provides stream data.
-     * 
+     *
      * @param dataSource the <tt>DataSource</tt> for which the <tt>Format</tt>
      * in which it provides stream data is to be determined
      * @return the <tt>Format</tt> in which the specified <tt>dataSource</tt>
@@ -574,7 +574,7 @@ public class AudioMixer
     /**
      * Gets the <tt>Format</tt> in which a specific
      * <tt>SourceStream</tt> provides data.
-     * 
+     *
      * @param stream
      *            the <tt>SourceStream</tt> for which the
      *            <tt>Format</tt> in which it provides data is to be
@@ -596,7 +596,7 @@ public class AudioMixer
      * Gets an array of <tt>FormatControl</tt>s for the
      * <tt>CaptureDevice</tt> this <tt>AudioMixer</tt> provides through
      * its output <tt>AudioMixingPushBufferDataSource</tt>s.
-     * 
+     *
      * @return an array of <tt>FormatControl</tt>s for the
      *         <tt>CaptureDevice</tt> this <tt>AudioMixer</tt> provides
      *         through its output <tt>AudioMixingPushBufferDataSource</tt>s
@@ -621,7 +621,7 @@ public class AudioMixer
      * <tt>InputStreamDesc</tt>) of a specific <tt>DataSource</tt>
      * (provided in the form of <tt>InputDataSourceDesc</tt>) which produce
      * data in a specific <tt>AudioFormat</tt> (or a matching one).
-     * 
+     *
      * @param inputDataSourceDesc
      *            the <tt>DataSource</tt> (in the form of
      *            <tt>InputDataSourceDesc</tt>) which is to be examined for
@@ -739,7 +739,7 @@ public class AudioMixer
      * <tt>DataSource</tt> does not have such <tt>SourceStream</tt>s, an attempt
      * is made to transcode its tracks so that such <tt>SourceStream</tt>s can
      * be retrieved from it after transcoding.
-     * 
+     *
      * @param outputFormat the <tt>AudioFormat</tt> in which the retrieved
      * <tt>SourceStream</tt>s are to produce data
      * @param existingInputStreams the <tt>SourceStream</tt>s which are already
@@ -804,7 +804,7 @@ public class AudioMixer
      * <tt>DataSource</tt>s of this <tt>AudioMixer</tt> can produce data
      * and which is to be the output <tt>Format</tt> of this
      * <tt>AudioMixer</tt>.
-     * 
+     *
      * @return the <tt>AudioFormat</tt> in which the input
      *         <tt>DataSource</tt>s of this <tt>AudioMixer</tt> can
      *         produce data and which is to be the output <tt>Format</tt> of
@@ -874,7 +874,7 @@ public class AudioMixer
      * does not exist already, which reads data from the input
      * <tt>DataSource</tt>s of this <tt>AudioMixer</tt> and pushes it to
      * output <tt>AudioMixingPushBufferStream</tt>s for audio mixing.
-     * 
+     *
      * @return the <tt>AudioMixerPushBufferStream</tt> which reads data from
      *         the input <tt>DataSource</tt>s of this
      *         <tt>AudioMixer</tt> and pushes it to output
@@ -923,7 +923,7 @@ public class AudioMixer
      * <tt>Format</tt>, the only requirement for the specified
      * <tt>Format</tt>s to match is for both of them to have one and the
      * same encoding.
-     * 
+     *
      * @param input
      *            the <tt>Format</tt> for which it is required to determine
      *            whether it matches a specific <tt>Format</tt>
@@ -1000,7 +1000,7 @@ public class AudioMixer
      * format of the input <tt>DataSource</tt>s of this
      * <tt>AudioMixer</tt> in an attempt to not have to perform explicit
      * transcoding of the input <tt>SourceStream</tt>s.
-     * 
+     *
      * @param outputFormat
      *            the <tt>AudioFormat</tt> in which the input
      *            <tt>DataSource</tt>s of this <tt>AudioMixer</tt> are

@@ -25,12 +25,20 @@ import net.sf.fmj.media.*;
 public class Packetizer
     extends AbstractPacketizer
 {
+    /**
+     * Array of default output formats.
+     */
     private static final Format[] DEFAULT_OUTPUT_FORMATS
         = { new VideoFormat(Constants.H264_RTP) };
 
-    // without the headers
+    /**
+     * Maximum payload size without the headers.
+     */
     public static final int MAX_PAYLOAD_SIZE = 1024;
 
+    /**
+     * Name of the plugin.
+     */
     private static final String PLUGIN_NAME = "H264 Packetizer";
 
     /**
@@ -62,6 +70,9 @@ public class Packetizer
         outputFormat = null;
     }
 
+    /**
+     * Close this <tt>Packetizer</tt>.
+     */
     @Override
     public synchronized void close()
     {
@@ -100,6 +111,12 @@ public class Packetizer
         return endIndex;
     }
 
+    /**
+     * Get the matching output formats for a specific format.
+     *
+     * @param in input format
+     * @return array for formats matching input format
+     */
     private Format[] getMatchingOutputFormats(Format in)
     {
         VideoFormat videoIn = (VideoFormat) in;
@@ -116,7 +133,11 @@ public class Packetizer
                         videoIn.getFrameRate())
             };
     }
-
+    /**
+     * Get codec name.
+     *
+     * @return codec name
+     */
     @Override
     public String getName()
     {
@@ -125,6 +146,9 @@ public class Packetizer
 
     /**
      * Return the list of formats supported at the output.
+     * @param in input <tt>Format</tt> to determine corresponding output
+     * <tt>Format/tt>s
+     * @return array of formats supported at output
      */
     public Format[] getSupportedOutputFormats(Format in)
     {
@@ -140,6 +164,9 @@ public class Packetizer
         return getMatchingOutputFormats(in);
     }
 
+    /**
+     * Open this <tt>Packetizer</tt>.
+     */
     @Override
     public synchronized void open()
         throws ResourceUnavailableException
@@ -245,6 +272,14 @@ public class Packetizer
         return nalsAdded;
     }
 
+    /**
+     * Processes (packetize) a buffer.
+     *
+     * @param inBuffer input buffer
+     * @param outBuffer output buffer
+     * @return <tt>BUFFER_PROCESSED_OK</tt> if buffer has been successfully
+     * processed
+     */
     @Override
     public int process(Buffer inBuffer, Buffer outBuffer)
     {
@@ -364,6 +399,12 @@ public class Packetizer
             nalsAdded ? process(inBuffer, outBuffer) : OUTPUT_BUFFER_NOT_FILLED;
     }
 
+    /**
+     * Sets the input format.
+     *
+     * @param in format to set
+     * @return format
+     */
     @Override
     public Format setInputFormat(Format in)
     {
@@ -379,6 +420,16 @@ public class Packetizer
         return in;
     }
 
+    /**
+     * Sets the <tt>Format</tt> in which this <tt>Codec</tt> is to output media
+     * data.
+     *
+     * @param out the <tt>Format</tt> in which this <tt>Codec</tt> is to
+     * output media data
+     * @return the <tt>Format</tt> in which this <tt>Codec</tt> is currently
+     * configured to output media data or <tt>null</tt> if <tt>format</tt> was
+     * found to be incompatible with this <tt>Codec</tt>
+     */
     @Override
     public Format setOutputFormat(Format out)
     {

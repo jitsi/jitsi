@@ -195,13 +195,13 @@ public class PortAudioAuto
      * Gets a sample rate supported by a PortAudio device with a specific device
      * index with which it is to be registered with JMF.
      *
-     * @param <tt>true</tt> if the supported sample rate is to be retrieved for
+     * @param input <tt>true</tt> if the supported sample rate is to be retrieved for
      * the PortAudio device with the specified device index as an input device
      * or <tt>false</tt> for an output device
      * @param deviceIndex the device index of the PortAudio device for which a
      * supported sample rate is to be retrieved
-     * @param channelCount
-     * @param sampleFormat
+     * @param channelCount number of channel
+     * @param sampleFormat sample format
      * @return a sample rate supported by the PortAudio device with the
      * specified device index with which it is to be registered with JMF
      */

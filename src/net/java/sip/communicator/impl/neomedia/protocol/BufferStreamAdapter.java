@@ -40,7 +40,7 @@ public abstract class BufferStreamAdapter<T extends SourceStream>
      * Initializes a new <tt>BufferStreamAdapter</tt> which is to adapt a
      * specific <tt>SourceStream</tt> into a <tt>SourceStream</tt> with
      * a specific <tt>Format</tt>.
-     * 
+     *
      * @param stream
      * @param format
      */
@@ -96,7 +96,7 @@ public abstract class BufferStreamAdapter<T extends SourceStream>
 
     /**
      * Gets the <tt>Format</tt> of the data this stream provides.
-     * 
+     *
      * @return the <tt>Format</tt> of the data this stream provides
      */
     public Format getFormat()
@@ -117,7 +117,7 @@ public abstract class BufferStreamAdapter<T extends SourceStream>
     /**
      * Reads byte data from this stream into a specific <tt>Buffer</tt>
      * which is to use a specific array of bytes for its data.
-     * 
+     *
      * @param buffer the <tt>Buffer</tt> to read byte data into from this
      *            instance
      * @param bytes the array of <tt>byte</tt>s to read data into from this
@@ -136,9 +136,9 @@ public abstract class BufferStreamAdapter<T extends SourceStream>
             buffer.setData(bytes);
             buffer.setOffset(offset);
             buffer.setLength(numberOfBytesRead);
-    
+
             Format format = getFormat();
-    
+
             if (format != null)
                 buffer.setFormat(format);
         }
@@ -148,11 +148,11 @@ public abstract class BufferStreamAdapter<T extends SourceStream>
      * Reads byte data from this stream into a specific array of
      * <tt>byte</tt>s starting the storing at a specific offset and reading
      * at most a specific number of bytes.
-     * 
+     *
      * @param buffer the array of <tt>byte</tt>s into which the data read
      *            from this stream is to be written
      * @param offset the offset in the specified <tt>buffer</tt> at which
-     *            writing data read from this stream should start 
+     *            writing data read from this stream should start
      * @param length the maximum number of bytes to be written into the
      *            specified <tt>buffer</tt>
      * @return the number of bytes read from this stream and written into the

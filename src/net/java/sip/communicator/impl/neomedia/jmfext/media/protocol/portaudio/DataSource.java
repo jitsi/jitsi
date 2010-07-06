@@ -67,9 +67,9 @@ public class DataSource
      * @param locator the <tt>MediaLocator</tt> to create the new instance from
      * @param supportedFormats the list of <tt>Format</tt>s in which the new
      * instance is to be capable of capturing audio data
-     * @param audioQuality <tt>true</tt> if audio quality improvement is to be
-     * enabled in accord with the preferences of the user or <tt>false</tt> to
-     * completely disable audio quality improvement
+     * @param audioQualityImprovement <tt>true</tt> if audio quality improvement
+     * is to be enabled in accord with the preferences of the user or
+     * <tt>false</tt> to completely disable audio quality improvement
      */
     public DataSource(
             MediaLocator locator,

@@ -20,11 +20,11 @@ import net.java.sip.communicator.util.Logger;
  * devices and uses this data to seed the Fortuna PRNG. The ZrtpFortuna PRNG
  * is a singleton and all other methods that require random data shall use
  * this singleton.
- * 
- * Use GatherEntropy during startup and initialization phase of SIP 
+ *
+ * Use GatherEntropy during startup and initialization phase of SIP
  * Communicator but after initialization of the media devices to get entropy
  * data at the earliest point. Also make sure that entropy data is read from
- * local sources only and that entropy data is never send out (via networks 
+ * local sources only and that entropy data is never send out (via networks
  * for example).
  *
  * @author Werner Dittmann <Werner.Dittmann@t-online.de>
@@ -43,13 +43,13 @@ public class GatherEntropy
      * Device config to look for capture devices.
      */
     private final DeviceConfiguration deviceConfiguration;
-    
+
     /**
      * Other methods shall/may check this to see if Fortuna was seeded with
      * entropy.
      */
     private static boolean entropyOk = false;
-    
+
     /**
      * Number of gathered entropy bytes.
      */
@@ -61,33 +61,33 @@ public class GatherEntropy
      * data.
      */
     private int bytesToGather = 0;
-    
+
     /**
      * Bytes per 20ms time slice.
      */
     private int bytes20ms = 0;
-    
+
     /**
      * How many seconds of audio to read.
-     * 
+     *
      */
     private static final int NUM_OF_SECONDS = 2;
 
-    public GatherEntropy(DeviceConfiguration deviceConfiguration) 
+    public GatherEntropy(DeviceConfiguration deviceConfiguration)
     {
         this.deviceConfiguration = deviceConfiguration;
     }
-    
+
     /**
      * Get status of entropy flag.
-     * 
-     * @return Status if entropy was gathered and set in Fortuna PRNG. 
+     *
+     * @return Status if entropy was gathered and set in Fortuna PRNG.
      */
     public static boolean isEntropyOk()
     {
         return entropyOk;
     }
-    
+
     /**
      * @return the number of gathered entropy bytes.
      */
@@ -97,11 +97,11 @@ public class GatherEntropy
     }
     /**
      * Set entropy to ZrtpFortuna singleton.
-     * 
-     * The methods reads entropy data and seeds the ZrtpFortuna singleton. 
+     *
+     * The methods reads entropy data and seeds the ZrtpFortuna singleton.
      * The methods seeds the first pool (0) of Fortuna to make sure that
      * this entropy is always used.
-     * 
+     *
      * @return true if entropy data was available, false otherwise.
      */
     public boolean setEntropy()
@@ -118,7 +118,7 @@ public class GatherEntropy
     {
         /**
          * The PortAudio <tt>DataSource</tt> which provides
-         * {@link #portAudioStream}.
+         * {@link #audioStream}.
          */
         private DataSource dataSource = null;
 
@@ -134,18 +134,18 @@ public class GatherEntropy
         private final Buffer firstBuf = new Buffer();
         private boolean bufferAvailable = false;
         private final Object bufferSync = new Object();
-        
+
         /**
          * Prepares to read entropy data from portaudio capture device.
-         * 
-         * The method gets an PortAudio instance with a set of capture 
+         *
+         * The method gets an PortAudio instance with a set of capture
          * parameters.
-         * 
-         * @return True if the PortAudio input stream is available. 
+         *
+         * @return True if the PortAudio input stream is available.
          */
         private boolean prepareAudioEntropy()
         {
-            CaptureDeviceInfo audioCaptureDevice = 
+            CaptureDeviceInfo audioCaptureDevice =
                     deviceConfiguration.getAudioCaptureDevice();
             if (audioCaptureDevice == null)
                 return false;
@@ -207,7 +207,7 @@ public class GatherEntropy
         }
         /**
          * Gather entropy from portaudio capture device and seed Fortuna PRNG.
-         * 
+         *
          * The method gathers a number of samples and seeds the Fortuna PRNG.
          */
         @Override
@@ -223,7 +223,7 @@ public class GatherEntropy
                 dataSource.start();
 
                 int i = 0;
-                while (gatheredEntropy < bytesToGather) 
+                while (gatheredEntropy < bytesToGather)
                 {
                     if (audioStream instanceof PushBufferStream)
                     {

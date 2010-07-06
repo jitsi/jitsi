@@ -67,7 +67,7 @@ public class RTPTransformConnector
         super(connector);
     }
 
-    /*
+    /**
      * Overrides RTPConnectorImpl#createControlInputStream() to use
      * TransformInputStream.
      */
@@ -82,7 +82,7 @@ public class RTPTransformConnector
         return controlInputStream;
     }
 
-    /*
+    /**
      * Overrides RTPConnectorImpl#createControlOutputStream() to use
      * TransformOutputStream.
      */
@@ -97,7 +97,7 @@ public class RTPTransformConnector
         return controlOutputStream;
     }
 
-    /*
+    /**
      * Overrides RTPConnectorImpl#createDataInputStream() to use
      * TransformInputStream.
      */
@@ -112,7 +112,7 @@ public class RTPTransformConnector
         return dataInputStream;
     }
 
-    /*
+    /**
      * Overrides RTPConnectorImpl#createDataOutputStream() to use
      * TransformOutputStream.
      */

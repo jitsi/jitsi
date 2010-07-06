@@ -440,8 +440,8 @@ public class DeviceConfiguration
     /**
      * Gets the list of video capture devices which are available through this
      * <code>DeviceConfiguration</code>, amongst which is
-     * {@link #getVideoCaptureDevice()} and represent acceptable values
-     * for {@link #setVideoCaptureDevice(CaptureDeviceInfo, boolean)}
+     * {@link #getVideoCaptureDevice(MediaUseCase)} and represent acceptable
+     * values for {@link #setVideoCaptureDevice(CaptureDeviceInfo, boolean)}
      *
      * @param useCase extract video capture devices that correspond to this
      * <tt>MediaUseCase</tt>
@@ -1007,7 +1007,6 @@ public class DeviceConfiguration
      */
     private void registerCustomRenderers()
     {
-        @SuppressWarnings("unchecked")
         Vector<String> renderers
             = PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
         boolean commit = false;
@@ -1044,7 +1043,6 @@ public class DeviceConfiguration
          * are considered preferred.
          */
         int pluginType = PlugInManager.RENDERER;
-        @SuppressWarnings("unchecked")
         Vector<String> plugins
             = PlugInManager.getPlugInList(null, null, pluginType);
 

@@ -367,7 +367,7 @@ public class ZRTPTransformEngine
 
     /**
      * Returns an instance of <tt>ZRTPCTransformer</tt>.
-     * 
+     *
      * @see TransformEngine#getRTCPTransformer()
      */
     public PacketTransformer getRTCPTransformer()
@@ -377,7 +377,7 @@ public class ZRTPTransformEngine
 
     /**
      * Returns this RTPTransformer.
-     * 
+     *
      * @see TransformEngine#getRTPTransformer()
      */
     public PacketTransformer getRTPTransformer()
@@ -405,7 +405,7 @@ public class ZRTPTransformEngine
      * auto-sensing and a default configuration setting.
      *
      * @param zidFilename The ZID file name
-     * @param autoEnable If true start with auto-sensing mode. 
+     * @param autoEnable If true start with auto-sensing mode.
      * @return true if initialization fails, false if succeeds
      */
     public boolean initialize(String zidFilename, boolean autoEnable) {
@@ -414,7 +414,7 @@ public class ZRTPTransformEngine
 
     /**
      * Default engine initialization method.
-     * 
+     *
      * Calling this for engine initialization and start it with auto-sensing
      * and default configuration setting.
      *
@@ -436,7 +436,7 @@ public class ZRTPTransformEngine
      * @param config the zrtp config to use
      * @return true if initialization fails, false if succeeds
      */
-    public synchronized boolean initialize(String zidFilename, 
+    public synchronized boolean initialize(String zidFilename,
             boolean autoEnable, ZrtpConfigure config)
     {
         // Get a reference to the FileAccessService
@@ -585,10 +585,10 @@ public class ZRTPTransformEngine
 
     /**
      * Set the SSRC of the RTP transmitter stream.
-     * 
+     *
      * ZRTP fills the SSRC in the ZRTP messages.
-     * 
-     * @param ssrc
+     *
+     * @param ssrc SSRC to set
      */
     public void setOwnSSRC(long ssrc) {
         ownSSRC = (int)(ssrc & 0xffffffff);
@@ -597,14 +597,14 @@ public class ZRTPTransformEngine
     /**
      * The data output stream calls this method to transform outgoing
      * packets.
-     * 
+     *
      * @see PacketTransformer#transform(RawPacket)
      */
     public RawPacket transform(RawPacket pkt)
     {
         /*
          * Never transform outgoing ZRTP (invalid RTP) packets.
-         */        
+         */
         if (ZrtpRawPacket.isZrtpData(pkt))
         {
             return pkt;
@@ -629,7 +629,7 @@ public class ZRTPTransformEngine
     /**
      * The input data stream calls this method to transform
      * incoming packets.
-     * 
+     *
      * @see PacketTransformer#reverseTransform(RawPacket)
      */
     public RawPacket reverseTransform(RawPacket pkt)
@@ -654,7 +654,7 @@ public class ZRTPTransformEngine
 
             pkt = srtpInTransformer.reverseTransform(pkt);
             // if packet was valid (i.e. not null) and ZRTP engine started and
-            // in Wait for Confirm2 Ack then emulate a Conf2Ack packet. 
+            // in Wait for Confirm2 Ack then emulate a Conf2Ack packet.
             // See ZRTP specification chap. 5.6
             if ((pkt != null)
                     && started
@@ -667,9 +667,9 @@ public class ZRTPTransformEngine
         }
 
         /*
-         * If ZRTP is enabled process it. 
-         * 
-         * In any case return null because ZRTP packets must never reach 
+         * If ZRTP is enabled process it.
+         *
+         * In any case return null because ZRTP packets must never reach
          * the application.
          */
         if (enableZrtp && started)
@@ -833,10 +833,10 @@ public class ZRTPTransformEngine
     }
 
     /**
-     * 
+     *
      * @param c
      * @param s
-     * @param verified 
+     * @param verified
      * @see gnu.java.zrtp.ZrtpCallback#srtpSecretsOn(java.lang.String,
      *                                               java.lang.String, boolean)
      */
@@ -855,7 +855,7 @@ public class ZRTPTransformEngine
 
     /**
      * This method shall clear the ZRTP secrets.
-     * 
+     *
      * @param part Defines for which part (sender or receiver)
      *        to switch on security
      */
@@ -879,7 +879,7 @@ public class ZRTPTransformEngine
 
     /**
      * Activate timer.
-     * @param time	The time in ms for the timer.
+     * @param time    The time in ms for the timer.
      * @return always return 1.
      */
     public int activateTimer(int time)
@@ -919,8 +919,8 @@ public class ZRTPTransformEngine
 
     /**
      * Send information messages to the hosting environment.
-     * @param severity This defines the message's severity 
-     * @param subCode 	The message code.
+     * @param severity This defines the message's severity
+     * @param subCode     The message code.
      */
     public void sendInfo(ZrtpCodes.MessageSeverity severity, EnumSet<?> subCode)
     {
@@ -933,7 +933,7 @@ public class ZRTPTransformEngine
     /**
      * Comes a message that zrtp negotiation has failed.
      * @param severity This defines the message's severity
-     * @param subCode 	The message code.
+     * @param subCode     The message code.
      */
     public void zrtpNegotiationFailed(ZrtpCodes.MessageSeverity severity,
                                       EnumSet<?> subCode)
@@ -968,8 +968,8 @@ public class ZRTPTransformEngine
     }
 
     /**
-     * 
-     * @param info 
+     *
+     * @param info
      * @see gnu.java.zrtp.ZrtpCallback#zrtpInformEnrollment(java.lang.String)
      */
     public void zrtpInformEnrollment(String info)
@@ -981,8 +981,8 @@ public class ZRTPTransformEngine
     }
 
     /**
-     * 
-     * @param sas 
+     *
+     * @param sas
      * @see gnu.java.zrtp.ZrtpCallback#signSAS(java.lang.String)
      */
     public void signSAS(String sas)
@@ -994,7 +994,7 @@ public class ZRTPTransformEngine
     }
 
     /**
-     * 
+     *
      * @param sas
      * @return false if signature check fails, true otherwise
      * @see gnu.java.zrtp.ZrtpCallback#checkSASSignature(java.lang.String)
@@ -1070,7 +1070,7 @@ public class ZRTPTransformEngine
      *
      * @param data The auxilliary secret data
      */
-    public void setAuxSecret(byte[] data) 
+    public void setAuxSecret(byte[] data)
     {
         if (zrtpEngine != null)
             zrtpEngine.setAuxSecret(data);
@@ -1257,8 +1257,8 @@ public class ZRTPTransformEngine
     /**
      * Get other party's ZID (ZRTP Identifier) data
      *
-     * This functions returns the other party's ZID that was receivied 
-     * during ZRTP processing. 
+     * This functions returns the other party's ZID that was receivied
+     * during ZRTP processing.
      *
      * The ZID data can be retrieved after ZRTP receive the first Hello
      * packet from the other party. The application may call this method

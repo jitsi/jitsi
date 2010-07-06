@@ -140,6 +140,13 @@ public class CVPixelBuffer
      */
     private static native int getWidth(long ptr);
 
+    /**
+     * Native copy from native pointer <tt>src</tt> to byte array <tt>dst</tt>.
+     * @param dst destination array
+     * @param dstOffset offset of <tt>dst</tt> to copy data to
+     * @param dstLength length of <tt>dst</tt>
+     * @param src native pointer source
+     */
     public static native void memcpy(
             byte[] dst, int dstOffset, int dstLength,
             long src);

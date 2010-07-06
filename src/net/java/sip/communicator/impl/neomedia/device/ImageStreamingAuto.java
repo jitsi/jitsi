@@ -17,11 +17,10 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
-import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreaming.*;
 
 /**
  * Add ImageStreaming capture device.
- * 
+ *
  * @author Sebastien Vincent
  */
 public class ImageStreamingAuto
@@ -94,7 +93,7 @@ public class ImageStreamingAuto
                         new MediaLocator(
                             ImageStreamingUtils.LOCATOR_PROTOCOL + ":" + i),
                         formats);
-        
+
             /* add to JMF device manager */
             CaptureDeviceManager.addDevice(devInfo);
             i++;

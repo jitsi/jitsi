@@ -71,6 +71,7 @@ public class FinalizableAVFrame
     /**
      * Frees the memory pointed to by the <tt>data0</tt> member of the native
      * <tt>AVFrame</tt>.
+     * @param data0 pointer to free
      */
     protected void freeData0(long data0)
     {
