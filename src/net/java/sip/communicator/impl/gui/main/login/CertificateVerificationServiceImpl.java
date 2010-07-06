@@ -49,6 +49,11 @@ public class CertificateVerificationServiceImpl
         "net.java.sip.communicator.impl.protocol.sip.net.KEYSTORE";
 
     /**
+     * The default name of the keystore file.
+     */
+    private static final String KEY_STORE_FILE_NAME = "jssecacerts";
+
+    /**
      * The key store holding stored certificate during previous sessions.
      */
     private KeyStore keyStore;
@@ -70,6 +75,44 @@ public class CertificateVerificationServiceImpl
      */
     private static final Logger logger =
         Logger.getLogger(CertificateVerificationServiceImpl.class);
+
+    /**
+     * Return the File object for the keystore we will use. It can be
+     * a full path existing keystore set from user. If it is set from user
+     * but not existing we ignore it and return the default one.
+     * If it is not set return just the default one.
+     *
+     * @return the file which will be used by KeyStore.
+     * @throws Exception exception on creating file.
+     */
+    private File getKeyStoreLocation()
+        throws Exception
+    {
+        String keyStoreFile = GuiActivator.getConfigurationService()
+                        .getString(KEYSTORE_FILE_PROP);
+
+        if(keyStoreFile == null || keyStoreFile.length() == 0)
+            return GuiActivator.getFileAccessService()
+                    .getPrivatePersistentFile(KEY_STORE_FILE_NAME);
+
+        File f = new File(keyStoreFile);
+
+        if(f.exists())
+            return f;
+        else
+        {
+            // Hum a keystore file is set but is not existing
+            // lets remove the wrong config and return the default file.
+            // An old version used to store the whole path to the file
+            // and if the user changes location of its home dir
+            // it breaks things.
+            GuiActivator.getConfigurationService().removeProperty(
+                KEYSTORE_FILE_PROP);
+
+            return GuiActivator.getFileAccessService()
+                    .getPrivatePersistentFile(KEY_STORE_FILE_NAME);
+        }
+    }
 
     /**
      * Checks does the user trust the supplied chain of certificates, when
@@ -117,10 +160,9 @@ public class CertificateVerificationServiceImpl
                         kStore.setCertificateEntry(
                             String.valueOf(System.currentTimeMillis()), c);
 
-                    String keyStoreFile = GuiActivator.getConfigurationService()
-                        .getString(KEYSTORE_FILE_PROP);
                     kStore.store(
-                        new FileOutputStream(keyStoreFile), defaultPassword);
+                        new FileOutputStream(getKeyStoreLocation()),
+                        defaultPassword);
                 }
             } catch (Throwable e)
             {
@@ -217,30 +259,18 @@ public class CertificateVerificationServiceImpl
                 {
                     keyStore.load(null, defaultPassword);
 
-                    String keyStoreFile = GuiActivator.getConfigurationService()
-                            .getString(KEYSTORE_FILE_PROP);
+                    File keyStoreFile = getKeyStoreLocation();
 
-                    if(keyStoreFile == null || keyStoreFile.length() == 0)
+                    if(!keyStoreFile.exists())
                     {
-                        File f = GuiActivator.getFileAccessService()
-                            .getPrivatePersistentFile("jssecacerts");
-                        keyStoreFile = f.getCanonicalPath();
-
-                        GuiActivator.getConfigurationService().setProperty(
-                            KEYSTORE_FILE_PROP, keyStoreFile);
-
-                        keyStore.store(new FileOutputStream(f), defaultPassword);
+                        // just store an empty keystore
+                        // so the file to be created
+                        keyStore.store(
+                            new FileOutputStream(keyStoreFile),
+                            defaultPassword);
                     }
                     else
                     {
-                        File f = new File(keyStoreFile);
-                        if(!f.exists())
-                        {
-                            // if for some reason file is missing, create it
-                            // by saving the empty store
-                            keyStore.store(new FileOutputStream(f), defaultPassword);
-                        }
-
                         keyStore.load(new FileInputStream(keyStoreFile), null);
                     }
                 }
