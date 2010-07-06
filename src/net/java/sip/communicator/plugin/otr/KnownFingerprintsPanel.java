@@ -1,4 +1,4 @@
-package net.java.sip.communicator.plugin.securityconfig.chat;
+package net.java.sip.communicator.plugin.otr;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -7,7 +7,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.plugin.securityconfig.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -40,7 +39,7 @@ public class KnownFingerprintsPanel
     {
         this.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
-            SecurityConfigActivator.getResources()
+            OtrActivator.resourceService
                 .getI18NString("plugin.otr.configform.KNOWN_FINGERPRINTS")));
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -72,14 +71,14 @@ public class KnownFingerprintsPanel
         this.add(pnlButtons);
 
         btnVerifyFingerprint = new JButton();
-        btnVerifyFingerprint.setText(SecurityConfigActivator.getResources()
+        btnVerifyFingerprint.setText(OtrActivator.resourceService
             .getI18NString("plugin.otr.configform.VERIFY_FINGERPRINT"));
 
         btnVerifyFingerprint.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent arg0)
             {
-                SecurityConfigActivator.getOtrKeyManagerService()
+                OtrActivator.scOtrKeyManager
                     .verify(getSelectedContact());
             }
         });
@@ -87,13 +86,13 @@ public class KnownFingerprintsPanel
         pnlButtons.add(btnVerifyFingerprint);
 
         btnForgetFingerprint = new JButton();
-        btnForgetFingerprint.setText(SecurityConfigActivator.getResources()
+        btnForgetFingerprint.setText(OtrActivator.resourceService
             .getI18NString("plugin.otr.configform.FORGET_FINGERPRINT"));
         btnForgetFingerprint.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent arg0)
             {
-                SecurityConfigActivator.getOtrKeyManagerService()
+                OtrActivator.scOtrKeyManager
                     .unverify(getSelectedContact());
             }
         });
@@ -133,7 +132,7 @@ public class KnownFingerprintsPanel
         else
         {
             boolean verified
-                = SecurityConfigActivator.getOtrKeyManagerService()
+                = OtrActivator.scOtrKeyManager
                     .isVerified(contact);
 
             btnForgetFingerprint.setEnabled(verified);

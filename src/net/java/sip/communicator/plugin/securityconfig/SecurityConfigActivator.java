@@ -49,16 +49,6 @@ public class SecurityConfigActivator
     private static ConfigurationService configurationService;
 
     /**
-     * The Otr key manager service.
-     */
-    private static OtrKeyManagerService otrKeyManagerService;
-
-    /**
-     * The Otr engine service.
-     */
-    private static OtrEngineService otrEngineService;
-
-    /**
      * Starts this plugin.
      * @param bc the BundleContext
      * @throws Exception if some of the operations executed in the start method
@@ -69,12 +59,15 @@ public class SecurityConfigActivator
         bundleContext = bc;
 
         // Register the configuration form.
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+        properties.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.GENERAL_TYPE);
         bundleContext.registerService(ConfigurationForm.class.getName(),
             new LazyConfigurationForm(
                 "net.java.sip.communicator.plugin.securityconfig.SecurityConfigurationPanel",
                 getClass().getClassLoader(),
                 "plugin.securityconfig.ICON",
-                "plugin.securityconfig.TITLE", 20), null);
+                "plugin.securityconfig.TITLE", 20), properties);
     }
 
     /**
@@ -96,14 +89,15 @@ public class SecurityConfigActivator
     {
         if (resourceService == null)
         {
-            ServiceReference confReference
+            ServiceReference resReference
                 = bundleContext
                     .getServiceReference(
                         ResourceManagementService.class.getName());
 
-            resourceService
-                = (ResourceManagementService)
-                    bundleContext.getService(confReference);
+            if (resReference != null)
+                resourceService
+                    = (ResourceManagementService)
+                        bundleContext.getService(resReference);
         }
         return resourceService;
     }
@@ -123,56 +117,12 @@ public class SecurityConfigActivator
                 = bundleContext
                     .getServiceReference(ConfigurationService.class.getName());
 
-            configurationService
-                = (ConfigurationService)
-                    bundleContext.getService(confReference);
+            if (confReference != null)
+                configurationService
+                    = (ConfigurationService)
+                        bundleContext.getService(confReference);
         }
         return configurationService;
-    }
-
-    /**
-     * Returns a reference to the <tt>OtrEngineService</tt> implementation
-     * currently registered in the bundle context or null if no such
-     * implementation was found.
-     *
-     * @return a currently valid implementation of the <tt>OtrEngineService</tt>
-     */
-    public static OtrEngineService getOtrEngineService()
-    {
-        if (otrEngineService == null)
-        {
-            ServiceReference confReference
-                = bundleContext
-                    .getServiceReference(OtrEngineService.class.getName());
-
-            otrEngineService
-                = (OtrEngineService)
-                    bundleContext.getService(confReference);
-        }
-        return otrEngineService;
-    }
-
-    /**
-     * Returns a reference to the <tt>OtrKeyManagerService</tt> implementation
-     * currently registered in the bundle context or null if no such
-     * implementation was found.
-     *
-     * @return a currently valid implementation of the
-     * <tt>OtrKeyManagerService</tt>
-     */
-    public static OtrKeyManagerService getOtrKeyManagerService()
-    {
-        if (otrKeyManagerService == null)
-        {
-            ServiceReference confReference
-                = bundleContext
-                    .getServiceReference(OtrKeyManagerService.class.getName());
-
-            otrKeyManagerService
-                = (OtrKeyManagerService)
-                    bundleContext.getService(confReference);
-        }
-        return otrKeyManagerService;
     }
 
     /**

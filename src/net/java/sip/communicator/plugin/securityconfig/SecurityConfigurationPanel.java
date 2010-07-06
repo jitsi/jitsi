@@ -9,9 +9,9 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.plugin.securityconfig.call.*;
-import net.java.sip.communicator.plugin.securityconfig.chat.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.service.gui.*;
+
+import org.osgi.framework.*;
 
 /**
  * The main security configuration form panel.
@@ -19,22 +19,91 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  */
 public class SecurityConfigurationPanel
-    extends TransparentPanel
+    extends JTabbedPane
+    implements ServiceListener
 {
     /**
      * Creates the <tt>SecurityConfigurationPanel</tt>.
      */
     public SecurityConfigurationPanel()
     {
-        super(new BorderLayout());
+        init();
+        SecurityConfigActivator.bundleContext.addServiceListener(this);
+    }
 
-        JTabbedPane tabbedPane = new JTabbedPane();
+    /**
+     * Initializes this panel.
+     */
+    private void init()
+    {
+        String osgiFilter = "("
+            + ConfigurationForm.FORM_TYPE
+            + "="+ConfigurationForm.SECURITY_TYPE+")";
 
-        tabbedPane.addTab(SecurityConfigActivator.getResources()
-            .getI18NString("service.gui.CHAT"), new OtrConfigurationPanel());
-        tabbedPane.addTab(SecurityConfigActivator.getResources()
-            .getI18NString("service.gui.CALL"), new ZrtpConfigurePanel());
+        ServiceReference[] confFormsRefs = null;
+        try
+        {
+            confFormsRefs = SecurityConfigActivator.bundleContext
+                .getServiceReferences(  ConfigurationForm.class.getName(),
+                                        osgiFilter);
+        }
+        catch (InvalidSyntaxException ex)
+        {}
 
-        add(tabbedPane);
+        if(confFormsRefs != null)
+        {
+            for (int i = 0; i < confFormsRefs.length; i++)
+            {
+                ConfigurationForm form
+                    = (ConfigurationForm) SecurityConfigActivator.bundleContext
+                        .getService(confFormsRefs[i]);
+
+                Object formComponent = form.getForm();
+                if (formComponent instanceof Component)
+                    addTab(form.getTitle(), (Component) formComponent);
+            }
+        }
+    }
+
+    /**
+     * Handles registration of a new configuration form.
+     * @param event the <tt>ServiceEvent</tt> that notified us
+     */
+    public void serviceChanged(ServiceEvent event)
+    {
+        ServiceReference serviceRef = event.getServiceReference();
+
+        Object property = serviceRef.getProperty(ConfigurationForm.FORM_TYPE);
+        if (property != ConfigurationForm.SECURITY_TYPE)
+            return;
+
+        Object sService
+            = SecurityConfigActivator.bundleContext
+                .getService(serviceRef);
+
+        // we don't care if the source service is not a configuration form
+        if (!(sService instanceof ConfigurationForm))
+            return;
+
+        ConfigurationForm configForm = (ConfigurationForm) sService;
+
+        if (!configForm.isAdvanced())
+            return;
+
+        Object formComponent;
+        switch (event.getType())
+        {
+        case ServiceEvent.REGISTERED:
+            formComponent = configForm.getForm();
+            if (formComponent instanceof Component)
+                addTab(configForm.getTitle(), (Component) formComponent);
+            break;
+
+        case ServiceEvent.UNREGISTERING:
+            formComponent = configForm.getForm();
+            if (formComponent instanceof Component)
+                remove((Component) formComponent);
+            break;
+        }
     }
 }

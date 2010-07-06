@@ -20,6 +20,26 @@ package net.java.sip.communicator.service.gui;
 public interface ConfigurationForm
 {
     /**
+     * The name of a property representing the type of the configuration form.
+     */
+    public static final String FORM_TYPE = "FORM_TYPE";
+
+    /**
+     * The security configuration form type.
+     */
+    public static final String SECURITY_TYPE = "SECURITY_TYPE";
+
+    /**
+     * The general configuration form type.
+     */
+    public static final String GENERAL_TYPE = "GENERAL_TYPE";
+
+    /**
+     * The advanced configuration form type.
+     */
+    public static final String ADVANCED_TYPE = "ADVANCED_TYPE";
+
+    /**
      * Returns the title of this configuration form.
      * @return the title of this configuration form
      */

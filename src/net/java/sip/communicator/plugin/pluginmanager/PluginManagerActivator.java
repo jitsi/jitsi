@@ -5,6 +5,8 @@
  */
 package net.java.sip.communicator.plugin.pluginmanager;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 
@@ -45,6 +47,9 @@ public class PluginManagerActivator
     {
         bundleContext = bc;
 
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+        properties.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.ADVANCED_TYPE);
         bundleContext.registerService(
             ConfigurationForm.class.getName(),
             new LazyConfigurationForm(
@@ -53,7 +58,7 @@ public class PluginManagerActivator
                 "plugin.pluginmanager.PLUGIN_ICON",
                 "plugin.pluginmanager.PLUGINS",
                 1000, true),
-            null);
+            properties);
     }
 
     /**

@@ -15,8 +15,8 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * @author George Politis
  */
-public class OtrKeyManagerServiceImpl
-    implements OtrKeyManagerService
+public class ScOtrKeyManagerImpl
+    implements ScOtrKeyManager
 {
     private final OtrConfigurator configurator = new OtrConfigurator();
 

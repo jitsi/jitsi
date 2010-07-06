@@ -11,11 +11,11 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.osgi.framework.*;
 
 /**
  * The advanced configuration panel.
@@ -77,11 +77,15 @@ public class AdvancedConfigurationPanel
 
         add(configScrollList, BorderLayout.WEST);
 
+        String osgiFilter = "("
+            + ConfigurationForm.FORM_TYPE
+            + "="+ConfigurationForm.ADVANCED_TYPE+")";
         ServiceReference[] confFormsRefs = null;
         try
         {
             confFormsRefs = AdvancedConfigActivator.bundleContext
-                .getServiceReferences(ConfigurationForm.class.getName(), null);
+                .getServiceReferences(  ConfigurationForm.class.getName(),
+                                        osgiFilter);
         }
         catch (InvalidSyntaxException ex)
         {}

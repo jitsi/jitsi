@@ -83,13 +83,18 @@ public class ConfigurationFrame
 
         GuiActivator.bundleContext.addServiceListener(this);
 
+        // General configuration forms only.
+        String osgiFilter = "("
+            + ConfigurationForm.FORM_TYPE
+            + "="+ConfigurationForm.GENERAL_TYPE+")";
+
         ServiceReference[] confFormsRefs = null;
         try
         {
             confFormsRefs = GuiActivator.bundleContext
                 .getServiceReferences(
                     ConfigurationForm.class.getName(),
-                    null);
+                    osgiFilter);
         }
         catch (InvalidSyntaxException ex)
         {}
@@ -102,8 +107,7 @@ public class ConfigurationFrame
                     = (ConfigurationForm) GuiActivator.bundleContext
                         .getService(confFormsRefs[i]);
 
-                if (!form.isAdvanced())
-                    this.addConfigurationForm(form);
+                this.addConfigurationForm(form);
             }
         }
     }
@@ -183,8 +187,17 @@ public class ConfigurationFrame
     {
         if(!GuiActivator.isStarted)
             return;
-        Object sService =
-            GuiActivator.bundleContext.getService(event.getServiceReference());
+
+        ServiceReference serRef = event.getServiceReference();
+
+        Object property = serRef.getProperty(ConfigurationForm.FORM_TYPE);
+
+        if (property != ConfigurationForm.GENERAL_TYPE)
+            return;
+
+        Object sService
+            = GuiActivator.bundleContext.getService(
+                    event.getServiceReference());
 
         // we don't care if the source service is not a configuration form
         if (!(sService instanceof ConfigurationForm))

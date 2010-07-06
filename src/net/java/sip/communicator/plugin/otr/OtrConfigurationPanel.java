@@ -3,7 +3,7 @@
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.securityconfig.chat;
+package net.java.sip.communicator.plugin.otr;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -13,7 +13,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import net.java.otr4j.*;
-import net.java.sip.communicator.plugin.securityconfig.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -88,8 +87,7 @@ public class OtrConfigurationPanel
 
             public AccountsComboBox()
             {
-                List<AccountID> accountIDs
-                    = SecurityConfigActivator.getAllAccountIDs();
+                List<AccountID> accountIDs = OtrActivator.getAllAccountIDs();
 
                 if (accountIDs == null)
                     return;
@@ -127,9 +125,9 @@ public class OtrConfigurationPanel
                 lblFingerprint.setEnabled(false);
                 btnGenerate.setEnabled(false);
 
-                lblFingerprint.setText(SecurityConfigActivator.getResources()
+                lblFingerprint.setText(OtrActivator.resourceService
                     .getI18NString("plugin.otr.configform.NO_KEY_PRESENT"));
-                btnGenerate.setText(SecurityConfigActivator.getResources()
+                btnGenerate.setText(OtrActivator.resourceService
                     .getI18NString("plugin.otr.configform.GENERATE"));
             }
             else
@@ -138,20 +136,20 @@ public class OtrConfigurationPanel
                 btnGenerate.setEnabled(true);
 
                 String fingerprint =
-                    SecurityConfigActivator.getOtrKeyManagerService()
+                    OtrActivator.scOtrKeyManager
                         .getLocalFingerprint(account);
 
                 if (fingerprint == null || fingerprint.length() < 1)
                 {
-                    lblFingerprint.setText(SecurityConfigActivator.getResources()
+                    lblFingerprint.setText(OtrActivator.resourceService
                         .getI18NString("plugin.otr.configform.NO_KEY_PRESENT"));
-                    btnGenerate.setText(SecurityConfigActivator.getResources()
+                    btnGenerate.setText(OtrActivator.resourceService
                         .getI18NString("plugin.otr.configform.GENERATE"));
                 }
                 else
                 {
                     lblFingerprint.setText(fingerprint);
-                    btnGenerate.setText(SecurityConfigActivator.getResources()
+                    btnGenerate.setText(OtrActivator.resourceService
                         .getI18NString("plugin.otr.configform.REGENERATE"));
                 }
             }
@@ -164,17 +162,17 @@ public class OtrConfigurationPanel
         {
             this.setBorder(BorderFactory.createTitledBorder(BorderFactory
                 .createEtchedBorder(EtchedBorder.LOWERED),
-                SecurityConfigActivator.getResources()
+                OtrActivator.resourceService
                     .getI18NString("plugin.otr.configform.MY_PRIVATE_KEYS")));
 
             JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
 
-            labelsPanel.add(new JLabel(SecurityConfigActivator.getResources()
+            labelsPanel.add(new JLabel(OtrActivator.resourceService
                 .getI18NString("service.gui.ACCOUNT") + ": "));
 
             labelsPanel.add(new JLabel(
-                SecurityConfigActivator.getResources()
-                .getI18NString("plugin.otr.configform.FINGERPRINT") + ": "));
+                OtrActivator.resourceService
+                    .getI18NString("plugin.otr.configform.FINGERPRINT") + ": "));
 
             JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1));
 
@@ -203,7 +201,7 @@ public class OtrConfigurationPanel
                     AccountID account = cbAccounts.getSelectedAccountID();
                     if (account == null)
                         return;
-                    SecurityConfigActivator.getOtrKeyManagerService()
+                    OtrActivator.scOtrKeyManager
                         .generateKeyPair(account);
                     openAccount(account);
                 }
@@ -238,8 +236,7 @@ public class OtrConfigurationPanel
         public void loadPolicy()
         {
             OtrPolicy otrPolicy
-                = SecurityConfigActivator.getOtrEngineService()
-                    .getGlobalPolicy();
+                = OtrActivator.scOtrEngine.getGlobalPolicy();
 
             boolean otrEnabled = otrPolicy.getEnableManual();
             cbEnable.setSelected(otrEnabled);
@@ -263,21 +260,20 @@ public class OtrConfigurationPanel
             this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
             cbEnable =
-                new SIPCommCheckBox(SecurityConfigActivator.getResources()
+                new SIPCommCheckBox(OtrActivator.resourceService
                     .getI18NString("plugin.otr.configform.CB_ENABLE"));
             cbEnable.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
                     OtrPolicy otrPolicy
-                        = SecurityConfigActivator.getOtrEngineService()
+                        = OtrActivator.scOtrEngine
                             .getGlobalPolicy();
 
                     otrPolicy.setEnableManual(((JCheckBox) e.getSource())
                         .isSelected());
 
-                    SecurityConfigActivator.getOtrEngineService()
-                        .setGlobalPolicy(otrPolicy);
+                    OtrActivator.scOtrEngine.setGlobalPolicy(otrPolicy);
 
                     DefaultOtrPolicyPanel.this.loadPolicy();
                 }
@@ -285,21 +281,20 @@ public class OtrConfigurationPanel
             this.add(cbEnable);
 
             cbAutoInitiate =
-                new SIPCommCheckBox(SecurityConfigActivator.getResources()
+                new SIPCommCheckBox(OtrActivator.resourceService
                     .getI18NString("plugin.otr.configform.CB_AUTO"));
             cbAutoInitiate.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
                     OtrPolicy otrPolicy =
-                        SecurityConfigActivator.getOtrEngineService()
+                        OtrActivator.scOtrEngine
                             .getGlobalPolicy();
 
                     otrPolicy.setEnableAlways(((JCheckBox) e.getSource())
                         .isSelected());
 
-                    SecurityConfigActivator.getOtrEngineService()
-                        .setGlobalPolicy(otrPolicy);
+                    OtrActivator.scOtrEngine.setGlobalPolicy(otrPolicy);
 
                     DefaultOtrPolicyPanel.this.loadPolicy();
                 }
@@ -308,21 +303,19 @@ public class OtrConfigurationPanel
             this.add(cbAutoInitiate);
 
             cbRequireOtr =
-                new SIPCommCheckBox(SecurityConfigActivator.getResources()
+                new SIPCommCheckBox(OtrActivator.resourceService
                     .getI18NString("plugin.otr.configform.CB_REQUIRE"));
             cbRequireOtr.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
                     OtrPolicy otrPolicy =
-                        SecurityConfigActivator.getOtrEngineService()
-                            .getGlobalPolicy();
+                        OtrActivator.scOtrEngine.getGlobalPolicy();
 
                     otrPolicy.setRequireEncryption(((JCheckBox) e.getSource())
                         .isSelected());
 
-                    SecurityConfigActivator.getOtrEngineService()
-                        .setGlobalPolicy(otrPolicy);
+                    OtrActivator.scOtrEngine.setGlobalPolicy(otrPolicy);
 
                     DefaultOtrPolicyPanel.this.loadPolicy();
 

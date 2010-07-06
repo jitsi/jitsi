@@ -2184,6 +2184,7 @@ org.apache.http.util"/>
         <jar compress="false" destfile="${bundles.dest}/otr.jar" manifest="${src}/net/java/sip/communicator/plugin/otr/otr.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/otr"
                 prefix="net/java/sip/communicator/plugin/otr"/>
+            <zipfileset src="${lib.noinst}/otr4j.jar"/>
         </jar>
     </target>
     <!--BUNDLE-METAHISTORY-SLICK-->

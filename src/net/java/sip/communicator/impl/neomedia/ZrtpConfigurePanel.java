@@ -3,7 +3,7 @@
  *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.securityconfig.call;
+package net.java.sip.communicator.impl.neomedia;
 
 import gnu.java.zrtp.ZrtpConfigure;
 import gnu.java.zrtp.ZrtpConstants;
@@ -17,7 +17,6 @@ import javax.swing.event.*;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import net.java.sip.communicator.plugin.securityconfig.*;
 import net.java.sip.communicator.util.swing.*;
 
 @SuppressWarnings("serial")
@@ -49,17 +48,17 @@ public class ZrtpConfigurePanel
         JPanel mainPanel = new TransparentPanel(new BorderLayout(0, 10));
 
         final JButton stdButton = new JButton(
-            SecurityConfigActivator.getResources()
+            NeomediaActivator.getResources()
                 .getI18NString("impl.media.security.zrtp.STANDARD"));
         stdButton.setOpaque(false);
 
         final JButton mandButton = new JButton(
-            SecurityConfigActivator.getResources()
+            NeomediaActivator.getResources()
                 .getI18NString("impl.media.security.zrtp.MANDATORY"));
         mandButton.setOpaque(false);
 
         final JButton saveButton = new JButton(
-            SecurityConfigActivator.getResources()
+            NeomediaActivator.getResources()
                 .getI18NString("service.gui.SAVE"));
         saveButton.setOpaque(false);
 
@@ -70,18 +69,18 @@ public class ZrtpConfigurePanel
         buttonBar.add(saveButton);
 
         boolean trusted
-            = SecurityConfigActivator.getConfigurationService()
+            = NeomediaActivator.getConfigurationService()
                 .getBoolean(TRUSTED_PROP, false);
         boolean sasSign
-            = SecurityConfigActivator.getConfigurationService()
+            = NeomediaActivator.getConfigurationService()
                 .getBoolean(SASSIGN_PROP, false);
 
         JPanel checkBar = new TransparentPanel(new GridLayout(1,2));
         final JCheckBox trustedMitM
-            = new JCheckBox(SecurityConfigActivator.getResources()
+            = new JCheckBox(NeomediaActivator.getResources()
                 .getI18NString("impl.media.security.zrtp.TRUSTED"), trusted);
         final JCheckBox sasSignature
-            = new JCheckBox(SecurityConfigActivator.getResources()
+            = new JCheckBox(NeomediaActivator.getResources()
                 .getI18NString("impl.media.security.zrtp.SASSIGNATURE"), sasSign);
         checkBar.add(trustedMitM);
         checkBar.add(sasSignature);
@@ -116,9 +115,9 @@ public class ZrtpConfigurePanel
                 {
                     Boolean t = new Boolean(active.isTrustedMitM());
                     Boolean s = new Boolean(active.isSasSignature());
-                    SecurityConfigActivator.getConfigurationService()
+                    NeomediaActivator.getConfigurationService()
                         .setProperty(TRUSTED_PROP, t);
-                    SecurityConfigActivator.getConfigurationService()
+                    NeomediaActivator.getConfigurationService()
                         .setProperty(SASSIGN_PROP, s);
                     pkc.saveConfig();
                     hc.saveConfig();
@@ -151,19 +150,19 @@ public class ZrtpConfigurePanel
         JTabbedPane algorithmsPane = new JTabbedPane();
 
         algorithmsPane.addTab(
-            SecurityConfigActivator.getResources()
+            NeomediaActivator.getResources()
             .getI18NString("impl.media.security.zrtp.PUB_KEYS"), pkc);
         algorithmsPane.addTab(
-            SecurityConfigActivator.getResources()
+            NeomediaActivator.getResources()
             .getI18NString("impl.media.security.zrtp.HASHES"), hc);
         algorithmsPane.addTab(
-            SecurityConfigActivator.getResources()
+            NeomediaActivator.getResources()
             .getI18NString("impl.media.security.zrtp.SYM_CIPHERS"), cc);
         algorithmsPane.addTab(
-            SecurityConfigActivator.getResources()
+            NeomediaActivator.getResources()
             .getI18NString("impl.media.security.zrtp.SAS_TYPES"), sc);
         algorithmsPane.addTab(
-            SecurityConfigActivator.getResources()
+            NeomediaActivator.getResources()
             .getI18NString("impl.media.security.zrtp.SRTP_LENGTHS"), lc);
 
         algorithmsPane.setMinimumSize(new Dimension(400, 100));
@@ -195,7 +194,7 @@ public class ZrtpConfigurePanel
             String id = getPropertyID(ZrtpConstants.SupportedPubKeys.DH2K);
 
             String savedConf
-                = SecurityConfigActivator.getConfigurationService().getString(id);
+                = NeomediaActivator.getConfigurationService().getString(id);
             if (savedConf == null)
                 savedConf = "";
 
@@ -206,7 +205,7 @@ public class ZrtpConfigurePanel
                     inActive,
                     savedConf);
             createControls(this, dataModel,
-                    SecurityConfigActivator.getResources().getI18NString(
+                NeomediaActivator.getResources().getI18NString(
                         "impl.media.security.zrtp.PUB_KEY_ALGORITHMS"));
         }
 
@@ -220,7 +219,7 @@ public class ZrtpConfigurePanel
             String value = getPropertyValue(ZrtpConstants.SupportedPubKeys.DH2K);
             String id = getPropertyID(ZrtpConstants.SupportedPubKeys.DH2K);
 
-            SecurityConfigActivator.getConfigurationService()
+            NeomediaActivator.getConfigurationService()
                 .setProperty(id, value);
         }
     }
@@ -236,7 +235,7 @@ public class ZrtpConfigurePanel
             String id = getPropertyID(ZrtpConstants.SupportedHashes.S256);
 
             String savedConf
-                = SecurityConfigActivator.getConfigurationService()
+                = NeomediaActivator.getConfigurationService()
                     .getString(id);
             if (savedConf == null)
                 savedConf = "";
@@ -248,7 +247,7 @@ public class ZrtpConfigurePanel
                     inActive,
                     savedConf);
             createControls(this, dataModel,
-                    SecurityConfigActivator.getResources()
+                NeomediaActivator.getResources()
                         .getI18NString(
                             "impl.media.security.zrtp.HASH_ALGORITHMS"));
         }
@@ -262,7 +261,7 @@ public class ZrtpConfigurePanel
         {
             String value = getPropertyValue(ZrtpConstants.SupportedHashes.S256);
             String id = getPropertyID(ZrtpConstants.SupportedHashes.S256);
-            SecurityConfigActivator.getConfigurationService()
+            NeomediaActivator.getConfigurationService()
                 .setProperty(id, value);
         }
     }
@@ -277,7 +276,7 @@ public class ZrtpConfigurePanel
         {
             String id = getPropertyID(ZrtpConstants.SupportedSymCiphers.AES1);
             String savedConf
-                = SecurityConfigActivator.getConfigurationService().getString(id);
+                = NeomediaActivator.getConfigurationService().getString(id);
             if (savedConf == null)
                 savedConf = "";
 
@@ -288,7 +287,7 @@ public class ZrtpConfigurePanel
                     inActive,
                     savedConf);
             createControls(this, dataModel,
-                SecurityConfigActivator.getResources()
+                NeomediaActivator.getResources()
                     .getI18NString(
                         "impl.media.security.zrtp.SYM_CIPHER_ALGORITHMS"));
         }
@@ -303,7 +302,7 @@ public class ZrtpConfigurePanel
             String value
                 = getPropertyValue(ZrtpConstants.SupportedSymCiphers.AES1);
             String id = getPropertyID(ZrtpConstants.SupportedSymCiphers.AES1);
-            SecurityConfigActivator.getConfigurationService()
+            NeomediaActivator.getConfigurationService()
                 .setProperty(id, value);
         }
     }
@@ -317,7 +316,7 @@ public class ZrtpConfigurePanel
         {
             String id = getPropertyID(ZrtpConstants.SupportedSASTypes.B32);
             String savedConf
-                = SecurityConfigActivator.getConfigurationService()
+                = NeomediaActivator.getConfigurationService()
                     .getString(id);
             if (savedConf == null)
                 savedConf = "";
@@ -329,7 +328,7 @@ public class ZrtpConfigurePanel
                     inActive,
                     savedConf);
             createControls(this, dataModel,
-                SecurityConfigActivator.getResources()
+                NeomediaActivator.getResources()
                     .getI18NString("impl.media.security.zrtp.SAS_TYPES"));
         }
 
@@ -342,7 +341,7 @@ public class ZrtpConfigurePanel
         {
             String value = getPropertyValue(ZrtpConstants.SupportedSASTypes.B32);
             String id = getPropertyID(ZrtpConstants.SupportedSASTypes.B32);
-            SecurityConfigActivator.getConfigurationService()
+            NeomediaActivator.getConfigurationService()
                 .setProperty(id, value);
         }
     }
@@ -357,7 +356,7 @@ public class ZrtpConfigurePanel
         {
             String id = getPropertyID(ZrtpConstants.SupportedAuthLengths.HS32);
             String savedConf
-                = SecurityConfigActivator.getConfigurationService().getString(id);
+                = NeomediaActivator.getConfigurationService().getString(id);
             if (savedConf == null)
                 savedConf = "";
 
@@ -368,7 +367,7 @@ public class ZrtpConfigurePanel
                     inActive,
                     savedConf);
             createControls(this, dataModel,
-                SecurityConfigActivator.getResources()
+                NeomediaActivator.getResources()
                     .getI18NString("impl.media.security.zrtp.SRTP_LENGTHS"));
         }
 
@@ -382,7 +381,7 @@ public class ZrtpConfigurePanel
             String value
                 = getPropertyValue(ZrtpConstants.SupportedAuthLengths.HS32);
             String id = getPropertyID(ZrtpConstants.SupportedAuthLengths.HS32);
-            SecurityConfigActivator.getConfigurationService()
+            NeomediaActivator.getConfigurationService()
                 .setProperty(id, value);
         }
     }
@@ -391,12 +390,12 @@ public class ZrtpConfigurePanel
             ZrtpConfigureTableModel<T> model, String title)
     {
         final JButton upButton = new JButton(
-            SecurityConfigActivator.getResources()
+            NeomediaActivator.getResources()
                 .getI18NString("impl.media.configform.UP"));
         upButton.setOpaque(false);
 
         final JButton downButton = new JButton(
-            SecurityConfigActivator.getResources()
+            NeomediaActivator.getResources()
                 .getI18NString("impl.media.configform.DOWN"));
         downButton.setOpaque(false);
 

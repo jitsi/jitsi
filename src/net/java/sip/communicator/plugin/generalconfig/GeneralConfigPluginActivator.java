@@ -95,6 +95,9 @@ public class GeneralConfigPluginActivator
 
         ConfigurationManager.loadGuiConfigurations();
 
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+        properties.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.GENERAL_TYPE);
         bundleContext
             .registerService(
                 ConfigurationForm.class.getName(),
@@ -104,7 +107,7 @@ public class GeneralConfigPluginActivator
                     "plugin.generalconfig.PLUGIN_ICON",
                     "service.gui.GENERAL",
                     0),
-                null);
+                properties);
 
         /*
          * Wait for the first ProtocolProviderService to register in order to

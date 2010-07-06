@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.notificationconfiguration;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
@@ -35,6 +37,9 @@ public class NotificationConfigurationActivator implements BundleActivator
     {
         bundleContext = bc;
 
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+        properties.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.GENERAL_TYPE);
         bundleContext
             .registerService(
                 ConfigurationForm.class.getName(),
@@ -44,7 +49,7 @@ public class NotificationConfigurationActivator implements BundleActivator
                     "plugin.notificationconfig.PLUGIN_ICON",
                     "service.gui.EVENTS",
                     30),
-                null);
+                properties);
 
         if (logger.isTraceEnabled())
             logger.trace("Notification Configuration: [ STARTED ]");

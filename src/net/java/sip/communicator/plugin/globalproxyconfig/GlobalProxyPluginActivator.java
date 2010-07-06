@@ -7,6 +7,8 @@
 package net.java.sip.communicator.plugin.globalproxyconfig;
 
 import java.net.*;
+import java.util.*;
+
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -46,6 +48,9 @@ public class GlobalProxyPluginActivator implements BundleActivator
     {
         bundleContext = bc;
 
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+        properties.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.ADVANCED_TYPE);
         bundleContext.registerService(
             ConfigurationForm.class.getName(),
             new LazyConfigurationForm(
@@ -54,7 +59,7 @@ public class GlobalProxyPluginActivator implements BundleActivator
                 "plugin.globalproxy.PLUGIN_ICON",
                 "plugin.globalproxy.GLOBAL_PROXY_CONFIG",
                 51, true),
-            null);
+            properties);
 
         initProperties();
 

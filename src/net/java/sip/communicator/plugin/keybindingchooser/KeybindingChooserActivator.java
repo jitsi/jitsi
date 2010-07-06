@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.keybindingchooser;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -49,6 +51,9 @@ public class KeybindingChooserActivator
         if (logger.isDebugEnabled())
             logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
 
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+        properties.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.ADVANCED_TYPE);
         bc.registerService(
             ConfigurationForm.class.getName(),
             new LazyConfigurationForm(
@@ -57,7 +62,7 @@ public class KeybindingChooserActivator
                 "plugin.keybinding.PLUGIN_ICON",
                 "plugin.keybindings.PLUGIN_NAME",
                 900, true),
-            null);
+            properties);
     }
 
     /**

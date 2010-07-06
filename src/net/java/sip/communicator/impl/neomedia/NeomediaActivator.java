@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.fileaccess.*;
@@ -111,7 +113,11 @@ public class NeomediaActivator
         if (logger.isDebugEnabled())
             logger.debug("Media Service ... [REGISTERED]");
 
-        // MediaConfigurationForm
+        Dictionary<String, String> mediaProps = new Hashtable<String, String>();
+        mediaProps.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.GENERAL_TYPE);
+
+        // AudioConfigurationForm
         bundleContext
             .registerService(
                 ConfigurationForm.class.getName(),
@@ -122,7 +128,7 @@ public class NeomediaActivator
                         "plugin.mediaconfig.AUDIO_ICON",
                         "impl.neomedia.configform.AUDIO",
                         3),
-                null);
+                mediaProps);
 
         // VideoConfigurationForm
         bundleContext
@@ -135,7 +141,23 @@ public class NeomediaActivator
                         "plugin.mediaconfig.VIDEO_ICON",
                         "impl.neomedia.configform.VIDEO",
                         4),
-                null);
+                mediaProps);
+
+        // ZRTPConfiguration panel
+        Dictionary<String, String> securityProps
+            = new Hashtable<String, String>();
+        securityProps.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.SECURITY_TYPE);
+        bundleContext
+        .registerService(
+            ConfigurationForm.class.getName(),
+            new LazyConfigurationForm(
+                "net.java.sip.communicator.impl.neomedia.ZrtpConfigurePanel",
+                getClass().getClassLoader(),
+                "impl.media.security.zrtp.CONF_ICON",
+                "service.gui.CALL",
+                1100),
+            securityProps);
 
         GatherEntropy entropy
             = new GatherEntropy(mediaServiceImpl.getDeviceConfiguration());

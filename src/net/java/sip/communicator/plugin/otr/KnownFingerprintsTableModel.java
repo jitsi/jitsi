@@ -1,11 +1,10 @@
-package net.java.sip.communicator.plugin.securityconfig.chat;
+package net.java.sip.communicator.plugin.otr;
 
 import java.awt.*;
 import java.util.*;
 
 import javax.swing.table.*;
 
-import net.java.sip.communicator.plugin.securityconfig.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -35,7 +34,7 @@ public class KnownFingerprintsTableModel
         try
         {
             protocolProviderRefs =
-                SecurityConfigActivator.bundleContext
+                OtrActivator.bundleContext
                     .getServiceReferences(
                         ProtocolProviderService.class.getName(), null);
         }
@@ -50,19 +49,19 @@ public class KnownFingerprintsTableModel
 
         // Get the metacontactlist service.
         ServiceReference ref =
-            SecurityConfigActivator.bundleContext
+            OtrActivator.bundleContext
                 .getServiceReference(MetaContactListService.class
                     .getName());
 
         MetaContactListService service
-            = (MetaContactListService) SecurityConfigActivator
+            = (MetaContactListService) OtrActivator
                 .bundleContext.getService(ref);
 
         // Populate contacts.
         for (int i = 0; i < protocolProviderRefs.length; i++)
         {
             ProtocolProviderService provider
-                = (ProtocolProviderService) SecurityConfigActivator
+                = (ProtocolProviderService) OtrActivator
                     .bundleContext
                         .getService(protocolProviderRefs[i]);
 
@@ -88,15 +87,15 @@ public class KnownFingerprintsTableModel
         switch (column)
         {
         case CONTACTNAME_INDEX:
-            return SecurityConfigActivator.getResources()
+            return OtrActivator.resourceService
                 .getI18NString(
                     "plugin.otr.configform.COLUMN_NAME_CONTACT");
         case VERIFIED_INDEX:
-            return SecurityConfigActivator.getResources()
+            return OtrActivator.resourceService
                 .getI18NString(
                     "plugin.otr.configform.COLUMN_NAME_VERIFIED_STATUS");
         case FINGERPRINT_INDEX:
-            return SecurityConfigActivator.getResources()
+            return OtrActivator.resourceService
                 .getI18NString(
                     "plugin.otr.configform.FINGERPRINT");
         default:
@@ -119,14 +118,14 @@ public class KnownFingerprintsTableModel
             return contact.getDisplayName();
         case VERIFIED_INDEX:
             // TODO: Maybe use a CheckBoxColumn?
-            return (SecurityConfigActivator.getOtrKeyManagerService()
+            return (OtrActivator.scOtrKeyManager
                         .isVerified(contact))
-                ? SecurityConfigActivator.getResources().getI18NString(
+                ? OtrActivator.resourceService.getI18NString(
                     "plugin.otr.configform.COLUMN_VALUE_VERIFIED_TRUE")
-                : SecurityConfigActivator.getResources().getI18NString(
+                : OtrActivator.resourceService.getI18NString(
                     "plugin.otr.configform.COLUMN_VALUE_VERIFIED_FALSE");
         case FINGERPRINT_INDEX:
-            return SecurityConfigActivator.getOtrKeyManagerService()
+            return OtrActivator.scOtrKeyManager
                     .getRemoteFingerprint(contact);
         default:
             return null;

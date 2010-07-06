@@ -1,5 +1,7 @@
 package net.java.sip.communicator.plugin.advancedconfig;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -39,6 +41,9 @@ public class AdvancedConfigActivator
     {
         bundleContext = bc;
 
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+        properties.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.GENERAL_TYPE);
         bundleContext
             .registerService(
                 ConfigurationForm.class.getName(),
@@ -48,7 +53,7 @@ public class AdvancedConfigActivator
                     "plugin.advancedconfig.PLUGIN_ICON",
                     "service.gui.ADVANCED",
                     300),
-                null);
+                properties);
 
         if (logger.isInfoEnabled())
             logger.info("ADVANCED CONFIG PLUGIN... [REGISTERED]");

@@ -15,7 +15,7 @@ import net.java.sip.communicator.service.protocol.*;
  * 
  * @author George Politis
  */
-public interface OtrEngineService
+public interface ScOtrEngine
 {
     // Proxy methods OtrEngine.
 

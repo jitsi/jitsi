@@ -19,8 +19,8 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * @author George Politis
  */
-public class OtrEngineServiceImpl
-    implements OtrEngineService
+public class ScOtrEngineImpl
+    implements ScOtrEngine
 {
     private final OtrConfigurator configurator = new OtrConfigurator();
 
@@ -119,8 +119,8 @@ public class OtrEngineServiceImpl
             Chat.ERROR_MESSAGE, err,
             OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
     }
-
-    public OtrEngineServiceImpl()
+    
+    public ScOtrEngineImpl()
     {
         this.otrEngine.addOtrEngineListener(new OtrEngineListener()
         {
@@ -344,6 +344,5 @@ public class OtrEngineServiceImpl
 
         for (ScOtrEngineListener l : listeners)
             l.contactPolicyChanged(contact);
-
     }
 }
