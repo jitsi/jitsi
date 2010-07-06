@@ -170,6 +170,22 @@ public class ProtocolProviderServiceJabberImpl
     private boolean certChecked = false;
 
     /**
+     * Flag indicating are we currently executing connectAndLogin method.
+     */
+    private boolean inConnectAndLogin = false;
+
+    /**
+     * Object used to synchronize the flag inConnectAndLogin.
+     */
+    private final Object connectAndLoginLock = new Object();
+
+    /**
+     * If an event occurs during login we fire it at the end of the login
+     * process (at the end of connectAndLogin method).
+     */
+    private RegistrationStateChangeEvent eventDuringLogin = null;
+
+    /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
      * currently in or null in case it is in a unknown state.
@@ -293,6 +309,11 @@ public class ProtocolProviderServiceJabberImpl
                                               int reasonCode)
         throws XMPPException, OperationFailedException
     {
+        synchronized(connectAndLoginLock)
+        {
+            inConnectAndLogin = true;
+        }
+
         synchronized(initializationLock)
         {
             //verify whether a password has already been stored for this account
@@ -590,6 +611,30 @@ public class ProtocolProviderServiceJabberImpl
                 throw new OperationFailedException("Wrong port",
                     OperationFailedException.INVALID_ACCOUNT_PROPERTIES, ex);
             }
+        }
+
+        synchronized(connectAndLoginLock)
+        {
+            // Checks if an error has occured during login, if so we fire
+            // it here in order to avoid a deadlock which occurs in
+            // reconnect plugin. The deadlock is cause we fired an event during
+            // login process and have locked initializationLock and we cannot
+            // unregister from reconnect, cause unregister method
+            // also needs this lock.
+            if(eventDuringLogin != null)
+            {
+                fireRegistrationStateChanged(
+                    eventDuringLogin.getOldState(),
+                    eventDuringLogin.getNewState(),
+                    eventDuringLogin.getReasonCode(),
+                    eventDuringLogin.getReason());
+
+                eventDuringLogin = null;
+                inConnectAndLogin = false;
+                return;
+            }
+
+            inConnectAndLogin = false;
         }
     }
 
@@ -1004,6 +1049,23 @@ public class ProtocolProviderServiceJabberImpl
                 if(err != null && err.getCode().equals(
                     XMPPError.Condition.conflict.toString()))
                 {
+                    // if we are in the middle of connecting process
+                    // do not fire events, will do it later when the method
+                    // connectAndLogin finishes its work
+                    synchronized(connectAndLoginLock)
+                    {
+                        if(inConnectAndLogin)
+                        {
+                            eventDuringLogin = new RegistrationStateChangeEvent(
+                                ProtocolProviderServiceJabberImpl.this,
+                                getRegistrationState(),
+                                RegistrationState.CONNECTION_FAILED,
+                                RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS,
+                                "Connecting multiple times with the same resource");
+                             return;
+                        }
+                    }
+
                     fireRegistrationStateChanged(getRegistrationState(),
                         RegistrationState.CONNECTION_FAILED,
                         RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS,
@@ -1015,6 +1077,23 @@ public class ProtocolProviderServiceJabberImpl
                 exception.getCause() instanceof CertificateException)
             {
                 return;
+            }
+
+            // if we are in the middle of connecting process
+            // do not fire events, will do it later when the method
+            // connectAndLogin finishes its work
+            synchronized(connectAndLoginLock)
+            {
+                if(inConnectAndLogin)
+                {
+                    eventDuringLogin = new RegistrationStateChangeEvent(
+                        ProtocolProviderServiceJabberImpl.this,
+                        getRegistrationState(),
+                        RegistrationState.CONNECTION_FAILED,
+                        RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                        exception.getMessage());
+                     return;
+                }
             }
 
             fireRegistrationStateChanged(getRegistrationState(),
