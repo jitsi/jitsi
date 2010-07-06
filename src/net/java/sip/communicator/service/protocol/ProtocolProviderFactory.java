@@ -388,39 +388,38 @@ public abstract class ProtocolProviderFactory
         // Unregister the protocol provider.
         ServiceReference serRef = getProviderForAccount(accountID);
 
-        if (serRef == null)
+        // If the protocol provider service is registered, first unregister the
+        // service.
+        if (serRef != null)
         {
-            return false;
-        }
+            BundleContext bundleContext = getBundleContext();
+            ProtocolProviderService protocolProvider =
+                (ProtocolProviderService) bundleContext.getService(serRef);
 
-        BundleContext bundleContext = getBundleContext();
-        ProtocolProviderService protocolProvider =
-            (ProtocolProviderService) bundleContext.getService(serRef);
+            try
+            {
+                protocolProvider.unregister();
+            }
+            catch (OperationFailedException ex)
+            {
+                logger
+                    .error("Failed to unregister protocol provider for account : "
+                        + accountID + " caused by: " + ex);
+            }
 
-        try
-        {
-            protocolProvider.unregister();
-        }
-        catch (OperationFailedException ex)
-        {
-            logger
-                .error("Failed to unregister protocol provider for account : "
-                    + accountID + " caused by: " + ex);
-        }
+            ServiceRegistration registration;
 
-        ServiceRegistration registration;
+            synchronized (registeredAccounts)
+            {
+                registration = registeredAccounts.remove(accountID);
+            }
 
-        synchronized (registeredAccounts)
-        {
-            registration = registeredAccounts.remove(accountID);
+            if (registration != null)
+            {
+                // Kill the service.
+                registration.unregister();
+            }
         }
-        if (registration == null)
-        {
-            return false;
-        }
-
-        // Kill the service.
-        registration.unregister();
 
         return removeStoredAccount(accountID);
     }

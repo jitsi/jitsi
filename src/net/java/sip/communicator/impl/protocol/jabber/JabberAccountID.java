@@ -25,8 +25,9 @@ public class JabberAccountID
      */
     JabberAccountID(String id, Map<String, String> accountProperties )
     {
-        super(id, accountProperties, ProtocolNames.JABBER,
-              getServiceName(accountProperties));
+        super(  id, accountProperties,
+                ProtocolNames.JABBER,
+                getServiceName(accountProperties));
     }
 
     /**

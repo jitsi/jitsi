@@ -321,4 +321,17 @@ public class AccountList
         else
             GuiActivator.getAccountManager().unloadAccount(accountID);
     }
+
+    /**
+     * Ensures that the account with the given <tt>accountID</tt> is removed
+     * from the list.
+     * @param accountID the identifier of the account
+     */
+    public void ensureAccountRemoved(AccountID accountID)
+    {
+        Account account = accountListModel.getAccount(accountID);
+
+        if (account != null)
+            accountListModel.removeElement(account);
+    }
 }

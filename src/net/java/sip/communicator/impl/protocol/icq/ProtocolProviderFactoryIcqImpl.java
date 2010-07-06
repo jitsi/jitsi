@@ -110,6 +110,31 @@ public class ProtocolProviderFactoryIcqImpl
     }
 
     /**
+     * Creates a protocol provider for the given <tt>accountID</tt> and
+     * registers it in the bundle context. This method has a persistent
+     * effect. Once created the resulting account will remain installed until
+     * removed through the uninstallAccount method.
+     * 
+     * @param accountID the account identifier
+     * @return <tt>true</tt> if the account with the given <tt>accountID</tt> is
+     * successfully loaded, otherwise returns <tt>false</tt>
+     */
+    public boolean loadAccount(AccountID accountID)
+    {
+        // there are two factories - one for icq accounts and one for aim ones.
+        // if we are trying to load an icq account in aim factory - skip it
+        // and the same for aim accounts in icq factory
+        boolean accountPropertiesIsAIM
+            = IcqAccountID.isAIM(accountID.getAccountProperties());
+        if ((accountPropertiesIsAIM && !isAimFactory)
+            || (!accountPropertiesIsAIM && isAimFactory))
+        {
+            return false;
+        }
+        return super.loadAccount(accountID);
+    }
+
+    /**
      * Initializes and creates an account corresponding to the specified
      * accountProperties.
      * 
@@ -123,6 +148,7 @@ public class ProtocolProviderFactoryIcqImpl
         // if we are trying to load an icq account in aim factory - skip it
         // and the same for aim accounts in icq factory
         boolean accountPropertiesIsAIM = IcqAccountID.isAIM(accountProperties);
+
         if ((accountPropertiesIsAIM && !isAimFactory)
             || (!accountPropertiesIsAIM && isAimFactory))
         {

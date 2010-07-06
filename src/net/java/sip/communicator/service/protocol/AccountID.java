@@ -36,6 +36,17 @@ public abstract class AccountID
     private static final Logger logger = Logger.getLogger(AccountID.class);
 
     /**
+     * The protocol display name. In the case of overridden protocol name this
+     * would be the new name.
+     */
+    private final String protocolDisplayName;
+
+    /**
+     * The real protocol name.
+     */
+    private final String protocolName;
+
+    /**
      * Allows a specific set of account properties to override a given default
      * protocol name (e.g. account registration wizards which want to present a
      * well-known protocol name associated with the account that is different
@@ -53,7 +64,7 @@ public abstract class AccountID
      * implementation specific account initialization properties
      * @param defaultProtocolName the protocol name to be used in case
      * <tt>accountProperties</tt> doesn't provide an overriding value
-     * @return
+     * @return the protocol name
      */
     private static final String getOverriddenProtocolName(
             Map<String, String> accountProperties, String defaultProtocolName)
@@ -110,16 +121,16 @@ public abstract class AccountID
                          String protocolName,
                          String serviceName)
     {
-
         /*
          * Allow account registration wizards to override the default protocol
          * name through accountProperties for the purposes of presenting a
          * well-known protocol name associated with the account that is
          * different from the name of the effective protocol.
          */
-        protocolName
+        this.protocolDisplayName
             = getOverriddenProtocolName(accountProperties, protocolName);
 
+        this.protocolName = protocolName;
         this.userID = userID;
         this.accountProperties
             = new Hashtable<String, String>(accountProperties);
@@ -127,7 +138,7 @@ public abstract class AccountID
 
         //create a unique identifier string
         this.accountUID
-            = protocolName
+            = protocolDisplayName
                 + ":"
                 + userID
                 + "@"
@@ -168,7 +179,17 @@ public abstract class AccountID
      */
     public String getProtocolDisplayName()
     {
-        return getAccountPropertyString(ProtocolProviderFactory.PROTOCOL);
+        return protocolDisplayName;
+    }
+
+    /**
+     * Returns the name of the protocol.
+     *
+     * @return the name of the protocol
+     */
+    public String getProtocolName()
+    {
+        return protocolName;
     }
 
     /**

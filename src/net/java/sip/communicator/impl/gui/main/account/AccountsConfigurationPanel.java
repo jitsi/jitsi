@@ -114,24 +114,21 @@ public class AccountsConfigurationPanel
             if (account == null)
                 return;
 
-            ProtocolProviderService protocolProvider
-                = account.getProtocolProvider();
+            AccountID accountID = account.getAccountID();
+
             ProtocolProviderFactory providerFactory =
-                GuiActivator.getProtocolProviderFactory(protocolProvider);
+                GuiActivator.getProtocolProviderFactory(
+                    accountID.getProtocolName());
 
             if (providerFactory != null)
             {
-                int result
-                    = JOptionPane
-                        .showConfirmDialog(
-                            this,
-                            GuiActivator
-                                .getResources()
-                                    .getI18NString(
-                                        "service.gui.REMOVE_ACCOUNT_MESSAGE"),
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.REMOVE_ACCOUNT"),
-                        JOptionPane.YES_NO_OPTION);
+                int result = JOptionPane.showConfirmDialog(
+                    this,
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.REMOVE_ACCOUNT_MESSAGE"),
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.REMOVE_ACCOUNT"),
+                    JOptionPane.YES_NO_OPTION);
 
                 if (result == JOptionPane.YES_OPTION)
                 {
@@ -147,14 +144,19 @@ public class AccountsConfigurationPanel
                         String accountUID
                             = configService.getString(accountRootPropName);
 
-                        if (accountUID.equals(protocolProvider
-                            .getAccountID().getAccountUniqueID()))
+                        if (accountUID.equals(accountID.getAccountUniqueID()))
                         {
                             configService.setProperty(accountRootPropName, null);
                             break;
                         }
                     }
-                    providerFactory.uninstallAccount(protocolProvider.getAccountID());
+                    boolean isUninstalled
+                        = providerFactory.uninstallAccount(accountID);
+
+                    if (isUninstalled)
+                    {
+                        accountList.ensureAccountRemoved(accountID);
+                    }
                 }
             }
         }

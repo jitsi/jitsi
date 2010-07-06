@@ -43,7 +43,7 @@ public class SipAccountID
         String serverName)
     {
         super(stripServerNameFromUserID(userID), accountProperties,
-            accountProperties.get(ProtocolProviderFactory.PROTOCOL),
+            ProtocolNames.SIP,
             serverName);
     }
 

@@ -175,18 +175,19 @@ public class AccountManagerImpl
             {
                 AccountID accountID = factory.createAccount(accountProperties);
 
-                // If for some reason the account id is not created we have
-                // nothing more to do here.
+                // If for some reason the account id is not created we move to
+                // the next account.
                 if (accountID == null)
-                    return;
+                    continue;
 
                 synchronized (storedAccounts)
                 {
                     storedAccounts.add(accountID);
                 }
-
                 if (!isDisabled)
+                {
                     factory.loadAccount(accountID);
+                }
             }
             catch (Exception ex)
             {
@@ -703,14 +704,13 @@ public class AccountManagerImpl
 
         ProtocolProviderFactory providerFactory
             = ProtocolProviderActivator.getProtocolProviderFactory(
-                accountID.getProtocolDisplayName());
+                accountID.getProtocolName());
 
         if(providerFactory.loadAccount(accountID))
         {
             accountID.putAccountProperty(
                 ProtocolProviderFactory.IS_ACCOUNT_DISABLED,
                 String.valueOf(false));
-
             // Finally store the modified properties.
             storeAccount(providerFactory, accountID);
         }
@@ -733,7 +733,7 @@ public class AccountManagerImpl
 
         ProtocolProviderFactory providerFactory
             = ProtocolProviderActivator.getProtocolProviderFactory(
-                accountID.getProtocolDisplayName());
+                accountID.getProtocolName());
 
         // Obtain the protocol provider.
         ServiceReference serRef
@@ -767,10 +767,9 @@ public class AccountManagerImpl
             accountID.putAccountProperty(
                 ProtocolProviderFactory.IS_ACCOUNT_DISABLED,
                 String.valueOf(false));
-
-            // Finally store the modified properties.
-            storeAccount(providerFactory, accountID);
         }
+        // Finally store the modified properties.
+        storeAccount(providerFactory, accountID);
     }
 
     /**
