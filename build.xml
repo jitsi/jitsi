@@ -1055,77 +1055,6 @@
         </jar>
     </target>
 
-    <!--BUNDLE-MEDIA-->
-    <target name="bundle-media">
-        <!-- Creates a bundle containing the impl of the media package and
-             the win jmf implementation.-->
-        <jar
-            compress="false" destfile="${bundles.dest.win}/media.jar"
-            manifest="${src}/net/java/sip/communicator/impl/media/media.manifest.mf">
-
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/media"
-                prefix="net/java/sip/communicator/service/media"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
-                prefix="net/java/sip/communicator/impl/media"/>
-            <zipfileset dir="${resources}/images/impl/media"
-                prefix="resources/images/impl/media"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
-                prefix="net/java/sip/communicator/service/audionotifier"/>
-            <zipfileset src="${lib.win.noinst}/jmf.jar" prefix=""/>
-            <zipfileset src="${lib.win.noinst}/sound.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
-
-          <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
-        </jar>
-
-        <!-- Creates a bundle containing the impl of the media package and
-             the linux jmf implementation.-->
-        <jar
-            compress="false" destfile="${bundles.dest.lin}/media.jar"
-            manifest="${src}/net/java/sip/communicator/impl/media/media.manifest.mf">
-
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/media"
-                prefix="net/java/sip/communicator/service/media"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
-                prefix="net/java/sip/communicator/impl/media"/>
-            <zipfileset dir="${resources}/images/impl/media"
-                prefix="resources/images/impl/media"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
-                prefix="net/java/sip/communicator/service/audionotifier"/>
-            <zipfileset src="${lib.lin.noinst}/jmf.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
-
-          <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
-        </jar>
-
-        <!-- Creates a bundle containing the impl of the media package and
-             the mac jmf implementation.-->
-        <jar
-            compress="false" destfile="${bundles.dest.mac}/media.jar"
-            manifest="${src}/net/java/sip/communicator/impl/media/media.manifest.mf">
-
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/media"
-                prefix="net/java/sip/communicator/service/media"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/media"
-                prefix="net/java/sip/communicator/impl/media"/>
-            <zipfileset dir="${resources}/images/impl/media"
-                prefix="resources/images/impl/media"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
-                prefix="net/java/sip/communicator/service/audionotifier"/>
-            <zipfileset src="${lib.mac.noinst}/jmf.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
-
-          <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
-        </jar>
-
-    </target>
-
     <!--BUNDLE-NEOMEDIA-->
     <target name="bundle-neomedia">
         <!-- Creates a bundle containing the impl of the neomedia package and
@@ -1207,16 +1136,6 @@
             <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
-        </jar>
-    </target>
-
-    <!--BUNDLE-MEDIA-SLICK-->
-    <target name="bundle-media-slick">
-        <!-- Creates a bundle containing the slick for the media package."-->
-        <jar compress="false" destfile="${bundles.dest}/media-slick.jar"
-            manifest="${testsrc}/net/java/sip/communicator/slick/media/media.slick.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/slick/media"
-                prefix="net/java/sip/communicator/slick/media"/>
         </jar>
     </target>
 
@@ -1956,15 +1875,6 @@ org.apache.http.util"/>
                     value="A set of low level HTTP transport components."/>
                 <attribute name="System-Bundle" value="yes"/>
             </manifest>
-        </jar>
-    </target>
-
-    <!--BUNDLE-MAILBOX-->
-    <target name="bundle-mailbox">
-        <jar compress="false" destfile="${bundles.dest}/mailbox.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/mailbox/mailbox.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/mailbox"
-                    prefix="net/java/sip/communicator/plugin/mailbox" />
         </jar>
     </target>
 

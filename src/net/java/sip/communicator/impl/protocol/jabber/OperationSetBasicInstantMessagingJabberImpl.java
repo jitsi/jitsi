@@ -73,6 +73,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
                                     = new Hashtable<String, TargetAddress>();
 
     /**
+     * The smackMessageListener instance listens for incoming messages.
+     * Keep a reference of it so if anything goes wrong we don't add
+     * two different instances.
+     */
+    private SmackMessageListener smackMessageListener = null;
+
+    /**
      * Contains the complete jid of a specific user and the time that it was
      * last used so that we could remove it after a certain point.
      */
@@ -498,8 +505,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     (OperationSetPersistentPresenceJabberImpl) jabberProvider
                         .getOperationSet(OperationSetPersistentPresence.class);
 
+                if(smackMessageListener == null)
+                    smackMessageListener = new SmackMessageListener();
+
                 jabberProvider.getConnection().addPacketListener(
-                        new SmackMessageListener(),
+                        smackMessageListener,
                         new AndFilter(
                             new PacketFilter[]{new GroupMessagePacketFilter(),
                             new PacketTypeFilter(
@@ -535,6 +545,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
                         KEEPALIVE_INTERVAL,
                         KEEPALIVE_INTERVAL);
                 }
+            }
+            else if(evt.getNewState() == RegistrationState.UNREGISTERED
+                || evt.getNewState() == RegistrationState.CONNECTION_FAILED
+                || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED)
+            {
+                smackMessageListener = null;
             }
         }
     }
