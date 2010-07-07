@@ -714,6 +714,23 @@ public class HistoryReaderImpl
     static Vector<String> filterFilesByDate(
         Iterator<String> filelist, Date startDate, Date endDate)
     {
+        return filterFilesByDate(filelist, startDate, endDate, false);
+    }
+
+    /**
+     * Used to limit the files if any starting or ending date exist
+     * So only few files to be searched.
+     *
+     * @param filelist Iterator
+     * @param startDate Date
+     * @param endDate Date
+     * @param reverseOrder reverse order of files
+     * @return Vector
+     */
+    static Vector<String> filterFilesByDate(
+        Iterator<String> filelist, Date startDate, Date endDate,
+        final boolean reverseOrder)
+    {
         if(startDate == null && endDate == null)
         {
             // no filtering needed then just return the same list
@@ -722,6 +739,18 @@ public class HistoryReaderImpl
             {
                 result.add(filelist.next());
             }
+
+            Collections.sort(result, new Comparator<String>() {
+
+                public int compare(String o1, String o2)
+                {
+                    if(reverseOrder)
+                        return o2.compareTo(o1);
+                    else
+                        return o1.compareTo(o2);
+                }
+            });
+
             return result;
         }
         // first convert all files to long
@@ -813,6 +842,17 @@ public class HistoryReaderImpl
             Long item = iter.next();
             result.add(item.toString() + ".xml");
         }
+
+        Collections.sort(result, new Comparator<String>() {
+
+            public int compare(String o1, String o2)
+            {
+                if(reverseOrder)
+                    return o2.compareTo(o1);
+                else
+                    return o1.compareTo(o2);
+            }
+        });
 
         return result;
     }

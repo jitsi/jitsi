@@ -128,7 +128,7 @@ public class InteractiveHistoryReaderImpl
     {
         Vector<String> filelist
             = HistoryReaderImpl.filterFilesByDate(  history.getFileList(),
-                                                    startDate, endDate);
+                                                    startDate, endDate, true);
 
         Iterator<String> fileIterator = filelist.iterator();
         while (fileIterator.hasNext() && resultCount > 0 && !query.isCanceled())
