@@ -15,6 +15,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -31,6 +32,11 @@ public class AccountList
                 ServiceListener,
                 MouseListener
 {
+    /**
+     * The logger.
+     */
+    private final Logger logger = Logger.getLogger(AccountList.class);
+
     /**
      * The account list model.
      */
@@ -272,11 +278,18 @@ public class AccountList
     private void dispatchEventToCheckBox(MouseEvent event)
     {
         int mouseIndex = this.locationToIndex(event.getPoint());
-        Object value = getModel().getElementAt(mouseIndex);
+
+        if (logger.isTraceEnabled())
+            logger.trace("Account list: index under mouse found:" + mouseIndex);
 
         // If this is an invalid index we have nothing to do here
         if (mouseIndex < 0)
             return;
+
+        Object value = getModel().getElementAt(mouseIndex);
+
+        if (logger.isTraceEnabled())
+            logger.trace("Account list: element at mouse index:" + value);
 
         AccountListCellRenderer renderer
             = (AccountListCellRenderer) getCellRenderer()
@@ -286,17 +299,33 @@ public class AccountList
                                                 true,
                                                 true);
 
+        if (logger.isTraceEnabled())
+            logger.trace("Account list: renderer bounds for mouse index:"
+                    + renderer.getBounds());
+
         // We need to translate coordinates here.
         Rectangle r = this.getCellBounds(mouseIndex, mouseIndex);
         int translatedX = event.getX() - r.x;
         int translatedY = event.getY() - r.y;
 
+        if (logger.isTraceEnabled())
+            logger.trace("Account list: find component at:"
+                    + translatedX + ", " + translatedY);
+
         Component mouseComponent
             = renderer.findComponentAt(translatedX, translatedY);
+
+        if (logger.isTraceEnabled())
+            logger.trace("Account list: component under the mouse:"
+                    + mouseComponent);
 
         if (mouseComponent instanceof JCheckBox)
         {
             JCheckBox checkBox = ((JCheckBox) mouseComponent);
+
+            if (logger.isTraceEnabled())
+                logger.trace("Account list: checkBox set selected"
+                        + !checkBox.isSelected());
 
             checkBox.setSelected(!checkBox.isSelected());
             enableAccount((Account) value, checkBox.isSelected());

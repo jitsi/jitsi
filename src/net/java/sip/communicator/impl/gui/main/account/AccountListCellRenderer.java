@@ -104,8 +104,7 @@ public class AccountListCellRenderer
         this.index = index;
         this.isSelected = isSelected;
 
-        if (getBounds().width == 0)
-            this.setBounds(0, 0, list.getWidth(), getPreferredSize().height);
+        this.setBounds(0, 0, list.getWidth(), getPreferredSize().height);
 
         this.addCheckBox();
 
