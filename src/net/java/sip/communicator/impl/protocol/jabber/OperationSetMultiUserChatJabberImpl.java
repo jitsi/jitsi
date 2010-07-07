@@ -28,6 +28,9 @@ public class OperationSetMultiUserChatJabberImpl
     extends AbstractOperationSetMultiUserChat
     implements SubscriptionListener
 {
+    /**
+     * This class logger.
+     */
     private static final Logger logger
         = Logger.getLogger(OperationSetMultiUserChatJabberImpl.class);
 
@@ -569,7 +572,7 @@ public class OperationSetMultiUserChatJabberImpl
          * @param password the password to use when joining the room.
          * @param message the message used by the inviter to send the invitation.
          */
-        public void invitationReceived(XMPPConnection conn,
+        public void invitationReceived(Connection conn,
             String room, String inviter, String reason,
             String password, Message message)
         {
@@ -607,6 +610,9 @@ public class OperationSetMultiUserChatJabberImpl
     private class SmackInvitationRejectionListener
         implements InvitationRejectionListener
     {
+        /**
+         * The chat room for this listener.
+         */
         private ChatRoom chatRoom;
 
         /**

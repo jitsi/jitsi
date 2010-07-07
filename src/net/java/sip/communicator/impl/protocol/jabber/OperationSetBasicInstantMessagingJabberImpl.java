@@ -242,7 +242,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         XMPPConnection jabberConnection
             = jabberProvider.getConnection();
 
-        Chat chat = jabberConnection.getChatManager().getUserChat(jid);
+        Chat chat = jabberConnection.getChatManager().getThreadChat(jid);
 
         if (chat != null)
             return chat;

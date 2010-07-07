@@ -12,7 +12,7 @@ import javax.security.auth.callback.*;
 import javax.security.sasl.*;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.util.Base64;
+import org.jivesoftware.smack.util.*;
 
 /**
  * Creates our custom SASLDigestMD5Mechanism with some changes in order
@@ -42,6 +42,7 @@ public class SASLDigestMD5Mechanism
      * @throws IOException If a network error occurs while authenticating.
      * @throws XMPPException If a protocol error occurs or the user is not authenticated.
      */
+    @Override
     public void authenticate(String username, String host, String password)
         throws IOException, XMPPException
     {
@@ -69,6 +70,7 @@ public class SASLDigestMD5Mechanism
      * @throws IOException If a network error occurs while authenticating.
      * @throws XMPPException If a protocol error occurs or the user is not authenticated.
      */
+    @Override
     public void authenticate(String username, String host, CallbackHandler cbh)
         throws IOException, XMPPException
     {
@@ -85,12 +87,10 @@ public class SASLDigestMD5Mechanism
      * @param challenge a base64 encoded string representing the challenge.
      * @throws IOException if an exception sending the response occurs.
      */
+    @Override
     public void challengeReceived(String challenge) 
         throws IOException
     {
-        // Build the challenge response stanza encoding the response text
-        StringBuilder stanza = new StringBuilder();
-
         byte response[];
         if(challenge != null) {
             response = sc.evaluateChallenge(Base64.decode(challenge));
@@ -106,11 +106,7 @@ public class SASLDigestMD5Mechanism
 			authenticationText = "=";
 		}
 
-        stanza.append("<response xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\">");
-        stanza.append(authenticationText);
-        stanza.append("</response>");
-
         // Send the authentication to the server
-        getSASLAuthentication().send(stanza.toString());
+        getSASLAuthentication().send(new Response(authenticationText));
     }
 }
