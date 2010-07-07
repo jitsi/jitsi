@@ -478,6 +478,47 @@ public class ChatWindow
     }
 
     /**
+     * Returns the currently available chat panels.
+     *
+     * @return the currently available chat panels.
+     */
+    public java.util.List<ChatPanel> getChatPanels()
+    {
+        ArrayList<ChatPanel> chatPanels = new ArrayList<ChatPanel>();
+
+        if(getChatTabCount() > 0)
+        {
+            int componentCount = chatTabbedPane.getComponentCount();
+
+            for (int i = 0; i < componentCount; i ++)
+            {
+                Component c = chatTabbedPane.getComponent(i);
+
+                if(c instanceof ChatPanel)
+                {
+                    chatPanels.add((ChatPanel)c);
+                }
+            }
+        }
+        else
+        {
+            int componentCount = mainPanel.getComponentCount();
+
+            for (int i = 0; i < componentCount; i ++)
+            {
+                Component c = mainPanel.getComponent(i);
+
+                if(c instanceof ChatPanel)
+                {
+                    chatPanels.add((ChatPanel)c);
+                }
+            }
+        }
+
+        return chatPanels;
+    }
+
+    /**
      * Returns the tab count of the chat tabbed pane. Meant to be used when in
      * "Group chat windows" mode.
      * 

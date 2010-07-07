@@ -982,12 +982,14 @@ public class ChatWindowManager
      */
     private void disposeChatWindow(ChatWindow chatWindow)
     {
-        for (ChatPanel chatPanel : chatPanels)
+        List<ChatPanel> chatPanelsToDispose = chatWindow.getChatPanels();
+
+        for (ChatPanel chatPanel : chatPanelsToDispose)
             chatPanel.dispose();
 
         synchronized (chatPanels)
         {
-            chatPanels.clear();
+            chatPanels.removeAll(chatPanelsToDispose);
         }
 
         if (chatWindow.getChatCount() > 0)
