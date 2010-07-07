@@ -292,7 +292,7 @@ public class AccountList
         int translatedY = event.getY() - r.y;
 
         Component mouseComponent
-            = renderer.findComponent(translatedX, translatedY);
+            = renderer.findComponentAt(translatedX, translatedY);
 
         if (mouseComponent instanceof JCheckBox)
         {
