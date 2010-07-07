@@ -23,37 +23,76 @@ public class AccountListCellRenderer
     extends TransparentPanel
     implements ListCellRenderer
 {
+    /**
+     * The background color of the odd rows.
+     */
     private static final Color rowColor
         = new Color(GuiActivator.getResources()
                 .getColor("service.gui.LIST_ROW"));
 
-    private final JPanel westPanel = new TransparentPanel(new BorderLayout());
-
+    /**
+     * The label used to show account name and icon.
+     */
     private final JLabel accountLabel = new JLabel();
 
+    /**
+     * The label used to show status name and icon.
+     */
     private final JLabel statusLabel = new JLabel();
 
+    /**
+     * Indicates if the current row is selected.
+     */
     private boolean isSelected = false;
 
+    /**
+     * The current account value.
+     */
     private Account account;
 
+    /**
+     * The current index.
+     */
     private int index;
+
+    /**
+     * Constraints used to layout components in this panel.
+     */
+    private final GridBagConstraints constraints = new GridBagConstraints();
 
     /**
      * Creates an instance of this cell renderer.
      */
     public AccountListCellRenderer()
     {
-        super(new BorderLayout());
+        super(new GridBagLayout());
 
         this.setPreferredSize(new Dimension(100, 38));
         this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
+        accountLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         accountLabel.setFont(accountLabel.getFont().deriveFont(Font.BOLD));
-        westPanel.add(accountLabel, BorderLayout.CENTER);
 
-        add(westPanel, BorderLayout.WEST);
-        add(statusLabel, BorderLayout.EAST);
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 0f;
+        add(new JCheckBox(), constraints);
+
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        constraints.weightx = 1f;
+        add(accountLabel, constraints);
+
+        constraints.anchor = GridBagConstraints.EAST;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 2;
+        constraints.gridy = 0;
+        constraints.weightx = 0f;
+        add(statusLabel, constraints);
     }
 
     /**
@@ -160,29 +199,22 @@ public class AccountListCellRenderer
      */
     private void addCheckBox()
     {
-        for (Component c : westPanel.getComponents())
+        for (Component c : getComponents())
         {
             if (c instanceof JCheckBox)
-                westPanel.remove(c);
+                remove(c);
         }
 
         final JCheckBox checkBox = new JCheckBox();
 
         checkBox.setBounds(5, 5, 45, 45);
 
-        westPanel.add(checkBox, BorderLayout.WEST);
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 0f;
+        add(checkBox, constraints);
 
         checkBox.setSelected(account.isEnabled());
-    }
-
-    /**
-     * Returns the component if any at the given location.
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @return the component we found, otherwise null
-     */
-    public Component findComponent(int x, int y)
-    {
-        return westPanel.findComponentAt(x, y);
     }
 }
