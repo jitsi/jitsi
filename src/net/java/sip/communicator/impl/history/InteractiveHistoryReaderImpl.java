@@ -143,7 +143,9 @@ public class InteractiveHistoryReaderImpl
             NodeList nodes = doc.getElementsByTagName("record");
 
             Node node;
-            for (int i = 0; i < nodes.getLength() && !query.isCanceled(); i++)
+            for ( int i = nodes.getLength() - 1;
+                  i >= 0 && !query.isCanceled();
+                  i--)
             {
                 node = nodes.item(i);
 
