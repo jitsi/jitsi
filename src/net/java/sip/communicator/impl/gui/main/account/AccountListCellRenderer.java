@@ -145,7 +145,7 @@ public class AccountListCellRenderer
 
         this.setBounds(0, 0, list.getWidth(), getPreferredSize().height);
 
-        this.addCheckBox();
+        this.addCheckBox(account);
 
         return this;
     }
@@ -196,8 +196,9 @@ public class AccountListCellRenderer
 
     /**
      * Adds a check box component to this renderer.
+     * @param account the account for which we're adding a check box
      */
-    private void addCheckBox()
+    private void addCheckBox(Account account)
     {
         for (Component c : getComponents())
         {
@@ -205,9 +206,13 @@ public class AccountListCellRenderer
                 remove(c);
         }
 
-        final JCheckBox checkBox = new JCheckBox();
+        JCheckBox checkBox = account.getEnableCheckBox();
 
-        checkBox.setBounds(5, 5, 45, 45);
+        if (checkBox == null)
+        {
+            checkBox = new JCheckBox();
+            account.setEnableCheckBox(checkBox);
+        }
 
         constraints.anchor = GridBagConstraints.WEST;
         constraints.gridx = 0;
@@ -216,5 +221,23 @@ public class AccountListCellRenderer
         add(checkBox, constraints);
 
         checkBox.setSelected(account.isEnabled());
+    }
+
+    /**
+     * Indicates if the point given by x and y coordinates is over the check
+     * box component.
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @return <tt>true</tt> if the point is over the contained check box,
+     * otherwise returns <tt>false</tt>
+     */
+    public boolean isOverCheckBox(int x, int y)
+    {
+        JCheckBox checkBox = account.getEnableCheckBox();
+        Point location = checkBox.getLocation();
+        Dimension size = checkBox.getSize();
+
+        return (x >= location.x && x <= size.width)
+                && (y >= location.y && y <= size.height);
     }
 }

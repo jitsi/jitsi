@@ -286,15 +286,15 @@ public class AccountList
         if (mouseIndex < 0)
             return;
 
-        Object value = getModel().getElementAt(mouseIndex);
+        Account account = (Account) getModel().getElementAt(mouseIndex);
 
         if (logger.isTraceEnabled())
-            logger.trace("Account list: element at mouse index:" + value);
+            logger.trace("Account list: element at mouse index:" + account);
 
         AccountListCellRenderer renderer
             = (AccountListCellRenderer) getCellRenderer()
                 .getListCellRendererComponent(  this,
-                                                value,
+                                                account,
                                                 mouseIndex,
                                                 true,
                                                 true);
@@ -312,23 +312,16 @@ public class AccountList
             logger.trace("Account list: find component at:"
                     + translatedX + ", " + translatedY);
 
-        Component mouseComponent
-            = renderer.findComponentAt(translatedX, translatedY);
-
-        if (logger.isTraceEnabled())
-            logger.trace("Account list: component under the mouse:"
-                    + mouseComponent);
-
-        if (mouseComponent instanceof JCheckBox)
+        if (renderer.isOverCheckBox(translatedX, translatedY))
         {
-            JCheckBox checkBox = ((JCheckBox) mouseComponent);
+            JCheckBox checkBox = account.getEnableCheckBox();
 
             if (logger.isTraceEnabled())
                 logger.trace("Account list: checkBox set selected"
                         + !checkBox.isSelected());
 
             checkBox.setSelected(!checkBox.isSelected());
-            enableAccount((Account) value, checkBox.isSelected());
+            enableAccount(account, checkBox.isSelected());
 
             this.repaint();
         }

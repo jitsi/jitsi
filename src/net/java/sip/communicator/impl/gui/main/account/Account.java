@@ -21,15 +21,35 @@ import net.java.sip.communicator.util.*;
  */
 public class Account
 {
+    /**
+     * The corresponding protocol provider.
+     */
     private ProtocolProviderService protocolProvider;
 
+    /**
+     * The identifier of the account.
+     */
     private final AccountID accountID;
 
+    /**
+     * The display name of the account
+     */
     private final String name;
 
+    /**
+     * The icon of the image.
+     */
     private final ImageIcon icon;
 
+    /**
+     * Indicates if the account is enabled.
+     */
     private boolean isEnabled;
+
+    /**
+     * The corresponding check box in the account list.
+     */
+    private JCheckBox enableCheckBox;
 
     /**
      * Creates an <tt>Account</tt> instance from the given
@@ -247,5 +267,23 @@ public class Account
     public void setEnabled(boolean isEnabled)
     {
         this.isEnabled = isEnabled;
+    }
+
+    /**
+     * Sets the enable check box.
+     * @param enableCheckBox the enable check box corresponding to this account
+     */
+    public void setEnableCheckBox(JCheckBox enableCheckBox)
+    {
+        this.enableCheckBox = enableCheckBox;
+    }
+
+    /**
+     * Returns the enable check box corresponding to this account.
+     * @return the enable check box corresponding to this account
+     */
+    public JCheckBox getEnableCheckBox()
+    {
+        return enableCheckBox;
     }
 }
