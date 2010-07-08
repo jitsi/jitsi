@@ -36,6 +36,8 @@ public class ConfigurationFrame
     private final JPanel centerPanel =
         new TransparentPanel(new BorderLayout(5, 5));
 
+    private final int BORDER_SIZE = 20;
+
     /**
      * Creates an instance of <tt>ConfigurationManagerImpl</tt>.
      *
@@ -69,15 +71,17 @@ public class ConfigurationFrame
 
         centerPanel.setMinimumSize(new Dimension(600, 100));
         centerPanel.setMaximumSize(
-            new Dimension(  600,
-                            Toolkit.getDefaultToolkit().getScreenSize().height));
+            new Dimension(  600, Integer.MAX_VALUE));
         this.setResizable(false);
 
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         mainPanel.add(centerPanel, BorderLayout.SOUTH);
         mainPanel.add(configScrollList, BorderLayout.NORTH);
 
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(  BORDER_SIZE,
+                                                                BORDER_SIZE,
+                                                                BORDER_SIZE,
+                                                                BORDER_SIZE));
 
         this.getContentPane().add(mainPanel);
 
@@ -146,12 +150,13 @@ public class ConfigurationFrame
 
         centerPanel.revalidate();
 
+        // Set the height of the center panel to be equal to the height of the
+        // currently contained panel + all borders.
         centerPanel.setPreferredSize(
-            new Dimension(550, configFormPanel.getPreferredSize().height));
+            new Dimension(550,
+                configFormPanel.getPreferredSize().height + 2*BORDER_SIZE));
 
-        centerPanel.repaint();
         pack();
-
     }
 
     /**
