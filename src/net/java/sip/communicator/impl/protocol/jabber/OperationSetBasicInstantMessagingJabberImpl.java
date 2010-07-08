@@ -550,6 +550,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 || evt.getNewState() == RegistrationState.CONNECTION_FAILED
                 || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED)
             {
+                if(jabberProvider.getConnection() != null)
+                {
+                    jabberProvider.getConnection().removePacketListener(
+                        smackMessageListener);
+                }
+
                 smackMessageListener = null;
             }
         }

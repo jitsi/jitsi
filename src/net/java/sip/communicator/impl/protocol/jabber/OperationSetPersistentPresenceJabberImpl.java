@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
@@ -786,6 +785,12 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 fireProviderStatusChangeEvent(oldStatus, currentStatus);
 
+                ssContactList.cleanup();
+
+                if(parentProvider.getConnection() != null &&
+                    parentProvider.getConnection().getRoster() != null)
+                    parentProvider.getConnection().getRoster()
+                        .removeRosterListener(contactChangesListener);
                 contactChangesListener = null;
             }
         }

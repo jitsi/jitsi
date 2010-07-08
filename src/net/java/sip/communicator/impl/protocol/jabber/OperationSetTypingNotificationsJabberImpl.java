@@ -253,6 +253,22 @@ public class OperationSetTypingNotificationsJabberImpl
                 parentProvider.getConnection().getChatManager()
                     .addChatListener(smackChatManagerListener);
             }
+            else if(evt.getNewState() == RegistrationState.UNREGISTERED
+                 || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
+                 || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
+            {
+                if(parentProvider.getConnection() != null
+                    && parentProvider.getConnection().getChatManager() != null)
+                {
+                    parentProvider.getConnection().getChatManager()
+                        .removeChatListener(smackChatManagerListener);
+                }
+
+                smackChatManagerListener = null;
+
+                messageEventManager.destroy();
+                messageEventManager = null;
+            }
         }
     }
 

@@ -72,6 +72,8 @@ public class ServerStoredContactListJabberImpl
      */
     private ImageRetriever imageRetriever = null;
 
+    private ChangeListener rosterChangeListener = null;
+
     /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
      *
@@ -99,6 +101,36 @@ public class ServerStoredContactListJabberImpl
     public ContactGroup getRootGroup()
     {
         return rootGroup;
+    }
+
+    /**
+     * Returns the roster entry associated with the given XMPP address or
+     * <tt>null</tt> if the user is not an entry in the roster.
+     * 
+     * @param user the XMPP address of the user (e.g. "jsmith@example.com").
+     * The address could be in any valid format (e.g. "domain/resource",
+     * "user@domain" or "user@domain/resource").
+     * 
+     * @return the roster entry or <tt>null</tt> if it does not exist.
+     */
+    RosterEntry getRosterEntry(String user)
+    {
+        if(roster == null)
+            return null;
+        else
+            return roster.getEntry(user);
+    }
+
+    /**
+     * Returns the roster group with the specified name, or <tt>null</tt> if the
+     * group doesn't exist.
+     *
+     * @param name the name of the group.
+     * @return the roster group with the specified name.
+     */
+    RosterGroup getRosterGroup(String name)
+    {
+        return roster.getGroup(name);
     }
 
     /**
@@ -649,7 +681,24 @@ public class ServerStoredContactListJabberImpl
 
         initRoster();
 
-        this.roster.addRosterListener(new ChangeListener());
+        rosterChangeListener = new ChangeListener();
+        this.roster.addRosterListener(rosterChangeListener);
+    }
+
+    /**
+     * Cleanups references and listers.
+     */
+    void cleanup()
+    {
+        if(imageRetriever != null)
+        {
+            imageRetriever.quit();
+            imageRetriever = null;
+        }
+
+        this.roster.removeRosterListener(rosterChangeListener);
+        this.rosterChangeListener = null;
+        this.roster = null;
     }
 
     /**
@@ -1021,6 +1070,11 @@ public class ServerStoredContactListJabberImpl
                                         = new Vector<ContactJabberImpl>();
 
         /**
+         * Should we stop.
+         */
+        private boolean running = false;
+
+        /**
          * Creates image retrieving.
          */
         ImageRetriever()
@@ -1033,12 +1087,16 @@ public class ServerStoredContactListJabberImpl
             try
             {
                 Collection<ContactJabberImpl> copyContactsForUpdate = null;
-                while (true)
+                running = true;
+                while (true && running)
                 {
                     synchronized(contactsForUpdate){
 
                         if(contactsForUpdate.isEmpty())
                             contactsForUpdate.wait();
+
+                        if(!running)
+                            return;
 
                         copyContactsForUpdate
                             = new Vector<ContactJabberImpl>(contactsForUpdate);
@@ -1090,6 +1148,18 @@ public class ServerStoredContactListJabberImpl
                     contactsForUpdate.add(contact);
                     contactsForUpdate.notifyAll();
                 }
+            }
+        }
+
+        /**
+         * Stops this thread.
+         */
+        void quit()
+        {
+            synchronized(contactsForUpdate)
+            {
+                running = false;
+                contactsForUpdate.notifyAll();
             }
         }
 

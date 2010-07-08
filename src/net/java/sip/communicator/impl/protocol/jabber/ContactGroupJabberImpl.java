@@ -13,7 +13,7 @@ import org.jivesoftware.smack.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The Jabber implementation of the ContactGroup interface. Intances of this class
+ * The Jabber implementation of the ContactGroup interface. Instances of this class
  * (contrary to <tt>RootContactGroupJabberImpl</tt>) may only contain buddies
  * and cannot have sub groups. Note that instances of this class only use the
  * corresponding smack source group for reading their names and only
@@ -40,12 +40,17 @@ public class ContactGroupJabberImpl
      */
     private Map<String, Contact> buddies = new Hashtable<String, Contact>();
 
+    /**
+     * Whether or not this contact group has been resolved against
+     * the server.
+     */
     private boolean isResolved = false;
 
     /**
-     * The Jabber Group corresponding to this contact group.
+     * The Jabber Group id(the name), corresponding to this contact group.
+     * Used to resolve the RosterGroup against the rouster.
      */
-    private RosterGroup rosterGroup = null;
+    private String id = null;
 
     /**
      * a list that would always remain empty. We only use it so that we're able
@@ -59,8 +64,14 @@ public class ContactGroupJabberImpl
      */
     private String nameCopy = null;
 
+    /**
+     * Used when creating unresolved groups, temporally id.
+     */
     private String tempId = null;
 
+    /**
+     * The contact list handler that creates us.
+     */
     private final ServerStoredContactListJabberImpl ssclCallback;
 
     /**
@@ -85,7 +96,7 @@ public class ContactGroupJabberImpl
                         ServerStoredContactListJabberImpl ssclCallback,
                         boolean isResolved)
     {
-        this.rosterGroup = rosterGroup;
+        this.id = rosterGroup.getName();
         this.isResolved = isResolved;
         this.ssclCallback = ssclCallback;
 
@@ -111,6 +122,11 @@ public class ContactGroupJabberImpl
         }
     }
 
+    /**
+     * Used when creating unresolved groups.
+     * @param id the id of the group.
+     * @param ssclCallback the contact list handler that created us.
+     */
     ContactGroupJabberImpl(
                         String id,
                         ServerStoredContactListJabberImpl ssclCallback)
@@ -194,7 +210,10 @@ public class ContactGroupJabberImpl
     public String getGroupName()
     {
         if(isResolved)
-            return rosterGroup.getName();
+            // now we use the id field to store the rosterGroup name
+            // for later retrieval from roster.
+            //return rosterGroup.getName();
+            return id;
         else
             return tempId;
     }
@@ -259,6 +278,7 @@ public class ContactGroupJabberImpl
      *
      * @return  a hash code value for this ContactGroup.
      */
+    @Override
     public int hashCode()
     {
         return getGroupName().hashCode();
@@ -271,6 +291,7 @@ public class ContactGroupJabberImpl
      * @return  <tt>true</tt> if this object is the same as the obj
      *          argument; <tt>false</tt> otherwise.
      */
+    @Override
     public boolean equals(Object obj)
     {
         if(    obj == this )
@@ -304,6 +325,7 @@ public class ContactGroupJabberImpl
      * JabberGroup.GroupName[size]{ buddy1.toString(), buddy2.toString(), ...}.
      * @return  a String representation of the object.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff = new StringBuffer("JabberGroup.");
@@ -404,7 +426,7 @@ public class ContactGroupJabberImpl
 
         this.isResolved = true;
 
-        this.rosterGroup = source;
+        this.id = source.getName();
 
         for (RosterEntry item : source.getEntries())
         {
@@ -447,7 +469,7 @@ public class ContactGroupJabberImpl
      */
     RosterGroup getSourceGroup()
     {
-        return rosterGroup;
+        return ssclCallback.getRosterGroup(id);
     }
 
     /**
@@ -458,7 +480,7 @@ public class ContactGroupJabberImpl
      */
     void setSourceGroup(RosterGroup newGroup)
     {
-        this.rosterGroup = newGroup;
+        this.id = newGroup.getName();
 
         // clear current buddies . new entries will be added
         buddies.clear();

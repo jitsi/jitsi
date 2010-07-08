@@ -186,6 +186,11 @@ public class ProtocolProviderServiceJabberImpl
     private RegistrationStateChangeEvent eventDuringLogin = null;
 
     /**
+     * Listens for connection closes or errors.
+     */
+    private JabberConnectionListener connectionListener = null;
+
+    /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
      * currently in or null in case it is in a unknown state.
@@ -488,12 +493,19 @@ public class ProtocolProviderServiceJabberImpl
                 );
                 confConn.setReconnectionAllowed(false);
 
+                if(connection != null)
+                {
+                    logger.error("Connection is not null and isConnected:"
+                        + connection.isConnected(),
+                        new Exception("Trace possible duplicate connections"));
+                }
+
                 connection = new XMPPConnection(confConn);
 
                 try
                 {
                     CertificateVerificationService gvs =
-                    getCertificateVerificationService();
+                        getCertificateVerificationService();
                     if(gvs != null)
                         connection.setCustomTrustManager(
                             new HostTrustManager(gvs.getTrustManager(
@@ -509,13 +521,15 @@ public class ProtocolProviderServiceJabberImpl
 
                 registerServiceDiscoveryManager();
 
-                connection.addConnectionListener(
-                    new JabberConnectionListener());
+                if(connectionListener == null)
+                    connectionListener = new JabberConnectionListener();
+
+                connection.addConnectionListener(connectionListener);
 
                 if(abortConnecting)
                 {
                     abortConnecting = false;
-                    connection.disconnect();
+                    disconnectAndCleanConnection();
 
                     return;
                 }
@@ -559,13 +573,12 @@ public class ProtocolProviderServiceJabberImpl
                         connection.connect();
 
                         // as disconnect clears all listeners lets add it again
-                        connection.addConnectionListener(
-                            new JabberConnectionListener());
+                        connection.addConnectionListener(connectionListener);
 
                         if(abortConnecting)
                         {
                             abortConnecting = false;
-                            connection.disconnect();
+                            disconnectAndCleanConnection();
 
                             return;
                         }
@@ -670,6 +683,24 @@ public class ProtocolProviderServiceJabberImpl
                 discoveryManager.addFeature(feature);
         }
     }
+
+    /**
+     * Used to disconnect current connection and clean it.
+     */
+    private void disconnectAndCleanConnection()
+    {
+        if(connection != null && connection.isConnected())
+        {
+            connection.removeConnectionListener(connectionListener);
+            connection.disconnect();
+            connectionListener = null;
+            connection = null;
+            // make it null as it also holds reference to the old connection
+            // will be created again on new connection
+            discoveryManager = null;
+        }
+    }
+
     /**
      * Ends the registration of this protocol provider with the service.
      */
@@ -688,9 +719,6 @@ public class ProtocolProviderServiceJabberImpl
         {
             RegistrationState currRegState = getRegistrationState();
 
-            if(connection != null && connection.isConnected())
-                connection.disconnect();
-
             if(fireEvent)
             {
                 fireRegistrationStateChanged(
@@ -698,6 +726,8 @@ public class ProtocolProviderServiceJabberImpl
                     RegistrationState.UNREGISTERED,
                     RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
             }
+
+            disconnectAndCleanConnection();
         }
     }
 
@@ -913,11 +943,8 @@ public class ProtocolProviderServiceJabberImpl
                 telephony.shutdown();
             }
 
-            if(connection != null)
-            {
-                connection.disconnect();
-                connection = null;
-            }
+            disconnectAndCleanConnection();
+
             isInitialized = false;
         }
     }

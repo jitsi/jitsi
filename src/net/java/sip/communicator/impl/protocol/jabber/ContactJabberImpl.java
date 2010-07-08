@@ -19,15 +19,53 @@ import net.java.sip.communicator.service.protocol.jabberconstants.*;
 public class ContactJabberImpl
     implements Contact
 {
-    private RosterEntry rosterEntry = null;
+    /**
+     * The jid of the user entry in roster.
+     */
+    private String jid = null;
+
+    /**
+     * Determines whether or not this Contact instance represents the user used
+     * by this protocol provider to connect to the service.
+     */
     private boolean isLocal = false;
+
+    /**
+     * The image of the contact.
+     */
     private byte[] image = null;
+
+    /**
+     * The status of the contact as per the last status update we've
+     * received for it.
+     */
     private PresenceStatus status;
+
+    /**
+     * A reference to the ServerStoredContactListImpl
+     * instance that created us.
+     */
     private ServerStoredContactListJabberImpl ssclCallback = null;
+
+    /**
+     * Whether or not this contact is being stored by the server.
+     */
     private boolean isPersistent = false;
+
+    /**
+     * Whether or not this contact has been resolved against the
+     * server.
+     */
     private boolean isResolved = false;
 
+    /**
+     * Used to store contact id when creating unresolved contacts.
+     */
     private String tempId = null;
+
+    /**
+     * The current status message of this contact.
+     */
     private String statusMessage = null;
 
     /**
@@ -44,7 +82,7 @@ public class ContactJabberImpl
                    boolean isPersistent,
                    boolean isResolved)
     {
-        this.rosterEntry = rosterEntry;
+        this.jid = rosterEntry.getUser();
         this.ssclCallback = ssclCallback;
         this.isPersistent = isPersistent;
         this.isResolved = isResolved;
@@ -54,6 +92,12 @@ public class ContactJabberImpl
                 .getJabberStatusEnum().getStatus(JabberStatusEnum.OFFLINE);
     }
 
+    /**
+     * Used to create unresolved contacts with specified id.
+     * @param id contact id
+     * @param ssclCallback the contact list handler that creates us.
+     * @param isPersistent is the contact persistent.
+     */
     ContactJabberImpl(String id,
                ServerStoredContactListJabberImpl ssclCallback,
                boolean isPersistent)
@@ -76,7 +120,7 @@ public class ContactJabberImpl
     public String getAddress()
     {
         if(isResolved)
-            return rosterEntry.getUser();
+            return this.jid;
         else
             return tempId;
     }
@@ -141,6 +185,7 @@ public class ContactJabberImpl
      * that of the Contact's Address
      * @return the hashcode of this Contact
      */
+    @Override
     public int hashCode()
     {
         return getAddress().hashCode();
@@ -154,6 +199,7 @@ public class ContactJabberImpl
      * @return  <tt>true</tt> if this object is the same as the obj
      *          argument; <tt>false</tt> otherwise.
      */
+    @Override
     public boolean equals(Object obj)
     {
         if (obj == null
@@ -174,6 +220,7 @@ public class ContactJabberImpl
      *
      * @return  a string representation of this contact.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff =  new StringBuffer("JabberContact[ id=");
@@ -221,7 +268,10 @@ public class ContactJabberImpl
     {
         if(isResolved)
         {
-            String name = rosterEntry.getName();
+            String name = null;
+            RosterEntry entry = ssclCallback.getRosterEntry(jid);
+            if(entry != null)
+                name = entry.getName();
 
             if (name == null)
                 name = getAddress();
@@ -294,7 +344,7 @@ public class ContactJabberImpl
             return;
 
         this.isResolved = true;
-        rosterEntry = entry;
+        this.jid = entry.getUser();
     }
 
     /**
@@ -320,6 +370,10 @@ public class ContactJabberImpl
         return isResolved;
     }
 
+    /**
+     * Not used.
+     * @param persistentData the persistent data.
+     */
     public void setPersistentData(String persistentData)
     {
     }
@@ -330,7 +384,7 @@ public class ContactJabberImpl
      */
     RosterEntry getSourceEntry()
     {
-        return rosterEntry;
+        return ssclCallback.getRosterEntry(jid);
     }
 
     /**
