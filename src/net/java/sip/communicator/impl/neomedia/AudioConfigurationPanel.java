@@ -7,8 +7,6 @@ package net.java.sip.communicator.impl.neomedia;
 
 import java.awt.*;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -25,8 +23,6 @@ public class AudioConfigurationPanel
     public AudioConfigurationPanel()
     {
         super(new BorderLayout());
-
-        this.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         add(MediaConfiguration.createAudioConfigPanel(), BorderLayout.NORTH);
     }

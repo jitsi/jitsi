@@ -235,6 +235,12 @@ public class MediaConfiguration
                 BorderFactory.createTitledBorder(
                         NeomediaActivator.getResources().getI18NString(
                         "impl.media.configform.DEVICES")));
+
+        if (portAudioPanel.isVisible())
+        {
+            portAudioPanel.validate();
+            portAudioPanel.repaint();
+        }
     }
 
     /**
