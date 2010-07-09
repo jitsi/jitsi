@@ -82,7 +82,10 @@ public class ContactJabberImpl
                    boolean isPersistent,
                    boolean isResolved)
     {
-        this.jid = rosterEntry.getUser();
+        // rosterEntry can be null when creating volatile contact
+        if(rosterEntry != null)
+            this.jid = rosterEntry.getUser();
+
         this.ssclCallback = ssclCallback;
         this.isPersistent = isPersistent;
         this.isResolved = isResolved;

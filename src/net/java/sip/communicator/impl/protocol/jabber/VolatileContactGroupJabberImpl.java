@@ -44,6 +44,7 @@ public class VolatileContactGroupJabberImpl
      * Returns the name of this group.
      * @return a String containing the name of this group.
      */
+    @Override
     public String getGroupName()
     {
         return contactGroupName;
@@ -54,6 +55,7 @@ public class VolatileContactGroupJabberImpl
      * JabberGroup.GroupName[size]{ buddy1.toString(), buddy2.toString(), ...}.
      * @return  a String representation of the object.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff = new StringBuffer("VolatileJabberGroup.");
@@ -77,6 +79,7 @@ public class VolatileContactGroupJabberImpl
      * containing non persistent contacts.
      * @return true if the contact group is persistent and false otherwise.
      */
+    @Override
     public boolean isPersistent()
     {
         return false;

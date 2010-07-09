@@ -786,6 +786,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 fireProviderStatusChangeEvent(oldStatus, currentStatus);
 
                 ssContactList.cleanup();
+                subscribtionPacketListener = null;
 
                 if(parentProvider.getConnection() != null &&
                     parentProvider.getConnection().getRoster() != null)

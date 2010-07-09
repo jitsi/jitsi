@@ -266,8 +266,11 @@ public class OperationSetTypingNotificationsJabberImpl
 
                 smackChatManagerListener = null;
 
-                messageEventManager.destroy();
-                messageEventManager = null;
+                if(messageEventManager != null)
+                {
+                    messageEventManager.destroy();
+                    messageEventManager = null;
+                }
             }
         }
     }

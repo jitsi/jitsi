@@ -696,7 +696,9 @@ public class ServerStoredContactListJabberImpl
             imageRetriever = null;
         }
 
-        this.roster.removeRosterListener(rosterChangeListener);
+        if(this.roster != null)
+            this.roster.removeRosterListener(rosterChangeListener);
+
         this.rosterChangeListener = null;
         this.roster = null;
     }

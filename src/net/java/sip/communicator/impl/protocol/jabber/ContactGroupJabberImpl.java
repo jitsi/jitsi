@@ -96,7 +96,10 @@ public class ContactGroupJabberImpl
                         ServerStoredContactListJabberImpl ssclCallback,
                         boolean isResolved)
     {
-        this.id = rosterGroup.getName();
+        // rosterGroup can be null when creating volatile contact group
+        if(rosterGroup != null)
+            this.id = rosterGroup.getName();
+
         this.isResolved = isResolved;
         this.ssclCallback = ssclCallback;
 

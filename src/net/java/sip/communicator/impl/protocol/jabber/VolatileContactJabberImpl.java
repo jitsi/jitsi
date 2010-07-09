@@ -34,6 +34,7 @@ public class VolatileContactJabberImpl
      * Returns the Jabber Userid of this contact
      * @return the Jabber Userid of this contact
      */
+    @Override
     public String getAddress()
     {
         return contactId;
@@ -46,6 +47,7 @@ public class VolatileContactJabberImpl
      * @return a String that can be used for referring to this contact when
      * interacting with the user.
      */
+    @Override
     public String getDisplayName()
     {
         return contactId;
@@ -57,6 +59,7 @@ public class VolatileContactJabberImpl
      *
      * @return  a string representation of this contact.
      */
+    @Override
     public String toString()
     {
         StringBuffer buff =  new StringBuffer("VolatileJabberContact[ id=");
@@ -71,9 +74,9 @@ public class VolatileContactJabberImpl
      * containing non persistent contacts.
      * @return true if the contact group is persistent and false otherwise.
      */
+    @Override
     public boolean isPersistent()
     {
         return false;
     }
-
 }
