@@ -89,6 +89,8 @@ Java_net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVide
         automaticallyDropsLateVideoFrames
             = [captureDecompressedVideoOutput automaticallyDropsLateVideoFrames];
     }
+    else
+        automaticallyDropsLateVideoFrames = JNI_FALSE;
 
     [autoreleasePool release];
     return automaticallyDropsLateVideoFrames;
