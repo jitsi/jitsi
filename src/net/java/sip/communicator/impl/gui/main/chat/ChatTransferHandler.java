@@ -174,7 +174,7 @@ public class ChatTransferHandler
 
                 if (contact != null)
                 {
-                    ArrayList inviteList = new ArrayList();
+                    List<String> inviteList = new ArrayList<String>();
                     inviteList.add(contact);
                     chatPanel.inviteContacts(   currentChatTransport,
                                                 inviteList, null);

@@ -131,7 +131,7 @@ public class QuickTimeStream
         }
 
         automaticallyDropsLateVideoFrames
-            = false;//captureOutput.setAutomaticallyDropsLateVideoFrames(true);
+            = captureOutput.setAutomaticallyDropsLateVideoFrames(true);
         captureOutput
             .setDelegate(
                 new QTCaptureDecompressedVideoOutput.Delegate()

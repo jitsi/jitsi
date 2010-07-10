@@ -145,7 +145,7 @@ Java_net_java_sip_communicator_impl_neomedia_quicktime_CVPixelBuffer_getBytes__J
                         * CVPixelBufferGetHeightOfPlane(
                                 pixelBuffer,
                                 planeIndex);
-                memcpy(buf, cBytes, byteCount);
+                memcpy((void *) buf, cBytes, byteCount);
                 byteOffset += byteCount;
             }
             byteCount = byteOffset;

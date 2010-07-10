@@ -69,7 +69,7 @@ Java_net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVide
     return (jlong) pixelBufferAttributes;
 }
 
-JNIEXPORT void JNICALL
+JNIEXPORT jboolean JNICALL
 Java_net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVideoOutput_setAutomaticallyDropsLateVideoFrames
     (JNIEnv *jniEnv, jclass clazz, jlong ptr,
         jboolean automaticallyDropsLateVideoFrames)
@@ -82,11 +82,16 @@ Java_net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVide
 
     if ([captureDecompressedVideoOutput
             respondsToSelector:@selector(setAutomaticallyDropsLateVideoFrames)])
+    {
         [captureDecompressedVideoOutput
             setAutomaticallyDropsLateVideoFrames:
                 ((JNI_TRUE == automaticallyDropsLateVideoFrames) ? YES : NO)];
+        automaticallyDropsLateVideoFrames
+            = [captureDecompressedVideoOutput automaticallyDropsLateVideoFrames];
+    }
 
     [autoreleasePool release];
+    return automaticallyDropsLateVideoFrames;
 }
 
 JNIEXPORT void JNICALL

@@ -33,9 +33,9 @@ JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_quicktime_Q
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVideoOutput
  * Method:    setAutomaticallyDropsLateVideoFrames
- * Signature: (JZ)V
+ * Signature: (JZ)Z
  */
-JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVideoOutput_setAutomaticallyDropsLateVideoFrames
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVideoOutput_setAutomaticallyDropsLateVideoFrames
   (JNIEnv *, jclass, jlong, jboolean);
 
 /*

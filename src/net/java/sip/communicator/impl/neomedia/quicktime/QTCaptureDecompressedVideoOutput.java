@@ -63,15 +63,16 @@ public class QTCaptureDecompressedVideoOutput
 
     private static native long pixelBufferAttributes(long ptr);
 
-    public void setAutomaticallyDropsLateVideoFrames(
+    public boolean setAutomaticallyDropsLateVideoFrames(
             boolean automaticallyDropsLateVideoFrames)
     {
-        setAutomaticallyDropsLateVideoFrames(
-                getPtr(),
-                automaticallyDropsLateVideoFrames);
+        return
+            setAutomaticallyDropsLateVideoFrames(
+                    getPtr(),
+                    automaticallyDropsLateVideoFrames);
     }
 
-    private static native void setAutomaticallyDropsLateVideoFrames(
+    private static native boolean setAutomaticallyDropsLateVideoFrames(
             long ptr,
             boolean automaticallyDropsLateVideoFrames);
 
