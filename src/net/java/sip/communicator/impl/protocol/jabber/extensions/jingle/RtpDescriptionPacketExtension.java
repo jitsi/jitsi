@@ -52,8 +52,8 @@ public class RtpDescriptionPacketExtension
     /**
      * The list of payload types that this description element contains.
      */
-    private final List<PayloadPacketExtension> payloadTypes
-                                    = new ArrayList<PayloadPacketExtension>();
+    private final List<PayloadTypePacketExtension> payloadTypes
+                                    = new ArrayList<PayloadTypePacketExtension>();
 
     /**
      * An optional encryption element that contains encryption parameters for
@@ -140,7 +140,7 @@ public class RtpDescriptionPacketExtension
      *
      * @param payloadType the new payload to add.
      */
-    public void addPayloadType(PayloadPacketExtension payloadType)
+    public void addPayloadType(PayloadTypePacketExtension payloadType)
     {
         this.payloadTypes.add(payloadType);
     }
@@ -152,7 +152,7 @@ public class RtpDescriptionPacketExtension
      * @return a <b>reference</b> to the list of payload types that we have
      * registered with this description so far.
      */
-    public List<PayloadPacketExtension> getPayloadTypes()
+    public List<PayloadTypePacketExtension> getPayloadTypes()
     {
         return payloadTypes;
     }
@@ -175,7 +175,7 @@ public class RtpDescriptionPacketExtension
         bldr.append(">");
 
         //payload types
-        for(PayloadPacketExtension payloadType : payloadTypes)
+        for(PayloadTypePacketExtension payloadType : payloadTypes)
         {
             bldr.append(payloadType.toXML());
         }
