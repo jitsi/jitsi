@@ -6,12 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
-import java.util.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
-import net.java.sip.communicator.util.*;
 
-import org.jivesoftware.smack.packet.*;
 
 /**
  * The Jingle "content" element contains the entire description of the session
@@ -22,12 +18,6 @@ import org.jivesoftware.smack.packet.*;
  */
 public class ContentPacketExtension extends AbstractPacketExtension
 {
-    /**
-     * Logger for this class
-     */
-    private static final Logger logger =
-        Logger.getLogger(ContentPacketExtension.class);
-
     /**
      * The name of the "content" element.
      */
@@ -70,14 +60,6 @@ public class ContentPacketExtension extends AbstractPacketExtension
          */
         responder
     };
-
-    /**
-     * Contains a list of packet extensions that are part of the jingle content.
-     * Most often, the extensions we find in here would be <tt>description</tt>
-     * and <tt>transport</tt>.
-     */
-    private final List<PacketExtension> childExtensions
-                                = new ArrayList<PacketExtension>();
 
     /**
      * The values we currently support for the <tt>senders</tt> field.
@@ -178,7 +160,7 @@ public class ContentPacketExtension extends AbstractPacketExtension
      */
     public String getDisposition()
     {
-        return getAttributeString(DISPOSITION_ARG_NAME);
+        return getAttributeAsString(DISPOSITION_ARG_NAME);
     }
 
     /**
@@ -197,7 +179,7 @@ public class ContentPacketExtension extends AbstractPacketExtension
      */
     public String getName()
     {
-        return getAttributeString(NAME_ARG_NAME);
+        return getAttributeAsString(NAME_ARG_NAME);
     }
 
     /**
@@ -211,43 +193,6 @@ public class ContentPacketExtension extends AbstractPacketExtension
     public SendersEnum getSenders()
     {
         return (SendersEnum)getAttribute(SENDERS_ARG_NAME);
-    }
-
-    /**
-     * Returns a reference to the list of <tt>PacketExtension</tt>s that this
-     * element contains.
-     *
-     * @return  a reference to the list of <tt>PacketExtension</tt>s that this
-     * element contains.
-     */
-    public List<PacketExtension> getExtensions()
-    {
-        return childExtensions;
-    }
-
-    /**
-     * Adds <tt>extension</tt> to the list of <tt>PacketExtension</tt>s that
-     * this element contains.
-     *
-     * @param extension the new <tt>PacketExtension</tt>s that we need to
-     * add to this element.
-     */
-    public void addExtension(PacketExtension extension)
-    {
-        childExtensions.add(extension);
-    }
-
-    /**
-     * Returns a list of all extensions that have been added to this content
-     * element so far.
-     *
-     * @return a list of all extensions that have been added to this content
-     * element so far.
-     */
-    @Override
-    public List<? extends PacketExtension> getChildElements()
-    {
-        return getExtensions();
     }
 
 

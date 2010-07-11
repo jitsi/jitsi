@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.provider.*;
-import org.jivesoftware.smackx.packet.*;
 import org.xmlpull.v1.XmlPullParser;
 
 

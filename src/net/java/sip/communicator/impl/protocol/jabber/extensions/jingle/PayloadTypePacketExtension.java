@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+
 import org.jivesoftware.smack.packet.*;
 
 /**
@@ -15,14 +17,8 @@ import org.jivesoftware.smack.packet.*;
  *
  * @author Emil Ivov
  */
-public class PayloadTypePacketExtension implements PacketExtension
+public class PayloadTypePacketExtension extends AbstractPacketExtension
 {
-    /**
-     * Payload types do not live in a namespace of their own so we have
-     * <tt>null</tt> here.
-     */
-    public static final String NAMESPACE = null;
-
     /**
      * The name of the "payload-type" element.
      */
@@ -59,116 +55,11 @@ public class PayloadTypePacketExtension implements PacketExtension
     public static final String PTIME_ARG_NAME = "ptime";
 
     /**
-     * Number of channels in this payload. If omitted, it MUST be assumed to
-     * contain one channel.
+     * Creates a new {@link PayloadTypePacketExtension} instance.
      */
-    private int channels = -1;
-
-    /**
-     * The sampling frequency in Hertz used by this encoding.
-     */
-    private int clockrate = -1;
-
-    /**
-     * The payload identifier for this encoding.
-     */
-    private int id = -1;
-
-    /**
-     * The maximum packet time as specified in RFC 4566
-     */
-    private int maxptime = -1;
-
-    /**
-     * The name of the encoding, or as per the XEP. The appropriate subtype of
-     * the MIME type. Setting this field is RECOMMENDED for static payload
-     * types, REQUIRED for dynamic payload types.
-     */
-    private String name;
-
-    /**
-     * The packet time as specified in RFC 4566
-     */
-    private int ptime = -1;
-
-    /**
-     * An optional list of format parameters (like the one we get with the
-     * fmtp: SDP param).
-     */
-    private List<ParameterPacketExtension> parameters
-                            = new ArrayList<ParameterPacketExtension>();
-
-    /**
-     * Returns the name of the <tt>payload-type</tt> element.
-     *
-     * @return the name of the <tt>payload-type</tt> element.
-     */
-    public String getElementName()
+    public PayloadTypePacketExtension()
     {
-        return ELEMENT_NAME;
-    }
-
-    /**
-     * Returns the namespace for the <tt>payload-type</tt> element.
-     *
-     * @return the namespace for the <tt>payload-type</tt> element.
-     */
-    public String getNamespace()
-    {
-        return NAMESPACE;
-    }
-
-    /**
-     * Returns the XML representation of the <tt>payload-type</tt> element
-     * including all child elements.
-     *
-     * @return this packet extension as an XML <tt>String</tt>.
-     */
-    public String toXML()
-    {
-        StringBuilder bldr = new StringBuilder(
-            "<" + getElementName() + " ");
-
-        //channels
-        if(getChannels() > -1)
-            bldr.append(CHANNELS_ARG_NAME + "='"+ getChannels() +"' ");
-
-        //clockrate
-        if(getClockrate() > -1)
-            bldr.append(CLOCKRATE_ARG_NAME + "='"+ getClockrate() +"' ");
-
-        //id
-        bldr.append(ID_ARG_NAME + "=" + getID() + "' ");
-
-        //maxptime
-        if (getMaxptime() != -1)
-            bldr.append(MAXPTIME_ARG_NAME + "=" + getMaxptime() + "' ");
-
-        //payload name
-        bldr.append(NAME_ARG_NAME + "=" + getName() + "' ");
-
-        //ptime
-        if (getPtime() != -1)
-            bldr.append(PTIME_ARG_NAME + "=" + getPtime() + "' ");
-
-
-        if (parameters.size() == 0)
-        {
-            bldr.append("/>");
-        }
-        else
-        {
-            bldr.append(">");
-
-            for (ParameterPacketExtension parameter : parameters)
-            {
-                bldr.append(parameter.toXML());
-            }
-
-            bldr.append("</" + getElementName() + ">");
-        }
-
-        return bldr.toString();
+        super(null, ELEMENT_NAME);
     }
 
     /**
@@ -179,7 +70,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      */
     public void setChannels(int channels)
     {
-        this.channels = channels;
+        super.setAttribute(CHANNELS_ARG_NAME, channels);
     }
 
     /**
@@ -189,7 +80,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      */
     public int getChannels()
     {
-        return channels;
+        return getAttributeAsInt(CHANNELS_ARG_NAME);
     }
 
     /**
@@ -199,7 +90,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      */
     public void setClockrate(int clockrate)
     {
-        this.clockrate = clockrate;
+        super.setAttribute(CLOCKRATE_ARG_NAME, clockrate);
     }
 
     /**
@@ -209,7 +100,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      */
     public int getClockrate()
     {
-        return clockrate;
+        return getAttributeAsInt(CLOCKRATE_ARG_NAME);
     }
 
     /**
@@ -219,7 +110,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      */
     public void setId(int id)
     {
-        this.id = id;
+        super.setAttribute(ID_ARG_NAME, id);
     }
 
     /**
@@ -231,7 +122,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      */
     public int getID()
     {
-        return id;
+        return getAttributeAsInt(ID_ARG_NAME);
     }
 
     /**
@@ -241,7 +132,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      */
     public void setMaxptime(int maxptime)
     {
-        this.maxptime = maxptime;
+        setAttribute(MAXPTIME_ARG_NAME, maxptime);
     }
 
     /**
@@ -251,7 +142,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      */
     public int getMaxptime()
     {
-        return maxptime;
+        return getAttributeAsInt(MAXPTIME_ARG_NAME);
     }
 
     /**
@@ -261,7 +152,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      */
     public void setPtime(int ptime)
     {
-        this.ptime = ptime;
+        super.setAttribute(PTIME_ARG_NAME, ptime);
     }
 
     /**
@@ -271,7 +162,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      */
     public int getPtime()
     {
-        return ptime;
+        return getAttributeAsInt(PTIME_ARG_NAME);
     }
 
     /**
@@ -283,7 +174,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      */
     public void setName(String name)
     {
-        this.name = name;
+        setAttribute(NAME_ARG_NAME, name);
     }
 
     /**
@@ -297,7 +188,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      */
     public String getName()
     {
-        return name;
+        return getAttributeAsString(NAME_ARG_NAME);
     }
 
     /**
@@ -308,7 +199,9 @@ public class PayloadTypePacketExtension implements PacketExtension
      */
     public void addParameter(ParameterPacketExtension parameter)
     {
-        this.parameters.add(parameter);
+        //parameters are the only extensions we can have so let's use
+        //super's list.
+        super.addChildExtension(parameter);
     }
 
     /**
@@ -318,8 +211,10 @@ public class PayloadTypePacketExtension implements PacketExtension
      * @return a <b>reference</b> to the the list of parameters currently
      * registered for this payload type.
      */
+    @SuppressWarnings("unchecked") // nothing we could do here.
     public List<ParameterPacketExtension> getParameters()
     {
-        return parameters;
+
+        return (List<ParameterPacketExtension>)super.getChildExtensions();
     }
 }

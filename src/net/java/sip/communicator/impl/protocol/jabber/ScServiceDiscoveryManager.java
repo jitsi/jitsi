@@ -39,6 +39,10 @@ public class ScServiceDiscoveryManager
      */
     private String currentCapsVersion = null;
 
+    /**
+     * currently unused. we'll start using this when we start querying for
+     * client capabilities.
+     */
     private Map<String, DiscoverInfo> nonCapsCache
         = new ConcurrentHashMap<String, DiscoverInfo>();
 
@@ -105,8 +109,7 @@ public class ScServiceDiscoveryManager
         // capabilities with every presence notification it sends.
         PacketFilter capsPacketFilter = new PacketTypeFilter(Presence.class);
 
-        connection.addPacketWriterInterceptor(
-                            this, capsPacketFilter);
+        connection.addPacketInterceptor(this, capsPacketFilter);
 
 
         initFeatures();

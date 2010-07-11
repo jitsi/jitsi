@@ -86,7 +86,7 @@ public class ContentProvider implements PacketExtensionProvider
                 }
 
                 PacketExtension extension = provider.parseExtension(parser);
-                content.addExtensions(extension);
+                content.addChildExtension(extension);
             }
             else if (eventType == XmlPullParser.END_TAG)
             {
@@ -96,7 +96,6 @@ public class ContentProvider implements PacketExtensionProvider
                 }
             }
         }
-
         return content;
     }
 

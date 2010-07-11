@@ -66,7 +66,7 @@ public class CryptoPacketExtension
      */
     public String getCryptoSuite()
     {
-        return getAttributeString(CRYPTO_SUITE_ARG_NAME);
+        return getAttributeAsString(CRYPTO_SUITE_ARG_NAME);
     }
 
     /**
@@ -89,7 +89,7 @@ public class CryptoPacketExtension
      */
     public String getKeyPaams()
     {
-        return getAttributeString(KEY_PARAMS_ARG_NAME);
+        return getAttributeAsString(KEY_PARAMS_ARG_NAME);
     }
 
     /**
@@ -112,7 +112,7 @@ public class CryptoPacketExtension
      */
     public String getSessionPaams()
     {
-        return getAttributeString(SESSION_PARAMS_ARG_NAME);
+        return getAttributeAsString(SESSION_PARAMS_ARG_NAME);
     }
 
     /**
@@ -135,6 +135,6 @@ public class CryptoPacketExtension
      */
     public String getTag()
     {
-        return getAttributeString(TAG_ARG_NAME);
+        return getAttributeAsString(TAG_ARG_NAME);
     }
 }

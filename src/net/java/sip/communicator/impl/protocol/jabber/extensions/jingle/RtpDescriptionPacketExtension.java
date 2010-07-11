@@ -92,7 +92,7 @@ public class RtpDescriptionPacketExtension
      */
     public String getMedia()
     {
-        return getAttributeString(MEDIA_ARG_NAME);
+        return getAttributeAsString(MEDIA_ARG_NAME);
     }
 
     /**
@@ -116,7 +116,7 @@ public class RtpDescriptionPacketExtension
      */
     public String getSsrc()
     {
-        return getAttributeString(SSRC_ARG_NAME);
+        return getAttributeAsString(SSRC_ARG_NAME);
     }
 
     /**
@@ -148,7 +148,7 @@ public class RtpDescriptionPacketExtension
      * this packet.
      */
     @Override
-    public List<? extends PacketExtension> getChildElements()
+    public List<? extends PacketExtension> getChildExtensions()
     {
         if(children == null)
             children = new ArrayList<PacketExtension>();
@@ -167,6 +167,24 @@ public class RtpDescriptionPacketExtension
             children.add(bandwidth);
 
         return children;
+    }
+
+    /**
+     * Casts <tt>childExtension</tt> to one of the extensions allowed here and
+     * sets the corresponding field.
+     *
+     * @param childExtension the extension we'd like to add here.
+     */
+    public void addChildExtension(PacketExtension childExtension)
+    {
+        if(childExtension instanceof PayloadTypePacketExtension)
+            this.addPayloadType((PayloadTypePacketExtension)childExtension);
+
+        else if (childExtension instanceof EncryptionPacketExtension)
+            this.setEncryption((EncryptionPacketExtension)childExtension);
+
+        else if (childExtension instanceof BandwidthPacketExtension)
+            this.setBandwidth((BandwidthPacketExtension)childExtension);
     }
 
     /**
@@ -216,5 +234,4 @@ public class RtpDescriptionPacketExtension
     {
         return bandwidth;
     }
-
 }

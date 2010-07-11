@@ -56,7 +56,7 @@ public class BandwidthPacketExtension
      */
     public String getType()
     {
-        return getAttributeString(TYPE_ARG_NAME);
+        return getAttributeAsString(TYPE_ARG_NAME);
     }
 
     /**

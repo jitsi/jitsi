@@ -6,21 +6,15 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
-import org.jivesoftware.smack.packet.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 /**
  * Represents the <tt>parameter</tt> elements described in XEP-0167.
  *
  * @author Emil Ivov
  */
-public class ParameterPacketExtension implements PacketExtension
+public class ParameterPacketExtension extends AbstractPacketExtension
 {
-    /**
-     * Parameters do not live in a namespace of their own so we have
-     * <tt>null</tt> here.
-     */
-    public static final String NAMESPACE = null;
-
     /**
      * The name of the "parameter" element.
      */
@@ -39,46 +33,11 @@ public class ParameterPacketExtension implements PacketExtension
     public static final String VALUE_ARG_NAME = "value";
 
     /**
-     * The name of the parameter represented here.
+     * Creates a new {@link ParameterPacketExtension} instance.
      */
-    private String name;
-
-    /**
-     * The value of the parameter represented here.
-     */
-    private String value;
-
-    /**
-     * Returns the name of the <tt>parameter</tt> element.
-     *
-     * @return the name of the <tt>parameter</tt> element.
-     */
-    public String getElementName()
+    public ParameterPacketExtension()
     {
-        return ELEMENT_NAME;
-    }
-
-    /**
-     * Returns the namespace for the <tt>parameter</tt> element which is
-     * <tt>null</tt>.
-     *
-     * @return <tt>null</tt> since we don't have a namespace for parameters.
-     */
-    public String getNamespace()
-    {
-        return NAMESPACE;
-    }
-
-    /**
-     * Returns the XML representation of this <tt>parameter</tt> element.
-     *
-     * @return this packet extension as an XML <tt>String</tt>.
-     */
-    public String toXML()
-    {
-        StringBuilder bldr = new StringBuilder();
-
-        return bldr.toString();
+        super(null, ELEMENT_NAME);
     }
 
     /**
@@ -88,7 +47,7 @@ public class ParameterPacketExtension implements PacketExtension
      */
     public void setName(String name)
     {
-        this.name = name;
+        super.setAttribute(NAME_ARG_NAME, name);
     }
 
     /**
@@ -98,7 +57,7 @@ public class ParameterPacketExtension implements PacketExtension
      */
     public String getName()
     {
-        return name;
+        return super.getAttributeAsString(NAME_ARG_NAME);
     }
 
     /**
@@ -108,7 +67,7 @@ public class ParameterPacketExtension implements PacketExtension
      */
     public void setValue(String value)
     {
-        this.value = value;
+        super.setAttribute(VALUE_ARG_NAME, value);
     }
 
     /**
@@ -118,6 +77,6 @@ public class ParameterPacketExtension implements PacketExtension
      */
     public String getValue()
     {
-        return value;
+        return super.getAttributeAsString(VALUE_ARG_NAME);
     }
 }

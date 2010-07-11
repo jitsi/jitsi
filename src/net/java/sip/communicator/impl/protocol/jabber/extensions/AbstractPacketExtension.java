@@ -47,6 +47,12 @@ public abstract class AbstractPacketExtension
     private String textContent;
 
     /**
+     * A list of extensions registered with this element.
+     */
+    private List<PacketExtension> childExtensions
+                                = new ArrayList<PacketExtension>();
+
+    /**
      * Creates an {@link AbstractPacketExtension} instance for the specified
      * <tt>namespace</tt> and <tt>elementName</tt>.
      *
@@ -100,7 +106,7 @@ public abstract class AbstractPacketExtension
         }
 
         //add child elements if any
-        List<? extends PacketExtension> childElements = getChildElements();
+        List<? extends PacketExtension> childElements = getChildExtensions();
 
         if(childElements == null || childElements.size() == 0)
         {
@@ -128,14 +134,29 @@ public abstract class AbstractPacketExtension
      * Returns all sub-elements for this <tt>AbstractPacketExtension</tt> or
      * <tt>null</tt> if there aren't any.
      * <p>
-     * Overriding extensions need to override this method if they have any child
-     * elements.
+     * Overriding extensions may need to override this method if they would like
+     * to have anything more elaborate than just a list of extensions.
      *
      * @return the {@link List} of elements that this packet extension contains.
      */
-    public List<? extends PacketExtension> getChildElements()
+    public List<? extends PacketExtension> getChildExtensions()
     {
-        return null;
+        return childExtensions;
+    }
+
+    /**
+     * Adds the specified <tt>childExtension</tt> to the list of extensions
+     * registered with this packet.
+     * <p/>
+     * Overriding extensions may need to override this method if they would like
+     * to have anything more elaborate than just a list of extensions (e.g.
+     * casting separate instances to more specific.
+     *
+     * @param childExtension the extension we'd like to add here.
+     */
+    public void addChildExtension(PacketExtension childExtension)
+    {
+        childExtensions.add(childExtension);
     }
 
     /**
@@ -198,13 +219,39 @@ public abstract class AbstractPacketExtension
      * <tt>null</tt> if no such attribute is currently registered with this
      * extension.
      */
-    public String getAttributeString(String attribute)
+    public String getAttributeAsString(String attribute)
     {
         synchronized(attributes)
         {
             Object attributeVal = attributes.get(attribute);
 
             return attributeVal == null ? null : attributeVal.toString();
+        }
+    }
+
+    /**
+     * Returns the <tt>int</tt> value of the attribute with the specified
+     * <tt>name</tt>.
+     *
+     * @param attribute the name of the attribute that we'd like to retrieve.
+     *
+     * @return the <tt>int</tt> value of the specified <tt>attribute</tt> or
+     * <tt>-1</tt> if no such attribute is currently registered with this
+     * extension.
+     *
+     * @throws ClassCastException if <tt>attribute</tt> is not registered as an
+     * <tt>int</tt>.
+     */
+    public int getAttributeAsInt(String attribute)
+        throws ClassCastException
+    {
+        synchronized(attributes)
+        {
+            Object attributeVal = attributes.get(attribute);
+
+            return attributeVal == null
+                ? -1
+                : ((Integer)attributeVal).intValue();
         }
     }
 
@@ -229,4 +276,6 @@ public abstract class AbstractPacketExtension
     {
         return textContent;
     }
+
+
 }

@@ -92,7 +92,7 @@ public class EncryptionPacketExtension
      */
     public boolean isRequired()
     {
-        String required = getAttributeString(REQUIRED_ARG_NAME);
+        String required = getAttributeAsString(REQUIRED_ARG_NAME);
 
         return Boolean.valueOf(required) || "1".equals(required);
     }
@@ -103,7 +103,7 @@ public class EncryptionPacketExtension
      * @return a {@link List} containing all our <tt>crypto</tt> sub-elements.
      */
     @Override
-    public List<? extends PacketExtension> getChildElements()
+    public List<? extends PacketExtension> getChildExtensions()
     {
         return getCryptoList();
     }

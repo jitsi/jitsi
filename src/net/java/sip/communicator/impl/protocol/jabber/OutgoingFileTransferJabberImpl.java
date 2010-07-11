@@ -88,7 +88,7 @@ public class OutgoingFileTransferJabberImpl
                             new String[]{"urn:xmpp:thumbs:0",
                                 "urn:xmpp:bob"}))
             {
-                protocolProvider.getConnection().addPacketWriterInterceptor(
+                protocolProvider.getConnection().addPacketInterceptor(
                     this,
                     new IQTypeFilter(IQ.Type.SET));
             }
@@ -213,7 +213,7 @@ public class OutgoingFileTransferJabberImpl
             }
         }
         // Remove this packet interceptor after we're done.
-        protocolProvider.getConnection().removePacketWriterInterceptor(this);
+        protocolProvider.getConnection().removePacketInterceptor(this);
     }
 
     /**
