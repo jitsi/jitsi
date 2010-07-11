@@ -904,7 +904,6 @@ public class ProtocolProviderServiceJabberImpl
 
             //check if we are supposed to start telephony
 
-            /* temporarily disabled until completed.
             //initialize the telephony operation set
             addSupportedOperationSet(
                 OperationSetBasicTelephony.class,
@@ -917,7 +916,7 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
-             */
+
             isInitialized = true;
         }
     }

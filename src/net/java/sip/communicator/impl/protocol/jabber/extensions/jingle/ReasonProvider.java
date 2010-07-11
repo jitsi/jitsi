@@ -6,8 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
-import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smackx.packet.*;
 import org.xmlpull.v1.*;
 
 /**
@@ -33,29 +33,55 @@ public class ReasonProvider implements PacketExtensionProvider
      * @return a new {@link ReasonPacketExtension} instance.
      * @throws java.lang.Exception if an error occurs parsing the XML.
      */
-    public PacketExtension parseExtension(XmlPullParser parser)
+    public ReasonPacketExtension parseExtension(XmlPullParser parser)
         throws Exception
     {
-        String creator = parser.getAttributeValue("",
-                        ContentPacketExtension.CREATOR_ARG_NAME);
-        String disposition = parser.getAttributeValue("",
-                        ContentPacketExtension.DISPOSITION_ARG_NAME);
-        String name = parser.getAttributeValue("",
-                        ContentPacketExtension.NAME_ARG_NAME);
-        String sendersStr = parser.getAttributeValue(
-                            "", ContentPacketExtension.SENDERS_ARG_NAME);
+        String text = null;
+        String reason = null;
+        //ReasonPacketException reason
+        //    = new ReasonPacketExtension(reason, text, packetExtension);
 
-        ContentPacketExtension.SendersEnum senders = null;
-        if(sendersStr != null && sendersStr.trim().length() > 0)
-            senders = ContentPacketExtension.SendersEnum.valueOf(sendersStr);
+        boolean done = false;
 
-        // Try to get an Audio content info
-        ContentPacketExtension content = new ContentPacketExtension(
-                        ContentPacketExtension.CreatorEnum.valueOf(creator),
-                        disposition,
-                        name,
-                        senders);
+        int eventType;
+        String elementName;
 
-        return content;
+        while (!done)
+        {
+            eventType = parser.next();
+            elementName = parser.getName();
+
+            if (eventType == XmlPullParser.START_TAG)
+            {
+                // the reason itself.
+                if( reason = null)
+                {
+                    reason = element
+                }
+                if (elementName.equals(ContentPacketExtension.ELEMENT_NAME))
+                {
+                    ContentPacketExtension content
+                        = contentProvider.parseExtension(parser);
+                    jingleIQ.addContent(content);
+                }
+                // <reason/>
+                if (elementName.equals(ReasonPacketExtension.ELEMENT_NAME))
+                {
+                    ReasonPacketExtension reason
+                        = reasonProvider.parseExtension(parser);
+                    jingleIQ.setReason(reason);
+                }
+            }
+            else if (eventType == XmlPullParser.END_TAG)
+            {
+                if (parser.getName().equals(Jingle.getElementName()))
+                {
+                    done = true;
+                }
+            }
+        }
+
+        //return reason;
+        return null;
     }
 }

@@ -193,10 +193,10 @@ public enum JingleAction
      *
      * @param jingleActionStr the action <tt>String</tt> that we'd like to
      * parse.
-     * @return a <tt>MediaDirection</tt> value corresponding to the specified
-     * <tt>mediaDirectionStr</tt>.
+     * @return a <tt>JingleAction</tt> value corresponding to the specified
+     * <tt>jingleActionStr</tt>.
      *
-     * @throws IllegalArgumentException in case <tt>mediaDirectionStr</tt> is
+     * @throws IllegalArgumentException in case <tt>jingleActionStr</tt> is
      * not a valid media direction.
      */
     public static JingleAction parseString(String jingleActionStr)

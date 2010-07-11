@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -63,8 +62,8 @@ public class OperationSetBasicTelephonyJabberImpl
 
         //register our home grown Jingle Provider.
         ProviderManager providerManager = ProviderManager.getInstance();
-        //providerManager.addIQProvider(
-        //    JingleIQ.ELEMENT_NAME, JingleIQ.NAMESPACE, new JingleIQProvider());
+        providerManager.addIQProvider(
+            JingleIQ.ELEMENT_NAME, JingleIQ.NAMESPACE, new JingleIQProvider());
     }
 
     /**
