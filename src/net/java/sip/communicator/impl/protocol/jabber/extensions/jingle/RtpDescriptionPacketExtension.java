@@ -212,7 +212,7 @@ public class RtpDescriptionPacketExtension
      * @return the max/preferred bandwidth set for this session or <tt>null</tt>
      * if none has been set yet.
      */
-    public PacketExtension getBandwidth()
+    public BandwidthPacketExtension getBandwidth()
     {
         return bandwidth;
     }

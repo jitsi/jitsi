@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.packet.*;
@@ -19,19 +20,13 @@ import org.jivesoftware.smack.packet.*;
  *
  * @author Emil Ivov
  */
-public class ContentPacketExtension implements PacketExtension
+public class ContentPacketExtension extends AbstractPacketExtension
 {
     /**
      * Logger for this class
      */
     private static final Logger logger =
         Logger.getLogger(ContentPacketExtension.class);
-
-    /**
-     * The name space (or rather lack thereof ) that the content element
-     * belongs to.
-     */
-    public static final String NAMESPACE = "";
 
     /**
      * The name of the "content" element.
@@ -77,43 +72,6 @@ public class ContentPacketExtension implements PacketExtension
     };
 
     /**
-     * The creator field indicates which party originally generated the content
-     * type and is used to prevent race conditions regarding modifications;
-     * the defined values are "initiator" and "responder" (where the
-     * default is "initiator"). The value of the 'creator' attribute for a
-     * given content type MUST always match the party that originally generated
-     * the content type, even for Jingle actions that are sent by the other
-     * party in relation to that content type (e.g., subsequent content-modify
-     * or transport-info messages). The combination of the 'creator'
-     * attribute and the 'name' attribute is unique among both parties to a
-     * Jingle session.
-     */
-    private CreatorEnum creator;
-
-    /**
-     * Indicates how the content definition is to be interpreted by the
-     * recipient. The meaning of this attribute matches the
-     * "Content-Disposition" header as defined in RFC 2183 and applied to SIP
-     * by RFC 3261. The value of this attribute SHOULD be one of the values
-     * registered in the IANA Mail Content Disposition Values and Parameters
-     * Registry. The default value of this attribute is "session".
-     */
-    private String disposition;
-
-    /**
-     * A unique name or identifier for the content type according to the
-     * creator, which MAY have meaning to a human user in order to differentiate
-     * this content type from other content types (e.g., two content types
-     * containing video media could differentiate between "room-pan" and
-     * "slides"). If there are two content types with the same value for the
-     * 'name' attribute, they shall understood as alternative definitions for
-     * the same purpose (e.g., a legacy method and a standards-based method for
-     * establishing a voice call), typically to smooth the transition from an
-     * older technology to Jingle.
-     */
-    private String name;
-
-    /**
      * Contains a list of packet extensions that are part of the jingle content.
      * Most often, the extensions we find in here would be <tt>description</tt>
      * and <tt>transport</tt>.
@@ -149,12 +107,6 @@ public class ContentPacketExtension implements PacketExtension
     };
 
     /**
-     * Indicates which parties in the session will be generating content;
-     * the allowable values are defined in the <tt>SendersEnum</tt>.
-     */
-    private SendersEnum senders = SendersEnum.both;
-
-    /**
      * Creates a new <tt>ContentPacketExtension</tt> instance with only required
      * parameters.
      *
@@ -170,10 +122,11 @@ public class ContentPacketExtension implements PacketExtension
                                   String name,
                                   SendersEnum senders)
     {
-        this.creator = creator;
-        this.disposition = disposition;
-        this.name = name;
-        this.senders = senders;
+        super(null, ELEMENT_NAME);
+        super.setAttribute(CREATOR_ARG_NAME, creator);
+        super.setAttribute(DISPOSITION_ARG_NAME, disposition);
+        super.setAttribute(NAME_ARG_NAME, name);
+        super.setAttribute(SENDERS_ARG_NAME, senders);
     }
 
     /**
@@ -187,30 +140,9 @@ public class ContentPacketExtension implements PacketExtension
      */
     public ContentPacketExtension(CreatorEnum creator, String name)
     {
-        this.creator = creator;
-        this.name = name;
-    }
-
-    /**
-     * Returns the name of the <tt>content</tt> element.
-     *
-     * @return the name of the <tt>content</tt> element.
-     */
-    public String getElementName()
-    {
-        return ELEMENT_NAME;
-    }
-
-    /**
-     * Returns an empty <tt>String</tt> as the <tt>content</tt> element does
-     * not have a namespace.
-     *
-     * @return an empty <tt>String</tt> as the <tt>content</tt> element does
-     * not have a namespace.
-     */
-    public String getNamespace()
-    {
-        return NAMESPACE;
+        super(null, ELEMENT_NAME);
+        super.setAttribute(CREATOR_ARG_NAME, creator);
+        super.setAttribute(NAME_ARG_NAME, name);
     }
 
     /**
@@ -229,7 +161,7 @@ public class ContentPacketExtension implements PacketExtension
      */
     public CreatorEnum getCreator()
     {
-        return creator;
+        return (CreatorEnum)getAttribute(CREATOR_ARG_NAME);
     }
 
     /**
@@ -246,7 +178,7 @@ public class ContentPacketExtension implements PacketExtension
      */
     public String getDisposition()
     {
-        return disposition;
+        return getAttributeString(DISPOSITION_ARG_NAME);
     }
 
     /**
@@ -265,7 +197,7 @@ public class ContentPacketExtension implements PacketExtension
      */
     public String getName()
     {
-        return name;
+        return getAttributeString(NAME_ARG_NAME);
     }
 
     /**
@@ -278,7 +210,7 @@ public class ContentPacketExtension implements PacketExtension
      */
     public SendersEnum getSenders()
     {
-        return senders;
+        return (SendersEnum)getAttribute(SENDERS_ARG_NAME);
     }
 
     /**
@@ -300,56 +232,23 @@ public class ContentPacketExtension implements PacketExtension
      * @param extension the new <tt>PacketExtension</tt>s that we need to
      * add to this element.
      */
-    public void addExtensions(PacketExtension extension)
+    public void addExtension(PacketExtension extension)
     {
         childExtensions.add(extension);
     }
 
     /**
-     * Returns the XML representation of the jingle content packet extension
-     * including all child elements.
+     * Returns a list of all extensions that have been added to this content
+     * element so far.
      *
-     * @return this packet extension as an XML <tt>String</tt>.
+     * @return a list of all extensions that have been added to this content
+     * element so far.
      */
-    public String toXML()
+    @Override
+    public List<? extends PacketExtension> getChildElements()
     {
-        StringBuilder bldr = new StringBuilder("<").append(getElementName());
-
-
-        //add the arguments that we have
-        bldr.append(" " + CREATOR_ARG_NAME +"='"+ getCreator() + "'");
-
-        //disposition
-        if( getDisposition() != null )
-        {
-            bldr.append(" " + DISPOSITION_ARG_NAME
-                            +"='"+ getDisposition() + "'");
-        }
-
-        //name
-        bldr.append(" " + NAME_ARG_NAME +"='"+ getName() + "'");
-
-        //senders
-        if( getSenders() != null )
-        {
-            bldr.append(" " + SENDERS_ARG_NAME
-                            +"='"+ getSenders() + "'");
-        }
-
-        bldr.append(">");
-
-
-        //other child elements
-        synchronized (childExtensions)
-        {
-            for(PacketExtension ext : childExtensions)
-            {
-                bldr.append(ext.toXML());
-            }
-        }
-
-        bldr.append("</"+getElementName()+">");
-        return bldr.toString();
+        return getExtensions();
     }
+
 
 }
