@@ -37,7 +37,7 @@ public class ReasonProvider implements PacketExtensionProvider
         throws Exception
     {
         String text = null;
-        String reason = null;
+        Reason reason = null;
         //ReasonPacketException reason
         //    = new ReasonPacketExtension(reason, text, packetExtension);
 
@@ -54,22 +54,21 @@ public class ReasonProvider implements PacketExtensionProvider
             if (eventType == XmlPullParser.START_TAG)
             {
                 // the reason itself.
-                if( reason = null)
+                if( reason == null)
                 {
-                    reason = element
+                    //let the parse exception fly as it would mean we have
+                    //some weird element first in the list.
+                    reason = Reason.parseString(elementName);
                 }
-                if (elementName.equals(ContentPacketExtension.ELEMENT_NAME))
+                else if (elementName.equals(
+                                ReasonPacketExtension.TEXT_ELEMENT_NAME))
                 {
-                    ContentPacketExtension content
-                        = contentProvider.parseExtension(parser);
-                    jingleIQ.addContent(content);
+                    text = parser.getText();
                 }
                 // <reason/>
-                if (elementName.equals(ReasonPacketExtension.ELEMENT_NAME))
+                else
                 {
-                    ReasonPacketExtension reason
-                        = reasonProvider.parseExtension(parser);
-                    jingleIQ.setReason(reason);
+                    //this is an element that we don't currently support.
                 }
             }
             else if (eventType == XmlPullParser.END_TAG)
@@ -83,5 +82,41 @@ public class ReasonProvider implements PacketExtensionProvider
 
         //return reason;
         return null;
+    }
+
+    /**
+     * Returns the content of the next {@link XmlPullParser#TEXT} element that
+     * we encounter in <tt>parser</tt>.
+     *
+     * @param parser the parse that we'll be probing for text.
+     *
+     * @return the content of the next {@link XmlPullParser#TEXT} element we
+     * come across or <tt>null</tt> if we encounter a closing tag first.
+     *
+     * @throws java.lang.Exception if an error occurs parsing the XML.
+     */
+    public String parseText(XmlPullParser parser)
+        throws Exception
+    {
+        boolean done = false;
+
+        int eventType;
+        String text = null;
+
+        while (!done)
+        {
+            eventType = parser.next();
+
+            if (eventType == XmlPullParser.TEXT)
+            {
+                text = parser.getText();
+            }
+            else if (eventType == XmlPullParser.END_TAG)
+            {
+                done = true;
+            }
+        }
+
+        return text;
     }
 }

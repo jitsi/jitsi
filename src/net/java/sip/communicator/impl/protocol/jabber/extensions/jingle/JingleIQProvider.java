@@ -7,11 +7,8 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 import net.java.sip.communicator.util.*;
 
-import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.provider.*;
-import org.jivesoftware.smackx.jingle.*;
 import org.jivesoftware.smackx.packet.*;
-import org.jivesoftware.smackx.provider.*;
 import org.xmlpull.v1.XmlPullParser;
 
 
@@ -60,7 +57,6 @@ public class JingleIQProvider implements IQProvider
 
         boolean done = false;
 
-
         // Sub-elements providers
         ContentProvider contentProvider = new ContentProvider();
         ReasonProvider reasonProvider = new ReasonProvider();
@@ -93,13 +89,12 @@ public class JingleIQProvider implements IQProvider
             }
             else if (eventType == XmlPullParser.END_TAG)
             {
-                if (parser.getName().equals(Jingle.getElementName()))
+                if (parser.getName().equals(JingleIQ.ELEMENT_NAME))
                 {
                     done = true;
                 }
             }
         }
-
         return jingleIQ;
     }
 }

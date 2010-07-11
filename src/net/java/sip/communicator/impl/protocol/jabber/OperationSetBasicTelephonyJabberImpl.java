@@ -8,12 +8,17 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.OperationSetBasicInstantMessagingJabberImpl.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
@@ -59,11 +64,6 @@ public class OperationSetBasicTelephonyJabberImpl
     {
         this.protocolProvider = protocolProvider;
         protocolProvider.addRegistrationStateChangeListener(this);
-
-        //register our home grown Jingle Provider.
-        ProviderManager providerManager = ProviderManager.getInstance();
-        providerManager.addIQProvider(
-            JingleIQ.ELEMENT_NAME, JingleIQ.NAMESPACE, new JingleIQProvider());
     }
 
     /**
@@ -75,9 +75,14 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
-        if ((evt.getNewState() == RegistrationState.REGISTERED))
+        if ((evt.getNewState() == RegistrationState.REGISTERING))
         {
-            // TODO: plug jingle registraion
+            ProviderManager providerManager = ProviderManager.getInstance();
+            providerManager.addIQProvider( JingleIQ.ELEMENT_NAME,
+                                           JingleIQ.NAMESPACE,
+                                           new JingleIQProvider());
+            subscribeForJinglePackets();
+
             if (logger.isInfoEnabled())
                 logger.info("Jingle : ON ");
         }
@@ -318,13 +323,31 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Implements method <tt>transportClosedOnError</tt> from JingleTransportListener.
-     *
-     * @param ex the exception accompanying this error
+     * Subscribes us for notifications on incoming jingle packets.
      */
-    public void transportClosedOnError(XMPPException ex)
+    private void subscribeForJinglePackets()
     {
-        logger.error("transport closed on error ", ex);
+        ProviderManager providerManager = ProviderManager.getInstance();
+
+        protocolProvider.getConnection().addPacketListener(
+            new JingleListener(), new PacketTypeFilter( JingleIQ.class));
+    }
+
+    /**
+     * The listener that we use to retrieve inbound jingle related packets.
+     */
+    private class JingleListener implements PacketListener
+    {
+        /**
+         * Handles incoming jingle packets and passes them to the corresponding
+         * methods in this operation set.
+         *
+         * @param packet the packet to process.
+         */
+        public void processPacket(Packet packet)
+        {
+System.out.println("here's the packet : " + packet);
+        }
     }
 }
 

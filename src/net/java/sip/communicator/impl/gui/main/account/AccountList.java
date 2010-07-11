@@ -22,7 +22,7 @@ import org.osgi.framework.*;
 /**
  * The <tt>AccountList</tt> is the list of currently registered accounts shown
  * in the options form.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class AccountList
@@ -50,7 +50,7 @@ public class AccountList
     /**
      * Creates an instance of this account list by specifying the parent
      * container of the list.
-     * 
+     *
      * @param parentConfigPanel the container where this list is added.
      */
     public AccountList(AccountsConfigurationPanel parentConfigPanel)
@@ -103,7 +103,7 @@ public class AccountList
                     OperationSetPresence presence
                         = protocolProvider
                             .getOperationSet(OperationSetPresence.class);
-    
+
                     if (presence != null)
                     {
                         presence.addProviderPresenceStatusListener(this);
@@ -249,7 +249,7 @@ public class AccountList
     /**
      * Notifies <code>accountListModel</code> that the <code>Account</code>s of
      * a specific <code>ProtocolProviderService</code> has changed.
-     * 
+     *
      * @param protocolProvider
      *            the <code>ProtocolProviderService</code> which had its
      *            <code>Account</code>s changed

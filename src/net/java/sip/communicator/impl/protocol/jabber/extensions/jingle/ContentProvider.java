@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.*;
 
@@ -33,8 +34,11 @@ public class ContentProvider implements PacketExtensionProvider
      * @param parser the pull parser positioned at the content element.
      *
      * @return the newly created {@link ContentPacketExtension}.
+     *
+     * @throws Exception if an error occurs parsing the XML.
      */
     public ContentPacketExtension parseExtension(final XmlPullParser parser)
+        throws Exception
     {
         String creator = parser.getAttributeValue("",
                         ContentPacketExtension.CREATOR_ARG_NAME);
@@ -55,6 +59,43 @@ public class ContentProvider implements PacketExtensionProvider
                         disposition,
                         name,
                         senders);
+
+        // Now let's try to parse the content in case we support the extensions
+        // that it's transporting.
+        boolean done = false;
+        int eventType;
+        String elementName;
+        String namespace;
+
+        while (!done)
+        {
+            eventType = parser.next();
+            elementName = parser.getName();
+            namespace = parser.getNamespace();
+
+            if (eventType == XmlPullParser.START_TAG)
+            {
+                PacketExtensionProvider provider
+                    = (PacketExtensionProvider)ProviderManager.getInstance()
+                        .getExtensionProvider( elementName, namespace );
+
+                if(provider == null)
+                {
+                    //we don't know how to handle this kind of extensions.
+                    continue;
+                }
+
+                PacketExtension extension = provider.parseExtension(parser);
+                content.addExtensions(extension);
+            }
+            else if (eventType == XmlPullParser.END_TAG)
+            {
+                if (parser.getName().equals(JingleIQ.ELEMENT_NAME))
+                {
+                    done = true;
+                }
+            }
+        }
 
         return content;
     }

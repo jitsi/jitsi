@@ -30,6 +30,11 @@ public class ReasonPacketExtension
     public static final String ELEMENT_NAME = "reason";
 
     /**
+     * The name of the text element.
+     */
+    public static final String TEXT_ELEMENT_NAME = "text";
+
+    /**
      * The reason that this packet extension is transporting.
      */
     private final String reason;

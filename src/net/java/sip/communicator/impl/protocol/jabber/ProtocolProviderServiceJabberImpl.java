@@ -17,11 +17,13 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.sasl.*;
 import net.java.sip.communicator.service.gui.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
@@ -47,17 +49,9 @@ public class ProtocolProviderServiceJabberImpl
         Logger.getLogger(ProtocolProviderServiceJabberImpl.class);
 
     /**
-     * The name of the property that tells us whether we are supposed to start
-     * experimental support for Jingle.
-     */
-    private static final String PNAME_ENABLE_JINGLE
-        = "net.java.sip.communicator"
-            + ".impl.protocol.jabber.ENABLE_EXPERIMENTAL_JINGLE";
-
-    /**
      * Jingle's Discovery Info common URN.
      */
-    public static final String URN_XMPP_JINGLE = "urn:xmpp:jingle:1";
+    public static final String URN_XMPP_JINGLE = JingleIQ.NAMESPACE;
 
     /**
      * Jingle's Discovery Info URN for RTP support.
@@ -902,7 +896,12 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add("http://jabber.org/protocol/muc#rooms");
             supportedFeatures.add("http://jabber.org/protocol/muc#traffic");
 
-            //check if we are supposed to start telephony
+            //register our jingle provider
+            //register our home grown Jingle Provider.
+            ProviderManager providerManager = ProviderManager.getInstance();
+            providerManager.addIQProvider( JingleIQ.ELEMENT_NAME,
+                                           JingleIQ.NAMESPACE,
+                                           new JingleIQProvider());
 
             //initialize the telephony operation set
             addSupportedOperationSet(
