@@ -42,6 +42,11 @@ public abstract class AbstractPacketExtension
                                     = new LinkedHashMap<String, Object>();
 
     /**
+     * The text content of this packet extension, if any.
+     */
+    private String textContent;
+
+    /**
      * Creates an {@link AbstractPacketExtension} instance for the specified
      * <tt>namespace</tt> and <tt>elementName</tt>.
      *
@@ -95,19 +100,26 @@ public abstract class AbstractPacketExtension
         }
 
         //add child elements if any
-        List<PacketExtension> childElements = getChildElements();
+        List<? extends PacketExtension> childElements = getChildElements();
 
         if(childElements == null || childElements.size() == 0)
+        {
             bldr.append("/>");
+            return bldr.toString();
+        }
         else
         {
             for(PacketExtension packExt : childElements)
             {
                 bldr.append(packExt.toXML());
             }
-
-            bldr.append("</"+getElementName()+">");
         }
+
+        //text content if any
+        if(getText() != null && getText().trim().length() > 0)
+            bldr.append(getText());
+
+        bldr.append("</"+getElementName()+">");
 
         return bldr.toString();
     }
@@ -194,5 +206,27 @@ public abstract class AbstractPacketExtension
 
             return attributeVal == null ? null : attributeVal.toString();
         }
+    }
+
+    /**
+     * Specifies the text content of this extension.
+     *
+     * @param text the text content of this extension.
+     */
+    public void setText(String text)
+    {
+        this.textContent = text;
+    }
+
+    /**
+     * Returns the text content of this extension or <tt>null</tt> if no text
+     * content has been specified so far.
+     *
+     * @return the text content of this extension or <tt>null</tt> if no text
+     * content has been specified so far.
+     */
+    public String getText()
+    {
+        return textContent;
     }
 }

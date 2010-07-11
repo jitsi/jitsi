@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
-import org.apache.tools.ant.taskdefs.*;
 import org.jivesoftware.smack.packet.*;
 
 /**
@@ -62,7 +61,7 @@ public class RtpDescriptionPacketExtension
      * An optional bandwidth element that specifies the allowable or preferred
      * bandwidth for use by this application type.
      */
-    private PacketExtension bandwidth;
+    private BandwidthPacketExtension bandwidth;
 
     /**
      * Creates a new <tt>RtpDescriptionPacketExtension</tt>.
@@ -201,7 +200,7 @@ public class RtpDescriptionPacketExtension
      * @param bandwidth the max/preferred bandwidth indication that we'd like
      * to add to this packet.
      */
-    public void setBandwidth(PacketExtension bandwidth)
+    public void setBandwidth(BandwidthPacketExtension bandwidth)
     {
         this.bandwidth = bandwidth;
     }
