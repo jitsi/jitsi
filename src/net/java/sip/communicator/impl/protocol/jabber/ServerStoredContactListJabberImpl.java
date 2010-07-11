@@ -106,11 +106,11 @@ public class ServerStoredContactListJabberImpl
     /**
      * Returns the roster entry associated with the given XMPP address or
      * <tt>null</tt> if the user is not an entry in the roster.
-     * 
+     *
      * @param user the XMPP address of the user (e.g. "jsmith@example.com").
      * The address could be in any valid format (e.g. "domain/resource",
      * "user@domain" or "user@domain/resource").
-     * 
+     *
      * @return the roster entry or <tt>null</tt> if it does not exist.
      */
     RosterEntry getRosterEntry(String user)
@@ -195,7 +195,7 @@ public class ServerStoredContactListJabberImpl
         }
 
         /**
-         * Sometimes contact statuses are received before the groups and 
+         * Sometimes contact statuses are received before the groups and
          * contacts are being created. This is a problem when we don't have
          * already created unresolved contacts. So we will check contact
          * statuses to be sure they are correct.
@@ -621,7 +621,10 @@ public class ServerStoredContactListJabberImpl
     {
         try
         {
-            this.roster.removeEntry(contactToRemove.getSourceEntry());
+            RosterEntry entry = contactToRemove.getSourceEntry();
+
+            if (entry != null)//don't try to remove non-existing contacts.
+                this.roster.removeEntry(entry);
         }
         catch (XMPPException ex)
         {
