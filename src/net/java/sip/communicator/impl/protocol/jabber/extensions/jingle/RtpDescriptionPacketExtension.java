@@ -8,6 +8,9 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+
+import org.apache.tools.ant.taskdefs.*;
 import org.jivesoftware.smack.packet.*;
 
 /**
@@ -16,7 +19,7 @@ import org.jivesoftware.smack.packet.*;
  * @author Emil Ivov
  */
 public class RtpDescriptionPacketExtension
-    implements PacketExtension
+    extends AbstractPacketExtension
 {
     /**
      * The name space for RTP description elements.
@@ -39,21 +42,15 @@ public class RtpDescriptionPacketExtension
     public static final String SSRC_ARG_NAME = "ssrc";
 
     /**
-     * An argument that specifies the media type, such as "audio" or "video".
-     */
-    private String media;
-
-    /**
-     * An attribute that specifies the 32-bit synchronization source for this
-     * media stream, as defined in RFC 3550
-     */
-    private String ssrc;
-
-    /**
      * The list of payload types that this description element contains.
      */
     private final List<PayloadTypePacketExtension> payloadTypes
                                 = new ArrayList<PayloadTypePacketExtension>();
+
+    /**
+     * The combined list of all child elements that this extension contains.
+     */
+    private List<PacketExtension> children;
 
     /**
      * An optional encryption element that contains encryption parameters for
@@ -68,6 +65,14 @@ public class RtpDescriptionPacketExtension
     private PacketExtension bandwidth;
 
     /**
+     * Creates a new <tt>RtpDescriptionPacketExtension</tt>.
+     */
+    public RtpDescriptionPacketExtension()
+    {
+        super(NAMESPACE, ELEMENT_NAME);
+    }
+
+    /**
      * Specifies the media type for the stream that this description element
      * represents, such as "audio" or "video".
      *
@@ -76,7 +81,7 @@ public class RtpDescriptionPacketExtension
      */
     public void setMedia(String media)
     {
-        this.media = media;
+        super.setAttribute(MEDIA_ARG_NAME, media);
     }
 
     /**
@@ -88,7 +93,7 @@ public class RtpDescriptionPacketExtension
      */
     public String getMedia()
     {
-        return media;
+        return getAttributeString(MEDIA_ARG_NAME);
     }
 
     /**
@@ -100,7 +105,7 @@ public class RtpDescriptionPacketExtension
      */
     public void setSsrc(String ssrc)
     {
-        this.ssrc = ssrc;
+        super.setAttribute(SSRC_ARG_NAME, ssrc);
     }
 
     /**
@@ -112,27 +117,7 @@ public class RtpDescriptionPacketExtension
      */
     public String getSsrc()
     {
-        return ssrc;
-    }
-
-    /**
-     * Returns the name of the <tt>description</tt> element.
-     *
-     * @return the name of the <tt>description</tt> element.
-     */
-    public String getElementName()
-    {
-        return ELEMENT_NAME;
-    }
-
-    /**
-     * Returns the namespace for the <tt>description</tt> element.
-     *
-     * @return the namespace for the <tt>description</tt> element.
-     */
-    public String getNamespace()
-    {
-        return NAMESPACE;
+        return getAttributeString(SSRC_ARG_NAME);
     }
 
     /**
@@ -158,40 +143,31 @@ public class RtpDescriptionPacketExtension
     }
 
     /**
-     * Returns the XML representation of this <tt>description</tt> packet
-     * extension including all child elements.
+     * Returns all child elements that we currently have in this packet.
      *
-     * @return this packet extension as an XML <tt>String</tt>.
+     * @return the {@link List} of child elements currently registered with
+     * this packet.
      */
-    public String toXML()
+    @Override
+    public List<? extends PacketExtension> getChildElements()
     {
-        StringBuilder bldr = new StringBuilder(
-            "<" + ELEMENT_NAME + " xmlns='" + NAMESPACE + "' "
-                + MEDIA_ARG_NAME + "='" + getMedia() + "'");
-
-        if(getSsrc() != null)
-            bldr.append(SSRC_ARG_NAME + "='" + getSsrc() +"'");
-
-        bldr.append(">");
+        if(children == null)
+            children = new ArrayList<PacketExtension>();
+        else
+            children.clear();
 
         //payload types
-        for(PayloadTypePacketExtension payloadType : payloadTypes)
-        {
-            bldr.append(payloadType.toXML());
-        }
+        children.addAll(payloadTypes);
 
         //encryption element
         if (encryption != null)
-            bldr.append(encryption.toXML());
+            children.add(encryption);
 
         //bandwidth element
         if (bandwidth != null)
-            bldr.append(bandwidth.toXML());
+            children.add(bandwidth);
 
-
-        bldr.append("</" + ELEMENT_NAME + ">");
-
-        return bldr.toString();
+        return children;
     }
 
     /**

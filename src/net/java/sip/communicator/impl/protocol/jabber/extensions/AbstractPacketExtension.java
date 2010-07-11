@@ -131,13 +131,17 @@ public abstract class AbstractPacketExtension
      *
      * @param name the name of the attribute that we are setting.
      * @param value an {@link Object} whose <tt>toString()</tt> method returns
-     * the XML value of the attribute we are setting.
+     * the XML value of the attribute we are setting or <tt>null</tt> if we'd
+     * like to remove the attribute with the specified <tt>name</tt>.
      */
     public void setAttribute(String name, Object value)
     {
         synchronized(attributes)
         {
-            this.attributes.put(name, value);
+            if(value != null)
+                this.attributes.put(name, value);
+            else
+                this.attributes.remove(name);
         }
     }
 
