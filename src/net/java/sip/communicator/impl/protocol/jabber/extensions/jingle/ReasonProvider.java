@@ -73,7 +73,7 @@ public class ReasonProvider implements PacketExtensionProvider
             }
             else if (eventType == XmlPullParser.END_TAG)
             {
-                if (parser.getName().equals(Jingle.getElementName()))
+                if (parser.getName().equals(JingleIQ.ELEMENT_NAME))
                 {
                     done = true;
                 }

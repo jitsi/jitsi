@@ -102,7 +102,7 @@ public abstract class AbstractPacketExtension
         //add the rest of the attributes if any
         for(Map.Entry<String, Object> entry : attributes.entrySet())
         {
-            bldr.append(" " + entry.getKey() + "=" + entry.getValue());
+            bldr.append(" " + entry.getKey() + "='" + entry.getValue() + "'");
         }
 
         //add child elements if any
@@ -115,6 +115,7 @@ public abstract class AbstractPacketExtension
         }
         else
         {
+            bldr.append(">");
             for(PacketExtension packExt : childElements)
             {
                 bldr.append(packExt.toXML());

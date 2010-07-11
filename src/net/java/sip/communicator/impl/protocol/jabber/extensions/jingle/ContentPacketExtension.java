@@ -89,7 +89,15 @@ public class ContentPacketExtension extends AbstractPacketExtension
     };
 
     /**
-     * Creates a new <tt>ContentPacketExtension</tt> instance with only required
+     * Creates a new <tt>ContentPacketExtension</tt>.
+     */
+    public ContentPacketExtension()
+    {
+        super(null, ELEMENT_NAME);
+    }
+
+    /**
+     * Creates a new <tt>ContentPacketExtension</tt>. instance with only required
      * parameters.
      *
      * @param creator indicates which party originally generated the content

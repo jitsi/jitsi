@@ -5,7 +5,9 @@
  * See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
-import net.java.sip.communicator.util.*;
+import java.util.logging.*;
+
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.XmlPullParser;
@@ -24,6 +26,39 @@ public class JingleIQProvider implements IQProvider
      */
     private static final Logger logger = Logger
                     .getLogger(JingleIQProvider.class.getName());
+
+    /**
+     * Creates a new instance of the <tt>JingleIQProvider</tt> and register all
+     * jingle related extension providers. It is the responsibility of the
+     * application to register the <tt>JingleIQProvider</tt> itself.
+     */
+    public JingleIQProvider()
+    {
+        ProviderManager providerManager = ProviderManager.getInstance();
+
+        //<description/> provider
+        providerManager.addExtensionProvider(
+            RtpDescriptionPacketExtension.ELEMENT_NAME,
+            RtpDescriptionPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider
+                <RtpDescriptionPacketExtension>(
+                                RtpDescriptionPacketExtension.class));
+
+        //<payload-type/> provider
+        providerManager.addExtensionProvider(
+            PayloadTypePacketExtension.ELEMENT_NAME,
+            RtpDescriptionPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider
+                <PayloadTypePacketExtension>(
+                                PayloadTypePacketExtension.class));
+
+        //<parameter/> provider
+        providerManager.addExtensionProvider(
+            ParameterPacketExtension.ELEMENT_NAME,
+            RtpDescriptionPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider
+                <ParameterPacketExtension>(ParameterPacketExtension.class));
+    }
 
     /**
      * Parses a Jingle IQ sub-document and returns a {@link JingleIQ} instance.
@@ -57,7 +92,9 @@ public class JingleIQProvider implements IQProvider
         boolean done = false;
 
         // Sub-elements providers
-        ContentProvider contentProvider = new ContentProvider();
+        DefaultPacketExtensionProvider<ContentPacketExtension> contentProvider
+            = new DefaultPacketExtensionProvider
+                <ContentPacketExtension>(ContentPacketExtension.class);
         ReasonProvider reasonProvider = new ReasonProvider();
 
         // Now go on and parse the jingle element's content.

@@ -83,22 +83,6 @@ public class OperationSetBasicTelephonyJabberImpl
                                            JingleIQ.NAMESPACE,
                                            new JingleIQProvider());
 
-            //<description/> provider
-            providerManager.addExtensionProvider(
-                RtpDescriptionPacketExtension.ELEMENT_NAME,
-                RtpDescriptionPacketExtension.NAMESPACE,
-                new DefaultPacketExtensionProvider
-                    <RtpDescriptionPacketExtension>(
-                                    RtpDescriptionPacketExtension.class));
-
-            //<payload-type/> provider
-            providerManager.addExtensionProvider(
-                PayloadTypePacketExtension.ELEMENT_NAME,
-                RtpDescriptionPacketExtension.NAMESPACE,
-                new DefaultPacketExtensionProvider
-                    <PayloadTypePacketExtension>(
-                                    PayloadTypePacketExtension.class));
-
             subscribeForJinglePackets();
 
             if (logger.isInfoEnabled())

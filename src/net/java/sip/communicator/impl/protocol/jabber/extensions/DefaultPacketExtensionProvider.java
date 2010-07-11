@@ -101,9 +101,9 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
                     = provider.parseExtension(parser);
                 packetExtension.addChildExtension(childExtension);
             }
-            else if (eventType == XmlPullParser.END_TAG)
+            if (eventType == XmlPullParser.END_TAG)
             {
-                if (parser.getName().equals(JingleIQ.ELEMENT_NAME))
+                if (parser.getName().equals(packetExtension.getElementName()))
                 {
                     done = true;
                 }
