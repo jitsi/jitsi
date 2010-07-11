@@ -126,6 +126,52 @@ public class IceUdpTransportPacketExtension extends AbstractPacketExtension
         return null;
     }
 
+    /**
+     * Adds <tt>candidate</tt> to the list of {@link CandidatePacketExtension}s
+     * registered with this transport.
+     *
+     * @param candidate the new {@link CandidatePacketExtension} to add to this
+     * transport element.
+     */
+    public void addCandidate(CandidatePacketExtension candidate)
+    {
+        this.candidateList.add(candidate);
+    }
 
+    /**
+     * Returns the list of {@link CandidatePacketExtension}s currently
+     * registered with this transport.
+     *
+     * @return the list of {@link CandidatePacketExtension}s currently
+     * registered with this transport.
+     */
+    public List<CandidatePacketExtension> getCandidateList()
+    {
+        synchronized(candidateList)
+        {
+            return new ArrayList<CandidatePacketExtension>(this.candidateList);
+        }
+    }
+
+    /**
+     * Sets <tt>candidate</tt> as the in-use candidate after ICE has terminated.
+     *
+     * @param candidate the new {@link CandidatePacketExtension} to set as an
+     * in-use candidate for this session.
+     */
+    public void setRemoteCandidate(RemoteCandidatePacketExtension candidate)
+    {
+        this.remoteCandidate = candidate;
+    }
+
+    /**
+     * Returns the in-use <tt>candidate</tt> for this session.
+     *
+     * @return Returns the in-use <tt>candidate</tt> for this session.
+     */
+    public RemoteCandidatePacketExtension getRemoteCandidate()
+    {
+        return remoteCandidate;
+    }
 
 }
