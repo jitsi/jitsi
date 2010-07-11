@@ -739,7 +739,7 @@
                 value="${java.net.preferIPv6Addresses}"/>
 
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-                    value="${user.home}/schome"/-->
+                    value="${user.home}"/ -->
 
              <sysproperty key="smack.debugEnabled"
                  value="${smack.debugEnabled}"/>
@@ -881,7 +881,8 @@
         bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
         bundle-fileaccess-slick,bundle-neomedia,
         bundle-resource-manager,bundle-resources-defaultpack,
-        bundle-protocol,bundle-icq,bundle-icq-slick,bundle-mock,bundle-smacklib,
+        bundle-protocol,bundle-protocol-media,bundle-icq,
+        bundle-icq-slick,bundle-mock,bundle-smacklib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
         bundle-msn,bundle-msn-slick,bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
@@ -1252,7 +1253,20 @@ javax.swing.event, javax.swing.border"/>
                 <include name="protocol/jabber/**/*"/>
                 <include name="protocol/msn/**/*"/>
                 <include name="protocol/yahoo/**/*"/>
+                <!-- the media package lives in the protocol-media bundle -->
+                <exclude name="protocol/media/**/*"/>
             </zipfileset>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PROTOCOL -->
+    <target name="bundle-protocol-media">
+        <!-- Creates a bundle containing the media dependent
+             protocol provider interfaces.-->
+        <jar compress="false" destfile="${bundles.dest}/protocol-media.jar"
+            manifest="${src}/net/java/sip/communicator/service/protocol/media/protocol.media.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol/media"
+                prefix="net/java/sip/communicator/service/protocol/media"/>
         </jar>
     </target>
 
@@ -1263,7 +1277,6 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/smackx-debug.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/smack.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/smackx.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/smackx-jingle.jar" prefix=""/>
         </jar>
     </target>
 
