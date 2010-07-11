@@ -182,7 +182,7 @@ public abstract class AbstractPacketExtension
      * <tt>null</tt> if no such attribute is currently registered with this
      * extension.
      */
-    public String getAttribtueString(String attribute)
+    public String getAttributeString(String attribute)
     {
         synchronized(attributes)
         {
