@@ -53,7 +53,7 @@ public class RtpDescriptionPacketExtension
      * The list of payload types that this description element contains.
      */
     private final List<PayloadTypePacketExtension> payloadTypes
-                                    = new ArrayList<PayloadTypePacketExtension>();
+                                = new ArrayList<PayloadTypePacketExtension>();
 
     /**
      * An optional encryption element that contains encryption parameters for

@@ -95,7 +95,8 @@ public class PayloadTypePacketExtension implements PacketExtension
      * An optional list of format parameters (like the one we get with the
      * fmtp: SDP param).
      */
-    private List<PacketExtension> parameters = new ArrayList<PacketExtension>();
+    private List<ParameterPacketExtension> parameters
+                            = new ArrayList<ParameterPacketExtension>();
 
     /**
      * Returns the name of the <tt>payload-type</tt> element.
@@ -159,7 +160,7 @@ public class PayloadTypePacketExtension implements PacketExtension
         {
             bldr.append(">");
 
-            for (PacketExtension parameter : parameters)
+            for (ParameterPacketExtension parameter : parameters)
             {
                 bldr.append(parameter.toXML());
             }
@@ -305,7 +306,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      *
      * @param parameter an SDP parameter for this encoding.
      */
-    public void addParameter(PacketExtension parameter)
+    public void addParameter(ParameterPacketExtension parameter)
     {
         this.parameters.add(parameter);
     }
@@ -317,7 +318,7 @@ public class PayloadTypePacketExtension implements PacketExtension
      * @return a <b>reference</b> to the the list of parameters currently
      * registered for this payload type.
      */
-    public List<PacketExtension> getParameters()
+    public List<ParameterPacketExtension> getParameters()
     {
         return parameters;
     }
