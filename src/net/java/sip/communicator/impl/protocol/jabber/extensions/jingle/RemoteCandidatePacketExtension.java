@@ -6,12 +6,22 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
-
 /**
  * @author Emil Ivov
  */
-public class RemoteCandidatePacketExtension extends AbstractPacketExtension
+public class RemoteCandidatePacketExtension extends CandidatePacketExtension
 {
+    /**
+     * The name of the "candidate" element.
+     */
+    public static final String ELEMENT_NAME = "remote-candidate";
+
+    /**
+     * Creates a new {@link CandidatePacketExtension}
+     */
+    public RemoteCandidatePacketExtension()
+    {
+        super(ELEMENT_NAME);
+    }
 
 }
