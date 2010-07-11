@@ -59,13 +59,13 @@ public class RtpDescriptionPacketExtension
      * An optional encryption element that contains encryption parameters for
      * this session.
      */
-    private PacketExtension encryptionElement;
+    private EncryptionPacketExtension encryption;
 
     /**
      * An optional bandwidth element that specifies the allowable or preferred
      * bandwidth for use by this application type.
      */
-    private PacketExtension bandwidthElement;
+    private PacketExtension bandwidth;
 
     /**
      * Specifies the media type for the stream that this description element
@@ -181,16 +181,65 @@ public class RtpDescriptionPacketExtension
         }
 
         //encryption element
-        if (encryptionElement != null)
-            bldr.append(encryptionElement);
+        if (encryption != null)
+            bldr.append(encryption.toXML());
 
         //bandwidth element
-        if (bandwidthElement != null)
-            bldr.append(bandwidthElement);
+        if (bandwidth != null)
+            bldr.append(bandwidth.toXML());
+
 
         bldr.append("</" + ELEMENT_NAME + ">");
 
         return bldr.toString();
+    }
+
+    /**
+     * Sets the optional encryption element that contains encryption parameters
+     * for this session.
+     *
+     * @param encryption the encryption {@link PacketExtension} we'd like to add
+     * to this packet.
+     */
+    public void setEncryption(EncryptionPacketExtension encryption)
+    {
+        this.encryption = encryption;
+    }
+
+    /**
+     * Returns the optional encryption element that contains encryption
+     * parameters for this session.
+     *
+     * @return the encryption {@link PacketExtension} added to this packet or
+     * <tt>null</tt> if none has been set yet.
+     */
+    public EncryptionPacketExtension getEncryption()
+    {
+        return encryption;
+    }
+
+    /**
+     * Sets an optional bandwidth element that specifies the allowable or
+     * preferred bandwidth for use by this application type.
+     *
+     * @param bandwidth the max/preferred bandwidth indication that we'd like
+     * to add to this packet.
+     */
+    public void setBandwidth(PacketExtension bandwidth)
+    {
+        this.bandwidth = bandwidth;
+    }
+
+    /**
+     * Returns an optional bandwidth element that specifies the allowable or
+     * preferred bandwidth for use by this application type.
+     *
+     * @return the max/preferred bandwidth set for this session or <tt>null</tt>
+     * if none has been set yet.
+     */
+    public PacketExtension getBandwidth()
+    {
+        return bandwidth;
     }
 
 }

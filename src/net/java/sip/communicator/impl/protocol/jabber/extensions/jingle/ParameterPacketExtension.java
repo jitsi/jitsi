@@ -104,7 +104,7 @@ public class ParameterPacketExtension implements PacketExtension
     /**
      * Sets that value of the format parameter we are representing here.
      *
-     * @param value the value of the format paramter we are representing here.
+     * @param value the value of the format parameter we are representing here.
      */
     public void setValue(String value)
     {
@@ -112,7 +112,9 @@ public class ParameterPacketExtension implements PacketExtension
     }
 
     /**
-     * @return the value
+     * Returns the value of the format parameter we are representing here.
+     *
+     * @return the value of the format parameter we are representing here.
      */
     public String getValue()
     {
