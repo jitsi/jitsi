@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
-import org.jivesoftware.smack.packet.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 /**
  * The element containing details about an encryption algorithm that could be
@@ -15,52 +15,59 @@ import org.jivesoftware.smack.packet.*;
  * @author Emil Ivov
  */
 public class CryptoPacketExtension
-    implements PacketExtension
+    extends AbstractPacketExtension
 {
     /**
-     * There's no namespace for the <tt>crypto</tt> element itself.
+     * The name of the 'crypto-suite' argument.
      */
-    public static final String NAMESPACE = null;
+    public static final String CRYPTO_SUITE_ARG_NAME = "crypto-suite";
 
     /**
-     * The name of the "crypto" element.
+     * The name of the 'key-params' argument.
      */
-    public static final String ELEMENT_NAME = "crypto";
+    public static final String KEY_PARAMS_ARG_NAME = "key-params";
 
     /**
-     * Returns the name of the <tt>encryption</tt> element.
-     *
-     * @return the name of the <tt>encryption</tt> element.
+     * The name of the 'session-params' argument.
      */
-    public String getElementName()
+    public static final String SESSION_PARAMS_ARG_NAME = "session-params";
+
+    /**
+     * The name of the 'tag' argument.
+     */
+    public static final String TAG_ARG_NAME = "tag";
+
+    /**
+     * Creates a new {@link CryptoPacketExtension} instance with the proper
+     * element name and namespace.
+     */
+    public CryptoPacketExtension()
     {
-        return ELEMENT_NAME;
+        super(null, "crypto");
     }
 
     /**
-     * Returns <tt>null</tt> since there's no encryption specific ns.
+     * Sets the value of the <tt>crypto-suite</tt> attribute: an identifier that
+     * describes the encryption and authentication algorithms.
      *
-     * @return <tt>null</tt> since there's no encryption specific ns.
+     * @param cryptoSuite a <tt>String</tt> that describes the encryption and
+     * authentication algorithms.
      */
-    public String getNamespace()
+    public void setCryptoSuite(String cryptoSuite)
     {
-        return NAMESPACE;
+        super.setAttribtue(CRYPTO_SUITE_ARG_NAME, cryptoSuite);
     }
 
     /**
-     * Returns the XML representation of this <tt>description</tt> packet
-     * extension including all child elements.
+     * Returns the value of the <tt>crypto-suite</tt> attribute.
      *
-     * @return this packet extension as an XML <tt>String</tt>.
+     * @return a <tt>String</tt> that describes the encryption and
+     * authentication algorithms.
      */
-    public String toXML()
+    public String getCryptoSuite()
     {
-        StringBuilder bldr = new StringBuilder(
-            "<" + ELEMENT_NAME+ " ");
+        Object cryptoSuite = super.getAttribtue(CRYPTO_SUITE_ARG_NAME);
 
-
-        bldr.append("</" + ELEMENT_NAME + ">");
-        return bldr.toString();
+        return cryptoSuite == null ? null : cryptoSuite.toString();
     }
-
 }

@@ -89,7 +89,10 @@ public abstract class AbstractPacketExtension
             bldr.append("xmlns='" + getNamespace() + "'");
 
         //add the rest of the attributes if any
-        for()
+        for(Map.Entry<String, Object> entry : attributes.entrySet())
+        {
+            bldr.append(" " + entry.getKey() + "=" + entry.getValue());
+        }
 
         //add child elements if any
         List<PacketExtension> childElements = getChildElements();
@@ -112,10 +115,16 @@ public abstract class AbstractPacketExtension
     /**
      * Returns all sub-elements for this <tt>AbstractPacketExtension</tt> or
      * <tt>null</tt> if there aren't any.
+     * <p>
+     * Overriding extensions need to override this method if they have any child
+     * elements.
      *
      * @return the {@link List} of elements that this packet extension contains.
      */
-    public abstract List<PacketExtension> getChildElements();
+    public List<PacketExtension> getChildElements()
+    {
+        return null;
+    }
 
     /**
      * Sets the value of the attribute named <tt>name</tt> to <tt>value</tt>.
@@ -124,7 +133,7 @@ public abstract class AbstractPacketExtension
      * @param value an {@link Object} whose <tt>toString()</tt> method returns
      * the XML value of the attribute we are setting.
      */
-    protected void setAttribtue(String name, Object value)
+    public void setAttribtue(String name, Object value)
     {
         synchronized(attributes)
         {
@@ -132,4 +141,54 @@ public abstract class AbstractPacketExtension
         }
     }
 
+    /**
+     * Removes the attribute with the specified <tt>name</tt> from the list of
+     * attributes registered with this packet extension.
+     *
+     * @param name the name of the attribute that we are removing.
+     */
+    public void removeAttribtue(String name)
+    {
+        synchronized(attributes)
+        {
+            attributes.remove(name);
+        }
+    }
+
+    /**
+     * Returns the attribute with the specified <tt>name</tt> from the list of
+     * attributes registered with this packet extension.
+     *
+     * @param attribute the name of the attribute that we'd like to retrieve.
+     *
+     * @return the value of the specified <tt>attribute</tt> or <tt>null</tt>
+     * if no such attribute is currently registered with this extension.
+     */
+    public Object getAttribtue(String attribute)
+    {
+        synchronized(attributes)
+        {
+            return attributes.get(attribute);
+        }
+    }
+
+    /**
+     * Returns the string value of the attribute with the specified
+     * <tt>name</tt>.
+     *
+     * @param attribute the name of the attribute that we'd like to retrieve.
+     *
+     * @return the String value of the specified <tt>attribute</tt> or
+     * <tt>null</tt> if no such attribute is currently registered with this
+     * extension.
+     */
+    public String getAttribtueString(String attribute)
+    {
+        synchronized(attributes)
+        {
+            Object attributeVal = attributes.get(attribute);
+
+            return attributeVal == null ? null : attributeVal.toString();
+        }
+    }
 }
