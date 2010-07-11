@@ -42,7 +42,6 @@
     <classpathentry kind="lib" path="lib/installer-exclude/rome-0.9.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/smack.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/smackx.jar"/>
-    <classpathentry kind="lib" path="lib/installer-exclude/smackx-jingle.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/Stun4J.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/swing-worker-1.2.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/transparency.jar"/>
