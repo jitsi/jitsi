@@ -47,11 +47,6 @@ public class RtpDescriptionPacketExtension
                                 = new ArrayList<PayloadTypePacketExtension>();
 
     /**
-     * The combined list of all child elements that this extension contains.
-     */
-    private List<PacketExtension> children;
-
-    /**
      * An optional encryption element that contains encryption parameters for
      * this session.
      */
@@ -62,6 +57,11 @@ public class RtpDescriptionPacketExtension
      * bandwidth for use by this application type.
      */
     private BandwidthPacketExtension bandwidth;
+
+    /**
+     * The combined list of all child elements that this extension contains.
+     */
+    private List<PacketExtension> children;
 
     /**
      * Creates a new <tt>RtpDescriptionPacketExtension</tt>.

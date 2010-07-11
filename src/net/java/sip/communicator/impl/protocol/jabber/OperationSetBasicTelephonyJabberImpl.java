@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.OperationSetBasicInstantMessagingJabberImpl.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -81,6 +82,23 @@ public class OperationSetBasicTelephonyJabberImpl
             providerManager.addIQProvider( JingleIQ.ELEMENT_NAME,
                                            JingleIQ.NAMESPACE,
                                            new JingleIQProvider());
+
+            //<description/> provider
+            providerManager.addExtensionProvider(
+                RtpDescriptionPacketExtension.ELEMENT_NAME,
+                RtpDescriptionPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                    <RtpDescriptionPacketExtension>(
+                                    RtpDescriptionPacketExtension.class));
+
+            //<payload-type/> provider
+            providerManager.addExtensionProvider(
+                PayloadTypePacketExtension.ELEMENT_NAME,
+                RtpDescriptionPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                    <PayloadTypePacketExtension>(
+                                    PayloadTypePacketExtension.class));
+
             subscribeForJinglePackets();
 
             if (logger.isInfoEnabled())
