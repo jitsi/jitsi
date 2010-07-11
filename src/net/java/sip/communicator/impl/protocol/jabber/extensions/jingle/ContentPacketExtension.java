@@ -202,6 +202,4 @@ public class ContentPacketExtension extends AbstractPacketExtension
     {
         return (SendersEnum)getAttribute(SENDERS_ATTR_NAME);
     }
-
-
 }

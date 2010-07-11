@@ -122,7 +122,7 @@ public class JingleIQProvider implements IQProvider
         jingleIQ.setAction(action);
         jingleIQ.setInitiator(initiator);
         jingleIQ.setResponder(responder);
-        jingleIQ.setSid(sid);
+        jingleIQ.setSID(sid);
 
         boolean done = false;
 
@@ -135,11 +135,13 @@ public class JingleIQProvider implements IQProvider
         // Now go on and parse the jingle element's content.
         int eventType;
         String elementName;
+        String namespace;
 
         while (!done)
         {
             eventType = parser.next();
             elementName = parser.getName();
+            namespace = parser.getNamespace();
 
             if (eventType == XmlPullParser.START_TAG)
             {
@@ -157,8 +159,34 @@ public class JingleIQProvider implements IQProvider
                         = reasonProvider.parseExtension(parser);
                     jingleIQ.setReason(reason);
                 }
+
+                //<mute/> <active/> and other session-info elements
+                if (namespace.equals( SessionInfoPacketExtension.NAMESPACE))
+                {
+                    SessionInfoType type = SessionInfoType.valueOf(elementName);
+
+                    //<mute/>
+                    if( type == SessionInfoType.mute
+                        || type == SessionInfoType.unmute)
+                    {
+                        String name = parser.getAttributeValue("",
+                                MuteSessionInfoPacketExtension.NAME_ATTR_VALUE);
+
+                        jingleIQ.setSessionInfo(
+                                new MuteSessionInfoPacketExtension(
+                                        type == SessionInfoType.mute, name));
+                    }
+                    //<hold/>, <unhold/>, <active/>, etc.
+                    else
+                    {
+                        jingleIQ.setSessionInfo(
+                                        new SessionInfoPacketExtension(type));
+                    }
+
+                }
             }
-            else if (eventType == XmlPullParser.END_TAG)
+
+            if (eventType == XmlPullParser.END_TAG)
             {
                 if (parser.getName().equals(JingleIQ.ELEMENT_NAME))
                 {

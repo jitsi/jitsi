@@ -107,7 +107,7 @@ public enum JingleAction
      * The <tt>session-info</tt> action is used to send information related to
      * establishment or maintenance of security preconditions.
      */
-    SEESSION_INFO("session-info"),
+    SESSION_INFO("session-info"),
 
     /**
      * The <tt>session-initiate</tt> action is used to request negotiation of a

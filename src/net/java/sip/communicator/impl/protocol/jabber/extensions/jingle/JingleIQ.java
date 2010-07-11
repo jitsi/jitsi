@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
+import java.math.*;
+import java.security.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -90,6 +92,11 @@ public class JingleIQ extends IQ
     private ReasonPacketExtension reason;
 
     /**
+     * Any session info extensions that this packet may contain.
+     */
+    private SessionInfoPacketExtension sessionInfo;
+
+    /**
      * The list of "content" elements included in this IQ.
      */
     private final List<ContentPacketExtension> contentList
@@ -122,22 +129,30 @@ public class JingleIQ extends IQ
         bldr.append(" " + SID_ATTR_NAME
                             + "='" + getSID() + "'");
 
-        if (contentList.size() == 0 && reason == null)
+        if (contentList.size() == 0 && reason == null && sessionInfo == null)
             bldr.append("/>");
         else
+        {
             bldr.append(">");//it is possible to have empty jingle elements
 
-        //content
-        for(ContentPacketExtension cpe : contentList)
-        {
-            bldr.append(cpe.toXML());
+            //content
+            for(ContentPacketExtension cpe : contentList)
+            {
+                bldr.append(cpe.toXML());
+            }
+
+            //reason
+            if (reason != null)
+                bldr.append(reason.toXML());
+
+            //session-info
+            //XXX: this is RTP specific so we should probably handle it in a
+            //subclass
+            if (sessionInfo != null)
+                bldr.append(sessionInfo.toXML());
+
+            bldr.append("</" + ELEMENT_NAME + ">");
         }
-
-        //reason
-        if (reason != null)
-            bldr.append(reason.toXML());
-
-        bldr.append("</" + ELEMENT_NAME + ">");
 
         return bldr.toString();
     }
@@ -149,7 +164,7 @@ public class JingleIQ extends IQ
      *
      * @param sid the session ID to set
      */
-    public void setSid(String sid)
+    public void setSID(String sid)
     {
         this.sid = sid;
     }
@@ -165,6 +180,16 @@ public class JingleIQ extends IQ
     public String getSID()
     {
         return sid;
+    }
+
+    /**
+     * Generates a random <tt>String</tt> usable as a jingle session ID.
+     *
+     * @return a newly generated random sid <tt>String</tt>
+     */
+    public static String generateSID()
+    {
+        return new BigInteger(64, new SecureRandom()).toString(32);
     }
 
     /**
@@ -289,5 +314,56 @@ public class JingleIQ extends IQ
         {
             this.contentList.add(contentPacket);
         }
+    }
+
+    /**
+     * Determines if this packet contains a <tt>content</tt> with a child
+     * matching the specified <tt>contentType</tt>. The method is meant to allow
+     * to easily determine the purpose of a jingle IQ. A telephony initiation
+     * IQ would for example contain a <tt>content</tt> element of type {@link
+     * RtpDescriptionPacketExtension}.
+     *
+     * @param contentType the type of the content child we are looking for.
+     *
+     * @return <tt>true</tt> if one of this IQ's <tt>content</tt> elements
+     * contains a child of the specified <tt>contentType</tt> and <tt>false</tt>
+     * otherwise.
+     */
+    public boolean containsContentChildOfType(
+                        Class<? extends PacketExtension> contentType)
+    {
+        synchronized(contentList)
+        {
+            for(ContentPacketExtension content : contentList)
+            {
+                if(content.getFirstChildOfType(contentType) != null)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Sets <tt>si</tt> as the session info extension for this packet.
+     *
+     * @param si a {@link SessionInfoPacketExtension} that we'd like to add
+     * here.
+     */
+    public void setSessionInfo(SessionInfoPacketExtension si)
+    {
+        this.sessionInfo = si;
+    }
+
+    /**
+     * Returns a {@link SessionInfoPacketExtension} if this <tt>JingleIQ</tt>
+     * contains one and <tt>null</tt> otherwise.
+     *
+     * @return a {@link SessionInfoPacketExtension} if this <tt>JingleIQ</tt>
+     * contains one and <tt>null</tt> otherwise.
+     */
+    public SessionInfoPacketExtension setSessionInfo()
+    {
+        return this.sessionInfo;
     }
 }
