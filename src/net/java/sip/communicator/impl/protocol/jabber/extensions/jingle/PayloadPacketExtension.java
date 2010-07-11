@@ -96,4 +96,17 @@ public class PayloadPacketExtension
      * fmtp: SDP param).
      */
     private List<PacketExtension> parameters = new ArrayList<PacketExtension>();
+
+    /**
+     * Returns the XML representation of the <tt>payload-type</tt> element
+     * including all child elements.
+     *
+     * @return this packet extension as an XML <tt>String</tt>.
+     */
+    public String toXML()
+    {
+        StringBuilder bldr = new StringBuilder();
+
+        return bldr.toString();
+    }
 }

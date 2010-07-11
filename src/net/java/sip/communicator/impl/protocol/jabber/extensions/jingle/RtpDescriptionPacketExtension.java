@@ -138,20 +138,27 @@ public class RtpDescriptionPacketExtension
     /**
      * Adds a new payload type to this description element.
      *
-     * @param payload the new payload to add.
+     * @param payloadType the new payload to add.
      */
-    public void addPayload(PayloadPacketExtension payload)
+    public void addPayloadType(PayloadPacketExtension payloadType)
     {
-        this.payloadTypes.add(payload);
+        this.payloadTypes.add(payloadType);
     }
 
-    public List<PayloadPacketExtension> getPayloads()
+    /**
+     * Returns a <b>reference</b> to the list of payload types that we have
+     * registered with this description so far.
+     *
+     * @return a <b>reference</b> to the list of payload types that we have
+     * registered with this description so far.
+     */
+    public List<PayloadPacketExtension> getPayloadTypes()
     {
         return payloadTypes;
     }
 
     /**
-     * Returns the XML representation of the <tt>jingle</tt> content packet
+     * Returns the XML representation of this <tt>description</tt> packet
      * extension including all child elements.
      *
      * @return this packet extension as an XML <tt>String</tt>.
