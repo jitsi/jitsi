@@ -1,0 +1,17 @@
+Bundle-Name: Media Utilities for the Protocol Provider Service
+Bundle-Description: Media Utilities for the Protocol Provider Service.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+System-Bundle: yes
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.configuration.event,
+ net.java.sip.communicator.service.neomedia,
+ net.java.sip.communicator.service.neomedia.device,
+ net.java.sip.communicator.service.neomedia.event,
+ net.java.sip.communicator.service.neomedia.format,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.event,
+ net.java.sip.communicator.service.netaddr,
+ net.java.sip.communicator.util
+Export-Package: net.java.sip.communicator.service.protocol.media
