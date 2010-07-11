@@ -76,13 +76,13 @@ public class JingleIQProvider implements IQProvider
 
         //let's first handle the "jingle" element params.
         JingleAction action = JingleAction.parseString(parser
-                        .getAttributeValue("", JingleIQ.ACTION_ARG_NAME));
+                        .getAttributeValue("", JingleIQ.ACTION_ATTR_NAME));
         String initiator = parser
-                         .getAttributeValue("", JingleIQ.RESPONDER_ARG_NAME);
+                         .getAttributeValue("", JingleIQ.RESPONDER_ATTR_NAME);
         String responder = parser
-                        .getAttributeValue("", JingleIQ.INITIATOR_ARG_NAME);
+                        .getAttributeValue("", JingleIQ.INITIATOR_ATTR_NAME);
         String sid = parser
-                        .getAttributeValue("", JingleIQ.SID_ARG_NAME);
+                        .getAttributeValue("", JingleIQ.SID_ATTR_NAME);
 
         jingleIQ.setAction(action);
         jingleIQ.setInitiator(initiator);

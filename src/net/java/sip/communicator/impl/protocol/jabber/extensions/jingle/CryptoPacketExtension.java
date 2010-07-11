@@ -20,22 +20,22 @@ public class CryptoPacketExtension
     /**
      * The name of the 'crypto-suite' argument.
      */
-    public static final String CRYPTO_SUITE_ARG_NAME = "crypto-suite";
+    public static final String CRYPTO_SUITE_ATTR_NAME = "crypto-suite";
 
     /**
      * The name of the 'key-params' argument.
      */
-    public static final String KEY_PARAMS_ARG_NAME = "key-params";
+    public static final String KEY_PARAMS_ATTR_NAME = "key-params";
 
     /**
      * The name of the 'session-params' argument.
      */
-    public static final String SESSION_PARAMS_ARG_NAME = "session-params";
+    public static final String SESSION_PARAMS_ATTR_NAME = "session-params";
 
     /**
      * The name of the 'tag' argument.
      */
-    public static final String TAG_ARG_NAME = "tag";
+    public static final String TAG_ATTR_NAME = "tag";
 
     /**
      * Creates a new {@link CryptoPacketExtension} instance with the proper
@@ -55,7 +55,7 @@ public class CryptoPacketExtension
      */
     public void setCryptoSuite(String cryptoSuite)
     {
-        super.setAttribute(CRYPTO_SUITE_ARG_NAME, cryptoSuite);
+        super.setAttribute(CRYPTO_SUITE_ATTR_NAME, cryptoSuite);
     }
 
     /**
@@ -66,7 +66,7 @@ public class CryptoPacketExtension
      */
     public String getCryptoSuite()
     {
-        return getAttributeAsString(CRYPTO_SUITE_ARG_NAME);
+        return getAttributeAsString(CRYPTO_SUITE_ATTR_NAME);
     }
 
     /**
@@ -78,7 +78,7 @@ public class CryptoPacketExtension
      */
     public void setKeyParams(String keyParams)
     {
-        super.setAttribute(KEY_PARAMS_ARG_NAME, keyParams);
+        super.setAttribute(KEY_PARAMS_ATTR_NAME, keyParams);
     }
 
     /**
@@ -89,7 +89,7 @@ public class CryptoPacketExtension
      */
     public String getKeyPaams()
     {
-        return getAttributeAsString(KEY_PARAMS_ARG_NAME);
+        return getAttributeAsString(KEY_PARAMS_ATTR_NAME);
     }
 
     /**
@@ -101,7 +101,7 @@ public class CryptoPacketExtension
      */
     public void setSessionParams(String sessionParams)
     {
-        super.setAttribute(SESSION_PARAMS_ARG_NAME, sessionParams);
+        super.setAttribute(SESSION_PARAMS_ATTR_NAME, sessionParams);
     }
 
     /**
@@ -112,7 +112,7 @@ public class CryptoPacketExtension
      */
     public String getSessionPaams()
     {
-        return getAttributeAsString(SESSION_PARAMS_ARG_NAME);
+        return getAttributeAsString(SESSION_PARAMS_ATTR_NAME);
     }
 
     /**
@@ -124,7 +124,7 @@ public class CryptoPacketExtension
      */
     public void setTag(String tag)
     {
-        super.setAttribute(TAG_ARG_NAME, tag);
+        super.setAttribute(TAG_ATTR_NAME, tag);
     }
 
     /**
@@ -135,6 +135,6 @@ public class CryptoPacketExtension
      */
     public String getTag()
     {
-        return getAttributeAsString(TAG_ARG_NAME);
+        return getAttributeAsString(TAG_ATTR_NAME);
     }
 }

@@ -24,13 +24,13 @@ public class ParameterPacketExtension extends AbstractPacketExtension
      * The name of the <tt>name</tt> parameter in the <tt>parameter</tt>
      * element.
      */
-    public static final String NAME_ARG_NAME = "name";
+    public static final String NAME_ATTR_NAME = "name";
 
     /**
      * The name of the <tt>value</tt> parameter in the <tt>parameter</tt>
      * element.
      */
-    public static final String VALUE_ARG_NAME = "value";
+    public static final String VALUE_ATTR_NAME = "value";
 
     /**
      * Creates a new {@link ParameterPacketExtension} instance.
@@ -47,7 +47,7 @@ public class ParameterPacketExtension extends AbstractPacketExtension
      */
     public void setName(String name)
     {
-        super.setAttribute(NAME_ARG_NAME, name);
+        super.setAttribute(NAME_ATTR_NAME, name);
     }
 
     /**
@@ -57,7 +57,7 @@ public class ParameterPacketExtension extends AbstractPacketExtension
      */
     public String getName()
     {
-        return super.getAttributeAsString(NAME_ARG_NAME);
+        return super.getAttributeAsString(NAME_ATTR_NAME);
     }
 
     /**
@@ -67,7 +67,7 @@ public class ParameterPacketExtension extends AbstractPacketExtension
      */
     public void setValue(String value)
     {
-        super.setAttribute(VALUE_ARG_NAME, value);
+        super.setAttribute(VALUE_ATTR_NAME, value);
     }
 
     /**
@@ -77,6 +77,6 @@ public class ParameterPacketExtension extends AbstractPacketExtension
      */
     public String getValue()
     {
-        return super.getAttributeAsString(VALUE_ARG_NAME);
+        return super.getAttributeAsString(VALUE_ATTR_NAME);
     }
 }

@@ -25,7 +25,7 @@ public class BandwidthPacketExtension
     /**
      * The name of the type argument.
      */
-    public static final String TYPE_ARG_NAME = "type";
+    public static final String TYPE_ATTR_NAME = "type";
 
     /**
      * Creates a new {@link BandwidthPacketExtension} instance.
@@ -44,7 +44,7 @@ public class BandwidthPacketExtension
      */
     public void setType(String type)
     {
-        setAttribute(TYPE_ARG_NAME, type);
+        setAttribute(TYPE_ATTR_NAME, type);
     }
 
     /**
@@ -56,7 +56,7 @@ public class BandwidthPacketExtension
      */
     public String getType()
     {
-        return getAttributeAsString(TYPE_ARG_NAME);
+        return getAttributeAsString(TYPE_ATTR_NAME);
     }
 
     /**

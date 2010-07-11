@@ -29,7 +29,7 @@ public class EncryptionPacketExtension
     /**
      * The name of the <tt>required</tt> attribute.
      */
-    public static final String REQUIRED_ARG_NAME = "required";
+    public static final String REQUIRED_ATTR_NAME = "required";
 
     /**
      * The list of <tt>crypto</tt> elements transported by this
@@ -78,9 +78,9 @@ public class EncryptionPacketExtension
     public void setRequired(boolean required)
     {
         if(required)
-            super.setAttribute(REQUIRED_ARG_NAME, required);
+            super.setAttribute(REQUIRED_ATTR_NAME, required);
         else
-            super.removeAttribute(REQUIRED_ARG_NAME);
+            super.removeAttribute(REQUIRED_ATTR_NAME);
     }
 
     /**
@@ -92,7 +92,7 @@ public class EncryptionPacketExtension
      */
     public boolean isRequired()
     {
-        String required = getAttributeAsString(REQUIRED_ARG_NAME);
+        String required = getAttributeAsString(REQUIRED_ATTR_NAME);
 
         return Boolean.valueOf(required) || "1".equals(required);
     }

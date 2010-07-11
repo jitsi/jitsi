@@ -40,22 +40,22 @@ public class JingleIQ extends IQ
     /**
      * The name of the argument that contains the jingle action value.
      */
-    public static final String ACTION_ARG_NAME = "action";
+    public static final String ACTION_ATTR_NAME = "action";
 
     /**
      * The name of the argument that contains the "initiator" jid.
      */
-    public static final String INITIATOR_ARG_NAME = "initiator";
+    public static final String INITIATOR_ATTR_NAME = "initiator";
 
     /**
      * The name of the argument that contains the "responder" jid.
      */
-    public static final String RESPONDER_ARG_NAME = "responder";
+    public static final String RESPONDER_ATTR_NAME = "responder";
 
     /**
      * The name of the argument that contains the session id.
      */
-    public static final String SID_ARG_NAME = "sid";
+    public static final String SID_ATTR_NAME = "sid";
 
     /**
      * The <tt>JingleAction</tt> that describes the purpose of this

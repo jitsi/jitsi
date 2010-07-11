@@ -26,22 +26,22 @@ public class ContentPacketExtension extends AbstractPacketExtension
     /**
      * The name of the "creator" argument.
      */
-    public static final String CREATOR_ARG_NAME = "creator";
+    public static final String CREATOR_ATTR_NAME = "creator";
 
     /**
      * The name of the "disposition" argument.
      */
-    public static final String DISPOSITION_ARG_NAME = "disposition";
+    public static final String DISPOSITION_ATTR_NAME = "disposition";
 
     /**
      * The name of the "name" argument.
      */
-    public static final String NAME_ARG_NAME = "name";
+    public static final String NAME_ATTR_NAME = "name";
 
     /**
      * The name of the "senders" argument.
      */
-    public static final String SENDERS_ARG_NAME = "senders";
+    public static final String SENDERS_ATTR_NAME = "senders";
 
     /**
      * The values we currently support for the creator field.
@@ -113,10 +113,10 @@ public class ContentPacketExtension extends AbstractPacketExtension
                                   SendersEnum senders)
     {
         super(null, ELEMENT_NAME);
-        super.setAttribute(CREATOR_ARG_NAME, creator);
-        super.setAttribute(DISPOSITION_ARG_NAME, disposition);
-        super.setAttribute(NAME_ARG_NAME, name);
-        super.setAttribute(SENDERS_ARG_NAME, senders);
+        super.setAttribute(CREATOR_ATTR_NAME, creator);
+        super.setAttribute(DISPOSITION_ATTR_NAME, disposition);
+        super.setAttribute(NAME_ATTR_NAME, name);
+        super.setAttribute(SENDERS_ATTR_NAME, senders);
     }
 
     /**
@@ -131,8 +131,8 @@ public class ContentPacketExtension extends AbstractPacketExtension
     public ContentPacketExtension(CreatorEnum creator, String name)
     {
         super(null, ELEMENT_NAME);
-        super.setAttribute(CREATOR_ARG_NAME, creator);
-        super.setAttribute(NAME_ARG_NAME, name);
+        super.setAttribute(CREATOR_ATTR_NAME, creator);
+        super.setAttribute(NAME_ATTR_NAME, name);
     }
 
     /**
@@ -151,7 +151,7 @@ public class ContentPacketExtension extends AbstractPacketExtension
      */
     public CreatorEnum getCreator()
     {
-        return (CreatorEnum)getAttribute(CREATOR_ARG_NAME);
+        return (CreatorEnum)getAttribute(CREATOR_ATTR_NAME);
     }
 
     /**
@@ -168,7 +168,7 @@ public class ContentPacketExtension extends AbstractPacketExtension
      */
     public String getDisposition()
     {
-        return getAttributeAsString(DISPOSITION_ARG_NAME);
+        return getAttributeAsString(DISPOSITION_ATTR_NAME);
     }
 
     /**
@@ -187,7 +187,7 @@ public class ContentPacketExtension extends AbstractPacketExtension
      */
     public String getName()
     {
-        return getAttributeAsString(NAME_ARG_NAME);
+        return getAttributeAsString(NAME_ATTR_NAME);
     }
 
     /**
@@ -200,7 +200,7 @@ public class ContentPacketExtension extends AbstractPacketExtension
      */
     public SendersEnum getSenders()
     {
-        return (SendersEnum)getAttribute(SENDERS_ARG_NAME);
+        return (SendersEnum)getAttribute(SENDERS_ATTR_NAME);
     }
 
 

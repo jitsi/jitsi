@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
-import org.jivesoftware.smack.packet.*;
 
 /**
  * Represents the <tt>payload-type</tt> elements described in XEP-0167.
@@ -27,32 +26,32 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
     /**
      * The name of the <tt>channels</tt> <tt>payload-type</tt> argument.
      */
-    public static final String CHANNELS_ARG_NAME = "channels";
+    public static final String CHANNELS_ATTR_NAME = "channels";
 
     /**
      * The name of the <tt>clockrate</tt> SDP argument.
      */
-    public static final String CLOCKRATE_ARG_NAME = "clockrate";
+    public static final String CLOCKRATE_ATTR_NAME = "clockrate";
 
     /**
      * The name of the payload <tt>id</tt> SDP argument.
      */
-    public static final String ID_ARG_NAME = "id";
+    public static final String ID_ATTR_NAME = "id";
 
     /**
      * The name of the <tt>maxptime</tt> SDP argument.
      */
-    public static final String MAXPTIME_ARG_NAME = "maxptime";
+    public static final String MAXPTIME_ATTR_NAME = "maxptime";
 
     /**
      * The name of the <tt>name</tt> SDP argument.
      */
-    public static final String NAME_ARG_NAME = "name";
+    public static final String NAME_ATTR_NAME = "name";
 
     /**
      * The name of the <tt>ptime</tt> SDP argument.
      */
-    public static final String PTIME_ARG_NAME = "ptime";
+    public static final String PTIME_ATTR_NAME = "ptime";
 
     /**
      * Creates a new {@link PayloadTypePacketExtension} instance.
@@ -70,7 +69,7 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      */
     public void setChannels(int channels)
     {
-        super.setAttribute(CHANNELS_ARG_NAME, channels);
+        super.setAttribute(CHANNELS_ATTR_NAME, channels);
     }
 
     /**
@@ -80,7 +79,7 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      */
     public int getChannels()
     {
-        return getAttributeAsInt(CHANNELS_ARG_NAME);
+        return getAttributeAsInt(CHANNELS_ATTR_NAME);
     }
 
     /**
@@ -90,7 +89,7 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      */
     public void setClockrate(int clockrate)
     {
-        super.setAttribute(CLOCKRATE_ARG_NAME, clockrate);
+        super.setAttribute(CLOCKRATE_ATTR_NAME, clockrate);
     }
 
     /**
@@ -100,7 +99,7 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      */
     public int getClockrate()
     {
-        return getAttributeAsInt(CLOCKRATE_ARG_NAME);
+        return getAttributeAsInt(CLOCKRATE_ATTR_NAME);
     }
 
     /**
@@ -110,7 +109,7 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      */
     public void setId(int id)
     {
-        super.setAttribute(ID_ARG_NAME, id);
+        super.setAttribute(ID_ATTR_NAME, id);
     }
 
     /**
@@ -122,7 +121,7 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      */
     public int getID()
     {
-        return getAttributeAsInt(ID_ARG_NAME);
+        return getAttributeAsInt(ID_ATTR_NAME);
     }
 
     /**
@@ -132,7 +131,7 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      */
     public void setMaxptime(int maxptime)
     {
-        setAttribute(MAXPTIME_ARG_NAME, maxptime);
+        setAttribute(MAXPTIME_ATTR_NAME, maxptime);
     }
 
     /**
@@ -142,7 +141,7 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      */
     public int getMaxptime()
     {
-        return getAttributeAsInt(MAXPTIME_ARG_NAME);
+        return getAttributeAsInt(MAXPTIME_ATTR_NAME);
     }
 
     /**
@@ -152,7 +151,7 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      */
     public void setPtime(int ptime)
     {
-        super.setAttribute(PTIME_ARG_NAME, ptime);
+        super.setAttribute(PTIME_ATTR_NAME, ptime);
     }
 
     /**
@@ -162,7 +161,7 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      */
     public int getPtime()
     {
-        return getAttributeAsInt(PTIME_ARG_NAME);
+        return getAttributeAsInt(PTIME_ATTR_NAME);
     }
 
     /**
@@ -174,7 +173,7 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      */
     public void setName(String name)
     {
-        setAttribute(NAME_ARG_NAME, name);
+        setAttribute(NAME_ATTR_NAME, name);
     }
 
     /**
@@ -188,7 +187,7 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      */
     public String getName()
     {
-        return getAttributeAsString(NAME_ARG_NAME);
+        return getAttributeAsString(NAME_ATTR_NAME);
     }
 
     /**

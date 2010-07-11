@@ -33,12 +33,12 @@ public class RtpDescriptionPacketExtension
     /**
      * The name of the <tt>media</tt> description argument.
      */
-    public static final String MEDIA_ARG_NAME = "media";
+    public static final String MEDIA_ATTR_NAME = "media";
 
     /**
      * The name of the <tt>ssrc</tt> description argument.
      */
-    public static final String SSRC_ARG_NAME = "ssrc";
+    public static final String SSRC_ATTR_NAME = "ssrc";
 
     /**
      * The list of payload types that this description element contains.
@@ -80,7 +80,7 @@ public class RtpDescriptionPacketExtension
      */
     public void setMedia(String media)
     {
-        super.setAttribute(MEDIA_ARG_NAME, media);
+        super.setAttribute(MEDIA_ATTR_NAME, media);
     }
 
     /**
@@ -92,7 +92,7 @@ public class RtpDescriptionPacketExtension
      */
     public String getMedia()
     {
-        return getAttributeAsString(MEDIA_ARG_NAME);
+        return getAttributeAsString(MEDIA_ATTR_NAME);
     }
 
     /**
@@ -104,7 +104,7 @@ public class RtpDescriptionPacketExtension
      */
     public void setSsrc(String ssrc)
     {
-        super.setAttribute(SSRC_ARG_NAME, ssrc);
+        super.setAttribute(SSRC_ATTR_NAME, ssrc);
     }
 
     /**
@@ -116,7 +116,7 @@ public class RtpDescriptionPacketExtension
      */
     public String getSsrc()
     {
-        return getAttributeAsString(SSRC_ARG_NAME);
+        return getAttributeAsString(SSRC_ATTR_NAME);
     }
 
     /**
