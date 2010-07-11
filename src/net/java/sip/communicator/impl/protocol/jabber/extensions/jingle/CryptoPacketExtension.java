@@ -66,8 +66,6 @@ public class CryptoPacketExtension
      */
     public String getCryptoSuite()
     {
-        Object cryptoSuite = super.getAttribtue(CRYPTO_SUITE_ARG_NAME);
-
-        return cryptoSuite == null ? null : cryptoSuite.toString();
+        return getAttribtueString(CRYPTO_SUITE_ARG_NAME);
     }
 }
