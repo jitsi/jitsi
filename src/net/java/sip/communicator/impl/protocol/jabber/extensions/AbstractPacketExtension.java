@@ -121,7 +121,7 @@ public abstract class AbstractPacketExtension
      *
      * @return the {@link List} of elements that this packet extension contains.
      */
-    public List<PacketExtension> getChildElements()
+    public List<? extends PacketExtension> getChildElements()
     {
         return null;
     }
@@ -133,7 +133,7 @@ public abstract class AbstractPacketExtension
      * @param value an {@link Object} whose <tt>toString()</tt> method returns
      * the XML value of the attribute we are setting.
      */
-    public void setAttribtue(String name, Object value)
+    public void setAttribute(String name, Object value)
     {
         synchronized(attributes)
         {
@@ -147,7 +147,7 @@ public abstract class AbstractPacketExtension
      *
      * @param name the name of the attribute that we are removing.
      */
-    public void removeAttribtue(String name)
+    public void removeAttribute(String name)
     {
         synchronized(attributes)
         {
@@ -164,7 +164,7 @@ public abstract class AbstractPacketExtension
      * @return the value of the specified <tt>attribute</tt> or <tt>null</tt>
      * if no such attribute is currently registered with this extension.
      */
-    public Object getAttribtue(String attribute)
+    public Object getAttribute(String attribute)
     {
         synchronized(attributes)
         {

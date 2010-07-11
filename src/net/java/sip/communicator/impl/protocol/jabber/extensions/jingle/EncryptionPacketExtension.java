@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+
 import org.jivesoftware.smack.packet.*;
 
 /**
@@ -17,13 +19,8 @@ import org.jivesoftware.smack.packet.*;
  * @author Emil Ivov
  */
 public class EncryptionPacketExtension
-    implements PacketExtension
+    extends AbstractPacketExtension
 {
-    /**
-     * There's no namespace for the <tt>encryption</tt> element itself.
-     */
-    public static final String NAMESPACE = null;
-
     /**
      * The name of the "encryption" element.
      */
@@ -35,16 +32,19 @@ public class EncryptionPacketExtension
     public static final String REQUIRED_ARG_NAME = "required";
 
     /**
-     * Indicates whether encryption is required for this session or not.
-     */
-    private boolean required = false;
-
-    /**
      * The list of <tt>crypto</tt> elements transported by this
      * <tt>encryption</tt> element.
      */
     private List<CryptoPacketExtension> cryptoList
                             = new ArrayList<CryptoPacketExtension>();
+
+    /**
+     * Creates a new instance of this <tt>EncryptionPacketExtension</tt>.
+     */
+    public EncryptionPacketExtension()
+    {
+        super(null, ELEMENT_NAME);
+    }
 
 
     /**
@@ -77,7 +77,10 @@ public class EncryptionPacketExtension
      */
     public void setRequired(boolean required)
     {
-        this.required = required;
+        if(required)
+            super.setAttribute(REQUIRED_ARG_NAME, required);
+        else
+            super.removeAttribute(REQUIRED_ARG_NAME);
     }
 
     /**
@@ -89,52 +92,19 @@ public class EncryptionPacketExtension
      */
     public boolean isRequired()
     {
-        return required;
+        String required = getAttributeString(REQUIRED_ARG_NAME);
+
+        return Boolean.valueOf(required) || "1".equals(required);
     }
 
     /**
-     * Returns the name of the <tt>encryption</tt> element.
+     * Returns a list containing all <tt>crypto</tt> sub-elements.
      *
-     * @return the name of the <tt>encryption</tt> element.
+     * @return a {@link List} containing all our <tt>crypto</tt> sub-elements.
      */
-    public String getElementName()
+    @Override
+    public List<? extends PacketExtension> getChildElements()
     {
-        return ELEMENT_NAME;
-    }
-
-    /**
-     * Returns <tt>null</tt> since there's no encryption specific ns.
-     *
-     * @return <tt>null</tt> since there's no encryption specific ns.
-     */
-    public String getNamespace()
-    {
-        return NAMESPACE;
-    }
-
-    /**
-     * Returns the XML representation of this <tt>description</tt> packet
-     * extension including all child elements.
-     *
-     * @return this packet extension as an XML <tt>String</tt>.
-     */
-    public String toXML()
-    {
-        StringBuilder bldr = new StringBuilder(
-            "<" + ELEMENT_NAME+ " ");
-
-        if(isRequired())
-            bldr.append(REQUIRED_ARG_NAME + "='1'");
-
-        bldr.append(">");
-
-        //we need to have at least one crypto element.
-        for(CryptoPacketExtension crypto : cryptoList)
-        {
-            bldr.append(crypto.toXML());
-        }
-
-        bldr.append("</" + ELEMENT_NAME + ">");
-        return bldr.toString();
+        return getCryptoList();
     }
 }

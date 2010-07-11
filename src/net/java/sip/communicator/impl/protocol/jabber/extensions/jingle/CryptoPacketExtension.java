@@ -55,7 +55,7 @@ public class CryptoPacketExtension
      */
     public void setCryptoSuite(String cryptoSuite)
     {
-        super.setAttribtue(CRYPTO_SUITE_ARG_NAME, cryptoSuite);
+        super.setAttribute(CRYPTO_SUITE_ARG_NAME, cryptoSuite);
     }
 
     /**
@@ -78,7 +78,7 @@ public class CryptoPacketExtension
      */
     public void setKeyParams(String keyParams)
     {
-        super.setAttribtue(KEY_PARAMS_ARG_NAME, keyParams);
+        super.setAttribute(KEY_PARAMS_ARG_NAME, keyParams);
     }
 
     /**
@@ -101,7 +101,7 @@ public class CryptoPacketExtension
      */
     public void setSessionParams(String sessionParams)
     {
-        super.setAttribtue(SESSION_PARAMS_ARG_NAME, sessionParams);
+        super.setAttribute(SESSION_PARAMS_ARG_NAME, sessionParams);
     }
 
     /**
@@ -115,7 +115,6 @@ public class CryptoPacketExtension
         return getAttributeString(SESSION_PARAMS_ARG_NAME);
     }
 
-
     /**
      * Sets the value of the <tt>tag</tt> attribute: a decimal number used as
      * an identifier for a particular crypto element.
@@ -125,7 +124,7 @@ public class CryptoPacketExtension
      */
     public void setTag(String tag)
     {
-        super.setAttribtue(TAG_ARG_NAME, tag);
+        super.setAttribute(TAG_ARG_NAME, tag);
     }
 
     /**
