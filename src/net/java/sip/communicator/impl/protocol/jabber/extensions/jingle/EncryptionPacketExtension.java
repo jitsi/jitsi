@@ -22,7 +22,7 @@ public class EncryptionPacketExtension
     /**
      * There's no namespace for the <tt>encryption</tt> element itself.
      */
-    public static final String NAMESPACE = "";
+    public static final String NAMESPACE = null;
 
     /**
      * The name of the "encryption" element.
