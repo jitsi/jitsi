@@ -60,9 +60,9 @@ public class PayloadPacketExtension implements PacketExtension
 
     /**
      * Number of channels in this payload. If omitted, it MUST be assumed to
-     * contain one channel which is why we set a default value of 1.
+     * contain one channel.
      */
-    private int channels = 1;
+    private int channels = -1;
 
     /**
      * The sampling frequency in Hertz used by this encoding.
@@ -125,7 +125,47 @@ public class PayloadPacketExtension implements PacketExtension
      */
     public String toXML()
     {
-        StringBuilder bldr = new StringBuilder();
+        StringBuilder bldr = new StringBuilder(
+            "<" + getElementName() + " ");
+
+        //channels
+        if(getChannels() > -1)
+            bldr.append(CHANNELS_ARG_NAME + "='"+ getChannels() +"' ");
+
+        //clockrate
+        if(getClockrate() > -1)
+            bldr.append(CLOCKRATE_ARG_NAME + "='"+ getClockrate() +"' ");
+
+        //id
+        bldr.append(ID_ARG_NAME + "=" + getID() + "' ");
+
+        //maxptime
+        if (getMaxptime() != -1)
+            bldr.append(MAXPTIME_ARG_NAME + "=" + getMaxptime() + "' ");
+
+        //payload name
+        bldr.append(NAME_ARG_NAME + "=" + getName() + "' ");
+
+        //ptime
+        if (getPtime() != -1)
+            bldr.append(PTIME_ARG_NAME + "=" + getPtime() + "' ");
+
+
+        if (parameters.size() == 0)
+        {
+            bldr.append("/>");
+        }
+        else
+        {
+            bldr.append(">");
+
+            for (PacketExtension parameter : parameters)
+            {
+                bldr.append(parameter.toXML());
+            }
+
+            bldr.append("</" + getElementName() + ">");
+        }
 
         return bldr.toString();
     }
@@ -188,7 +228,7 @@ public class PayloadPacketExtension implements PacketExtension
      * @return the payload identifier for this encoding (as specified by RFC
      * 3551 or a dynamic one).
      */
-    public int getId()
+    public int getID()
     {
         return id;
     }
@@ -271,11 +311,11 @@ public class PayloadPacketExtension implements PacketExtension
     }
 
     /**
-     * Returns the list of parameters currently registered for this payload
-     * type.
+     * Returns a <b>reference</b> to the the list of parameters currently
+     * registered for this payload type.
      *
-     * @return the list of parameters currently registered for this payload
-     * type.
+     * @return a <b>reference</b> to the the list of parameters currently
+     * registered for this payload type.
      */
     public List<PacketExtension> getParameters()
     {
