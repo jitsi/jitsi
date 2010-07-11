@@ -7,6 +7,8 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 /**
+ * A representation of the <tt>remote-candidate</tt> ICE transport element.
+ *
  * @author Emil Ivov
  */
 public class RemoteCandidatePacketExtension extends CandidatePacketExtension

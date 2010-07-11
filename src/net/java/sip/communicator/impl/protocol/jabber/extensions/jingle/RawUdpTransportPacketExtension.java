@@ -17,7 +17,8 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
  *
  * @author Emil Ivov
  */
-public class RawUdpTransportPacketExtension extends AbstractPacketExtension
+public class RawUdpTransportPacketExtension
+    extends IceUdpTransportPacketExtension
 {
     /**
      * The name of the "transport" element.

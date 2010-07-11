@@ -83,6 +83,11 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
             elementName = parser.getName();
             namespace = parser.getNamespace();
 
+            if (logger.isLoggable(Level.FINEST))
+                logger.finest("Will parse " + elementName
+                    + " ns=" + namespace
+                    + " class=" + packetExtension.getClass().getSimpleName());
+
             if (eventType == XmlPullParser.START_TAG)
             {
                 PacketExtensionProvider provider
@@ -108,6 +113,9 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
                     done = true;
                 }
             }
+
+            if (logger.isLoggable(Level.FINEST))
+                logger.finest("Done parsing " + elementName);
         }
 
         return packetExtension;

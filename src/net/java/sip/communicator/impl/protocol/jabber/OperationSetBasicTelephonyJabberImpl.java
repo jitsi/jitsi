@@ -329,8 +329,6 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     private void subscribeForJinglePackets()
     {
-        ProviderManager providerManager = ProviderManager.getInstance();
-
         protocolProvider.getConnection().addPacketListener(
             new JingleListener(), new PacketTypeFilter( JingleIQ.class));
     }

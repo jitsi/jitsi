@@ -7,10 +7,9 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import java.util.*;
+import java.util.logging.*;
 
 import org.jivesoftware.smack.packet.*;
-
-import net.java.sip.communicator.util.*;
 
 /**
  * A straightforward extension of the IQ. A <tt>JingleIQ</tt> object is created
@@ -22,10 +21,11 @@ import net.java.sip.communicator.util.*;
 public class JingleIQ extends IQ
 {
     /**
-     * Logger for this class
+     * The <tt>Logger</tt> used by the <tt>JingleIQ</tt>
+     * class and its instances for logging output.
      */
-    private static final Logger logger =
-        Logger.getLogger(JingleIQ.class);
+    private static final Logger logger = Logger.getLogger(JingleIQ.class
+                    .getName());
 
     /**
      * The name space that jingle belongs to.
@@ -105,7 +105,27 @@ public class JingleIQ extends IQ
     @Override
     public String getChildElementXML()
     {
-        StringBuilder bldr = new StringBuilder();
+        StringBuilder bldr = new StringBuilder("<" + ELEMENT_NAME);
+
+        bldr.append(" xmlns='" + NAMESPACE + "'");
+
+        bldr.append(" " + ACTION_ATTR_NAME + "='" + getAction() + "'");
+
+        if( initiator != null)
+            bldr.append(" " + INITIATOR_ATTR_NAME
+                                + "='" + getInitiator() + "'");
+
+        if( responder != null)
+            bldr.append(" " + RESPONDER_ATTR_NAME
+                                + "='" + getResponder() + "'");
+
+        bldr.append(" " + SID_ATTR_NAME
+                            + "='" + getSID() + "'");
+
+        if (contentList.size() == 0 && reason == null)
+            bldr.append("/>");
+        else
+            bldr.append(">");//it is possible to have empty jingle elements
 
         //content
         for(ContentPacketExtension cpe : contentList)
@@ -116,6 +136,8 @@ public class JingleIQ extends IQ
         //reason
         if (reason != null)
             bldr.append(reason.toXML());
+
+        bldr.append("</" + ELEMENT_NAME + ">");
 
         return bldr.toString();
     }
@@ -140,7 +162,7 @@ public class JingleIQ extends IQ
      *
      * @return this element's session ID.
      */
-    public String getSid()
+    public String getSID()
     {
         return sid;
     }

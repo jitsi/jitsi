@@ -37,7 +37,7 @@ public class ReasonPacketExtension
     /**
      * The reason that this packet extension is transporting.
      */
-    private final String reason;
+    private final Reason reason;
 
     /**
      * The content of the text element (if any) providing human-readable
@@ -65,7 +65,7 @@ public class ReasonPacketExtension
      * @param packetExtension any other element that MAY be providing further
      * information or <tt>null</tt> if no such element has been specified.
      */
-    public ReasonPacketExtension(String          reason,
+    public ReasonPacketExtension(Reason          reason,
                                  String          text,
                                  PacketExtension packetExtension)
     {
@@ -79,7 +79,7 @@ public class ReasonPacketExtension
      *
      * @return the reason string that this packet extension is transporting.
      */
-    public String getReason()
+    public Reason getReason()
     {
         return reason;
     }
@@ -141,7 +141,7 @@ public class ReasonPacketExtension
     {
         StringBuilder bldr = new StringBuilder("<" + getElementName() + ">");
 
-        bldr.append("<" + getReason() + "/>");
+        bldr.append("<" + getReason().toString() + "/>");
 
         //add reason "text" if we have it
         if(getText() != null)

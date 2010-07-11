@@ -57,7 +57,7 @@ public class ProtocolProviderServiceJabberImpl
      * Jingle's Discovery Info URN for RTP support.
      */
     public static final String URN_XMPP_JINGLE_RTP
-        = "urn:xmpp:jingle:apps:rtp:1";
+        = RtpDescriptionPacketExtension.NAMESPACE;
 
     /**
      * Jingle's Discovery Info URN for RTP support with audio.
@@ -74,14 +74,14 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * Jingle's Discovery Info URN for ICE_UDP transport support.
      */
-    public static final String URN_XMPP_JINGLE_ICE_UDP_0
-        = "urn:xmpp:jingle:transports:ice-udp:0";
+    public static final String URN_XMPP_JINGLE_RAW_UDP_0
+        = RawUdpTransportPacketExtension.NAMESPACE;
 
     /**
      * Jingle's Discovery Info URN for ICE_UDP transport support.
      */
     public static final String URN_XMPP_JINGLE_ICE_UDP_1
-        = "urn:xmpp:jingle:transports:ice-udp:1";
+        = IceUdpTransportPacketExtension.NAMESPACE;
 
     /**
      * Used to connect to a XMPP server.
@@ -911,7 +911,7 @@ public class ProtocolProviderServiceJabberImpl
             // Add Jingle features to supported features.
             supportedFeatures.add(URN_XMPP_JINGLE);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP);
-            supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_0);
+            supportedFeatures.add(URN_XMPP_JINGLE_RAW_UDP_0);
             supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);

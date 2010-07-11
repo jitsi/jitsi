@@ -361,5 +361,4 @@ public class CandidatePacketExtension extends AbstractPacketExtension
     {
         return CandidateType.valueOf(getAttributeAsString(TYPE_ATTR_NAME));
     }
-
 }

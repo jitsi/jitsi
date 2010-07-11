@@ -24,6 +24,7 @@ public class IceUdpTransportPacketExtension extends AbstractPacketExtension
      */
     public static final String NAMESPACE
         = "urn:xmpp:jingle:transports:ice-udp:1";
+
     /**
      * The name of the "transport" element.
      */
@@ -61,6 +62,21 @@ public class IceUdpTransportPacketExtension extends AbstractPacketExtension
     public IceUdpTransportPacketExtension()
     {
         super(NAMESPACE, ELEMENT_NAME);
+    }
+
+    /**
+     * Creates a new {@link IceUdpTransportPacketExtension} instance with the
+     * specified <tt>namespace</tt> and <tt>elementName</tt>. The purpose of
+     * this method is to allow {@link RawUdpTransportPacketExtension} to
+     * extend this class.
+     *
+     * @param namespace the XML namespace that the instance should belong to.
+     * @param elementName the name of the element that we would be representing.
+     */
+    protected IceUdpTransportPacketExtension(String namespace,
+                                             String elementName)
+    {
+        super(namespace, elementName);
     }
 
     /**
@@ -111,15 +127,20 @@ public class IceUdpTransportPacketExtension extends AbstractPacketExtension
     @Override
     public List<? extends PacketExtension> getChildExtensions()
     {
-        if(candidateList.size() > 0)
-            return candidateList;
-        else if (remoteCandidate != null)
+        synchronized (candidateList)
         {
-            List<RemoteCandidatePacketExtension> list
-                = new ArrayList<RemoteCandidatePacketExtension>();
-            list.add(remoteCandidate);
+            if(candidateList.size() > 0)
+            {
+                return candidateList;
+            }
+            else if (remoteCandidate != null)
+            {
+                List<RemoteCandidatePacketExtension> list
+                    = new ArrayList<RemoteCandidatePacketExtension>();
+                list.add(remoteCandidate);
 
-            return list;
+                return list;
+            }
         }
 
         //there are apparently no child elements.
@@ -135,7 +156,10 @@ public class IceUdpTransportPacketExtension extends AbstractPacketExtension
      */
     public void addCandidate(CandidatePacketExtension candidate)
     {
-        this.candidateList.add(candidate);
+        synchronized(candidateList)
+        {
+            this.candidateList.add(candidate);
+        }
     }
 
     /**
@@ -173,5 +197,25 @@ public class IceUdpTransportPacketExtension extends AbstractPacketExtension
     {
         return remoteCandidate;
     }
+
+    /**
+     * Tries to determine whether  <tt>childExtension</tt> is a {@link
+     * CandidatePacketExtension}, a {@link RemoteCandidatePacketExtension} or
+     * something else and then adds it as such.
+     *
+     *  @param childExtension the extension we'd like to add here.
+     */
+    @Override
+    public void addChildExtension(PacketExtension childExtension)
+    {
+        //first check for RemoteCandidate because they extend Candidate.
+        if(childExtension instanceof RemoteCandidatePacketExtension)
+            setRemoteCandidate((RemoteCandidatePacketExtension) childExtension);
+
+        else if(childExtension instanceof CandidatePacketExtension)
+            addCandidate((CandidatePacketExtension) childExtension);
+    }
+
+
 
 }

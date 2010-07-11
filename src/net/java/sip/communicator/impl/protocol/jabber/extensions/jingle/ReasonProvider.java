@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smackx.packet.*;
 import org.xmlpull.v1.*;
@@ -38,8 +39,6 @@ public class ReasonProvider implements PacketExtensionProvider
     {
         String text = null;
         Reason reason = null;
-        //ReasonPacketException reason
-        //    = new ReasonPacketExtension(reason, text, packetExtension);
 
         boolean done = false;
 
@@ -63,9 +62,8 @@ public class ReasonProvider implements PacketExtensionProvider
                 else if (elementName.equals(
                                 ReasonPacketExtension.TEXT_ELEMENT_NAME))
                 {
-                    text = parser.getText();
+                    text = parseText(parser);
                 }
-                // <reason/>
                 else
                 {
                     //this is an element that we don't currently support.
@@ -73,15 +71,17 @@ public class ReasonProvider implements PacketExtensionProvider
             }
             else if (eventType == XmlPullParser.END_TAG)
             {
-                if (parser.getName().equals(JingleIQ.ELEMENT_NAME))
+                if (parser.getName().equals(ReasonPacketExtension.ELEMENT_NAME))
                 {
                     done = true;
                 }
             }
         }
+        ReasonPacketExtension reasonExt
+            = new ReasonPacketExtension(reason, text, (PacketExtension)null);
 
-        //return reason;
-        return null;
+        return reasonExt;
+
     }
 
     /**

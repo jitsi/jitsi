@@ -58,6 +58,41 @@ public class JingleIQProvider implements IQProvider
             RtpDescriptionPacketExtension.NAMESPACE,
             new DefaultPacketExtensionProvider
                 <ParameterPacketExtension>(ParameterPacketExtension.class));
+
+        //ice-udp transport
+        providerManager.addExtensionProvider(
+            IceUdpTransportPacketExtension.ELEMENT_NAME,
+            IceUdpTransportPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider<IceUdpTransportPacketExtension>(
+                            IceUdpTransportPacketExtension.class));
+
+        //<raw-udp/> provider
+        providerManager.addExtensionProvider(
+            RawUdpTransportPacketExtension.ELEMENT_NAME,
+            RawUdpTransportPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider<RawUdpTransportPacketExtension>(
+                            RawUdpTransportPacketExtension.class));
+
+        //ice-udp <candidate/> provider
+        providerManager.addExtensionProvider(
+            CandidatePacketExtension.ELEMENT_NAME,
+            IceUdpTransportPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider<CandidatePacketExtension>(
+                            CandidatePacketExtension.class));
+
+        //raw-udp <candidate/> provider
+        providerManager.addExtensionProvider(
+            CandidatePacketExtension.ELEMENT_NAME,
+            RawUdpTransportPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider<CandidatePacketExtension>(
+                            CandidatePacketExtension.class));
+
+        //ice-udp <remote-candidate/> provider
+        providerManager.addExtensionProvider(
+            RemoteCandidatePacketExtension.ELEMENT_NAME,
+            IceUdpTransportPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider<RemoteCandidatePacketExtension>(
+                            RemoteCandidatePacketExtension.class));
     }
 
     /**
@@ -78,9 +113,9 @@ public class JingleIQProvider implements IQProvider
         JingleAction action = JingleAction.parseString(parser
                         .getAttributeValue("", JingleIQ.ACTION_ATTR_NAME));
         String initiator = parser
-                         .getAttributeValue("", JingleIQ.RESPONDER_ATTR_NAME);
+                         .getAttributeValue("", JingleIQ.INITIATOR_ATTR_NAME);
         String responder = parser
-                        .getAttributeValue("", JingleIQ.INITIATOR_ATTR_NAME);
+                        .getAttributeValue("", JingleIQ.RESPONDER_ATTR_NAME);
         String sid = parser
                         .getAttributeValue("", JingleIQ.SID_ATTR_NAME);
 
