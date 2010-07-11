@@ -17,6 +17,7 @@ import net.java.sip.communicator.util.*;
  * focusing on implementation-specific details.
  *
  * @author Lubomir Marinov
+ * @author Emil Ivov
  */
 public abstract class AbstractOperationSetBasicTelephony
     implements OperationSetBasicTelephony

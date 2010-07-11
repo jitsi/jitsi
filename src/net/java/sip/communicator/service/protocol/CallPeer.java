@@ -28,7 +28,6 @@ import net.java.sip.communicator.service.protocol.event.*;
  */
 public interface CallPeer
 {
-
     /**
      * The constant indicating that a <tt>CallPeer</tt> has not yet
      * transitioned into a state marking the beginning of a participation in a
@@ -144,6 +143,7 @@ public interface CallPeer
      * Returns a string representation of the peer in the form of
      * <br>
      * Display Name &lt;address&gt;;status=CallPeerStatus
+     *
      * @return a string representation of the peer and its state.
      */
     public String toString();
@@ -153,6 +153,7 @@ public interface CallPeer
      * a photo). Generally, the image representation is acquired from the
      * underlying telephony protocol and is transferred over the network during
      * call negotiation.
+     *
      * @return byte[] a byte array containing the image or null if no image is
      * available.
      */
@@ -160,6 +161,7 @@ public interface CallPeer
 
     /**
      * Returns the protocol provider that this peer belongs to.
+     *
      * @return a reference to the ProtocolProviderService that this peer
      * belongs to.
      */
@@ -260,7 +262,7 @@ public interface CallPeer
      * Adds a specific <tt>SoundLevelListener</tt> to the list of
      * listeners interested in and notified about changes in stream sound level
      * related information.
-     * 
+     *
      * @param listener the <tt>SoundLevelListener</tt> to add
      */
     public void addStreamSoundLevelListener(SoundLevelListener listener);
@@ -269,7 +271,7 @@ public interface CallPeer
      * Removes a specific <tt>SoundLevelListener</tt> of the list of
      * listeners interested in and notified about changes in stream sound level
      * related information.
-     * 
+     *
      * @param listener the <tt>SoundLevelListener</tt> to remove
      */
     public void removeStreamSoundLevelListener(SoundLevelListener listener);
@@ -278,7 +280,7 @@ public interface CallPeer
      * Adds a specific <tt>SoundLevelListener</tt> to the list
      * of listeners interested in and notified about changes in conference
      * members sound level.
-     * 
+     *
      * @param listener the <tt>SoundLevelListener</tt> to add
      */
     public void addConferenceMembersSoundLevelListener(
@@ -288,7 +290,7 @@ public interface CallPeer
      * Removes a specific <tt>SoundLevelListener</tt> of the
      * list of listeners interested in and notified about changes in conference
      * members sound level.
-     * 
+     *
      * @param listener the <tt>SoundLevelListener</tt> to
      * remove
      */

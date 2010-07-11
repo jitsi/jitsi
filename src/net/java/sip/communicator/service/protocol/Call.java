@@ -14,8 +14,8 @@ import net.java.sip.communicator.util.*;
 /**
  * A representation of a Call. The Call class must only be created by users (i.e.
  * telephony protocols) of the PhoneUIService such as a SIP protocol
- * implementation. Extensions of this class might have names like SipCall
- * or H323Call or AnyOtherTelephonyProtocolCall
+ * implementation. Extensions of this class might have names like CallSipImpl
+ * or CallJabberImpl or CallAnyOtherTelephonyProtocolImpl
  *
  * @author Emil Ivov
  * @author Emanuel Onica
@@ -121,19 +121,6 @@ public abstract class Call
     {
         return getCallID().hashCode();
     }
-
-    /**
-     * Returns an iterator over all call peers.
-     * @return an Iterator over all peers currently involved in the call.
-     */
-    public abstract Iterator<? extends CallPeer> getCallPeers();
-
-    /**
-     * Returns the number of peers currently associated with this call.
-     * @return an <tt>int</tt> indicating the number of peers currently
-     * associated with this call.
-     */
-    public abstract int getCallPeerCount();
 
     /**
      * Adds a call change listener to this call so that it could receive events
@@ -314,6 +301,21 @@ public abstract class Call
     {
         return sipZrtpAttribute;
     }
+
+    /**
+     * Returns an iterator over all call peers.
+     *
+     * @return an Iterator over all peers currently involved in the call.
+     */
+    public abstract Iterator<? extends CallPeer> getCallPeers();
+
+    /**
+     * Returns the number of peers currently associated with this call.
+     *
+     * @return an <tt>int</tt> indicating the number of peers currently
+     *         associated with this call.
+     */
+    public abstract int getCallPeerCount();
 
     /**
      * Gets the indicator which determines whether the local peer represented by

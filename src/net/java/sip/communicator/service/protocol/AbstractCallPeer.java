@@ -21,7 +21,8 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  * @author Yana Stamcheva
  */
-public abstract class AbstractCallPeer
+public abstract class AbstractCallPeer<T extends Call,
+                                       U extends ProtocolProviderService>
     extends PropertyChangeNotifier
     implements CallPeer
 {
@@ -723,4 +724,19 @@ public abstract class AbstractCallPeer
             return null;
         }
     }
+
+    /**
+     * Returns a reference to the call that this peer belongs to.
+     *
+     * @return a reference to the call containing this peer.
+     */
+    public abstract T getCall();
+
+    /**
+     * Returns the protocol provider that this peer belongs to.
+     *
+     * @return a reference to the ProtocolProviderService that this peer
+     * belongs to.
+     */
+    public abstract U getProtocolProvider();
 }
