@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -29,7 +30,7 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  */
 public class CallPeerSipImpl
-    extends AbstractCallPeer
+    extends AbstractCallPeer<CallSipImpl, ProtocolProviderServiceSipImpl>
     implements SimpleAudioLevelListener,
                CallPeerConferenceListener,
                CsrcAudioLevelListener,
@@ -94,7 +95,7 @@ public class CallPeerSipImpl
      * corresponds to exactly one instance of <tt>CallPeerMediaHandler</tt> and
      * both classes are only separated for reasons of readability.
      */
-    private final CallPeerMediaHandler mediaHandler;
+    private final CallPeerMediaHandlerSipImpl mediaHandler;
 
     /**
      * The <tt>PropertyChangeListener</tt> which listens to
@@ -157,7 +158,7 @@ public class CallPeerSipImpl
         this.call = owningCall;
         this.messageFactory = getProtocolProvider().getMessageFactory();
 
-        this.mediaHandler = new CallPeerMediaHandler(this);
+        this.mediaHandler = new CallPeerMediaHandlerSipImpl(this);
 
         setDialog(containingTransaction.getDialog());
         setLatestInviteTransaction(containingTransaction);
@@ -1289,7 +1290,7 @@ public class CallPeerSipImpl
     public void putOnHold(boolean onHold)
         throws OperationFailedException
     {
-        CallPeerMediaHandler mediaHandler = getMediaHandler();
+        CallPeerMediaHandlerSipImpl mediaHandler = getMediaHandler();
 
         mediaHandler.setLocallyOnHold(onHold);
 
@@ -1450,7 +1451,7 @@ public class CallPeerSipImpl
     public void setLocalVideoAllowed(boolean allowed)
         throws OperationFailedException
     {
-        CallPeerMediaHandler mediaHandler = getMediaHandler();
+        CallPeerMediaHandlerSipImpl mediaHandler = getMediaHandler();
 
         if(mediaHandler.isLocalVideoTransmissionEnabled() == allowed)
             return;
@@ -1689,7 +1690,7 @@ public class CallPeerSipImpl
      * @return a reference to the <tt>CallPeerMediaHandler</tt> instance that
      * this peer uses for media related tips and tricks.
      */
-    public CallPeerMediaHandler getMediaHandler()
+    public CallPeerMediaHandlerSipImpl getMediaHandler()
     {
         return mediaHandler;
     }
@@ -1955,7 +1956,7 @@ public class CallPeerSipImpl
             // us audio for at least two separate participants. We therefore
             // need to remove the stream level listeners and switch to CSRC
             // level listening
-            CallPeerMediaHandler mediaHandler = getMediaHandler();
+            CallPeerMediaHandlerSipImpl mediaHandler = getMediaHandler();
 
             mediaHandler.setStreamAudioLevelListener(null);
             mediaHandler.setCsrcAudioLevelListener(this);
@@ -1980,7 +1981,7 @@ public class CallPeerSipImpl
             // since there's only us and her in the call. Lets stop being a CSRC
             // listener and move back to listening the audio level of the
             // stream itself.
-            CallPeerMediaHandler mediaHandler = getMediaHandler();
+            CallPeerMediaHandlerSipImpl mediaHandler = getMediaHandler();
 
             mediaHandler.setStreamAudioLevelListener(this);
             mediaHandler.setCsrcAudioLevelListener(null);

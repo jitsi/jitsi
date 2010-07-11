@@ -113,7 +113,7 @@ public class OperationSetVideoTelephonySipImpl
             VideoListener listener)
         throws OperationFailedException
     {
-        CallPeerMediaHandler mediaHandler = ((CallPeerSipImpl) peer).getMediaHandler();
+        CallPeerMediaHandlerSipImpl mediaHandler = ((CallPeerSipImpl) peer).getMediaHandler();
         return mediaHandler.createLocalVisualComponent();
     }
 
@@ -128,7 +128,7 @@ public class OperationSetVideoTelephonySipImpl
      */
     public void disposeLocalVisualComponent(CallPeer peer, Component component)
     {
-        CallPeerMediaHandler mediaHandler = ((CallPeerSipImpl) peer).getMediaHandler();
+        CallPeerMediaHandlerSipImpl mediaHandler = ((CallPeerSipImpl) peer).getMediaHandler();
         mediaHandler.disposeLocalVisualComponent();
     }
 

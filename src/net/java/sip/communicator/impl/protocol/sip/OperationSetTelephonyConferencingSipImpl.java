@@ -660,7 +660,7 @@ public class OperationSetTelephonyConferencingSipImpl
             boolean remote,
             StringBuffer xml)
     {
-        CallPeerMediaHandler mediaHandler = callPeer.getMediaHandler();
+        CallPeerMediaHandlerSipImpl mediaHandler = callPeer.getMediaHandler();
 
         for (MediaType mediaType : MediaType.values())
         {
@@ -1004,12 +1004,12 @@ public class OperationSetTelephonyConferencingSipImpl
     {
         String propertyName = event.getPropertyName();
 
-        if (CallPeerMediaHandler.AUDIO_LOCAL_SSRC.equals(propertyName)
-                || CallPeerMediaHandler.AUDIO_REMOTE_SSRC.equals(propertyName)
-                || CallPeerMediaHandler.VIDEO_LOCAL_SSRC.equals(propertyName)
-                || CallPeerMediaHandler.VIDEO_REMOTE_SSRC.equals(propertyName))
+        if (CallPeerMediaHandlerSipImpl.AUDIO_LOCAL_SSRC.equals(propertyName)
+                || CallPeerMediaHandlerSipImpl.AUDIO_REMOTE_SSRC.equals(propertyName)
+                || CallPeerMediaHandlerSipImpl.VIDEO_LOCAL_SSRC.equals(propertyName)
+                || CallPeerMediaHandlerSipImpl.VIDEO_REMOTE_SSRC.equals(propertyName))
         {
-            Call call = ((CallPeerMediaHandler) event.getSource()).peer.getCall();
+            Call call = ((CallPeerMediaHandlerSipImpl) event.getSource()).peer.getCall();
 
             if (call != null)
                 notifyAll(call);

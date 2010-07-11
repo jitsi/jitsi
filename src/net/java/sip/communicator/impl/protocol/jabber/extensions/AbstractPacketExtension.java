@@ -278,5 +278,30 @@ public abstract class AbstractPacketExtension
         return textContent;
     }
 
+    /**
+     * Returns this packet's first direct child extension that matches the
+     * specified of this packet that matches the specified <tt>type</tt>.
+     *
+     * @param type the <tt>Class</tt> of the extension we are looking for.
+     *
+     * @return this packet's first direct child extension that matches the
+     * specified of this packet that matches the specified <tt>type</tt> or
+     * <tt>null</tt> if no such child extension was found.
+     */
+    public PacketExtension getFirstChildOfType(
+                        Class<? extends PacketExtension> type)
+    {
+        List<? extends PacketExtension> childExtensions = getChildExtensions();
 
+        synchronized (childExtensions)
+        {
+            for(PacketExtension extension : childExtensions)
+            {
+                if(type.isAssignableFrom(extension.getClass()))
+                    return extension;
+            }
+        }
+
+        return null;
+    }
 }

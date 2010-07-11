@@ -58,8 +58,8 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Contains references for all currently active (non ended) calls.
      */
-    private final ActiveCallsRepository activeCallsRepository =
-        new ActiveCallsRepository(this);
+    private final ActiveCallsRepositorySipImpl activeCallsRepository =
+        new ActiveCallsRepositorySipImpl(this);
 
     /**
      * Creates a new instance and adds itself as an <tt>INVITE</tt> method
@@ -201,13 +201,13 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Returns a reference to the {@link ActiveCallsRepository} that we are
+     * Returns a reference to the {@link ActiveCallsRepositorySipImpl} that we are
      * currently using.
      *
-     * @return a reference to the {@link ActiveCallsRepository} that we are
+     * @return a reference to the {@link ActiveCallsRepositorySipImpl} that we are
      * currently using.
      */
-    protected ActiveCallsRepository getActiveCallsRepository()
+    protected ActiveCallsRepositorySipImpl getActiveCallsRepository()
     {
         return activeCallsRepository;
     }
@@ -1100,7 +1100,7 @@ public class OperationSetBasicTelephonySipImpl
          * Regardless of whether the Accepted, NOTIFY, etc. succeeded, try to
          * transfer the call because it's the most important goal.
          */
-        Call referToCall;
+        CallSipImpl referToCall;
         try
         {
             referToCall = createOutgoingCall(referToAddress, referRequest);
@@ -1118,7 +1118,7 @@ public class OperationSetBasicTelephonySipImpl
          * subscription-terminating NOTIFY with the final result of the REFER is
          * to be sent.
          */
-        final Call referToCallListenerSource = referToCall;
+        final CallSipImpl referToCallListenerSource = referToCall;
         final boolean sendNotifyRequest = (accepted != null);
         final Object subscription = (removeSubscription ? referRequest : null);
         CallChangeListener referToCallListener = new CallChangeAdapter()
@@ -1288,7 +1288,7 @@ public class OperationSetBasicTelephonySipImpl
      * request and the tracking of the state of <tt>referToCall</tt> should
      * continue
      */
-    private boolean referToCallStateChanged(Call referToCall,
+    private boolean referToCallStateChanged(CallSipImpl referToCall,
         boolean sendNotifyRequest, Dialog dialog, SipProvider sipProvider,
         Object subscription)
     {

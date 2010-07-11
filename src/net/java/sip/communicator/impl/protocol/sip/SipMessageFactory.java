@@ -32,6 +32,7 @@ import net.java.sip.communicator.util.*;
  * <tt>Message</tt>-s will be easy to route or dispatch.
  *
  * @author Sebastien Mazy
+ * @author Emil Ivov
  */
 public class SipMessageFactory
     implements MessageFactory

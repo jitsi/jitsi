@@ -1240,7 +1240,7 @@ public class ProtocolProviderServiceJabberImpl
      * @param contact the contact, for which we're looking for a jid
      * @return the jid of the specified contact;
      */
-    String getFullJid(Contact contact)
+    public String getFullJid(Contact contact)
     {
         Roster roster = getConnection().getRoster();
         Presence presence = roster.getPresence(contact.getAddress());
@@ -1344,5 +1344,42 @@ public class ProtocolProviderServiceJabberImpl
                 return;
             }
         }
+    }
+
+    /**
+     * Returns the currently valid {@link ScServiceDiscoveryManager}.
+     *
+     * @return the currently valid {@link ScServiceDiscoveryManager}.
+     */
+    public ScServiceDiscoveryManager getDiscoveryManager()
+    {
+        return discoveryManager;
+    }
+
+    /**
+     * Returns our own Jabber ID.
+     *
+     * @return our own Jabber ID.
+     */
+    public String getOurJID()
+    {
+        String jid = null;
+
+        if( connection != null )
+            connection.getUser();
+
+        if (jid == null)
+        {
+            //seems like the connection is not yet initialized so lets try
+            //to construct our jid ourselves.
+            String userID =
+                StringUtils.parseName(getAccountID().getUserID());
+            String serviceName =
+                StringUtils.parseServer(getAccountID().getUserID());
+
+            jid = userID + "@" + serviceName;
+        }
+
+        return jid;
     }
 }

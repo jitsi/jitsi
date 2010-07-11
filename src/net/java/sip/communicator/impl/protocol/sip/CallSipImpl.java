@@ -26,19 +26,13 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public class CallSipImpl
-    extends Call
+    extends AbstractCall<CallPeerSipImpl, ProtocolProviderServiceSipImpl>
     implements CallPeerListener
 {
     /**
      * Our class logger.
      */
     private static final Logger logger = Logger.getLogger(CallSipImpl.class);
-
-    /**
-     * A list containing all <tt>CallPeer</tt>s of this call.
-     */
-    private final List<CallPeerSipImpl> callPeers =
-        new Vector<CallPeerSipImpl>();
 
     /**
      * The <tt>MediaDevice</tt> which performs audio mixing for this
@@ -132,7 +126,7 @@ public class CallSipImpl
      */
     private void addCallPeer(CallPeerSipImpl callPeer)
     {
-        if (callPeers.contains(callPeer))
+        if (getCallPeersVector().contains(callPeer))
             return;
 
         callPeer.addCallPeerListener(this);
@@ -141,14 +135,14 @@ public class CallSipImpl
         {
             // if there's someone listening for audio level events then they'd
             // also like to know about the new peer.
-            if(callPeers.size() == 0)
+            if(getCallPeersVector().size() == 0)
             {
                 callPeer.getMediaHandler().setLocalUserAudioLevelListener(
                                 localAudioLevelDelegator);
             }
         }
 
-        this.callPeers.add(callPeer);
+        getCallPeersVector().add(callPeer);
         fireCallPeerEvent(callPeer, CallPeerEvent.CALL_PEER_ADDED);
     }
 
@@ -161,15 +155,15 @@ public class CallSipImpl
      */
     private void removeCallPeer(CallPeerSipImpl callPeer)
     {
-        if (!callPeers.contains(callPeer))
+        if (!getCallPeersVector().contains(callPeer))
             return;
 
-        this.callPeers.remove(callPeer);
+        getCallPeersVector().remove(callPeer);
         callPeer.removeCallPeerListener(this);
 
         synchronized(localUserAudioLevelListeners)
         {
-            // remove sound levevel listeners from the peer
+            // remove sound level listeners from the peer
             callPeer.getMediaHandler().setLocalUserAudioLevelListener(null);
         }
 
@@ -188,29 +182,8 @@ public class CallSipImpl
             callPeer.setCall(null);
         }
 
-        if (callPeers.size() == 0)
+        if (getCallPeersVector().size() == 0)
             setCallState(CallState.CALL_ENDED);
-    }
-
-    /**
-     * Returns an iterator over all call peers.
-     *
-     * @return an Iterator over all peers currently involved in the call.
-     */
-    public Iterator<CallPeerSipImpl> getCallPeers()
-    {
-        return new LinkedList<CallPeerSipImpl>(callPeers).iterator();
-    }
-
-    /**
-     * Returns the number of peers currently associated with this call.
-     *
-     * @return an <tt>int</tt> indicating the number of peers currently
-     *         associated with this call.
-     */
-    public int getCallPeerCount()
-    {
-        return callPeers.size();
     }
 
     /**
@@ -314,7 +287,7 @@ public class CallSipImpl
         if (logger.isTraceEnabled())
         {
             logger.trace("Looking for peer with dialog: " + dialog
-                + "among " + this.callPeers.size() + " calls");
+                + "among " + getCallPeerCount() + " calls");
         }
 
         while (callPeers.hasNext())

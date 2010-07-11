@@ -14,7 +14,6 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.DTMFTone;
-import net.java.sip.communicator.util.*;
 
 /**
  * Class responsible for sending a DTMF Tone using SIP INFO or using rfc4733.
@@ -88,7 +87,8 @@ public class OperationSetDTMFSipImpl
 
     /**
      * Stops sending DTMF.
-     * @param callPeer
+     *
+     * @param callPeer the call peer that we'd like to stop sending DTMF to.
      */
     public synchronized void stopSendingDTMF(CallPeer callPeer)
     {

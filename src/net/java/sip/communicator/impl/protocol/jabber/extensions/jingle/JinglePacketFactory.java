@@ -58,8 +58,7 @@ public class JinglePacketFactory
      */
     public static JingleIQ createBusy(String from, String to, String sid)
     {
-        return createSessionTerminate(from, to, sid,
-                        Reason.BUSY, null);
+        return createSessionTerminate(from, to, sid, Reason.BUSY, null);
     }
 
     /**
@@ -95,8 +94,7 @@ public class JinglePacketFactory
      */
     public static JingleIQ createCancel(String from, String to, String sid)
     {
-        return createSessionTerminate(from, to, sid, Reason.CANCEL,
-                        "Oops!");
+        return createSessionTerminate(from, to, sid, Reason.CANCEL, "Oops!");
     }
 
     /**

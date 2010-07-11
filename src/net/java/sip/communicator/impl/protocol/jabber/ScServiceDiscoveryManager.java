@@ -16,6 +16,7 @@ import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * An wrapper to smack's default {@link ServiceDiscoveryManager} that adds
@@ -29,6 +30,13 @@ public class ScServiceDiscoveryManager
     implements PacketInterceptor,
                NodeInformationProvider
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>ScServiceDiscoveryManager</tt>
+     * class and its instances for logging output.
+     */
+    private static final Logger logger = Logger
+                    .getLogger(ScServiceDiscoveryManager.class.getName());
+
     /**
      * A flag that indicates whether we are currently storing non-caps
      */
@@ -343,5 +351,103 @@ public class ScServiceDiscoveryManager
                 this.features.add( feature );
             }
         }
+    }
+
+    /**
+     * Returns the discovered information of a given XMPP entity addressed by
+     * its JID.
+     *
+     * @param entityID the address of the XMPP entity.
+     *
+     * @return the discovered information.
+     *
+     * @throws XMPPException if the operation failed for some reason.
+     */
+    public DiscoverInfo discoverInfo(String entityID)
+        throws XMPPException
+    {
+        return discoveryManager.discoverInfo(entityID, entityID);
+    }
+
+    /**
+     * Returns the discovered information of a given XMPP entity addressed by
+     * its JID and note attribute. Use this message only when trying to query
+     * information which is not directly addressable.
+     *
+     * @param entityID the address of the XMPP entity.
+     * @param node the attribute that supplements the 'jid' attribute.
+     *
+     * @return the discovered information.
+     *
+     * @throws XMPPException if the operation failed for some reason.
+     */
+    public DiscoverInfo discoverInfo(String entityID, String node)
+        throws XMPPException
+    {
+        return discoveryManager.discoverInfo(entityID, node);
+    }
+
+    /**
+     * Returns the discovered items of a given XMPP entity addressed by its JID.
+     *
+     * @param entityID the address of the XMPP entity.
+     *
+     * @return the discovered information.
+     *
+     * @throws XMPPException if the operation failed for some reason.
+     */
+    public DiscoverItems discoverItems(String entityID) throws XMPPException
+    {
+        return discoveryManager.discoverItems(entityID);
+    }
+
+    /**
+     * Returns the discovered items of a given XMPP entity addressed by its JID
+     * and note attribute. Use this message only when trying to query
+     * information which is not directly addressable.
+     *
+     * @param entityID the address of the XMPP entity.
+     * @param node the attribute that supplements the 'jid' attribute.
+     *
+     * @return the discovered items.
+     *
+     * @throws XMPPException if the operation failed for some reason.
+     */
+    public DiscoverItems discoverItems(String entityID, String node)
+        throws XMPPException
+    {
+        return discoveryManager.discoverItems(entityID, node);
+    }
+
+    /**
+     * Returns <tt>true</tt> if <tt>jid</tt> supports the specified
+     * <tt>feature</tt> and <tt>false</tt> otherwise. The method may check the
+     * information locally if we've already cached this <tt>jid</tt>'s disco
+     * info, or retrieve it from the network.
+     *
+     * @param jid the jabber ID we'd like to test for support
+     * @param feature the URN feature we are interested in
+     *
+     * @return true if <tt>jid</tt> is discovered to support <tt>feature</tt>
+     * and <tt>false</tt> otherwise.
+     */
+    public boolean supportsFeature(String jid, String feature)
+    {
+        DiscoverInfo info = null;
+        try
+        {
+            info = this.discoverInfo(jid);
+        }
+        catch(XMPPException ex)
+        {
+            logger.info("failed to retrieve disco info for " + jid
+                                + " feature " + feature, ex);
+            return false;
+        }
+
+        if(info != null && info .containsFeature(feature))
+            return true;
+        else
+            return false;
     }
 }

@@ -6,8 +6,12 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import org.jivesoftware.smack.*;
+
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Our Jabber implementation of the default CallPeer;
@@ -16,13 +20,19 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Symphorien Wanko
  */
 public class CallPeerJabberImpl
-    extends AbstractCallPeer
+    extends AbstractCallPeer<CallJabberImpl, ProtocolProviderServiceJabberImpl>
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>CallPeerJabberImpl</tt>
+     * class and its instances for logging output.
+     */
+    private static final Logger logger = Logger
+                    .getLogger(CallPeerJabberImpl.class.getName());
 
     /**
      * The jabber address of this peer
      */
-    private String peerAddress = null;
+    private String peerJID = null;
 
     /**
      * A byte array containing the image/photo representing the call peer.
@@ -30,7 +40,9 @@ public class CallPeerJabberImpl
     private byte[] image;
 
     /**
-     * A string uniquely identifying the peer.
+     * A string uniquely identifying the peer. The reason we are keeping an ID
+     * of our own rather than using the Jingle session id is that we can't
+     * guarantee uniqueness of of jingle SIDs from one client to the next.
      */
     private String peerID;
 
@@ -40,16 +52,26 @@ public class CallPeerJabberImpl
     private CallJabberImpl call;
 
     /**
+     * The session ID of the Jingle session associated with this call.
+     */
+    private final String jingleSID;
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the Jabber address of the new call peer.
      * @param owningCall the call that contains this call peer.
+     * @param jingleSID the ID of the session that we are maintaining with this
+     * peer.
      */
-    public CallPeerJabberImpl(String peerAddress,
-                                     CallJabberImpl owningCall)
+    public CallPeerJabberImpl(String         peerAddress,
+                              CallJabberImpl owningCall,
+                              String         jingleSID)
     {
-        this.peerAddress = peerAddress;
+        this.peerJID = peerAddress;
         this.call = owningCall;
+        this.jingleSID = jingleSID;
+
         call.addCallPeer(this);
 
         //create the uid
@@ -64,7 +86,7 @@ public class CallPeerJabberImpl
      */
     public String getAddress()
     {
-        return peerAddress;
+        return peerJID;
     }
 
     /**
@@ -78,10 +100,10 @@ public class CallPeerJabberImpl
     {
         String oldAddress = getAddress();
 
-        if(peerAddress.equals(address))
+        if(peerJID.equals(address))
             return;
 
-        this.peerAddress = address;
+        this.peerJID = address;
         //Fire the Event
         fireCallPeerChangeEvent(
                 CallPeerChangeEvent.CALL_PEER_ADDRESS_CHANGE,
@@ -108,7 +130,7 @@ public class CallPeerJabberImpl
                 return cont.getDisplayName();
             }
         }
-        return peerAddress;
+        return peerJID;
     }
 
     /**
@@ -176,15 +198,15 @@ public class CallPeerJabberImpl
      *
      * @return a reference to the call containing this peer.
      */
-    public Call getCall()
+    public CallJabberImpl getCall()
     {
         return call;
     }
 
     /**
      * Sets the call containing this peer.
-     * @param call the call that this call peer is
-     * partdicipating in.
+     *
+     * @param call the call that this call peer is participating in.
      */
     protected void setCall(CallJabberImpl call)
     {
@@ -196,7 +218,7 @@ public class CallPeerJabberImpl
      * @return a reference to the ProtocolProviderService that this peer
      * belongs to.
      */
-    public ProtocolProviderService getProtocolProvider()
+    public ProtocolProviderServiceJabberImpl getProtocolProvider()
     {
         return this.getCall().getProtocolProvider();
     }
@@ -268,5 +290,79 @@ public class CallPeerJabberImpl
         ConferenceMembersSoundLevelListener listener)
     {
 
+    }
+
+
+    ////////////////////////////// OK CODE starts here ////////////////////////
+
+    /**
+     * Ends the call with for this <tt>CallPeer</tt>. Depending on the state
+     * of the peer the method would send a CANCEL, BYE, or BUSY_HERE message
+     * and set the new state to DISCONNECTED.
+     *
+     * @throws OperationFailedException if we fail to terminate the call.
+     */
+    public void hangup()
+        throws OperationFailedException
+    {
+        // do nothing if the call is already ended
+        if (CallPeerState.DISCONNECTED.equals(getState())
+            || CallPeerState.FAILED.equals(getState()))
+        {
+            if (logger.isDebugEnabled())
+                logger.debug("Ignoring a request to hangup a call peer "
+                        + "that is already DISCONNECTED");
+            return;
+        }
+
+        //get a reference to the provider before we change the state to
+        //DISCONNECTED because at that point we may lose our Call reference
+        ProtocolProviderServiceJabberImpl provider = getProtocolProvider();
+
+        CallPeerState prevPeerState = getState();
+        setState(CallPeerState.DISCONNECTED);
+        JingleIQ responseIQ = null;
+
+        if (prevPeerState.equals(CallPeerState.CONNECTED)
+            || CallPeerState.isOnHold(prevPeerState))
+        {
+            responseIQ = JinglePacketFactory.createBye(
+                provider.getOurJID(), peerJID, jingleSID);
+        }
+        else if (CallPeerState.CONNECTING.equals(getState())
+            || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(getState())
+            || CallPeerState.ALERTING_REMOTE_SIDE.equals(getState()))
+        {
+            responseIQ = JinglePacketFactory.createCancel(
+                provider.getOurJID(), peerJID, jingleSID);
+        }
+        else if (prevPeerState.equals(CallPeerState.INCOMING_CALL))
+        {
+            responseIQ = JinglePacketFactory.createBusy(
+                provider.getOurJID(), peerJID, jingleSID);
+        }
+        else if (prevPeerState.equals(CallPeerState.BUSY)
+                 || prevPeerState.equals(CallPeerState.FAILED))
+        {
+            // For FAILED and BUSY we only need to update CALL_STATUS
+            // as everything else has been done already.
+        }
+        else
+        {
+            logger.info("Could not determine call peer state!");
+        }
+
+        if (responseIQ != null)
+            provider.getConnection().sendPacket(responseIQ);
+    }
+
+    /**
+     * Returns the session ID of the Jingle session associated with this call.
+     *
+     * @return the session ID of the Jingle session associated with this call.
+     */
+    public String getJingleSID()
+    {
+        return jingleSID;
     }
 }
