@@ -128,10 +128,7 @@ public class CallManager
         {
             Call sourceCall = event.getSourceCall();
 
-            CallDialog callDialog
-                = CallManager.openCallDialog(sourceCall);
-
-            activeCalls.put(sourceCall, callDialog);
+            CallManager.openCallDialog(sourceCall);
         }
     }
 
@@ -379,6 +376,8 @@ public class CallManager
     public static CallDialog openCallDialog(Call call)
     {
         CallDialog callDialog = new CallDialog(call);
+
+        activeCalls.put(call, callDialog);
 
         callDialog.setVisible(true, true);
 
