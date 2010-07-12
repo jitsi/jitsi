@@ -450,11 +450,11 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Returns a reference to the {@link ActiveCallsRepositoryJabberImpl} that we are
-     * currently using.
+     * Returns a reference to the {@link ActiveCallsRepositoryJabberImpl} that
+     * we are currently using.
      *
-     * @return a reference to the {@link ActiveCallsRepositoryJabberImpl} that we are
-     * currently using.
+     * @return a reference to the {@link ActiveCallsRepositoryJabberImpl} that
+     * we are currently using.
      */
     protected ActiveCallsRepositoryJabberImpl getActiveCallsRepository()
     {

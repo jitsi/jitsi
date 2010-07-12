@@ -16,11 +16,15 @@ import net.java.sip.communicator.util.*;
  * order to make it easier for implementers to provide complete solutions while
  * focusing on implementation-specific details.
  *
+ * @param <T> the implementation specific provider class like for example
+ * <tt>ProtocolProviderServiceSipImpl</tt>.
+ *
  * @author Lubomir Marinov
  * @author Emil Ivov
  */
 public abstract class AbstractOperationSetBasicTelephony
-    implements OperationSetBasicTelephony
+                                        <T extends ProtocolProviderService>
+    implements OperationSetBasicTelephony<T>
 {
     /**
      * Our class logger

@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import org.jivesoftware.smack.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;

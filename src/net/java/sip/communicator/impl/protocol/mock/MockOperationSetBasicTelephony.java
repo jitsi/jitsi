@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
  * @author Damian Minkov
  */
 public class MockOperationSetBasicTelephony
-    extends AbstractOperationSetBasicTelephony
+    extends AbstractOperationSetBasicTelephony<MockProvider>
     implements CallChangeListener
 {
     private static final Logger logger
@@ -239,5 +239,16 @@ public class MockOperationSetBasicTelephony
 
             fireCallEvent(CallEvent.CALL_ENDED, sourceCall);
         }
+    }
+
+    /**
+     * Returns the protocol provider that this operation set belongs to.
+     *
+     * @return a reference to the <tt>ProtocolProviderService</tt> that created
+     * this operation set.
+     */
+    public MockProvider getProtocolProvider()
+    {
+        return protocolProvider;
     }
 }

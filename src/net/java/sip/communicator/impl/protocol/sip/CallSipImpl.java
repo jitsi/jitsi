@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.SimpleAudioLevelListener;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -26,7 +27,9 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public class CallSipImpl
-    extends AbstractCall<CallPeerSipImpl, ProtocolProviderServiceSipImpl>
+    extends AbstractMediaAwareCall<CallPeerSipImpl,
+                                   OperationSetBasicTelephonySipImpl,
+                                   ProtocolProviderServiceSipImpl>
     implements CallPeerListener
 {
     /**
@@ -35,69 +38,10 @@ public class CallSipImpl
     private static final Logger logger = Logger.getLogger(CallSipImpl.class);
 
     /**
-     * The <tt>MediaDevice</tt> which performs audio mixing for this
-     * <tt>Call</tt> and its <tt>CallPeer</tt>s when the local peer represented
-     * by this <tt>Call</tt> is acting as a conference focus i.e.
-     * {@link #conferenceFocus} is <tt>true</tt>.
-     */
-    private MediaDevice conferenceAudioMixer;
-
-    /**
-     * The indicator which determines whether the local peer represented by this
-     * <tt>Call</tt> is acting as a conference focus and is thus specifying the
-     * &quot;isfocus&quot; parameter in the Contact headers of its outgoing SIP
-     * signaling.
-     */
-    private boolean conferenceFocus = false;
-
-    /**
-     * Our video streaming policy.
-     */
-    private boolean localVideoAllowed = false;
-
-    /**
      * A reference to the <tt>SipMessageFactory</tt> instance that we should
      * use when creating requests.
      */
     private final SipMessageFactory messageFactory;
-
-    /**
-     * A reference to the <tt>OperationSetBasicTelephonySipImpl</tt> that
-     * created us;
-     */
-    private final OperationSetBasicTelephonySipImpl parentOpSet;
-
-    /**
-     * Holds listeners registered for level changes in local audio.
-     */
-    private final List<SoundLevelListener> localUserAudioLevelListeners
-        = new ArrayList<SoundLevelListener>();
-
-    /**
-     * The indicator which determines whether this <tt>Call</tt> is set
-     * to transmit "silence" instead of the actual media.
-     */
-    private boolean mute = false;
-
-    /**
-     * Device used in call will be choosen according to <tt>MediaUseCase</tt>.
-     */
-    MediaUseCase mediaUseCase = MediaUseCase.ANY;
-
-    /**
-     * The listener that would actually subscribe for level events from the
-     * media handler if there's at least one listener in
-     * <tt>localUserAudioLevelListeners</tt>.
-     */
-    private final SimpleAudioLevelListener localAudioLevelDelegator
-        = new SimpleAudioLevelListener()
-        {
-            public void audioLevelChanged(int level)
-            {
-                fireLocalUserAudioLevelChangeEvent(level);
-            }
-        };
-
 
     /**
      * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
@@ -108,154 +52,15 @@ public class CallSipImpl
      */
     protected CallSipImpl(OperationSetBasicTelephonySipImpl parentOpSet)
     {
-        super(parentOpSet.getProtocolProvider());
+        super(parentOpSet);
         this.messageFactory = getProtocolProvider().getMessageFactory();
-        this.parentOpSet = parentOpSet;
 
         //let's add ourselves to the calls repo. we are doing it ourselves just
         //to make sure that no one ever forgets.
         parentOpSet.getActiveCallsRepository().addCall(this);
     }
 
-    /**
-     * Adds <tt>callPeer</tt> to the list of peers in this call.
-     * If the call peer is already included in the call, the method has
-     * no effect.
-     *
-     * @param callPeer the new <tt>CallPeer</tt>
-     */
-    private void addCallPeer(CallPeerSipImpl callPeer)
-    {
-        if (getCallPeersVector().contains(callPeer))
-            return;
 
-        callPeer.addCallPeerListener(this);
-
-        synchronized(localUserAudioLevelListeners)
-        {
-            // if there's someone listening for audio level events then they'd
-            // also like to know about the new peer.
-            if(getCallPeersVector().size() == 0)
-            {
-                callPeer.getMediaHandler().setLocalUserAudioLevelListener(
-                                localAudioLevelDelegator);
-            }
-        }
-
-        getCallPeersVector().add(callPeer);
-        fireCallPeerEvent(callPeer, CallPeerEvent.CALL_PEER_ADDED);
-    }
-
-    /**
-     * Removes <tt>callPeer</tt> from the list of peers in this
-     * call. The method has no effect if there was no such peer in the
-     * call.
-     *
-     * @param callPeer the <tt>CallPeer</tt> leaving the call;
-     */
-    private void removeCallPeer(CallPeerSipImpl callPeer)
-    {
-        if (!getCallPeersVector().contains(callPeer))
-            return;
-
-        getCallPeersVector().remove(callPeer);
-        callPeer.removeCallPeerListener(this);
-
-        synchronized(localUserAudioLevelListeners)
-        {
-            // remove sound level listeners from the peer
-            callPeer.getMediaHandler().setLocalUserAudioLevelListener(null);
-        }
-
-        try
-        {
-            fireCallPeerEvent(callPeer,
-                CallPeerEvent.CALL_PEER_REMOVED);
-        }
-        finally
-        {
-
-            /*
-             * The peer should loose its state once it has finished
-             * firing its events in order to allow the listeners to undo.
-             */
-            callPeer.setCall(null);
-        }
-
-        if (getCallPeersVector().size() == 0)
-            setCallState(CallState.CALL_ENDED);
-    }
-
-    /**
-     * Dummy implementation of a method (inherited from CallPeerListener)
-     * that we don't need.
-     *
-     * @param evt unused.
-     */
-    public void peerImageChanged(CallPeerChangeEvent evt)
-    {
-        //does not concern us
-    }
-
-    /**
-     * Dummy implementation of a method (inherited from CallPeerListener)
-     * that we don't need.
-     *
-     * @param evt unused.
-     */
-    public void peerAddressChanged(CallPeerChangeEvent evt)
-    {
-      //does not concern us
-    }
-
-    /**
-     * Dummy implementation of a method (inherited from CallPeerListener)
-     * that we don't need.
-     *
-     * @param evt unused.
-     */
-    public void peerTransportAddressChanged(
-        CallPeerChangeEvent evt)
-    {
-      //does not concern us
-    }
-
-    /**
-     * Dummy implementation of a method (inherited from CallPeerListener)
-     * that we don't need.
-     *
-     * @param evt unused.
-     */
-    public void peerDisplayNameChanged(CallPeerChangeEvent evt)
-    {
-      //does not concern us
-    }
-
-    /**
-     * Verifies whether the call peer has entered a state.
-     *
-     * @param evt The <tt>CallPeerChangeEvent</tt> instance containing
-     * the source event as well as its previous and its new status.
-     */
-    public void peerStateChanged(CallPeerChangeEvent evt)
-    {
-        CallPeerState newState = (CallPeerState) evt.getNewValue();
-
-        if (CallPeerState.DISCONNECTED.equals(newState)
-                || CallPeerState.FAILED.equals(newState))
-        {
-            removeCallPeer((CallPeerSipImpl) evt.getSourceCallPeer());
-        }
-        else if (CallPeerState.CONNECTED.equals(newState)
-                || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(newState))
-        {
-            setCallState(CallState.CALL_IN_PROGRESS);
-        }
-        else if (CallPeerState.REFERRED.equals(newState))
-        {
-            setCallState(CallState.CALL_REFERRED);
-        }
-    }
 
     /**
      * Returns <tt>true</tt> if <tt>dialog</tt> matches the jain sip dialog
@@ -322,18 +127,6 @@ public class CallSipImpl
     public ProtocolProviderServiceSipImpl getProtocolProvider()
     {
         return super.getProtocolProvider();
-    }
-
-    /**
-     * Returns a reference to the <tt>OperationSetBasicTelephonySipImpl</tt>
-     * instance that created this call.
-     *
-     * @return a reference to the <tt>OperationSetBasicTelephonySipImpl</tt>
-     * instance that created this call.
-     */
-    public OperationSetBasicTelephonySipImpl getParentOperationSet()
-    {
-        return parentOpSet;
     }
 
     /**
@@ -434,7 +227,7 @@ public class CallSipImpl
         // new and we also need to notify everyone of its creation.
         if(this.getCallPeerCount() == 1)
         {
-            parentOpSet.fireCallEvent( (incomingCall
+            getParentOperationSet().fireCallEvent( (incomingCall
                                         ? CallEvent.CALL_RECEIVED
                                         : CallEvent.CALL_INITIATED),
                                         this);
@@ -636,206 +429,6 @@ public class CallSipImpl
         {
             CallPeerSipImpl peer = peers.next();
             peer.removeVideoPropertyChangeListener(listener);
-        }
-    }
-
-    /**
-     * Gets the indicator which determines whether the local peer represented by
-     * this <tt>Call</tt> is acting as a conference focus and thus should send
-     * the &quot;isfocus&quot; parameter in the Contact headers of its outgoing
-     * SIP signaling.
-     *
-     * @return <tt>true</tt> if the local peer represented by this <tt>Call</tt>
-     * is acting as a conference focus; otherwise, <tt>false</tt>
-     */
-    public boolean isConferenceFocus()
-    {
-        return conferenceFocus;
-    }
-
-    /**
-     * Sets the indicator which determines whether the local peer represented by
-     * this <tt>Call</tt> is acting as a conference focus and thus should send
-     * the &quot;isfocus&quot; parameter in the Contact headers of its outgoing
-     * SIP signaling
-     *
-     * @param conferenceFocus <tt>true</tt> if the local peer represented by
-     * this <tt>Call</tt> is to act as a conference focus; otherwise,
-     * <tt>false</tt>
-     */
-    void setConferenceFocus(boolean conferenceFocus)
-    {
-        if (this.conferenceFocus != conferenceFocus)
-        {
-            this.conferenceFocus = conferenceFocus;
-
-            /*
-             * If this Call switches from being a conference focus to not being
-             * one, dispose of the audio mixer used when it was a conference
-             * focus.
-             */
-            if (!this.conferenceFocus)
-                conferenceAudioMixer = null;
-
-            // fire that the focus property has changed
-            fireCallChangeEvent(
-                CallChangeEvent.CALL_FOCUS_CHANGE,
-                !this.conferenceFocus, this.conferenceFocus);
-        }
-    }
-
-    /**
-     * Gets a <tt>MediaDevice</tt> which is capable of capture and/or playback
-     * of media of the specified <tt>MediaType</tt>, is the default choice of
-     * the user for a <tt>MediaDevice</tt> with the specified <tt>MediaType</tt>
-     * and is appropriate for the current state of this <tt>Call</tt>.
-     * <p>
-     * For example, when the local peer represented by this <tt>Call</tt>
-     * instance is acting as a conference focus, the audio device must be a
-     * mixer.
-     * </p>
-     *
-     * @param mediaType the <tt>MediaType</tt> in which the retrieved
-     * <tt>MediaDevice</tt> is to capture and/or play back media
-     * @return a <tt>MediaDevice</tt> which is capable of capture and/or
-     * playback of media of the specified <tt>mediaType</tt>, is the default
-     * choice of the user for a <tt>MediaDevice</tt> with the specified
-     * <tt>mediaType</tt> and is appropriate for the current state of this
-     * <tt>Call</tt>
-     */
-    MediaDevice getDefaultDevice(MediaType mediaType)
-    {
-        MediaService mediaService = SipActivator.getMediaService();
-        MediaDevice device = mediaService.getDefaultDevice(mediaType,
-                mediaUseCase);
-
-        if (MediaType.AUDIO.equals(mediaType) && isConferenceFocus())
-        {
-            if (conferenceAudioMixer == null)
-            {
-                if (device != null)
-                    conferenceAudioMixer = mediaService.createMixer(device);
-            }
-            return conferenceAudioMixer;
-        }
-        return device;
-    }
-
-    /**
-     * Adds a specific <tt>SoundLevelListener</tt> to the list of
-     * listeners interested in and notified about changes in local sound level
-     * related information. When the first listener is being registered the
-     * method also registers its single listener with the call peer media
-     * handlers so that it would receive level change events and delegate them
-     * to the listeners that have registered with us.
-     *
-     * @param l the <tt>SoundLevelListener</tt> to add
-     */
-    public void addLocalUserSoundLevelListener(SoundLevelListener l)
-    {
-        synchronized(localUserAudioLevelListeners)
-        {
-
-            if (localUserAudioLevelListeners.size() == 0)
-            {
-                //if this is the first listener that's being registered with
-                //us, we also need to register ourselves as an audio level
-                //listener with the media handler. we do this so that audio
-                //level would only be calculated if anyone is interested in
-                //receiving them.
-                Iterator<CallPeerSipImpl> cps = getCallPeers();
-                while (cps.hasNext())
-                {
-                    CallPeerSipImpl callPeerSipImpl = cps.next();
-                    callPeerSipImpl.getMediaHandler()
-                            .setLocalUserAudioLevelListener(
-                                                localAudioLevelDelegator);
-                }
-            }
-
-            localUserAudioLevelListeners.add(l);
-        }
-    }
-
-    /**
-     * Removes a specific <tt>SoundLevelListener</tt> from the list of
-     * listeners interested in and notified about changes in local sound level
-     * related information. If <tt>l</tt> is the last listener that we had here
-     * we are also going to unregister our own level event delegator in order
-     * to stop level calculations.
-     *
-     * @param l the <tt>SoundLevelListener</tt> to remove
-     */
-    public void removeLocalUserSoundLevelListener(SoundLevelListener l)
-    {
-        synchronized(localUserAudioLevelListeners)
-        {
-            localUserAudioLevelListeners.add(l);
-
-            if (localUserAudioLevelListeners.size() == 0)
-            {
-                //if this was the last listener that was registered with us then
-                //no long need to have a delegator registered with the call
-                //peer media handlers. We therefore remove it so that audio
-                //level calculations would be ceased.
-                Iterator<CallPeerSipImpl> cps = getCallPeers();
-                while (cps.hasNext())
-                {
-                    CallPeerSipImpl callPeerSipImpl = cps.next();
-                    callPeerSipImpl.getMediaHandler()
-                            .setLocalUserAudioLevelListener(null);
-                }
-            }
-        }
-    }
-
-    /**
-     * Notified by its very majesty the media service about changes in the
-     * audio level of the local user, this listener generates the corresponding
-     * events and delivers them to the listeners that have registered here.
-     *
-     * @param newLevel the new audio level of the local user.
-     */
-    private void fireLocalUserAudioLevelChangeEvent(int newLevel)
-    {
-        SoundLevelChangeEvent evt
-            = new SoundLevelChangeEvent(this, newLevel);
-
-        synchronized( localUserAudioLevelListeners )
-        {
-            for(SoundLevelListener listener : localUserAudioLevelListeners)
-                 listener.soundLevelChanged(evt);
-        }
-    }
-
-    /**
-     * Determines whether this call is mute.
-     *
-     * @return <tt>true</tt> if an audio streams being sent to the call
-     *         peers are currently muted; <tt>false</tt>, otherwise
-     */
-    public boolean isMute()
-    {
-        return this.mute;
-    }
-
-    /**
-     * Sets the mute property for this call.
-     *
-     * @param newMuteValue the new value of the mute property for this call
-     */
-    public void setMute(boolean newMuteValue)
-    {
-        if (this.mute != newMuteValue)
-        {
-            this.mute = newMuteValue;
-
-            Iterator<CallPeerSipImpl> peers = getCallPeers();
-            while (peers.hasNext())
-            {
-                CallPeerSipImpl peer = peers.next();
-                peer.setMute(newMuteValue);
-            }
         }
     }
 }

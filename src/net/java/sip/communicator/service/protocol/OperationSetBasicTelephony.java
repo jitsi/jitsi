@@ -16,10 +16,14 @@ import java.text.*;
  * supplementary operation set and if included in the service should be available
  * behind the basic telephony set.
  *
+ * @param <T> the provider extension class like for example
+ * <tt>ProtocolProviderServiceSipImpl</tt> or
+ * <tt>ProtocolProviderServiceJabberImpl</tt>
+ *
  * @author Emil Ivov
  * @author Lubomir Marinov
  */
-public interface OperationSetBasicTelephony
+public interface OperationSetBasicTelephony<T extends ProtocolProviderService>
     extends OperationSet
 {
     /**
@@ -147,4 +151,12 @@ public interface OperationSetBasicTelephony
      *            <tt>peers</tt>; otherwise, <tt>false</tt>
      */
     public void setMute(Call call, boolean mute);
+
+    /**
+     * Returns the protocol provider that this operation set belongs to.
+     *
+     * @return a reference to the <tt>ProtocolProviderService</tt> that created
+     * this operation set.
+     */
+    public T getProtocolProvider();
 }

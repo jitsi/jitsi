@@ -12,6 +12,12 @@ import java.util.*;
  * Provides implementations for some of the methods in the <tt>Call</tt>
  * abstract class to facilitate implementations.
  *
+ * @param <T> the peer extension class like for example <tt>CallPeerSipImpl</tt>
+ * or <tt>CallPeerJabberImpl</tt>
+ * @param <U> the provider extension class like for example
+ * <tt>ProtocolProviderServiceSipImpl</tt> or
+ * <tt>ProtocolProviderServiceJabberImpl</tt>
+ *
  * @author Emil Ivov
  */
 public abstract class AbstractCall<T extends CallPeer,

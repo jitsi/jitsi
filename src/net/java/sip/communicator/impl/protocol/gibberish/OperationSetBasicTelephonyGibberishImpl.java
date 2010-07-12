@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class OperationSetBasicTelephonyGibberishImpl
-    extends AbstractOperationSetBasicTelephony
+    extends AbstractOperationSetBasicTelephony<ProtocolProviderServiceGibberishImpl>
     implements CallChangeListener
 {
     private static final Logger logger
@@ -270,5 +270,16 @@ public class OperationSetBasicTelephonyGibberishImpl
         {
             gibberishPeer.setState(CallPeerState.ON_HOLD_LOCALLY);
         }
+    }
+
+    /**
+     * Returns the protocol provider that this operation set belongs to.
+     *
+     * @return a reference to the <tt>ProtocolProviderService</tt> that created
+     * this operation set.
+     */
+    public ProtocolProviderServiceGibberishImpl getProtocolProvider()
+    {
+        return protocolProvider;
     }
 }

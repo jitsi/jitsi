@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 
@@ -46,6 +47,12 @@ public class JabberActivator
      * Media service.
      */
     private static MediaService mediaService = null;
+
+    /**
+     * A reference to the currently valid {@link NetworkAddressManagerService}.
+     */
+    private static NetworkAddressManagerService
+                                        networkAddressManagerService = null;
 
     /**
      * The Jabber protocol provider factory.
@@ -245,5 +252,26 @@ public class JabberActivator
                 .getService(mediaServiceReference);
         }
         return mediaService;
+    }
+
+    /**
+     * Returns a reference to a NetworkAddressManagerService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a currently valid implementation of the
+     * NetworkAddressManagerService .
+     */
+    public static NetworkAddressManagerService getNetworkAddressManagerService()
+    {
+        if(networkAddressManagerService == null)
+        {
+            ServiceReference confReference
+                = bundleContext.getServiceReference(
+                    NetworkAddressManagerService.class.getName());
+            networkAddressManagerService = (NetworkAddressManagerService)
+                bundleContext.getService(confReference);
+        }
+        return networkAddressManagerService;
     }
 }
