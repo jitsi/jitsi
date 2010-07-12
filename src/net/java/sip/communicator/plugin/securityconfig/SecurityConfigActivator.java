@@ -7,8 +7,8 @@ package net.java.sip.communicator.plugin.securityconfig;
 
 import java.util.*;
 
-import net.java.sip.communicator.plugin.otr.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
@@ -17,8 +17,8 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * 
  * @author Yana Stamcheva
+ * @author Dmitri Melnikov
  */
 public class SecurityConfigActivator
     implements BundleActivator
@@ -35,18 +35,30 @@ public class SecurityConfigActivator
     public static BundleContext bundleContext;
 
     /**
-     * The {@link ResourceManagementService} of the {@link OtrActivator}. Can
-     * also be obtained from the {@link OtrActivator#bundleContext} on demand,
-     * but we add it here for convinience.
+     * The {@link ResourceManagementService} of the
+     * {@link SecurityConfigActivator}. Can also be obtained from the
+     * {@link SecurityConfigActivator#bundleContext} on demand, but we add it
+     * here for convenience.
      */
-    private static ResourceManagementService resourceService;
+    private static ResourceManagementService resources;
 
     /**
      * The <tt>ConfigurationService</tt> registered in {@link #bundleContext}
-     * and used by the <tt>NeomediaActivator</tt> instance to read and write
-     * configuration properties.
+     * and used by the <tt>SecurityConfigActivator</tt> instance to read and
+     * write configuration properties.
      */
     private static ConfigurationService configurationService;
+
+    /**
+     * The <tt>CredentialsStorageService</tt> registered in
+     * {@link #bundleContext}.
+     */
+    private static CredentialsStorageService credentialsStorageService;
+
+    /**
+     * The <tt>UIService</tt> registered in {@link #bundleContext}.
+     */
+    private static UIService uiService;
 
     /**
      * Starts this plugin.
@@ -59,15 +71,33 @@ public class SecurityConfigActivator
         bundleContext = bc;
 
         // Register the configuration form.
-        Dictionary<String, String> properties = new Hashtable<String, String>();
+        Dictionary<String, String> properties;
+
+        properties = new Hashtable<String, String>();
         properties.put( ConfigurationForm.FORM_TYPE,
                         ConfigurationForm.GENERAL_TYPE);
-        bundleContext.registerService(ConfigurationForm.class.getName(),
+        bundleContext.registerService(
+            ConfigurationForm.class.getName(),
             new LazyConfigurationForm(
                 "net.java.sip.communicator.plugin.securityconfig.SecurityConfigurationPanel",
                 getClass().getClassLoader(),
                 "plugin.securityconfig.ICON",
-                "plugin.securityconfig.TITLE", 20), properties);
+                "plugin.securityconfig.TITLE",
+                20),
+            properties);
+
+        properties = new Hashtable<String, String>();
+        properties.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.SECURITY_TYPE);
+        bundleContext.registerService(
+            ConfigurationForm.class.getName(),
+            new LazyConfigurationForm(
+                "net.java.sip.communicator.plugin.securityconfig.masterpassword.ConfigurationPanel",
+                getClass().getClassLoader(),
+                null /* iconID */,
+                "plugin.securityconfig.masterpassword.TITLE",
+                20),
+            properties);
     }
 
     /**
@@ -87,19 +117,12 @@ public class SecurityConfigActivator
      */
     public static ResourceManagementService getResources()
     {
-        if (resourceService == null)
+        if (resources == null)
         {
-            ServiceReference resReference
-                = bundleContext
-                    .getServiceReference(
-                        ResourceManagementService.class.getName());
-
-            if (resReference != null)
-                resourceService
-                    = (ResourceManagementService)
-                        bundleContext.getService(resReference);
+            resources
+                = ResourceManagementServiceUtils.getService(bundleContext);
         }
-        return resourceService;
+        return resources;
     }
 
     /**
@@ -123,6 +146,46 @@ public class SecurityConfigActivator
                         bundleContext.getService(confReference);
         }
         return configurationService;
+    }
+
+    /**
+     * Returns the <tt>CredentialsStorageService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>CredentialsStorageService</tt> obtained from the bundle
+     * context
+     */
+    public static CredentialsStorageService getCredentialsStorageService()
+    {
+        if (credentialsStorageService == null)
+        {
+            ServiceReference credentialsReference
+                = bundleContext.getServiceReference(
+                        CredentialsStorageService.class.getName());
+
+            credentialsStorageService
+                = (CredentialsStorageService)
+                    bundleContext.getService(credentialsReference);
+        }
+        return credentialsStorageService;
+    }
+
+    /**
+     * Gets the <tt>UIService</tt> instance registered in the
+     * <tt>BundleContext</tt> of the <tt>SecurityConfigActivator</tt>.
+     *
+     * @return the <tt>UIService</tt> instance registered in the
+     * <tt>BundleContext</tt> of the <tt>SecurityConfigActivator</tt>
+     */
+    public static UIService getUIService()
+    {
+        if (uiService == null)
+        {
+            ServiceReference serviceReference
+                = bundleContext.getServiceReference(UIService.class.getName());
+
+            uiService = (UIService) bundleContext.getService(serviceReference);
+        }
+        return uiService;
     }
 
     /**
@@ -188,5 +251,52 @@ public class SecurityConfigActivator
             }
         }
         return providerFactoriesMap;
+    }
+
+    /**
+     * Finds all accounts with saved encrypted passwords.
+     * 
+     * @return a {@link List} of {@link AccountID} with the saved encrypted password. 
+     */
+    public static Map<AccountID, String> getAccountIDsWithSavedPasswords()
+    {
+        Map<?, ProtocolProviderFactory> providerFactoriesMap
+            = getProtocolProviderFactories();
+
+        if (providerFactoriesMap == null)
+            return null;
+
+        CredentialsStorageService credentialsStorageService
+            = getCredentialsStorageService();
+        Map<AccountID, String> accountIDs = new HashMap<AccountID, String>();
+
+        for (ProtocolProviderFactory providerFactory
+                : providerFactoriesMap.values())
+        {
+            String sourcePackageName
+                = getFactoryImplPackageName(providerFactory);
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+            {
+                String accountPrefix
+                    = ProtocolProviderFactory.findAccountPrefix(
+                            bundleContext,
+                            accountID,
+                            sourcePackageName);
+                if (credentialsStorageService.isStoredEncrypted(accountPrefix))
+                    accountIDs.put(accountID, accountPrefix);
+            }
+        }
+        return accountIDs;
+    }
+
+    /**
+     * @return a String containing the package name of the concrete factory
+     * class that extends the abstract factory.
+     */
+    private static String getFactoryImplPackageName(
+            ProtocolProviderFactory providerFactory)
+    {
+        String className = providerFactory.getClass().getName();
+        return className.substring(0, className.lastIndexOf('.'));
     }
 }

@@ -8,10 +8,11 @@ package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The ProtocolProviderFactory is what actually creates instances of a
@@ -27,8 +28,13 @@ import net.java.sip.communicator.util.*;
  */
 public abstract class ProtocolProviderFactory
 {
-    private static final Logger logger =
-        Logger.getLogger(ProtocolProviderFactory.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>ProtocolProviderFactory</tt> class
+     * and its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(ProtocolProviderFactory.class);
+
     /**
      * Then name of a property which represents a password.
      */
@@ -473,12 +479,12 @@ public abstract class ProtocolProviderFactory
      * </p>
      * 
      * @param bundleContext a currently valid bundle context.
-     * @param accountID the AccountID for the account whose password we're
-     *            storing.
-     * @param password the password itself.
+     * @param accountID the <tt>AccountID</tt> of the account whose password is
+     * to be stored
+     * @param password the password to be stored
      * 
      * @throws IllegalArgumentException if no account corresponding to
-     *             <tt>accountID</tt> has been previously stored.
+     * <tt>accountID</tt> has been previously stored.
      */
     protected void storePassword(BundleContext bundleContext,
                                  AccountID    accountID,
@@ -486,7 +492,7 @@ public abstract class ProtocolProviderFactory
         throws IllegalArgumentException
     {
         String accountPrefix = findAccountPrefix(
-            bundleContext, accountID);
+            bundleContext, accountID, getFactoryImplPackageName());
 
         if (accountPrefix == null)
             throw new IllegalArgumentException(
@@ -494,24 +500,14 @@ public abstract class ProtocolProviderFactory
                 + accountID.getAccountUniqueID()
                 + " in package" + getFactoryImplPackageName());
 
-        //obscure the password
-        String mangledPassword = null;
-
-        //if password is null then the caller simply wants the current password
-        //removed from the cache. make sure they don't get a null pointer
-        //instead.
-        if(password != null)
-            mangledPassword = new String(Base64.encode(password.getBytes()));
-
-        //get a reference to the config service and store it.
-        ServiceReference confReference
+        ServiceReference credentialsReference
             = bundleContext.getServiceReference(
-                ConfigurationService.class.getName());
-        ConfigurationService configurationService
-            = (ConfigurationService) bundleContext.getService(confReference);
+                    CredentialsStorageService.class.getName());
+        CredentialsStorageService credentialsService
+            = (CredentialsStorageService)
+                bundleContext.getService(credentialsReference);
 
-       configurationService.setProperty(
-                accountPrefix + "." + PASSWORD, mangledPassword);
+        credentialsService.storePassword(accountPrefix, password);
     }
 
     /**
@@ -545,27 +541,19 @@ public abstract class ProtocolProviderFactory
                                   AccountID     accountID)
     {
         String accountPrefix = findAccountPrefix(
-            bundleContext, accountID);
+            bundleContext, accountID, getFactoryImplPackageName());
 
         if (accountPrefix == null)
             return null;
 
-        //get a reference to the config service and store it.
-        ServiceReference confReference
+        ServiceReference credentialsReference
             = bundleContext.getServiceReference(
-                ConfigurationService.class.getName());
-        ConfigurationService configurationService
-            = (ConfigurationService) bundleContext.getService(confReference);
+                    CredentialsStorageService.class.getName());
+        CredentialsStorageService credentialsService
+            = (CredentialsStorageService)
+                bundleContext.getService(credentialsReference);
 
-        //obscure the password
-         String mangledPassword
-             =  configurationService.getString(
-                    accountPrefix + "." + PASSWORD);
-
-         if(mangledPassword == null)
-             return null;
-
-         return new String(Base64.decode(mangledPassword));
+        return credentialsService.loadPassword(accountPrefix);
     }
 
     /**
@@ -784,15 +772,16 @@ public abstract class ProtocolProviderFactory
      * @param bundleContext a currently valid bundle context.
      * @param accountID the AccountID of the account whose properties we're
      * looking for.
+     * @param a String containing the package name of the concrete factory
+     * class that extends us.
      * @return a String indicating the ConfigurationService property name
      * prefix under which all account properties are stored or null if no
      * account corresponding to the specified id was found.
      */
-    protected String findAccountPrefix(BundleContext bundleContext,
-                                       AccountID     accountID)
+    public static String findAccountPrefix(BundleContext bundleContext,
+                                       AccountID     accountID,
+                                       String sourcePackageName)
     {
-        String sourcePackageName = getFactoryImplPackageName();
-
         ServiceReference confReference
             = bundleContext.getServiceReference(
                 ConfigurationService.class.getName());

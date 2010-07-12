@@ -1,0 +1,158 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.credentialsstorage;
+
+import java.security.*;
+import java.security.spec.*;
+
+import javax.crypto.*;
+import javax.crypto.spec.*;
+
+import net.java.sip.communicator.service.credentialsstorage.*;
+import net.java.sip.communicator.util.*;
+
+/**
+ * Performs encryption and decryption of text using AES algorithm.
+ *
+ * @author Dmitri Melnikov
+ */
+public class AESCrypto
+    implements Crypto
+{
+    /**
+     * The algorithm associated with the key.
+     */
+    private static final String KEY_ALGORITHM = "AES";
+
+    /**
+     * AES in ECB mode with padding.
+     */
+    private static final String CIPHER_ALGORITHM = "AES/ECB/PKCS5PADDING";
+
+    /**
+     * Salt used when creating the key.
+     */
+    private static byte[] SALT =
+    { 0x0C, 0x0A, 0x0F, 0x0E, 0x0B, 0x0E, 0x0E, 0x0F };
+
+    /**
+     * Length of the key in bits.
+     */
+    private static int KEY_LENGTH = 256;
+
+    /**
+     * Number of iterations to use when creating the key.
+     */
+    private static int ITERATION_COUNT = 1024;
+
+    /**
+     * Key derived from the master password to use for encryption/decryption.
+     */
+    private Key key;
+
+    /**
+     * Decryption object.
+     */
+    private Cipher decryptCipher;
+
+    /**
+     * Encryption object.
+     */
+    private Cipher encryptCipher;
+
+    /**
+     * Creates the encryption and decryption objects and the key.
+     * 
+     * @param masterPassword used to derive the key. Can be null.
+     */
+    public AESCrypto(String masterPassword)
+    {
+        // if the password is empty, we get an exception constructing the key
+        if (masterPassword == null)
+        {
+            // here a default password can be set,
+            // cannot be an empty string
+            masterPassword = " ";
+        }
+
+        try
+        {
+            decryptCipher = Cipher.getInstance(CIPHER_ALGORITHM);
+            encryptCipher = Cipher.getInstance(CIPHER_ALGORITHM);
+            
+            // Password-Based Key Derivation Function found in PKCS5 v2.0.
+            // This is only available with java 6.
+            SecretKeyFactory factory =
+                SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            // Make a key from the master password
+            KeySpec spec =
+                new PBEKeySpec(masterPassword.toCharArray(), SALT,
+                    ITERATION_COUNT, KEY_LENGTH);
+            SecretKey tmp = factory.generateSecret(spec);
+            // Make an algorithm specific key
+            key = new SecretKeySpec(tmp.getEncoded(), KEY_ALGORITHM);
+        }
+        catch (InvalidKeySpecException e)
+        {
+            throw new RuntimeException("Invalid key specification", e);
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            throw new RuntimeException("Algorithm not found", e);
+        }
+        catch (NoSuchPaddingException e)
+        {
+            throw new RuntimeException("Padding not found", e);
+        }
+    }
+
+    /**
+     * Decrypts the cyphertext using the key.
+     * 
+     * @param ciphertext base64 encoded encrypted data
+     * @return decrypted data
+     * @throws CryptoException when the ciphertext cannot be decrypted with the
+     *             key or on decryption error.
+     */
+    public String decrypt(String ciphertext) throws CryptoException
+    {
+        try
+        {
+            decryptCipher.init(Cipher.DECRYPT_MODE, key);
+            return new String(decryptCipher.doFinal(Base64.decode(ciphertext)));
+        }
+        catch (BadPaddingException e)
+        {
+            throw new CryptoException(CryptoException.WRONG_KEY, e);
+        }
+        catch (Exception e)
+        {
+            throw new CryptoException(CryptoException.DECRYPTION_ERROR, e);
+        }
+    }
+
+    /**
+     * Encrypts the plaintext using the key.
+     * 
+     * @param plaintext data to be encrypted
+     * @return base64 encoded encrypted data 
+     * @throws CryptoException on encryption error
+     */
+    public String encrypt(String plaintext) throws CryptoException
+    {
+        try
+        {
+            encryptCipher.init(Cipher.ENCRYPT_MODE, key);
+            return new String(Base64.encode(encryptCipher.doFinal(plaintext
+                .getBytes("UTF-8"))));
+        }
+        catch (Exception e)
+        {
+            throw new CryptoException(CryptoException.ENCRYPTION_ERROR, e);
+        }
+    }
+}

@@ -19,19 +19,25 @@ import net.java.sip.communicator.util.xml.*;
 import org.osgi.framework.*;
 
 /**
- * A straight forward implementation of the ConfigurationService using an xml
- * file for storing properties. Currently only String properties are
- * meaningfully saved (we should probably consider how and whether we should
- * take care of the rest).
+ * A straightforward implementation of the <tt>ConfigurationService</tt> using
+ * an XML or a .properties file for storing properties. Currently only
+ * <tt>String</tt> properties are meaningfully saved (we should probably
+ * consider how and whether we should take care of the rest).
  *
  * @author Emil Ivov
  * @author Damian Minkov
  * @author Lubomir Marinov
+ * @author Dmitri Melnikov
  */
 public class ConfigurationServiceImpl
     implements ConfigurationService
 {
-    private final Logger logger = Logger.getLogger(ConfigurationServiceImpl.class);
+    /**
+     * The <tt>Logger</tt> used by this <tt>ConfigurationServiceImpl</tt>
+     * instance for logging output.
+     */
+    private final Logger logger
+        = Logger.getLogger(ConfigurationServiceImpl.class);
 
     private static final String SYS_PROPS_FILE_NAME_PROPERTY
         = "net.java.sip.communicator.SYS_PROPS_FILE_NAME";
@@ -362,6 +368,43 @@ public class ConfigurationServiceImpl
             }
         }
 
+        return resultKeySet;
+    }
+
+    /**
+     * Returns a <tt>List</tt> of <tt>String</tt>s containing the property names
+     * that have the specified suffix. A suffix is considered to be everything
+     * after the last dot in the property name.
+     * <p>
+     * For example, imagine a configuration service instance containing two
+     * properties only:
+     * </p>
+     * <code>
+     * net.java.sip.communicator.PROP1=value1
+     * net.java.sip.communicator.service.protocol.PROP1=value2
+     * </code>
+     * <p>
+     * A call to this method with <tt>suffix</tt> equal to "PROP1" will return
+     * both properties, whereas the call with <tt>suffix</tt> equal to
+     * "communicator.PROP1" or "PROP2" will return an empty <tt>List</tt>. Thus,
+     * if the <tt>suffix</tt> argument contains a dot, nothing will be found.
+     * </p>
+     *
+     * @param suffix the suffix for the property names to be returned
+     * @return a <tt>List</tt> of <tt>String</tt>s containing the property names
+     * which contain the specified <tt>suffix</tt>
+     */
+    public List<String> getPropertyNamesBySuffix(String suffix)
+    {
+        List<String> resultKeySet = new LinkedList<String>();
+
+        for (String key : store.getPropertyNames())
+        {
+            int ix = key.lastIndexOf('.');
+
+            if ((ix != -1) && suffix.equals(key.substring(ix+1)))
+                resultKeySet.add(key);
+        }
         return resultKeySet;
     }
 

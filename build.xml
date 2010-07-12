@@ -913,7 +913,8 @@
         bundle-bouncycastle,bundle-plugin-otr,bundle-plugin-iptelaccregwizz,
         bundle-contactsource,bundle-plugin-reconnect,
         bundle-plugin-securityconfig,bundle-plugin-advancedconfig,
-        bundle-plugin-sip2sipaccregwizz"/>
+        bundle-plugin-sip2sipaccregwizz,
+        bundle-credentialsstorage,bundle-credentialsstorage-slick"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1046,6 +1047,29 @@
             manifest="${testsrc}/net/java/sip/communicator/slick/configuration/configuration.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/configuration"
                 prefix="net/java/sip/communicator/slick/configuration"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-CREDENTIALSSTORAGE-->
+    <target name="bundle-credentialsstorage">
+        <jar
+            compress="false"
+            destfile="${bundles.dest}/credentialsstorage.jar"
+            manifest="${src}/net/java/sip/communicator/impl/credentialsstorage/credentialsstorage.manifest.mf" >
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/credentialsstorage"
+                prefix="net/java/sip/communicator/service/credentialsstorage"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/credentialsstorage"
+                prefix="net/java/sip/communicator/impl/credentialsstorage" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-CREDENTIALSSTORAGE-SLICK-->
+    <target name="bundle-credentialsstorage-slick">
+        <jar compress="false" destfile="${bundles.dest}/credentialsstorage-slick.jar"
+            manifest="${testsrc}/net/java/sip/communicator/slick/credentialsstorage/credentialsstorage.slick.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/slick/credentialsstorage"
+                prefix="net/java/sip/communicator/slick/credentialsstorage"/>
         </jar>
     </target>
 

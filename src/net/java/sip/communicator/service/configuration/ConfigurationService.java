@@ -18,6 +18,7 @@ import net.java.sip.communicator.util.xml.*;
  *
  * @author Emil Ivov
  * @author Lubomir Marinov
+ * @author Dmitri Melnikov
  */
 public interface ConfigurationService
 {
@@ -160,6 +161,31 @@ public interface ConfigurationService
      */
     public List<String> getPropertyNamesByPrefix(String  prefix,
                                          boolean exactPrefixMatch);
+
+    /**
+     * Returns a <tt>List</tt> of <tt>String</tt>s containing the property names
+     * that have the specified suffix. A suffix is considered to be everything
+     * after the last dot in the property name.
+     * <p>
+     * For example, imagine a configuration service instance containing two
+     * properties only:
+     * </p>
+     * <code>
+     * net.java.sip.communicator.PROP1=value1
+     * net.java.sip.communicator.service.protocol.PROP1=value2
+     * </code>
+     * <p>
+     * A call to this method with <tt>suffix</tt> equal to "PROP1" will return
+     * both properties, whereas the call with <tt>suffix</tt> equal to
+     * "communicator.PROP1" or "PROP2" will return an empty <tt>List</tt>. Thus,
+     * if the <tt>suffix</tt> argument contains a dot, nothing will be found.
+     * </p>
+     *
+     * @param suffix the suffix for the property names to be returned
+     * @return a <tt>List</tt> of <tt>String</tt>s containing the property names
+     * which contain the specified <tt>suffix</tt>
+     */
+    public List<String> getPropertyNamesBySuffix(String suffix);
 
     /**
      * Returns the String value of the specified property and null in case no
