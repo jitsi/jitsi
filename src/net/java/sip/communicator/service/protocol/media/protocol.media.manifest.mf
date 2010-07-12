@@ -1,4 +1,4 @@
-Bundle-Activator: net.java.sip.communicator.impl.protocol.media.ProtocolMediaActivator
+Bundle-Activator: net.java.sip.communicator.service.protocol.media.ProtocolMediaActivator
 Bundle-Name: Media Utilities for the Protocol Provider Service
 Bundle-Description: Media Utilities for the Protocol Provider Service.
 Bundle-Vendor: sip-communicator.org
