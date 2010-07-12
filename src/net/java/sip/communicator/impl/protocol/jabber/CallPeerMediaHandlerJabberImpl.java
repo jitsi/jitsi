@@ -8,9 +8,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.net.*;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 
@@ -32,43 +29,6 @@ public class CallPeerMediaHandlerJabberImpl
     {
         //TODO - callpeer jabber impl should implement otr listeenr
         super(peer, null);
-    }
-
-    /**
-     * Should return a reference to the currently valid configuration service.
-     * We need this method in order to keep the protocol-media bundle as light
-     * as possible: we don't want it to have an activator and deal with a
-     * bundle context.
-     *
-     * @return a reference to the currently valid {@link ConfigurationService}
-     */
-    @Override
-    protected ConfigurationService getConfigurationService()
-    {
-        return JabberActivator.getConfigurationService();
-    }
-
-    /**
-     * Returns a reference to the currently valid media service.
-     *
-     * @return a reference to the currently valid {@link MediaService}
-     */
-    @Override
-    protected MediaService getMediaService()
-    {
-        return JabberActivator.getMediaService();
-    }
-
-    /**
-     * Returns a reference to the currently valid network address service.
-     *
-     * @return a reference to the currently valid {@link
-     * NetworkAddressManagerService}
-     */
-    @Override
-    protected NetworkAddressManagerService getNetworkAddressManagerService()
-    {
-        return JabberActivator.getNetworkAddressManagerService();
     }
 
     /**

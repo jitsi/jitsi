@@ -34,7 +34,7 @@ import net.java.sip.communicator.util.*;
 public class OperationSetBasicTelephonySipImpl
     extends AbstractOperationSetBasicTelephony<ProtocolProviderServiceSipImpl>
     implements MethodProcessor,
-               OperationSetAdvancedTelephony,
+               OperationSetAdvancedTelephony<ProtocolProviderServiceSipImpl>,
                OperationSetSecureTelephony
 {
     /**

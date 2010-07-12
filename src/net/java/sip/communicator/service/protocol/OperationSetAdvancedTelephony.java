@@ -10,10 +10,13 @@ package net.java.sip.communicator.service.protocol;
  * Extends <code>OperationSetBasicTelephony</code> with advanced telephony
  * operations such as call transfer.
  *
+ * @param <T> the implementation specific provider class like for example
+ * <tt>ProtocolProviderServiceSipImpl</tt>.
+ *
  * @author Lubomir Marinov
  */
-public interface OperationSetAdvancedTelephony
-    extends OperationSetBasicTelephony
+public interface OperationSetAdvancedTelephony<T extends ProtocolProviderService>
+    extends OperationSetBasicTelephony<T>
 {
 
     /**
@@ -29,7 +32,7 @@ public interface OperationSetAdvancedTelephony
      *            the specified callee address
      * @param target the address in the form of <code>CallPeer</code> of
      *            the callee to transfer <code>peer</code> to
-     * @throws OperationFailedException
+     * @throws OperationFailedException if something goes wrong.
      */
     void transfer(CallPeer peer, CallPeer target)
         throws OperationFailedException;
@@ -46,7 +49,7 @@ public interface OperationSetAdvancedTelephony
      * @param peer the <code>CallPeer</code> to be transfered to
      *            the specified callee address
      * @param target the address of the callee to transfer <code>peer</code> to
-     * @throws OperationFailedException
+     * @throws OperationFailedException if something goes wrong.
      */
     void transfer(CallPeer peer, String target)
         throws OperationFailedException;

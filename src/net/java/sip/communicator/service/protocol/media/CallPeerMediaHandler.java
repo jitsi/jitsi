@@ -12,7 +12,6 @@ import java.net.*;
 import java.util.*;
 import java.util.List;
 
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -25,10 +24,10 @@ import net.java.sip.communicator.service.protocol.event.VideoListener;
 import net.java.sip.communicator.util.*;
 
 /**
- * A utility class implementing code shared between current telephony
- * implementations. This class is only meant for use by protocol implementations
- * and should/could not be accessed by bundles that are simply using the
- * telephony functionalities.
+ * A utility class implementing media control code shared between current
+ * telephony implementations. This class is only meant for use by protocol
+ * implementations and should/could not be accessed by bundles that are simply
+ * using the telephony functionalities.
  *
  * @param <T> the peer extension class like for example <tt>CallPeerSipImpl</tt>
  * or <tt>CallPeerJabberImpl</tt>
@@ -708,8 +707,6 @@ public abstract class CallPeerMediaHandler<T extends CallPeer>
         return audioRemoteSSRC;
     }
 
-
-
     /**
      * Registers a specific <tt>VideoListener</tt> with this instance so that it
      * starts receiving notifications from it about changes in the availability
@@ -742,7 +739,8 @@ public abstract class CallPeerMediaHandler<T extends CallPeer>
     protected StreamConnector createStreamConnector()
         throws OperationFailedException
     {
-        NetworkAddressManagerService nam = getNetworkAddressManagerService();
+        NetworkAddressManagerService nam
+            = ProtocolMediaActivator.getNetworkAddressManagerService();
 
         InetAddress intendedDestination = getIntendedDestination(peer);
 
@@ -806,9 +804,10 @@ public abstract class CallPeerMediaHandler<T extends CallPeer>
         maxMediaPort = 6000;
 
         //then set to anything the user might have specified.
-        String minPortNumberStr = getConfigurationService()
-            .getString(OperationSetBasicTelephony
-                            .MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+        String minPortNumberStr
+            = ProtocolMediaActivator.getConfigurationService()
+                .getString(OperationSetBasicTelephony
+                    .MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
 
         if (minPortNumberStr != null)
         {
@@ -824,9 +823,10 @@ public abstract class CallPeerMediaHandler<T extends CallPeer>
             }
         }
 
-        String maxPortNumberStr = getConfigurationService()
-            .getString(OperationSetBasicTelephony
-                            .MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+        String maxPortNumberStr
+                = ProtocolMediaActivator.getConfigurationService()
+                    .getString(OperationSetBasicTelephony
+                        .MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
 
         if (maxPortNumberStr != null)
         {
@@ -1241,7 +1241,8 @@ public abstract class CallPeerMediaHandler<T extends CallPeer>
         if (videoStreamConnector != null)
             return videoStreamConnector.getDataSocket().getLocalAddress();
 
-        NetworkAddressManagerService nam = getNetworkAddressManagerService();
+        NetworkAddressManagerService nam
+                    = ProtocolMediaActivator.getNetworkAddressManagerService();
         InetAddress intendedDestination = getIntendedDestination(peer);
 
         return nam.getLocalHost(intendedDestination);
@@ -1291,7 +1292,8 @@ public abstract class CallPeerMediaHandler<T extends CallPeer>
         {
             // check whether a control already exists
             ZrtpControl control = zrtpControls.get(format.getMediaType());
-            MediaService mediaService = getMediaService();
+            MediaService mediaService
+                                = ProtocolMediaActivator.getMediaService();
 
             if(control == null)
                 stream = mediaService.createMediaStream(connector, device);
@@ -1612,38 +1614,6 @@ public abstract class CallPeerMediaHandler<T extends CallPeer>
      * host/ip/fqdn
      */
     protected abstract InetAddress getIntendedDestination(T peer);
-
-    /**
-     * Should return a reference to the currently valid network address
-     * manager service. We need this method in order to keep the protocol-media
-     * bundle as light as possible: we don't want it to have an activator and
-     * deal with a bundle context.
-     *
-     * @return a reference to the currently valid {@link
-     * NetworkAddressManagerService}
-     */
-    protected abstract NetworkAddressManagerService
-                                            getNetworkAddressManagerService();
-
-    /**
-     * Should return a reference to the currently valid configuration service.
-     * We need this method in order to keep the protocol-media bundle as light
-     * as possible: we don't want it to have an activator and deal with a
-     * bundle context.
-     *
-     * @return a reference to the currently valid {@link ConfigurationService}
-     */
-    protected abstract ConfigurationService getConfigurationService();
-
-    /**
-     * Should return a reference to the currently valid media service.
-     * We need this method in order to keep the protocol-media bundle as light
-     * as possible: we don't want it to have an activator and deal with a
-     * bundle context.
-     *
-     * @return a reference to the currently valid {@link MediaService}
-     */
-    protected abstract MediaService getMediaService();
 
     /**
      * Lets the underlying implementation take note of this error and only

@@ -15,6 +15,10 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
+ * A utility class implementing media control code shared between current
+ * telephony implementations. This class is only meant for use by protocol
+ * implementations and should/could not be accessed by bundles that are simply
+ * using the telephony functionalities.
  *
  * @param <T> the peer extension class like for example <tt>CallPeerSipImpl</tt>
  * or <tt>CallPeerJabberImpl</tt>
@@ -27,9 +31,10 @@ import net.java.sip.communicator.service.protocol.event.*;
  *
  * @author Emil Ivov
  */
-public abstract class AbstractMediaAwareCall<T extends CallPeer,
-                                             U extends OperationSetBasicTelephony<V>,
-                                             V extends ProtocolProviderService>
+public abstract class AbstractMediaAwareCall<
+                                       T extends AbstractMediaAwareCallPeer<?, V>,
+                                       U extends OperationSetBasicTelephony<V>,
+                                       V extends ProtocolProviderService>
     extends AbstractCall<T, V>
     implements CallPeerListener
 {
@@ -43,7 +48,8 @@ public abstract class AbstractMediaAwareCall<T extends CallPeer,
 
     /**
      * The indicator which determines whether the local peer represented by this
-     * <tt>Call</tt> is acting as a conference focus and is thus specifying the
+     * <tt>Call</tt> is acting as a conference focus and may thus be specifying
+     * a related parameter in its signalling, like for example the
      * &quot;isfocus&quot; parameter in the Contact headers of its outgoing SIP
      * signaling.
      */
@@ -55,8 +61,7 @@ public abstract class AbstractMediaAwareCall<T extends CallPeer,
     protected boolean localVideoAllowed = false;
 
     /**
-     * A reference to the <tt>OperationSetBasicTelephonySipImpl</tt> that
-     * created us;
+     * A reference to the <tt>OperationSetBasicTelephony</tt> that created us;
      */
     private final U parentOpSet;
 
@@ -92,8 +97,7 @@ public abstract class AbstractMediaAwareCall<T extends CallPeer,
         };
 
     /**
-     * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
-     * initiated by <tt>CallCreator</tt>.
+     * Crates a <tt>Call</tt> instance belonging to <tt>parentOpSet</tt>.
      *
      * @param parentOpSet a reference to the operation set that's creating us
      * and that we would be able to use for even dispatching.
@@ -101,6 +105,7 @@ public abstract class AbstractMediaAwareCall<T extends CallPeer,
     protected AbstractMediaAwareCall(U parentOpSet)
     {
         super(parentOpSet.getProtocolProvider());
+        this.parentOpSet = parentOpSet;
     }
 
     /**
@@ -223,6 +228,7 @@ public abstract class AbstractMediaAwareCall<T extends CallPeer,
      * @param evt The <tt>CallPeerChangeEvent</tt> instance containing
      * the source event as well as its previous and its new status.
      */
+    @SuppressWarnings("unchecked") // should refactor at some point
     public void peerStateChanged(CallPeerChangeEvent evt)
     {
         CallPeerState newState = (CallPeerState) evt.getNewValue();
@@ -247,7 +253,7 @@ public abstract class AbstractMediaAwareCall<T extends CallPeer,
      * Returns a reference to the <tt>OperationSetBasicTelephony</tt>
      * implementation instance that created this call.
      *
-     * @return a reference to the <tt>OperationSetBasicTelephonySipImpl</tt>
+     * @return a reference to the <tt>OperationSetBasicTelephony</tt>
      * instance that created this call.
      */
     public U getParentOperationSet()
@@ -257,9 +263,8 @@ public abstract class AbstractMediaAwareCall<T extends CallPeer,
 
     /**
      * Gets the indicator which determines whether the local peer represented by
-     * this <tt>Call</tt> is acting as a conference focus and thus should send
-     * the &quot;isfocus&quot; parameter in the Contact headers of its outgoing
-     * SIP signaling.
+     * this <tt>Call</tt> is acting as a conference focus and thus may need to
+     * send the corresponding parameters in its outgoing signaling.
      *
      * @return <tt>true</tt> if the local peer represented by this <tt>Call</tt>
      * is acting as a conference focus; otherwise, <tt>false</tt>
@@ -271,15 +276,14 @@ public abstract class AbstractMediaAwareCall<T extends CallPeer,
 
     /**
      * Sets the indicator which determines whether the local peer represented by
-     * this <tt>Call</tt> is acting as a conference focus and thus should send
-     * the &quot;isfocus&quot; parameter in the Contact headers of its outgoing
-     * SIP signaling
+     * this <tt>Call</tt> is acting as a conference focus and thus may need to
+     * send the corresponding parameters in its outgoing signaling.
      *
      * @param conferenceFocus <tt>true</tt> if the local peer represented by
      * this <tt>Call</tt> is to act as a conference focus; otherwise,
      * <tt>false</tt>
      */
-    void setConferenceFocus(boolean conferenceFocus)
+    public void setConferenceFocus(boolean conferenceFocus)
     {
         if (this.conferenceFocus != conferenceFocus)
         {
@@ -319,9 +323,9 @@ public abstract class AbstractMediaAwareCall<T extends CallPeer,
      * <tt>mediaType</tt> and is appropriate for the current state of this
      * <tt>Call</tt>
      */
-    MediaDevice getDefaultDevice(MediaType mediaType)
+    public MediaDevice getDefaultDevice(MediaType mediaType)
     {
-        MediaService mediaService = SipActivator.getMediaService();
+        MediaService mediaService = ProtocolMediaActivator.getMediaService();
         MediaDevice device = mediaService.getDefaultDevice(mediaType,
                 mediaUseCase);
 
@@ -359,11 +363,11 @@ public abstract class AbstractMediaAwareCall<T extends CallPeer,
                 //listener with the media handler. we do this so that audio
                 //level would only be calculated if anyone is interested in
                 //receiving them.
-                Iterator<CallPeerSipImpl> cps = getCallPeers();
+                Iterator<T> cps = getCallPeers();
                 while (cps.hasNext())
                 {
-                    CallPeerSipImpl callPeerSipImpl = cps.next();
-                    callPeerSipImpl.getMediaHandler()
+                    T callPeer = cps.next();
+                    callPeer.getMediaHandler()
                             .setLocalUserAudioLevelListener(
                                                 localAudioLevelDelegator);
                 }
@@ -397,8 +401,8 @@ public abstract class AbstractMediaAwareCall<T extends CallPeer,
                 Iterator<T> cps = getCallPeers();
                 while (cps.hasNext())
                 {
-                    T callPeerSipImpl = cps.next();
-                    callPeerSipImpl.getMediaHandler()
+                    T callPeer = cps.next();
+                    callPeer.getMediaHandler()
                             .setLocalUserAudioLevelListener(null);
                 }
             }

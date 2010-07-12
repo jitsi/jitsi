@@ -17,6 +17,12 @@ import net.java.sip.communicator.util.*;
  * with the purpose of only leaving custom protocol development to clients using
  * the PhoneUI service.
  *
+ * @param <T> the call extension class like for example <tt>CallSipImpl</tt>
+ * or <tt>CallJabberImpl</tt>
+ * @param <U> the provider extension class like for example
+ * <tt>ProtocolProviderServiceSipImpl</tt> or
+ * <tt>ProtocolProviderServiceJabberImpl</tt>
+ *
  * @author Emil Ivov
  * @author Lubomir Marinov
  * @author Yana Stamcheva
