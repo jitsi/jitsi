@@ -90,7 +90,6 @@ public class SIPAccountRegistrationWizard
         return Resources.getImage(Resources.PAGE_IMAGE);
     }
 
-
     /**
      * Implements the <code>AccountRegistrationWizard.getProtocolName</code>
      * method. Returns the protocol name for this wizard.
@@ -115,7 +114,10 @@ public class SIPAccountRegistrationWizard
      */
     public Iterator<WizardPage> getPages() {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
-        firstWizardPage = new FirstWizardPage(this);
+
+        // If the first wizard page was already created
+        if (firstWizardPage == null)
+            firstWizardPage = new FirstWizardPage(this);
 
         pages.add(firstWizardPage);
 
@@ -250,6 +252,8 @@ public class SIPAccountRegistrationWizard
 
     /**
      * Installs the account with the given user name and password.
+     * @param userName the account user name
+     * @param password the password
      * @return the <tt>ProtocolProviderService</tt> corresponding to the newly
      * created account.
      * @throws OperationFailedException problem signing in.
@@ -288,6 +292,17 @@ public class SIPAccountRegistrationWizard
         Hashtable<String, String> accountProperties
             = new Hashtable<String, String>();
 
+        accountProperties.put(ProtocolProviderFactory.PROTOCOL, getProtocol());
+        String protocolIconPath = getProtocolIconPath();
+        if (protocolIconPath != null)
+            accountProperties.put(  ProtocolProviderFactory.PROTOCOL_ICON_PATH,
+                                    protocolIconPath);
+
+        String accountIconPath = getAccountIconPath();
+        if (accountIconPath != null)
+            accountProperties.put(  ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+                                    accountIconPath);
+
         if(registration.isRememberPassword())
         {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
@@ -296,8 +311,6 @@ public class SIPAccountRegistrationWizard
         String serverAddress = null;
         if (registration.getServerAddress() != null)
             serverAddress = registration.getServerAddress();
-        else
-            serverAddress = getServerFromUserName(userName);
 
         if (serverAddress != null)
         {
@@ -324,8 +337,6 @@ public class SIPAccountRegistrationWizard
         String proxyAddress = null;
         if (registration.getProxy() != null)
             proxyAddress = registration.getProxy();
-        else
-            proxyAddress = getServerFromUserName(userName);
 
         if (proxyAddress != null)
             accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
@@ -512,11 +523,12 @@ public class SIPAccountRegistrationWizard
      */
     public String getUserNameExample()
     {
-        return FirstWizardPage.USER_NAME_EXAMPLE;
+        return "Ex: john@voiphone.net or simply \"john\" for no server";
     }
 
     /**
      * Enables the simple "Sign in" form.
+     * @return <tt>true</tt> to indicate that the simple form is enabled
      */
     public boolean isSimpleFormEnabled()
     {
@@ -524,26 +536,17 @@ public class SIPAccountRegistrationWizard
     }
 
     /**
-     * Return the server part of the sip user name.
-     *
-     * @param userName the username.
-     * @return the server part of the sip user name.
+     * Sign ups through the web.
      */
-    protected String getServerFromUserName(String userName)
-    {
-        int delimIndex = userName.indexOf("@");
-        if (delimIndex != -1)
-        {
-            return userName.substring(delimIndex + 1);
-        }
+    public void webSignup() {}
 
+    /**
+     * Returns the name of the web sign up link.
+     * @return the name of the web sign up link
+     */
+    public String getWebSignupLinkName()
+    {
         return null;
-    }
-
-    public void webSignup()
-    {
-        SIPAccRegWizzActivator.getBrowserLauncher()
-            .openURL("http://serweb.iptel.org/user/reg/index.php");
     }
 
     /**
@@ -557,9 +560,41 @@ public class SIPAccountRegistrationWizard
         return true;
     }
 
+    /**
+     * Returns the simple form.
+     * @return the simple form
+     */
     public Object getSimpleForm()
     {
         firstWizardPage = new FirstWizardPage(this);
         return firstWizardPage.getSimpleForm();
+    }
+
+    /**
+     * Returns the protocol name as listed in "ProtocolNames" or just the name
+     * of the service.
+     * @return the protocol name
+     */
+    public String getProtocol()
+    {
+        return ProtocolNames.SIP;
+    }
+
+    /**
+     * Returns the protocol icon path.
+     * @return the protocol icon path
+     */
+    public String getProtocolIconPath()
+    {
+        return null;
+    }
+
+    /**
+     * Returns the account icon path.
+     * @return the account icon path
+     */
+    public String getAccountIconPath()
+    {
+        return null;
     }
 }

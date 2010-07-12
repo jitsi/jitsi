@@ -4,43 +4,43 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.iptelaccregwizz;
+package net.java.sip.communicator.plugin.sip2sipaccregwizz;
 
 import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**
- * The <tt>IptelAccountRegistrationWizard</tt> is an implementation of the
+ * The <tt>Sip2SipAccountRegistrationWizard</tt> is an implementation of the
  * <tt>AccountRegistrationWizard</tt> for the SIP protocol. It should allow
- * the user to create and configure a new SIP account.
+ * the user to create and configure a new IP Tel SIP account.
  *
  * @author Yana Stamcheva
  */
-public class IptelAccountRegistrationWizard
+public class Sip2SipAccountRegistrationWizard
     extends SIPAccountRegistrationWizard
 {
     /**
      * A constant pointing to the IP Tel protocol logo image.
      */
     private static final String PROTOCOL_ICON
-        = "service.protocol.iptel.IPTEL_16x16";
+        = "service.protocol.sip2sip.SIP2SIP_16x16";
 
     /**
      * A constant pointing to the IP Tel protocol wizard page image.
      */
     private static final String PAGE_IMAGE
-        = "service.protocol.iptel.IPTEL_64x64";
+        = "service.protocol.sip2sip.SIP2SIP_64x64";
 
     /**
      * The protocol name.
      */
-    public static final String PROTOCOL = "iptel.org";
+    public static final String PROTOCOL = "sip2sip.info";
 
     /**
      * Creates an instance of <tt>IptelAccountRegistrationWizard</tt>.
      * @param wizardContainer the wizard container
      */
-    public IptelAccountRegistrationWizard(WizardContainer wizardContainer)
+    public Sip2SipAccountRegistrationWizard(WizardContainer wizardContainer)
     {
         super(wizardContainer);
     }
@@ -52,7 +52,7 @@ public class IptelAccountRegistrationWizard
      */
     public byte[] getIcon()
     {
-        return IptelAccRegWizzActivator.getResources()
+        return Sip2SipAccRegWizzActivator.getResources()
             .getImageInBytes(PROTOCOL_ICON);
     }
 
@@ -64,7 +64,7 @@ public class IptelAccountRegistrationWizard
      */
     public byte[] getPageImage()
     {
-        return IptelAccRegWizzActivator.getResources()
+        return Sip2SipAccRegWizzActivator.getResources()
             .getImageInBytes(PAGE_IMAGE);
     }
 
@@ -77,7 +77,7 @@ public class IptelAccountRegistrationWizard
     public String getProtocolName()
     {
         return Resources.getString(
-            "plugin.iptelaccregwizz.PROTOCOL_NAME");
+            "plugin.sip2sipaccregwizz.PROTOCOL_NAME");
     }
 
     /**
@@ -88,7 +88,7 @@ public class IptelAccountRegistrationWizard
     public String getProtocolDescription()
     {
         return Resources.getString(
-            "plugin.iptelaccregwizz.PROTOCOL_DESCRIPTION");
+            "plugin.sip2sipaccregwizz.PROTOCOL_DESCRIPTION");
     }
 
     /**
@@ -99,7 +99,7 @@ public class IptelAccountRegistrationWizard
      */
     public String getUserNameExample()
     {
-        return "Ex: myusername or myusername@iptel.org";
+        return "Ex: myusername or myusername@sip2sip.info";
     }
 
     /**
@@ -118,7 +118,7 @@ public class IptelAccountRegistrationWizard
      */
     public String getProtocolIconPath()
     {
-        return "resources/images/protocol/iptel";
+        return "resources/images/protocol/sip2sip";
     }
 
     /**
@@ -127,7 +127,7 @@ public class IptelAccountRegistrationWizard
      */
     public String getAccountIconPath()
     {
-        return "resources/images/protocol/iptel/sip32x32.png";
+        return "resources/images/protocol/sip2sip/sip32x32.png";
     }
 
     /**
@@ -135,8 +135,8 @@ public class IptelAccountRegistrationWizard
      */
     public void webSignup()
     {
-        IptelAccRegWizzActivator.getBrowserLauncher()
-            .openURL("https://serweb.iptel.org/user/reg/index.php");
+        Sip2SipAccRegWizzActivator.getBrowserLauncher()
+            .openURL("https://secure.dns-hosting.info/register_sip_account.phtml");
     }
 
     /**
@@ -145,7 +145,6 @@ public class IptelAccountRegistrationWizard
      */
     public String getWebSignupLinkName()
     {
-        return IptelAccRegWizzActivator.getResources().getI18NString(
-            "plugin.iptelaccregwizz.NEW_ACCOUNT_TITLE");
+        return Resources.getString("plugin.sip2sipaccregwizz.NEW_ACCOUNT_TITLE");
     }
 }

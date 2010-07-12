@@ -1,6 +1,6 @@
-Bundle-Activator: net.java.sip.communicator.plugin.iptelaccregwizz.IptelAccRegWizzActivator
-Bundle-Name: IP Tel account registration wizard
-Bundle-Description: IP Tel account registration wizard.
+Bundle-Activator: net.java.sip.communicator.plugin.sip2sipaccregwizz.Sip2SipAccRegWizzActivator
+Bundle-Name: Sip 2 Sip account registration wizard
+Bundle-Description: Sip 2 Sip account registration wizard.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes

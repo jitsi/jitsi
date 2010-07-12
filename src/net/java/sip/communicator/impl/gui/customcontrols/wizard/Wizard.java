@@ -185,7 +185,6 @@ public class Wizard
     {
         // Add the incoming panel to our JPanel display that is managed by
         // the CardLayout layout manager.
-
         Object wizardForm = page.getWizardForm();
         if (wizardForm instanceof Component)
             cardPanel.add((Component) wizardForm, id);

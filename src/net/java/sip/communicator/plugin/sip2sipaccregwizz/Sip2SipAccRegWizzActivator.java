@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.iptelaccregwizz;
+package net.java.sip.communicator.plugin.sip2sipaccregwizz;
 
 import java.util.*;
 
@@ -20,14 +20,15 @@ import net.java.sip.communicator.util.*;
  * Registers the <tt>GoogleTalkAccountRegistrationWizard</tt> in the UI Service.
  *
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
-public class IptelAccRegWizzActivator
+public class Sip2SipAccRegWizzActivator
     implements BundleActivator
 {
     public static BundleContext bundleContext;
 
     private static final Logger logger = Logger.getLogger(
-        IptelAccRegWizzActivator.class.getName());
+        Sip2SipAccRegWizzActivator.class.getName());
 
     private static BrowserLauncherService browserLauncherService;
 
@@ -49,15 +50,15 @@ public class IptelAccRegWizzActivator
             (UIService) bundleContext.getService(bundleContext
                 .getServiceReference(UIService.class.getName()));
 
-        IptelAccountRegistrationWizard wizard
-            = new IptelAccountRegistrationWizard(uiService
+        Sip2SipAccountRegistrationWizard wizard
+            = new Sip2SipAccountRegistrationWizard(uiService
                 .getAccountRegWizardContainer());
 
         Hashtable<String, String> containerFilter
             = new Hashtable<String, String>();
         containerFilter.put(
                 ProtocolProviderFactory.PROTOCOL,
-                IptelAccountRegistrationWizard.PROTOCOL);
+                Sip2SipAccountRegistrationWizard.PROTOCOL);
 
         bundleContext.registerService(
             AccountRegistrationWizard.class.getName(),
@@ -129,7 +130,7 @@ public class IptelAccRegWizzActivator
     {
         if (resourcesService == null)
             resourcesService = ResourceManagementServiceUtils
-                .getService(IptelAccRegWizzActivator.bundleContext);
+                .getService(Sip2SipAccRegWizzActivator.bundleContext);
         return resourcesService;
     }
 }

@@ -912,7 +912,8 @@
         bundle-plugin-facebookaccregwizz,
         bundle-bouncycastle,bundle-plugin-otr,bundle-plugin-iptelaccregwizz,
         bundle-contactsource,bundle-plugin-reconnect,
-        bundle-plugin-securityconfig,bundle-plugin-advancedconfig"/>
+        bundle-plugin-securityconfig,bundle-plugin-advancedconfig,
+        bundle-plugin-sip2sipaccregwizz"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1566,6 +1567,16 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/iptelaccregwizz/iptelaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/iptelaccregwizz"
                 prefix="net/java/sip/communicator/plugin/iptelaccregwizz"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-SIP2SIPACCREGWIZZ -->
+    <target name="bundle-plugin-sip2sipaccregwizz">
+        <!-- Creates a bundle for the plugin Sip2Sip Account Registration Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/sip2sipaccregwizz.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/sip2sipaccregwizz/sip2sipaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sip2sipaccregwizz"
+                prefix="net/java/sip/communicator/plugin/sip2sipaccregwizz"/>
         </jar>
     </target>
 
