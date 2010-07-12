@@ -35,20 +35,20 @@ public class MasterPasswordChangeDialog
     interface MasterPasswordExecutable
     {
         /**
-         * The actions to execute to change the master password. 
-         * 
+         * The actions to execute to change the master password.
+         *
          * @param masterPassword old master password
          * @param newMasterPassword new master password
          * @return true on success, false on failure.
          */
         public boolean execute(String masterPassword, String newMasterPassword);
     }
-    
+
     /**
      * Dialog instance of this class.
      */
     private static MasterPasswordChangeDialog dialog;
-    
+
     /**
      * Password quality meter.
      */
@@ -130,7 +130,7 @@ public class MasterPasswordChangeDialog
 
         // label fields
         labelsPanel = new TransparentPanel(new GridLayout(0, 1, 8, 8));
-        
+
         labelsPanel.add(
                 new JLabel(
                         resources.getI18NString(
@@ -163,7 +163,7 @@ public class MasterPasswordChangeDialog
         newPasswordField.addKeyListener(this);
         newAgainPasswordField = new JPasswordField(15);
         newAgainPasswordField.addKeyListener(this);
-        
+
         textFieldsPanel = new TransparentPanel(new GridLayout(0, 1, 8, 8));
         textFieldsPanel.add(currentPasswdField);
         textFieldsPanel.add(newPasswordField);
@@ -177,11 +177,11 @@ public class MasterPasswordChangeDialog
         cancelButton
             = new JButton(resources.getI18NString("service.gui.CANCEL"));
         cancelButton.addActionListener(this);
-        
+
         passwordQualityBar =
             new JProgressBar(0, PasswordQualityMeter.TOTAL_POINTS);
         passwordQualityBar.setValue(0);
-        
+
         qualityPanel = new TransparentPanel();
         qualityPanel.setLayout(new BoxLayout(qualityPanel, BoxLayout.Y_AXIS));
         qualityPanel.add(
@@ -195,7 +195,7 @@ public class MasterPasswordChangeDialog
         buttonsPanel.add(okButton);
         buttonsPanel.add(cancelButton);
         qualityPanel.add(buttonsPanel);
-        
+
         mainPanel.add(infoTextArea, BorderLayout.NORTH);
         mainPanel.add(labelsPanel, BorderLayout.WEST);
         mainPanel.add(textFieldsPanel, BorderLayout.CENTER);
@@ -220,7 +220,7 @@ public class MasterPasswordChangeDialog
                 oldMasterPassword =
                     new String(((JPasswordField) currentPasswdField)
                         .getPassword());
-                if (oldMasterPassword.isEmpty())
+                if (oldMasterPassword.length() == 0)
                 {
                     displayPopupError(
                         resources.getI18NString(
@@ -238,7 +238,7 @@ public class MasterPasswordChangeDialog
                     return;
                 }
             }
-            // if the callback executes OK, we close the dialog 
+            // if the callback executes OK, we close the dialog
             if (callback != null)
             {
                 String newPassword = new String(newPasswordField.getPassword());
@@ -249,7 +249,7 @@ public class MasterPasswordChangeDialog
         {
             close = true;
         }
-        
+
         if (close)
         {
             dialog = null;
@@ -259,7 +259,7 @@ public class MasterPasswordChangeDialog
 
     /**
      * Displays an error pop-up.
-     * 
+     *
      * @param message the message to display
      */
     protected void displayPopupError(String message)
@@ -276,7 +276,7 @@ public class MasterPasswordChangeDialog
 
     /**
      * Displays an info pop-up.
-     * 
+     *
      * @param message the message to display.
      */
     protected void displayPopupInfo(String message)
@@ -308,7 +308,8 @@ public class MasterPasswordChangeDialog
             passwordQualityBar
                 .setValue(passwordMeter.assessPassword(password1));
             // enable OK button if passwords are equal
-            boolean eq = !password1.isEmpty() && password1.equals(password2);
+            boolean eq = (password1.length() != 0)
+                        && password1.equals(password2);
             okButton.setEnabled(eq);
             password1 = null;
             password2 = null;
@@ -334,7 +335,7 @@ public class MasterPasswordChangeDialog
     }
 
     /**
-     * @param callbackInstance callback instance. 
+     * @param callbackInstance callback instance.
      */
     public void setCallback(MasterPasswordExecutable callbackInstance)
     {

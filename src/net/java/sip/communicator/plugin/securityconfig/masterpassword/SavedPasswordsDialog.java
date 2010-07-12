@@ -37,13 +37,13 @@ public class SavedPasswordsDialog
      */
     private static final Logger logger
         = Logger.getLogger(SavedPasswordsDialog.class);
-    
+
     /**
      * UI components.
      */
     private JPanel mainPanel;
     private JButton closeButton;
-    
+
     /**
      * The {@link CredentialsStorageService}.
      */
@@ -61,7 +61,7 @@ public class SavedPasswordsDialog
      * Instance of this dialog.
      */
     private static SavedPasswordsDialog dialog;
-    
+
     /**
      * Builds the dialog.
      */
@@ -69,26 +69,26 @@ public class SavedPasswordsDialog
     {
         super(false);
         initComponents();
-        
+
         this.setTitle(
                 resources.getI18NString(
                         "plugin.securityconfig.masterpassword.SAVED_PASSWORDS"));
         this.setMinimumSize(new Dimension(550, 300));
         this.setPreferredSize(new Dimension(550, 300));
         this.setResizable(false);
-        
+
         this.getContentPane().add(mainPanel);
-        
+
         this.pack();
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension screenSize = toolkit.getScreenSize();
-        
+
         int x = (screenSize.width - this.getWidth()) / 2;
         int y = (screenSize.height - this.getHeight()) / 2;
-        
+
         this.setLocation(x,y);
     }
-    
+
     /**
      * Initialises the UI components.
      */
@@ -102,12 +102,12 @@ public class SavedPasswordsDialog
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1.0;
         c.weighty = 1.0;
-        c.insets = new Insets(5, 5, 5, 5); 
+        c.insets = new Insets(5, 5, 5, 5);
         c.anchor = GridBagConstraints.PAGE_START;
-        
+
         AccountPasswordsPanel accPassPanel = new AccountPasswordsPanel();
         this.add(accPassPanel, c);
-        
+
         c.gridy = 1;
         c.weighty = 0.0;
         c.fill = GridBagConstraints.NONE;
@@ -124,14 +124,14 @@ public class SavedPasswordsDialog
         });
         this.add(closeButton, c);
     }
-    
+
     protected void close(boolean isEscaped)
     {
         closeButton.doClick();
     }
 
     /**
-     * @return the {@link SavedPasswordsDialog} instance 
+     * @return the {@link SavedPasswordsDialog} instance
      */
     public static SavedPasswordsDialog getInstance()
     {
@@ -140,16 +140,16 @@ public class SavedPasswordsDialog
         }
         return dialog;
     }
-    
+
     /**
-     * Panel containing the accounts table and buttons. 
+     * Panel containing the accounts table and buttons.
      */
     private static class AccountPasswordsPanel
         extends TransparentPanel
     {
 
         /**
-         * The table model for the accounts table. 
+         * The table model for the accounts table.
          */
         private class AccountsTableModel
             extends AbstractTableModel
@@ -166,20 +166,20 @@ public class SavedPasswordsDialog
              * Index of the third column.
              */
             public static final int PASSWORD_INDEX = 2;
-            
+
             /**
              * List of accounts with saved passwords.
              */
             public final List<AccountID> savedPasswordAccounts =
                 new ArrayList<AccountID>();
             /**
-             * Map that associates an {@link AccountID} with its prefix. 
+             * Map that associates an {@link AccountID} with its prefix.
              */
             public final Map<AccountID, String> accountIdPrefixes =
                 new HashMap<AccountID, String>();
-            
+
             /**
-             * Loads accounts. 
+             * Loads accounts.
              */
             public AccountsTableModel()
             {
@@ -187,7 +187,7 @@ public class SavedPasswordsDialog
                         SecurityConfigActivator
                             .getAccountIDsWithSavedPasswords());
                 savedPasswordAccounts.addAll(new ArrayList<AccountID>(
-                    accountIdPrefixes.keySet())); 
+                    accountIdPrefixes.keySet()));
             }
 
             /**
@@ -270,27 +270,27 @@ public class SavedPasswordsDialog
                 return showPasswords ? 3 : 2;
             }
         }
-        
+
         /**
          * Are we showing the passwords column or not.
          */
         private boolean showPasswords = false;
-        
+
         /**
-         * The button to remove the saved password for the selected account. 
+         * The button to remove the saved password for the selected account.
          */
         private JButton removeButton;
-        
+
         /**
-         * The button to remove saved passwords for all accounts. 
+         * The button to remove saved passwords for all accounts.
          */
         private JButton removeAllButton;
-        
+
         /**
-         * The button to show the saved passwords for all accounts in plain text. 
+         * The button to show the saved passwords for all accounts in plain text.
          */
         private JButton showPasswordsButton;
-        
+
         /**
          * The table itself.
          */
@@ -361,7 +361,7 @@ public class SavedPasswordsDialog
 
             JPanel leftButtons = new TransparentPanel();
             pnlButtons.add(leftButtons, BorderLayout.WEST);
-            
+
             removeButton
                 = new JButton(
                     resources.getI18NString(
@@ -378,11 +378,11 @@ public class SavedPasswordsDialog
                         AccountsTableModel model =
                             (AccountsTableModel) accountsTable.getModel();
                         String accountPrefix = model.accountIdPrefixes.get(selectedAccountID);
-                        
+
                         removeSavedPassword(accountPrefix, selectedAccountID);
                         model.savedPasswordAccounts.remove(selectedAccountID);
                         model.accountIdPrefixes.remove(accountPrefix);
-                        
+
                         int selectedRow = accountsTable.getSelectedRow();
                         model.fireTableRowsDeleted(selectedRow, selectedRow);
                     }
@@ -404,7 +404,7 @@ public class SavedPasswordsDialog
                     {
                         return;
                     }
-                    
+
                     int answer
                         = SecurityConfigActivator
                             .getUIService()
@@ -415,7 +415,7 @@ public class SavedPasswordsDialog
                                 resources.getI18NString(
                                         "plugin.securityconfig.masterpassword.REMOVE_ALL_TITLE"),
                                 PopupDialog.YES_NO_OPTION);
-                    
+
                     if (answer == PopupDialog.YES_OPTION)
                     {
                         for (AccountID accountID : model.savedPasswordAccounts)
@@ -431,7 +431,7 @@ public class SavedPasswordsDialog
                 }
             });
             leftButtons.add(removeAllButton);
-            
+
             JPanel rightButtons = new TransparentPanel();
             pnlButtons.add(rightButtons, BorderLayout.EAST);
             showPasswordsButton
@@ -457,22 +457,22 @@ public class SavedPasswordsDialog
             });
             rightButtons.add(showPasswordsButton);
         }
-        
+
         /**
          * Removes the password from the storage.
-         * 
+         *
          * @param accountPrefix account prefix
          * @param accountID AccountID object
          */
         private void removeSavedPassword(String accountPrefix, AccountID accountID)
         {
             credentialsStorageService.removePassword(accountPrefix);
-            
+
             logger.debug(accountID + " removed");
         }
-        
+
         /**
-         * Toggles the passwords column. 
+         * Toggles the passwords column.
          */
         private void showOrHidePasswords()
         {
@@ -538,7 +538,7 @@ public class SavedPasswordsDialog
                 {
                     master = new String(passwordField.getPassword());
                     correct =
-                        !master.isEmpty()
+                        (master.length() != 0)
                             && credentialsStorageService
                                 .verifyMasterPassword(master);
                 }

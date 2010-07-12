@@ -47,13 +47,13 @@ public class MasterPasswordPanel
         = SecurityConfigActivator.getResources();
 
     /**
-     * Builds the panel. 
+     * Builds the panel.
      */
     public MasterPasswordPanel()
     {
         this.setLayout(new BorderLayout(10, 10));
         this.setAlignmentX(0.0f);
-        
+
         initComponents();
     }
 
@@ -102,7 +102,7 @@ public class MasterPasswordPanel
             removeMasterPassword();
         }
     }
-    
+
     /**
      * Show the dialog to change master password.
      */
@@ -164,7 +164,7 @@ public class MasterPasswordPanel
             {
                 master = new String(passwordField.getPassword());
                 correct =
-                    !master.isEmpty()
+                    (master.length() != 0)
                         && SecurityConfigActivator
                             .getCredentialsStorageService()
                                 .verifyMasterPassword(master);
