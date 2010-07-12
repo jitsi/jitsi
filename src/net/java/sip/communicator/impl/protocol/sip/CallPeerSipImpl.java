@@ -1707,11 +1707,21 @@ public class CallPeerSipImpl
     @Override
     public void setState(CallPeerState newState, String reason)
     {
-        super.setState(newState, reason);
+        // synchronized to mediaHandler if there are currently jobs of
+        // initializing, configuring and starting streams (method processAnswer
+        // of CallPeerMediaHandler) we won't set and fire the current state
+        // to Disconnected. Before closing the mediaHandler is setting the state
+        // in order to deliver states as quick as possible.
+        synchronized(getMediaHandler())
+        {
+            super.setState(newState, reason);
 
-        if (CallPeerState.DISCONNECTED.equals(newState)
-                || CallPeerState.FAILED.equals(newState))
-            getMediaHandler().close();
+            if (CallPeerState.DISCONNECTED.equals(newState)
+                    || CallPeerState.FAILED.equals(newState))
+            {
+                getMediaHandler().close();
+            }
+        }
     }
 
     /**

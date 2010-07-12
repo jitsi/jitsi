@@ -392,9 +392,10 @@ public abstract class CallPeerMediaHandler<T extends CallPeer>
 
     /**
      * Closes and null-ifies all streams and connectors and readies this media
-     * handler for garbage collection (or reuse).
+     * handler for garbage collection (or reuse). Synchronized if any other
+     * stream operations are in process we won't interrupt them.
      */
-    public void close()
+    public synchronized void close()
     {
         closeStream(MediaType.AUDIO);
         closeStream(MediaType.VIDEO);

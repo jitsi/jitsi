@@ -656,9 +656,13 @@ public class CallPeerMediaHandlerSipImpl
      * @throws OperationFailedException if we fail to handle <tt>answer</tt> for
      * reasons like failing to initialize media devices or streams.
      * @throws IllegalArgumentException if there's a problem with the syntax or
-     * the semantics of <tt>answer</tt>.
+     * the semantics of <tt>answer</tt>. Method is synchronized in order to
+     * avoid closing mediaHandler when we are currently in process of
+     * initializing, configuring and starting streams and anybody interested
+     * in this operation can synchronize to the mediaHandler instance to wait
+     * processing to stop (method setState in CallPeer).
      */
-    private void processAnswer(SessionDescription answer)
+    private synchronized void processAnswer(SessionDescription answer)
         throws OperationFailedException,
                IllegalArgumentException
     {

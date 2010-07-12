@@ -321,7 +321,7 @@ public class CallSipImpl
     @Override
     public ProtocolProviderServiceSipImpl getProtocolProvider()
     {
-        return (ProtocolProviderServiceSipImpl)super.getProtocolProvider();
+        return super.getProtocolProvider();
     }
 
     /**

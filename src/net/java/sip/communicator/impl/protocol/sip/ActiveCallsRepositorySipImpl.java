@@ -149,9 +149,6 @@ public class ActiveCallsRepositorySipImpl
         {
             CallSipImpl call = activeCalls.next();
 
-            if (!callID.equals(call.getCallID()))
-                continue;
-
             for (Iterator<? extends CallPeer> callPeerIter
                             = call.getCallPeers();
                     callPeerIter.hasNext();)
@@ -162,6 +159,9 @@ public class ActiveCallsRepositorySipImpl
 
                 if (dialog != null)
                 {
+                    if (!callID.equals(dialog.getCallId().getCallId()))
+                        continue;
+
                     String dialogLocalTag = dialog.getLocalTag();
 
                     if (((localTag == null) || "0".equals(localTag))
