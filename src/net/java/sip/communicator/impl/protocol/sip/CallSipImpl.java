@@ -27,7 +27,7 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public class CallSipImpl
-    extends AbstractMediaAwareCall<CallPeerSipImpl,
+    extends MediaAwareCall<CallPeerSipImpl,
                                    OperationSetBasicTelephonySipImpl,
                                    ProtocolProviderServiceSipImpl>
     implements CallPeerListener

@@ -28,7 +28,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Emil Ivov
  */
-public abstract class AbstractMediaAwareCallPeer
+public abstract class MediaAwareCallPeer
                           <T extends Call,
                            V extends ProtocolProviderService>
     extends AbstractCallPeer<T, V>
@@ -42,7 +42,7 @@ public abstract class AbstractMediaAwareCallPeer
      * class and its instances for logging output.
      */
     private static final Logger logger = Logger
-                    .getLogger(AbstractMediaAwareCallPeer.class.getName());
+                    .getLogger(MediaAwareCallPeer.class.getName());
 
     /**
      * A byte array containing the image/photo representing the call peer.
@@ -92,7 +92,7 @@ public abstract class AbstractMediaAwareCallPeer
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      */
-    public AbstractMediaAwareCallPeer()
+    public MediaAwareCallPeer()
     {
         //create the uid
         this.peerID = String.valueOf(System.currentTimeMillis())

@@ -31,8 +31,8 @@ import net.java.sip.communicator.service.protocol.event.*;
  *
  * @author Emil Ivov
  */
-public abstract class AbstractMediaAwareCall<
-                                       T extends AbstractMediaAwareCallPeer<?, V>,
+public abstract class MediaAwareCall<
+                                       T extends MediaAwareCallPeer<?, V>,
                                        U extends OperationSetBasicTelephony<V>,
                                        V extends ProtocolProviderService>
     extends AbstractCall<T, V>
@@ -102,7 +102,7 @@ public abstract class AbstractMediaAwareCall<
      * @param parentOpSet a reference to the operation set that's creating us
      * and that we would be able to use for even dispatching.
      */
-    protected AbstractMediaAwareCall(U parentOpSet)
+    protected MediaAwareCall(U parentOpSet)
     {
         super(parentOpSet.getProtocolProvider());
         this.parentOpSet = parentOpSet;

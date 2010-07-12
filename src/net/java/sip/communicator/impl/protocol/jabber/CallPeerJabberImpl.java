@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
  * @author Symphorien Wanko
  */
 public class CallPeerJabberImpl
-    extends AbstractCallPeer<CallJabberImpl, ProtocolProviderServiceJabberImpl>
+    extends MediaAwareAbstractCallPeer<CallJabberImpl, ProtocolProviderServiceJabberImpl>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallPeerJabberImpl</tt>
