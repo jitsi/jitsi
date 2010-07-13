@@ -164,13 +164,13 @@ public class EncodingConfiguration
             800);
 
         // audio
+        setEncodingPreference("speex", 32000, 701);
+        setEncodingPreference("speex", 16000, 700);
         setEncodingPreference("PCMU", 8000, 650);
         setEncodingPreference("PCMA", 8000, 600);
         setEncodingPreference("iLBC", 8000, 500);
         setEncodingPreference("GSM", 8000, 450);
         setEncodingPreference("speex", 8000, 352);
-        setEncodingPreference("speex", 16000, 351);
-        setEncodingPreference("speex", 32000, 350);
         setEncodingPreference("DVI4", 8000, 300);
         setEncodingPreference("DVI4", 16000, 250);
         setEncodingPreference("G723", 8000, 150);

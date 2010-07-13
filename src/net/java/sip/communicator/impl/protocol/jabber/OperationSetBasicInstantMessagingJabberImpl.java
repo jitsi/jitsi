@@ -552,8 +552,15 @@ public class OperationSetBasicInstantMessagingJabberImpl
             {
                 if(jabberProvider.getConnection() != null)
                 {
-                    jabberProvider.getConnection().removePacketListener(
-                        smackMessageListener);
+                    if(smackMessageListener != null)
+                        jabberProvider.getConnection().removePacketListener(
+                            smackMessageListener);
+                }
+
+                if(keepAliveSendTask != null)
+                {
+                    keepAliveSendTask.cancel();
+                    keepAliveSendTask = null;
                 }
 
                 smackMessageListener = null;
