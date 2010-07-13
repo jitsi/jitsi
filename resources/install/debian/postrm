@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+#
+# Distributable under LGPL license.
+# See terms of license at gnu.org.
+#
+
+# sources.list setting for SIP Communicator updates.
+REPOCONFIG="deb http://download.sip-communicator.org/deb unstable/"
+
+APT_CONFIG="`which apt-config 2> /dev/null`"
+
+# Parse apt configuration and return requested variable value.
+apt_config_val() {
+  APTVAR="$1"
+  if [ -x "$APT_CONFIG" ]; then
+    "$APT_CONFIG" dump | sed -e "/^$APTVAR /"'!d' -e "s/^$APTVAR \"\(.*\)\".*/\1/"
+  fi
+}
+
+# Set variables for the locations of the apt sources lists.
+find_apt_sources() {
+  APTDIR=$(apt_config_val Dir)
+  APTETC=$(apt_config_val 'Dir::Etc')
+  APT_SOURCES="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourcelist')"
+  APT_SOURCESDIR="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourceparts')"
+}
+
+# Remove our custom sources list file.
+# Returns:
+# 0 - successfully removed, or not configured
+# !0 - failed to remove
+clean_sources_lists() {
+  if [ ! "$REPOCONFIG" ]; then
+    return 0
+  fi
+
+  find_apt_sources
+
+  rm -f "$APT_SOURCESDIR/sip-communicator.list"
+}
+
+# Remove any SIP Communicator repository added by the package.
+clean_sources_lists

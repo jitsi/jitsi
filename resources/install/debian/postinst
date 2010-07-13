@@ -1,0 +1,118 @@
+#!/bin/sh
+#
+# SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+#
+# Distributable under LGPL license.
+# See terms of license at gnu.org.
+#
+
+# sources.list setting for SIP Communicator updates.
+REPOCONFIG="deb http://download.sip-communicator.org/deb unstable/"
+
+SOURCES_PREAMBLE="### THIS FILE IS AUTOMATICALLY CONFIGURED ###
+# You may comment out this entry, but any other modifications may be lost.\n"
+
+APT_CONFIG="`which apt-config 2> /dev/null`"
+
+# Install the repository signing key
+install_key() {
+  APT_KEY="`which apt-key 2> /dev/null`"
+  if [ -x "$APT_KEY" ]; then
+    "$APT_KEY" add - >/dev/null 2>&1 <<KEYDATA
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+mQGhBEhbdJIRBACN5cMoea12WK3PX+DbMVgW/q31iyirUAZD/s0AB4yF49Nsiw2C
+FLeu4/FRec43xiiprE9GSpWqRNTz2L2J+EeQPR7xIW9LFEL6D9ekua7keO2pkxh6
+DoaOx59ThvEPqIr4v93NXwmt+nmTrxD+U0jbIhogTK3+XWbaPLLjmAPXfwCghJhr
+PetYtTttuAXb3LFnDBPQIRMD+MVAq62fpKmYgrPTJaEaAyz4WAR4cCmdC/1zP2AD
+xVeDtkzG8KAb+K/SNTWglqtjcqlXlevBSn+qukzZaIluuhztTLciQNA35KHchdtI
+Z28S/+xX2drhvrakBZwYceMrQkHcjAC4lUb6bUjeumPt2XfNARnVhkmSH6EJFPbk
+7YQD/i75r9uXuPO3QleAXutbPdsIa6M1JCJ6R51QP2vM3Wa+yuRZEfz3R6tEv+/D
+RfImnLt0fUEm+h2vPnH5jt6uezd52JO1CtJxsEVGdaGcI5X4BE5jO7RMj9gj318B
+UTO+ScFaaNqNeNTGobIBLmn86t+yWXGJckBWWXZ/S4I/3fJ/tEBTSVAgQ29tbXVu
+aWNhdG9yIChEZWJpYW4gcGFja2FnZSkgPGRlYi1wa2dAc2lwLWNvbW11bmljYXRv
+ci5vcmc+iGAEExECACAFAkhbdJICGwMGCwkIBwMCBBUCCAMEFgIDAQIeAQIXgAAK
+CRDGl9gj6wq2VBqUAJ4+trEg9tOMZjl/asfq+mLnMqTvIACfSyzAfeXMoDUGhscE
+jY2/KM+cPGy5Ag0ESFt0sxAIANfLWvPzopgNkcpDYFAkoD4uZYCs13f0LNYUaOdD
+CZ640Fz/OWtZI04WIza2OAKubA9gTyx64jIagus5eMLIoKSyHWPMfUJOHROqcSy9
+a7Zq8bJdNn7KYtCuG1EUQMfdTgivbreM2J0T7KLfuIeghxYJ98Foy6GBraX24MAT
+eBYi7R11xILCpIo0g01PA3OQUxf8T6MvkgUwOMtDdoMou1XaRznRgrFByIoiMHWv
+ZqjkMdkv+5eHtxvQ/aAK7k1NldJ5SorVBphB2fyR03LLNlv4HUWcxsEC667mbGr2
+zNXVrKkMGlPJ7kYhtlL12z3GXUcCQ0PN8i9vkckvgPUYxhsAAwYIAKbbGbV9nHfV
+zf3A1FL3h/La8YfQXqthHRZQr3mMLTLZ7DyI0nwTOK5aPYMsU5zhbrumaKf7puj8
+20b1ybdu0EE25qPGA9TUtnSnTBdB0ON5ymb61l40ycVsyhUH9VgL3SuIUFG0yxzg
+I45arm/kSrfbnyZcdtRftkKgUl9dDXQ1b6Q7TFWHbkJV2A5tpQbuh2DWCMCLx3vM
+Ot3ts1bdk6hgf1nrYkazWueTPvmmkxxMkWoS7Ga6e9ZQi45054Ssy0hO+WtQ0JjN
+PEKf/O4O3JP/DNiyPs13ZGcBkTs8Aodyhpl856TRXPfESSPBk2hjQKrIilFUvmXp
+h48WldEraT2ISQQYEQIACQUCSFt0swIbDAAKCRDGl9gj6wq2VP+eAJ4kO1yrhNtL
+HQ4MBGSQiCYjsZZqEgCeN703sb9cqYr/K04d8NCLx5M4BOE=
+=lUEu
+-----END PGP PUBLIC KEY BLOCK-----
+KEYDATA
+  fi
+}
+
+# Parse apt configuration and return requested variable value.
+apt_config_val() {
+  APTVAR="$1"
+  if [ -x "$APT_CONFIG" ]; then
+    "$APT_CONFIG" dump | sed -e "/^$APTVAR /"'!d' -e "s/^$APTVAR \"\(.*\)\".*/\1/"
+  fi
+}
+
+# Set variables for the locations of the apt sources lists.
+find_apt_sources() {
+  APTDIR=$(apt_config_val Dir)
+  APTETC=$(apt_config_val 'Dir::Etc')
+  APT_SOURCES="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourcelist')"
+  APT_SOURCESDIR="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourceparts')"
+}
+
+# Add the SIP Communicator repository to the apt sources.
+# Returns:
+# 0 - sources list was created
+# 2 - error
+create_sources_lists() {
+  if [ ! "$REPOCONFIG" ]; then
+    return 0
+  fi
+
+  find_apt_sources
+
+  SOURCELIST="$APT_SOURCESDIR/sip-communicator.list"
+
+  # Check if the correct repository configuration is in there.
+  REPOMATCH=$(grep "^[[:space:]#]*\b$REPOCONFIG\b" "$SOURCELIST" \
+    2>/dev/null)
+
+  # Don't do anything if the file is there, since that probably means
+  # we have already installed it
+  if [ -r "$SOURCELIST" ]; then
+    if [ ! "$REPOMATCH" ]; then
+        # At this point wrong configuration is active. In that case,
+        # just abandon the mess and recreate the file
+        # with the correct configuration.
+        printf "$SOURCES_PREAMBLE" > "$SOURCELIST"
+        printf "$REPOCONFIG\n" >> "$SOURCELIST"
+
+        if [ $? -eq 0 ]; then
+            return 0
+        fi
+        return 2
+    fi
+  fi
+
+  if [ -d "$APT_SOURCESDIR" ]; then
+    printf "$SOURCES_PREAMBLE" > "$SOURCELIST"
+    printf "$REPOCONFIG\n" >> "$SOURCELIST"
+    if [ $? -eq 0 ]; then
+      return 0
+    fi
+  fi
+  return 2
+}
+
+## MAIN ##
+install_key
+create_sources_lists
