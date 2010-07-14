@@ -134,7 +134,7 @@ public class SIPAccountRegistrationForm
      * Saves the user input when the "Next" wizard buttons is clicked.
      * @param registration the SIPAccountRegistration
      */
-    public void commitPage(SIPAccountRegistration registration)
+    public boolean commitPage(SIPAccountRegistration registration)
     {
         String userID = null;
         char[] password = null;
@@ -161,7 +161,7 @@ public class SIPAccountRegistrationForm
             {
                 // If we didn't succeed to create our new account, we have
                 // nothing more to do here.
-                return;
+                return false;
             }
         }
         else
@@ -217,6 +217,8 @@ public class SIPAccountRegistrationForm
 
         SIPAccRegWizzActivator.getUIService().getAccountRegWizardContainer()
             .setBackButtonEnabled(true);
+
+        return true;
     }
 
     /**
@@ -331,6 +333,10 @@ public class SIPAccountRegistrationForm
      */
     public Component getSimpleForm()
     {
+        CreateAccountService createAccountService = getCreateAccountService();
+        if (createAccountService != null)
+            createAccountService.clear();
+
         return accountPanel;
     }
 

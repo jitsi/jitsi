@@ -370,9 +370,11 @@ public class NewAccountDialog
                 protocolProvider = wizard.signin();
 
                 if (protocolProvider != null)
+                {
                     wizardContainer.saveAccountWizard(protocolProvider, wizard);
 
-                this.dispose();
+                    this.dispose();
+                }
             }
             catch (OperationFailedException e)
             {

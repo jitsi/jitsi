@@ -106,11 +106,10 @@ public class FirstWizardPage
      */
     public void commitPage()
     {
-        registrationForm.commitPage(wizard.getRegistration());
+        isCommitted
+            = registrationForm.commitPage(wizard.getRegistration());
 
         nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-
-        this.isCommitted = true;
     }
 
     public void pageHiding() {}
@@ -132,11 +131,21 @@ public class FirstWizardPage
         registrationForm.loadAccount(protocolProvider.getAccountID());
     }
 
+    /**
+     * Returns the simple account registration form.
+     * @return the simple account registration form
+     */
     public Object getSimpleForm()
     {
         return registrationForm.getSimpleForm();
     }
 
+    /**
+     * Returns <tt>true</tt> if the page is committed, <tt>false</tt> -
+     * otherwise.
+     * @return <tt>true</tt> if the page is committed, <tt>false</tt> -
+     * otherwise
+     */
     public boolean isCommitted()
     {
         return isCommitted;

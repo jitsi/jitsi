@@ -125,7 +125,6 @@ public class CreateSip2SipAccountForm
 
         initErrorArea();
 
-        add(errorPane, BorderLayout.NORTH);
         add(labelsPanel, BorderLayout.WEST);
         add(valuesPanel, BorderLayout.CENTER);
     }
@@ -140,6 +139,8 @@ public class CreateSip2SipAccountForm
         StyleConstants.setFontFamily(attribs, errorPane.getFont().getFamily());
         StyleConstants.setForeground(attribs, Color.RED);
         errorPane.setParagraphAttributes(attribs, true);
+        errorPane.setPreferredSize(new Dimension(100, 50));
+        errorPane.setMinimumSize(new Dimension(100, 50));
         errorPane.setOpaque(false);
     }
 
@@ -225,6 +226,9 @@ public class CreateSip2SipAccountForm
         passField.setText("");
         retypePassField.setText("");
         emailField.setText("");
+        errorPane.setText("");
+
+        remove(errorPane);
     }
 
     /**
@@ -254,6 +258,7 @@ public class CreateSip2SipAccountForm
                     = jsonObject.getString("error_message");
 
                 errorPane.setText(errorMessage);
+                add(errorPane, BorderLayout.NORTH);
 
                 SwingUtilities.getWindowAncestor(
                     CreateSip2SipAccountForm.this).pack();

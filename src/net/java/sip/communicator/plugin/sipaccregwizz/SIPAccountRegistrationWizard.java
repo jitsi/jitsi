@@ -247,11 +247,10 @@ public class SIPAccountRegistrationWizard
     {
         firstWizardPage.commitPage();
 
-        if (registration.getId() != null)
+        if (firstWizardPage.isCommitted())
             return signin(registration.getId(), registration.getPassword());
-        else
-            throw new OperationFailedException(
-                "User name null.", OperationFailedException.ILLEGAL_ARGUMENT);
+
+        return null;
     }
 
     /**
