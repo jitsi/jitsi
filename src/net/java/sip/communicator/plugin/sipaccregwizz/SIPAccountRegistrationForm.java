@@ -53,6 +53,10 @@ public class SIPAccountRegistrationForm
 
         accountPanel.initAdvancedForm();
 
+        CreateAccountService createService = getCreateAccountService();
+        if (createService != null)
+            createService.clear();
+
         if (accountPanel.getParent() != tabbedPane)
             tabbedPane.addTab(  Resources.getString("service.gui.ACCOUNT"),
                                 accountPanel);
@@ -75,12 +79,15 @@ public class SIPAccountRegistrationForm
      * Parse the server part from the sip id and set it to server as default
      * value. If Advanced option is enabled Do nothing.
      * @param userName the account user name
+     * @return the server address
      */
-    void setServerFieldAccordingToUIN(String userName)
+    String setServerFieldAccordingToUIN(String userName)
     {
         String serverAddress = getServerFromUserName(userName);
 
         connectionPanel.setServerFieldAccordingToUIN(serverAddress);
+
+        return serverAddress;
     }
 
     /**
@@ -129,20 +136,54 @@ public class SIPAccountRegistrationForm
      */
     public void commitPage(SIPAccountRegistration registration)
     {
-        String userID = accountPanel.getUserID();
+        String userID = null;
+        char[] password = null;
+        String serverAddress = null;
+        String proxyAddress = null;
+        if (accountPanel.isCreateAccount())
+        {
+            NewAccount newAccount
+                = getCreateAccountService().createAccount();
+            if (newAccount != null)
+            {
+                userID = newAccount.getUserName();
+                password = newAccount.getPassword();
+                serverAddress = newAccount.getServerAddress();
+                proxyAddress = newAccount.getProxyAddress();
+
+                if (serverAddress == null)
+                    serverAddress = setServerFieldAccordingToUIN(userID);
+
+                if (proxyAddress == null)
+                    proxyAddress = serverAddress;
+            }
+            else
+            {
+                // If we didn't succeed to create our new account, we have
+                // nothing more to do here.
+                return;
+            }
+        }
+        else
+        {
+            userID = accountPanel.getUserID();
+            password = accountPanel.getPassword();
+            serverAddress = connectionPanel.getServerAddress();
+            proxyAddress = connectionPanel.getProxy();
+        }
 
         if(userID == null || userID.trim().length() == 0)
             throw new IllegalStateException("No user ID provided.");
 
         registration.setUserID(userID);
 
-        char[] password = accountPanel.getPassword();
         if (password != null)
             registration.setPassword(new String(password));
 
         registration.setRememberPassword(accountPanel.isRememberPassword());
 
-        registration.setServerAddress(connectionPanel.getServerAddress());
+        registration.setServerAddress(serverAddress);
+        registration.setProxy(proxyAddress);
 
         String displayName = accountPanel.getDisplayName();
         registration.setDisplayName(displayName);
@@ -152,7 +193,6 @@ public class SIPAccountRegistrationForm
             registration.setAuthorizationName(authName);
 
         registration.setServerPort(connectionPanel.getServerPort());
-        registration.setProxy(connectionPanel.getProxy());
         registration.setProxyPort(connectionPanel.getProxyPort());
 
         registration.setPreferredTransport(
@@ -327,5 +367,16 @@ public class SIPAccountRegistrationForm
     public String getWebSignupLinkName()
     {
         return wizard.getWebSignupLinkName();
+    }
+
+    /**
+     * Returns an instance of <tt>CreateAccountService</tt> through which the
+     * user could create an account. This method is meant to be implemented by
+     * specific protocol provider wizards.
+     * @return an instance of <tt>CreateAccountService</tt>
+     */
+    public CreateAccountService getCreateAccountService()
+    {
+         return wizard.getCreateAccountService();
     }
 }

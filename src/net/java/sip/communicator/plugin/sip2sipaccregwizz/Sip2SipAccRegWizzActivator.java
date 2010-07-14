@@ -25,15 +25,30 @@ import net.java.sip.communicator.util.*;
 public class Sip2SipAccRegWizzActivator
     implements BundleActivator
 {
+    /**
+     * The bundle context.
+     */
     public static BundleContext bundleContext;
 
+    /**
+     * The logger.
+     */
     private static final Logger logger = Logger.getLogger(
         Sip2SipAccRegWizzActivator.class.getName());
 
+    /**
+     * The browser launcher service.
+     */
     private static BrowserLauncherService browserLauncherService;
 
+    /**
+     * The resources service.
+     */
     private static ResourceManagementService resourcesService;
 
+    /**
+     * The ui service.
+     */
     private static UIService uiService;
 
     /**
@@ -45,6 +60,12 @@ public class Sip2SipAccRegWizzActivator
         throws Exception
     {
         bundleContext = bc;
+
+        System.setProperty(
+            "http.agent",
+            System.getProperty("sip-communicator.application.name")
+                + "/" 
+                + System.getProperty("sip-communicator.version"));
 
         uiService =
             (UIService) bundleContext.getService(bundleContext

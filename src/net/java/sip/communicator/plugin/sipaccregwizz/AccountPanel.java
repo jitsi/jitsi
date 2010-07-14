@@ -29,24 +29,39 @@ public class AccountPanel
     private final JPanel labelsPanel
         = new TransparentPanel(new GridLayout(0, 1));
 
-    private JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1));
+    private final JPanel valuesPanel
+        = new TransparentPanel(new GridLayout(0, 1));
 
-    private JPanel emptyPanel = new TransparentPanel();
+    private final JPanel emptyPanel = new TransparentPanel();
 
-    private JTextField userIDField = new JTextField();
+    private final JTextField userIDField = new JTextField();
 
-    private JPasswordField passField = new JPasswordField();
+    private final JPasswordField passField = new JPasswordField();
 
     private final JTextField displayNameField = new JTextField();
 
-    private JCheckBox rememberPassBox
+    private final JCheckBox rememberPassBox
         = new SIPCommCheckBox(
             Resources.getString("service.gui.REMEMBER_PASSWORD"));
 
     private final JLabel displayNameLabel
         = new JLabel(Resources.getString("plugin.sipaccregwizz.DISPLAY_NAME"));
 
+    private final JRadioButton existingAccountButton = new JRadioButton(
+        Resources.getString("plugin.sipaccregwizz.EXISTING_ACCOUNT"));
+
+    private final JRadioButton createAccountButton = new JRadioButton(
+        Resources.getString("plugin.sipaccregwizz.CREATE_ACCOUNT"));
+
+    private final JPanel uinPassPanel
+        = new TransparentPanel(new BorderLayout(10, 10));
+
+    private final JPanel mainPanel
+        = new TransparentPanel(new BorderLayout(5, 5));
+
     private final SIPAccountRegistrationForm regform;
+
+    private Component registrationForm;
 
     /**
      * Creates an instance of the <tt>AccountPanel</tt>.
@@ -54,7 +69,7 @@ public class AccountPanel
      */
     public AccountPanel(SIPAccountRegistrationForm regform)
     {
-        super (new BorderLayout());
+        super(new BorderLayout());
 
         this.regform = regform;
 
@@ -67,9 +82,6 @@ public class AccountPanel
         uinExampleLabel.setFont(uinExampleLabel.getFont().deriveFont(8));
         emptyPanel.setMaximumSize(new Dimension(40, 35));
         uinExampleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-
-        JPanel uinPassPanel
-            = new TransparentPanel(new BorderLayout(10, 10));
 
         JLabel uinLabel
             = new JLabel(Resources.getString("plugin.sipaccregwizz.USERNAME"));
@@ -103,7 +115,18 @@ public class AccountPanel
         uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
             .getString("plugin.sipaccregwizz.USERNAME_AND_PASSWORD")));
 
-        this.add(uinPassPanel, BorderLayout.NORTH);
+        CreateAccountService createAccountService
+            = regform.getCreateAccountService();
+
+        if (createAccountService != null)
+        {
+            registrationForm = createAccountService.getForm();
+            mainPanel.add(createRegisterChoicePanel(), BorderLayout.NORTH);
+        }
+        else
+            mainPanel.add(uinPassPanel, BorderLayout.NORTH);
+
+        this.add(mainPanel, BorderLayout.NORTH);
     }
 
     /**
@@ -118,6 +141,9 @@ public class AccountPanel
         // If it's not yet added.
         if (displayNameField.getParent() == null)
             valuesPanel.add(displayNameField);
+
+        // Select the existing account radio button by default.
+        existingAccountButton.setSelected(true);
     }
 
     /**
@@ -128,8 +154,9 @@ public class AccountPanel
      */
     public void insertUpdate(DocumentEvent e)
     {
-        regform.setNextFinishButtonEnabled(userIDField.getText() == null
-                                            || userIDField.getText().equals(""));
+        regform.setNextFinishButtonEnabled(
+                userIDField.getText() != null
+                && userIDField.getText().length() > 0);
         regform.setServerFieldAccordingToUIN(userIDField.getText());
     }
 
@@ -141,8 +168,9 @@ public class AccountPanel
      */
     public void removeUpdate(DocumentEvent e)
     {
-        regform.setNextFinishButtonEnabled(userIDField.getText() == null
-                                            || userIDField.getText().equals(""));
+        regform.setNextFinishButtonEnabled(
+            userIDField.getText() != null
+            && userIDField.getText().length() > 0);
         regform.setServerFieldAccordingToUIN(userIDField.getText());
     }
 
@@ -267,5 +295,69 @@ public class AccountPanel
             }
         });
         return subscribeLabel;
+    }
+
+    /**
+     * Creates a register choice panel.
+     * @return the created component
+     */
+    private Component createRegisterChoicePanel()
+    {
+        JPanel registerChoicePanel = new TransparentPanel(new GridLayout(0, 1));
+
+        existingAccountButton.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent e)
+            {
+                if (existingAccountButton.isSelected())
+                {
+                    mainPanel.remove(registrationForm);
+                    mainPanel.add(uinPassPanel, BorderLayout.CENTER);
+
+                    Window window
+                        = SwingUtilities.getWindowAncestor(AccountPanel.this);
+
+                    if (window != null)
+                        window.pack();
+                }
+            }
+        });
+
+        createAccountButton.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent e)
+            {
+                if (createAccountButton.isSelected())
+                {
+                    mainPanel.remove(uinPassPanel);
+                    mainPanel.add(registrationForm, BorderLayout.CENTER);
+                    SwingUtilities.getWindowAncestor(AccountPanel.this).pack();
+                }
+            }
+        });
+
+        ButtonGroup buttonGroup = new ButtonGroup();
+
+        buttonGroup.add(existingAccountButton);
+        buttonGroup.add(createAccountButton);
+
+        registerChoicePanel.add(existingAccountButton);
+        registerChoicePanel.add(createAccountButton);
+
+        // By default we select the existing account button.
+        existingAccountButton.setSelected(true);
+
+        return registerChoicePanel;
+    }
+
+    /**
+     * Indicates if the account information provided by this form is for new
+     * account or an existing one.
+     * @return <tt>true</tt> if the account information provided by this form
+     * is for new account or <tt>false</tt> if it's for an existing one
+     */
+    boolean isCreateAccount()
+    {
+        return createAccountButton.isSelected();
     }
 }

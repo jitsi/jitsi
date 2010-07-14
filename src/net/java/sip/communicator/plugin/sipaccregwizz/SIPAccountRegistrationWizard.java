@@ -247,7 +247,11 @@ public class SIPAccountRegistrationWizard
     {
         firstWizardPage.commitPage();
 
-        return signin(registration.getId(), registration.getPassword());
+        if (registration.getId() != null)
+            return signin(registration.getId(), registration.getPassword());
+        else
+            throw new OperationFailedException(
+                "User name null.", OperationFailedException.ILLEGAL_ARGUMENT);
     }
 
     /**
@@ -594,6 +598,17 @@ public class SIPAccountRegistrationWizard
      * @return the account icon path
      */
     public String getAccountIconPath()
+    {
+        return null;
+    }
+
+    /**
+     * Returns an instance of <tt>CreateAccountService</tt> through which the
+     * user could create an account. This method is meant to be implemented by
+     * specific protocol provider wizards.
+     * @return an instance of <tt>CreateAccountService</tt>
+     */
+    protected CreateAccountService getCreateAccountService()
     {
         return null;
     }

@@ -37,6 +37,11 @@ public class Sip2SipAccountRegistrationWizard
     public static final String PROTOCOL = "sip2sip.info";
 
     /**
+     * The create account form.
+     */
+    CreateSip2SipAccountForm createAccountForm = new CreateSip2SipAccountForm();
+
+    /**
      * Creates an instance of <tt>IptelAccountRegistrationWizard</tt>.
      * @param wizardContainer the wizard container
      */
@@ -146,5 +151,16 @@ public class Sip2SipAccountRegistrationWizard
     public String getWebSignupLinkName()
     {
         return Resources.getString("plugin.sip2sipaccregwizz.NEW_ACCOUNT_TITLE");
+    }
+
+    /**
+     * Returns an instance of <tt>CreateAccountService</tt> through which the
+     * user could create an account. This method is meant to be implemented by
+     * specific protocol provider wizards.
+     * @return an instance of <tt>CreateAccountService</tt>
+     */
+    protected CreateAccountService getCreateAccountService()
+    {
+        return createAccountForm;
     }
 }

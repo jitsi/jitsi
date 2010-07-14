@@ -192,5 +192,5 @@ public interface AccountRegistrationWizard
      * 
      * @return a simple account registration form
      */
-    public Object getSimpleForm();
+    public Object getSimpleForm(); 
 }

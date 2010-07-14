@@ -73,7 +73,7 @@ public class NewAccountDialog
      */
     public NewAccountDialog()
     {
-        super(GuiActivator.getUIService().getMainFrame());
+        super(GuiActivator.getUIService().getMainFrame(), false);
 
         this.setTitle(GuiActivator.getResources()
             .getI18NString("service.gui.NEW_ACCOUNT"));
@@ -207,7 +207,7 @@ public class NewAccountDialog
             {
                 networkComboBox.insertItemAt(emptyWizard, 0);
                 networkComboBox.setSelectedItem(emptyWizard);
-                
+
                 //disable the advanced and add buttons so that it would be 
                 //clear for the user that they need to choose a network first
                 advancedButton.setEnabled(false);
