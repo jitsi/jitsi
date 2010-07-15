@@ -317,7 +317,7 @@ public class ProtocolProviderServiceJabberImpl
         {
             //verify whether a password has already been stored for this account
             String password = JabberActivator.
-                getProtocolProviderFactory().loadPassword(getAccountID());
+                    getProtocolProviderFactory().loadPassword(getAccountID());
 
             //decode
             if (password == null)
@@ -1008,11 +1008,14 @@ public class ProtocolProviderServiceJabberImpl
             // we try determine the reason according to their message
             // all messages that were found in smack 3.1.0 were took in count
             if(exMsg.indexOf("authentication failed") != -1
+                || (exMsg.indexOf("authentication") != -1
+                    && exMsg.indexOf("failed") != -1)
                 || exMsg.indexOf("login failed") != -1
                 || exMsg.indexOf("unable to determine password") != -1)
             {
                 JabberActivator.getProtocolProviderFactory().
                     storePassword(getAccountID(), null);
+
                 reason = RegistrationStateChangeEvent
                     .REASON_AUTHENTICATION_FAILED;
 

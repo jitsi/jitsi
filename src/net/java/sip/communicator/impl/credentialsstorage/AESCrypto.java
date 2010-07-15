@@ -40,9 +40,9 @@ public class AESCrypto
     { 0x0C, 0x0A, 0x0F, 0x0E, 0x0B, 0x0E, 0x0E, 0x0F };
 
     /**
-     * Length of the key in bits.
+     * Possible length of the keys in bits.
      */
-    private static int KEY_LENGTH = 256;
+    private static int[] KEY_LENGTHS = new int[]{256, 128};
 
     /**
      * Number of iterations to use when creating the key.
@@ -71,30 +71,32 @@ public class AESCrypto
      */
     public AESCrypto(String masterPassword)
     {
-        // if the password is empty, we get an exception constructing the key
-        if (masterPassword == null)
-        {
-            // here a default password can be set,
-            // cannot be an empty string
-            masterPassword = " ";
-        }
-
         try
         {
             decryptCipher = Cipher.getInstance(CIPHER_ALGORITHM);
             encryptCipher = Cipher.getInstance(CIPHER_ALGORITHM);
-            
-            // Password-Based Key Derivation Function found in PKCS5 v2.0.
-            // This is only available with java 6.
-            SecretKeyFactory factory =
-                SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            // Make a key from the master password
-            KeySpec spec =
-                new PBEKeySpec(masterPassword.toCharArray(), SALT,
-                    ITERATION_COUNT, KEY_LENGTH);
-            SecretKey tmp = factory.generateSecret(spec);
-            // Make an algorithm specific key
-            key = new SecretKeySpec(tmp.getEncoded(), KEY_ALGORITHM);
+
+            // we try init of key with suupplied lengths
+            // we stop after the first successful attempt
+            for (int i = 0; i < KEY_LENGTHS.length; i++)
+            {
+                try
+                {
+                    initKey(masterPassword, KEY_LENGTHS[i]);
+
+                    // its ok stop trying
+                    break;
+                }
+                catch (InvalidKeyException e)
+                {
+                    if(i == KEY_LENGTHS.length - 1)
+                        throw e;
+                }
+            }
+        }
+        catch (InvalidKeyException e)
+        {
+            throw new RuntimeException("Invalid key", e);
         }
         catch (InvalidKeySpecException e)
         {
@@ -108,6 +110,41 @@ public class AESCrypto
         {
             throw new RuntimeException("Padding not found", e);
         }
+    }
+
+    /**
+     * Initialize key with specified length.
+     *
+     * @param masterPassword used to derive the key. Can be null.
+     * @param keyLength Length of the key in bits.
+     * @throws InvalidKeyException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
+    private void initKey(String masterPassword, int keyLength)
+        throws  InvalidKeyException,
+                NoSuchAlgorithmException,
+                InvalidKeySpecException
+    {
+        // if the password is empty, we get an exception constructing the key
+        if (masterPassword == null)
+        {
+            // here a default password can be set,
+            // cannot be an empty string
+            masterPassword = " ";
+        }
+
+        // Password-Based Key Derivation Function found in PKCS5 v2.0.
+        // This is only available with java 6.
+        SecretKeyFactory factory =
+            SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        // Make a key from the master password
+        KeySpec spec =
+            new PBEKeySpec(masterPassword.toCharArray(), SALT,
+                ITERATION_COUNT, keyLength);
+        SecretKey tmp = factory.generateSecret(spec);
+        // Make an algorithm specific key
+        key = new SecretKeySpec(tmp.getEncoded(), KEY_ALGORITHM);
     }
 
     /**
