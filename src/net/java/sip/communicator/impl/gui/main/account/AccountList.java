@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.account;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
+import java.lang.reflect.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -330,18 +331,26 @@ public class AccountList
     /**
      * Enables or disables the current account.
      * @param account the account to disable/enable
-     * @param isEnable indicates if the account should be enabled or disabled
+     * @param enable indicates if the account should be enabled or disabled
      */
-    private void enableAccount(Account account, boolean isEnable)
+    private void enableAccount(Account account, boolean enable)
     {
-        account.setEnabled(isEnable);
+        account.setEnabled(enable);
 
+        AccountManager accountManager = GuiActivator.getAccountManager();
         AccountID accountID = account.getAccountID();
 
-        if (isEnable)
-            GuiActivator.getAccountManager().loadAccount(accountID);
-        else
-            GuiActivator.getAccountManager().unloadAccount(accountID);
+        try
+        {
+            if (enable)
+                accountManager.loadAccount(accountID);
+            else
+                accountManager.unloadAccount(accountID);
+        }
+        catch (OperationFailedException ofex)
+        {
+            throw new UndeclaredThrowableException(ofex);
+        }
     }
 
     /**

@@ -12,7 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.plugin.securityconfig.*;
-import net.java.sip.communicator.plugin.securityconfig.masterpassword.MasterPasswordChangeDialog.MasterPasswordExecutable;
+import net.java.sip.communicator.plugin.securityconfig.masterpassword.MasterPasswordChangeDialog.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -89,6 +89,11 @@ public class MasterPasswordPanel
         this.add(changeMasterPasswordButton, BorderLayout.EAST);
     }
 
+    /**
+     * <tt>ActionListener</tt>'s logic for the master password check box.
+     * 
+     * @param e action event 
+     */
     public void actionPerformed(ActionEvent e)
     {
         boolean isSelected = useMasterPasswordCheckBox.isSelected();
@@ -120,57 +125,19 @@ public class MasterPasswordPanel
      */
     private void removeMasterPassword()
     {
-        String master = null;
-        JPasswordField passwordField = new JPasswordField();
-        String inputMsg
-            = resources.getI18NString("plugin.securityconfig.masterpassword.MP_INPUT");
-        String errorMsg =
-            "<html><font color=\"red\">"
-                + resources.getI18NString(
-                        "plugin.securityconfig.masterpassword.MP_VERIFICATION_FAILURE_MSG")
-                + "</font></html>";
-
+        String master;
+        UIService uiService = SecurityConfigActivator.getUIService();
         boolean correct = true;
+
         do
         {
-            Object[] msg = null;
-            if (correct)
-            {
-                msg = new Object[]
-                { inputMsg, passwordField };
-            }
-            else
-            {
-                msg = new Object[]
-                { errorMsg, inputMsg, passwordField };
-            }
-            //clear the password field
-            passwordField.setText("");
-
-            if (JOptionPane.showOptionDialog(
-                    null,
-                    msg,
-                    resources.getI18NString("plugin.securityconfig.masterpassword.MP_TITLE"),
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    new String[]
-                            {
-                                resources.getI18NString("service.gui.OK"),
-                                resources.getI18NString("service.gui.CANCEL")
-                            },
-                    resources.getI18NString("service.gui.OK"))
-                == JOptionPane.YES_OPTION)
-            {
-                master = new String(passwordField.getPassword());
-                correct =
-                    (master.length() != 0)
-                        && SecurityConfigActivator
-                            .getCredentialsStorageService()
-                                .verifyMasterPassword(master);
-            }
-            else
+            master = uiService.getMasterPassword(correct);
+            if (master == null)
                 return;
+            correct =
+                (master.length() != 0)
+                    && SecurityConfigActivator.getCredentialsStorageService()
+                        .verifyMasterPassword(master);
         }
         while (!correct);
         // remove the master password by setting it to null

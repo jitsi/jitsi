@@ -108,6 +108,15 @@ public class MasterPasswordChangeDialog
         int y = (screenSize.height - this.getHeight()) / 2;
 
         this.setLocation(x, y);
+
+        if (currentPasswdField instanceof JPasswordField)
+        {
+            currentPasswdField.requestFocusInWindow();
+        }
+        else
+        {
+            newPasswordField.requestFocusInWindow();
+        }
     }
 
     /**
@@ -173,7 +182,6 @@ public class MasterPasswordChangeDialog
         okButton = new JButton(resources.getI18NString("service.gui.OK"));
         okButton.addActionListener(this);
         okButton.setEnabled(false);
-        this.getRootPane().setDefaultButton(okButton);
         cancelButton
             = new JButton(resources.getI18NString("service.gui.CANCEL"));
         cancelButton.addActionListener(this);
@@ -204,6 +212,8 @@ public class MasterPasswordChangeDialog
 
     /**
      * OK and Cancel button event handler.
+     * 
+     * @param e action event
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -296,6 +306,14 @@ public class MasterPasswordChangeDialog
         cancelButton.doClick();
     }
 
+    /**
+     * When a key is pressed we do 2 things. The first is to compare the two
+     * password input fields and enable OK button if they are equal. The second
+     * is to measure the password quality of the password from the first input
+     * field.
+     * 
+     * @param event key event
+     */
     public void keyReleased(KeyEvent event)
     {
         JPasswordField source = (JPasswordField) event.getSource();
@@ -316,10 +334,20 @@ public class MasterPasswordChangeDialog
         }
     }
 
+    /**
+     * Not overriding.
+     * 
+     * @param arg0 key event
+     */
     public void keyPressed(KeyEvent arg0)
     {
     }
 
+    /**
+     * Not overriding.
+     * 
+     * @param arg0 key event
+     */
     public void keyTyped(KeyEvent arg0)
     {
     }

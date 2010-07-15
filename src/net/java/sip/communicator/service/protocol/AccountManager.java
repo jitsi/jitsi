@@ -8,8 +8,6 @@ package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
@@ -18,17 +16,18 @@ import net.java.sip.communicator.service.protocol.event.*;
  * load them) and takes care of loading them on start-up.
  * 
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public interface AccountManager
 {
     /**
      * Registers a specific listener to be notified about events fired by this
-     * <code>AccountManager</code>. If the <code>listener</code> is already
+     * <tt>AccountManager</tt>. If the <tt>listener</tt> is already
      * registered, it will not be registered again.
      * 
      * @param listener
      *            the listener to be registered for notification events fired by
-     *            this <code>AccountManager</code>
+     *            this <tt>AccountManager</tt>
      */
     void addListener(AccountManagerListener listener);
 
@@ -48,34 +47,36 @@ public interface AccountManager
     boolean hasStoredAccounts(String protocolName, boolean includeHidden);
 
     /**
-     * Unregisters a specific listener from this <code>AccountManager</code> so
+     * Unregisters a specific listener from this <tt>AccountManager</tt> so
      * that it no longer received notifications about events fired by this
      * manager.
      * 
      * @param listener
      *            the listener to be unregistered from this
-     *            <code>AccountManager</code> so that it no longer receives
+     *            <tt>AccountManager</tt> so that it no longer receives
      *            notifications about events fired by this manager
      */
     void removeListener(AccountManagerListener listener);
 
     /**
-     * Stores an account represented in the form of an <code>AccountID</code>
-     * created by a specific <code>ProtocolProviderFactory</code>.
+     * Stores an account represented in the form of an <tt>AccountID</tt>
+     * created by a specific <tt>ProtocolProviderFactory</tt>.
      * 
-     * @param factory
-     *            the <code>ProtocolProviderFactory</code> which created the
-     *            account to be stored
-     * @param accountID
-     *            the account in the form of <code>AccountID</code> to be stored
+     * @param factory the <tt>ProtocolProviderFactory</tt> which created the
+     * account to be stored
+     * @param accountID the account in the form of <tt>AccountID</tt> to be
+     * stored
+     * @throws OperationFailedException if anything goes wrong while storing the
+     * specified account
      */
-    void storeAccount(ProtocolProviderFactory factory, AccountID accountID);
+    void storeAccount(ProtocolProviderFactory factory, AccountID accountID)
+        throws OperationFailedException;
 
     /**
      * Removes the account with <tt>accountID</tt> from the set of accounts
      * that are persistently stored inside the configuration service.
      * <p>
-     * @param factory the <code>ProtocolProviderFactory</code> which created the
+     * @param factory the <tt>ProtocolProviderFactory</tt> which created the
      * account to be stored
      * @param accountID the AccountID of the account to remove.
      * <p>
@@ -105,8 +106,11 @@ public interface AccountManager
      * the corresponding <tt>ProtocolProviderFactory</tt>.
      *
      * @param accountID the identifier of the account to load
+     * @throws OperationFailedException if anything goes wrong while loading the
+     * account corresponding to the specified <tt>accountID</tt>
      */
-    public void loadAccount(AccountID accountID);
+    public void loadAccount(AccountID accountID)
+        throws OperationFailedException;
 
     /**
      * Unloads the account corresponding to the given <tt>AccountID</tt>. An
@@ -115,8 +119,11 @@ public interface AccountManager
      * account through the corresponding <tt>ProtocolProviderFactory</tt>.
      *
      * @param accountID the identifier of the account to load
+     * @throws OperationFailedException if anything goes wrong while unloading
+     * the account corresponding to the specified <tt>accountID</tt>
      */
-    public void unloadAccount(AccountID accountID);
+    public void unloadAccount(AccountID accountID)
+        throws OperationFailedException;
 
     /**
      * Checks if the account corresponding to the given <tt>accountID</tt> is

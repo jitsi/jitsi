@@ -44,6 +44,7 @@ import net.java.sip.communicator.service.contactlist.*;
  * <code>getSupportedExportedWindows</code>.
  * 
  * @author Yana Stamcheva
+ * @author Dmitri Melnikov
  */
 public interface UIService
 {
@@ -412,4 +413,14 @@ public interface UIService
      * @param l the <tt>WindowListener</tt> to remove
      */
     public void removeWindowListener(WindowListener l);
+
+    /**
+     * Obtains the master password from the user.
+     * 
+     * @param prevSuccess <tt>true</tt> if any previous call returned a correct
+     * master password and there is no need to show an extra "verification
+     * failed" message
+     * @return the master password obtained from the user
+     */
+    public String getMasterPassword(boolean prevSuccess);
 }

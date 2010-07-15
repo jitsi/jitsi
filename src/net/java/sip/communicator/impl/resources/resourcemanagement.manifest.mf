@@ -6,9 +6,8 @@ Bundle-Version: 0.0.1
 System-Bundle: yes
 Export-Package: net.java.sip.communicator.service.resources
 Import-Package: org.osgi.framework,
- net.java.sip.communicator.util,
  net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.configuration.event,
- javax.swing,
- javax.imageio
- 
+ net.java.sip.communicator.util,
+ javax.imageio,
+ javax.swing

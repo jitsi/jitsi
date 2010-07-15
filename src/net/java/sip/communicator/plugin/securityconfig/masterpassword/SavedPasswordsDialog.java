@@ -192,6 +192,9 @@ public class SavedPasswordsDialog
 
             /**
              * Returns the name for the given column.
+             * 
+             * @param column the column index 
+             * @return the column name for the given index
              */
             public String getColumnName(int column)
             {
@@ -216,6 +219,10 @@ public class SavedPasswordsDialog
 
             /**
              * Returns the value for the given row and column.
+             * 
+             * @param row table's row 
+             * @param column table's column
+             * @return object inside the table at the given row and column
              */
             public Object getValueAt(int row, int column)
             {
@@ -255,6 +262,8 @@ public class SavedPasswordsDialog
 
             /**
              * Number of rows in the table.
+             * 
+             * @return number of rows 
              */
             public int getRowCount()
             {
@@ -264,6 +273,8 @@ public class SavedPasswordsDialog
             /**
              * Number of columns depends on whether we are showing passwords or
              * not.
+             * 
+             * @return number of columns
              */
             public int getColumnCount()
             {
@@ -493,57 +504,19 @@ public class SavedPasswordsDialog
          */
         private void showOrHidePasswordsProtected()
         {
-            String master = null;
-            JPasswordField passwordField = new JPasswordField();
-            String inputMsg
-                = resources.getI18NString("plugin.securityconfig.masterpassword.MP_INPUT");
-            String errorMsg =
-                "<html><font color=\"red\">"
-                    + resources.getI18NString(
-                            "plugin.securityconfig.masterpassword.MP_VERIFICATION_FAILURE_MSG")
-                    + "</font></html>";
-
+            String master;
+            UIService uiService = SecurityConfigActivator.getUIService();
             boolean correct = true;
+
             do
             {
-                Object[] msg = null;
-                if (correct)
-                {
-                    msg = new Object[]
-                    { inputMsg, passwordField };
-                }
-                else
-                {
-                    msg = new Object[]
-                    { errorMsg, inputMsg, passwordField };
-                }
-                //clear the password field
-                passwordField.setText("");
-
-                if (JOptionPane.showOptionDialog(
-                        null,
-                        msg,
-                        resources.getI18NString(
-                                "plugin.securityconfig.masterpassword.MP_TITLE"),
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE,
-                        null,
-                        new String[]
-                                {
-                                    resources.getI18NString("service.gui.OK"),
-                                    resources.getI18NString("service.gui.CANCEL")
-                                },
-                        resources.getI18NString("service.gui.OK"))
-                    == JOptionPane.YES_OPTION)
-                {
-                    master = new String(passwordField.getPassword());
-                    correct =
-                        (master.length() != 0)
-                            && credentialsStorageService
-                                .verifyMasterPassword(master);
-                }
-                else
+                master = uiService.getMasterPassword(correct);
+                if (master == null)
                     return;
+                correct
+                    = (master.length() != 0)
+                        && credentialsStorageService
+                            .verifyMasterPassword(master);
             }
             while (!correct);
             showOrHidePasswords();

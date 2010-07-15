@@ -136,14 +136,10 @@ public class SecurityConfigActivator
     {
         if (configurationService == null)
         {
-            ServiceReference confReference
-                = bundleContext
-                    .getServiceReference(ConfigurationService.class.getName());
-
-            if (confReference != null)
-                configurationService
-                    = (ConfigurationService)
-                        bundleContext.getService(confReference);
+            configurationService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
         }
         return configurationService;
     }
@@ -158,13 +154,10 @@ public class SecurityConfigActivator
     {
         if (credentialsStorageService == null)
         {
-            ServiceReference credentialsReference
-                = bundleContext.getServiceReference(
-                        CredentialsStorageService.class.getName());
-
             credentialsStorageService
-                = (CredentialsStorageService)
-                    bundleContext.getService(credentialsReference);
+                = ServiceUtils.getService(
+                        bundleContext,
+                        CredentialsStorageService.class);
         }
         return credentialsStorageService;
     }
@@ -179,12 +172,7 @@ public class SecurityConfigActivator
     public static UIService getUIService()
     {
         if (uiService == null)
-        {
-            ServiceReference serviceReference
-                = bundleContext.getServiceReference(UIService.class.getName());
-
-            uiService = (UIService) bundleContext.getService(serviceReference);
-        }
+            uiService = ServiceUtils.getService(bundleContext, UIService.class);
         return uiService;
     }
 
@@ -282,7 +270,9 @@ public class SecurityConfigActivator
                             bundleContext,
                             accountID,
                             sourcePackageName);
-                if (credentialsStorageService.isStoredEncrypted(accountPrefix))
+                if (credentialsStorageService.isStoredEncrypted(accountPrefix)
+                        || credentialsStorageService.isStoredUnencrypted(
+                                accountPrefix))
                     accountIDs.put(accountID, accountPrefix);
             }
         }

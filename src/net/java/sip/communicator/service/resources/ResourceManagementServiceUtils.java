@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.resources;
 
 import java.util.*;
 
+import net.java.sip.communicator.util.*;
+
 import org.osgi.framework.*;
 
 /**
@@ -17,16 +19,15 @@ public final class ResourceManagementServiceUtils
 {
 
     /**
-     * Constructs a new <code>Locale</code> instance from a specific locale
+     * Constructs a new <tt>Locale</tt> instance from a specific locale
      * identifier which can either be a two-letter language code or contain a
      * two-letter language code and a two-letter country code in the form
-     * <code>&lt;language&gt;_&lt;country&gt;</code>.
+     * <tt>&lt;language&gt;_&lt;country&gt;</tt>.
      * 
-     * @param localeId
-     *            the locale identifier describing the new <code>Locale</code>
-     *            instance to be created
-     * @return a new <code>Locale</code> instance with language and country (if
-     *         specified) matching the given locale identifier
+     * @param localeId the locale identifier describing the new <tt>Locale</tt>
+     * instance to be created
+     * @return a new <tt>Locale</tt> instance with language and country (if
+     * specified) matching the given locale identifier
      */
     public static Locale getLocale(String localeId)
     {
@@ -48,31 +49,25 @@ public final class ResourceManagementServiceUtils
     }
 
     /**
-     * Gets the <code>ResourceManagementService</code> instance registered in a
-     * specific <code>BundleContext</code> (if any).
+     * Gets the <tt>ResourceManagementService</tt> instance registered in a
+     * specific <tt>BundleContext</tt> (if any).
      * 
-     * @param bundleContext
-     *            the <code>BundleContext</code> to be checked for a registered
-     *            <code>ResourceManagementService</code>
-     * @return a <code>ResourceManagementService</code> instance registered in
-     *         the specified <code>BundleContext</code> if any; otherwise,
-     *         <tt>null</tt>
+     * @param bundleContext the <tt>BundleContext</tt> to be checked for a
+     * registered <tt>ResourceManagementService</tt>
+     * @return a <tt>ResourceManagementService</tt> instance registered in
+     * the specified <tt>BundleContext</tt> if any; otherwise, <tt>null</tt>
      */
     public static ResourceManagementService getService(
         BundleContext bundleContext)
     {
-        ServiceReference ref
-            = bundleContext.getServiceReference(
-                    ResourceManagementService.class.getName());
-
         return
-            (ref == null)
-                ? null
-                : (ResourceManagementService) bundleContext.getService(ref);
+            ServiceUtils.getService(
+                    bundleContext,
+                    ResourceManagementService.class);
     }
 
     /**
-     * Prevents the creation of <code>ResourceManagementServiceUtils</code>
+     * Prevents the creation of <tt>ResourceManagementServiceUtils</tt>
      * instances.
      */
     private ResourceManagementServiceUtils()

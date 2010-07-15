@@ -8,10 +8,9 @@ package net.java.sip.communicator.impl.credentialsstorage;
 
 import java.util.*;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -73,10 +72,8 @@ public class CredentialsStorageServiceImpl
      */
     void start(BundleContext bc)
     {
-        ServiceReference confServiceReference =
-            bc.getServiceReference(ConfigurationService.class.getName());
-        this.configurationService =
-            (ConfigurationService) bc.getService(confServiceReference);
+        this.configurationService
+                = ServiceUtils.getService(bc, ConfigurationService.class);
     }
 
     /**
@@ -97,12 +94,17 @@ public class CredentialsStorageServiceImpl
      * (<tt>createCrypto</tt> method). This instance will be used later by all
      * other threads.
      *
-     * @see CredentialsStorageServiceImpl#createCrypto()
+     * @param accountPrefix account prefix 
+     * @param password the password to store
+     * @return <tt>true</tt> if the specified <tt>password</tt> was successfully
+     * stored; otherwise, <tt>false</tt>
+     * @see CredentialsStorageServiceImpl#storePassword(String, String)
      */
-    public synchronized void storePassword(String accountPrefix, String password)
+    public synchronized boolean storePassword(
+            String accountPrefix,
+            String password)
     {
-        boolean createdOrExisting = createCrypto();
-        if (createdOrExisting)
+        if (createCrypto())
         {
             String encryptedPassword = null;
             try
@@ -110,12 +112,16 @@ public class CredentialsStorageServiceImpl
                 if (password != null)
                     encryptedPassword = crypto.encrypt(password);
                 setEncrypted(accountPrefix, encryptedPassword);
+                return true;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                logger.warn("Encryption failed, password not saved", e);
+                logger.error("Encryption failed, password not saved", ex);
+                return false;
             }
         }
+        else
+            return false;
     }
 
     /**
@@ -130,32 +136,35 @@ public class CredentialsStorageServiceImpl
      * (<tt>createCrypto</tt> method). This instance will be used later by all
      * other threads.
      *
+     * @param accountPrefix account prefix 
+     * @return the loaded password for the <tt>accountPrefix</tt>
      * @see CredentialsStorageServiceImpl#createCrypto()
      */
     public synchronized String loadPassword(String accountPrefix)
     {
-        String password = null;
+        String password;
+
         if (isStoredUnencrypted(accountPrefix))
         {
             password = new String(Base64.decode(getUnencrypted(accountPrefix)));
-            movePasswordProperty(accountPrefix, password);
+            if (movePasswordProperty(accountPrefix, password))
+                password = null;
         }
+        else
+            password = null;
 
-        if (password == null && isStoredEncrypted(accountPrefix))
+        if ((password == null)
+                && isStoredEncrypted(accountPrefix)
+                && createCrypto())
         {
-            boolean createdOrExisting = createCrypto();
-            if (createdOrExisting)
+            try
             {
-                try
-                {
-                    String ciphertext = getEncrypted(accountPrefix);
-                    password = crypto.decrypt(ciphertext);
-                }
-                catch (Exception e)
-                {
-                    logger.warn("Decryption with master password failed", e);
-                    // password stays null
-                }
+                password = crypto.decrypt(getEncrypted(accountPrefix));
+            }
+            catch (Exception ex)
+            {
+                logger.error("Decryption with master password failed", ex);
+                // password stays null
             }
         }
         return password;
@@ -164,14 +173,18 @@ public class CredentialsStorageServiceImpl
     /**
      * Removes the password for the account that starts with the given prefix by
      * setting its value in the configuration to null.
+     * 
+     * @param accountPrefix account prefix
+     * @return <tt>true</tt> if the password for the specified
+     * <tt>accountPrefix</tt> was successfully removed; otherwise,
+     * <tt>false</tt> 
      */
-    public void removePassword(String accountPrefix)
+    public boolean removePassword(String accountPrefix)
     {
         setEncrypted(accountPrefix, null);
         if (logger.isDebugEnabled())
-        {
             logger.debug("Password for '" + accountPrefix + "' removed");
-        }
+        return true;
     }
 
     /**
@@ -186,8 +199,8 @@ public class CredentialsStorageServiceImpl
 
     /**
      * Verifies the correctness of the master password.
-     * Since we do not store the MP itself, if MASTER_PROP_VALUE
-     * is equal to the decrypted MASTER_PROP value, then
+     * Since we do not store the MP itself, if {@link #MASTER_PROP_VALUE}
+     * is equal to the decrypted {@link #MASTER_PROP}'s value, then
      * the MP is considered correct.
      *
      * @param master master password
@@ -200,8 +213,14 @@ public class CredentialsStorageServiceImpl
         {
             // use this value to verify master password correctness
             String encryptedValue = getEncryptedMasterPropValue();
-            return MASTER_PROP_VALUE
-                .equals(localCrypto.decrypt(encryptedValue));
+            boolean correct =
+                MASTER_PROP_VALUE.equals(localCrypto.decrypt(encryptedValue));
+            if (correct)
+            {
+                // also set the crypto instance to use the correct MP
+                setMasterPassword(master);
+            }
+            return correct;
         }
         catch (CryptoException e)
         {
@@ -225,6 +244,7 @@ public class CredentialsStorageServiceImpl
      *
      * @param oldPassword old master password
      * @param newPassword new master password
+     * @return true if master password was changed successfully, false otherwise
      */
     public boolean changeMasterPassword(String oldPassword, String newPassword)
     {
@@ -285,24 +305,28 @@ public class CredentialsStorageServiceImpl
      *
      * @param accountPrefix prefix of the account
      * @param password unencrypted password
+     * @return <tt>true</tt> if the specified <tt>password</tt> was successfully
+     * moved; otherwise, <tt>false</tt>
      */
-    private void movePasswordProperty(String accountPrefix, String password)
+    private boolean movePasswordProperty(String accountPrefix, String password)
     {
-        boolean createdOrExisting = createCrypto();
-        if (createdOrExisting)
+        if (createCrypto())
         {
             try
             {
-                String encryptedPassword = crypto.encrypt(password);
-                setEncrypted(accountPrefix, encryptedPassword);
+                setEncrypted(accountPrefix, crypto.encrypt(password));
                 setUnencrypted(accountPrefix, null);
+                return true;
             }
-            catch (CryptoException e)
+            catch (CryptoException cex)
             {
-                logger.debug("Encryption failed", e);
+                logger.debug("Encryption failed", cex);
                 // properties are not moved
+                return false;
             }
         }
+        return
+            false;
     }
 
     /**
@@ -314,19 +338,20 @@ public class CredentialsStorageServiceImpl
     private void writeVerificationValue(boolean remove)
     {
         if (remove)
-        {
             configurationService.removeProperty(MASTER_PROP);
-        }
         else
         {
             try
             {
-                String encryptedValue = crypto.encrypt(MASTER_PROP_VALUE);
-                configurationService.setProperty(MASTER_PROP, encryptedValue);
+                configurationService.setProperty(
+                        MASTER_PROP,
+                        crypto.encrypt(MASTER_PROP_VALUE));
             }
-            catch (CryptoException e)
+            catch (CryptoException cex)
             {
-                logger.warn("Failed to encrypt and write verification value");
+                logger.error(
+                        "Failed to encrypt and write verification value",
+                        cex);
             }
         }
     }
@@ -350,11 +375,13 @@ public class CredentialsStorageServiceImpl
                 {
                     // user clicked cancel button in the prompt
                     crypto = null;
-                    return false;
                 }
-                // at this point the master password must be correct,
-                // so we set the crypto instance to use it
-                setMasterPassword(master);
+                else
+                {
+                    // at this point the master password must be correct,
+                    // so we set the crypto instance to use it
+                    setMasterPassword(master);
+                }
             }
             else
             {
@@ -367,7 +394,7 @@ public class CredentialsStorageServiceImpl
                 setMasterPassword(null);
             }
         }
-        return true;
+        return (crypto != null);
     }
 
     /**
@@ -378,60 +405,19 @@ public class CredentialsStorageServiceImpl
      */
     private String showPasswordPrompt()
     {
-        String master = null;
-        JPasswordField passwordField = new JPasswordField();
-        String inputMsg =
-            CredentialsStorageActivator
-                .getString("plugin.securityconfig.masterpassword.MP_INPUT");
-        String errorMsg =
-            "<html><font color=\"red\">"
-                + CredentialsStorageActivator
-                    .getString("plugin.securityconfig.masterpassword.MP_VERIFICATION_FAILURE_MSG")
-                + "</font></html>";
+        String master;
+        UIService uiService = CredentialsStorageActivator.getUIService();
 
         // Ask for master password until the input is correct or
-        // cancel button is pressed
+        // cancel button is pressed and null returned
         boolean correct = true;
+
         do
         {
-            Object[] msg = null;
-            if (correct)
-            {
-                msg = new Object[]
-                { inputMsg, passwordField };
-            }
-            else
-            {
-                msg = new Object[]
-                { errorMsg, inputMsg, passwordField };
-            }
-            // clear the password field
-            passwordField.setText("");
-
-            if (JOptionPane
-                .showOptionDialog(
-                    null,
-                    msg,
-                    CredentialsStorageActivator
-                        .getString("plugin.securityconfig.masterpassword.MP_TITLE"),
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    new String[]
-                    {
-                        CredentialsStorageActivator.getString("service.gui.OK"),
-                        CredentialsStorageActivator
-                            .getString("service.gui.CANCEL") },
-                    CredentialsStorageActivator.getString("service.gui.OK")) == JOptionPane.YES_OPTION)
-            {
-
-                master = new String(passwordField.getPassword());
-                correct = (master.length() != 0) && verifyMasterPassword(master);
-            }
-            else
-            {
+            master = uiService.getMasterPassword(correct);
+            if (master == null)
                 return null;
-            }
+            correct = ((master.length() != 0) && verifyMasterPassword(master));
         }
         while (!correct);
         return master;
@@ -456,8 +442,9 @@ public class CredentialsStorageServiceImpl
      */
     private String getEncrypted(String accountPrefix)
     {
-        return configurationService.getString(accountPrefix + "."
-            + ACCOUNT_ENCRYPTED_PASSWORD);
+        return
+            configurationService.getString(
+                    accountPrefix + "." + ACCOUNT_ENCRYPTED_PASSWORD);
     }
 
     /**
@@ -468,19 +455,23 @@ public class CredentialsStorageServiceImpl
      */
     private void setEncrypted(String accountPrefix, String value)
     {
-        configurationService.setProperty(accountPrefix + "."
-            + ACCOUNT_ENCRYPTED_PASSWORD, value);
+        configurationService.setProperty(
+                accountPrefix + "." + ACCOUNT_ENCRYPTED_PASSWORD,
+                value);
     }
 
     /**
      * Check if encrypted account password is saved in the configuration.
      *
+     * @param accountPrefix account prefix
      * @return true if saved, false if not
      */
     public boolean isStoredEncrypted(String accountPrefix)
     {
-        return null != configurationService.getString(accountPrefix + "."
-            + ACCOUNT_ENCRYPTED_PASSWORD);
+        return
+            configurationService.getString(
+                    accountPrefix + "." + ACCOUNT_ENCRYPTED_PASSWORD)
+                != null;
     }
 
     /**
@@ -491,8 +482,9 @@ public class CredentialsStorageServiceImpl
      */
     private String getUnencrypted(String accountPrefix)
     {
-        return configurationService.getString(accountPrefix + "."
-            + ACCOUNT_UNENCRYPTED_PASSWORD);
+        return
+            configurationService.getString(
+                    accountPrefix + "." + ACCOUNT_UNENCRYPTED_PASSWORD);
     }
 
     /**
@@ -503,8 +495,8 @@ public class CredentialsStorageServiceImpl
      */
     private void setUnencrypted(String accountPrefix, String value)
     {
-        configurationService.setProperty(accountPrefix + "."
-            + ACCOUNT_UNENCRYPTED_PASSWORD, value);
+        configurationService.setProperty(
+                accountPrefix + "." + ACCOUNT_UNENCRYPTED_PASSWORD, value);
     }
 
     /**
@@ -513,10 +505,12 @@ public class CredentialsStorageServiceImpl
      * @param accountPrefix account prefix
      * @return true if saved, false if not
      */
-    private boolean isStoredUnencrypted(String accountPrefix)
+    public boolean isStoredUnencrypted(String accountPrefix)
     {
         configurationService.getPropertyNamesByPrefix("", false);
-        return null != configurationService.getString(accountPrefix + "."
-            + ACCOUNT_UNENCRYPTED_PASSWORD);
+        return
+            configurationService.getString(
+                    accountPrefix + "." + ACCOUNT_UNENCRYPTED_PASSWORD)
+                != null;
     }
 }

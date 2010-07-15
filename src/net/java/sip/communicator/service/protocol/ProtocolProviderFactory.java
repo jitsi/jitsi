@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.lang.reflect.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
@@ -443,11 +444,18 @@ public abstract class ProtocolProviderFactory
      * </p>
      * 
      * @param accountID the AccountID corresponding to the account that we would
-     *            like to store.
+     * like to store.
      */
     protected void storeAccount(AccountID accountID)
     {
-        getAccountManager().storeAccount(this, accountID);
+        try
+        {
+            getAccountManager().storeAccount(this, accountID);
+        }
+        catch (OperationFailedException ofex)
+        {
+            throw new UndeclaredThrowableException(ofex);
+        }
     }
 
     /**
@@ -465,7 +473,14 @@ public abstract class ProtocolProviderFactory
     public void storePassword(AccountID accountID, String password)
         throws IllegalArgumentException
     {
-        storePassword(getBundleContext(), accountID, password);
+        try
+        {
+            storePassword(getBundleContext(), accountID, password);
+        }
+        catch (OperationFailedException ofex)
+        {
+            throw new UndeclaredThrowableException(ofex);
+        }
     }
 
     /**
@@ -485,29 +500,43 @@ public abstract class ProtocolProviderFactory
      * 
      * @throws IllegalArgumentException if no account corresponding to
      * <tt>accountID</tt> has been previously stored.
+     * @throws OperationFailedException if anything goes wrong while storing the
+     * specified <tt>password</tt>
      */
     protected void storePassword(BundleContext bundleContext,
                                  AccountID    accountID,
                                  String       password)
-        throws IllegalArgumentException
+        throws IllegalArgumentException,
+               OperationFailedException
     {
-        String accountPrefix = findAccountPrefix(
-            bundleContext, accountID, getFactoryImplPackageName());
+        String accountPrefix
+            = findAccountPrefix(
+                bundleContext,
+                accountID,
+                getFactoryImplPackageName());
 
         if (accountPrefix == null)
-            throw new IllegalArgumentException(
-                "No previous records found for account ID: "
-                + accountID.getAccountUniqueID()
-                + " in package" + getFactoryImplPackageName());
+        {
+            throw
+                new IllegalArgumentException(
+                        "No previous records found for account ID: "
+                            + accountID.getAccountUniqueID()
+                            + " in package"
+                            + getFactoryImplPackageName());
+        }
 
-        ServiceReference credentialsReference
-            = bundleContext.getServiceReference(
-                    CredentialsStorageService.class.getName());
-        CredentialsStorageService credentialsService
-            = (CredentialsStorageService)
-                bundleContext.getService(credentialsReference);
+        CredentialsStorageService credentialsStorage
+            = ServiceUtils.getService(
+                    bundleContext,
+                    CredentialsStorageService.class);
 
-        credentialsService.storePassword(accountPrefix, password);
+        if (!credentialsStorage.storePassword(accountPrefix, password))
+        {
+            throw
+                new OperationFailedException(
+                        "CredentialsStorageService failed to storePassword",
+                        OperationFailedException.GENERAL_ERROR);
+        }
     }
 
     /**
@@ -546,14 +575,12 @@ public abstract class ProtocolProviderFactory
         if (accountPrefix == null)
             return null;
 
-        ServiceReference credentialsReference
-            = bundleContext.getServiceReference(
-                    CredentialsStorageService.class.getName());
-        CredentialsStorageService credentialsService
-            = (CredentialsStorageService)
-                bundleContext.getService(credentialsReference);
+        CredentialsStorageService credentialsStorage
+            = ServiceUtils.getService(
+                    bundleContext,
+                    CredentialsStorageService.class);
 
-        return credentialsService.loadPassword(accountPrefix);
+        return credentialsStorage.loadPassword(accountPrefix);
     }
 
     /**
@@ -605,16 +632,15 @@ public abstract class ProtocolProviderFactory
                 .getName(), service, properties);
 
         if (serviceRegistration == null)
-        {
             return false;
-        }
-
-        synchronized (registeredAccounts)
+        else
         {
-            registeredAccounts.put(accountID, serviceRegistration);
+            synchronized (registeredAccounts)
+            {
+                registeredAccounts.put(accountID, serviceRegistration);
+            }
+            return true;
         }
-
-        return true;
     }
 
     /**

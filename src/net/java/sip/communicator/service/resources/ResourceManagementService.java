@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.resources;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
 import javax.swing.*;
 
 /**

@@ -45,6 +45,7 @@ import com.sun.jna.examples.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Dmitri Melnikov
  */
 public class UIServiceImpl
     implements UIService,
@@ -1209,5 +1210,61 @@ public class UIServiceImpl
     public void removeWindowListener(WindowListener l)
     {
         mainFrame.removeWindowListener(l);
+    }
+
+    /**
+     * Obtains the master password from the user.
+     *
+     * @param prevSuccess <tt>true</tt> if any previous call returned a correct
+     * master password and there is no need to show an extra "verification
+     * failed" message
+     * @return the master password obtained from the user
+     */
+    public String getMasterPassword(boolean prevSuccess)
+    {
+        ResourceManagementService resources = GuiActivator.getResources();
+        Object[] msg;
+        String inputMsg
+            = resources.getI18NString(
+                    "plugin.securityconfig.masterpassword.MP_INPUT");
+        JPasswordField passwordField = new JPasswordField();
+
+        if (!prevSuccess)
+        {
+            String errorMsg
+                = "<html><font color=\"red\">"
+                    + resources.getI18NString(
+                            "plugin.securityconfig.masterpassword"
+                                + ".MP_VERIFICATION_FAILURE_MSG")
+                    + "</font></html>";
+
+            msg = new Object[] { errorMsg, inputMsg, passwordField };
+        }
+        else
+            msg = new Object[] { inputMsg, passwordField };
+
+        // clear the password field
+        passwordField.setText("");
+
+        int chosenOption
+            = JOptionPane.showOptionDialog(
+                    null,
+                    msg,
+                    resources.getI18NString(
+                            "plugin.securityconfig.masterpassword.MP_TITLE"),
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    new String[]
+                            {
+                                resources.getI18NString("service.gui.OK"),
+                                resources.getI18NString("service.gui.CANCEL")
+                            },
+                    null);
+
+        return
+            (chosenOption == JOptionPane.YES_OPTION)
+                ? new String(passwordField.getPassword())
+                : null;
     }
 }

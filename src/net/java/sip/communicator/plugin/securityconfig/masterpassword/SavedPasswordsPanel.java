@@ -12,6 +12,8 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.plugin.securityconfig.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -22,6 +24,11 @@ import net.java.sip.communicator.util.swing.*;
 public class SavedPasswordsPanel
     extends TransparentPanel
 {
+    /**
+     * The {@link CredentialsStorageService}.
+     */
+    private static final CredentialsStorageService credentialsStorageService
+        = SecurityConfigActivator.getCredentialsStorageService();
 
     /**
      * Builds the panel.
@@ -48,9 +55,38 @@ public class SavedPasswordsPanel
         {
             public void actionPerformed(ActionEvent e)
             {
-                SavedPasswordsDialog.getInstance().setVisible(true);
+                if (credentialsStorageService.isUsingMasterPassword())
+                {
+                    showSavedPasswordsDialog();
+                } else 
+                {
+                    SavedPasswordsDialog.getInstance().setVisible(true);
+                }
             }
         });
         this.add(savedPasswordsButton, BorderLayout.EAST);
+    }
+
+    /**
+     * Displays a master password prompt to the user, verifies the entered
+     * password and then shows the <tt>SavedPasswordsDialog</tt>.
+     */
+    private void showSavedPasswordsDialog()
+    {
+        String master;
+        UIService uiService = SecurityConfigActivator.getUIService();
+        boolean correct = true;
+
+        do
+        {
+            master = uiService.getMasterPassword(correct);
+            if (master == null)
+                return;
+            correct
+                = (master.length() != 0)
+                    && credentialsStorageService.verifyMasterPassword(master);
+        }
+        while (!correct);
+        SavedPasswordsDialog.getInstance().setVisible(true);
     }
 }

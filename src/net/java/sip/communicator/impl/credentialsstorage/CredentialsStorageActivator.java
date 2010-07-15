@@ -7,13 +7,13 @@
 package net.java.sip.communicator.impl.credentialsstorage;
 
 import net.java.sip.communicator.service.credentialsstorage.*;
-import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
 /**
- * Activator for the @link{CredentialsStorageService}.
+ * Activator for the {@link CredentialsStorageService}.
  *
  * @author Dmitri Melnikov
  */
@@ -38,9 +38,9 @@ public class CredentialsStorageActivator
     private static BundleContext bundleContext;
     
     /**
-     * The resources service.
+     * The user interface service.
      */
-    private static ResourceManagementService resourcesService;
+    private static UIService uiService;
 
     /**
      * Starts the credentials storage service
@@ -85,30 +85,18 @@ public class CredentialsStorageActivator
         logger
             .info("The CredentialsStorageService stop method has been called.");
     }
-    
-    /**
-     * Returns an internationalized string corresponding to the given key.
-     * 
-     * @param key The key of the string.
-     * @return An internationalized string corresponding to the given key.
-     */
-    public static String getString(String key)
-    {
-        return getResources().getI18NString(key);
-    }
 
     /**
-     * Returns an instance of {@link ResourceManagementService}.
-     * 
-     * @return an instance of {@link ResourceManagementService}.
+     * Returns a reference to an UIService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     *
+     * @return a reference to an UIService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
      */
-    private static ResourceManagementService getResources()
+    public static UIService getUIService()
     {
-        if (resourcesService == null)
-        {
-            resourcesService
-                = ResourceManagementServiceUtils.getService(bundleContext);
-        }
-        return resourcesService;
+        if (uiService == null)
+            uiService = ServiceUtils.getService(bundleContext, UIService.class);
+        return uiService;
     }
 }

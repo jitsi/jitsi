@@ -20,24 +20,32 @@ public class CryptoException
      * Set when encryption fails.
      */
     public static final int ENCRYPTION_ERROR = 1;
-    
+
     /**
      * Set when decryption fails.
      */
     public static final int DECRYPTION_ERROR = 2;
-    
+
     /**
      * Set when a decryption fail is caused by the wrong key.  
      */
     public static final int WRONG_KEY = 3;
-    
+
     /**
      * The error code of this exception.
      */
     private final int errorCode;
-    
-    public CryptoException(int code, Exception ex) {
-        super(ex);
+
+    /**
+     * Constructs the crypto exception.
+     * 
+     * @param code the error code
+     * @param cause the original exception that this instance wraps
+     */
+    public CryptoException(int code, Exception cause)
+    {
+        super(cause);
+
         this.errorCode = code;
     }
 

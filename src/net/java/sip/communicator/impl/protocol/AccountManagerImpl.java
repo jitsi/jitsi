@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -16,61 +17,66 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * Represents an implementation of <code>AccountManager</code> which loads the
+ * Represents an implementation of <tt>AccountManager</tt> which loads the
  * accounts in a separate thread.
  * 
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public class AccountManagerImpl
     implements AccountManager
 {
 
     /**
-     * The delay in milliseconds the background <code>Thread</code> loading the
+     * The delay in milliseconds the background <tt>Thread</tt> loading the
      * stored accounts should wait before dying so that it doesn't get recreated
-     * for each <code>ProtocolProviderFactory</code> registration.
+     * for each <tt>ProtocolProviderFactory</tt> registration.
      */
     private static final long LOAD_STORED_ACCOUNTS_TIMEOUT = 30000;
 
     /**
-     * The <code>BundleContext</code> this service is registered in.
+     * The <tt>BundleContext</tt> this service is registered in.
      */
     private final BundleContext bundleContext;
 
     /**
-     * The <code>AccountManagerListener</code>s currently interested in the
+     * The <tt>AccountManagerListener</tt>s currently interested in the
      * events fired by this manager.
      */
     private final List<AccountManagerListener> listeners =
         new LinkedList<AccountManagerListener>();
 
     /**
-     * The queue of <code>ProtocolProviderFactory</code> services awaiting their
+     * The queue of <tt>ProtocolProviderFactory</tt> services awaiting their
      * stored accounts to be loaded.
      */
     private final Queue<ProtocolProviderFactory> loadStoredAccountsQueue =
         new LinkedList<ProtocolProviderFactory>();
 
     /**
-     * The <code>Thread</code> loading the stored accounts of the
-     * <code>ProtocolProviderFactory</code> services waiting in
+     * The <tt>Thread</tt> loading the stored accounts of the
+     * <tt>ProtocolProviderFactory</tt> services waiting in
      * {@link #loadStoredAccountsQueue}.
      */
     private Thread loadStoredAccountsThread;
+
+    /**
+     * The <tt>Logger</tt> used by this <tt>AccountManagerImpl</tt> instance for
+     * logging output.
+     */
+    private final Logger logger = Logger.getLogger(AccountManagerImpl.class);
 
     /**
      * The list of <tt>AccountID</tt>s, corresponding to all stored accounts.
      */
     private Vector<AccountID> storedAccounts = new Vector<AccountID>();
 
-    private final Logger logger = Logger.getLogger(AccountManagerImpl.class);
-
     /**
-     * Initializes a new <code>AccountManagerImpl</code> instance loaded in a
-     * specific <code>BundleContext</code> (in which the caller will usually
+     * Initializes a new <tt>AccountManagerImpl</tt> instance loaded in a
+     * specific <tt>BundleContext</tt> (in which the caller will usually
      * later register it).
      *
-     * @param bundleContext the <code>BundleContext</code> in which the new
+     * @param bundleContext the <tt>BundleContext</tt> in which the new
      *            instance is loaded (and in which the caller will usually later
      *            register it as a service)
      */
@@ -102,9 +108,9 @@ public class AccountManagerImpl
 
     /**
      * Loads the accounts stored for a specific
-     * <code>ProtocolProviderFactory</code>.
+     * <tt>ProtocolProviderFactory</tt>.
      *
-     * @param factory the <code>ProtocolProviderFactory</code> to load the
+     * @param factory the <tt>ProtocolProviderFactory</tt> to load the
      *            stored accounts of
      */
     private void doLoadStoredAccounts(ProtocolProviderFactory factory)
@@ -203,9 +209,9 @@ public class AccountManagerImpl
 
     /**
      * Notifies the registered {@link #listeners} that the stored accounts of a
-     * specific <code>ProtocolProviderFactory</code> have just been loaded.
+     * specific <tt>ProtocolProviderFactory</tt> have just been loaded.
      *
-     * @param factory the <code>ProtocolProviderFactory</code> which had its
+     * @param factory the <tt>ProtocolProviderFactory</tt> which had its
      *            stored accounts just loaded
      */
     private void fireStoredAccountsLoaded(ProtocolProviderFactory factory)
@@ -233,7 +239,8 @@ public class AccountManagerImpl
         }
     }
 
-    private String getFactoryImplPackageName(ProtocolProviderFactory factory) {
+    private String getFactoryImplPackageName(ProtocolProviderFactory factory)
+    {
         String className = factory.getClass().getName();
 
         return className.substring(0, className.lastIndexOf('.'));
@@ -246,8 +253,8 @@ public class AccountManagerImpl
 
         try
         {
-            factoryRefs =
-                bundleContext.getServiceReferences(
+            factoryRefs
+                = bundleContext.getServiceReferences(
                     ProtocolProviderFactory.class.getName(), null);
         }
         catch (InvalidSyntaxException ex)
@@ -327,11 +334,11 @@ public class AccountManagerImpl
 
     /**
      * Loads the accounts stored for a specific
-     * <code>ProtocolProviderFactory</code> and notifies the registered
+     * <tt>ProtocolProviderFactory</tt> and notifies the registered
      * {@link #listeners} that the stored accounts of the specified
-     * <code>factory</code> have just been loaded
+     * <tt>factory</tt> have just been loaded
      *
-     * @param factory the <code>ProtocolProviderFactory</code> to load the
+     * @param factory the <tt>ProtocolProviderFactory</tt> to load the
      *            stored accounts of
      */
     private void loadStoredAccounts(ProtocolProviderFactory factory)
@@ -343,11 +350,11 @@ public class AccountManagerImpl
 
     /**
      * Notifies this manager that a specific
-     * <code>ProtocolProviderFactory</code> has been registered as a service.
-     * The current implementation queues the specified <code>factory</code> to
+     * <tt>ProtocolProviderFactory</tt> has been registered as a service.
+     * The current implementation queues the specified <tt>factory</tt> to
      * have its stored accounts as soon as possible.
      *
-     * @param factory the <code>ProtocolProviderFactory</code> which has been
+     * @param factory the <tt>ProtocolProviderFactory</tt> which has been
      *            registered as a service.
      */
     private void protocolProviderFactoryRegistered(
@@ -357,10 +364,10 @@ public class AccountManagerImpl
     }
 
     /**
-     * Queues a specific <code>ProtocolProviderFactory</code> to have its stored
+     * Queues a specific <tt>ProtocolProviderFactory</tt> to have its stored
      * accounts loaded as soon as possible.
      *
-     * @param factory the <code>ProtocolProviderFactory</code> to be queued for
+     * @param factory the <tt>ProtocolProviderFactory</tt> to be queued for
      *            loading its stored accounts as soon as possible
      */
     private void queueLoadStoredAccounts(ProtocolProviderFactory factory)
@@ -401,7 +408,7 @@ public class AccountManagerImpl
 
     /**
      * Running in {@link #loadStoredAccountsThread}, loads the stored accounts
-     * of the <code>ProtocolProviderFactory</code> services waiting in
+     * of the <tt>ProtocolProviderFactory</tt> services waiting in
      * {@link #loadStoredAccountsQueue}
      */
     private void runInLoadStoredAccountsThread()
@@ -435,12 +442,12 @@ public class AccountManagerImpl
                         {
                             logger
                                 .warn(
-                                    "The loading of the stored accounts has been interrupted",
+                                    "The loading of the stored accounts has"
+                                        + " been interrupted",
                                     ex);
                             interrupted = true;
                             break;
                         }
-
                         factory = loadStoredAccountsQueue.poll();
                     }
                 }
@@ -484,10 +491,10 @@ public class AccountManagerImpl
     /**
      * Notifies this manager that an OSGi service has changed. The current
      * implementation tracks the registrations of
-     * <code>ProtocolProviderFactory</code> services in order to queue them for
+     * <tt>ProtocolProviderFactory</tt> services in order to queue them for
      * loading their stored accounts.
      * 
-     * @param serviceEvent the <code>ServiceEvent</code> containing the event
+     * @param serviceEvent the <tt>ServiceEvent</tt> containing the event
      *            data
      */
     private void serviceChanged(ServiceEvent serviceEvent)
@@ -495,12 +502,13 @@ public class AccountManagerImpl
         switch (serviceEvent.getType())
         {
         case ServiceEvent.REGISTERED:
-            Object service =
-                bundleContext.getService(serviceEvent.getServiceReference());
+            Object service
+                = bundleContext.getService(serviceEvent.getServiceReference());
 
             if (service instanceof ProtocolProviderFactory)
             {
-                protocolProviderFactoryRegistered((ProtocolProviderFactory) service);
+                protocolProviderFactoryRegistered(
+                    (ProtocolProviderFactory) service);
             }
             break;
         default:
@@ -509,16 +517,20 @@ public class AccountManagerImpl
     }
 
     /**
-     * Stores an account represented in the form of an <code>AccountID</code>
-     * created by a specific <code>ProtocolProviderFactory</code>.
+     * Stores an account represented in the form of an <tt>AccountID</tt>
+     * created by a specific <tt>ProtocolProviderFactory</tt>.
      *
-     * @param factory the <code>ProtocolProviderFactory</code> which created the
-     *            account to be stored
-     * @param accountID the account in the form of <code>AccountID</code> to be
-     *            stored
+     * @param factory the <tt>ProtocolProviderFactory</tt> which created the
+     * account to be stored
+     * @param accountID the account in the form of <tt>AccountID</tt> to be
+     * stored
+     * @throws OperationFailedException if anything goes wrong while storing the
+     * account
      */
-    public void storeAccount(ProtocolProviderFactory factory,
-        AccountID accountID)
+    public void storeAccount(
+            ProtocolProviderFactory factory,
+            AccountID accountID)
+        throws OperationFailedException
     {
         synchronized (storedAccounts)
         {
@@ -545,9 +557,7 @@ public class AccountManagerImpl
                     + ProtocolProviderFactory.ACCOUNT_UID);
 
             if (storedAccountUID.equals(accountUID))
-            {
                 accountNodeName = configurationService.getString(storedAccount);
-            }
         }
 
         Map<String, Object> configurationProperties
@@ -561,8 +571,9 @@ public class AccountManagerImpl
 
             // set a value for the persistent node so that we could later
             // retrieve it as a property
-            configurationProperties.put(factoryPackage // prefix
-                + "." + accountNodeName, accountNodeName);
+            configurationProperties.put(
+                    factoryPackage /* prefix */ + "." + accountNodeName,
+                    accountNodeName);
 
             // register the account in the configuration service.
             // we register all the properties in the following hierarchy
@@ -581,14 +592,34 @@ public class AccountManagerImpl
             String property = entry.getKey();
             String value = entry.getValue();
 
-            // if this is a password - encode it.
+            // If the property is a password, store it securely.
             if (property.equals(ProtocolProviderFactory.PASSWORD))
-                value = new String(Base64.encode(value.getBytes()));
+            {
+                CredentialsStorageService credentialsStorage
+                    = ServiceUtils.getService(
+                            bundleContext,
+                            CredentialsStorageService.class);
 
-            configurationProperties.put(factoryPackage // prefix
-                + "." + accountNodeName // a unique node name for the account id
-                + "." + property, // propname
-                value); // value
+                // encrypt and store
+                if (!credentialsStorage.storePassword(
+                        factoryPackage + "." + accountNodeName,
+                        value))
+                {
+                    throw
+                        new OperationFailedException(
+                                "CredentialsStorageService failed to"
+                                    + " storePassword",
+                                OperationFailedException.GENERAL_ERROR);
+                }
+            }
+            else
+            {
+                configurationProperties.put(
+                        factoryPackage // prefix
+                            + "." + accountNodeName // a unique node name for the account id
+                            + "." + property, // propname
+                        value); // value
+            }
         }
 
         if (configurationProperties.size() > 0)
@@ -602,11 +633,10 @@ public class AccountManagerImpl
     /**
      * Removes the account with <tt>accountID</tt> from the set of accounts
      * that are persistently stored inside the configuration service.
-     * <p>
-     * @param factory the <code>ProtocolProviderFactory</code> which created the
+     *
+     * @param factory the <tt>ProtocolProviderFactory</tt> which created the
      * account to be stored
      * @param accountID the AccountID of the account to remove.
-     * <p>
      * @return true if an account has been removed and false otherwise.
      */
     public boolean removeStoredAccount(ProtocolProviderFactory factory,
@@ -620,12 +650,21 @@ public class AccountManagerImpl
 
         String factoryPackage = getFactoryImplPackageName(factory);
 
-        ServiceReference confReference
-            = bundleContext.getServiceReference(
-                ConfigurationService.class.getName());
-        ConfigurationService configurationService
-            = (ConfigurationService) bundleContext.getService(confReference);
+        // remove the stored password explicitly using credentials service
+        CredentialsStorageService credentialsStorage
+            = ServiceUtils.getService(
+                    bundleContext,
+                    CredentialsStorageService.class);
+        String accountPrefix =
+            ProtocolProviderFactory.findAccountPrefix(bundleContext, accountID,
+                factoryPackage);
 
+        credentialsStorage.removePassword(accountPrefix);
+
+        ConfigurationService configurationService
+            = ServiceUtils.getService(
+                    bundleContext,
+                    ConfigurationService.class);
         //first retrieve all accounts that we've registered
         List<String> storedAccounts
             = configurationService.getPropertyNamesByPrefix(
@@ -652,14 +691,10 @@ public class AccountManagerImpl
 
                 //set all account properties to null in order to remove them.
                 for (String propName : accountPropertyNames)
-                {
                     configurationService.setProperty(propName, null);
-                }
 
                 //and now remove the parent too.
-                configurationService.setProperty(
-                    accountRootPropertyName, null);
-
+                configurationService.setProperty(accountRootPropertyName, null);
                 return true;
             }
         }
@@ -694,8 +729,11 @@ public class AccountManagerImpl
      * the corresponding <tt>ProtocolProviderFactory</tt>.
      *
      * @param accountID the identifier of the account to load
+     * @throws OperationFailedException if anything goes wrong while loading the
+     * account corresponding to the specified <tt>accountID</tt>
      */
     public void loadAccount(AccountID accountID)
+        throws OperationFailedException
     {
         // If the account with the given id is already loaded we have nothing
         // to do here.
@@ -723,8 +761,11 @@ public class AccountManagerImpl
      * account through the corresponding <tt>ProtocolProviderFactory</tt>.
      *
      * @param accountID the identifier of the account to load
+     * @throws OperationFailedException if anything goes wrong while unloading
+     * the account corresponding to the specified <tt>accountID</tt>
      */
     public void unloadAccount(AccountID accountID)
+        throws OperationFailedException
     {
         // If the account with the given id is already unloaded we have nothing
         // to do here.
@@ -792,10 +833,9 @@ public class AccountManagerImpl
     private String stripPackagePrefix(String property)
     {
         int packageEndIndex = property.lastIndexOf('.');
+
         if (packageEndIndex != -1)
-        {
             property = property.substring(packageEndIndex + 1);
-        }
         return property;
     }
 }

@@ -17,25 +17,30 @@ public interface CredentialsStorageService
     /**
      * Store the password for the account that starts with the given prefix.
      * 
-     * @param accountPrefix
-     * @param password
+     * @param accountPrefix account prefix
+     * @param password the password to store
+     * @return <tt>true</tt> if the specified <tt>password</tt> was successfully
+     * stored; otherwise, <tt>false</tt>
      */
-    public void storePassword(String accountPrefix, String password);
+    public boolean storePassword(String accountPrefix, String password);
 
     /**
      * Load the password for the account that starts with the given prefix.
      * 
-     * @param accountPrefix
-     * @return
+     * @param accountPrefix account prefix
+     * @return the loaded password for the <tt>accountPrefix</tt>
      */
     public String loadPassword(String accountPrefix);
 
     /**
      * Remove the password for the account that starts with the given prefix.
      * 
-     * @param accountPrefix
+     * @param accountPrefix account prefix
+     * @return <tt>true</tt> if the password for the specified
+     * <tt>accountPrefix</tt> was successfully removed; otherwise,
+     * <tt>false</tt>
      */
-    public void removePassword(String accountPrefix);
+    public boolean removePassword(String accountPrefix);
 
     /**
      * Checks if master password was set by the user and 
@@ -49,23 +54,36 @@ public interface CredentialsStorageService
      * Changes the old master password to the new one. 
      * For all saved account passwords it decrypts them with the old MP and then
      * encrypts them with the new MP. 
-     * @param oldPassword
-     * @param newPassword
-     * @return true if MP was changed successfully, false otherwise
+     * 
+     * @param oldPassword the old master password
+     * @param newPassword the new master password
+     * @return true if master password was changed successfully, false otherwise
      */
     public boolean changeMasterPassword(String oldPassword, String newPassword);
 
     /**
      * Verifies the correctness of the master password.
-     * @param master
+     * 
+     * @param master the master password to verify
      * @return true if the password is correct, false otherwise
      */
     public boolean verifyMasterPassword(String master);
-    
+
     /**
-     * Checks if the account password that starts with the given prefix is saved in encrypted form.
+     * Checks if the account password that starts with the given prefix is saved
+     * in encrypted form.
      * 
+     * @param accountPrefix account prefix
      * @return true if saved, false if not
      */
     public boolean isStoredEncrypted(String accountPrefix);
+
+    /**
+     * Checks if the account password is that starts with the given prefix is
+     * saved in unencrypted form.
+     * 
+     * @param accountPrefix account prefix
+     * @return true if saved, false if not
+     */
+    public boolean isStoredUnencrypted(String accountPrefix);
 }
