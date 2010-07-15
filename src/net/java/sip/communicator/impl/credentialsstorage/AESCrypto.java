@@ -73,13 +73,13 @@ public class AESCrypto
     {
         try
         {
-            decryptCipher = Cipher.getInstance(CIPHER_ALGORITHM);
-            encryptCipher = Cipher.getInstance(CIPHER_ALGORITHM);
-
             // we try init of key with suupplied lengths
             // we stop after the first successful attempt
             for (int i = 0; i < KEY_LENGTHS.length; i++)
             {
+                decryptCipher = Cipher.getInstance(CIPHER_ALGORITHM);
+                encryptCipher = Cipher.getInstance(CIPHER_ALGORITHM);
+
                 try
                 {
                     initKey(masterPassword, KEY_LENGTHS[i]);
@@ -145,6 +145,10 @@ public class AESCrypto
         SecretKey tmp = factory.generateSecret(spec);
         // Make an algorithm specific key
         key = new SecretKeySpec(tmp.getEncoded(), KEY_ALGORITHM);
+
+        // just a check whether the key size is wrong
+        encryptCipher.init(Cipher.ENCRYPT_MODE, key);
+        decryptCipher.init(Cipher.DECRYPT_MODE, key);
     }
 
     /**
