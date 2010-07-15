@@ -48,6 +48,11 @@ public class Sip2SipAccountRegistrationWizard
     public Sip2SipAccountRegistrationWizard(WizardContainer wizardContainer)
     {
         super(wizardContainer);
+
+        // set default proxy, common for sip2sip
+        getRegistration().setProxy("proxy.sipthor.net");
+        getRegistration().setKeepAliveMethod("NONE");
+        getRegistration().setDefaultDomain("sip2sip.info");
     }
 
     /**
@@ -162,5 +167,14 @@ public class Sip2SipAccountRegistrationWizard
     protected CreateAccountService getCreateAccountService()
     {
         return createAccountForm;
+    }
+
+    /**
+     * Returns the display label used for the sip id field.
+     * @return the sip id display label string.
+     */
+    protected String getUsernameLabel()
+    {
+        return Resources.getString("plugin.sip2sipaccregwizz.USERNAME");
     }
 }

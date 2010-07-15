@@ -63,6 +63,8 @@ public class SIPAccountRegistration
 
     private String keepAliveInterval = DEFAULT_KEEP_ALIVE_INTERVAL;
 
+    private String defaultDomain = null;
+
     public String getPreferredTransport()
     {
         return preferredTransport;
@@ -401,5 +403,26 @@ public class SIPAccountRegistration
      */
     public boolean isSipZrtpAttribute() {
         return sipZrtpAttribute;
+    }
+
+    /**
+     * This is the default domain.
+     * @return the defaultDomain
+     */
+    public String getDefaultDomain()
+    {
+        return defaultDomain;
+    }
+
+    /**
+     * If default domain is set this means we cannot create registerless
+     * accounts through this wizard. And every time we write only the username,
+     * will will end up with username@defaultDomain.
+     * 
+     * @param defaultDomain the defaultDomain to set
+     */
+    public void setDefaultDomain(String defaultDomain)
+    {
+        this.defaultDomain = defaultDomain;
     }
 }

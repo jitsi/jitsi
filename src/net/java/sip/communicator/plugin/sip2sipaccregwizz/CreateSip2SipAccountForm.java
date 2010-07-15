@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.sip2sipaccregwizz;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 
@@ -75,10 +76,6 @@ public class CreateSip2SipAccountForm
     {
         super(new BorderLayout());
 
-        this.setBorder(BorderFactory.createTitledBorder(
-            Sip2SipAccRegWizzActivator.getResources()
-                .getI18NString("plugin.sipaccregwizz.CREATE_ACCOUNT_TITLE")));
-
         this.init();
     }
 
@@ -87,13 +84,19 @@ public class CreateSip2SipAccountForm
      */
     private void init()
     {
+        JPanel mainPanel = new TransparentPanel(new BorderLayout());
+
+        mainPanel.setBorder(BorderFactory.createTitledBorder(
+            Sip2SipAccRegWizzActivator.getResources()
+                .getI18NString("plugin.sipaccregwizz.CREATE_ACCOUNT_TITLE")));
+
         JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
 
         JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1));
 
         JLabel usernameLabel
             = new JLabel(Sip2SipAccRegWizzActivator.getResources()
-                    .getI18NString("plugin.sipaccregwizz.USERNAME"));
+                    .getI18NString("plugin.sip2sipaccregwizz.USERNAME"));
 
         JLabel displayNameLabel
             = new JLabel(Sip2SipAccRegWizzActivator.getResources()
@@ -111,22 +114,52 @@ public class CreateSip2SipAccountForm
             = new JLabel(Sip2SipAccRegWizzActivator.getResources()
                 .getI18NString("plugin.sip2sipaccregwizz.EMAIL"));
 
-        labelsPanel.add(usernameLabel);
         labelsPanel.add(displayNameLabel);
+        labelsPanel.add(usernameLabel);
         labelsPanel.add(passLabel);
         labelsPanel.add(retypePasswordLabel);
         labelsPanel.add(emailLabel);
 
-        valuesPanel.add(usernameField);
         valuesPanel.add(displayNameField);
+        valuesPanel.add(usernameField);
         valuesPanel.add(passField);
         valuesPanel.add(retypePassField);
         valuesPanel.add(emailField);
 
+        JLabel emailDescriptionLabel
+            = new JLabel(Sip2SipAccRegWizzActivator.getResources()
+                .getI18NString("plugin.sip2sipaccregwizz.EMAIL_NOTE"),
+                SwingConstants.CENTER);
+        emailDescriptionLabel.setForeground(Color.GRAY);
+        emailDescriptionLabel.setFont(emailDescriptionLabel.getFont().deriveFont(8));
+        emailDescriptionLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 8, 10));
+
         initErrorArea();
 
-        add(labelsPanel, BorderLayout.WEST);
-        add(valuesPanel, BorderLayout.CENTER);
+        mainPanel.add(labelsPanel, BorderLayout.WEST);
+        mainPanel.add(valuesPanel, BorderLayout.CENTER);
+        mainPanel.add(emailDescriptionLabel, BorderLayout.SOUTH);
+
+        this.add(mainPanel, BorderLayout.CENTER);
+
+        JLabel infoLabel
+            = new JLabel(Sip2SipAccRegWizzActivator.getResources()
+                .getI18NString("plugin.sip2sipaccregwizz.INFO_NOTE"),
+                SwingConstants.RIGHT);
+        infoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        infoLabel.setForeground(Color.GRAY);
+        infoLabel.setFont(emailDescriptionLabel.getFont().deriveFont(8));
+        infoLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        infoLabel.addMouseListener(new MouseAdapter()
+        {
+            public void mousePressed(MouseEvent e)
+            {
+                Sip2SipAccRegWizzActivator.getBrowserLauncher()
+                    .openURL("http://wiki.sip2sip.info");
+            }
+        });
+
+        this.add(infoLabel, BorderLayout.SOUTH);
     }
 
     /**
@@ -153,13 +186,25 @@ public class CreateSip2SipAccountForm
         NewAccount newAccount = null;
         try
         {
-            registerLink += "email=" + emailField.getText()
-                    + "&password=" + new String(passField.getPassword())
-                    + "&display_name=" + displayNameField.getText()
-                    + "&username=" + usernameField.getText()
-                    + "&user_agent=sip-communicator.org";
-
-            URL url = new URL(registerLink);
+            StringBuilder registerLinkBuilder = new StringBuilder(registerLink);
+            registerLinkBuilder
+                .append(URLEncoder.encode("email", "UTF-8"))
+                .append("=").append(
+                    URLEncoder.encode(emailField.getText(), "UTF-8"))
+                .append("&").append(URLEncoder.encode("password", "UTF-8"))
+                .append("=").append(
+                    URLEncoder.encode(new String(passField.getPassword()), "UTF-8"))
+                .append("&").append(URLEncoder.encode("display_name", "UTF-8"))
+                .append("=").append(
+                    URLEncoder.encode(displayNameField.getText(), "UTF-8"))
+                .append("&").append(URLEncoder.encode("username", "UTF-8"))
+                .append("=").append(
+                    URLEncoder.encode(usernameField.getText(), "UTF-8"))
+                .append("&").append(URLEncoder.encode("user_agent", "UTF-8"))
+                .append("=").append(
+                    URLEncoder.encode("sip-communicator.org", "UTF-8"));
+                
+            URL url = new URL(registerLinkBuilder.toString());
             URLConnection conn = url.openConnection();
 
             // If this is not an http connection we have nothing to do here.

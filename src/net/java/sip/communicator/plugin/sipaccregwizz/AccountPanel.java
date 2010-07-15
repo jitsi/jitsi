@@ -84,7 +84,7 @@ public class AccountPanel
         uinExampleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
 
         JLabel uinLabel
-            = new JLabel(Resources.getString("plugin.sipaccregwizz.USERNAME"));
+            = new JLabel(regform.getUsernameLabel());
 
         JLabel passLabel
             = new JLabel(Resources.getString("service.gui.PASSWORD"));
@@ -330,6 +330,8 @@ public class AccountPanel
                 if (createAccountButton.isSelected())
                 {
                     mainPanel.remove(uinPassPanel);
+                    // clear the pannel before add
+                    regform.getCreateAccountService().clear();
                     mainPanel.add(registrationForm, BorderLayout.CENTER);
                     SwingUtilities.getWindowAncestor(AccountPanel.this).pack();
                 }
@@ -337,6 +339,9 @@ public class AccountPanel
         });
 
         ButtonGroup buttonGroup = new ButtonGroup();
+
+        existingAccountButton.setOpaque(false);
+        createAccountButton.setOpaque(false);
 
         buttonGroup.add(existingAccountButton);
         buttonGroup.add(createAccountButton);

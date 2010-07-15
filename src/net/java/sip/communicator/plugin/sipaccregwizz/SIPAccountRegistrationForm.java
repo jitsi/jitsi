@@ -167,6 +167,16 @@ public class SIPAccountRegistrationForm
         else
         {
             userID = accountPanel.getUserID();
+
+            if(getServerFromUserName(userID) == null
+                && registration.getDefaultDomain() != null)
+            {
+                // we have only a username and we want to add
+                // a defautl domain
+                userID = userID + "@" + registration.getDefaultDomain();
+                setServerFieldAccordingToUIN(userID);
+            }
+
             password = accountPanel.getPassword();
             serverAddress = connectionPanel.getServerAddress();
             proxyAddress = connectionPanel.getProxy();
@@ -183,7 +193,11 @@ public class SIPAccountRegistrationForm
         registration.setRememberPassword(accountPanel.isRememberPassword());
 
         registration.setServerAddress(serverAddress);
-        registration.setProxy(proxyAddress);
+
+        // set the proxy only if its not already set by some custom
+        // extending wizard like sip2sip
+        if(registration.getProxy() == null)
+            registration.setProxy(proxyAddress);
 
         String displayName = accountPanel.getDisplayName();
         registration.setDisplayName(displayName);
@@ -210,8 +224,13 @@ public class SIPAccountRegistrationForm
             presencePanel.getPollPeriod());
         registration.setSubscriptionExpiration(
             presencePanel.getSubscriptionExpiration());
-        registration.setKeepAliveMethod(
-            connectionPanel.getKeepAliveMethod());
+
+        // set the keepalive method only if its not already set by some custom
+        // extending wizard like sip2sip
+        if(registration.getKeepAliveMethod() == null)
+            registration.setKeepAliveMethod(
+                connectionPanel.getKeepAliveMethod());
+
         registration.setKeepAliveInterval(
             connectionPanel.getKeepAliveInterval());
 
@@ -384,5 +403,14 @@ public class SIPAccountRegistrationForm
     public CreateAccountService getCreateAccountService()
     {
          return wizard.getCreateAccountService();
+    }
+
+    /**
+     * Returns the display label used for the sip id field.
+     * @return the sip id display label string.
+     */
+    protected String getUsernameLabel()
+    {
+        return wizard.getUsernameLabel();
     }
 }

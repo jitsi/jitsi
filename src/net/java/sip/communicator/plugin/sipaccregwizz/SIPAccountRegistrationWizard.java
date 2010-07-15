@@ -611,4 +611,13 @@ public class SIPAccountRegistrationWizard
     {
         return null;
     }
+
+    /**
+     * Returns the display label used for the sip id field.
+     * @return the sip id display label string.
+     */
+    protected String getUsernameLabel()
+    {
+        return Resources.getString("plugin.sipaccregwizz.USERNAME");
+    }
 }

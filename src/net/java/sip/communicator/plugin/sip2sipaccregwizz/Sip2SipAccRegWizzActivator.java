@@ -90,32 +90,6 @@ public class Sip2SipAccRegWizzActivator
     public void stop(BundleContext bundleContext) throws Exception {}
 
     /**
-     * Returns the <tt>ProtocolProviderFactory</tt> for the IP Tel protocol.
-     * 
-     * @return the <tt>ProtocolProviderFactory</tt> for the IP Tel protocol
-     */
-    public static ProtocolProviderFactory getIptelProtocolProviderFactory()
-    {
-        ServiceReference[] serRefs = null;
-
-        String osgiFilter = "("
-            + ProtocolProviderFactory.PROTOCOL
-            + "=" + ProtocolNames.SIP + ")";
-
-        try
-        {
-            serRefs = bundleContext.getServiceReferences(
-                ProtocolProviderFactory.class.getName(), osgiFilter);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            logger.error("IptelAccRegWizzActivator : " + ex);
-        }
-
-        return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
-    }
-
-    /**
      * Returns the <tt>UIService</tt>.
      * 
      * @return the <tt>UIService</tt>
