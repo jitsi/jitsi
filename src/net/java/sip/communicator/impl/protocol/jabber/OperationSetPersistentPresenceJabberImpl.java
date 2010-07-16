@@ -1040,9 +1040,7 @@ public class OperationSetPersistentPresenceJabberImpl
                     responsePacket.setTo(fromID);
                     parentProvider.getConnection().sendPacket(responsePacket);
 
-                        }
-                    }
-                ).start();
+                }}).start();
             }
             else if (presenceType == Presence.Type.unsubscribed)
             {
