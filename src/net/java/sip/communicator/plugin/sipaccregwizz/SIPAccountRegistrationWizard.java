@@ -620,4 +620,22 @@ public class SIPAccountRegistrationWizard
     {
         return Resources.getString("plugin.sipaccregwizz.USERNAME");
     }
+
+    /**
+     * Return the string for add existing account button.
+     * @return the string for add existing account button.
+     */
+    protected String getExistingAccountLabel()
+    {
+        return Resources.getString("plugin.sipaccregwizz.EXISTING_ACCOUNT");
+    }
+
+    /**
+     * Return the string for create new account button.
+     * @return the string for create new account button.
+     */
+    protected String getCreateAccountLabel()
+    {
+        return Resources.getString("plugin.sipaccregwizz.CREATE_ACCOUNT");
+    }
 }

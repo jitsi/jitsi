@@ -52,6 +52,7 @@ public class Sip2SipAccountRegistrationWizard
         // set default proxy, common for sip2sip
         getRegistration().setProxy("proxy.sipthor.net");
         getRegistration().setKeepAliveMethod("NONE");
+        getRegistration().setDefaultKeepAliveMethod("NONE");
         getRegistration().setDefaultDomain("sip2sip.info");
     }
 
@@ -146,7 +147,7 @@ public class Sip2SipAccountRegistrationWizard
     public void webSignup()
     {
         Sip2SipAccRegWizzActivator.getBrowserLauncher()
-            .openURL("https://secure.dns-hosting.info/register_sip_account.phtml");
+            .openURL("http://wiki.sip2sip.info");
     }
 
     /**
@@ -176,5 +177,23 @@ public class Sip2SipAccountRegistrationWizard
     protected String getUsernameLabel()
     {
         return Resources.getString("plugin.sip2sipaccregwizz.USERNAME");
+    }
+
+    /**
+     * Return the string for add existing account button.
+     * @return the string for add existing account button.
+     */
+    protected String getExistingAccountLabel()
+    {
+        return Resources.getString("plugin.sip2sipaccregwizz.EXISTING_ACCOUNT");
+    }
+
+    /**
+     * Return the string for create new account button.
+     * @return the string for create new account button.
+     */
+    protected String getCreateAccountLabel()
+    {
+        return Resources.getString("plugin.sip2sipaccregwizz.CREATE_ACCOUNT");
     }
 }

@@ -413,4 +413,31 @@ public class SIPAccountRegistrationForm
     {
         return wizard.getUsernameLabel();
     }
+
+    /**
+     * Returns the current sip registration holding all values.
+     * @return sip registration.
+     */
+    public SIPAccountRegistration getRegistration()
+    {
+        return wizard.getRegistration();
+    }
+
+    /**
+     * Return the string for add existing account button.
+     * @return the string for add existing account button.
+     */
+    protected String getExistingAccountLabel()
+    {
+        return wizard.getExistingAccountLabel();
+    }
+
+    /**
+     * Return the string for create new account button.
+     * @return the string for create new account button.
+     */
+    protected String getCreateAccountLabel()
+    {
+        return wizard.getCreateAccountLabel();
+    }
 }

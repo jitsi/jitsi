@@ -48,6 +48,7 @@ public class ConnectionPanel
     private JComboBox keepAliveMethodBox
         = new JComboBox(new Object []
                                 {
+                                    "NONE",
                                     "REGISTER",
                                     "OPTIONS"
                                 });
@@ -222,7 +223,7 @@ public class ConnectionPanel
             .setText(SIPAccountRegistration.DEFAULT_KEEP_ALIVE_INTERVAL);
 
         keepAliveMethodBox.setSelectedItem(
-            SIPAccountRegistration.DEFAULT_KEEP_ALIVE_METHOD);
+            regform.getRegistration().getDefaultKeepAliveMethod());
 
         keepAliveValues.add(keepAliveMethodBox);
         keepAliveValues.add(keepAliveIntervalValue);

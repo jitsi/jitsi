@@ -23,7 +23,7 @@ public class SIPAccountRegistration
 
     public static String DEFAULT_SUBSCRIBE_EXPIRES = "3600";
 
-    public static String DEFAULT_KEEP_ALIVE_METHOD = "REGISTER";
+    private String defaultKeepAliveMethod = "REGISTER";
 
     public static String DEFAULT_KEEP_ALIVE_INTERVAL = "25";
 
@@ -59,7 +59,7 @@ public class SIPAccountRegistration
 
     private String subscriptionExpiration = DEFAULT_SUBSCRIBE_EXPIRES;
 
-    private String keepAliveMethod = DEFAULT_KEEP_ALIVE_METHOD;
+    private String keepAliveMethod = null;
 
     private String keepAliveInterval = DEFAULT_KEEP_ALIVE_INTERVAL;
 
@@ -424,5 +424,21 @@ public class SIPAccountRegistration
     public void setDefaultDomain(String defaultDomain)
     {
         this.defaultDomain = defaultDomain;
+    }
+
+    /**
+     * @return the defaultKeepAliveMethod
+     */
+    public String getDefaultKeepAliveMethod()
+    {
+        return defaultKeepAliveMethod;
+    }
+
+    /**
+     * @param defaultKeepAliveMethod the defaultKeepAliveMethod to set
+     */
+    public void setDefaultKeepAliveMethod(String defaultKeepAliveMethod)
+    {
+        this.defaultKeepAliveMethod = defaultKeepAliveMethod;
     }
 }

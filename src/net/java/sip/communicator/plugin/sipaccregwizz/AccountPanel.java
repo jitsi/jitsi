@@ -47,11 +47,9 @@ public class AccountPanel
     private final JLabel displayNameLabel
         = new JLabel(Resources.getString("plugin.sipaccregwizz.DISPLAY_NAME"));
 
-    private final JRadioButton existingAccountButton = new JRadioButton(
-        Resources.getString("plugin.sipaccregwizz.EXISTING_ACCOUNT"));
+    private final JRadioButton existingAccountButton;
 
-    private final JRadioButton createAccountButton = new JRadioButton(
-        Resources.getString("plugin.sipaccregwizz.CREATE_ACCOUNT"));
+    private final JRadioButton createAccountButton;
 
     private final JPanel uinPassPanel
         = new TransparentPanel(new BorderLayout(10, 10));
@@ -76,6 +74,12 @@ public class AccountPanel
         this.userIDField.getDocument().addDocumentListener(this);
 
         this.rememberPassBox.setSelected(true);
+
+        existingAccountButton = new JRadioButton(
+            regform.getExistingAccountLabel());
+
+        createAccountButton = new JRadioButton(
+            regform.getCreateAccountLabel());
 
         JLabel uinExampleLabel = new JLabel(regform.getUsernameExample());
         uinExampleLabel.setForeground(Color.GRAY);
