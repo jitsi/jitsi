@@ -72,6 +72,9 @@ public class ServerStoredContactListJabberImpl
      */
     private ImageRetriever imageRetriever = null;
 
+    /**
+     * Listens for roster changes.
+     */
     private ChangeListener rosterChangeListener = null;
 
     /**
@@ -883,12 +886,28 @@ public class ServerStoredContactListJabberImpl
                 ContactJabberImpl contact =
                     findContactById(entry.getUser());
 
-                if(contact != null)
+                if(contact != null && contact.isPersistent())
                 {
                     contact.setResolved(entry);
                     continue;
                 }
-
+                else
+                {
+                    ContactGroup oldParentGroup =
+                        contact.getParentContactGroup();
+                    // if contact is in not in contact list
+                    // we must remove it from there in order to correctlly
+                    // process adding contact
+                    // this happens if we accept subscribe request
+                    // not from sip-communicator
+                    if(oldParentGroup instanceof ContactGroupJabberImpl
+                        && !oldParentGroup.isPersistent())
+                    {
+                        ((ContactGroupJabberImpl)oldParentGroup)
+                            .removeContact(contact);
+                        fireContactRemoved(oldParentGroup, contact);
+                    }
+                }
                 contact = new ContactJabberImpl(roster.getEntry(id),
                                           ServerStoredContactListJabberImpl.this,
                                           true,

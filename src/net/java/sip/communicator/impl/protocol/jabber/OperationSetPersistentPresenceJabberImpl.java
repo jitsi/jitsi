@@ -995,45 +995,54 @@ public class OperationSetPersistentPresenceJabberImpl
                 return;
 
             Presence.Type presenceType = presence.getType();
-            String fromID = presence.getFrom();
+            final String fromID = presence.getFrom();
 
             if (presenceType == Presence.Type.subscribe)
             {
-                if (logger.isTraceEnabled())
-                    logger.trace(fromID + " wants to add you to its contact list");
-
-                // buddy want to add you to its roster
-                ContactJabberImpl srcContact
-                    = ssContactList.findContactById(fromID);
-
-                if(srcContact == null)
-                    srcContact = createVolatileContact(fromID);
-
-                AuthorizationRequest req = new AuthorizationRequest();
-                AuthorizationResponse response
-                    = handler.processAuthorisationRequest(req, srcContact);
-                Presence.Type responsePresenceType;
-
-                if(response != null
-                   && response.getResponseCode()
-                           .equals(AuthorizationResponse.ACCEPT))
+                // run waiting for user response in different thread
+                // as this seems to block the packet dispatch thread
+                // and we don't receive anything till we unblock it
+                new Thread(new Runnable() {
+                public void run()
                 {
-                    responsePresenceType = Presence.Type.subscribed;
-                    if (logger.isInfoEnabled())
-                        logger.info("Sending Accepted Subscription");
-                }
-                else
-                {
-                    responsePresenceType = Presence.Type.unsubscribed;
-                    if (logger.isInfoEnabled())
-                        logger.info("Sending Rejected Subscription");
-                }
+                    if (logger.isTraceEnabled())
+                        logger.trace(fromID + " wants to add you to its contact list");
 
-                Presence responsePacket = new Presence(responsePresenceType);
+                    // buddy want to add you to its roster
+                    ContactJabberImpl srcContact
+                        = ssContactList.findContactById(fromID);
 
-                responsePacket.setTo(fromID);
-                parentProvider.getConnection().sendPacket(responsePacket);
+                    if(srcContact == null)
+                        srcContact = createVolatileContact(fromID);
 
+                    AuthorizationRequest req = new AuthorizationRequest();
+                    AuthorizationResponse response
+                        = handler.processAuthorisationRequest(req, srcContact);
+                    Presence.Type responsePresenceType;
+
+                    if(response != null
+                       && response.getResponseCode()
+                               .equals(AuthorizationResponse.ACCEPT))
+                    {
+                        responsePresenceType = Presence.Type.subscribed;
+                        if (logger.isInfoEnabled())
+                            logger.info("Sending Accepted Subscription");
+                    }
+                    else
+                    {
+                        responsePresenceType = Presence.Type.unsubscribed;
+                        if (logger.isInfoEnabled())
+                            logger.info("Sending Rejected Subscription");
+                    }
+
+                    Presence responsePacket = new Presence(responsePresenceType);
+
+                    responsePacket.setTo(fromID);
+                    parentProvider.getConnection().sendPacket(responsePacket);
+
+                        }
+                    }
+                ).start();
             }
             else if (presenceType == Presence.Type.unsubscribed)
             {
