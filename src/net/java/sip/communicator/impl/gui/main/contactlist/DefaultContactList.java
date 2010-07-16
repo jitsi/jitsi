@@ -183,9 +183,9 @@ public class DefaultContactList
 
     /**
      * Returns the string to be used as the tooltip for <i>event</i>. We don't
-     * really use this string, but we need to return different string each time
-     * in order to make the TooltipManager change the tooltip over the different
-     * cells in the JList.
+     * really use this string, but we need to return a different string each
+     * time in order to make the TooltipManager change the tooltip over the
+     * different cells in the JList.
      *
      * @param event the <tt>MouseEvent</tt> that notified us
      * @return the string to be used as the tooltip for <i>event</i>.
@@ -227,7 +227,6 @@ public class DefaultContactList
 
             return chatContact.getUID();
         }
-
         return null;
     }
 

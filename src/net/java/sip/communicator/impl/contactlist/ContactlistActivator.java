@@ -82,14 +82,11 @@ public class ContactlistActivator
     {
         if (fileAccessService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(FileAccessService.class.getName());
-
-            if (serviceReference != null)
-                fileAccessService = (FileAccessService) bundleContext
-                    .getService(serviceReference);
+            fileAccessService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        FileAccessService.class);
         }
-
         return fileAccessService;
     }
 
@@ -101,13 +98,9 @@ public class ContactlistActivator
     {
         if(accountManager == null)
         {
-            ServiceReference accountManagerRef = bundleContext
-                .getServiceReference(AccountManager.class.getName());
-
-            accountManager = (AccountManager) bundleContext
-                .getService(accountManagerRef);
+            accountManager
+                = ServiceUtils.getService(bundleContext, AccountManager.class);
         }
-
         return accountManager;
     }
 }

@@ -29,17 +29,22 @@ public class ConfigurationFrame
     extends SIPCommDialog
     implements ServiceListener
 {
-    private final Logger logger = Logger.getLogger(ConfigurationFrame.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>ConfigurationFrame</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(ConfigurationFrame.class);
+
+    private static final int BORDER_SIZE = 20;
 
     private final ConfigFormList configList;
 
-    private final JPanel centerPanel =
-        new TransparentPanel(new BorderLayout(5, 5));
-
-    private final int BORDER_SIZE = 20;
+    private final JPanel centerPanel
+        = new TransparentPanel(new BorderLayout(5, 5));
 
     /**
-     * Creates an instance of <tt>ConfigurationManagerImpl</tt>.
+     * Initializes a new <tt>ConfigurationFrame</tt> instance.
      *
      * @param mainFrame The main application window.
      */
@@ -206,9 +211,7 @@ public class ConfigurationFrame
 
         // we don't care if the source service is not a configuration form
         if (!(sService instanceof ConfigurationForm))
-        {
             return;
-        }
 
         ConfigurationForm configForm = (ConfigurationForm) sService;
 
@@ -220,7 +223,6 @@ public class ConfigurationFrame
         case ServiceEvent.REGISTERED:
             if (logger.isInfoEnabled())
                 logger.info("Handling registration of a new Configuration Form.");
-
             this.addConfigurationForm(configForm);
             break;
 
@@ -238,7 +240,7 @@ public class ConfigurationFrame
      *
      * @param configForm the form we are adding
      *
-     * @see ConfigurationWindow#addConfigurationForm(ConfigurationForm)
+     * @see ConfigFormList#addConfigForm(ConfigurationForm)
      */
     private void addConfigurationForm(ConfigurationForm configForm)
     {
@@ -251,10 +253,10 @@ public class ConfigurationFrame
      *
      * @param configForm the form we are removing.
      *
-     * @see ConfigurationWindow#removeConfigurationForm(ConfigurationForm)
+     * @see ConfigFormList#removeConfigForm(ConfigurationForm)
      */
     private void removeConfigurationForm(ConfigurationForm configForm)
     {
-        this.configList.removeConfigForm(configForm);
+        configList.removeConfigForm(configForm);
     }
 }

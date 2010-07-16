@@ -24,6 +24,7 @@ import net.java.sip.communicator.service.contactlist.*;
  *
  * @author Damian Minkov
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class DefaultTreeContactList
     extends JTree
@@ -111,7 +112,6 @@ public class DefaultTreeContactList
 
         TreePath path = this.getClosestPathForLocation(
             currentMouseLocation.x, currentMouseLocation.y);
-
         Object element = path.getLastPathComponent();
 
         ExtendedTooltip tip = null;
@@ -151,5 +151,44 @@ public class DefaultTreeContactList
         tip.setComponent(this);
 
         return tip;
+    }
+
+    /**
+     * Gets the <tt>String</tt> to be used as the tool tip text for the mouse
+     * location given by a specific <tt>MouseEvent</tt>.
+     * <tt>DefaultTreeContactList</tt> only overrides in order to return a
+     * different <tt>String</tt> each time in order to make
+     * <tt>TooltipManager</tt> change the tool tip over the different nodes of
+     * this <tt>JTree</tt>.
+     *
+     * @param event the <tt>MouseEvent</tt> which gives the mouse location to
+     * get the tool tip text for
+     * @return the <tt>String</tt> to be used as the tool tip text for the mouse
+     * location given by the specified <tt>MouseEvent</tt>
+     */
+    @Override
+    public String getToolTipText(MouseEvent event)
+    {
+        TreePath path = getClosestPathForLocation(event.getX(), event.getY());
+
+        if (path != null)
+        {
+            Object element = path.getLastPathComponent();
+
+            /*
+             * Since it does not seem obvious how to get a unique String ID for
+             * element even after converting to ContactNode, GroupNode or
+             * ChatContact, just make up a String which is very likely to be
+             * different for the different nodes in this JTree.
+             */
+            return
+                "className= "
+                    + element.getClass().getName()
+                    + ", hashCode= "
+                    + element.hashCode()
+                    + ", toString= "
+                    + element.toString();
+        }
+        return null;
     }
 }

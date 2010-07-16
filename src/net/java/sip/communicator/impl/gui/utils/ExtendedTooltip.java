@@ -159,6 +159,7 @@ public class ExtendedTooltip
          * @param g the <tt>Graphics</tt> object
          * @param c the component used to render the tooltip
          */
+        @Override
         public void paint(Graphics g, JComponent c)
         {}
 
@@ -167,6 +168,7 @@ public class ExtendedTooltip
          * @param c the component used to render the tooltip
          * @return the size of the given component.
          */
+        @Override
         public Dimension getPreferredSize(JComponent c)
         {
             Icon icon = imageLabel.getIcon();

@@ -53,6 +53,10 @@ public class UIServiceImpl
                ServiceListener,
                PropertyChangeListener
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>UIServiceImpl</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger = Logger.getLogger(UIServiceImpl.class);
 
     private PopupDialogImpl popupDialog;
@@ -933,9 +937,7 @@ public class UIServiceImpl
 
         // we don't care if the source service is not a plugin component
         if (! (sService instanceof PluginComponent))
-        {
             return;
-        }
 
         PluginComponent pluginComponent = (PluginComponent) sService;
 
@@ -1119,7 +1121,7 @@ public class UIServiceImpl
     private static class KeyBindingsDispatching
         implements KeyEventDispatcher
     {
-        KeyboardFocusManager focusManager = null;
+        private final KeyboardFocusManager focusManager;
 
         KeyBindingsDispatching(KeyboardFocusManager focusManager)
         {

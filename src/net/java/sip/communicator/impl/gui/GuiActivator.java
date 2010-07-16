@@ -39,6 +39,10 @@ import org.osgi.framework.*;
  */
 public class GuiActivator implements BundleActivator
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>GuiActivator</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger = Logger.getLogger(GuiActivator.class);
 
     private static UIServiceImpl uiService = null;
@@ -183,10 +187,10 @@ public class GuiActivator implements BundleActivator
         try
         {
             // get all registered provider factories
-            serRefs =
-                bundleContext.getServiceReferences(
-                    ProtocolProviderFactory.class.getName(), null);
-
+            serRefs
+                = bundleContext.getServiceReferences(
+                        ProtocolProviderFactory.class.getName(),
+                        null);
         }
         catch (InvalidSyntaxException e)
         {
@@ -195,14 +199,14 @@ public class GuiActivator implements BundleActivator
 
         if (serRefs != null) 
         {
-            for (int i = 0; i < serRefs.length; i++) 
+            for (ServiceReference serRef : serRefs) 
             {
                 ProtocolProviderFactory providerFactory
-                    = (ProtocolProviderFactory) bundleContext
-                        .getService(serRefs[i]);
+                    = (ProtocolProviderFactory)
+                        bundleContext.getService(serRef);
 
-                providerFactoriesMap.put(serRefs[i]
-                        .getProperty(ProtocolProviderFactory.PROTOCOL),
+                providerFactoriesMap.put(
+                        serRef.getProperty(ProtocolProviderFactory.PROTOCOL),
                         providerFactory);
             }
         }
@@ -267,24 +271,22 @@ public class GuiActivator implements BundleActivator
     public static ProtocolProviderService getRegisteredProviderForAccount(
         AccountID accountID)
     {
-        Iterator<ProtocolProviderFactory> factories
-            = getProtocolProviderFactories().values().iterator();
-
-        while (factories.hasNext())
+        for (ProtocolProviderFactory factory
+                : getProtocolProviderFactories().values())
         {
-            ProtocolProviderFactory factory = factories.next();
-
             if (factory.getRegisteredAccounts().contains(accountID))
             {
                 ServiceReference serRef
                     = factory.getProviderForAccount(accountID);
 
                 if (serRef != null)
-                    return (ProtocolProviderService) bundleContext
-                        .getService(serRef);
+                {
+                    return
+                        (ProtocolProviderService)
+                            bundleContext.getService(serRef);
+                }
             }
         }
-
         return null;
     }
 
@@ -296,13 +298,9 @@ public class GuiActivator implements BundleActivator
     {
         if(accountManager == null)
         {
-            ServiceReference accountManagerRef = bundleContext
-                .getServiceReference(AccountManager.class.getName());
-
-            accountManager = (AccountManager) bundleContext
-                .getService(accountManagerRef);
+            accountManager
+                = ServiceUtils.getService(bundleContext, AccountManager.class);
         }
-
         return accountManager;
     }
 
@@ -316,13 +314,11 @@ public class GuiActivator implements BundleActivator
     {
         if(configService == null)
         {
-            ServiceReference configReference = bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
-
-            configService = (ConfigurationService) bundleContext
-                .getService(configReference);
+            configService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
         }
-
         return configService;
     }
 
@@ -336,14 +332,11 @@ public class GuiActivator implements BundleActivator
     {
         if (metaHistoryService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(MetaHistoryService.class.getName());
-
-            if (serviceReference != null)
-                metaHistoryService = (MetaHistoryService) bundleContext
-                    .getService(serviceReference);
+            metaHistoryService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        MetaHistoryService.class);
         }
-
         return metaHistoryService;
     }
 
@@ -357,13 +350,11 @@ public class GuiActivator implements BundleActivator
     {
         if (metaCListService == null)
         {
-            ServiceReference clistReference = bundleContext
-                .getServiceReference(MetaContactListService.class.getName());
-
-            metaCListService = (MetaContactListService) bundleContext
-                    .getService(clistReference);
+            metaCListService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        MetaContactListService.class);
         }
-
         return metaCListService;
     }
 
@@ -377,13 +368,11 @@ public class GuiActivator implements BundleActivator
     {
         if (callHistoryService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(CallHistoryService.class.getName());
-
-            callHistoryService = (CallHistoryService) bundleContext
-                .getService(serviceReference);
+            callHistoryService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        CallHistoryService.class);
         }
-
         return callHistoryService;
     }
 
@@ -397,14 +386,10 @@ public class GuiActivator implements BundleActivator
     {
         if (audioNotifierService == null)
         {
-            ServiceReference serviceReference
-                = bundleContext
-                    .getServiceReference(AudioNotifierService.class.getName());
-
-            if (serviceReference != null)
-                audioNotifierService
-                    = (AudioNotifierService)
-                        bundleContext.getService(serviceReference);
+            audioNotifierService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        AudioNotifierService.class);
         }
         return audioNotifierService;
     }
@@ -419,13 +404,11 @@ public class GuiActivator implements BundleActivator
     {
         if (browserLauncherService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(BrowserLauncherService.class.getName());
-
-            browserLauncherService = (BrowserLauncherService) bundleContext
-                .getService(serviceReference);
+            browserLauncherService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        BrowserLauncherService.class);
         }
-
         return browserLauncherService;
     }
 
@@ -447,16 +430,9 @@ public class GuiActivator implements BundleActivator
     {
         if (systrayService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(SystrayService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-
-            systrayService = (SystrayService) bundleContext
-                .getService(serviceReference);
+            systrayService
+                = ServiceUtils.getService(bundleContext, SystrayService.class);
         }
-
         return systrayService;
     }
 
@@ -469,13 +445,11 @@ public class GuiActivator implements BundleActivator
     {
         if (keybindingsService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(KeybindingsService.class.getName());
-
-            keybindingsService = (KeybindingsService) bundleContext
-                .getService(serviceReference);
+            keybindingsService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        KeybindingsService.class);
         }
-
         return keybindingsService;
     }
 
@@ -490,16 +464,11 @@ public class GuiActivator implements BundleActivator
     {
         if (resourcesService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-
-            resourcesService = (ResourceManagementService) bundleContext
-                .getService(serviceReference);
+            resourcesService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ResourceManagementService.class);
         }
-
         return resourcesService;
     }
 
@@ -512,13 +481,11 @@ public class GuiActivator implements BundleActivator
     {
         if (notificationService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(NotificationService.class.getName());
-
-            notificationService = (NotificationService) bundleContext
-                .getService(serviceReference);
+            notificationService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        NotificationService.class);
         }
-
         return notificationService;
     }
 
@@ -531,13 +498,11 @@ public class GuiActivator implements BundleActivator
     {
         if (fileAccessService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(FileAccessService.class.getName());
-
-            fileAccessService = (FileAccessService) bundleContext
-                .getService(serviceReference);
+            fileAccessService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        FileAccessService.class);
         }
-
         return fileAccessService;
     }
 
@@ -550,13 +515,9 @@ public class GuiActivator implements BundleActivator
     {
         if (desktopService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(DesktopService.class.getName());
-
-            desktopService = (DesktopService) bundleContext
-                .getService(serviceReference);
+            desktopService
+                = ServiceUtils.getService(bundleContext, DesktopService.class);
         }
-
         return desktopService;
     }
 
@@ -570,13 +531,9 @@ public class GuiActivator implements BundleActivator
     {
         if (mediaService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(MediaService.class.getName());
-
-            mediaService = (MediaService) bundleContext
-                .getService(serviceReference);
+            mediaService
+                = ServiceUtils.getService(bundleContext, MediaService.class);
         }
-
         return mediaService;
     }
 
@@ -646,11 +603,10 @@ public class GuiActivator implements BundleActivator
 
         if (serRefs != null) 
         {
-            for (int i = 0; i < serRefs.length; i++)
+            for (ServiceReference serRef : serRefs)
             {
                 ContactSourceService contactSource
-                    = (ContactSourceService) bundleContext
-                        .getService(serRefs[i]);
+                    = (ContactSourceService) bundleContext.getService(serRef);
 
                 contactSources.add(contactSource);
             }
