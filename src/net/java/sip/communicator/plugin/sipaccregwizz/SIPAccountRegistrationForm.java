@@ -107,7 +107,7 @@ public class SIPAccountRegistrationForm
      * @param userName the username.
      * @return the server part of the sip user name.
      */
-    private String getServerFromUserName(String userName)
+    static String getServerFromUserName(String userName)
     {
         int delimIndex = userName.indexOf("@");
         if (delimIndex != -1)

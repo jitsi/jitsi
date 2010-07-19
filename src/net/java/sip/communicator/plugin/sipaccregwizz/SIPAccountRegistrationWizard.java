@@ -315,6 +315,17 @@ public class SIPAccountRegistrationWizard
         if (registration.getServerAddress() != null)
             serverAddress = registration.getServerAddress();
 
+        if(SIPAccountRegistrationForm.getServerFromUserName(userName) == null
+            && registration.getDefaultDomain() != null)
+        {
+            // we have only a username and we want to add
+            // a defautl domain
+            userName = userName + "@" + registration.getDefaultDomain();
+
+            if(serverAddress == null)
+                serverAddress = registration.getDefaultDomain();
+        }
+
         if (serverAddress != null)
         {
             accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
@@ -379,7 +390,8 @@ public class SIPAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION,
                 registration.getSubscriptionExpiration());
 
-        accountProperties.put("KEEP_ALIVE_METHOD",
+        if(registration.getKeepAliveMethod() != null)
+            accountProperties.put("KEEP_ALIVE_METHOD",
                 registration.getKeepAliveMethod());
 
         accountProperties.put("KEEP_ALIVE_INTERVAL",
