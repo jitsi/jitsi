@@ -12,7 +12,7 @@ package net.java.sip.communicator.service.protocol;
  *
  * @author Sebastien Vincent
  */
-public interface OperationSetDesktopStreaming extends OperationSetVideoTelephony
+public interface OperationSetDesktopStreaming
+    extends OperationSetVideoTelephony
 {
-
 }

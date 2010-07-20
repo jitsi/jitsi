@@ -78,12 +78,10 @@ public class AvatarEvent
     /**
      * Returns a String representation of this AvatarEvent
      * 
-     * @return A a <tt>java.lang.String</tt> representation of this AvatarEvent.
+     * @return a <tt>String</tt> representation of this <tt>AvatarEvent</tt>.
      */
     public String toString()
     {
-        StringBuffer buff = new StringBuffer("AvatarEvent-[ Provider=");
-        buff.append(getSourceProvider()).append("]");
-        return buff.toString();
+        return "AvatarEvent-[ Provider=" + getSourceProvider() + "]";
     }
 }

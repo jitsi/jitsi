@@ -26,7 +26,7 @@ public interface AvatarListener
      * Called whenever a new avatar is defined for one of the protocols that we
      * have subscribed for.
      * 
-     * @param event the event containg the new image
+     * @param event the event containing the new image
      */
     public void avatarChanged(AvatarEvent event);
 }

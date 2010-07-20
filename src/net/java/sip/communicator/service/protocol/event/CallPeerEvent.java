@@ -60,7 +60,7 @@ public class CallPeerEvent
     }
 
     /**
-     * Returnst one of the CALL_PEER_XXX member ints indicating
+     * Returns one of the CALL_PEER_XXX member ints indicating
      * the type of this event.
      * @return one of the CALL_PEER_XXX member ints indicating
      * the type of this event.
@@ -98,10 +98,8 @@ public class CallPeerEvent
      */
     public String toString()
     {
-
         return "CallPeerEvent: ID=" + getEventID()
                + " source peer=" + getSourceCallPeer()
                + " source call=" + getSourceCall();
     }
-
 }

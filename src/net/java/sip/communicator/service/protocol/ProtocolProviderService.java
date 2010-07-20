@@ -135,19 +135,23 @@ public interface ProtocolProviderService
      * implementation. When querying this method users must be prepared to
      * receive any subset of the OperationSet-s defined by this service. They
      * MUST ignore any OperationSet-s that they are not aware of and that may be
-     * defined by future version of this service. Such "unknown" OperationSet-s
+     * defined by future versions of this service. Such "unknown" OperationSet-s
      * though not encouraged, may also be defined by service implementors.
      *
-     * @return a java.util.Map containing instance of all supported operation
+     * @return a {@link Map} containing instances of all supported operation
      * sets mapped against their class names (e.g.
-     * OperationSetPresence.class.getName()) .
+     * <tt>OperationSetPresence.class.getName()</tt> associated with a
+     * <tt>OperationSetPresence</tt> instance).
      */
     public Map<String, OperationSet> getSupportedOperationSets();
 
     /**
-     * Returns the operation set corresponding to the specified class or null
-     * if this operation set is not supported by the provider implementation.
+     * Returns the operation set corresponding to the specified class or
+     * <tt>null</tt> if this operation set is not supported by the provider
+     * implementation.
      *
+     * @param <T> the type which extends <tt>OperationSet</tt> and which is to
+     * be retrieved
      * @param opsetClass the <tt>Class</tt>  of the operation set that we're
      * looking for.
      * @return returns an OperationSet of the specified <tt>Class</tt> if the

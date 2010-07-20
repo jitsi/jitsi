@@ -9,15 +9,16 @@ package net.java.sip.communicator.service.protocol;
 /**
  * The class represents a set of states that a protocol provider may take while
  * registering, logging in, or signing on to a public service server, such as
- * a SIP Registrar, the icq/aim login and registration servers or a jabber
+ * a SIP registrar, the ICQ/AIM login and registration servers or a Jabber
  * server. States are generally supposed to be appearing in the following order:
- * </p><p>
+ * <p>
  * Note that the order strongly depends on the particular protocol, which may
  * also influence the exact states that might actually be entered.
- *  </p><p>
+ * </p><p>
  * For more information on the particular states, please check the documentation
  * for each of them.
- *  </p>
+ * </p>
+ *
  * @author Emil Ivov
  */
 public class RegistrationState
@@ -64,7 +65,7 @@ public class RegistrationState
     public static final String _FINALIZING_REGISTRATION =
         "Finalizing Registration";
     /**
-     * Represating any transition state after authentication is completed
+     * Representing any transition state after authentication is completed
      * and before it has been completed. This state wouldn't make sense for
      * many services, and would only be used with others such as ICQ/AIM for
      * example.
@@ -126,7 +127,7 @@ public class RegistrationState
     public static final RegistrationState UNREGISTERED =
         new RegistrationState(_UNREGISTERED);
 
-    private String statusString = _INIT;
+    private final String statusString;
 
     private RegistrationState(String statusString)
     {
@@ -146,16 +147,19 @@ public class RegistrationState
      * Returns a String representation of the provider state.
      * @return a String representation of the state.
      */
+    @Override
     public String toString()
     {
-        return "RegistrationState=" +getStateName();
+        return "RegistrationState=" + getStateName();
     }
 
     /**
      * Returns true if the specified object is equal to this provider state.
      * @param obj the object to compare this provider state with.
-     * @return true if the specified object represents the same state as this one.
+     * @return true if the specified object represents the same state as this
+     * one.
      */
+    @Override
     public boolean equals(Object obj)
     {
         return obj instanceof RegistrationState

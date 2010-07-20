@@ -7,12 +7,14 @@
 package net.java.sip.communicator.service.protocol;
 
 /**
- * SimpleException indicates an exception that occurred in the API.
- *
- * <p> SimpleException contains an error code that gives more information on the
- * exception. The application can obtain the error code using
- * SimpleException.getErrorCode. The error code values are defined in the
- * SimpleException fields.</p>
+ * <tt>OperationFailedException</tt> indicates an exception that occurred in the
+ * API.
+ * <p>
+ * <tt>OperationFailedException</tt> contains an error code that gives more
+ * information on the exception. The application can obtain the error code using
+ * {@link OperationFailedException#getErrorCode()}. The error code values are
+ * defined in the <tt>OperationFailedException</tt> fields.
+ * </p>
  *
  * @author Emil Ivov
  */
@@ -83,7 +85,7 @@ public class OperationFailedException
 
     /**
      * Indicates that the user is trying to perform an operation with an
-     * identifyer that was already in use on the target resource (e.g. log with
+     * identifier that was already in use on the target resource (e.g. log with
      * a nickname that is already in use in a chat room, or create a chat room
      * on a server that already contains a room with the same ID).
      */
@@ -97,7 +99,7 @@ public class OperationFailedException
 
     /**
      * Indicates that the exception was thrown, because the user doesn't have
-     * enough pribileges. Meant to be used by multi user chat to indicate that
+     * enough privileges. Meant to be used by multi user chat to indicate that
      * the user is trying to make an operation, which requires admin or owner
      * privileges.
      */
@@ -157,6 +159,7 @@ public class OperationFailedException
                                     Throwable cause)
     {
         super(message, cause);
+
         this.errorCode = errorCode;
     }
 

@@ -12,13 +12,13 @@ package net.java.sip.communicator.service.protocol;
  * <p>
  * An outgoing Authorization Response is to be created by the user interface
  * when an authorization request has been received from the network. The user
- * inteface or any other bundle responsible of handling such responses is to
+ * interface or any other bundle responsible of handling such responses is to
  * implement the AuthoizationHandler interface and register itself with a
- * protocol provider. Whenever a resonse needs to be sent the protocol provider
+ * protocol provider. Whenever a response needs to be sent the protocol provider
  * would ask the the AuthorizationHandler to create one through the
  * processAuthorizationRequest() method.
  * <p>
- * Incomfing Authorization responses are delivered to the AuthorizationHandler
+ * Incoming Authorization responses are delivered to the AuthorizationHandler
  * implementation through the AuthorizationHandler.processAuthorizationResponse()
  * method.
  *
@@ -50,8 +50,8 @@ public class AuthorizationResponse
         = new AuthorizationResponseCode("Ignore");
 
     /**
-     * A reason indication that the source user may or may not add to explaing
-     * the resposne.
+     * A reason indication that the source user may or may not add to explaining
+     * the response.
      */
     private String reason = null;
 
@@ -87,7 +87,8 @@ public class AuthorizationResponse
 
     /**
      * Returns the response code that unambiguously represents the sense of this
-     * respone.
+     * response.
+     *
      * @return an AuthorizationResponseResponseCode instance determining the
      * nature of the response.
      */
@@ -103,7 +104,7 @@ public class AuthorizationResponse
      */
     public static class AuthorizationResponseCode
     {
-        private String code = null;
+        private final String code;
 
         private AuthorizationResponseCode(String code)
         {
@@ -118,6 +119,5 @@ public class AuthorizationResponse
         {
             return code;
         }
-
     }
 }

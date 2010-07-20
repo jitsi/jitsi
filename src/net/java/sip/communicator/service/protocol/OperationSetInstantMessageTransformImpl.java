@@ -8,16 +8,13 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 /**
- * 
  * @author George Politis
- * 
  */
 public class OperationSetInstantMessageTransformImpl
     implements OperationSetInstantMessageTransform
 {
-
-    public final Map<Integer, Vector<TransformLayer>> transformLayers =
-        new Hashtable<Integer, Vector<TransformLayer>>();
+    public final Map<Integer, Vector<TransformLayer>> transformLayers
+        = new Hashtable<Integer, Vector<TransformLayer>>();
 
     private static final int defaultPriority = 1;
 
@@ -42,8 +39,8 @@ public class OperationSetInstantMessageTransformImpl
     {
         synchronized (transformLayers)
         {
-            for (Map.Entry<Integer, Vector<TransformLayer>> entry : transformLayers
-                .entrySet())
+            for (Map.Entry<Integer, Vector<TransformLayer>> entry
+                    : transformLayers.entrySet())
             {
                 if (entry.getValue().contains(layer))
                     return true;
@@ -57,8 +54,8 @@ public class OperationSetInstantMessageTransformImpl
     {
         synchronized (transformLayers)
         {
-            for (Map.Entry<Integer, Vector<TransformLayer>> entry : transformLayers
-                .entrySet())
+            for (Map.Entry<Integer, Vector<TransformLayer>> entry
+                    : transformLayers.entrySet())
             {
                 entry.getValue().remove(transformLayer);
             }

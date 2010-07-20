@@ -798,8 +798,8 @@ public abstract class ProtocolProviderFactory
      * @param bundleContext a currently valid bundle context.
      * @param accountID the AccountID of the account whose properties we're
      * looking for.
-     * @param a String containing the package name of the concrete factory
-     * class that extends us.
+     * @param sourcePackageName a String containing the package name of the
+     * concrete factory class that extends us.
      * @return a String indicating the ConfigurationService property name
      * prefix under which all account properties are stored or null if no
      * account corresponding to the specified id was found.

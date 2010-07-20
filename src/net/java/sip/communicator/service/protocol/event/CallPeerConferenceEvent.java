@@ -73,18 +73,17 @@ public class CallPeerConferenceEvent
      * about a change in its conference-related information not including a
      * change pertaining to a specific <code>ConferenceMember</code>.
      *
-     * @param source
-     *            the <code>CallPeer</code> which is to fire the new
-     *            event
+     * @param sourceCallPeer the <code>CallPeer</code> which is to fire the new
+     * event
      * @param eventID
      *            the ID of this event which may be
      *            {@link #CONFERENCE_FOCUS_CHANGED} and indicates the specifics
      *            of the change in the conference-related information and the
      *            details this event carries
      */
-    public CallPeerConferenceEvent(CallPeer source, int eventID)
+    public CallPeerConferenceEvent(CallPeer sourceCallPeer, int eventID)
     {
-        this(source, eventID, null);
+        this(sourceCallPeer, eventID, null);
     }
 
     /**
@@ -93,9 +92,8 @@ public class CallPeerConferenceEvent
      * about a change in its conference-related information pertaining to a
      * specific <code>ConferenceMember</code>.
      *
-     * @param source
-     *            the <code>CallPeer</code> which is to fire the new
-     *            event
+     * @param sourceCallPeer the <code>CallPeer</code> which is to fire the new
+     * event
      * @param eventID
      *            the ID of this event which may be
      *            {@link #CONFERENCE_MEMBER_ADDED} and
@@ -107,11 +105,11 @@ public class CallPeerConferenceEvent
      *            to be fired
      */
     public CallPeerConferenceEvent(
-        CallPeer source,
+        CallPeer sourceCallPeer,
         int eventID,
         ConferenceMember conferenceMember)
     {
-        super(source);
+        super(sourceCallPeer);
 
         this.eventID = eventID;
         this.conferenceMember = conferenceMember;

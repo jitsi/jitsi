@@ -12,13 +12,13 @@ package net.java.sip.communicator.service.protocol;
  * <p>
  * An outgoing Authorization Request is to be created by the user interface
  * when an authorization error/challenge has been received by the underlying
- * protocol. The user inteface or any other bundle responsible of handling
+ * protocol. The user interface or any other bundle responsible of handling
  * such requests is to implement the AuthoizationHandler interface and register
  * itself as an authorization handler of a protocol provider. Whenever a request
  * needs to be sent the protocol provider would ask the the AuthorizationHandler
  * to create one through the createAuthorizationRequest() method.
  * <p>
- * Incomfing Authorization requests are delivered to the ProtocolProviderService
+ * Incoming Authorization requests are delivered to the ProtocolProviderService
  * implementation through the AuthorizationHandler.processAuthorizationRequest()
  * method.
  *
@@ -34,12 +34,11 @@ public class AuthorizationRequest
      */
     public AuthorizationRequest()
     {
-
     }
 
     /**
      * Sets the reason phrase that should be sent to the user we're demanding
-     * for authorizaiton.
+     * for authorization.
      * @param reason a human readable text to be set by the user.
      */
     public void setReason(String reason)

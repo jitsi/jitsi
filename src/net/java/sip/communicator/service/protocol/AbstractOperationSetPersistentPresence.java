@@ -22,6 +22,11 @@ import net.java.sip.communicator.util.*;
 public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolProviderService>
     implements OperationSetPersistentPresence
 {
+    /**
+     * The <tt>Logger</tt> used by the
+     * <tt>AbstractOperationSetPersistentPresence</tt> class and its instances
+     * for logging output.
+     */
     private static final Logger logger =
         Logger.getLogger(AbstractOperationSetPersistentPresence.class);
 

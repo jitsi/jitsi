@@ -7,11 +7,10 @@
 package net.java.sip.communicator.service.protocol;
 
 /**
- * An operation set that allows other modules to send DMF tones through this
- * protocol provider.
+ * An <tt>OperationSet</tt> that allows other modules to send DMF tones through
+ * this protocol provider.
  *
  * @author JM HEITZ
- *
  */
 public interface OperationSetDTMF
     extends OperationSet

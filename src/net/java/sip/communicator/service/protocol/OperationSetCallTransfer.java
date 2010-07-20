@@ -7,8 +7,8 @@
 package net.java.sip.communicator.service.protocol;
 
 /**
- * An Operation Set defining operations that allow transfering calls to a new
- * location.
+ * An <tt>OperationSet</tt> defining operations that allow transferring calls to
+ * a new location.
  *
  * @author Emil Ivov
  */
@@ -16,8 +16,9 @@ public interface OperationSetCallTransfer
     extends OperationSet
 {
     /**
-     * Indicates a user request to transfer the specified call particiapant to a
+     * Indicates a user request to transfer the specified call participant to a
      * new (target) uri.
+     *
      * @param peer the call peer we'd like to transfer
      * @param targetURI the uri that we'd like this call peer to be
      * transferred to.

@@ -14,7 +14,8 @@ import net.java.sip.communicator.service.protocol.event.AvatarListener;
  * 
  * @author Damien Roth
  */
-public interface OperationSetAvatar extends OperationSet
+public interface OperationSetAvatar
+    extends OperationSet
 {
     /**
      * Returns the maximum width of the avatar. This method should return 0
