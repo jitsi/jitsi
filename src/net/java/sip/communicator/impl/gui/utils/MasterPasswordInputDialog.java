@@ -63,7 +63,7 @@ public class MasterPasswordInputDialog
 
         this.setTitle(resources
             .getI18NString("plugin.securityconfig.masterpassword.MP_TITLE"));
-        this.setModalityType(ModalityType.APPLICATION_MODAL);
+        this.setModal(true);
         this.setResizable(false);
 
         this.getContentPane().add(mainPanel);
