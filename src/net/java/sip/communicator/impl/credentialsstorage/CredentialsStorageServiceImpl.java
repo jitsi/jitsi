@@ -25,7 +25,7 @@ public class CredentialsStorageServiceImpl
     implements CredentialsStorageService
 {
     /**
-     * The logger for this class.
+     * The <tt>Logger</tt> for this class.
      */
     private final Logger logger =
         Logger.getLogger(CredentialsStorageServiceImpl.class);
@@ -66,14 +66,16 @@ public class CredentialsStorageServiceImpl
 
     /**
      * Initializes the credentials service by fetching the configuration service
-     * reference from the bundle context.
-     *
+     * reference from the bundle context. Encrypts and moves all passwords to
+     * new properties.
+     * 
      * @param bc bundle context
      */
     void start(BundleContext bc)
     {
-        this.configurationService
+        configurationService
                 = ServiceUtils.getService(bc, ConfigurationService.class);
+        moveAllPasswordProperties();
     }
 
     /**
@@ -125,37 +127,22 @@ public class CredentialsStorageServiceImpl
     }
 
     /**
-     * Loads the password for the specified account.
-     * First check if the password is stored in the configuration unencrypted
-     * and if so, encrypt it and store in the new property. Otherwise, if the
-     * password is stored encrypted, decrypt it with the master password.
-     *
-     * Many threads can call this method at the same time, and the
-     * first thread may present the user with the master password prompt and
-     * create a <tt>Crypto</tt> instance based on the input
-     * (<tt>createCrypto</tt> method). This instance will be used later by all
-     * other threads.
-     *
-     * @param accountPrefix account prefix 
+     * Loads the password for the specified account. If the password is stored
+     * encrypted, decrypts it with the master password.
+     * 
+     * Many threads can call this method at the same time, and the first thread
+     * may present the user with the master password prompt and create a
+     * <tt>Crypto</tt> instance based on the input (<tt>createCrypto</tt>
+     * method). This instance will be used later by all other threads.
+     * 
+     * @param accountPrefix account prefix
      * @return the loaded password for the <tt>accountPrefix</tt>
      * @see CredentialsStorageServiceImpl#createCrypto()
      */
     public synchronized String loadPassword(String accountPrefix)
     {
-        String password;
-
-        if (isStoredUnencrypted(accountPrefix))
-        {
-            password = new String(Base64.decode(getUnencrypted(accountPrefix)));
-            if (movePasswordProperty(accountPrefix, password))
-                password = null;
-        }
-        else
-            password = null;
-
-        if ((password == null)
-                && isStoredEncrypted(accountPrefix)
-                && createCrypto())
+        String password = null;
+        if (isStoredEncrypted(accountPrefix) && createCrypto())
         {
             try
             {
@@ -204,7 +191,8 @@ public class CredentialsStorageServiceImpl
      * the MP is considered correct.
      *
      * @param master master password
-     * @return true if the password is correct, false otherwise
+     * @return <tt>true</tt> if the password is correct; <tt>false</tt>,
+     * otherwise
      */
     public boolean verifyMasterPassword(String master)
     {
@@ -244,7 +232,8 @@ public class CredentialsStorageServiceImpl
      *
      * @param oldPassword old master password
      * @param newPassword new master password
-     * @return true if master password was changed successfully, false otherwise
+     * @return <tt>true</tt> if master password was changed successfully;
+     * <tt>false</tt>, otherwise
      */
     public boolean changeMasterPassword(String oldPassword, String newPassword)
     {
@@ -297,6 +286,38 @@ public class CredentialsStorageServiceImpl
     private void setMasterPassword(String master)
     {
         crypto = new AESCrypto(master);
+    }
+    
+    /**
+     * Moves all password properties from unencrypted
+     * {@link #ACCOUNT_UNENCRYPTED_PASSWORD} to the corresponding encrypted
+     * {@link #ACCOUNT_ENCRYPTED_PASSWORD}. 
+     */
+    private void moveAllPasswordProperties()
+    {
+        // if the MP is set we cannot move properties
+        // since retrieving UIService would cause an exception
+        if (isUsingMasterPassword())
+            return;
+        
+        List<String> unencryptedProperties
+            = configurationService.getPropertyNamesBySuffix(
+                    ACCOUNT_UNENCRYPTED_PASSWORD);
+
+        for (String prop : unencryptedProperties)
+        {
+            int idx = prop.lastIndexOf('.');
+
+            if (idx != -1)
+            {
+                String prefix = prop.substring(0, idx);
+                String password
+                    = new String(Base64.decode(getUnencrypted(prefix)));
+                
+                if (!movePasswordProperty(prefix, password))
+                    logger.warn("Failed to move password for prefix " + prefix);
+            }
+        }
     }
 
     /**
@@ -361,7 +382,8 @@ public class CredentialsStorageServiceImpl
      * master password or with null. If the user decided not to input anything,
      * the instance is not created.
      *
-     * @return true if Crypto instance was created, false otherwise
+     * @return <tt>true</tt> if the Crypto instance was created; <tt>false</tt>,
+     * otherwise
      */
     private boolean createCrypto()
     {
@@ -401,7 +423,7 @@ public class CredentialsStorageServiceImpl
      * Displays a password prompt to the user in a loop until it is correct or
      * the user presses the cancel button.
      *
-     * @return the entered password or null if none was provided.
+     * @return the entered password or <tt>null</tt> if none was provided.
      */
     private String showPasswordPrompt()
     {
@@ -464,7 +486,7 @@ public class CredentialsStorageServiceImpl
      * Check if encrypted account password is saved in the configuration.
      *
      * @param accountPrefix account prefix
-     * @return true if saved, false if not
+     * @return <tt>true</tt> if saved, <tt>false</tt> if not
      */
     public boolean isStoredEncrypted(String accountPrefix)
     {
@@ -497,20 +519,5 @@ public class CredentialsStorageServiceImpl
     {
         configurationService.setProperty(
                 accountPrefix + "." + ACCOUNT_UNENCRYPTED_PASSWORD, value);
-    }
-
-    /**
-     * Check if unencrypted account password is saved in the configuration.
-     *
-     * @param accountPrefix account prefix
-     * @return true if saved, false if not
-     */
-    public boolean isStoredUnencrypted(String accountPrefix)
-    {
-        configurationService.getPropertyNamesByPrefix("", false);
-        return
-            configurationService.getString(
-                    accountPrefix + "." + ACCOUNT_UNENCRYPTED_PASSWORD)
-                != null;
     }
 }

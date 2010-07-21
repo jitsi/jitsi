@@ -46,7 +46,7 @@ public interface CredentialsStorageService
      * Checks if master password was set by the user and 
      * it is used to encrypt saved account passwords. 
      * 
-     * @return true if used, false if not
+     * @return <tt>true</tt> if used, <tt>false</tt> if not
      */
     public boolean isUsingMasterPassword();
     
@@ -57,7 +57,8 @@ public interface CredentialsStorageService
      * 
      * @param oldPassword the old master password
      * @param newPassword the new master password
-     * @return true if master password was changed successfully, false otherwise
+     * @return <tt>true</tt> if master password was changed successfully;
+     * <tt>false</tt>, otherwise
      */
     public boolean changeMasterPassword(String oldPassword, String newPassword);
 
@@ -65,7 +66,8 @@ public interface CredentialsStorageService
      * Verifies the correctness of the master password.
      * 
      * @param master the master password to verify
-     * @return true if the password is correct, false otherwise
+     * @return <tt>true</tt> if the password is correct; <tt>false</tt>,
+     * otherwise
      */
     public boolean verifyMasterPassword(String master);
 
@@ -74,16 +76,7 @@ public interface CredentialsStorageService
      * in encrypted form.
      * 
      * @param accountPrefix account prefix
-     * @return true if saved, false if not
+     * @return <tt>true</tt> if saved, <tt>false</tt> if not
      */
     public boolean isStoredEncrypted(String accountPrefix);
-
-    /**
-     * Checks if the account password is that starts with the given prefix is
-     * saved in unencrypted form.
-     * 
-     * @param accountPrefix account prefix
-     * @return true if saved, false if not
-     */
-    public boolean isStoredUnencrypted(String accountPrefix);
 }

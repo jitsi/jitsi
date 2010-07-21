@@ -398,8 +398,9 @@ public abstract class SIPCommDialog
     /**
      * All functions implemented in this method will be invoked when user
      * presses the Escape key.
-     * @param isEscaped indicates if this dialog has been closed by pressing
-     * the Esc key
+     *
+     * @param escaped <tt>true</tt> if this dialog has been closed by pressing
+     * the Esc key; otherwise, <tt>false</tt>
      */
-    protected abstract void close(boolean isEscaped);
+    protected abstract void close(boolean escaped);
 }

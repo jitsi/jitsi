@@ -154,6 +154,14 @@ public class MasterPasswordChangeDialog
                                 "plugin.securityconfig.masterpassword.REENTER_PASSWORD")));
 
         // password fields
+        ActionListener clickOkButton = new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if (okButton.isEnabled())
+                    okButton.doClick();
+            }
+        };
         if (!SecurityConfigActivator
                 .getCredentialsStorageService()
                     .isUsingMasterPassword())
@@ -167,11 +175,15 @@ public class MasterPasswordChangeDialog
         else
         {
             currentPasswdField = new JPasswordField(15);
+            ((JPasswordField) currentPasswdField)
+                .addActionListener(clickOkButton);
         }
         newPasswordField = new JPasswordField(15);
         newPasswordField.addKeyListener(this);
         newAgainPasswordField = new JPasswordField(15);
         newAgainPasswordField.addKeyListener(this);
+        newPasswordField.addActionListener(clickOkButton);
+        newAgainPasswordField.addActionListener(clickOkButton);
 
         textFieldsPanel = new TransparentPanel(new GridLayout(0, 1, 8, 8));
         textFieldsPanel.add(currentPasswdField);

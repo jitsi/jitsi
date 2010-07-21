@@ -270,9 +270,7 @@ public class SecurityConfigActivator
                             bundleContext,
                             accountID,
                             sourcePackageName);
-                if (credentialsStorageService.isStoredEncrypted(accountPrefix)
-                        || credentialsStorageService.isStoredUnencrypted(
-                                accountPrefix))
+                if (credentialsStorageService.isStoredEncrypted(accountPrefix))
                     accountIDs.put(accountID, accountPrefix);
             }
         }
