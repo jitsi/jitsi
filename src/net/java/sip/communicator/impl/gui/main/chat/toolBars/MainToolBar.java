@@ -20,7 +20,6 @@ import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -65,6 +64,10 @@ public class MainToolBar
     private final ChatToolbarButton nextButton
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.NEXT_ICON));
+
+    private final ChatToolbarButton leaveChatRoomButton
+        = new ChatToolbarButton(
+                ImageLoader.getImage(ImageLoader.LEAVE_ICON));
 
     /**
      * The call button.
@@ -119,6 +122,12 @@ public class MainToolBar
         this.setOpaque(false);
 
         this.add(inviteButton);
+
+        // if we leave a chat room when we close the window
+        // there is no need for this button
+        if(!ConfigurationManager.isLeaveChatRoomOnWindowCloseEnabled())
+            this.add(leaveChatRoomButton);
+
         this.add(callButton);
         this.add(historyButton);
         this.add(optionsButton);
@@ -130,6 +139,10 @@ public class MainToolBar
         this.inviteButton.setName("invite");
         this.inviteButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.INVITE"));
+
+        this.leaveChatRoomButton.setName("leave");
+        this.leaveChatRoomButton.setToolTipText(
+            GuiActivator.getResources().getI18NString("service.gui.LEAVE"));
 
         this.callButton.setName("call");
         this.callButton.setToolTipText(
@@ -158,6 +171,7 @@ public class MainToolBar
             GuiActivator.getResources().getI18NString("service.gui.NEXT"));
 
         this.inviteButton.addActionListener(this);
+        this.leaveChatRoomButton.addActionListener(this);
         this.callButton.addActionListener(this);
         this.historyButton.addActionListener(this);
         optionsButton.addActionListener(this);
@@ -195,6 +209,9 @@ public class MainToolBar
                 c.setCurrentContact(contact);
 
             setChatSession(chatPanel.chatSession);
+
+            leaveChatRoomButton.setEnabled(
+                chatPanel.chatSession instanceof ConferenceChatSession);
 
             inviteButton.setEnabled(
                 chatPanel.findInviteChatTransport() != null);
@@ -300,6 +317,13 @@ public class MainToolBar
             ChatInviteDialog inviteDialog = new ChatInviteDialog(chatPanel);
 
             inviteDialog.setVisible(true);
+        }
+        else if (buttonText.equals("leave"))
+        {
+            ConferenceChatManager conferenceManager
+                = GuiActivator.getUIService().getConferenceChatManager();
+            conferenceManager.leaveChatRoom(
+                (ChatRoomWrapper)chatPanel.getChatSession().getDescriptor());
         }
         else if (buttonText.equals("call"))
         {

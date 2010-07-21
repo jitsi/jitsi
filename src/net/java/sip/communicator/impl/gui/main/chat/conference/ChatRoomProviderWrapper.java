@@ -9,12 +9,12 @@ package net.java.sip.communicator.impl.gui.main.chat.conference;
 import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
  * @author Yana Stamcheva
+ * @author Damian Minkov
  */
 public class ChatRoomProviderWrapper
 {
@@ -230,18 +230,37 @@ public class ChatRoomProviderWrapper
                     {
                         chatRoomWrapper.setChatRoom(chatRoom);
 
-                        String lastChatRoomStatus
+                        /*String lastChatRoomStatus
                             = ConfigurationManager.getChatRoomStatus(
                                 protocolProvider,
                                 chatRoomWrapper.getChatRoomID());
-
-                        if(lastChatRoomStatus == null
+                        if((lastChatRoomStatus == null
                             || lastChatRoomStatus.equals(
                                 Constants.ONLINE_STATUS))
+                        */
+
+                        if(chatRoomWrapper.isAutojoin())
                         {
                             GuiActivator.getUIService()
                                 .getConferenceChatManager()
                                     .joinChatRoom(chatRoom);
+                        }
+                    }
+                    else
+                    {
+                        if(chatRoomWrapper.isAutojoin())
+                        {
+                            // chat room is not existent we must create it and join
+                            // it
+                            GuiActivator.getUIService()
+                                .getConferenceChatManager().createChatRoom(
+                                    chatRoomWrapper.getChatRoomName(),
+                                    chatRoomWrapper.getParentProvider()
+                                        .getProtocolProvider(),
+                                    new ArrayList<String>(),
+                                    "",
+                                    true,
+                                    true);
                         }
                     }
                 }

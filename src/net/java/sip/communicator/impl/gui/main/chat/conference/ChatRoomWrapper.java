@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -14,16 +15,46 @@ import net.java.sip.communicator.service.protocol.*;
  * corresponding protocol provider is not connected.
  * 
  * @author Yana Stamcheva
+ * @author Damian Minkov
  */
 public class ChatRoomWrapper
 {
+    /**
+     * The protocol provider to which the corresponding chat room belongs.
+     */
     private final ChatRoomProviderWrapper parentProvider;
 
+    /**
+     * The room that is wrapped.
+     */
     private ChatRoom chatRoom;
 
+    /**
+     * The room name.
+     */
     private final String chatRoomName;
 
+    /**
+     * The room id.
+     */
     private final String chatRoomID;
+
+    /**
+     * The property we use to store values in configuration service.
+     */
+    private static final String AUTOJOIN_PROPERTY_NAME = "autoJoin";
+
+    /**
+     * As isAutoJoin can be called from GUI many times we store its value once
+     * retrieved to minimize calls to configuration service.
+     */
+    private Boolean autoJoin = null;
+
+    /**
+     * By default all chat rooms are persistent from UI point of view.
+     * But we can override this and force not saving it.
+     */
+    private boolean persistent = true;
 
     /**
      * Creates a <tt>ChatRoomWrapper</tt> by specifying the protocol provider,
@@ -47,6 +78,8 @@ public class ChatRoomWrapper
      * Creates a <tt>ChatRoomWrapper</tt> by specifying the corresponding chat
      * room.
      * 
+     * @param parentProvider the protocol provider to which the corresponding
+     * chat room belongs
      * @param chatRoom the chat room to which this wrapper corresponds.
      */
     public ChatRoomWrapper( ChatRoomProviderWrapper parentProvider,
@@ -110,17 +143,67 @@ public class ChatRoomWrapper
     }
 
     /**
-     * Returns <code>true</code> if the chat room inside is persistent,
+     * Returns <code>true</code> if the chat room is persistent,
      * otherwise - returns <code>false</code>.
      * 
-     * @return <code>true</code> if the chat room inside is persistent,
+     * @return <code>true</code> if the chat room is persistent,
      * otherwise - returns <code>false</code>.
      */
     public boolean isPersistent()
     {
-        if (chatRoom != null)
-            return chatRoom.isPersistent();
+        return persistent;
+    }
+
+    /**
+     * Change persistence of this room.
+     * @param value set persistent state.
+     */
+    public void setPersistent(boolean value)
+    {
+        this.persistent = value;
+    }
+
+    /**
+     * Is room set to auto join on start-up.
+     * @return is auto joining enabled.
+     */
+    public boolean isAutojoin()
+    {
+        if(autoJoin == null)
+        {
+            String val = ConfigurationManager.getChatRoomProperty(
+                getParentProvider().getProtocolProvider(),
+                getChatRoomID(), AUTOJOIN_PROPERTY_NAME);
+
+            autoJoin = Boolean.valueOf(val);
+        }
+
+        return autoJoin;
+    }
+
+    /**
+     * Changes auto join value in configuration service.
+     *
+     * @param value change of auto join property.
+     */
+    public void setAutoJoin(boolean value)
+    {
+        autoJoin = value;
+
+        if(!persistent)
+            return;
+
+        if(value)
+        {
+            ConfigurationManager.updateChatRoomProperty(
+                getParentProvider().getProtocolProvider(),
+                chatRoomID, AUTOJOIN_PROPERTY_NAME, Boolean.toString(autoJoin));
+        }
         else
-            return true;
+        {
+            ConfigurationManager.updateChatRoomProperty(
+                getParentProvider().getProtocolProvider(),
+                chatRoomID, AUTOJOIN_PROPERTY_NAME, null);
+        }
     }
 }

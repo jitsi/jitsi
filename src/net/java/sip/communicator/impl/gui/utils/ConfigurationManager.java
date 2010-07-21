@@ -16,8 +16,11 @@ import net.java.sip.communicator.service.protocol.*;
 import org.osgi.framework.*;
 
 /**
- * 
+ * Cares about all common configurations. Storing and retrieving configuration
+ * values.
+ *
  * @author Yana Stamcheva
+ * @author Damian Minkov
  */
 public class ConfigurationManager
 {
@@ -66,6 +69,11 @@ public class ConfigurationManager
      * Indicates if tabs in chat window are enabled.
      */
     private static boolean isMultiChatWindowEnabled;
+
+    /**
+     * Indicates whether we will leave chat room on window closing.
+     */
+    private static boolean isLeaveChatRoomOnWindowCloseEnabled;
 
     /**
      * Indicates if history logging is enabled.
@@ -255,6 +263,26 @@ public class ConfigurationManager
         {
             isMultiChatWindowEnabled
                 = Boolean.parseBoolean(isMultiChatWindowEnabledString);
+        }
+
+        // Load the "isLeaveChatroomOnWindowCloseEnabled" property.
+        String isLeaveChatRoomOnWindowCloseEnabledStringProperty
+            = "service.gui.LEAVE_CHATROOM_ON_WINDOW_CLOSE";
+
+        String isLeaveChatRoomOnWindowCloseEnabledString
+            = configService.getString(isLeaveChatRoomOnWindowCloseEnabledStringProperty);
+
+        if(isLeaveChatRoomOnWindowCloseEnabledString == null)
+            isLeaveChatRoomOnWindowCloseEnabledString =
+                GuiActivator.getResources().
+                getSettingsString(isLeaveChatRoomOnWindowCloseEnabledStringProperty);
+
+        if(isLeaveChatRoomOnWindowCloseEnabledString != null
+            && isLeaveChatRoomOnWindowCloseEnabledString.length() > 0)
+        {
+            isLeaveChatRoomOnWindowCloseEnabled
+                = new Boolean(isLeaveChatRoomOnWindowCloseEnabledString)
+                    .booleanValue();
         }
 
         // Load the "isHistoryLoggingEnabled" property.
@@ -502,6 +530,19 @@ public class ConfigurationManager
     public static boolean isMultiChatWindowEnabled()
     {
         return isMultiChatWindowEnabled;
+    }
+
+     /**
+     * Returns <code>true</code> if the "isLeaveChatRoomOnWindowCloseEnabled"
+     * property is true, otherwise - returns <code>false</code>. Indicates to
+     * the user interface whether when closing the chat window we would leave
+     * the chat room.
+     * @return <code>true</code> if the "isLeaveChatRoomOnWindowCloseEnabled"
+     * property is true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isLeaveChatRoomOnWindowCloseEnabled()
+    {
+        return isLeaveChatRoomOnWindowCloseEnabled;
     }
 
     /**
@@ -1027,9 +1068,113 @@ public class ConfigurationManager
     }
 
     /**
-     * Returns the last chat room status, saved through the
+     * Updates the value of a chat room property through the
+     * <tt>ConfigurationService</tt>.
+     *
+     * @param protocolProvider the protocol provider to which the chat room
+     * belongs
+     * @param chatRoomId the identifier of the chat room to update
+     * @param property the name of the property of the chat room
+     * @param value the value of the property if null, property will be removed
+     */
+    public static void updateChatRoomProperty(
+            ProtocolProviderService protocolProvider,
+            String chatRoomId,
+            String property,
+            String value)
+    {
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+
+        List<String> accounts = configService
+            .getPropertyNamesByPrefix(prefix, true);
+
+        for (String accountRootPropName : accounts)
+        {
+            String accountUID
+                = configService.getString(accountRootPropName);
+
+            if(accountUID.equals(protocolProvider
+                .getAccountID().getAccountUniqueID()))
+            {
+                List<String> chatRooms = configService
+                    .getPropertyNamesByPrefix(
+                        accountRootPropName + ".chatRooms", true);
+
+                for (String chatRoomPropName : chatRooms)
+                {
+                    String chatRoomID
+                        = configService.getString(chatRoomPropName);
+
+                    if(!chatRoomId.equals(chatRoomID))
+                        continue;
+
+                    if(value != null)
+                        configService.setProperty(  chatRoomPropName
+                            + "." + property,
+                            value);
+                    else
+                        configService.removeProperty(chatRoomPropName
+                            + "." + property);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Returns the chat room property, saved through the
      * <tt>ConfigurationService</tt>.
      * 
+     * @param protocolProvider the protocol provider, to which the chat room
+     * belongs
+     * @param chatRoomId the identifier of the chat room
+     * @param property the property name, saved through the
+     * <tt>ConfigurationService</tt>.
+     * @return the value of the property, saved through the
+     * <tt>ConfigurationService</tt>.
+     */
+    public static String getChatRoomProperty(
+        ProtocolProviderService protocolProvider,
+        String chatRoomId,
+        String property)
+    {
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+
+        List<String> accounts = configService
+            .getPropertyNamesByPrefix(prefix, true);
+
+        for (String accountRootPropName : accounts)
+        {
+            String accountUID
+                = configService.getString(accountRootPropName);
+
+            if(accountUID.equals(protocolProvider
+                .getAccountID().getAccountUniqueID()))
+            {
+                List<String> chatRooms = configService
+                    .getPropertyNamesByPrefix(
+                        accountRootPropName + ".chatRooms", true);
+
+                for (String chatRoomPropName : chatRooms)
+                {
+                    String chatRoomID
+                        = configService.getString(chatRoomPropName);
+
+                    if(!chatRoomId.equals(chatRoomID))
+                        continue;
+
+                    return configService.getString(  chatRoomPropName
+                                                    + "." + property);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the last chat room status, saved through the
+     * <tt>ConfigurationService</tt>.
+     *
      * @param protocolProvider the protocol provider, to which the chat room
      * belongs
      * @param chatRoomId the identifier of the chat room
@@ -1214,6 +1359,12 @@ public class ConfigurationManager
                 "service.gui.IS_MULTI_CHAT_WINDOW_ENABLED"))
             {
                 isMultiChatWindowEnabled = Boolean.parseBoolean(newValue);
+            }
+            else if (evt.getPropertyName().equals(
+                "service.gui.LEAVE_CHATROOM_ON_WINDOW_CLOSE"))
+            {
+                isLeaveChatRoomOnWindowCloseEnabled
+                    = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "net.java.sip.communicator.impl.gui.isHistoryLoggingEnabled"))

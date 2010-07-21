@@ -95,10 +95,13 @@ public class ConferenceChatSession
      */
     public void dispose()
     {
-        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
-        chatRoom.removeMemberPresenceListener(this);
-        chatRoom.removePropertyChangeListener(this);
-        chatRoom.leave();
+        if(ConfigurationManager.isLeaveChatRoomOnWindowCloseEnabled())
+        {
+            ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+            chatRoom.removeMemberPresenceListener(this);
+            chatRoom.removePropertyChangeListener(this);
+            chatRoom.leave();
+        }
     }
 
     /**

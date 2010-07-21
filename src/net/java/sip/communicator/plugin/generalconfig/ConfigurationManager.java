@@ -28,6 +28,8 @@ public class ConfigurationManager
     private static boolean isSendTypingNotifications;
     
     private static boolean isMultiChatWindowEnabled;
+
+    private static boolean isLeaveChatRoomOnWindowCloseEnabled;
     
     private static boolean isHistoryLoggingEnabled;
     
@@ -89,6 +91,26 @@ public class ConfigurationManager
                 = new Boolean(isSendTypingNotif).booleanValue();
         }
 
+        // Load the "isLeaveChatroomOnWindowCloseEnabled" property.
+        String isLeaveChatRoomOnWindowCloseEnabledStringProperty
+            = "service.gui.LEAVE_CHATROOM_ON_WINDOW_CLOSE";
+
+        String isLeaveChatRoomOnWindowCloseEnabledString
+            = configService.getString(isLeaveChatRoomOnWindowCloseEnabledStringProperty);
+
+        if(isLeaveChatRoomOnWindowCloseEnabledString == null)
+            isLeaveChatRoomOnWindowCloseEnabledString =
+                Resources.
+                getSettingsString(isLeaveChatRoomOnWindowCloseEnabledStringProperty);
+
+        if(isLeaveChatRoomOnWindowCloseEnabledString != null
+            && isLeaveChatRoomOnWindowCloseEnabledString.length() > 0)
+        {
+            isLeaveChatRoomOnWindowCloseEnabled
+                = new Boolean(isLeaveChatRoomOnWindowCloseEnabledString)
+                    .booleanValue();
+        }
+
         // Load the "isMultiChatWindowEnabled" property.
         String isMultiChatWindowEnabledStringProperty
             = "service.gui.IS_MULTI_CHAT_WINDOW_ENABLED";
@@ -108,7 +130,7 @@ public class ConfigurationManager
                 = new Boolean(isMultiChatWindowEnabledString)
                 .booleanValue();
         }
-        
+
         // Load the "isHistoryLoggingEnabled" property.
         String isHistoryLoggingEnabledPropertyString =
             "impl.msghistory.IS_MESSAGE_HISTORY_ENABLED";
@@ -238,6 +260,19 @@ public class ConfigurationManager
     public static boolean isMultiChatWindowEnabled()
     {
         return isMultiChatWindowEnabled;
+    }
+
+    /**
+     * Returns <code>true</code> if the "isLeaveChatRoomOnWindowCloseEnabled"
+     * property is true, otherwise - returns <code>false</code>. Indicates to
+     * the user interface whether when closing the chat window we would leave
+     * the chat room.
+     * @return <code>true</code> if the "isLeaveChatRoomOnWindowCloseEnabled"
+     * property is true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isLeaveChatRoomOnWindowCloseEnabled()
+    {
+        return isLeaveChatRoomOnWindowCloseEnabled;
     }
 
     /**
@@ -410,13 +445,30 @@ public class ConfigurationManager
     public static void setMultiChatWindowEnabled(
         boolean isMultiChatWindowEnabled)
     {
-        ConfigurationManager.isHistoryLoggingEnabled = isMultiChatWindowEnabled;
+        ConfigurationManager.isMultiChatWindowEnabled = isMultiChatWindowEnabled;
 
         configService.setProperty(
             "service.gui.IS_MULTI_CHAT_WINDOW_ENABLED",
             Boolean.toString(isMultiChatWindowEnabled));
     }
 
+    /**
+     * Updates the "isLeaveChatroomOnWindowClose" property through
+     * the <tt>ConfigurationService</tt>.
+     * 
+     * @param isLeaveChatroomOnWindowClose indicates whether
+     * to leave chat room on window close.
+     */
+    public static void setLeaveChatRoomOnWindowClose(
+        boolean isLeaveChatroomOnWindowClose)
+    {
+        ConfigurationManager.isLeaveChatRoomOnWindowCloseEnabled
+            = isLeaveChatroomOnWindowClose;
+
+        configService.setProperty(
+            "service.gui.LEAVE_CHATROOM_ON_WINDOW_CLOSE",
+            Boolean.toString(isLeaveChatroomOnWindowClose));
+    }
     /**
      * Updates the "isHistoryLoggingEnabled" property through the
      * <tt>ConfigurationService</tt>.

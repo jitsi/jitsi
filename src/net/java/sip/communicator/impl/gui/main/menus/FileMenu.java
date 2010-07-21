@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.menus;
 
-import java.awt.*;
 import java.awt.event.*;
 import java.lang.reflect.*;
 
@@ -138,7 +137,7 @@ public class FileMenu
         }
         else if (itemName.equals("myChatRooms"))
         {
-            ChatRoomListDialog.showChatRoomListDialog();
+            ChatRoomTableDialog.showChatRoomTableDialog();
         }
     }
 

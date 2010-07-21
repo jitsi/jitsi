@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.beans.PropertyChangeEvent;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -1590,6 +1589,15 @@ public class ChatRoomJabberImpl
             else
             {
                 member = smackParticipantToScMember(msgFrom);
+            }
+
+            // somtimes when connecting to rooms they send history
+            // when the member is nolonger available we create
+            // a fake one so the messages to be displayed.
+            if(member == null)
+            {
+                member = new ChatRoomMemberJabberImpl(
+                    ChatRoomJabberImpl.this, fromUserName, msgFrom, null);
             }
 
             if(logger.isDebugEnabled())

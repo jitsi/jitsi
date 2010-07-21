@@ -91,7 +91,7 @@ public class FileMenu
 
         if (itemText.equalsIgnoreCase("myChatRooms"))
         {
-            ChatRoomListDialog.showChatRoomListDialog();
+            ChatRoomTableDialog.showChatRoomTableDialog();
         }
         else if (itemText.equals("history"))
         {

@@ -193,11 +193,15 @@ public class GeneralConfigurationPanel
         configPanel.add(createBringToFrontCheckBox());
         configPanel.add(Box.createVerticalStrut(10));
 
+        configPanel.add(createMultichatCheckbox());
+        configPanel.add(Box.createVerticalStrut(10));
+
         messagePanel.add(messageLabel, BorderLayout.WEST);
         messagePanel.add(configPanel);
 
         return messagePanel;
     }
+
     /**
      * Initializes the group messages check box.
      * @return the created check box
@@ -223,6 +227,33 @@ public class GeneralConfigurationPanel
         });
 
         return groupMessagesCheckBox;
+    }
+
+    /**
+     * Initializes the group messages check box.
+     * @return the created check box
+     */
+    private Component createMultichatCheckbox()
+    {
+        final JCheckBox leaveChatroomCheckBox = new SIPCommCheckBox();
+        leaveChatroomCheckBox.setText(
+            Resources.getString(
+                "plugin.generalconfig.LEAVE_CHATROOM_ON_WINDOW_CLOSE"));
+
+        leaveChatroomCheckBox.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
+        leaveChatroomCheckBox.setSelected(
+            ConfigurationManager.isLeaveChatRoomOnWindowCloseEnabled());
+
+        leaveChatroomCheckBox.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                ConfigurationManager.setLeaveChatRoomOnWindowClose(
+                    leaveChatroomCheckBox.isSelected());
+            }
+        });
+
+        return leaveChatroomCheckBox;
     }
 
     /**

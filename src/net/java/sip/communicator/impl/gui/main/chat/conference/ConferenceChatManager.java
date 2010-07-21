@@ -668,7 +668,7 @@ public class ConferenceChatManager
 
     /**
      * Creates a chat room, by specifying the chat room name, the parent
-     * protocol provider and eventually, the contacts invited to participate in 
+     * protocol provider and eventually, the contacts invited to participate in
      * this chat room.
      *
      * @param roomName the name of the room
@@ -683,6 +683,31 @@ public class ConferenceChatManager
         Collection<String> contacts,
         String reason)
     {
+        return createChatRoom(
+            roomName, protocolProvider, contacts, reason, true, true);
+    }
+
+    /**
+     * Creates a chat room, by specifying the chat room name, the parent
+     * protocol provider and eventually, the contacts invited to participate in 
+     * this chat room.
+     *
+     * @param roomName the name of the room
+     * @param protocolProvider the parent protocol provider.
+     * @param contacts the contacts invited when creating the chat room.
+     * @param reason
+     * @param join whether we should join the room after creating it.
+     * @param persistent whether the newly created room will be persistent.
+     * @return the <tt>ChatRoomWrapper</tt> corresponding to the created room
+     */
+    public ChatRoomWrapper createChatRoom(
+        String roomName,
+        ProtocolProviderService protocolProvider,
+        Collection<String> contacts,
+        String reason,
+        boolean join,
+        boolean persistent)
+    {
         ChatRoomWrapper chatRoomWrapper = null;
 
         OperationSetMultiUserChat groupChatOpSet
@@ -696,10 +721,14 @@ public class ConferenceChatManager
         try
         {
             chatRoom = groupChatOpSet.createChatRoom(roomName, null);
-            chatRoom.join();
+
+            if(join)
+            {
+                chatRoom.join();
             
-            for(String contact : contacts)
-                chatRoom.invite(contact, reason);
+                for(String contact : contacts)
+                    chatRoom.invite(contact, reason);
+            }
         }
         catch (OperationFailedException ex)
         {
@@ -733,12 +762,21 @@ public class ConferenceChatManager
             ChatRoomProviderWrapper parentProvider
                 = chatRoomList.findServerWrapperFromProvider(protocolProvider);
 
-            chatRoomWrapper = new ChatRoomWrapper(parentProvider, chatRoom);
-            chatRoomList.addChatRoom(chatRoomWrapper);
+            // if there is the same room ids don't add new wrapper as old one
+            // maybe already created
+            chatRoomWrapper =
+                chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
 
-            fireChatRoomListChangedEvent(
-                chatRoomWrapper,
-                ChatRoomListChangeEvent.CHAT_ROOM_ADDED);
+            if(chatRoomWrapper == null)
+            {
+                chatRoomWrapper = new ChatRoomWrapper(parentProvider, chatRoom);
+                chatRoomWrapper.setPersistent(persistent);
+                chatRoomList.addChatRoom(chatRoomWrapper);
+
+                fireChatRoomListChangedEvent(
+                    chatRoomWrapper,
+                    ChatRoomListChangeEvent.CHAT_ROOM_ADDED);
+            }
         }
 
         return chatRoomWrapper;
