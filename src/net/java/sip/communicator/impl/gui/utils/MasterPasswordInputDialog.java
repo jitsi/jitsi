@@ -187,7 +187,7 @@ public class MasterPasswordInputDialog
         {
             password
                 = new String(
-                        ((JPasswordField) currentPasswdField).getPassword());
+                        currentPasswdField.getPassword());
         }
         // hide dialog and unblock application
         dialog.setVisible(false);
