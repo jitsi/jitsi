@@ -151,18 +151,6 @@ public class ChatRoomTableUI
     }
 
     /**
-     * Opens chat window when the selected value is a room.
-     */
-    private class ChatRoomsListPanelEnterAction
-        extends AbstractAction
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            openChatForSelection();
-        }
-    }
-
-    /**
      * Listens for double clicks to open the chat room.
      * @param e
      */

@@ -146,7 +146,7 @@ public class ChatRoomTableDialog
         labels.add(new JLabel(GuiActivator.getResources()
             .getI18NString("service.gui.ACCOUNT")));
         labels.add(new JLabel(GuiActivator.getResources()
-            .getI18NString("service.gui.CHAT_ROOM_NAME")));
+            .getI18NString("service.gui.ROOM_NAME")));
 
         JPanel valuesPanel = new TransparentPanel(new GridLayout(2, 2, 5, 5));
         providersCombo = createProvidersCombobox();
@@ -162,19 +162,7 @@ public class ChatRoomTableDialog
             public void itemStateChanged(ItemEvent e)
             {
                 if(e.getStateChange() == ItemEvent.SELECTED)
-
-                new Thread()
-                {
-                    @Override
-                    public void run()
-                    {
-                        okButton.setEnabled(false);
-                        roomsCombo.setEnabled(false);
-                        loadProviderRooms();
-                        roomsCombo.setEnabled(true);
-                        okButton.setEnabled(true);
-                    }
-                }.start();
+                    loadProviderRooms();
             }
         });
 
@@ -392,25 +380,40 @@ public class ChatRoomTableDialog
 
     /**
      * Loads the rooms hosted on the selected provider.
+     * Loads it in different thread so it won't block the caller.
      */
     public void loadProviderRooms()
     {
-        List<String> rooms = GuiActivator.getUIService().getConferenceChatManager()
-            .getExistingChatRooms(getSelectedProvider());
+        new Thread()
+        {
+            @Override
+            public void run()
+            {
+                okButton.setEnabled(false);
+                roomsCombo.setEnabled(false);
 
-        roomsCombo.removeAllItems();
+                List<String> rooms = GuiActivator.getUIService()
+                    .getConferenceChatManager()
+                        .getExistingChatRooms(getSelectedProvider());
 
-        // if there is no room list comming from provider
-        if(rooms == null)
-            return;
+                roomsCombo.removeAllItems();
 
-        Collections.sort(rooms);
+                // if there is no room list comming from provider
+                if(rooms == null)
+                    return;
 
-        for(String room : rooms)
-            roomsCombo.addItem(room);
+                Collections.sort(rooms);
 
-        // select nothing
-        roomsCombo.setSelectedIndex(-1);
+                for(String room : rooms)
+                    roomsCombo.addItem(room);
+
+                // select nothing
+                roomsCombo.setSelectedIndex(-1);
+
+                roomsCombo.setEnabled(true);
+                okButton.setEnabled(true);
+            }
+        }.start();
     }
 
     /**
