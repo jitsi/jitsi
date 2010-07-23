@@ -1089,7 +1089,7 @@ public class ProtocolProviderServiceJabberImpl
                             eventDuringLogin = new RegistrationStateChangeEvent(
                                 ProtocolProviderServiceJabberImpl.this,
                                 getRegistrationState(),
-                                RegistrationState.CONNECTION_FAILED,
+                                RegistrationState.UNREGISTERED,
                                 RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS,
                                 "Connecting multiple times with the same resource");
                              return;
@@ -1097,7 +1097,7 @@ public class ProtocolProviderServiceJabberImpl
                     }
 
                     fireRegistrationStateChanged(getRegistrationState(),
-                        RegistrationState.CONNECTION_FAILED,
+                        RegistrationState.UNREGISTERED,
                         RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS,
                         "Connecting multiple times with the same resource");
                     return;

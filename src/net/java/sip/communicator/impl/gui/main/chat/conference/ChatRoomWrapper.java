@@ -199,7 +199,7 @@ public class ChatRoomWrapper
     {
         autoJoin = value;
 
-        if(!persistent)
+        if(!isPersistent())
             return;
 
         if(value)
