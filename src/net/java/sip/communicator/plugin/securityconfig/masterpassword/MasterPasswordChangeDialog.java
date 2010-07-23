@@ -192,10 +192,13 @@ public class MasterPasswordChangeDialog
 
         // OK and cancel buttons
         okButton = new JButton(resources.getI18NString("service.gui.OK"));
+        okButton.setMnemonic(resources.getI18nMnemonic("service.gui.OK"));
         okButton.addActionListener(this);
         okButton.setEnabled(false);
         cancelButton
             = new JButton(resources.getI18NString("service.gui.CANCEL"));
+        cancelButton.setMnemonic(resources.getI18nMnemonic(
+            "service.gui.CANCEL"));
         cancelButton.addActionListener(this);
 
         passwordQualityBar =

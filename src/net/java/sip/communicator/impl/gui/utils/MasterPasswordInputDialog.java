@@ -21,7 +21,8 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class MasterPasswordInputDialog
     extends SIPCommDialog
-    implements ActionListener
+    implements ActionListener,
+               KeyListener
 {
     /**
      * Instance of this class.
@@ -106,6 +107,7 @@ public class MasterPasswordInputDialog
 
         // password fields
         currentPasswdField = new JPasswordField(15);
+        currentPasswdField.addKeyListener(this);
         currentPasswdField.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent arg0)
@@ -118,13 +120,12 @@ public class MasterPasswordInputDialog
 
         // OK and cancel buttons
         okButton = new JButton(resources.getI18NString("service.gui.OK"));
-        okButton.setMnemonic(GuiActivator.getResources().getI18nMnemonic(
-            "service.gui.OK"));
+        okButton.setMnemonic(resources.getI18nMnemonic("service.gui.OK"));
         okButton.addActionListener(this);
 
         cancelButton =
             new JButton(resources.getI18NString("service.gui.CANCEL"));
-        cancelButton.setMnemonic(GuiActivator.getResources().getI18nMnemonic(
+        cancelButton.setMnemonic(resources.getI18nMnemonic(
             "service.gui.CANCEL"));
         cancelButton.addActionListener(this);
 
@@ -206,12 +207,47 @@ public class MasterPasswordInputDialog
 
     /**
      * Resets the password by clearing the input field and setting
-     * <tt>password</tt> to <tt>null</tt>.
+     * <tt>password</tt> to <tt>null</tt>. Disables the OK button.
      */
     private void resetPassword()
     {
         password = null;
         currentPasswdField.setText("");
         currentPasswdField.requestFocusInWindow();
+        okButton.setEnabled(false);
+    }
+
+    /**
+     * Disables OK button if the password input field is empty.
+     * 
+     * @param event key event
+     */
+    public void keyReleased(KeyEvent event)
+    {
+        JPasswordField source = (JPasswordField) event.getSource();
+        if (currentPasswdField.equals(source))
+        {
+            String password = new String(currentPasswdField.getPassword());
+            okButton.setEnabled(password.length() > 0);
+            password = null;
+        }
+    }
+
+    /**
+     * Not overriding.
+     * 
+     * @param arg0 key event
+     */
+    public void keyPressed(KeyEvent arg0)
+    {
+    }
+
+    /**
+     * Not overriding.
+     * 
+     * @param arg0 key event
+     */
+    public void keyTyped(KeyEvent arg0)
+    {
     }
 }
