@@ -79,7 +79,9 @@ public class ChatRoomTableModel
             OperationSetPresence presence
                 = provider.getProtocolProvider()
                     .getOperationSet(OperationSetPresence.class);
-            presence.addProviderPresenceStatusListener(this);
+
+            if(presence != null)
+                presence.addProviderPresenceStatusListener(this);
         }
     }
 
@@ -237,7 +239,9 @@ public class ChatRoomTableModel
             OperationSetPresence presence
                 = chatRoomWrapper.getParentProvider().getProtocolProvider()
                     .getOperationSet(OperationSetPresence.class);
-            presence.removeProviderPresenceStatusListener(this);
+
+            if(presence != null)
+                presence.removeProviderPresenceStatusListener(this);
 
             if (ix != -1)
             {
