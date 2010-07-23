@@ -199,8 +199,19 @@ public class ChatRoomWrapper
     {
         autoJoin = value;
 
+        // as the user wants to autojoin this room
+        // and it maybe already created as non persistent
+        // we must set it persistent and store it
         if(!isPersistent())
-            return;
+        {
+            setPersistent(true);
+
+            ConfigurationManager.saveChatRoom(
+                getParentProvider().getProtocolProvider(),
+                getChatRoomID(),
+                getChatRoomID(),
+                getChatRoomName());
+        }
 
         if(value)
         {
