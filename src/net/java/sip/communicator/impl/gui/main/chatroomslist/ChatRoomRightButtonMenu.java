@@ -7,10 +7,12 @@
 package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -29,7 +31,10 @@ public class ChatRoomRightButtonMenu
     extends JPopupMenu
     implements  ActionListener
 {
-    private final ChatRoomWrapper chatRoomWrapper;
+    /**
+     * The current chat room wrapper.
+     */
+    private ChatRoomWrapper chatRoomWrapper;
 
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
@@ -42,6 +47,10 @@ public class ChatRoomRightButtonMenu
 
         this.setLocation(getLocation());
 
+        createMenuItem(
+            "service.gui.OPEN",
+            ImageLoader.CHAT_ROOM_16x16_ICON,
+            "openChatRoom");
         JMenuItem joinChatRoomItem
             = createMenuItem(
                 "service.gui.JOIN",
@@ -76,6 +85,7 @@ public class ChatRoomRightButtonMenu
     /**
      * Handles the <tt>ActionEvent</tt>. Determines which menu item was
      * selected and makes the appropriate operations.
+     * @param e the event.
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -96,6 +106,38 @@ public class ChatRoomRightButtonMenu
         else if (itemName.equals("joinChatRoom"))
         {
             conferenceManager.joinChatRoom(chatRoomWrapper);
+        }
+        else if (itemName.equals("openChatRoom"))
+        {
+            if(chatRoomWrapper.getChatRoom() != null)
+            {
+                if(!chatRoomWrapper.getChatRoom().isJoined())
+                {
+                    conferenceManager.joinChatRoom(chatRoomWrapper);
+                }
+            }
+            else
+            {
+                // this is not a server persistent room we must create it
+                // and join
+                chatRoomWrapper =
+                    GuiActivator.getUIService().getConferenceChatManager()
+                        .createChatRoom(
+                            chatRoomWrapper.getChatRoomName(),
+                            chatRoomWrapper.getParentProvider()
+                                .getProtocolProvider(),
+                            new ArrayList<String>(),
+                            "",
+                            true,
+                            true);
+            }
+
+            ChatWindowManager chatWindowManager
+                = GuiActivator.getUIService().getChatWindowManager();
+            ChatPanel chatPanel
+                = chatWindowManager.getMultiChat(chatRoomWrapper, true);
+
+            chatWindowManager.openChat(chatPanel, true);
         }
         else if(itemName.equals("joinAsChatRoom"))
         {

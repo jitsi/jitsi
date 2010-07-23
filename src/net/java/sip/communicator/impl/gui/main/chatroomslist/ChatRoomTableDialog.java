@@ -51,11 +51,6 @@ public class ChatRoomTableDialog
     private JComboBox roomsCombo = null;
 
     /**
-     * Rooms of the currently selected provider.
-     */
-    private List<String> serverRooms = null;
-
-    /**
      * The add chat room button.
      */
     private JButton addButton = new JButton("+");
@@ -130,6 +125,9 @@ public class ChatRoomTableDialog
 
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
+        this.setTitle(GuiActivator.getResources()
+            .getI18NString("service.gui.MY_CHAT_ROOMS_TITLE"));
+
         this.init();
     }
 
@@ -143,38 +141,20 @@ public class ChatRoomTableDialog
         JPanel northPanel = new TransparentPanel(new BorderLayout(5, 5));
         northPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 5, 15));
 
-        JPanel labels = new TransparentPanel(new GridLayout(3, 2, 5, 5));
-
-        final JLabel jl_searchState = new JLabel(GuiActivator.getResources()
-            .getI18NString("service.gui.LOADING_ROOMS"),
-                JLabel.LEFT);
-        jl_searchState.setBorder(BorderFactory.createEmptyBorder(3, 7, 0, 0));
-        jl_searchState.setFont(
-           jl_searchState.getFont().deriveFont(Font.ITALIC, 11));
-        jl_searchState.setForeground(Color.DARK_GRAY);
-        jl_searchState.setVisible(false);
+        JPanel labels = new TransparentPanel(new GridLayout(2, 2, 5, 5));
         
         labels.add(new JLabel(GuiActivator.getResources()
             .getI18NString("service.gui.ACCOUNT")));
         labels.add(new JLabel(GuiActivator.getResources()
             .getI18NString("service.gui.CHAT_ROOM_NAME")));
-        labels.add(jl_searchState);
 
-        JPanel valuesPanel = new TransparentPanel(new GridLayout(3, 2, 5, 5));
+        JPanel valuesPanel = new TransparentPanel(new GridLayout(2, 2, 5, 5));
         providersCombo = createProvidersCombobox();
 
         roomsCombo = new JComboBox();
         roomsCombo.setEditable(true);
         roomsCombo.setPreferredSize(providersCombo.getPreferredSize());
         editor = ((JTextField)roomsCombo.getEditor().getEditorComponent());
-        // when enter is typed in the editor we query for available
-        // room names
-        editor.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e)
-            {
-                handleChange((JTextField)e.getSource());
-            }
-        });
 
         // when provider is changed we load providers rooms list
         // so we can show them in the combobox below
@@ -190,9 +170,7 @@ public class ChatRoomTableDialog
                     {
                         okButton.setEnabled(false);
                         roomsCombo.setEnabled(false);
-                        jl_searchState.setVisible(true);
                         loadProviderRooms();
-                        jl_searchState.setVisible(false);
                         roomsCombo.setEnabled(true);
                         okButton.setEnabled(true);
                     }
@@ -200,16 +178,8 @@ public class ChatRoomTableDialog
             }
         });
 
-        JLabel jl_indication = new JLabel(GuiActivator.getResources()
-            .getI18NString("service.gui.PRESS_ENTER_FOR_SUGGESTIONS"),
-            SwingConstants.RIGHT);
-        jl_indication.setFont(
-           jl_indication.getFont().deriveFont(Font.ITALIC, 11));
-        jl_indication.setForeground(Color.DARK_GRAY);
-
         valuesPanel.add(providersCombo);
         valuesPanel.add(roomsCombo);
-        valuesPanel.add(jl_indication);
 
         northPanel.add(labels, BorderLayout.WEST);
         northPanel.add(valuesPanel, BorderLayout.CENTER);
@@ -275,6 +245,26 @@ public class ChatRoomTableDialog
                 }                
             }
         });
+
+        //register listener to listen for newly added chat room providers
+        // and for removed ones
+        GuiActivator.getUIService().getConferenceChatManager()
+                .getChatRoomList().addChatRoomProviderWrapperListener(
+            new ChatRoomList.ChatRoomProviderWrapperListener()
+        {
+
+            public void chatRoomProviderWrapperAdded(
+                ChatRoomProviderWrapper provider)
+            {
+                providersCombo.addItem(provider);
+            }
+
+            public void chatRoomProviderWrapperRemoved(
+                ChatRoomProviderWrapper provider)
+            {
+                providersCombo.removeItem(provider);
+            }
+        });
     }
 
     /**
@@ -310,17 +300,14 @@ public class ChatRoomTableDialog
         {
             String chatRoomName = editor.getText();
 
-            if(serverRooms == null || !serverRooms.contains(chatRoomName))
-            {
-                GuiActivator.getUIService().getConferenceChatManager()
-                    .createChatRoom(
-                        chatRoomName,
-                        getSelectedProvider().getProtocolProvider(),
-                        new ArrayList<String>(),
-                        "",
-                        false,
-                        true);
-            }
+            GuiActivator.getUIService().getConferenceChatManager()
+                .createChatRoom(
+                    chatRoomName,
+                    getSelectedProvider().getProtocolProvider(),
+                    new ArrayList<String>(),
+                    "",
+                    false,
+                    true);
         }
         else if(sourceButton.equals(removeButton))
         {
@@ -399,56 +386,8 @@ public class ChatRoomTableDialog
     protected void close(boolean isEscaped)
     {
         chatRoomTableDialog = null;
-    }
 
-    /**
-     * Performs changes in the room name combo box when its editor content has
-     * changed.
-     * @param editor 
-     */
-    public void handleChange(final JTextField editor)
-    {
-        final String match = editor.getText();
-
-        if (!SwingUtilities.isEventDispatchThread())
-        {
-            SwingUtilities.invokeLater(new Runnable(){
-                public void run()
-                {
-                    handleChange(editor);
-                }
-            });
-
-            return;
-        }
-
-        roomsCombo.removeAllItems();
-
-        for(String room : getChatRoomList(match))
-            roomsCombo.addItem(room);
-
-        editor.setText(match);
-        roomsCombo.showPopup();
-    }
-
-    /**
-     * Updates the chat rooms list when a key change is performed in the search
-     * field. The new chat rooms list will contain all the chat rooms whose name
-     * start with search fields text value.
-     * @param match search for.
-     * @return the found rooms.
-     */
-    public Vector<String> getChatRoomList(String match)
-    {
-        Vector<String> rooms = new Vector<String>();
-
-        if(serverRooms != null)
-            for(String room : serverRooms)
-                if(room.startsWith(match))
-                   rooms.add(room);
-
-        Collections.sort(rooms);
-        return rooms;
+        dispose();
     }
 
     /**
@@ -456,8 +395,22 @@ public class ChatRoomTableDialog
      */
     public void loadProviderRooms()
     {
-        serverRooms = GuiActivator.getUIService().getConferenceChatManager()
+        List<String> rooms = GuiActivator.getUIService().getConferenceChatManager()
             .getExistingChatRooms(getSelectedProvider());
+
+        roomsCombo.removeAllItems();
+
+        // if there is no room list comming from provider
+        if(rooms == null)
+            return;
+
+        Collections.sort(rooms);
+
+        for(String room : rooms)
+            roomsCombo.addItem(room);
+
+        // select nothing
+        roomsCombo.setSelectedIndex(-1);
     }
 
     /**

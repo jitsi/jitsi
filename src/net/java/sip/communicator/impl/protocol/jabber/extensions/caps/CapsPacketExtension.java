@@ -80,6 +80,7 @@ public class CapsPacketExtension implements PacketExtension
                                String hash,
                                String ver)
     {
+        this.ext = ext;
         this.node = node;
         this.ver = ver;
         this.hash = hash;

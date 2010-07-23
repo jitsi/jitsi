@@ -37,7 +37,10 @@ public class ChatRoomTableModel
      * The column names for the table.
      */
     private final static String[] COLUMN_NAMES =
-        new String[]{"Room Name", "Account", "Autojoin"};
+        new String[]{
+        GuiActivator.getResources().getI18NString("service.gui.ROOM_NAME"),
+        GuiActivator.getResources().getI18NString("service.gui.ACCOUNT"),
+        GuiActivator.getResources().getI18NString("service.gui.AUTOJOIN")};
 
     /**
      * The current list of rooms.

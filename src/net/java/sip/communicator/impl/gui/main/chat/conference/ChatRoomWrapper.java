@@ -53,8 +53,9 @@ public class ChatRoomWrapper
     /**
      * By default all chat rooms are persistent from UI point of view.
      * But we can override this and force not saving it.
+     * If not overridden we query the wrapped room.
      */
-    private boolean persistent = true;
+    private Boolean persistent = null;
 
     /**
      * Creates a <tt>ChatRoomWrapper</tt> by specifying the protocol provider,
@@ -151,6 +152,14 @@ public class ChatRoomWrapper
      */
     public boolean isPersistent()
     {
+        if(persistent == null)
+        {
+            if(chatRoom != null)
+                persistent = chatRoom.isPersistent();
+            else
+                return true;
+        }
+
         return persistent;
     }
 

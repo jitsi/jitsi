@@ -457,5 +457,8 @@ public class ChatRoomConfigurationWindow
         this.dispose();
     }
 
-    protected void close(boolean isEscaped) {}
+    protected void close(boolean isEscaped)
+    {
+        this.dispose();
+    }
 }

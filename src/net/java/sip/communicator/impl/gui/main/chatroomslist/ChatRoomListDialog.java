@@ -167,5 +167,6 @@ public class ChatRoomListDialog
     @Override
     protected void close(boolean isEscaped)
     {
+        this.dispose();
     }
 }

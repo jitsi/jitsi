@@ -440,7 +440,7 @@ public class NewAccountDialog
      */
     protected void close(boolean isEscaped)
     {
-        newAccountDialog = null;
+        dispose();
     }
 
     /**

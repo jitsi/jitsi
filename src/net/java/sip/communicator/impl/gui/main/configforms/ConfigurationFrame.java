@@ -187,6 +187,7 @@ public class ConfigurationFrame
      */
     protected void close(boolean isEscaped)
     {
+        this.setVisible(false);
     }
 
     /**

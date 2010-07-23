@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -125,13 +126,21 @@ public class InvitationReceivedDialog
                 new String[] {  invitation.getInviter(),
                                 invitation.getTargetChatRoom().getName()}));
 
-        if(invitation.getReason() != null && !invitation.getReason().equals(""))
+        if(invitation.getReason() != null && invitation.getReason().length() > 0)
         {
-            invitationReasonTextArea.setText(invitation.getReason());
-            invitationReasonTextArea.setBorder(
+            this.invitationReasonTextArea.setLineWrap(true);
+            this.invitationReasonTextArea.setWrapStyleWord(true);
+            this.invitationReasonTextArea.setOpaque(false);
+            this.invitationReasonTextArea.setEditable(false);
+
+            TitledBorder border =
                 BorderFactory.createTitledBorder(
                     GuiActivator.getResources()
-                        .getI18NString("service.gui.INVITATION")));
+                        .getI18NString("service.gui.INVITATION"));
+            border.setTitleFont(border.getTitleFont().deriveFont(Font.BOLD));
+            invitationReasonTextArea.setBorder(border);
+
+            invitationReasonTextArea.setText(invitation.getReason());
 
             this.dataPanel.add(invitationReasonTextArea, BorderLayout.CENTER);
         }
@@ -244,6 +253,7 @@ public class InvitationReceivedDialog
     /**
      * Handles the <tt>ActionEvent</tt> triggered when one user clicks
      * on one of the buttons.
+     * @param e the event.
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -277,5 +287,7 @@ public class InvitationReceivedDialog
     }
 
     protected void close(boolean isEscaped)
-    {}
+    {
+        this.dispose();
+    }
 }

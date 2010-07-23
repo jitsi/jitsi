@@ -48,9 +48,6 @@ public class ChatRoomTableUI
      */
     public ChatRoomTableUI(ChatRoomTableDialog parentDialog)
     {
-        this.setPreferredSize(new Dimension(200, 450));
-        this.setMinimumSize(new Dimension(80, 200));
-
         this.initChatRoomList();
 
         this.setViewportView(chatRoomList);
@@ -80,10 +77,10 @@ public class ChatRoomTableUI
 
         confChatManager.addChatRoomListChangeListener(chatRoomsTableModel);
 
-        this.chatRoomList.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        this.chatRoomList.getColumnModel().getColumn(0).setMinWidth(250);
-        this.chatRoomList.getColumnModel().getColumn(1).setMinWidth(250);
-        this.chatRoomList.getColumnModel().getColumn(2).setPreferredWidth(50);
+//        this.chatRoomList.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+//        this.chatRoomList.getColumnModel().getColumn(0).setMinWidth(250);
+//        this.chatRoomList.getColumnModel().getColumn(1).setMinWidth(250);
+//        this.chatRoomList.getColumnModel().getColumn(2).setPreferredWidth(50);
     }
 
     /**

@@ -24,6 +24,9 @@ import org.osgi.framework.*;
  */
 public class ChatRoomList
 {
+    /**
+     * The logger.
+     */
     private static final Logger logger = Logger.getLogger(ChatRoomList.class);
 
     /**
@@ -31,6 +34,12 @@ public class ChatRoomList
      */
     private final List<ChatRoomProviderWrapper> providersList
         = new Vector<ChatRoomProviderWrapper>();
+
+    /**
+     * All ChatRoomProviderWrapperListener change listeners registered so far.
+     */
+    private List<ChatRoomProviderWrapperListener> providerChangeListeners
+        = new ArrayList<ChatRoomProviderWrapperListener>();
 
     /**
      * Initializes the list of chat rooms.
@@ -119,6 +128,8 @@ public class ChatRoomList
                 }
             }
         }
+
+        fireProviderWrapperAdded(chatRoomProvider);
     }
 
     /**
@@ -177,6 +188,8 @@ public class ChatRoomList
                 configService.setProperty(accountRootPropName, null);
             }
         }
+
+        fireProviderWrapperRemoved(chatRoomProvider);
     }
 
     /**
@@ -325,5 +338,79 @@ public class ChatRoomList
     public Iterator<ChatRoomProviderWrapper> getChatRoomProviders()
     {
         return providersList.iterator();
+    }
+
+    /**
+     * Adds a ChatRoomProviderWrapperListener to the listener list.
+     *
+     * @param listener the ChatRoomProviderWrapperListener to be added
+     */
+    public synchronized void addChatRoomProviderWrapperListener(
+        ChatRoomProviderWrapperListener listener)
+    {
+        providerChangeListeners.add(listener);
+    }
+
+    /**
+     * Removes a ChatRoomProviderWrapperListener from the listener list.
+     *
+     * @param listener the ChatRoomProviderWrapperListener to be removed
+     */
+    public synchronized void removeChatRoomProviderWrapperListener(
+        ChatRoomProviderWrapperListener listener)
+    {
+        providerChangeListeners.add(listener);
+    }
+
+    /**
+     * Fire that chat room provider wrapper was added.
+     * @param provider which was added.
+     */
+    private void fireProviderWrapperAdded(ChatRoomProviderWrapper provider)
+    {
+        if (providerChangeListeners != null)
+        {
+            for (ChatRoomProviderWrapperListener target : providerChangeListeners)
+            {
+                target.chatRoomProviderWrapperAdded(provider);
+            }
+        }
+    }
+
+    /**
+     * Fire that chat room provider wrapper was removed.
+     * @param provider which was removed.
+     */
+    private void fireProviderWrapperRemoved(ChatRoomProviderWrapper provider)
+    {
+        if (providerChangeListeners != null)
+        {
+            for (ChatRoomProviderWrapperListener target : providerChangeListeners)
+            {
+                target.chatRoomProviderWrapperRemoved(provider);
+            }
+        }
+    }
+
+    /**
+     * Listener which registers for provider add/remove changes.
+     */
+    public static interface ChatRoomProviderWrapperListener
+    {
+        /**
+         * When a provider wrapper is added this method is called to inform
+         * listeners.
+         * @param provider which was added.
+         */
+        public void chatRoomProviderWrapperAdded(
+            ChatRoomProviderWrapper provider);
+
+        /**
+         * When a provider wrapper is removed this method is called to inform
+         * listeners.
+         * @param provider which was removed.
+         */
+        public void chatRoomProviderWrapperRemoved(
+            ChatRoomProviderWrapper provider);
     }
 }

@@ -169,5 +169,6 @@ public class SendSmsDialog
     @Override
     protected void close(boolean isEscaped)
     {
+        this.dispose();
     }
 }
