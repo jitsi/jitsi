@@ -447,6 +447,9 @@ public class ChatRoomTableDialog
         {
             ChatRoomProviderWrapper provider = (ChatRoomProviderWrapper)value;
 
+            if(provider == null)
+                return this;
+
             if (isSelected)
             {
                 setBackground(list.getSelectionBackground());

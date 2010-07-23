@@ -151,6 +151,10 @@ public class GlobalProxyConfigForm
         table.setContentType("text/html");
         table.setEditable(false);
         table.setOpaque(false);
+
+        table.putClientProperty(
+            JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+
         table.setText(Resources.getString(
             "plugin.globalproxy.PROTOCOL_SUPPORT"));
         centerPanel.add(
@@ -159,7 +163,7 @@ public class GlobalProxyConfigForm
 
         add(centerPanel, BorderLayout.NORTH);
     }
-    
+
     /**
      * Loading the values stored onto configuration form
      */ 

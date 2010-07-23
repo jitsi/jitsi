@@ -13,7 +13,6 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -227,6 +226,12 @@ public class MainFrame
         this.setKeybindingInput(KeybindingSet.Category.MAIN);
         this.addKeybindingAction("main-rename",
                                 new RenameAction());
+
+        // Remove the default escape key mapping as its a special
+        // one for the main frame and the contactlist
+        getRootPane().getInputMap(
+            JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+                .remove(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
 
         TransparentPanel northPanel
             = new TransparentPanel(new BorderLayout(0, 0));

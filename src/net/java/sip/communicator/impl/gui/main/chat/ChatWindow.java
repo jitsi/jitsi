@@ -165,16 +165,6 @@ public class ChatWindow
         this.addKeybindingAction(   "chat-close",
                                     new CloseAction());
 
-        // simple fix adding meta+w on macosx
-        if (OSUtils.IS_MAC)
-        {
-            this.getRootPane().getInputMap(
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
-                    KeyStroke.getKeyStroke(
-                        KeyEvent.VK_W, InputEvent.META_DOWN_MASK),
-                        "chat-close");
-        }
-
         this.addWindowListener(new ChatWindowAdapter());
 
         int width = GuiActivator.getResources()

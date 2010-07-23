@@ -199,6 +199,23 @@ public class AboutWindow
         this.setResizable(false);
 
         setLocationRelativeTo(getParent());
+
+        this.getRootPane().getActionMap().put("close", new CloseAction());
+
+        InputMap imap = this.getRootPane().getInputMap(
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
+
+        if(OSUtils.IS_MAC)
+        {
+            imap.put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.META_DOWN_MASK),
+                "close");
+            imap.put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK),
+                "close");
+        }
     }
 
     /**
@@ -326,4 +343,16 @@ public class AboutWindow
      * Implementation of {@link ExportedWindow#setParams(Object[])}.
      */
     public void setParams(Object[] windowParams) {}
+
+    /**
+     * The action invoked when user presses Escape key.
+     */
+    private class CloseAction extends UIAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            setVisible(false);
+            dispose();
+        }
+    }
 }

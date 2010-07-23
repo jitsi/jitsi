@@ -144,8 +144,19 @@ public abstract class SIPCommDialog
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
+
+        // put the defaults for macosx
+        if(OSUtils.IS_MAC)
+        {
+            imap.put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.META_DOWN_MASK),
+                "close");
+            imap.put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK),
+                "close");
+        }
     }
-    
+
     /**
      * The action invoked when user presses Escape key.
      */
