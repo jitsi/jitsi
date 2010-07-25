@@ -144,12 +144,7 @@ public class SdpUtils
                 userName = "sip-communicator";
 
             Origin o = sdpFactory.createOrigin(
-                userName,
-                0,
-                0,
-                "IN",
-                addrType,
-                localAddress.getHostAddress());
+                userName, 0, 0, "IN", addrType, localAddress.getHostAddress());
 
             sessDescr.setOrigin(o);
 

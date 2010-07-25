@@ -39,8 +39,8 @@ public abstract class AbstractPacketExtension
     /**
      * A map of all attributes that this extension is currently using.
      */
-    private final Map<String, Object> attributes
-                                    = new LinkedHashMap<String, Object>();
+    private final Map<String, String> attributes
+                                    = new LinkedHashMap<String, String>();
 
     /**
      * The text content of this packet extension, if any.
@@ -101,25 +101,28 @@ public abstract class AbstractPacketExtension
             bldr.append("xmlns='" + getNamespace() + "'");
 
         //add the rest of the attributes if any
-        for(Map.Entry<String, Object> entry : attributes.entrySet())
+        for(Map.Entry<String, String> entry : attributes.entrySet())
         {
             bldr.append(" " + entry.getKey() + "='" + entry.getValue() + "'");
         }
 
         //add child elements if any
         List<? extends PacketExtension> childElements = getChildExtensions();
-
-        if(childElements == null || childElements.size() == 0)
+        synchronized(childElements)
         {
-            bldr.append("/>");
-            return bldr.toString();
-        }
-        else
-        {
-            bldr.append(">");
-            for(PacketExtension packExt : childElements)
+            if( (childElements == null || childElements.size() == 0)
+                && (getText() == null || getText().length() == 0))
             {
-                bldr.append(packExt.toXML());
+                bldr.append("/>");
+                return bldr.toString();
+            }
+            else
+            {
+                bldr.append(">");
+                for(PacketExtension packExt : childElements)
+                {
+                    bldr.append(packExt.toXML());
+                }
             }
         }
 
@@ -174,7 +177,7 @@ public abstract class AbstractPacketExtension
         synchronized(attributes)
         {
             if(value != null)
-                this.attributes.put(name, value);
+                this.attributes.put(name, value.toString());
             else
                 this.attributes.remove(name);
         }

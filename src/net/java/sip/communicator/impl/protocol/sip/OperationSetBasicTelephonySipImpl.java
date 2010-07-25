@@ -471,7 +471,13 @@ public class OperationSetBasicTelephonySipImpl
                         findCallPeer(clientTransaction.getDialog());
                 if (callPeer != null)
                 {
-                    callPeer.setState(CallPeerState.FAILED);
+                    String reasonPhrase = response.getReasonPhrase();
+
+                    if(reasonPhrase == null
+                       || reasonPhrase.trim().length() == 0)
+                        reasonPhrase = "Request terminated by server!";
+
+                    callPeer.setState(CallPeerState.FAILED, reasonPhrase);
                 }
                 processed = true;
             }
@@ -492,7 +498,8 @@ public class OperationSetBasicTelephonySipImpl
                     + " " + response.getReasonPhrase());
 
                 if (callPeer != null)
-                    callPeer.setState(CallPeerState.FAILED);
+                    callPeer.setState(CallPeerState.FAILED,
+                                    response.getReasonPhrase());
 
                 processed = true;
             }

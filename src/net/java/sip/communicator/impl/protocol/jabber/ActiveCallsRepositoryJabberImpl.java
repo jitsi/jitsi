@@ -65,4 +65,28 @@ public class ActiveCallsRepositoryJabberImpl
 
         return null;
     }
+
+    /**
+     * Returns the {@link CallPeerJabberImpl} whose jingle session has the
+     * specified jingle <tt>sid</tt>.
+     *
+     * @param sid the jingle <tt>sid</tt> we're looking for.
+     *
+     * @return the {@link CallPeerJabberImpl} with the specified <tt>sid</tt>
+     * or  tt>null</tt> if we couldn't find one matching it.
+     */
+    public CallPeerJabberImpl findCallPeer(String sid)
+    {
+        Iterator<CallJabberImpl> calls = getActiveCalls();
+
+        while (calls.hasNext())
+        {
+            CallJabberImpl call = calls.next();
+            CallPeerJabberImpl peer = call.getPeer(sid);
+            if ( peer != null )
+                return peer;
+        }
+
+        return null;
+    }
 }

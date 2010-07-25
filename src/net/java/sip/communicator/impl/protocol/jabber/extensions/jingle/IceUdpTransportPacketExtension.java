@@ -73,7 +73,7 @@ public class IceUdpTransportPacketExtension extends AbstractPacketExtension
      * @param namespace the XML namespace that the instance should belong to.
      * @param elementName the name of the element that we would be representing.
      */
-    protected IceUdpTransportPacketExtension(String namespace,
+    public IceUdpTransportPacketExtension(String namespace,
                                              String elementName)
     {
         super(namespace, elementName);

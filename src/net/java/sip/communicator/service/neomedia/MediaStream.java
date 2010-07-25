@@ -162,6 +162,18 @@ public interface MediaStream
     public void setTarget(MediaStreamTarget target);
 
     /**
+     * Returns the target of this <tt>MediaStream</tt> to which it is to send
+     * and from which it is to receive data (e.g. RTP) and control data (e.g.
+     * RTCP).
+     *
+     * @return the <tt>MediaStreamTarget</tt> describing the data
+     * (e.g. RTP) and the control data (e.g. RTCP) locations to which this
+     * <tt>MediaStream</tt> is to send and from which it is to receive
+     * @see MediaStream#setTarget(MediaStreamTarget)
+     */
+    public MediaStreamTarget getTarget();
+
+    /**
      * Adds a new association in this <tt>MediaStream</tt> of the specified RTP
      * payload type with the specified <tt>MediaFormat</tt> in order to allow it
      * to report <tt>rtpPayloadType</tt> in RTP flows sending and receiving

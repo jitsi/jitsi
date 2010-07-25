@@ -1215,6 +1215,21 @@ public class MediaStreamImpl
     }
 
     /**
+     * Returns the target of this <tt>MediaStream</tt> to which it is to send
+     * and from which it is to receive data (e.g. RTP) and control data (e.g.
+     * RTCP).
+     *
+     * @return the <tt>MediaStreamTarget</tt> describing the data
+     * (e.g. RTP) and the control data (e.g. RTCP) locations to which this
+     * <tt>MediaStream</tt> is to send and from which it is to receive
+     * @see MediaStream#setTarget(MediaStreamTarget)
+     */
+    public MediaStreamTarget getTarget()
+    {
+        return rtpConnectorTarget;
+    }
+
+    /**
      * Sets the target of this <tt>MediaStream</tt> to which it is to send and
      * from which it is to receive data (e.g. RTP) and control data (e.g. RTCP).
      *

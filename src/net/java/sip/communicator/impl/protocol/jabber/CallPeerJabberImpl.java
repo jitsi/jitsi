@@ -6,15 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.text.*;
 import java.util.*;
 
-import javax.sip.*;
-import javax.sip.header.*;
-import javax.sip.message.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -44,37 +38,22 @@ public class CallPeerJabberImpl
     private String peerJID = null;
 
     /**
-     * The call this peer belongs to.
-     */
-    private CallJabberImpl call;
-
-    /**
-     * The session ID of the Jingle session associated with this call.
-     */
-    private final String jingleSID;
-
-    /**
      * The {@link JingleIQ} that created the session that this call represents.
      */
-    private final JingleIQ sessionInitIQ;
+    private JingleIQ sessionInitIQ;
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the Jabber address of the new call peer.
      * @param owningCall the call that contains this call peer.
-     * @param sessInitIQ the {@link JingleIQ} that initiated that session
-     * represented by this peer.
      */
     public CallPeerJabberImpl(String         peerAddress,
-                              CallJabberImpl owningCall,
-                              JingleIQ       sessInitIQ)
+                              CallJabberImpl owningCall)
     {
         super(owningCall);
-        this.peerJID = peerAddress;
-        this.jingleSID = sessInitIQ.getSID();
-        this.sessionInitIQ = sessInitIQ;
 
+        this.peerJID = peerAddress;
         super.setMediaHandler( new CallPeerMediaHandlerJabberImpl(this) );
     }
 
@@ -117,9 +96,9 @@ public class CallPeerJabberImpl
      */
     public String getDisplayName()
     {
-        if (call != null)
+        if (getCall() != null)
         {
-            ProtocolProviderService pps = call.getProtocolProvider();
+            ProtocolProviderService pps = getCall().getProtocolProvider();
             OperationSetPresence opSetPresence
                 = pps.getOperationSet(OperationSetPresence.class);
 
@@ -141,11 +120,80 @@ public class CallPeerJabberImpl
      */
     public Contact getContact()
     {
-        ProtocolProviderService pps = call.getProtocolProvider();
+        ProtocolProviderService pps = getCall().getProtocolProvider();
         OperationSetPresence opSetPresence
             = pps.getOperationSet(OperationSetPresence.class);
 
         return opSetPresence.findContactByID(getAddress());
+    }
+
+    /**
+     * Processes the session initiation {@link JingleIQ} that we were created
+     * with, passing its content to the media handler and then sends either a
+     * "session-info/ringing" or a "session-terminate" response.
+     *
+     * @param sessionInitIQ The {@link JingleIQ} that created the session that
+     * we are handling here.
+     */
+    protected synchronized void processSessionInitiate(JingleIQ sessionInitIQ)
+    {
+        this.sessionInitIQ = sessionInitIQ;
+
+        // This is the SDP offer that came from the initial session-initiate,
+        //contrary to sip we we are guaranteed to have content because XEP-0166
+        //says: "A session consists of at least one content type at a time."
+        List<ContentPacketExtension> offer = sessionInitIQ.getContentList();
+
+        try
+        {
+            getMediaHandler().processOffer(offer);
+        }
+        catch(Exception exc)
+        {
+            logger.info("Failed to process an incoming session initiate", exc);
+
+            //send an error response;
+            JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
+                sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
+                sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
+                exc.getMessage());
+
+            setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
+            getProtocolProvider().getConnection().sendPacket(errResp);
+            return;
+        }
+
+        //send a ringing response
+        if (logger.isTraceEnabled())
+            logger.trace("will send ringing response: ");
+
+        JingleIQ ringing = JinglePacketFactory.createRinging(sessionInitIQ);
+        getProtocolProvider().getConnection().sendPacket(ringing);
+    }
+
+    /**
+     * Processes the session initiation {@link JingleIQ} that we were created
+     * with, passing its content to the media handler and then sends either a
+     * "session-info/ringing" or a "session-terminate" response.
+     *
+     * @throws OperationFailedException exception
+     */
+    protected synchronized void initiateSession()
+        throws OperationFailedException
+    {
+        //Create the media description that we'd like to send to the other side.
+        List<ContentPacketExtension> offer = getMediaHandler()
+            .createContentList(true);
+
+        //send a ringing response
+        if (logger.isTraceEnabled())
+            logger.trace("will send ringing response: ");
+
+        this.sessionInitIQ = JinglePacketFactory
+            .createSessionInitiate( getProtocolProvider().getOurJID(),
+                            this.peerJID, JingleIQ.generateSID(), offer);
+
+        getProtocolProvider().getConnection().sendPacket(sessionInitIQ);
     }
 
     /**
@@ -161,21 +209,21 @@ public class CallPeerJabberImpl
     public synchronized void answer()
         throws OperationFailedException
     {
-        // This is the SDP offer that came from the initial session-initiate,
-        //contrary to sip we we are guaranteed to have content because XEP-0166
-        //says: "A session consists of at least one content type at a time."
-        List<ContentPacketExtension> offer = sessionInitIQ.getContentList();
-
         List<ContentPacketExtension> answer
-                                    = getMediaHandler().processOffer(offer);
+                                    = getMediaHandler().generateSessionAccept();
 
         JingleIQ response = JinglePacketFactory.createSessionAccept(
                 sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
                 getJingleSID(), answer);
 
+        //send the packet first and start the stream later  in case the media
+        //relay needs to see it before letting hole punching techniques through.
+        getProtocolProvider().getConnection().sendPacket(response);
+        getMediaHandler().start();
+
         //tell everyone we are connecting so that the audio notifications would
         //stop
-        setState(CallPeerState.CONNECTING_INCOMING_CALL_WITH_MEDIA);
+        setState(CallPeerState.CONNECTED);
     }
 
     /**
@@ -210,19 +258,19 @@ public class CallPeerJabberImpl
             || CallPeerState.isOnHold(prevPeerState))
         {
             responseIQ = JinglePacketFactory.createBye(
-                provider.getOurJID(), peerJID, jingleSID);
+                provider.getOurJID(), peerJID, getJingleSID());
         }
         else if (CallPeerState.CONNECTING.equals(getState())
             || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(getState())
             || CallPeerState.ALERTING_REMOTE_SIDE.equals(getState()))
         {
             responseIQ = JinglePacketFactory.createCancel(
-                provider.getOurJID(), peerJID, jingleSID);
+                provider.getOurJID(), peerJID, getJingleSID());
         }
         else if (prevPeerState.equals(CallPeerState.INCOMING_CALL))
         {
             responseIQ = JinglePacketFactory.createBusy(
-                provider.getOurJID(), peerJID, jingleSID);
+                provider.getOurJID(), peerJID, getJingleSID());
         }
         else if (prevPeerState.equals(CallPeerState.BUSY)
                  || prevPeerState.equals(CallPeerState.FAILED))
@@ -246,6 +294,6 @@ public class CallPeerJabberImpl
      */
     public String getJingleSID()
     {
-        return jingleSID;
+        return sessionInitIQ.getSID();
     }
 }

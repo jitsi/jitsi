@@ -33,7 +33,7 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public abstract class MediaAwareCallPeer
-                          <T extends MediaAwareCall<?, ?, ?>,
+                          <T extends MediaAwareCall<?, ?, V>,
                            U extends CallPeerMediaHandler<?>,
                            V extends ProtocolProviderService>
     extends AbstractCallPeer<T, V>
@@ -111,7 +111,7 @@ public abstract class MediaAwareCallPeer
     public MediaAwareCallPeer(T owningCall)
     {
         this.call = owningCall;
-
+System.out.println("just set call to " + owningCall);
         //create the uid
         this.peerID = String.valueOf(System.currentTimeMillis())
                              + String.valueOf(hashCode());
@@ -190,6 +190,7 @@ public abstract class MediaAwareCallPeer
      */
     public void setCall(T call)
     {
+new Exception("setting call to " + call).printStackTrace();
         this.call = call;
     }
 
@@ -199,11 +200,9 @@ public abstract class MediaAwareCallPeer
      * @return a reference to the <tt>ProtocolProviderService</tt> that this
      * peer belongs to.
      */
-    @SuppressWarnings("unchecked")//i just can't handle all related refactoring
-                                  //now. feel free to take it.
     public V getProtocolProvider()
     {
-        return (V)this.getCall().getProtocolProvider();
+        return this.getCall().getProtocolProvider();
     }
 
     /**
@@ -861,5 +860,6 @@ public abstract class MediaAwareCallPeer
     protected void setMediaHandler(U mediaHandler)
     {
         this.mediaHandler = mediaHandler;
+System.out.println("opa MACP");
     }
 }

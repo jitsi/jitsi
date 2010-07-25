@@ -596,8 +596,6 @@ public class CallPeerMediaHandlerSipImpl
            getDynamicPayloadTypes(), getRtpExtensionsRegistry());
     }
 
-
-
     /**
      * Returns a <tt>URL</tt> pointing ta a location with call control
      * information for this peer or <tt>null</tt> if no such <tt>URL</tt> is

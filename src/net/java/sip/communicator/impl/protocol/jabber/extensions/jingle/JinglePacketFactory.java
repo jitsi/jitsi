@@ -178,4 +178,37 @@ public class JinglePacketFactory
 
         return sessionAccept;
     }
+
+    /**
+     * Creates a new {@link JingleIQ} with the <tt>session-initiate</tt> action.
+     *
+     * @param from
+     * @param to
+     * @param sid
+     * @param contentList
+     * @return
+     */
+    public static JingleIQ createSessionInitiate(
+                                    String                       from,
+                                    String                       to,
+                                    String                       sid,
+                                    List<ContentPacketExtension> contentList)
+    {
+        JingleIQ sessionInitiate = new JingleIQ();
+
+        sessionInitiate.setTo(to);
+        sessionInitiate.setFrom(from);
+        sessionInitiate.setInitiator(from);
+        sessionInitiate.setType(IQ.Type.SET);
+
+        sessionInitiate.setSID(sid);
+        sessionInitiate.setAction(JingleAction.SESSION_INITIATE);
+
+        for(ContentPacketExtension content : contentList)
+        {
+            sessionInitiate.addContent(content);
+        }
+
+        return sessionInitiate;
+    }
 }

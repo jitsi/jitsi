@@ -324,7 +324,7 @@ public class JingleUtils
         //extract the RTCP candidate
         CandidatePacketExtension rtcpCand = getFirstCandidate(content, 2);
 
-        InetSocketAddress rtcpTarget = null;
+        InetSocketAddress rtcpTarget;
         if( rtcpCand == null)
         {
             rtcpTarget = new InetSocketAddress(rtpAddress, rtpPort + 1);
@@ -345,7 +345,7 @@ public class JingleUtils
 
             //rtcp port
             int rtcpPort = rtcpCand.getPort();
-            rtpTarget = new InetSocketAddress(rtcpAddress, rtcpPort);
+            rtcpTarget = new InetSocketAddress(rtcpAddress, rtcpPort);
         }
 
         return new MediaStreamTarget(rtpTarget, rtcpTarget);
@@ -470,6 +470,8 @@ public class JingleUtils
         {
                 payloadType = ptRegistry.obtainPayloadTypeNumber(format);
         }
+
+        ptExt.setId(payloadType);
         ptExt.setName(format.getEncoding());
 
         if(format instanceof AudioMediaFormat)

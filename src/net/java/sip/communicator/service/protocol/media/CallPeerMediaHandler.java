@@ -12,6 +12,8 @@ import java.net.*;
 import java.util.*;
 import java.util.List;
 
+import sun.security.action.*;
+
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -201,6 +203,12 @@ public abstract class CallPeerMediaHandler<
     private boolean locallyOnHold = false;
 
     /**
+     * Indicates whether this handler has already started at least one of its
+     * streams, at least once.
+     */
+    private boolean isStarted = false;
+
+    /**
      * Contains all dynamic payload type mappings that have been made for this
      * call.
      */
@@ -340,6 +348,7 @@ public abstract class CallPeerMediaHandler<
     {
         this.peer = peer;
         this.zrtpController = zrtpController;
+System.out.println("opa cpmh");
     }
 
     /**
@@ -1332,7 +1341,7 @@ public abstract class CallPeerMediaHandler<
             //this is a reinit
         }
 
-        return  configureAndStartStream(
+        return  configureStream(
                     device, format, target, direction, rtpExtensions, stream);
     }
 
@@ -1360,13 +1369,12 @@ public abstract class CallPeerMediaHandler<
      * or connecting to the specified <tt>MediaDevice</tt> fails for some
      * reason.
      */
-    private MediaStream configureAndStartStream(
-                                            MediaDevice          device,
-                                            MediaFormat          format,
-                                            MediaStreamTarget    target,
-                                            MediaDirection       direction,
-                                            List<RTPExtension>   rtpExtensions,
-                                            MediaStream          stream)
+    private MediaStream configureStream( MediaDevice          device,
+                                         MediaFormat          format,
+                                         MediaStreamTarget    target,
+                                         MediaDirection       direction,
+                                         List<RTPExtension>   rtpExtensions,
+                                         MediaStream          stream)
            throws OperationFailedException
     {
         registerDynamicPTsWithStream(stream);
@@ -1396,18 +1404,6 @@ public abstract class CallPeerMediaHandler<
             zrtpControl.start(stream instanceof AudioMediaStream);
         }
 
-        if ( ! stream.isStarted())
-            stream.start();
-
-
-         // send empty packet to deblock some kind of RTP proxy to let just
-         // one user sends its video
-        if(stream instanceof VideoMediaStream
-           && getDirectionUserPreference(MediaType.VIDEO)
-                   == MediaDirection.RECVONLY)
-        {
-            sendHolePunchPacket(target);
-        }
         return stream;
     }
 
@@ -1552,7 +1548,7 @@ public abstract class CallPeerMediaHandler<
      * @throws OperationFailedException in case we failed to initialize our
      * connector.
      */
-    protected StreamConnector getStreamConnector(MediaType mediaType)
+    public StreamConnector getStreamConnector(MediaType mediaType)
         throws OperationFailedException
     {
         if (mediaType == MediaType.AUDIO)
@@ -1776,6 +1772,55 @@ public abstract class CallPeerMediaHandler<
     protected DynamicRTPExtensionsRegistry getRtpExtensionsRegistry()
     {
         return this.rtpExtensionsRegistry;
+    }
+
+    /**
+     * Returns <tt>true</tt> if this handler has already started at least one
+     * of its streams, at least once, and <tt>false</tt> otherwise.
+     *
+     * @return <tt>true</tt> if this handler has already started at least one
+     * of its streams, at least once, and <tt>false</tt> otherwise.
+     */
+    public boolean isStarted()
+    {
+        return isStarted;
+    }
+
+    /**
+     * Returns <tt>true</tt> if this handler has already started at least one
+     * of its streams, at least once, and <tt>false</tt> otherwise. If the
+     * handler is already started, this method has no effect.
+     *
+     * @throws IllegalStateException if this method is called without this
+     * handler having first seen a media description or having generate an
+     * offer.
+     */
+    public void start()
+        throws IllegalStateException
+    {
+        if(isStarted())
+            return;
+
+        MediaStream stream = getStream(MediaType.AUDIO);
+        if ( stream != null && !stream.isStarted()
+             && isLocalAudioTransmissionEnabled())
+        {
+            stream.start();
+        }
+
+        stream = getStream(MediaType.VIDEO);
+        if ( stream != null && !stream.isStarted())
+        {
+            stream.start();
+
+             // send empty packet to deblock some kind of RTP proxy to let just
+             // one user sends its video
+            if(stream instanceof VideoMediaStream
+               && !isLocalVideoTransmissionEnabled())
+            {
+                sendHolePunchPacket(stream.getTarget());
+            }
+        }
     }
 
     /**

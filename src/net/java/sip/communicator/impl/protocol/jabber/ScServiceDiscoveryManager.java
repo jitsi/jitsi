@@ -364,7 +364,7 @@ public class ScServiceDiscoveryManager
     public DiscoverInfo discoverInfo(String entityID)
         throws XMPPException
     {
-        return discoveryManager.discoverInfo(entityID, entityID);
+        return discoveryManager.discoverInfo(entityID);
     }
 
     /**

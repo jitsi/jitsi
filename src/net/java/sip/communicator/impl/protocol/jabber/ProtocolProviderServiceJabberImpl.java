@@ -905,7 +905,7 @@ public class ProtocolProviderServiceJabberImpl
                                            new JingleIQProvider());
 
             //initialize the telephony operation set
-/* disable until ready
+
             addSupportedOperationSet(
                 OperationSetBasicTelephony.class,
                 new OperationSetBasicTelephonyJabberImpl(this));
@@ -917,7 +917,7 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
-*/
+
 
             isInitialized = true;
         }
@@ -1387,5 +1387,37 @@ public class ProtocolProviderServiceJabberImpl
         }
 
         return jid;
+    }
+
+    /**
+     * Logs a specific message and associated <tt>Throwable</tt> cause as an
+     * error using the current <tt>Logger</tt> and then throws a new
+     * <tt>OperationFailedException</tt> with the message, a specific error code
+     * and the cause.
+     *
+     * @param message the message to be logged and then wrapped in a new
+     * <tt>OperationFailedException</tt>
+     * @param errorCode the error code to be assigned to the new
+     * <tt>OperationFailedException</tt>
+     * @param cause the <tt>Throwable</tt> that has caused the necessity to log
+     * an error and have a new <tt>OperationFailedException</tt> thrown
+     * @param logger the logger that we'd like to log the error <tt>message</tt>
+     * and <tt>cause</tt>.
+     *
+     * @throws OperationFailedException the exception that we wanted this method
+     * to throw.
+     */
+    public static void throwOperationFailedException( String    message,
+                                                      int       errorCode,
+                                                      Throwable cause,
+                                                      Logger    logger)
+        throws OperationFailedException
+    {
+        logger.error(message, cause);
+
+        if(cause == null)
+            throw new OperationFailedException(message, errorCode);
+        else
+            throw new OperationFailedException(message, errorCode, cause);
     }
 }

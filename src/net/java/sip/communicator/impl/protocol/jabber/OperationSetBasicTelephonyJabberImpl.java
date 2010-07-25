@@ -16,6 +16,7 @@ import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.packet.IQ.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smackx.packet.*;
 
@@ -168,9 +169,13 @@ public class OperationSetBasicTelephonyJabberImpl
         }
         else
         {
-            fullCalleeURI = protocolProvider.getConnection().
-                    getRoster().getPresence(calleeAddress).getFrom();
+            fullCalleeURI = protocolProvider.getConnection()
+                .getRoster().getPresence(calleeAddress).getFrom();
         }
+
+        /* in case we figure that calling people without a resource id is
+           impossible, we'll have to uncomment the following lines. keep in mind
+           that this would mean - no calls to pstn though
         if (fullCalleeURI.indexOf('/') < 0)
         {
             throw new OperationFailedException(
@@ -178,6 +183,7 @@ public class OperationSetBasicTelephonyJabberImpl
                     + "User " + calleeAddress + " is unknown to us."
                     , OperationFailedException.INTERNAL_ERROR);
         }
+        */
 
         try
         {
@@ -193,12 +199,10 @@ public class OperationSetBasicTelephonyJabberImpl
             else
             {
                 logger.info(calleeAddress + ": jingle not supported ??? ");
-                /* FIXME: this is only temporarily disabled
                 throw new OperationFailedException(
                         "Failed to create OutgoingJingleSession.\n"
                         + fullCalleeURI + " does not support jingle"
                         , OperationFailedException.INTERNAL_ERROR);
-                */
             }
         }
         catch (XMPPException ex)
@@ -207,7 +211,18 @@ public class OperationSetBasicTelephonyJabberImpl
         }
 
         //create the actual jingle call
-        return null;
+
+        CallJabberImpl call = new CallJabberImpl(this);
+try
+{
+        call.initiateSession(fullCalleeURI);
+}
+catch(Throwable t)
+{
+    t.printStackTrace();
+}
+
+        return call;
     }
 
     /**
@@ -429,6 +444,30 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     private void processJinglePacket(JingleIQ jingleIQ)
     {
+        if (jingleIQ.getType() == Type.ERROR)
+        {
+            CallPeerJabberImpl callPeer =
+                activeCallsRepository.findCallPeer(jingleIQ.getSID());
+
+            logger.error("Received error");
+            XMPPError error = jingleIQ.getError();
+            String message = "Remote party returned an error!";
+
+            if(error != null)
+            {
+                logger.error(" code=" + error.getCode()
+                                + " message=" + error.getMessage());
+
+                if (error.getMessage() != null)
+                    message = error.getMessage();
+            }
+
+            if (callPeer != null)
+                callPeer.setState(CallPeerState.FAILED, message);
+
+            return;
+        }
+
         JingleAction action = jingleIQ.getAction();
 
         if(action == JingleAction.SESSION_INITIATE)

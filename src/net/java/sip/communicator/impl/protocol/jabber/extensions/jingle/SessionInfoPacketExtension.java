@@ -19,7 +19,7 @@ public class SessionInfoPacketExtension extends AbstractPacketExtension
     /**
      * The name space for RTP description elements.
      */
-    public static final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:1:info";
+    public static final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:info:1";
 
     /**
      * The exact type of this info packet.

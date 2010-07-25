@@ -67,70 +67,81 @@ public class CallJabberImpl extends MediaAwareCall<
     public CallPeerJabberImpl processSessionInitiate(JingleIQ jingleIQ)
     {
         String remoteParty = jingleIQ.getInitiator();
-
+System.out.println("1");
         //according to the Jingle spec initiator may be null.
         if (remoteParty == null)
             remoteParty = jingleIQ.getFrom();
 
+System.out.println("2");
+CallPeerJabberImpl callPeer;
+try
+{
+        callPeer = new CallPeerJabberImpl(remoteParty, this);
 
-        CallPeerJabberImpl peer = createCallPeerFor(
-                            remoteParty, true, jingleIQ);
+        //before notifying about this call, make sure that it looks alright
+        callPeer.processSessionInitiate(jingleIQ);
 
-        //send a ringing response
-        try
-        {
-            if (logger.isTraceEnabled())
-                logger.trace("will send ringing response: ");
+        if( callPeer.getState() == CallPeerState.FAILED)
+            return null;
 
-            JingleIQ response = JinglePacketFactory.createRinging(jingleIQ);
-
-            parentOpSet.getProtocolProvider().getConnection()
-                .sendPacket(response);
-        }
-        catch (Exception ex)
-        {
-            logger.error("Error while trying to send a request", ex);
-            peer.setState(CallPeerState.FAILED,
-                "Internal Error: " + ex.getMessage());
-            return peer;
-        }
-
-        return peer;
-    }
-
-    /**
-     * Creates a new call peer associated with <tt>jingleIQ</tt>
-     *
-     * @param remoteParty the full jid of the remote party that the new peer
-     * will be representing.
-     * @param isIncoming indicates whether this is an incoming call (as opposed
-     * to a call that we've initiated locally).
-     * @param jingleIQ the IQ that initiated the session the new peer belongs
-     * to.
-     *
-     * @return a new instance of a <tt>CallPeerJabberImpl</tt>.
-     */
-    private CallPeerJabberImpl createCallPeerFor(String   remoteParty,
-                                                 boolean  isIncoming,
-                                                 JingleIQ jingleIQ)
-    {
-        CallPeerJabberImpl callPeer = new CallPeerJabberImpl(
-                            remoteParty, this, jingleIQ);
         addCallPeer(callPeer);
 
-        callPeer.setState( isIncoming
-                        ? CallPeerState.INCOMING_CALL
-                        : CallPeerState.INITIATING_CALL);
+        callPeer.setState( CallPeerState.INCOMING_CALL );
 
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.
         if(this.getCallPeerCount() == 1)
         {
-            parentOpSet.fireCallEvent( (isIncoming
-                                        ? CallEvent.CALL_RECEIVED
-                                        : CallEvent.CALL_INITIATED),
-                                        this);
+            parentOpSet.fireCallEvent( CallEvent.CALL_RECEIVED, this);
         }
+
+System.out.println("3");
+
+System.out.println("8");
+}
+catch(Throwable t)
+{
+t.printStackTrace();
+throw new RuntimeException(t);
+}
+        return callPeer;
+    }
+
+    /**
+     * Creates a <tt>CallPeerJabberImpl</tt> from <tt>calleeJID</tt> and sends
+     * them <tt>session-initiate</tt> IQ request.
+     *
+     * @param calleeJID the party that we would like to invite to this call.
+     *
+     * @return the newly created <tt>Call</tt> corresponding to
+     * <tt>calleeJID</tt>. All following state change events will be
+     * delivered through this call peer.
+     *
+     * @throws OperationFailedException  with the corresponding code if we fail
+     *  to create the call.
+     */
+    public CallPeerJabberImpl initiateSession(String calleeJID)
+        throws OperationFailedException
+    {
+        // create the session-initiate IQ
+        CallPeerJabberImpl callPeer = new CallPeerJabberImpl(calleeJID, this);
+
+        addCallPeer(callPeer);
+
+        callPeer.setState( CallPeerState.INITIATING_CALL);
+
+        // if this was the first peer we added in this call then the call is
+        // new and we also need to notify everyone of its creation.
+        if(this.getCallPeerCount() == 1)
+        {
+            parentOpSet.fireCallEvent( (CallEvent.CALL_INITIATED), this);
+        }
+
+        /* enable video if it is a videocall */
+        callPeer.getMediaHandler().setLocalVideoTransmissionEnabled(
+                                                            localVideoAllowed);
+
+        callPeer.initiateSession();
 
         return callPeer;
     }
@@ -153,5 +164,25 @@ public class CallJabberImpl extends MediaAwareCall<
         }
 
         return false;
+    }
+
+    /**
+     * Returns the peer whose corresponding session has the specified
+     * <tt>sid</tt>.
+     *
+     * @param sid the ID of the session whose peer we are looking for.
+     *
+     * @return the {@link CallPeerJabberImpl} with the specified jingle
+     * <tt>sid</tt> and <tt>null</tt> if no such peer exists in this call.
+     */
+    public CallPeerJabberImpl getPeer(String sid)
+    {
+        for(CallPeerJabberImpl peer : getCallPeersVector())
+        {
+            if (peer.getJingleSID().equals(sid))
+                return peer;
+        }
+
+        return null;
     }
 }

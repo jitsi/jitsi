@@ -99,12 +99,13 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
                     //we don't know how to handle this kind of extensions.
                     logger.fine("Could not add a provider for element "
                         + elementName + " from namespace " + namespace);
-                    continue;
                 }
-
-                PacketExtension childExtension
-                    = provider.parseExtension(parser);
-                packetExtension.addChildExtension(childExtension);
+                else
+                {
+                    PacketExtension childExtension
+                        = provider.parseExtension(parser);
+                    packetExtension.addChildExtension(childExtension);
+                }
             }
             if (eventType == XmlPullParser.END_TAG)
             {
@@ -112,6 +113,11 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
                 {
                     done = true;
                 }
+            }
+            if (eventType == XmlPullParser.TEXT)
+            {
+                String text = parser.getText();
+                packetExtension.setText(text);
             }
 
             if (logger.isLoggable(Level.FINEST))

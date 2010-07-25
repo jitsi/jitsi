@@ -66,6 +66,13 @@ public class JingleIQProvider implements IQProvider
             new DefaultPacketExtensionProvider
                 <ExtmapPacketExtension>(ExtmapPacketExtension.class));
 
+        //<zrtp-hash/> provider
+        providerManager.addExtensionProvider(
+            ZrtpHashPacketExtension.ELEMENT_NAME,
+            ZrtpHashPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider
+                <ZrtpHashPacketExtension>(ZrtpHashPacketExtension.class));
+
         //ice-udp transport
         providerManager.addExtensionProvider(
             IceUdpTransportPacketExtension.ELEMENT_NAME,

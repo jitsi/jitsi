@@ -151,7 +151,7 @@ public class ContentPacketExtension extends AbstractPacketExtension
      */
     public CreatorEnum getCreator()
     {
-        return (CreatorEnum)getAttribute(CREATOR_ATTR_NAME);
+        return CreatorEnum.valueOf(getAttributeAsString(CREATOR_ATTR_NAME));
     }
 
     /**
@@ -255,7 +255,7 @@ public class ContentPacketExtension extends AbstractPacketExtension
      */
     public SendersEnum getSenders()
     {
-        return (SendersEnum)getAttribute(SENDERS_ATTR_NAME);
+        return SendersEnum.valueOf( getAttributeAsString(SENDERS_ATTR_NAME) );
     }
 
     /**
@@ -268,6 +268,6 @@ public class ContentPacketExtension extends AbstractPacketExtension
      */
     public void setSenders(SendersEnum senders)
     {
-        setAttribute(SENDERS_ATTR_NAME, senders);
+        setAttribute(SENDERS_ATTR_NAME, senders.toString());
     }
 }

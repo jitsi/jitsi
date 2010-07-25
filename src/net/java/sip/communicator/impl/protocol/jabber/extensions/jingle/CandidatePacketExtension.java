@@ -345,7 +345,7 @@ public class CandidatePacketExtension extends AbstractPacketExtension
      */
     public void setType(CandidateType type)
     {
-        super.setAttribute(TYPE_ATTR_NAME, type.toString());
+        super.setAttribute(TYPE_ATTR_NAME, type);
     }
 
     /**
