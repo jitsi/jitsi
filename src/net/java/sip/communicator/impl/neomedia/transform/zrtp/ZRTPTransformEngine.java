@@ -1111,6 +1111,21 @@ public class ZRTPTransformEngine
     }
 
     /**
+     * Get the ZRTP Hello Hash data - separate strings.
+     * 
+     * @return String array containing the version string at offset 0, the Hello 
+     *         hash value as hex-digits at offset 1. Hello hash is available 
+     *         immediately after class instantiation. Retruns <code>null</code>
+     *         if ZRTP is not available.
+     */
+    public String[] getHelloHashSep() {
+        if (zrtpEngine != null)
+            return zrtpEngine.getHelloHashSep();
+        else
+            return null;
+    }
+    
+    /**
      * Gets the multistream params
      *
      * @return the multistream params
