@@ -12,8 +12,6 @@ import java.net.*;
 import java.util.*;
 import java.util.List;
 
-import sun.security.action.*;
-
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -1368,12 +1366,12 @@ public abstract class CallPeerMediaHandler<
      * or connecting to the specified <tt>MediaDevice</tt> fails for some
      * reason.
      */
-    private MediaStream configureStream( MediaDevice          device,
-                                         MediaFormat          format,
-                                         MediaStreamTarget    target,
-                                         MediaDirection       direction,
-                                         List<RTPExtension>   rtpExtensions,
-                                         MediaStream          stream)
+    protected MediaStream configureStream( MediaDevice          device,
+                                           MediaFormat          format,
+                                           MediaStreamTarget    target,
+                                           MediaDirection       direction,
+                                           List<RTPExtension>   rtpExtensions,
+                                           MediaStream          stream)
            throws OperationFailedException
     {
         registerDynamicPTsWithStream(stream);
@@ -1412,7 +1410,7 @@ public abstract class CallPeerMediaHandler<
      *
      * @param target <tt>MediaStreamTarget</tt>
      */
-    private void sendHolePunchPacket(MediaStreamTarget target)
+    protected void sendHolePunchPacket(MediaStreamTarget target)
     {
         if (logger.isInfoEnabled())
             logger.info("Try to open port on NAT if any");

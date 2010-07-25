@@ -703,4 +703,65 @@ public class CallPeerMediaHandlerSipImpl
                         message, errorCode, cause, logger);
     }
 
+    /**
+     * Our parent method configures <tt>stream</tt> to use the specified
+     * <tt>format</tt>, <tt>target</tt>, <tt>target</tt>, and
+     * <tt>direction</tt>. It also used to start it but we changed that because
+     * in jabber stream configuration and starting are decoupled. We'll
+     * eventually decouple them here too but until we get there we temporarily
+     * override the parent method and make it behave like it previously used to.
+     * This way we'll always start a stream when we configure it, until we
+     * implement ICE for SIP and change that. At that point we should also make
+     * this method private (or rather the one in the parent), as well as the
+     * super{@link #sendHolePunchPacket(MediaStreamTarget)}.
+     *
+     * @param device the <tt>MediaDevice</tt> to be used by <tt>stream</tt>
+     * for capture and playback
+     * @param format the <tt>MediaFormat</tt> that we'd like the new stream
+     * to transmit in.
+     * @param target the <tt>MediaStreamTarget</tt> containing the RTP and
+     * RTCP address:port couples that the new stream would be sending
+     * packets to.
+     * @param direction the <tt>MediaDirection</tt> that we'd like the new
+     * stream to use (i.e. sendonly, sendrecv, recvonly, or inactive).
+     * @param rtpExtensions the list of <tt>RTPExtension</tt>s that should be
+     * enabled for this stream.
+     * @param stream the <tt>MediaStream</tt> that we'd like to configure.
+     *
+     * @return the <tt>MediaStream</tt> that we received as a parameter (for
+     * convenience reasons).
+     *
+     * @throws OperationFailedException if setting the <tt>MediaFormat</tt>
+     * or connecting to the specified <tt>MediaDevice</tt> fails for some
+     * reason.
+     */
+    @Override
+    protected MediaStream configureStream( MediaDevice          device,
+                                           MediaFormat          format,
+                                           MediaStreamTarget    target,
+                                           MediaDirection       direction,
+                                           List<RTPExtension>   rtpExtensions,
+                                           MediaStream          stream)
+           throws OperationFailedException
+    {
+        super.configureStream(device, format, target,
+                        direction, rtpExtensions, stream);
+
+        //the reason we have this temporary method is so that we could start
+        //the streams, so here we go.
+        if ( ! stream.isStarted())
+            stream.start();
+
+
+         // send empty packet to deblock some kind of RTP proxy to let just
+         // one user sends its video
+        if(stream instanceof VideoMediaStream
+           && getDirectionUserPreference(MediaType.VIDEO)
+                   == MediaDirection.RECVONLY)
+        {
+            sendHolePunchPacket(target);
+        }
+
+        return stream;
+    }
 }
