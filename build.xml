@@ -317,6 +317,14 @@
         </delete>
     </target>
 
+    <!-- clean-bundles -->
+    <target name="clean-bundles"
+        description="Remove all existing bundles">
+        <delete failonerror="false" includeemptydirs="true">
+            <fileset dir="${bundles.dest}"/>
+        </delete>
+    </target>
+
     <!-- internal target - removes the current set of test reports, so
          residual data is not left to confuse a cached browser -->
     <target name="clean-test-reports">
@@ -738,8 +746,8 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="${java.net.preferIPv6Addresses}"/>
 
-            <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-                    value="${user.home}"/ -->
+            <!-- sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                    value="${user.home}/schome" -->
 
              <sysproperty key="smack.debugEnabled"
                  value="${smack.debugEnabled}"/>
