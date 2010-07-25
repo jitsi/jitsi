@@ -483,6 +483,30 @@ catch(Throwable t)
         {
 
         }
+        else if (action == JingleAction.SESSION_INFO)
+        {
+            SessionInfoPacketExtension info = (SessionInfoPacketExtension)
+                jingleIQ.getExtension(SessionInfoPacketExtension.NAMESPACE);
+
+            if(info == null)
+                return;
+
+            if( info.getType() == SessionInfoType.ringing)
+            {
+                CallPeerJabberImpl callPeer =
+                    activeCallsRepository.findCallPeer(jingleIQ.getSID());
+
+                if (callPeer == null)
+                {
+                    if (logger.isDebugEnabled())
+                        logger.debug("Received a stray trying response.");
+                    return;
+                }
+
+                // change status.
+                callPeer.setState(CallPeerState.ALERTING_REMOTE_SIDE);
+            }
+        }
     }
 
     /**
