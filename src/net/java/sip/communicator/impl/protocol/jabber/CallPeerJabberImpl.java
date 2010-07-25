@@ -302,7 +302,6 @@ public class CallPeerJabberImpl
     public void processSessionTerminate(JingleIQ jingleIQ)
     {
         String reasonStr = "Call ended by remote side.";
-
         ReasonPacketExtension reasonExt = jingleIQ.getReason();
 
         if(reasonStr != null)
@@ -310,19 +309,54 @@ public class CallPeerJabberImpl
             Reason reason = reasonExt.getReason();
 
             if(reason != null)
-            {
                 reasonStr += " Reason: " + reason.toString() + ".";
-            }
 
             String text = reasonExt.getText();
 
             if(text != null)
-            {
                 reasonStr += " " + text;
-            }
-
         }
 
         setState(CallPeerState.DISCONNECTED, reasonStr);
+    }
+
+    /**
+     * Processes the session initiation {@link JingleIQ} that we were created
+     * with, passing its content to the media handler and then sends either a
+     * "session-info/ringing" or a "session-terminate" response.
+     *
+     * @param sessionInitIQ The {@link JingleIQ} that created the session that
+     * we are handling here.
+     */
+    public void processSessionAccept(JingleIQ sessionInitIQ)
+    {
+        this.sessionInitIQ = sessionInitIQ;
+
+        List<ContentPacketExtension> offer = sessionInitIQ.getContentList();
+
+        try
+        {
+            getMediaHandler().processAnswer(offer);
+        }
+        catch(Exception exc)
+        {
+            logger.info("Failed to process a session-accept", exc);
+
+            //send an error response;
+            JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
+                sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
+                sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
+                exc.getMessage());
+
+            setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
+            getProtocolProvider().getConnection().sendPacket(errResp);
+            return;
+        }
+
+        //tell everyone we are connecting so that the audio notifications would
+        //stop
+        setState(CallPeerState.CONNECTED);
+
+        getMediaHandler().start();
     }
 }

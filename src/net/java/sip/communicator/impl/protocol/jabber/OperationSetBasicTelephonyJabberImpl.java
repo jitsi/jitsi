@@ -491,7 +491,7 @@ catch(Throwable t)
         }
         else if(action == JingleAction.SESSION_ACCEPT)
         {
-
+            callPeer.processSessionAccept(jingleIQ);
         }
         else if (action == JingleAction.SESSION_INFO)
         {

@@ -623,11 +623,6 @@ public class CallPeerMediaHandlerSipImpl
         this.callInfoURL = callInfolURL;
     }
 
-
-
-
-
-
     /**
      * Returns the <tt>InetAddress</tt> that is most likely to be to be used
      * as a next hop when contacting the specified <tt>destination</tt>. This is
