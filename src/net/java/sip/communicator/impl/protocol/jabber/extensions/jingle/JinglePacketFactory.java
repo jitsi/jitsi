@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
+import java.util.*;
+
 import org.jivesoftware.smack.packet.*;
 
 /**
@@ -146,17 +148,18 @@ public class JinglePacketFactory
      * @param to the destination JID
      * @param sid the ID of the Jingle session that this message will be
      * terminating.
-     * @param content the content element containing media and transport
+     * @param contentList the content elements containing media and transport
      * descriptions.
      *
      * @return the newly constructed {@link JingleIQ} <tt>session-terminate</tt>
      * packet.
      * .
      */
-    public static JingleIQ createSessionAccept( String                 from,
-                                                String                 to,
-                                                String                 sid,
-                                                ContentPacketExtension content)
+    public static JingleIQ createSessionAccept(
+                                    String                       from,
+                                    String                       to,
+                                    String                       sid,
+                                    List<ContentPacketExtension> contentList)
     {
         JingleIQ sessionAccept = new JingleIQ();
 
@@ -168,7 +171,10 @@ public class JinglePacketFactory
         sessionAccept.setSID(sid);
         sessionAccept.setAction(JingleAction.SESSION_ACCEPT);
 
-        sessionAccept.addContent(content);
+        for(ContentPacketExtension content : contentList)
+        {
+            sessionAccept.addContent(content);
+        }
 
         return sessionAccept;
     }

@@ -74,7 +74,7 @@ public class CallJabberImpl extends MediaAwareCall<
 
 
         CallPeerJabberImpl peer = createCallPeerFor(
-                            remoteParty, true, jingleIQ.getSID());
+                            remoteParty, true, jingleIQ);
 
         //send a ringing response
         try
@@ -105,16 +105,17 @@ public class CallJabberImpl extends MediaAwareCall<
      * will be representing.
      * @param isIncoming indicates whether this is an incoming call (as opposed
      * to a call that we've initiated locally).
-     * @param jingleSID the ID of the session that the new peer belongs to.
+     * @param jingleIQ the IQ that initiated the session the new peer belongs
+     * to.
      *
      * @return a new instance of a <tt>CallPeerJabberImpl</tt>.
      */
-    private CallPeerJabberImpl createCallPeerFor(String  remoteParty,
-                                                 boolean isIncoming,
-                                                 String  jingleSID)
+    private CallPeerJabberImpl createCallPeerFor(String   remoteParty,
+                                                 boolean  isIncoming,
+                                                 JingleIQ jingleIQ)
     {
         CallPeerJabberImpl callPeer = new CallPeerJabberImpl(
-                            remoteParty, this, jingleSID);
+                            remoteParty, this, jingleIQ);
         addCallPeer(callPeer);
 
         callPeer.setState( isIncoming

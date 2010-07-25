@@ -88,7 +88,7 @@ public class CallPeerMediaHandlerJabberImpl
      *
      * @param offer the offer that we'd like to parse, handle and get an answer
      * for.
-     * @return the session description answer reflecting the media conversation
+     * @return the session description answers reflecting the media conversation
      * that this handler is ready to engage in.
      *
      * @throws OperationFailedException if we have a problem satisfying the
@@ -97,8 +97,10 @@ public class CallPeerMediaHandlerJabberImpl
      * @throws IllegalArgumentException if there's a problem with
      * <tt>offer</tt>'s format or semantics.
      */
-    public ContentPacketExtension processOffer(
+    public List<ContentPacketExtension> processOffer(
                                             List<ContentPacketExtension> offer)
+        throws OperationFailedException,
+               IllegalArgumentException
     {
         // prepare to generate answers to all the incoming descriptions
         List<ContentPacketExtension> answerDescriptions
@@ -152,12 +154,12 @@ public class CallPeerMediaHandlerJabberImpl
             int targetDataPort = target.getDataAddress().getPort();
 
             if (supportedFormats.isEmpty()
-                    || (devDirection == MediaDirection.INACTIVE)
-                    || (targetDataPort == 0))
+                || (devDirection == MediaDirection.INACTIVE)
+                || (targetDataPort == 0))
             {
-                // mark stream as dead and go on bravely
-                answerDescriptions.add(JingleUtils
-                                .createDisablingAnswer(mediaDescription));
+                // skip stream and continue. contrary to sip we don't seem to
+                // need to send per-stream disabling answer and only one at the
+                //end.
 
                 //close the stream in case it already exists
                 closeStream(mediaType);
@@ -171,13 +173,19 @@ public class CallPeerMediaHandlerJabberImpl
                       direction, rtpExtensions);
 
             // create the answer description
-            answerDescriptions.add(createMediaDescription(
-                mutuallySupportedFormats, connector, direction, rtpExtensions));
+            answerDescriptions.add(JingleUtils.createDescription(
+                content.getCreator(), content.getName(), content.getSenders(),
+                mutuallySupportedFormats, rtpExtensions,
+                getDynamicPayloadTypes(), getRtpExtensionsRegistry()));
 
             atLeastOneValidDescription = true;
-
         }
 
-        return null;
+        if (!atLeastOneValidDescription)
+            throw new OperationFailedException("Offer contained no media "
+                            + " formats or no valid media descriptions.",
+                            OperationFailedException.ILLEGAL_ARGUMENT);
+
+        return answerDescriptions;
     }
 }

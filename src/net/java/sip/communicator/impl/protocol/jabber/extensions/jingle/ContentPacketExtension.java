@@ -155,6 +155,25 @@ public class ContentPacketExtension extends AbstractPacketExtension
     }
 
     /**
+     * Sets the value of the creator argument. The creator argument indicates
+     * which party originally generated the content type and is used to prevent
+     * race conditions regarding modifications; the defined values are
+     * "initiator" and "responder" (where the default is "initiator"). The value
+     * of the 'creator' attribute for a given content type MUST always match
+     * the party that originally generated the content type, even for Jingle
+     * actions that are sent by the other party in relation to that content
+     * type (e.g., subsequent content-modify or transport-info messages). The
+     * combination of the 'creator' attribute and the 'name' attribute is
+     * unique among both parties to a Jingle session.
+     *
+     * @param creator the value of this content's creator argument.
+     */
+    public void setCreator(CreatorEnum creator)
+    {
+        setAttribute(CREATOR_ATTR_NAME, creator);
+    }
+
+    /**
      * Returns the value of the disposition argument if it exists or
      * <tt>null</tt> if it doesn't. The disposition argument indicates how the
      * content definition is to be interpreted by the recipient. The meaning of
@@ -169,6 +188,23 @@ public class ContentPacketExtension extends AbstractPacketExtension
     public String getDisposition()
     {
         return getAttributeAsString(DISPOSITION_ATTR_NAME);
+    }
+
+    /**
+     * Sets the value of the disposition argument if it exists or
+     * <tt>null</tt> if it doesn't. The disposition argument indicates how the
+     * content definition is to be interpreted by the recipient. The meaning of
+     * this attribute matches the <tt>"Content-Disposition"</tt> header as
+     * defined in RFC 2183 and applied to SIP by RFC 3261. The value of this
+     * attribute SHOULD be one of the values registered in the IANA Mail
+     * Content Disposition Values and Parameters Registry. The default value of
+     * this attribute is "session".
+     *
+     * @param disposition the value of this content's disposition argument.
+     */
+    public void setDisposition(String disposition)
+    {
+        setAttribute(DISPOSITION_ATTR_NAME, disposition);
     }
 
     /**
@@ -191,6 +227,25 @@ public class ContentPacketExtension extends AbstractPacketExtension
     }
 
     /**
+     * Sets the value of the name argument if it exists or
+     * <tt>null</tt> if it doesn't. The name argument is a unique identifier
+     * for the content type according to the creator, which MAY have meaning to
+     * a human user in order to differentiate this content type from other
+     * content types (e.g., two content types containing video media could
+     * differentiate between "room-pan" and "slides"). If there are two content
+     * types with the same value for the 'name' attribute, they shall understood
+     * as alternative definitions for the same purpose (e.g., a legacy method
+     * and a standards-based method for establishing a voice call), typically
+     * to smooth the transition from an older technology to Jingle.
+     *
+     * @param name the value of this content's <tt>name</tt> argument.
+     */
+    public void setName(String name)
+    {
+        setAttribute(NAME_ATTR_NAME, name);
+    }
+
+    /**
      * Returns the value of the senders argument which indicates the parties
      * that will be generating content in this session; the allowable values
      * are defined in the <tt>SendersEnum</tt>.
@@ -201,5 +256,18 @@ public class ContentPacketExtension extends AbstractPacketExtension
     public SendersEnum getSenders()
     {
         return (SendersEnum)getAttribute(SENDERS_ATTR_NAME);
+    }
+
+    /**
+     * Sets the value of the senders argument which indicates the parties
+     * that will be generating content in this session; the allowable values
+     * are defined in the <tt>SendersEnum</tt>.
+     *
+     * @param senders a {@link SendersEnum} instance indicating the the parties
+     * that will be generating content in this session.
+     */
+    public void setSenders(SendersEnum senders)
+    {
+        setAttribute(SENDERS_ATTR_NAME, senders);
     }
 }

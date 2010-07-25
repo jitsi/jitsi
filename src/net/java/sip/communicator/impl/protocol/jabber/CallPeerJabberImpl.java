@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.text.*;
+import java.util.*;
 
 import javax.sip.*;
 import javax.sip.header.*;
@@ -163,10 +164,10 @@ public class CallPeerJabberImpl
         // This is the SDP offer that came from the initial session-initiate,
         //contrary to sip we we are guaranteed to have content because XEP-0166
         //says: "A session consists of at least one content type at a time."
-        ContentPacketExtension offer = sessionInitIQ
-            .getContentForType(RtpDescriptionPacketExtension.class);
+        List<ContentPacketExtension> offer = sessionInitIQ.getContentList();
 
-        ContentPacketExtension answer = getMediaHandler().processOffer(offer);
+        List<ContentPacketExtension> answer
+                                    = getMediaHandler().processOffer(offer);
 
         JingleIQ response = JinglePacketFactory.createSessionAccept(
                 sessionInitIQ.getTo(), sessionInitIQ.getFrom(),

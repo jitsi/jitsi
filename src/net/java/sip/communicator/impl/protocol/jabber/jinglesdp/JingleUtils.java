@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 import static net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.*;
@@ -161,6 +162,49 @@ public class JingleUtils
         }
 
         return extensionsList;
+    }
+
+    /**
+     * Converts the specified media <tt>direction</tt> into the corresponding
+     * {@link SendersEnum} value so that we could add it to a content element.
+     * The <tt>initiatorPerspectice</tt> allows callers to specify whether the
+     * direction is to be considered from the session initator's perspective
+     * or that of the responder.
+     * <p>
+     * Example: A {@link MediaDirection#SENDONLY} value would be translated to
+     * {@link SendersEnum#initiator} from the initiator's perspective and to
+     * {@link SendersEnum#responder} otherwise.
+     *
+     * @param direction the {@link MediaDirection} that we'd like to translate.
+     * @param initiatorPerspective <tt>true</tt> if the <tt>direction</tt> param
+     * is to be considered from the initiator's perspective and <tt>false</tt>
+     * otherwise.
+     *
+     * @return one of the <tt>MediaDirection</tt> values indicating the
+     * direction of the media steam described by <tt>content</tt>.
+     */
+    public static SendersEnum getSenders(MediaDirection direction,
+                                         boolean   initiatorPerspective)
+    {
+        if (direction ==  MediaDirection.SENDRECV)
+            return SendersEnum.both;
+        if (direction ==  MediaDirection.INACTIVE)
+            return SendersEnum.none;
+
+        if(initiatorPerspective)
+        {
+            if(direction == MediaDirection.SENDONLY)
+                return SendersEnum.initiator;
+            else // recvonly
+                return SendersEnum.responder;
+        }
+        else
+        {
+            if(direction == MediaDirection.SENDONLY)
+                return SendersEnum.responder;
+            else // recvonly
+                return SendersEnum.initiator;
+        }
     }
 
     /**
@@ -342,6 +386,98 @@ public class JingleUtils
         }
 
         return null;
+    }
+
+    /**
+     * Creates a new {@link ContentPacketExtension} instance according to the
+     * specified <tt>formats</tt>, <tt>connector</tt> and <tt>direction</tt>,
+     * and using the <tt>dynamicPayloadTypes</tt> registry to handle dynamic
+     * payload type registrations. The type (e.g. audio/video) of the media
+     * description is determined via from the type of the first
+     * {@link MediaFormat} in the <tt>formats</tt> list.
+     *
+     * @param creator indicates whether the person who originally created this
+     * content was the initiator or the responder of the jingle session
+     * @param contentName the name of the content element as indicator by the
+     * creator or, in case we are the creators: as we'd like it to be.
+     * @param formats the list of formats that should be advertised in the newly
+     * created content extension.
+     * @param senders indicates the direction of the media in this stream.
+     * @param rtpExtensions a list of <tt>RTPExtension</tt>s supported by the
+     * <tt>MediaDevice</tt> that we will be advertising.
+     * @param dynamicPayloadTypes a reference to the
+     * <tt>DynamicPayloadTypeRegistry</tt> that we should be using to lookup
+     * and register dynamic RTP mappings.
+     * @param rtpExtensionsRegistry a reference to the
+     * <tt>DynamicRTPExtensionRegistry</tt> that we should be using to lookup
+     * and register URN to ID mappings.
+     *
+     * @return the newly create SDP <tt>MediaDescription</tt>.
+     */
+    public static ContentPacketExtension createDescription(
+                            CreatorEnum                  creator,
+                            String                       contentName,
+                            SendersEnum                  senders,
+                            List<MediaFormat>            formats,
+                            List<RTPExtension>           rtpExtensions,
+                            DynamicPayloadTypeRegistry   dynamicPayloadTypes,
+                            DynamicRTPExtensionsRegistry rtpExtensionsRegistry)
+    {
+        ContentPacketExtension content = new ContentPacketExtension();
+        RtpDescriptionPacketExtension description
+                                    = new RtpDescriptionPacketExtension();
+
+        content.setCreator(creator);
+        content.setName(contentName);
+
+        //senders - ony if we have them and if they are different from default
+        if(senders != null && senders != SendersEnum.both)
+            content.setSenders(senders);
+
+        //RTP description
+        content.addChildExtension(description);
+        description.setMedia(formats.get(0).getMediaType().toString());
+
+        //now fill in the RTP description
+        for(MediaFormat fmt : formats)
+        {
+            description.addPayloadType(
+                            formatToPayloadType(fmt, dynamicPayloadTypes));
+        }
+
+        return content;
+    }
+
+    /**
+     * Converts <tt>format</tt> into a {@link PayloadTypePacketExtension} instance.
+     *
+     * @param format the {@link MediaFormat} we'd like to convert.
+     * @param ptRegistry the {@link DynamicPayloadTypeRegistry} to use for
+     * formats that don't have a static pt number.
+     *
+     * @return the newly created {@link PayloadTypePacketExtension} that
+     * contains <tt>format</tt>'s parameters.
+     */
+    public static PayloadTypePacketExtension formatToPayloadType(
+                                        MediaFormat               format,
+                                        DynamicPayloadTypeRegistry ptRegistry)
+    {
+        PayloadTypePacketExtension ptExt = new PayloadTypePacketExtension();
+
+        int payloadType = format.getRTPPayloadType();
+
+        if (payloadType == MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN)
+        {
+                payloadType = ptRegistry.obtainPayloadTypeNumber(format);
+        }
+        ptExt.setName(format.getEncoding());
+
+        if(format instanceof AudioMediaFormat)
+            ptExt.setChannels(((AudioMediaFormat)format).getChannels());
+
+        ptExt.setClockrate((int)format.getClockRate());
+
+        return ptExt;
     }
 
 }
