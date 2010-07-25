@@ -654,10 +654,11 @@ public class ProtocolProviderServiceJabberImpl
         //during feature registration so we'd better do it here so that
         //our first presence update would contain a caps with the right
         //features.
-        String name = System.getProperty("sip-communicator.application.name",
-                        "SIP Communicator ");
-
-        name += System.getProperty("sip-communicator.version","SVN");
+        String name
+            = System.getProperty(
+                    "sip-communicator.application.name",
+                    "SIP Communicator ")
+                + System.getProperty("sip-communicator.version","SVN");
 
         ServiceDiscoveryManager.setIdentityName(name);
 
@@ -670,7 +671,7 @@ public class ProtocolProviderServiceJabberImpl
         discoveryManager.removeFeature(
             "http://jabber.org/protocol/commands");
 
-        // Add features the SIP Communicator supports in plus of smack.
+        // Add features SIP Communicator supports in addition to smack.
         for(String feature : supportedFeatures)
         {
             if (!discoveryManager.includesFeature(feature))
@@ -689,7 +690,7 @@ public class ProtocolProviderServiceJabberImpl
             connection.disconnect();
             connectionListener = null;
             connection = null;
-            // make it null as it also holds reference to the old connection
+            // make it null as it also holds a reference to the old connection
             // will be created again on new connection
             discoveryManager = null;
         }
@@ -872,7 +873,7 @@ public class ProtocolProviderServiceJabberImpl
                 OperationSetInstantMessageTransform.class,
                 new OperationSetInstantMessageTransformImpl());
 
-            // Include features we're supporting in plus of the four that
+            // Include features we're supporting in addition to the four
             // included by smack itself:
             // http://jabber.org/protocol/si/profile/file-transfer
             // http://jabber.org/protocol/si
@@ -1194,7 +1195,7 @@ public class ProtocolProviderServiceJabberImpl
      * @return <code>true</code> if the list of features is supported, otherwise
      * returns <code>false</code>
      */
-    public boolean isFeatureListSupported(String jid, String[] features)
+    public boolean isFeatureListSupported(String jid, String... features)
     {
         boolean isFeatureListSupported = true;
 
@@ -1236,7 +1237,7 @@ public class ProtocolProviderServiceJabberImpl
      */
     public boolean isFeatureSupported(String jid, String feature)
     {
-        return isFeatureListSupported(jid, new String[]{feature});
+        return isFeatureListSupported(jid, feature);
     }
 
     /**

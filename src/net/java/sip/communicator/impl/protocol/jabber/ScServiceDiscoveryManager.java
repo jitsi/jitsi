@@ -34,8 +34,8 @@ public class ScServiceDiscoveryManager
      * The <tt>Logger</tt> used by the <tt>ScServiceDiscoveryManager</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger = Logger
-                    .getLogger(ScServiceDiscoveryManager.class.getName());
+    private static final Logger logger
+        = Logger.getLogger(ScServiceDiscoveryManager.class);
 
     /**
      * A flag that indicates whether we are currently storing non-caps
@@ -51,7 +51,7 @@ public class ScServiceDiscoveryManager
      * currently unused. we'll start using this when we start querying for
      * client capabilities.
      */
-    private Map<String, DiscoverInfo> nonCapsCache
+    private final Map<String, DiscoverInfo> nonCapsCache
         = new ConcurrentHashMap<String, DiscoverInfo>();
 
     /**
@@ -119,7 +119,6 @@ public class ScServiceDiscoveryManager
 
         connection.addPacketInterceptor(this, capsPacketFilter);
 
-
         initFeatures();
     }
 
@@ -143,7 +142,6 @@ public class ScServiceDiscoveryManager
             discoveryManager.addFeature(feature);
         }
         updateEntityCapsVersion();
-
     }
 
     /**
@@ -325,9 +323,9 @@ public class ScServiceDiscoveryManager
     }
 
     /**
-     * Returns a list of the indentities defined in the node. For
-     * example, the x-command protocol must provide an identity of
-     * category automation and type command-node for each command.
+     * Returns a list of the identities defined in the node. For example, the
+     * x-command protocol must provide an identity of category automation and
+     * type command-node for each command.
      *
      * @return a list of the Identities defined in the node.
      */
@@ -433,7 +431,8 @@ public class ScServiceDiscoveryManager
      */
     public boolean supportsFeature(String jid, String feature)
     {
-        DiscoverInfo info = null;
+        DiscoverInfo info;
+
         try
         {
             info = this.discoverInfo(jid);
@@ -445,9 +444,6 @@ public class ScServiceDiscoveryManager
             return false;
         }
 
-        if(info != null && info .containsFeature(feature))
-            return true;
-        else
-            return false;
+        return ((info != null) && info.containsFeature(feature));
     }
 }

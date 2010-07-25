@@ -13,13 +13,13 @@ package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.io.*;
 
-import com.jcraft.jsch.*;
-
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger;
 
+import com.jcraft.jsch.*;
+
 /**
- *
  * @author Shobhit Jindal
  */
 public class SSHFileTransferDaemon
@@ -246,21 +246,16 @@ public class SSHFileTransferDaemon
         opSetPersPresence.changeContactPresenceStatus(
                 sshContact,
                 oldStatus);
-        
     }
     
     /**
      * Check for error in reading stream of remote machine
      *
-     * @return 0 for success
-     * @return 1 for error
-     * @return 2 for fatal error
-     * @return -1 otherwise
-     *
+     * @return 0 for success, 1 for error, 2 for fatal error, -1 otherwise
      * @throws IOException when the network goes down
      */
     private int checkAck(InputStream inputStream)
-    throws IOException
+        throws IOException
     {
         int result = inputStream.read();
         
@@ -278,12 +273,16 @@ public class SSHFileTransferDaemon
                 buffer.append((char)ch);
                 
             }while(ch != '\n');
-            
-            ppService.getUIService().getPopupDialog().showMessagePopupDialog(
-                    buffer.toString(),
-                    "File Transfer Error: " + sshContact.getDisplayName(),
-                    ppService.getUIService().getPopupDialog().ERROR_MESSAGE);
-            
+
+            ProtocolProviderServiceSSHImpl
+                .getUIService()
+                    .getPopupDialog()
+                        .showMessagePopupDialog(
+                            buffer.toString(),
+                            "File Transfer Error: "
+                                + sshContact.getDisplayName(),
+                            PopupDialog.ERROR_MESSAGE);
+
             logger.error(buffer.toString());
         }
         
@@ -458,8 +457,5 @@ public class SSHFileTransferDaemon
                 instantMessaging.createMessage(
                 this.file.getName() + " downloaded from Server"),
                 sshContact);
-        
-        
     }
-    
 }

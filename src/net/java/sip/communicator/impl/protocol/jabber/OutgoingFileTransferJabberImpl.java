@@ -231,16 +231,17 @@ public class OutgoingFileTransferJabberImpl
                 return;
 
             ThumbnailIQ thumbnailIQ = (ThumbnailIQ) packet;
+            String thumbnailIQCid = thumbnailIQ.getCid();
+            XMPPConnection connection = protocolProvider.getConnection();
 
-            if (thumbnailIQ.getCid() != null
-                && thumbnailIQ.getCid().equals(thumbnailElement.getCid()))
+            if ((thumbnailIQCid != null)
+                    && thumbnailIQCid.equals(thumbnailElement.getCid()))
             {
                 ThumbnailedFile thumbnailedFile = (ThumbnailedFile) file;
-
                 ThumbnailIQ thumbnailResponse = new ThumbnailIQ(
                     thumbnailIQ.getTo(),
                     thumbnailIQ.getFrom(),
-                    thumbnailIQ.getCid(),
+                    thumbnailIQCid,
                     thumbnailedFile.getThumbnailMimeType(),
                     thumbnailedFile.getThumbnailData(),
                     IQ.Type.RESULT);
@@ -249,18 +250,15 @@ public class OutgoingFileTransferJabberImpl
                     logger.debug("Send thumbnail response to the receiver: "
                         + thumbnailResponse.toXML());
 
-                protocolProvider.getConnection()
-                    .sendPacket(thumbnailResponse);
+                connection.sendPacket(thumbnailResponse);
             }
             else
             {
                 // RETURN <item-not-found/>
             }
 
-            if (protocolProvider.getConnection() != null)
-            {
-                protocolProvider.getConnection().removePacketListener(this);
-            }
+            if (connection != null)
+                connection.removePacketListener(this);
         }
     }
 }

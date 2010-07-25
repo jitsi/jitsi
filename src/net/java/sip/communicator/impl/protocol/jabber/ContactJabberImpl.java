@@ -25,12 +25,6 @@ public class ContactJabberImpl
     private String jid = null;
 
     /**
-     * Determines whether or not this Contact instance represents the user used
-     * by this protocol provider to connect to the service.
-     */
-    private boolean isLocal = false;
-
-    /**
      * The image of the contact.
      */
     private byte[] image = null;
@@ -45,7 +39,7 @@ public class ContactJabberImpl
      * A reference to the ServerStoredContactListImpl
      * instance that created us.
      */
-    private ServerStoredContactListJabberImpl ssclCallback = null;
+    private final ServerStoredContactListJabberImpl ssclCallback;
 
     /**
      * Whether or not this contact is being stored by the server.
@@ -61,7 +55,7 @@ public class ContactJabberImpl
     /**
      * Used to store contact id when creating unresolved contacts.
      */
-    private String tempId = null;
+    private final String tempId;
 
     /**
      * The current status message of this contact.
@@ -86,6 +80,7 @@ public class ContactJabberImpl
         if(rosterEntry != null)
             this.jid = rosterEntry.getUser();
 
+        this.tempId = null;
         this.ssclCallback = ssclCallback;
         this.isPersistent = isPersistent;
         this.isResolved = isResolved;
@@ -137,7 +132,8 @@ public class ContactJabberImpl
      */
     public boolean isLocal()
     {
-        return isLocal;
+        // TODO Auto-generated method stub
+        return false;
     }
 
     /**

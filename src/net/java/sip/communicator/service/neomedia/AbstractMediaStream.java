@@ -74,7 +74,9 @@ public abstract class AbstractMediaStream
      * @param encoding
      * @param clockRate
      * @param channels
-     * @return
+     * @return <tt>true</tt> if the specified <tt>format</tt> has specific
+     * values for its properties <tt>mediaType</tt>, <tt>encoding</tt>,
+     * <tt>clockRate</tt> and <tt>channels</tt>; otherwise, <tt>false</tt>
      */
     public static boolean matches(
             MediaFormat format,

@@ -14,7 +14,8 @@ import java.util.*;
  *
  * @author Sebastien Vincent
  */
-public class RTCPFeedbackEvent extends EventObject
+public class RTCPFeedbackEvent
+    extends EventObject
 {
     /**
      * Transport layer type (payload type).

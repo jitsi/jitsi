@@ -10,7 +10,6 @@ import java.io.*;
 import java.util.*;
 
 import javax.media.*;
-import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
@@ -46,6 +45,10 @@ public class EncodingConfiguration
      */
     public static final boolean G729 = false;
 
+    /**
+     * The name of the class implementing the Speex resampler which is to
+     * override the default JMF resampler.
+     */
     private static final String SPEEX_RESAMPLER
         = "net.java.sip.communicator.impl.neomedia.codec.audio.speex.SpeexResampler";
 

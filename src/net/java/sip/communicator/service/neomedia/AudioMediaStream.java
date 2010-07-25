@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.service.neomedia;
 
-import net.java.sip.communicator.impl.neomedia.audiolevel.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 
 /**
