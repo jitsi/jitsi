@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -18,9 +19,10 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  * @author Symphorien Wanko
  */
-public class CallJabberImpl
-    extends AbstractCall<CallPeerJabberImpl, ProtocolProviderServiceJabberImpl>
-    implements CallPeerListener
+public class CallJabberImpl extends MediaAwareCall<
+    CallPeerJabberImpl,
+    OperationSetBasicTelephony<ProtocolProviderServiceJabberImpl>,
+    ProtocolProviderServiceJabberImpl>
 {
     /**
      * Logger of this class
@@ -45,7 +47,7 @@ public class CallJabberImpl
     protected CallJabberImpl(
                         OperationSetBasicTelephonyJabberImpl parentOpSet)
     {
-        super(parentOpSet.getProtocolProvider());
+        super(parentOpSet);
         this.parentOpSet = parentOpSet;
 
         //let's add ourselves to the calls repo. we are doing it ourselves just
@@ -53,150 +55,6 @@ public class CallJabberImpl
         parentOpSet.getActiveCallsRepository().addCall(this);
     }
 
-
-    ////////// legacy methods ///////////////
-    /**
-     * Adds <tt>callPeer</tt> to the list of peers in this call.
-     * If the call peer is already included in the call, the method has
-     * no effect.
-     *
-     * @param callPeer the new <tt>CallPeer</tt>
-     */
-    public void addCallPeer(CallPeerJabberImpl callPeer)
-    {
-        if(getCallPeersVector().contains(callPeer))
-            return;
-
-        callPeer.addCallPeerListener(this);
-
-        getCallPeersVector().add(callPeer);
-        fireCallPeerEvent( callPeer, CallPeerEvent.CALL_PEER_ADDED);
-    }
-
-    /**
-     * Removes <tt>callPeer</tt> from the list of peers in this
-     * call. The method has no effect if there was no such peer in the
-     * call.
-     *
-     * @param callPeer the <tt>CallPeer</tt> leaving the call;
-     */
-    public void removeCallPeer(CallPeerJabberImpl callPeer)
-    {
-        if(!getCallPeersVector().contains(callPeer))
-            return;
-
-        getCallPeersVector().remove(callPeer);
-        callPeer.setCall(null);
-        callPeer.removeCallPeerListener(this);
-
-        fireCallPeerEvent(
-            callPeer, CallPeerEvent.CALL_PEER_REMOVED);
-
-        if(getCallPeersVector().size() == 0)
-            setCallState(CallState.CALL_ENDED);
-    }
-
-    /**
-     * Dummy implementation of a method (inherited from CallPeerListener)
-     * that we don't need.
-     *
-     * @param evt unused.
-     */
-    public void peerImageChanged(CallPeerChangeEvent evt)
-    {}
-
-    /**
-     * Dummy implementation of a method (inherited from CallPeerListener)
-     * that we don't need.
-     *
-     * @param evt unused.
-     */
-    public void peerAddressChanged(CallPeerChangeEvent evt)
-    {}
-
-    /**
-     * Dummy implementation of a method (inherited from CallPeerListener)
-     * that we don't need.
-     *
-     * @param evt unused.
-     */
-    public void peerTransportAddressChanged(
-                                    CallPeerChangeEvent evt)
-    {}
-
-
-    /**
-     * Dummy implementation of a method (inherited from CallPeerListener)
-     * that we don't need.
-     *
-     * @param evt unused.
-     */
-    public void peerDisplayNameChanged(CallPeerChangeEvent evt)
-    {}
-
-    /**
-     * Verifies whether the call peer has entered a state.
-     *
-     * @param evt The <tt>CallPeerChangeEvent</tt> instance containing
-     * the source event as well as its previous and its new status.
-     */
-    public void peerStateChanged(CallPeerChangeEvent evt)
-    {
-        if(((CallPeerState)evt.getNewValue())
-                     == CallPeerState.DISCONNECTED
-            || ((CallPeerState)evt.getNewValue())
-                     == CallPeerState.FAILED)
-        {
-            removeCallPeer(
-                (CallPeerJabberImpl)evt.getSourceCallPeer());
-        }
-        else if (((CallPeerState)evt.getNewValue())
-                     == CallPeerState.CONNECTED
-                && getCallState().equals(CallState.CALL_INITIALIZATION))
-        {
-            setCallState(CallState.CALL_IN_PROGRESS);
-        }
-    }
-
-    /**
-     * Gets the indicator which determines whether the local peer represented by
-     * this <tt>Call</tt> is acting as a conference focus and thus should send
-     * the &quot;isfocus&quot; parameter in the Contact headers of its outgoing
-     * SIP signaling.
-     *
-     * @return <tt>true</tt> if the local peer represented by this <tt>Call</tt>
-     * is acting as a conference focus; otherwise, <tt>false</tt>
-     */
-    public boolean isConferenceFocus()
-    {
-        return false;
-    }
-
-    /**
-     * Adds a specific <tt>SoundLevelListener</tt> to the list of
-     * listeners interested in and notified about changes in local sound level
-     * related information.
-     * @param l the <tt>SoundLevelListener</tt> to add
-     */
-    public void addLocalUserSoundLevelListener(
-        SoundLevelListener l)
-    {
-
-    }
-
-    /**
-     * Removes a specific <tt>SoundLevelListener</tt> of the list of
-     * listeners interested in and notified about changes in local sound level
-     * related information.
-     * @param l the <tt>SoundLevelListener</tt> to remove
-     */
-    public void removeLocalUserSoundLevelListener(
-        SoundLevelListener l)
-    {
-
-    }
-
-    ////////////////////////////////////// NEW METHODS ///////////////////////////////////////////////////////
 
     /**
      * Creates a new call peer and sends a RINGING response.

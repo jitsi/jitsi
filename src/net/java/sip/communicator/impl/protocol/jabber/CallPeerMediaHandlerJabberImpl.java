@@ -7,7 +7,13 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.net.*;
+import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.device.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 
@@ -27,8 +33,7 @@ public class CallPeerMediaHandlerJabberImpl
      */
     public CallPeerMediaHandlerJabberImpl(CallPeerJabberImpl peer)
     {
-        //TODO - callpeer jabber impl should implement otr listeenr
-        super(peer, null);
+        super(peer, peer);
     }
 
     /**
@@ -50,6 +55,7 @@ public class CallPeerMediaHandlerJabberImpl
                     Throwable cause) throws OperationFailedException
     {
         // TODO Auto-generated method stub - implement
+        throw new OperationFailedException(message, errorCode, cause);
     }
 
     /**
@@ -71,6 +77,107 @@ public class CallPeerMediaHandlerJabberImpl
     protected InetAddress getIntendedDestination(CallPeerJabberImpl peer)
     {
         /* TODO implement */
+        return null;
+    }
+
+    /**
+     * Parses and handles the specified <tt>offer</tt> and returns a content
+     * extension representing the current state of this media handler. This
+     * method MUST only be called when <tt>offer</tt> is the first session
+     * description that this <tt>MediaHandler</tt> is seeing.
+     *
+     * @param offer the offer that we'd like to parse, handle and get an answer
+     * for.
+     * @return the session description answer reflecting the media conversation
+     * that this handler is ready to engage in.
+     *
+     * @throws OperationFailedException if we have a problem satisfying the
+     * description received in <tt>offer</tt> (e.g. failed to open a device or
+     * initialize a stream ...).
+     * @throws IllegalArgumentException if there's a problem with
+     * <tt>offer</tt>'s format or semantics.
+     */
+    public ContentPacketExtension processOffer(
+                                            List<ContentPacketExtension> offer)
+    {
+        // prepare to generate answers to all the incoming descriptions
+        List<ContentPacketExtension> answerDescriptions
+                        = new ArrayList<ContentPacketExtension>(offer.size());
+
+        boolean atLeastOneValidDescription = false;
+
+        for (ContentPacketExtension content : offer)
+        {
+            RtpDescriptionPacketExtension description
+                                    = JingleUtils.getRtpDescription(content);
+            MediaType mediaType = MediaType.valueOf( description.getMedia() );
+
+            List<MediaFormat> supportedFormats = JingleUtils.extractFormats(
+                            description, getDynamicPayloadTypes());
+
+            MediaDevice dev = getDefaultDevice(mediaType);
+
+            MediaDirection devDirection = (dev == null)
+                                                      ? MediaDirection.INACTIVE
+                                                      : dev.getDirection();
+
+            // Take the preference of the user with respect to streaming
+            // mediaType into account.
+            devDirection
+                = devDirection.and(getDirectionUserPreference(mediaType));
+
+            // determine the direction that we need to announce.
+            MediaDirection remoteDirection = JingleUtils.getDirection(content);
+            MediaDirection direction = devDirection
+                            .getDirectionForAnswer(remoteDirection);
+
+            // intersect the MediaFormats of our device with remote ones
+            List<MediaFormat> mutuallySupportedFormats
+                = intersectFormats(supportedFormats, dev.getSupportedFormats());
+
+            // check whether we will be exchanging any RTP extensions.
+            List<RTPExtension> offeredRTPExtensions
+                    = JingleUtils.extractRTPExtensions(
+                            description, this.getRtpExtensionsRegistry());
+
+            List<RTPExtension> supportedExtensions
+                    = getExtensionsForType(mediaType);
+
+            List<RTPExtension> rtpExtensions = intersectRTPExtensions(
+                            offeredRTPExtensions, supportedExtensions);
+
+            // stream target
+            MediaStreamTarget target
+                = JingleUtils.extractDefaultTarget(content);
+            int targetDataPort = target.getDataAddress().getPort();
+
+            if (supportedFormats.isEmpty()
+                    || (devDirection == MediaDirection.INACTIVE)
+                    || (targetDataPort == 0))
+            {
+                // mark stream as dead and go on bravely
+                answerDescriptions.add(JingleUtils
+                                .createDisablingAnswer(mediaDescription));
+
+                //close the stream in case it already exists
+                closeStream(mediaType);
+                continue;
+            }
+
+            StreamConnector connector = getStreamConnector(mediaType);
+
+            // create the corresponding stream...
+            initStream(connector, dev, supportedFormats.get(0), target,
+                      direction, rtpExtensions);
+
+            // create the answer description
+            answerDescriptions.add(createMediaDescription(
+                mutuallySupportedFormats, connector, direction, rtpExtensions));
+
+            atLeastOneValidDescription = true;
+
+        }
+
         return null;
     }
 }

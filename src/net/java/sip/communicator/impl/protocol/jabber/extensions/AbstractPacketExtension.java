@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions;
 
+import java.net.*;
 import java.util.*;
 
 import org.jivesoftware.smack.packet.*;
@@ -239,20 +240,51 @@ public abstract class AbstractPacketExtension
      * @return the <tt>int</tt> value of the specified <tt>attribute</tt> or
      * <tt>-1</tt> if no such attribute is currently registered with this
      * extension.
-     *
-     * @throws ClassCastException if <tt>attribute</tt> is not registered as an
-     * <tt>int</tt>.
      */
     public int getAttributeAsInt(String attribute)
-        throws ClassCastException
     {
         synchronized(attributes)
         {
-            Object attributeVal = attributes.get(attribute);
+            String attributeVal = getAttributeAsString(attribute);
 
             return attributeVal == null
                 ? -1
-                : ((Integer)attributeVal).intValue();
+                : Integer.parseInt(attributeVal);
+        }
+    }
+
+    /**
+     * Tries to parse the value of the specified <tt>attribute</tt> as an
+     * <tt>URI</tt> and returns it.
+     *
+     * @param attribute the name of the attribute that we'd like to retrieve.
+     *
+     * @return the <tt>URI</tt> value of the specified <tt>attribute</tt> or
+     * <tt>null</tt> if no such attribute is currently registered with this
+     * extension.
+     * @throws IllegalArgumentException if <tt>attribute</tt> is not a valid {@link
+     * URI}
+     */
+    public URI getAttributeAsURI(String attribute)
+        throws IllegalArgumentException
+    {
+        synchronized(attributes)
+        {
+            String attributeVal = getAttributeAsString(attribute);
+
+            if (attributeVal == null)
+                return null;
+
+            try
+            {
+                URI uri = new URI(attributeVal);
+
+                return uri;
+            }
+            catch (URISyntaxException e)
+            {
+                throw new IllegalArgumentException(e);
+            }
         }
     }
 
@@ -280,13 +312,12 @@ public abstract class AbstractPacketExtension
 
     /**
      * Returns this packet's first direct child extension that matches the
-     * specified of this packet that matches the specified <tt>type</tt>.
+     * specified <tt>type</tt>.
      *
      * @param type the <tt>Class</tt> of the extension we are looking for.
      *
-     * @return this packet's first direct child extension that matches the
-     * specified of this packet that matches the specified <tt>type</tt> or
-     * <tt>null</tt> if no such child extension was found.
+     * @return this packet's first direct child extension that matches specified
+     * <tt>type</tt> or <tt>null</tt> if no such child extension was found.
      */
     public PacketExtension getFirstChildOfType(
                         Class<? extends PacketExtension> type)
@@ -303,5 +334,32 @@ public abstract class AbstractPacketExtension
         }
 
         return null;
+    }
+
+    /**
+     * Returns this packet's direct child extensions that match the
+     * specified <tt>type</tt>.
+     *
+     * @param type the <tt>Class</tt> of the extension we are looking for.
+     *
+     * @return a list containing all or (none) of this packet's direct child
+     * extensions that match the specified <tt>type</tt>
+     */
+    public List<? extends PacketExtension> getChildExtensionsOfType(
+                        Class<? extends PacketExtension> type)
+    {
+        List<? extends PacketExtension> childExtensions = getChildExtensions();
+        List<PacketExtension> result = new ArrayList<PacketExtension>();
+
+        synchronized (childExtensions)
+        {
+            for(PacketExtension extension : childExtensions)
+            {
+                if(type.isAssignableFrom(extension.getClass()))
+                    result.add(extension);
+            }
+        }
+
+        return result;
     }
 }

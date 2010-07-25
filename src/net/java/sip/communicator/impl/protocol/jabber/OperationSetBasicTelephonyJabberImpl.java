@@ -27,7 +27,7 @@ import org.jivesoftware.smackx.packet.*;
  * @author Symphorien Wanko
  */
 public class OperationSetBasicTelephonyJabberImpl
-   extends AbstractOperationSetBasicTelephony
+   extends AbstractOperationSetBasicTelephony<ProtocolProviderServiceJabberImpl>
    implements RegistrationStateChangeListener,
               PacketListener,
               PacketFilter
@@ -304,12 +304,9 @@ public class OperationSetBasicTelephonyJabberImpl
     public void answerCallPeer(CallPeer peer)
             throws OperationFailedException
     {
-        CallPeerJabberImpl callPeer
-                = (CallPeerJabberImpl)peer;
+        CallPeerJabberImpl callPeer = (CallPeerJabberImpl)peer;
 
-        /**
-         * @todo implement
-         */
+        callPeer.answer();
     }
 
     /**

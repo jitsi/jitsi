@@ -32,9 +32,9 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Emil Ivov
  */
 public abstract class MediaAwareCall<
-                                       T extends MediaAwareCallPeer<?, V>,
-                                       U extends OperationSetBasicTelephony<V>,
-                                       V extends ProtocolProviderService>
+                T extends MediaAwareCallPeer<?, ?, V>,
+                U extends OperationSetBasicTelephony<V>,
+                V extends ProtocolProviderService>
     extends AbstractCall<T, V>
     implements CallPeerListener
 {

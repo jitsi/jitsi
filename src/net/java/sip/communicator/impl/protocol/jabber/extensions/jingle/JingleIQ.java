@@ -332,16 +332,39 @@ public class JingleIQ extends IQ
     public boolean containsContentChildOfType(
                         Class<? extends PacketExtension> contentType)
     {
+        if(getContentForType(contentType) != null)
+            return true;
+
+        return false;
+    }
+
+    /**
+     * Determines if this packet contains a <tt>content</tt> with a child
+     * matching the specified <tt>contentType</tt> and returns it. Returns
+     * <tt>null</tt> otherwise. The method is meant to allow to easily extract
+     * specific IQ elements like an RTP description for example.
+     *
+     * @param contentType the type of the content child we are looking for.
+     *
+     * @return a reference to the content element that has a child of the
+     * specified <tt>contentType</tt> or <tt>null</tt> if no such child was
+     * found.
+     */
+    public ContentPacketExtension getContentForType(
+                        Class<? extends PacketExtension> contentType)
+    {
         synchronized(contentList)
         {
             for(ContentPacketExtension content : contentList)
             {
-                if(content.getFirstChildOfType(contentType) != null)
-                    return true;
+                PacketExtension child
+                                  = content.getFirstChildOfType(contentType);
+                if(child != null)
+                    return content;
             }
         }
 
-        return false;
+        return null;
     }
 
     /**

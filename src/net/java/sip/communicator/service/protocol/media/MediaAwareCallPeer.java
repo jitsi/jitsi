@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol.media;
 import java.beans.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -22,6 +23,9 @@ import net.java.sip.communicator.util.*;
  *
  * @param <T> the peer extension class like for example <tt>CallSipImpl</tt>
  * or <tt>CallJabberImpl</tt>
+ * @param <U> the media handler extension class like for example
+ * <tt>CallPeerMediaHandlerSipImpl</tt> or
+ * <tt>CallPeerMediaHandlerJabberImpl</tt>
  * @param <V> the provider extension class like for example
  * <tt>ProtocolProviderServiceSipImpl</tt> or
  * <tt>ProtocolProviderServiceJabberImpl</tt>
@@ -29,7 +33,8 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public abstract class MediaAwareCallPeer
-                          <T extends Call,
+                          <T extends MediaAwareCall<?, ?, ?>,
+                           U extends CallPeerMediaHandler<?>,
                            V extends ProtocolProviderService>
     extends AbstractCallPeer<T, V>
     implements ZrtpListener,
@@ -90,13 +95,30 @@ public abstract class MediaAwareCallPeer
     private T call;
 
     /**
-     * Creates a new call peer with address <tt>peerAddress</tt>.
+     * The media handler class handles all media management for a single
+     * <tt>CallPeer</tt>. This includes initializing and configuring streams,
+     * generating SDP, handling ICE, etc. One instance of <tt>CallPeer</tt>always
+     * corresponds to exactly one instance of <tt>CallPeerMediaHandler</tt> and
+     * both classes are only separated for reasons of readability.
      */
-    public MediaAwareCallPeer()
+    private U mediaHandler;
+
+    /**
+     * Creates a new call peer with address <tt>peerAddress</tt>.
+     *
+     * @param owningCall the call that contains this call peer.
+     */
+    public MediaAwareCallPeer(T owningCall)
     {
+        this.call = owningCall;
+
         //create the uid
         this.peerID = String.valueOf(System.currentTimeMillis())
                              + String.valueOf(hashCode());
+
+        // we listen for events when the call will become focus or not
+        // of a conference so we will add or remove our sound level listeners
+        super.addCallPeerConferenceListener(this);
     }
 
     /**
@@ -819,5 +841,25 @@ public abstract class MediaAwareCallPeer
      * @return a reference to the <tt>CallPeerMediaHandler</tt> instance that
      * this peer uses for media related tips and tricks.
      */
-    public abstract CallPeerMediaHandler<? extends CallPeer> getMediaHandler();
+    public U getMediaHandler()
+    {
+        return mediaHandler;
+    }
+
+    /**
+     * Sets a reference to the <tt>CallPeerMediaHandler</tt> used by this
+     * peer. The media handler class handles all media management for a single
+     * <tt>CallPeer</tt>. This includes initializing and configuring streams,
+     * generating SDP, handling ICE, etc. One instance of <tt>CallPeer</tt>
+     * always corresponds to exactly one instance of
+     * <tt>CallPeerMediaHandler</tt> and both classes are only separated for
+     * reasons of readability.
+     *
+     * @param mediaHandler a reference to the <tt>CallPeerMediaHandler</tt>
+     * instance that this peer uses for media related tips and tricks.
+     */
+    protected void setMediaHandler(U mediaHandler)
+    {
+        this.mediaHandler = mediaHandler;
+    }
 }

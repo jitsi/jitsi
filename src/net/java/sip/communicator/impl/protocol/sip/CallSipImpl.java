@@ -6,16 +6,14 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.util.*;
 import java.beans.*;
+import java.util.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.device.*;
-import net.java.sip.communicator.service.neomedia.event.SimpleAudioLevelListener;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;

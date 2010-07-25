@@ -35,7 +35,8 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  *
  */
-public abstract class CallPeerMediaHandler<T extends CallPeer>
+public abstract class CallPeerMediaHandler<
+                                        T extends MediaAwareCallPeer<?, ?, ?>>
     extends PropertyChangeNotifier
 {
     /**
@@ -89,8 +90,8 @@ public abstract class CallPeerMediaHandler<T extends CallPeer>
         = MediaDirection.SENDRECV;
 
     /**
-     * A reference to the CallPeerSipImpl instance that this handler is
-     * managing media streams for.
+     * A reference to the CallPeer instance that this handler is managing media
+     * streams for.
      */
     public final T peer;
 
@@ -705,6 +706,31 @@ public abstract class CallPeerMediaHandler<T extends CallPeer>
     public long getAudioRemoteSSRC()
     {
         return audioRemoteSSRC;
+    }
+
+    /**
+     * Gets a <tt>MediaDevice</tt> which is capable of capture and/or playback
+     * of media of the specified <tt>MediaType</tt>, is the default choice of
+     * the user for a <tt>MediaDevice</tt> with the specified <tt>MediaType</tt>
+     * and is appropriate for the current states of the associated
+     * <tt>CallPeer</tt> and <tt>Call</tt>.
+     * <p>
+     * For example, when the local peer is acting as a conference focus in the
+     * <tt>Call</tt> of the associated <tt>CallPeer</tt>, the audio device must
+     * be a mixer.
+     * </p>
+     *
+     * @param mediaType the <tt>MediaType</tt> in which the retrieved
+     * <tt>MediaDevice</tt> is to capture and/or play back media
+     * @return a <tt>MediaDevice</tt> which is capable of capture and/or
+     * playback of media of the specified <tt>mediaType</tt>, is the default
+     * choice of the user for a <tt>MediaDevice</tt> with the specified
+     * <tt>mediaType</tt> and is appropriate for the current states of the
+     * associated <tt>CallPeer</tt> and <tt>Call</tt>
+     */
+    protected MediaDevice getDefaultDevice(MediaType mediaType)
+    {
+        return peer.getCall().getDefaultDevice(mediaType);
     }
 
     /**
@@ -1573,6 +1599,162 @@ public abstract class CallPeerMediaHandler<T extends CallPeer>
     }
 
     /**
+     * Gets the advanced format parameters list of our device that match
+     * remote supported ones.
+     *
+     * @param remoteFormats remote advanced format parameters found in the
+     * SDP message
+     * @param localFormats local advanced format parameters of our device
+     * @return intersection between our local advanced parameters and remote
+     * advanced parameters
+     */
+    protected List<MediaFormat> intersectFormats(
+                                            List<MediaFormat> remoteFormats,
+                                            List<MediaFormat> localFormats)
+    {
+        List<MediaFormat> ret = new ArrayList<MediaFormat>();
+
+        for(MediaFormat remoteFormat : remoteFormats)
+        {
+            MediaFormat localFormat
+                = findMediaFormat(localFormats, remoteFormat);
+
+            if(localFormat != null)
+                ret.add(localFormat);
+        }
+        return ret;
+    }
+
+    /**
+     * Finds a <tt>MediaFormat</tt> in a specific list of <tt>MediaFormat</tt>s
+     * which matches a specific <tt>MediaFormat</tt>.
+     *
+     * @param formats the list of <tt>MediaFormat</tt>s to find the specified
+     * matching <tt>MediaFormat</tt> into
+     * @param format encoding of the <tt>MediaFormat</tt> to find
+     * @return the <tt>MediaFormat</tt> from <tt>formats</tt> which matches
+     * <tt>format</tt> if such a match exists in <tt>formats</tt>; otherwise,
+     * <tt>null</tt>
+     */
+    private MediaFormat findMediaFormat(
+            List<MediaFormat> formats, MediaFormat format)
+    {
+        MediaType mediaType = format.getMediaType();
+        String encoding = format.getEncoding();
+        double clockRate = format.getClockRate();
+        int channels
+            = MediaType.AUDIO.equals(mediaType)
+                ? ((AudioMediaFormat) format).getChannels()
+                : MediaFormatFactory.CHANNELS_NOT_SPECIFIED;
+
+        for(MediaFormat match : formats)
+        {
+            if (AbstractMediaStream.matches(
+                        match,
+                        mediaType, encoding, clockRate, channels))
+                return match;
+        }
+        return null;
+    }
+
+    /**
+     * Compares a list of <tt>RTPExtensoin</tt>s offered by a remote party
+     * to the list of locally supported <tt>RTPExtension</tt>s as returned
+     * by one of our local <tt>MediaDevice</tt>s and returns a third
+     * <tt>List</tt> that contains their intersection. The returned
+     * <tt>List</tt> contains extensions supported by both the remote party and
+     * the local device that we are dealing with. Direction attributes of both
+     * lists are also intersected and the returned <tt>RTPExtension</tt>s have
+     * directions valid from a local perspective. In other words, if
+     * <tt>remoteExtensions</tt> contains an extension that the remote party
+     * supports in a <tt>SENDONLY</tt> mode, and we support that extension in a
+     * <tt>SENDRECV</tt> mode, the corresponding entry in the returned list will
+     * have a <tt>RECVONLY</tt> direction.
+     *
+     * @param remoteExtensions the <tt>List</tt> of <tt>RTPExtension</tt>s as
+     * advertised by the remote party.
+     * @param supportedExtensions the <tt>List</tt> of <tt>RTPExtension</tt>s
+     * that a local <tt>MediaDevice</tt> returned as supported.
+     *
+     * @return the (possibly empty) intersection of both of the extensions lists
+     * in a form that can be used for generating an SDP media description or
+     * for configuring a stream.
+     */
+    protected List<RTPExtension> intersectRTPExtensions(
+                                    List<RTPExtension> remoteExtensions,
+                                    List<RTPExtension> supportedExtensions)
+    {
+        if(remoteExtensions == null || supportedExtensions == null)
+            return new ArrayList<RTPExtension>();
+
+        List<RTPExtension> intersection = new ArrayList<RTPExtension>(
+                Math.min(remoteExtensions.size(), supportedExtensions.size()));
+
+        //loop through the list that the remote party sent
+        for(RTPExtension remoteExtension : remoteExtensions)
+        {
+            RTPExtension localExtension = findExtension(
+                    supportedExtensions, remoteExtension.getURI().toString());
+
+            if(localExtension == null)
+                continue;
+
+            MediaDirection localDir  = localExtension.getDirection();
+            MediaDirection remoteDir = remoteExtension.getDirection();
+
+            RTPExtension intersected = new RTPExtension(
+                            localExtension.getURI(),
+                            localDir.getDirectionForAnswer(remoteDir),
+                            remoteExtension.getExtensionAttributes());
+
+            intersection.add(intersected);
+        }
+
+        return intersection;
+    }
+
+    /**
+     * Returns the first <tt>RTPExtension</tt> in <tt>extList</tt> that uses
+     * the specified <tt>extensionURN</tt> or <tt>null</tt> if <tt>extList</tt>
+     * did not contain such an extension.
+     *
+     * @param extList the <tt>List</tt> that we will be looking through.
+     * @param extensionURN the URN of the <tt>RTPExtension</tt> that we are
+     * looking for.
+     *
+     * @return the first <tt>RTPExtension</tt> in <tt>extList</tt> that uses
+     * the specified <tt>extensionURN</tt> or <tt>null</tt> if <tt>extList</tt>
+     * did not contain such an extension.
+     */
+    private RTPExtension findExtension(List<RTPExtension> extList,
+                                       String extensionURN)
+    {
+        for(RTPExtension rtpExt : extList)
+            if (rtpExt.getURI().toASCIIString().equals(extensionURN))
+                return rtpExt;
+        return null;
+    }
+
+    /**
+     * Returns a (possibly empty) <tt>List</tt> of <tt>RTPExtension</tt>s
+     * supported by the device that this media handler uses to handle media of
+     * the specified <tt>type</tt>.
+     *
+     * @param type the <tt>MediaType</tt> of the device whose
+     * <tt>RTPExtension</tt>s we are interested in.
+     *
+     * @return a (possibly empty) <tt>List</tt> of <tt>RTPExtension</tt>s
+     * supported by the device that this media handler uses to handle media of
+     * the specified <tt>type</tt>.
+     */
+    protected List<RTPExtension> getExtensionsForType(MediaType type)
+    {
+        MediaDevice dev = getDefaultDevice(type);
+
+        return dev.getSupportedExtensions();
+    }
+
+    /**
      * Returns the {@link DynamicPayloadTypeRegistry} instance we are currently
      * using.
      *
@@ -1595,8 +1777,6 @@ public abstract class CallPeerMediaHandler<T extends CallPeer>
     {
         return this.rtpExtensionsRegistry;
     }
-
-
 
     /**
      * Returns the <tt>InetAddress</tt> that is most likely to be to be used

@@ -29,7 +29,8 @@ import net.java.sip.communicator.util.*;
  */
 public class CallPeerSipImpl
     extends MediaAwareCallPeer<CallSipImpl,
-                                       ProtocolProviderServiceSipImpl>
+                               CallPeerMediaHandlerSipImpl,
+                               ProtocolProviderServiceSipImpl>
 {
     /**
      * Our class logger.
@@ -82,15 +83,6 @@ public class CallPeerSipImpl
         = new LinkedList<MethodProcessorListener>();
 
     /**
-     * The media handler class handles all media management for a single
-     * <tt>CallPeer</tt>. This includes initializing and configuring streams,
-     * generating SDP, handling ICE, etc. One instance of <tt>CallPeer</tt>always
-     * corresponds to exactly one instance of <tt>CallPeerMediaHandler</tt> and
-     * both classes are only separated for reasons of readability.
-     */
-    private final CallPeerMediaHandlerSipImpl mediaHandler;
-
-    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the JAIN SIP <tt>Address</tt> of the new call peer.
@@ -104,19 +96,15 @@ public class CallPeerSipImpl
                            Transaction containingTransaction,
                            SipProvider sourceProvider)
     {
+        super(owningCall);
         this.peerAddress = peerAddress;
-        super.setCall(owningCall);
         this.messageFactory = getProtocolProvider().getMessageFactory();
 
-        this.mediaHandler = new CallPeerMediaHandlerSipImpl(this);
+        super.setMediaHandler(new CallPeerMediaHandlerSipImpl(this));
 
         setDialog(containingTransaction.getDialog());
         setLatestInviteTransaction(containingTransaction);
         setJainSipProvider(sourceProvider);
-
-        // we listen fr events when the call will become focus or not
-        // of a conference so we will add or remove our sound level listeners
-        super.addCallPeerConferenceListener(this);
     }
 
     /**
@@ -1266,22 +1254,5 @@ public class CallPeerSipImpl
         setDialog(retryTran.getDialog());
         setLatestInviteTransaction(retryTran);
         setJainSipProvider(jainSipProvider);
-    }
-
-    /**
-     * Returns a reference to the <tt>CallPeerMediaHandler</tt> used by this
-     * peer. The media handler class handles all media management for a single
-     * <tt>CallPeer</tt>. This includes initializing and configuring streams,
-     * generating SDP, handling ICE, etc. One instance of <tt>CallPeer</tt>
-     * always corresponds to exactly one instance of
-     * <tt>CallPeerMediaHandler</tt> and both classes are only separated for
-     * reasons of readability.
-     *
-     * @return a reference to the <tt>CallPeerMediaHandler</tt> instance that
-     * this peer uses for media related tips and tricks.
-     */
-    public CallPeerMediaHandlerSipImpl getMediaHandler()
-    {
-        return mediaHandler;
     }
 }

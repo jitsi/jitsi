@@ -730,10 +730,11 @@ public class SdpUtils
     }
 
     /**
-     * Parses the value of <tt>rtcpAttr</tt> attribute.
+     * Parses non <tt>fmtp:</tt> format parameter attributes into a name:value
+     * map.
      *
      * @param attrs SDP advanced attributes
-     * @return map containing key/value of attribute
+     * @return map containing name/value mappings for all non-fmtp parameters.
      */
     private static Map<String, String> parseAdvancedAttributes(
             List<Attribute> attrs)

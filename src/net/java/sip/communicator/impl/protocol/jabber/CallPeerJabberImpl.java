@@ -6,12 +6,17 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import org.jivesoftware.smack.*;
+import java.text.*;
+
+import javax.sip.*;
+import javax.sip.header.*;
+import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.service.neomedia.event.*;
+import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -21,7 +26,9 @@ import net.java.sip.communicator.util.*;
  * @author Symphorien Wanko
  */
 public class CallPeerJabberImpl
-    extends AbstractCallPeer<CallJabberImpl, ProtocolProviderServiceJabberImpl>
+    extends MediaAwareCallPeer<CallJabberImpl,
+                               CallPeerMediaHandlerJabberImpl,
+                               ProtocolProviderServiceJabberImpl>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallPeerJabberImpl</tt>
@@ -36,18 +43,6 @@ public class CallPeerJabberImpl
     private String peerJID = null;
 
     /**
-     * A byte array containing the image/photo representing the call peer.
-     */
-    private byte[] image;
-
-    /**
-     * A string uniquely identifying the peer. The reason we are keeping an ID
-     * of our own rather than using the Jingle session id is that we can't
-     * guarantee uniqueness of of jingle SIDs from one client to the next.
-     */
-    private String peerID;
-
-    /**
      * The call this peer belongs to.
      */
     private CallJabberImpl call;
@@ -58,26 +53,28 @@ public class CallPeerJabberImpl
     private final String jingleSID;
 
     /**
+     * The {@link JingleIQ} that created the session that this call represents.
+     */
+    private final JingleIQ sessionInitIQ;
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the Jabber address of the new call peer.
      * @param owningCall the call that contains this call peer.
-     * @param jingleSID the ID of the session that we are maintaining with this
-     * peer.
+     * @param sessInitIQ the {@link JingleIQ} that initiated that session
+     * represented by this peer.
      */
     public CallPeerJabberImpl(String         peerAddress,
                               CallJabberImpl owningCall,
-                              String         jingleSID)
+                              JingleIQ       sessInitIQ)
     {
+        super(owningCall);
         this.peerJID = peerAddress;
-        this.call = owningCall;
-        this.jingleSID = jingleSID;
+        this.jingleSID = sessInitIQ.getSID();
+        this.sessionInitIQ = sessInitIQ;
 
-        call.addCallPeer(this);
-
-        //create the uid
-        this.peerID = String.valueOf( System.currentTimeMillis())
-                             + String.valueOf(hashCode());
+        super.setMediaHandler( new CallPeerMediaHandlerJabberImpl(this) );
     }
 
     /**
@@ -135,96 +132,6 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * The method returns an image representation of the call peer
-     * (e.g.
-     *
-     * @return byte[] a byte array containing the image or null if no image
-     *   is available.
-     */
-    public byte[] getImage()
-    {
-        return image;
-    }
-
-    /**
-     * Sets the byte array containing an image representation (photo or picture)
-     * of the call peer.
-     *
-     * @param image a byte array containing the image
-     */
-    protected void setImage(byte[] image)
-    {
-        byte[] oldImage = getImage();
-        this.image = image;
-
-        //Fire the Event
-        fireCallPeerChangeEvent(
-                CallPeerChangeEvent.CALL_PEER_IMAGE_CHANGE,
-                oldImage,
-                image);
-    }
-
-    /**
-     * Returns a unique identifier representing this peer.
-     *
-     * @return an identifier representing this call peer.
-     */
-    public String getPeerID()
-    {
-        return peerID;
-    }
-
-    /**
-     * Returns the latest sdp description that this peer sent us.
-     * @return the latest sdp description that this peer sent us.
-     */
-    /*public String getSdpDescription()
-    {
-        return sdpDescription;
-    }*/
-
-    /**
-     * Sets the String that serves as a unique identifier of this
-     * CallPeer.
-     * @param peerID the ID of this call peer.
-     */
-    protected void setPeerID(String peerID)
-    {
-        this.peerID = peerID;
-    }
-
-    /**
-     * Returns a reference to the call that this peer belongs to. Calls
-     * are created by underlying telephony protocol implementations.
-     *
-     * @return a reference to the call containing this peer.
-     */
-    public CallJabberImpl getCall()
-    {
-        return call;
-    }
-
-    /**
-     * Sets the call containing this peer.
-     *
-     * @param call the call that this call peer is participating in.
-     */
-    protected void setCall(CallJabberImpl call)
-    {
-        this.call = call;
-    }
-
-    /**
-     * Returns the protocol provider that this peer belongs to.
-     * @return a reference to the ProtocolProviderService that this peer
-     * belongs to.
-     */
-    public ProtocolProviderServiceJabberImpl getProtocolProvider()
-    {
-        return this.getCall().getProtocolProvider();
-    }
-
-    /**
      * Returns the contact corresponding to this peer or null if no
      * particular contact has been associated.
      * <p>
@@ -241,60 +148,34 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Adds a specific <tt>SoundLevelListener</tt> to the list of
-     * listeners interested in and notified about changes in stream sound level
-     * related information.
+     * Indicates a user request to answer an incoming call from this
+     * <tt>CallPeer</tt>.
      *
-     * @param listener the <tt>SoundLevelListener</tt> to add
-     */
-    public void addStreamSoundLevelListener(
-        SoundLevelListener listener)
-    {
-
-    }
-
-    /**
-     * Removes a specific <tt>SoundLevelListener</tt> of the list of
-     * listeners interested in and notified about changes in stream sound level
-     * related information.
+     * Sends an OK response to <tt>callPeer</tt>. Make sure that the call
+     * peer contains an SDP description when you call this method.
      *
-     * @param listener the <tt>SoundLevelListener</tt> to remove
+     * @throws OperationFailedException if we fail to create or send the
+     * response.
      */
-    public void removeStreamSoundLevelListener(
-        SoundLevelListener listener)
+    public synchronized void answer()
+        throws OperationFailedException
     {
+        // This is the SDP offer that came from the initial session-initiate,
+        //contrary to sip we we are guaranteed to have content because XEP-0166
+        //says: "A session consists of at least one content type at a time."
+        ContentPacketExtension offer = sessionInitIQ
+            .getContentForType(RtpDescriptionPacketExtension.class);
 
+        ContentPacketExtension answer = getMediaHandler().processOffer(offer);
+
+        JingleIQ response = JinglePacketFactory.createSessionAccept(
+                sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
+                getJingleSID(), answer);
+
+        //tell everyone we are connecting so that the audio notifications would
+        //stop
+        setState(CallPeerState.CONNECTING_INCOMING_CALL_WITH_MEDIA);
     }
-
-    /**
-     * Adds a specific <tt>SoundLevelListener</tt> to the list
-     * of listeners interested in and notified about changes in conference
-     * members sound level.
-     *
-     * @param listener the <tt>SoundLevelListener</tt> to add
-     */
-    public void addConferenceMembersSoundLevelListener(
-        ConferenceMembersSoundLevelListener listener)
-    {
-
-    }
-
-    /**
-     * Removes a specific <tt>SoundLevelListener</tt> of the
-     * list of listeners interested in and notified about changes in conference
-     * members sound level.
-     *
-     * @param listener the <tt>SoundLevelListener</tt> to
-     * remove
-     */
-    public void removeConferenceMembersSoundLevelListener(
-        ConferenceMembersSoundLevelListener listener)
-    {
-
-    }
-
-
-    ////////////////////////////// OK CODE starts here ////////////////////////
 
     /**
      * Ends the call with for this <tt>CallPeer</tt>. Depending on the state

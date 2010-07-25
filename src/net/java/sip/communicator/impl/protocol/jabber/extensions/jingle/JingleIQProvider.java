@@ -59,6 +59,13 @@ public class JingleIQProvider implements IQProvider
             new DefaultPacketExtensionProvider
                 <ParameterPacketExtension>(ParameterPacketExtension.class));
 
+        //<extmap/> provider
+        providerManager.addExtensionProvider(
+            ExtmapPacketExtension.ELEMENT_NAME,
+            RtpDescriptionPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider
+                <ExtmapPacketExtension>(ExtmapPacketExtension.class));
+
         //ice-udp transport
         providerManager.addExtensionProvider(
             IceUdpTransportPacketExtension.ELEMENT_NAME,

@@ -59,6 +59,13 @@ public class RtpDescriptionPacketExtension
     private BandwidthPacketExtension bandwidth;
 
     /**
+     * A <tt>List</tt> of the optional <tt>extmap</tt> elements that allow
+     * negotiating RTP extension headers as per RFC 5282.
+     */
+    private List<ExtmapPacketExtension> extmapList
+                                    = new ArrayList<ExtmapPacketExtension>();
+
+    /**
      * The combined list of all child elements that this extension contains.
      */
     private List<PacketExtension> children;
@@ -166,6 +173,10 @@ public class RtpDescriptionPacketExtension
         if (bandwidth != null)
             children.add(bandwidth);
 
+        //extmap elements
+        if (extmapList != null)
+            children.addAll(extmapList);
+
         return children;
     }
 
@@ -185,6 +196,9 @@ public class RtpDescriptionPacketExtension
 
         else if (childExtension instanceof BandwidthPacketExtension)
             this.setBandwidth((BandwidthPacketExtension)childExtension);
+
+        else if (childExtension instanceof ExtmapPacketExtension)
+            this.addExtmap((ExtmapPacketExtension)childExtension);
     }
 
     /**
@@ -233,5 +247,29 @@ public class RtpDescriptionPacketExtension
     public BandwidthPacketExtension getBandwidth()
     {
         return bandwidth;
+    }
+
+    /**
+     * Adds an optional <tt>extmap</tt> element that allows negotiation RTP
+     * extension headers as per RFC 5282.
+     *
+     * @param extmap an optional <tt>extmap</tt> element that allows negotiation
+     * RTP extension headers as per RFC 5282.
+     */
+    public void addExtmap(ExtmapPacketExtension extmap)
+    {
+        this.extmapList.add(extmap);
+    }
+
+    /**
+     * Returns a <tt>List</tt> of the optional <tt>extmap</tt> elements that
+     * allow negotiating RTP extension headers as per RFC 5282.
+     *
+     * @return a <tt>List</tt> of the optional <tt>extmap</tt> elements that
+     * allow negotiating RTP extension headers as per RFC 5282.
+     */
+    public List<ExtmapPacketExtension> getExtmapList()
+    {
+        return extmapList;
     }
 }

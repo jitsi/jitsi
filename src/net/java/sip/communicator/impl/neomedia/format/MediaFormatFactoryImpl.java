@@ -167,19 +167,13 @@ public class MediaFormatFactoryImpl
      * otherwise, <tt>null</tt>
      * @see MediaFormatFactory#createMediaFormat(String, double, Map, Map)
      */
-    public MediaFormat createMediaFormat(
-            String encoding,
-            double clockRate,
-            Map<String, String> formatParams,
-            Map<String, String> advancedParams)
+    public MediaFormat createMediaFormat( String              encoding,
+                                          double              clockRate,
+                                          Map<String, String> formatParams,
+                                          Map<String, String> advancedParams)
     {
-        return
-            createMediaFormat(
-                encoding,
-                clockRate,
-                1,
-                formatParams,
-                advancedParams);
+        return createMediaFormat( encoding, clockRate, 1, formatParams,
+                        advancedParams);
     }
 
     /**
@@ -207,12 +201,11 @@ public class MediaFormatFactoryImpl
      * <tt>MediaFormatFactory</tt>; otherwise, <tt>null</tt>
      * @see MediaFormatFactory#createMediaFormat(String, double, int, Map, Map)
      */
-    public MediaFormat createMediaFormat(
-            String encoding,
-            double clockRate,
-            int channels,
-            Map<String, String> formatParams,
-            Map<String, String> advancedParams)
+    public MediaFormat createMediaFormat(String              encoding,
+                                         double              clockRate,
+                                         int                 channels,
+                                         Map<String, String> formatParams,
+                                         Map<String, String> advancedParams)
     {
         MediaFormat mediaFormat
             = createMediaFormat(encoding, clockRate, channels);
@@ -224,7 +217,7 @@ public class MediaFormatFactoryImpl
             Map<String, String> formatParameters
                 = new HashMap<String, String>();
             Map<String, String> advancedParameters
-            = new HashMap<String, String>();
+                = new HashMap<String, String>();
 
             formatParameters.putAll(mediaFormat.getFormatParameters());
             formatParameters.putAll(formatParams);
