@@ -18,7 +18,6 @@ import net.java.sip.communicator.util.*;
  * Our Jabber implementation of the default CallPeer;
  *
  * @author Emil Ivov
- * @author Symphorien Wanko
  */
 public class CallPeerJabberImpl
     extends MediaAwareCallPeer<CallJabberImpl,
@@ -230,11 +229,8 @@ public class CallPeerJabberImpl
      * Ends the call with for this <tt>CallPeer</tt>. Depending on the state
      * of the peer the method would send a CANCEL, BYE, or BUSY_HERE message
      * and set the new state to DISCONNECTED.
-     *
-     * @throws OperationFailedException if we fail to terminate the call.
      */
     public void hangup()
-        throws OperationFailedException
     {
         // do nothing if the call is already ended
         if (CallPeerState.DISCONNECTED.equals(getState())
@@ -260,9 +256,9 @@ public class CallPeerJabberImpl
             responseIQ = JinglePacketFactory.createBye(
                 provider.getOurJID(), peerJID, getJingleSID());
         }
-        else if (CallPeerState.CONNECTING.equals(getState())
-            || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(getState())
-            || CallPeerState.ALERTING_REMOTE_SIDE.equals(getState()))
+        else if (CallPeerState.CONNECTING.equals(prevPeerState)
+            || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(prevPeerState)
+            || CallPeerState.ALERTING_REMOTE_SIDE.equals(prevPeerState))
         {
             responseIQ = JinglePacketFactory.createCancel(
                 provider.getOurJID(), peerJID, getJingleSID());
@@ -295,5 +291,38 @@ public class CallPeerJabberImpl
     public String getJingleSID()
     {
         return sessionInitIQ.getSID();
+    }
+
+    /**
+     * Puts this peer into a {@link CallPeerState#DISCONNECTED}, indicating a
+     * reason to the user, if there is one.
+     *
+     * @param jingleIQ the {@link JingleIQ} that's terminating our session.
+     */
+    public void processSessionTerminate(JingleIQ jingleIQ)
+    {
+        String reasonStr = "Call ended by remote side.";
+
+        ReasonPacketExtension reasonExt = jingleIQ.getReason();
+
+        if(reasonStr != null)
+        {
+            Reason reason = reasonExt.getReason();
+
+            if(reason != null)
+            {
+                reasonStr += " Reason: " + reason.toString() + ".";
+            }
+
+            String text = reasonExt.getText();
+
+            if(text != null)
+            {
+                reasonStr += " " + text;
+            }
+
+        }
+
+        setState(CallPeerState.DISCONNECTED, reasonStr);
     }
 }

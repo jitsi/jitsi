@@ -444,11 +444,12 @@ catch(Throwable t)
      */
     private void processJinglePacket(JingleIQ jingleIQ)
     {
+        //let's first see whether we have a peer that's concerned by this IQ
+        CallPeerJabberImpl callPeer =
+                    activeCallsRepository.findCallPeer(jingleIQ.getSID());
+
         if (jingleIQ.getType() == Type.ERROR)
         {
-            CallPeerJabberImpl callPeer =
-                activeCallsRepository.findCallPeer(jingleIQ.getSID());
-
             logger.error("Received error");
             XMPPError error = jingleIQ.getError();
             String message = "Remote party returned an error!";
@@ -474,10 +475,19 @@ catch(Throwable t)
         {
             CallJabberImpl call = new CallJabberImpl(this);
             call.processSessionInitiate(jingleIQ);
+            return;
         }
+        else if (callPeer == null)
+        {
+            if (logger.isDebugEnabled())
+                logger.debug("Received a stray trying response.");
+            return;
+        }
+
+        //the rest of these cases deal with existing peers
         else if(action == JingleAction.SESSION_TERMINATE)
         {
-
+            callPeer.processSessionTerminate(jingleIQ);
         }
         else if(action == JingleAction.SESSION_ACCEPT)
         {
@@ -485,27 +495,14 @@ catch(Throwable t)
         }
         else if (action == JingleAction.SESSION_INFO)
         {
-            SessionInfoPacketExtension info = (SessionInfoPacketExtension)
-                jingleIQ.getExtension(SessionInfoPacketExtension.NAMESPACE);
+            SessionInfoPacketExtension info = jingleIQ.getSessionInfo();
 
             if(info == null)
                 return;
 
+            // change status.
             if( info.getType() == SessionInfoType.ringing)
-            {
-                CallPeerJabberImpl callPeer =
-                    activeCallsRepository.findCallPeer(jingleIQ.getSID());
-
-                if (callPeer == null)
-                {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Received a stray trying response.");
-                    return;
-                }
-
-                // change status.
                 callPeer.setState(CallPeerState.ALERTING_REMOTE_SIDE);
-            }
         }
     }
 

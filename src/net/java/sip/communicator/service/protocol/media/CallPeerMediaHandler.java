@@ -348,7 +348,6 @@ public abstract class CallPeerMediaHandler<
     {
         this.peer = peer;
         this.zrtpController = zrtpController;
-System.out.println("opa cpmh");
     }
 
     /**

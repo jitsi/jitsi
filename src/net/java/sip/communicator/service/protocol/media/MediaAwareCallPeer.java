@@ -111,7 +111,7 @@ public abstract class MediaAwareCallPeer
     public MediaAwareCallPeer(T owningCall)
     {
         this.call = owningCall;
-System.out.println("just set call to " + owningCall);
+
         //create the uid
         this.peerID = String.valueOf(System.currentTimeMillis())
                              + String.valueOf(hashCode());
@@ -190,7 +190,6 @@ System.out.println("just set call to " + owningCall);
      */
     public void setCall(T call)
     {
-new Exception("setting call to " + call).printStackTrace();
         this.call = call;
     }
 
@@ -860,6 +859,5 @@ new Exception("setting call to " + call).printStackTrace();
     protected void setMediaHandler(U mediaHandler)
     {
         this.mediaHandler = mediaHandler;
-System.out.println("opa MACP");
     }
 }

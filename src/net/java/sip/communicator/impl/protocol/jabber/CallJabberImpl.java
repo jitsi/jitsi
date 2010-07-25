@@ -17,7 +17,6 @@ import net.java.sip.communicator.util.*;
  *  jingle sessions.
  *
  * @author Emil Ivov
- * @author Symphorien Wanko
  */
 public class CallJabberImpl extends MediaAwareCall<
     CallPeerJabberImpl,
@@ -67,7 +66,7 @@ public class CallJabberImpl extends MediaAwareCall<
     public CallPeerJabberImpl processSessionInitiate(JingleIQ jingleIQ)
     {
         String remoteParty = jingleIQ.getInitiator();
-System.out.println("1");
+
         //according to the Jingle spec initiator may be null.
         if (remoteParty == null)
             remoteParty = jingleIQ.getFrom();

@@ -385,7 +385,7 @@ public class JingleIQ extends IQ
      * @return a {@link SessionInfoPacketExtension} if this <tt>JingleIQ</tt>
      * contains one and <tt>null</tt> otherwise.
      */
-    public SessionInfoPacketExtension setSessionInfo()
+    public SessionInfoPacketExtension getSessionInfo()
     {
         return this.sessionInfo;
     }
