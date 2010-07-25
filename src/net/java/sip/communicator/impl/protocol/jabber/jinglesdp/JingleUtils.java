@@ -6,8 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.jinglesdp;
 
+import java.net.*;
 import java.util.*;
-
 
 import org.jivesoftware.smack.packet.*;
 
@@ -235,6 +235,113 @@ public class JingleUtils
     public static MediaDirection getDirection(ContentPacketExtension content)
     {
         return getDirection(content, true);
+    }
+
+    /**
+     * Returns the default candidate for the specified content <tt>content</tt>.
+     * The method is used when establishing new calls and we need a default
+     * candidate to initiate our stream with before we've discovered the one
+     * that ICE would pick.
+     *
+     * @param content the stream whose default candidate we are looking for.
+     *
+     * @return a {@link MediaStreamTarget} containing the default
+     * <tt>candidate</tt>s for the stream described in <tt>content</tt> or
+     * <tt>null</tt>, if for some reason, the packet does not contain any
+     * candidates.
+     */
+    public static MediaStreamTarget extractDefaultTarget(
+                    ContentPacketExtension content)
+    {
+        //extract the default rtp candidate:
+        CandidatePacketExtension rtpCand = getFirstCandidate(content, 1);
+
+        if (rtpCand == null)
+            return null;
+
+        InetAddress rtpAddress = null;
+
+        try
+        {
+            rtpAddress = NetworkUtils.getInetAddress(rtpCand.getIP());
+        }
+        catch (UnknownHostException exc)
+        {
+            throw new IllegalArgumentException(
+                "Failed to parse address " + rtpCand.getIP(), exc);
+        }
+
+        //rtp port
+        int rtpPort = rtpCand.getPort();
+
+        InetSocketAddress rtpTarget
+                                = new InetSocketAddress(rtpAddress, rtpPort);
+
+        //extract the RTCP candidate
+        CandidatePacketExtension rtcpCand = getFirstCandidate(content, 2);
+
+        InetSocketAddress rtcpTarget = null;
+        if( rtcpCand == null)
+        {
+            rtcpTarget = new InetSocketAddress(rtpAddress, rtpPort + 1);
+        }
+        else
+        {
+            InetAddress rtcpAddress = null;
+
+            try
+            {
+                rtcpAddress = NetworkUtils.getInetAddress(rtcpCand.getIP());
+            }
+            catch (UnknownHostException exc)
+            {
+                throw new IllegalArgumentException(
+                    "Failed to parse address " + rtcpCand.getIP(), exc);
+            }
+
+            //rtcp port
+            int rtcpPort = rtcpCand.getPort();
+            rtpTarget = new InetSocketAddress(rtcpAddress, rtcpPort);
+        }
+
+        return new MediaStreamTarget(rtpTarget, rtcpTarget);
+    }
+
+    /**
+     * Returns the first candidate for the specified <tt>componentID</tt> or
+     * null if no such component exists.
+     *
+     * @param content the {@link ContentPacketExtension} that we'll be searching
+     * for a component.
+     * @param componentID the id of the component that we are looking for
+     * (e.g. 1 for RTP, 2 for RTCP);
+     *
+     * @return the first candidate for the specified <tt>componentID</tt> or
+     * null if no such component exists.
+     */
+    public static CandidatePacketExtension getFirstCandidate(
+                                            ContentPacketExtension content,
+                                            int                    componentID)
+    {
+        //passing IceUdp would also return RawUdp transports as one extends
+        //the other.
+        IceUdpTransportPacketExtension transport
+            = (IceUdpTransportPacketExtension)content.getFirstChildOfType(
+                                IceUdpTransportPacketExtension.class);
+
+        if ( transport == null)
+            return null;
+
+        for(CandidatePacketExtension cand : transport.getCandidateList())
+        {
+            //we don't care about remote candidates!
+            if (cand instanceof RemoteCandidatePacketExtension )
+                continue;
+            if (cand.getComponent() == componentID)
+                return cand;
+        }
+
+        return null;
     }
 
 }
