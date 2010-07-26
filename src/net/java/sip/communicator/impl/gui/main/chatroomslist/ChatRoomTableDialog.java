@@ -94,7 +94,6 @@ public class ChatRoomTableDialog
             chatRoomTableDialog
                 = new ChatRoomTableDialog(
                         GuiActivator.getUIService().getMainFrame());
-            chatRoomTableDialog.setPreferredSize(new Dimension(500, 400));
 
             /*
              * When the global/shared ChatRoomTableDialog closes, don't keep a
@@ -193,6 +192,9 @@ public class ChatRoomTableDialog
         chatRoomsTableUI = new ChatRoomTableUI(this);
         chatRoomsTableUI.setOpaque(false);
         chatRoomsTableUI.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
+
+        // this controls and the whole dialog width
+        northPanel.setPreferredSize(new Dimension(600, 80));
 
         this.getContentPane().add(northPanel, BorderLayout.NORTH);
         this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);

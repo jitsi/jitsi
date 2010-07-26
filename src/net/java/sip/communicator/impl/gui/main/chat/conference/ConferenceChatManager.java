@@ -266,13 +266,13 @@ public class ConferenceChatManager
             String nickname = sourceChatRoom.getUserNickname();
 
             int atIx = nickname.indexOf("@");
-
+            
             fireChatNotification =
                 (nickname == null)
                     || messageContent.toLowerCase().contains(
                         nickname.toLowerCase())
                     || ((atIx == -1)? false : messageContent.toLowerCase()
-                        .contains(nickname.substring(0, atIx + 1)));
+                        .contains(nickname.substring(0, atIx).toLowerCase()));
         }
         if (fireChatNotification)
         {

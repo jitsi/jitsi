@@ -665,6 +665,12 @@ public class OperationSetMultiUserChatJabberImpl
                     jabberProvider.getConnection(),
                     new SmackInvitationListener());
             }
+            else if (evt.getNewState() == RegistrationState.UNREGISTERED
+                || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
+            {
+                // clear cached chatrooms as there are no longer valid
+                chatRoomCache.clear();
+            }
         }
     }
 
