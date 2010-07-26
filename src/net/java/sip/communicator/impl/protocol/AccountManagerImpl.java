@@ -137,12 +137,15 @@ public class AccountManagerImpl
                 configService.getPropertyNamesByPrefix(storedAccount, true);
             Map<String, String> accountProperties =
                 new Hashtable<String, String>();
+            boolean disabled = false;
+            CredentialsStorageService credentialsStorage
+                = ServiceUtils.getService(
+                        bundleContext,
+                        CredentialsStorageService.class);
 
-            boolean isDisabled = false;
-
-            for (Iterator<String> storedAccountPropertyIter =
-                storedAccountProperties.iterator(); storedAccountPropertyIter
-                .hasNext();)
+            for (Iterator<String> storedAccountPropertyIter
+                        = storedAccountProperties.iterator();
+                    storedAccountPropertyIter.hasNext();)
             {
                 String property = storedAccountPropertyIter.next();
                 String value = configService.getString(property);
@@ -150,17 +153,12 @@ public class AccountManagerImpl
                 property = stripPackagePrefix(property);
 
                 if (ProtocolProviderFactory.IS_ACCOUNT_DISABLED.equals(property))
-                {
-                    isDisabled = new Boolean(value).booleanValue();
-                }
+                    disabled = Boolean.parseBoolean(value);
                 // Decode passwords.
-                else if (ProtocolProviderFactory.PASSWORD.equals(property))
+                else if (ProtocolProviderFactory.PASSWORD.equals(property)
+                        && !credentialsStorage.isStoredEncrypted(storedAccount))
                 {
-                    if (value == null)
-                    {
-                        value = "";
-                    }
-                    else if (value.length() != 0)
+                    if ((value != null) && value.length() != 0)
                     {
 
                         /*
@@ -172,9 +170,7 @@ public class AccountManagerImpl
                 }
 
                 if (value != null)
-                {
                     accountProperties.put(property, value);
-                }
             }
 
             try
@@ -190,10 +186,8 @@ public class AccountManagerImpl
                 {
                     storedAccounts.add(accountID);
                 }
-                if (!isDisabled)
-                {
+                if (!disabled)
                     factory.loadAccount(accountID);
-                }
             }
             catch (Exception ex)
             {
@@ -599,11 +593,15 @@ public class AccountManagerImpl
                     = ServiceUtils.getService(
                             bundleContext,
                             CredentialsStorageService.class);
+                String accountPrefix = factoryPackage + "." + accountNodeName;
 
                 // encrypt and store
-                if (!credentialsStorage.storePassword(
-                        factoryPackage + "." + accountNodeName,
-                        value))
+                if ((value != null)
+                        && (value.length() != 0)
+                        && !credentialsStorage.isStoredEncrypted(accountPrefix)
+                        && !credentialsStorage.storePassword(
+                                accountPrefix,
+                                value))
                 {
                     throw
                         new OperationFailedException(

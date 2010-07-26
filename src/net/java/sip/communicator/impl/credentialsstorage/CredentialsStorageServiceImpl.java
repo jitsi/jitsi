@@ -311,11 +311,16 @@ public class CredentialsStorageServiceImpl
             if (idx != -1)
             {
                 String prefix = prop.substring(0, idx);
-                String password
-                    = new String(Base64.decode(getUnencrypted(prefix)));
-                
-                if (!movePasswordProperty(prefix, password))
+                String encodedPassword = getUnencrypted(prefix);
+
+                if ((encodedPassword == null) || (encodedPassword.length() == 0))
+                    setUnencrypted(prefix, null);
+                else if (!movePasswordProperty(
+                        prefix,
+                        new String(Base64.decode(encodedPassword))))
+                {
                     logger.warn("Failed to move password for prefix " + prefix);
+                }
             }
         }
     }
