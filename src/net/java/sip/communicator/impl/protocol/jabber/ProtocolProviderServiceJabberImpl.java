@@ -684,10 +684,14 @@ public class ProtocolProviderServiceJabberImpl
      */
     private void disconnectAndCleanConnection()
     {
-        if(connection != null && connection.isConnected())
+        if(connection != null)
         {
             connection.removeConnectionListener(connectionListener);
+
+            // disconnect anyway cause it will clear any listeners
+            // that maybe added even if its not connected
             connection.disconnect();
+
             connectionListener = null;
             connection = null;
             // make it null as it also holds a reference to the old connection
