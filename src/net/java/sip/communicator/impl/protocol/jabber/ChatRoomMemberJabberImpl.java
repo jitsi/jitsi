@@ -80,6 +80,9 @@ public class ChatRoomMemberJabberImpl
         // If we have found a contact we set also its avatar.
         if (contact != null)
             this.avatar = contact.getImage();
+
+        // just query the stack for role, if its present will be set
+        getRole();
     }
     /**
      * Returns the chat room that this member is participating in.
@@ -162,6 +165,17 @@ public class ChatRoomMemberJabberImpl
         }
 
         return role;
+    }
+
+    /**
+     * Returns the current role without trying to query it in the stack.
+     * Mostly used for event creating on member role change.
+     * 
+     * @return the current role of this member.
+     */
+    ChatRoomMemberRole getCurrentRole()
+    {
+        return this.role;
     }
 
     /**

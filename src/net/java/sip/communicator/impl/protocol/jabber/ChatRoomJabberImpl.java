@@ -101,8 +101,8 @@ public class ChatRoomJabberImpl
     /**
      * The list of members of this chat room.
      */
-    private final Hashtable<String, ChatRoomMember> members
-        = new Hashtable<String, ChatRoomMember>();
+    private final Hashtable<String, ChatRoomMemberJabberImpl> members
+        = new Hashtable<String, ChatRoomMemberJabberImpl>();
 
     /**
      * The list of banned members of this chat room.
@@ -622,16 +622,16 @@ public class ChatRoomJabberImpl
      * @return the <tt>ChatRoomMember</tt> corresponding to the given smack
      * participant
      */
-    public ChatRoomMember smackParticipantToScMember(String participant)
+    public ChatRoomMemberJabberImpl smackParticipantToScMember(String participant)
     {
         String participantName = StringUtils.parseResource(participant);
 
-        Iterator<ChatRoomMember> chatRoomMembers =
+        Iterator<ChatRoomMemberJabberImpl> chatRoomMembers =
             this.members.values().iterator();
 
         while(chatRoomMembers.hasNext())
         {
-            ChatRoomMember member = chatRoomMembers.next();
+            ChatRoomMemberJabberImpl member = chatRoomMembers.next();
 
             if(participantName.equals(member.getName())
                 || participant.equals(member.getContactAddress()))
@@ -807,7 +807,8 @@ public class ChatRoomJabberImpl
                 logger.info(participant + " has been banned from "
                 + getName() + " chat room.");
 
-            ChatRoomMember member = smackParticipantToScMember(participant);
+            ChatRoomMemberJabberImpl member =
+                smackParticipantToScMember(participant);
 
             if(member == null)
                 return;
@@ -818,7 +819,7 @@ public class ChatRoomJabberImpl
 
             banList.put(participant, member);
 
-            fireMemberRoleEvent(member, member.getRole(),
+            fireMemberRoleEvent(member, member.getCurrentRole(),
                 ChatRoomMemberRole.OUTCAST);
         }
 
@@ -832,12 +833,13 @@ public class ChatRoomJabberImpl
          */
         public void adminGranted(String participant)
         {
-            ChatRoomMember member = smackParticipantToScMember(participant);
+            ChatRoomMemberJabberImpl member =
+                smackParticipantToScMember(participant);
 
             if(member == null)
                 return;
 
-            fireMemberRoleEvent(member, member.getRole(),
+            fireMemberRoleEvent(member, member.getCurrentRole(),
                 ChatRoomMemberRole.ADMINISTRATOR);
         }
 
@@ -852,12 +854,13 @@ public class ChatRoomJabberImpl
          */
         public void adminRevoked(String participant)
         {
-            ChatRoomMember member = smackParticipantToScMember(participant);
+            ChatRoomMemberJabberImpl member =
+                smackParticipantToScMember(participant);
 
             if(member == null)
                 return;
 
-            fireMemberRoleEvent(member, member.getRole(),
+            fireMemberRoleEvent(member, member.getCurrentRole(),
                 ChatRoomMemberRole.MEMBER);
         }
 
@@ -957,7 +960,7 @@ public class ChatRoomJabberImpl
             String participantName = StringUtils.parseResource(participant);
 
             // chnage the member key
-            ChatRoomMember mem = members.remove(participantName);
+            ChatRoomMemberJabberImpl mem = members.remove(participantName);
             members.put(newNickname, mem);
 
             ChatRoomMemberPropertyChangeEvent evt
@@ -981,12 +984,13 @@ public class ChatRoomJabberImpl
          */
         public void ownershipRevoked(String participant)
         {
-            ChatRoomMember member = smackParticipantToScMember(participant);
+            ChatRoomMemberJabberImpl member =
+                smackParticipantToScMember(participant);
 
             if(member == null)
                 return;
 
-            fireMemberRoleEvent(member, member.getRole(),
+            fireMemberRoleEvent(member, member.getCurrentRole(),
                 ChatRoomMemberRole.MEMBER);
         }
 
@@ -1032,12 +1036,13 @@ public class ChatRoomJabberImpl
          */
         public void moderatorGranted(String participant)
         {
-            ChatRoomMember member = smackParticipantToScMember(participant);
+            ChatRoomMemberJabberImpl member =
+                smackParticipantToScMember(participant);
 
             if(member == null)
                 return;
 
-            fireMemberRoleEvent(member, member.getRole(),
+            fireMemberRoleEvent(member, member.getCurrentRole(),
                 ChatRoomMemberRole.MODERATOR);
         }
 
@@ -1051,12 +1056,13 @@ public class ChatRoomJabberImpl
          */
         public void voiceRevoked(String participant)
         {
-            ChatRoomMember member = smackParticipantToScMember(participant);
+            ChatRoomMemberJabberImpl member =
+                smackParticipantToScMember(participant);
 
             if(member == null)
                 return;
 
-            fireMemberRoleEvent(member, member.getRole(),
+            fireMemberRoleEvent(member, member.getCurrentRole(),
                 ChatRoomMemberRole.SILENT_MEMBER);
         }
 
@@ -1069,12 +1075,13 @@ public class ChatRoomJabberImpl
          */
         public void membershipGranted(String participant)
         {
-            ChatRoomMember member = smackParticipantToScMember(participant);
+            ChatRoomMemberJabberImpl member =
+                smackParticipantToScMember(participant);
 
             if(member == null)
                 return;
 
-            fireMemberRoleEvent(member, member.getRole(),
+            fireMemberRoleEvent(member, member.getCurrentRole(),
                 ChatRoomMemberRole.MEMBER);
         }
 
@@ -1089,12 +1096,13 @@ public class ChatRoomJabberImpl
          */
         public void moderatorRevoked(String participant)
         {
-            ChatRoomMember member = smackParticipantToScMember(participant);
+            ChatRoomMemberJabberImpl member =
+                smackParticipantToScMember(participant);
 
             if(member == null)
                 return;
 
-            fireMemberRoleEvent(member, member.getRole(),
+            fireMemberRoleEvent(member, member.getCurrentRole(),
                 ChatRoomMemberRole.MEMBER);
         }
 
@@ -1108,12 +1116,13 @@ public class ChatRoomJabberImpl
          */
         public void voiceGranted(String participant)
         {
-            ChatRoomMember member = smackParticipantToScMember(participant);
+            ChatRoomMemberJabberImpl member =
+                smackParticipantToScMember(participant);
 
             if(member == null)
                 return;
 
-            fireMemberRoleEvent(member, member.getRole(),
+            fireMemberRoleEvent(member, member.getCurrentRole(),
                 ChatRoomMemberRole.MEMBER);
         }
 
@@ -1128,12 +1137,13 @@ public class ChatRoomJabberImpl
          */
         public void membershipRevoked(String participant)
         {
-            ChatRoomMember member = smackParticipantToScMember(participant);
+            ChatRoomMemberJabberImpl member =
+                smackParticipantToScMember(participant);
 
             if(member == null)
                 return;
 
-            fireMemberRoleEvent(member, member.getRole(),
+            fireMemberRoleEvent(member, member.getCurrentRole(),
                 ChatRoomMemberRole.GUEST);
         }
 
@@ -1147,12 +1157,13 @@ public class ChatRoomJabberImpl
          */
         public void ownershipGranted(String participant)
         {
-            ChatRoomMember member = smackParticipantToScMember(participant);
+            ChatRoomMemberJabberImpl member =
+                smackParticipantToScMember(participant);
 
             if(member == null)
                 return;
 
-            fireMemberRoleEvent(member, member.getRole(),
+            fireMemberRoleEvent(member, member.getCurrentRole(),
                 ChatRoomMemberRole.OWNER);
         }
     }

@@ -378,9 +378,9 @@ public class TestOperationSetMultiUserChat2
         //    new TestOperationSetMultiUserChat2("testGrantMembership"));
 
         suite.addTest(new TestOperationSetMultiUserChat2("testGrantModerator"));
-        
+
         suite.addTest(new TestOperationSetMultiUserChat2("testRevokeVoice"));
-        
+
         suite.addTest(new TestOperationSetMultiUserChat2("testGrantVoice"));
         
         suite.addTest(
@@ -1378,6 +1378,8 @@ public class TestOperationSetMultiUserChat2
     public void testGrantModerator() 
     throws OperationFailedException, OperationNotSupportedException
     {
+        logger.info("---= Start test for GrantModerator =---");
+
         String roomName = testRoomBaseName + roomID;
         ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user1's side", roomUser1);
@@ -1442,6 +1444,8 @@ public class TestOperationSetMultiUserChat2
     public void testRevokeVoice() 
     throws OperationFailedException, OperationNotSupportedException
     {
+        logger.info("---= Start test for RevokeVoice =---");
+
         String roomName = testRoomBaseName + roomID;
         ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user1's side", roomUser1);
@@ -1510,6 +1514,8 @@ public class TestOperationSetMultiUserChat2
     public void testGrantVoice() 
     throws OperationFailedException, OperationNotSupportedException
     {
+        logger.info("---= Start test for GrantVoice =---");
+
         String roomName = testRoomBaseName + roomID;
         ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user1's side", roomUser1);
