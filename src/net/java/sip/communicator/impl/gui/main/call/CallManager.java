@@ -419,6 +419,46 @@ public class CallManager
     }
 
     /**
+     * Returns a list of all currently registered telephony providers for the
+     * given protocol name.
+     * @param protocolName the protocol name
+     * @return a list of all currently registered telephony providers for the
+     * given protocol name
+     */
+    public static List<ProtocolProviderService> getTelephonyProviders(
+        String protocolName)
+    {
+        List<ProtocolProviderService> telephonyProviders
+            = new LinkedList<ProtocolProviderService>();
+
+        ProtocolProviderFactory providerFactory
+            = GuiActivator.getProtocolProviderFactory(protocolName);
+
+        if (providerFactory != null)
+        {
+            ServiceReference serRef;
+            ProtocolProviderService protocolProvider;
+
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+            {
+                serRef = providerFactory.getProviderForAccount(accountID);
+
+                protocolProvider
+                    = (ProtocolProviderService) GuiActivator.bundleContext
+                        .getService(serRef);
+
+                if (protocolProvider.getOperationSet(
+                        OperationSetBasicTelephony.class) != null
+                    && protocolProvider.isRegistered())
+                {
+                    telephonyProviders.add(protocolProvider);
+                }
+            }
+        }
+        return telephonyProviders;
+    }
+
+    /**
      * Returns an <tt>Iterator</tt> over a list of all currently active calls.
      * @return an <tt>Iterator</tt> over a list of all currently active calls
      */

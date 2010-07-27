@@ -49,6 +49,12 @@ public class ContactDetail
         preferredProviders;
 
     /**
+     * A mapping of <tt>OperationSet</tt> classes and preferred protocol name
+     * for them.
+     */
+    private Map<Class<? extends OperationSet>, String> preferredProtocols;
+
+    /**
      * A list of all supported <tt>OperatioSet</tt> classes.
      */
     private List<Class<? extends OperationSet>> supportedOpSets = null;
@@ -64,8 +70,7 @@ public class ContactDetail
     }
 
     /**
-     * Creates a <tt>ContactDetail</tt> by specifying the corresponding contact
-     * address and a mapping of preferred <tt>ProtocolProviderServices</tt> for
+     * Sets a mapping of preferred <tt>ProtocolProviderServices</tt> for
      * a specific <tt>OperationSet</tt>.
      * @param preferredProviders a mapping of preferred
      * <tt>ProtocolProviderService</tt>s for specific <tt>OperationSet</tt>
@@ -76,6 +81,25 @@ public class ContactDetail
                                                             preferredProviders)
     {
         this.preferredProviders = preferredProviders;
+    }
+
+    /**
+     * Sets a mapping of a preferred <tt>preferredProtocol</tt> for a specific
+     * <tt>OperationSet</tt>. The preferred protocols are meant to be set by
+     * contact source implementations that don't have a specific protocol
+     * providers to suggest, but are able to propose just the name of the
+     * protocol to be used for a specific operation. If both - preferred
+     * provider and preferred protocol are set, then the preferred protocol
+     * provider should be prioritized.
+     *
+     * @param preferredProtocols a mapping of preferred
+     * <tt>ProtocolProviderService</tt>s for specific <tt>OperationSet</tt>
+     * classes
+     */
+    public void setPreferredProtocols(
+        Map<Class<? extends OperationSet>, String> preferredProtocols)
+    {
+        this.preferredProtocols = preferredProtocols;
     }
 
     /**
@@ -115,6 +139,28 @@ public class ContactDetail
     {
         if (preferredProviders != null && preferredProviders.size() > 0)
             return preferredProviders.get(opSetClass);
+
+        return null;
+    }
+
+    /**
+     * Returns the name of the preferred protocol for the operation given by
+     * the <tt>opSetClass</tt>. The preferred protocols are meant to be set by
+     * contact source implementations that don't have a specific protocol
+     * providers to suggest, but are able to propose just the name of the
+     * protocol to be used for a specific operation. If both - preferred
+     * provider and preferred protocol are set, then the preferred protocol
+     * provider should be prioritized.
+     *
+     * @param opSetClass the <tt>OperationSet</tt> class corresponding to a
+     * certain action (e.g. sending an instant message, making a call, etc.).
+     * @return the name of the preferred protocol for the operation given by
+     * the <tt>opSetClass</tt>
+     */
+    public String getPreferredProtocol(Class<? extends OperationSet> opSetClass)
+    {
+        if (preferredProtocols != null && preferredProtocols.size() > 0)
+            return preferredProtocols.get(opSetClass);
 
         return null;
     }

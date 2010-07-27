@@ -241,7 +241,8 @@ public class SourceUIContact
         {
             super(  detail.getContactAddress(),
                     detail.getContactAddress(),
-                    detail.getPreferredProtocolProvider(opSetClass));
+                    detail.getPreferredProtocolProvider(opSetClass),
+                    detail.getPreferredProtocol(opSetClass));
         }
 
         /**

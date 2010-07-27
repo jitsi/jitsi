@@ -116,17 +116,37 @@ public class CallHistorySourceContact implements SourceContact
 
                 Map<Class<? extends OperationSet>, ProtocolProviderService>
                     preferredProviders = null;
-                if (callRecord.getProtocolProvider() != null)
+                Map<Class<? extends OperationSet>, String>
+                    preferredProtocols = null;
+
+                ProtocolProviderService preferredProvider
+                    = callRecord.getProtocolProvider();
+
+                if (preferredProvider != null)
                 {
                     preferredProviders
                         = new Hashtable<Class<? extends OperationSet>,
                                         ProtocolProviderService>();
 
                     preferredProviders.put( OperationSetBasicTelephony.class,
-                                            callRecord.getProtocolProvider());
+                                            preferredProvider);
 
-                    contactDetail
-                        .setPreferredProviders(preferredProviders);
+                    contactDetail.setPreferredProviders(preferredProviders);
+                }
+                // If there's no preferred provider set we just specify that
+                // the SIP protocol should be used for the telephony operation
+                // set. This is needed for all history records stored before
+                // the protocol provider property had been introduced.
+                else
+                {
+                    preferredProtocols
+                        = new Hashtable<Class<? extends OperationSet>,
+                                        String>();
+
+                    preferredProtocols.put( OperationSetBasicTelephony.class,
+                                            ProtocolNames.SIP);
+
+                    contactDetail.setPreferredProtocols(preferredProtocols);
                 }
 
                 // Set supported operation sets.

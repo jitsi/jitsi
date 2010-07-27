@@ -387,7 +387,8 @@ public class MetaUIContact
         {
             super(  contact.getAddress(),
                     contact.getDisplayName(),
-                    contact.getProtocolProvider());
+                    contact.getProtocolProvider(),
+                    contact.getProtocolProvider().getProtocolName());
 
             this.contact = contact;
         }

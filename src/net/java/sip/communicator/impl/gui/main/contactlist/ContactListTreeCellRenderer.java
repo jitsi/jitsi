@@ -666,15 +666,37 @@ public class ContactListTreeCellRenderer
                 = detail.getPreferredProtocolProvider(
                     OperationSetBasicTelephony.class);
 
-            if (preferredProvider != null && preferredProvider.isRegistered())
+            List<ProtocolProviderService> providers = null;
+            String protocolName = null;
+
+            if (preferredProvider != null)
             {
-                CallManager.createCall(preferredProvider, detail.getAddress());
+                if (preferredProvider.isRegistered())
+                    CallManager.createCall(
+                        preferredProvider, detail.getAddress());
+                // If we have a provider, but it's not registered we try to
+                // obtain all registered providers for the same protocol as the
+                // given preferred provider.
+                else
+                {
+                    protocolName = preferredProvider.getProtocolName();
+                    providers = CallManager.getTelephonyProviders(protocolName);
+                }
             }
+            // If we don't have a preferred provider we try to obtain a
+            // preferred protocol name and all registered providers for it.
             else
             {
-                List<ProtocolProviderService> providers
-                    = CallManager.getTelephonyProviders();
+                protocolName = detail
+                    .getPreferredProtocol(OperationSetBasicTelephony.class);
+                providers
+                    = CallManager.getTelephonyProviders(protocolName);
+            }
 
+            // If our call didn't succeed, try to call through one of the other
+            // protocol providers obtained above.
+            if (providers != null)
+            {
                 int providersCount = providers.size();
 
                 if (providersCount <= 0)
@@ -683,12 +705,14 @@ public class ContactListTreeCellRenderer
                         GuiActivator.getResources().getI18NString(
                             "service.gui.CALL_FAILED"),
                         GuiActivator.getResources().getI18NString(
-                            "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
+                            "service.gui.NO_ONLINE_TEL_PROTOCOL_ACCOUNT",
+                            new String[]{protocolName}))
                     .showDialog();
                 }
                 else if (providersCount == 1)
                 {
-                    CallManager.createCall(providers.get(0), detail.getAddress());
+                    CallManager.createCall(
+                        providers.get(0), detail.getAddress());
                 }
                 else if (providersCount > 1)
                     chooseAccountDialog = new ChooseCallAccountPopupMenu(

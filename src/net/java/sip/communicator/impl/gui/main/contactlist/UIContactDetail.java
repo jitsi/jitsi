@@ -33,20 +33,30 @@ public abstract class UIContactDetail
     private final ProtocolProviderService protocolProvider;
 
     /**
+     * The protocol to be used for this contact detail if no protocol provider
+     * is set.
+     */
+    private final String preferredProtocol;
+
+    /**
      * Creates a <tt>UIContactDetail</tt> by specifying the contact
      * <tt>address</tt>, the <tt>displayName</tt> and <tt>preferredProvider</tt>.
      * @param address the contact address
      * @param displayName the contact display name
      * @param preferredProvider the preferred protocol provider
+     * @param preferredProtocol the preferred protocol if no protocol provider
+     * is set
      */
     public UIContactDetail(
         String address,
         String displayName,
-        ProtocolProviderService preferredProvider)
+        ProtocolProviderService preferredProvider,
+        String preferredProtocol)
     {
         this.address = address;
         this.displayName = displayName;
         this.protocolProvider = preferredProvider;
+        this.preferredProtocol = preferredProtocol;
     }
 
     /**
@@ -80,6 +90,18 @@ public abstract class UIContactDetail
         return protocolProvider;
     }
 
+    /**
+     * Returns the name of the protocol preferred for contacting this detail for
+     * the given <tt>OperationSet</tt> class if no preferred protocol provider
+     * is set.
+     * @param opSetClass the <tt>OperationSet</tt> class for which we're looking
+     * for protocol
+     * @return the name of the protocol preferred for contacting this detail
+     */
+    public String getPreferredProtocol(Class<? extends OperationSet> opSetClass)
+    {
+        return preferredProtocol;
+    }
     /**
      * Returns the <tt>PresenceStatus</tt> of this <tt>ContactDetail</tt> or
      * null if the detail doesn't support presence.
