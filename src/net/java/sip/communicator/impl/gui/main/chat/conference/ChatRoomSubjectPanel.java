@@ -76,18 +76,27 @@ public class ChatRoomSubjectPanel
         // TODO Implement the editing of the chat room subject.
         subjectField.setEditable(false);
 
-        JButton configButton
-            = new JButton(
-                    new ImageIcon(
-                            ImageLoader.getImage(
-                                    ImageLoader.CHAT_ROOM_CONFIG)));
-        configButton.setPreferredSize(new Dimension(26, 26));
-        configButton.addActionListener(new ConfigButtonActionListener());
-
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         add(subjectLabel, BorderLayout.WEST);
         add(subjectField, BorderLayout.CENTER);
-        add(configButton, BorderLayout.EAST);
+
+        ChatRoomMemberRole role = ((ChatRoomWrapper)chatSession.getDescriptor())
+                .getChatRoom().getUserRole();
+
+        if(role.equals(ChatRoomMemberRole.ADMINISTRATOR)
+            || role.equals(ChatRoomMemberRole.MODERATOR)
+            || role.equals(ChatRoomMemberRole.OWNER))
+        {
+            JButton configButton
+                = new JButton(
+                        new ImageIcon(
+                                ImageLoader.getImage(
+                                        ImageLoader.CHAT_ROOM_CONFIG)));
+            configButton.setPreferredSize(new Dimension(26, 26));
+            configButton.addActionListener(new ConfigButtonActionListener());
+
+            add(configButton, BorderLayout.EAST);
+        }
     }
 
     /**

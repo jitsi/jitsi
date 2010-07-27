@@ -40,9 +40,11 @@ public class ChatRoomMemberListPanel
     /**
      * The model of the members list.
      */
-    private final ChatContactListModel memberListModel
-        = new ChatContactListModel();
+    private final ChatContactListModel memberListModel;
 
+    /**
+     * Current chat panel.
+     */
     private final ChatPanel chatPanel;
 
     /**
@@ -57,6 +59,8 @@ public class ChatRoomMemberListPanel
         super(new BorderLayout());
 
         this.chatPanel = chatPanel;
+        this.memberListModel
+            = new ChatContactListModel(chatPanel.getChatSession());
 
         this.memberList.setModel(memberListModel);
         this.memberList.addKeyListener(new CListKeySearchListener(memberList));
@@ -75,6 +79,9 @@ public class ChatRoomMemberListPanel
                 {
                     if(e.getButton() == MouseEvent.BUTTON3)
                     {
+                        memberList.setSelectedIndex(
+                            memberList.locationToIndex(e.getPoint()));
+
                         ChatContact chatContact
                             = (ChatContact) memberList.getSelectedValue();
 

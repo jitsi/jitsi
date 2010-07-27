@@ -174,6 +174,17 @@ public class DefaultContactList
                 tip.setImage(avatarImage);
 
             tip.setTitle(chatContact.getName());
+
+            Object descriptor = chatContact.getDescriptor();
+
+            if(descriptor instanceof ChatRoomMember)
+            {
+                ChatRoomMember member = (ChatRoomMember)descriptor;
+
+                tip.addLine(
+                    ChatContactRoleIcon.getRoleIcon(member.getRole()),
+                    member.getRole().getLocalizedRoleName());
+            }
         }
 
         tip.setComponent(this);

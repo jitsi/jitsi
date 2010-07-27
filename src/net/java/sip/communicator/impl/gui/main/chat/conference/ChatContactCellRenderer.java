@@ -54,6 +54,10 @@ public class ChatContactCellRenderer
         this.rightLabel.setIcon(null);
 
         final ChatContact chatContact = (ChatContact) value;
+
+        if(chatContact == null)
+            return this;
+
         ChatRoomMember member = null;
         
         if (chatContact.getDescriptor() instanceof ChatRoomMember)
@@ -61,7 +65,14 @@ public class ChatContactCellRenderer
 
         this.setPreferredSize(new Dimension(20, 30));
 
-        String displayName = chatContact.getName();
+        String displayName;
+
+//        if(member != null && member.getContact() != null)
+//        {
+//            displayName = member.getContact().getDisplayName();
+//        }
+//        else
+        displayName = chatContact.getName();
 
         if (displayName == null || displayName.length() < 1)
         {

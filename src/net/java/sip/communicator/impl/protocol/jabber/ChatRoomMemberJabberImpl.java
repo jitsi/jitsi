@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import org.jivesoftware.smackx.muc.*;
 import org.jivesoftware.smack.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -59,25 +60,22 @@ public class ChatRoomMemberJabberImpl
      * in the chat room
      * @param jabberID the jabber id, if available, of the member or null
      * otherwise.
-     * @param role the role that the member has in this room.
      */
     public ChatRoomMemberJabberImpl(ChatRoomJabberImpl containingChatRoom,
                                     String             nickName,
-                                    String             jabberID,
-                                    ChatRoomMemberRole role)
+                                    String             jabberID)
     {
         this.jabberID = jabberID;
         this.nickName = nickName;
         this.containingRoom = containingChatRoom;
-
-        this.role = role;
 
         OperationSetPersistentPresenceJabberImpl presenceOpSet
             = (OperationSetPersistentPresenceJabberImpl) containingChatRoom
                 .getParentProvider().getOperationSet(
                     OperationSetPersistentPresence.class);
 
-        this.contact = presenceOpSet.findContactByID(jabberID);
+        this.contact = presenceOpSet.findContactByID(
+            StringUtils.parseBareAddress(jabberID));
 
         // If we have found a contact we set also its avatar.
         if (contact != null)
@@ -149,6 +147,20 @@ public class ChatRoomMemberJabberImpl
      */
     public ChatRoomMemberRole getRole()
     {
+        if(role == null)
+        {
+            Occupant o =
+                containingRoom.getMultiUserChat().getOccupant(
+                    containingRoom.getIdentifier() + "/" + nickName);
+
+            if(o == null)
+            {
+                return ChatRoomMemberRole.GUEST;
+            }
+            else
+                role = ChatRoomJabberImpl.smackRoleToScRole(o.getRole());
+        }
+
         return role;
     }
 

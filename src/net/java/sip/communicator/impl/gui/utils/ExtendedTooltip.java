@@ -115,7 +115,7 @@ public class ExtendedTooltip
      * @param icon the icon to show
      * @param text the name to show
      */
-    public void addLine(ImageIcon icon,
+    public void addLine(Icon icon,
                         String text)
     {
         JLabel lineLabel = new JLabel(  text,

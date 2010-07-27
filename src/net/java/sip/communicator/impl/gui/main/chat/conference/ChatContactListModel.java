@@ -11,6 +11,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Implements an <tt>AbstractListModel</tt> which represents a member list of
@@ -75,6 +76,44 @@ public class ChatContactListModel
     };
 
     /**
+     * Creates the model.
+     * @param chatSession The current model chat session.
+     */
+    public ChatContactListModel(ChatSession chatSession)
+    {
+        // when something like rename on a member change
+        // update the UI to reflect it
+        if(chatSession.getDescriptor() instanceof ChatRoomWrapper)
+        {
+            ((ChatRoomWrapper)chatSession.getDescriptor()).getChatRoom()
+                .addMemberPropertyChangeListener(
+                    new ChatRoomMemberPropertyChangeListener()
+                {
+                    public void chatRoomPropertyChanged(
+                        ChatRoomMemberPropertyChangeEvent event)
+                    {
+                        // find the index and fire
+                        // that content has changed
+                        int chatContactCount = chatContacts.size();
+
+                        for (int i = 0; i < chatContactCount; i++)
+                        {
+                            ChatContact containedChatContact = chatContacts.get(i);
+
+                            if(containedChatContact.getDescriptor().equals(
+                                event.getSourceChatRoomMember()))
+                            {
+                                fireContentsChanged(containedChatContact, i, i);
+                            }
+                        }
+                    }
+            });
+        }
+    }
+
+
+
+    /**
      * Adds a specific <tt>ChatContact</tt> to this <tt>AbstractListModel</tt>
      * implementation and preserves the sorting it applies.
      * 
@@ -86,40 +125,50 @@ public class ChatContactListModel
         if (chatContact == null)
             throw new IllegalArgumentException("chatContact");
 
-        int chatContactCount = chatContacts.size();
         int index = -1;
 
-        for (int i = 0; i < chatContactCount; i++)
+        synchronized(chatContacts)
         {
-            ChatContact containedChatContact = chatContacts.get(i);
+            int chatContactCount = chatContacts.size();            
 
-            // We don't want duplicates.
-            if (chatContact.equals(containedChatContact))
-                return;
-            if ((index == -1)
-                    && (sorter.compare(containedChatContact, chatContact) > 0))
+            for (int i = 0; i < chatContactCount; i++)
             {
-                index = i;
-                // Continue in order to prevent duplicates.
-            }
-        }
-        if (index == -1)
-            index = chatContactCount;
+                ChatContact containedChatContact = chatContacts.get(i);
 
-        chatContacts.add(index, chatContact);
+                // We don't want duplicates.
+                if (chatContact.equals(containedChatContact))
+                    return;
+                if ((index == -1)
+                        && (sorter.compare(containedChatContact, chatContact) > 0))
+                {
+                    index = i;
+                    // Continue in order to prevent duplicates.
+                }
+            }
+            if (index == -1)
+                index = chatContactCount;
+
+            chatContacts.add(index, chatContact);
+        }
         fireIntervalAdded(this, index, index);
     }
 
     /* Implements ListModel#getElementAt(int). */
     public Object getElementAt(int index)
     {
-        return chatContacts.get(index);
+        synchronized(chatContacts)
+        {
+            return chatContacts.get(index);
+        }
     }
 
     /* Implements ListModel#getSize(). */
     public int getSize()
     {
-        return chatContacts.size();
+        synchronized(chatContacts)
+        {
+            return chatContacts.size();
+        }
     }
 
     /**
@@ -131,9 +180,12 @@ public class ChatContactListModel
      */
     public void removeElement(ChatContact chatContact)
     {
-        int index = chatContacts.indexOf(chatContact);
+        synchronized(chatContacts)
+        {
+            int index = chatContacts.indexOf(chatContact);
 
-        if ((index >= 0) && chatContacts.remove(chatContact))
-            fireIntervalRemoved(this, index, index);
+            if ((index >= 0) && chatContacts.remove(chatContact))
+                fireIntervalRemoved(this, index, index);
+        }
     }
 }
