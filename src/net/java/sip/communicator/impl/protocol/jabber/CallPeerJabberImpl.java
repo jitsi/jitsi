@@ -162,7 +162,7 @@ public class CallPeerJabberImpl
             JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
                 sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
                 sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
-                exc.getMessage());
+                exc.getClass().getSimpleName() + ": " + exc.getMessage());
 
             setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
             getProtocolProvider().getConnection().sendPacket(errResp);
