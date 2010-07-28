@@ -14,6 +14,7 @@ import java.util.*;
 import javax.net.ssl.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ProxyInfo.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
@@ -1444,10 +1445,16 @@ public class ProtocolProviderServiceJabberImpl
         InetAddress nextHop = null;
         String nextHopStr = null;
 
-        if ( proxy != null)
+        if ( proxy != null
+            && proxy.getProxyType()
+              != org.jivesoftware.smack.proxy.ProxyInfo.ProxyType.NONE)
+        {
             nextHopStr = proxy.getProxyAddress();
+        }
         else
+        {
             nextHopStr = getConnection().getHost();
+        }
 
 
         try
