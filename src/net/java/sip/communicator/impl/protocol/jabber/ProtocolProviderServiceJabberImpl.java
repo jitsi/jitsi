@@ -1456,7 +1456,6 @@ public class ProtocolProviderServiceJabberImpl
             nextHopStr = getConnection().getHost();
         }
 
-
         try
         {
             nextHop = NetworkUtils.getInetAddress(nextHopStr);

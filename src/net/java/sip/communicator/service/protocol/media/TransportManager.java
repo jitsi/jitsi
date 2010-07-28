@@ -135,9 +135,9 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         {
             if(connector != null)
             {
-                audioStreamConnector.getDataSocket().close();
-                audioStreamConnector.getControlSocket().close();
-                audioStreamConnector = null;
+                connector.getDataSocket().close();
+                connector.getControlSocket().close();
+                connector = null;
             }
         }
 

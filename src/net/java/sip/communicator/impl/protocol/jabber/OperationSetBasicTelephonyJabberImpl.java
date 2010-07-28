@@ -428,7 +428,14 @@ public class OperationSetBasicTelephonyJabberImpl
             protocolProvider.getConnection().sendPacket(ack);
         }
 
-        processJinglePacket(jingleIQ);
+        try
+        {
+            processJinglePacket(jingleIQ);
+        }
+        catch(Throwable thr)
+        {
+            logger.info("Error while handling incoming Jingle packet: ", thr);
+        }
     }
 
     /**

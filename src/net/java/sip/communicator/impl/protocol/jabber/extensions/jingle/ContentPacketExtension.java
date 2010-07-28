@@ -255,7 +255,11 @@ public class ContentPacketExtension extends AbstractPacketExtension
      */
     public SendersEnum getSenders()
     {
-        return SendersEnum.valueOf( getAttributeAsString(SENDERS_ATTR_NAME) );
+        Object attributeVal = getAttribute(SENDERS_ATTR_NAME);
+
+        return attributeVal == null
+                    ? null
+                    : SendersEnum.valueOf( attributeVal.toString() );
     }
 
     /**
