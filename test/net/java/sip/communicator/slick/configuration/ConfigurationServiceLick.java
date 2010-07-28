@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.slick.configuration;
 
 import java.util.*;
@@ -6,7 +12,6 @@ import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
-
 
 /**
  * @author Emil Ivov
@@ -51,7 +56,4 @@ public class ConfigurationServiceLick
     public void stop(BundleContext bundlecontext) throws Exception
     {
     }
-
-
-
 }

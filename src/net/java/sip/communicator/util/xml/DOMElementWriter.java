@@ -1,5 +1,3 @@
-package net.java.sip.communicator.util.xml;
-
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
@@ -22,8 +20,8 @@ package net.java.sip.communicator.util.xml;
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
+package net.java.sip.communicator.util.xml;
 
 import java.io.*;
 
@@ -32,14 +30,247 @@ import org.w3c.dom.*;
 /**
  * Writes a DOM tree to a given Writer.
  *
- * <p>Utility class used by net.java.sip.communicator.util.xml.XMLUtils
- * and the net.java.sip.communicator.slick.runner.SipCommunicatorSlickRunner.
+ * <p>Utility class used by {@link XMLUtils} and
+ * {@link net.java.sip.communicator.slick.runner.SipCommunicatorSlickRunner}.
  * </p>
  *
+ * @author Lubomir Marinov
  */
-public class DOMElementWriter {
+public class DOMElementWriter
+{
+    /**
+     * The system-specific line separator as defined by the well-known system
+     * property.
+     */
+    private static final String lSep = System.getProperty("line.separator");
 
-    private static String lSep = System.getProperty("line.separator");
+    /**
+     * Decodes an XML (element) name according to
+     * http://www.w3.org/TR/xml/#NT-Name.
+     *
+     * @param name the XML (element) name to be decoded
+     * @return a <tt>String</tt> which represents <tt>name</tt> decoded
+     * according to http://www.w3.org/TR/xml/#NT-Name
+     */
+    public static String decodeName(String name)
+    {
+        int length = name.length();
+        StringBuilder value = new StringBuilder(length);
+
+        for (int i = 0; i < length;)
+        {
+            int start = name.indexOf('_', i);
+
+            /*
+             * If there's nothing else to decode, append whatever's left and
+             * finish.
+             */
+            if (start == -1)
+            {
+                value.append(name, i, length);
+                break;
+            }
+
+            /*
+             * We may have to decode from start (inclusive). Append from i to
+             * start (exclusive).
+             */
+            if (i != start)
+                value.append(name, i, start);
+
+            // Determine whether we'll actually decode.
+            int end = start + 6 /* xHHHH_ */;
+
+            if ((end < length)
+                    && (name.charAt(start + 1) == 'x')
+                    && (name.charAt(end) == '_')
+                    && isHexDigit(name.charAt(start + 2))
+                    && isHexDigit(name.charAt(start + 3))
+                    && isHexDigit(name.charAt(start + 4))
+                    && isHexDigit(name.charAt(start + 5)))
+            {
+                char c = (char) Integer.parseInt(name.substring(start + 2, end), 16);
+
+                /*
+                 * We've decoded a character. But is it really a character we'd
+                 * have encoded in the first place? We don't want to
+                 * accidentally decode a string just because it looked like an
+                 * encoded character.
+                 */
+                if ((start == 0) ? !isNameStartChar(c) : !isNameChar(c))
+                {
+                    value.append(c);
+                    i = end + 1;
+                    continue;
+                }
+            }
+
+            // We didn't really have to decode and the string was a literal.
+            value.append(name.charAt(start));
+            i = start + 1;
+        }
+        return value.toString();
+    }
+
+    /**
+     * Encodes a specific <tt>String</tt> so that it is a valid XML (element)
+     * name according to http://www.w3.org/TR/xml/#NT-Name.
+     *
+     * @param value the <tt>String</tt> to be encoded so that it is a valid XML
+     * name
+     * @return a <tt>String</tt> which represents <tt>value</tt> encoded so that
+     * it is a valid XML (element) name
+     */
+    public static String encodeName(String value)
+    {
+        int length = value.length();
+        StringBuilder name = new StringBuilder();
+
+        for (int i = 0; i < length; i++)
+        {
+            char c = value.charAt(i);
+
+            if (i == 0)
+            {
+                if (isNameStartChar(c))
+                {
+                    name.append(c);
+                    continue;
+                }
+            }
+            else if (isNameChar(c))
+            {
+                name.append(c);
+                continue;
+            }
+
+            name.append("_x");
+            if (c <= 0x000F)
+                name.append("000");
+            else if (c <= 0x00FF)
+                name.append("00");
+            else if (c <= 0x0FFF)
+                name.append('0');
+            name.append(Integer.toHexString(c).toUpperCase());
+            name.append('_');
+        }
+        return name.toString();
+    }
+
+    /**
+     * Determines whether a specific character represents a hex digit.
+     *
+     * @param c the character to be checked whether it represents a hex digit
+     * @return <tt>true</tt> if the specified character represents a hex digit;
+     * otherwise, <tt>false</tt>
+     */
+    private static boolean isHexDigit(char c)
+    {
+        return
+            (('0' <= c) && (c <= '9'))
+                || (('A' <= c) && (c <= 'F'))
+                || (('a' <= c) && (c <= 'f'));
+    }
+
+    /**
+     * Determines whether a specific characters is a <tt>NameChar</tt> as
+     * defined by http://www.w3.org/TR/xml/#NT-Name.
+     *
+     * @param c the character which is to be determines whether it is a
+     * <tt>NameChar</tt>
+     * @return <tt>true</tt> if the specified character is a <tt>NameChar</tt>;
+     * otherwise, <tt>false</tt>
+     */
+    private static boolean isNameChar(char c)
+    {
+        if (isNameStartChar(c))
+            return true;
+        else if ((c == '-') || (c == '.'))
+            return true;
+        else if (('0' <= c) && (c <= '9'))
+            return true;
+        else if (c == 0xB7)
+            return true;
+        else if (c < 0x0300)
+            return false;
+        else if (c <= 0x036F)
+            return true;
+        else if (c < 0x203F)
+            return false;
+        else if (c <= 0x2040)
+            return true;
+        else
+            return false;
+    }
+
+    /**
+     * Determines whether a specific characters is a <tt>NameStartChar</tt> as
+     * defined by http://www.w3.org/TR/xml/#NT-Name.
+     *
+     * @param c the character to be determined whether it is a
+     * <tt>NameStartChar</tt>
+     * @return <tt>true</tt> if the specified character is a
+     * <tt>NameStartChar</tt>; otherwise, <tt>false</tt>
+     */
+    private static boolean isNameStartChar(char c)
+    {
+        if ((c == ':') || (c == '_'))
+            return true;
+        else if (('A' <= c) && (c <= 'Z'))
+            return true;
+        else if (('a' <= c) && (c <= 'z'))
+            return true;
+        else if (c < 0xC0)
+            return false;
+        else if (c <= 0xD6)
+            return true;
+        else if (c < 0xD8)
+            return false;
+        else if (c <= 0xF6)
+            return true;
+        else if (c < 0xF8)
+            return false;
+        else if (c <= 0x2FF)
+            return true;
+        else if (c < 0x370)
+            return false;
+        else if (c <= 0x37D)
+            return true;
+        else if (c < 0x37F)
+            return false;
+        else if (c <= 0x1FFF)
+            return true;
+        else if (c < 0x200C)
+            return false;
+        else if (c <= 0x200D)
+            return true;
+        else if (c < 0x2070)
+            return false;
+        else if (c <= 0x218F)
+            return true;
+        else if (c < 0x2C00)
+            return false;
+        else if (c <= 0x2FEF)
+            return true;
+        else if (c < 0x3001)
+            return false;
+        else if (c <= 0xD7FF)
+            return true;
+        else if (c < 0xF900)
+            return false;
+        else if (c <= 0xFDCF)
+            return true;
+        else if (c < 0xFDF0)
+            return false;
+        else if (c <= 0xFFFD)
+            return true;
+//        else if (c < 0x10000)
+//            return false;
+//        else if (c <= 0xEFFFF)
+//            return true;
+        else
+            return false;
+    }
 
     /**
      * Don't try to be too smart but at least recognize the predefined
@@ -192,7 +423,8 @@ public class DOMElementWriter {
     public String encode(String value) {
         StringBuffer sb = new StringBuffer();
         int len = value.length();
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++)
+        {
             char c = value.charAt(i);
             switch (c) {
             case '<':
@@ -209,17 +441,15 @@ public class DOMElementWriter {
                 break;
             case '&':
                 int nextSemi = value.indexOf(";", i);
-                if (nextSemi < 0
-                    || !isReference(value.substring(i, nextSemi + 1))) {
+                if ((nextSemi < 0)
+                        || !isReference(value.substring(i, nextSemi + 1)))
                     sb.append("&amp;");
-                } else {
+                else
                     sb.append('&');
-                }
                 break;
             default:
-                if (isLegalCharacter(c)) {
+                if (isLegalCharacter(c))
                     sb.append(c);
-                }
                 break;
             }
         }
@@ -268,15 +498,13 @@ public class DOMElementWriter {
     /**
      * Is the given argument a character or entity reference?
      *
-     *
      * @param ent the string whose nature we need to determine.
-     *
-     * @return true if ent is an entity reference and false otherwise.
+     * @return <tt>true</tt> if <tt>ent</tt> is an entity reference and
+     * <tt>false</tt> otherwise.
      */
     public boolean isReference(String ent) {
-        if (!(ent.charAt(0) == '&') || !ent.endsWith(";")) {
+        if (!(ent.charAt(0) == '&') || !ent.endsWith(";"))
             return false;
-        }
 
         if (ent.charAt(1) == '#') {
             if (ent.charAt(2) == 'x') {
@@ -314,7 +542,7 @@ public class DOMElementWriter {
      *
      * @since 1.10, Ant 1.5
      *
-     * @param c the character hose nature we'd like to determine.
+     * @param c the character whose nature we'd like to determine.
      *
      * @return true if c is a legal character and false otherwise
      */

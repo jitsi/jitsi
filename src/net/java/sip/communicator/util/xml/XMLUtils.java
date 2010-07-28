@@ -25,6 +25,10 @@ import net.java.sip.communicator.util.*;
  */
 public class XMLUtils
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>XMLUtils</tt> class for logging
+     * output.
+     */
     private static final Logger logger = Logger.getLogger(XMLUtils.class);
 
     /**
@@ -55,14 +59,7 @@ public class XMLUtils
     {
         Text text = getTextNode(parentNode);
 
-        if (text == null)
-        {
-            return null;
-        }
-        else
-        {
-            return text.getData();
-        }
+        return (text == null) ? null : text.getData();
     }
 
     /**
@@ -116,10 +113,8 @@ public class XMLUtils
     public static String getCData(Element element)
     {
         CDATASection text = getCDataNode(element);
-        if (text != null)
-            return text.getData().trim();
-        else
-            return null;
+
+        return (text == null) ? null : text.getData().trim();
     }
 
 
@@ -434,7 +429,7 @@ public class XMLUtils
      * have
      * @param keyAttributeValue the value that attribute must have
      * @return the Element in the tree under root that matches the specified
-     * paameters.
+     * parameters.
      * @throws NullPointerException if any of the arguments is null.
      */
     public static Element locateElement(Element root,
@@ -443,33 +438,35 @@ public class XMLUtils
                                         String keyAttributeValue)
     {
         NodeList nodes = root.getChildNodes();
-        Node node;
         int len = nodes.getLength();
+
         for(int i = 0; i < len; i++)
         {
-            node = nodes.item(i);
+            Node node = nodes.item(i);
+
             if(node.getNodeType() != Node.ELEMENT_NODE)
                 continue;
+
+            Element element = (Element) node;
 
             // is this the node we're looking for?
             if(node.getNodeName().equals(tagName))
             {
-                String attr = ((Element)node).getAttribute(keyAttributeName);
+                String attr = element.getAttribute(keyAttributeName);
 
-                if(    attr!= null
-                    && attr.equals(keyAttributeValue))
-                    return (Element) node;
+                if((attr != null) && attr.equals(keyAttributeValue))
+                    return element;
             }
 
             //look inside.
-            Element child = locateElement( (Element) node, tagName
-                          , keyAttributeName, keyAttributeValue);
+            Element child
+                = locateElement(
+                        element,
+                        tagName, keyAttributeName, keyAttributeValue);
 
             if (child != null)
                 return child;
-
         }
-
         return null;
     }
 

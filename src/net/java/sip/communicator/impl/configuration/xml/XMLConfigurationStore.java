@@ -29,8 +29,12 @@ import net.java.sip.communicator.util.xml.*;
 public class XMLConfigurationStore
     implements ConfigurationStore
 {
-    private static final Logger logger =
-        Logger.getLogger(XMLConfigurationStore.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>XMLConfigurationStore</tt> class and
+     * its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(XMLConfigurationStore.class);
 
     /** Name of the xml attribute containing property values */
     private static final String ATTRIBUTE_VALUE = "value";
@@ -152,7 +156,7 @@ public class XMLConfigurationStore
             Map<String, Object> props = new Hashtable<String, Object>();
 
             //if the file is empty (or contains only sth insignificant)
-            //ifnore it and create a new document.
+            //ignore it and create a new document.
             if(file.length() < "<sip-communicator>".length()*2)
                 propertiesDocument = createPropertiesDocument();
             else
@@ -168,9 +172,11 @@ public class XMLConfigurationStore
 
                 if(currentNode.getNodeType() == Node.ELEMENT_NODE)
                 {
-                    StringBuffer propertyNameBuff = new StringBuffer();
-                    propertyNameBuff.append(currentNode.getNodeName());
-                    loadNode(currentNode, propertyNameBuff, props);
+                    String propertyName
+                        = DOMElementWriter.decodeName(
+                                currentNode.getNodeName());
+
+                    loadNode(currentNode, propertyName, props);
                 }
             }
 
@@ -195,56 +201,56 @@ public class XMLConfigurationStore
      * properties. Any nodes marked as "system" will also be resolved in the
      * system properties.
      * @param node the root node that we should load together with its children
-     * @param propertyNameBuff a StringBuffer containing the prefix describing
-     * the route to the specified node including its one name
-     * @param properties the dictionary object where all properties extracted
+     * @param propertyName a String containing the prefix describing the route
+     * to the specified node including its one name
+     * @param props the dictionary object where all properties extracted
      * from this node and its children should be recorded.
      */
     private void loadNode(Node         node,
-                          StringBuffer propertyNameBuff,
+                          String propertyName,
                           Map<String, Object>          props)
     {
         Node currentNode = null;
         NodeList children = node.getChildNodes();
+
         for(int i = 0; i < children.getLength(); i++)
         {
             currentNode = children.item(i);
 
             if(currentNode.getNodeType() == Node.ELEMENT_NODE)
             {
-                StringBuffer newPropBuff =
-                    new StringBuffer(propertyNameBuff
-                                     + "." +currentNode.getNodeName());
+                String newProp
+                    = propertyName
+                        + "."
+                        + DOMElementWriter.decodeName(
+                                currentNode.getNodeName());
                 String value = XMLConfUtils.getAttribute(
                     currentNode, ATTRIBUTE_VALUE);
-
-                String propertyType =
-                    XMLConfUtils.getAttribute(currentNode, SYSTEM_ATTRIBUTE_NAME);
 
                 // the value attr is present we must handle the desired property
                 if(value != null)
                 {
+                    String propertyType
+                        = XMLConfUtils.getAttribute(
+                                currentNode,
+                                SYSTEM_ATTRIBUTE_NAME);
 
                     //if the property is marked as "system", we should resolve
                     //it against the system properties and only store a
                     //reference locally. this is normally done for properties
                     //that are supposed to configure underlying libraries.
-                    if(propertyType != null
-                       && propertyType.equals(SYSTEM_ATTRIBUTE_TRUE))
+                    if((propertyType != null)
+                            && propertyType.equals(SYSTEM_ATTRIBUTE_TRUE))
                     {
-                        props.put(
-                            newPropBuff.toString(),
-                            new PropertyReference(newPropBuff.toString()));
-                        System.setProperty(newPropBuff.toString(), value);
+                        props.put(newProp, new PropertyReference(newProp));
+                        System.setProperty(newProp, value);
                     }
                     else
-                    {
-                        props.put(newPropBuff.toString(), value);
-                    }
+                        props.put(newProp, value);
                 }
 
                 //load child nodes
-                loadNode(currentNode, newPropBuff, props);
+                loadNode(currentNode, newProp, props);
             }
         }
     }
@@ -263,25 +269,23 @@ public class XMLConfigurationStore
     {
         for (Map.Entry<String, Object> entry : newProperties.entrySet())
         {
-            String key = entry.getKey();
             Object value = entry.getValue();
-            boolean isSystem = value instanceof PropertyReference;
-            value = isSystem
-                        ?((PropertyReference)value).getValue()
-                        :value;
-            processNewProperty(doc, key, value.toString(), isSystem);
+            boolean system;
+
+            if (system = (value instanceof PropertyReference))
+                value = ((PropertyReference) value).getValue();
+            processNewProperty(doc, entry.getKey(), value.toString(), system);
         }
     }
 
     /**
-     * Creates an entry in the xml <tt>doc</tt> for the specified key value
+     * Creates an entry in the XML <tt>doc</tt> for the specified key value
      * pair.
      * @param doc the XML <tt>document</tt> to update.
      * @param key the value of the <tt>name</tt> attribute for the new entry
-     * @param value the value of the <tt>value</tt> attribue for the new
+     * @param value the value of the <tt>value</tt> attribute for the new entry
      * @param isSystem specifies whether this is a system property (system
-     *                 attribute will be set to true).
-     * entry.
+     * attribute will be set to true).
      */
     private void processNewProperty(Document doc,
                                     String key,
@@ -291,19 +295,15 @@ public class XMLConfigurationStore
         StringTokenizer tokenizer = new StringTokenizer(key, ".");
         String[] toks = new String[tokenizer.countTokens()];
         int i = 0;
-        while(tokenizer.hasMoreTokens())
-            toks[i++] = tokenizer.nextToken();
 
-        String[] chain = new String[toks.length - 1];
-        for (int j = 0; j < chain.length; j++)
-        {
-            chain[j] = toks[j];
-        }
+        while(tokenizer.hasMoreTokens())
+            toks[i++] = DOMElementWriter.encodeName(tokenizer.nextToken());
 
         String nodeName = toks[toks.length - 1];
-
-        Element parent = XMLConfUtils.createLastPathComponent(doc, chain);
+        Element parent
+            = XMLConfUtils.createLastPathComponent(doc, toks, toks.length - 1);
         Element newNode = XMLConfUtils.findChild(parent, nodeName);
+
         if (newNode == null)
         {
             newNode = doc.createElement(nodeName);
@@ -361,29 +361,27 @@ public class XMLConfigurationStore
     {
         // resolve the properties that were initially in the file - back to
         // the document.
-
         if (propertiesDocument == null)
             propertiesDocument = createPropertiesDocument();
 
         Node root = propertiesDocument.getFirstChild();
-
-        Node currentNode = null;
         NodeList children = root.getChildNodes();
+
         for (int i = 0; i < children.getLength(); i++)
         {
-            currentNode = children.item(i);
+            Node currentNode = children.item(i);
 
             if (currentNode.getNodeType() == Node.ELEMENT_NODE)
             {
-                StringBuffer propertyNameBuff = new StringBuffer();
-                propertyNameBuff.append(currentNode.getNodeName());
-                updateNode(currentNode, propertyNameBuff, properties);
+                String propertyName
+                    = DOMElementWriter.decodeName(currentNode.getNodeName());
+
+                updateNode(currentNode, propertyName, properties);
             }
         }
 
         // create in the document the properties that were added by other
         // bundles after the initial property load.
-
         Map<String, Object> newlyAddedProperties = cloneProperties();
 
         // remove those that were originally there;
@@ -402,14 +400,14 @@ public class XMLConfigurationStore
      * any intentional change (through a configuration form) has occurred it
      * will have been made there.
      * 
-     * @param node the root node that we shold update together with its children
-     * @param propertyNameBuff a StringBuffer containing the prefix describing
-     *            the dot separated route to the specified node including its
-     *            one name
-     * @param props the dictionary object where the up to date values of
-     *            the node should be queried.
+     * @param node the root node that we should update together with its
+     * children
+     * @param propertyName a String containing the prefix describing the
+     * dot-separated route to the specified node including its one name
+     * @param props the dictionary object where the up to date values of the
+     * node should be queried.
      */
-    private void updateNode(Node node, StringBuffer propertyNameBuff,
+    private void updateNode(Node node, String propertyName,
         Map<String, Object> props)
     {
         Node currentNode = null;
@@ -420,17 +418,18 @@ public class XMLConfigurationStore
 
             if (currentNode.getNodeType() == Node.ELEMENT_NODE)
             {
-                StringBuffer newPropBuff =
-                    new StringBuffer(propertyNameBuff.toString()).append(".")
-                        .append(currentNode.getNodeName());
-
-                Attr attr =
-                    ((Element) currentNode).getAttributeNode(ATTRIBUTE_VALUE);
+                String newProp
+                    = propertyName
+                        + "."
+                        + DOMElementWriter.decodeName(
+                                currentNode.getNodeName());
+                Attr attr
+                    = ((Element) currentNode).getAttributeNode(ATTRIBUTE_VALUE);
 
                 if (attr != null)
                 {
                     // update the corresponding node
-                    Object value = props.get(newPropBuff.toString());
+                    Object value = props.get(newProp);
 
                     if (value == null)
                     {
@@ -438,10 +437,11 @@ public class XMLConfigurationStore
                         continue;
                     }
 
-                    boolean isSystem = value instanceof PropertyReference;
-                    String prop =
-                        isSystem ? ((PropertyReference) value).getValue()
-                            .toString() : value.toString();
+                    boolean isSystem = (value instanceof PropertyReference);
+                    String prop
+                        = isSystem
+                            ? ((PropertyReference) value).getValue().toString()
+                            : value.toString();
 
                     attr.setNodeValue(prop);
 
@@ -457,7 +457,7 @@ public class XMLConfigurationStore
                 }
 
                 // update child nodes
-                updateNode(currentNode, newPropBuff, props);
+                updateNode(currentNode, newProp, props);
             }
         }
     }
@@ -469,15 +469,25 @@ public class XMLConfigurationStore
      * the System property set and in our local set of properties. Storing them
      * only in the System property set OTOH is a bit clumsy since it obliges
      * bundles to use to different configuration property sources. For that
-     * reason, every time we get handed a property labeled as System, in stead
+     * reason, every time we get handed a property labeled as System, instead
      * of storing its actual value in the local property set we store a
      * PropertyReference instance that will retrieve it from the system
      * properties when necessary.
      */
     private static class PropertyReference
     {
+        /**
+         * The name of the system property represented by this instance.
+         */
         private final String propertyName;
 
+        /**
+         * Initializes a new <tt>PropertyReference</tt> instance which is to
+         * represent a system property with a specific name.
+         *
+         * @param propertyName the name of the system property to be represented
+         * by the new instance
+         */
         public PropertyReference(String propertyName)
         {
             this.propertyName = propertyName;

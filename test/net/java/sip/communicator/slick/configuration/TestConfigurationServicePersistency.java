@@ -90,7 +90,6 @@ public class TestConfigurationServicePersistency extends TestCase
      */
     private ConfigurationService configurationService = null;
 
-
     /**
      * Generic JUnit Constructor.
      * @param name the name of the test
