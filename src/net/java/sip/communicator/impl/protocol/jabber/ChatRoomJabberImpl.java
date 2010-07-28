@@ -1654,7 +1654,7 @@ public class ChatRoomJabberImpl
     {
         /**
          * Called when a moderator kicked your user from the room. This
-         * means that you are no longer participanting in the room.
+         * means that you are no longer participating in the room.
          *
          * @param actor the moderator that kicked your user from the room
          * (e.g. user@host.org).
@@ -1977,7 +1977,7 @@ public class ChatRoomJabberImpl
      */
     public ChatRoomMemberJabberImpl findMemberForNickName(String jabberID)
     {
-        return (ChatRoomMemberJabberImpl) members.get(jabberID);
+        return members.get(jabberID);
     }
 
    /**

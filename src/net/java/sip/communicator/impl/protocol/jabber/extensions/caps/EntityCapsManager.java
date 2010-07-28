@@ -125,9 +125,9 @@ public class EntityCapsManager
 
                 if ((xml != null) && (xml.length() != 0))
                 {
-                    JabberActivator
-                        .getConfigurationService()
-                            .setProperty(CAPS_PROPERTY_NAME_PREFIX + node, xml);
+//                    JabberActivator
+//                        .getConfigurationService()
+//                            .setProperty(CAPS_PROPERTY_NAME_PREFIX + node, xml);
                 }
             }
         }
