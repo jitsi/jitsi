@@ -672,19 +672,14 @@ public class ProtocolProviderServiceJabberImpl
         ServiceDiscoveryManager.setIdentityName(name);
         ServiceDiscoveryManager.setIdentityType("pc");
 
-        discoveryManager = new ScServiceDiscoveryManager(connection);
-
-        // Remove features supported by smack, but not supported in
-        // SIP Communicator.
-        discoveryManager.removeFeature(
-            "http://jabber.org/protocol/commands");
-
-        // Add features SIP Communicator supports in addition to smack.
-        for(String feature : supportedFeatures)
-        {
-            if (!discoveryManager.includesFeature(feature))
-                discoveryManager.addFeature(feature);
-        }
+        discoveryManager
+            = new ScServiceDiscoveryManager(
+                    connection,
+                    // Remove features supported by smack, but not supported in
+                    // SIP Communicator.
+                    new String[] { "http://jabber.org/protocol/commands" },
+                    // Add features SIP Communicator supports in addition to smack.
+                    supportedFeatures.toArray(new String[supportedFeatures.size()]));
 
         /*
          * Expose the discoveryManager as service-public through the

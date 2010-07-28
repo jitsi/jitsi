@@ -25,6 +25,7 @@ import org.jivesoftware.smackx.packet.*;
  * This work is based on Jonas Adahl's smack fork.
  *
  * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class ScServiceDiscoveryManager
     implements PacketInterceptor,
@@ -72,6 +73,12 @@ public class ScServiceDiscoveryManager
     private final List<String> features;
 
     /**
+     * The unmodifiable view of {@link #features} which can be exposed to the
+     * public through {@link #getFeatures()}, for example. 
+     */
+    private final List<String> unmodifiableFeatures;
+
+    /**
      * A {@link List} of the identities we use in our disco answers.
      */
     private final List<DiscoverInfo.Identity> identities;
@@ -82,13 +89,24 @@ public class ScServiceDiscoveryManager
      *
      * @param connection the {@link XMPPConnection} that this discovery manager
      * will be operating in.
+     * @param featuresToRemove an array of <tt>String</tt>s representing the
+     * features to be removed from the <tt>ServiceDiscoveryManager</tt> of the
+     * specified <tt>connection</tt> which is to be wrapped by the new instance
+     * @param featuresToAdd an array of <tt>String</tt>s representing the
+     * features to be added to the new instance and to the
+     * <tt>ServiceDiscoveryManager</tt> of the specified <tt>connection</tt>
+     * which is to be wrapped by the new instance
      */
-    public ScServiceDiscoveryManager(XMPPConnection connection)
+    public ScServiceDiscoveryManager(
+            XMPPConnection connection,
+            String[] featuresToRemove,
+            String[] featuresToAdd)
     {
         this.discoveryManager
             = ServiceDiscoveryManager.getInstanceFor(connection);
 
         this.features = new ArrayList<String>();
+        this.unmodifiableFeatures = Collections.unmodifiableList(this.features);
         this.identities = new ArrayList<DiscoverInfo.Identity>();
 
         DiscoverInfo.Identity identity
@@ -102,12 +120,39 @@ public class ScServiceDiscoveryManager
         //add support for capabilities
         discoveryManager.addFeature(CapsPacketExtension.NAMESPACE);
 
+        /*
+         * Reflect featuresToRemove and featuresToAdd before
+         * updateEntityCapsVersion() in order to persist only the complete
+         * node#ver association with our own DiscoverInfo. Otherwise, we'd
+         * persist all intermediate ones upon each addFeature() and
+         * removeFeature().
+         */
+        // featuresToRemove
+        if (featuresToRemove != null)
+        {
+            for (String featureToRemove : featuresToRemove)
+                discoveryManager.removeFeature(featureToRemove);
+        }
+        // featuresToAdd
+        if (featuresToAdd != null)
+        {
+            for (String featureToAdd : featuresToAdd)
+                if (!discoveryManager.includesFeature(featureToAdd))
+                    discoveryManager.addFeature(featureToAdd);
+        }
+
         // For every XMPPConnection, add one EntityCapsManager.
         this.connection = connection;
 
         this.capsManager = new EntityCapsManager();
         capsManager.addPacketListener(connection);
 
+        /*
+         * XXX initFeatures() has to happen before updateEntityCapsVersion().
+         * Otherwise, updateEntityCapsVersion() will not include the features of
+         * the wrapped discoveryManager.
+         */
+        initFeatures();
         updateEntityCapsVersion();
 
         // Now, make sure we intercept presence packages and add caps data when
@@ -116,8 +161,6 @@ public class ScServiceDiscoveryManager
         connection.addPacketInterceptor(
                 this,
                 new PacketTypeFilter(Presence.class));
-
-        initFeatures();
     }
 
     /**
@@ -170,7 +213,7 @@ public class ScServiceDiscoveryManager
      */
     public List<String> getFeatures()
     {
-        return features;
+        return unmodifiableFeatures;
     }
 
     /**
@@ -221,10 +264,16 @@ public class ScServiceDiscoveryManager
         // Add the registered features to the response
 
         // Add Entity Capabilities (XEP-0115) feature node.
-        response.addFeature(CapsPacketExtension.NAMESPACE);
+        /*
+         * XXX Only addFeature if !containsFeature. Otherwise, the DiscoverInfo
+         * may end up with repeating features.
+         */
+        if (!response.containsFeature(CapsPacketExtension.NAMESPACE))
+            response.addFeature(CapsPacketExtension.NAMESPACE);
 
         for (String feature : getFeatures())
-            response.addFeature(feature);
+            if (!response.containsFeature(feature))
+                response.addFeature(feature);
     }
 
     /**
@@ -337,6 +386,7 @@ public class ScServiceDiscoveryManager
             while (defaultFeatures.hasNext())
             {
                 String feature = defaultFeatures.next();
+
                 this.features.add( feature );
             }
         }

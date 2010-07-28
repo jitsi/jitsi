@@ -109,6 +109,11 @@ public class EntityCapsManager
     public static void addDiscoverInfoByNode(String node, DiscoverInfo info)
     {
         cleanupDicsoverInfo(info);
+        /*
+         * DiscoverInfo carries the node we're now associating it with a
+         * specific node so we'd better keep them in sync.
+         */
+        info.setNode(node);
 
         synchronized (caps)
         {
@@ -125,9 +130,9 @@ public class EntityCapsManager
 
                 if ((xml != null) && (xml.length() != 0))
                 {
-//                    JabberActivator
-//                        .getConfigurationService()
-//                            .setProperty(CAPS_PROPERTY_NAME_PREFIX + node, xml);
+                    JabberActivator
+                        .getConfigurationService()
+                            .setProperty(CAPS_PROPERTY_NAME_PREFIX + node, xml);
                 }
             }
         }
@@ -611,8 +616,16 @@ public class EntityCapsManager
     public void setCurrentCapsVersion(DiscoverInfo discoverInfo,
                                       String capsVersion)
     {
+        String nodeVersion = getNode() + "#" + capsVersion;
+
+        /*
+         * DiscoverInfo carries the node and the ver and we're now setting a new
+         * ver so we should update the DiscoveryInfo.
+         */
+        discoverInfo.setNode(nodeVersion);
+
         currentCapsVersion = capsVersion;
-        addDiscoverInfoByNode(getNode() + "#" + capsVersion, discoverInfo);
+        addDiscoverInfoByNode(nodeVersion, discoverInfo);
         fireCapsVerChanged();
     }
 
