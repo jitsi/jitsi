@@ -115,7 +115,7 @@ public class CallPeerMediaHandlerJabberImpl
             MediaType mediaType
                             = MediaType.parseString( description.getMedia() );
 
-            List<MediaFormat> supportedFormats = JingleUtils.extractFormats(
+            List<MediaFormat> remoteFormats = JingleUtils.extractFormats(
                             description, getDynamicPayloadTypes());
 
             MediaDevice dev = getDefaultDevice(mediaType);
@@ -136,7 +136,7 @@ public class CallPeerMediaHandlerJabberImpl
 
             // intersect the MediaFormats of our device with remote ones
             List<MediaFormat> mutuallySupportedFormats
-                = intersectFormats(supportedFormats, dev.getSupportedFormats());
+                = intersectFormats(remoteFormats, dev.getSupportedFormats());
 
             // check whether we will be exchanging any RTP extensions.
             List<RTPExtension> offeredRTPExtensions
@@ -155,7 +155,7 @@ public class CallPeerMediaHandlerJabberImpl
 
             int targetDataPort = target.getDataAddress().getPort();
 
-            if (supportedFormats.isEmpty()
+            if (mutuallySupportedFormats.isEmpty()
                 || (devDirection == MediaDirection.INACTIVE)
                 || (targetDataPort == 0))
             {

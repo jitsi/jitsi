@@ -381,7 +381,7 @@ public class CallPeerMediaHandlerSipImpl
         {
             MediaType mediaType = SdpUtils.getMediaType(mediaDescription);
 
-            List<MediaFormat> supportedFormats = SdpUtils.extractFormats(
+            List<MediaFormat> remoteFormats = SdpUtils.extractFormats(
                             mediaDescription, getDynamicPayloadTypes());
 
             MediaDevice dev = getDefaultDevice(mediaType);
@@ -401,7 +401,7 @@ public class CallPeerMediaHandlerSipImpl
 
             // intersect the MediaFormats of our device with remote ones
             List<MediaFormat> mutuallySupportedFormats
-                = intersectFormats(supportedFormats, dev.getSupportedFormats());
+                = intersectFormats(remoteFormats, dev.getSupportedFormats());
 
             // check whether we will be exchanging any RTP extensions.
             List<RTPExtension> offeredRTPExtensions
@@ -419,7 +419,7 @@ public class CallPeerMediaHandlerSipImpl
                 = SdpUtils.extractDefaultTarget(mediaDescription, offer);
             int targetDataPort = target.getDataAddress().getPort();
 
-            if (supportedFormats.isEmpty()
+            if (mutuallySupportedFormats.isEmpty()
                     || (devDirection == MediaDirection.INACTIVE)
                     || (targetDataPort == 0))
             {
@@ -436,7 +436,7 @@ public class CallPeerMediaHandlerSipImpl
                 = getTransportManager().getStreamConnector(mediaType);
 
             // create the corresponding stream...
-            initStream(connector, dev, supportedFormats.get(0), target,
+            initStream(connector, dev, mutuallySupportedFormats.get(0), target,
                       direction, rtpExtensions);
 
             // create the answer description

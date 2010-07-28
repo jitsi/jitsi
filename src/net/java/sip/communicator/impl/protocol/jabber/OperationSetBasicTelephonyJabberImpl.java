@@ -218,13 +218,10 @@ public class OperationSetBasicTelephonyJabberImpl
 
         try
         {
-System.out.println("1");
             call.initiateSession(fullCalleeURI, di);
-System.out.println("2");
         }
         catch(Throwable t)
         {
-t.printStackTrace();
             throw new OperationFailedException("Failed to create a call",
                             OperationFailedException.INTERNAL_ERROR, t);
         }
