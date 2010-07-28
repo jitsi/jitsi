@@ -89,7 +89,6 @@ public class JingleUtils
             //continue if our media service does not know this format
             if(format == null)
             {
-System.out.println("Unsupported remote format: " + ptExt.toXML());
                 if(logger.isTraceEnabled())
                     logger.trace("Unsupported remote format: " + ptExt.toXML());
                 continue;

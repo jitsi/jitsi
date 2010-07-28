@@ -222,8 +222,26 @@ public class CallPeerJabberImpl
     public synchronized void answer()
         throws OperationFailedException
     {
-        List<ContentPacketExtension> answer
-                                    = getMediaHandler().generateSessionAccept();
+        List<ContentPacketExtension> answer;
+
+        try
+        {
+            answer = getMediaHandler().generateSessionAccept();
+        }
+        catch(Exception exc)
+        {
+            logger.info("Failed to answer an incoming call", exc);
+
+            //send an error response;
+            JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
+                sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
+                sessionInitIQ.getSID(), Reason.FAILED_APPLICATION,
+                "Error: " + exc.getMessage());
+
+            setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
+            getProtocolProvider().getConnection().sendPacket(errResp);
+            return;
+        }
 
         JingleIQ response = JinglePacketFactory.createSessionAccept(
                 sessionInitIQ.getTo(), sessionInitIQ.getFrom(),

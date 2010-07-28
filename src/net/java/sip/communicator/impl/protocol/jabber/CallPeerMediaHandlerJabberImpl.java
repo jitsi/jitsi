@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
@@ -185,6 +184,10 @@ public class CallPeerMediaHandlerJabberImpl
                        OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
 
         this.localContentList = answerContentList;
+
+        //now, before we go, tell the transport manager to start our candidate
+        //harvest
+        //getTransportManager().startCandidateHarvest(offer, answerContentList);
     }
 
     /**
@@ -452,6 +455,7 @@ public class CallPeerMediaHandlerJabberImpl
      *
      * @return the transport manager that is handling our address management.
      */
+    @Override
     public TransportManagerJabberImpl getTransportManager()
     {
         return transportManager;
