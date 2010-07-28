@@ -357,9 +357,7 @@ public class OperationSetBasicTelephonyJabberImpl
                 }
                 catch (Exception ex)
                 {
-                    logger.warn("Failed to properly hangup peer "
-                            + peer
-                            , ex);
+                    logger.warn("Failed to properly hangup peer " + peer, ex);
                 }
             }
         }
