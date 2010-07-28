@@ -185,10 +185,11 @@ public class OperationSetBasicTelephonyJabberImpl
         }
         */
 
+        DiscoverInfo di = null;
         try
         {
             // check if the remote client supports telephony.
-            DiscoverInfo di = protocolProvider.getDiscoveryManager()
+            di = protocolProvider.getDiscoveryManager()
                     .discoverInfo(fullCalleeURI);
             if (di.containsFeature(ProtocolProviderServiceJabberImpl
                             .URN_XMPP_JINGLE))
@@ -214,14 +215,7 @@ public class OperationSetBasicTelephonyJabberImpl
         //create the actual jingle call
 
         CallJabberImpl call = new CallJabberImpl(this);
-try
-{
-        call.initiateSession(fullCalleeURI);
-}
-catch(Throwable t)
-{
-    t.printStackTrace();
-}
+        call.initiateSession(fullCalleeURI, di);
 
         return call;
     }

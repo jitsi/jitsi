@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import org.jivesoftware.smackx.packet.*;
+
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -40,6 +42,11 @@ public class CallPeerJabberImpl
      * The {@link JingleIQ} that created the session that this call represents.
      */
     private JingleIQ sessionInitIQ;
+
+    /**
+     * Any discovery information that we have for this peer.
+     */
+    private DiscoverInfo discoverInfo;
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
@@ -358,5 +365,26 @@ public class CallPeerJabberImpl
         setState(CallPeerState.CONNECTED);
 
         getMediaHandler().start();
+    }
+
+    /**
+     * Sets the service discovery information that we have for this peer.
+     *
+     * @param discoverInfo the discovery information that we have obtained for
+     * this peer.
+     */
+    public void setDiscoverInfo(DiscoverInfo discoverInfo)
+    {
+        this.discoverInfo = discoverInfo;
+    }
+
+    /**
+     * Returns the service discovery information that we have for this peer.
+     *
+     * @return the service discovery information that we have for this peer.
+     */
+    public DiscoverInfo getDiscoverInfo()
+    {
+        return discoverInfo;
     }
 }

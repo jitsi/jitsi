@@ -184,12 +184,17 @@ public class ProtocolProviderServiceJabberImpl
      * If an event occurs during login we fire it at the end of the login
      * process (at the end of connectAndLogin method).
      */
-    private RegistrationStateChangeEvent eventDuringLogin = null;
+    private RegistrationStateChangeEvent eventDuringLogin;
 
     /**
      * Listens for connection closes or errors.
      */
-    private JabberConnectionListener connectionListener = null;
+    private JabberConnectionListener connectionListener;
+
+    /**
+     * The details of the proxy we are using to connect to the server (if any)
+     */
+    private org.jivesoftware.smack.proxy.ProxyInfo proxy;
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -375,21 +380,20 @@ public class ProtocolProviderServiceJabberImpl
             try
             {
                 //XMPPConnection.DEBUG_ENABLED = true;
-                String userID =
-                    StringUtils.parseName(getAccountID().getUserID());
-                String serviceName =
-                    StringUtils.parseServer(getAccountID().getUserID());
+                String userID
+                    = StringUtils.parseName(getAccountID().getUserID());
+                String serviceName
+                    = StringUtils.parseServer(getAccountID().getUserID());
 
-                String serverAddress =
-                    getAccountID().getAccountPropertyString(
+                String serverAddress
+                    = getAccountID().getAccountPropertyString(
                         ProtocolProviderFactory.SERVER_ADDRESS);
 
-                String serverPort =
-                    getAccountID().getAccountPropertyString(
+                String serverPort = getAccountID().getAccountPropertyString(
                         ProtocolProviderFactory.SERVER_PORT);
 
-                String accountResource =
-                    getAccountID().getAccountPropertyString(
+                String accountResource
+                    = getAccountID().getAccountPropertyString(
                         ProtocolProviderFactory.RESOURCE);
 
                 // check to see is there SRV records for this server domain
@@ -410,15 +414,14 @@ public class ProtocolProviderServiceJabberImpl
                 Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
 
                 //Getting global proxy information from configuration files
-                org.jivesoftware.smack.proxy.ProxyInfo proxy = null;
+                proxy = null;
                 String globalProxyType =
                     JabberActivator.getConfigurationService()
                     .getString(ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
                 if(globalProxyType == null ||
                    globalProxyType.equals(ProxyInfo.ProxyType.NONE.name()))
                 {
-                    proxy = org.jivesoftware.smack.proxy.ProxyInfo
-                        .forNoProxy();
+                    proxy = org.jivesoftware.smack.proxy.ProxyInfo.forNoProxy();
                 }
                 else
                 {
@@ -485,13 +488,11 @@ public class ProtocolProviderServiceJabberImpl
                     }
                 }
 
-                ConnectionConfiguration confConn =
-                new ConnectionConfiguration(
-                        serverAddress,
-                        Integer.parseInt(serverPort),
-                        serviceName,
-                        proxy
+                ConnectionConfiguration confConn = new ConnectionConfiguration(
+                        serverAddress, Integer.parseInt(serverPort),
+                        serviceName, proxy
                 );
+
                 confConn.setReconnectionAllowed(false);
 
                 if(connection != null)
@@ -933,7 +934,7 @@ public class ProtocolProviderServiceJabberImpl
                                            new JingleIQProvider());
 
             //initialize the telephony operation set
-/* disabled until implementation is ready.
+/* disabled until implementation is ready. */
             addSupportedOperationSet(
                 OperationSetBasicTelephony.class,
                 new OperationSetBasicTelephonyJabberImpl(this));
@@ -945,7 +946,7 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
-*/
+/**/
 
             // OperationSetContactCapabilities
             opsetContactCapabilities
@@ -1421,6 +1422,48 @@ public class ProtocolProviderServiceJabberImpl
         }
 
         return jid;
+    }
+
+    /**
+     * Returns the <tt>InetAddress</tt> that is most likely to be to be used
+     * as a next hop when contacting our XMPP server. This is an utility method
+     * that is used whenever we have to choose one of our local addresses (e.g.
+     * when trying to pick a best candidate for raw udp). It is based on the
+     * assumption that, in absence of any more specific details, chances are
+     * that we will be accessing remote destinations via the same interface
+     * that we are using to access our jabber server.
+     *
+     * @return the <tt>InetAddress</tt> that is most likely to be to be used
+     * as a next hop when contacting our server.
+     *
+     * @throws IllegalArgumentException if we don't have a valid server.
+     */
+    public InetAddress getNextHop()
+        throws IllegalArgumentException
+    {
+        InetAddress nextHop = null;
+        String nextHopStr = null;
+
+        if ( proxy != null)
+            nextHopStr = proxy.getProxyAddress();
+        else
+            nextHopStr = getConnection().getHost();
+
+
+        try
+        {
+            nextHop = NetworkUtils.getInetAddress(nextHopStr);
+        }
+        catch (UnknownHostException ex)
+        {
+            throw new IllegalArgumentException(
+                "seems we don't have a valid next hop.", ex);
+        }
+
+        if(logger.isDebugEnabled())
+            logger.debug("Returning address " + nextHop + " as next hop.");
+
+        return nextHop;
     }
 
     /**

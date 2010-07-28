@@ -60,6 +60,12 @@ public class CallPeerMediaHandlerSipImpl
     private URL callInfoURL = null;
 
     /**
+     * A temporarily single transport manager that we use for generating
+     * addresses until we properly implement both ICE and Raw UDP managers.
+     */
+    private final TransportManagerSipImpl transportManager;
+
+    /**
      * Creates a new handler that will be managing media streams for
      * <tt>peer</tt>.
      *
@@ -69,6 +75,8 @@ public class CallPeerMediaHandlerSipImpl
     public CallPeerMediaHandlerSipImpl(CallPeerSipImpl peer)
     {
         super(peer, peer);
+
+        transportManager = new TransportManagerSipImpl(peer);
     }
 
     /**
@@ -116,7 +124,7 @@ public class CallPeerMediaHandlerSipImpl
         String userName = peer.getProtocolProvider().getAccountID().getUserID();
 
         SessionDescription sDes = SdpUtils.createSessionDescription(
-            getLastUsedLocalHost(), userName, mediaDescs);
+            getTransportManager().getLastUsedLocalHost(), userName, mediaDescs);
 
         this.localSess = sDes;
         return localSess;
@@ -157,10 +165,10 @@ public class CallPeerMediaHandlerSipImpl
                 {
                     MediaDescription md =
                         createMediaDescription(
-                                        dev.getSupportedFormats(),
-                                        getStreamConnector(mediaType),
-                                        direction,
-                                        dev.getSupportedExtensions());
+                           dev.getSupportedFormats(),
+                           getTransportManager().getStreamConnector(mediaType),
+                           direction,
+                           dev.getSupportedExtensions());
 
                     if(peer.getCall().isSipZrtpAttribute())
                     {
@@ -229,7 +237,8 @@ public class CallPeerMediaHandlerSipImpl
         Vector<MediaDescription> newMediaDescs = createMediaDescriptions();
 
         SessionDescription newOffer = SdpUtils.createSessionUpdateDescription(
-                        sdescToUpdate, getLastUsedLocalHost(), newMediaDescs);
+            sdescToUpdate, getTransportManager().getLastUsedLocalHost(),
+            newMediaDescs);
 
         this.localSess = newOffer;
         return newOffer;
@@ -293,7 +302,8 @@ public class CallPeerMediaHandlerSipImpl
 
         //wrap everything up in a session description
         SessionDescription answer = SdpUtils.createSessionDescription(
-            getLastUsedLocalHost(), getUserName(), answerDescriptions);
+            getTransportManager().getLastUsedLocalHost(), getUserName(),
+            answerDescriptions);
 
         this.localSess = answer;
         return localSess;
@@ -329,7 +339,8 @@ public class CallPeerMediaHandlerSipImpl
 
         // wrap everything up in a session description
         SessionDescription newAnswer = SdpUtils.createSessionUpdateDescription(
-                    previousAnswer, getLastUsedLocalHost(), answerDescriptions);
+                previousAnswer, getTransportManager().getLastUsedLocalHost(),
+                answerDescriptions);
 
         this.localSess = newAnswer;
         return localSess;
@@ -421,7 +432,8 @@ public class CallPeerMediaHandlerSipImpl
                 continue;
             }
 
-            StreamConnector connector = getStreamConnector(mediaType);
+            StreamConnector connector
+                = getTransportManager().getStreamConnector(mediaType);
 
             // create the corresponding stream...
             initStream(connector, dev, supportedFormats.get(0), target,
@@ -525,7 +537,8 @@ public class CallPeerMediaHandlerSipImpl
                      OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
             }
 
-            StreamConnector connector = getStreamConnector(mediaType);
+            StreamConnector connector
+                = getTransportManager().getStreamConnector(mediaType);
 
             //determine the direction that we need to announce.
             MediaDirection remoteDirection
@@ -621,29 +634,6 @@ public class CallPeerMediaHandlerSipImpl
     private void setCallInfoURL(URL callInfolURL)
     {
         this.callInfoURL = callInfolURL;
-    }
-
-    /**
-     * Returns the <tt>InetAddress</tt> that is most likely to be to be used
-     * as a next hop when contacting the specified <tt>destination</tt>. This is
-     * an utility method that is used whenever we have to choose one of our
-     * local addresses to put in the Via, Contact or (in the case of no
-     * registrar accounts) From headers. The method also takes into account
-     * the existence of an outbound proxy and in that case returns its address
-     * as the next hop.
-     *
-     * @param peer the CallPeer that we would contact.
-     *
-     * @return the <tt>InetAddress</tt> that is most likely to be to be used
-     * as a next hop when contacting the specified <tt>destination</tt>.
-     *
-     * @throws IllegalArgumentException if <tt>destination</tt> is not a valid
-     * host/ip/fqdn
-     */
-    protected InetAddress getIntendedDestination(CallPeerSipImpl peer)
-    {
-        return peer.getProtocolProvider()
-            .getIntendedDestination(peer.getPeerAddress());
     }
 
     /**
@@ -752,9 +742,9 @@ public class CallPeerMediaHandlerSipImpl
         if ( ! stream.isStarted())
             stream.start();
 
-
-         // send empty packet to deblock some kind of RTP proxy to let just
-         // one user sends its video
+        // in case we won't be sending outgoing traffic, send empty packet to
+        // punch a hole for the incoming packets. In order to work better this
+        // should actually be done after we send our offer/answer
         if(stream instanceof VideoMediaStream
            && getDirectionUserPreference(MediaType.VIDEO)
                    == MediaDirection.RECVONLY)
@@ -763,5 +753,15 @@ public class CallPeerMediaHandlerSipImpl
         }
 
         return stream;
+    }
+
+    /**
+     * Returns the transport manager that is handling our address management.
+     *
+     * @return the transport manager that is handling our address management.
+     */
+    public TransportManagerSipImpl getTransportManager()
+    {
+        return transportManager;
     }
 }

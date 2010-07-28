@@ -102,28 +102,6 @@ public abstract class CallPeerMediaHandler<
     public final ZrtpListener zrtpController;
 
     /**
-     * The minimum port number that we'd like our RTP sockets to bind upon.
-     */
-    private static int minMediaPort = 5000;
-
-    /**
-     * The maximum port number that we'd like our RTP sockets to bind upon.
-     */
-    private static int maxMediaPort = 6000;
-
-    /**
-     * The port that we should try to bind our next media stream's RTP socket
-     * to.
-     */
-    private static int nextMediaPortToTry = minMediaPort;
-
-    /**
-     * The RTP/RTCP socket couple that this media handler should use to send
-     * and receive audio flows through.
-     */
-    private StreamConnector audioStreamConnector = null;
-
-    /**
      * The RTP stream that this media handler uses to send audio.
      */
     private AudioMediaStream audioStream = null;
@@ -137,12 +115,6 @@ public abstract class CallPeerMediaHandler<
      * The last-known remote SSRC of {@link #audioStream}.
      */
     private long audioRemoteSSRC = SSRC_UNKNOWN;
-
-    /**
-     * The RTP/RTCP socket couple that this media handler should use to send
-     * and receive video flows through.
-     */
-    private StreamConnector videoStreamConnector = null;
 
     /**
      * The RTP stream that this media handler uses to send video.
@@ -342,7 +314,8 @@ public abstract class CallPeerMediaHandler<
      * @param zrtpController the object that would be responsible for
      * controlling zrtp, and which most often would be the peer itself.
      */
-    public CallPeerMediaHandler(T peer, ZrtpListener zrtpController)
+    public CallPeerMediaHandler(T            peer,
+                                ZrtpListener zrtpController)
     {
         this.peer = peer;
         this.zrtpController = zrtpController;
@@ -420,24 +393,14 @@ public abstract class CallPeerMediaHandler<
         if( type == MediaType.AUDIO)
         {
             setAudioStream(null);
-            if (this.audioStreamConnector != null)
-            {
-                audioStreamConnector.getDataSocket().close();
-                audioStreamConnector.getControlSocket().close();
-                audioStreamConnector = null;
-            }
+
         }
         else
         {
             setVideoStream(null);
-
-            if (this.videoStreamConnector != null)
-            {
-                videoStreamConnector.getDataSocket().close();
-                videoStreamConnector.getControlSocket().close();
-                videoStreamConnector = null;
-            }
         }
+
+        this.getTransportManager().closeStreamConnector(type);
 
         // clears the zrtp controls used for current call.
         ZrtpControl zrtpCtrl = zrtpControls.get(type);
@@ -757,122 +720,6 @@ public abstract class CallPeerMediaHandler<
         {
             if (!videoListeners.contains(listener))
                 videoListeners.add(listener);
-        }
-    }
-
-    /**
-     * Creates a media <tt>StreamConnector</tt>. The method takes into account
-     * the minimum and maximum media port boundaries.
-     *
-     * @return a new <tt>StreamConnector</tt>.
-     *
-     * @throws OperationFailedException if we fail binding the the sockets.
-     */
-    protected StreamConnector createStreamConnector()
-        throws OperationFailedException
-    {
-        NetworkAddressManagerService nam
-            = ProtocolMediaActivator.getNetworkAddressManagerService();
-
-        InetAddress intendedDestination = getIntendedDestination(peer);
-
-        InetAddress localHostForPeer = nam.getLocalHost(intendedDestination);
-
-        //make sure our port numbers reflect the configuration service settings
-        initializePortNumbers();
-
-        //create the RTP socket.
-        DatagramSocket rtpSocket = null;
-        try
-        {
-            rtpSocket = nam.createDatagramSocket( localHostForPeer,
-                            nextMediaPortToTry, minMediaPort, maxMediaPort);
-        }
-        catch (Exception exc)
-        {
-            throwOperationFailedException(
-                "Failed to allocate the network ports necessary for the call.",
-                OperationFailedException.INTERNAL_ERROR, exc);
-        }
-
-        //make sure that next time we don't try to bind on occupied ports
-        nextMediaPortToTry = rtpSocket.getLocalPort() + 1;
-
-        //create the RTCP socket, preferably on the port following our RTP one.
-        DatagramSocket rtcpSocket = null;
-        try
-        {
-            rtcpSocket = nam.createDatagramSocket(localHostForPeer,
-                            nextMediaPortToTry, minMediaPort, maxMediaPort);
-        }
-        catch (Exception exc)
-        {
-            throwOperationFailedException(
-                "Failed to allocate the network ports necessary for the call.",
-                OperationFailedException.INTERNAL_ERROR, exc);
-        }
-
-        //make sure that next time we don't try to bind on occupied ports
-        nextMediaPortToTry = rtcpSocket.getLocalPort() + 1;
-
-        if (nextMediaPortToTry > maxMediaPort -1)// take RTCP into account.
-            nextMediaPortToTry = minMediaPort;
-
-        //create the RTCP socket
-        DefaultStreamConnector connector = new DefaultStreamConnector(
-                        rtpSocket, rtcpSocket);
-
-        return connector;
-    }
-
-    /**
-     * (Re)Sets the <tt>minPortNumber</tt> and <tt>maxPortNumber</tt> to their
-     * defaults or to the values specified in the <tt>ConfigurationService</tt>.
-     */
-    protected void initializePortNumbers()
-    {
-        //first reset to default values
-        minMediaPort = 5000;
-        maxMediaPort = 6000;
-
-        //then set to anything the user might have specified.
-        String minPortNumberStr
-            = ProtocolMediaActivator.getConfigurationService()
-                .getString(OperationSetBasicTelephony
-                    .MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
-
-        if (minPortNumberStr != null)
-        {
-            try
-            {
-                minMediaPort = Integer.parseInt(minPortNumberStr);
-            }
-            catch (NumberFormatException ex)
-            {
-                logger.warn(minPortNumberStr
-                            + " is not a valid min port number value. "
-                            + "using min port " + minMediaPort);
-            }
-        }
-
-        String maxPortNumberStr
-                = ProtocolMediaActivator.getConfigurationService()
-                    .getString(OperationSetBasicTelephony
-                        .MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
-
-        if (maxPortNumberStr != null)
-        {
-            try
-            {
-                maxMediaPort = Integer.parseInt(maxPortNumberStr);
-            }
-            catch (NumberFormatException ex)
-            {
-                logger.warn(maxPortNumberStr
-                            + " is not a valid max port number value. "
-                            +"using max port " + maxMediaPort,
-                            ex);
-            }
         }
     }
 
@@ -1249,38 +1096,6 @@ public abstract class CallPeerMediaHandler<
     }
 
     /**
-     * Returns the <tt>InetAddress</tt> that we are using in one of our
-     * <tt>StreamConnector</tt>s or, in case we don't have any connectors yet
-     * the address returned by the our network address manager as the best local
-     * address to use when contacting the <tt>CallPeer</tt> associated with this
-     * <tt>MediaHandler</tt>. This method is primarily meant for use with the
-     * o= and c= fields of a newly created session description. The point is
-     * that we create our <tt>StreamConnector</tt>s when constructing the media
-     * descriptions so we already have a specific local address assigned to them
-     * at the time we get ready to create the c= and o= fields. It is therefore
-     * better to try and return one of these addresses before trying the net
-     * address manager again ang running the slight risk of getting a different
-     * address.
-     *
-     * @return an <tt>InetAddress</tt> that we use in one of the
-     * <tt>StreamConnector</tt>s in this class.
-     */
-    protected InetAddress getLastUsedLocalHost()
-    {
-        if (audioStreamConnector != null)
-            return audioStreamConnector.getDataSocket().getLocalAddress();
-
-        if (videoStreamConnector != null)
-            return videoStreamConnector.getDataSocket().getLocalAddress();
-
-        NetworkAddressManagerService nam
-                    = ProtocolMediaActivator.getNetworkAddressManagerService();
-        InetAddress intendedDestination = getIntendedDestination(peer);
-
-        return nam.getLocalHost(intendedDestination);
-    }
-
-    /**
      * Creates if necessary, and configures the stream that this
      * <tt>MediaHandler</tt> is using for the <tt>MediaType</tt> matching the
      * one of the <tt>MediaDevice</tt>.
@@ -1406,30 +1221,14 @@ public abstract class CallPeerMediaHandler<
 
     /**
      * Send empty UDP packet to target destination data/control ports
-     * in order to open port on NAT or RTP proxy if any.
+     * in order to open port on NAT or RTP proxy if any. In order to be really
+     * efficient, this method should be called after we send our offer or answer
      *
      * @param target <tt>MediaStreamTarget</tt>
      */
     protected void sendHolePunchPacket(MediaStreamTarget target)
     {
-        if (logger.isInfoEnabled())
-            logger.info("Try to open port on NAT if any");
-        try
-        {
-            /* data port (RTP) */
-            videoStreamConnector.getDataSocket().send(new DatagramPacket(
-                    new byte[0], 0, target.getDataAddress().getAddress(),
-                    target.getDataAddress().getPort()));
-
-            /* control port (RTCP) */
-            videoStreamConnector.getControlSocket().send(new DatagramPacket(
-                    new byte[0], 0, target.getControlAddress().getAddress(),
-                    target.getControlAddress().getPort()));
-        }
-        catch(Exception e)
-        {
-            logger.error("Error cannot send to remote peer", e);
-        }
+        getTransportManager().sendHolePunchPacket(target, MediaType.VIDEO);
     }
 
     /**
@@ -1529,50 +1328,6 @@ public abstract class CallPeerMediaHandler<
             throw new IllegalArgumentException("mediaType");
         }
     }
-
-    /**
-     * Returns the <tt>StreamConnector</tt> instance that this media handler
-     * should use for streams of the specified <tt>mediaType</tt>. The method
-     * would also create a new <tt>StreamConnector</tt> if no connector has
-     * been initialized for this <tt>mediaType</tt> yet or in case one
-     * of its underlying sockets has been closed.
-     *
-     * @param mediaType the MediaType that we'd like to create a connector for.
-     *
-     * @return this media handler's <tt>StreamConnector</tt> for the specified
-     * <tt>mediaType</tt>.
-     *
-     * @throws OperationFailedException in case we failed to initialize our
-     * connector.
-     */
-    public StreamConnector getStreamConnector(MediaType mediaType)
-        throws OperationFailedException
-    {
-        if (mediaType == MediaType.AUDIO)
-        {
-            if ( audioStreamConnector == null
-                 || audioStreamConnector.getDataSocket().isClosed()
-                 || audioStreamConnector.getControlSocket().isClosed())
-            {
-                audioStreamConnector = createStreamConnector();
-            }
-
-            return audioStreamConnector;
-        }
-        else
-        {
-            if ( videoStreamConnector == null
-                 || videoStreamConnector.getDataSocket().isClosed()
-                 || videoStreamConnector.getControlSocket().isClosed())
-            {
-                videoStreamConnector = createStreamConnector();
-            }
-
-            return videoStreamConnector;
-        }
-    }
-
-
 
     /**
      * Determines whether the remote party has placed all our streams on hold.
@@ -1821,23 +1576,6 @@ public abstract class CallPeerMediaHandler<
     }
 
     /**
-     * Returns the <tt>InetAddress</tt> that is most likely to be to be used
-     * as a next hop when contacting the specified <tt>destination</tt>. This is
-     * an utility method that is used whenever we have to choose one of our
-     * local addresses to put in the Via, Contact or (in the case of no
-     * registrar accounts) From headers.
-     *
-     * @param peer the CallPeer that we would contact.
-     *
-     * @return the <tt>InetAddress</tt> that is most likely to be to be used
-     * as a next hop when contacting the specified <tt>destination</tt>.
-     *
-     * @throws IllegalArgumentException if <tt>destination</tt> is not a valid
-     * host/ip/fqdn
-     */
-    protected abstract InetAddress getIntendedDestination(T peer);
-
-    /**
      * Lets the underlying implementation take note of this error and only
      * then throws it to the using bundles.
      *
@@ -1855,4 +1593,11 @@ public abstract class CallPeerMediaHandler<
                                                            int       errorCode,
                                                            Throwable cause)
         throws OperationFailedException;
+
+    /**
+     * Returns the transport manager that is handling our address management.
+     *
+     * @return the transport manager that is handling our address management.
+     */
+    public abstract TransportManager<T> getTransportManager();
 }

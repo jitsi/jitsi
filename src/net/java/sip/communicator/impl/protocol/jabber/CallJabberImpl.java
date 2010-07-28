@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import org.jivesoftware.smackx.packet.*;
+
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -71,11 +73,7 @@ public class CallJabberImpl extends MediaAwareCall<
         if (remoteParty == null)
             remoteParty = jingleIQ.getFrom();
 
-System.out.println("2");
-CallPeerJabberImpl callPeer;
-try
-{
-        callPeer = new CallPeerJabberImpl(remoteParty, this);
+        CallPeerJabberImpl callPeer = new CallPeerJabberImpl(remoteParty, this);
 
         //before notifying about this call, make sure that it looks alright
         callPeer.processSessionInitiate(jingleIQ);
@@ -94,15 +92,6 @@ try
             parentOpSet.fireCallEvent( CallEvent.CALL_RECEIVED, this);
         }
 
-System.out.println("3");
-
-System.out.println("8");
-}
-catch(Throwable t)
-{
-t.printStackTrace();
-throw new RuntimeException(t);
-}
         return callPeer;
     }
 
@@ -111,6 +100,9 @@ throw new RuntimeException(t);
      * them <tt>session-initiate</tt> IQ request.
      *
      * @param calleeJID the party that we would like to invite to this call.
+     * @param discoverInfo any discovery information that we have for the jid
+     * we are trying to reach and that we are passing in order to avoid having
+     * to ask for it again.
      *
      * @return the newly created <tt>Call</tt> corresponding to
      * <tt>calleeJID</tt>. All following state change events will be
@@ -119,11 +111,13 @@ throw new RuntimeException(t);
      * @throws OperationFailedException  with the corresponding code if we fail
      *  to create the call.
      */
-    public CallPeerJabberImpl initiateSession(String calleeJID)
+    public CallPeerJabberImpl initiateSession(String       calleeJID,
+                                              DiscoverInfo discoverInfo)
         throws OperationFailedException
     {
         // create the session-initiate IQ
         CallPeerJabberImpl callPeer = new CallPeerJabberImpl(calleeJID, this);
+        callPeer.setDiscoverInfo(discoverInfo);
 
         addCallPeer(callPeer);
 

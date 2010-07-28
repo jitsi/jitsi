@@ -28,18 +28,18 @@ public class CallPeerMediaHandlerJabberImpl
     extends CallPeerMediaHandler<CallPeerJabberImpl>
 {
     /**
-     * A temporarily single transport manager that we use for generating
-     * addresses until we properly implement both ICE and Raw UDP managers.
-     */
-    private RawUdpTransportManager transportManager
-                                                = new RawUdpTransportManager();
-
-    /**
      * The <tt>Logger</tt> used by the <tt>CallPeerMediaHandlerJabberImpl</tt>
      * class and its instances for logging output.
      */
     private static final Logger logger = Logger
                     .getLogger(CallPeerMediaHandlerJabberImpl.class.getName());
+
+    /**
+     * A temporarily single transport manager that we use for generating
+     * addresses until we properly implement both ICE and Raw UDP managers.
+     */
+    private final TransportManagerJabberImpl transportManager;
+
 
     /**
      * The last ( and maybe only ) session description that we generated for
@@ -57,6 +57,8 @@ public class CallPeerMediaHandlerJabberImpl
     public CallPeerMediaHandlerJabberImpl(CallPeerJabberImpl peer)
     {
         super(peer, peer);
+
+        transportManager = new RawUdpTransportManager(peer);
     }
 
     /**
@@ -79,37 +81,6 @@ public class CallPeerMediaHandlerJabberImpl
     {
         ProtocolProviderServiceJabberImpl.throwOperationFailedException(
                             message, errorCode, cause, logger);
-    }
-
-    /**
-     * Returns the <tt>InetAddress</tt> that is most likely to be to be used
-     * as a next hop when contacting the specified <tt>destination</tt>. This is
-     * an utility method that is used whenever we have to choose one of our
-     * local addresses to put in the Via, Contact or (in the case of no
-     * registrar accounts) From headers.
-     *
-     * @param peer the CallPeer that we would contact.
-     *
-     * @return the <tt>InetAddress</tt> that is most likely to be to be used
-     * as a next hop when contacting the specified <tt>destination</tt>.
-     *
-     * @throws IllegalArgumentException if <tt>destination</tt> is not a valid
-     * host/ip/fqdn
-     */
-    @Override
-    protected InetAddress getIntendedDestination(CallPeerJabberImpl peer)
-    {
-        //XXX returning a dummy address until we implement real transport
-        //management so that we keep the Jingle Nodes guys happy!
-        try
-        {
-            return InetAddress.getByAddress(new byte []{8,8,8,8});
-        }
-        catch (UnknownHostException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     /**
@@ -197,7 +168,8 @@ public class CallPeerMediaHandlerJabberImpl
                 continue;
             }
 
-            StreamConnector connector = getStreamConnector(mediaType);
+            StreamConnector connector
+                = getTransportManager().getStreamConnector(mediaType);
 
             // create the corresponding stream...
             initStream(connector, dev, supportedFormats.get(0), target,
@@ -319,10 +291,10 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         //now add the transport elements
-        transportManager.startCandidateHarvest(mediaDescs, this);
+        getTransportManager().startCandidateHarvest(mediaDescs);
 
         //XXX ideally we wouldn't wrapup that quickluy. we need to revisit this
-        return transportManager.wrapupHarvest();
+        return getTransportManager().wrapupHarvest();
     }
 
     /**
@@ -423,7 +395,8 @@ public class CallPeerMediaHandlerJabberImpl
                      OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
             }
 
-            StreamConnector connector = getStreamConnector(mediaType);
+            StreamConnector connector
+                = getTransportManager().getStreamConnector(mediaType);
 
             //determine the direction that we need to announce.
             MediaDirection remoteDirection
@@ -449,5 +422,13 @@ public class CallPeerMediaHandlerJabberImpl
         }
     }
 
-
+    /**
+     * Returns the transport manager that is handling our address management.
+     *
+     * @return the transport manager that is handling our address management.
+     */
+    public TransportManagerJabberImpl getTransportManager()
+    {
+        return transportManager;
+    }
 }

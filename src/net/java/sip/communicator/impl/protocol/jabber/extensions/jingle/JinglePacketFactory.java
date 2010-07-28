@@ -182,11 +182,15 @@ public class JinglePacketFactory
     /**
      * Creates a new {@link JingleIQ} with the <tt>session-initiate</tt> action.
      *
-     * @param from
-     * @param to
-     * @param sid
-     * @param contentList
-     * @return
+     * @param from our JID
+     * @param to the destination JID
+     * @param sid the ID of the Jingle session that this message will be
+     * terminating.
+     * @param contentList the content elements containing media and transport
+     * descriptions.
+     *
+     * @return the newly constructed {@link JingleIQ} <tt>session-terminate</tt>
+     * packet.
      */
     public static JingleIQ createSessionInitiate(
                                     String                       from,

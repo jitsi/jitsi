@@ -24,6 +24,16 @@ public class CandidatePacketExtension extends AbstractPacketExtension
     public static final String COMPONENT_ATTR_NAME = "component";
 
     /**
+     * The "component" ID for RTP components.
+     */
+    public static final int RTP_COMPONENT_ID = 1;
+
+    /**
+     * The "component" ID for RTP components.
+     */
+    public static final int RTCP_COMPONENT_ID = 2;
+
+    /**
      * The name of the "foundation" element.
      */
     public static final String FOUNDATION_ATTR_NAME = "foundation";
