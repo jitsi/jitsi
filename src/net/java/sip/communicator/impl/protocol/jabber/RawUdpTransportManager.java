@@ -164,7 +164,8 @@ public class RawUdpTransportManager
 
     /**
      * Simply returns the list of local candidates that we gathered during the
-     * harvest.
+     * harvest. This is a raw udp transport manager so there's no real wraping
+     * up to do.
      *
      * @return the list of local candidates that we gathered during the
      * harvest.

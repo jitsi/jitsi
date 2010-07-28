@@ -215,7 +215,17 @@ public class OperationSetBasicTelephonyJabberImpl
         //create the actual jingle call
 
         CallJabberImpl call = new CallJabberImpl(this);
-        call.initiateSession(fullCalleeURI, di);
+
+        try
+        {
+            call.initiateSession(fullCalleeURI, di);
+        }
+        catch(Throwable t)
+        {
+t.printStackTrace()
+            throw new OperationFailedException("Failed to create a call",
+                            OperationFailedException.INTERNAL_ERROR, t);
+        }
 
         return call;
     }
