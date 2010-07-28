@@ -1407,8 +1407,8 @@ public class ProtocolProviderServiceJabberImpl
     {
         String jid = null;
 
-        if( connection != null )
-            connection.getUser();
+        if( connection != null && connection.getUser() != null)
+            return connection.getUser();
 
         if (jid == null)
         {
