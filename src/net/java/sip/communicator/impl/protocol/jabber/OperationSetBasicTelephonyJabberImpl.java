@@ -218,7 +218,9 @@ public class OperationSetBasicTelephonyJabberImpl
 
         try
         {
+System.out.println("1");
             call.initiateSession(fullCalleeURI, di);
+System.out.println("2");
         }
         catch(Throwable t)
         {
