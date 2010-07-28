@@ -222,7 +222,7 @@ public class OperationSetBasicTelephonyJabberImpl
         }
         catch(Throwable t)
         {
-t.printStackTrace()
+t.printStackTrace();
             throw new OperationFailedException("Failed to create a call",
                             OperationFailedException.INTERNAL_ERROR, t);
         }
