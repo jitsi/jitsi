@@ -178,7 +178,6 @@ public class OperationSetMultiUserChatJabberImpl
         assertSupportedAndConnected();
 
         String canonicalRoomName = getCanonicalRoomName(roomName);
-
         ChatRoom room = chatRoomCache.get(canonicalRoomName);
 
         if (room != null)
@@ -192,13 +191,14 @@ public class OperationSetMultiUserChatJabberImpl
             ServiceDiscoveryManager.getInstanceFor(getXmppConnection()).
                 discoverInfo(canonicalRoomName);
 
-            MultiUserChat muc =
-                new MultiUserChat(getXmppConnection(), canonicalRoomName);
+            MultiUserChat muc
+                = new MultiUserChat(getXmppConnection(), canonicalRoomName);
+
             room = new ChatRoomJabberImpl(muc, jabberProvider);
             chatRoomCache.put(canonicalRoomName, room);
-
             return room;
-        } catch (XMPPException e)
+        }
+        catch (XMPPException e)
         {
             // room not found
             return null;

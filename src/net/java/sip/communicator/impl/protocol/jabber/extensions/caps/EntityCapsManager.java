@@ -6,29 +6,52 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.caps;
 
+import java.io.*;
+import java.security.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+import net.java.sip.communicator.impl.protocol.jabber.*;
+
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
-
-import java.util.*;
-import java.util.concurrent.*;
-import java.security.*;
+import org.xmlpull.mxp1.*;
+import org.xmlpull.v1.*;
 
 /**
  * Keeps track of entity capabilities.
  *
  * This work is based on Jonas Adahl's smack fork.
+ *
+ * @author Emil Ivov
+ * @author Lubomir Marinov
  */
 public class EntityCapsManager
 {
     /**
+     * The prefix of the <tt>ConfigurationService</tt> properties which persist
+     * {@link #caps}.
+     */
+    private static final String CAPS_PROPERTY_NAME_PREFIX
+        = "net.java.sip.communicator.impl.protocol.jabber.extensions.caps."
+            + "EntityCapsManager.CAPS.";
+
+    /**
      * The hash method we use for generating the ver string.
      */
     public static final String HASH_METHOD_CAPS = "SHA-1";
+
+    /**
+     * An empty array of <tt>UserCapsNodeListener</tt> elements explicitly
+     * defined in order to reduce unnecessary allocations.
+     */
+    private static final UserCapsNodeListener[] NO_USER_CAPS_NODE_LISTENERS
+        = new UserCapsNodeListener[0];
 
     /**
      * The node value to advertise.
@@ -38,33 +61,42 @@ public class EntityCapsManager
     /**
      * Map of (node, hash algorithm) -&gt; DiscoverInfo.
      */
-    private static Map<String, DiscoverInfo> caps
-                            = new ConcurrentHashMap<String, DiscoverInfo>();
+    private static final Map<String, DiscoverInfo> caps
+        = new ConcurrentHashMap<String, DiscoverInfo>();
 
     /**
      * Map of Full JID -&gt; DiscoverInfo/null. In case of c2s connection the
      * key is formed as user@server/resource (resource is required) In case of
      * link-local connection the key is formed as user@host (no resource)
      */
-    private Map<String, String> userCaps
-                                    = new ConcurrentHashMap<String, String>();
+    private final Map<String, String> userCaps
+        = new ConcurrentHashMap<String, String>();
 
     /**
      * CapsVerListeners gets notified when the version string is changed.
      */
-    private Set<CapsVerListener> capsVerListeners
-                        = new CopyOnWriteArraySet<CapsVerListener>();
+    private final Set<CapsVerListener> capsVerListeners
+        = new CopyOnWriteArraySet<CapsVerListener>();
 
     /**
      * The current hash of our version and supported features.
      */
     private String currentCapsVersion = null;
 
+    /**
+     * The list of <tt>UserCapsNodeListener</tt>s interested in events notifying
+     * about changes in the list of user caps nodes of this
+     * <tt>EntityCapsManager</tt>.
+     */
+    private final List<UserCapsNodeListener> userCapsNodeListeners
+        = new LinkedList<UserCapsNodeListener>();
+
     static
     {
         ProviderManager.getInstance().addExtensionProvider(
-            CapsPacketExtension.ELEMENT_NAME, CapsPacketExtension.NAMESPACE,
-                        new CapsProvider());
+                CapsPacketExtension.ELEMENT_NAME,
+                CapsPacketExtension.NAMESPACE,
+                new CapsProvider());
     }
 
     /**
@@ -78,7 +110,27 @@ public class EntityCapsManager
     {
         cleanupDicsoverInfo(info);
 
-        caps.put(node, info);
+        synchronized (caps)
+        {
+            DiscoverInfo oldInfo = caps.put(node, info);
+
+            /*
+             * If the specified info is a new association for the specified
+             * node, remember it across application instances in order to not
+             * query for it over the network.
+             */
+            if ((oldInfo == null) || !oldInfo.equals(info))
+            {
+                String xml = info.getChildElementXML();
+
+                if ((xml != null) && (xml.length() != 0))
+                {
+                    JabberActivator
+                        .getConfigurationService()
+                            .setProperty(CAPS_PROPERTY_NAME_PREFIX + node, xml);
+                }
+            }
+        }
     }
 
     /**
@@ -90,9 +142,48 @@ public class EntityCapsManager
      */
     public void addUserCapsNode(String user, String node)
     {
-        if (user != null && node != null)
+        if ((user != null) && (node != null))
         {
-            userCaps.put(user, node);
+            String oldNode = userCaps.put(user, node);
+
+            // Fire userCapsNodeAdded.
+            if ((oldNode == null) || !oldNode.equals(node))
+            {
+                UserCapsNodeListener[] listeners;
+
+                synchronized (userCapsNodeListeners)
+                {
+                    listeners
+                        = userCapsNodeListeners.toArray(
+                                NO_USER_CAPS_NODE_LISTENERS);
+                }
+                if (listeners.length != 0)
+                {
+                    for (UserCapsNodeListener listener : listeners)
+                        listener.userCapsNodeAdded(user, node);
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds a specific <tt>UserCapsNodeListener</tt> to the list of
+     * <tt>UserCapsNodeListener</tt>s interested in events notifying about
+     * changes in the list of user caps nodes of this
+     * <tt>EntityCapsManager</tt>.
+     *
+     * @param listener the <tt>UserCapsNodeListener</tt> which is interested in
+     * events notifying about changes in the list of user caps nodes of this
+     * <tt>EntityCapsManager</tt> 
+     */
+    public void addUserCapsNodeListener(UserCapsNodeListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+        synchronized (userCapsNodeListeners)
+        {
+            if (!userCapsNodeListeners.contains(listener))
+                userCapsNodeListeners.add(listener);
         }
     }
 
@@ -103,7 +194,46 @@ public class EntityCapsManager
      */
     public void removeUserCapsNode(String user)
     {
-        userCaps.remove(user);
+        String node = userCaps.remove(user);
+
+        // Fire userCapsNodeRemoved.
+        if (node != null)
+        {
+            UserCapsNodeListener[] listeners;
+
+            synchronized (userCapsNodeListeners)
+            {
+                listeners
+                    = userCapsNodeListeners.toArray(
+                            NO_USER_CAPS_NODE_LISTENERS);
+            }
+            if (listeners.length != 0)
+            {
+                for (UserCapsNodeListener listener : listeners)
+                    listener.userCapsNodeRemoved(user, node);
+            }
+        }
+    }
+
+    /**
+     * Removes a specific <tt>UserCapsNodeListener</tt> from the list of
+     * <tt>UserCapsNodeListener</tt>s interested in events notifying about
+     * changes in the list of user caps nodes of this
+     * <tt>EntityCapsManager</tt>.
+     *
+     * @param listener the <tt>UserCapsNodeListener</tt> which is no longer
+     * interested in events notifying about changes in the list of user caps
+     * nodes of this <tt>EntityCapsManager</tt> 
+     */
+    public void removeUserCapsNodeListener(UserCapsNodeListener listener)
+    {
+        if (listener != null)
+        {
+            synchronized (userCapsNodeListeners)
+            {
+                userCapsNodeListeners.remove(listener);
+            }
+        }
     }
 
     /**
@@ -128,10 +258,8 @@ public class EntityCapsManager
     public DiscoverInfo getDiscoverInfoByUser(String user)
     {
         String capsNode = userCaps.get(user);
-        if (capsNode == null)
-            return null;
 
-        return getDiscoverInfoByNode(capsNode);
+        return (capsNode == null) ? null : getDiscoverInfoByNode(capsNode);
     }
 
     /**
@@ -172,7 +300,70 @@ public class EntityCapsManager
      */
     public static DiscoverInfo getDiscoverInfoByNode(String node)
     {
-        return caps.get(node);
+        synchronized (caps)
+        {
+            DiscoverInfo discoverInfo = caps.get(node);
+
+            /*
+             * If we don't have the discoverInfo in the runtime cache yet, we
+             * may have it remembered in a previous application instance. 
+             */
+            if (discoverInfo == null)
+            {
+                String xml
+                    = JabberActivator.getConfigurationService().getString(
+                            CAPS_PROPERTY_NAME_PREFIX + node);
+
+                if ((xml != null) && (xml.length() != 0))
+                {
+                    IQProvider discoverInfoProvider
+                        = (IQProvider)
+                            ProviderManager.getInstance().getIQProvider(
+                                    "query",
+                                    "http://jabber.org/protocol/disco#info");
+
+                    if (discoverInfoProvider != null)
+                    {
+                        XmlPullParser parser = new MXParser();
+
+                        try
+                        {
+                            parser.setFeature(
+                                    XmlPullParser.FEATURE_PROCESS_NAMESPACES,
+                                    true);
+                            parser.setInput(new StringReader(xml));
+                            // Start the parser.
+                            parser.next();
+                        }
+                        catch (XmlPullParserException xppex)
+                        {
+                            parser = null;
+                        }
+                        catch (IOException ioex)
+                        {
+                            parser = null;
+                        }
+
+                        if (parser != null)
+                        {
+                            try
+                            {
+                                discoverInfo
+                                    = (DiscoverInfo)
+                                        discoverInfoProvider.parseIQ(parser);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
+
+                            if (discoverInfo != null)
+                                caps.put(node, discoverInfo);
+                        }
+                    }
+                }
+            }
+            return discoverInfo;
+        }
     }
 
     /**
@@ -196,9 +387,12 @@ public class EntityCapsManager
     public void addPacketListener(XMPPConnection connection)
     {
         PacketFilter filter
-            = new AndFilter(new PacketTypeFilter(Presence.class),
-                   new PacketExtensionFilter(CapsPacketExtension.ELEMENT_NAME,
-                                             CapsPacketExtension.NAMESPACE));
+            = new AndFilter(
+                    new PacketTypeFilter(Presence.class),
+                    new PacketExtensionFilter(
+                            CapsPacketExtension.ELEMENT_NAME,
+                            CapsPacketExtension.NAMESPACE));
+
         connection.addPacketListener(new CapsPacketListener(), filter);
     }
 
@@ -253,9 +447,7 @@ public class EntityCapsManager
         }
 
         for (CapsVerListener listener : listenersCopy)
-        {
             listener.capsVerUpdated(currentCapsVersion);
-        }
     }
 
     /*
@@ -427,24 +619,25 @@ public class EntityCapsManager
     /**
      * The {@link PacketListener} that will be registering incoming caps.
      */
-    class CapsPacketListener implements PacketListener
+    private class CapsPacketListener
+        implements PacketListener
     {
         /**
          * Handles incoming presence packets and maps jids to node#ver strings.
+         *
+         * @param packet the incoming presence <tt>Packet</tt> to be handled
          */
         public void processPacket(Packet packet)
         {
-            CapsPacketExtension ext = (CapsPacketExtension) packet.getExtension(
-                CapsPacketExtension.ELEMENT_NAME,
-                CapsPacketExtension.NAMESPACE);
-
+            CapsPacketExtension ext
+                = (CapsPacketExtension)
+                    packet.getExtension(
+                            CapsPacketExtension.ELEMENT_NAME,
+                            CapsPacketExtension.NAMESPACE);
             String nodeVer = ext.getNode() + "#" + ext.getVersion();
             String user = packet.getFrom();
 
             addUserCapsNode(user, nodeVer);
-
-            // DEBUG
-            // spam();
         }
     }
 }

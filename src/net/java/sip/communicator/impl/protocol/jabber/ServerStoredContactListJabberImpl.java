@@ -213,8 +213,10 @@ public class ServerStoredContactListJabberImpl
                 // roster can be null, receiving system messages from server
                 // before we are log in
                 if(roster != null)
-                    parentOperationSet.firePresenceStatuschanged(
-                        roster.getPresence(c.getAddress()));
+                {
+                    parentOperationSet.firePresenceStatusChanged(
+                            roster.getPresence(c.getAddress()));
+                }
             }
         }
 
@@ -817,8 +819,8 @@ public class ServerStoredContactListJabberImpl
         // before we have created the contacts, so lets check
         if(roster != null)
         {
-            parentOperationSet.firePresenceStatuschanged(
-                roster.getPresence(contact.getAddress()));
+            parentOperationSet.firePresenceStatusChanged(
+                    roster.getPresence(contact.getAddress()));
         }
 
         // dispatch

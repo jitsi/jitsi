@@ -899,50 +899,56 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private void subscribeForGmailNotifications()
     {
         // first check support for the notification service
-        boolean notificationsAreSupported = jabberProvider.isFeatureSupported(
-                        jabberProvider.getAccountID().getService(),
-                        NewMailNotificationIQ.NAMESPACE);
+        String accountIDService = jabberProvider.getAccountID().getService();
+        boolean notificationsAreSupported
+            = jabberProvider.isFeatureSupported(
+                    accountIDService,
+                    NewMailNotificationIQ.NAMESPACE);
 
         if (!notificationsAreSupported)
         {
             if (logger.isDebugEnabled())
-                logger.debug(jabberProvider.getAccountID().getService()
+                logger.debug(accountIDService
                         +" does not seem to provide a GMail notification "
                         +" service so we won't be trying to subscribe for it");
             return;
         }
 
         if (logger.isDebugEnabled())
-            logger.debug(jabberProvider.getAccountID().getService()
+            logger.debug(accountIDService
                         +" seems to provide a GMail notification "
                         +" service so we will try to subscribe for it");
 
         ProviderManager providerManager = ProviderManager.getInstance();
+
         providerManager.addIQProvider(
-            MailboxIQ.ELEMENT_NAME, MailboxIQ.NAMESPACE, new MailboxIQProvider());
+                MailboxIQ.ELEMENT_NAME,
+                MailboxIQ.NAMESPACE,
+                new MailboxIQProvider());
         providerManager.addIQProvider(
-            NewMailNotificationIQ.ELEMENT_NAME, NewMailNotificationIQ.NAMESPACE,
-            new NewMailNotificationProvider());
+                NewMailNotificationIQ.ELEMENT_NAME,
+                NewMailNotificationIQ.NAMESPACE,
+                new NewMailNotificationProvider());
 
-        jabberProvider.getConnection().addPacketListener(
-            new MailboxIQListener(), new PacketTypeFilter( MailboxIQ.class));
+        XMPPConnection connection = jabberProvider.getConnection();
 
-        jabberProvider.getConnection().addPacketListener(
-            new NewMailNotificationListener(),new PacketTypeFilter(NewMailNotificationIQ.class));
+        connection.addPacketListener(
+                new MailboxIQListener(), new PacketTypeFilter(MailboxIQ.class));
+        connection.addPacketListener(
+                new NewMailNotificationListener(),
+                new PacketTypeFilter(NewMailNotificationIQ.class));
 
-        if(opSetPersPresence.getCurrentStatusMessage()
-                        .equals(JabberStatusEnum.OFFLINE))
-        {
+        if(opSetPersPresence.getCurrentStatusMessage().equals(
+                JabberStatusEnum.OFFLINE))
            return;
-        }
 
         //create a query with -1 values for newer-than-tid and
         //newer-than-time attributes
         MailboxQueryIQ mailboxQuery = new MailboxQueryIQ();
+
         if (logger.isTraceEnabled())
             logger.trace("sending mailNotification for acc: "
                     + jabberProvider.getAccountID().getAccountUniqueID());
-
         jabberProvider.getConnection().sendPacket(mailboxQuery);
     }
 

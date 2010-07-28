@@ -48,7 +48,6 @@ public interface OperationSetTypingNotifications
      */
     public static final int STATE_STOPPED = 4;
 
-
     /**
      * Adds <tt>l</tt> to the list of listeners registered for receiving
      * <tt>TypingNotificationEvent</tt>s

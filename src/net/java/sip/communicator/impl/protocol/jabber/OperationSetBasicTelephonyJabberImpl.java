@@ -198,11 +198,12 @@ public class OperationSetBasicTelephonyJabberImpl
             }
             else
             {
-                logger.info(calleeAddress + ": jingle not supported ??? ");
+                if (logger.isInfoEnabled())
+                    logger.info(calleeAddress + ": jingle not supported ??? ");
                 throw new OperationFailedException(
                         "Failed to create OutgoingJingleSession.\n"
-                        + fullCalleeURI + " does not support jingle"
-                        , OperationFailedException.INTERNAL_ERROR);
+                            + fullCalleeURI + " does not support jingle",
+                        OperationFailedException.INTERNAL_ERROR);
             }
         }
         catch (XMPPException ex)

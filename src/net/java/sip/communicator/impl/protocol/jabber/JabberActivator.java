@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -118,13 +119,12 @@ public class JabberActivator
      */
     public static ConfigurationService getConfigurationService()
     {
-        if(configurationService == null)
+        if (configurationService == null)
         {
-            ServiceReference confReference
-                = bundleContext.getServiceReference(
-                    ConfigurationService.class.getName());
             configurationService
-                = (ConfigurationService) bundleContext.getService(confReference);
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
         }
         return configurationService;
     }

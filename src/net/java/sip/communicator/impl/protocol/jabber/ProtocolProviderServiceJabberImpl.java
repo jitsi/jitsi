@@ -140,6 +140,13 @@ public class ProtocolProviderServiceJabberImpl
     private ScServiceDiscoveryManager discoveryManager = null;
 
     /**
+     * The <tt>OperationSetContactCapabilities</tt> of this
+     * <tt>ProtocolProviderService</tt> which is the service-public counterpart
+     * of {@link #discoveryManager}.
+     */
+    private OperationSetContactCapabilitiesJabberImpl opsetContactCapabilities;
+
+    /**
      * The statuses.
      */
     private JabberStatusEnum jabberStatusEnum;
@@ -661,7 +668,6 @@ public class ProtocolProviderServiceJabberImpl
                 + System.getProperty("sip-communicator.version","SVN");
 
         ServiceDiscoveryManager.setIdentityName(name);
-
         ServiceDiscoveryManager.setIdentityType("pc");
 
         discoveryManager = new ScServiceDiscoveryManager(connection);
@@ -677,6 +683,13 @@ public class ProtocolProviderServiceJabberImpl
             if (!discoveryManager.includesFeature(feature))
                 discoveryManager.addFeature(feature);
         }
+
+        /*
+         * Expose the discoveryManager as service-public through the
+         * OperationSetContactCapabilities of this ProtocolProviderSerivce.
+         */
+        if (opsetContactCapabilities != null)
+            opsetContactCapabilities.setDiscoveryManager(discoveryManager);
     }
 
     /**
@@ -696,7 +709,21 @@ public class ProtocolProviderServiceJabberImpl
             connection = null;
             // make it null as it also holds a reference to the old connection
             // will be created again on new connection
-            discoveryManager = null;
+            try
+            {
+                /*
+                 * The discoveryManager is exposed as service-public by the
+                 * OperationSetContactCapabilities of this
+                 * ProtocolProviderService. No longer expose it because it's
+                 * going away.
+                 */
+                if (opsetContactCapabilities != null)
+                    opsetContactCapabilities.setDiscoveryManager(null);
+            }
+            finally
+            {
+                discoveryManager = null;
+            }
         }
     }
 
@@ -763,13 +790,12 @@ public class ProtocolProviderServiceJabberImpl
         {
             this.accountID = accountID;
 
-            String protocolIconPath =
-                accountID
-                    .getAccountPropertyString(ProtocolProviderFactory.PROTOCOL_ICON_PATH);
+            String protocolIconPath
+                = accountID.getAccountPropertyString(
+                        ProtocolProviderFactory.PROTOCOL_ICON_PATH);
+
             if (protocolIconPath == null)
-            {
                 protocolIconPath = "resources/images/protocol/jabber";
-            }
 
             jabberIcon = new ProtocolIconJabberImpl(protocolIconPath);
 
@@ -779,12 +805,10 @@ public class ProtocolProviderServiceJabberImpl
             //this feature is mandatory to be compliant with Service Discovery
             supportedFeatures.add("http://jabber.org/protocol/disco#info");
 
-            String keepAliveStrValue =
-                accountID.getAccountPropertyString("SEND_KEEP_ALIVE");
-
+            String keepAliveStrValue
+                = accountID.getAccountPropertyString("SEND_KEEP_ALIVE");
             String resourcePriority
-                = accountID
-                    .getAccountPropertyString(
+                = accountID.getAccountPropertyString(
                         ProtocolProviderFactory.RESOURCE_PRIORITY);
 
             //initialize the presence operationset
@@ -864,9 +888,9 @@ public class ProtocolProviderServiceJabberImpl
                 accountInfo);
 
             // Initialize avatar operation set
-            OperationSetAvatar avatarOpSet =
-                new OperationSetAvatarJabberImpl(this, accountInfo);
-            addSupportedOperationSet(OperationSetAvatar.class, avatarOpSet);
+            addSupportedOperationSet(
+                OperationSetAvatar.class,
+                new OperationSetAvatarJabberImpl(this, accountInfo));
 
             // initialize the file transfer operation set
             addSupportedOperationSet(
@@ -922,6 +946,15 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
 */
+
+            // OperationSetContactCapabilities
+            opsetContactCapabilities
+                = new OperationSetContactCapabilitiesJabberImpl(this);
+            if (discoveryManager != null)
+                opsetContactCapabilities.setDiscoveryManager(discoveryManager);
+            addSupportedOperationSet(
+                OperationSetContactCapabilities.class,
+                opsetContactCapabilities);
 
             isInitialized = true;
         }
@@ -1196,18 +1229,16 @@ public class ProtocolProviderServiceJabberImpl
      * @param jid the jabber id for which to check
      * @param features the list of features to check for
      *
-     * @return <code>true</code> if the list of features is supported, otherwise
-     * returns <code>false</code>
+     * @return <tt>true</tt> if the list of features is supported; otherwise,
+     * <tt>false</tt>
      */
     public boolean isFeatureListSupported(String jid, String... features)
     {
         boolean isFeatureListSupported = true;
 
-        ServiceDiscoveryManager disco = ServiceDiscoveryManager
-            .getInstanceFor(getConnection());
         try
         {
-            DiscoverInfo featureInfo = disco.discoverInfo(jid);
+            DiscoverInfo featureInfo = discoveryManager.discoverInfo(jid);
 
             for (String feature : features)
             {
@@ -1225,7 +1256,6 @@ public class ProtocolProviderServiceJabberImpl
             if (logger.isDebugEnabled())
                 logger.debug("Failed to discover info.", e);
         }
-
         return isFeatureListSupported;
     }
 

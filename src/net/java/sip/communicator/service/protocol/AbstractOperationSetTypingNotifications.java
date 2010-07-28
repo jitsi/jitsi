@@ -13,15 +13,23 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Represents a default implementation of
- * <code>OperationSetTypingNotifications</code> in order to make it easier for
+ * <tt>OperationSetTypingNotifications</tt> in order to make it easier for
  * implementers to provide complete solutions while focusing on
  * implementation-specific details.
  * 
+ * @param <T> the type of the <tt>ProtocolProviderService</tt> implementation
+ * providing the <tt>AbstractOperationSetTypingNotifications</tt> implementation
+ *
  * @author Lubomir Marinov
  */
 public abstract class AbstractOperationSetTypingNotifications<T extends ProtocolProviderService>
     implements OperationSetTypingNotifications
 {
+    /**
+     * The <tt>Logger</tt> used by the
+     * <tt>AbstractOperationSetTypingNotifications</tt> class and its instances
+     * for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(AbstractOperationSetTypingNotifications.class);
 
@@ -31,30 +39,31 @@ public abstract class AbstractOperationSetTypingNotifications<T extends Protocol
     protected final T parentProvider;
 
     /**
-     * The list of currently registered <code>TypingNotificationsListener</code>
-     * s.
+     * The list of currently registered <tt>TypingNotificationsListener</tt>s.
      */
     private final List<TypingNotificationsListener> typingNotificationsListeners
         = new ArrayList<TypingNotificationsListener>();
 
     /**
-     * Initializes a new <code>AbstractOperationSetTypingNotifications</code>
-     * instance created by a specific <code>ProtocolProviderService</code>
-     * instance.
+     * Initializes a new <tt>AbstractOperationSetTypingNotifications</tt>
+     * instance created by a specific <tt>ProtocolProviderService</tt> instance.
      * 
-     * @param parentProvider
-     *            the <code>ProtocolProviderService</code> which creates the new
-     *            instance
+     * @param parentProvider the <tt>ProtocolProviderService</tt> which creates
+     * the new instance
      */
     protected AbstractOperationSetTypingNotifications(T parentProvider)
     {
         this.parentProvider = parentProvider;
     }
 
-    /*
-     * Implements
-     * OperationSetTypingNotifications#addTypingNotificationsListener(
-     * TypingNotificationsListener).
+    /**
+     * Adds <tt>listener</tt> to the list of listeners registered for receiving
+     * <tt>TypingNotificationEvent</tt>s.
+     *
+     * @param listener the <tt>TypingNotificationsListener</tt> listener that
+     * we'd like to add
+     * @see OperationSetTypingNotifications#addTypingNotificationsListener(
+     * TypingNotificationsListener)
      */
     public void addTypingNotificationsListener(
         TypingNotificationsListener listener)
@@ -70,8 +79,8 @@ public abstract class AbstractOperationSetTypingNotifications<T extends Protocol
      * Utility method throwing an exception if the stack is not properly
      * initialized.
      * 
-     * @throws java.lang.IllegalStateException
-     *             if the underlying stack is not registered and initialized.
+     * @throws IllegalStateException if the underlying stack is not registered
+     * and initialized
      */
     protected void assertConnected()
         throws IllegalStateException
@@ -91,10 +100,8 @@ public abstract class AbstractOperationSetTypingNotifications<T extends Protocol
     /**
      * Delivers a <tt>TypingNotificationEvent</tt> to all registered listeners.
      * 
-     * @param sourceContact
-     *            the contact who has sent the notification
-     * @param evtCode
-     *            the code of the event to deliver
+     * @param sourceContact the contact who has sent the notification
+     * @param evtCode the code of the event to deliver
      */
     public void fireTypingNotificationsEvent(
         Contact sourceContact,
@@ -126,10 +133,14 @@ public abstract class AbstractOperationSetTypingNotifications<T extends Protocol
             listener.typingNotificationReceived(evt);
     }
 
-    /*
-     * Implements
-     * OperationSetTypingNotifications#removeTypingNotificationsListener
-     * (TypingNotificationsListener).
+    /**
+     * Removes <tt>listener</tt> from the list of listeners registered for
+     * receiving <tt>TypingNotificationEvent</tt>s.
+     *
+     * @param listener the <tt>TypingNotificationsListener</tt> listener that
+     * we'd like to remove
+     * @see OperationSetTypingNotifications#removeTypingNotificationsListener(
+     * TypingNotificationsListener)
      */
     public void removeTypingNotificationsListener(
         TypingNotificationsListener listener)

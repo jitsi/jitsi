@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Represents a default implementation of
@@ -16,11 +17,21 @@ import net.java.sip.communicator.service.protocol.event.*;
  * implementers to provide complete solutions while focusing on
  * implementation-specific functionality.
  * 
+ * @param <T> the type of the <tt>ProtocolProviderService</tt> implementation
+ * providing the <tt>AbstractOperationSetContactCapabilities</tt> implementation
+ *
  * @author Lubomir Marinov
  */
-public abstract class AbstractOperationSetContactCapabilities
+public abstract class AbstractOperationSetContactCapabilities<T extends ProtocolProviderService>
     implements OperationSetContactCapabilities
 {
+    /**
+     * The <tt>Logger</tt> used by the
+     * <tt>AbstractOperationSetContactCapabilities</tt> class and its instances
+     * for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(AbstractOperationSetContactCapabilities.class);
 
     /**
      * The list of <tt>ContactCapabilitiesListener</tt>s registered to be
@@ -29,6 +40,28 @@ public abstract class AbstractOperationSetContactCapabilities
      */
     private final List<ContactCapabilitiesListener> contactCapabilitiesListeners
         = new LinkedList<ContactCapabilitiesListener>();
+
+    /**
+     * The <tt>ProtocolProviderService</tt> which provides this
+     * <tt>OperationSetContactCapabilities</tt>.
+     */
+    protected final T parentProvider;
+
+    /**
+     * Initializes a new <tt>AbstractOperationSetContactCapabilities</tt>
+     * instance which is to be provided by a specific
+     * <tt>ProtocolProviderService</tt> implementation.
+     *
+     * @param parentProvider the <tt>ProtocolProviderService</tt> implementation
+     * which will provide the new instance
+     */
+    protected AbstractOperationSetContactCapabilities(T parentProvider)
+    {
+        if (parentProvider == null)
+            throw new NullPointerException("parentProvider");
+
+        this.parentProvider = parentProvider;
+    }
 
     /**
      * Registers a specific <tt>ContactCapabilitiesListener</tt> to be notified
@@ -47,7 +80,6 @@ public abstract class AbstractOperationSetContactCapabilities
     {
         if (listener == null)
             throw new NullPointerException("listener");
-
         synchronized (contactCapabilitiesListeners)
         {
             if (!contactCapabilitiesListeners.contains(listener))
@@ -86,7 +118,21 @@ public abstract class AbstractOperationSetContactCapabilities
 
             for (ContactCapabilitiesListener listener : listeners)
             {
-                // TODO Auto-generated method stub
+                switch (eventID)
+                {
+                case ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED:
+                    listener.supportedOperationSetsChanged(event);
+                    break;
+                default:
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug(
+                                "Cannot fire ContactCapabilitiesEvent with"
+                                    + " unsupported eventID: "
+                                    + eventID);
+                    }
+                    throw new IllegalArgumentException("eventID");
+                }
             }
         }
     }
@@ -106,7 +152,7 @@ public abstract class AbstractOperationSetContactCapabilities
      * temporary <tt>Map</tt> allocations and loopups, extenders are advised to
      * override.
      *
-     * @param <T> the type extending <tt>OperationSet</tt> for which the
+     * @param <U> the type extending <tt>OperationSet</tt> for which the
      * specified <tt>contact</tt> is to be checked whether it possesses it as a
      * capability 
      * @param contact the <tt>Contact</tt> for which the <tt>opsetClass</tt>
@@ -121,9 +167,9 @@ public abstract class AbstractOperationSetContactCapabilities
      * @see OperationSetContactCapabilities#getOperationSet(Contact, Class)
      */
     @SuppressWarnings("unchecked")
-    public <T extends OperationSet> T getOperationSet(
+    public <U extends OperationSet> U getOperationSet(
             Contact contact,
-            Class<T> opsetClass)
+            Class<U> opsetClass)
     {
         Map<String, OperationSet> supportedOperationSets
             = getSupportedOperationSets(contact);
@@ -134,9 +180,34 @@ public abstract class AbstractOperationSetContactCapabilities
                 = supportedOperationSets.get(opsetClass.getName());
 
             if (opsetClass.isInstance(opset))
-                return (T) opset;
+                return (U) opset;
         }
         return null;
+    }
+
+    /**
+     * Gets the <tt>OperationSet</tt>s supported by a specific <tt>Contact</tt>.
+     * The returned <tt>OperationSet</tt>s are considered by the associated
+     * protocol provider to capabilities possessed by the specified
+     * <tt>contact</tt>. The default implementation returns the result of
+     * calling {@link ProtocolProviderService#getSupportedOperationSets()} on
+     * the associated <tt>ProtocolProviderService</tt> implementation. Extenders
+     * have to override the default implementation in order to provide actual
+     * capability detection for the specified <tt>contact</tt>.
+     *
+     * @param contact the <tt>Contact</tt> for which the supported
+     * <tt>OperationSet</tt> capabilities are to be retrieved
+     * @return a <tt>Map</tt> listing the <tt>OperationSet</tt>s considered by
+     * the associated protocol provider to be supported by the specified
+     * <tt>contact</tt> (i.e. to be possessed as capabilities). Each supported
+     * <tt>OperationSet</tt> capability is represented by a <tt>Map.Entry</tt>
+     * with key equal to the <tt>OperationSet</tt> class name and value equal to
+     * the respective <tt>OperationSet</tt> instance
+     * @see OperationSetContactCapabilities#getSupportedOperationSets(Contact)
+     */
+    public Map<String, OperationSet> getSupportedOperationSets(Contact contact)
+    {
+        return parentProvider.getSupportedOperationSets();
     }
 
     /**
@@ -155,9 +226,12 @@ public abstract class AbstractOperationSetContactCapabilities
     public void removeContactCapabilitiesListener(
             ContactCapabilitiesListener listener)
     {
-        synchronized (contactCapabilitiesListeners)
+        if (listener != null)
         {
-            contactCapabilitiesListeners.remove(listener);
+            synchronized (contactCapabilitiesListeners)
+            {
+                contactCapabilitiesListeners.remove(listener);
+            }
         }
     }
 }

@@ -10,13 +10,13 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
+import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * An wrapper to smack's default {@link ServiceDiscoveryManager} that adds
@@ -38,24 +38,20 @@ public class ScServiceDiscoveryManager
         = Logger.getLogger(ScServiceDiscoveryManager.class);
 
     /**
-     * A flag that indicates whether we are currently storing non-caps
+     * The flag which indicates whether we are currently storing non-caps.
      */
-    private static boolean cacheNonCaps=true;
+    private static final boolean CACHE_NON_CAPS = true;
 
     /**
-     * The current version of our entity capabilities
-     */
-    private String currentCapsVersion = null;
-
-    /**
-     * currently unused. we'll start using this when we start querying for
-     * client capabilities.
+     * The cache of non-caps. Used only if {@link #CACHE_NON_CAPS} is
+     * <tt>true</tt>.
      */
     private final Map<String, DiscoverInfo> nonCapsCache
         = new ConcurrentHashMap<String, DiscoverInfo>();
 
     /**
-     * The caps manager instance we will be using to handle entity capabilities.
+     * The <tt>EntitiCapsManager</tt> used by this instance to handle entity
+     * capabilities.
      */
     private final EntityCapsManager capsManager;
 
@@ -95,10 +91,12 @@ public class ScServiceDiscoveryManager
         this.features = new ArrayList<String>();
         this.identities = new ArrayList<DiscoverInfo.Identity>();
 
-        DiscoverInfo.Identity identity = new DiscoverInfo.Identity("client",
-                        ServiceDiscoveryManager.getIdentityName());
-        identity.setType(ServiceDiscoveryManager.getIdentityType());
+        DiscoverInfo.Identity identity
+            = new DiscoverInfo.Identity(
+                    "client",
+                    ServiceDiscoveryManager.getIdentityName());
 
+        identity.setType(ServiceDiscoveryManager.getIdentityType());
         identities.add(identity);
 
         //add support for capabilities
@@ -115,9 +113,9 @@ public class ScServiceDiscoveryManager
         // Now, make sure we intercept presence packages and add caps data when
         // intended. XEP-0115 specifies that a client SHOULD include entity
         // capabilities with every presence notification it sends.
-        PacketFilter capsPacketFilter = new PacketTypeFilter(Presence.class);
-
-        connection.addPacketInterceptor(this, capsPacketFilter);
+        connection.addPacketInterceptor(
+                this,
+                new PacketTypeFilter(Presence.class));
 
         initFeatures();
     }
@@ -152,16 +150,14 @@ public class ScServiceDiscoveryManager
     {
         // If a XMPPConnection is the managed one, see that the new
         // version is updated
-        if (connection instanceof XMPPConnection)
+        if ((connection instanceof XMPPConnection) && (capsManager != null))
         {
-            if (capsManager != null)
-            {
-                capsManager.calculateEntityCapsVersion(getOwnDiscoverInfo(),
-                        ServiceDiscoveryManager.getIdentityType(),
-                        ServiceDiscoveryManager.getIdentityName(),
-                        getFeatures(),
-                        null);
-            }
+            capsManager.calculateEntityCapsVersion(
+                    getOwnDiscoverInfo(),
+                    ServiceDiscoveryManager.getIdentityType(),
+                    ServiceDiscoveryManager.getIdentityName(),
+                    getFeatures(),
+                    null);
         }
     }
 
@@ -185,12 +181,12 @@ public class ScServiceDiscoveryManager
     public DiscoverInfo getOwnDiscoverInfo()
     {
         DiscoverInfo di = new DiscoverInfo();
+
         di.setType(IQ.Type.RESULT);
         di.setNode(capsManager.getNode() + "#" + getEntityCapsVersion());
 
         // Add discover info
         addDiscoverInfoTo(di);
-
         return di;
     }
 
@@ -203,14 +199,7 @@ public class ScServiceDiscoveryManager
      */
     private String getEntityCapsVersion()
     {
-        if (capsManager != null)
-        {
-            return capsManager.getCapsVersion();
-        }
-        else
-        {
-            return null;
-        }
+        return (capsManager == null) ? null : capsManager.getCapsVersion();
     }
 
     /*
@@ -222,8 +211,11 @@ public class ScServiceDiscoveryManager
     public void addDiscoverInfoTo(DiscoverInfo response)
     {
         // Set this client identity
-        DiscoverInfo.Identity identity = new DiscoverInfo.Identity("client",
-                ServiceDiscoveryManager.getIdentityName());
+        DiscoverInfo.Identity identity
+            = new DiscoverInfo.Identity(
+                    "client",
+                    ServiceDiscoveryManager.getIdentityName());
+
         identity.setType(ServiceDiscoveryManager.getIdentityType());
         response.addIdentity(identity);
         // Add the registered features to the response
@@ -232,9 +224,7 @@ public class ScServiceDiscoveryManager
         response.addFeature(CapsPacketExtension.NAMESPACE);
 
         for (String feature : getFeatures())
-        {
             response.addFeature(feature);
-        }
     }
 
     /**
@@ -279,20 +269,21 @@ public class ScServiceDiscoveryManager
      */
     public void interceptPacket(Packet packet)
     {
-        if(!(packet instanceof Presence))
-            return;
-
-        if (capsManager != null)
+        if ((packet instanceof Presence) && (capsManager != null))
         {
             String ver = getEntityCapsVersion();
-            CapsPacketExtension caps = new CapsPacketExtension(
-                            null, capsManager.getNode(),
-                            CapsPacketExtension.HASH_METHOD, ver);
+            CapsPacketExtension caps
+                = new CapsPacketExtension(
+                        null,
+                        capsManager.getNode(),
+                        CapsPacketExtension.HASH_METHOD,
+                        ver);
 
             //make sure we'll be able to handle requests for the newly generated
             //node once we've used it.
             discoveryManager.setNodeInformationProvider(
-                            caps.getNode() + "#" + caps.getVersion(), this);
+                    caps.getNode() + "#" + caps.getVersion(),
+                    this);
 
             packet.addExtension(caps);
         }
@@ -356,15 +347,36 @@ public class ScServiceDiscoveryManager
      * its JID.
      *
      * @param entityID the address of the XMPP entity.
-     *
      * @return the discovered information.
-     *
      * @throws XMPPException if the operation failed for some reason.
      */
     public DiscoverInfo discoverInfo(String entityID)
         throws XMPPException
     {
-        return discoveryManager.discoverInfo(entityID);
+        DiscoverInfo discoverInfo = capsManager.getDiscoverInfoByUser(entityID);
+
+        if (discoverInfo != null)
+            return discoverInfo;
+
+        String nodeVersion = capsManager.getNodeVersionByUser(entityID);
+
+        if (CACHE_NON_CAPS && (nodeVersion == null))
+        {
+            discoverInfo = nonCapsCache.get(entityID);
+            if (discoverInfo != null)
+                return discoverInfo;
+        }
+
+        discoverInfo = discoverInfo(entityID, nodeVersion);
+
+        if (nodeVersion == null)
+        {
+            if (CACHE_NON_CAPS)
+                nonCapsCache.put(entityID, discoverInfo);
+        }
+        else
+            EntityCapsManager.addDiscoverInfoByNode(nodeVersion, discoverInfo);
+        return discoverInfo;
     }
 
     /**
@@ -445,5 +457,17 @@ public class ScServiceDiscoveryManager
         }
 
         return ((info != null) && info.containsFeature(feature));
+    }
+
+    /**
+     * Gets the <tt>EntityCapsManager</tt> which handles the entity capabilities
+     * for this <tt>ScServiceDiscoveryManager</tt>.
+     *
+     * @return the <tt>EntityCapsManager</tt> which handles the entity
+     * capabilities for this <tt>ScServiceDiscoveryManager</tt>
+     */
+    public EntityCapsManager getCapsManager()
+    {
+        return capsManager;
     }
 }

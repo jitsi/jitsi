@@ -701,9 +701,10 @@ public class OperationSetPersistentPresenceJabberImpl
                         contact.updatePresenceStatus(offlineStatus);
 
                         fireContactPresenceStatusChangeEvent(
-                              contact
-                            , contact.getParentContactGroup()
-                            , oldContactStatus, offlineStatus);
+                            contact,
+                            contact.getParentContactGroup(),
+                            oldContactStatus,
+                            offlineStatus);
                     }
                 }
 
@@ -801,10 +802,10 @@ public class OperationSetPersistentPresenceJabberImpl
      * Fires the status change, respecting resource priorities.
      * @param presence the presence changed.
      */
-    void firePresenceStatuschanged(Presence presence)
+    void firePresenceStatusChanged(Presence presence)
     {
         if(contactChangesListener != null)
-            contactChangesListener.firePresenceStatuschanged(presence);
+            contactChangesListener.firePresenceStatusChanged(presence);
     }
 
     /**
@@ -846,19 +847,21 @@ public class OperationSetPersistentPresenceJabberImpl
          */
         public void presenceChanged(Presence presence)
         {
-            firePresenceStatuschanged(presence);
+            firePresenceStatusChanged(presence);
         }
 
         /**
          * Fires the status change, respecting resource priorities.
+         *
          * @param presence the presence changed.
          */
-        void firePresenceStatuschanged(Presence presence)
+        void firePresenceStatusChanged(Presence presence)
         {
             try
             {
-                String userID =
-                    StringUtils.parseBareAddress(presence.getFrom());
+                String userID
+                    = StringUtils.parseBareAddress(presence.getFrom());
+
                 if (logger.isInfoEnabled())
                     logger.info("Received a status update for buddy=" + userID);
 
@@ -878,8 +881,14 @@ public class OperationSetPersistentPresenceJabberImpl
                             if(res == 0)
                             {
                                 res =
-                                    jabberStatusToPresenceStatus(o1, parentProvider).getStatus() -
-                                    jabberStatusToPresenceStatus(o2, parentProvider).getStatus();
+                                    jabberStatusToPresenceStatus(
+                                                o1,
+                                                parentProvider)
+                                            .getStatus()
+                                        - jabberStatusToPresenceStatus(
+                                                    o2,
+                                                    parentProvider)
+                                                .getStatus();
                             }
 
                             return res;
@@ -897,7 +906,9 @@ public class OperationSetPersistentPresenceJabberImpl
                             iter.hasNext();)
                     {
                         Presence p = iter.next();
-                        if (StringUtils.parseResource(p.getFrom()).equals(resource))
+
+                        if (StringUtils.parseResource(p.getFrom()).equals(
+                                resource))
                             iter.remove();
                     }
                 }
@@ -924,9 +935,7 @@ public class OperationSetPersistentPresenceJabberImpl
                     statuses.remove(userID);
                 }
                 else
-                {
                     currentPresence = userStats.first();
-                }
 
                 ContactJabberImpl sourceContact
                     = ssContactList.findContactById(userID);
@@ -942,9 +951,10 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 PresenceStatus oldStatus
                     = sourceContact.getPresenceStatus();
-
-                PresenceStatus newStatus =
-                    jabberStatusToPresenceStatus(currentPresence, parentProvider);
+                PresenceStatus newStatus
+                    = jabberStatusToPresenceStatus(
+                            currentPresence,
+                            parentProvider);
 
                 // when old and new status are the same do nothing
                 // no change
@@ -1006,7 +1016,11 @@ public class OperationSetPersistentPresenceJabberImpl
                 public void run()
                 {
                     if (logger.isTraceEnabled())
-                        logger.trace(fromID + " wants to add you to its contact list");
+                    {
+                        logger.trace(
+                                fromID
+                                    + " wants to add you to its contact list");
+                    }
 
                     // buddy want to add you to its roster
                     ContactJabberImpl srcContact
