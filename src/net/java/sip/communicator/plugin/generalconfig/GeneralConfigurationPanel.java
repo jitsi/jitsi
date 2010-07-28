@@ -51,12 +51,12 @@ public class GeneralConfigurationPanel
         mainPanel.setLayout(boxLayout);
         this.add(mainPanel, BorderLayout.NORTH);
 
-        Component autoStartCheckBox = createAutoStartCheckBox();
-        if (autoStartCheckBox != null)
+        Component startupConfigPanel = createStartupConfigPanel();
+        if (startupConfigPanel != null)
         {
-            mainPanel.add(autoStartCheckBox);
-            mainPanel.add(new JSeparator());
+            mainPanel.add(startupConfigPanel);
             mainPanel.add(Box.createVerticalStrut(10));
+            mainPanel.add(new JSeparator());
         }
 
         mainPanel.add(createMessageConfigPanel());
@@ -82,14 +82,6 @@ public class GeneralConfigurationPanel
 
         mainPanel.add(createSipConfigPanel());
         mainPanel.add(Box.createVerticalStrut(10));
-
-        Component updateCheckBox = createUpdateCheckPanel();
-        if (updateCheckBox != null)
-        {
-            mainPanel.add(new JSeparator());
-            mainPanel.add(updateCheckBox);
-            mainPanel.add(Box.createVerticalStrut(10));
-        }
     }
 
     /**
@@ -107,9 +99,6 @@ public class GeneralConfigurationPanel
      */
     private Component createAutoStartCheckBox()
     {
-        if (!OSUtils.IS_WINDOWS)
-            return null;
-
         final JCheckBox autoStartCheckBox = new SIPCommCheckBox();
 
         autoStartCheckBox.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
@@ -747,14 +736,51 @@ public class GeneralConfigurationPanel
     }
 
     /**
+     * Initializes the startup config panel.
+     * @return the created component
+     */
+    public Component createStartupConfigPanel()
+    {
+        // If we're on a Mac nothing would be added in this panel, so we return
+        // null.
+        if (OSUtils.IS_MAC)
+            return null;
+
+        JPanel updateConfigPanel = new TransparentPanel(new BorderLayout());
+
+        updateConfigPanel.add(
+            GeneralConfigPluginActivator.createConfigSectionComponent(
+                Resources.getString("plugin.generalconfig.STARTUP_CONFIG")
+                    + ":"),
+            BorderLayout.WEST);
+
+        Component updateCheckBox = createUpdateCheckBox();
+        Component autoStartCheckBox = null;
+
+        if (OSUtils.IS_WINDOWS)
+            autoStartCheckBox = createAutoStartCheckBox();
+
+        if (updateCheckBox != null && autoStartCheckBox != null)
+        {
+            JPanel checkBoxPanel = new TransparentPanel(new GridLayout(0, 1));
+            checkBoxPanel.add(autoStartCheckBox);
+            checkBoxPanel.add(updateCheckBox);
+            updateConfigPanel.add(checkBoxPanel);
+        }
+        else if (updateCheckBox != null)
+            updateConfigPanel.add(updateCheckBox);
+        else if (autoStartCheckBox != null)
+            updateConfigPanel.add(autoStartCheckBox);
+
+        return updateConfigPanel;
+    }
+
+    /**
      * Initializes the update check panel.
      * @return the created component
      */
-    public Component createUpdateCheckPanel()
+    public Component createUpdateCheckBox()
     {
-        if(OSUtils.IS_MAC)// if we are not running mac
-            return null;
-
         JCheckBox updateCheckBox = new SIPCommCheckBox();
 
         updateCheckBox.setText(
