@@ -95,6 +95,11 @@ public abstract class MediaAwareCallPeer
     private T call;
 
     /**
+     * The protocol provider that this peer belongs to.
+     */
+    private final V protocolProvider;
+
+    /**
      * The media handler class handles all media management for a single
      * <tt>CallPeer</tt>. This includes initializing and configuring streams,
      * generating SDP, handling ICE, etc. One instance of <tt>CallPeer</tt>always
@@ -111,6 +116,7 @@ public abstract class MediaAwareCallPeer
     public MediaAwareCallPeer(T owningCall)
     {
         this.call = owningCall;
+        this.protocolProvider = owningCall.getProtocolProvider();
 
         //create the uid
         this.peerID = String.valueOf(System.currentTimeMillis())
@@ -201,7 +207,7 @@ public abstract class MediaAwareCallPeer
      */
     public V getProtocolProvider()
     {
-        return this.getCall().getProtocolProvider();
+        return protocolProvider;
     }
 
     /**

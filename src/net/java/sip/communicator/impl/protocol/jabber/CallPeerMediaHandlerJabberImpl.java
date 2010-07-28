@@ -187,7 +187,7 @@ public class CallPeerMediaHandlerJabberImpl
 
         //now, before we go, tell the transport manager to start our candidate
         //harvest
-        //getTransportManager().startCandidateHarvest(offer, answerContentList);
+        getTransportManager().startCandidateHarvest(offer, answerContentList);
     }
 
     /**

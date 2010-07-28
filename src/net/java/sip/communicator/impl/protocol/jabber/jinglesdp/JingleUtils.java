@@ -177,9 +177,6 @@ public class JingleUtils
 
         List<ExtmapPacketExtension> extmapList = desc.getExtmapList();
 
-        if(extmapList.size() == 0)
-            return null;
-
         for (ExtmapPacketExtension extmap : extmapList)
         {
             RTPExtension rtpExtension = new RTPExtension(extmap.getUri(),

@@ -274,10 +274,6 @@ public class CallPeerJabberImpl
             return;
         }
 
-        //get a reference to the provider before we change the state to
-        //DISCONNECTED because at that point we may lose our Call reference
-        ProtocolProviderServiceJabberImpl provider = getProtocolProvider();
-
         CallPeerState prevPeerState = getState();
         setState(CallPeerState.DISCONNECTED);
         JingleIQ responseIQ = null;
@@ -286,19 +282,19 @@ public class CallPeerJabberImpl
             || CallPeerState.isOnHold(prevPeerState))
         {
             responseIQ = JinglePacketFactory.createBye(
-                provider.getOurJID(), peerJID, getJingleSID());
+                getProtocolProvider().getOurJID(), peerJID, getJingleSID());
         }
         else if (CallPeerState.CONNECTING.equals(prevPeerState)
             || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(prevPeerState)
             || CallPeerState.ALERTING_REMOTE_SIDE.equals(prevPeerState))
         {
             responseIQ = JinglePacketFactory.createCancel(
-                provider.getOurJID(), peerJID, getJingleSID());
+                getProtocolProvider().getOurJID(), peerJID, getJingleSID());
         }
         else if (prevPeerState.equals(CallPeerState.INCOMING_CALL))
         {
             responseIQ = JinglePacketFactory.createBusy(
-                provider.getOurJID(), peerJID, getJingleSID());
+                getProtocolProvider().getOurJID(), peerJID, getJingleSID());
         }
         else if (prevPeerState.equals(CallPeerState.BUSY)
                  || prevPeerState.equals(CallPeerState.FAILED))
@@ -312,7 +308,7 @@ public class CallPeerJabberImpl
         }
 
         if (responseIQ != null)
-            provider.getConnection().sendPacket(responseIQ);
+            getProtocolProvider().getConnection().sendPacket(responseIQ);
     }
 
     /**

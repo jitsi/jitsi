@@ -77,7 +77,6 @@ public class RawUdpTransportManager
             cpExt.addChildExtension(ourTransport);
         }
 
-System.out.println("setting cpe list to " + ourAnswer + " in " + this);
         this.cpeList = ourAnswer;
     }
 
@@ -115,7 +114,6 @@ System.out.println("setting cpe list to " + ourAnswer + " in " + this);
 
             cpExt.addChildExtension(ourTransport);
         }
-System.out.println("setting cpe list to " + ourAnswer + " in " + this);
         this.cpeList = ourAnswer;
     }
 
@@ -173,7 +171,6 @@ System.out.println("setting cpe list to " + ourAnswer + " in " + this);
      */
     public List<ContentPacketExtension> wrapupHarvest()
     {
-System.out.println("returnin cpe list " + cpeList + " in " + this);
         return cpeList;
     }
 

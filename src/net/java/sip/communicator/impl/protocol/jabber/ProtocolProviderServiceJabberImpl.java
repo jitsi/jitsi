@@ -935,7 +935,7 @@ public class ProtocolProviderServiceJabberImpl
                                            new JingleIQProvider());
 
             //initialize the telephony operation set
-/* disabled until implementation is ready. */
+/* disabled until implementation is ready.
             addSupportedOperationSet(
                 OperationSetBasicTelephony.class,
                 new OperationSetBasicTelephonyJabberImpl(this));
@@ -944,10 +944,11 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add(URN_XMPP_JINGLE);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP);
             supportedFeatures.add(URN_XMPP_JINGLE_RAW_UDP_0);
-            supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
+            //un-comment when ice integration is ready
+            //supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
-/**/
+*/
 
             // OperationSetContactCapabilities
             opsetContactCapabilities
