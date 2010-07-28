@@ -49,6 +49,11 @@ public class CallPeerJabberImpl
     private DiscoverInfo discoverInfo;
 
     /**
+     * Indicates whether this peer was the one that initiated the session.
+     */
+    private boolean isInitiator = false;
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the Jabber address of the new call peer.
@@ -144,6 +149,7 @@ public class CallPeerJabberImpl
     protected synchronized void processSessionInitiate(JingleIQ sessionInitIQ)
     {
         this.sessionInitIQ = sessionInitIQ;
+        this.isInitiator = true;
 
         // This is the SDP offer that came from the initial session-initiate,
         //contrary to sip we we are guaranteed to have content because XEP-0166
@@ -187,9 +193,10 @@ public class CallPeerJabberImpl
     protected synchronized void initiateSession()
         throws OperationFailedException
     {
+        isInitiator = false;
         //Create the media description that we'd like to send to the other side.
         List<ContentPacketExtension> offer = getMediaHandler()
-            .createContentList(true);
+            .createContentList();
 
         //send a ringing response
         if (logger.isTraceEnabled())
@@ -386,5 +393,18 @@ public class CallPeerJabberImpl
     public DiscoverInfo getDiscoverInfo()
     {
         return discoverInfo;
+    }
+
+    /**
+     * Determines whether this peer was the one that initiated the session. Note
+     * that if this peer is the initiator of the session then this means we are
+     * the responder!
+     *
+     * @return <tt>true</tt> if this peer is the one that initiated the session
+     * and <tt>false</tt> otherwise (i.e. if _we_ initiated the session).
+     */
+    public boolean isInitiator()
+    {
+        return isInitiator;
     }
 }

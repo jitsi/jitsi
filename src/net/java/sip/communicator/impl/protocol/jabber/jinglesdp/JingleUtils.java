@@ -84,46 +84,71 @@ public class JingleUtils
 
         for(PayloadTypePacketExtension ptExt : payloadTypes)
         {
-            byte pt = (byte)ptExt.getID();
-            List<ParameterPacketExtension> params = ptExt.getParameters();
-
-            //convert params to a name:value map
-            Map<String, String> paramsMap = new Hashtable<String, String>();
-
-            for(ParameterPacketExtension param : params)
-                paramsMap.put(param.getName(), param.getValue());
-
-            //now create the format.
-            MediaFormat format = JabberActivator.getMediaService()
-                .getFormatFactory().createMediaFormat(
-                    pt, ptExt.getName(), (double)ptExt.getClockrate(),
-                    ptExt.getChannels(), paramsMap, null);
+            MediaFormat format = payloadTypeToMediaFormat(ptExt, ptRegistry);
 
             //continue if our media service does not know this format
             if(format == null)
-                continue;
-
-            /*
-             * We've just created a MediaFormat for the specified payloadType
-             * so we have to remember the mapping between the two so that we
-             * don't, for example, map the same payloadType to a different
-             * MediaFormat at a later time when we do automatic generation
-             * of payloadType in DynamicPayloadTypeRegistry.
-             */
-            /*
-             * TODO What is expected to happen when the remote peer tries to
-             * re-map a payloadType in its answer to a different MediaFormat
-             * than the one we've specified in our offer?
-             */
-            if ((pt >= MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
-                    && (pt <= MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE)
-                    && (ptRegistry.findFormat(pt) == null))
-                ptRegistry.addMapping(format, pt);
+                return null;
 
             mediaFmts.add(format);
         }
 
         return mediaFmts;
+    }
+
+    /**
+     * Returns the {@link MediaFormat} described in the <tt>payloadType</tt>
+     * extension or <tt>null</tt> if we don't recognize the format.
+     *
+     * @param payloadType the {@link PayloadTypePacketExtension} that we'd like
+     * to parse into a {@link MediaFormat}.
+     * @param ptRegistry the {@link DynamicPayloadTypeRegistry} that we would
+     * use for the registration of possible dynamic payload types.
+     *
+     * @return the {@link MediaFormat} described in the <tt>payloadType</tt>
+     * extension or <tt>null</tt> if we don't recognize the format.
+     */
+    public static MediaFormat payloadTypeToMediaFormat(
+                    PayloadTypePacketExtension payloadType,
+                    DynamicPayloadTypeRegistry ptRegistry)
+    {
+        byte pt = (byte)payloadType.getID();
+        List<ParameterPacketExtension> params = payloadType.getParameters();
+
+        //convert params to a name:value map
+        Map<String, String> paramsMap = new Hashtable<String, String>();
+
+        for(ParameterPacketExtension param : params)
+            paramsMap.put(param.getName(), param.getValue());
+
+        //now create the format.
+        MediaFormat format = JabberActivator.getMediaService()
+            .getFormatFactory().createMediaFormat(
+                pt, payloadType.getName(), (double)payloadType.getClockrate(),
+                payloadType.getChannels(), paramsMap, null);
+
+        //we don't seem to know anything about this format
+        if(format == null)
+            return null;
+
+        /*
+         * We've just created a MediaFormat for the specified payloadType
+         * so we have to remember the mapping between the two so that we
+         * don't, for example, map the same payloadType to a different
+         * MediaFormat at a later time when we do automatic generation
+         * of payloadType in DynamicPayloadTypeRegistry.
+         */
+        /*
+         * TODO What is expected to happen when the remote peer tries to
+         * re-map a payloadType in its answer to a different MediaFormat
+         * than the one we've specified in our offer?
+         */
+        if ((pt >= MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
+                && (pt <= MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE)
+                && (ptRegistry.findFormat(pt) == null))
+            ptRegistry.addMapping(format, pt);
+
+        return format;
     }
 
     /**

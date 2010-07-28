@@ -161,23 +161,17 @@ public class CallPeerMediaHandlerJabberImpl
             {
                 // skip stream and continue. contrary to sip we don't seem to
                 // need to send per-stream disabling answer and only one at the
-                //end.
+                // end.
 
                 //close the stream in case it already exists
                 closeStream(mediaType);
                 continue;
             }
 
-            StreamConnector connector
-                = getTransportManager().getStreamConnector(mediaType);
-
-            // create the corresponding stream...
-            initStream(connector, dev, supportedFormats.get(0), target,
-                      direction, rtpExtensions);
-
             // create the answer description
             answerContentList.add(JingleUtils.createDescription(
-                content.getCreator(), content.getName(), content.getSenders(),
+                content.getCreator(), content.getName(),
+                JingleUtils.getSenders(direction, !peer.isInitiator()) ,
                 mutuallySupportedFormats, rtpExtensions,
                 getDynamicPayloadTypes(), getRtpExtensionsRegistry()));
 
@@ -200,16 +194,54 @@ public class CallPeerMediaHandlerJabberImpl
      *
      * @return  the last generated list of {@link ContentPacketExtension}s that
      * the call peer could use to send a <tt>session-accept</tt>.
+     *
+     * @throws OperationFailedException if we fail to configure the media stream
      */
     protected List<ContentPacketExtension> generateSessionAccept()
+        throws OperationFailedException
     {
-        //wrap up transport candidate harvesting and insert the final
-        //transports in the content list.
+        List<ContentPacketExtension> sessAccept
+                                    = getTransportManager().wrapupHarvest();
 
-        //XXX this is a temporary fix that would only work for Raw UDP as we
-        //are trying to finish it to make Thiago happy
+        //user answered an incoming call so we go through whatever content
+        //entries we are initializing and init their corresponding streams
+        for(ContentPacketExtension content : sessAccept)
+        {
+            RtpDescriptionPacketExtension description
+                            = JingleUtils.getRtpDescription(content);
+            MediaType type = MediaType.parseString(description.getMedia());
 
-        return localContentList;
+            //
+            StreamConnector connector
+                = getTransportManager().getStreamConnector(type);
+
+            //the device this stream would be reading from and writing to.
+            MediaDevice dev = getDefaultDevice(type);
+
+            // stream target
+            MediaStreamTarget target
+                = JingleUtils.extractDefaultTarget(content);
+
+            //stream direction
+            MediaDirection direction = JingleUtils.getDirection(
+                                                content, !peer.isInitiator());
+
+            //let's now see what was the format we announced as first and
+            //configure the stream with it.
+            MediaFormat format = JingleUtils.payloadTypeToMediaFormat(
+                description.getPayloadTypes().get(0), getDynamicPayloadTypes());
+
+            //extract the extensions that we are advertising:
+            // check whether we will be exchanging any RTP extensions.
+            List<RTPExtension> rtpExtensions
+                    = JingleUtils.extractRTPExtensions(
+                            description, this.getRtpExtensionsRegistry());
+
+            // create the corresponding stream...
+            initStream(connector, dev, format, target,
+                                                    direction, rtpExtensions);
+        }
+        return sessAccept;
     }
 
     /**
@@ -218,9 +250,6 @@ public class CallPeerMediaHandlerJabberImpl
      * available <tt>MediaDevice</tt>s and local on-hold and video transmission
      * preferences.
      *
-     * @param initiator indicates whether we are the party that's establishing
-     * the call that the result content is going to be used in.
-     *
      * @return a {@link List} containing the {@link ContentPacketExtension}s of
      * streams that this handler is prepared to initiate.
      *
@@ -228,7 +257,7 @@ public class CallPeerMediaHandlerJabberImpl
      * for reasons like - problems with device interaction, allocating ports,
      * etc.
      */
-    public List<ContentPacketExtension> createContentList(boolean initiator)
+    public List<ContentPacketExtension> createContentList()
         throws OperationFailedException
     {
         //Audio Media Description
@@ -249,10 +278,9 @@ public class CallPeerMediaHandlerJabberImpl
 
                 if(direction != MediaDirection.INACTIVE)
                 {
-                    ContentPacketExtension content
-                        = createContentForOffer( initiator,
+                    ContentPacketExtension content = createContentForOffer(
                             dev.getSupportedFormats(), direction,
-                                dev.getSupportedExtensions());
+                            dev.getSupportedExtensions());
 
                     //ZRTP
                     if(peer.getCall().isSipZrtpAttribute())
@@ -302,8 +330,6 @@ public class CallPeerMediaHandlerJabberImpl
      * {@link MediaFormat} list, direction and RTP extensions taking account
      * the local streaming preference for the corresponding media type.
      *
-     * @param initiator indicates whether we are the initiating party in the
-     * call that this content will be used in.
      * @param supportedFormats the list of <tt>MediaFormats</tt> that we'd
      * like to advertise.
      * @param direction the <tt>MediaDirection</tt> that we'd like to establish
@@ -315,7 +341,6 @@ public class CallPeerMediaHandlerJabberImpl
      * streams that we'd be able to handle.
      */
     private ContentPacketExtension createContentForOffer(
-                                        boolean            initiator,
                                         List<MediaFormat>  supportedFormats,
                                         MediaDirection     direction,
                                         List<RTPExtension> supportedExtensions)
@@ -323,7 +348,7 @@ public class CallPeerMediaHandlerJabberImpl
         return JingleUtils.createDescription(
             CreatorEnum.initiator,
             supportedFormats.get(0).getMediaType().toString(),
-            JingleUtils.getSenders(direction, initiator),
+            JingleUtils.getSenders(direction, !peer.isInitiator()),
             supportedFormats,
             supportedExtensions,
             getDynamicPayloadTypes(),
