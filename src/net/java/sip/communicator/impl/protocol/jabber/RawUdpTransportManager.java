@@ -6,17 +6,15 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.media.*;
 
 /**
- * A {@link TransportManagerJabberImpl} implementation that would only gather a single
- * candidate pair (i.e. RTP and RTCP).
+ * A {@link TransportManagerJabberImpl} implementation that would only gather a
+ * single candidate pair (i.e. RTP and RTCP).
  *
  * @author Emil Ivov
  */
@@ -60,11 +58,45 @@ public class RawUdpTransportManager
                                       List<ContentPacketExtension> ourAnswer)
         throws OperationFailedException
     {
-        //XXX for the time being we only generate almost dummy XML in here in
-        //order to patch up an early Raw UDP impl and help up the guys from
-        //Jingle Nodes. Eventually, the stream connector should be connected in
-        //here.
         for(ContentPacketExtension content : theirOffer)
+        {
+            RtpDescriptionPacketExtension rtpDesc
+                = (RtpDescriptionPacketExtension)content
+                    .getFirstChildOfType(RtpDescriptionPacketExtension.class);
+
+            StreamConnector connector = getStreamConnector(
+                            MediaType.parseString( rtpDesc.getMedia()));
+
+            RawUdpTransportPacketExtension ourTransport
+                                        = createTransport(connector);
+
+            //now add our transport to our answer
+            ContentPacketExtension cpExt
+                = findContentByName(ourAnswer, content.getName());
+
+            cpExt.addChildExtension(ourTransport);
+        }
+
+        this.cpeList = ourAnswer;
+    }
+
+    /**
+     * Starts transport candidate harvest. This method should complete rapidly
+     * and, in case of lengthy procedures like STUN/TURN/UPnP candidate harvests
+     * are necessary, they should be executed in a separate thread. Candidate
+     * harvest would then need to be concluded in the {@link #wrapupHarvest()}
+     * method which would be called once we absolutely need the candidates.
+     *
+     * @param ourAnswer the content list that should tell us how many stream
+     * connectors we actually need.
+     *
+     * @throws OperationFailedException in case we fail allocating ports
+     */
+    public void startCandidateHarvest(
+                            List<ContentPacketExtension>   ourAnswer)
+        throws OperationFailedException
+    {
+        for(ContentPacketExtension content : ourAnswer)
         {
             RtpDescriptionPacketExtension rtpDesc
                 = (RtpDescriptionPacketExtension)content
@@ -131,60 +163,14 @@ public class RawUdpTransportManager
     }
 
     /**
-     * Starts transport candidate harvest. This method should complete rapidly
-     * and, in case of lengthy procedures like STUN/TURN/UPnP candidate harvests
-     * are necessary, they should be executed in a separate thread. Candidate
-     * harvest would then need to be concluded in the {@link #wrapupHarvest()}
-     * method which would be called once we absolutely need the candidates.
+     * Simply returns the list of local candidates that we gathered during the
+     * harvest.
      *
-     * @param ourAnswer the content list that should tell us how many stream
-     * connectors we actually need.
-     *
-     * @throws OperationFailedException in case we fail allocating ports
-     */
-    public void startCandidateHarvest(
-                            List<ContentPacketExtension>   ourAnswer)
-        throws OperationFailedException
-    {
-        //XXX for the time being we only generate almost dummy XML in here in
-        //order to patch up an early Raw UDP impl and help up the guys from
-        //Jingle Nodes. Eventually, the stream connector should be connected in
-        //here.
-        for(ContentPacketExtension content : ourAnswer)
-        {
-            RtpDescriptionPacketExtension rtpDesc
-                = (RtpDescriptionPacketExtension)content
-                    .getFirstChildOfType(RtpDescriptionPacketExtension.class);
-
-            StreamConnector connector = getStreamConnector(
-                            MediaType.parseString( rtpDesc.getMedia()));
-
-            //XXX we are temporarily using ice ext as a catchall for both ICE
-            //and RawUDP
-            RawUdpTransportPacketExtension ourTransport
-                                        = createTransport(connector);
-
-            //now add our transport to our answer
-            ContentPacketExtension cpExt
-                = findContentByName(ourAnswer, content.getName());
-
-            cpExt.addChildExtension(ourTransport);
-        }
-
-        this.cpeList = ourAnswer;
-    }
-
-    /**
-     * Notifies the transport manager that it should conclude candidate
-     * harvesting as soon as possible an return the lists of candidates
-     * gathered so far.
-     *
-     * @return the content list that we received earlier (possibly cloned into
-     * a new instance) and that we have updated with transport lists.
+     * @return the list of local candidates that we gathered during the
+     * harvest.
      */
     public List<ContentPacketExtension> wrapupHarvest()
     {
-        //XXX we don't really do anything here for the time being
         return cpeList;
     }
 
