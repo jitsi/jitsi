@@ -72,7 +72,7 @@ public class ConnectionPanel
         this.transportCombo.addItemListener(this);
 
         transportCombo.setSelectedItem(
-            SIPAccountRegistration.DEFAULT_TRANSPORT);
+            regform.getRegistration().getDefaultTransport());
 
         JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 10));
 

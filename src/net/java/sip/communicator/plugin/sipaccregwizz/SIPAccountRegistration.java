@@ -17,8 +17,6 @@ public class SIPAccountRegistration
 
     public static String DEFAULT_TLS_PORT = "5061";
 
-    public static String DEFAULT_TRANSPORT = "UDP";
-
     public static String DEFAULT_POLL_PERIOD = "30";
 
     public static String DEFAULT_SUBSCRIBE_EXPIRES = "3600";
@@ -45,7 +43,9 @@ public class SIPAccountRegistration
 
     private String proxy;
 
-    private String preferredTransport = DEFAULT_TRANSPORT;
+    private String defaultTransport = "UDP";
+
+    private String preferredTransport = defaultTransport;
 
     private boolean enablePresence = true;
 
@@ -440,5 +440,21 @@ public class SIPAccountRegistration
     public void setDefaultKeepAliveMethod(String defaultKeepAliveMethod)
     {
         this.defaultKeepAliveMethod = defaultKeepAliveMethod;
+    }
+
+    /**
+     * @return the defaultTransport
+     */
+    public String getDefaultTransport()
+    {
+        return defaultTransport;
+    }
+
+    /**
+     * @param defaultTransport the defaultTransport to set
+     */
+    public void setDefaultTransport(String defaultTransport)
+    {
+        this.defaultTransport = defaultTransport;
     }
 }
