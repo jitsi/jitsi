@@ -288,8 +288,7 @@ public class CallPeerMediaHandlerJabberImpl
                     //ZRTP
                     if(peer.getCall().isSipZrtpAttribute())
                     {
-                        ZrtpControl control
-                                        = getZrtpControls().get(mediaType);
+                        ZrtpControl control = getZrtpControls().get(mediaType);
                         if(control == null)
                         {
                             control = JabberActivator.getMediaService()
@@ -303,7 +302,9 @@ public class CallPeerMediaHandlerJabberImpl
                             ZrtpHashPacketExtension hash
                                 = new ZrtpHashPacketExtension();
                             hash.setValue(helloHash);
-                            content.addChildExtension(hash);
+                            //we are currently disabling ZRTP until we find the
+                            //time to fix it
+                            //content.addChildExtension(hash);
                         }
                     }
                     mediaDescs.add(content);
