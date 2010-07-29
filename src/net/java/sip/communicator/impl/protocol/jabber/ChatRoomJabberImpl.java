@@ -19,7 +19,7 @@ import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.muc.*;
-import org.jivesoftware.smackx.packet.DiscoverInfo;
+import org.jivesoftware.smackx.packet.*;
 
 /**
  * Implements chat rooms for jabber. The class encapsulates instances of the
@@ -1515,6 +1515,21 @@ public class ChatRoomJabberImpl
 
             org.jivesoftware.smack.packet.Message msg
                 = (org.jivesoftware.smack.packet.Message) packet;
+
+            long timeStamp;
+
+            DelayInformation delay =
+                (DelayInformation)msg.getExtension("x", "jabber:x:delay");
+
+            if(delay != null)
+            {
+                timeStamp = delay.getStamp().getTime();
+            }
+            else
+            {
+                timeStamp = System.currentTimeMillis();
+            }
+
             String msgBody = msg.getBody();
 
             if(msgBody == null)
@@ -1604,7 +1619,7 @@ public class ChatRoomJabberImpl
                 = new ChatRoomMessageReceivedEvent(
                     ChatRoomJabberImpl.this,
                     member,
-                    System.currentTimeMillis(),
+                    timeStamp,
                     newMessage,
                     messageReceivedEventType);
 
