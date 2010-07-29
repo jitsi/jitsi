@@ -74,6 +74,10 @@ public class RawUdpTransportManager
             ContentPacketExtension cpExt
                 = findContentByName(ourAnswer, content.getName());
 
+            //it might be that we decided not to reply to this content
+            if(cpExt == null)
+                continue;
+
             cpExt.addChildExtension(ourTransport);
         }
 

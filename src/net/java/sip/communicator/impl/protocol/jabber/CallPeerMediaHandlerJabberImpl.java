@@ -304,7 +304,7 @@ public class CallPeerMediaHandlerJabberImpl
                             hash.setValue(helloHash);
                             //we are currently disabling ZRTP until we find the
                             //time to fix it
-                            //content.addChildExtension(hash);
+                            content.addChildExtension(hash);
                         }
                     }
                     mediaDescs.add(content);

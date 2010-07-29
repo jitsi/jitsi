@@ -389,6 +389,36 @@ public class CallPeerJabberImpl
     }
 
     /**
+     * Puts the <tt>CallPeer</tt> represented by this instance on or off hold.
+     *
+     * @param onHold <tt>true</tt> to have the <tt>CallPeer</tt> put on hold;
+     * <tt>false</tt>, otherwise
+     *
+     * @throws OperationFailedException if we fail to construct or send the
+     * INVITE request putting the remote side on/off hold.
+     */
+    public void putOnHold(boolean onHold)
+        throws OperationFailedException
+    {
+        CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
+
+        mediaHandler.setLocallyOnHold(onHold);
+
+        try
+        {
+            sendReInvite(mediaHandler.createOffer());
+        }
+        catch (Exception ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create SDP offer to hold.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+
+        reevalLocalHoldStatus();
+    }
+
+    /**
      * Sets the service discovery information that we have for this peer.
      *
      * @param discoverInfo the discovery information that we have obtained for

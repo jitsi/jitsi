@@ -42,7 +42,7 @@ public class SecurityEventManager extends ZrtpUserCallback
     /**
      * A warning <tt>String</tt> that we display to the user.
      */
-    public static final String WARNING_NO_RS_MATCH = 
+    public static final String WARNING_NO_RS_MATCH =
         getI18NString("impl.media.security.WARNING_NO_RS_MATCH", null);
 
     /**
@@ -143,7 +143,7 @@ public class SecurityEventManager extends ZrtpUserCallback
     public void secureOn(String cipher)
     {
         if (logger.isDebugEnabled())
-            logger.debug(sessionTypeToString(sessionType) 
+            logger.debug(sessionTypeToString(sessionType)
             + ": cipher enabled: " + cipher);
 
         this.cipher = cipher;
@@ -153,7 +153,7 @@ public class SecurityEventManager extends ZrtpUserCallback
      * ZRTP computes the SAS string after nearly all the negotiation
      * and computations are done internally.
      *
-     * @param sas 	The string containing the SAS.
+     * @param sas     The string containing the SAS.
      * @param isVerified is sas verified.
      */
     @Override
@@ -313,7 +313,7 @@ public class SecurityEventManager extends ZrtpUserCallback
 
     /**
      * Negotiation has failed.
-     * 
+     *
      * @param severity of the message.
      * @param subCode the message code.
      */
@@ -330,7 +330,7 @@ public class SecurityEventManager extends ZrtpUserCallback
     }
 
     /**
-     * Inform user interface that security is not active any more. 
+     * Inform user interface that security is not active any more.
      */
     @Override
     public void secureOff()
@@ -354,7 +354,7 @@ public class SecurityEventManager extends ZrtpUserCallback
     }
 
     /**
-     * Inform the user that ZRTP received "go clear" message from its peer. 
+     * Inform the user that ZRTP received "go clear" message from its peer.
      */
     @Override
     public void confirmGoClear()

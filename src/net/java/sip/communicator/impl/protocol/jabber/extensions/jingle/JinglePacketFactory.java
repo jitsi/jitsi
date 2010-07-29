@@ -30,19 +30,43 @@ public class JinglePacketFactory
      */
     public static JingleIQ createRinging(JingleIQ sessionInitiate)
     {
+        return createSessionInfo(sessionInitiate.getFrom(),
+                                 sessionInitiate.getTo(),
+                                 sessionInitiate.getSID(),
+                                 SessionInfoType.ringing);
+    }
+
+    /**
+     * Creates a {@link JingleIQ} <tt>session-info</tt> packet carrying a
+     * the specified payload type.
+     *
+     * @param from our full jid
+     * @param to their full jid
+     * @param sid the ID of the Jingle session this IQ will belong to.
+     * @param type the exact type (e.g. ringing, hold, mute) of the session
+     * info IQ.
+     *
+     * @return a {@link JingleIQ} <tt>session-info</tt> packet carrying a
+     * the specified payload type.
+     */
+    public static JingleIQ createSessionInfo(String          from,
+                                             String          to,
+                                             String          sid,
+                                             SessionInfoType type)
+    {
         JingleIQ ringing = new JingleIQ();
 
-        ringing.setTo(sessionInitiate.getFrom());
-        ringing.setFrom(sessionInitiate.getTo());
+        ringing.setTo(from);
+        ringing.setFrom(to);
         ringing.setType(IQ.Type.SET);
 
-        ringing.setSID(sessionInitiate.getSID());
+        ringing.setSID(sid);
         ringing.setAction(JingleAction.SESSION_INFO);
 
-        SessionInfoPacketExtension ringingPayload
-            = new SessionInfoPacketExtension(SessionInfoType.ringing);
+        SessionInfoPacketExtension sessionInfoType
+            = new SessionInfoPacketExtension(type);
 
-        ringing.setSessionInfo(ringingPayload);
+        ringing.setSessionInfo(sessionInfoType);
 
         return ringing;
     }

@@ -278,7 +278,7 @@ public class OperationSetBasicTelephonyJabberImpl
         throws OperationFailedException
     {
         CallPeerJabberImpl jabberPeer = (CallPeerJabberImpl) peer;
-        //jabberPeer.putOnHold(on);
+        jabberPeer.putOnHold(on);
     }
 
     /**
