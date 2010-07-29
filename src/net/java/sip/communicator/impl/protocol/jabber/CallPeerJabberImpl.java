@@ -403,17 +403,18 @@ public class CallPeerJabberImpl
         CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
 
         mediaHandler.setLocallyOnHold(onHold);
-
+        /*
         try
         {
-            sendReInvite(mediaHandler.createOffer());
+            JinglePacketFactory.createSessionInfo(from, to, sid, type)
         }
         catch (Exception ex)
         {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+            ProtocolProviderServiceJabberImpl.throwOperationFailedException(
                 "Failed to create SDP offer to hold.",
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
+        */
 
         reevalLocalHoldStatus();
     }

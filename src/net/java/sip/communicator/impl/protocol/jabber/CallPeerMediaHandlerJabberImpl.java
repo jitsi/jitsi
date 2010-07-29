@@ -41,10 +41,20 @@ public class CallPeerMediaHandlerJabberImpl
 
 
     /**
-     * The last ( and maybe only ) session description that we generated for
-     * our own media.
+     * The current description of the streams that we have going toward the
+     * remote side. We use {@link LinkedHashMap}s to make sure that we preserve
+     * the order of the individual content extensions.
      */
-    private List<ContentPacketExtension> localContentList;
+    private Map<String, ContentPacketExtension> localContentMap
+        = new LinkedHashMap<String, ContentPacketExtension>();
+
+    /**
+     * The current description of the streams that the remote side has with us.
+     * We use {@link LinkedHashMap}s to make sure that we preserve
+     * the order of the individual content extensions.
+     */
+    private Map<String, ContentPacketExtension> remoteContentMap
+        = new LinkedHashMap<String, ContentPacketExtension>();
 
     /**
      * Creates a new handler that will be managing media streams for
@@ -109,6 +119,8 @@ public class CallPeerMediaHandlerJabberImpl
 
         for (ContentPacketExtension content : offer)
         {
+            remoteContentMap.put(content.getName(), content);
+
             RtpDescriptionPacketExtension description
                                     = JingleUtils.getRtpDescription(content);
             MediaType mediaType
@@ -168,11 +180,14 @@ public class CallPeerMediaHandlerJabberImpl
             }
 
             // create the answer description
-            answerContentList.add(JingleUtils.createDescription(
+            ContentPacketExtension ourContent = JingleUtils.createDescription(
                 content.getCreator(), content.getName(),
                 JingleUtils.getSenders(direction, !peer.isInitiator()) ,
                 mutuallySupportedFormats, rtpExtensions,
-                getDynamicPayloadTypes(), getRtpExtensionsRegistry()));
+                getDynamicPayloadTypes(), getRtpExtensionsRegistry());
+
+            answerContentList.add(ourContent);
+            localContentMap.put(content.getName(), ourContent);
 
             atLeastOneValidDescription = true;
         }
@@ -182,8 +197,6 @@ public class CallPeerMediaHandlerJabberImpl
                 .throwOperationFailedException("Offer contained no media "
                        + " formats or no valid media descriptions.",
                        OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
-
-        this.localContentList = answerContentList;
 
         //now, before we go, tell the transport manager to start our candidate
         //harvest
@@ -208,10 +221,10 @@ public class CallPeerMediaHandlerJabberImpl
 
         //user answered an incoming call so we go through whatever content
         //entries we are initializing and init their corresponding streams
-        for(ContentPacketExtension content : sessAccept)
+        for(ContentPacketExtension ourContent : sessAccept)
         {
             RtpDescriptionPacketExtension description
-                            = JingleUtils.getRtpDescription(content);
+                            = JingleUtils.getRtpDescription(ourContent);
             MediaType type = MediaType.parseString(description.getMedia());
 
             //
@@ -222,12 +235,14 @@ public class CallPeerMediaHandlerJabberImpl
             MediaDevice dev = getDefaultDevice(type);
 
             // stream target
+            ContentPacketExtension theirContent
+                = this.remoteContentMap.get(ourContent.getName());
             MediaStreamTarget target
-                = JingleUtils.extractDefaultTarget(content);
+                = JingleUtils.extractDefaultTarget(theirContent);
 
             //stream direction
             MediaDirection direction = JingleUtils.getDirection(
-                                                content, !peer.isInitiator());
+                                                ourContent, !peer.isInitiator());
 
             //let's now see what was the format we announced as first and
             //configure the stream with it.
