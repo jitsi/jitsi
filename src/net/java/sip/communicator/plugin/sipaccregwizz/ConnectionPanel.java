@@ -10,7 +10,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -412,7 +411,12 @@ public class ConnectionPanel
      */
     String getKeepAliveMethod()
     {
-        return keepAliveMethodBox.getSelectedItem().toString();
+        Object selItem = keepAliveMethodBox.getSelectedItem();
+
+        if(selItem != null)
+            return selItem.toString();
+        else
+            return null;
     }
 
     /**

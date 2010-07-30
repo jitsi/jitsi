@@ -312,10 +312,13 @@ public class SIPAccountRegistrationWizard
         }
 
         String serverAddress = null;
+        String serverFromUsername =
+            SIPAccountRegistrationForm.getServerFromUserName(userName);
+
         if (registration.getServerAddress() != null)
             serverAddress = registration.getServerAddress();
 
-        if(SIPAccountRegistrationForm.getServerFromUserName(userName) == null
+        if(serverFromUsername == null
             && registration.getDefaultDomain() != null)
         {
             // we have only a username and we want to add
@@ -324,6 +327,11 @@ public class SIPAccountRegistrationWizard
 
             if(serverAddress == null)
                 serverAddress = registration.getDefaultDomain();
+        }
+        else if(serverAddress == null &&
+            serverFromUsername != null)
+        {
+            serverAddress = serverFromUsername;
         }
 
         if (serverAddress != null)
