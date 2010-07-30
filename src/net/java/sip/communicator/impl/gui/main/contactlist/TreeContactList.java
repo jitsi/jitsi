@@ -513,7 +513,12 @@ public class TreeContactList
             = MetaContactListSource.getUIContact(oldParent);
 
         if (oldUIContact != null)
-            removeContact(oldUIContact);
+        {
+            ContactNode contactNode = oldUIContact.getContactNode();
+
+            if (contactNode != null)
+                treeModel.nodeChanged(contactNode);
+        }
     }
 
     /**
@@ -586,6 +591,29 @@ public class TreeContactList
     {
         GuiActivator.getContactList().addGroup(
             MetaContactListSource.createUIGroup(event.getMetaGroup()), true);
+    }
+
+    /**
+     * Updates the corresponding node when the list of the <tt>OperationSet</tt>
+     * capabilities of a <tt>MetaContact</tt> has changed.
+     * @param evt a <tt>ContactCapabilitiesEvent</tt> with ID
+     * {@link MetaContactCapabilitiesEvent#SUPPORTED_OPERATION_SETS_CHANGED}
+     * which specifies the <tt>Contact</tt> whose list of <tt>OperationSet</tt>
+     * capabilities has changed
+     */
+    public void metaContactCapabilitiesChanged(MetaContactCapabilitiesEvent evt)
+    {
+        UIContact uiContact = MetaContactListSource
+            .getUIContact(evt.getSourceContact());
+
+        if (uiContact != null && evt.getEventID()
+            == MetaContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED)
+        {
+            ContactNode contactNode = uiContact.getContactNode();
+
+            if (contactNode != null)
+                treeModel.nodeChanged(contactNode);
+        }
     }
 
     /**

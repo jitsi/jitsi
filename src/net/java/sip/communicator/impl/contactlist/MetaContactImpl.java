@@ -364,40 +364,67 @@ public class MetaContactImpl
 
         // if the current default contact supports the requested operationSet
         // we use it
-        if (defaultContact != null
-            && defaultContact.getProtocolProvider()
-                .getOperationSet(operationSet) != null)
+        if (defaultContact != null)
         {
-            defaultOpSetContact = defaultContact;
+            ProtocolProviderService contactProvider
+                = defaultContact.getProtocolProvider();
+
+            // First try to ask the capabilities operation set if such is
+            // available.
+            OperationSetContactCapabilities capOpSet = contactProvider
+                .getOperationSet(OperationSetContactCapabilities.class);
+
+            if (capOpSet != null)
+            {
+                if (capOpSet.getOperationSet(defaultContact, operationSet)
+                        != null)
+                    defaultOpSetContact = defaultContact;
+            }
+            else if (contactProvider.getOperationSet(operationSet) != null)
+                defaultOpSetContact = defaultContact;
         }
-        else
+
+        if (defaultOpSetContact == null)
         {
             PresenceStatus currentStatus = null;
 
             for (Contact protoContact : protoContacts)
             {
-                // we filter to care only about contact which support
-                // the needed opset.
-                if (protoContact.getProtocolProvider()
-                        .getOperationSet(operationSet) != null)
-                {
-                    PresenceStatus contactStatus
-                            = protoContact.getPresenceStatus();
+                ProtocolProviderService contactProvider
+                    = protoContact.getProtocolProvider();
 
-                    if (currentStatus != null)
-                    {
-                        if (currentStatus.getStatus()
-                                < contactStatus.getStatus())
-                        {
-                            currentStatus = contactStatus;
-                            defaultOpSetContact = protoContact;
-                        }
-                    }
-                    else
+                // First try to ask the capabilities operation set if such is
+                // available.
+                OperationSetContactCapabilities capOpSet = contactProvider
+                    .getOperationSet(OperationSetContactCapabilities.class);
+
+                // We filter to care only about contact which support
+                // the needed opset.
+                if (capOpSet != null)
+                {
+                    if (capOpSet.getOperationSet(defaultContact, operationSet)
+                            == null)
+                        continue;
+                }
+                else if (contactProvider.getOperationSet(operationSet) == null)
+                    continue;
+
+                PresenceStatus contactStatus
+                        = protoContact.getPresenceStatus();
+
+                if (currentStatus != null)
+                {
+                    if (currentStatus.getStatus()
+                            < contactStatus.getStatus())
                     {
                         currentStatus = contactStatus;
                         defaultOpSetContact = protoContact;
                     }
+                }
+                else
+                {
+                    currentStatus = contactStatus;
+                    defaultOpSetContact = protoContact;
                 }
             }
         }

@@ -372,6 +372,9 @@ public class MetaContactChatSession
 
     public void metaContactAvatarUpdated(MetaContactAvatarUpdateEvent evt) {}
 
+    public void metaContactCapabilitiesChanged(MetaContactCapabilitiesEvent evt)
+    {}
+
     /**
      * Implements <tt>MetaContactListListener.metaContactRenamed</tt> method.
      * When a meta contact is renamed, updates all related labels in this

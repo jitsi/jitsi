@@ -29,7 +29,8 @@ import net.java.sip.communicator.util.xml.*;
 public class MetaContactListServiceImpl
     implements MetaContactListService,
                ServiceListener,
-               ContactPresenceStatusListener
+               ContactPresenceStatusListener,
+               ContactCapabilitiesListener
 {
     private static final Logger logger
         = Logger.getLogger(MetaContactListServiceImpl.class);
@@ -1673,6 +1674,15 @@ public class MetaContactListServiceImpl
         //events for all contacts that we have already extracted
         if(opSetPersPresence != null)
             opSetPersPresence.addContactPresenceStatusListener(this);
+
+        // Check if the capabilities operation set is available for this
+        // contact and add a listener to it in order to track capabilities'
+        // changes for all contained protocol contacts.
+        OperationSetContactCapabilities capOpSet
+            = provider.getOperationSet(OperationSetContactCapabilities.class);
+
+        if (capOpSet != null)
+            capOpSet.addContactCapabilitiesListener(this);
     }
 
     /**
@@ -1697,37 +1707,48 @@ public class MetaContactListServiceImpl
             provider.getOperationSet(OperationSetPersistentPresence.class);
 
         //ignore if persistent presence is not supported.
-        if(persPresOpSet == null)
-            return;
-
-        //we don't gare about subscription and presence status events here any
-        //longer
-        persPresOpSet.removeContactPresenceStatusListener(this);
-        persPresOpSet.removeSubscriptionListener(clSubscriptionEventHandler);
-        persPresOpSet.removeServerStoredGroupChangeListener(clGroupEventHandler);
-
-        ContactGroup rootGroup
-            = persPresOpSet.getServerStoredContactListRoot();
-
-        //iterate all sub groups and remove them one by one
-        //(we dont simply remove the root group because the mcl storage manager
-        //is stupid (i wrote it) and doesn't know root groups exist. that's why
-        //it needs to hear an event for every single group.)
-        Iterator<ContactGroup> subgroups = rootGroup.subgroups();
-
-        while(subgroups.hasNext())
+        if(persPresOpSet != null)
         {
-            ContactGroup group = subgroups.next();
-            //remove the group
+          //we don't gare about subscription and presence status events here any
+            //longer
+            persPresOpSet.removeContactPresenceStatusListener(this);
+            persPresOpSet.removeSubscriptionListener(
+                clSubscriptionEventHandler);
+            persPresOpSet.removeServerStoredGroupChangeListener(
+                clGroupEventHandler);
+
+            ContactGroup rootGroup
+                = persPresOpSet.getServerStoredContactListRoot();
+
+            //iterate all sub groups and remove them one by one
+            //(we dont simply remove the root group because the mcl storage
+            // manager is stupid (i wrote it) and doesn't know root groups exist.
+            // that's why it needs to hear an event for every single group.)
+            Iterator<ContactGroup> subgroups = rootGroup.subgroups();
+
+            while(subgroups.hasNext())
+            {
+                ContactGroup group = subgroups.next();
+                //remove the group
+                this.removeContactGroupFromMetaContactGroup(
+                    (MetaContactGroupImpl) findMetaContactGroupByContactGroup(
+                                                                        group),
+                    group,
+                    provider);
+            }
+
+            //remove the root group
             this.removeContactGroupFromMetaContactGroup(
-                (MetaContactGroupImpl)findMetaContactGroupByContactGroup(group),
-                group,
-                provider);
+                this.rootMetaGroup, rootGroup, provider);
         }
 
-        //remove the root group
-        this.removeContactGroupFromMetaContactGroup(
-            this.rootMetaGroup, rootGroup, provider);
+        // Check if the capabilities operation set is available for this
+        // contact and remove previously added listeners.
+        OperationSetContactCapabilities capOpSet
+            = provider.getOperationSet(OperationSetContactCapabilities.class);
+
+        if (capOpSet != null)
+            capOpSet.removeContactCapabilitiesListener(this);
     }
 
     /**
@@ -3142,6 +3163,81 @@ public class MetaContactListServiceImpl
                     logger.error(
                         "Interrupted while waiting for contact creation"
                         , ex);
+                }
+            }
+        }
+    }
+
+    /**
+     * Notifies this listener that the list of the <tt>OperationSet</tt>
+     * capabilities of a <tt>Contact</tt> has changed.
+     * 
+     * @param event a <tt>ContactCapabilitiesEvent</tt> with ID
+     * {@link ContactCapabilitiesEvent#SUPPORTED_OPERATION_SETS_CHANGED} which
+     * specifies the <tt>Contact</tt> whose list of <tt>OperationSet</tt>
+     * capabilities has changed
+     */
+    public void supportedOperationSetsChanged(ContactCapabilitiesEvent event)
+    {
+        // If the source contact isn't contained in this meta contact we have
+        // nothing more to do here.
+        MetaContactImpl metaContactImpl
+            = (MetaContactImpl) findMetaContactByContact(
+                event.getSourceContact());
+
+        //ignore if we have no meta contact.
+        if(metaContactImpl == null)
+            return;
+
+        fireCapabilitiesEvent(metaContactImpl,
+            MetaContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED);
+    }
+
+    /**
+     * Fires a new <tt>MetaContactCapabilitiesEvent</tt> to notify the
+     * registered <tt>MetaContactCapabilitiesListener</tt>s that this
+     * <tt>MetaContact</tt> has changed its list of <tt>OperationSet</tt>
+     * capabilities.
+     *
+     * @param metaContact the source <tt>MetaContact</tt>, which capabilities
+     * has changed
+     * @param eventID the ID of the event to be fired which indicates the
+     * specifics of the change of the list of <tt>OperationSet</tt> capabilities
+     * of the specified <tt>sourceContact</tt> and the details of the event
+     */
+    private void fireCapabilitiesEvent(MetaContact metaContact, int eventID)
+    {
+        MetaContactListListener[] listeners;
+
+        synchronized (metaContactListListeners)
+        {
+            listeners
+                = metaContactListListeners.toArray(
+                        new MetaContactListListener[
+                                metaContactListListeners.size()]);
+        }
+        if (listeners.length != 0)
+        {
+            MetaContactCapabilitiesEvent event
+                = new MetaContactCapabilitiesEvent(metaContact, eventID);
+
+            for (MetaContactListListener listener : listeners)
+            {
+                switch (eventID)
+                {
+                case MetaContactCapabilitiesEvent
+                        .SUPPORTED_OPERATION_SETS_CHANGED:
+                    listener.metaContactCapabilitiesChanged(event);
+                    break;
+                default:
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug(
+                                "Cannot fire MetaContactCapabilitiesEvent with"
+                                    + " unsupported eventID: "
+                                    + eventID);
+                    }
+                    throw new IllegalArgumentException("eventID");
                 }
             }
         }

@@ -11,7 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * A MetaContact is an abstraction used for merging mutltiple Contacts (most
+ * A MetaContact is an abstraction used for merging multiple Contacts (most
  * often) belonging to different <tt>ProtocolProvider</tt>s.
  * <p>
  * Instances of a MetaContact are read-only objects that cannot be modified

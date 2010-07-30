@@ -2071,4 +2071,14 @@ public class MclStorageManager
     {
         // TODO: Store meta contact avatar.
     }
+
+    /**
+     * Indicates that the capabilities of a given <tt>MetaContact</tt> have
+     * changed.
+     * @param evt the <tt>MetaContactCapabilitiesEvent</tt> that notified us
+     */
+    public void metaContactCapabilitiesChanged(MetaContactCapabilitiesEvent evt)
+    {
+        // TODO Auto-generated method stub
+    }
 }
