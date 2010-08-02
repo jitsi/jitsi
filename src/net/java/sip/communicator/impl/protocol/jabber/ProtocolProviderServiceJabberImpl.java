@@ -1031,7 +1031,8 @@ public class ProtocolProviderServiceJabberImpl
         Throwable wrappedEx = ex.getWrappedThrowable();
         if(wrappedEx != null
             && (wrappedEx instanceof UnknownHostException
-                || wrappedEx instanceof ConnectException))
+                || wrappedEx instanceof ConnectException
+                || wrappedEx instanceof SocketException))
         {
             reason = RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND;
             regState = RegistrationState.CONNECTION_FAILED;
@@ -1075,6 +1076,13 @@ public class ProtocolProviderServiceJabberImpl
 
         fireRegistrationStateChanged(
             getRegistrationState(), regState, reason, null);
+
+        if(regState == RegistrationState.UNREGISTERED)
+        {
+            // we fired that for some reason we are going offline
+            // lets clean the connection state for any future connections
+            disconnectAndCleanConnection();
+        }
     }
 
     /**
