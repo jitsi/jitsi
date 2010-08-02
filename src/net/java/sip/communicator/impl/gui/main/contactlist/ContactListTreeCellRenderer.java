@@ -295,7 +295,7 @@ public class ContactListTreeCellRenderer
 
             String displayName = contact.getDisplayName();
 
-            if (displayName == null || displayName.length() < 1)
+            if (displayName == null || displayName.trim().length() < 1)
             {
                 displayName = GuiActivator.getResources()
                     .getI18NString("service.gui.UNKNOWN");

@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.protocol.jabberconstants.*;
 
 /**
  * The Jabber implementation of the service.protocol.Contact interface.
+ *
  * @author Damian Minkov
  * @author Lubomir Marinov
  */
@@ -267,26 +268,24 @@ public class ContactJabberImpl
     {
         if(isResolved)
         {
-            String name = null;
             RosterEntry entry = ssclCallback.getRosterEntry(jid);
-            if(entry != null)
+            String name = null;
+
+            if (entry != null)
                 name = entry.getName();
 
-            if (name == null)
-                name = getAddress();
-
-            return name;
+            if ((name != null) && (name.trim().length() != 0))
+                return name;
         }
-        else
-            return tempId;
+        return getAddress();
     }
 
     /**
      * Returns a reference to the contact group that this contact is currently
-     * a child of or null if the underlying protocol does not suppord persistent
+     * a child of or null if the underlying protocol does not support persistent
      * presence.
      * @return a reference to the contact group that this contact is currently
-     * a child of or null if the underlying protocol does not suppord persistent
+     * a child of or null if the underlying protocol does not support persistent
      * presence.
      */
     public ContactGroup getParentContactGroup()

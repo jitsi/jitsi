@@ -510,7 +510,7 @@ public class MetaContactImpl
     }
 
     /**
-     * Queries all protoco contacts in this meta contact for their avatars.
+     * Queries all protocol contacts in this meta contact for their avatars.
      * Beware that this method could cause multiple network operations.
      * Use with caution.
      *
@@ -634,16 +634,12 @@ public class MetaContactImpl
         synchronized (getParentGroupModLock())
         {
             if (parentGroup != null)
-            {
                 parentGroup.lightRemoveMetaContact(this);
-            }
 
             this.displayName = (displayName == null) ? "" : displayName;
 
             if (parentGroup != null)
-            {
                 parentGroup.lightAddMetaContact(this);
-            }
         }
     }
 
@@ -659,9 +655,7 @@ public class MetaContactImpl
         synchronized (getParentGroupModLock())
         {
             if (parentGroup != null)
-            {
                 parentGroup.lightRemoveMetaContact(this);
-            }
             contactsOnline += contact.getPresenceStatus().isOnline() ? 1 : 0;
 
             this.protoContacts.add(contact);
@@ -669,7 +663,7 @@ public class MetaContactImpl
             // Re-init the default contact.
             defaultContact = null;
 
-            // if this is our firt contact and we don't already have a display
+            // if this is our first contact and we don't already have a display
             // name, use theirs.
             if (this.protoContacts.size() == 1
                 && (this.displayName == null || this.displayName.trim()
@@ -681,9 +675,7 @@ public class MetaContactImpl
             }
 
             if (parentGroup != null)
-            {
                 parentGroup.lightAddMetaContact(this);
-            }
         }
     }
 
@@ -746,16 +738,12 @@ public class MetaContactImpl
         synchronized (getParentGroupModLock())
         {
             if (parentGroup != null)
-            {
                 parentGroup.lightRemoveMetaContact(this);
-            }
             contactsOnline -= contact.getPresenceStatus().isOnline() ? 1 : 0;
             this.protoContacts.remove(contact);
 
             if (defaultContact == contact)
-            {
                 defaultContact = null;
-            }
 
             if ((protoContacts.size() > 0)
                     && displayName.equals(contact.getDisplayName()))
@@ -764,9 +752,7 @@ public class MetaContactImpl
             }
 
             if (parentGroup != null)
-            {
                 parentGroup.lightAddMetaContact(this);
-            }
         }
     }
 

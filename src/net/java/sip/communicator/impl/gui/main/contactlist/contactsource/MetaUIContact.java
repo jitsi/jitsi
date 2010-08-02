@@ -83,7 +83,50 @@ public class MetaUIContact
      */
     public String getDisplayName()
     {
-        return metaContact.getDisplayName();
+        String displayName = metaContact.getDisplayName();
+
+        /*
+         * If the MetaContact doesn't tell us a display name, make up a display
+         * name so that we don't end up with "Unknown user".
+         */
+        if ((displayName == null) || (displayName.trim().length() == 0))
+        {
+            /*
+             * Try to get a display name from one of the Contacts of the
+             * MetaContact. If that doesn't cut it, use the address of a
+             * Contact. Because it's not really clear which address to display
+             * when there are multiple Contacts, use the address only when
+             * there's a single Contact in the MetaContact.
+             */
+            Iterator<Contact> contactIter = metaContact.getContacts();
+            int contactCount = 0;
+            String address = null;
+
+            while (contactIter.hasNext())
+            {
+                Contact contact = contactIter.next();
+
+                contactCount++;
+
+                displayName = contact.getDisplayName();
+                if ((displayName == null) || (displayName.trim().length() == 0))
+                {
+                    /*
+                     * As said earlier, only use an address if there's a single
+                     * Contact in the MetaContact.
+                     */
+                    address = (contactCount == 1) ? contact.getAddress() : null;
+                }
+                else
+                    break;
+            }
+            if ((address != null)
+                    && (address.trim().length() != 0)
+                    && ((displayName == null)
+                            || (displayName.trim().length() == 0)))
+                displayName = address;
+        }
+        return displayName;
     }
 
     /**
@@ -169,10 +212,7 @@ public class MetaUIContact
         List<UIContactDetail> details
             = getContactDetailsForOperationSet(opSetClass);
 
-        if (details != null && !details.isEmpty())
-            return details.get(0);
-
-        return null;
+        return (details != null && !details.isEmpty()) ? details.get(0) : null;
     }
 
     /**
