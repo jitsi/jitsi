@@ -191,17 +191,10 @@ public class ScServiceDiscoveryManager
      */
     private void updateEntityCapsVersion()
     {
-        // If a XMPPConnection is the managed one, see that the new
-        // version is updated
+        // If a XMPPConnection is the managed one, see that the new version is
+        // updated
         if ((connection instanceof XMPPConnection) && (capsManager != null))
-        {
-            capsManager.calculateEntityCapsVersion(
-                    getOwnDiscoverInfo(),
-                    ServiceDiscoveryManager.getIdentityType(),
-                    ServiceDiscoveryManager.getIdentityName(),
-                    getFeatures(),
-                    null);
-        }
+            capsManager.calculateEntityCapsVersion(getOwnDiscoverInfo());
     }
 
     /**
@@ -245,13 +238,13 @@ public class ScServiceDiscoveryManager
         return (capsManager == null) ? null : capsManager.getCapsVersion();
     }
 
-    /*
-     * Add discover info response data.
+    /**
+     * Populates a specific <tt>DiscoverInfo</tt> with the identity and features
+     * of the current entity caps node.
      *
      * @param response the discover info response packet
      */
-    // i really think we should remove this one
-    public void addDiscoverInfoTo(DiscoverInfo response)
+    private void addDiscoverInfoTo(DiscoverInfo response)
     {
         // Set this client identity
         DiscoverInfo.Identity identity
@@ -261,6 +254,7 @@ public class ScServiceDiscoveryManager
 
         identity.setType(ServiceDiscoveryManager.getIdentityType());
         response.addIdentity(identity);
+
         // Add the registered features to the response
 
         // Add Entity Capabilities (XEP-0115) feature node.
@@ -271,9 +265,14 @@ public class ScServiceDiscoveryManager
         if (!response.containsFeature(CapsPacketExtension.NAMESPACE))
             response.addFeature(CapsPacketExtension.NAMESPACE);
 
-        for (String feature : getFeatures())
-            if (!response.containsFeature(feature))
-                response.addFeature(feature);
+        Iterable<String> features = getFeatures();
+
+        synchronized (features)
+        {
+            for (String feature : features)
+                if (!response.containsFeature(feature))
+                    response.addFeature(feature);
+        }
     }
 
     /**
@@ -408,24 +407,35 @@ public class ScServiceDiscoveryManager
         if (discoverInfo != null)
             return discoverInfo;
 
-        String nodeVersion = capsManager.getNodeVersionByUser(entityID);
+        EntityCapsManager.Caps caps = capsManager.getCapsByUser(entityID);
 
-        if (CACHE_NON_CAPS && (nodeVersion == null))
+        if (CACHE_NON_CAPS && (caps == null))
         {
             discoverInfo = nonCapsCache.get(entityID);
             if (discoverInfo != null)
                 return discoverInfo;
         }
 
-        discoverInfo = discoverInfo(entityID, nodeVersion);
+        discoverInfo
+            = discoverInfo(
+                    entityID,
+                    (caps == null ) ? null : caps.getNodeVer());
 
-        if (nodeVersion == null)
+        if ((caps != null) && !caps.isValid(discoverInfo))
+        {
+            logger.error(
+                    "Invalid DiscoverInfo for " + caps.getNodeVer() + ": "
+                        + discoverInfo);
+            caps = null;
+        }
+
+        if (caps == null)
         {
             if (CACHE_NON_CAPS)
                 nonCapsCache.put(entityID, discoverInfo);
         }
         else
-            EntityCapsManager.addDiscoverInfoByNode(nodeVersion, discoverInfo);
+            EntityCapsManager.addDiscoverInfoByCaps(caps, discoverInfo);
         return discoverInfo;
     }
 
@@ -441,7 +451,7 @@ public class ScServiceDiscoveryManager
      *
      * @throws XMPPException if the operation failed for some reason.
      */
-    public DiscoverInfo discoverInfo(String entityID, String node)
+    private DiscoverInfo discoverInfo(String entityID, String node)
         throws XMPPException
     {
         return discoveryManager.discoverInfo(entityID, node);

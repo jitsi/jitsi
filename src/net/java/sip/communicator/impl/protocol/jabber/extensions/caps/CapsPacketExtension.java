@@ -73,7 +73,6 @@ public class CapsPacketExtension implements PacketExtension
      * features.
      * @param hash The hashing algorithm used to generate the verification
      * <tt>String</tt>.
-     *
      */
     public CapsPacketExtension(String ext,
                                String node,

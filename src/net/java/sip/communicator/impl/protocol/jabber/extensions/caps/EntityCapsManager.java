@@ -7,11 +7,14 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.caps;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.security.*;
 import java.util.*;
 import java.util.concurrent.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.*;
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.util.Logger; // disambiguation
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
@@ -34,17 +37,19 @@ import org.xmlpull.v1.*;
 public class EntityCapsManager
 {
     /**
+     * The <tt>Logger</tt> used by the <tt>EntityCapsManager</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(EntityCapsManager.class);
+
+    /**
      * The prefix of the <tt>ConfigurationService</tt> properties which persist
-     * {@link #caps}.
+     * {@link #caps2discoverInfo}.
      */
     private static final String CAPS_PROPERTY_NAME_PREFIX
         = "net.java.sip.communicator.impl.protocol.jabber.extensions.caps."
             + "EntityCapsManager.CAPS.";
-
-    /**
-     * The hash method we use for generating the ver string.
-     */
-    public static final String HASH_METHOD_CAPS = "SHA-1";
 
     /**
      * An empty array of <tt>UserCapsNodeListener</tt> elements explicitly
@@ -59,18 +64,25 @@ public class EntityCapsManager
     private static String entityNode = "http://sip-communicator.org";
 
     /**
-     * Map of (node, hash algorithm) -&gt; DiscoverInfo.
+     * The <tt>Map</tt> of <tt>Caps</tt> to <tt>DiscoverInfo</tt> which
+     * associates a node#ver with the entity capabilities so that they don't
+     * have to be retrieved every time their necessary. Because ver is
+     * constructed from the entity capabilities using a specific hash method,
+     * the hash method is also associated with the entity capabilities along
+     * with the node and the ver in order to disambiguate cases of equal ver
+     * values for different entity capabilities constructed using different hash
+     * methods.
      */
-    private static final Map<String, DiscoverInfo> caps
-        = new ConcurrentHashMap<String, DiscoverInfo>();
+    private static final Map<Caps, DiscoverInfo> caps2discoverInfo
+        = new ConcurrentHashMap<Caps, DiscoverInfo>();
 
     /**
      * Map of Full JID -&gt; DiscoverInfo/null. In case of c2s connection the
      * key is formed as user@server/resource (resource is required) In case of
      * link-local connection the key is formed as user@host (no resource)
      */
-    private final Map<String, String> userCaps
-        = new ConcurrentHashMap<String, String>();
+    private final Map<String, Caps> userCaps
+        = new ConcurrentHashMap<String, Caps>();
 
     /**
      * CapsVerListeners gets notified when the version string is changed.
@@ -100,24 +112,30 @@ public class EntityCapsManager
     }
 
     /**
-     * Add {@link DiscoverInfo} to the our caps database.
+     * Add {@link DiscoverInfo} to our caps database.
+     * <p>
+     * <b>Warning</b>: The specified <tt>DiscoverInfo</tt> is trusted to be
+     * valid with respect to the specified <tt>Caps</tt> for performance reasons
+     * because the <tt>DiscoverInfo</tt> should have already been validated in
+     * order to be used elsewhere anyway.
+     * </p>
      *
-     * @param node The node name. Could be for example
-     * "http://sip-communicator.org#q07IKJEyjvHSyhy//CH0CxmKi8w=".
-     * @param info {@link DiscoverInfo} for the specified node.
+     * @param caps the <tt>Caps<tt/> i.e. the node, the hash and the ver for
+     * which a <tt>DiscoverInfo</tt> is to be added to our caps database.
+     * @param info {@link DiscoverInfo} for the specified <tt>Caps</tt>.
      */
-    public static void addDiscoverInfoByNode(String node, DiscoverInfo info)
+    public static void addDiscoverInfoByCaps(Caps caps, DiscoverInfo info)
     {
-        cleanupDicsoverInfo(info);
+        cleanupDiscoverInfo(info);
         /*
          * DiscoverInfo carries the node we're now associating it with a
          * specific node so we'd better keep them in sync.
          */
-        info.setNode(node);
+        info.setNode(caps.getNodeVer());
 
-        synchronized (caps)
+        synchronized (caps2discoverInfo)
         {
-            DiscoverInfo oldInfo = caps.put(node, info);
+            DiscoverInfo oldInfo = caps2discoverInfo.put(caps, info);
 
             /*
              * If the specified info is a new association for the specified
@@ -132,41 +150,70 @@ public class EntityCapsManager
                 {
                     JabberActivator
                         .getConfigurationService()
-                            .setProperty(CAPS_PROPERTY_NAME_PREFIX + node, xml);
+                            .setProperty(getCapsPropertyName(caps), xml);
                 }
             }
         }
     }
 
     /**
-     * Add a record telling what entity caps node a user has. The entity caps
-     * node has the format node#ver.
+     * Gets the name of the property in the <tt>ConfigurationService</tt> which
+     * is or is to be associated with a specific <tt>Caps</tt> value.
+     *
+     * @param caps the <tt>Caps</tt> value for which the associated
+     * <tt>ConfigurationService</tt> property name is to be returned
+     * @return the name of the property in the <tt>ConfigurationService</tt>
+     * which is or is to be associated with a specific <tt>Caps</tt> value
+     */
+    private static String getCapsPropertyName(Caps caps)
+    {
+        return
+            CAPS_PROPERTY_NAME_PREFIX
+                + caps.node + '#' + caps.hash + '#' + caps.ver;
+    }
+
+    /**
+     * Add a record telling what entity caps node a user has.
      *
      * @param user the user (Full JID)
-     * @param node the entity caps node#ver
+     * @param node the node (of the caps packet extension)
+     * @param hash the hashing algorithm used to calculate <tt>ver</tt>
+     * @param ver the version (of the caps packet extension)
      */
-    public void addUserCapsNode(String user, String node)
+    private void addUserCapsNode(
+            String user,
+            String node, String hash, String ver)
     {
-        if ((user != null) && (node != null))
+        if ((user != null) && (node != null) && (hash != null) && (ver != null))
         {
-            String oldNode = userCaps.put(user, node);
+            Caps caps = userCaps.get(user);
+
+            if ((caps == null)
+                    || !caps.node.equals(node)
+                    || !caps.hash.equals(hash)
+                    || !caps.ver.equals(ver))
+            {
+                caps = new Caps(node, hash, ver);
+                userCaps.put(user, caps);
+            }
+            else
+                return;
 
             // Fire userCapsNodeAdded.
-            if ((oldNode == null) || !oldNode.equals(node))
-            {
-                UserCapsNodeListener[] listeners;
+            UserCapsNodeListener[] listeners;
 
-                synchronized (userCapsNodeListeners)
-                {
-                    listeners
-                        = userCapsNodeListeners.toArray(
-                                NO_USER_CAPS_NODE_LISTENERS);
-                }
-                if (listeners.length != 0)
-                {
-                    for (UserCapsNodeListener listener : listeners)
-                        listener.userCapsNodeAdded(user, node);
-                }
+            synchronized (userCapsNodeListeners)
+            {
+                listeners
+                    = userCapsNodeListeners.toArray(
+                            NO_USER_CAPS_NODE_LISTENERS);
+            }
+            if (listeners.length != 0)
+            {
+                String nodeVer = caps.getNodeVer();
+
+                for (UserCapsNodeListener listener : listeners)
+                    listener.userCapsNodeAdded(user, nodeVer);
             }
         }
     }
@@ -199,10 +246,10 @@ public class EntityCapsManager
      */
     public void removeUserCapsNode(String user)
     {
-        String node = userCaps.remove(user);
+        Caps caps = userCaps.remove(user);
 
         // Fire userCapsNodeRemoved.
-        if (node != null)
+        if (caps != null)
         {
             UserCapsNodeListener[] listeners;
 
@@ -214,8 +261,10 @@ public class EntityCapsManager
             }
             if (listeners.length != 0)
             {
+                String nodeVer = caps.getNodeVer();
+
                 for (UserCapsNodeListener listener : listeners)
-                    listener.userCapsNodeRemoved(user, node);
+                    listener.userCapsNodeRemoved(user, nodeVer);
             }
         }
     }
@@ -242,12 +291,13 @@ public class EntityCapsManager
     }
 
     /**
-     * Get the Node version (node#ver) of a user.
+     * Gets the <tt>Caps</tt> i.e. the node, the hash and the ver of a user.
      *
      * @param user the user (Full JID)
-     * @return the node version.
+     * @return the <tt>Caps</tt> i.e. the node, the hash and the ver of
+     * <tt>user</tt>
      */
-    public String getNodeVersionByUser(String user)
+    public Caps getCapsByUser(String user)
     {
         return userCaps.get(user);
     }
@@ -262,9 +312,9 @@ public class EntityCapsManager
      */
     public DiscoverInfo getDiscoverInfoByUser(String user)
     {
-        String capsNode = userCaps.get(user);
+        Caps caps = userCaps.get(user);
 
-        return (capsNode == null) ? null : getDiscoverInfoByNode(capsNode);
+        return (caps == null) ? null : getDiscoverInfoByCaps(caps);
     }
 
     /**
@@ -300,14 +350,14 @@ public class EntityCapsManager
     /**
      * Retrieve DiscoverInfo for a specific node.
      *
-     * @param node The node name.
+     * @param caps the <tt>Caps</tt> i.e. the node, the hash and the ver
      * @return The corresponding DiscoverInfo or null if none is known.
      */
-    public static DiscoverInfo getDiscoverInfoByNode(String node)
+    public static DiscoverInfo getDiscoverInfoByCaps(Caps caps)
     {
-        synchronized (caps)
+        synchronized (caps2discoverInfo)
         {
-            DiscoverInfo discoverInfo = caps.get(node);
+            DiscoverInfo discoverInfo = caps2discoverInfo.get(caps);
 
             /*
              * If we don't have the discoverInfo in the runtime cache yet, we
@@ -315,9 +365,10 @@ public class EntityCapsManager
              */
             if (discoverInfo == null)
             {
-                String xml
-                    = JabberActivator.getConfigurationService().getString(
-                            CAPS_PROPERTY_NAME_PREFIX + node);
+                ConfigurationService configurationService
+                    = JabberActivator.getConfigurationService();
+                String capsPropertyName = getCapsPropertyName(caps);
+                String xml = configurationService.getString(capsPropertyName);
 
                 if ((xml != null) && (xml.length() != 0))
                 {
@@ -362,7 +413,27 @@ public class EntityCapsManager
                             }
 
                             if (discoverInfo != null)
-                                caps.put(node, discoverInfo);
+                            {
+                                if (caps.isValid(discoverInfo))
+                                    caps2discoverInfo.put(caps, discoverInfo);
+                                else
+                                {
+                                    logger.error(
+                                            "Invalid DiscoverInfo for "
+                                                + caps.getNodeVer()
+                                                + ": "
+                                                + discoverInfo);
+                                    /*
+                                     * The discoverInfo doesn't seem valid
+                                     * according to the caps which means that we
+                                     * must have stored invalid information.
+                                     * Delete the invalid information in order
+                                     * to not try to validate it again.
+                                     */
+                                    configurationService.removeProperty(
+                                            capsPropertyName);
+                                }
+                            }
                         }
                     }
                 }
@@ -376,11 +447,53 @@ public class EntityCapsManager
      *
      * @param info the {@link DiscoverInfo} that we'd like to cleanup.
      */
-    private static void cleanupDicsoverInfo(DiscoverInfo info)
+    private static void cleanupDiscoverInfo(DiscoverInfo info)
     {
         info.setFrom(null);
         info.setTo(null);
         info.setPacketID(null);
+    }
+
+    /**
+     * Gets the features of a specific <tt>DiscoverInfo</tt> in the form of a
+     * read-only <tt>Feature</tt> <tt>Iterator<tt/> by calling the internal
+     * method {@link DiscoverInfo#getFeatures()}.
+     *
+     * @param discoverInfo the <tt>DiscoverInfo</tt> the features of which are
+     * to be retrieved
+     * @return a read-only <tt>Feature</tt> <tt>Iterator</tt> which lists the
+     * features of the specified <tt>discoverInfo</tt>
+     */
+    @SuppressWarnings("unchecked")
+    private static Iterator<DiscoverInfo.Feature> getDiscoverInfoFeatures(
+            DiscoverInfo discoverInfo)
+    {
+        Method getFeaturesMethod;
+
+        try
+        {
+            getFeaturesMethod
+                = DiscoverInfo.class.getDeclaredMethod("getFeatures");
+        }
+        catch (NoSuchMethodException nsmex)
+        {
+            throw new UndeclaredThrowableException(nsmex);
+        }
+        getFeaturesMethod.setAccessible(true);
+        try
+        {
+            return
+                (Iterator<DiscoverInfo.Feature>)
+                    getFeaturesMethod.invoke(discoverInfo);
+        }
+        catch (IllegalAccessException iaex)
+        {
+            throw new UndeclaredThrowableException(iaex);
+        }
+        catch (InvocationTargetException itex)
+        {
+            throw new UndeclaredThrowableException(itex);
+        }
     }
 
     /**
@@ -455,39 +568,32 @@ public class EntityCapsManager
             listener.capsVerUpdated(currentCapsVersion);
     }
 
-    /*
-     * public void spam() { System.err.println("User nodes:"); for
-     * (Map.Entry<String,String> e : userCaps.entrySet()) {
-     * System.err.println(" * " + e.getKey() + " -> " + e.getValue()); }
-     *
-     * System.err.println("Caps versions:"); for (Map.Entry<String,DiscoverInfo>
-     * e : caps.entrySet()) { System.err.println(" * " + e.getKey() + " -> " +
-     * e.getValue()); } }
-     */
-
-    // /////////
-    // Calculate Entity Caps Version String
-    // /////////
-
     /**
-     * Computes and returns the SHA-1 hash of the specified <tt>capsString</tt>.
+     * Computes and returns the hash of the specified <tt>capsString</tt> using
+     * the specified <tt>hashAlgorithm</tt>.
      *
+     * @param hashAlgorithm the name of the algorithm to be used to generate the
+     * hash 
      * @param capsString the capabilities string that we'd like to compute a
      * hash for.
      *
-     * @return the SHA-1 hash of <tt>capsString</tt> or <tt>null</tt> if
-     * generating the hash has failed.
+     * @return the hash of <tt>capsString</tt> computed by the specified
+     * <tt>hashAlgorithm</tt> or <tt>null</tt> if generating the hash has failed
      */
-    private static String capsToHash(String capsString)
+    private static String capsToHash(String hashAlgorithm, String capsString)
     {
         try
         {
-            MessageDigest md = MessageDigest.getInstance(HASH_METHOD_CAPS);
+            MessageDigest md = MessageDigest.getInstance(hashAlgorithm);
             byte[] digest = md.digest(capsString.getBytes());
+
             return Base64.encodeBytes(digest);
         }
         catch (NoSuchAlgorithmException nsae)
         {
+            logger.error(
+                    "Unsupported XEP-0115: Entity Capabilities hash algorithm: "
+                        + hashAlgorithm);
             return null;
         }
     }
@@ -498,22 +604,144 @@ public class EntityCapsManager
      *
      * @param ffValuesIter the {@link Iterator} containing the form field
      * values.
-     *
-     * @return a <tt>String</tt> containing all the form field values.
+     * @param capsBldr a <tt>StringBuilder</tt> to which the caps string
+     * representing the form field values is to be appended
      */
-    private static String formFieldValuesToCaps(Iterator<String> ffValuesIter)
+    private static void formFieldValuesToCaps(
+            Iterator<String> ffValuesIter,
+            StringBuilder capsBldr)
     {
-        StringBuilder bldr = new StringBuilder();
         SortedSet<String> fvs = new TreeSet<String>();
 
         while( ffValuesIter.hasNext())
-        {
             fvs.add(ffValuesIter.next());
-        }
 
         for (String fv : fvs)
+            capsBldr.append(fv).append('<');
+    }
+
+    /**
+     * Calculates the <tt>String</tt> for a specific <tt>DiscoverInfo</tt> which
+     * is to be hashed in order to compute the ver string for that
+     * <tt>DiscoverInfo</tt>.
+     *
+     * @param discoverInfo the <tt>DiscoverInfo</tt> for which the
+     * <tt>String</tt> to be hashed in order to compute its ver string is to be
+     * calculated
+     * @return the <tt>String</tt> for <tt>discoverInfo</tt> which is to be
+     * hashed in order to compute its ver string
+     */
+    private static String calculateEntityCapsString(DiscoverInfo discoverInfo)
+    {
+        StringBuilder bldr = new StringBuilder();
+
+        // Add identities
         {
-            bldr.append( fv + "<");
+            Iterator<DiscoverInfo.Identity> identities = discoverInfo.getIdentities();
+            SortedSet<DiscoverInfo.Identity> is
+                = new TreeSet<DiscoverInfo.Identity>(
+                        new Comparator<DiscoverInfo.Identity>()
+                        {
+                            public int compare(
+                                    DiscoverInfo.Identity i1,
+                                    DiscoverInfo.Identity i2)
+                            {
+                                int category
+                                    = i1.getCategory().compareTo(
+                                            i2.getCategory());
+
+                                if (category != 0)
+                                    return category;
+
+                                int type = i1.getType().compareTo(i2.getType());
+
+                                if (type != 0)
+                                    return type;
+
+                                /*
+                                 * TODO Sort by xml:lang.
+                                 *
+                                 * Since sort by xml:lang is currently missing,
+                                 * use the last supported sort criterion i.e.
+                                 * type. 
+                                 */
+                                return type;
+                            }
+                        });
+
+            if (identities != null)
+                while (identities.hasNext())
+                    is.add(identities.next());
+
+            for (DiscoverInfo.Identity i : is)
+            {
+                bldr
+                    .append(i.getCategory())
+                        .append('/')
+                            .append(i.getType())
+                                .append("//")
+                                    .append(i.getName())
+                                        .append('<');
+            }
+        }
+
+        // Add features
+        {
+            Iterator<DiscoverInfo.Feature> features
+                = getDiscoverInfoFeatures(discoverInfo);
+            SortedSet<String> fs = new TreeSet<String>();
+
+            if (features != null)
+                while (features.hasNext())
+                    fs.add(features.next().getVar());
+
+            for (String f : fs)
+                bldr.append(f).append('<');
+        }
+
+        DataForm extendedInfo
+            = (DataForm) discoverInfo.getExtension("x", "jabber:x:data");
+
+        if (extendedInfo != null)
+        {
+            synchronized (extendedInfo)
+            {
+                SortedSet<FormField> fs
+                    = new TreeSet<FormField>(
+                            new Comparator<FormField>()
+                            {
+                                public int compare(FormField f1,
+                                                FormField f2)
+                                {
+                                    return
+                                        f1.getVariable().compareTo(
+                                                f2.getVariable());
+                                }
+                            });
+
+                FormField formType = null;
+
+                for (Iterator<FormField> fieldsIter = extendedInfo.getFields();
+                     fieldsIter.hasNext();)
+                {
+                    FormField f = fieldsIter.next();
+                    if (!f.getVariable().equals("FORM_TYPE"))
+                        fs.add(f);
+                    else
+                        formType = f;
+                }
+
+                // Add FORM_TYPE values
+                if (formType != null)
+                    formFieldValuesToCaps(formType.getValues(), bldr);
+
+                // Add the other values
+                for (FormField f : fs)
+                {
+                    bldr.append(f.getVariable()).append('<');
+                    formFieldValuesToCaps(f.getValues(), bldr);
+                }
+            }
         }
 
         return bldr.toString();
@@ -524,86 +752,15 @@ public class EntityCapsManager
      * identity type, name features, and extendedInfo.
      *
      * @param discoverInfo the {@link DiscoverInfo} we'd be creating a ver
-     * <tt>String</tt> for.
-     * @param identityType identity type (e.g. pc).
-     * @param identityName our identity name (the name of the application)
-     * @param features the list of features we'd like to encode.
-     * @param extendedInfo any extended information we'd like to add to the ver
-     * <tt>String</tt>
+     * <tt>String</tt> for
      */
-    public void calculateEntityCapsVersion(DiscoverInfo     discoverInfo,
-                                           String           identityType,
-                                           String           identityName,
-                                           List<String>     features,
-                                           DataForm         extendedInfo)
+    public void calculateEntityCapsVersion(DiscoverInfo discoverInfo)
     {
-        StringBuilder bldr = new StringBuilder();
-
-        // Add identity
-        // FIXME language
-        bldr.append( "client/" + identityType + "//" + identityName + "<");
-
-        // Add features
-        synchronized (features)
-        {
-            SortedSet<String> fs = new TreeSet<String>();
-            for(String f : features)
-            {
-                fs.add(f);
-            }
-
-            for (String f : fs)
-            {
-                bldr.append( f + "<" );
-            }
-        }
-
-        if (extendedInfo != null)
-        {
-            synchronized (extendedInfo)
-            {
-                SortedSet<FormField> fs = new TreeSet<FormField>(
-                                new Comparator<FormField>()
-                                {
-                                    public int compare(FormField f1,
-                                                    FormField f2)
-                                    {
-                                        return f1.getVariable().compareTo(
-                                                        f2.getVariable());
-                                    }
-                                });
-
-                FormField formType = null;
-
-                for (Iterator<FormField> fieldsIter = extendedInfo.getFields();
-                     fieldsIter.hasNext();)
-                {
-                    FormField f = fieldsIter.next();
-                    if (!f.getVariable().equals("FORM_TYPE"))
-                    {
-                        fs.add(f);
-                    } else
-                    {
-                        formType = f;
-                    }
-                }
-
-                // Add FORM_TYPE values
-                if (formType != null)
-                {
-                    bldr.append( formFieldValuesToCaps(formType.getValues()) );
-                }
-
-                // Add the other values
-                for (FormField f : fs)
-                {
-                    bldr.append( f.getVariable() + "<" );
-                    bldr.append( formFieldValuesToCaps(f.getValues()) );
-                }
-            }
-        }
-
-        setCurrentCapsVersion(discoverInfo, capsToHash(bldr.toString()));
+        setCurrentCapsVersion(
+            discoverInfo,
+            capsToHash(
+                CapsPacketExtension.HASH_METHOD,
+                calculateEntityCapsString(discoverInfo)));
     }
 
     /**
@@ -616,16 +773,25 @@ public class EntityCapsManager
     public void setCurrentCapsVersion(DiscoverInfo discoverInfo,
                                       String capsVersion)
     {
-        String nodeVersion = getNode() + "#" + capsVersion;
+        Caps caps
+            = new Caps(getNode(), CapsPacketExtension.HASH_METHOD, capsVersion);
 
         /*
          * DiscoverInfo carries the node and the ver and we're now setting a new
          * ver so we should update the DiscoveryInfo.
          */
-        discoverInfo.setNode(nodeVersion);
+        discoverInfo.setNode(caps.getNodeVer());
+
+        if (!caps.isValid(discoverInfo))
+        {
+            throw
+                new IllegalArgumentException(
+                        "The specified discoverInfo must be valid with respect"
+                            + " to the specified capsVersion");
+        }
 
         currentCapsVersion = capsVersion;
-        addDiscoverInfoByNode(nodeVersion, discoverInfo);
+        addDiscoverInfoByCaps(caps, discoverInfo);
         fireCapsVerChanged();
     }
 
@@ -639,6 +805,7 @@ public class EntityCapsManager
          * Handles incoming presence packets and maps jids to node#ver strings.
          *
          * @param packet the incoming presence <tt>Packet</tt> to be handled
+         * @see PacketListener#processPacket(Packet)
          */
         public void processPacket(Packet packet)
         {
@@ -647,10 +814,116 @@ public class EntityCapsManager
                     packet.getExtension(
                             CapsPacketExtension.ELEMENT_NAME,
                             CapsPacketExtension.NAMESPACE);
-            String nodeVer = ext.getNode() + "#" + ext.getVersion();
-            String user = packet.getFrom();
 
-            addUserCapsNode(user, nodeVer);
+            /*
+             * Before Version 1.4 of XEP-0115: Entity Capabilities, the 'ver'
+             * attribute was generated differently and the 'hash' attribute was
+             * absent. The 'ver' attribute in Version 1.3 represents the
+             * specific version of the client and thus does not provide a way to
+             * validate the DiscoverInfo sent by the client. If
+             * EntityCapsManager receives no 'hash' attribute, it will assume
+             * the legacy format and will not cache it because the DiscoverInfo
+             * to be received from the client later on will not be trustworthy. 
+             */
+            String hash = ext.getHash();
+
+            if (hash != null)
+            {
+                addUserCapsNode(
+                    packet.getFrom(),
+                    ext.getNode(), hash, ext.getVersion());
+            }
+        }
+    }
+
+    /**
+     * Implements an immutable value which stands for a specific node, a
+     * specific hash (algorithm) and a specific ver.
+     * 
+     * @author Lubomir Marinov
+     */
+    public static class Caps
+    {
+        /** The hash (algorithm) of this <tt>Caps</tt> value. */
+        public final String hash;
+
+        /** The node of this <tt>Caps</tt> value. */
+        public final String node;
+
+        /**
+         * The String which is the concatenation of {@link #node} and the
+         * {@link #ver} separated by the character '#'. Cached for the sake of
+         * efficiency.
+         */
+        private final String nodeVer;
+
+        /** The ver of this <tt>Caps</tt> value. */
+        public final String ver;
+
+        /**
+         * Initializes a new <tt>Caps</tt> instance which is to represent a
+         * specific node, a specific hash (algorithm) and a specific ver.
+         *
+         * @param node the node to be represented by the new instance
+         * @param hash the hash (algorithm) to be represented by the new
+         * instance
+         * @param ver the ver to be represented by the new instance
+         */
+        public Caps(String node, String hash, String ver)
+        {
+            if (node == null)
+                throw new NullPointerException("node");
+            if (hash == null)
+                throw new NullPointerException("hash");
+            if (ver == null)
+                throw new NullPointerException("ver");
+
+            this.node = node;
+            this.hash = hash;
+            this.ver = ver;
+
+            this.nodeVer = this.node + '#' + this.ver;
+        }
+
+        /**
+         * Gets a <tt>String</tt> which represents the concatenation of the
+         * <tt>node</tt> property of this instance, the character '#' and the
+         * <tt>ver</tt> property of this instance.
+         *
+         * @return a <tt>String</tt> which represents the concatenation of the
+         * <tt>node</tt> property of this instance, the character '#' and the
+         * <tt>ver</tt> property of this instance
+         */
+        public final String getNodeVer()
+        {
+            return nodeVer;
+        }
+
+        /**
+         * Determines whether a specific <tt>DiscoverInfo</tt> is valid
+         * according to this <tt>Caps</tt> i.e. whether the
+         * <tt>discoverInfo</tt> has the node and the ver of this <tt>Caps</tt>
+         * and the ver calculated from the <tt>discoverInfo</tt> using the hash
+         * (algorithm) of this <tt>Caps</tt> is equal to the ver of this
+         * <tt>Caps</tt>.
+         *
+         * @param discoverInfo the <tt>DiscoverInfo</tt> to be validated by this
+         * <tt>Caps</tt>
+         * @return <tt>true</tt> if the specified <tt>DiscoverInfo</tt> has the
+         * node and the ver of this <tt>Caps</tt> and the ver calculated from
+         * the <tt>discoverInfo</tt> using the hash (algorithm) of this
+         * <tt>Caps</tt> is equal to the ver of this <tt>Caps</tt>; otherwise,
+         * <tt>false</tt>
+         */
+        public boolean isValid(DiscoverInfo discoverInfo)
+        {
+            return
+                (discoverInfo != null)
+                    && getNodeVer().equals(discoverInfo.getNode())
+                    && ver.equals(
+                            capsToHash(
+                                hash,
+                                calculateEntityCapsString(discoverInfo)));
         }
     }
 }
