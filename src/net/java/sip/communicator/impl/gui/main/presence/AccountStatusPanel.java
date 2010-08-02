@@ -365,10 +365,16 @@ public class AccountStatusPanel
                             if (lastName != null && lastName.length() > 0)
                             {
                                 currentLastName = lastName;
-                                if (accountName != null)
-                                    accountName += " ";
-
-                                accountName += currentLastName;
+                                /*
+                                 * If accountName is null, don't use += because
+                                 * it will make the accountName start with the
+                                 * string "null".
+                                 */
+                                if ((accountName == null)
+                                        || (accountName.length() == 0))
+                                    accountName = currentLastName;
+                                else
+                                    accountName += " " + currentLastName;
                             }
                         }
 

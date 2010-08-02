@@ -31,17 +31,18 @@ public class AccountInfoUtils
     public static String getFirstName(
             OperationSetServerStoredAccountInfo accountInfoOpSet)
     {
-        FirstNameDetail firstName = null;
         Iterator<GenericDetail> firstNameDetails
             =  accountInfoOpSet.getDetails(FirstNameDetail.class);
 
         if (firstNameDetails.hasNext())
-            firstName = (FirstNameDetail) firstNameDetails.next();
+        {
+            FirstNameDetail firstName
+                = (FirstNameDetail) firstNameDetails.next();
 
-        if(firstName == null)
-            return null;
-
-        return firstName.getString();
+            if (firstName != null)
+                return firstName.toString();
+        }
+        return null;
     }
 
     /**
