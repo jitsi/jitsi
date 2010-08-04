@@ -13,34 +13,36 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
-import org.osgi.framework.*;
-
 /**
  * Represents the Sip protocol icon. Implements the <tt>ProtocolIcon</tt>
  * interface in order to provide an sip icon image in two different sizes.
  * 
  * @author Yana Stamcheva
+ * @author Lubomir Marinov
  */
 public class ProtocolIconSipImpl
     implements ProtocolIcon
 {
-    private static Logger logger = Logger.getLogger(ProtocolIconSipImpl.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>ProtocolIconSipImpl</tt> class and
+     * its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(ProtocolIconSipImpl.class);
 
-    private String iconPath;
+    private final String iconPath;
 
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private Hashtable<String, byte[]> iconsTable
-        = new Hashtable<String, byte[]>();
+    private Hashtable<String, byte[]> iconsTable;
 
     /**
      * A hash table containing the path to the  protocol icon in different sizes.
      */
-    private Hashtable<String, String> iconPathsTable
-        = new Hashtable<String, String>();
+    private Hashtable<String, String> iconPathsTable;
 
-    private static ResourceManagementService resourcesService;
+    private static ResourceManagementService resources;
 
     /**
      * Creates an instance of this class by passing to it the path, where all
@@ -51,30 +53,6 @@ public class ProtocolIconSipImpl
     public ProtocolIconSipImpl(String iconPath)
     {
         this.iconPath = iconPath;
-
-        iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            loadIcon(iconPath + "/sip16x16.png"));
-
-        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32,
-            loadIcon(iconPath + "/sip32x32.png"));
-
-        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
-            loadIcon(iconPath + "/sip48x48.png"));
-
-        iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            loadIcon(iconPath + "/sip64x64.png"));
-
-        iconPathsTable.put(ProtocolIcon.ICON_SIZE_16x16,
-            iconPath + "/sip16x16.png");
-
-        iconPathsTable.put(ProtocolIcon.ICON_SIZE_32x32,
-            iconPath + "/sip32x32.png");
-
-        iconPathsTable.put(ProtocolIcon.ICON_SIZE_48x48,
-            iconPath + "/sip48x48.png");
-
-        iconPathsTable.put(ProtocolIcon.ICON_SIZE_64x64,
-            iconPath + "/sip64x64.png");
     }
 
     /**
@@ -84,7 +62,7 @@ public class ProtocolIconSipImpl
      */
     public Iterator<String> getSupportedSizes()
     {
-        return iconsTable.keySet().iterator();
+        return getIconsTable().keySet().iterator();
     }
 
     /**
@@ -98,7 +76,7 @@ public class ProtocolIconSipImpl
      */
     public boolean isSizeSupported(String iconSize)
     {
-        return iconsTable.containsKey(iconSize);
+        return getIconsTable().containsKey(iconSize);
     }
 
     /**
@@ -110,7 +88,7 @@ public class ProtocolIconSipImpl
      */
     public byte[] getIcon(String iconSize)
     {
-        return iconsTable.get(iconSize);
+        return getIconsTable().get(iconSize);
     }
 
     /**
@@ -120,7 +98,31 @@ public class ProtocolIconSipImpl
      */
     public String getIconPath(String iconSize)
     {
-        return iconPathsTable.get(iconSize);
+        return getIconPathsTable().get(iconSize);
+    }
+
+    /**
+     * Gets {@link #iconPathsTable} populating it first if necessary.
+     *
+     * @return {@link #iconPathsTable}
+     */
+    private synchronized Map<String, String> getIconPathsTable()
+    {
+        if (iconPathsTable == null)
+            loadIconsFromIconPath();
+        return iconPathsTable;
+    }
+
+    /**
+     * Gets {@link #iconsTable} populating it first if necessary.
+     *
+     * @return {@link #iconsTable}
+     */
+    private synchronized Map<String, byte[]> getIconsTable()
+    {
+        if (iconsTable == null)
+            loadIconsFromIconPath();
+        return iconsTable;
     }
 
     /**
@@ -134,6 +136,43 @@ public class ProtocolIconSipImpl
     }
 
     /**
+     * Loads an icon with the specified icon size from a file with a specific
+     * name located in {@link #iconPath} into {@link #iconsTable} and
+     * {@link #iconPathsTable}.
+     *
+     * @param iconSize the size of the icon to be loaded as defined by the
+     * <tt>ProtocolIcon#ICON_SIZE_*</tt> fields
+     * @param iconFileName the name of the file in {@link #iconPath} from which
+     * the icon is to be loaded
+     */
+    private void loadIconFromIconPath(String iconSize, String iconFileName)
+    {
+        String iconFilePath = iconPath + '/' + iconFileName;
+        byte[] icon = loadIcon(iconFilePath);
+
+        if (icon != null)
+        {
+            iconsTable.put(iconSize, icon);
+            iconPathsTable.put(iconSize, iconFilePath);
+        }
+    }
+
+    /**
+     * Loads the icons to be represented by this instance from {@link #iconPath}
+     * into {@link #iconsTable} and {@link #iconPathsTable}.
+     */
+    private synchronized void loadIconsFromIconPath()
+    {
+        iconsTable = new Hashtable<String, byte[]>();
+        iconPathsTable = new Hashtable<String, String>();
+
+        loadIconFromIconPath(ProtocolIcon.ICON_SIZE_16x16, "sip16x16.png");
+        loadIconFromIconPath(ProtocolIcon.ICON_SIZE_32x32, "sip32x32.png");
+        loadIconFromIconPath(ProtocolIcon.ICON_SIZE_48x48, "sip48x48.png");
+        loadIconFromIconPath(ProtocolIcon.ICON_SIZE_64x64, "sip64x64.png");
+    }
+
+    /**
      * Loads an image from a given image path.
      * 
      * @param imagePath The identifier of the image.
@@ -141,36 +180,35 @@ public class ProtocolIconSipImpl
      */
     public static byte[] loadIcon(String imagePath)
     {
-        InputStream is = getResources().getImageInputStreamForPath(imagePath);
-
+        ResourceManagementService resources = getResources();
         byte[] icon = null;
-        try
+
+        if (resources != null)
         {
-            icon = new byte[is.available()];
-            is.read(icon);
-        }
-        catch (IOException e)
-        {
-            logger.error("Failed to load protocol icon: " + imagePath, e);
+            InputStream is = resources.getImageInputStreamForPath(imagePath);
+
+            try
+            {
+                icon = new byte[is.available()];
+                is.read(icon);
+            }
+            catch (IOException ioex)
+            {
+                logger.error("Failed to load protocol icon: " + imagePath, ioex);
+            }
         }
         return icon;
     }
-    
+
     public static ResourceManagementService getResources()
     {
-        if (resourcesService == null)
+        if (resources == null)
         {
-            ServiceReference serviceReference = SipActivator.bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-
-            resourcesService
-                = (ResourceManagementService)SipActivator.bundleContext
-                    .getService(serviceReference);
+            resources
+                = ServiceUtils.getService(
+                        SipActivator.bundleContext,
+                        ResourceManagementService.class);
         }
-
-        return resourcesService;
+        return resources;
     }
 }
