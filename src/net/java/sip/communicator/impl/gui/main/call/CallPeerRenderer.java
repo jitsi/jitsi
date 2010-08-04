@@ -36,6 +36,13 @@ public interface CallPeerRenderer
     public void setPeerState(String state);
 
     /**
+     * Sets the reason of a call failure if one occurs. The renderer should
+     * display this reason to the user.
+     * @param reason the reason of the error to set
+     */
+    public void setErrorReason(String reason);
+
+    /**
      * Sets the mute property value.
      *
      * @param isMute indicates if the call with this peer is

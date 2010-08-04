@@ -332,6 +332,16 @@ public class ConferencePeerPanel
     }
 
     /**
+     * Sets the reason of a call failure if one occurs. The renderer should
+     * display this reason to the user.
+     * @param reason the reason to display
+     */
+    public void setErrorReason(String reason)
+    {
+        super.setErrorReason(reason);
+    }
+
+    /**
      * Initializes the status bar component for the given <tt>callPeer</tt>.
      *
      * @param callPeer the underlying peer, which status would be displayed

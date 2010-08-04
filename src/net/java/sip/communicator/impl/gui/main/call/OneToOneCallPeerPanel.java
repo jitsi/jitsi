@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.List; // disambiguation
 
 import javax.swing.*;
+import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -33,7 +34,6 @@ public class OneToOneCallPeerPanel
     extends TransparentPanel
     implements CallPeerRenderer
 {
-
     /**
      * The <tt>Logger</tt> used by the <tt>OneToOneCallPeerPanel</tt> class and
      * its instances for logging output.
@@ -72,6 +72,11 @@ public class OneToOneCallPeerPanel
      * The DTMF label.
      */
     private final JLabel dtmfLabel = new JLabel();
+
+    /**
+     * The component responsible for displaying an error message.
+     */
+    private JTextComponent errorMessageComponent;
 
     /**
      * The <tt>Component</tt>s showing the avatar of the underlying call peer.
@@ -343,7 +348,7 @@ public class OneToOneCallPeerPanel
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.NONE;
         constraints.gridx = 0;
-        constraints.gridy = 4;
+        constraints.gridy = 5;
         constraints.weightx = 0;
         constraints.weighty = 0;
         constraints.insets = new Insets(10, 0, 0, 0);
@@ -352,7 +357,7 @@ public class OneToOneCallPeerPanel
 
         constraints.fill = GridBagConstraints.NONE;
         constraints.gridx = 0;
-        constraints.gridy = 5;
+        constraints.gridy = 6;
         constraints.weightx = 0;
         constraints.weighty = 0;
         constraints.insets = new Insets(5, 0, 10, 0);
@@ -1022,5 +1027,46 @@ public class OneToOneCallPeerPanel
     public void printDTMFTone(char dtmfChar)
     {
         dtmfLabel.setText(dtmfLabel.getText() + dtmfChar);
+    }
+
+    /**
+     * Sets the reason of a call failure if one occurs. The renderer should
+     * display this reason to the user.
+     * @param reason the reason to display
+     */
+    public void setErrorReason(String reason)
+    {
+        if (errorMessageComponent == null)
+        {
+            errorMessageComponent = new JTextPane();
+
+            JTextPane textPane = (JTextPane) errorMessageComponent;
+            textPane.setOpaque(false);
+
+            StyledDocument doc = textPane.getStyledDocument();
+
+            MutableAttributeSet standard = new SimpleAttributeSet();
+            StyleConstants.setAlignment(standard, StyleConstants.ALIGN_CENTER);
+            StyleConstants.setFontFamily(standard,
+                                        textPane.getFont().getFamily());
+            StyleConstants.setFontSize(standard, 12);
+            doc.setParagraphAttributes(0, 0, standard, true);
+
+            GridBagConstraints constraints = new GridBagConstraints();
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridx = 0;
+            constraints.gridy = 4;
+            constraints.weightx = 1;
+            constraints.weighty = 0;
+            constraints.insets = new Insets(5, 0, 0, 0);
+
+            add(errorMessageComponent, constraints);
+            this.revalidate();
+        }
+
+        errorMessageComponent.setText(reason);
+
+        if (isVisible())
+            errorMessageComponent.repaint();
     }
 }

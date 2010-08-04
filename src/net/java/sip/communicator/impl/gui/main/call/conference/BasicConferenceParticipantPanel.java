@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.call.conference;
 import java.awt.*;
 
 import javax.swing.*;
+import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -56,6 +57,11 @@ public class BasicConferenceParticipantPanel
      * The status of the peer
      */
     private final JLabel callStatusLabel = new JLabel();
+
+    /**
+     * The component responsible for displaying an error message.
+     */
+    private JTextComponent errorMessageComponent;
 
     private final JPanel statusBar
         = new TransparentPanel(new GridBagLayout());
@@ -387,5 +393,37 @@ public class BasicConferenceParticipantPanel
     protected void setTitleBackground(Color color)
     {
         titleBar.setBackground(color);
+    }
+
+    /**
+     * Sets the reason of a call failure if one occurs. The renderer should
+     * display this reason to the user.
+     * @param reason the reason to display
+     */
+    protected void setErrorReason(String reason)
+    {
+        if (errorMessageComponent == null)
+        {
+            errorMessageComponent = new JTextPane();
+
+            JTextPane textPane = (JTextPane) errorMessageComponent;
+            textPane.setOpaque(false);
+
+            StyledDocument doc = textPane.getStyledDocument();
+
+            MutableAttributeSet standard = new SimpleAttributeSet();
+            StyleConstants.setFontFamily(standard,
+                                        textPane.getFont().getFamily());
+            StyleConstants.setFontSize(standard, 12);
+            doc.setParagraphAttributes(0, 0, standard, true);
+
+            addToCenter(errorMessageComponent);
+            this.revalidate();
+        }
+
+        errorMessageComponent.setText(reason);
+
+        if (isVisible())
+            errorMessageComponent.repaint();
     }
 }

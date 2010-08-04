@@ -144,6 +144,10 @@ public class CallPeerAdapter
         }
 
         renderer.setPeerState(newStateString);
+
+        String reasonString = evt.getReasonString();
+        if (reasonString != null)
+            renderer.setErrorReason(reasonString);
     }
 
     /**
