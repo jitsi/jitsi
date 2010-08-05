@@ -416,7 +416,8 @@ public abstract class AbstractCallPeer<T extends Call,
         fireCallPeerChangeEvent(
                 CallPeerChangeEvent.CALL_PEER_STATE_CHANGE,
                 oldState,
-                newState);
+                newState,
+                reason);
     }
 
     /**
