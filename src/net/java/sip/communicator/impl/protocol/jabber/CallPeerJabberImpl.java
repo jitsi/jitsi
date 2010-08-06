@@ -411,13 +411,17 @@ public class CallPeerJabberImpl
         else
             type = SessionInfoType.unhold;
 
-        JinglePacketFactory.createSessionInfo(
+        //we are now on hold and need to realize this before potentially
+        //spoling it all with an exception while sending the packet :).
+        reevalLocalHoldStatus();
+
+        JingleIQ onHoldIQ = JinglePacketFactory.createSessionInfo(
                         getProtocolProvider().getOurJID(),
                         peerJID,
                         getJingleSID(),
                         type);
 
-        reevalLocalHoldStatus();
+        getProtocolProvider().getConnection().sendPacket(onHoldIQ);
     }
 
     /**
