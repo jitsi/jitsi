@@ -581,7 +581,7 @@ public class CallPeerMediaHandlerJabberImpl
      * @param stream the {@link MediaStreamTarget} whose post-hold direction
      * we'd like to determine.
      *
-     * @return the {@link MediaDirection} that we need to set on <tx¤t>stream</tt>
+     * @return the {@link MediaDirection} that we need to set on <tt>stream</tt>
      * once it is reactivate.
      */
     private MediaDirection calculatePostHoldDirection(MediaStream stream)
