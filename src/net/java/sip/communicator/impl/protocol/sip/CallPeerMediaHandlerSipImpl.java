@@ -121,7 +121,8 @@ public class CallPeerMediaHandlerSipImpl
         Vector<MediaDescription> mediaDescs = createMediaDescriptions();
 
         //wrap everything up in a session description
-        String userName = peer.getProtocolProvider().getAccountID().getUserID();
+        String userName
+            = getPeer().getProtocolProvider().getAccountID().getUserID();
 
         SessionDescription sDes = SdpUtils.createSessionDescription(
             getTransportManager().getLastUsedLocalHost(), userName, mediaDescs);
@@ -170,7 +171,7 @@ public class CallPeerMediaHandlerSipImpl
                            direction,
                            dev.getSupportedExtensions());
 
-                    if(peer.getCall().isSipZrtpAttribute())
+                    if(getPeer().getCall().isSipZrtpAttribute())
                     {
                         try
                         {
@@ -573,7 +574,7 @@ public class CallPeerMediaHandlerSipImpl
      */
     private String getUserName()
     {
-        return peer.getProtocolProvider().getAccountID().getUserID();
+        return getPeer().getProtocolProvider().getAccountID().getUserID();
     }
 
 

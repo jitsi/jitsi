@@ -1009,7 +1009,8 @@ public class OperationSetTelephonyConferencingSipImpl
                 || CallPeerMediaHandlerSipImpl.VIDEO_LOCAL_SSRC.equals(propertyName)
                 || CallPeerMediaHandlerSipImpl.VIDEO_REMOTE_SSRC.equals(propertyName))
         {
-            Call call = ((CallPeerMediaHandlerSipImpl) event.getSource()).peer.getCall();
+            Call call = ((CallPeerMediaHandlerSipImpl) event.getSource())
+                .getPeer().getCall();
 
             if (call != null)
                 notifyAll(call);
