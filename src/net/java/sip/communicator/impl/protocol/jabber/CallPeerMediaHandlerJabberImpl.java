@@ -563,22 +563,20 @@ public class CallPeerMediaHandlerJabberImpl
             //off hold - make sure that we re-enable sending if that's
             if(audioStream != null)
             {
-                audioStream.setDirection(
-                                calculatePostHoldDirection(audioStream));
+                calculatePostHoldDirection(audioStream);
             }
             if(videoStream != null)
             {
-                audioStream.setDirection(
-                                calculatePostHoldDirection(videoStream));
+                calculatePostHoldDirection(videoStream);
             }
         }
     }
 
     /**
-     * Determines the direction that a stream, which has been place on hold by
-     * the remote party, would need to go back to after being re-activated. If
-     * the stream is not currently on hold (i.e. it is still sending media),
-     * this method simply returns its current direction.
+     * Determines and sets the direction that a stream, which has been place on
+     * hold by the remote party, would need to go back to after being
+     * re-activated. If the stream is not currently on hold (i.e. it is still
+     * sending media), this method simply returns its current direction.
      *
      * @param stream the {@link MediaStreamTarget} whose post-hold direction
      * we'd like to determine.
@@ -589,7 +587,6 @@ public class CallPeerMediaHandlerJabberImpl
     private MediaDirection calculatePostHoldDirection(MediaStream stream)
     {
         MediaDirection streamDirection = stream.getDirection();
-System.out.println("original dir " + streamDirection);
 
         if(streamDirection.allowsSending())
             return streamDirection;
@@ -606,26 +603,19 @@ System.out.println("original dir " + streamDirection);
         MediaDirection postHoldDir = JingleUtils.getDirection(content,
                         !getPeer().isInitiator());
 
-System.out.println("remote direction from our perspective is " + postHoldDir);
-
         //2. check the user preference.
         MediaDevice device = stream.getDevice();
         postHoldDir = postHoldDir
             .and(getDirectionUserPreference(device.getMediaType()));
-System.out.println("user pref direction is " + getDirectionUserPreference(device.getMediaType()));
 
         //3. check our local hold status.
         if(isLocallyOnHold())
-        {
-System.out.println("locally on hold is " + isLocallyOnHold());
             postHoldDir.and(MediaDirection.SENDONLY);
-        }
 
         //4. check the device direction.
         postHoldDir = postHoldDir.and(device.getDirection());
-System.out.println("device direction is " + device.getDirection());
 
-System.out.println("result direction is " + postHoldDir);
+        stream.setDirection(postHoldDir);
 
         return postHoldDir;
     }
