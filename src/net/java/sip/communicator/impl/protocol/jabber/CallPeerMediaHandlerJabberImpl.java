@@ -586,11 +586,10 @@ public class CallPeerMediaHandlerJabberImpl
      */
     private MediaDirection calculatePostHoldDirection(MediaStream stream)
     {
-        MediaDirection direction = stream.getDirection();
-System.out.println("original direction is " + direction);
+        MediaDirection streamDirection = stream.getDirection();
 
-        if(direction.allowsSending())
-            return direction;
+        if(streamDirection.allowsSending())
+            return streamDirection;
 
         //when calculating a direction we need to take into account 1) what
         //direction the remote party had asked for before putting us on hold,
@@ -601,30 +600,21 @@ System.out.println("original direction is " + direction);
         //1. check what the remote party originally told us (from our persp.)
         ContentPacketExtension content = remoteContentMap.get(stream.getName());
 
-        MediaDirection remoteDirection = JingleUtils.getDirection(content,
+        MediaDirection postHoldDir = JingleUtils.getDirection(content,
                         !getPeer().isInitiator());
-System.out.println("remote direction from our perspective is " + remoteDirection);
-        direction = direction.and(remoteDirection);
 
         //2. check the user preference.
         MediaDevice device = stream.getDevice();
-        direction = direction
+        postHoldDir = postHoldDir
             .and(getDirectionUserPreference(device.getMediaType()));
-System.out.println("user pref direction is " + getDirectionUserPreference(device.getMediaType()));
 
         //3. check our local hold status.
         if(isLocallyOnHold())
-        {
-System.out.println("locally on hold is " + isLocallyOnHold());
-            direction.and(MediaDirection.SENDONLY);
-        }
+            postHoldDir.and(MediaDirection.SENDONLY);
 
         //4. check the device direction.
-        direction = direction.and(device.getDirection());
-System.out.println("device direction is " + device.getDirection());
+        postHoldDir = postHoldDir.and(device.getDirection());
 
-System.out.println("result direction is " + direction);
-
-        return direction;
+        return postHoldDir;
     }
 }
