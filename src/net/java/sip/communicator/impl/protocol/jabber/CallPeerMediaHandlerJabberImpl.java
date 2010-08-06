@@ -586,10 +586,11 @@ public class CallPeerMediaHandlerJabberImpl
      */
     private MediaDirection calculatePostHoldDirection(MediaStream stream)
     {
-        MediaDirection deviceDir = stream.getDirection();
+        MediaDirection direction = stream.getDirection();
+System.out.println("original direction is " + direction);
 
-        if(deviceDir.allowsSending())
-            return deviceDir;
+        if(direction.allowsSending())
+            return direction;
 
         //when calculating a direction we need to take into account 1) what
         //direction the remote party had asked for before putting us on hold,
@@ -602,21 +603,28 @@ public class CallPeerMediaHandlerJabberImpl
 
         MediaDirection remoteDirection = JingleUtils.getDirection(content,
                         !getPeer().isInitiator());
-
-        deviceDir = deviceDir.and(remoteDirection);
+System.out.println("remote direction from our perspective is " + remoteDirection);
+        direction = direction.and(remoteDirection);
 
         //2. check the user preference.
         MediaDevice device = stream.getDevice();
-        deviceDir = deviceDir
+        direction = direction
             .and(getDirectionUserPreference(device.getMediaType()));
+System.out.println("user pref direction is " + getDirectionUserPreference(device.getMediaType()));
 
         //3. check our local hold status.
         if(isLocallyOnHold())
-            deviceDir.and(MediaDirection.SENDONLY);
+        {
+System.out.println("locally on hold is " + isLocallyOnHold());
+            direction.and(MediaDirection.SENDONLY);
+        }
 
         //4. check the device direction.
-        deviceDir = deviceDir.and(device.getDirection());
+        direction = direction.and(device.getDirection());
+System.out.println("device direction is " + device.getDirection());
 
-        return deviceDir;
+System.out.println("result direction is " + direction);
+
+        return direction;
     }
 }
