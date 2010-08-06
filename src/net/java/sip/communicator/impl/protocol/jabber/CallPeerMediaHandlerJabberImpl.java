@@ -563,11 +563,13 @@ public class CallPeerMediaHandlerJabberImpl
             //off hold - make sure that we re-enable sending if that's
             if(audioStream != null)
             {
-                calculatePostHoldDirection(audioStream);
+                audioStream.setDirection(
+                                calculatePostHoldDirection(audioStream));
             }
             if(videoStream != null)
             {
-                calculatePostHoldDirection(videoStream);
+                audioStream.setDirection(
+                                calculatePostHoldDirection(videoStream));
             }
         }
     }
@@ -587,6 +589,7 @@ public class CallPeerMediaHandlerJabberImpl
     private MediaDirection calculatePostHoldDirection(MediaStream stream)
     {
         MediaDirection streamDirection = stream.getDirection();
+System.out.println("original dir " + streamDirection);
 
         if(streamDirection.allowsSending())
             return streamDirection;
@@ -603,17 +606,26 @@ public class CallPeerMediaHandlerJabberImpl
         MediaDirection postHoldDir = JingleUtils.getDirection(content,
                         !getPeer().isInitiator());
 
+System.out.println("remote direction from our perspective is " + postHoldDir);
+
         //2. check the user preference.
         MediaDevice device = stream.getDevice();
         postHoldDir = postHoldDir
             .and(getDirectionUserPreference(device.getMediaType()));
+System.out.println("user pref direction is " + getDirectionUserPreference(device.getMediaType()));
 
         //3. check our local hold status.
         if(isLocallyOnHold())
+        {
+System.out.println("locally on hold is " + isLocallyOnHold());
             postHoldDir.and(MediaDirection.SENDONLY);
+        }
 
         //4. check the device direction.
         postHoldDir = postHoldDir.and(device.getDirection());
+System.out.println("device direction is " + device.getDirection());
+
+System.out.println("result direction is " + postHoldDir);
 
         return postHoldDir;
     }
