@@ -110,13 +110,13 @@ public class OperationSetMultiUserChatJabberImpl
         {
             if (logger.isInfoEnabled())
                 logger.info("Find room returns null.");
-            MultiUserChat muc = new MultiUserChat(
-                getXmppConnection(), getCanonicalRoomName(roomName));
 
+            MultiUserChat muc = null;
             try
             {
+                muc = new MultiUserChat(
+                    getXmppConnection(), getCanonicalRoomName(roomName));
                 muc.create(StringUtils.parseName(getXmppConnection().getUser()));
-                muc.sendConfigurationForm(new Form(Form.TYPE_SUBMIT));
             }
             catch (XMPPException ex)
             {
@@ -125,6 +125,15 @@ public class OperationSetMultiUserChatJabberImpl
                                                    , ex.getXMPPError().getCode()
                                                    , ex.getCause());
             }
+
+            try
+            {
+                muc.sendConfigurationForm(new Form(Form.TYPE_SUBMIT));
+            } catch (XMPPException e)
+            {
+                logger.error("Failed to send config form.", e);
+            }
+
             room = createLocalChatRoomInstance(muc);
             room.setLocalUserRole(ChatRoomMemberRole.MODERATOR);
         }

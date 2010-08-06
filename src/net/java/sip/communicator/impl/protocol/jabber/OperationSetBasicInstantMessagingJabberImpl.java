@@ -591,6 +591,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
             if(msg.getBody() == null)
                 return;
 
+            Object multiChatExtension =
+                msg.getExtension("x", "http://jabber.org/protocol/muc#user");
+
+            // its not for us
+            if(multiChatExtension != null)
+                return;
+
             String fromUserID = StringUtils.parseBareAddress(msg.getFrom());
 
             if(logger.isDebugEnabled())

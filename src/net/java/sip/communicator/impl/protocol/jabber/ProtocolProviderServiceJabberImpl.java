@@ -299,6 +299,8 @@ public class ProtocolProviderServiceJabberImpl
             fireRegistrationStateChanged(getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED,
                 RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);
+
+            disconnectAndCleanConnection();
         }
         catch (XMPPException ex)
         {
@@ -619,6 +621,8 @@ public class ProtocolProviderServiceJabberImpl
                         , RegistrationState.UNREGISTERED
                         , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
                         , null);
+
+                    disconnectAndCleanConnection();
                 }
 
             }
@@ -1076,8 +1080,9 @@ public class ProtocolProviderServiceJabberImpl
 
         fireRegistrationStateChanged(
             getRegistrationState(), regState, reason, null);
-
-        if(regState == RegistrationState.UNREGISTERED)
+        
+        if(regState == RegistrationState.UNREGISTERED
+            || regState == RegistrationState.CONNECTION_FAILED)
         {
             // we fired that for some reason we are going offline
             // lets clean the connection state for any future connections
@@ -1144,6 +1149,9 @@ public class ProtocolProviderServiceJabberImpl
                         RegistrationState.UNREGISTERED,
                         RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS,
                         "Connecting multiple times with the same resource");
+
+                    disconnectAndCleanConnection();
+
                     return;
                 }
             } // Ignore certificate exceptions as we handle them elsewhere
@@ -1174,6 +1182,8 @@ public class ProtocolProviderServiceJabberImpl
                 RegistrationState.CONNECTION_FAILED,
                 RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
                 exception.getMessage());
+
+            disconnectAndCleanConnection();
         }
 
         /**

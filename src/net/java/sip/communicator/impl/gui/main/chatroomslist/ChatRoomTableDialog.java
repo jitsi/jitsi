@@ -402,7 +402,11 @@ public class ChatRoomTableDialog
 
                 // if there is no room list comming from provider
                 if(rooms == null)
+                {
+                    roomsCombo.setEnabled(true);
+                    okButton.setEnabled(true);
                     return;
+                }
 
                 Collections.sort(rooms);
 
