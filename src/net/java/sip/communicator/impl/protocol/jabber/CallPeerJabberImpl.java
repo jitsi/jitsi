@@ -467,11 +467,13 @@ public class CallPeerJabberImpl
         if (info.getType() == SessionInfoType.hold)
         {
             getMediaHandler().setRemotelyOnHold(true);
+            reevalRemoteHoldStatus();
         }
         else if (info.getType() == SessionInfoType.unhold
                  || info.getType() == SessionInfoType.active)
         {
-            getMediaHandler().setRemotelyOnHold(true);
+            getMediaHandler().setRemotelyOnHold(false);
+            reevalRemoteHoldStatus();
         }
     }
 }
