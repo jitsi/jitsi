@@ -415,7 +415,7 @@ public class CallPeerMediaHandlerJabberImpl
                                         MediaDirection     direction,
                                         List<RTPExtension> supportedExtensions)
     {
-        return JingleUtils.createDescription(
+        ContentPacketExtension content = JingleUtils.createDescription(
             CreatorEnum.initiator,
             supportedFormats.get(0).getMediaType().toString(),
             JingleUtils.getSenders(direction, !getPeer().isInitiator()),
@@ -423,6 +423,9 @@ public class CallPeerMediaHandlerJabberImpl
             supportedExtensions,
             getDynamicPayloadTypes(),
             getRtpExtensionsRegistry());
+
+        this.localContentMap.put(content.getName(), content);
+        return content;
     }
 
     /**
@@ -446,6 +449,7 @@ public class CallPeerMediaHandlerJabberImpl
     {
         for ( ContentPacketExtension content : answer)
         {
+            remoteContentMap.put(content.getName(), content);
             RtpDescriptionPacketExtension description
                                     = JingleUtils.getRtpDescription(content);
 
