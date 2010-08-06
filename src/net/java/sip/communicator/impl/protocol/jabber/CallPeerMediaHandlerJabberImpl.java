@@ -490,13 +490,11 @@ public class CallPeerMediaHandlerJabberImpl
             {
                 audioStream.setDirection(audioStream.getDirection()
                             .and(MediaDirection.RECVONLY));
-                audioStream.setMute(remotelyOnHold);
             }
             if(videoStream != null)
             {
                 videoStream.setDirection(videoStream.getDirection()
                             .and(MediaDirection.RECVONLY));
-                videoStream.setMute(remotelyOnHold);
             }
         }
         else
@@ -506,14 +504,12 @@ public class CallPeerMediaHandlerJabberImpl
             {
                 audioStream.setDirection(audioStream.getDirection()
                             .or(MediaDirection.RECVONLY));
-                audioStream.setMute(remotelyOnHold);
             }
             if(videoStream != null
                 && videoStream.getDirection() != MediaDirection.INACTIVE)
             {
                 videoStream.setDirection(videoStream.getDirection()
                             .or(MediaDirection.RECVONLY));
-                videoStream.setMute(remotelyOnHold);
             }
         }
     }
