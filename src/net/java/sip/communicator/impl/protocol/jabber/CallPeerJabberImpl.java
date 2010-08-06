@@ -403,18 +403,19 @@ public class CallPeerJabberImpl
         CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
 
         mediaHandler.setLocallyOnHold(onHold);
-        /*
-        try
-        {
-            JinglePacketFactory.createSessionInfo(from, to, sid, type)
-        }
-        catch (Exception ex)
-        {
-            ProtocolProviderServiceJabberImpl.throwOperationFailedException(
-                "Failed to create SDP offer to hold.",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-        */
+
+        SessionInfoType type;
+
+        if(onHold)
+            type = SessionInfoType.hold;
+        else
+            type = SessionInfoType.unhold;
+
+        JinglePacketFactory.createSessionInfo(
+                        getProtocolProvider().getOurJID(),
+                        peerJID,
+                        getJingleSID(),
+                        type);
 
         reevalLocalHoldStatus();
     }
@@ -451,5 +452,26 @@ public class CallPeerJabberImpl
     public boolean isInitiator()
     {
         return isInitiator;
+    }
+
+    /**
+     * Handles the specified session <tt>info</tt> packet according to its
+     * content.
+     *
+     * @param info the {@link SessionInfoPacketExtension} that we just received.
+     */
+    public void processSessionInfo(SessionInfoPacketExtension info)
+    {
+        if( info.getType() == SessionInfoType.ringing)
+            setState(CallPeerState.ALERTING_REMOTE_SIDE);
+        if (info.getType() == SessionInfoType.hold)
+        {
+            getMediaHandler().setRemotelyOnHold(true);
+        }
+        else if (info.getType() == SessionInfoType.unhold
+                 || info.getType() == SessionInfoType.active)
+        {
+            getMediaHandler().setRemotelyOnHold(true);
+        }
     }
 }

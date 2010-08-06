@@ -291,7 +291,9 @@ public class OperationSetBasicTelephonyJabberImpl
     @Override
     public void setMute(Call call, boolean mute)
     {
-        /** @todo implement putOnHold() */
+        CallJabberImpl jabberCall = (CallJabberImpl)call;
+
+        jabberCall.setMute(mute);
     }
 
     /**
@@ -510,8 +512,7 @@ public class OperationSetBasicTelephonyJabberImpl
                 return;
 
             // change status.
-            if( info.getType() == SessionInfoType.ringing)
-                callPeer.setState(CallPeerState.ALERTING_REMOTE_SIDE);
+            callPeer.processSessionInfo(info);
         }
     }
 

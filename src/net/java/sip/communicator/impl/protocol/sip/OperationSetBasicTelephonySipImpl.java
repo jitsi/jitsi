@@ -1528,7 +1528,7 @@ public class OperationSetBasicTelephonySipImpl
      * and one of the possible approaches to it is sending silence.
      * </p>
      *
-     * @param call the <tt>Call</tt> whos mute state is set
+     * @param call the <tt>Call</tt> whose mute state is set
      * @param mute <tt>true</tt> to mute the call streams being sent to
      *            <tt>peers</tt>; otherwise, <tt>false</tt>
      */

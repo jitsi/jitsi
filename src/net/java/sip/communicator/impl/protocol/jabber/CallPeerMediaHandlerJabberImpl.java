@@ -57,6 +57,11 @@ public class CallPeerMediaHandlerJabberImpl
         = new LinkedHashMap<String, ContentPacketExtension>();
 
     /**
+     * Indicates whether the remote party has placed us on hold.
+     */
+    private boolean remotelyOnHold = false;
+
+    /**
      * Creates a new handler that will be managing media streams for
      * <tt>peer</tt>.
      *
@@ -463,6 +468,53 @@ public class CallPeerMediaHandlerJabberImpl
             // create the corresponding stream...
             initStream(connector, dev, supportedFormats.get(0), target,
                                 direction, rtpExtensions);
+        }
+    }
+
+    /**
+     * Acts upon a notification received from the remote party indicating that
+     * they've put us on/off hold.
+     *
+     * @param onHold <tt>true</tt> if the remote party has put us on hold
+     * and <tt>false</tt> if they've just put us off hold.
+     */
+    public void setRemotelyOnHold(boolean onHold)
+    {
+        this.remotelyOnHold = onHold;
+        MediaStream audioStream = getStream(MediaType.AUDIO);
+        MediaStream videoStream = getStream(MediaType.VIDEO);
+
+        if(remotelyOnHold)
+        {
+            if(audioStream != null)
+            {
+                audioStream.setDirection(audioStream.getDirection()
+                            .and(MediaDirection.RECVONLY));
+                audioStream.setMute(remotelyOnHold);
+            }
+            if(videoStream != null)
+            {
+                videoStream.setDirection(videoStream.getDirection()
+                            .and(MediaDirection.RECVONLY));
+                videoStream.setMute(remotelyOnHold);
+            }
+        }
+        else
+        {
+            //off hold - make sure that we re-enable sending
+            if(audioStream != null)
+            {
+                audioStream.setDirection(audioStream.getDirection()
+                            .or(MediaDirection.RECVONLY));
+                audioStream.setMute(remotelyOnHold);
+            }
+            if(videoStream != null
+                && videoStream.getDirection() != MediaDirection.INACTIVE)
+            {
+                videoStream.setDirection(videoStream.getDirection()
+                            .or(MediaDirection.RECVONLY));
+                videoStream.setMute(remotelyOnHold);
+            }
         }
     }
 
