@@ -285,6 +285,27 @@ public interface MediaStream
     public boolean isMute();
 
     /**
+     * Returns the name of this stream or <tt>null</tt> if no name has been
+     * set. A stream name is used by some protocols, for diagnostic purposes
+     * mostly. In XMPP for example this is the name of the content element that
+     * describes a stream.
+     *
+     * @return the name of this stream or <tt>null</tt> if no name has been
+     * set.
+     */
+    public String getName();
+
+    /**
+     * Sets the name of this stream. Stream names are used by some protocols,
+     * for diagnostic purposes mostly. In XMPP for example this is the name of
+     * the content element that describes a stream.
+     *
+     * @param streamName the name of this stream or <tt>null</tt> if no name has
+     * been set.
+     */
+    public void setName(String streamName);
+
+    /**
      * The <tt>ZrtpControl</tt> which controlls the zrtp for the current stream.
      * @return the <tt>ZrtpControl</tt> for the current stream.
      */

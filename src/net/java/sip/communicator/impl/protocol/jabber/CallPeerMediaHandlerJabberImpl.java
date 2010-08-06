@@ -98,6 +98,51 @@ public class CallPeerMediaHandlerJabberImpl
     }
 
     /**
+     * Creates if necessary, and configures the stream that this
+     * <tt>MediaHandler</tt> is using for the <tt>MediaType</tt> matching the
+     * one of the <tt>MediaDevice</tt>. This method extends the one already
+     * available by adding a stream name, corresponding to a stream's content
+     * name.
+     *
+     * @param streamName the name of the stream as indicated in the XMPP
+     * <tt>content</tt> element.
+     * @param connector the <tt>MediaConnector</tt> that we'd like to bind the
+     * newly created stream to.
+     * @param device the <tt>MediaDevice</tt> that we'd like to attach the newly
+     * created <tt>MediaStream</tt> to.
+     * @param format the <tt>MediaFormat</tt> that we'd like the new
+     * <tt>MediaStream</tt> to be set to transmit in.
+     * @param target the <tt>MediaStreamTarget</tt> containing the RTP and RTCP
+     * address:port couples that the new stream would be sending packets to.
+     * @param direction the <tt>MediaDirection</tt> that we'd like the new
+     * stream to use (i.e. sendonly, sendrecv, recvonly, or inactive).
+     * @param rtpExtensions the list of <tt>RTPExtension</tt>s that should be
+     * enabled for this stream.
+     *
+     * @return the newly created <tt>MediaStream</tt>.
+     *
+     * @throws OperationFailedException if creating the stream fails for any
+     * reason (like for example accessing the device or setting the format).
+     */
+    protected MediaStream initStream(String               streamName,
+                                     StreamConnector      connector,
+                                     MediaDevice          device,
+                                     MediaFormat          format,
+                                     MediaStreamTarget    target,
+                                     MediaDirection       direction,
+                                     List<RTPExtension>   rtpExtensions)
+        throws OperationFailedException
+    {
+        MediaStream stream = super.initStream(connector, device, format,
+                        target, direction, rtpExtensions);
+
+        if(stream != null)
+            stream.setName(streamName);
+
+        return stream;
+    }
+
+    /**
      * Parses and handles the specified <tt>offer</tt> and returns a content
      * extension representing the current state of this media handler. This
      * method MUST only be called when <tt>offer</tt> is the first session
@@ -146,7 +191,8 @@ public class CallPeerMediaHandlerJabberImpl
                 = devDirection.and(getDirectionUserPreference(mediaType));
 
             // determine the direction that we need to announce.
-            MediaDirection remoteDirection = JingleUtils.getDirection(content);
+            MediaDirection remoteDirection = JingleUtils.getDirection(
+                                            content, getPeer().isInitiator());
             MediaDirection direction = devDirection
                             .getDirectionForAnswer(remoteDirection);
 
@@ -187,7 +233,7 @@ public class CallPeerMediaHandlerJabberImpl
             // create the answer description
             ContentPacketExtension ourContent = JingleUtils.createDescription(
                 content.getCreator(), content.getName(),
-                JingleUtils.getSenders(direction, !peer.isInitiator()) ,
+                JingleUtils.getSenders(direction, !getPeer().isInitiator()) ,
                 mutuallySupportedFormats, rtpExtensions,
                 getDynamicPayloadTypes(), getRtpExtensionsRegistry());
 
@@ -247,7 +293,7 @@ public class CallPeerMediaHandlerJabberImpl
 
             //stream direction
             MediaDirection direction = JingleUtils.getDirection(
-                                                ourContent, !peer.isInitiator());
+                                       ourContent, !getPeer().isInitiator());
 
             //let's now see what was the format we announced as first and
             //configure the stream with it.
@@ -261,8 +307,8 @@ public class CallPeerMediaHandlerJabberImpl
                             description, this.getRtpExtensionsRegistry());
 
             // create the corresponding stream...
-            initStream(connector, dev, format, target,
-                                                    direction, rtpExtensions);
+            initStream(ourContent.getName(), connector, dev, format, target,
+                            direction, rtpExtensions);
         }
         return sessAccept;
     }
@@ -306,7 +352,7 @@ public class CallPeerMediaHandlerJabberImpl
                             dev.getSupportedExtensions());
 
                     //ZRTP
-                    if(peer.getCall().isSipZrtpAttribute())
+                    if(getPeer().getCall().isSipZrtpAttribute())
                     {
                         ZrtpControl control = getZrtpControls().get(mediaType);
                         if(control == null)
@@ -372,7 +418,7 @@ public class CallPeerMediaHandlerJabberImpl
         return JingleUtils.createDescription(
             CreatorEnum.initiator,
             supportedFormats.get(0).getMediaType().toString(),
-            JingleUtils.getSenders(direction, !peer.isInitiator()),
+            JingleUtils.getSenders(direction, !getPeer().isInitiator()),
             supportedFormats,
             supportedExtensions,
             getDynamicPayloadTypes(),
@@ -449,7 +495,7 @@ public class CallPeerMediaHandlerJabberImpl
 
             //determine the direction that we need to announce.
             MediaDirection remoteDirection
-                = JingleUtils.getDirection(content);
+                = JingleUtils.getDirection(content, getPeer().isInitiator());
 
             MediaDirection direction
                 = devDirection.getDirectionForAnswer(remoteDirection);
@@ -466,9 +512,20 @@ public class CallPeerMediaHandlerJabberImpl
                             remoteRTPExtensions, supportedExtensions);
 
             // create the corresponding stream...
-            initStream(connector, dev, supportedFormats.get(0), target,
-                                direction, rtpExtensions);
+            initStream(content.getName(), connector, dev,
+                    supportedFormats.get(0), target, direction, rtpExtensions);
         }
+    }
+
+    /**
+     * Returns the transport manager that is handling our address management.
+     *
+     * @return the transport manager that is handling our address management.
+     */
+    @Override
+    public TransportManagerJabberImpl getTransportManager()
+    {
+        return transportManager;
     }
 
     /**
@@ -499,29 +556,63 @@ public class CallPeerMediaHandlerJabberImpl
         }
         else
         {
-            //off hold - make sure that we re-enable sending
+            //off hold - make sure that we re-enable sending if that's
             if(audioStream != null)
             {
-                audioStream.setDirection(audioStream.getDirection()
-                            .or(MediaDirection.RECVONLY));
+                calculatePostHoldDirection(audioStream);
             }
-            if(videoStream != null
-                && videoStream.getDirection() != MediaDirection.INACTIVE)
+            if(videoStream != null)
             {
-                videoStream.setDirection(videoStream.getDirection()
-                            .or(MediaDirection.RECVONLY));
+                calculatePostHoldDirection(videoStream);
             }
         }
     }
 
     /**
-     * Returns the transport manager that is handling our address management.
+     * Determines the direction that a stream, which has been place on hold by
+     * the remote party, would need to go back to after being re-activated. If
+     * the stream is not currently on hold (i.e. it is still sending media),
+     * this method simply returns its current direction.
      *
-     * @return the transport manager that is handling our address management.
+     * @param stream the {@link MediaStreamTarget} whose post-hold direction
+     * we'd like to determine.
+     *
+     * @return the {@link MediaDirection} that we need to set on <tx¤t>stream</tt>
+     * once it is reactivate.
      */
-    @Override
-    public TransportManagerJabberImpl getTransportManager()
+    private MediaDirection calculatePostHoldDirection(MediaStream stream)
     {
-        return transportManager;
+        MediaDirection deviceDir = stream.getDirection();
+
+        if(deviceDir.allowsSending())
+            return deviceDir;
+
+        //when calculating a direction we need to take into account 1) what
+        //direction the remote party had asked for before putting us on hold,
+        //2) what the user preference is for the stream's media type, 3) our
+        //local hold status, 4) the direction supported by the device this
+        //stream is reading from.
+
+        //1. check what the remote party originally told us (from our persp.)
+        ContentPacketExtension content = remoteContentMap.get(stream.getName());
+
+        MediaDirection remoteDirection = JingleUtils.getDirection(content,
+                        !getPeer().isInitiator());
+
+        deviceDir = deviceDir.and(remoteDirection);
+
+        //2. check the user preference.
+        MediaDevice device = stream.getDevice();
+        deviceDir = deviceDir
+            .and(getDirectionUserPreference(device.getMediaType()));
+
+        //3. check our local hold status.
+        if(isLocallyOnHold())
+            deviceDir.and(MediaDirection.SENDONLY);
+
+        //4. check the device direction.
+        deviceDir = deviceDir.and(device.getDirection());
+
+        return deviceDir;
     }
 }

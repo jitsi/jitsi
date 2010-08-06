@@ -93,7 +93,7 @@ public abstract class CallPeerMediaHandler<
      * A reference to the CallPeer instance that this handler is managing media
      * streams for.
      */
-    public final T peer;
+    private final T peer;
 
     /**
      * A reference to the object that would be responsible for ZRTP control
@@ -1573,6 +1573,16 @@ public abstract class CallPeerMediaHandler<
                 sendHolePunchPacket(stream.getTarget());
             }
         }
+    }
+
+    /**
+     * Returns the peer that is this media handler's "raison d'etre".
+     *
+     * @return the {@link MediaAwareCallPeer} that this handler is servicing.
+     */
+    public T getPeer()
+    {
+        return peer;
     }
 
     /**

@@ -286,28 +286,6 @@ public class JingleUtils
     }
 
     /**
-     * Determines the direction of the media stream that <tt>content</tt>
-     * describes and returns the corresponding <tt>MediaDirection</tt> enum
-     * entry from the initiator perspective. This means that an
-     * <tt>initiator</tt> value would be translated to {@link
-     * MediaDirection#SENDONLY} and not {@link MediaDirection#RECVONLY} which
-     * would be the case if we were considering the direction from the
-     * responder's perspective.
-     *
-     * @param content the description of the media stream whose direction
-     * we are trying to determine.
-     *
-     * @return one of the <tt>MediaDirection</tt> values indicating the
-     * direction of the media steam described by <tt>content</tt>.
-     *
-     * @see JingleUtils#getDirection(ContentPacketExtension, boolean)
-     */
-    public static MediaDirection getDirection(ContentPacketExtension content)
-    {
-        return getDirection(content, true);
-    }
-
-    /**
      * Returns the default candidate for the specified content <tt>content</tt>.
      * The method is used when establishing new calls and we need a default
      * candidate to initiate our stream with before we've discovered the one
