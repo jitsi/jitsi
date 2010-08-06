@@ -132,4 +132,19 @@ public interface MediaService
      * @return default screen device
      */
     public ScreenDevice getDefaultScreenDevice();
+
+    /**
+     * Returns a {@link Map} that binds indicates whatever preferences the
+     * media service implementation may have for the RTP payload type numbers
+     * that get dynamically assigned to {@link MediaFormat}s with no static
+     * payload type. The method is useful for formats such as "telephone-event"
+     * for example that is statically assigned the 101 payload type by some
+     * legacy systems. Signalling protocol implementations such as SIP and XMPP
+     * should make sure that, whenever this is possible, they assign to formats
+     * the dynamic payload type returned in this {@link Map}.
+     *
+     * @return a {@link Map} binding some formats to a preferred dynamic RTP
+     * payload type number.
+     */
+    public Map<MediaFormat, Byte> getDynamicPayloadTypePreferences();
 }

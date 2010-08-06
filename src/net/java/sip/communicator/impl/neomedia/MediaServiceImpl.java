@@ -92,6 +92,18 @@ public class MediaServiceImpl
         = new ArrayList<MediaDeviceImpl>();
 
     /**
+     * A {@link Map} that binds indicates whatever preferences this
+     * media service implementation may have for the RTP payload type numbers
+     * that get dynamically assigned to {@link MediaFormat}s with no static
+     * payload type. The method is useful for formats such as "telephone-event"
+     * for example that is statically assigned the 101 payload type by some
+     * legacy systems. Signalling protocol implementations such as SIP and XMPP
+     * should make sure that, whenever this is possible, they assign to formats
+     * the dynamic payload type returned in this {@link Map}.
+     */
+    private static Map<MediaFormat, Byte> dynamicPayloadTypePreferences;
+
+    /**
      * Creates a new <tt>MediaStream</tt> instance which will use the specified
      * <tt>MediaDevice</tt> for both capture and playback of media exchanged
      * via the specified <tt>StreamConnector</tt>.
@@ -530,5 +542,33 @@ public class MediaServiceImpl
             }
         }
         return best;
+    }
+
+    /**
+     * Returns a {@link Map} that binds indicates whatever preferences this
+     * media service implementation may have for the RTP payload type numbers
+     * that get dynamically assigned to {@link MediaFormat}s with no static
+     * payload type. The method is useful for formats such as "telephone-event"
+     * for example that is statically assigned the 101 payload type by some
+     * legacy systems. Signalling protocol implementations such as SIP and XMPP
+     * should make sure that, whenever this is possible, they assign to formats
+     * the dynamic payload type returned in this {@link Map}.
+     *
+     * @return a {@link Map} binding some formats to a preferred dynamic RTP
+     * payload type number.
+     */
+    public Map<MediaFormat, Byte> getDynamicPayloadTypePreferences()
+    {
+        if(dynamicPayloadTypePreferences == null)
+        {
+            dynamicPayloadTypePreferences = new HashMap<MediaFormat, Byte>();
+
+            MediaFormat telephoneEvent
+                = MediaUtils.getMediaFormat("telephone-event", 8000);
+
+            dynamicPayloadTypePreferences.put(telephoneEvent, (byte)101);
+        }
+
+        return dynamicPayloadTypePreferences;
     }
 }

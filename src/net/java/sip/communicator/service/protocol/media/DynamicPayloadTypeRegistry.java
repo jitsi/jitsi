@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.protocol.media;
 
 import java.util.*;
+import java.util.Map.*;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -82,14 +83,46 @@ public class DynamicPayloadTypeRegistry
             }
         }
 
-        //hey, we already had this one, let's return it ;)
+        //seems like we haven't allocated a payload type for this format yet.
+        //lets try to do so now.
         if (payloadType == null)
         {
-            payloadType = nextPayloadTypeNumber();
+            //first, let's check whether there's a particular PT number that
+            //this format would like to have (e.g. "telephone-event" generally
+            //loves to be called "101").
+            Byte preferredPT = getPreferredDynamicPayloadType(format);
+
+            if(preferredPT != null && findFormat(preferredPT) == null)
+            {
+                //the format has a preference and it's free
+                payloadType = preferredPT;
+            }
+            else
+            {
+                //the format does not have a preferred PT number or it isn't
+                //free.
+                payloadType = nextPayloadTypeNumber();
+            }
             payloadTypeMappings.put(format, payloadType);
         }
 
         return payloadType;
+    }
+
+    /**
+     * Returns the payload type number that <tt>format</tt> would like to use if
+     * possible and <tt>null</tt> if there is no such preference.
+     *
+     * @param format the {@link MediaFormat} whose preferred dynamic PT number
+     * we are trying to obtain.
+     *
+     * @return the payload type number that <tt>format</tt> would like to use if
+     * possible and <tt>null</tt> if there is no such preference.
+     */
+    private Byte getPreferredDynamicPayloadType(MediaFormat format)
+    {
+        return ProtocolMediaActivator.getMediaService()
+            .getDynamicPayloadTypePreferences().get(format);
     }
 
     /**
@@ -176,13 +209,40 @@ public class DynamicPayloadTypeRegistry
 
             byte payloadType = nextDynamicPayloadType++;
 
-            if(findFormat(payloadType) == null)
+            if(findFormat(payloadType) == null
+               && findFormatWithPreference(payloadType) == null)
                 return payloadType;
 
             //if we get here then that means that the number we obtained by
             //incrementing our PT counter was already occupied (probably by an
             //incoming SDP). continue bravely and get the next free one.
         }
+    }
+
+    /**
+     * Returns the {@link MediaFormat} with the specified
+     * <tt>payloadTypePreference</tt> or <tt>null</tt> if no {@link MediaFormat}
+     * has claimed this payload type number as preferred.
+     *
+     * @param payloadTypePreference the dynamic payload type number that we
+     * are trying to determine as being claimed as preferred or not by a
+     * media format.
+     *
+     * @return the {@link MediaFormat} with the specified
+     * <tt>payloadTypePreference</tt> or <tt>null</tt> if no {@link MediaFormat}
+     * has claimed this payload type number as preferred.
+     */
+    private MediaFormat findFormatWithPreference(Byte payloadTypePreference)
+    {
+        for(Entry<MediaFormat, Byte> entry
+                        : ProtocolMediaActivator.getMediaService()
+                            .getDynamicPayloadTypePreferences().entrySet())
+        {
+            if(entry.getValue() == payloadTypePreference)
+                return entry.getKey();
+        }
+
+        return null;
     }
 
     /**

@@ -14,7 +14,6 @@ import java.util.*;
 import javax.net.ssl.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ProxyInfo.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
@@ -1080,7 +1079,7 @@ public class ProtocolProviderServiceJabberImpl
 
         fireRegistrationStateChanged(
             getRegistrationState(), regState, reason, null);
-        
+
         if(regState == RegistrationState.UNREGISTERED
             || regState == RegistrationState.CONNECTION_FAILED)
         {
