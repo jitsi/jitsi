@@ -56,8 +56,8 @@ public class JinglePacketFactory
     {
         JingleIQ ringing = new JingleIQ();
 
-        ringing.setTo(from);
-        ringing.setFrom(to);
+        ringing.setFrom(from);
+        ringing.setTo(to);
         ringing.setType(IQ.Type.SET);
 
         ringing.setSID(sid);
