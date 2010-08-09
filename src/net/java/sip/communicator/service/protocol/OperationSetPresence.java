@@ -80,25 +80,23 @@ public interface OperationSetPresence
      * presence listener and always follow contact status) but rather by other
      * plugins that may for some reason need to know the status of a particular
      * contact.
-     * <p>
      *
      * @param contactIdentifier the identifier of the contact whose status we're
-     *            interested in.
+     * interested in.
      * @return PresenceStatus the <tt>PresenceStatus</tt> of the specified
-     *         <tt>contact</tt>
+     * <tt>contact</tt>
      *
      * @throws OperationFailedException with code NETWORK_FAILURE if retrieving
-     *             the status fails due to errors experienced during network
-     *             communication
+     * the status fails due to errors experienced during network communication
      * @throws IllegalArgumentException if <tt>contact</tt> is not a contact
-     *             known to the underlying protocol provider
+     * known to the underlying protocol provider
      * @throws IllegalStateException if the underlying protocol provider is not
-     *             registered/signed on a public service.
+     * registered/signed on a public service.
      */
     public PresenceStatus queryContactStatus(String contactIdentifier)
         throws IllegalArgumentException,
-        IllegalStateException,
-        OperationFailedException;
+               IllegalStateException,
+               OperationFailedException;
 
     /**
      * Adds a subscription for the presence status of the contact corresponding

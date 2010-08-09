@@ -37,6 +37,14 @@ public class OperationSetContactCapabilitiesJabberImpl
         = Logger.getLogger(OperationSetContactCapabilitiesJabberImpl.class);
 
     /**
+     * The list of <tt>OperationSet</tt> capabilities presumed to be supported
+     * by a <tt>Contact</tt> when it is offline.
+     */
+    private static final Set<Class<? extends OperationSet>>
+        OFFLINE_OPERATION_SETS
+            = new HashSet<Class<? extends OperationSet>>();
+
+    /**
      * The <tt>Map</tt> which associates specific <tt>OperationSet</tt> classes
      * with the features to be supported by a <tt>Contact</tt> in order to
      * consider the <tt>Contact</tt> to possess the respective
@@ -48,6 +56,8 @@ public class OperationSetContactCapabilitiesJabberImpl
 
     static
     {
+        OFFLINE_OPERATION_SETS.add(OperationSetBasicInstantMessaging.class);
+
         OPERATION_SETS_TO_FEATURES.put(
                 OperationSetBasicTelephony.class,
                 new String[]
@@ -95,6 +105,8 @@ public class OperationSetContactCapabilitiesJabberImpl
      * @param opsetClass the <tt>OperationSet</tt> <tt>Class</tt> for which the
      * specified <tt>contact</tt> is to be checked whether it possesses it as a
      * capability
+     * @param online <tt>true</tt> if <tt>contact</tt> is online; otherwise,
+     * <tt>false</tt>
      * @return the <tt>OperationSet</tt> corresponding to the specified
      * <tt>opsetClass</tt> which is considered by the associated protocol
      * provider to be possessed as a capability by the specified
@@ -103,11 +115,27 @@ public class OperationSetContactCapabilitiesJabberImpl
      * Class)
      */
     @Override
-    public <U extends OperationSet> U getOperationSet(
+    protected <U extends OperationSet> U getOperationSet(
             Contact contact,
-            Class<U> opsetClass)
+            Class<U> opsetClass,
+            boolean online)
     {
         U opset = parentProvider.getOperationSet(opsetClass);
+
+        if (opset == null)
+            return null;
+
+        /*
+         * If the specified contact is offline, don't query its features (they
+         * should fail anyway).
+         */
+        if (!online)
+        {
+            if (OFFLINE_OPERATION_SETS.contains(opsetClass))
+                return opset;
+            else
+                return null;
+        }
 
         /*
          * If we know the features required for the support of opsetClass, check
@@ -143,6 +171,8 @@ public class OperationSetContactCapabilitiesJabberImpl
      *
      * @param contact the <tt>Contact</tt> for which the supported
      * <tt>OperationSet</tt> capabilities are to be retrieved
+     * @param online <tt>true</tt> if <tt>contact</tt> is online; otherwise,
+     * <tt>false</tt>
      * @return a <tt>Map</tt> listing the <tt>OperationSet</tt>s considered by
      * the associated protocol provider to be supported by the specified
      * <tt>contact</tt> (i.e. to be possessed as capabilities). Each supported
@@ -154,10 +184,12 @@ public class OperationSetContactCapabilitiesJabberImpl
      */
     @Override
     @SuppressWarnings("unchecked")
-    public Map<String, OperationSet> getSupportedOperationSets(Contact contact)
+    protected Map<String, OperationSet> getSupportedOperationSets(
+            Contact contact,
+            boolean online)
     {
         Map<String, OperationSet> supportedOperationSets
-            = super.getSupportedOperationSets(contact);
+            = super.getSupportedOperationSets(contact, online);
         int supportedOperationSetCount = supportedOperationSets.size();
         Map<String, OperationSet> contactSupportedOperationSets
             = new HashMap<String, OperationSet>(supportedOperationSetCount);
@@ -182,12 +214,13 @@ public class OperationSetContactCapabilitiesJabberImpl
                     opsetClass = null;
                     logger.error(
                             "Failed to get OperationSet class for name: "
-                            + opsetClassName,
+                                + opsetClassName,
                             cnfex);
                 }
                 if (opsetClass != null)
                 {
-                    OperationSet opset = getOperationSet(contact, opsetClass);
+                    OperationSet opset
+                        = getOperationSet(contact, opsetClass, online);
 
                     if (opset != null)
                     {
