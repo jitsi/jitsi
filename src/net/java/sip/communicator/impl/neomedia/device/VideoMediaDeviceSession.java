@@ -73,7 +73,7 @@ public class VideoMediaDeviceSession
     /**
      * The <tt>RTPConnector</tt>.
      */
-    private RTPConnectorImpl rtpConnector = null;
+    private RTPTransformConnector rtpConnector = null;
 
     /**
      * Local SSRC.
@@ -1017,7 +1017,7 @@ public class VideoMediaDeviceSession
      *
      * @param rtpConnector the RTP connector
      */
-    public void setConnector(RTPConnectorImpl rtpConnector)
+    public void setConnector(RTPTransformConnector rtpConnector)
     {
         this.rtpConnector = rtpConnector;
     }
@@ -1125,8 +1125,8 @@ public class VideoMediaDeviceSession
             // The H.264 encoder needs to be notified of RTCP feedback message.
             try
             {
-                ((ControlTransformInputStream)rtpConnector
-                        .getControlInputStream())
+                ((ControlTransformInputStream)
+                        rtpConnector.getControlInputStream())
                     .addRTCPFeedbackListener(encoder);
             }
             catch(Exception e)

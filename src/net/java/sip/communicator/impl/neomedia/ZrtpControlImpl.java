@@ -102,10 +102,8 @@ public class ZrtpControlImpl
      */
     public boolean getSecureCommunicationStatus()
     {
-        if(zrtpEngine != null)
-            return zrtpEngine.getSecureCommunicationStatus();
-        else
-            return false;
+        return
+            (zrtpEngine != null) && zrtpEngine.getSecureCommunicationStatus();
     }
 
     /**
@@ -118,12 +116,9 @@ public class ZrtpControlImpl
         ZRTPTransformEngine engine = getZrtpEngine();
 
         if (verified)
-        {
             engine.SASVerified();
-        } else
-        {
+        else
             engine.resetSASVerified();
-        }
     }
 
     /**
@@ -135,10 +130,11 @@ public class ZrtpControlImpl
         if(zrtpEngine == null)
         {
             zrtpEngine = new ZRTPTransformEngine();
-            ZrtpConfigure config = ZrtpConfigureUtils.getZrtpConfiguration();
-            zrtpEngine.initialize("GNUZRTP4J.zid", false, config);
+            zrtpEngine.initialize(
+                    "GNUZRTP4J.zid",
+                    false,
+                    ZrtpConfigureUtils.getZrtpConfiguration());
         }
-
         return zrtpEngine;
     }
 
@@ -215,6 +211,7 @@ public class ZrtpControlImpl
     public void setMultistream(byte[] multiStreamData)
     {
         ZRTPTransformEngine engine = getZrtpEngine();
+
         engine.setMultiStrParams(multiStreamData);
         engine.setEnableZrtp(true);
     }
@@ -230,9 +227,10 @@ public class ZrtpControlImpl
     }
 
     /**
-     * Sets the RTP connector using this ZRTP engine
+     * Sets the <tt>RTPConnector</tt> which is to use or uses this ZRTP engine.
      *
-     * @param connector the connector to set
+     * @param connector the <tt>RTPConnector</tt> which is to use or uses this
+     * ZRTP engine
      */
     public void setConnector(RTPTransformConnector connector)
     {

@@ -51,12 +51,28 @@ public interface MediaService
             MediaUseCase useCase);
 
     /**
+     * Create a <tt>MediaStream</tt> which will use a specific
+     * <tt>MediaDevice</tt> for capture and playback of media. The new instance
+     * will not have a <tt>StreamConnector</tt> at the time of its construction
+     * and a <tt>StreamConnector</tt> will be specified later on in order to
+     * enable the new instance to send and receive media.
+     *
+     * @param device the <tt>MediaDevice</tt> to be used by the new instance for
+     * capture and playback of media
+     * @return a newly-created <tt>MediaStream</tt> which will use the specified
+     * <tt>device</tt> for capture and playback of media
+     */
+    public MediaStream createMediaStream(MediaDevice device);
+
+    /**
      * Creates a <tt>MediaStream</tt> that will be using the specified
      * <tt>MediaDevice</tt> for both capture and playback of media exchanged
      * via the specified <tt>StreamConnector</tt>.
      *
-     * @param connector the connector that the stream should use for sending and
-     * receiving media.
+     * @param connector the <tt>StreamConnector</tt> the stream should use for
+     * sending and receiving media or <tt>null</tt> if the stream is to not have
+     * a <tt>StreamConnector</tt> configured at initialization time and a
+     * <tt>StreamConnector</tt> is to be specified later on
      * @param device the device to be used for both capture and playback of
      * media exchanged via the specified <tt>StreamConnector</tt>
      *
@@ -70,12 +86,14 @@ public interface MediaService
      * <tt>MediaDevice</tt> for both capture and playback of media exchanged
      * via the specified <tt>StreamConnector</tt>.
      *
-     * @param connector the connector that the stream should use for sending and
-     * receiving media.
+     * @param connector the <tt>StreamConnector</tt> the stream should use for
+     * sending and receiving media or <tt>null</tt> if the stream is to not have
+     * a <tt>StreamConnector</tt> configured at initialization time and a
+     * <tt>StreamConnector</tt> is to be specified later on
      * @param device the device to be used for both capture and playback of
      * media exchanged via the specified <tt>StreamConnector</tt>
      * @param zrtpControl a control which is already created, used to control
-     *        the zrtp operations.
+     * the ZRTP operations.
      *
      * @return the newly created <tt>MediaStream</tt>.
      */

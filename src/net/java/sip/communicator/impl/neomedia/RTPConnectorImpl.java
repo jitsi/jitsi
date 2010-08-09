@@ -181,6 +181,18 @@ public class RTPConnectorImpl
     }
 
     /**
+     * Gets the <tt>StreamConnector</tt> which represents the pair of datagram
+     * sockets for RTP and RTCP traffic used by this instance.
+     *
+     * @return the <tt>StreamConnector</tt> which represents the pair of
+     * datagram sockets for RTP and RTCP traffic used by this instance
+     */
+    public final StreamConnector getConnector()
+    {
+        return connector;
+    }
+
+    /**
      * Returns the input stream that is handling incoming RTCP packets.
      *
      * @return the input stream that is handling incoming RTCP packets.

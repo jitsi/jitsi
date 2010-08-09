@@ -104,6 +104,24 @@ public class MediaServiceImpl
     private static Map<MediaFormat, Byte> dynamicPayloadTypePreferences;
 
     /**
+     * Create a <tt>MediaStream</tt> which will use a specific
+     * <tt>MediaDevice</tt> for capture and playback of media. The new instance
+     * will not have a <tt>StreamConnector</tt> at the time of its construction
+     * and a <tt>StreamConnector</tt> will be specified later on in order to
+     * enable the new instance to send and receive media.
+     *
+     * @param device the <tt>MediaDevice</tt> to be used by the new instance for
+     * capture and playback of media
+     * @return a newly-created <tt>MediaStream</tt> which will use the specified
+     * <tt>device</tt> for capture and playback of media
+     * @see MediaService#createMediaStream(MediaDevice)
+     */
+    public MediaStream createMediaStream(MediaDevice device)
+    {
+        return createMediaStream(null, device);
+    }
+
+    /**
      * Creates a new <tt>MediaStream</tt> instance which will use the specified
      * <tt>MediaDevice</tt> for both capture and playback of media exchanged
      * via the specified <tt>StreamConnector</tt>.

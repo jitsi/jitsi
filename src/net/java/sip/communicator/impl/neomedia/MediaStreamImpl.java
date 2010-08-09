@@ -60,24 +60,24 @@ public class MediaStreamImpl
      * The session with the <tt>MediaDevice</tt> this instance uses for both
      * capture and playback of media.
      */
-    protected MediaDeviceSession deviceSession;
+    private MediaDeviceSession deviceSession;
 
     /**
      * The <tt>PropertyChangeListener</tt> which listens to
      * {@link #deviceSession} and changes in the values of its
      * {@link MediaDeviceSession#OUTPUT_DATA_SOURCE} property.
      */
-    private final PropertyChangeListener deviceSessionPropertyChangeListener =
-        new PropertyChangeListener()
+    private final PropertyChangeListener deviceSessionPropertyChangeListener
+        = new PropertyChangeListener()
         {
             public void propertyChange(PropertyChangeEvent event)
             {
-                if (MediaDeviceSession
-                        .OUTPUT_DATA_SOURCE.equals(event.getPropertyName()))
+                String propertyName = event.getPropertyName();
+
+                if (MediaDeviceSession.OUTPUT_DATA_SOURCE.equals(propertyName))
                     deviceSessionOutputDataSourceChanged();
-                else if (MediaDeviceSession
-                                .SSRC_LIST.equals(event.getPropertyName()))
-                                deviceSessionSsrcListChanged(event);
+                else if (MediaDeviceSession.SSRC_LIST.equals(propertyName))
+                    deviceSessionSsrcListChanged(event);
             }
         };
 
@@ -112,7 +112,7 @@ public class MediaStreamImpl
      * RTP and RTCP traffic. The instance is a <tt>TransformConnector</tt> in
      * order to also enable packet transformations.
      */
-    protected final RTPTransformConnector rtpConnector;
+    private RTPTransformConnector rtpConnector;
 
     /**
      * The one and only <tt>MediaStreamTarget</tt> this instance has added as a
@@ -203,16 +203,36 @@ public class MediaStreamImpl
 
     /**
      * Initializes a new <tt>MediaStreamImpl</tt> instance which will use the
+     * specified <tt>MediaDevice</tt> for both capture and playback of media.
+     * The new instance will not have an associated <tt>StreamConnector</tt> and
+     * it must be set later for the new instance to be able to exchange media
+     * with a remote peer.
+     *
+     * @param device the <tt>MediaDevice</tt> the new instance is to use for
+     * both capture and playback of media
+     * @param zrtpControl an existing control instance to control the ZRTP
+     * operations
+     */
+    public MediaStreamImpl(MediaDevice device, ZrtpControlImpl zrtpControl)
+    {
+        this(null, device, zrtpControl);
+    }
+
+    /**
+     * Initializes a new <tt>MediaStreamImpl</tt> instance which will use the
      * specified <tt>MediaDevice</tt> for both capture and playback of media
      * exchanged via the specified <tt>StreamConnector</tt>.
      *
      * @param connector the <tt>StreamConnector</tt> the new instance is to use
-     * for sending and receiving media
+     * for sending and receiving media or <tt>null</tt> if the
+     * <tt>StreamConnector</tt> of the new instance is to not be set at
+     * initialization time but specified later on
      * @param device the <tt>MediaDevice</tt> the new instance is to use for
      * both capture and playback of media exchanged via the specified
      * <tt>StreamConnector</tt>
-     * @param zrtpControl a control which is already created, used to control
-     * the zrtp operations.
+     * @param zrtpControl an existing control instance to control the ZRTP
+     * operations or <tt>null</tt> if a new control instance is to be created by
+     * the new <tt>MediaStreamImpl</tt>
      */
     public MediaStreamImpl(
             StreamConnector connector,
@@ -225,40 +245,11 @@ public class MediaStreamImpl
          */
         setDevice(device);
 
-        rtpConnector
-            = new RTPTransformConnector(connector)
-            {
-                @Override
-                protected TransformOutputStream createDataOutputStream()
-                    throws IOException
-                {
-                    TransformOutputStream dataOutputStream
-                        = super.createDataOutputStream();
-
-                    if (dataOutputStream != null)
-                        configureDataOutputStream(dataOutputStream);
-                    return dataOutputStream;
-                }
-
-                @Override
-                protected TransformInputStream createDataInputStream()
-                    throws IOException
-                {
-                    TransformInputStream dataInputStream
-                        = super.createDataInputStream();
-
-                    if (dataInputStream != null)
-                        configureDataInputStream(dataInputStream);
-                    return dataInputStream;
-                }
-            };
-
         this.zrtpControl
                 = (zrtpControl == null) ? new ZrtpControlImpl() : zrtpControl;
-        this.zrtpControl.setConnector(rtpConnector);
 
-        // Register the transform engines that we will be using in this stream.
-        rtpConnector.setEngine(createTransformEngineChain());
+        if (connector != null)
+            setConnector(connector);
     }
 
     /**
@@ -471,6 +462,7 @@ public class MediaStreamImpl
             advancedAttributes.putAll(attrs);
         }
     }
+
     /**
      * Releases the resources allocated by this instance in the course of its
      * execution and prepares it to be garbage collected.
@@ -491,7 +483,8 @@ public class MediaStreamImpl
             csrcEngine = null;
         }
 
-        rtpConnector.removeTargets();
+        if (rtpConnector != null)
+            rtpConnector.removeTargets();
         rtpConnectorTarget = null;
 
         if (rtpManager != null)
@@ -861,8 +854,11 @@ public class MediaStreamImpl
      */
     public InetSocketAddress getRemoteControlAddress()
     {
-        return (InetSocketAddress)
-                rtpConnector.getControlSocket().getRemoteSocketAddress();
+        return
+            (rtpConnector == null)
+                ? null
+                : (InetSocketAddress)
+                    rtpConnector.getControlSocket().getRemoteSocketAddress();
     }
 
     /**
@@ -874,8 +870,11 @@ public class MediaStreamImpl
      */
     public InetSocketAddress getRemoteDataAddress()
     {
-        return (InetSocketAddress)
-                rtpConnector.getDataSocket().getRemoteSocketAddress();
+        return
+            (rtpConnector == null)
+                ? null
+                : (InetSocketAddress)
+                    rtpConnector.getDataSocket().getRemoteSocketAddress();
     }
 
     /**
@@ -892,6 +891,18 @@ public class MediaStreamImpl
     }
 
     /**
+     * Gets the <tt>RTPConnector</tt> through which this instance sends and
+     * receives RTP and RTCP traffic.
+     *
+     * @return the <tt>RTPConnector</tt> through which this instance sends and
+     * receives RTP and RTCP traffic
+     */
+    protected RTPTransformConnector getRTPConnector()
+    {
+        return rtpConnector;
+    }
+
+    /**
      * Gets the <tt>RTPManager</tt> instance which sends and receives RTP and
      * RTCP traffic on behalf of this <tt>MediaStream</tt>.
      *
@@ -902,6 +913,11 @@ public class MediaStreamImpl
     {
         if (rtpManager == null)
         {
+            RTPConnector rtpConnector = getRTPConnector();
+
+            if (rtpConnector == null)
+                throw new IllegalStateException("rtpConnector");
+
             rtpManager = RTPManager.newInstance();
 
             registerCustomCodecFormats(rtpManager);
@@ -954,14 +970,17 @@ public class MediaStreamImpl
 
         /*
          * As we are recreating this stream and it was obviously secured, it may
-         * happen so that we receive unencrepted data. Which will produce noise
+         * happen so that we receive unencrypted data. Which will produce noise
          * for us to hear. So we mute it till a secure connection is again
          * established.
          */
         zrtpControl.getZrtpEngine().setStartMuted(true);
 
-        this.zrtpControl.setConnector(rtpConnector);
+        RTPTransformConnector rtpConnector = getRTPConnector();
+
+        zrtpControl.setConnector(rtpConnector);
         rtpConnector.setEngine(createTransformEngineChain());
+
         zrtpRestarted = true;
     }
 
@@ -1051,6 +1070,80 @@ public class MediaStreamImpl
                                       dynamicRTPPayloadType.getKey());
             }
         }
+    }
+
+    /**
+     * Notifies this <tt>MediaStream</tt> implementation that its
+     * <tt>RTPConnector</tt> instance has changed from a specific old value to a
+     * specific new value. Allows extenders to override and perform additional
+     * processing after this <tt>MediaStream</tt> has changed its
+     * <tt>RTPConnector</tt> instance. 
+     *
+     * @param oldValue the <tt>RTPConnector</tt> of this <tt>MediaStream</tt>
+     * implementation before it got changed to <tt>newValue</tt>
+     * @param newValue the current <tt>RTPConnector</tt> of this
+     * <tt>MediaStream</tt> which replaced <tt>oldValue</tt>
+     */
+    protected void rtpConnectorChanged(
+            RTPTransformConnector oldValue,
+            RTPTransformConnector newValue)
+    {
+        zrtpControl.setConnector(newValue);
+
+        // Register the transform engines that we will be using in this stream.
+        rtpConnector.setEngine(createTransformEngineChain());
+    }
+
+    /**
+     * Sets the <tt>StreamConnector</tt> to be used by this instance for sending
+     * and receiving media.
+     *
+     * @param connector the <tt>StreamConnector</tt> to be used by this instance
+     * for sending and receiving media
+     */
+    public void setConnector(StreamConnector connector)
+    {
+        if (connector == null)
+            throw new NullPointerException("connector");
+
+        if (rtpConnector != null)
+        {
+            // Is the StreamConnector really changing?
+            if (rtpConnector.getConnector() == connector)
+                return;
+        }
+
+        RTPTransformConnector oldValue = rtpConnector;
+
+        rtpConnector
+            = new RTPTransformConnector(connector)
+            {
+                @Override
+                protected TransformOutputStream createDataOutputStream()
+                    throws IOException
+                {
+                    TransformOutputStream dataOutputStream
+                        = super.createDataOutputStream();
+
+                    if (dataOutputStream != null)
+                        configureDataOutputStream(dataOutputStream);
+                    return dataOutputStream;
+                }
+
+                @Override
+                protected TransformInputStream createDataInputStream()
+                    throws IOException
+                {
+                    TransformInputStream dataInputStream
+                        = super.createDataInputStream();
+
+                    if (dataInputStream != null)
+                        configureDataInputStream(dataInputStream);
+                    return dataInputStream;
+                }
+            };
+
+        rtpConnectorChanged(oldValue, rtpConnector);
     }
 
     /**

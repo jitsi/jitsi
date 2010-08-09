@@ -8,7 +8,6 @@ package net.java.sip.communicator.service.protocol.media;
 
 import java.awt.*;
 import java.beans.*;
-import java.net.*;
 import java.util.*;
 import java.util.List;
 
@@ -16,7 +15,6 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.neomedia.format.*;
-import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.SizeChangeVideoEvent;
 import net.java.sip.communicator.service.protocol.event.VideoEvent;
@@ -33,7 +31,6 @@ import net.java.sip.communicator.util.*;
  * or <tt>CallPeerJabberImpl</tt>
  *
  * @author Emil Ivov
- *
  */
 public abstract class CallPeerMediaHandler<
                                         T extends MediaAwareCallPeer<?, ?, ?>>
@@ -43,8 +40,8 @@ public abstract class CallPeerMediaHandler<
      * The <tt>Logger</tt> used by the <tt>CallPeerMediaHandler</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger = Logger
-                    .getLogger(CallPeerMediaHandler.class.getName());
+    private static final Logger logger
+        = Logger.getLogger(CallPeerMediaHandler.class);
 
     /**
      * The name of the <tt>CallPeerMediaHandler</tt> property which specifies
@@ -634,21 +631,25 @@ public abstract class CallPeerMediaHandler<
      */
     public boolean isSecure()
     {
-        boolean isAudioSecured = false;
-        if(audioStream != null)
-            isAudioSecured = audioStream.getZrtpControl()
-                .getSecureCommunicationStatus();
-        else
-            isAudioSecured = true; // as we don't use audio, we don't mind it
+        /*
+         * If a stream for a specific MediaType does not exist, it's said to be
+         * secure.
+         */
+        boolean isAudioSecured
+            = (audioStream == null)
+                || audioStream.getZrtpControl().getSecureCommunicationStatus();
 
-        boolean isVideoSecured = false;
-        if(videoStream != null)
-            isVideoSecured = videoStream.getZrtpControl()
-                .getSecureCommunicationStatus();
-        else
-            isVideoSecured = true; // as we don't use video, we don't mind it
+        if (!isAudioSecured)
+            return false;
 
-        return isAudioSecured && isVideoSecured;
+        boolean isVideoSecured
+            = (videoStream == null)
+                || videoStream.getZrtpControl().getSecureCommunicationStatus();
+
+        if (!isVideoSecured)
+            return false;
+
+        return true;
     }
 
     /**

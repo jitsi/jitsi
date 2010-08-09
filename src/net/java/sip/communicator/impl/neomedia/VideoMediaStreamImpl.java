@@ -18,6 +18,7 @@ import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
+import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -351,11 +352,17 @@ public class VideoMediaStreamImpl
 
         if ((oldValue instanceof VideoMediaDeviceSession)
                 && (deviceSessionVideoListener != null))
+        {
             ((VideoMediaDeviceSession) oldValue)
                 .removeVideoListener(deviceSessionVideoListener);
+        }
         if (newValue instanceof VideoMediaDeviceSession)
         {
+            VideoMediaDeviceSession newVideoMediaDeviceSession
+                = (VideoMediaDeviceSession) newValue;
+
             if (deviceSessionVideoListener == null)
+            {
                 deviceSessionVideoListener = new VideoListener()
                 {
 
@@ -398,9 +405,17 @@ public class VideoMediaStreamImpl
                         fireVideoEvent(e);
                     }
                 };
+            }
+            newVideoMediaDeviceSession.addVideoListener(
+                    deviceSessionVideoListener);
 
-            ((VideoMediaDeviceSession) newValue)
-                .addVideoListener(deviceSessionVideoListener);
+            newVideoMediaDeviceSession.setOutputSize(outputSize);
+
+            RTPTransformConnector rtpConnector = getRTPConnector();
+
+            if (rtpConnector != null)
+                newVideoMediaDeviceSession.setConnector(rtpConnector);
+            newVideoMediaDeviceSession.setRtcpFeedbackPLI(usePLI);
         }
     }
 
@@ -521,26 +536,36 @@ public class VideoMediaStreamImpl
     }
 
     /**
-     * Sets the <tt>MediaDevice</tt> that this stream should use to play back
-     * and capture media.
-     * <p>
-     * <b>Note</b>: Also resets any previous direction set with
-     * {@link #setDirection(MediaDirection)} to the direction of the specified
-     * <tt>MediaDevice</tt>.
-     * </p>
+     * Notifies this <tt>MediaStream</tt> implementation that its
+     * <tt>RTPConnector</tt> instance has changed from a specific old value to a
+     * specific new value. Allows extenders to override and perform additional
+     * processing after this <tt>MediaStream</tt> has changed its
+     * <tt>RTPConnector</tt> instance. 
      *
-     * @param device the <tt>MediaDevice</tt> that this stream should use to
-     * play back and capture media
-     * @see MediaStream#setDevice(MediaDevice)
+     * @param oldValue the <tt>RTPConnector</tt> of this <tt>MediaStream</tt>
+     * implementation before it got changed to <tt>newValue</tt>
+     * @param newValue the current <tt>RTPConnector</tt> of this
+     * <tt>MediaStream</tt> which replaced <tt>oldValue</tt>
+     * @see MediaStreamImpl#rtpConnectorChanged(RTPTransformConnector,
+     * RTPTransformConnector)
      */
-    public void setDevice(MediaDevice device)
+    @Override
+    protected void rtpConnectorChanged(
+            RTPTransformConnector oldValue,
+            RTPTransformConnector newValue)
     {
-        super.setDevice(device);
+        super.rtpConnectorChanged(oldValue, newValue);
 
-        VideoMediaDeviceSession vmds = (VideoMediaDeviceSession)deviceSession;
-        vmds.setOutputSize(outputSize);
-        vmds.setConnector(rtpConnector);
-        vmds.setRtcpFeedbackPLI(usePLI);
+        if (newValue != null)
+        {
+            MediaDeviceSession deviceSession = getDeviceSession();
+
+            if (deviceSession instanceof VideoMediaDeviceSession)
+            {
+                ((VideoMediaDeviceSession) deviceSession)
+                    .setConnector(newValue);
+            }
+        }
     }
 
     /**
@@ -705,7 +730,8 @@ public class VideoMediaStreamImpl
     protected void setLocalSourceID(long ssrc)
     {
         super.setLocalSourceID(ssrc);
-        ((VideoMediaDeviceSession)deviceSession).setLocalSSRC(ssrc);
+
+        ((VideoMediaDeviceSession) getDeviceSession()).setLocalSSRC(ssrc);
     }
 
     /**
@@ -717,7 +743,8 @@ public class VideoMediaStreamImpl
     protected void setRemoteSourceID(long ssrc)
     {
         super.setRemoteSourceID(ssrc);
-        ((VideoMediaDeviceSession)deviceSession).setRemoteSSRC(ssrc);
+
+        ((VideoMediaDeviceSession) getDeviceSession()).setRemoteSSRC(ssrc);
     }
 
     /**

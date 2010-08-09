@@ -79,6 +79,15 @@ public interface MediaStream
     public MediaFormat getFormat();
 
     /**
+     * Sets the <tt>StreamConnector</tt> to be used by this <tt>MediaStream</tt>
+     * for sending and receiving media.
+     *
+     * @param connector the <tt>StreamConnector</tt> to be used by this
+     * <tt>MediaStream</tt> for sending and receiving media
+     */
+    public void setConnector(StreamConnector connector);
+
+    /**
      * Sets the device that this stream should use to play back and capture
      * media.
      *
@@ -306,9 +315,9 @@ public interface MediaStream
     public void setName(String streamName);
 
     /**
-     * The <tt>ZrtpControl</tt> which controlls the zrtp for the current stream.
-     * @return the <tt>ZrtpControl</tt> for the current stream.
+     * The <tt>ZrtpControl</tt> which controls the ZRTP for this stream.
+     *
+     * @return the <tt>ZrtpControl</tt> which controls the ZRTP for this stream
      */
     public ZrtpControl getZrtpControl();
-
 }
