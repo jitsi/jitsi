@@ -13,7 +13,7 @@
     <classpathentry kind="lib" path="lib/installer-exclude/dict4j.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/dnsjava-2.0.3.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/fmj.jar"/>
-    <classpathentry kind="lib" path="lib/installer-exclude/httpclient-4.0-beta2.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/httpclient-4.0.1.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/httpcore-4.0.1.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/izpack-shortcut-link.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jain-sip-api.jar"/>
