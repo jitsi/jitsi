@@ -171,28 +171,7 @@ public class CallPeerMediaHandlerSipImpl
                            direction,
                            dev.getSupportedExtensions());
 
-                    if(getPeer().getCall().isSipZrtpAttribute())
-                    {
-                        try
-                        {
-                            ZrtpControl control
-                                            = getZrtpControls().get(mediaType);
-                            if(control == null)
-                            {
-                                control = SipActivator.getMediaService()
-                                    .createZrtpControl();
-                                getZrtpControls().put(mediaType, control);
-                            }
-
-                            String helloHash = control.getHelloHash();
-                            if(helloHash != null && helloHash.length() > 0)
-                                md.setAttribute("zrtp-hash", helloHash);
-
-                        } catch (SdpException ex)
-                        {
-                            logger.error("Cannot add zrtp-hash to sdp", ex);
-                        }
-                    }
+                    updateMediaDescriptionForZrtp(mediaType, md);
 
                     mediaDescs.add(md);
                 }
@@ -440,9 +419,13 @@ public class CallPeerMediaHandlerSipImpl
             initStream(connector, dev, mutuallySupportedFormats.get(0), target,
                       direction, rtpExtensions);
 
+            MediaDescription md = createMediaDescription(
+                mutuallySupportedFormats, connector, direction, rtpExtensions);
+
+            updateMediaDescriptionForZrtp(mediaType, md);
+
             // create the answer description
-            answerDescriptions.add(createMediaDescription(
-                mutuallySupportedFormats, connector, direction, rtpExtensions));
+            answerDescriptions.add(md);
 
             atLeastOneValidDescription = true;
         }
@@ -453,6 +436,39 @@ public class CallPeerMediaHandlerSipImpl
                             OperationFailedException.ILLEGAL_ARGUMENT);
 
         return answerDescriptions;
+    }
+
+    /**
+     * Updates the supplied description with zrtp hello hash if necessary.
+     *
+     * @param mediaType the media type.
+     * @param md the description to be updated.
+     */
+    private void updateMediaDescriptionForZrtp(
+        MediaType mediaType, MediaDescription md)
+    {
+        if(getPeer().getCall().isSipZrtpAttribute())
+        {
+            try
+            {
+                ZrtpControl control
+                                = getZrtpControls().get(mediaType);
+                if(control == null)
+                {
+                    control = SipActivator.getMediaService()
+                        .createZrtpControl();
+                    getZrtpControls().put(mediaType, control);
+                }
+
+                String helloHash = control.getHelloHash();
+                if(helloHash != null && helloHash.length() > 0)
+                    md.setAttribute("zrtp-hash", helloHash);
+
+            } catch (SdpException ex)
+            {
+                logger.error("Cannot add zrtp-hash to sdp", ex);
+            }
+        }
     }
 
     /**
