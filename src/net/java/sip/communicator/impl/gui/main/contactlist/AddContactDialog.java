@@ -12,6 +12,7 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -163,6 +164,22 @@ public class AddContactDialog
         labelsPanel.add(contactAddressLabel);
         fieldsPanel.add(contactAddressField);
 
+        contactAddressField.getDocument().addDocumentListener(
+            new DocumentListener()
+            {
+                public void changedUpdate(DocumentEvent e) {}
+
+                public void insertUpdate(DocumentEvent e)
+                {
+                    updateAddButtonState();
+                }
+
+                public void removeUpdate(DocumentEvent e)
+                {
+                    updateAddButtonState();
+                }
+            });
+
         TransparentPanel dataPanel = new TransparentPanel(new BorderLayout());
 
         dataPanel.add(labelsPanel, BorderLayout.WEST);
@@ -204,6 +221,10 @@ public class AddContactDialog
         buttonsPanel.add(addButton);
         buttonsPanel.add(cancelButton);
 
+        // Disable the add button so that it would be clear for the user that
+        // they need to choose an account and enter a contact id first.
+        addButton.setEnabled(false);
+
         return buttonsPanel;
     }
 
@@ -214,6 +235,17 @@ public class AddContactDialog
     {
         Iterator<ProtocolProviderService> providers
             = mainFrame.getProtocolProviders();
+
+        accountCombo.addItem(GuiActivator.getResources()
+            .getI18NString("service.gui.SELECT_ACCOUNT"));
+
+        accountCombo.addItemListener(new ItemListener()
+        {
+            public void itemStateChanged(ItemEvent e)
+            {
+                updateAddButtonState();
+            }
+        });
 
         while (providers.hasNext())
         {
@@ -414,18 +446,27 @@ public class AddContactDialog
                                                         boolean isSelected,
                                                         boolean cellHasFocus)
         {
-            ProtocolProviderService provider = (ProtocolProviderService) value;
-
-            if (provider != null)
+            if (value instanceof String)
             {
-                Image protocolImg
-                    = ImageLoader.getBytesInImage(provider.getProtocolIcon()
-                        .getIcon(ProtocolIcon.ICON_SIZE_16x16));
+                setIcon(null);
+                setText((String) value);
+            }
+            else if (value instanceof ProtocolProviderService)
+            {
+                ProtocolProviderService provider
+                    = (ProtocolProviderService) value;
 
-                if (protocolImg != null)
-                    this.setIcon(new ImageIcon(protocolImg));
+                if (provider != null)
+                {
+                    Image protocolImg
+                        = ImageLoader.getBytesInImage(provider.getProtocolIcon()
+                            .getIcon(ProtocolIcon.ICON_SIZE_16x16));
 
-                this.setText(provider.getAccountID().getDisplayName());
+                    if (protocolImg != null)
+                        this.setIcon(new ImageIcon(protocolImg));
+
+                    this.setText(provider.getAccountID().getDisplayName());
+                }
             }
 
             if (isSelected)
@@ -540,4 +581,19 @@ public class AddContactDialog
      * @param windowParams the parameters to pass.
      */
     public void setParams(Object[] windowParams) {}
+
+    /**
+     * Updates the state of the add button.
+     */
+    private void updateAddButtonState()
+    {
+        String contactAddress = contactAddressField.getText();
+
+        if (accountCombo.getSelectedItem()
+            instanceof ProtocolProviderService
+            && contactAddress != null && contactAddress.length() > 0)
+            addButton.setEnabled(true);
+        else
+            addButton.setEnabled(false);
+    }
 }
