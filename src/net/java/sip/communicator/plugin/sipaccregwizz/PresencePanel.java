@@ -16,42 +16,79 @@ import net.java.sip.communicator.util.swing.*;
  * The <tt>PresencePanel</tt> is the one containing presence information.
  *
  * @author Yana Stamcheva
+ * @author Grigorii Balutsel
  */
 public class PresencePanel
-    extends TransparentPanel
+        extends TransparentPanel
 {
     private JPanel presenceOpPanel
-        = new TransparentPanel(new BorderLayout(10, 10));
+            = new TransparentPanel(new BorderLayout(10, 10));
 
     private JPanel buttonsPresOpPanel =
-        new TransparentPanel(new GridLayout(0, 1, 10, 10));
+            new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JPanel labelsPresOpPanel
-        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JPanel valuesPresOpPanel
-        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JCheckBox enablePresOpButton =
-        new SIPCommCheckBox(Resources
-            .getString("plugin.sipaccregwizz.ENABLE_PRESENCE"), true);
+            new SIPCommCheckBox(Resources
+                    .getString("plugin.sipaccregwizz.ENABLE_PRESENCE"), true);
 
     private JCheckBox forceP2PPresOpButton =
-        new SIPCommCheckBox(Resources
-            .getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"), false);
+            new SIPCommCheckBox(Resources
+                    .getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"),
+                    false);
 
     private JLabel pollPeriodLabel = new JLabel(
-        Resources.getString(
-            "plugin.sipaccregwizz.OFFLINE_CONTACT_POLLING_PERIOD"));
+            Resources.getString(
+                    "plugin.sipaccregwizz.OFFLINE_CONTACT_POLLING_PERIOD"));
 
     private JLabel subscribeExpiresLabel = new JLabel(
-        Resources.getString("plugin.sipaccregwizz.SUBSCRIPTION_EXPIRATION"));
+            Resources.getString("plugin.sipaccregwizz.SUBSCRIPTION_EXPIRATION"));
 
     private JTextField pollPeriodField
-        = new JTextField(SIPAccountRegistration.DEFAULT_POLL_PERIOD);
+            = new JTextField(SIPAccountRegistration.DEFAULT_POLL_PERIOD);
 
     private JTextField subscribeExpiresField =
-        new JTextField(SIPAccountRegistration.DEFAULT_SUBSCRIBE_EXPIRES);
+            new JTextField(SIPAccountRegistration.DEFAULT_SUBSCRIBE_EXPIRES);
+
+    private JPanel xCapPanel
+            = new TransparentPanel(new BorderLayout(10, 10));
+
+    private JPanel xCapButtonsPanel
+            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+
+    private JPanel xCapLabelsPanel
+            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+
+    private JPanel xCapValuesPanel
+            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+
+    private JLabel xCapServerUriLabel = new JLabel(
+            Resources.getString("plugin.sipaccregwizz.XCAP_SERVER_URI"));
+
+    private JLabel xCapUserLabel = new JLabel(
+            Resources.getString("plugin.sipaccregwizz.XCAP_USER"));
+
+    private JLabel xCapPasswordLabel = new JLabel(
+            Resources.getString("plugin.sipaccregwizz.XCAP_PASSWORD"));
+
+    private JTextField xCapServerUriValue = new JTextField();
+
+    private JTextField xCapUserValue = new JTextField();
+
+    private JPasswordField xCapPasswordValue = new JPasswordField();
+
+    private JCheckBox xCapEnableBox = new SIPCommCheckBox(
+            Resources.getString("plugin.sipaccregwizz.XCAP_ENABLE"),
+            false);
+
+    private JCheckBox xCapUseSipCredetialsBox = new SIPCommCheckBox(
+            Resources.getString("plugin.sipaccregwizz.XCAP_USE_SIP_CREDETIALS"),
+            true);
 
     /**
      * Creates an instance of <tt>PresencePanel</tt>.
@@ -85,16 +122,54 @@ public class PresencePanel
         presenceOpPanel.add(valuesPresOpPanel, BorderLayout.CENTER);
 
         presenceOpPanel.setBorder(BorderFactory.createTitledBorder(
-            Resources.getString("plugin.sipaccregwizz.PRESENCE_OPTIONS")));
+                Resources.getString("plugin.sipaccregwizz.PRESENCE_OPTIONS")));
+
+        xCapEnableBox.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent evt)
+            {
+                JCheckBox checkBox = (JCheckBox) evt.getSource();
+                setXCapEnableEnabled(checkBox.isSelected());
+            }
+        });
+        xCapButtonsPanel.add(xCapEnableBox);
+
+        xCapUseSipCredetialsBox.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent evt)
+            {
+                JCheckBox checkBox = (JCheckBox) evt.getSource();
+                setXCapUseSipCredetialsEnabled(checkBox.isSelected());
+            }
+        });
+        xCapButtonsPanel.add(xCapUseSipCredetialsBox);
+
+        setXCapEnableEnabled(xCapEnableBox.isSelected());
+
+        xCapLabelsPanel.add(xCapServerUriLabel);
+        xCapLabelsPanel.add(xCapUserLabel);
+        xCapLabelsPanel.add(xCapPasswordLabel);
+
+        xCapValuesPanel.add(xCapServerUriValue);
+        xCapValuesPanel.add(xCapUserValue);
+        xCapValuesPanel.add(xCapPasswordValue);
+
+        xCapPanel.add(xCapButtonsPanel, BorderLayout.NORTH);
+        xCapPanel.add(xCapLabelsPanel, BorderLayout.WEST);
+        xCapPanel.add(xCapValuesPanel, BorderLayout.CENTER);
+
+        xCapPanel.setBorder(BorderFactory.createTitledBorder(
+                Resources.getString("plugin.sipaccregwizz.XCAP_OPTIONS")));
 
         this.add(presenceOpPanel, BorderLayout.NORTH);
+        this.add(xCapPanel, BorderLayout.SOUTH);
     }
 
     /**
      * Enables or disable all presence related options.
      *
      * @param isEnabled <code>true</code> to enable the presence related
-     * options, <code>false</code> - to disable them.
+     *                  options, <code>false</code> - to disable them.
      */
     void setPresenceOptionsEnabled(boolean isEnabled)
     {
@@ -104,9 +179,42 @@ public class PresencePanel
     }
 
     /**
+     * Enables or disable XCAP credetials related options.
+     *
+     * @param isEnabled <code>true</code> to enable the credetials related
+     *                  options, <code>false</code> - to disable them.
+     */
+    void setXCapUseSipCredetialsEnabled(boolean isEnabled)
+    {
+        xCapUserValue.setEnabled(!isEnabled);
+        xCapPasswordValue.setEnabled(!isEnabled);
+    }
+
+    /**
+     * Enables or disable XCAP related options.
+     *
+     * @param isEnabled <code>true</code> to enable the XCAP related
+     *                  options, <code>false</code> - to disable them.
+     */
+    void setXCapEnableEnabled(boolean isEnabled)
+    {
+        xCapUseSipCredetialsBox.setEnabled(isEnabled);
+        xCapServerUriValue.setEnabled(isEnabled);
+        if(isEnabled)
+        {
+            setXCapUseSipCredetialsEnabled(xCapUseSipCredetialsBox.isSelected());
+        }
+        else
+        {
+            setXCapUseSipCredetialsEnabled(true);
+        }
+    }
+
+    /**
      * Indicates if the presence is enabled.
+     *
      * @return <tt>true</tt> if the presence is enabled, <tt>false</tt> -
-     * otherwise
+     *         otherwise
      */
     boolean isPresenceEnabled()
     {
@@ -115,8 +223,9 @@ public class PresencePanel
 
     /**
      * Enables/disables the presence.
+     *
      * @param isPresenceEnabled <tt>true</tt> to enable the presence,
-     * <tt>false</tt> - otherwise
+     *                          <tt>false</tt> - otherwise
      */
     void setPresenceEnabled(boolean isPresenceEnabled)
     {
@@ -125,8 +234,9 @@ public class PresencePanel
 
     /**
      * Indicates if the peer-to-peer presence mode is selected.
+     *
      * @return <tt>true</tt> if the peer-to-peer presence mode is selected,
-     * <tt>false</tt> - otherwise.
+     *         <tt>false</tt> - otherwise.
      */
     boolean isForcePeerToPeerMode()
     {
@@ -135,8 +245,9 @@ public class PresencePanel
 
     /**
      * Enables/disables the peer-to-peer presence mode.
+     *
      * @param forceP2P <tt>true</tt> to select the peer-to-peer presence mode,
-     * <tt>false</tt> - otherwise.
+     *                 <tt>false</tt> - otherwise.
      */
     void setForcePeerToPeerMode(boolean forceP2P)
     {
@@ -145,6 +256,7 @@ public class PresencePanel
 
     /**
      * Returns the poll period.
+     *
      * @return the poll period
      */
     String getPollPeriod()
@@ -154,6 +266,7 @@ public class PresencePanel
 
     /**
      * Sets the poll period.
+     *
      * @param pollPeriod the poll period
      */
     void setPollPeriod(String pollPeriod)
@@ -163,6 +276,7 @@ public class PresencePanel
 
     /**
      * Returns the subscription expiration information.
+     *
      * @return the subscription expiration information
      */
     String getSubscriptionExpiration()
@@ -172,10 +286,113 @@ public class PresencePanel
 
     /**
      * Sets the subscription expiration information.
+     *
      * @param subscExp the subscription expiration information
      */
     void setSubscriptionExpiration(String subscExp)
     {
         subscribeExpiresField.setText(subscExp);
+    }
+
+     /**
+     * Indicates if XCAP has to use its capabilities.
+     *
+     * @return <tt>true</tt> if XCAP has to use its capabilities,
+     *         <tt>false</tt> - otherwise.
+     */
+    boolean isXCapEnable()
+    {
+        return xCapEnableBox.isSelected();
+    }
+
+    /**
+     * Sets if has to use its capabilities.
+     *
+     * @param xCapEnable if has to use its capabilities.
+     */
+    void setXCapEnable(boolean xCapEnable)
+    {
+        xCapEnableBox.setSelected(xCapEnable);
+    }
+
+    /**
+     * Indicates if XCAP has to use SIP account credetials.
+     *
+     * @return <tt>true</tt> if XCAP has to use SIP account credetials,
+     *         <tt>false</tt> - otherwise.
+     */
+    boolean isXCapUseSipCredetials()
+    {
+        return xCapUseSipCredetialsBox.isSelected();
+    }
+
+    /**
+     * Sets if XCAP has to use SIP account credetials.
+     *
+     * @param xCapUseSipCredetials if XCAP has to use SIP account credetials.
+     */
+    void setXCapUseSipCredetials(boolean xCapUseSipCredetials)
+    {
+        xCapUseSipCredetialsBox.setSelected(xCapUseSipCredetials);
+    }
+
+    /**
+     * Gets the XCAP server uri.
+     *
+     * @return the XCAP server uri.
+     */
+    String getXCapServerUri()
+    {
+        return xCapServerUriValue.getText();
+    }
+
+    /**
+     * Sets the XCAP server uri.
+     *
+     * @param xCapServerUri the XCAP server uri.
+     */
+    void setXCapServerUri(String xCapServerUri)
+    {
+        xCapServerUriValue.setText(xCapServerUri);
+    }
+
+    /**
+     * Gets the XCAP user.
+     *
+     * @return the XCAP user.
+     */
+    String getXCapUser()
+    {
+        return xCapUserValue.getText();
+    }
+
+    /**
+     * Sets the XCAP user.
+     *
+     * @param xCapUser the XCAP user.
+     */
+    void setXCapUser(String xCapUser)
+    {
+        xCapUserValue.setText(xCapUser);
+    }
+
+    /**
+     * Gets the XCAP password.
+     *
+     * @return the XCAP password.
+     */
+    char[] getXCapPassword()
+    {
+        return xCapPasswordValue.getPassword();
+    }
+
+    /**
+     * Sets the XCAP password.
+     *
+     * @param xCapPassword the XCAP password.
+     */
+    void setXCapPassword(String xCapPassword)
+    {
+        xCapPasswordValue.setText(xCapPassword);
     }
 }

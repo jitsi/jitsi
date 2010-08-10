@@ -10,6 +10,7 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
  * through the <tt>SIPAccountRegistrationWizard</tt>.
  *
  * @author Yana Stamcheva
+ * @author Grigorii Balutsel
  */
 public class SIPAccountRegistration
 {
@@ -64,6 +65,16 @@ public class SIPAccountRegistration
     private String keepAliveInterval = DEFAULT_KEEP_ALIVE_INTERVAL;
 
     private String defaultDomain = null;
+
+    private boolean xCapEnable = false;
+
+    private boolean xCapUseSipCredetials = true;
+
+    private String xCapServerUri;
+
+    private String xCapUser;
+
+    private String xCapPassword;
 
     public String getPreferredTransport()
     {
@@ -457,4 +468,104 @@ public class SIPAccountRegistration
     {
         this.defaultTransport = defaultTransport;
     }
+
+    /**
+     * Checks if XCAP is enabled.
+     *
+     * @return true if XCAP is enabled otherwise false.
+     */
+    public boolean isXCapEnable()
+    {
+        return xCapEnable;
+    }
+    /**
+     * Sets if XCAP is enable.
+     *
+     * @param xCapEnable XCAP enable.
+     */
+    public void setXCapEnable(boolean xCapEnable)
+    {
+        this.xCapEnable = xCapEnable;
+    }
+
+    /**
+     * Checks if XCAP has to use SIP account credetials.
+     *
+     * @return true if XCAP has to use SIP account credetials otherwise false.
+     */
+    public boolean isXCapUseSipCredetials()
+    {
+        return xCapUseSipCredetials;
+    }
+
+    /**
+     * Sets if XCAP has to use SIP account credetials.
+     *
+     * @param xCapUseSipCredetials if XCAP has to use SIP account credetials.
+     */
+    public void setXCapUseSipCredetials(boolean xCapUseSipCredetials)
+    {
+        this.xCapUseSipCredetials = xCapUseSipCredetials;
+    }
+
+    /**
+     * Gets the XCAP server uri.
+     *
+     * @return the XCAP server uri.
+     */
+    public String getXCapServerUri()
+    {
+        return xCapServerUri;
+    }
+
+    /**
+     * Sets the XCAP server uri.
+     *
+     * @param xCapServerUri the XCAP server uri.
+     */
+    public void setXCapServerUri(String xCapServerUri)
+    {
+        this.xCapServerUri = xCapServerUri;
+    }
+
+    /**
+     * Gets the XCAP user.
+     *
+     * @return the XCAP user.
+     */
+    public String getXCapUser()
+    {
+        return xCapUser;
+    }
+
+    /**
+     * Sets the XCAP user.
+     *
+     * @param xCapUser the XCAP user.
+     */
+    public void setXCapUser(String xCapUser)
+    {
+        this.xCapUser = xCapUser;
+    }
+
+    /**
+     * Gets the XCAP password.
+     *
+     * @return the XCAP password.
+     */
+    public String getXCapPassword()
+    {
+        return xCapPassword;
+    }
+
+    /**
+     * Sets the XCAP password.
+     *
+     * @param xCapPassword the XCAP password.
+     */
+    public void setXCapPassword(String xCapPassword)
+    {
+        this.xCapPassword = xCapPassword;
+    }
+
 }

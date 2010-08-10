@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:cp="urn:ietf:params:xml:ns:common-policy"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="urn:ietf:params:xml:ns:common-policy"
+           elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <xs:element name="ruleset">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:restriction base="xs:anyType">
+                    <xs:sequence>
+                        <xs:element name="rule" type="cp:ruleType" minOccurs="0"
+                                    maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:restriction>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="ruleType">
+        <xs:complexContent>
+            <xs:restriction base="xs:anyType">
+                <xs:sequence>
+                    <xs:element name="conditions" type="cp:conditionsType" minOccurs="0"/>
+                    <xs:element name="actions" type="cp:extensibleType" minOccurs="0"/>
+                    <xs:element name="transformations" type="cp:extensibleType" minOccurs="0"/>
+                </xs:sequence>
+                <xs:attribute name="id" type="xs:ID" use="required"/>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="conditionsType">
+        <xs:complexContent>
+            <xs:restriction base="xs:anyType">
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element name="identity" type="cp:identityType" minOccurs="0"/>
+                    <xs:element name="sphere" type="cp:sphereType" minOccurs="0"/>
+                    <xs:element name="validity" type="cp:validityType" minOccurs="0"/>
+                    <xs:any namespace="##other" processContents="lax" minOccurs="0"
+                            maxOccurs="unbounded"/>
+                </xs:choice>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="identityType">
+        <xs:complexContent>
+            <xs:restriction base="xs:anyType">
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element name="one" type="cp:oneType"/>
+                    <xs:element name="many" type="cp:manyType"/>
+                    <xs:any namespace="##other" processContents="lax"/>
+                </xs:choice>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="oneType">
+        <xs:complexContent>
+            <xs:restriction base="xs:anyType">
+                <xs:sequence>
+                    <xs:any namespace="##other" processContents="lax" minOccurs="0"/>
+                </xs:sequence>
+                <xs:attribute name="id" type="xs:anyURI" use="required"/>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="manyType">
+        <xs:complexContent>
+            <xs:restriction base="xs:anyType">
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="except" type="cp:exceptType"/>
+                    <xs:any namespace="##other" processContents="lax" minOccurs="0"/>
+                </xs:choice>
+                <xs:attribute name="domain" type="xs:string" use="optional"/>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="exceptType">
+        <xs:attribute name="domain" type="xs:string" use="optional"/>
+        <xs:attribute name="id" type="xs:anyURI" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="sphereType">
+        <xs:complexContent>
+            <xs:restriction base="xs:anyType">
+                <xs:attribute name="value" type="xs:string" use="required"/>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="validityType">
+        <xs:complexContent>
+            <xs:restriction base="xs:anyType">
+                <xs:sequence maxOccurs="unbounded">
+                    <xs:element name="from" type="xs:dateTime"/>
+                    <xs:element name="until" type="xs:dateTime"/>
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="extensibleType">
+        <xs:complexContent>
+            <xs:restriction base="xs:anyType">
+                <xs:sequence>
+                    <xs:any namespace="##other" processContents="lax" minOccurs="0"
+                            maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:restriction>
+        </xs:complexContent>
+    </xs:complexType>
+</xs:schema>

@@ -21,6 +21,7 @@ import org.osgi.framework.*;
  * the user to create and configure a new SIP account.
  *
  * @author Yana Stamcheva
+ * @author Grigorii Balutsel
  */
 public class SIPAccountRegistrationWizard
     implements AccountRegistrationWizard
@@ -130,8 +131,8 @@ public class SIPAccountRegistrationWizard
      */
     public Iterator<Map.Entry<String, String>> getSummary()
     {
-        Hashtable<String, String> summaryTable
-            = new Hashtable<String, String>();
+        LinkedHashMap<String, String> summaryTable
+            = new LinkedHashMap<String, String>();
 
         boolean rememberPswd = registration.isRememberPassword();
         String rememberPswdString = Resources.getString(
@@ -233,6 +234,36 @@ public class SIPAccountRegistrationWizard
         summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL"),
             registration.getKeepAliveInterval());
+
+        if (registration.isXCapEnable())
+        {
+            summaryTable.put(Resources.getString(
+                    "plugin.sipaccregwizz.XCAP_ENABLE"),
+                    Resources.getString("service.gui.YES"));
+
+            summaryTable.put(Resources.getString(
+                "plugin.sipaccregwizz.XCAP_SERVER_URI_SUMMARY"),
+                registration.getXCapServerUri());
+
+            if (registration.isXCapUseSipCredetials())
+            {
+                summaryTable.put(Resources.getString(
+                        "plugin.sipaccregwizz.XCAP_USE_SIP_CREDETIALS_SUMMARY"),
+                        Resources.getString("service.gui.YES"));
+            }
+            else
+            {
+                summaryTable.put(Resources.getString(
+                        "plugin.sipaccregwizz.XCAP_USER_SUMMARY"),
+                        registration.getXCapUser());
+            }
+        }
+        else
+        {
+            summaryTable.put(Resources.getString(
+                    "plugin.sipaccregwizz.XCAP_ENABLE"),
+                    Resources.getString("service.gui.NO"));
+        }
 
         return summaryTable.entrySet().iterator();
     }
@@ -404,6 +435,30 @@ public class SIPAccountRegistrationWizard
 
         accountProperties.put("KEEP_ALIVE_INTERVAL",
             registration.getKeepAliveInterval());
+
+        accountProperties.put("XCAP_ENABLE",
+                Boolean.toString(registration.isXCapEnable()));
+
+        if(registration.isXCapEnable())
+        {
+            accountProperties.put("XCAP_USE_SIP_CREDETIALS",
+                    Boolean.toString(registration.isXCapUseSipCredetials()));
+            if (registration.getXCapServerUri() != null)
+            {
+                accountProperties
+                        .put("XCAP_SERVER_URI", registration.getXCapServerUri());
+            }
+            if (registration.getXCapUser() != null)
+            {
+                accountProperties
+                        .put("XCAP_USER", registration.getXCapUser());
+            }
+            if (registration.getXCapPassword() != null)
+            {
+                accountProperties
+                        .put("XCAP_PASSWORD", registration.getXCapPassword());
+            }
+        }
 
         if(isModification)
         {

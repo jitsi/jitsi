@@ -11,6 +11,7 @@ import net.java.sip.communicator.util.swing.*;
  * The <tt>SIPAccountRegistrationForm</tt>.
  *
  * @author Yana Stamcheva
+ * @author Grogorii Balutsel
  */
 public class SIPAccountRegistrationForm
     extends TransparentPanel
@@ -237,6 +238,14 @@ public class SIPAccountRegistrationForm
         SIPAccRegWizzActivator.getUIService().getAccountRegWizardContainer()
             .setBackButtonEnabled(true);
 
+        registration.setXCapEnable(presencePanel.isXCapEnable());
+        registration.setXCapUseSipCredetials(
+                presencePanel.isXCapUseSipCredetials());
+        registration.setXCapServerUri(presencePanel.getXCapServerUri());
+        registration.setXCapUser(presencePanel.getXCapUser());
+        registration
+                .setXCapPassword(new String(presencePanel.getXCapPassword()));
+
         return true;
     }
 
@@ -294,6 +303,17 @@ public class SIPAccountRegistrationForm
         String keepAliveInterval =
         accountID.getAccountPropertyString("KEEP_ALIVE_INTERVAL");
 
+        boolean xCapEnable = accountID
+                .getAccountPropertyBoolean("XCAP_ENABLE", false);
+        boolean xCapUseSipCredetials = accountID
+                .getAccountPropertyBoolean("XCAP_USE_SIP_CREDETIALS", true);
+        String xCapServerUri =
+                accountID.getAccountPropertyString("XCAP_SERVER_URI");
+        String xCapUser =
+                accountID.getAccountPropertyString("XCAP_USER");
+        String xCapPassword =
+                accountID.getAccountPropertyString("XCAP_PASSWORD");
+
         connectionPanel.setServerOverridden(
             accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false));
@@ -344,6 +364,14 @@ public class SIPAccountRegistrationForm
 
         connectionPanel.setKeepAliveMethod(keepAliveMethod);
         connectionPanel.setKeepAliveInterval(keepAliveInterval);
+
+        presencePanel.setXCapEnable(xCapEnable);
+        presencePanel.setXCapEnableEnabled(xCapEnable);
+        presencePanel.setXCapUseSipCredetials(xCapUseSipCredetials);
+        presencePanel.setXCapUseSipCredetialsEnabled(xCapUseSipCredetials);
+        presencePanel.setXCapServerUri(xCapServerUri);
+        presencePanel.setXCapUser(xCapUser);
+        presencePanel.setXCapPassword(xCapPassword);
     }
 
     /**

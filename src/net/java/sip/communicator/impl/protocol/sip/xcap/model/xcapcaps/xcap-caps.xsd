@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="urn:ietf:params:xml:ns:xcap-caps"
+           xmlns="urn:ietf:params:xml:ns:xcap-caps"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+    <xs:element name="xcap-caps">
+        <xs:annotation>
+            <xs:documentation>Root element for xcap-caps</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="auids">
+                    <xs:annotation>
+                        <xs:documentation>List of supported AUID.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="auid" type="auidType"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="extensions" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>List of supported extensions.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="extension" type="extensionType"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="namespaces">
+                    <xs:annotation>
+                        <xs:documentation>List of supported namespaces.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="namespace" type="namespaceType"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:any namespace="##other" processContents="lax"
+                        minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:simpleType name="auidType">
+        <xs:annotation>
+            <xs:documentation>AUID Type</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+    <xs:simpleType name="extensionType">
+        <xs:annotation>
+            <xs:documentation>Extension Type</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+    <xs:simpleType name="namespaceType">
+        <xs:annotation>
+            <xs:documentation>Namespace type</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:anyURI"/>
+    </xs:simpleType>
+</xs:schema>

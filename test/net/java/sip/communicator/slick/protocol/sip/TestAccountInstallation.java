@@ -6,11 +6,12 @@
  */
 package net.java.sip.communicator.slick.protocol.sip;
 
-import java.util.*;
-
-import org.osgi.framework.*;
 import junit.framework.*;
+import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.protocol.*;
+import org.osgi.framework.*;
+
+import java.util.*;
 
 public class TestAccountInstallation
     extends TestCase
@@ -239,6 +240,20 @@ public class TestAccountInstallation
             {
                 table.put(ProtocolProviderFactory.PROXY_PORT, proxyPort);
             }
+        }
+
+        String xCapServerUri = System.getProperty(accountPrefix +
+                SipProtocolProviderServiceLick.XCAP_SERVER_PROPERTY_NAME, null);
+        if (xCapServerUri != null)
+        {
+            table.put(ProtocolProviderServiceSipImpl.XCAP_ENABLE,
+                    Boolean.TRUE.toString());
+            table.put(ProtocolProviderServiceSipImpl.XCAP_USE_SIP_CREDETIALS,
+                    Boolean.TRUE.toString());
+            table.put(ProtocolProviderServiceSipImpl.XCAP_USE_SIP_CREDETIALS,
+                    Boolean.TRUE.toString());
+            table.put(ProtocolProviderServiceSipImpl.XCAP_SERVER_URI,
+                    xCapServerUri);
         }
 
         table.put(ProtocolProviderFactory.FORCE_P2P_MODE, 

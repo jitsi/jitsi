@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+
+Schema for the Presence Content Application Usage
+   version - 1.0
+   date    - 23 Dec 2008
+
+FILE INFORMATION
+
+  OMA Permanent Document
+    File: OMA-SUP-XSD_prs_presContent-V1_0-20081223-C
+    Type: Text - Schema Description
+
+  Public Reachable Information
+    Path: http://www.openmobilealliance.org/Technical/schemas.aspx
+    Name: prs_presContent-v1_0.xsd
+NORMATIVE INFORMATION
+
+  Information about this file can be found in the specification
+
+    OMA-TS-Presence-SIMPLE_Content_XDM-V1_0
+
+  available at http://www.openmobilealliance.org/
+
+  Send comments to technical-comments@mail.openmobilealliance.org
+
+LEGAL DISCLAIMER
+
+  Use of this document is subject to all of the terms and conditions
+  of the Use Agreement located at
+    http://www.openmobilealliance.org/UseAgreement.html
+
+  You may use this document or any part of the document for internal
+  or educational purposes only, provided you do not modify, edit or
+  take out of context the information in this document in any manner.
+  Information contained in this document may be used, at your sole
+  risk, for any purposes.
+
+  You may not use this document in any other manner without the prior
+  written permission of the Open Mobile Alliance.  The Open Mobile
+  Alliance authorizes you to copy this document, provided that you
+  retain all copyright and other proprietary notices contained in the
+  original materials on any copies of the materials and that you
+  comply strictly with these terms.  This copyright permission does
+  not constitute an endorsement of the products or services.  The
+  Open Mobile Alliance assumes no responsibility for errors or
+  omissions in this document.
+
+  Each Open Mobile Alliance member has agreed to use reasonable
+  endeavors to inform the Open Mobile Alliance in a timely manner of
+  Essential IPR as it becomes aware that the Essential IPR is related
+  to the prepared or published specification.  However, the members
+  do not have an obligation to conduct IPR searches.  The declared
+  Essential IPR is publicly available to members and non-members of
+  the Open Mobile Alliance and may be found on the "OMA IPR
+  Declarations" list at http://www.openmobilealliance.org/ipr.html.
+  The Open Mobile Alliance has not conducted an independent IPR review
+  of this document and the information contained herein, and makes no
+  representations or warranties regarding third party IPR, including
+  without limitation patents, copyrights or trade secret rights.  This
+  document may contain inventions for which you must obtain licenses
+  from third parties before making, using or selling the inventions.
+  Defined terms above are set forth in the schedule to the Open Mobile
+  Alliance Application Form.
+
+  NO REPRESENTATIONS OR WARRANTIES (WHETHER EXPRESS OR IMPLIED) ARE
+  MADE BY THE OPEN MOBILE ALLIANCE OR ANY OPEN MOBILE ALLIANCE MEMBER
+  OR ITS AFFILIATES REGARDING ANY OF THE IPR'S REPRESENTED ON THE "OMA
+  IPR DECLARATIONS" LIST, INCLUDING, BUT NOT LIMITED TO THE ACCURACY,
+  COMPLETENESS, VALIDITY OR RELEVANCE OF THE INFORMATION OR WHETHER OR
+  NOT SUCH RIGHTS ARE ESSENTIAL OR NON-ESSENTIAL.
+
+  THE OPEN MOBILE ALLIANCE IS NOT LIABLE FOR AND HEREBY DISCLAIMS ANY
+  DIRECT, INDIRECT, PUNITIVE, SPECIAL, INCIDENTAL, CONSEQUENTIAL, OR
+  EXEMPLARY DAMAGES ARISING OUT OF OR IN CONNECTION WITH THE USE OF
+  DOCUMENTS AND THE INFORMATION CONTAINED IN THE DOCUMENTS.
+
+  Copyright 2008 Open Mobile Alliance Ltd.  All Rights Reserved.
+  Used with the permission of the Open Mobile Alliance Ltd. under the
+  terms set forth above.
+
+-->
+
+<xs:schema targetNamespace="urn:oma:xml:prs:pres-content"
+           xmlns="urn:oma:xml:prs:pres-content"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+    <xs:element name="content">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="mime-type" minOccurs="0">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:anyAttribute processContents="lax"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="encoding" minOccurs="0">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:anyAttribute processContents="lax"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="description" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute ref="xml:lang"/>
+                                <xs:anyAttribute processContents="lax"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="data">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:anyAttribute processContents="lax"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:anyAttribute processContents="lax"/>
+        </xs:complexType>
+    </xs:element>
+    
+</xs:schema>
+
+

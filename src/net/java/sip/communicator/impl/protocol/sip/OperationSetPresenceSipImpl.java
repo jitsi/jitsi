@@ -6,9 +6,12 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import net.java.sip.communicator.impl.protocol.sip.xcap.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.xml.*;
+import org.w3c.dom.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
@@ -18,13 +21,10 @@ import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
-
-import org.w3c.dom.*;
-
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.xml.*;
+import java.io.*;
+import java.net.URI;
+import java.text.*;
+import java.util.*;
 
 /**
  * Sip presence implementation (SIMPLE).
@@ -34,6 +34,7 @@ import net.java.sip.communicator.util.xml.*;
  * @author Benoit Pradelle
  * @author Lubomir Marinov
  * @author Emil Ivov
+ * @author Grigorii Balutsel
  */
 public class OperationSetPresenceSipImpl
     extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceSipImpl>
@@ -46,10 +47,8 @@ public class OperationSetPresenceSipImpl
     private static final Logger logger
         = Logger.getLogger(OperationSetPresenceSipImpl.class);
 
-    /**
-     * The root of the SIP contact list.
-     */
-    private final ContactGroupSipImpl contactListRoot;
+
+    private ServerStoredContactListSipImpl ssContactList;
 
     /**
      * The currently active status message.
@@ -189,6 +188,8 @@ public class OperationSetPresenceSipImpl
     private static final String NS_BUSY_ELT     = "rpid:busy";
     private static final String OTP_ELEMENT     = "on-the-phone";
     private static final String NS_OTP_ELT      = "rpid:on-the-phone";
+    private static final String STATUS_ICON_ELEMENT = "status-icon";
+    private static final String NS_STATUS_ICON_ELT  = "rpid:status-icon";
 
     // namespace wildcard
     private static final String ANY_NS          = "*";
@@ -226,7 +227,10 @@ public class OperationSetPresenceSipImpl
     {
         super(provider);
 
-        this.contactListRoot = new ContactGroupSipImpl("RootGroup", provider);
+        //this.contactListRoot = new ContactGroupSipImpl("RootGroup", provider);
+        this.ssContactList = new ServerStoredContactListSipImpl(provider, this);
+
+        //this.ssContactList.addGroupListener();
 
         //add our registration listener
         this.parentProvider.addRegistrationStateChangeListener(this);
@@ -300,6 +304,31 @@ public class OperationSetPresenceSipImpl
     }
 
     /**
+     * Registers a listener that would receive events upong changes in server
+     * stored groups.
+     *
+     * @param listener a ServerStoredGroupChangeListener impl that would receive
+     *                 events upong group changes.
+     */
+    public void addServerStoredGroupChangeListener(
+            ServerStoredGroupListener listener)
+    {
+        ssContactList.addGroupListener(listener);
+    }
+
+    /**
+     * Removes the specified group change listener so that it won't receive
+     * any further events.
+     *
+     * @param listener the ServerStoredGroupChangeListener to remove
+     */
+    public void removeServerStoredGroupChangeListener(
+            ServerStoredGroupListener listener)
+    {
+        ssContactList.removeGroupListener(listener);
+    }
+
+    /**
      * Returns a PresenceStatus instance representing the state this provider is
      * currently in. Note that PresenceStatus instances returned by this method
      * MUST adequately represent all possible states that a provider might
@@ -339,26 +368,29 @@ public class OperationSetPresenceSipImpl
      */
     public ContactGroup getServerStoredContactListRoot()
     {
-        return this.contactListRoot;
+        return this.ssContactList.getRootGroup();
     }
 
     /**
      * Creates a group with the specified name and parent in the server
      * stored contact list.
      *
-     * @param parent the group where the new group should be created
+     * @param parentGroup the group where the new group should be created
      * @param groupName the name of the new group to create.
      */
-    public void createServerStoredContactGroup(ContactGroup parent,
+    public void createServerStoredContactGroup(ContactGroup parentGroup,
                                                String groupName)
+            throws OperationFailedException
     {
-        ContactGroupSipImpl newGroup = new ContactGroupSipImpl(groupName,
-                this.parentProvider);
-
-        ((ContactGroupSipImpl) parent).addSubgroup(newGroup);
-
-        this.fireServerStoredGroupEvent(newGroup,
-                ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+        if (!(parentGroup instanceof ContactGroupSipImpl))
+        {
+            String errorMessage = String.format(
+                    "Group %1s does not seem to belong to this protocol's " +
+                            "contact list", parentGroup.getGroupName());
+            throw new IllegalArgumentException(errorMessage);
+        }
+        ContactGroupSipImpl sipGroup = (ContactGroupSipImpl) parentGroup;
+        ssContactList.createGroup(sipGroup, groupName, true);
     }
 
     /**
@@ -382,24 +414,16 @@ public class OperationSetPresenceSipImpl
     public ContactGroup createUnresolvedContactGroup(String groupUID,
         String persistentData, ContactGroup parentGroup)
     {
-        ContactGroupSipImpl newGroup = new ContactGroupSipImpl(
-                ContactGroupSipImpl.createNameFromUID(groupUID),
-                this.parentProvider);
-        newGroup.setResolved(false);
-
         //if parent is null then we're adding under root.
         if(parentGroup == null)
         {
             parentGroup = getServerStoredContactListRoot();
         }
-
-        ((ContactGroupSipImpl) parentGroup).addSubgroup(newGroup);
-
-        this.fireServerStoredGroupEvent(
-            newGroup, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
-
-        return newGroup;
+        String groupName = ContactGroupSipImpl.createNameFromUID(groupUID);
+        return ssContactList.createUnresolvedContactGroup(
+                (ContactGroupSipImpl) parentGroup, groupName);
     }
+
 
     /**
      * Renames the specified group from the server stored contact list.
@@ -410,11 +434,14 @@ public class OperationSetPresenceSipImpl
     public void renameServerStoredContactGroup(ContactGroup group,
                                                String newName)
     {
-        ((ContactGroupSipImpl) group).setGroupName(newName);
-
-        this.fireServerStoredGroupEvent(
-            (ContactGroupSipImpl) group,
-            ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
+        if (!(group instanceof ContactGroupSipImpl))
+        {
+            String errorMessage = String.format(
+                    "Group %1s does not seem to belong to this protocol's " +
+                            "contact list", group.getGroupName());
+            throw new IllegalArgumentException(errorMessage);
+        }
+        ssContactList.renameGroup((ContactGroupSipImpl) group, newName);
     }
 
     /**
@@ -429,17 +456,19 @@ public class OperationSetPresenceSipImpl
                                    ContactGroup newParent)
     {
         if (!(contactToMove instanceof ContactSipImpl))
+        {
             return;
-
-        ContactSipImpl sipContact = (ContactSipImpl) contactToMove;
-        ContactGroupSipImpl parentSipGroup
-            = (ContactGroupSipImpl) sipContact.getParentContactGroup();
-
-        parentSipGroup.removeContact(sipContact);
-
-        ((ContactGroupSipImpl) newParent).addContact(sipContact);
-
-        fireSubscriptionMovedEvent(contactToMove, parentSipGroup, newParent);
+        }
+        try
+        {
+            ssContactList.moveContactToGroup((ContactSipImpl) contactToMove,
+                    (ContactGroupSipImpl) newParent);
+        }
+        catch (OperationFailedException ex)
+        {
+            throw new IllegalStateException(
+                    "Failed to move contact " + contactToMove.getAddress(), ex);
+        }
     }
 
     /**
@@ -451,22 +480,16 @@ public class OperationSetPresenceSipImpl
      * protocol's contact list.
      */
     public void removeServerStoredContactGroup(ContactGroup group)
-        throws IllegalArgumentException
     {
-        ContactGroupSipImpl sipGroup = (ContactGroupSipImpl) group;
-        ContactGroupSipImpl parent = contactListRoot.findGroupParent(sipGroup);
-
-        if(parent == null){
-            throw new IllegalArgumentException(
-                "group " + group
-                + " does not seem to belong to this protocol's contact list.");
+        if (!(group instanceof ContactGroupSipImpl))
+        {
+            String errorMessage = String.format(
+                    "Group %1s does not seem to belong to this protocol's " +
+                            "contact list", group.getGroupName());
+            throw new IllegalArgumentException(errorMessage);
         }
-
-        parent.removeSubGroup(sipGroup);
-
-        fireServerStoredGroupEvent(
-            sipGroup,
-            ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
+        ContactGroupSipImpl sipGroup = (ContactGroupSipImpl) group;
+        ssContactList.removeGroup(sipGroup);
     }
 
     /**
@@ -881,7 +904,7 @@ public class OperationSetPresenceSipImpl
                IllegalStateException,
                OperationFailedException
     {
-        subscribe(this.contactListRoot, contactIdentifier);
+        subscribe(this.ssContactList.getRootGroup(), contactIdentifier);
     }
 
     /**
@@ -908,9 +931,16 @@ public class OperationSetPresenceSipImpl
                IllegalStateException,
                OperationFailedException
     {
-        if (logger.isDebugEnabled())
-            logger.debug("let's subscribe " + contactIdentifier);
+        assertConnected();
 
+        if (!(parentGroup instanceof ContactGroupSipImpl))
+        {
+            String errorMessage = String.format(
+                    "Group %1s does not seem to belong to this protocol's " +
+                            "contact list",
+                    parentGroup.getGroupName());
+            throw new IllegalArgumentException(errorMessage);
+        }
         //if the contact is already in the contact list
         ContactSipImpl contact = resolveContactID(contactIdentifier);
 
@@ -927,40 +957,15 @@ public class OperationSetPresenceSipImpl
                 // we will remove it as we will created again
                 // this is the case when making a non persistent contact to
                 // a persistent one
-                ContactGroupSipImpl oldParentGroup =
-                    (ContactGroupSipImpl)contact.getParentContactGroup();
-                oldParentGroup.removeContact(contact);
-                fireSubscriptionEvent(contact, oldParentGroup,
-                    SubscriptionEvent.SUBSCRIPTION_REMOVED);
+                ssContactList.removeContact(contact);
             }
         }
-
-        Address contactAddress;
-        try
+        contact = ssContactList.createContact((ContactGroupSipImpl) parentGroup,
+                contactIdentifier, true);
+        if (this.presenceEnabled)
         {
-            contactAddress
-                = parentProvider.parseAddressString(contactIdentifier);
+            subscriber.subscribe(new PresenceSubscriberSubscription(contact));
         }
-        catch (ParseException exc)
-        {
-            throw new IllegalArgumentException(
-                contactIdentifier + " is not a valid string.", exc);
-        }
-
-        // create a new contact, marked as resolvable and non resolved
-        contact = new ContactSipImpl(contactAddress, this.parentProvider);
-        ((ContactGroupSipImpl) parentGroup).addContact(contact);
-
-        fireSubscriptionEvent(contact,
-                              parentGroup,
-                              SubscriptionEvent.SUBSCRIPTION_CREATED);
-
-        // do not query the presence state
-        if (this.presenceEnabled == false)
-            return;
-
-        assertConnected();
-        subscriber.subscribe(new PresenceSubscriberSubscription(contact));
     }
 
     /**
@@ -1003,28 +1008,19 @@ public class OperationSetPresenceSipImpl
         assertConnected();
 
         if (!(contact instanceof ContactSipImpl))
-            throw
-                new IllegalArgumentException(
-                        "the contact is not a SIP contact");
-
-        ContactSipImpl sipcontact = (ContactSipImpl) contact;
-
+        {
+            throw new IllegalArgumentException("The contact is not a SIP " +
+                    "contact");
+        }
+        ContactSipImpl sipContact = (ContactSipImpl) contact;
         /**
          * Does not assert if there is no subscription cause if the user
          * becomes offline he has terminated the subscription and so we have
          * no subscription of this contact but we wont to remove it.
          * Does not assert on connected cause have already has made the check.
          */
-        unsubscribe(sipcontact, false);
-
-        ((ContactGroupSipImpl) sipcontact.getParentContactGroup())
-            .removeContact(sipcontact);
-
-        // inform the listeners
-        fireSubscriptionEvent(
-            sipcontact,
-            sipcontact.getParentContactGroup(),
-            SubscriptionEvent.SUBSCRIPTION_REMOVED);
+        unsubscribe(sipContact, false);
+        ssContactList.removeContact(sipContact);
     }
 
     /**
@@ -1542,7 +1538,7 @@ public class OperationSetPresenceSipImpl
      */
     public ContactSipImpl findContactByID(String contactID)
     {
-        return this.contactListRoot.findContactByID(contactID);
+        return this.ssContactList.getRootGroup().findContactByID(contactID);
     }
 
     /**
@@ -1647,29 +1643,8 @@ public class OperationSetPresenceSipImpl
                          String persistentData,
                          ContactGroup parent)
     {
-        Address contactAddress;
-        try
-        {
-            contactAddress = parentProvider.parseAddressString(addressStr);
-        }
-        catch (ParseException exc)
-        {
-            throw new IllegalArgumentException(
-                addressStr + " is not a valid string.", exc);
-        }
-
-        ContactSipImpl contact = new ContactSipImpl(contactAddress,
-                                                    this.parentProvider);
-
-        contact.setResolved(false);
-
-        ((ContactGroupSipImpl) parent).addContact(contact);
-
-        fireSubscriptionEvent(contact,
-                parent,
-                SubscriptionEvent.SUBSCRIPTION_CREATED);
-
-        return contact;
+        return ssContactList.createUnresolvedContact((ContactGroupSipImpl)
+                parent, addressStr);
     }
 
     /**
@@ -1684,37 +1659,25 @@ public class OperationSetPresenceSipImpl
      */
     public ContactSipImpl createVolatileContact(Address contactAddress)
     {
-        // First create the new volatile contact;
-        ContactSipImpl newVolatileContact
-            = new ContactSipImpl(contactAddress, this.parentProvider);
-        newVolatileContact.setDisplayName(contactAddress.getDisplayName());
-        newVolatileContact.setPersistent(false);
-
-        // Check whether a volatile group already exists and if not create one
-        ContactGroupSipImpl theVolatileGroup = getNonPersistentGroup();
-
-        // if the parent volatile group is null then we create it
-        if (theVolatileGroup == null)
+        try
         {
-            theVolatileGroup = new ContactGroupSipImpl(
-                "NotInContactList",
-                this.parentProvider);
-            theVolatileGroup.setResolved(false);
-            theVolatileGroup.setPersistent(false);
-
-            this.contactListRoot.addSubgroup(theVolatileGroup);
-
-            fireServerStoredGroupEvent(theVolatileGroup
-                           , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+            // Check whether a volatile group already exists and if not create one
+            ContactGroupSipImpl volatileGroup = getNonPersistentGroup();
+            // if the parent volatile group is null then we create it
+            if (volatileGroup == null)
+            {
+                ContactGroupSipImpl rootGroup =
+                        this.ssContactList.getRootGroup();
+                volatileGroup = ssContactList
+                        .createGroup(rootGroup, "NotInContactList", false);
+            }
+            return ssContactList.createContact(volatileGroup,
+                    contactAddress.getURI().toString(), false);
         }
-
-        //now add the volatile contact inside it
-        theVolatileGroup.addContact(newVolatileContact);
-        fireSubscriptionEvent(newVolatileContact
-                         , theVolatileGroup
-                         , SubscriptionEvent.SUBSCRIPTION_CREATED);
-
-        return newVolatileContact;
+        catch (OperationFailedException ex)
+        {
+            return null;
+        }
     }
 
     /**
@@ -1929,6 +1892,17 @@ public class OperationSetPresenceSipImpl
          Element activities = doc.createElement(NS_ACTIVITY_ELT);
          person.appendChild(activities);
 
+         // <status-icon>
+         XCapClient xCapClient = parentProvider.getXCapClient();
+         if (xCapClient.isConnected() && xCapClient.isPresContentSupported())
+         {
+             Element statusIcon = doc.createElement(NS_STATUS_ICON_ELT);
+             URI imageUri = xCapClient.getPresContentImageUri(
+                     ProtocolProviderServiceSipImpl.PRES_CONTENT_IMAGE_NAME);
+             statusIcon.setTextContent(imageUri.toString());
+             person.appendChild(statusIcon);
+         }
+
          // the correct activity
          if (contact.getPresenceStatus()
                          .equals(sipStatusEnum.getStatus(SipStatusEnum.AWAY)))
@@ -2046,6 +2020,7 @@ public class OperationSetPresenceSipImpl
          // ignore namespaces here
 
          PresenceStatus personStatus = null;
+         URI personStatusIcon = null;
          NodeList personList = presence.getElementsByTagNameNS(ANY_NS,
                  PERSON_ELEMENT);
 
@@ -2110,6 +2085,43 @@ public class OperationSetPresenceSipImpl
                          break;
                  }
              }
+             NodeList statusIconList = person.getElementsByTagNameNS(ANY_NS,
+                     STATUS_ICON_ELEMENT);
+             if (statusIconList.getLength() > 0)
+             {
+                 Element statusIcon;
+                 Node statusIconNode = statusIconList.item(0);
+                 if (statusIconNode.getNodeType() == Node.ELEMENT_NODE)
+                 {
+                     statusIcon = (Element) statusIconNode;
+                     String content = getTextContent(statusIcon);
+                     if (content != null && content.trim().length() != 0)
+                     {
+                         try
+                         {
+                             personStatusIcon = URI.create(content);
+                         }
+                         catch (IllegalArgumentException ex)
+                         {
+                             logger.error("Person's status icon uri: " +
+                                     content + " is invalid");
+                         }
+                     }
+                 }
+             }
+         }
+
+          if(personStatusIcon != null)
+          {
+              String contactID = 
+                  XMLUtils.getAttribute(presNode, ENTITY_ATTRIBUTE);
+
+              if (contactID.startsWith("pres:"))
+              {
+                  contactID = contactID.substring("pres:".length());
+              }
+              Contact contact = resolveContactID(contactID);
+              updateContactIcon((ContactSipImpl) contact, personStatusIcon);
          }
 
          // Vector containing the list of status to set for each contact in
@@ -2395,6 +2407,61 @@ public class OperationSetPresenceSipImpl
              changePresenceStatusForContact(contact, status);
          }
      }
+
+     /**
+      * Checks whether to URIs are equal with safe null check.
+      * @param uri1 to be compared.
+      * @param uri2 to be compared.
+      * @return if uri1 is equal to uri2.
+      */
+    public static boolean isEquals(URI uri1, URI uri2) {
+        return (uri1 == null && uri2 == null)
+            || (uri1 != null && uri1.equals(uri2));
+    }
+
+    /**
+     * Changes the Contact image
+     * @param contact
+     * @param imageUri
+     */
+    private void updateContactIcon(ContactSipImpl contact, URI imageUri)
+    {
+        if(isEquals(contact.getImageUri(), imageUri))
+        {
+            return;
+        }
+        byte[] oldImage = contact.getImage();
+        byte[] newImage = new byte[0];
+        if(imageUri != null)
+        {
+            XCapClient xCapClient = parentProvider.getXCapClient();
+            if(xCapClient.isConnected())
+            {
+                try
+                {
+                    newImage = xCapClient.getImage(imageUri);
+                }
+                catch (XCapException e)
+                {
+                    String errorMessage = String.format(
+                            "Error while getting icon %1s for the contact %2s",
+                            imageUri, contact.getUri());
+                    logger.error(errorMessage, e);
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+        contact.setImageUri(imageUri);
+        contact.setImage(newImage);
+        fireContactPropertyChangeEvent(
+                ContactPropertyChangeEvent.PROPERTY_IMAGE,
+                contact,
+                oldImage,
+                newImage);
+    }
 
      /**
       * Secured call to XMLUtils.getText (no null returned but an empty string)
@@ -2732,6 +2799,39 @@ public class OperationSetPresenceSipImpl
      }
 
      /**
+     * Will wait for every SUBSCRIBE, NOTIFY and PUBLISH transaction
+     * to finish before continuing the unsubscription
+     */
+    private void stopEvents()
+    {
+        for (byte i = 0; i < 10; i++)
+        {
+            synchronized (waitedCallIds)
+            {
+                if (waitedCallIds.size() == 0)
+                {
+                    break;
+                }
+            }
+            synchronized (this)
+            {
+                try
+                {
+                    // Wait 5 s. max
+                    wait(500);
+                }
+                catch (InterruptedException e)
+                {
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug("abnormal behavior, may cause unnecessary CPU use", e);
+                    }
+                }
+            }
+        }
+    }
+
+     /**
       * The method is called by a ProtocolProvider implementation whenever
       * a change in the registration state of the corresponding provider had
       * occurred. The method is particularly interested in events stating
@@ -2743,11 +2843,12 @@ public class OperationSetPresenceSipImpl
       */
       public void registrationStateChanged(RegistrationStateChangeEvent evt)
       {
-          if(evt.getNewState() == RegistrationState.UNREGISTERING)
+          if (evt.getNewState().equals(RegistrationState.UNREGISTERING))
           {
               // stop any task associated with the timer
               cancelTimer();
-
+              // Destroy XCAP contacts
+              ssContactList.destroy();
               // this will not be called by anyone else, so call it
               // the method will terminate every active subscription
               try
@@ -2759,39 +2860,18 @@ public class OperationSetPresenceSipImpl
               {
                   logger.error("can't set the offline mode", e);
               }
-
-              // we wait for every SUBSCRIBE, NOTIFY and PUBLISH transaction
-              // to finish before continuing the unsubscription
-              for (byte i = 0; i < 10; i++)
-              {   // wait 5 s. max
-                  synchronized (waitedCallIds)
-                  {
-                      if (waitedCallIds.size() == 0)
-                      {
-                          break;
-                      }
-                  }
-
-                  synchronized (this)
-                  {
-                      try
-                      {
-                          wait(500);
-                      }
-                      catch (InterruptedException e)
-                      {
-                          if (logger.isDebugEnabled())
-                              logger.debug("abnormal behavior, may cause " +
-                                      "unnecessary CPU use", e);
-                      }
-                  }
-              }
+              stopEvents();
           }
           else if (evt.getNewState().equals(
                   RegistrationState.REGISTERED))
           {
               if (logger.isDebugEnabled())
+              {
                   logger.debug("enter registered state");
+              }
+
+              // Init XCAP contacts
+              ssContactList.init();
 
                /*
                 * If presence support is enabled and the keep-alive method

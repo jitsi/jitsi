@@ -6,9 +6,12 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.util.*;
-
+import net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.w3c.dom.*;
+import javax.xml.namespace.*;
+import java.util.*;
 
 /**
  * A simple, straightforward implementation of a SIP ContactGroup. Since
@@ -19,15 +22,11 @@ import net.java.sip.communicator.service.protocol.*;
  * the encapsulated object.
  *
  * @author Emil Ivov
+ * @author Grigorii Balutsel
  */
 public class ContactGroupSipImpl
     implements ContactGroup
 {
-
-    /**
-     * The name of this SIP contact group.
-     */
-    private String groupName = null;
 
     /**
      * The list of this group's members.
@@ -37,8 +36,7 @@ public class ContactGroupSipImpl
     /**
      * The list of sub groups belonging to this group.
      */
-    private Vector<ContactGroup> subGroups
-                                        = new Vector<ContactGroup>();
+    private Vector<ContactGroup> subGroups = new Vector<ContactGroup>();
 
     /**
      * The group that this group belongs to (or null if this is the root group).
@@ -75,6 +73,11 @@ public class ContactGroupSipImpl
     private static final String UID_SUFFIX = ".uid";
 
     /**
+     * The XCAP equivalent of SIP contact group.
+     */
+    private final ListType list;
+
+    /**
      * Creates a ContactGroupSipImpl with the specified name.
      *
      * @param groupName the name of the group.
@@ -84,9 +87,50 @@ public class ContactGroupSipImpl
                     String groupName,
                     ProtocolProviderServiceSipImpl parentProvider)
     {
-        this.groupName = groupName;
-        this.uid = groupName + UID_SUFFIX;
+        this.list = new ListType();
+        this.list.setName(groupName);
+        this.uid = list.getName() + UID_SUFFIX;
         this.parentProvider = parentProvider;
+    }
+
+    /**
+     * Gets the list.
+     *
+     * @return the list.
+     */
+    ListType getList()
+    {
+        return list;
+    }
+
+    /**
+     * Sets the list custom attributes.
+     *
+     * @param otherAttributes the custom attributes.
+     */
+    void setOtherAttributes(Map<QName, String> otherAttributes)
+    {
+        this.list.setAnyAttributes(otherAttributes);
+    }
+
+    /**
+     * Sets the list custom elements.
+     *
+     * @param any the custom elemets.
+     */
+    void setAny(List<Element> any)
+    {
+        this.list.setAny(any);
+    }
+
+    /**
+     * Sets the list name.
+     *
+     * @param newName the name.
+     */
+    void setName(String newName)
+    {
+        this.list.setName(newName);
     }
 
     /**
@@ -129,6 +173,10 @@ public class ContactGroupSipImpl
     {
         this.contacts.add(contactToAdd);
         contactToAdd.setParentGroup(this);
+        if(contactToAdd.isPersistent())
+        {
+            this.list.getEntries().add(contactToAdd.getEntry());
+        }
     }
 
     /**
@@ -155,16 +203,6 @@ public class ContactGroupSipImpl
     }
 
     /**
-     * Adds the specified contact group to the contained by this group.
-     * @param subgroup the ContactGroupSipImpl to add as a subgroup to this group.
-     */
-    public void addSubgroup(ContactGroupSipImpl subgroup)
-    {
-        this.subGroups.add(subgroup);
-        subgroup.setParentGroup(this);
-    }
-
-    /**
      * Sets the group that is the new parent of this group
      * @param parent ContactGroupSipImpl
      */
@@ -185,6 +223,20 @@ public class ContactGroupSipImpl
     }
 
     /**
+     * Adds the specified contact group to the contained by this group.
+     * @param subgroup the ContactGroupSipImpl to add as a subgroup to this group.
+     */
+    public void addSubgroup(ContactGroupSipImpl subgroup)
+    {
+        this.subGroups.add(subgroup);
+        subgroup.setParentGroup(this);
+        if(subgroup.isPersistent())
+        {
+            this.list.getLists().add(subgroup.getList());
+        }
+    }
+
+    /**
      * Removes the specified contact group from the this group's subgroups.
      * @param subgroup the ContactGroupSipImpl subgroup to remove.
      */
@@ -192,6 +244,10 @@ public class ContactGroupSipImpl
     {
         this.subGroups.remove(subgroup);
         subgroup.setParentGroup(null);
+        if(subgroup.isPersistent())
+        {
+            this.list.getLists().remove(subgroup.getList());
+        }
     }
 
     /**
@@ -253,8 +309,6 @@ public class ContactGroupSipImpl
         return null;
     }
 
-
-
     /**
      * Returns the <tt>Contact</tt> with the specified address or identifier.
      *
@@ -268,11 +322,10 @@ public class ContactGroupSipImpl
         while (contactsIter.hasNext())
         {
             ContactSipImpl contact = (ContactSipImpl) contactsIter.next();
-            if (contact.getAddress().equals(id))
+            if (contact.getUri().equals(id) || contact.getAddress().equals(id))
             {
                 return contact;
             }
-
         }
         return null;
     }
@@ -305,10 +358,8 @@ public class ContactGroupSipImpl
             {
                 return contactGroup;
             }
-
         }
         return null;
-
     }
 
     /**
@@ -318,16 +369,7 @@ public class ContactGroupSipImpl
      */
     public String getGroupName()
     {
-        return this.groupName;
-    }
-
-    /**
-     * Sets this group a new name.
-     * @param newGrpName a String containing the new name of this group.
-     */
-    public void setGroupName(String newGrpName)
-    {
-        this.groupName = newGrpName;
+        return this.list.getName();
     }
 
     /**
@@ -349,6 +391,10 @@ public class ContactGroupSipImpl
     public void removeContact(ContactSipImpl contact)
     {
         this.contacts.remove(contact);
+        if(contact.isPersistent())
+        {
+            this.list.getEntries().remove(contact.getEntry());
+        }
     }
 
     /**
@@ -385,7 +431,6 @@ public class ContactGroupSipImpl
 
         return null;
     }
-
 
     /**
      * Returns a String representation of this group and the contacts it

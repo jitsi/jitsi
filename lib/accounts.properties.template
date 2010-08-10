@@ -85,6 +85,9 @@ accounts.sip.account1.PROXY_ADDRESS=
 # (Optional)
 accounts.sip.account1.PROXY_PORT=
 
+# The XCAP server uri
+# (Optional)
+accounts.sip.account1.XCAP_SERVER=
 
 # ACCOUNT 2
 # The user id needed to log onto the server specified in the SERVER_ADDRESS
@@ -112,6 +115,10 @@ accounts.sip.account2.PROXY_ADDRESS=
 # A port numer to use when connecting to the proxy specified in PROXY_ADDRESS
 # (Optional)
 accounts.sip.account2.PROXY_PORT=
+
+# The XCAP server uri
+# (Optional)
+accounts.sip.account2.XCAP_SERVER=
 
 # This will be the contact list which we will use to test persistent storing
 # of sip protocol

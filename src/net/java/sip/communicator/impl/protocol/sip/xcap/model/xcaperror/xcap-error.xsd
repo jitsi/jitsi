@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="urn:ietf:params:xml:ns:xcap-error"
+           xmlns="urn:ietf:params:xml:ns:xcap-error"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <xs:element name="error-element" abstract="true"/>
+    <xs:element name="xcap-error">
+        <xs:annotation>
+            <xs:documentation>Indicates the reason for the error.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="error-element"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="extension" substitutionGroup="error-element">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:any namespace="##any" processContents="lax"
+                        minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="schema-validation-error"
+                substitutionGroup="error-element">
+        <xs:annotation>
+            <xs:documentation>This element indicates that the document was not
+                compliant to the schema after the requested operation was
+                performed.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attribute name="phrase" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="not-xml-frag" substitutionGroup="error-element">
+        <xs:annotation>
+            <xs:documentation>This indicates that the request was supposed to
+                contain a valid XML fragment body, but did not.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attribute name="phrase" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="no-parent" substitutionGroup="error-element">
+        <xs:annotation>
+            <xs:documentation>This indicates that an attempt to insert an
+                element, attribute, or document failed because the document or
+                element into which the insertion was supposed to occur does not
+                exist.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="ancestor" type="xs:anyURI" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Contains an HTTP URI that points to
+                            the element that is the closest ancestor that does
+                            exist.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="phrase" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="cannot-insert" substitutionGroup="error-element">
+        <xs:annotation>
+            <xs:documentation>This indicates that the requested PUT operation
+                could not be performed because a GET of that resource after the
+                PUT would not yield the content of the PUT request.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attribute name="phrase" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="not-xml-att-value"
+                substitutionGroup="error-element">
+        <xs:annotation>
+            <xs:documentation>This indicates that the request was supposed to
+                contain a valid XML attribute value, but did not.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attribute name="phrase" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="uniqueness-failure"
+                substitutionGroup="error-element">
+        <xs:annotation>
+            <xs:documentation>This indicates that the requested operation would
+                result in a document that did not meet a uniqueness constraint
+                defined by the application usage.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="exists" maxOccurs="unbounded">
+                    <xs:annotation>
+                        <xs:documentation>For each URI, element, or attribute
+                            specified by the client that is not unique, one of
+                            these is present.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence minOccurs="0">
+                            <xs:element name="alt-value" type="xs:string"
+                                        maxOccurs="unbounded">
+                                <xs:annotation>
+                                    <xs:documentation>An optional set of
+                                        alternate values can be provided.
+                                    </xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="field" type="xs:string"
+                                      use="required"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="phrase" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="not-well-formed"
+                substitutionGroup="error-element">
+        <xs:annotation>
+            <xs:documentation>This indicates that the body of the request was
+                not a well-formed document.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attribute name="phrase" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="constraint-failure"
+                substitutionGroup="error-element">
+        <xs:annotation>
+            <xs:documentation>This indicates that the requested operation would
+                result in a document that failed a data constraint defined by
+                the application usage, but not enforced by the schema or a
+                uniqueness constraint.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attribute name="phrase" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="cannot-delete" substitutionGroup="error-element">
+        <xs:annotation>
+            <xs:documentation>This indicates that the requested DELETE
+                operation could not be performed because it would not be
+                idempotent.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attribute name="phrase" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="not-utf-8" substitutionGroup="error-element">
+        <xs:annotation>
+            <xs:documentation>This indicates that the request could not be
+                completed because it would have produced a document not encoded
+                in UTF-8.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attribute name="phrase" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

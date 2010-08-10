@@ -41,13 +41,18 @@ public class SipProtocolProviderServiceLick
      */
     public static final String DISABLE_ONLINE_TESTS_PROPERTY_NAME
         = "accounts.sip.DISABLE_ONLINE_TESTING";
-    
+
     /**
      * The name of the property the value of which is a formatted string that
      * contains the contact list that.
      */
     public static final String CONTACT_LIST_PROPERTY_NAME
         = "accounts.sip.CONTACT_LIST";
+
+    /**
+     * The name of the property the value of which is XCAP server uri.
+     */
+    public static final String XCAP_SERVER_PROPERTY_NAME = "XCAP_SERVER";
 
     /**
      * Initializes and registers all tests that we'll run as a part of this
@@ -70,6 +75,9 @@ public class SipProtocolProviderServiceLick
 
         if (offlineMode != null && offlineMode.equalsIgnoreCase("true"))
             SipSlickFixture.onlineTestingDisabled = true;
+        
+        // xcap parsing tests
+        addTest(TestXCapParse.suite());
 
         //First test account installation so that the service that has
         //been installed by it gets tested by the rest of the tests.
@@ -93,6 +101,9 @@ public class SipProtocolProviderServiceLick
     
             // telephony
             addTestSuite(TestOperationSetBasicTelephonySipImpl.class);
+
+            // Server stored info
+            addTest(TestOperationSetServerStoredInfo.suite());
         }
 
         //This must remain after all other tests using the accounts

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="urn:ietf:params:xml:ns:pres-rules"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:cr="urn:ietf:params:xml:ns:common-policy"
+           xmlns:pr="urn:ietf:params:xml:ns:pres-rules"
+           elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <xs:import namespace="urn:ietf:params:xml:ns:common-policy"/>
+    <xs:simpleType name="booleanPermission">
+        <xs:restriction base="xs:boolean"/>
+    </xs:simpleType>
+    <xs:element name="service-uri-scheme" type="xs:token"/>
+    <xs:element name="class" type="xs:token"/>
+
+    <xs:element name="occurrence-id" type="xs:token"/>
+    <xs:element name="service-uri" type="xs:anyURI"/>
+    <xs:complexType name="provideServicePermission">
+        <xs:choice>
+            <xs:element name="all-services">
+                <xs:complexType/>
+            </xs:element>
+            <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                <xs:choice>
+                    <xs:element ref="pr:service-uri"/>
+                    <xs:element ref="pr:service-uri-scheme"/>
+                    <xs:element ref="pr:occurrence-id"/>
+                    <xs:element ref="pr:class"/>
+                    <xs:any namespace="##other" processContents="lax"/>
+                </xs:choice>
+            </xs:sequence>
+        </xs:choice>
+    </xs:complexType>
+    <xs:element name="provide-services"
+                type="pr:provideServicePermission"/>
+    <xs:element name="deviceID" type="xs:anyURI"/>
+    <xs:complexType name="provideDevicePermission">
+        <xs:choice>
+            <xs:element name="all-devices">
+                <xs:complexType/>
+            </xs:element>
+            <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                <xs:choice>
+                    <xs:element ref="pr:deviceID"/>
+                    <xs:element ref="pr:occurrence-id"/>
+                    <xs:element ref="pr:class"/>
+                    <xs:any namespace="##other" processContents="lax"/>
+                </xs:choice>
+            </xs:sequence>
+        </xs:choice>
+    </xs:complexType>
+    <xs:element name="provide-devices"
+                type="pr:provideDevicePermission"/>
+    <xs:complexType name="providePersonPermission">
+        <xs:choice>
+            <xs:element name="all-persons">
+                <xs:complexType/>
+            </xs:element>
+            <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                <xs:choice>
+                    <xs:element ref="pr:occurrence-id"/>
+                    <xs:element ref="pr:class"/>
+                    <xs:any namespace="##other" processContents="lax"/>
+                </xs:choice>
+            </xs:sequence>
+        </xs:choice>
+    </xs:complexType>
+    <xs:element name="provide-persons"
+                type="pr:providePersonPermission"/>
+    <xs:element name="provide-activities"
+                type="pr:booleanPermission"/>
+    <xs:element name="provide-class"
+                type="pr:booleanPermission"/>
+    <xs:element name="provide-deviceID"
+                type="pr:booleanPermission"/>
+    <xs:element name="provide-mood"
+                type="pr:booleanPermission"/>
+    <xs:element name="provide-place-is"
+                type="pr:booleanPermission"/>
+    <xs:element name="provide-place-type"
+                type="pr:booleanPermission"/>
+    <xs:element name="provide-privacy"
+                type="pr:booleanPermission"/>
+    <xs:element name="provide-relationship"
+                type="pr:booleanPermission"/>
+    <xs:element name="provide-status-icon"
+                type="pr:booleanPermission"/>
+    <xs:element name="provide-sphere"
+                type="pr:booleanPermission"/>
+    <xs:element name="provide-time-offset"
+                type="pr:booleanPermission"/>
+    <xs:element name="provide-user-input">
+        <xs:simpleType>
+            <xs:restriction base="xs:string">
+                <xs:enumeration value="false"/>
+                <xs:enumeration value="bare"/>
+                <xs:enumeration value="thresholds"/>
+                <xs:enumeration value="full"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:element>
+    <xs:element name="provide-note" type="pr:booleanPermission"/>
+    <xs:element name="sub-handling">
+        <xs:simpleType>
+            <xs:restriction base="xs:token">
+                <xs:enumeration value="block"/>
+                <xs:enumeration value="confirm"/>
+                <xs:enumeration value="polite-block"/>
+                <xs:enumeration value="allow"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:element>
+    <xs:complexType name="unknownBooleanPermission">
+        <xs:simpleContent>
+            <xs:extension base="pr:booleanPermission">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+                <xs:attribute name="ns" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:element name="provide-unknown-attribute"
+                type="pr:unknownBooleanPermission"/>
+    <xs:element name="provide-all-attributes">
+        <xs:complexType/>
+    </xs:element>
+</xs:schema>

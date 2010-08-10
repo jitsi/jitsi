@@ -8,7 +8,16 @@ Import-Package: net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.configuration.event,
  junit.framework,
  org.osgi.framework,
+ org.w3c.dom;
+ javax.xml.namespace;
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.protocol,
- net.java.sip.communicator.service.protocol.event
-
+ net.java.sip.communicator.service.protocol.event,
+ net.java.sip.communicator.impl.protocol.sip,
+ net.java.sip.communicator.impl.protocol.sip.xcap,
+ net.java.sip.communicator.impl.protocol.sip.xcap.utils,
+ net.java.sip.communicator.impl.protocol.sip.xcap.model,
+ net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps,
+ net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists,
+ net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent,
+ net.java.sip.communicator.impl.protocol.sip.xcap.model.xcaperror

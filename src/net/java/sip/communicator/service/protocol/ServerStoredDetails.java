@@ -118,8 +118,12 @@ public class ServerStoredDetails
             if(!(obj instanceof GenericDetail))
                 return false;
 
-            GenericDetail other = (GenericDetail)obj;
+            if(this == obj)
+            {
+                return true;
+            }
 
+            GenericDetail other = (GenericDetail)obj;
 
             if(this.detailDisplayName != null // equals DisplayName
                && other.getDetailDisplayName() != null

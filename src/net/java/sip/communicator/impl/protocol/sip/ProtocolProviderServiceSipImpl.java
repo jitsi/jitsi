@@ -6,26 +6,25 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.net.*;
-import java.text.*;
-import java.util.*;
+import gov.nist.javax.sip.address.*;
+import gov.nist.javax.sip.header.*;
+import gov.nist.javax.sip.message.*;
+import net.java.sip.communicator.impl.protocol.sip.security.*;
+import net.java.sip.communicator.impl.protocol.sip.xcap.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.version.Version;
+import net.java.sip.communicator.util.*;
+import org.osgi.framework.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
-
-import org.osgi.framework.*;
-
-import net.java.sip.communicator.impl.protocol.sip.security.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.version.Version; // avoid ambiguity with org.osgi.framework.Version
-import net.java.sip.communicator.util.*;
-
-import gov.nist.javax.sip.header.*;
-import gov.nist.javax.sip.address.*;
-import gov.nist.javax.sip.message.*;
+import java.net.*;
+import java.net.URI;
+import java.text.*;
+import java.util.*;
 
 /**
  * A SIP implementation of the Protocol Provider Service.
@@ -33,6 +32,7 @@ import gov.nist.javax.sip.message.*;
  * @author Emil Ivov
  * @author Lubomir Marinov
  * @author Alan Kelly
+ * @author Grigorii Balutsel
  */
 public class ProtocolProviderServiceSipImpl
   extends AbstractProtocolProviderService
@@ -132,6 +132,41 @@ public class ProtocolProviderServiceSipImpl
     public static final String KEEP_ALIVE_INTERVAL = "KEEP_ALIVE_INTERVAL";
 
     /**
+     * The name of the property under which the user may specify whether to use
+     * or not XCAP.
+     */
+    public static final String XCAP_ENABLE = "XCAP_ENABLE";
+
+    /**
+     * The name of the property under which the user may specify whether to use
+     * original sip creadetials for the XCAP.
+     */
+    public static final String XCAP_USE_SIP_CREDETIALS =
+            "XCAP_USE_SIP_CREDETIALS";
+
+    /**
+     * The name of the property under which the user may specify the XCAP server
+     * uri.
+     */
+    public static final String XCAP_SERVER_URI = "XCAP_SERVER_URI";
+
+    /**
+     * The name of the property under which the user may specify the XCAP user.
+     */
+    public static final String XCAP_USER = "XCAP_USER";
+
+    /**
+     * The name of the property under which the user may specify the XCAP user
+     * password.
+     */
+    public static final String XCAP_PASSWORD = "XCAP_PASSWORD";
+
+    /**
+     * Presence content for image.
+     */
+    public static final String PRES_CONTENT_IMAGE_NAME = "sip_communicator";
+
+    /**
      * The default maxForwards header that we use in our requests.
      */
     private MaxForwardsHeader maxForwardsHeader = null;
@@ -184,6 +219,21 @@ public class ProtocolProviderServiceSipImpl
      * The presence status set supported by this provider
      */
     private SipStatusEnum sipStatusEnum;
+
+    /**
+     * The XCAP client.
+     */
+    private final XCapClient xCapClient = new XCapClientImpl();
+
+    /**
+     * Gets the XCAP client.
+     *
+     * @return the XCAP client.
+     */
+    public XCapClient getXCapClient()
+    {
+        return xCapClient;
+    }
 
     /**
      * Returns the AccountID that uniquely identifies the account represented by
@@ -249,6 +299,64 @@ public class ProtocolProviderServiceSipImpl
     public List<String> getKnownEventsList()
     {
         return this.registeredEvents;
+    }
+
+
+    public void fireRegistrationStateChanged(RegistrationState oldState,
+                                             RegistrationState newState,
+                                             int reasonCode,
+                                             String reason)
+    {
+        if (newState.equals(RegistrationState.REGISTERED))
+        {
+            try
+            {
+                boolean enableXCap =
+                        accountID.getAccountPropertyBoolean(XCAP_ENABLE, true);
+                boolean useSipCredetials =
+                        accountID.getAccountPropertyBoolean(
+                                XCAP_USE_SIP_CREDETIALS, true);
+                String serverUri =
+                        accountID.getAccountPropertyString(XCAP_SERVER_URI);
+                String user;
+                String password;
+                if (useSipCredetials)
+                {                    
+                    user = accountID.getAccountPropertyString(
+                            ProtocolProviderFactory.USER_ID);
+                    password = SipActivator.getProtocolProviderFactory().
+                            loadPassword(accountID);
+                }
+                else
+                {
+                    user = accountID.getAccountPropertyString(XCAP_USER);
+                    password = accountID.getAccountPropertyString(XCAP_PASSWORD);
+                }
+                // Connect to xcap server
+                Address userAddress = parseAddressString(user);
+                if(enableXCap && serverUri != null)
+                {
+                    URI uri = new URI(serverUri.trim());
+                    if(uri.getHost() != null && uri.getPath() != null)
+                    {
+                        xCapClient.connect(uri, userAddress, password);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                logger.error("Error while connecting to XCAP server. " +
+                        "Contact list won't be saved", e);
+            }
+        }
+        else if (newState.equals(RegistrationState.UNREGISTERING) ||
+                newState.equals(RegistrationState.CONNECTION_FAILED))
+        {
+            xCapClient.dicsonnect();
+        }
+
+        super.fireRegistrationStateChanged(oldState, newState, reasonCode,
+                reason);
     }
 
     /**
@@ -480,6 +588,11 @@ public class ProtocolProviderServiceSipImpl
                     new OperationSetTypingNotificationsSipImpl(
                             this,
                             opSetBasicIM));
+                // init avatar
+                addSupportedOperationSet(
+                    OperationSetServerStoredAccountInfo.class,
+                    new OperationSetServerStoredAccountInfoSipImpl(this));
+
             }
 
             // OperationSetVideoTelephony

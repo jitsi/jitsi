@@ -6,35 +6,26 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import javax.sip.address.*;
-
+import net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists.*;
 import net.java.sip.communicator.service.protocol.*;
 
+import org.w3c.dom.*;
+import javax.sip.address.*;
+import javax.xml.namespace.*;
+import java.net.URI;
+import java.util.*;
+
 /**
- * A simple, straightforward implementation of a SIP Contact. Since the SIP
- * protocol is not a real one, we simply store all contact details in class
- * fields. You should know that when implementing a real protocol, the contact
- * implementation would rather encapsulate contact objects from the protocol
- * stack and group property values should be returned after consulting the
- * encapsulated object.
+ * A simple, straightforward implementation of a SIP Contact.
  * 
  * @author Emil Ivov
  * @author Benoit Pradelle
  * @author Lubomir Marinov
+ * @author Grigorii Balutsel
  */
 public class ContactSipImpl
     implements Contact
-{
-
-    /**
-     * The id of the contact.
-     */
-    private final Address sipAddress;
-
-    /**
-     * The display name of the contact.
-     */
-    private String displayName = null;
+{    
 
     /**
      * The provider that created us.
@@ -50,6 +41,16 @@ public class ContactSipImpl
      * The presence status of the contact.
      */
     private PresenceStatus presenceStatus;
+
+    /**
+     * The image uri.
+     */
+    private URI imageUri;
+
+    /**
+     * The image content.
+     */
+    private byte[] image;
 
     /**
      * Determines whether this contact is persistent, i.e. member of the contact
@@ -70,6 +71,16 @@ public class ContactSipImpl
     private boolean isResolvable = true;
 
     /**
+     * The XCAP equivalent of SIP contact group.
+     */
+    private final EntryType entry;
+
+     /**
+     * The SIP contact identifier.
+     */
+    private final Address sipAddress;
+
+    /**
      * Creates an instance of a meta contact with the specified string used
      * as a name and identifier.
      *
@@ -82,16 +93,30 @@ public class ContactSipImpl
                 ProtocolProviderServiceSipImpl parentProvider)
     {
         this.sipAddress = contactAddress;
-
-        displayName = contactAddress.getDisplayName();
-
-        if(displayName == null || displayName.trim().length() == 0)
-            displayName = getAddress();
-
+        this.entry = new EntryType(contactAddress.getURI().toString());
         this.parentProvider = parentProvider;
-
         this.presenceStatus = parentProvider.getSipStatusEnum()
             .getStatus(SipStatusEnum.UNKNOWN);
+    }
+
+    /**
+     * Gets the entry.
+     *
+     * @return the entry
+     */
+    EntryType getEntry()
+    {
+        return entry;
+    }
+
+    /**
+     * Gets the entry's uri.
+     *
+     * @return the entry' uri.
+     */
+    public String getUri()
+    {
+        return entry.getUri();
     }
 
     /**
@@ -114,8 +139,7 @@ public class ContactSipImpl
      */
     public String getAddress()
     {
-        SipURI sipURI = (SipURI)sipAddress.getURI();
-
+        SipURI sipURI = (SipURI) sipAddress.getURI();
         return sipURI.getUser() + "@" + sipURI.getHost();
     }
 
@@ -129,7 +153,6 @@ public class ContactSipImpl
         return sipAddress;
     }
 
-
     /**
      * Returns a String that could be used by any user interacting modules
      * for referring to this contact.
@@ -139,7 +162,11 @@ public class ContactSipImpl
      */
     public String getDisplayName()
     {
-        return (displayName == null) ? getAddress() : displayName;
+        if(this.entry.getDisplayName() != null)
+        {
+            return this.entry.getDisplayName().getValue();
+        }
+        return getAddress();
     }
 
     /**
@@ -150,18 +177,82 @@ public class ContactSipImpl
      */
     public void setDisplayName(String displayName)
     {
-        this.displayName = displayName;
+        DisplayNameType displayNameType = new DisplayNameType();
+        displayNameType.setValue(displayName);
+        this.entry.setDisplayName(displayNameType);
     }
 
     /**
-     * Returns a byte array containing an image (most often a photo or an
-     * avatar) that the contact uses as a representation.
+     * Sets a String that could be used by any user interacting modules for
+     * referring to this contact.
+     *
+     * @param displayName a human readable name to use for this contact.
+     */
+    public void setDisplayName(DisplayNameType displayName)
+    {
+        this.entry.setDisplayName(displayName);
+    }
+
+    /**
+     * Sets the entry custom attributes.
+     *
+     * @param otherAttributes the custom attributes.
+     */
+    void setOtherAttributes(Map<QName, String> otherAttributes)
+    {
+        this.entry.setAnyAttributes(otherAttributes);
+    }
+
+    /**
+     * Sets the entry custom elements.
+     *
+     * @param any the custom elemets.
+     */
+    void setAny(List<Element> any)
+    {
+        this.entry.setAny(any);
+    }
+
+    /**
+     * Gets the image uri.
+     *
+     * @return the image uri.
+     */
+    URI getImageUri()
+    {
+        return imageUri;
+    }
+
+    /**
+     * Sets the image uri.
+     *
+     * @param imageUri the image uri.
+     */
+    void setImageUri(URI imageUri)
+    {
+        this.imageUri = imageUri;
+    }
+
+    /**
+     * Gets a byte array containing an image (most often a photo or an avatar)
+     * that the contact uses as a representation.
      *
      * @return byte[] an image representing the contact.
      */
     public byte[] getImage()
     {
-        return null;
+        return image;
+    }
+
+    /**
+     * Sets a byte array containing an image (most often a photo or an avatar)
+     * that the contact uses as a representation.
+     *
+     * @param image an image representing the contact.
+     */
+    void setImage(byte[] image)
+    {
+        this.image = image;
     }
 
     /**
