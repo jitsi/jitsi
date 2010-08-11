@@ -103,11 +103,11 @@ public class GeneralConfigurationPanel
 
         autoStartCheckBox.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
 
-        autoStartCheckBox.setText(
-            Resources.getString(
+        String label = Resources.getString(
                 "plugin.generalconfig.AUTO_START",
-                new String[]{getApplicationName()}));
-
+                new String[]{getApplicationName()});
+        autoStartCheckBox.setText(label);
+        autoStartCheckBox.setToolTipText(label);
         autoStartCheckBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -724,9 +724,11 @@ public class GeneralConfigurationPanel
             }
         });
 
-        JLabel warnLabel = new JLabel("* " + 
-            Resources.getString(
-                "plugin.generalconfig.DEFAULT_LANGUAGE_RESTART_WARN"));
+        String label = "* " +
+                Resources.getString(
+                        "plugin.generalconfig.DEFAULT_LANGUAGE_RESTART_WARN");
+        JLabel warnLabel = new JLabel(label);
+        warnLabel.setToolTipText(label);
         warnLabel.setForeground(Color.GRAY);
         warnLabel.setFont(warnLabel.getFont().deriveFont(8));
         warnLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
