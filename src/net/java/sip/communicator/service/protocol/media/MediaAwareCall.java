@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol.media;
 
+import java.beans.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.neomedia.*;
@@ -456,6 +457,112 @@ public abstract class MediaAwareCall<
                 T peer = peers.next();
                 peer.setMute(newMuteValue);
             }
+        }
+    }
+
+    /**
+     * Modifies the local media setup of all peers in the call to reflect the
+     * requested setting for the streaming of the local video and then passes
+     * the setting to the participating <tt>MediaAwareCallPeer</tt> instances.
+     *
+     * @param allowed <tt>true</tt> if local video transmission is allowed and
+     * <tt>false</tt> otherwise.
+     * @param useCase usecase for the video (i.e video call or desktop
+     * streaming/sharing session)
+     *
+     *  @throws OperationFailedException if video initialization fails.
+     */
+    public void setLocalVideoAllowed(boolean allowed, MediaUseCase useCase)
+        throws OperationFailedException
+    {
+        localVideoAllowed = allowed;
+        mediaUseCase = useCase;
+
+        /*
+         * Record the setting locally and notify all peers.
+         */
+        Iterator<T> peers = getCallPeers();
+        while (peers.hasNext())
+        {
+            T peer = peers.next();
+            peer.setLocalVideoAllowed(allowed);
+        }
+    }
+
+    /**
+     * Determines whether the streaming of local video in this <tt>Call</tt>
+     * is currently allowed. The setting does not reflect the availability of
+     * actual video capture devices, it just expresses the local policy (or
+     * desire of the user) to have the local video streamed in the case the
+     * system is actually able to do so.
+     *
+     * @return <tt>true</tt> if the streaming of local video for this
+     * <tt>Call</tt> is allowed; otherwise, <tt>false</tt>
+     */
+    public boolean isLocalVideoAllowed()
+    {
+        return localVideoAllowed;
+    }
+
+    /**
+     * Determines whether we are currently streaming video toward at least one
+     * of the peers in this call.
+     *
+     * @return <tt>true</tt> if we are currently streaming video toward at least
+     * one of the peers in this call and <tt>false</tt> otherwise.
+     */
+    public boolean isLocalVideoStreaming()
+    {
+
+        Iterator<T> peers = getCallPeers();
+        while (peers.hasNext())
+        {
+            T peer = peers.next();
+
+            if (peer.isLocalVideoStreaming())
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Registers a <tt>listener</tt> with all <tt>CallPeer</tt> currently
+     * participating with the call so that it would be notified of changes in
+     * video related properties (e.g. <tt>LOCAL_VIDEO_STREAMING</tt>).
+     *
+     * @param listener the <tt>PropertyChangeListener</tt> to be notified
+     * when the properties associated with member <tt>CallPeer</tt>s change
+     * their values.
+     */
+    public void addVideoPropertyChangeListener(
+                                          PropertyChangeListener listener)
+    {
+        Iterator<T> peers = getCallPeers();
+        while (peers.hasNext())
+        {
+            T peer = peers.next();
+            peer.addVideoPropertyChangeListener(listener);
+        }
+    }
+
+    /**
+     * Removes <tt>listener</tt> from all <tt>CallPeer</tt>s currently
+     * participating with the call so that it won't receive further notifications
+     * on changes in video related properties (e.g.
+     * <tt>LOCAL_VIDEO_STREAMING</tt>).
+     *
+     * @param listener the <tt>PropertyChangeListener</tt> to unregister from
+     * member <tt>CallPeer</tt>s change their values.
+     */
+    public void removeVideoPropertyChangeListener(
+                                             PropertyChangeListener listener)
+    {
+        Iterator<T> peers = getCallPeers();
+        while (peers.hasNext())
+        {
+            T peer = peers.next();
+            peer.removeVideoPropertyChangeListener(listener);
         }
     }
 }

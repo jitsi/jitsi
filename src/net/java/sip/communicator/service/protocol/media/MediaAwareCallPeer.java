@@ -9,7 +9,6 @@ package net.java.sip.communicator.service.protocol.media;
 import java.beans.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
