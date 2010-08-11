@@ -30,6 +30,10 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class ImageLoader
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>ImageLoader</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger = Logger.getLogger(ImageLoader.class);
 
     /**
@@ -447,6 +451,12 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.MUTE_BUTTON");
 
     /**
+     * A record button icon. The icon shown in the CallPeer panel.
+     */
+    public static final ImageID RECORD_BUTTON
+        = new ImageID("service.gui.buttons.RECORD_BUTTON");
+
+    /**
      * A local video button icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID LOCAL_VIDEO_BUTTON
@@ -498,13 +508,13 @@ public class ImageLoader
      * The security button: encrypted and SAS verified, encrypted only,
      * security off.
      */
-    public static final ImageID ENCR_VERIFIED = new ImageID(
-            "service.gui.buttons.ENCR_VERIFIED");
+    public static final ImageID ENCR_VERIFIED
+        = new ImageID("service.gui.buttons.ENCR_VERIFIED");
 
     public static final ImageID ENCR = new ImageID("service.gui.buttons.ENCR");
 
-    public static final ImageID ENCR_DISABLED = new ImageID(
-            "service.gui.buttons.ENCR_DISABLED");
+    public static final ImageID ENCR_DISABLED
+        = new ImageID("service.gui.buttons.ENCR_DISABLED");
 
     /**
      * The button icon of the Enter Full Screen command. The icon shown in the

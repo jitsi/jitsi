@@ -6,9 +6,10 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.event.*;
-import java.util.*;
 import java.text.*;
+import java.util.*;
+
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * An Operation Set defining all basic telephony operations such as conducting
@@ -159,4 +160,19 @@ public interface OperationSetBasicTelephony<T extends ProtocolProviderService>
      * this operation set.
      */
     public T getProtocolProvider();
+
+    /**
+     * Starts the recording of the <tt>Call</tt>.
+     *
+     * @param call the <tt>Call</tt> to start recording
+     * @param callFilename call filename
+     */
+    public void startRecording(Call call, String callFilename);
+
+    /**
+     * Stops the recording of the <tt>Call</tt>.
+     *
+     * @param call the <tt>Call</tt> to stop recording
+     */
+    public void stopRecording(Call call);
 }

@@ -24,7 +24,8 @@ public class ActiveCallsRepositoryJabberImpl
                                   OperationSetBasicTelephonyJabberImpl>
 {
     /**
-     * logger of this class
+     * The <tt>Logger</tt> used by the <tt>ActiveCallsRepositoryJabberImpl</tt>
+     * class and its instances for logging output.
      */
     private static final Logger logger
         = Logger.getLogger(ActiveCallsRepositoryJabberImpl.class);
@@ -88,5 +89,19 @@ public class ActiveCallsRepositoryJabberImpl
         }
 
         return null;
+    }
+
+    /**
+     * Creates and dispatches a <tt>CallEvent</tt> notifying registered
+     * listeners that an event with id <tt>eventID</tt> has occurred on
+     * <tt>sourceCall</tt>.
+     *
+     * @param eventID the ID of the event to dispatch
+     * @param sourceCall the call on which the event has occurred
+     * @see ActiveCallsRepository#fireCallEvent(int, Call)
+     */
+    protected void fireCallEvent(int eventID, Call sourceCall)
+    {
+        parentOperationSet.fireCallEvent(eventID, sourceCall);
     }
 }

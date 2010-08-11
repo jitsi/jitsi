@@ -21,6 +21,7 @@ import net.java.sip.communicator.service.neomedia.format.*;
  * Implements <tt>MediaService</tt> for JMF.
  *
  * @author Lubomir Marinov
+ * @author Dmitri Melnikov
  */
 public class MediaServiceImpl
     implements MediaService
@@ -563,6 +564,26 @@ public class MediaServiceImpl
     }
 
     /**
+     * Creates a new <tt>Recorder</tt> instance that can be used to record a
+     * call which captures and plays back media using a specific
+     * <tt>MediaDevice</tt>. 
+     *
+     * @param device the <tt>MediaDevice</tt> which is used for media capture
+     * and playback by the call to be recorded 
+     * @return a new <tt>Recorder</tt> instance that can be used to record a
+     * call which captures and plays back media using the specified
+     * <tt>MediaDevice</tt>
+     * @see MediaService#createRecorder(MediaDevice)
+     */
+    public Recorder createRecorder(MediaDevice device)
+    {
+        if (device instanceof AudioMixerMediaDevice)
+            return new RecorderImpl((AudioMixerMediaDevice) device);
+        else
+            return null;
+    }
+
+    /**
      * Returns a {@link Map} that binds indicates whatever preferences this
      * media service implementation may have for the RTP payload type numbers
      * that get dynamically assigned to {@link MediaFormat}s with no static
@@ -586,7 +607,6 @@ public class MediaServiceImpl
 
             dynamicPayloadTypePreferences.put(telephoneEvent, (byte)101);
         }
-
         return dynamicPayloadTypePreferences;
     }
 }

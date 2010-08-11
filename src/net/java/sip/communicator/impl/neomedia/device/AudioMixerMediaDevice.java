@@ -184,7 +184,7 @@ public class AudioMixerMediaDevice
      * captured by this <tt>MediaDevice</tt>
      * @see AbstractMediaDevice#createOutputDataSource()
      */
-    AudioMixingPushBufferDataSource createOutputDataSource()
+    public AudioMixingPushBufferDataSource createOutputDataSource()
     {
         return getAudioMixer().createOutputDataSource();
     }
@@ -203,6 +203,74 @@ public class AudioMixerMediaDevice
         if (deviceSession == null)
             deviceSession = new AudioMixerMediaDeviceSession();
         return new MediaStreamMediaDeviceSession(deviceSession);
+    }
+
+    public synchronized MediaDeviceSession createRecordingSession(
+        final ContentDescriptor contentDescriptor)
+    {
+        if (deviceSession == null)
+            deviceSession = new AudioMixerMediaDeviceSession();
+
+        return new MediaStreamMediaDeviceSession(deviceSession)
+        {
+            /**
+             * Starts a specific <tt>Processor</tt> if this 
+             * <tt>MediaDeviceSession</tt> has been started and the specified 
+             * <tt>Processor</tt> is not started. Does not check the 
+             * <tt>MediaDirection</tt> of this session when starting.
+             *
+             * @param processor the <tt>Processor</tt> to start
+             */
+            @Override
+            protected void startProcessorInAccordWithDirection(
+                Processor processor)
+            {
+                if (processor.getState() != Processor.Started)
+                {
+                    processor.start();
+                    if (logger.isTraceEnabled())
+                        logger.trace("Started Processor with hashCode "
+                            + processor.hashCode());
+                }
+            }
+
+            /**
+             * Overrides the method to set the processor's content descriptor
+             * to <tt>FileTypeDescriptor.MPEG_AUDIO</tt>.
+             * 
+             * @param event the <tt>ControllerEvent</tt> specifying the
+             * <tt>Controller</tt> which is the source of the event and the very 
+             * type of the event
+             */
+            @Override
+            protected void processorControllerUpdate(ControllerEvent event)
+            {
+                super.processorControllerUpdate(event);
+
+                if (event instanceof ConfigureCompleteEvent)
+                {
+                    Processor processor = (Processor) event.getSourceController();
+
+                    if (processor != null)
+                    {
+                        try
+                        {
+                            processor.setContentDescriptor(contentDescriptor);
+                        }
+                        catch (NotConfiguredError nce)
+                        {
+                            logger
+                                .error(
+                                    "Failed to set ContentDescriptor to Processor.",
+                                    nce);
+                        }
+
+                        if (format != null)
+                            setProcessorFormat(processor, format);
+                    }
+                }
+            }
+        };
     }
 
     /**

@@ -19,28 +19,27 @@ import net.java.sip.communicator.util.*;
  *
  * @author Emil Ivov
  */
-public class ActiveCallsRepository<T extends Call,
-                                   U extends AbstractOperationSetBasicTelephony>
+public abstract class ActiveCallsRepository<T extends Call,
+                                   U extends OperationSetBasicTelephony>
     extends CallChangeAdapter
 {
     /**
      * The <tt>Logger</tt> used by the <tt>ActiveCallsRepository</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger = Logger
-                    .getLogger(ActiveCallsRepository.class.getName());
+    private static final Logger logger
+        = Logger.getLogger(ActiveCallsRepository.class);
 
     /**
      * A table mapping call ids against call instances.
      */
-    private Hashtable<String, T> activeCalls
-                                    = new Hashtable<String, T>();
+    private final Hashtable<String, T> activeCalls = new Hashtable<String, T>();
 
     /**
      * The operation set that created us. Instance is mainly used for firing
      * events when necessary.
      */
-    private final U parentOperationSet;
+    protected final U parentOperationSet;
 
     /**
      * Creates a new instance of this repository.
@@ -72,7 +71,7 @@ public class ActiveCallsRepository<T extends Call,
     public void callStateChanged(CallChangeEvent evt)
     {
         if(evt.getEventType().equals(CallChangeEvent.CALL_STATE_CHANGE)
-        && evt.getNewValue().equals(CallState.CALL_ENDED))
+                && evt.getNewValue().equals(CallState.CALL_ENDED))
         {
             T sourceCall =
                 this.activeCalls.remove(evt.getSourceCall().getCallID());
@@ -81,8 +80,7 @@ public class ActiveCallsRepository<T extends Call,
                 logger.trace("Removing call " + sourceCall + " from the list of "
                         + "active calls because it entered an ENDED state");
 
-            this.parentOperationSet.fireCallEvent(
-                CallEvent.CALL_ENDED, sourceCall);
+            fireCallEvent(CallEvent.CALL_ENDED, sourceCall);
         }
     }
 
@@ -112,4 +110,20 @@ public class ActiveCallsRepository<T extends Call,
         }
     }
 
+    /**
+     * Creates and dispatches a <tt>CallEvent</tt> notifying registered
+     * listeners that an event with id <tt>eventID</tt> has occurred on
+     * <tt>sourceCall</tt>.
+     * <p>
+     * TODO The method is ugly because it can be implemented if
+     * <tt>parentOperationSet</tt> is an
+     * <tt>AbstractOperationSetBasicTelephony</tt>. But after the move of the
+     * latter in the <tt>.service.protocol.media</tt> package, it is not visible
+     * here.
+     * </p>
+     *
+     * @param eventID the ID of the event to dispatch
+     * @param sourceCall the call on which the event has occurred.
+     */
+    protected abstract void fireCallEvent(int eventID, Call sourceCall);
 }

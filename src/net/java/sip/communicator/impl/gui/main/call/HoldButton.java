@@ -9,11 +9,9 @@ package net.java.sip.communicator.impl.gui.main.call;
 import java.awt.event.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * Represents an UI means to put an associated <tt>CallPariticant</tt> on/off
@@ -21,24 +19,30 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Lubomir Marinov
  * @author Yana Stamcheva
+ * @author Dmitri Melnikov
  */
 public class HoldButton
-    extends SIPCommToggleButton
-    implements ActionListener
+    extends AbstractCallToggleButton
 {
-    private static final long serialVersionUID = 0L;
-
+    /**
+     * The <tt>Logger</tt> used by the <tt>HoldButton</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger = Logger.getLogger(HoldButton.class);
 
-    private final Call call;
+    /**
+     * The serialization-related version of the <tt>HoldButton</tt> class
+     * explicitly defined to silence a related warning (e.g. in Eclipse IDE)
+     * since the <tt>HoldButton</tt> class does not add instance fields.
+     */
+    private static final long serialVersionUID = 0L;
 
     /**
      * Initializes a new <tt>HoldButton</tt> instance which is to put a specific
-     * <tt>CallPeer</tt> on/off hold.
+     * <tt>Call</tt> on/off hold.
      *
-     * @param call the <tt>Call</tt> to be associated with
-     *            the new instance and to be put on/off hold upon performing its
-     *            action
+     * @param call the <tt>Call</tt> to be associated with the new instance and
+     * to be put on/off hold upon performing its action
      */
     public HoldButton(Call call)
     {
@@ -49,66 +53,39 @@ public class HoldButton
      * Initializes a new <tt>HoldButton</tt> instance which is to put a specific
      * <tt>CallPeer</tt> on/off hold.
      *
-     * @param call  the <tt>Call</tt> to be associated with
-     *              the new instance and to be put on/off hold upon performing
-     *              its action.
-     * @param isFullScreenMode indicates if this button will be used in a normal
-     *              or full screen mode.
-     * @param isSelected indicates the initial state of this toggle button -
-     *              selected or not.
+     * @param call  the <tt>Call</tt> to be associated with the new instance and
+     * to be put on/off hold upon performing its action
+     * @param fullScreen <tt>true</tt> if the new instance is to be used in
+     * full-screen UI; otherwise, <tt>false</tt>
+     * @param selected <tt>true</tt> if the new toggle button is to be initially
+     * selected; otherwise, <tt>false</tt>
      */
-    public HoldButton(  Call call,
-                        boolean isFullScreenMode,
-                        boolean isSelected)
+    public HoldButton(Call call, boolean fullScreen, boolean selected)
     {
-        this.call = call;
-
-        if (isFullScreenMode)
-        {
-            this.setBgImage(
-                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG));
-            this.setBgRolloverImage(
-                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG));
-            this.setIconImage(
-                ImageLoader.getImage(ImageLoader.HOLD_BUTTON));
-            this.setPressedImage(
-                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG_PRESSED));
-        }
-        else
-        {
-            this.setBgImage(
-                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
-            this.setBgRolloverImage(
-                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
-            this.setIconImage(
-                ImageLoader.getImage(ImageLoader.HOLD_BUTTON));
-            this.setPressedImage(
-                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG));
-        }
-
-        this.addActionListener(this);
-        setToolTipText(GuiActivator.getResources().getI18NString(
-            "service.gui.HOLD_BUTTON_TOOL_TIP"));
-        setSelected(isSelected);
+        super(
+                call,
+                fullScreen,
+                selected,
+                ImageLoader.HOLD_BUTTON,
+                "service.gui.HOLD_BUTTON_TOOL_TIP");
     }
 
     /**
-     * Holds on or off call peers when the hold button is clicked.
-     * @param evt the <tt>ActionEvent</tt> that notified us of the action
+     * Holds on or off the associated <tt>Call</tt> when this button is clicked.
+     *
+     * @param evt an <tt>ActionEvent</tt> which describes the specifics of the
+     * performed action
+     * @see AbstractCallToggleButton#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent evt)
     {
         if (call != null)
         {
-            OperationSetBasicTelephony telephony =
-                call.getProtocolProvider()
-                    .getOperationSet(OperationSetBasicTelephony.class);
-
             Iterator<? extends CallPeer> peers = call.getCallPeers();
-
-            // Obtain the isSelected property before invoking putOnHold,
-            // because the property could change after putting on/off hold.
-            boolean isHoldSelected = isSelected();
+            boolean on = isSelected();
+            OperationSetBasicTelephony telephony
+                = call.getProtocolProvider().getOperationSet(
+                        OperationSetBasicTelephony.class);
 
             while (peers.hasNext())
             {
@@ -116,17 +93,16 @@ public class HoldButton
 
                 try
                 {
-                    if (isHoldSelected)
+                    if (on)
                         telephony.putOnHold(callPeer);
                     else
                         telephony.putOffHold(callPeer);
                 }
-                catch (OperationFailedException ex)
+                catch (OperationFailedException ofex)
                 {
-                    if (isHoldSelected)
-                        logger.error("Failed to put on hold.", ex);
-                    else
-                        logger.error("Failed to put off hold.", ex);
+                    logger.error(
+                            "Failed to put " + (on ? "on" : "off") + " hold.",
+                            ofex);
                 }
             }
         }

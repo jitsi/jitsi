@@ -4,10 +4,11 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.service.protocol;
+package net.java.sip.communicator.service.protocol.media;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
@@ -21,16 +22,19 @@ import net.java.sip.communicator.util.*;
  *
  * @author Lubomir Marinov
  * @author Emil Ivov
+ * @author Dmitri Melnikov
  */
 public abstract class AbstractOperationSetBasicTelephony
                                         <T extends ProtocolProviderService>
     implements OperationSetBasicTelephony<T>
 {
     /**
-     * Our class logger
+     * The <tt>Logger</tt> used by the
+     * <tt>AbstractOperationSetBasicTelephony</tt> class and its instances for
+     * logging output.
      */
-    private static final Logger logger =
-        Logger.getLogger(AbstractOperationSetBasicTelephony.class);
+    private static final Logger logger
+        = Logger.getLogger(AbstractOperationSetBasicTelephony.class);
 
     /**
      * A list of listeners registered for call events.
@@ -74,11 +78,8 @@ public abstract class AbstractOperationSetBasicTelephony
             logger.debug("Dispatching a CallEvent to " + listeners.size()
             + " listeners. event is: " + cEvent);
 
-        for (Iterator<CallListener> listenerIter
-                = listeners.iterator(); listenerIter.hasNext();)
+        for (CallListener listener : listeners)
         {
-            CallListener listener = listenerIter.next();
-
             switch (eventID)
             {
             case CallEvent.CALL_INITIATED:
@@ -116,7 +117,7 @@ public abstract class AbstractOperationSetBasicTelephony
      *
      * @param call the <tt>Call</tt> whose mute state is to be set
      * @param mute <tt>true</tt> to mute the call streams being sent to
-     *            <tt>peers</tt>; otherwise, <tt>false</tt>
+     * <tt>peers</tt>; otherwise, <tt>false</tt>
      */
     public void setMute(Call call, boolean mute)
     {
@@ -125,5 +126,27 @@ public abstract class AbstractOperationSetBasicTelephony
          * approach, putOnHold/putOffHold just do nothing when not supported so
          * this implementation takes inspiration from them.
          */
+    }
+
+    /**
+     * Starts the recording of the <tt>Call</tt>.
+     *
+     * @param call the <tt>Call</tt> to start recording
+     * @param callFilename call filename, when <tt>null</tt> a default filename
+     *            is used
+     */
+    public void startRecording(Call call, String callFilename)
+    {
+        ((MediaAwareCall<?, ?, ?>) call).startRecording(callFilename);
+    }
+
+    /**
+     * Stops the recording of the <tt>Call</tt>.
+     *
+     * @param call the <tt>Call</tt> to stop recording
+     */
+    public void stopRecording(Call call)
+    {
+        ((MediaAwareCall<?, ?, ?>) call).stopRecording();
     }
 }

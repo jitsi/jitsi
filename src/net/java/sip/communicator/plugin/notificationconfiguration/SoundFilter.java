@@ -7,9 +7,10 @@
 
 package net.java.sip.communicator.plugin.notificationconfiguration;
 
-import java.io.File;
+import java.io.*;
 
-import net.java.sip.communicator.util.swing.SipCommFileFilter;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * Filter to display only the sound files in the filechooser
@@ -38,28 +39,7 @@ public class SoundFilter
         /*
          * Else, it tests if the exension is correct
          */
-        String extension = Utils.getExtension(f);
-        if (extension != null)
-        {
-            if (extension.equals(Utils.wav) ||
-                    extension.equals(Utils.mid) ||
-                    extension.equals(Utils.mp2) ||
-                    extension.equals(Utils.mp3) ||
-                    extension.equals(Utils.mod) ||
-                    extension.equals(Utils.ogg) ||
-                    extension.equals(Utils.wma) ||
-                    extension.equals(Utils.au) ||
-                    extension.equals(Utils.ram))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        return false;
+        return SoundFileUtils.isSoundFile(f);
     }
     /**
      * Method which describes, in the file chooser, the text representing the permit extension
@@ -70,42 +50,5 @@ public class SoundFilter
     {
         return "Sound File (*.au, *.mid, *.mod, *.mp2, *.mp3, *.ogg, *.ram," +
                 "*.wav, *.wma)";
-    }
-}
-
-/**
- * class which defines the different permit extension file
- * @author Alexandre Maillard
- */
-class Utils 
-{
-    /*
-     * Differents extension of a sound file
-     */
-    public final static String wav = "wav";
-    public final static String mid = "mid";
-    public final static String mp2 = "mp2";
-    public final static String mp3 = "mp3";
-    public final static String mod = "mod";
-    public final static String ram = "ram";
-    public final static String wma = "wma";
-    public final static String ogg = "ogg";
-    public final static String au = "au";
-
-    /*
-     * Gets the file extension.
-     * @param File which wants the extension
-     * @return Return the extension as a String
-     */  
-    public static String getExtension(File f) 
-    {
-        String ext = null;
-        String s = f.getName();
-        int i = s.lastIndexOf('.');
-
-        if (i > 0 &&  i < s.length() - 1) 
-            ext = s.substring(i+1).toLowerCase();
-
-        return ext;
     }
 }

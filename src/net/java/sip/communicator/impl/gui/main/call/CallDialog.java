@@ -87,6 +87,12 @@ public class CallDialog
     private MuteButton muteButton;
 
     /**
+     * The button which allows starting and stopping the recording of the
+     * {@link #call}. 
+     */
+    private RecordButton recordButton;
+
+    /**
      * The video button.
      */
     private LocalVideoButton videoButton;
@@ -206,6 +212,7 @@ public class CallDialog
 
         holdButton = new HoldButton(call);
         muteButton = new MuteButton(call);
+        recordButton = new RecordButton(call);
         videoButton = new LocalVideoButton(call);
         transferCallButton = new TransferCallButton(call);
         fullScreenButton = new FullScreenButton(this);
@@ -229,17 +236,21 @@ public class CallDialog
             GuiActivator.getResources().getI18NString("service.gui.HANG_UP"));
         hangupButton.addActionListener(this);
 
-        // Buttons would be enabled once the call has entered in state
-        // connected.
+        /*
+         * The buttons will be enabled once the call has entered in a connected
+         * state.
+         */
         dialButton.setEnabled(false);
         conferenceButton.setEnabled(false);
         holdButton.setEnabled(false);
         muteButton.setEnabled(false);
+        recordButton.setEnabled(false);
 
         settingsPanel.add(dialButton);
         settingsPanel.add(conferenceButton);
         settingsPanel.add(holdButton);
         settingsPanel.add(muteButton);
+        settingsPanel.add(recordButton);
 
         if (!isLastConference)
         {
@@ -454,6 +465,7 @@ public class CallDialog
         conferenceButton.setEnabled(true);
         holdButton.setEnabled(true);
         muteButton.setEnabled(true);
+        recordButton.setEnabled(true);
 
         if (!isLastConference)
         {

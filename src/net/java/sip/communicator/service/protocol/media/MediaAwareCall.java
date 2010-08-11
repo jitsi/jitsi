@@ -79,6 +79,11 @@ public abstract class MediaAwareCall<
     private boolean mute = false;
 
     /**
+     * The <tt>Recorder</tt> used to record this call. 
+     */
+    private Recorder recorder;
+
+    /**
      * Device used in call will be chosen according to <tt>MediaUseCase</tt>.
      */
     protected MediaUseCase mediaUseCase = MediaUseCase.ANY;
@@ -330,7 +335,7 @@ public abstract class MediaAwareCall<
         MediaDevice device = mediaService.getDefaultDevice(mediaType,
                 mediaUseCase);
 
-        if (MediaType.AUDIO.equals(mediaType) && isConferenceFocus())
+        if (MediaType.AUDIO.equals(mediaType))
         {
             if (conferenceAudioMixer == null)
             {
@@ -564,5 +569,36 @@ public abstract class MediaAwareCall<
             T peer = peers.next();
             peer.removeVideoPropertyChangeListener(listener);
         }
+    }
+
+    /**
+     * Stops the recording of this call.
+     */
+    public void stopRecording()
+    {
+        recorder.stopRecording();
+    }
+
+    /**
+     * Starts the recording of this call.
+     * @param callFilename call filename
+     */
+    public void startRecording(String callFilename)
+    {
+        MediaService mediaService = ProtocolMediaActivator.getMediaService();
+        recorder =
+            mediaService.createRecorder(getDefaultDevice(MediaType.AUDIO));
+
+        recorder.startRecording(callFilename);
+    }
+
+    /**
+     * Returns the recorder used by this instance to record the call.
+     * 
+     * @return call recorder
+     */
+    public Recorder getRecorder()
+    {
+        return recorder;
     }
 }

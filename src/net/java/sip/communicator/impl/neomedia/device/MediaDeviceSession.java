@@ -1613,7 +1613,7 @@ public class MediaDeviceSession
      *
      * @param processor the <tt>Processor</tt> to start
      */
-    private void startProcessorInAccordWithDirection(Processor processor)
+    protected void startProcessorInAccordWithDirection(Processor processor)
     {
         if (startedDirection.allowsSending()
                 && (processor.getState() != Processor.Started))

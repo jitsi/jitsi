@@ -187,6 +187,23 @@ public class NeomediaActivator
 
         if (logger.isInfoEnabled())
             logger.info("Audio Notifier Service ...[REGISTERED]");
+
+        // Call Recording
+        Dictionary<String, String> callRecordingProps
+            = new Hashtable<String, String>();
+        callRecordingProps.put(
+                ConfigurationForm.FORM_TYPE,
+                ConfigurationForm.ADVANCED_TYPE);
+        bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                        CallRecordingConfigForm.class.getName(),
+                        getClass().getClassLoader(),
+                        null,
+                        "plugin.callrecordingconfig.CALL_RECORDING_CONFIG", 
+                        1100,
+                        true), 
+                callRecordingProps);
     }
 
     /**

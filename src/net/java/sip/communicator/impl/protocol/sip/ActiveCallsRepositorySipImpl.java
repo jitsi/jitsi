@@ -12,7 +12,6 @@ import javax.sip.*;
 import javax.sip.header.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -272,5 +271,19 @@ public class ActiveCallsRepositorySipImpl
         CallPeerSipImpl peer = findCallPeer(callID, localTag, remoteTag);
 
         return (peer == null)? null : peer.getCall();
+    }
+
+    /**
+     * Creates and dispatches a <tt>CallEvent</tt> notifying registered
+     * listeners that an event with id <tt>eventID</tt> has occurred on
+     * <tt>sourceCall</tt>.
+     *
+     * @param eventID the ID of the event to dispatch
+     * @param sourceCall the call on which the event has occurred
+     * @see ActiveCallsRepository#fireCallEvent(int, Call)
+     */
+    protected void fireCallEvent(int eventID, Call sourceCall)
+    {
+        parentOperationSet.fireCallEvent(eventID, sourceCall);
     }
 }

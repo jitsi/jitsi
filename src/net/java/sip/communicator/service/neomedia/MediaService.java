@@ -152,6 +152,19 @@ public interface MediaService
     public ScreenDevice getDefaultScreenDevice();
 
     /**
+     * Creates a new <tt>Recorder</tt> instance that can be used to record a
+     * call which captures and plays back media using a specific
+     * <tt>MediaDevice</tt>. 
+     *
+     * @param device the <tt>MediaDevice</tt> which is used for media capture
+     * and playback by the call to be recorded 
+     * @return a new <tt>Recorder</tt> instance that can be used to record a
+     * call which captures and plays back media using the specified
+     * <tt>MediaDevice</tt>
+     */
+    public Recorder createRecorder(MediaDevice device);
+
+    /**
      * Returns a {@link Map} that binds indicates whatever preferences the
      * media service implementation may have for the RTP payload type numbers
      * that get dynamically assigned to {@link MediaFormat}s with no static
