@@ -300,6 +300,18 @@ public class NetworkAddressManagerServiceImpl
         //windows socket implementations return the any address so we need to
         //find something else here ... InetAddress.getLocalHost seems to work
         //better on windows so lets hope it'll do the trick.
+
+        if (localHost == null)
+        {
+            try
+            {
+                localHost = InetAddress.getLocalHost();
+            }
+            catch (UnknownHostException e)
+            {
+                logger.warn("Failed to get localhost ", e);
+            }
+        }
         if( localHost.isAnyLocalAddress())
         {
             if (logger.isTraceEnabled())
@@ -491,7 +503,7 @@ public class NetworkAddressManagerServiceImpl
             return new InetSocketAddress(getLocalHost(dst), port);
         }
         StunAddress mappedAddress = queryStunServer(port);
-        InetSocketAddress result = null;
+        InetSocketAddress result;
         if (mappedAddress != null)
             result = mappedAddress.getSocketAddress();
         else
@@ -657,7 +669,6 @@ public class NetworkAddressManagerServiceImpl
                 {
                     logger.fatal("An exception occurred while trying to create"
                                  + "a local host discovery socket.", exc);
-                    resultSocket = null;
                     return null;
                 }
                 //port seems to be taken. try another one.
