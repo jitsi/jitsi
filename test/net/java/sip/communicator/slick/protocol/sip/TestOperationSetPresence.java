@@ -182,9 +182,9 @@ public class TestOperationSetPresence
         logger.trace(" --=== beginning state transition test ===--");
 
         PresenceStatus oldStatus = 
-            this.operationSetPresence1.getPresenceStatus();
+            this.operationSetPresence2.getPresenceStatus();
         String oldStatusMessage = 
-            this.operationSetPresence1.getCurrentStatusMessage();
+            this.operationSetPresence2.getCurrentStatusMessage();
         String newStatusMessage = 
             this.statusMessageRoot + newStatus;
 
@@ -195,11 +195,11 @@ public class TestOperationSetPresence
         //events have been generated.
         PresenceStatusEventCollector statusEventCollector
             = new PresenceStatusEventCollector();
-        this.operationSetPresence1.addProviderPresenceStatusListener(
+        this.operationSetPresence2.addProviderPresenceStatusListener(
             statusEventCollector);
 
         //change the status
-        this.operationSetPresence1.publishPresenceStatus(newStatus,
+        this.operationSetPresence2.publishPresenceStatus(newStatus,
                                                          newStatusMessage);
         pauseAfterStateChanges();
 
@@ -207,7 +207,7 @@ public class TestOperationSetPresence
         statusEventCollector.waitForPresEvent(10000);
         statusEventCollector.waitForStatMsgEvent(10000);
 
-        this.operationSetPresence1.removeProviderPresenceStatusListener(
+        this.operationSetPresence2.removeProviderPresenceStatusListener(
             statusEventCollector);
 
         assertEquals("Events dispatched during an event transition.",
@@ -226,7 +226,7 @@ public class TestOperationSetPresence
         // verify that the operation set itself is aware of the status change
         assertEquals("opSet.getPresenceStatus() did not return properly.",
             newStatus,
-            this.operationSetPresence1.getPresenceStatus());
+            this.operationSetPresence2.getPresenceStatus());
 
         // Will wait for the status to be received before quering for it
         Object lock = new Object();
@@ -237,7 +237,7 @@ public class TestOperationSetPresence
         }
 
         PresenceStatus actualStatus = 
-            this.operationSetPresence2.queryContactStatus(this.fixture.userID1);
+            this.operationSetPresence1.queryContactStatus(this.fixture.userID2);
 
         // in case of switching to the OFFLINE state, the contact will appear
         // in the unknown state, not offline
@@ -270,7 +270,7 @@ public class TestOperationSetPresence
         // verify that the operation set itself is aware of the new status msg.
         assertEquals("opSet.getCurrentStatusMessage() did not return properly.",
             newStatusMessage,
-            this.operationSetPresence1.getCurrentStatusMessage());
+            this.operationSetPresence2.getCurrentStatusMessage());
 
         logger.trace(" --=== finished test ===--");
     }
@@ -304,7 +304,7 @@ public class TestOperationSetPresence
         //supported by the underlying implementation.
         Iterator<PresenceStatus> supportedStatusSetIter =
             operationSetPresence1.getSupportedStatusSet();
-    
+
         while (supportedStatusSetIter.hasNext())
         {
             PresenceStatus supportedStatus = supportedStatusSetIter.next();
@@ -335,7 +335,6 @@ public class TestOperationSetPresence
         PresenceStatus actualReturn
             = this.operationSetPresence1.queryContactStatus(
                     this.fixture.userID2);
-        
         // in the case of setting the contact offline, it may appear in the 
         // UNKNOWN state until the next poll
         if (status.getStatus() != 0) {
@@ -364,7 +363,7 @@ public class TestOperationSetPresence
         throws Exception
     {
         logger.debug("Testing Subscription and Subscription Event Dispatch.");
-
+         this.operationSetPresence2.subscribe(this.fixture.userID1);
         SubscriptionEventCollector subEvtCollector
             = new SubscriptionEventCollector();
         this.operationSetPresence1.addSubscriptionListener(subEvtCollector);
@@ -471,31 +470,30 @@ public class TestOperationSetPresence
         //notification is not supposed to have the old status as it really was.
         assertNotNull( "Reported old PresenceStatus: ", reportedOldStatus );
 
-        try
-        {
-            // add the the user to the reverse side needed for status tests
-            subEvtCollector.collectedEvents.clear();
-            this.operationSetPresence2.addSubscriptionListener(subEvtCollector);
-
-            synchronized (subEvtCollector)
-            {
-                this.operationSetPresence2.subscribe(this.fixture.userID1);
-                //we may already have the event, but it won't hurt to check.
-                subEvtCollector.waitForEvent(10000);
-                
-                // wait the resolved event
-                subEvtCollector.collectedEvents.clear();
-                subEvtCollector.waitForEvent(10000);
-                
-                this.operationSetPresence2.removeSubscriptionListener(
-                    subEvtCollector);
-            }
-        }
-        catch (OperationFailedException ex)
-        {
-            // happens if the user is already subscribed
-        }
-        
+//        try
+//        {
+//            // add the the user to the reverse side needed for status tests
+//            subEvtCollector.collectedEvents.clear();
+//            this.operationSetPresence2.addSubscriptionListener(subEvtCollector);
+//
+//            synchronized (subEvtCollector)
+//            {
+//                this.operationSetPresence2.subscribe(this.fixture.userID1);
+//                //we may already have the event, but it won't hurt to check.
+//                subEvtCollector.waitForEvent(10000);
+//
+//                // wait the resolved event
+//                subEvtCollector.collectedEvents.clear();
+//                subEvtCollector.waitForEvent(10000);
+//
+//                this.operationSetPresence2.removeSubscriptionListener(
+//                    subEvtCollector);
+//            }
+//        }
+//        catch (OperationFailedException ex)
+//        {
+//            // happens if the user is already subscribed
+//        }
         synchronized(lock)
         {
             logger.info("Will wait all subscription events to be received by" +

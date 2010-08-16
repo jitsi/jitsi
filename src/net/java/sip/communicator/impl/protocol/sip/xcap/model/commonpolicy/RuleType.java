@@ -7,55 +7,38 @@
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
 /**
- * <p>Java class for ruleType complex type.
+ * The Authorization Rules rule element.
  * <p/>
- * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
- * <pre>
- * &lt;complexType name="ruleType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element name="conditions" type="{urn:ietf:params:xml:ns:common-policy}conditionsType" minOccurs="0"/>
- *         &lt;element name="actions" type="{urn:ietf:params:xml:ns:common-policy}extensibleType" minOccurs="0"/>
- *         &lt;element name="transformations" type="{urn:ietf:params:xml:ns:common-policy}extensibleType" minOccurs="0"/>
- *       &lt;/sequence>
- *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}ID" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
+ * Compliant with rfc5025
  *
  * @author Grigorii Balutsel
  */
-//@XmlAccessorType(XmlAccessType.FIELD)
-//@XmlType(name = "ruleType", propOrder = {
-//        "conditions",
-//        "actions",
-//        "transformations"
-//        })
 public class RuleType
 {
+    /**
+     * The id attribute.
+     */
+    private String id;
 
-//    @XmlElement(namespace = "urn:ietf:params:xml:ns:common-policy")
-    protected ConditionsType conditions;
+    /**
+     * The conditions element.
+     */
+    private ConditionsType conditions;
 
-//    @XmlElement(namespace = "urn:ietf:params:xml:ns:common-policy")
-    protected ActionsType actions;
+    /**
+     * The actions element.
+     */
+    private ActionsType actions;
 
-//    @XmlElement(namespace = "urn:ietf:params:xml:ns:common-policy")
-    protected TransfomationsType transformations;
-
-//    @XmlAttribute(required = true)
-//    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-//    @XmlID
-    protected String id;
+    /**
+     * The transformations element.
+     */
+    private TransfomationsType transformations;
 
     /**
      * Gets the value of the conditions property.
      *
-     * @return possible object is
-     *         {@link ConditionsType }
+     * @return the conditions property.
      */
     public ConditionsType getConditions()
     {
@@ -65,19 +48,17 @@ public class RuleType
     /**
      * Sets the value of the conditions property.
      *
-     * @param value allowed object is
-     *              {@link ConditionsType }
+     * @param conditions the uri to set.
      */
-    public void setConditions(ConditionsType value)
+    public void setConditions(ConditionsType conditions)
     {
-        this.conditions = value;
+        this.conditions = conditions;
     }
 
     /**
      * Gets the value of the actions property.
      *
-     * @return possible object is
-     *         {@link TransfomationsType }
+     * @return the actions property.
      */
     public ActionsType getActions()
     {
@@ -87,19 +68,17 @@ public class RuleType
     /**
      * Sets the value of the actions property.
      *
-     * @param value allowed object is
-     *              {@link TransfomationsType }
+     * @param actions the actions to set.
      */
-    public void setActions(ActionsType value)
+    public void setActions(ActionsType actions)
     {
-        this.actions = value;
+        this.actions = actions;
     }
 
     /**
      * Gets the value of the transformations property.
      *
-     * @return possible object is
-     *         {@link TransfomationsType }
+     * @return the transformations property.
      */
     public TransfomationsType getTransformations()
     {
@@ -109,19 +88,17 @@ public class RuleType
     /**
      * Sets the value of the transformations property.
      *
-     * @param value allowed object is
-     *              {@link TransfomationsType }
+     * @param transformations the uri to set.
      */
-    public void setTransformations(TransfomationsType value)
+    public void setTransformations(TransfomationsType transformations)
     {
-        this.transformations = value;
+        this.transformations = transformations;
     }
 
     /**
      * Gets the value of the id property.
      *
-     * @return possible object is
-     *         {@link String }
+     * @return the id property.
      */
     public String getId()
     {
@@ -131,11 +108,10 @@ public class RuleType
     /**
      * Sets the value of the id property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param id the uri to set.
      */
-    public void setId(String value)
+    public void setId(String id)
     {
-        this.id = value;
+        this.id = id;
     }
 }

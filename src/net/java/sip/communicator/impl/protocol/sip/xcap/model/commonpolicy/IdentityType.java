@@ -6,89 +6,39 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
-import org.w3c.dom.Element;
+import org.w3c.dom.*;
 
-//import javax.xml.bind.*;
-//import javax.xml.bind.annotation.*;
 import java.util.*;
 
 /**
- * <p>Java class for identityType complex type.
+ * The Authorization Rules identity element.
  * <p/>
- * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
- * <pre>
- * &lt;complexType name="identityType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;choice maxOccurs="unbounded">
- *         &lt;element name="one" type="{urn:ietf:params:xml:ns:common-policy}oneType"/>
- *         &lt;element name="many" type="{urn:ietf:params:xml:ns:common-policy}manyType"/>
- *         &lt;any/>
- *       &lt;/choice>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
+ * Compliant with rfc5025
  *
  * @author Grigorii Balutsel
  */
-
-//@XmlAccessorType(XmlAccessType.FIELD)
-//@XmlType(name = "identityType", propOrder = {
-//        "oneList",
-//        "manyList",
-//        "any"
-//        })
-//@XmlRootElement(name = "identity",
-//        namespace = "urn:ietf:params:xml:ns:common-policy")
 public class IdentityType
 {
-//    @XmlElementRef(name = "one",
-//            namespace = "urn:ietf:params:xml:ns:common-policy",
-//            type = OneType.class)
-    protected List<OneType> oneList;
+    /**
+     * The list of one elements.
+     */
+    private List<OneType> oneList;
 
-//    @XmlElementRef(name = "many",
-//            namespace = "urn:ietf:params:xml:ns:common-policy",
-//            type = ManyType.class)
-    protected List<ManyType> manyList;
+    /**
+     * The list of many elements.
+     */
+    private List<ManyType> manyList;
 
-//    @XmlAnyElement(lax = true)
-    protected List<Object> any;
+    /**
+     * The list of any elements.
+     */
+    private List<Element> any;
 
-//    /**
-//     * Gets the value of the oneOrManyOrAny property.
-//     * <p/>
-//     * <p/>
-//     * This accessor method returns a reference to the live list,
-//     * not a snapshot. Therefore any modification you make to the
-//     * returned list will be present inside the JAXB object.
-//     * This is why there is not a <CODE>set</CODE> method for the oneOrManyOrAny property.
-//     * <p/>
-//     * <p/>
-//     * For example, to add a new item, do as follows:
-//     * <pre>
-//     *    getOneOrManyOrAny().add(newItem);
-//     * </pre>
-//     * <p/>
-//     * <p/>
-//     * <p/>
-//     * Objects of the following type(s) are allowed in the list
-//     * {@link JAXBElement }{@code <}{@link ManyType }{@code >}
-//     * {@link Element }
-//     * {@link Object }
-//     * {@link JAXBElement }{@code <}{@link OneType }{@code >}
-//     */
-    public List<Object> getAny()
-    {
-        if (any == null)
-        {
-            any = new ArrayList<Object>();
-        }
-        return this.any;
-    }
-
+    /**
+     * Gets the value of the oneList property.
+     *
+     * @return the oneList property.
+     */
     public List<OneType> getOneList()
     {
         if (oneList == null)
@@ -98,6 +48,11 @@ public class IdentityType
         return this.oneList;
     }
 
+    /**
+     * Gets the value of the manyList property.
+     *
+     * @return the manyList property.
+     */
     public List<ManyType> getManyList()
     {
         if (manyList == null)
@@ -105,5 +60,19 @@ public class IdentityType
             manyList = new ArrayList<ManyType>();
         }
         return this.manyList;
+    }
+
+    /**
+     * Gets the value of the any property.
+     *
+     * @return the any property.
+     */
+    public List<Element> getAny()
+    {
+        if (any == null)
+        {
+            any = new ArrayList<Element>();
+        }
+        return this.any;
     }
 }

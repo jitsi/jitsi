@@ -6,36 +6,48 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
+import net.java.sip.communicator.util.*;
+
 /**
- * <p>Java class for sphereType complex type.
+ * The Authorization Rules sphere element.
  * <p/>
- * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
- * <pre>
- * &lt;complexType name="sphereType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="value" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
+ * Compliant with rfc5025
  *
  * @author Grigorii Balutsel
  */
-//@XmlAccessorType(XmlAccessType.FIELD)
-//@XmlType(name = "sphereType")
 public class SphereType
 {
+    /**
+     * The value attribute.
+     */
+    private String value;
 
-//    @XmlAttribute(required = true)
-    protected String value;
+    /**
+     * Create the sphere element.
+     */
+    public SphereType()
+    {
+    }
+
+    /**
+     * Create the sphere element with the value attribute.
+     *
+     * @param value the value attribute.
+     * @throws IllegalArgumentException if uri attribute is null or empty.
+     */
+    public SphereType(String value)
+    {
+        if (StringUtils.isNullOrEmpty(value))
+        {
+            throw new IllegalArgumentException("value cannot be null or empty");
+        }
+        this.value = value;
+    }
 
     /**
      * Gets the value of the value property.
      *
-     * @return possible object is
-     *         {@link String }
+     * @return the value property.
      */
     public String getValue()
     {
@@ -45,8 +57,7 @@ public class SphereType
     /**
      * Sets the value of the value property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param value the value to set.
      */
     public void setValue(String value)
     {

@@ -78,7 +78,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
             }
             if (PresRulesClient.NAMESPACE.equals(namespace))
             {
-                //presRulesSupported = true;
+                presRulesSupported = true;
             }
             if (PresContentClient.NAMESPACE.equals(namespace))
             {
@@ -193,9 +193,9 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
     {
         assertConnected();
         assertResourceListsSupported();
-        XCapResourceId resourceId = XCapResourceId.create(anchor);
         return null;
-       // TODO: uncomment after implementation
+        // TODO: uncomment after OpenXCAP fixes
+//        XCapResourceId resourceId = XCapResourceId.create(anchor);
 //        try
 //        {
 //            // Load list from the server
@@ -278,9 +278,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
             {
                 return new RulesetType();
             }
-            // TODO: uncomment after implementation
-            //return (RulesetType) XmlUtils.createDocument(RulesetType.class, xml);
-            return null;
+            return CommonPolicyParser.fromXml(xml);
         }
         catch (Exception e)
         {
@@ -303,19 +301,18 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
         assertPresRulesSupported();
         String resourceListsDocument = getPresRulesDocument();
         XCapResourceId resourceId = new XCapResourceId(resourceListsDocument);
-        // TODO: uncomment after implementation
-//        try
-//        {
-//            String xml = XmlUtils.toXml(RulesetType.class, presRules);
-//            XCapResource resource = new XCapResource(resourceId, xml,
-//                    PresRulesClient.CONTENT_TYPE);
-//            // Put pres-rules to the server
-//            putResource(resource);
-//        }
-//        catch (JAXBException e)
-//        {
-//            throw new XCapException("PresRules cannot be parsed", e);
-//        }
+        try
+        {
+            String xml = CommonPolicyParser.toXml(presRules);
+            XCapResource resource = new XCapResource(resourceId, xml,
+                    PresRulesClient.CONTENT_TYPE);
+            // Put pres-rules to the server
+            putResource(resource);
+        }
+        catch (ParsingException e)
+        {
+            throw new XCapException("PresRules cannot be parsed", e);
+        }
     }
 
     /**
@@ -420,8 +417,8 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
             }
             catch (ParsingException e)
             {
-                // TODO: remove it after the sip2sip fixes
-                // The only server that supports it is sip2sip server.
+                // TODO: remove it after the OpenXCAP fixes
+                // The only server that supports it is OpenXCAP server.
                 // They do not follow for 100% percent the RFC
                 ContentType presContent = new ContentType();
                 DataType data = new DataType();

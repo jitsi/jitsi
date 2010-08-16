@@ -7,71 +7,53 @@
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
 import org.w3c.dom.*;
+import net.java.sip.communicator.util.*;      
 
 /**
- * <p>Java class for oneType complex type.
+ * The Authorization Rules one element.
  * <p/>
- * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
- * <pre>
- * &lt;complexType name="oneType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;any/>
- *       &lt;/sequence>
- *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}anyURI" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
+ * Compliant with rfc5025
  *
  * @author Grigorii Balutsel
  */
-//@XmlAccessorType(XmlAccessType.FIELD)
-//@XmlType(name = "oneType", propOrder = {
-//        "any"
-//        })
-//@XmlRootElement(name = "one",
-//        namespace = "urn:ietf:params:xml:ns:common-policy")
 public class OneType
 {
-
-//    @XmlAnyElement(lax = true)
-    protected Object any;
-
-//    @XmlAttribute(required = true)
-    protected String id;
+    /**
+     * The id attribute
+     */
+    private String id;
 
     /**
-     * Gets the value of the any property.
-     *
-     * @return possible object is
-     *         {@link Element }
-     *         {@link Object }
+     * The any element.
      */
-    public Object getAny()
+    private Element any;
+
+    /**
+     * Create the one element.
+     */
+    public OneType()
     {
-        return any;
     }
 
     /**
-     * Sets the value of the any property.
+     * Create the one element with the id attribute.
      *
-     * @param value allowed object is
-     *              {@link Element }
-     *              {@link Object }
+     * @param id the id attribute.
+     * @throws IllegalArgumentException if uri attribute is null or empty.
      */
-    public void setAny(Object value)
+    public OneType(String id)
     {
-        this.any = value;
+        if (StringUtils.isNullOrEmpty(id))
+        {
+            throw new IllegalArgumentException("id cannot be null or empty");
+        }
+        this.id = id;
     }
 
     /**
      * Gets the value of the id property.
      *
-     * @return possible object is
-     *         {@link String }
+     * @return the id property.
      */
     public String getId()
     {
@@ -81,11 +63,30 @@ public class OneType
     /**
      * Sets the value of the id property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param id the id to set.
      */
-    public void setId(String value)
+    public void setId(String id)
     {
-        this.id = value;
+        this.id = id;
+    }
+
+    /**
+     * Gets the value of the any property.
+     *
+     * @return the any property.
+     */
+    public Element getAny()
+    {
+        return any;
+    }
+
+    /**
+     * Sets the value of the any property.
+     *
+     * @param any the name to set.
+     */
+    public void setAny(Element any)
+    {
+        this.any = any;
     }
 }

@@ -12,109 +12,108 @@ import org.w3c.dom.*;
 import java.util.*;
 
 /**
- * <p>Java class for extensibleType complex type.
+ * The Authorization Rules transformations element.
  * <p/>
- * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
- * <pre>
- * &lt;complexType name="extensibleType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;any/>
- *       &lt;/sequence>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
+ * Compliant with rfc5025
  *
  * @author Grigorii Balutsel
  */
-//@XmlAccessorType(XmlAccessType.FIELD)
-//@XmlType(name = "transfomationsType", propOrder = {
-//        "servicePermission",
-//        "personPermission",
-//        "devicePermission",
-//        "any"
-//        })
 public class TransfomationsType
 {
+    /**
+     * The service-permissions element.
+     */
+    private ProvideServicePermissionType servicePermission;
 
-//    @XmlElement(name = "provide-services",
-//            namespace = "urn:ietf:params:xml:ns:resource-lists",
-//            required = false)
-    protected ProvideServicePermission servicePermission;
+    /**
+     * The person-permissions element.
+     */
+    private ProvidePersonPermissionType personPermission;
 
-//    @XmlElement(name = "provide-persons",
-//            namespace = "urn:ietf:params:xml:ns:resource-lists",
-//            required = false)
-    protected ProvidePersonPermission personPermission;
+    /**
+     * The device-permissions element.
+     */
+    private ProvideDevicePermissionType devicePermission;
 
-//    @XmlElement(name = "provide-devices",
-//            namespace = "urn:ietf:params:xml:ns:resource-lists",
-//            required = false)
-    protected ProvideDevicePermission devicePermission;
+    /**
+     * The list of any elements.
+     */
+    private List<Element> any;
 
-//    @XmlAnyElement(lax = true)
-    protected List<Object> any;
-
-    public ProvideServicePermission getServicePermission()
+    /**
+     * Gets the value of the servicePermission property.
+     *
+     * @return the servicePermission property.
+     */
+    public ProvideServicePermissionType getServicePermission()
     {
         return servicePermission;
     }
 
-    public void setServicePermission(ProvideServicePermission servicePermission)
+    /**
+     * Sets the value of the servicePermission property.
+     *
+     * @param servicePermission the servicePermission to set.
+     */
+    public void setServicePermission(
+            ProvideServicePermissionType servicePermission)
     {
         this.servicePermission = servicePermission;
     }
 
-    public ProvidePersonPermission getPersonPermission()
+    /**
+     * Gets the value of the personPermission property.
+     *
+     * @return the personPermission property.
+     */
+    public ProvidePersonPermissionType getPersonPermission()
     {
         return personPermission;
     }
 
-    public void setPersonPermission(ProvidePersonPermission personPermission)
+    /**
+     * Sets the value of the personPermission property.
+     *
+     * @param personPermission the personPermission to set.
+     */
+    public void setPersonPermission(
+            ProvidePersonPermissionType personPermission)
     {
         this.personPermission = personPermission;
     }
 
-    public ProvideDevicePermission getDevicePermission()
+    /**
+     * Gets the value of the devicePermission property.
+     *
+     * @return the devicePermission property.
+     */
+    public ProvideDevicePermissionType getDevicePermission()
     {
         return devicePermission;
     }
 
-    public void setDevicePermission(ProvideDevicePermission devicePermission)
+    /**
+     * Sets the value of the devicePermission property.
+     *
+     * @param devicePermission the devicePermission to set.
+     */
+    public void setDevicePermission(
+            ProvideDevicePermissionType devicePermission)
     {
         this.devicePermission = devicePermission;
     }
 
     /**
      * Gets the value of the any property.
-     * <p/>
-     * <p/>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the any property.
-     * <p/>
-     * <p/>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getAny().add(newItem);
-     * </pre>
-     * <p/>
-     * <p/>
-     * <p/>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Element }
-     * {@link Object }
+     *
+     * @return the any property.
      */
-    public List<Object> getAny()
+    public List<Element> getAny()
     {
         if (any == null)
         {
-            any = new ArrayList<Object>();
+            any = new ArrayList<Element>();
         }
-        return this.any;
+        return any;
     }
 }

@@ -8,7 +8,7 @@ package net.java.sip.communicator.slick.protocol.jabber;
 
 import java.util.*;
 
-import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smack.util.StringUtils;
 
 import junit.framework.*;
 

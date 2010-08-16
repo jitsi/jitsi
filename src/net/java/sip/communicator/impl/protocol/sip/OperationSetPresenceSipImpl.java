@@ -6,23 +6,20 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.xml.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.xml.*;
 import org.w3c.dom.*;
 
 import javax.sip.*;
-import javax.sip.address.*;
+import javax.sip.address.Address;
 import javax.sip.header.*;
 import javax.sip.message.*;
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import java.io.*;
-import java.net.URI;
+import java.net.*;
 import java.text.*;
 import java.util.*;
 
@@ -1769,21 +1766,28 @@ public class OperationSetPresenceSipImpl
      */
     Document createDocument()
     {
+//        try
+//        {
+//            if (this.docBuilderFactory == null)
+//                this.docBuilderFactory = DocumentBuilderFactory.newInstance();
+//            if (this.docBuilder == null)
+//                this.docBuilder = this.docBuilderFactory.newDocumentBuilder();
+//        }
+//        catch (Exception e)
+//        {
+//            logger.error("can't create the new xml document", e);
+//            return null;
+//        }
+//        return this.docBuilder.newDocument();
         try
         {
-            if (this.docBuilderFactory == null)
-                this.docBuilderFactory = DocumentBuilderFactory.newInstance();
-
-            if (this.docBuilder == null)
-                this.docBuilder = this.docBuilderFactory.newDocumentBuilder();
+            return XMLUtils.createDocument();
         }
         catch (Exception e)
         {
-            logger.error("can't create the new xml document", e);
+            logger.error("Can't create xml document", e);
             return null;
         }
-
-        return this.docBuilder.newDocument();
     }
 
     /**
@@ -1796,27 +1800,32 @@ public class OperationSetPresenceSipImpl
      */
     String convertDocument(Document document)
     {
-        DOMSource source = new DOMSource(document);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult result = new StreamResult(stringWriter);
-
+//        DOMSource source = new DOMSource(document);
+//        StringWriter stringWriter = new StringWriter();
+//        StreamResult result = new StreamResult(stringWriter);
+//        try
+//        {
+//            if (this.transFactory == null)
+//                this.transFactory = TransformerFactory.newInstance();
+//            if (this.transformer == null)
+//                this.transformer = this.transFactory.newTransformer();
+//            this.transformer.transform(source, result);
+//        }
+//        catch (Exception e)
+//        {
+//            logger.error("can't convert the xml document into a string", e);
+//            return null;
+//        }
+//        return stringWriter.toString();
         try
         {
-            if (this.transFactory == null)
-                this.transFactory = TransformerFactory.newInstance();
-
-            if (this.transformer == null)
-                this.transformer = this.transFactory.newTransformer();
-
-            this.transformer.transform(source, result);
+            return XMLUtils.createXml(document);
         }
         catch (Exception e)
         {
-            logger.error("can't convert the xml document into a string", e);
+            logger.error("Can't convert the xml document into a string", e);
             return null;
         }
-
-        return stringWriter.toString();
     }
 
     /**
@@ -1829,32 +1838,35 @@ public class OperationSetPresenceSipImpl
      */
     Document convertDocument(String document)
     {
-        StringReader reader = new StringReader(document);
-        StreamSource source = new StreamSource(reader);
-        Document doc = createDocument();
-
-        if (doc == null)
-            return null;
-
-        DOMResult result = new DOMResult(doc);
-
+//        StringReader reader = new StringReader(document);
+//        StreamSource source = new StreamSource(reader);
+//        Document doc = createDocument();
+//        if (doc == null)
+//            return null;
+//        DOMResult result = new DOMResult(doc);
+//        try
+//        {
+//            if (this.transFactory == null)
+//                this.transFactory = TransformerFactory.newInstance();
+//            if (this.transformer == null)
+//                this.transformer = this.transFactory.newTransformer();
+//            this.transformer.transform(source, result);
+//        }
+//        catch (Exception e)
+//        {
+//            logger.error("can't convert the string into a xml document", e);
+//            return null;
+//        }
+//        return doc;
         try
         {
-            if (this.transFactory == null)
-                this.transFactory = TransformerFactory.newInstance();
-
-            if (this.transformer == null)
-                this.transformer = this.transFactory.newTransformer();
-
-            this.transformer.transform(source, result);
+            return XMLUtils.createDocument(document);
         }
         catch (Exception e)
         {
-            logger.error("can't convert the string into a xml document", e);
+            logger.error("Can't convert the string into a xml document", e);
             return null;
         }
-
-        return doc;
     }
 
     /**
@@ -2113,7 +2125,7 @@ public class OperationSetPresenceSipImpl
 
           if(personStatusIcon != null)
           {
-              String contactID = 
+              String contactID =
                   XMLUtils.getAttribute(presNode, ENTITY_ATTRIBUTE);
 
               if (contactID.startsWith("pres:"))
@@ -2620,67 +2632,29 @@ public class OperationSetPresenceSipImpl
          }
      }
 
-     /**
-      * Unsubscribe to every contact.
-      */
-     public void unsubscribeToAllContact()
-     {
-         if (logger.isDebugEnabled())
-             logger.debug("trying to unsubscribe to every contact");
-
-         // send event notifications saying that all our buddies are
-         // offline.
-         /* If we unsubscribe and root group contacts, tests fail
-            with message: Querying a Online state did not return
-            as expected expected: Online but was:Unknown
-
-         Iterator<Contact> rootContactsIter
-             = getServerStoredContactListRoot().contacts();
-
-         while (rootContactsIter.hasNext())
-         {
-             ContactSipImpl contact = (ContactSipImpl) rootContactsIter.next();
-
-             try
-             {
-                 unsubscribe(contact, false);
-             }
-             catch (OperationFailedException ex)
-             {
-                 logger.error(
-                     "Failed to unsubscribe to contact " + contact,
-                     ex);
-                 return;
-             }
-         }
-         */
-
-         Iterator<ContactGroup> groupsIter
-             = getServerStoredContactListRoot().subgroups();
-
-         while (groupsIter.hasNext())
-         {
-             ContactGroup group = groupsIter.next();
-             Iterator<Contact> contactsIter = group.contacts();
-
-             while (contactsIter.hasNext())
-             {
-                 ContactSipImpl contact = (ContactSipImpl) contactsIter.next();
-
-                 try
-                 {
-                     unsubscribe(contact, false);
-                 }
-                 catch (Throwable ex)
-                 {
-                     logger.error(
-                         "Failed to unsubscribe to contact " + contact,
-                         ex);
-                     return;
-                 }
-             }
-         }
-     }
+    /**
+     * Unsubscribe to every contact.
+     */
+    public void unsubscribeToAllContact()
+    {
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("Trying to unsubscribe to every contact");
+        }
+        // Send event notifications saying that all our buddies are offline.
+        for (ContactSipImpl contact : ssContactList
+                .getUniqueContacts(ssContactList.getRootGroup()))
+        {
+            try
+            {
+                unsubscribe(contact, false);
+            }
+            catch (Throwable ex)
+            {
+                logger.error("Failed to unsubscribe to contact " + contact, ex);
+            }
+        }
+    }
 
      /**
       * Cancels the timer which handles all scheduled tasks and disposes of the
@@ -2831,206 +2805,122 @@ public class OperationSetPresenceSipImpl
         }
     }
 
-     /**
-      * The method is called by a ProtocolProvider implementation whenever
-      * a change in the registration state of the corresponding provider had
-      * occurred. The method is particularly interested in events stating
-      * that the SIP provider has unregistered so that it would fire
-      * status change events for all contacts in our buddy list.
-      *
-      * @param evt ProviderStatusChangeEvent the event describing the status
-      * change.
-      */
-      public void registrationStateChanged(RegistrationStateChangeEvent evt)
-      {
-          if (evt.getNewState().equals(RegistrationState.UNREGISTERING))
-          {
-              // stop any task associated with the timer
-              cancelTimer();
-              // Destroy XCAP contacts
-              ssContactList.destroy();
-              // this will not be called by anyone else, so call it
-              // the method will terminate every active subscription
-              try
-              {
-                  publishPresenceStatus(
-                      sipStatusEnum.getStatus(SipStatusEnum.OFFLINE), "");
-              }
-              catch (OperationFailedException e)
-              {
-                  logger.error("can't set the offline mode", e);
-              }
-              stopEvents();
-          }
-          else if (evt.getNewState().equals(
-                  RegistrationState.REGISTERED))
-          {
-              if (logger.isDebugEnabled())
-              {
-                  logger.debug("enter registered state");
-              }
+    /**
+     * The method is called by a ProtocolProvider implementation whenever
+     * a change in the registration state of the corresponding provider had
+     * occurred. The method is particularly interested in events stating
+     * that the SIP provider has unregistered so that it would fire
+     * status change events for all contacts in our buddy list.
+     *
+     * @param evt ProviderStatusChangeEvent the event describing the status
+     *            change.
+     */
+    public void registrationStateChanged(RegistrationStateChangeEvent evt)
+    {
+        if (evt.getNewState().equals(RegistrationState.UNREGISTERING))
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Enter unregistering state");
+            }
+            // Stop any task associated with the timer
+            cancelTimer();
+            // Destroy XCAP contacts
+            ssContactList.destroy();
+            // This will not be called by anyone else, so call it the method
+            // will terminate every active subscription
+            try
+            {
+                publishPresenceStatus(
+                        sipStatusEnum.getStatus(SipStatusEnum.OFFLINE), "");
+            }
+            catch (OperationFailedException e)
+            {
+                logger.error("can't set the offline mode", e);
+            }
+            stopEvents();
+        }
+        else if (evt.getNewState().equals(RegistrationState.REGISTERED))
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("enter registered state");
+            }
+            // Init XCAP contacts
+            ssContactList.init();
+            /*
+            * If presence support is enabled and the keep-alive method
+            * is REGISTER, we'll get RegistrationState.REGISTERED more
+            * than one though we're already registered. If we're
+            * receiving such subsequent REGISTERED, we don't have to do
+            * anything because we've already set it up in response to
+            * the first REGISTERED.
+            */
+            if ((!presenceEnabled) || (pollingTask != null))
+            {
+                return;
+            }
 
-              // Init XCAP contacts
-              ssContactList.init();
+            // Subcribe to each contact in the list
+            for (ContactSipImpl contact : ssContactList
+                    .getAllContacts(ssContactList.getRootGroup()))
+            {
+                forcePollContact(contact);
+            }
 
-               /*
-                * If presence support is enabled and the keep-alive method
-                * is REGISTER, we'll get RegistrationState.REGISTERED more
-                * than one though we're already registered. If we're
-                * receiving such subsequent REGISTERED, we don't have to do
-                * anything because we've already set it up in response to
-                * the first REGISTERED.
-                */
-               if ((presenceEnabled == false) || (pollingTask != null))
-               {
-                   return;
-               }
+            // create the new polling task
+            pollingTask = new PollOfflineContactsTask();
 
-               // send a subscription for every contact in the subgroups
-               Iterator<ContactGroup> groupsIter
-                   = getServerStoredContactListRoot().subgroups();
-               while (groupsIter.hasNext())
-               {
-                   ContactGroup group = groupsIter.next();
-                   Iterator<Contact> contactsIter = group.contacts();
-
-                   while (contactsIter.hasNext())
-                   {
-                       ContactSipImpl contact
-                           = (ContactSipImpl) contactsIter.next();
-
-                       if (contact.isResolved())
-                       {
-                           if (logger.isDebugEnabled())
-                               logger.debug("contact " + contact
-                                       + " already resolved");
-                           continue;
-                       }
-
-                       // try to subscribe to this contact
-                       forcePollContact(contact);
-                   }
-               }
-
-               // send a subscription for every contact in root group
-               Iterator<Contact> rootContactsIter
-                   = getServerStoredContactListRoot().contacts();
-               while (rootContactsIter.hasNext())
-               {
-                   ContactSipImpl contact
-                       = (ContactSipImpl) rootContactsIter.next();
-
-                   if (contact.isResolved())
-                   {
-                       if (logger.isDebugEnabled())
-                           logger.debug("contact " + contact
-                                   + " already resolved");
-                       continue;
-                   }
-
-                   // try to subscribe to this contact
-                   forcePollContact(contact);
-               }
-
-               // create the new polling task
-               pollingTask = new PollOfflineContactsTask();
-
-               // start polling the offline contacts
-               timer.schedule(pollingTask, pollingTaskPeriod, pollingTaskPeriod);
-           }
-           else if(evt.getNewState()
-                     == RegistrationState.CONNECTION_FAILED)
-           {
-                // if connection failed we have lost network connectivity
-                // we must fire that all contacts has gone offline
-                Iterator<Contact> rootcontactsIter
-                    = getServerStoredContactListRoot().contacts();
-
-                while(rootcontactsIter.hasNext())
-                {
-                    ContactSipImpl contact
-                        = (ContactSipImpl)rootcontactsIter.next();
-
-                    PresenceStatus oldContactStatus
+            // start polling the offline contacts
+            timer.schedule(pollingTask, pollingTaskPeriod, pollingTaskPeriod);
+        }
+        else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Enter connction failed state");
+            }
+            // Destroy XCAP contacts
+            ssContactList.destroy();
+            // if connection failed we have lost network connectivity
+            // we must fire that all contacts has gone offline
+            for (ContactSipImpl contact : ssContactList
+                    .getAllContacts(ssContactList.getRootGroup()))
+            {
+                PresenceStatus oldContactStatus
                         = contact.getPresenceStatus();
-
-                    contact.setResolved(false);
-                    if (subscriber != null)
-                        try
-                        {
-                            subscriber
-                                .removeSubscription(getAddress(contact));
-                        }
-                        catch (OperationFailedException ex)
-                        {
-                            if (logger.isDebugEnabled())
-                                logger.debug(
-                                        "Failed to remove subscription to contact "
-                                        + contact);
-                        }
-
-                    if(!oldContactStatus.isOnline())
-                        continue;
-
-                    contact.setPresenceStatus(
-                        sipStatusEnum.getStatus(SipStatusEnum.OFFLINE));
-
-                    fireContactPresenceStatusChangeEvent(
-                          contact
-                        , contact.getParentContactGroup()
-                        , oldContactStatus);
-                }
-
-                Iterator<ContactGroup> groupsIter
-                    = getServerStoredContactListRoot().subgroups();
-
-                while(groupsIter.hasNext())
+                if (subscriber != null)
                 {
-                    ContactGroup group = groupsIter.next();
-                    Iterator<Contact> contactsIter = group.contacts();
-
-                    while(contactsIter.hasNext())
+                    try
                     {
-                        ContactSipImpl contact
-                            = (ContactSipImpl)contactsIter.next();
-
-                        PresenceStatus oldContactStatus
-                            = contact.getPresenceStatus();
-
-                        contact.setResolved(false);
-                        if (subscriber != null)
-                            try
-                            {
-                                subscriber
-                                    .removeSubscription(getAddress(contact));
-                            }
-                            catch (OperationFailedException ex)
-                            {
-                                if (logger.isDebugEnabled())
-                                    logger.debug(
-                                            "Failed to remove subscription to contact "
+                        subscriber.removeSubscription(getAddress(contact));
+                    }
+                    catch (OperationFailedException ex)
+                    {
+                        if (logger.isDebugEnabled())
+                        {
+                            logger.debug(
+                                    "Failed to remove subscription to contact "
                                             + contact);
-                            }
-
-                        if(!oldContactStatus.isOnline())
-                            continue;
-
-                        contact.setPresenceStatus(
-                            sipStatusEnum.getStatus(SipStatusEnum.OFFLINE));
-
-                        fireContactPresenceStatusChangeEvent(
-                              contact
-                            , contact.getParentContactGroup()
-                            , oldContactStatus);
+                        }
                     }
                 }
-
-                // stop any task associated with the timer
-                cancelTimer();
-
-                waitedCallIds.clear();
-           }
-      }
+                if (!oldContactStatus.isOnline())
+                {
+                    continue;
+                }
+                contact.setPresenceStatus(
+                        sipStatusEnum.getStatus(SipStatusEnum.OFFLINE));
+                fireContactPresenceStatusChangeEvent(
+                        contact
+                        , contact.getParentContactGroup()
+                        , oldContactStatus);
+            }
+            // stop any task associated with the timer
+            cancelTimer();
+            waitedCallIds.clear();
+        }
+    }
 
     /**
      * Gets the identifying address of a specific <code>ContactSipImpl</code> in

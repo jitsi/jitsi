@@ -14,7 +14,7 @@ import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.*;
 
 /**

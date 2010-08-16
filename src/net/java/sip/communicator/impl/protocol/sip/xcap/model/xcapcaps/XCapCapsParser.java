@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps;
 
-import static net.java.sip.communicator.impl.protocol.sip.xcap.model.StringUtils.*;
+import static net.java.sip.communicator.util.StringUtils.*;
+import static net.java.sip.communicator.util.xml.XMLUtils.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
-import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.*;
 import org.w3c.dom.*;
 
 /**
@@ -52,7 +52,7 @@ public final class XCapCapsParser
         try
         {
             XCapCapsType xCapCaps = new XCapCapsType();
-            Document document = XmlUtils.createDocument(xml);
+            Document document = createDocument(xml);
             Element xCapCapsElement = document.getDocumentElement();
             if (XCAPCAPS_ELEMENT.equals(xCapCapsElement.getLocalName()) &&
                     !NAMESPACE.equals(xCapCapsElement.getNamespaceURI()))

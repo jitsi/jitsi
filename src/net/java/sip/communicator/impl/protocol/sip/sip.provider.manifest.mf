@@ -65,6 +65,8 @@ Export-Package: net.java.sip.communicator.impl.protocol.sip,
  net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps,
  net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists,
  net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent,
+ net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy,
+ net.java.sip.communicator.impl.protocol.sip.xcap.model.presrules,
  net.java.sip.communicator.impl.protocol.sip.xcap.model.xcaperror
 
 

@@ -7,8 +7,9 @@
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent;
 
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
+import static net.java.sip.communicator.util.StringUtils.*;
+import static net.java.sip.communicator.util.xml.XMLUtils.*;
 import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.*;
-import static net.java.sip.communicator.impl.protocol.sip.xcap.model.StringUtils.*;
 
 import static javax.xml.XMLConstants.*;
 
@@ -56,10 +57,10 @@ public class PresContentParser
         try
         {
             ContentType content = new ContentType();
-            Document document = XmlUtils.createDocument(xml);
+            Document document = createDocument(xml);
             Element contentElement = document.getDocumentElement();
-            if (CONTENT_ELEMENT.equals(contentElement.getLocalName()) &&
-                    !NAMESPACE.equals(contentElement.getNamespaceURI()))
+            if (!NAMESPACE.equals(contentElement.getNamespaceURI()) ||
+                    !CONTENT_ELEMENT.equals(contentElement.getLocalName()))
             {
                 throw new Exception(
                         "Document doesn't contain content element");

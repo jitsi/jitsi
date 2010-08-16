@@ -7,17 +7,21 @@
 package net.java.sip.communicator.slick.protocol.sip;
 
 import junit.framework.*;
-import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
-import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps.*;
-import net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists.*;
+
+import net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent.*;
+import net.java.sip.communicator.impl.protocol.sip.xcap.model.presrules.*;
+import net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists.*;
+import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcaperror.*;
+import net.java.sip.communicator.util.xml.*;
 import org.w3c.dom.*;
 
 import javax.xml.namespace.*;
 
 /**
- * Contains tests of parsing xcap-caps, resource-lists, pres-content.
+ * Contains tests of parsing xcap-caps, resource-lists, pres-content,
+ * pres-rules, xcap-error.
  *
  * @author Grigorii Balutsel
  */
@@ -114,6 +118,40 @@ public class TestXCapParse extends TestCase
        "</xcap-error>";
 
     /**
+     * The pres-rules for the tests.
+     */
+    private static String PRES_RULES_XML =
+       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+       "<cr:ruleset xmlns=\"urn:ietf:params:xml:ns:pres-rules\"" +
+       "            xmlns:pr=\"urn:ietf:params:xml:ns:pres-rules\"" +
+       "            xmlns:cr=\"urn:ietf:params:xml:ns:common-policy\">" +
+       "  <cr:rule id=\"rule1\">" +
+       "    <cr:conditions>" +
+       "      <cr:identity>" +
+       "        <cr:one id=\"sip:entry@example.com\"/>" +
+       "      </cr:identity>" +
+       "    </cr:conditions>" +
+       "    <cr:actions>" +
+       "      <pr:sub-handling>allow</pr:sub-handling>" +
+       "    </cr:actions>" +
+       "    <cr:transformations>" +
+       "      <pr:provide-services>" +
+       "        <pr:service-uri-scheme>sip</pr:service-uri-scheme>" +
+       "        <pr:service-uri-scheme>mailto</pr:service-uri-scheme>" +
+       "      </pr:provide-services>" +
+       "      <pr:provide-persons>" +
+       "        <pr:all-persons/>" +
+       "     </pr:provide-persons>" +
+       "     <pr:provide-activities>true</pr:provide-activities>" +
+       "     <pr:provide-user-input>bare</pr:provide-user-input>" +
+       "     <pr:provide-unknown-attribute" +
+       "        ns=\"urn:vendor-specific:foo-namespace\"" +
+       "        name=\"foo\">true</pr:provide-unknown-attribute>" +
+       "    </cr:transformations>" +
+       "  </cr:rule>" +
+       "</cr:ruleset>";
+
+    /**
      * Creates a test suite containing tests of this class in a specific order.
      * We'll first execute tests beginning with the "test" prefix and then go to
      * ordered tests. We first execute tests for reading info, then writing.
@@ -179,10 +217,138 @@ public class TestXCapParse extends TestCase
         XCapErrorType cannotDelete =
                 XCapErrorParser.fromXml(XCAP_ERROR_CANNOT_DELETE_XML);
         validateXCapErrorConnotDelete(cannotDelete);
-
         XCapErrorType uniquenessFailure =
                 XCapErrorParser.fromXml(XCAP_ERROR_UNIQUENESS_FAILURE_XML);
         validateXCapErrorUniquenessFailure(uniquenessFailure);
+    }
+
+    /**
+     * Tests xcap-error parsing.
+     *
+     * @throws Exception if there is some error during test.
+     */
+    public static void testPresRulesParse() throws Exception
+    {
+        RulesetType originalRuleset =
+                CommonPolicyParser.fromXml(PRES_RULES_XML);
+        validatePresRules(originalRuleset);
+        String xml = CommonPolicyParser.toXml(originalRuleset);
+        RulesetType storedRuleset = CommonPolicyParser.fromXml(xml);
+        validatePresRules(storedRuleset);
+    }
+
+    private static void validatePresRules(RulesetType ruleset)
+    {
+        assertNotNull("pres-rules cannot be null", ruleset);
+        assertTrue("The rules we set is not read properly",
+                ruleset.getRules().size() == 1);
+        RuleType rule = ruleset.getRules().get(0);
+        assertNotNull(
+                "The rules[0] we set is not read properly",
+                rule.getConditions());
+        assertNotNull(
+                "The rules[0] we set is not read properly",
+                rule.getActions());
+        assertNotNull(
+                "The rules[0] we set is not read properly",
+                rule.getTransformations());
+        assertEquals(
+                "The rules[0] id we set is not read properly",
+                rule.getId(), "rule1");
+        // conditions
+        ConditionsType conditions = rule.getConditions();
+        assertTrue(
+                "The conditions we set is not read properly",
+                conditions.getIdentities().size() == 1);
+        assertTrue(
+                "The conditions we set is not read properly",
+                conditions.getSpheres().size() == 0);
+        assertTrue(
+                "The conditions we set is not read properly",
+                conditions.getValidities().size() == 0);
+        IdentityType identity = conditions.getIdentities().get(0);
+        assertTrue(
+                "The identity we set is not read properly",
+                identity.getOneList().size() == 1);
+        assertTrue(
+                "The identity we set is not read properly",
+                identity.getManyList().size() == 0);
+        assertTrue(
+                "The identity we set is not read properly",
+                identity.getAny().size() == 0);
+        OneType one = identity.getOneList().get(0);
+        assertEquals(
+                "The one we set is not read properly",
+                one.getId(), "sip:entry@example.com");
+        assertNull(
+                "The one we set is not read properly",
+                one.getAny());
+
+        // actions
+        ActionsType actions = rule.getActions();
+        assertNotNull(
+                "The actions sub-handling we set is not read properly",
+                actions.getSubHandling());
+        assertEquals(
+                "The actions sub-handling we set is not read properly",
+                actions.getSubHandling().value(), "allow");
+        assertTrue(
+                "The actions we set is not read properly",
+                actions.getAny().size() == 0);
+        // transformations
+        TransfomationsType transfomations = rule.getTransformations();
+        assertNull(
+                "The transfomations we set is not read properly",
+                transfomations.getDevicePermission());
+        assertNotNull(
+                "The transfomations we set is not read properly",
+                transfomations.getServicePermission());
+
+        // service-permission
+        ProvideServicePermissionType servicePermission =
+                transfomations.getServicePermission();
+        assertNull(
+                "The servicePermission we set is not read properly",
+                servicePermission.getAllServices());
+        assertTrue(
+                "The servicePermission we set is not read properly",
+                servicePermission.getOccurrences().size() == 0);
+        assertTrue(
+                "The servicePermission we set is not read properly",
+                servicePermission.getClasses().size() == 0);
+        assertTrue(
+                "The servicePermission we set is not read properly",
+                servicePermission.getServiceUriList().size() == 0);
+        assertTrue(
+                "The servicePermission we set is not read properly",
+                servicePermission.getServiceUriSchemeList().size() == 2);
+        assertEquals(
+                "The getServiceUriSchemeList[0] we set is not read properly",
+                servicePermission.getServiceUriSchemeList().get(0).getValue(),
+                "sip");
+        assertEquals(
+                "The getServiceUriSchemeList[1] we set is not read properly",
+                servicePermission.getServiceUriSchemeList().get(1).getValue(),
+                "mailto");
+        assertTrue(
+                "The servicePermission we set is not read properly",
+                servicePermission.getAny().size() == 0);
+        // person-permission
+        ProvidePersonPermissionType personPermission =
+                transfomations.getPersonPermission();
+        assertNotNull(
+                "The servicePermission we set is not read properly",
+                personPermission.getAllPersons());
+        assertTrue(
+                "The servicePermission we set is not read properly",
+                personPermission.getOccurrences().size() == 0);
+        assertTrue(
+                "The servicePermission we set is not read properly",
+                personPermission.getClasses().size() == 0);
+        assertTrue(
+                "The personPermission we set is not read properly",
+                personPermission.getAny().size() == 0);
+
     }
 
     /**
@@ -287,7 +453,7 @@ public class TestXCapParse extends TestCase
         assertEquals(
                 "The lists[1]ext:entry attribute we set is not read " +
                         "properly",
-                XmlUtils.getNamespaceUri(list1ExtElement), "extension");
+                XMLUtils.getNamespaceUri(list1ExtElement), "extension");
         assertEquals(
                 "The lists[1]ext:entry attribute we set is not read " +
                         "properly",
@@ -327,7 +493,7 @@ public class TestXCapParse extends TestCase
         assertEquals(
                 "The lists[1]entry[1]ext:dispaly-name element we set is not " +
                         "read properly",
-                XmlUtils.getNamespaceUri(enty1ExtElement), "extension");
+                XMLUtils.getNamespaceUri(enty1ExtElement), "extension");
         assertEquals(
                 "The lists[1]entry[1]ext:dispaly-name element we set is not " +
                         "read properly",

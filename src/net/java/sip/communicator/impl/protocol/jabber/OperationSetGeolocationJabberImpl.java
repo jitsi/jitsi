@@ -12,7 +12,7 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
-import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smack.util.StringUtils;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.geolocation.*;
 import net.java.sip.communicator.service.protocol.*;

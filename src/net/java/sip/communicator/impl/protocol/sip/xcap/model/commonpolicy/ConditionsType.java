@@ -6,58 +6,92 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
+import org.w3c.dom.*;
+
 import java.util.*;
 
 /**
- * <p>Java class for conditionsType complex type.
+ * The Authorization Rules conditions element.
  * <p/>
- * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
- * <pre>
- * &lt;complexType name="conditionsType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;choice maxOccurs="unbounded">
- *         &lt;element name="identity" type="{urn:ietf:params:xml:ns:common-policy}identityType" minOccurs="0"/>
- *         &lt;element name="sphere" type="{urn:ietf:params:xml:ns:common-policy}sphereType" minOccurs="0"/>
- *         &lt;element name="validity" type="{urn:ietf:params:xml:ns:common-policy}validityType" minOccurs="0"/>
- *         &lt;any/>
- *       &lt;/choice>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
+ * Compliant with rfc5025
  *
  * @author Grigorii Balutsel
  */
-//@XmlAccessorType(XmlAccessType.FIELD)
-//@XmlType(name = "conditionsType", propOrder = {
-//        "identityOrSphereOrValidity"
-//        })
 public class ConditionsType
 {
+    /**
+     * The list of identity elements.
+     */
+    private List<IdentityType> identities;
 
-//    @XmlElementRefs({
-//    @XmlElementRef(name = "identity",
-//            namespace = "urn:ietf:params:xml:ns:common-policy",
-//            type = JAXBElement.class),
-//    @XmlElementRef(name = "sphere",
-//            namespace = "urn:ietf:params:xml:ns:common-policy",
-//            type = JAXBElement.class),
-//    @XmlElementRef(name = "validity",
-//            namespace = "urn:ietf:params:xml:ns:common-policy",
-//            type = JAXBElement.class)
-//            })
-//    @XmlAnyElement(lax = true)
-    protected List<Object> identityOrSphereOrValidity;
+    /**
+     * The list of sphere elements.
+     */
+    private List<SphereType> spheres;
 
-   
-    public List<Object> getIdentityOrSphereOrValidity()
+    /**
+     * The list of validity elements.
+     */
+    private List<ValidityType> validities;
+
+    /**
+     * The list of any elements.
+     */
+    private List<Element> any;
+
+    /**
+     * Gets the value of the identities property.
+     *
+     * @return the identities property.
+     */
+    public List<IdentityType> getIdentities()
     {
-        if (identityOrSphereOrValidity == null)
+        if (this.identities == null)
         {
-            identityOrSphereOrValidity = new ArrayList<Object>();
+            this.identities = new ArrayList<IdentityType>();
         }
-        return this.identityOrSphereOrValidity;
+        return identities;
+    }
+
+    /**
+     * Gets the value of the spheres property.
+     *
+     * @return the spheres property.
+     */
+    public List<SphereType> getSpheres()
+    {
+        if (this.spheres == null)
+        {
+            this.spheres = new ArrayList<SphereType>();
+        }
+        return spheres;
+    }
+
+    /**
+     * Gets the value of the validities property.
+     *
+     * @return the validities property.
+     */
+    public List<ValidityType> getValidities()
+    {
+        if (this.validities == null)
+        {
+            this.validities = new ArrayList<ValidityType>();
+        }
+        return validities;
+    }
+
+    /**
+     * Gets the value of the any property.
+     *
+     * @return the any property.
+     */
+    public List<Element> getAny()
+    {
+        if (this.any == null)
+        {
+            this.any = new ArrayList<Element>();
+        }
+        return any;
     }
 }

@@ -19,7 +19,7 @@ import java.text.*;
 import java.util.*;
 
 /**
- * Encapsulates XCapClient, it's resposible for generate corresponding
+ * Encapsulates XCapClient, it's responsible for generate corresponding
  * sip-communicator events to all action that are made with XCAP contacts and
  * groups.
  *
@@ -300,6 +300,7 @@ public class ServerStoredContactListSipImpl
                         "Error while creating XCAP contact",
                         OperationFailedException.NETWORK_FAILURE, e);
             }
+            newContact.setResolved(true);
             // Update pres-rules if needed
             if (!isContactExistsInWhiteRule(contactId))
             {
@@ -564,6 +565,7 @@ public class ServerStoredContactListSipImpl
                         "Error while creating XCAP group",
                         OperationFailedException.NETWORK_FAILURE, e);
             }
+            subGroup.setResolved(true);
         }
         fireGroupEvent(subGroup, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
         return subGroup;
@@ -764,12 +766,49 @@ public class ServerStoredContactListSipImpl
                     serverRootList.getLists().add(list);
                 }
             }
-            resolveContactGroup(rootGroup, serverRootList);
+
+            // TODO: get it from somewhere
+            boolean firstRun = false;
+            boolean updateResourceLists = false;
+            // Resolve localy saved contacts and groups with server stored
+            // contacts and groups
+            resolveContactGroup(rootGroup, serverRootList, !firstRun);
+            // If it is first run - upload unresolved contacts and groups to
+            // the server.
+            if(firstRun)
+            {
+                for(ContactSipImpl contact : getAllContacts(rootGroup))
+                {
+                    if(!contact.isResolved() && contact.isPersistent())
+                    {
+                        updateResourceLists = true;
+                        contact.setResolved(true);
+                        fireContactResolved((ContactGroupSipImpl) contact
+                                .getParentContactGroup(), contact);
+                    }
+                }
+                for(ContactGroupSipImpl group : getAllGroups(rootGroup))
+                {
+                    if(!group.isResolved() && group.isPersistent())
+                    {
+                        updateResourceLists = true;
+                        group.setResolved(true);
+                        fireGroupEvent(group,
+                                ServerStoredGroupEvent.GROUP_RESOLVED_EVENT);
+                    }
+                }
+                firstRun = false;
+            }
+            if(updateResourceLists)
+            {
+                updateResourceLists();
+            }
+
             if (xCapClient.isPresRulesSupported())
             {
                 // Get pres-rules and analyze it
                 presRules = xCapClient.getPresRules();
-                for (RuleType rule : presRules.getRule())
+                for (RuleType rule : presRules.getRules())
                 {
                     if (rule.getId().equals(WHITE_RULE_ID))
                     {
@@ -780,16 +819,19 @@ public class ServerStoredContactListSipImpl
                 // If "white" rule is available refresh it
                 if (whiteRule != null)
                 {
-                    presRules.getRule().remove(whiteRule);
+                    presRules.getRules().remove(whiteRule);
                 }
                 whiteRule = createWhiteRule();
-                presRules.getRule().add(whiteRule);
+                presRules.getRules().add(whiteRule);
                 // Add contacts into the "white" rule
                 List<ContactSipImpl> uniqueContacts =
                         getUniqueContacts(rootGroup);
                 for (ContactSipImpl contact : uniqueContacts)
                 {
-                    addContactToWhiteList(contact);
+                    if(contact.isPersistent())
+                    {
+                        addContactToWhiteList(contact);
+                    }
                 }
                 updatePresRules();
             }
@@ -808,7 +850,7 @@ public class ServerStoredContactListSipImpl
         List<ContactSipImpl> contacts = getAllContacts(rootGroup);
         for (ContactSipImpl contact : contacts)
         {
-            contact.setResolvable(false);
+            contact.setResolved(false);
         }
         presRules = null;
         whiteRule = null;
@@ -832,20 +874,20 @@ public class ServerStoredContactListSipImpl
         whiteList.setActions(actions);
 
         TransfomationsType transfomations = new TransfomationsType();
-        ProvideServicePermission servicePermission =
-                new ProvideServicePermission();
+        ProvideServicePermissionType servicePermission =
+                new ProvideServicePermissionType();
         servicePermission.setAllServices(
-                new ProvideServicePermission.AllServices());
+                new ProvideServicePermissionType.AllServicesType());
         transfomations.setServicePermission(servicePermission);
-        ProvidePersonPermission personPermission =
-                new ProvidePersonPermission();
+        ProvidePersonPermissionType personPermission =
+                new ProvidePersonPermissionType();
         personPermission.setAllPersons(
-                new ProvidePersonPermission.AllPersons());
+                new ProvidePersonPermissionType.AllPersonsType());
         transfomations.setPersonPermission(personPermission);
-        ProvideDevicePermission devicePermission =
-                new ProvideDevicePermission();
+        ProvideDevicePermissionType devicePermission =
+                new ProvideDevicePermissionType();
         devicePermission.setAllDevices(
-                new ProvideDevicePermission.AllDevices());
+                new ProvideDevicePermissionType.AllDevicesType());
         transfomations.setDevicePermission(devicePermission);
         whiteList.setTransformations(transfomations);
 
@@ -865,17 +907,14 @@ public class ServerStoredContactListSipImpl
             return;
         }
         IdentityType identity;
-        if (whiteRule.getConditions().getIdentityOrSphereOrValidity().
-                size() == 0)
+        if (whiteRule.getConditions().getIdentities().size() == 0)
         {
             identity = new IdentityType();
-            whiteRule.getConditions().getIdentityOrSphereOrValidity()
-                    .add(identity);
+            whiteRule.getConditions().getIdentities().add(identity);
         }
         else
         {
-            identity = (IdentityType) whiteRule.getConditions()
-                    .getIdentityOrSphereOrValidity().get(0);
+            identity = whiteRule.getConditions().getIdentities().get(0);
         }
         OneType one = new OneType();
         one.setId(contact.getUri());
@@ -896,13 +935,11 @@ public class ServerStoredContactListSipImpl
             return false;
         }
         IdentityType identity;
-        if (whiteRule.getConditions().getIdentityOrSphereOrValidity().
-                size() == 0)
+        if (whiteRule.getConditions().getIdentities().size() == 0)
         {
             return false;
         }
-        identity = (IdentityType) whiteRule.getConditions()
-                .getIdentityOrSphereOrValidity().get(0);
+        identity = whiteRule.getConditions().getIdentities().get(0);
         for (OneType one : identity.getOneList())
         {
             if (one.getId().equals(contactUri))
@@ -925,9 +962,8 @@ public class ServerStoredContactListSipImpl
         {
             return;
         }
-        IdentityType identity = (IdentityType)
-                whiteRule.getConditions().getIdentityOrSphereOrValidity().
-                        get(0);
+        IdentityType identity =
+                whiteRule.getConditions().getIdentities().get(0);
         OneType contactOne = null;
         for (OneType one : identity.getOneList())
         {
@@ -943,8 +979,7 @@ public class ServerStoredContactListSipImpl
         }
         if (identity.getOneList().size() == 0)
         {
-            whiteRule.getConditions().getIdentityOrSphereOrValidity().
-                    remove(identity);
+            whiteRule.getConditions().getIdentities().remove(identity);
         }
     }
 
@@ -952,7 +987,7 @@ public class ServerStoredContactListSipImpl
      * Returns all avaliable contacts from group and all subgroups.
      *
      * @param group the parent of the contacts.
-     * @return list of availcable contacts.
+     * @return the list of availcable contacts.
      */
     public synchronized List<ContactSipImpl> getAllContacts(
             ContactGroupSipImpl group)
@@ -971,6 +1006,25 @@ public class ServerStoredContactListSipImpl
             contacts.add(contact);
         }
         return contacts;
+    }
+
+    /**
+     * Returns all avaliable groups from group and all subgroups.
+     *
+     * @param group the parent of the contacts.
+     * @return the list of availcable groups.
+     */
+    public synchronized List<ContactGroupSipImpl> getAllGroups(
+            ContactGroupSipImpl group)
+    {
+        List<ContactGroupSipImpl> groups = new ArrayList<ContactGroupSipImpl>();
+        Iterator<ContactGroup> groupIterator = group.subgroups();
+        while (groupIterator.hasNext())
+        {
+            groups.addAll(
+                    getAllGroups((ContactGroupSipImpl) groupIterator.next()));
+        }
+        return groups;
     }
 
     /**
@@ -1058,10 +1112,14 @@ public class ServerStoredContactListSipImpl
      *
      * @param clientGroup the local group.
      * @param serverGroup the server stored group.
+     * @param deleteUnresolved indicates whether to delete unresolved contacts
+     *                         and group. If true they will be removed otherwise
+     *                         they will be skiped.
      */
     private void resolveContactGroup(
             ContactGroupSipImpl clientGroup,
-            ListType serverGroup)
+            ListType serverGroup,
+            boolean deleteUnresolved)
     {
         // Gather client information
         List<ContactGroupSipImpl> unresolvedGroups =
@@ -1096,10 +1154,9 @@ public class ServerStoredContactListSipImpl
                 newGroup.setResolved(true);
                 clientGroup.addSubgroup(newGroup);
                 // Tell listeners about the added group
-
                 fireGroupEvent(newGroup,
                         ServerStoredGroupEvent.GROUP_CREATED_EVENT);
-                resolveContactGroup(newGroup, serverList);
+                resolveContactGroup(newGroup, serverList, deleteUnresolved);
             }
             else
             {
@@ -1108,26 +1165,23 @@ public class ServerStoredContactListSipImpl
                 newGroup.setAny(serverList.getAny());
                 unresolvedGroups.remove(newGroup);
                 // Tell listeners about the resolved group
-
                 fireGroupEvent(newGroup,
                         ServerStoredGroupEvent.GROUP_RESOLVED_EVENT);
-                resolveContactGroup(newGroup, serverList);
+                resolveContactGroup(newGroup, serverList, deleteUnresolved);
             }
         }
         // Process all server contacts and fire events
         for (EntryType serverEntry : serverGroup.getEntries())
         {
-            ContactSipImpl newContact =
-                    (ContactSipImpl) clientGroup.getContact(
-                            serverEntry.getUri());
+            ContactSipImpl newContact = (ContactSipImpl)
+                    clientGroup.getContact(serverEntry.getUri());
             if (newContact == null)
             {
                 Address sipAddress;
                 try
                 {
-                    sipAddress =
-                            sipProvider.parseAddressString(
-                                    serverEntry.getUri());
+                    sipAddress = sipProvider.parseAddressString(
+                            serverEntry.getUri());
                 }
                 catch (ParseException e)
                 {
@@ -1155,29 +1209,43 @@ public class ServerStoredContactListSipImpl
             }
         }
         // Save all others
-        // TODO: process externals and enrty-refs after sip2sip fixes
+        // TODO: process externals and enrty-refs after OpenXCAP fixes
         clientGroup.getList().getExternals().addAll(serverGroup.getExternals());
         clientGroup.getList().getEntryRefs().addAll(serverGroup.getEntryRefs());
         clientGroup.getList().getAny().addAll(serverGroup.getAny());
 
-        // Remove unresolved contacts
-        for (ContactSipImpl unresolvedContact : unresolvedContacts)
+        // Process all unresolved contacts
+        if (deleteUnresolved)
         {
-            unresolvedContact.setResolved(true);
-            clientGroup.removeContact(unresolvedContact);
-            // Tell listeners about the removed contact
-
-            fireContactRemoved(clientGroup, unresolvedContact);
+            for (ContactSipImpl unresolvedContact : unresolvedContacts)
+            {
+                if(!unresolvedContact.isPersistent())
+                {
+                    continue;
+                }
+                unresolvedContact.setResolved(true);
+                // Remove unresolved contacts
+                clientGroup.removeContact(unresolvedContact);
+                // Tell listeners about the removed contact
+                fireContactRemoved(clientGroup, unresolvedContact);
+            }
         }
-        // Remove unresolved groups
-        for (ContactGroupSipImpl unresolvedGroup : unresolvedGroups)
+        // Process all unresolved groups
+        if (deleteUnresolved)
         {
-            unresolvedGroup.setResolved(true);
-            clientGroup.removeSubGroup(unresolvedGroup);
-            // Tell listeners about the removed group
-
-            fireGroupEvent(unresolvedGroup,
-                    ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
+            for (ContactGroupSipImpl unresolvedGroup : unresolvedGroups)
+            {
+                if(!unresolvedGroup.isPersistent())
+                {
+                    continue;
+                }
+                unresolvedGroup.setResolved(true);
+                // Remove unresolved groups
+                clientGroup.removeSubGroup(unresolvedGroup);
+                // Tell listeners about the removed group
+                fireGroupEvent(unresolvedGroup,
+                        ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
+            }
         }
     }
 

@@ -7,68 +7,32 @@
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
 import java.util.*;
-import java.util.List;
-//import javax.xml.bind.annotation.*;
 
 /**
- * <p>Java class for ruleset element declaration.
+ * The Authorization Rules ruleset element.
  * <p/>
- * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
- * <pre>
- * &lt;element name="ruleset">
- *   &lt;complexType>
- *     &lt;complexContent>
- *       &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *         &lt;sequence>
- *           &lt;element name="rule" type="{urn:ietf:params:xml:ns:common-policy}ruleType" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;/sequence>
- *       &lt;/restriction>
- *     &lt;/complexContent>
- *   &lt;/complexType>
- * &lt;/element>
- * </pre>
+ * Compliant with rfc5025
  *
  * @author Grigorii Balutsel
  */
-//@XmlAccessorType(XmlAccessType.FIELD)
-//@XmlType(name = "", propOrder = {
-//        "rule"
-//        })
-//@XmlRootElement(name = "ruleset")
 public class RulesetType
 {
-//
-//    @XmlElement(namespace = "urn:ietf:params:xml:ns:common-policy",
-//            required = true)
-    protected List<RuleType> rule;
+    /**
+     * The list of rule elements.
+     */
+    private List<RuleType> rules;
 
     /**
-     * Gets the value of the rule property.
-     * <p/>
-     * <p/>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the rule property.
-     * <p/>
-     * <p/>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getRule().add(newItem);
-     * </pre>
-     * <p/>
-     * <p/>
-     * <p/>
-     * Objects of the following type(s) are allowed in the list
-     * {@link RuleType }
+     * Gets the value of the rules property.
+     *
+     * @return the rules property.
      */
-    public List<RuleType> getRule()
+    public List<RuleType> getRules()
     {
-        if (rule == null)
+        if (rules == null)
         {
-            rule = new ArrayList<RuleType>();
+            rules = new ArrayList<RuleType>();
         }
-        return this.rule;
+        return this.rules;
     }
 }

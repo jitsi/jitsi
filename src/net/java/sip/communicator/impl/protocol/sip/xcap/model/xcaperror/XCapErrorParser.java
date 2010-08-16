@@ -7,8 +7,9 @@
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.xcaperror;
 
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
-import static net.java.sip.communicator.impl.protocol.sip.xcap.model.StringUtils.*;
-import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.*;
+import static net.java.sip.communicator.util.StringUtils.*;
+import static net.java.sip.communicator.util.xml.XMLUtils.*;
+
 import org.w3c.dom.*;
 
 /**
@@ -81,8 +82,8 @@ public final class XCapErrorParser
             XCapErrorType error = new XCapErrorType();
             Document document = createDocument(xml);
             Element xCapErrorElement = document.getDocumentElement();
-            if (XCAP_ERROR_ELEMENT.equals(xCapErrorElement.getLocalName()) &&
-                    !NAMESPACE.equals(xCapErrorElement.getNamespaceURI()))
+            if (!NAMESPACE.equals(xCapErrorElement.getNamespaceURI()) ||
+                    !XCAP_ERROR_ELEMENT.equals(xCapErrorElement.getLocalName()))
             {
                 throw new Exception("Document doesn't contain xcap-error " +
                         "element");

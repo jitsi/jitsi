@@ -6,64 +6,29 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
-//import javax.xml.bind.annotation.*;
-
 /**
- * <p>Java class for exceptType complex type.
+ * The Authorization Rules except element.
  * <p/>
- * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
- * <pre>
- * &lt;complexType name="exceptType">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="domain" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="id" type="{http://www.w3.org/2001/XMLSchema}anyURI" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
+ * Compliant with rfc5025
  *
  * @author Grigorii Balutsel
  */
-//@XmlAccessorType(XmlAccessType.FIELD)
-//@XmlType(name = "exceptType")
 public class ExceptType
 {
-
-//    @XmlAttribute
-    protected String domain;
-
-//    @XmlAttribute
-    protected String id;
+    /**
+     * The domain attribute.
+     */
+    private String id;
 
     /**
-     * Gets the value of the domain property.
-     *
-     * @return possible object is
-     *         {@link String }
+     * The domain attribute.
      */
-    public String getDomain()
-    {
-        return domain;
-    }
-
-    /**
-     * Sets the value of the domain property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setDomain(String value)
-    {
-        this.domain = value;
-    }
+    private String domain;
 
     /**
      * Gets the value of the id property.
      *
-     * @return possible object is
-     *         {@link String }
+     * @return the id property.
      */
     public String getId()
     {
@@ -73,11 +38,30 @@ public class ExceptType
     /**
      * Sets the value of the id property.
      *
-     * @param value allowed object is
-     *              {@link String }
+     * @param id the id to set.
      */
-    public void setId(String value)
+    public void setId(String id)
     {
-        this.id = value;
+        this.id = id;
+    }
+
+    /**
+     * Gets the value of the domain property.
+     *
+     * @return the domain property.
+     */
+    public String getDomain()
+    {
+        return domain;
+    }
+
+    /**
+     * Sets the value of the domain property.
+     *
+     * @param domain the domain to set.
+     */
+    public void setDomain(String domain)
+    {
+        this.domain = domain;
     }
 }

@@ -6,9 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists;
 
-import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
-import static net.java.sip.communicator.impl.protocol.sip.xcap.model.StringUtils.*;
+import static net.java.sip.communicator.util.StringUtils.*;
+import static net.java.sip.communicator.util.xml.XMLUtils.*;
 import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.*;
+import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
 import org.w3c.dom.*;
 
 import static javax.xml.XMLConstants.*;
@@ -70,8 +71,8 @@ public final class ResourceListsParser
             Document document = createDocument(xml);
             Element resourceListsElement = document.getDocumentElement();
             String localName = resourceListsElement.getLocalName();
-            if (RESOURCE_LISTS_ELEMENT.equals(localName) &&
-                    !NAMESPACE.equals(resourceListsElement.getNamespaceURI()))
+            if (!NAMESPACE.equals(resourceListsElement.getNamespaceURI()) ||
+                    !RESOURCE_LISTS_ELEMENT.equals(localName))
             {
                 throw new Exception("Document doesn't contain resource-lists " +
                         "element");
