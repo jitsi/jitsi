@@ -57,6 +57,28 @@ public class SoundFileUtils
     }
 
     /**
+     * Checks whether this file is a recorded call. Only some
+     * sound file formats are used in call recording.
+     *
+     * @param f <tt>File</tt> to check
+     * @return <tt>true</tt> if it's a call file, <tt>false</tt> otherwise
+     */    
+    public static boolean isRecordedCall(File f)
+    {
+        String extension = SoundFileUtils.getExtension(f);
+
+        if (extension != null)
+        {
+            return extension.equals(SoundFileUtils.mp2) ||
+                   extension.equals(SoundFileUtils.wav) ||
+                   extension.equals(SoundFileUtils.au)  ||
+                   extension.equals(SoundFileUtils.aif) ||
+                   extension.equals(SoundFileUtils.gsm);
+        }
+        return false;
+    }
+
+    /**
      * Gets the file extension.
      * TODO: There are at least 2 other methods like this scattered around
      * the SC code, we should move them all to util package.
@@ -64,7 +86,7 @@ public class SoundFileUtils
      * @param f which wants the extension
      * @return Return the extension as a String
      */  
-    private static String getExtension(File f) 
+    public static String getExtension(File f) 
     {
         String ext = null;
         String s = f.getName();

@@ -102,54 +102,61 @@ public class CallRecordingConfigForm
     private void initComponents()
     {
         // labels panel
-        JPanel labelsPanel = new TransparentPanel(new GridLayout(2, 1));
-        
-        JLabel formatsLabel = new JLabel(
-            resources.getI18NString("plugin.callrecordingconfig.SUPPORTED_FORMATS"));
-        saveCallsToCheckBox =
-            new SIPCommCheckBox(resources
-                .getI18NString("plugin.callrecordingconfig.SAVE_CALLS"));
+        JPanel labelsPanel = new TransparentPanel(new GridLayout(2, 1));        
+        JLabel formatsLabel
+            = new JLabel(
+                    resources.getI18NString(
+                            "plugin.callrecordingconfig.SUPPORTED_FORMATS"));
+
+        saveCallsToCheckBox
+            = new SIPCommCheckBox(
+                    resources.getI18NString(
+                            "plugin.callrecordingconfig.SAVE_CALLS"));
         saveCallsToCheckBox.addActionListener(this);
-        
+
         labelsPanel.add(formatsLabel);
         labelsPanel.add(saveCallsToCheckBox);
 
         // combo box panel
-        JPanel comboPanel =
-            new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
-        
+        JPanel comboPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel emptyLabel = new JLabel();
+
         emptyLabel.setPreferredSize(new Dimension(30, 30));
         comboPanel.add(createFormatsComboBox());
         comboPanel.add(emptyLabel);
-        
+
         // saved calls directory panel 
-        JPanel callDirPanel =
-            new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
-        
+        JPanel callDirPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
+
         callDirTextField = new JTextField();
         callDirTextField.setPreferredSize(new Dimension(200, 30));
         callDirTextField.addActionListener(this);
         callDirPanel.add(callDirTextField);
 
-        callDirChooseButton =
-            new JButton(new ImageIcon(resources
-                .getImageInBytes("plugin.notificationconfig.FOLDER_ICON")));
+        callDirChooseButton
+            = new JButton(
+                    new ImageIcon(
+                            resources.getImageInBytes(
+                                    "plugin.notificationconfig.FOLDER_ICON")));
         callDirChooseButton.setMinimumSize(new Dimension(30,30));
         callDirChooseButton.setPreferredSize(new Dimension(30,30));
         callDirChooseButton.addActionListener(this);
         callDirPanel.add(callDirChooseButton);
-        
+
         // values panel
         JPanel valuesPanel = new TransparentPanel(new GridLayout(2, 1));
+
         valuesPanel.add(comboPanel);
         valuesPanel.add(callDirPanel);
-        
+
         // main panel
         JPanel mainPanel = new TransparentPanel(new BorderLayout());
+
         mainPanel.add(labelsPanel, BorderLayout.WEST);
         mainPanel.add(valuesPanel, BorderLayout.CENTER);
-        
+
         this.add(mainPanel, BorderLayout.NORTH);
     }
 

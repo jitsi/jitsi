@@ -33,6 +33,8 @@ public class NotificationManager
     
     public static final String INCOMING_FILE = "IncomingFile";
 
+    public static final String CALL_SAVED = "CallSaved";
+
     public static void registerGuiNotifications()
     {
         NotificationService notificationService
@@ -143,6 +145,12 @@ public class NotificationManager
                 SoundProperties.INCOMING_FILE,
                 null);
 
+        // Register notification for saved calls.
+        notificationService.registerDefaultNotificationForEvent(
+            CALL_SAVED,
+            NotificationService.ACTION_POPUP_MESSAGE,
+            null,
+            null);
     }
 
     /**
