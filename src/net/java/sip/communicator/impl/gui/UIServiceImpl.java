@@ -114,7 +114,11 @@ public class UIServiceImpl
     {
         this.setDefaultThemePack();
 
-        this.mainFrame = new MainFrame();
+        boolean touch = GuiActivator.getConfigurationService().getBoolean("net.java.sip.communicator.TOUCHSCREEN", false);
+        if (!touch)
+            this.mainFrame = new MainFrameStandard();
+        else
+            this.mainFrame = new MainFrameTouch();
 
         if (UIManager.getLookAndFeel() instanceof SIPCommLookAndFeel)
             initCustomFonts();
