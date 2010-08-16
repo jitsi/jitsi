@@ -216,10 +216,10 @@ public class MainFrameStandard
      */
     private void init()
     {
-        if (GuiActivator.getUIService().getExitOnMainWindowClose())
-            this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        else
-            this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setDefaultCloseOperation(
+            GuiActivator.getUIService().getExitOnMainWindowClose()
+                ? JFrame.DISPOSE_ON_CLOSE
+                : JFrame.HIDE_ON_CLOSE);
 
         this.setKeybindingInput(KeybindingSet.Category.MAIN);
         this.addKeybindingAction("main-rename",
