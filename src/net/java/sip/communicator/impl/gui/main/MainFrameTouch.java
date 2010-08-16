@@ -45,9 +45,15 @@ import org.osgi.framework.*;
  * operation sets, as well as all registered accounts, the
  * <tt>MetaContactListService</tt> and all sent messages that aren't
  * delivered yet.
+ * 
+ * This class implements the GUI for touch screen only devices. In
+ * additiona to the standard interface class it uses a tabbed pane
+ * to display a dialpanel in the first tab and the contactlist in
+ * the second panel.
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Werner Dittmann
  */
 public class MainFrameTouch
     extends MainFrame

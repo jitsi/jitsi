@@ -18,6 +18,17 @@ import net.java.sip.communicator.service.protocol.OperationSetWebContactInfo;
 import net.java.sip.communicator.service.protocol.ProtocolProviderService;
 import net.java.sip.communicator.util.swing.event.TextFieldChangeListener;
 
+/**
+ * The main GUI window intzerface.
+ * 
+ * This Interface defines all methods that the real GUI classes
+ * implement. 
+ * 
+ * @author Yana Stamcheva
+ * @author Lubomir Marinov
+ * @outhor Werner Dittmann
+ */
+
 public interface MainFrameInterface {
 
     /**

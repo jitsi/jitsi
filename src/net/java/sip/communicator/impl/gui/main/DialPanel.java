@@ -26,6 +26,7 @@ import net.java.sip.communicator.util.swing.*;
  * The <tt>DialPanel</tt> is the panel that contains the buttons to dial a
  * phone number.
  *
+ * @author Werner Dittmann
  * @author Yana Stamcheva
  */
 public class DialPanel
@@ -92,7 +93,6 @@ public class DialPanel
     public DialPanel(MainFrameTouch mfTouch, SearchField sField)
     {
         super(new BorderLayout());
-//        super(new GridLayout(2, 1));
         this.mainFrameTouch = mfTouch;
         this.searchField = sField;
 
@@ -252,7 +252,6 @@ public class DialPanel
      */
     public void mouseReleased(MouseEvent e)
     {
-//        dtmfHandler.stopSendingDtmfTone();
     }
 
     /**
