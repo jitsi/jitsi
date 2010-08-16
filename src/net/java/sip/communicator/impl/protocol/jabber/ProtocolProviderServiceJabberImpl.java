@@ -934,9 +934,16 @@ public class ProtocolProviderServiceJabberImpl
 
             //initialize the telephony operation set
 /* disabled until implementation is ready.
+            OperationSetBasicTelephonyJabberImpl basicTelephony =
+                new OperationSetBasicTelephonyJabberImpl(this);
             addSupportedOperationSet(
                 OperationSetBasicTelephony.class,
-                new OperationSetBasicTelephonyJabberImpl(this));
+                basicTelephony);
+
+            // initialize video telephony OperationSet
+            addSupportedOperationSet(
+                    OperationSetVideoTelephony.class,
+                    new OperationSetVideoTelephonyJabberImpl(basicTelephony));
 
             // Add Jingle features to supported features.
             supportedFeatures.add(URN_XMPP_JINGLE);

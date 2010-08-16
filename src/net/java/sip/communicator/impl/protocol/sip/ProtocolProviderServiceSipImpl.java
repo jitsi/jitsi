@@ -321,7 +321,7 @@ public class ProtocolProviderServiceSipImpl
                 String user;
                 String password;
                 if (useSipCredetials)
-                {                    
+                {
                     user = accountID.getAccountPropertyString(
                             ProtocolProviderFactory.USER_ID);
                     password = SipActivator.getProtocolProviderFactory().
@@ -599,13 +599,13 @@ public class ProtocolProviderServiceSipImpl
             addSupportedOperationSet(
                 OperationSetVideoTelephony.class,
                 new OperationSetVideoTelephonySipImpl(
-                        this, opSetBasicTelephonySipImpl));
+                        opSetBasicTelephonySipImpl));
 
             // OperationSetDesktopStreaming
             addSupportedOperationSet(
                 OperationSetDesktopStreaming.class,
                 new OperationSetDesktopStreamingSipImpl(
-                        this, opSetBasicTelephonySipImpl));
+                        opSetBasicTelephonySipImpl));
 
             // init DTMF (from JM Heitz)
             addSupportedOperationSet(

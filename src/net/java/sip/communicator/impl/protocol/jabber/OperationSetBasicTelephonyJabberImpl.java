@@ -111,7 +111,8 @@ public class OperationSetBasicTelephonyJabberImpl
     public Call createCall(String callee)
             throws OperationFailedException
     {
-        return createOutgoingCall(callee);
+        CallJabberImpl call = new CallJabberImpl(this);
+        return createOutgoingCall(call, callee);
     }
 
     /**
@@ -130,13 +131,15 @@ public class OperationSetBasicTelephonyJabberImpl
     public Call createCall(Contact callee)
             throws OperationFailedException
     {
-
-        return createOutgoingCall(callee.getAddress());
+        CallJabberImpl call = new CallJabberImpl(this);
+        return createOutgoingCall(call, callee.getAddress());
     }
 
     /**
      * Init and establish the specified call.
      *
+     * @param call the <tt>CallJabberImpl</tt> that will be used
+     * to initiate the call
      * @param calleeAddress the address of the callee that we'd like to connect
      * with.
      *
@@ -149,12 +152,14 @@ public class OperationSetBasicTelephonyJabberImpl
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call.
      */
-    private CallJabberImpl createOutgoingCall(String calleeAddress)
+    public CallJabberImpl createOutgoingCall(CallJabberImpl call,
+            String calleeAddress)
             throws OperationFailedException
     {
         if (logger.isInfoEnabled())
             logger.info("creating outgoing call...");
-        if (protocolProvider.getConnection() == null) {
+        if (protocolProvider.getConnection() == null || call == null)
+        {
             throw new OperationFailedException(
                     "Failed to create OutgoingJingleSession.\n"
                     + "we don't have a valid XMPPConnection."
@@ -192,6 +197,7 @@ public class OperationSetBasicTelephonyJabberImpl
             // check if the remote client supports telephony.
             di = protocolProvider.getDiscoveryManager()
                     .discoverInfo(fullCalleeURI);
+
             if (di.containsFeature(ProtocolProviderServiceJabberImpl
                             .URN_XMPP_JINGLE))
             {
@@ -213,10 +219,7 @@ public class OperationSetBasicTelephonyJabberImpl
             logger.warn("could not retrieve info for " + fullCalleeURI, ex);
         }
 
-        //create the actual jingle call
-
-        CallJabberImpl call = new CallJabberImpl(this);
-
+        // initiate call */
         try
         {
             call.initiateSession(fullCalleeURI, di);
@@ -313,8 +316,6 @@ public class OperationSetBasicTelephonyJabberImpl
         CallPeerJabberImpl peerJabberImpl = (CallPeerJabberImpl)peer;
         peerJabberImpl.hangup();
     }
-
-
 
     /**
      * Implements method <tt>answerCallPeer</tt>
@@ -429,8 +430,6 @@ public class OperationSetBasicTelephonyJabberImpl
         //ack if this is a session-initiate with rtp content or if we are
         //the owners of this packet's sid
 
-
-
         //first ack all "set" requests.
         if(jingleIQ.getType() == IQ.Type.SET)
         {
@@ -514,6 +513,26 @@ public class OperationSetBasicTelephonyJabberImpl
 
             // change status.
             callPeer.processSessionInfo(info);
+        }
+        else if (action == JingleAction.CONTENT_ACCEPT)
+        {
+            callPeer.processContentAccept(jingleIQ);
+        }
+        else if (action == JingleAction.CONTENT_ADD)
+        {
+            callPeer.processContentAdd(jingleIQ);
+        }
+        else if (action == JingleAction.CONTENT_MODIFY)
+        {
+            callPeer.processContentModify(jingleIQ);
+        }
+        else if (action == JingleAction.CONTENT_REJECT)
+        {
+            callPeer.processContentReject(jingleIQ);
+        }
+        else if (action == JingleAction.CONTENT_REMOVE)
+        {
+            callPeer.processContentRemove(jingleIQ);
         }
     }
 

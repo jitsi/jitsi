@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  */
 public class CallJabberImpl extends MediaAwareCall<
     CallPeerJabberImpl,
-    OperationSetBasicTelephony<ProtocolProviderServiceJabberImpl>,
+    OperationSetBasicTelephonyJabberImpl,
     ProtocolProviderServiceJabberImpl>
 {
     /**
@@ -55,7 +55,6 @@ public class CallJabberImpl extends MediaAwareCall<
         //to make sure that no one ever forgets.
         parentOpSet.getActiveCallsRepository().addCall(this);
     }
-
 
     /**
      * Creates a new call peer and sends a RINGING response.
@@ -137,6 +136,22 @@ public class CallJabberImpl extends MediaAwareCall<
         callPeer.initiateSession();
 
         return callPeer;
+    }
+
+    /**
+     * Send a <tt>content-modify</tt> message for all current <tt>CallPeer</tt>
+     * to reflect possible video change in media setup.
+     *
+     * @param allowed if the local video is allowed or not
+     * @throws OperationFailedException if problem occurred during message
+     * generation or network problem
+     */
+    public void modifyVideoContent(boolean allowed) throws OperationFailedException
+    {
+        for(CallPeerJabberImpl peer : getCallPeersVector())
+        {
+            peer.sendModifyVideoContent(allowed);
+        }
     }
 
     /**

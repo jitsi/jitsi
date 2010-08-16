@@ -239,4 +239,186 @@ public class JinglePacketFactory
 
         return sessionInitiate;
     }
+
+    /**
+     * Creates a new {@link JingleIQ} with the <tt>content-add</tt> action.
+     *
+     * @param from our JID
+     * @param to the destination JID
+     * @param sid the ID of the Jingle session that this message will be
+     * terminating.
+     * @param contentList the content elements containing media and transport
+     * descriptions.
+     *
+     * @return the newly constructed {@link JingleIQ} <tt>content-add</tt>
+     * packet.
+     */
+    public static JingleIQ createContentAdd(
+                                    String                       from,
+                                    String                       to,
+                                    String                       sid,
+                                    List<ContentPacketExtension> contentList)
+    {
+        JingleIQ contentAdd = new JingleIQ();
+
+        contentAdd.setTo(to);
+        contentAdd.setFrom(from);
+        contentAdd.setInitiator(from);
+        contentAdd.setType(IQ.Type.SET);
+
+        contentAdd.setSID(sid);
+        contentAdd.setAction(JingleAction.CONTENT_ADD);
+
+        for(ContentPacketExtension content : contentList)
+        {
+            contentAdd.addContent(content);
+        }
+
+        return contentAdd;
+    }
+
+    /**
+     * Creates a new {@link JingleIQ} with the <tt>content-accept</tt> action.
+     *
+     * @param from our JID
+     * @param to the destination JID
+     * @param sid the ID of the Jingle session that this message will be
+     * terminating.
+     * @param contentList the content elements containing media and transport
+     * descriptions.
+     *
+     * @return the newly constructed {@link JingleIQ} <tt>content-accept</tt>
+     * packet.
+     */
+    public static JingleIQ createContentAccept(
+                                    String                       from,
+                                    String                       to,
+                                    String                       sid,
+                                    List<ContentPacketExtension> contentList)
+    {
+        JingleIQ contentAccept = new JingleIQ();
+
+        contentAccept.setTo(to);
+        contentAccept.setFrom(from);
+        contentAccept.setInitiator(from);
+        contentAccept.setType(IQ.Type.SET);
+
+        contentAccept.setSID(sid);
+        contentAccept.setAction(JingleAction.CONTENT_ACCEPT);
+
+        for(ContentPacketExtension content : contentList)
+        {
+            contentAccept.addContent(content);
+        }
+
+        return contentAccept;
+    }
+
+    /**
+     * Creates a new {@link JingleIQ} with the <tt>content-reject</tt> action.
+     *
+     * @param from our JID
+     * @param to the destination JID
+     * @param sid the ID of the Jingle session that this message will be
+     * terminating.
+     * @param contentList the content elements containing media and transport
+     * descriptions.
+     *
+     * @return the newly constructed {@link JingleIQ} <tt>content-reject</tt>
+     * packet.
+     */
+    public static JingleIQ createContentReject(
+                                    String                       from,
+                                    String                       to,
+                                    String                       sid,
+                                    List<ContentPacketExtension> contentList)
+    {
+        JingleIQ contentReject = new JingleIQ();
+
+        contentReject.setTo(to);
+        contentReject.setFrom(from);
+        contentReject.setInitiator(from);
+        contentReject.setType(IQ.Type.SET);
+
+        contentReject.setSID(sid);
+        contentReject.setAction(JingleAction.CONTENT_REJECT);
+
+        for(ContentPacketExtension content : contentList)
+        {
+            contentReject.addContent(content);
+        }
+
+        return contentReject;
+    }
+
+    /**
+     * Creates a new {@link JingleIQ} with the <tt>content-modify</tt> action.
+     *
+     * @param from our JID
+     * @param to the destination JID
+     * @param sid the ID of the Jingle session that this message will be
+     * terminating.
+     * @param content the content element containing media and transport
+     * description.
+     *
+     * @return the newly constructed {@link JingleIQ} <tt>content-modify</tt>
+     * packet.
+     */
+    public static JingleIQ createContentModify(
+                                    String                       from,
+                                    String                       to,
+                                    String                       sid,
+                                    ContentPacketExtension       content)
+    {
+        JingleIQ contentModify = new JingleIQ();
+
+        contentModify.setTo(to);
+        contentModify.setFrom(from);
+        contentModify.setInitiator(from);
+        contentModify.setType(IQ.Type.SET);
+
+        contentModify.setSID(sid);
+        contentModify.setAction(JingleAction.CONTENT_MODIFY);
+
+        contentModify.addContent(content);
+
+        return contentModify;
+    }
+
+    /**
+     * Creates a new {@link JingleIQ} with the <tt>content-remove</tt> action.
+     *
+     * @param from our JID
+     * @param to the destination JID
+     * @param sid the ID of the Jingle session that this message will be
+     * terminating.
+     * @param contentList the content elements containing media and transport
+     * descriptions.
+     *
+     * @return the newly constructed {@link JingleIQ} <tt>content-remove</tt>
+     * packet.
+     */
+    public static JingleIQ createContentRemove(
+                                    String                       from,
+                                    String                       to,
+                                    String                       sid,
+                                    List<ContentPacketExtension> contentList)
+    {
+        JingleIQ contentRemove = new JingleIQ();
+
+        contentRemove.setTo(to);
+        contentRemove.setFrom(from);
+        contentRemove.setInitiator(from);
+        contentRemove.setType(IQ.Type.SET);
+
+        contentRemove.setSID(sid);
+        contentRemove.setAction(JingleAction.CONTENT_REMOVE);
+
+        for(ContentPacketExtension content : contentList)
+        {
+            contentRemove.addContent(content);
+        }
+
+        return contentRemove;
+    }
 }

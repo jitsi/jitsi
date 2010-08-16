@@ -620,7 +620,7 @@ public class CallManager
 
         public void run()
         {
-            OperationSetBasicTelephony telephonyOpSet
+            OperationSetBasicTelephony<?> telephonyOpSet
                 = protocolProvider
                     .getOperationSet(OperationSetBasicTelephony.class);
 

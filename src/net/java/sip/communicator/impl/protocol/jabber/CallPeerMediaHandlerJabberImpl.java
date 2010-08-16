@@ -39,7 +39,6 @@ public class CallPeerMediaHandlerJabberImpl
      */
     private final TransportManagerJabberImpl transportManager;
 
-
     /**
      * The current description of the streams that we have going toward the
      * remote side. We use {@link LinkedHashMap}s to make sure that we preserve
@@ -95,6 +94,18 @@ public class CallPeerMediaHandlerJabberImpl
     {
         ProtocolProviderServiceJabberImpl.throwOperationFailedException(
                             message, errorCode, cause, logger);
+    }
+
+    /**
+     * Get the direction of a specific content (like audio or video).
+     *
+     * @param content content name
+     * @return the direction of the media
+     */
+    public SendersEnum getDirection(String content)
+    {
+        ContentPacketExtension pkt = remoteContentMap.get(content);
+        return pkt.getSenders();
     }
 
     /**
@@ -391,12 +402,12 @@ public class CallPeerMediaHandlerJabberImpl
         //now add the transport elements
         getTransportManager().startCandidateHarvest(mediaDescs);
 
-        //XXX ideally we wouldn't wrapup that quickluy. we need to revisit this
+        //XXX ideally we wouldn't wrapup that quickly. we need to revisit this
         return getTransportManager().wrapupHarvest();
     }
 
     /**
-     * Generates an SDP {@link ContentPacketExtension} for the specified
+     * Generates an Jingle {@link ContentPacketExtension} for the specified
      * {@link MediaFormat} list, direction and RTP extensions taking account
      * the local streaming preference for the corresponding media type.
      *
@@ -429,10 +440,129 @@ public class CallPeerMediaHandlerJabberImpl
     }
 
     /**
+     * Reinitialize a media content such as video.
+     *
+     * @param name name of the Jingle content
+     * @param senders media direction
+     * @throws OperationFailedException if we fail to handle <tt>content</tt>
+     * for reasons like failing to initialize media devices or streams.
+     * @throws IllegalArgumentException if there's a problem with the syntax or
+     * the semantics of <tt>content</tt>. Method is synchronized in order to
+     * avoid closing mediaHandler when we are currently in process of
+     * initializing, configuring and starting streams and anybody interested
+     * in this operation can synchronize to the mediaHandler instance to wait
+     * processing to stop (method setState in CallPeer).
+     */
+    public void reinitContent(String name,
+            ContentPacketExtension.SendersEnum senders)
+            throws OperationFailedException,
+            IllegalArgumentException
+    {
+        ContentPacketExtension ext = remoteContentMap.get(name);
+
+        if(ext != null)
+        {
+            ext.setSenders(senders);
+            processContent(ext);
+            remoteContentMap.put(name, ext);
+        }
+    }
+
+    /**
+     * Process a <tt>ContentPacketExtension</tt> and initialize its
+     * corresponding <tt>MediaStream</tt>.
+     *
+     * @param content a <tt>ContentPacketExtension</tt>
+     *
+     * @throws OperationFailedException if we fail to handle <tt>content</tt>
+     * for reasons like failing to initialize media devices or streams.
+     * @throws IllegalArgumentException if there's a problem with the syntax or
+     * the semantics of <tt>content</tt>. Method is synchronized in order to
+     * avoid closing mediaHandler when we are currently in process of
+     * initializing, configuring and starting streams and anybody interested
+     * in this operation can synchronize to the mediaHandler instance to wait
+     * processing to stop (method setState in CallPeer).
+     */
+    private void processContent(ContentPacketExtension content)
+        throws OperationFailedException,
+        IllegalArgumentException
+    {
+        RtpDescriptionPacketExtension description
+                                = JingleUtils.getRtpDescription(content);
+
+        MediaType mediaType
+                        = MediaType.parseString( description.getMedia() );
+
+        //stream target
+        MediaStreamTarget target
+            = JingleUtils.extractDefaultTarget(content);
+
+        // no target port - try next media description
+        if(target.getDataAddress().getPort() == 0)
+        {
+            closeStream(mediaType);
+            return;
+        }
+
+        List<MediaFormat> supportedFormats = JingleUtils.extractFormats(
+                        description, getDynamicPayloadTypes());
+
+        MediaDevice dev = getDefaultDevice(mediaType);
+
+        if(dev == null)
+        {
+            closeStream(mediaType);
+            return;
+        }
+
+        MediaDirection devDirection
+            = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
+
+        // Take the preference of the user with respect to streaming
+        // mediaType into account.
+        devDirection
+            = devDirection.and(getDirectionUserPreference(mediaType));
+
+        if (supportedFormats.isEmpty())
+        {
+            //remote party must have messed up our Jingle description.
+            //throw an exception.
+            ProtocolProviderServiceJabberImpl.throwOperationFailedException(
+                "Remote party sent an invalid Jingle answer.",
+                 OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
+        }
+
+        StreamConnector connector
+            = getTransportManager().getStreamConnector(mediaType);
+
+        //determine the direction that we need to announce.
+        MediaDirection remoteDirection
+            = JingleUtils.getDirection(content, getPeer().isInitiator());
+
+        MediaDirection direction
+            = devDirection.getDirectionForAnswer(remoteDirection);
+
+        // update the RTP extensions that we will be exchanging.
+        List<RTPExtension> remoteRTPExtensions
+                = JingleUtils.extractRTPExtensions(
+                        description, getRtpExtensionsRegistry());
+
+        List<RTPExtension> supportedExtensions
+                = getExtensionsForType(mediaType);
+
+        List<RTPExtension> rtpExtensions = intersectRTPExtensions(
+                        remoteRTPExtensions, supportedExtensions);
+
+        // create the corresponding stream...
+        initStream(content.getName(), connector, dev,
+                supportedFormats.get(0), target, direction, rtpExtensions);
+    }
+
+    /**
      * Handles the specified <tt>answer</tt> by creating and initializing the
      * corresponding <tt>MediaStream</tt>s.
      *
-     * @param answer the SDP <tt>SessionDescription</tt>.
+     * @param answer the Jingle answer
      *
      * @throws OperationFailedException if we fail to handle <tt>answer</tt> for
      * reasons like failing to initialize media devices or streams.
@@ -450,74 +580,8 @@ public class CallPeerMediaHandlerJabberImpl
         for ( ContentPacketExtension content : answer)
         {
             remoteContentMap.put(content.getName(), content);
-            RtpDescriptionPacketExtension description
-                                    = JingleUtils.getRtpDescription(content);
 
-            MediaType mediaType
-                            = MediaType.parseString( description.getMedia() );
-
-            //stream target
-            MediaStreamTarget target
-                = JingleUtils.extractDefaultTarget(content);
-
-            // no target port - try next media description
-            if(target.getDataAddress().getPort() == 0)
-            {
-                closeStream(mediaType);
-                continue;
-            }
-
-            List<MediaFormat> supportedFormats = JingleUtils.extractFormats(
-                            description, getDynamicPayloadTypes());
-
-            MediaDevice dev = getDefaultDevice(mediaType);
-
-            if(dev == null)
-            {
-                closeStream(mediaType);
-                continue;
-            }
-
-            MediaDirection devDirection
-                = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
-
-            // Take the preference of the user with respect to streaming
-            // mediaType into account.
-            devDirection
-                = devDirection.and(getDirectionUserPreference(mediaType));
-
-            if (supportedFormats.isEmpty())
-            {
-                //remote party must have messed up our SDP. throw an exception.
-                ProtocolProviderServiceJabberImpl.throwOperationFailedException(
-                    "Remote party sent an invalid SDP answer.",
-                     OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
-            }
-
-            StreamConnector connector
-                = getTransportManager().getStreamConnector(mediaType);
-
-            //determine the direction that we need to announce.
-            MediaDirection remoteDirection
-                = JingleUtils.getDirection(content, getPeer().isInitiator());
-
-            MediaDirection direction
-                = devDirection.getDirectionForAnswer(remoteDirection);
-
-            // update the RTP extensions that we will be exchanging.
-            List<RTPExtension> remoteRTPExtensions
-                    = JingleUtils.extractRTPExtensions(
-                            description, getRtpExtensionsRegistry());
-
-            List<RTPExtension> supportedExtensions
-                    = getExtensionsForType(mediaType);
-
-            List<RTPExtension> rtpExtensions = intersectRTPExtensions(
-                            remoteRTPExtensions, supportedExtensions);
-
-            // create the corresponding stream...
-            initStream(content.getName(), connector, dev,
-                    supportedFormats.get(0), target, direction, rtpExtensions);
+            processContent(content);
         }
     }
 

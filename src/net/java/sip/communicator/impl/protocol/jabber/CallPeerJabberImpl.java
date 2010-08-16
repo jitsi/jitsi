@@ -11,6 +11,7 @@ import java.util.*;
 import org.jivesoftware.smackx.packet.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -479,5 +480,143 @@ public class CallPeerJabberImpl
             getMediaHandler().setRemotelyOnHold(false);
             reevalRemoteHoldStatus();
         }
+    }
+
+    /**
+     * Send a <tt>content-modify</tt> to reflect change in video setup (start or
+     * stop).
+     *
+     * @param allowed if the local video is allowed or not
+
+     */
+    public void sendModifyVideoContent(boolean allowed)
+    {
+        ContentPacketExtension ext = new ContentPacketExtension();
+        SendersEnum senders = getMediaHandler().getDirection("video");
+
+        /* adjust the senders attribute depending on current value and if we
+         * allowed or not local video streaming
+         */
+        if(allowed)
+        {
+            if(senders != SendersEnum.none)
+            {
+                senders = SendersEnum.both;
+            }
+            else if(senders == SendersEnum.none && !isInitiator)
+            {
+                senders = SendersEnum.initiator;
+            }
+            else if(senders == SendersEnum.none && isInitiator)
+            {
+                senders = SendersEnum.responder;
+            }
+        }
+        else
+        {
+            if(senders == SendersEnum.both)
+            {
+                senders = !isInitiator ? SendersEnum.responder :
+                    SendersEnum.initiator;
+            }
+            else
+            {
+                senders = SendersEnum.none;
+            }
+        }
+
+        ext.setSenders(senders);
+        ext.setCreator(isInitiator ? CreatorEnum.initiator :
+            CreatorEnum.responder);
+        ext.setName("video");
+
+        JingleIQ contentIQ = JinglePacketFactory
+            .createContentModify(getProtocolProvider().getOurJID(),
+                            this.peerJID, getJingleSID(), ext);
+
+        getProtocolProvider().getConnection().sendPacket(contentIQ);
+
+        try
+        {
+            getMediaHandler().reinitContent("video", senders);
+        }
+        catch(Exception e)
+        {
+            logger.warn("Exception occurred when media reinitialization", e);
+        }
+     }
+
+    /**
+     * Processes the content-add {@link JingleIQ}.
+     *
+     * @param content The {@link JingleIQ} that contains content that remote
+     * peer wants to be added
+     */
+    public void processContentAdd(JingleIQ content)
+    {
+        /* TODO */
+    }
+
+    /**
+     * Processes the content-accept {@link JingleIQ}.
+     *
+     * @param content The {@link JingleIQ} that contains content that remote
+     * peer has accepted
+     */
+    public void processContentAccept(JingleIQ content)
+    {
+        /* TODO */
+    }
+
+    /**
+     * Processes the content-modify {@link JingleIQ}.
+     *
+     * @param content The {@link JingleIQ} that contains content that remote
+     * peer wants to be modified
+     */
+    public void processContentModify(JingleIQ content)
+    {
+        ContentPacketExtension ext = content.getContentList().get(0);
+        SendersEnum senders = ext.getSenders();
+
+        try
+        {
+            getMediaHandler().reinitContent(ext.getName(), senders);
+        }
+        catch(Exception exc)
+        {
+            logger.info("Failed to process an incoming content-modify", exc);
+
+            //send an error response;
+            JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
+                    sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
+                    sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
+                    "Error: " + exc.getMessage());
+
+            setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
+            getProtocolProvider().getConnection().sendPacket(errResp);
+            return;
+        }
+    }
+
+    /**
+     * Processes the content-remove {@link JingleIQ}.
+     *
+     * @param content The {@link JingleIQ} that contains content that remote
+     * peer wants to be removed
+     */
+    public void processContentRemove(JingleIQ content)
+    {
+        /* TODO */
+    }
+
+    /**
+     * Processes the content-reject {@link JingleIQ}.
+     *
+     * @param content The {@link JingleIQ}
+     */
+    public void processContentReject(JingleIQ content)
+    {
+        /* TODO */
     }
 }

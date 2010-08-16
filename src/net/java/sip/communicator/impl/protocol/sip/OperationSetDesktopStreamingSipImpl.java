@@ -24,17 +24,13 @@ public class OperationSetDesktopStreamingSipImpl
      * which builds upon the telephony-related functionality of a specific
      * <tt>OperationSetBasicTelephonySipImpl</tt>.
      *
-     * @param parentProvider the SIP <tt>ProtocolProviderService</tt>
-     * implementation which has requested the creation of the new instance and
-     * for which the new instance is to provide video telephony
      * @param basicTelephony the <tt>OperationSetBasicTelephonySipImpl</tt>
      *            the new extension should build upon
      */
     public OperationSetDesktopStreamingSipImpl(
-            ProtocolProviderServiceSipImpl parentProvider,
             OperationSetBasicTelephonySipImpl basicTelephony)
     {
-        super(parentProvider, basicTelephony);
+        super(basicTelephony);
     }
 
     /**
