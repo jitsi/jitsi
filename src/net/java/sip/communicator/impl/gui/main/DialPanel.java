@@ -151,7 +151,7 @@ public class DialPanel
             {
                 String searchText = searchField.getText();
 
-                if (searchText == null || searchText.isEmpty())
+                if (searchText == null || searchText.length() == 0)
                     return;
 
                 List<ProtocolProviderService> telephonyProviders
@@ -224,7 +224,7 @@ public class DialPanel
         String inText = searchField.getText();
         
         if (BACK.equals(name)) {
-            if (inText == null || inText.isEmpty())
+            if (inText == null || inText.length() == 0)
                 return;
             if (inText.length() == 1) {
                 searchField.setText(null);
@@ -238,7 +238,7 @@ public class DialPanel
             searchField.setText(null);
             return;            
         }
-        if (inText == null || inText.isEmpty()) {
+        if (inText == null || inText.length() == 0) {
             searchField.setText(name);
             return;
         }
