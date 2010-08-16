@@ -99,4 +99,15 @@ public class CredentialsStorageActivator
             uiService = ServiceUtils.getService(bundleContext, UIService.class);
         return uiService;
     }
+
+    /**
+     * Returns the service corresponding to the <tt>ServiceReference</tt>.
+     *
+     * @param serviceReference service reference
+     * @return service
+     */
+    public static Object getService(ServiceReference serviceReference)
+    {
+        return bundleContext.getService(serviceReference);
+    }
 }

@@ -22,19 +22,21 @@ import org.osgi.framework.*;
  * @author Dmitri Melnikov
  */
 public class CredentialsStorageServiceImpl
-    implements CredentialsStorageService
+    implements CredentialsStorageService,
+               ServiceListener
 {
     /**
-     * The <tt>Logger</tt> for this class.
+     * The <tt>Logger</tt> used by this <tt>CredentialsStorageServiceImpl</tt>
+     * for logging output.
      */
-    private final Logger logger =
-        Logger.getLogger(CredentialsStorageServiceImpl.class);
+    private final Logger logger
+        = Logger.getLogger(CredentialsStorageServiceImpl.class);
 
     /**
      * The name of a property which represents an encrypted password.
      */
-    public static final String ACCOUNT_ENCRYPTED_PASSWORD =
-        "ENCRYPTED_PASSWORD";
+    public static final String ACCOUNT_ENCRYPTED_PASSWORD
+        = "ENCRYPTED_PASSWORD";
 
     /**
      * The name of a property which represents an unencrypted password.
@@ -45,8 +47,8 @@ public class CredentialsStorageServiceImpl
      * The property in the configuration that we use to verify master password
      * existence and correctness.
      */
-    private static final String MASTER_PROP =
-        "net.java.sip.communicator.impl.credentialsstorage.MASTER";
+    private static final String MASTER_PROP
+        = "net.java.sip.communicator.impl.credentialsstorage.MASTER";
 
     /**
      * This value will be encrypted and saved in MASTER_PROP and
@@ -65,6 +67,16 @@ public class CredentialsStorageServiceImpl
     private Crypto crypto;
 
     /**
+     * Whether the <tt>UIService</tt> has been registered or not.
+     */
+    private boolean uiReady = false;
+
+    /**
+     * Lock to use for waiting for <tt>UIService</tt> to be registered. 
+     */
+    private final Object uiReadyLock = new Object();
+
+    /**
      * Initializes the credentials service by fetching the configuration service
      * reference from the bundle context. Encrypts and moves all passwords to
      * new properties.
@@ -75,7 +87,21 @@ public class CredentialsStorageServiceImpl
     {
         configurationService
                 = ServiceUtils.getService(bc, ConfigurationService.class);
-        moveAllPasswordProperties();
+        try
+        {
+            /*
+             * If a master password is set, the migration of the unencrypted
+             * passwords will have to wait for the UIService to register in
+             * order to be able to ask for the master password. But that is
+             * unreasonably late in the case of no master password.
+             */
+            if (!isUsingMasterPassword())
+                moveAllPasswordProperties();
+        }
+        finally
+        {
+            bc.addServiceListener(this);
+        }
     }
 
     /**
@@ -201,8 +227,9 @@ public class CredentialsStorageServiceImpl
         {
             // use this value to verify master password correctness
             String encryptedValue = getEncryptedMasterPropValue();
-            boolean correct =
-                MASTER_PROP_VALUE.equals(localCrypto.decrypt(encryptedValue));
+            boolean correct
+                = MASTER_PROP_VALUE.equals(localCrypto.decrypt(encryptedValue));
+
             if (correct)
             {
                 // also set the crypto instance to use the correct MP
@@ -287,7 +314,7 @@ public class CredentialsStorageServiceImpl
     {
         crypto = new AESCrypto(master);
     }
-    
+
     /**
      * Moves all password properties from unencrypted
      * {@link #ACCOUNT_UNENCRYPTED_PASSWORD} to the corresponding encrypted
@@ -295,11 +322,6 @@ public class CredentialsStorageServiceImpl
      */
     private void moveAllPasswordProperties()
     {
-        // if the MP is set we cannot move properties
-        // since retrieving UIService would cause an exception
-        if (isUsingMasterPassword())
-            return;
-        
         List<String> unencryptedProperties
             = configurationService.getPropertyNamesBySuffix(
                     ACCOUNT_UNENCRYPTED_PASSWORD);
@@ -313,8 +335,18 @@ public class CredentialsStorageServiceImpl
                 String prefix = prop.substring(0, idx);
                 String encodedPassword = getUnencrypted(prefix);
 
-                if ((encodedPassword == null) || (encodedPassword.length() == 0))
+                /*
+                 * If the password is stored unencrypted, we have to migrate it,
+                 * of course. But if it is also stored encrypted in addition to
+                 * being stored unencrypted, the situation starts to look
+                 * unclear and it may be better to just not migrate it.
+                 */
+                if ((encodedPassword == null)
+                        || (encodedPassword.length() == 0)
+                        || isStoredEncrypted(prefix))
+                {
                     setUnencrypted(prefix, null);
+                }
                 else if (!movePasswordProperty(
                         prefix,
                         new String(Base64.decode(encodedPassword))))
@@ -347,12 +379,10 @@ public class CredentialsStorageServiceImpl
             catch (CryptoException cex)
             {
                 logger.debug("Encryption failed", cex);
-                // properties are not moved
-                return false;
             }
         }
-        return
-            false;
+        // properties are not moved
+        return false;
     }
 
     /**
@@ -390,23 +420,55 @@ public class CredentialsStorageServiceImpl
      * @return <tt>true</tt> if the Crypto instance was created; <tt>false</tt>,
      * otherwise
      */
-    private boolean createCrypto()
+    private synchronized boolean createCrypto()
     {
+        /*
+         * XXX The method #createCrypto() is synchronized in order to not ask
+         * for the master password more than once. Without the synchronization,
+         * it is possible to have the master password prompt shown twice in a
+         * row during application startup when unencypted passwords are to be
+         * migrated with the master password already set and the accounts start
+         * loading.
+         */
+
         if (crypto == null)
         {
             logger.debug("Crypto instance is null, creating.");
             if (isUsingMasterPassword())
             {
+                // Wait for the UIService.
+                boolean interrupted = false;
+
+                synchronized (uiReadyLock)
+                {
+                    while (!uiReady)
+                    {
+                        try
+                        {
+                            uiReadyLock.wait();
+                        }
+                        catch (InterruptedException iex)
+                        {
+                            interrupted = true;
+                        }
+                    }
+                }
+                if (interrupted)
+                    Thread.currentThread().interrupt();
+
                 String master = showPasswordPrompt();
+
                 if (master == null)
                 {
-                    // user clicked cancel button in the prompt
+                    // User clicked cancel button in the prompt.
                     crypto = null;
                 }
                 else
                 {
-                    // at this point the master password must be correct,
-                    // so we set the crypto instance to use it
+                    /*
+                     * At this point the master password must be correct, so we
+                     * set the crypto instance to use it
+                     */
                     setMasterPassword(master);
                 }
             }
@@ -414,10 +476,11 @@ public class CredentialsStorageServiceImpl
             {
                 logger.debug("Master password not set");
 
-                // setting the master password to null means
-                // we shall still be using encryption/decryption
-                // but using some default value, not something specified
-                // by the user
+                /*
+                 * Setting the master password to null means we shall still be
+                 * using encryption/decryption but using some default value, not
+                 * something specified by the user.
+                 */
                 setMasterPassword(null);
             }
         }
@@ -524,5 +587,36 @@ public class CredentialsStorageServiceImpl
     {
         configurationService.setProperty(
                 accountPrefix + "." + ACCOUNT_UNENCRYPTED_PASSWORD, value);
+    }
+
+    /**
+     * Starts the password migration when the <tt>UIService</tt> is registered.
+     *
+     * @param event a <tt>ServiceEvent</tt> which carries the specifics of the
+     * service change
+     */
+    public void serviceChanged(ServiceEvent event)
+    {
+        if (!uiReady && (event.getType() == ServiceEvent.REGISTERED))
+        {
+            Object service
+                = CredentialsStorageActivator.getService(
+                        event.getServiceReference());
+
+            if (service instanceof UIService)
+            {
+                uiReady = true;
+                /*
+                 * XXX Wake up everyone blocked on uiReadyLock prior to
+                 * moveAllPasswordProperties() in order to avoid dealocks.
+                 */
+                synchronized (uiReadyLock)
+                {
+                    uiReadyLock.notifyAll();
+                }
+
+                moveAllPasswordProperties();
+            }
+        }
     }
 }

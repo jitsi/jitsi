@@ -100,8 +100,6 @@ public class UIServiceImpl
     private HistoryWindowManager historyWindowManager
         = new HistoryWindowManager();
 
-    private boolean exitOnClose = true;
-
     /**
      * Creates an instance of <tt>UIServiceImpl</tt>.
      */
@@ -110,9 +108,9 @@ public class UIServiceImpl
     }
 
     /**
-     * Initializes all frames and panels and shows the gui.
+     * Initializes all frames and panels and shows the GUI.
      */
-    public void loadApplicationGui()
+    void loadApplicationGui()
     {
         this.setDefaultThemePack();
 
@@ -374,34 +372,36 @@ public class UIServiceImpl
     }
 
     /**
-     * Implements the <code>UIService.setExitOnMainWindowClose</code>. Sets a
-     * boolean property, which indicates whether the application should be
-     * exited when the main application window is closed.
+     * Implements {@link UIService#setExitOnMainWindowClose}. Sets the boolean
+     * property which indicates whether the application should be exited when
+     * the main application window is closed.
      *
-     * @param exitOnClose specifies if closing the main application window
-     * should also be exiting the application.
+     * @param exitOnMainWindowClose <tt>true</tt> if closing the main
+     * application window should also be exiting the application; otherwise,
+     * <tt>false</tt>
      */
-    public void setExitOnMainWindowClose(boolean exitOnClose)
+    public void setExitOnMainWindowClose(boolean exitOnMainWindowClose)
     {
-        this.exitOnClose = exitOnClose;
-
-        if (mainFrame != null)
-            mainFrame
-                .setDefaultCloseOperation(exitOnClose ? JFrame.DISPOSE_ON_CLOSE
-                    : JFrame.HIDE_ON_CLOSE);
+            mainFrame.setDefaultCloseOperation(
+                    exitOnMainWindowClose
+                        ? JFrame.DISPOSE_ON_CLOSE
+                        : JFrame.HIDE_ON_CLOSE);
     }
 
     /**
-     * Implements the <code>UIService.getExitOnMainWindowClose</code>.
-     * Returns the boolean property, which indicates whether the application
-     * should be exited when the main application window is closed.
+     * Implements {@link UIService#getExitOnMainWindowClose()}. Gets the boolean
+     * property which indicates whether the application should be exited when
+     * the main application window is closed.
      *
      * @return determines whether the UI impl would exit the application when
      * the main application window is closed.
      */
     public boolean getExitOnMainWindowClose()
     {
-        return this.exitOnClose;
+        return
+            (mainFrame != null)
+                && (mainFrame.getDefaultCloseOperation()
+                        == JFrame.DISPOSE_ON_CLOSE);
     }
 
     /**

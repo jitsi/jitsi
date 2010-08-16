@@ -115,6 +115,7 @@ public class GuiActivator implements BundleActivator
         {
             // Create the ui service
             uiService = new UIServiceImpl();
+            uiService.loadApplicationGui();
 
             if (logger.isInfoEnabled())
                 logger.info("UI Service...[  STARTED ]");
@@ -134,8 +135,6 @@ public class GuiActivator implements BundleActivator
                 CertificateVerificationService.class.getName(),
                 new CertificateVerificationServiceImpl(),
                 null);
-
-            uiService.loadApplicationGui();
 
             logger.logEntry();
         }
