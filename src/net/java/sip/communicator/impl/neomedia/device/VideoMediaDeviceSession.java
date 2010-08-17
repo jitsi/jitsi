@@ -18,7 +18,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
-import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -159,7 +158,7 @@ public class VideoMediaDeviceSession
              * that our codecs are as generic as possible and we select the
              * default preset here.
              */
-            if (ImageStreamingUtils.LOCATOR_PROTOCOL.equals(protocol))
+            if (ImageStreamingAuto.LOCATOR_PROTOCOL.equals(protocol))
             {
                 /*
                  * It is not clear at this time what the default frame rate for
@@ -449,7 +448,7 @@ public class VideoMediaDeviceSession
             MediaLocator locator = captureDevice.getLocator();
 
             if ((locator != null)
-                    && ImageStreamingUtils.LOCATOR_PROTOCOL
+                    && ImageStreamingAuto.LOCATOR_PROTOCOL
                             .equals(locator.getProtocol()))
                 return createLocalVisualComponentForDesktopStreaming();
         }
@@ -486,6 +485,8 @@ public class VideoMediaDeviceSession
 
             canvas = new Canvas()
             {
+                public static final long serialVersionUID = 0L;
+
                 @Override
                 public void paint(Graphics g)
                 {

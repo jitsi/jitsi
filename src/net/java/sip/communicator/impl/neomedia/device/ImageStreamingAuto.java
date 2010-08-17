@@ -16,7 +16,6 @@ import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.*;
-import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 
 /**
  * Add ImageStreaming capture device.
@@ -25,6 +24,12 @@ import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
  */
 public class ImageStreamingAuto
 {
+    /**
+     * The locator protocol used when creating or parsing
+     * <tt>MediaLocator</tt>s.
+     */
+    public static final String LOCATOR_PROTOCOL = "imgstreaming";
+
     /**
      * Add capture devices.
      *
@@ -90,8 +95,7 @@ public class ImageStreamingAuto
             CaptureDeviceInfo devInfo
                 = new CaptureDeviceInfo(
                         name + " " + i,
-                        new MediaLocator(
-                            ImageStreamingUtils.LOCATOR_PROTOCOL + ":" + i),
+                        new MediaLocator(LOCATOR_PROTOCOL + ":" + i),
                         formats);
 
             /* add to JMF device manager */
