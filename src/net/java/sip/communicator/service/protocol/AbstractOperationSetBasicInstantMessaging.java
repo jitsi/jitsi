@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.service.protocol;
@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.*;
  * {@link OperationSetBasicInstantMessaging} in order to make it easier for
  * implementers to provide complete solutions while focusing on
  * implementation-specific details.
- * 
+ *
  * @author Lubomir Marinov
  */
 public abstract class AbstractOperationSetBasicInstantMessaging
@@ -36,7 +36,7 @@ public abstract class AbstractOperationSetBasicInstantMessaging
      * Registers a MessageListener with this operation set so that it gets
      * notifications of successful message delivery, failure or reception of
      * incoming messages..
-     * 
+     *
      * @param listener the <tt>MessageListener</tt> to register.
      */
     public void addMessageListener(MessageListener listener)
@@ -52,7 +52,7 @@ public abstract class AbstractOperationSetBasicInstantMessaging
 
     /**
      * Create a Message instance for sending arbitrary MIME-encoding content.
-     * 
+     *
      * @param content content value
      * @param contentType the MIME-type for <tt>content</tt>
      * @param encoding encoding used for <tt>content</tt>
@@ -92,7 +92,7 @@ public abstract class AbstractOperationSetBasicInstantMessaging
     /**
      * Create a Message instance for sending a simple text messages with default
      * (text/plain) content type and encoding.
-     * 
+     *
      * @param messageText the string content of the message.
      * @return Message the newly created message
      */
@@ -108,7 +108,7 @@ public abstract class AbstractOperationSetBasicInstantMessaging
     /**
      * Notifies all registered message listeners that a message has been
      * delivered successfully to its addressee..
-     * 
+     *
      * @param message the <tt>Message</tt> that has been delivered.
      * @param to the <tt>Contact</tt> that <tt>message</tt> was delivered to.
      */
@@ -134,10 +134,10 @@ public abstract class AbstractOperationSetBasicInstantMessaging
         MessageDeliveryFailed,
         MessageDeliveryPending,
     }
-    
+
     /**
      * Delivers the specified event to all registered message listeners.
-     * 
+     *
      * @param evt the <tt>EventObject</tt> that we'd like delivered to all
      *            registered message listeners.
      */
@@ -170,16 +170,17 @@ public abstract class AbstractOperationSetBasicInstantMessaging
         }
         else if (evt instanceof MessageDeliveryFailedEvent)
         {
-            eventType = MessageEventType.MessageDeliveryFailed;   
+            eventType = MessageEventType.MessageDeliveryFailed;
         }
-        
+
         // Transform the event.
-        evt = messageTransform(evt, eventType);
-        if (evt == null)
-            return;
-        
-        for (MessageListener listener : listeners)
-            try
+        try
+        {
+            evt = messageTransform(evt, eventType);
+            if (evt == null)
+                return;
+
+            for (MessageListener listener : listeners)
             {
                 switch (eventType)
                 {
@@ -195,16 +196,17 @@ public abstract class AbstractOperationSetBasicInstantMessaging
                         break;
                 }
             }
-            catch (Throwable e)
-            {
-                logger.error("Error delivering message", e);
-            }
+        }
+        catch (Throwable e)
+        {
+            logger.error("Error delivering message", e);
+        }
     }
 
     /**
      * Notifies all registered message listeners that a message has been
      * received.
-     * 
+     *
      * @param message the <tt>Message</tt> that has been received.
      * @param from the <tt>Contact</tt> that <tt>message</tt> was received from.
      */
@@ -218,7 +220,7 @@ public abstract class AbstractOperationSetBasicInstantMessaging
      * Unregisters <tt>listener</tt> so that it won't receive any further
      * notifications upon successful message delivery, failure or reception of
      * incoming messages..
-     * 
+     *
      * @param listener the <tt>MessageListener</tt> to unregister.
      */
     public void removeMessageListener(MessageListener listener)
@@ -228,13 +230,13 @@ public abstract class AbstractOperationSetBasicInstantMessaging
             messageListeners.remove(listener);
         }
     }
-    
+
     public MessageDeliveredEvent messageDeliveryPendingTransform(MessageDeliveredEvent evt){
         return (MessageDeliveredEvent)messageTransform(evt, MessageEventType.MessageDeliveryPending);
     }
-    
+
     private EventObject messageTransform(EventObject evt, MessageEventType eventType){
-        
+
         ProtocolProviderService protocolProvider;
         switch (eventType){
         case MessageDelivered:
@@ -252,13 +254,13 @@ public abstract class AbstractOperationSetBasicInstantMessaging
         default:
                 return evt;
         }
-        
-        OperationSetInstantMessageTransformImpl opSetMessageTransform = 
+
+        OperationSetInstantMessageTransformImpl opSetMessageTransform =
             (OperationSetInstantMessageTransformImpl)protocolProvider.getOperationSet(OperationSetInstantMessageTransform.class);
 
         if (opSetMessageTransform == null)
             return evt;
-        
+
         for (Map.Entry<Integer, Vector<TransformLayer>> entry
                 : opSetMessageTransform.transformLayers.entrySet())
         {
@@ -292,7 +294,7 @@ public abstract class AbstractOperationSetBasicInstantMessaging
                 }
             }
         }
-        
+
         return evt;
     }
 }

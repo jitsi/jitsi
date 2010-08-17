@@ -828,7 +828,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             {
                 if (logger.isInfoEnabled())
                     logger.info(responseEvent.getResponse().getStatusCode()
-                            + " " 
+                            + " "
                             + responseEvent.getResponse().getReasonPhrase());
 
                 // error for delivering the message
