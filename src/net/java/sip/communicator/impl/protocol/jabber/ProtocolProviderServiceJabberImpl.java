@@ -938,32 +938,35 @@ public class ProtocolProviderServiceJabberImpl
                                            new JingleIQProvider());
 
             //initialize the telephony operation set
-/* disabled until implementation is ready.
-            OperationSetBasicTelephonyJabberImpl basicTelephony =
-                new OperationSetBasicTelephonyJabberImpl(this);
-            addSupportedOperationSet(
-                OperationSetBasicTelephony.class,
-                basicTelephony);
+            //until we actually finish jingle, we'll have a clumsy way of
+            //enabling it through a system property.
+            if(Boolean.getBoolean("enableJingle"))
+            {
+                OperationSetBasicTelephonyJabberImpl basicTelephony =
+                    new OperationSetBasicTelephonyJabberImpl(this);
+                addSupportedOperationSet(
+                    OperationSetBasicTelephony.class,
+                    basicTelephony);
 
-            // initialize video telephony OperationSet
-            addSupportedOperationSet(
+                // initialize video telephony OperationSet
+                addSupportedOperationSet(
                     OperationSetVideoTelephony.class,
                     new OperationSetVideoTelephonyJabberImpl(basicTelephony));
 
-            // initialize desktop streaming OperationSet
-            addSupportedOperationSet(
+                // initialize desktop streaming OperationSet
+                addSupportedOperationSet(
                     OperationSetDesktopStreaming.class,
                     new OperationSetDesktopStreamingJabberImpl(basicTelephony));
 
-            // Add Jingle features to supported features.
-            supportedFeatures.add(URN_XMPP_JINGLE);
-            supportedFeatures.add(URN_XMPP_JINGLE_RTP);
-            supportedFeatures.add(URN_XMPP_JINGLE_RAW_UDP_0);
-            //un-comment when ice integration is ready
-            //supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
-            supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
-            supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
-*/
+                // Add Jingle features to supported features.
+                supportedFeatures.add(URN_XMPP_JINGLE);
+                supportedFeatures.add(URN_XMPP_JINGLE_RTP);
+                supportedFeatures.add(URN_XMPP_JINGLE_RAW_UDP_0);
+                //un-comment when ice integration is ready
+                //supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
+                supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
+                supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
+            }
 
             // OperationSetContactCapabilities
             opsetContactCapabilities
