@@ -133,7 +133,7 @@ public abstract class AccountID
         this.protocolName = protocolName;
         this.userID = userID;
         this.accountProperties
-            = new Hashtable<String, String>(accountProperties);
+            = new HashMap<String, String>(accountProperties);
         this.serviceName = serviceName;
 
         //create a unique identifier string
@@ -211,7 +211,7 @@ public abstract class AccountID
      */
     public Map<String, String> getAccountProperties()
     {
-        return new Hashtable<String, String>(accountProperties);
+        return new HashMap<String, String>(accountProperties);
     }
 
     public Object getAccountProperty(Object key)

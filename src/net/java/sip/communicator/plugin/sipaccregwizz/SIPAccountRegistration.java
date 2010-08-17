@@ -38,9 +38,9 @@ public class SIPAccountRegistration
 
     private String authorizationName;
 
-    private String serverPort = DEFAULT_PORT;
+    private String serverPort = null;
 
-    private String proxyPort = DEFAULT_PORT;
+    private String proxyPort = null;
 
     private String proxy;
 
@@ -93,7 +93,10 @@ public class SIPAccountRegistration
 
     public void setProxy(String proxy)
     {
-        this.proxy = proxy;
+        if(proxy != null && proxy.length() == 0)
+            this.proxy = null;
+        else
+            this.proxy = proxy;
     }
 
     /**
@@ -214,7 +217,10 @@ public class SIPAccountRegistration
      */
     public void setServerAddress(String serverAddress)
     {
-        this.serverAddress = serverAddress;
+        if(serverAddress != null && serverAddress.length() == 0)
+            this.serverAddress = null;
+        else
+            this.serverAddress = serverAddress;
     }
 
     /**
@@ -224,7 +230,10 @@ public class SIPAccountRegistration
      */
     public void setServerPort(String port)
     {
-        this.serverPort = port;
+        if(port != null && port.length() == 0)
+            this.serverPort = null;
+        else
+            this.serverPort = port;
     }
 
     /**
@@ -234,7 +243,10 @@ public class SIPAccountRegistration
      */
     public void setDisplayName(String displayName)
     {
-        this.displayName = displayName;
+        if(displayName != null && displayName.length() == 0)
+            this.displayName = null;
+        else
+            this.displayName = displayName;
     }
 
     /**
@@ -244,7 +256,10 @@ public class SIPAccountRegistration
      */
     public void setAuthorizationName(String authName)
     {
-        this.authorizationName = authName;
+        if(authName != null && authName.length() == 0)
+            this.authorizationName = null;
+        else
+            this.authorizationName = authName;
     }
 
     /**
@@ -254,7 +269,10 @@ public class SIPAccountRegistration
      */
     public void setProxyPort(String port)
     {
-        this.proxyPort = port;
+        if(port != null && port.length() == 0)
+            this.proxyPort = null;
+        else
+            this.proxyPort = port;
     }
 
     /**

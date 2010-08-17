@@ -329,8 +329,8 @@ public class SIPAccountRegistrationWizard
             String passwd)
         throws OperationFailedException
     {
-        Hashtable<String, String> accountProperties
-            = new Hashtable<String, String>();
+        HashMap<String, String> accountProperties
+            = new HashMap<String, String>();
 
         accountProperties.put(ProtocolProviderFactory.PROTOCOL, getProtocol());
         String protocolIconPath = getProtocolIconPath();
@@ -382,31 +382,20 @@ public class SIPAccountRegistrationWizard
                     Boolean.toString(true));
         }
 
-        if(registration.getDisplayName() != null)
-            accountProperties.put(ProtocolProviderFactory.DISPLAY_NAME,
-                registration.getDisplayName());
+        accountProperties.put(ProtocolProviderFactory.DISPLAY_NAME,
+            registration.getDisplayName());
 
-        if(registration.getAuthorizationName() != null)
-            accountProperties.put(ProtocolProviderFactory.AUTHORIZATION_NAME,
-                registration.getAuthorizationName());
+        accountProperties.put(ProtocolProviderFactory.AUTHORIZATION_NAME,
+            registration.getAuthorizationName());
 
-        String serverPort = registration.getServerPort();
-        if(serverPort != null && serverPort.length() > 0)
-            accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
-                    serverPort);
+        accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
+            registration.getServerPort());
 
-        String proxyAddress = null;
-        if (registration.getProxy() != null)
-            proxyAddress = registration.getProxy();
+        accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
+            registration.getProxy());
 
-        if (proxyAddress != null && proxyAddress.length() > 0)
-            accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
-                proxyAddress);
-
-        String proxyPort = registration.getProxyPort();
-        if(proxyPort != null && proxyPort.length() > 0)
-            accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
-                    proxyPort);
+        accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
+                registration.getProxyPort());
 
         accountProperties.put(ProtocolProviderFactory.PREFERRED_TRANSPORT,
                 registration.getPreferredTransport());
@@ -442,6 +431,9 @@ public class SIPAccountRegistrationWizard
         if(registration.getKeepAliveMethod() != null)
             accountProperties.put("KEEP_ALIVE_METHOD",
                 registration.getKeepAliveMethod());
+        else
+            accountProperties.put("KEEP_ALIVE_METHOD",
+                registration.getDefaultKeepAliveMethod());
 
         accountProperties.put("KEEP_ALIVE_INTERVAL",
             registration.getKeepAliveInterval());
