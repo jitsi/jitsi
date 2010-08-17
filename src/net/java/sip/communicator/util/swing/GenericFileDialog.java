@@ -25,18 +25,12 @@ import net.java.sip.communicator.util.*;
 public class GenericFileDialog 
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>GenericFileDialog</tt> class for
-     * logging output.
-     */
-    private static final Logger logger
-        = Logger.getLogger(GenericFileDialog.class);
-
-    /**
      * Creates a file dialog (AWT's FileDialog or Swing's JFileChooser) 
      * regarding to user's operating system.
      * 
      * @param parent the parent Frame/JFrame of this dialog
      * @param title dialog's title
+     * @param fileOperation
      * @return a SipCommFileChooser instance
      */
     public static SipCommFileChooser create(
@@ -89,18 +83,18 @@ public class GenericFileDialog
      * 
      * @param parent the parent Frame/JFrame of this dialog
      * @param title dialog's title
+     * @param fileOperation
      * @param path start path of this dialog
      * @return SipCommFileChooser an implementation of SipCommFileChooser
      */
     public static SipCommFileChooser create(
         Frame parent, String title, int fileOperation, String path)
     {
-        SipCommFileChooser scfc = 
-            GenericFileDialog.create(parent, title, fileOperation);
+        SipCommFileChooser scfc 
+            = GenericFileDialog.create(parent, title, fileOperation);
 
         if(path != null)
             scfc.setStartPath(path);
-
         return scfc;
     }
 }

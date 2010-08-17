@@ -46,12 +46,6 @@ public class RecordButton
         = new SimpleDateFormat("yyyy-MM-dd@HH.mm.ss");
 
     /**
-     * <tt>true</tt> when the default directory to save calls to is set,
-     * <tt>false</tt> otherwise.
-     */
-    private boolean isCallDirSet = false;
-
-    /**
      * The full filename of the saved call on the file system.
      */
     private String callFilename;
@@ -115,10 +109,7 @@ public class RecordButton
         String saveDir = configuration.getString(Recorder.SAVED_CALLS_PATH);
 
         if ((saveDir != null) && (saveDir.length() != 0))
-        {
-            isCallDirSet = true;
             toolTip += " (" + saveDir + ")";
-        }
         setToolTipText(toolTip);
     }
 
@@ -138,9 +129,15 @@ public class RecordButton
             // start recording
             if (isSelected())
             {
+                String savedCallsPath
+                    = configuration.getString(Recorder.SAVED_CALLS_PATH);
+
                 // ask user input about where to save the call
-                if (!isCallDirSet)
+                if ((savedCallsPath == null) || (savedCallsPath.length() == 0))
                 {
+                    // Offer a default name for the file to record into.
+                    callFileChooser.setStartPath(createDefaultFilename(null));
+
                     File selectedFile = callFileChooser.getFileFromDialog();
 
                     if (selectedFile != null)
@@ -171,7 +168,7 @@ public class RecordButton
                     }
                 }
                 else
-                    callFilename = createDefaultFilename();
+                    callFilename = createDefaultFilename(savedCallsPath);
 
                 telephony.startRecording(call, callFilename);
             }
@@ -195,18 +192,18 @@ public class RecordButton
      * prefix and extension. If the directory is <tt>null</tt> user's home
      * directory is used.
      *
+     * @param savedCallsPath the path to the directory in which the generated
+     * file name is to be placed
      * @return a full filename for the call
      */
-    private String createDefaultFilename()
+    private String createDefaultFilename(String savedCallsPath)
     {
-        String callsDir = configuration.getString(Recorder.SAVED_CALLS_PATH);
-
         // set to user's home when null
-        if (callsDir == null)
+        if (savedCallsPath == null)
         {
             try
             {
-                callsDir
+                savedCallsPath
                     = GuiActivator
                         .getFileAccessService()
                             .getDefaultDownloadDirectory()
@@ -223,7 +220,7 @@ public class RecordButton
         if ((ext == null) || (ext.length() == 0))
             ext = SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT;
         return
-            ((callsDir == null) ? "" : (callsDir + File.separator))
+            ((savedCallsPath == null) ? "" : (savedCallsPath + File.separator))
                 + generateCallFilename(ext);
     }
 

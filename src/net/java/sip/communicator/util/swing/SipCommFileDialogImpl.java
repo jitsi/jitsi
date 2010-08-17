@@ -10,15 +10,15 @@ import java.awt.*;
 import java.io.*;
 
 /**
- * SipCommFileChooser implementation for the use of AWT's FileDialog.
- * 
+ * Implements <tt>SipCommFileChooser</tt> for AWT's <tt>FileDialog</tt>.
+ *
  * @author Valentin Martinet
  */
 public class SipCommFileDialogImpl 
     extends FileDialog 
     implements SipCommFileChooser
 {
-    private static final long serialVersionUID = 8176923801105539356L;
+    private static final long serialVersionUID = 0L;
 
     /**
      * Constructor
@@ -50,14 +50,9 @@ public class SipCommFileDialogImpl
      */
     public File getApprovedFile() 
     {
-        if(this.getFile() != null)
-        {
-            return new File(this.getDirectory(), this.getFile());
-        }
-        else
-        {
-            return null;
-        }
+        String file = getFile();
+
+        return (file != null) ? new File(getDirectory(), file) : null;
     }
 
     /**
@@ -67,7 +62,15 @@ public class SipCommFileDialogImpl
      */
     public void setStartPath(String path) 
     {
-        this.setDirectory(path);
+        File file = (path == null) ? null : new File(path);
+
+        if ((file != null) && !file.isDirectory())
+        {
+            setDirectory(file.getParent());
+            setFile(path);
+        }
+        else
+            setDirectory(path);
     }
 
     /**

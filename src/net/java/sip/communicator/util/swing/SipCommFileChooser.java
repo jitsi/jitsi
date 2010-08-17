@@ -16,10 +16,10 @@ import java.io.*;
  * user interface for file selection provided by Mac OS which is more practical
  * than the user interface performed by a JFileChooser (on Mac).
  * 
- * Therefore, under other plateforms (Microsoft Windows, Linux), the use of 
+ * Therefore, under other platforms (Microsoft Windows, Linux), the use of 
  * JFileChooser instead of FileDialog performs a better user interface for 
  * browsing among a file hierarchy.
- * 
+ *
  * @author Valentin Martinet
  */
 public interface SipCommFileChooser 

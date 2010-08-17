@@ -11,7 +11,7 @@ import java.io.*;
 import javax.swing.*;
 
 /**
- * SipCommFileChooser implementation for Swing's JFileChooser.
+ * Implements <tt>SipCommFileChooser</tt> for Swing's <tt>JFileChooser</tt>.
  *
  * @author Valentin Martinet
  */
@@ -19,8 +19,6 @@ public class SipCommFileChooserImpl
     extends JFileChooser
     implements SipCommFileChooser
 {
-    private static final long serialVersionUID = 6858528563334885869L;
-
     /**
      * Parent component of this dialog (JFrame, Frame, etc)
      */
@@ -35,21 +33,26 @@ public class SipCommFileChooserImpl
     public SipCommFileChooserImpl(String title, int operation)
     {
         super();
+
         this.setDialogTitle(title);
         this.setDialogType(operation);
     }
 
     /**
-     * Constructor
-     * 
+     * Initializes a new <tt>SipCommFileChooserImpl</tt> instance.
+     *
+     * @param parent
      * @param path
+     * @param title
+     * @param operation
      */
     public SipCommFileChooserImpl(
-        Component pparent, String path, String title, int operation)
+        Component parent, String path, String title, int operation)
     {
         this(title, operation);
+
+        this.parent = parent;
         this.setStartPath(path);
-        this.parent = pparent;
     }
 
     /**
@@ -64,20 +67,22 @@ public class SipCommFileChooserImpl
 
     /**
      * Sets the default path to be considered for browsing among files.
-     * 
+     *
      * @param path the default start path for this dialog
      */
     public void setStartPath(String path) 
     {
-        if(path == null)
-        {
-            // passing null makes file chooser points to user's default dir
-            this.setCurrentDirectory(null);
-        }
-        else
-        {
-            this.setCurrentDirectory(new File(path));
-        }
+        // Passing null makes JFileChooser points to user's default dir.
+        File file = (path == null) ? null : new File(path);
+
+        setCurrentDirectory(file);
+
+        /*
+         * If the path doesn't exist, the intention of the caller may have been
+         * to also set a default file name.
+         */
+        if ((file != null) && !file.isDirectory())
+            setSelectedFile(file);
     }
 
     /**
