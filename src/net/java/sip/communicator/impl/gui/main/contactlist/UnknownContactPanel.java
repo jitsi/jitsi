@@ -59,7 +59,7 @@ public class UnknownContactPanel
 
         this.parentWindow = window;
 
-        TransparentPanel mainPanel = new TransparentPanel(new GridBagLayout());
+        TransparentPanel mainPanel = new TransparentPanel(new BorderLayout());
 
         this.add(mainPanel, BorderLayout.NORTH);
 
@@ -73,12 +73,7 @@ public class UnknownContactPanel
 
         initTextArea(parentWindow.getCurrentSearchText());
 
-        GridBagConstraints constraints = new GridBagConstraints();
-
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.anchor = GridBagConstraints.CENTER;
-        mainPanel.add(textArea, constraints);
+        mainPanel.add(textArea, BorderLayout.CENTER);
 
         TransparentPanel buttonPanel
             = new TransparentPanel(new GridLayout(0, 1));
@@ -86,10 +81,11 @@ public class UnknownContactPanel
         buttonPanel.add(addContact);
         buttonPanel.add(callContact);
 
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        constraints.anchor = GridBagConstraints.CENTER;
-        mainPanel.add(buttonPanel, constraints);
+        TransparentPanel southPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+        southPanel.add(buttonPanel);
+
+        mainPanel.add(southPanel, BorderLayout.SOUTH);
 
         addContact.addActionListener(new ActionListener()
         {
@@ -177,6 +173,7 @@ public class UnknownContactPanel
             .getI18NString( "service.gui.NO_CONTACTS_FOUND",
                 new String[]{'"' + searchText + '"'}));
         textArea.setOpaque(false);
+        textArea.setEditable(false);
         StyledDocument doc = textArea.getStyledDocument();
 
         MutableAttributeSet standard = new SimpleAttributeSet();
@@ -184,13 +181,6 @@ public class UnknownContactPanel
         StyleConstants.setFontFamily(standard, textArea.getFont().getFamily());
         StyleConstants.setFontSize(standard, 12);
         doc.setParagraphAttributes(0, 0, standard, true);
-
-        textArea.setPreferredSize(
-            new Dimension(parentWindow.getWidth() - 40, 70));
-        textArea.setMinimumSize(
-            new Dimension(parentWindow.getWidth() - 40, 70));
-        textArea.setMaximumSize(
-            new Dimension(parentWindow.getWidth() - 40, 70));
 
         parentWindow.addSearchFieldListener(this);
     }
