@@ -9,7 +9,6 @@ package net.java.sip.communicator.service.protocol;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
