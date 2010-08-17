@@ -90,12 +90,16 @@ public class CallRecordingConfigForm
     {
         ConfigurationService configurationService
             = NeomediaActivator.getConfigurationService();
+        String callFormat
+            = configurationService.getString(Recorder.CALL_FORMAT);
 
-        String callFormat = configurationService.getString(Recorder.CALL_FORMAT);
-        formatsComboBox.setSelectedItem(callFormat == null ? SoundFileUtils.mp2
-            : callFormat);
-        
-        savedCallsDir = configurationService.getString(Recorder.SAVED_CALLS_PATH);
+        formatsComboBox.setSelectedItem(
+                (callFormat == null)
+                    ? SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT
+                    : callFormat);
+
+        savedCallsDir
+            = configurationService.getString(Recorder.SAVED_CALLS_PATH);
         saveCallsToCheckBox.setSelected(savedCallsDir != null);
         callDirTextField.setText(savedCallsDir);
         callDirTextField.setEnabled(saveCallsToCheckBox.isSelected());
@@ -191,9 +195,11 @@ public class CallRecordingConfigForm
             public void itemStateChanged(ItemEvent event)
             {
                 if (event.getStateChange() == ItemEvent.SELECTED)
+                {
                     NeomediaActivator
                         .getConfigurationService()
                             .setProperty(Recorder.CALL_FORMAT, event.getItem());
+                }
             }
         });
         return formatsComboBox;

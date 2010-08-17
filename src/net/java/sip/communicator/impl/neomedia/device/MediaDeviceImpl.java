@@ -267,7 +267,7 @@ public class MediaDeviceImpl
     }
 
     /**
-     * Gets the <tt>MediaFormat</tt> in which this <t>MediaDevice</tt> captures
+     * Gets the <tt>MediaFormat</tt> in which this <tt>MediaDevice</tt> captures
      * media.
      *
      * @return the <tt>MediaFormat</tt> in which this <tt>MediaDevice</tt>

@@ -370,9 +370,11 @@ public abstract class MediaAwareCall<
                 //level would only be calculated if anyone is interested in
                 //receiving them.
                 Iterator<T> cps = getCallPeers();
+
                 while (cps.hasNext())
                 {
                     T callPeer = cps.next();
+
                     callPeer.getMediaHandler()
                             .setLocalUserAudioLevelListener(
                                                 localAudioLevelDelegator);
@@ -405,9 +407,11 @@ public abstract class MediaAwareCall<
                 //peer media handlers. We therefore remove it so that audio
                 //level calculations would be ceased.
                 Iterator<T> cps = getCallPeers();
+
                 while (cps.hasNext())
                 {
                     T callPeer = cps.next();
+
                     callPeer.getMediaHandler()
                             .setLocalUserAudioLevelListener(null);
                 }
@@ -448,20 +452,18 @@ public abstract class MediaAwareCall<
     /**
      * Sets the mute property for this call.
      *
-     * @param newMuteValue the new value of the mute property for this call
+     * @param mute the new value of the mute property for this call
      */
-    public void setMute(boolean newMuteValue)
+    public void setMute(boolean mute)
     {
-        if (this.mute != newMuteValue)
+        if (this.mute != mute)
         {
-            this.mute = newMuteValue;
+            this.mute = mute;
 
             Iterator<T> peers = getCallPeers();
+
             while (peers.hasNext())
-            {
-                T peer = peers.next();
-                peer.setMute(newMuteValue);
-            }
+                peers.next().setMute(this.mute);
         }
     }
 
@@ -483,15 +485,11 @@ public abstract class MediaAwareCall<
         localVideoAllowed = allowed;
         mediaUseCase = useCase;
 
-        /*
-         * Record the setting locally and notify all peers.
-         */
+        // Record the setting locally and notify all peers.
         Iterator<T> peers = getCallPeers();
+
         while (peers.hasNext())
-        {
-            T peer = peers.next();
-            peer.setLocalVideoAllowed(allowed);
-        }
+            peers.next().setLocalVideoAllowed(allowed);
     }
 
     /**
@@ -518,16 +516,13 @@ public abstract class MediaAwareCall<
      */
     public boolean isLocalVideoStreaming()
     {
-
         Iterator<T> peers = getCallPeers();
+
         while (peers.hasNext())
         {
-            T peer = peers.next();
-
-            if (peer.isLocalVideoStreaming())
+            if (peers.next().isLocalVideoStreaming())
                 return true;
         }
-
         return false;
     }
 
@@ -572,33 +567,25 @@ public abstract class MediaAwareCall<
     }
 
     /**
+     * Starts the recording of this call.
+     *
+     * @param filename the name of the file into which this <tt>Call</tt> is to
+     * be recorded
+     */
+    public void startRecording(String filename)
+    {
+        recorder
+            = ProtocolMediaActivator
+                .getMediaService()
+                    .createRecorder(getDefaultDevice(MediaType.AUDIO));
+        recorder.startRecording(filename);
+    }
+
+    /**
      * Stops the recording of this call.
      */
     public void stopRecording()
     {
         recorder.stopRecording();
-    }
-
-    /**
-     * Starts the recording of this call.
-     * @param callFilename call filename
-     */
-    public void startRecording(String callFilename)
-    {
-        MediaService mediaService = ProtocolMediaActivator.getMediaService();
-        recorder =
-            mediaService.createRecorder(getDefaultDevice(MediaType.AUDIO));
-
-        recorder.startRecording(callFilename);
-    }
-
-    /**
-     * Returns the recorder used by this instance to record the call.
-     * 
-     * @return call recorder
-     */
-    public Recorder getRecorder()
-    {
-        return recorder;
     }
 }

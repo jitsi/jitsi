@@ -106,7 +106,7 @@ public class RecordButton
                     public String getDescription()
                     {
                         return
-                            "Recorded call (*.mp2, *.wav, *.au, *.aif, *.gsm)";
+                            "Recorded call (*.wav, *.mp2, *.gsm, *.au, *.aif)";
                     }
                 });
 
@@ -131,13 +131,12 @@ public class RecordButton
     {
         if (call != null)
         {
-            OperationSetBasicTelephony<?> telephony =
-                call.getProtocolProvider().getOperationSet(
-                    OperationSetBasicTelephony.class);
+            OperationSetBasicTelephony<?> telephony
+                = call.getProtocolProvider().getOperationSet(
+                        OperationSetBasicTelephony.class);
 
-            boolean isRecordSelected = isSelected();
             // start recording
-            if (isRecordSelected)
+            if (isSelected())
             {
                 // ask user input about where to save the call
                 if (!isCallDirSet)
@@ -147,9 +146,22 @@ public class RecordButton
                     if (selectedFile != null)
                     {
                         callFilename = selectedFile.getAbsolutePath();
-                        configuration.setProperty(
-                                Recorder.CALL_FORMAT,
-                                SoundFileUtils.getExtension(selectedFile));
+
+                        /*
+                         * If the user specified no extension (which seems
+                         * common on Mac OS X at least) i.e. no format, then it
+                         * is not obvious that we have to override the set
+                         * Recorder.CALL_FORMAT.
+                         */
+                        String callFormat
+                            = SoundFileUtils.getExtension(selectedFile);
+
+                        if (callFormat != null)
+                        {
+                            configuration.setProperty(
+                                    Recorder.CALL_FORMAT,
+                                    callFormat);
+                        }
                     }
                     else
                     {
@@ -167,14 +179,13 @@ public class RecordButton
             else
             {
                 telephony.stopRecording(call);
-                NotificationManager
-                    .fireNotification(
-                        NotificationManager.CALL_SAVED,
-                        resources.getI18NString(
-                                "plugin.callrecordingconfig.CALL_SAVED"),
-                        resources.getI18NString(
-                                "plugin.callrecordingconfig.CALL_SAVED_TO",
-                                new String[] { callFilename }));
+                NotificationManager.fireNotification(
+                            NotificationManager.CALL_SAVED,
+                            resources.getI18NString(
+                                    "plugin.callrecordingconfig.CALL_SAVED"),
+                            resources.getI18NString(
+                                    "plugin.callrecordingconfig.CALL_SAVED_TO",
+                                    new String[] { callFilename }));
             }
         }
     }
@@ -209,8 +220,8 @@ public class RecordButton
 
         String ext = configuration.getString(Recorder.CALL_FORMAT);
 
-        if (ext == null)
-            ext = SoundFileUtils.mp2;
+        if ((ext == null) || (ext.length() == 0))
+            ext = SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT;
         return
             ((callsDir == null) ? "" : (callsDir + File.separator))
                 + generateCallFilename(ext);

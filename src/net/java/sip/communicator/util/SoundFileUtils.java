@@ -32,6 +32,12 @@ public class SoundFileUtils
     public final static String au = "au";
 
     /**
+     * The file extension and the format of call recording to be used by
+     * default. 
+     */
+    public static final String DEFAULT_CALL_RECORDING_FORMAT = wav;
+
+    /**
      * Checks whether this file is a sound file.
      * 
      * @param f <tt>File</tt> to check
@@ -39,19 +45,21 @@ public class SoundFileUtils
      */
     public static boolean isSoundFile(File f)
     {
-        String extension = SoundFileUtils.getExtension(f);
-        if (extension != null)
+        String ext = getExtension(f);
+
+        if (ext != null)
         {
-            return extension.equals(SoundFileUtils.wav) ||
-                   extension.equals(SoundFileUtils.mid) ||
-                   extension.equals(SoundFileUtils.mp2) ||
-                   extension.equals(SoundFileUtils.mp3) ||
-                   extension.equals(SoundFileUtils.mod) ||
-                   extension.equals(SoundFileUtils.ogg) ||
-                   extension.equals(SoundFileUtils.wma) ||
-                   extension.equals(SoundFileUtils.gsm) ||
-                   extension.equals(SoundFileUtils.au)  ||
-                   extension.equals(SoundFileUtils.ram);
+            return
+                ext.equals(wav)
+                    || ext.equals(mid)
+                    || ext.equals(mp2)
+                    || ext.equals(mp3)
+                    || ext.equals(mod)
+                    || ext.equals(ogg)
+                    || ext.equals(wma)
+                    || ext.equals(gsm)
+                    || ext.equals(au)
+                    || ext.equals(ram);
         }
         return false;
     }
@@ -65,15 +73,16 @@ public class SoundFileUtils
      */    
     public static boolean isRecordedCall(File f)
     {
-        String extension = SoundFileUtils.getExtension(f);
+        String ext = getExtension(f);
 
-        if (extension != null)
+        if (ext != null)
         {
-            return extension.equals(SoundFileUtils.mp2) ||
-                   extension.equals(SoundFileUtils.wav) ||
-                   extension.equals(SoundFileUtils.au)  ||
-                   extension.equals(SoundFileUtils.aif) ||
-                   extension.equals(SoundFileUtils.gsm);
+            return
+                ext.equals(wav)
+                    || ext.equals(mp2)
+                    || ext.equals(gsm)
+                    || ext.equals(au)
+                    || ext.equals(aif);
         }
         return false;
     }
@@ -88,13 +97,12 @@ public class SoundFileUtils
      */  
     public static String getExtension(File f) 
     {
-        String ext = null;
         String s = f.getName();
         int i = s.lastIndexOf('.');
+        String ext = null;
 
-        if (i > 0 &&  i < s.length() - 1) 
+        if ((i > 0) &&  (i < s.length() - 1))
             ext = s.substring(i+1).toLowerCase();
-
         return ext;
     }
 }

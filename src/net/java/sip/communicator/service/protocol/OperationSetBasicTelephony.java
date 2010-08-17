@@ -162,12 +162,14 @@ public interface OperationSetBasicTelephony<T extends ProtocolProviderService>
     public T getProtocolProvider();
 
     /**
-     * Starts the recording of the <tt>Call</tt>.
+     * Starts the recording of a specific <tt>Call</tt> into a file with a specific name.
      *
-     * @param call the <tt>Call</tt> to start recording
-     * @param callFilename call filename
+     * @param call the <tt>Call</tt> to start recording into the file with the
+     * specified <tt>name</tt>
+     * @param filename the name of the file into which the specified
+     * <tt>call</tt> is to be recorded
      */
-    public void startRecording(Call call, String callFilename);
+    public void startRecording(Call call, String filename);
 
     /**
      * Stops the recording of the <tt>Call</tt>.

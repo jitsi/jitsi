@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
 /**
  * The call recording implementation.
  * Provides the capability to start and stop call recording. 
- * 
+ *
  * @author Dmitri Melnikov
  */
 public class RecorderImpl
@@ -37,15 +37,15 @@ public class RecorderImpl
     private MediaDeviceSession deviceSession;
 
     /**
+     * The format of {@link #deviceSession} in particular and of the recording
+     * produced by this <tt>Recorder</tt> in general.
+     */
+    private final String format;
+
+    /**
      * <tt>DataSink</tt> used to save the output data.
      */
     private DataSink sink;
-
-    /**
-     * <tt>true</tt> if recording was started, <tt>false</tt> 
-     * otherwise. 
-     */
-    private boolean recording = false;
 
     /**
      * Constructs the <tt>RecorderImpl</tt> with the provided session.
@@ -58,50 +58,68 @@ public class RecorderImpl
         if (device == null)
             throw new NullPointerException("device");
 
-        ConfigurationService configurationService
-            = NeomediaActivator.getConfigurationService();
-        String format = configurationService.getString(Recorder.CALL_FORMAT);
+        String format
+            = NeomediaActivator
+                .getConfigurationService()
+                    .getString(Recorder.CALL_FORMAT);
 
-        if (format == null)
-            format = SoundFileUtils.mp2;
+        this.format
+            = (format == null)
+                ? SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT
+                : format;
+
         deviceSession
-            = device.createRecordingSession(getContentDescriptor(format));
+            = device.createRecordingSession(getContentDescriptor(this.format));
     }
 
     /**
-     * Starts the call recording.
+     * Starts the recording of the media associated with this <tt>Recorder</tt>
+     * (e.g. the media being sent and received in a <tt>Call</tt>) into a file
+     * with a specific name.
      *
-     * @param filename call filename, when <tt>null</tt> a default filename is
-     * used
+     * @param filename the name of the file into which the media associated with
+     * this <tt>Recorder</tt> is to be recorded
      */
     public void startRecording(String filename)
     {
-        if (!recording)
+        if (this.sink == null)
         {
             if (filename == null)
                 throw new NullPointerException("filename");
+
+            /*
+             * A file without an extension may not only turn out to be a touch
+             * more difficult to play but is suspected to also cause an
+             * exception inside of JMF.
+             */
+            int extensionBeginIndex = filename.lastIndexOf('.');
+
+            if (extensionBeginIndex < 0)
+                filename += '.' + this.format;
+            else if (extensionBeginIndex == filename.length() - 1)
+                filename += this.format;
 
             DataSource outputDataSource = deviceSession.getOutputDataSource();
 
             try
             {
-                sink
+                DataSink sink
                     = Manager.createDataSink(
                             outputDataSource,
                             new MediaLocator("file:" + filename));
                 sink.open();
                 sink.start();
+
+                this.sink = sink;
             }
             catch (NoDataSinkException ndsex)
             {
-                logger.error("No datasink can be found", ndsex);
+                logger.error("No DataSink found", ndsex);
             }
             catch (IOException ioex)
             {
-                logger.error("Writing to datasink failed", ioex);
+                logger.error("Failed to write to DataSink", ioex);
             }
-
-            recording = true;
         }
     }
 
@@ -110,18 +128,16 @@ public class RecorderImpl
      */
     public void stopRecording()
     {
-        if (recording)
+        if (deviceSession != null)
         {
             deviceSession.close();
             deviceSession = null;
+        }
 
-            if (sink != null)
-            {
-                sink.close();
-                sink = null;
-            }
-
-            recording = false;
+        if (sink != null)
+        {
+            sink.close();
+            sink = null;
         }
     }
 
@@ -133,16 +149,20 @@ public class RecorderImpl
      */
     private ContentDescriptor getContentDescriptor(String format)
     {
-        String type = FileTypeDescriptor.MPEG_AUDIO;
+        String type;
 
-        if (SoundFileUtils.wav.equals(format))
+        if (SoundFileUtils.wav.equalsIgnoreCase(format))
             type = FileTypeDescriptor.WAVE;
-        else if (SoundFileUtils.gsm.equals(format))
+        else if (SoundFileUtils.mp2.equalsIgnoreCase(format))
+            type = FileTypeDescriptor.MPEG_AUDIO;
+        else if (SoundFileUtils.gsm.equalsIgnoreCase(format))
             type = FileTypeDescriptor.GSM;
-        else if (SoundFileUtils.au.equals(format))
+        else if (SoundFileUtils.au.equalsIgnoreCase(format))
             type = FileTypeDescriptor.BASIC_AUDIO;
-        else if (SoundFileUtils.aif.equals(format))
+        else if (SoundFileUtils.aif.equalsIgnoreCase(format))
             type = FileTypeDescriptor.AIFF;
+        else
+            throw new IllegalArgumentException("format");
 
         return new ContentDescriptor(type);
     }
