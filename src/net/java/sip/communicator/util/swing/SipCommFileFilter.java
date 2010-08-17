@@ -32,8 +32,8 @@ import java.io.FilenameFilter;
  * @author Valentin Martinet
  */
 public abstract class SipCommFileFilter 
-extends FileFilter 
-implements FilenameFilter
+    extends FileFilter 
+    implements FilenameFilter
 {
 
     /**

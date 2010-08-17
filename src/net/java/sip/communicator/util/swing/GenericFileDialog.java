@@ -25,32 +25,39 @@ import net.java.sip.communicator.util.*;
 public class GenericFileDialog 
 {
     /**
+     * The <tt>Logger</tt> used by the <tt>GenericFileDialog</tt> class for
+     * logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(GenericFileDialog.class);
+
+    /**
      * Creates a file dialog (AWT's FileDialog or Swing's JFileChooser) 
      * regarding to user's operating system.
      * 
      * @param parent the parent Frame/JFrame of this dialog
      * @param title dialog's title
-     * @return SipCommFileChooser an implementation of SipCommFileChooser
+     * @return a SipCommFileChooser instance
      */
     public static SipCommFileChooser create(
-        Frame parent, String title, int fileOperation)
+            Frame parent,
+            String title,
+            int fileOperation)
     {
-        int operation = -1;
+        int operation;
 
         if(OSUtils.IS_MAC)
         {
-            if(fileOperation == SipCommFileChooser.LOAD_FILE_OPERATION)
+            switch (fileOperation)
+            {
+            case SipCommFileChooser.LOAD_FILE_OPERATION:
                 operation = FileDialog.LOAD;
-            else if(fileOperation == SipCommFileChooser.SAVE_FILE_OPERATION)
+                break;
+            case SipCommFileChooser.SAVE_FILE_OPERATION:
                 operation = FileDialog.SAVE;
-            else
-                try 
-            {
-                    throw new Exception("UnknownFileOperation");
-            } 
-            catch (Exception e) 
-            {
-                e.printStackTrace();
+                break;
+            default:
+                throw new IllegalArgumentException("fileOperation");
             }
 
             if (parent == null)
@@ -60,18 +67,16 @@ public class GenericFileDialog
         }
         else
         {
-            if(fileOperation == SipCommFileChooser.LOAD_FILE_OPERATION)
+            switch (fileOperation)
+            {
+            case SipCommFileChooser.LOAD_FILE_OPERATION:
                 operation = JFileChooser.OPEN_DIALOG;
-            else if(fileOperation == SipCommFileChooser.SAVE_FILE_OPERATION)
+                break;
+            case SipCommFileChooser.SAVE_FILE_OPERATION:
                 operation = JFileChooser.SAVE_DIALOG;
-            else
-                try 
-            {
-                    throw new Exception("UnknownFileOperation");
-            } 
-            catch (Exception e) 
-            {
-                e.printStackTrace();
+                break;
+            default:
+                throw new IllegalArgumentException("fileOperation");
             }
 
             return new SipCommFileChooserImpl(title, operation);

@@ -12,12 +12,12 @@ import javax.swing.*;
 
 /**
  * SipCommFileChooser implementation for Swing's JFileChooser.
- * 
+ *
  * @author Valentin Martinet
  */
 public class SipCommFileChooserImpl 
-extends JFileChooser
-implements SipCommFileChooser
+    extends JFileChooser
+    implements SipCommFileChooser
 {
     private static final long serialVersionUID = 6858528563334885869L;
 
@@ -90,22 +90,12 @@ implements SipCommFileChooser
         int choice = -1;
 
         if(this.getDialogType() == JFileChooser.OPEN_DIALOG)
-        {
             choice = this.showOpenDialog(this.getParentComponent());
-        }
         else
-        {
             choice = this.showSaveDialog(this.getParentComponent());
-        }
 
-        if(choice == JFileChooser.APPROVE_OPTION)
-        {
-            return this.getSelectedFile();
-        }
-        else
-        {
-            return null;
-        }
+        return
+            (choice == JFileChooser.APPROVE_OPTION) ? getSelectedFile() : null;
     }
 
     /**

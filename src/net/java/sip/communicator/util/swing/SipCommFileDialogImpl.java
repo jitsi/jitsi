@@ -15,8 +15,8 @@ import java.io.*;
  * @author Valentin Martinet
  */
 public class SipCommFileDialogImpl 
-extends FileDialog 
-implements SipCommFileChooser
+    extends FileDialog 
+    implements SipCommFileChooser
 {
     private static final long serialVersionUID = 8176923801105539356L;
 

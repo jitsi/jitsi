@@ -27,9 +27,10 @@ public class CallRecordingConfigForm
     implements ActionListener
 {
     /**
-     * Logger for this class.
+     * The <tt>Logger</tt> used by the <tt>CallRecordingConfigForm</tt> class and
+     * its instances for logging output.
      */
-    private final Logger logger
+    private static final Logger logger
         = Logger.getLogger(CallRecordingConfigForm.class);
     
     /**
@@ -46,7 +47,7 @@ public class CallRecordingConfigForm
     /**
      * Directory choose dialog.
      */
-    private SipCommFileChooser dirChooser;
+    private final SipCommFileChooser dirChooser;
     
     /**
      * UI components.
@@ -68,12 +69,17 @@ public class CallRecordingConfigForm
         initComponents();
         loadValues();
 
-        dirChooser =
-            GenericFileDialog.create(null, resources
-                .getI18NString("plugin.callrecordingconfig.CHOOSE_DIR"),
-                SipCommFileChooser.LOAD_FILE_OPERATION);
-        ((JFileChooser) dirChooser)
-            .setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        dirChooser
+            = GenericFileDialog.create(
+                    null,
+                    resources.getI18NString(
+                            "plugin.callrecordingconfig.CHOOSE_DIR"),
+                    SipCommFileChooser.LOAD_FILE_OPERATION);
+        if (dirChooser instanceof JFileChooser)
+        {
+            ((JFileChooser) dirChooser).setFileSelectionMode(
+                    JFileChooser.DIRECTORIES_ONLY);
+        }
     }
 
     /**
