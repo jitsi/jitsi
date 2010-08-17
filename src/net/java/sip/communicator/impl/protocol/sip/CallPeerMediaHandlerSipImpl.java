@@ -416,8 +416,9 @@ public class CallPeerMediaHandlerSipImpl
                 = getTransportManager().getStreamConnector(mediaType);
 
             // create the corresponding stream...
-            initStream(connector, dev, mutuallySupportedFormats.get(0), target,
-                      direction, rtpExtensions);
+            MediaFormat fmt = findMediaFormat(remoteFormats,
+                    mutuallySupportedFormats.get(0));
+            initStream(connector, dev, fmt, target, direction, rtpExtensions);
 
             MediaDescription md = createMediaDescription(
                 mutuallySupportedFormats, connector, direction, rtpExtensions);

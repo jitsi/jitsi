@@ -686,7 +686,7 @@ public class CallManager
             while (peers.hasNext())
             {
                 CallPeer peer = peers.next();
-                OperationSetBasicTelephony telephony =
+                OperationSetBasicTelephony<?> telephony =
                     pps.getOperationSet(OperationSetBasicTelephony.class);
 
                 try
@@ -861,7 +861,7 @@ public class CallManager
             while (peers.hasNext())
             {
                 CallPeer peer = peers.next();
-                OperationSetBasicTelephony telephony
+                OperationSetBasicTelephony<?> telephony
                     = pps.getOperationSet(OperationSetBasicTelephony.class);
 
                 try
@@ -894,7 +894,7 @@ public class CallManager
         {
             ProtocolProviderService pps = callPeer.getProtocolProvider();
 
-            OperationSetBasicTelephony telephony =
+            OperationSetBasicTelephony<?> telephony =
                 pps.getOperationSet(OperationSetBasicTelephony.class);
 
             try
@@ -927,7 +927,7 @@ public class CallManager
 
         public void run()
         {
-            OperationSetBasicTelephony telephony =
+            OperationSetBasicTelephony<?> telephony =
                 callPeer.getProtocolProvider()
                     .getOperationSet(OperationSetBasicTelephony.class);
 

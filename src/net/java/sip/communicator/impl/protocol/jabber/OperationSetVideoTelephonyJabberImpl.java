@@ -22,7 +22,6 @@ public class OperationSetVideoTelephonyJabberImpl
         ProtocolProviderServiceJabberImpl,
         CallJabberImpl,
         CallPeerJabberImpl>
-
 {
     /**
      * The <tt>Logger</tt> used by the

@@ -365,7 +365,6 @@ public abstract class CallPeerMediaHandler<
         }
     }
 
-
     /**
      * Closes and null-ifies all streams and connectors and readies this media
      * handler for garbage collection (or reuse). Synchronized if any other
@@ -1348,14 +1347,15 @@ public abstract class CallPeerMediaHandler<
     }
 
     /**
-     * Gets the advanced format parameters list of our device that match
-     * remote supported ones.
+     * Compares a list of <tt>MediaFormat</tt>s offered by a remote party
+     * to the list of locally supported <tt>RTPExtension</tt>s as returned
+     * by one of our local <tt>MediaDevice</tt>s and returns a third
+     * <tt>List</tt> that contains their intersection.
      *
-     * @param remoteFormats remote advanced format parameters found in the
+     * @param remoteFormats remote <tt>MediaFormat</tt> found in the
      * SDP message
-     * @param localFormats local advanced format parameters of our device
-     * @return intersection between our local advanced parameters and remote
-     * advanced parameters
+     * @param localFormats local supported <tt>MediaFormat</tt> of our device
+     * @return intersection between our local and remote <tt>MediaFormat</tt>
      */
     protected List<MediaFormat> intersectFormats(
                                             List<MediaFormat> remoteFormats,
@@ -1385,7 +1385,7 @@ public abstract class CallPeerMediaHandler<
      * <tt>format</tt> if such a match exists in <tt>formats</tt>; otherwise,
      * <tt>null</tt>
      */
-    private MediaFormat findMediaFormat(
+    protected MediaFormat findMediaFormat(
             List<MediaFormat> formats, MediaFormat format)
     {
         MediaType mediaType = format.getMediaType();
@@ -1407,7 +1407,7 @@ public abstract class CallPeerMediaHandler<
     }
 
     /**
-     * Compares a list of <tt>RTPExtensoin</tt>s offered by a remote party
+     * Compares a list of <tt>RTPExtension</tt>s offered by a remote party
      * to the list of locally supported <tt>RTPExtension</tt>s as returned
      * by one of our local <tt>MediaDevice</tt>s and returns a third
      * <tt>List</tt> that contains their intersection. The returned

@@ -4,30 +4,30 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.protocol.sip;
+package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * Implements all desktop streaming related functions for SIP.
+ * Implements all desktop streaming related functions for XMPP.
  *
  * @author Sebastien Vincent
  */
-public class OperationSetDesktopStreamingSipImpl
-    extends OperationSetVideoTelephonySipImpl
+public class OperationSetDesktopStreamingJabberImpl
+    extends OperationSetVideoTelephonyJabberImpl
     implements OperationSetDesktopStreaming
 {
     /**
-     * Initializes a new <tt>OperationSetDesktopStreamingSipImpl</tt> instance
-     * which builds upon the telephony-related functionality of a specific
-     * <tt>OperationSetBasicTelephonySipImpl</tt>.
+     * Initializes a new <tt>OperationSetDesktopStreamingJabberImpl</tt>
+     * instance which builds upon the telephony-related functionality of a
+     * specific <tt>OperationSetBasicTelephonyJabberImpl</tt>.
      *
-     * @param basicTelephony the <tt>OperationSetBasicTelephonySipImpl</tt> the
-     * new extension should build upon
+     * @param basicTelephony the <tt>OperationSetBasicTelephonyJabberImpl</tt>
+     * the new extension should build upon
      */
-    public OperationSetDesktopStreamingSipImpl(
-            OperationSetBasicTelephonySipImpl basicTelephony)
+    public OperationSetDesktopStreamingJabberImpl(
+            OperationSetBasicTelephonyJabberImpl basicTelephony)
     {
         super(basicTelephony);
     }

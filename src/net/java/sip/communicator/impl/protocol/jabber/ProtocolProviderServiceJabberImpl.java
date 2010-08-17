@@ -945,6 +945,11 @@ public class ProtocolProviderServiceJabberImpl
                     OperationSetVideoTelephony.class,
                     new OperationSetVideoTelephonyJabberImpl(basicTelephony));
 
+            // initialize desktop streaming OperationSet
+            addSupportedOperationSet(
+                    OperationSetDesktopStreaming.class,
+                    new OperationSetDesktopStreamingJabberImpl(basicTelephony));
+
             // Add Jingle features to supported features.
             supportedFeatures.add(URN_XMPP_JINGLE);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP);

@@ -9,13 +9,10 @@ package net.java.sip.communicator.impl.protocol.jabber.jinglesdp;
 import java.net.*;
 import java.util.*;
 
-import org.jivesoftware.smack.packet.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 import static net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.*;
@@ -482,6 +479,25 @@ public class JingleUtils
             ptExt.setChannels(((AudioMediaFormat)format).getChannels());
 
         ptExt.setClockrate((int)format.getClockRate());
+
+        /* add parameters */
+        for(Map.Entry<String, String> entry :
+            format.getFormatParameters().entrySet())
+        {
+            ParameterPacketExtension ext = new ParameterPacketExtension();
+            ext.setName(entry.getKey());
+            ext.setValue(entry.getValue());
+            ptExt.addParameter(ext);
+        }
+
+        for(Map.Entry<String, String> entry :
+            format.getAdvancedAttributes().entrySet())
+        {
+            ParameterPacketExtension ext = new ParameterPacketExtension();
+            ext.setName(entry.getKey());
+            ext.setValue(entry.getValue());
+            ptExt.addParameter(ext);
+        }
 
         return ptExt;
     }

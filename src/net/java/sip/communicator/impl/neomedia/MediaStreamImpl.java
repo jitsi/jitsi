@@ -1077,7 +1077,7 @@ public class MediaStreamImpl
      * <tt>RTPConnector</tt> instance has changed from a specific old value to a
      * specific new value. Allows extenders to override and perform additional
      * processing after this <tt>MediaStream</tt> has changed its
-     * <tt>RTPConnector</tt> instance. 
+     * <tt>RTPConnector</tt> instance.
      *
      * @param oldValue the <tt>RTPConnector</tt> of this <tt>MediaStream</tt>
      * implementation before it got changed to <tt>newValue</tt>
@@ -1279,7 +1279,18 @@ public class MediaStreamImpl
     public void setFormat(MediaFormat format)
     {
         setAdvancedAttributes(format.getAdvancedAttributes());
+        handleAttributes(format.getAdvancedAttributes());
+        handleAttributes(format.getFormatParameters());
         getDeviceSession().setFormat(format);
+    }
+
+    /**
+     * Handles attributes contained in <tt>MediaFormat</tt>.
+     *
+     * @param attrs the attributes list to handle
+     */
+    protected void handleAttributes(Map<String, String> attrs)
+    {
     }
 
     /**

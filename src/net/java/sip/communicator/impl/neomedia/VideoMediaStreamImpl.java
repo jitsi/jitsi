@@ -540,7 +540,7 @@ public class VideoMediaStreamImpl
      * <tt>RTPConnector</tt> instance has changed from a specific old value to a
      * specific new value. Allows extenders to override and perform additional
      * processing after this <tt>MediaStream</tt> has changed its
-     * <tt>RTPConnector</tt> instance. 
+     * <tt>RTPConnector</tt> instance.
      *
      * @param oldValue the <tt>RTPConnector</tt> of this <tt>MediaStream</tt>
      * implementation before it got changed to <tt>newValue</tt>
@@ -569,21 +569,18 @@ public class VideoMediaStreamImpl
     }
 
     /**
-     * Set list of advanced attributes.
+     * Handles attributes contained in <tt>MediaFormat</tt>.
      *
-     * @param attrs advanced attributes map
+     * @param attrs the attributes list to handle
      */
-    public void setAdvancedAttributes(Map<String, String> attrs)
+    protected void handleAttributes(Map<String, String> attrs)
     {
-        super.setAdvancedAttributes(attrs);
-
-        /* walk through advanced attributes and see
-         * if we recognized something we support
+        /* walk through attributes and see if we recognized something
+         * we support
          */
         if(attrs != null)
         {
-            for(Map.Entry<String, String> mapEntry
-                    : advancedAttributes.entrySet())
+            for(Map.Entry<String, String> mapEntry : attrs.entrySet())
             {
                 String key = mapEntry.getKey();
                 String value = mapEntry.getValue();
@@ -599,6 +596,8 @@ public class VideoMediaStreamImpl
                     if(res != null)
                     {
                         outputSize = res[1];
+                        ((VideoMediaDeviceSession)getDeviceSession()).
+                                setOutputSize(outputSize);
                     }
                 }
             }

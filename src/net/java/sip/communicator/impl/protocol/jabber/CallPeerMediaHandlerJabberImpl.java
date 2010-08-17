@@ -301,6 +301,8 @@ public class CallPeerMediaHandlerJabberImpl
                 = this.remoteContentMap.get(ourContent.getName());
             MediaStreamTarget target
                 = JingleUtils.extractDefaultTarget(theirContent);
+            RtpDescriptionPacketExtension theirDescription
+                = JingleUtils.getRtpDescription(theirContent);
 
             //stream direction
             MediaDirection direction = JingleUtils.getDirection(
@@ -309,7 +311,8 @@ public class CallPeerMediaHandlerJabberImpl
             //let's now see what was the format we announced as first and
             //configure the stream with it.
             MediaFormat format = JingleUtils.payloadTypeToMediaFormat(
-                description.getPayloadTypes().get(0), getDynamicPayloadTypes());
+                theirDescription.getPayloadTypes().get(0),
+                getDynamicPayloadTypes());
 
             //extract the extensions that we are advertising:
             // check whether we will be exchanging any RTP extensions.
