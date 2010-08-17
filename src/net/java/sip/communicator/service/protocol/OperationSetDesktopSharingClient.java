@@ -6,14 +6,14 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.*;
 
 import net.java.sip.communicator.service.protocol.event.RemoteControlListener;
 
 /**
  * Represents an <tt>OperationSet</tt> giving access to desktop sharing
- * client-side specific functionality.
+ * client-side specific functionalities.
  *
  * @author Sebastien Vincent
  */

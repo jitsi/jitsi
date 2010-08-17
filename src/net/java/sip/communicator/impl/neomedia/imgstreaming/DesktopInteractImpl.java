@@ -12,9 +12,8 @@ import java.awt.image.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * This singleton class provide screen capture and key/mouse
- * events generation by wrapping partial or all <tt>java.awt.Robot</tt>
- * methods to interact with desktop.
+ * Capture desktop screen either via native code (JNI) if available or by using
+ * <tt>java.awt.Robot</tt>.
  *
  * @see java.awt.Robot
  * @author Sebastien Vincent
@@ -63,8 +62,7 @@ public class DesktopInteractImpl implements DesktopInteract
     {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
-        return captureScreen(display, 0, 0, dim.width, dim.height,
-                output);
+        return captureScreen(display, 0, 0, dim.width, dim.height, output);
     }
 
     /**
@@ -86,7 +84,8 @@ public class DesktopInteractImpl implements DesktopInteract
     public boolean captureScreen(int display, long buffer, int bufferLength)
     {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        return captureScreen(display, 0, 0, dim.width, dim.height, buffer, bufferLength);
+        return captureScreen(display, 0, 0, dim.width, dim.height, buffer,
+                bufferLength);
     }
 
     /**
@@ -108,8 +107,8 @@ public class DesktopInteractImpl implements DesktopInteract
      * Be sure that output length is sufficient
      * @return true if success, false if JNI error or output length too short
      */
-    public boolean captureScreen(int display, int x, int y, int width, int height,
-            byte output[])
+    public boolean captureScreen(int display, int x, int y, int width,
+            int height, byte output[])
     {
         if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS
                 || OSUtils.IS_MAC)
@@ -141,8 +140,8 @@ public class DesktopInteractImpl implements DesktopInteract
      * @param bufferLength length of native buffer
      * @return true if success, false if JNI error or output length too short
      */
-    public boolean captureScreen(int display, int x, int y, int width, int height,
-            long buffer, int bufferLength)
+    public boolean captureScreen(int display, int x, int y, int width,
+            int height, long buffer, int bufferLength)
     {
         if(OSUtils.IS_LINUX || OSUtils.IS_FREEBSD || OSUtils.IS_WINDOWS
                 || OSUtils.IS_MAC)
@@ -195,66 +194,5 @@ public class DesktopInteractImpl implements DesktopInteract
             logger.info("End capture: " + System.nanoTime());
 
         return img;
-    }
-
-    /**
-     * Generates keyPress event.
-     *
-     * @param keycode keycode the user hit
-     */
-    public void keyPress(int keycode)
-    {
-        robot.keyPress(keycode);
-    }
-
-    /**
-     * Generates keyRelease event.
-     *
-     * @param keycode keycode the user hit
-     */
-    public void keyRelease(int keycode)
-    {
-        robot.keyRelease(keycode);
-    }
-
-    /**
-     * Generates mouseMove event.
-     *
-     * @param x position x in the screen
-     * @param y position y in the screen
-     */
-    public void mouseMove(int x, int y)
-    {
-        robot.mouseMove(x, y);
-    }
-
-    /**
-     * Generates mousePress event.
-     *
-     * @param buttons buttons mask (right, middle, left)
-     */
-    public void mousePress(int buttons)
-    {
-        robot.mousePress(buttons);
-    }
-
-    /**
-     * Generates mouseRelease event.
-     *
-     * @param buttons buttons mask (right, middle, left)
-     */
-    public void mouseRelease(int buttons)
-    {
-        robot.mouseRelease(buttons);
-    }
-
-    /**
-     * Generates mouseWheel event.
-     *
-     * @param wheelAmt "notches"
-     */
-    public void mouseWheel(int wheelAmt)
-    {
-        robot.mouseWheel(wheelAmt);
     }
 }

@@ -10,7 +10,7 @@ import java.awt.event.*;
 
 /**
  * Represents an <tt>OperationSet</tt> giving access to desktop sharing
- * server-side specific functionality.
+ * server-side specific functionalities.
  *
  * @author Sebastien Vincent
  */

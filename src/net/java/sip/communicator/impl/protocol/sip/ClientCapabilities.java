@@ -71,6 +71,8 @@ public class ClientCapabilities
      * methods that we support.
      *
      * @param requestEvent the incoming options request.
+     * @return <tt>true</tt> if request has been successfully processed,
+     * <tt>false</tt> otherwise
      */
     public boolean processRequest(RequestEvent requestEvent)
     {

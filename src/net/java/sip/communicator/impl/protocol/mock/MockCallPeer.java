@@ -127,7 +127,7 @@ public class MockCallPeer
     public void addStreamSoundLevelListener(
         SoundLevelListener listener)
     {
-        
+
     }
 
     /**
@@ -140,7 +140,7 @@ public class MockCallPeer
     public void removeStreamSoundLevelListener(
         SoundLevelListener listener)
     {
-        
+
     }
 
     /**
@@ -153,7 +153,7 @@ public class MockCallPeer
     public void addConferenceMembersSoundLevelListener(
         ConferenceMembersSoundLevelListener listener)
     {
-        
+
     }
 
     /**
@@ -167,6 +167,6 @@ public class MockCallPeer
     public void removeConferenceMembersSoundLevelListener(
         ConferenceMembersSoundLevelListener listener)
     {
-        
+
     }
 }

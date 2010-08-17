@@ -563,7 +563,8 @@ public class OperationSetTelephonyConferencingSipImpl
                     else if (ELEMENT_TYPE.equals(mediaChildName))
                     {
                         type = mediaChild.getTextContent();
-                        if ((srcId != null) && mediaTypeStr.equalsIgnoreCase(type))
+                        if ((srcId != null) && mediaTypeStr.equalsIgnoreCase(
+                                type))
                             return srcId;
                     }
                 }
@@ -1033,7 +1034,7 @@ public class OperationSetTelephonyConferencingSipImpl
 
         if (RegistrationState.REGISTERED.equals(newState))
         {
-            OperationSetBasicTelephony basicTelephony
+            OperationSetBasicTelephony<?> basicTelephony
                 = parentProvider
                     .getOperationSet(OperationSetBasicTelephony.class);
 
@@ -1408,8 +1409,8 @@ public class OperationSetTelephonyConferencingSipImpl
             {
                 logger
                     .error(
-                        "Failed to find the CallPeer of the conference subscription "
-                            + this);
+                        "Failed to find the CallPeer of the conference " +
+                        "subscription " + this);
                 return null;
             }
 
@@ -1428,7 +1429,8 @@ public class OperationSetTelephonyConferencingSipImpl
                 {
                     logger
                         .warn(
-                            "Failed to gets bytes from String for the UTF-8 charset",
+                            "Failed to gets bytes from String for the UTF-8 " +
+                            "charset",
                             uee);
                     notifyContent = conferenceInfoXML.getBytes();
                 }

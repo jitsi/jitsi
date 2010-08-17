@@ -32,7 +32,8 @@ public interface OperationSetDTMF
 
     /**
      * Stop sending of the currently transmitting DTMF tone.
-     * @param callPeer
+     *
+     * @param callPeer the  call peer to stop send <tt>tone</tt> to.
      */
     public void stopSendingDTMF(CallPeer callPeer);
 }

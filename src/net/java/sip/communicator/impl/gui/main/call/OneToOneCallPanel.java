@@ -26,6 +26,11 @@ public class OneToOneCallPanel
     implements CallRenderer
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The panel representing the underlying <tt>CallPeer</tt>.
      */
     private OneToOneCallPeerPanel peerPanel;
@@ -222,6 +227,11 @@ public class OneToOneCallPanel
         }
     }
 
+    /**
+     * Create the buttons bar for the fullscreen mode.
+     *
+     * @return the buttons bar <tt>Component</tt>
+     */
     private Component createFullScreenButtonBar()
     {
         Component[] buttons

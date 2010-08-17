@@ -12,8 +12,8 @@ import java.text.*;
  * Acknowledgment: This file was originally provided by the Ignite Realtime
  * community, and was part of the Spark project (distributed under the terms of
  * the LGPL).
- * 
- * A formatter for formatting byte sizes. For example, formatting 12345 byes
+ *
+ * A formatter for formatting byte sizes. For example, formatting 12345 bytes
  * results in "12.1 K" and 1234567 results in "1.18 MB".
  *
  * @author Bill Lynch

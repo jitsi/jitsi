@@ -11,7 +11,7 @@ import java.awt.*;
 /**
  * The interface represents a video format. Video formats characterize video
  * streams and the <tt>VideoMediaFormat</tt> interface gives access to some of
- * their  properties such as encoding and clock rate.
+ * their properties such as encoding and clock rate.
  *
  * @author Emil Ivov
  */

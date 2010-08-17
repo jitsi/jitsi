@@ -15,7 +15,7 @@ package net.java.sip.communicator.service.protocol.event;
 public interface ProviderChangeListener
 {
     /**
-     * The method is called by a ProtocolProvider implementation whenver
+     * The method is called by a ProtocolProvider implementation whenever
      * a change in the presence status of the corresponding provider had
      * occurred.
      * @param evt ProviderStatusChangeEvent the event describing the status

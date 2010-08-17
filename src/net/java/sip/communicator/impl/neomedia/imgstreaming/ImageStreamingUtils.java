@@ -17,12 +17,6 @@ import java.awt.image.*;
 public class ImageStreamingUtils
 {
     /**
-     * The locator protocol used when creating or parsing
-     * <tt>MediaLocator</tt>s.
-     */
-    public static final String LOCATOR_PROTOCOL = "imgstreaming";
-
-    /**
      * Get a scaled <tt>BufferedImage</tt>.
      *
      * Mainly inspired by:

@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Handles DTMF sending and playing sound notifications for that.
- * 
+ *
  * @author Damian Minkov
  */
 public class DTMFHandler

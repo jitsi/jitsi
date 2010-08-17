@@ -9,8 +9,7 @@ package net.java.sip.communicator.impl.neomedia.imgstreaming;
 import java.awt.image.*;
 
 /**
- * Interface to interact with the desktop such as taking
- * screen capture or to generate mouse/keyboard event.
+ * Interface to capture desktop screen.
  *
  * @author Sebastien Vincent
  */
@@ -70,8 +69,8 @@ public interface DesktopInteract
      * Be sure that output length is sufficient
      * @return true if success, false if JNI error or output length too short
      */
-    public boolean captureScreen(int display, int x, int y, int width, int height,
-            byte output[]);
+    public boolean captureScreen(int display, int x, int y, int width,
+            int height, byte output[]);
 
     /**
      * Capture a part of the desktop screen using native grabber.
@@ -93,8 +92,8 @@ public interface DesktopInteract
      * @param bufferLength length of native buffer
      * @return true if success, false if JNI error or output length too short
      */
-    public boolean captureScreen(int display, int x, int y, int width, int height,
-            long buffer, int bufferLength);
+    public boolean captureScreen(int display, int x, int y, int width,
+            int height, long buffer, int bufferLength);
 
     /**
      * Capture the full desktop screen.
@@ -114,47 +113,4 @@ public interface DesktopInteract
      * or null if <tt>Robot</tt> problem
      */
     public BufferedImage captureScreen(int x, int y, int width, int height);
-
-    /**
-     * Generates keyPress event.
-     *
-     * @param keycode keycode the user hit
-     */
-    public void keyPress(int keycode);
-
-    /**
-     * Generates keyRelease event.
-     *
-     * @param keycode keycode the user hit
-     */
-    public void keyRelease(int keycode);
-
-    /**
-     * Generates mouseMove event.
-     *
-     * @param x position x in the screen
-     * @param y position y in the screen
-     */
-    public void mouseMove(int x, int y);
-
-    /**
-     * Generates mousePress event.
-     *
-     * @param buttons buttons mask (right, middle, left)
-     */
-    public void mousePress(int buttons);
-
-    /**
-     * Generates mouseRelease event.
-     *
-     * @param buttons buttons mask (right, middle, left)
-     */
-    public void mouseRelease(int buttons);
-
-    /**
-     * Generates mouseWheel event.
-     *
-     * @param wheelAmt "notches"
-     */
-    public void mouseWheel(int wheelAmt);
 }
