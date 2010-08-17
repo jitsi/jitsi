@@ -52,9 +52,9 @@ public class SIPAccountRegistration
 
     private boolean forceP2PMode = false;
 
-    private boolean defaultEncryption = false;
+    private boolean defaultEncryption = true;
 
-    private boolean sipZrtpAttribute = false;
+    private boolean sipZrtpAttribute = true;
 
     private String pollingPeriod = DEFAULT_POLL_PERIOD;
 

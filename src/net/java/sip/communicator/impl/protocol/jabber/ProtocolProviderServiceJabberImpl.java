@@ -703,7 +703,12 @@ public class ProtocolProviderServiceJabberImpl
 
             // disconnect anyway cause it will clear any listeners
             // that maybe added even if its not connected
-            connection.disconnect();
+            try
+            {
+                connection.disconnect();
+            } catch (Exception e)
+            {}
+
 
             connectionListener = null;
             connection = null;

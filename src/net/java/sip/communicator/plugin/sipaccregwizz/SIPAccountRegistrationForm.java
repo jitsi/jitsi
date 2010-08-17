@@ -42,7 +42,7 @@ public class SIPAccountRegistrationForm
 
         connectionPanel = new ConnectionPanel(this);
 
-        presencePanel = new PresencePanel();
+        presencePanel = new PresencePanel(this);
     }
 
     /**

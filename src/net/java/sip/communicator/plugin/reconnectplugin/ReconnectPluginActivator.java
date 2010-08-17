@@ -562,92 +562,99 @@ public class ReconnectPluginActivator
         if(!(evt.getSource() instanceof ProtocolProviderService))
             return;
 
-        ProtocolProviderService pp = (ProtocolProviderService)evt.getSource();
-
-        if(evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
+        try
         {
-            if(!hasAtLeastOneSuccessfulConnection(pp))
-            {
-                // ignore providers which haven't registered successfully
-                // till now, they maybe misconfigured
-                // todo show dialog
-                notify(
-                    getResources().getI18NString("service.gui.ERROR"),
-                    "plugin.reconnectplugin.CONNECTION_FAILED_MSG",
-                    new String[]
-                    {   pp.getAccountID().getUserID(),
-                        pp.getAccountID().getService() });
+            ProtocolProviderService pp = (ProtocolProviderService)evt.getSource();
 
-                return;
+            if(evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
+            {
+                if(!hasAtLeastOneSuccessfulConnection(pp))
+                {
+                    // ignore providers which haven't registered successfully
+                    // till now, they maybe misconfigured
+                    // todo show dialog
+                    notify(
+                        getResources().getI18NString("service.gui.ERROR"),
+                        "plugin.reconnectplugin.CONNECTION_FAILED_MSG",
+                        new String[]
+                        {   pp.getAccountID().getUserID(),
+                            pp.getAccountID().getService() });
+
+                    return;
+                }
+
+                // if this pp is already in needsReconnection, it means
+                // we got conn failed cause the pp has tried to unregister
+                // with sending network packet
+                // but this unregister is scheduled from us so skip
+                if(needsReconnection.contains(pp))
+                    return;
+
+                if(connectedInterfaces.size() == 0)
+                {
+                    needsReconnection.add(pp);
+
+                    if(currentlyReconnecting.containsKey(pp))
+                        currentlyReconnecting.remove(pp).cancel();
+                }
+                else
+                {
+                    // network is up but something happen and cannot reconnect
+                    // strange lets try again after some time
+                    reconnect(pp);
+                }
+
+                // unregister can finish and with connection failed,
+                // the protocol is unable to unregister
+                unregisteredProviders.remove(pp);
+
+                if(logger.isTraceEnabled())
+                {
+                    logger.trace("Got Connection Failed for " + pp);
+                    traceCurrentPPState();
+                }
             }
-
-            // if this pp is already in needsReconnection, it means
-            // we got conn failed cause the pp has tried to unregister
-            // with sending network packet
-            // but this unregister is scheduled from us so skip
-            if(needsReconnection.contains(pp))
-                return;
-
-            if(connectedInterfaces.size() == 0)
+            else if(evt.getNewState().equals(RegistrationState.REGISTERED))
             {
-                needsReconnection.add(pp);
-                
+                if(!hasAtLeastOneSuccessfulConnection(pp))
+                {
+                    setAtLeastOneSuccessfulConnection(pp, true);
+                }
+
+                autoReconnEnabledProviders.put(
+                    pp,
+                    new ArrayList<String>(connectedInterfaces));
+
                 if(currentlyReconnecting.containsKey(pp))
                     currentlyReconnecting.remove(pp).cancel();
-            }
-            else
-            {
-                // network is up but something happen and cannot reconnect
-                // strange lets try again after some time
-                reconnect(pp);
-            }
 
-            // unregister can finish and with connection failed,
-            // the protocol is unable to unregister
-            unregisteredProviders.remove(pp);
-
-            if(logger.isTraceEnabled())
+                if(logger.isTraceEnabled())
+                {
+                    logger.trace("Got Registered for " + pp);
+                    traceCurrentPPState();
+                }
+            }
+            else if(evt.getNewState().equals(RegistrationState.UNREGISTERED))
             {
-                logger.trace("Got Connection Failed for " + pp);
-                traceCurrentPPState();
+                autoReconnEnabledProviders.remove(pp);
+
+                if(!unregisteredProviders.contains(pp)
+                    && currentlyReconnecting.containsKey(pp))
+                {
+                    currentlyReconnecting.remove(pp).cancel();
+                }
+                unregisteredProviders.remove(pp);
+
+                if(logger.isTraceEnabled())
+                {
+                    logger.trace("Got Unregistered for " + pp);
+                    traceCurrentPPState();
+                }
             }
         }
-        else if(evt.getNewState().equals(RegistrationState.REGISTERED))
+        catch(Throwable ex)
         {
-            if(!hasAtLeastOneSuccessfulConnection(pp))
-            {
-                setAtLeastOneSuccessfulConnection(pp, true);
-            }
-
-            autoReconnEnabledProviders.put(
-                pp,
-                new ArrayList<String>(connectedInterfaces));
-
-            if(currentlyReconnecting.containsKey(pp))
-                currentlyReconnecting.remove(pp).cancel();
-
-            if(logger.isTraceEnabled())
-            {
-                logger.trace("Got Registered for " + pp);
-                traceCurrentPPState();
-            }
-        }
-        else if(evt.getNewState().equals(RegistrationState.UNREGISTERED))
-        {
-            autoReconnEnabledProviders.remove(pp);
-
-            if(!unregisteredProviders.contains(pp)
-                && currentlyReconnecting.containsKey(pp))
-            {
-                currentlyReconnecting.remove(pp).cancel();
-            }
-            unregisteredProviders.remove(pp);
-
-            if(logger.isTraceEnabled())
-            {
-                logger.trace("Got Unregistered for " + pp);
-                traceCurrentPPState();
-            }
+            logger.error("Error dispatching protocol registration change", ex);
         }
     }
 

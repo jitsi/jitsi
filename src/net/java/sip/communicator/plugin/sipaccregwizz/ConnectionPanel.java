@@ -21,13 +21,9 @@ public class ConnectionPanel
     extends TransparentPanel
     implements ItemListener
 {
-    private final JCheckBox enableDefaultEncryption =
-        new SIPCommCheckBox(Resources
-            .getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"), true);
+    private final JCheckBox enableDefaultEncryption;
 
-    private final JCheckBox enableSipZrtpAttribute =
-        new SIPCommCheckBox(Resources
-            .getString("plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"), true);
+    private final JCheckBox enableSipZrtpAttribute;
 
     private final JTextField serverField = new JTextField();
 
@@ -35,11 +31,9 @@ public class ConnectionPanel
 
     private final JTextField authNameField = new JTextField();
 
-    private final JTextField serverPortField
-        = new JTextField(SIPAccountRegistration.DEFAULT_PORT);
+    private final JTextField serverPortField = new JTextField();
 
-    private final JTextField proxyPortField
-        = new JTextField(SIPAccountRegistration.DEFAULT_PORT);
+    private final JTextField proxyPortField = new JTextField();
 
     private JComboBox transportCombo = new JComboBox(new Object[]
     { "UDP", "TCP", "TLS" });
@@ -67,6 +61,13 @@ public class ConnectionPanel
         super(new BorderLayout());
 
         this.regform = regform;
+
+        enableDefaultEncryption = new SIPCommCheckBox(Resources
+            .getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
+            regform.getRegistration().isDefaultEncryption());
+        enableSipZrtpAttribute = new SIPCommCheckBox(Resources
+            .getString("plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"),
+            regform.getRegistration().isSipZrtpAttribute());
 
         this.transportCombo.addItemListener(this);
 
@@ -156,7 +157,7 @@ public class ConnectionPanel
         if (!regform.isModification() || !isServerOverridden)
         {
             serverField.setText(serverAddress);
-            proxyField.setText(serverAddress);
+            //proxyField.setText(serverAddress);
         }
     }
 
@@ -166,17 +167,19 @@ public class ConnectionPanel
      */
     public void itemStateChanged(ItemEvent e)
     {
-        if (e.getStateChange() == ItemEvent.SELECTED
-            && e.getItem().equals("TLS"))
-        {
-            serverPortField.setText(SIPAccountRegistration.DEFAULT_TLS_PORT);
-            proxyPortField.setText(SIPAccountRegistration.DEFAULT_TLS_PORT);
-        }
-        else
-        {
-            serverPortField.setText(SIPAccountRegistration.DEFAULT_PORT);
-            proxyPortField.setText(SIPAccountRegistration.DEFAULT_PORT);
-        }
+        // do not set default values cause they are counted
+        // as overrrided ones
+//        if (e.getStateChange() == ItemEvent.SELECTED
+//            && e.getItem().equals("TLS"))
+//        {
+//            serverPortField.setText(SIPAccountRegistration.DEFAULT_TLS_PORT);
+//            proxyPortField.setText(SIPAccountRegistration.DEFAULT_TLS_PORT);
+//        }
+//        else
+//        {
+//            serverPortField.setText(SIPAccountRegistration.DEFAULT_PORT);
+//            proxyPortField.setText(SIPAccountRegistration.DEFAULT_PORT);
+//        }
     }
 
     /**

@@ -33,14 +33,9 @@ public class PresencePanel
     private JPanel valuesPresOpPanel
             = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JCheckBox enablePresOpButton =
-            new SIPCommCheckBox(Resources
-                    .getString("plugin.sipaccregwizz.ENABLE_PRESENCE"), true);
+    private final JCheckBox enablePresOpButton;
 
-    private JCheckBox forceP2PPresOpButton =
-            new SIPCommCheckBox(Resources
-                    .getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"),
-                    false);
+    private final JCheckBox forceP2PPresOpButton;
 
     private JLabel pollPeriodLabel = new JLabel(
             Resources.getString(
@@ -82,20 +77,30 @@ public class PresencePanel
 
     private JPasswordField xCapPasswordValue = new JPasswordField();
 
-    private JCheckBox xCapEnableBox = new SIPCommCheckBox(
-            Resources.getString("plugin.sipaccregwizz.XCAP_ENABLE"),
-            false);
+    private final JCheckBox xCapEnableBox;
 
-    private JCheckBox xCapUseSipCredetialsBox = new SIPCommCheckBox(
-            Resources.getString("plugin.sipaccregwizz.XCAP_USE_SIP_CREDETIALS"),
-            true);
+    private final JCheckBox xCapUseSipCredetialsBox;
 
     /**
      * Creates an instance of <tt>PresencePanel</tt>.
+     * @param regform the parent registration form
      */
-    public PresencePanel()
+    public PresencePanel(SIPAccountRegistrationForm regform)
     {
         super(new BorderLayout());
+
+        this.enablePresOpButton = new SIPCommCheckBox(
+            Resources.getString("plugin.sipaccregwizz.ENABLE_PRESENCE"),
+            regform.getRegistration().isEnablePresence());
+        this.forceP2PPresOpButton = new SIPCommCheckBox(
+            Resources.getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"),
+            regform.getRegistration().isForceP2PMode());
+        this.xCapEnableBox = new SIPCommCheckBox(
+            Resources.getString("plugin.sipaccregwizz.XCAP_ENABLE"),
+            regform.getRegistration().isXCapEnable());
+        this.xCapUseSipCredetialsBox = new SIPCommCheckBox(
+            Resources.getString("plugin.sipaccregwizz.XCAP_USE_SIP_CREDETIALS"),
+            regform.getRegistration().isXCapUseSipCredetials());
 
         enablePresOpButton.addActionListener(new ActionListener()
         {

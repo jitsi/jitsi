@@ -1841,7 +1841,10 @@ public class ProtocolProviderServiceSipImpl
                 .getAccountPropertyString(ProtocolProviderFactory.PROXY_ADDRESS);
 
         if(proxyAddressStr == null || proxyAddressStr.trim().length() == 0)
-            return;
+        {
+            proxyAddressStr = accountID
+                .getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
+        }
 
         InetAddress proxyAddress = null;
 

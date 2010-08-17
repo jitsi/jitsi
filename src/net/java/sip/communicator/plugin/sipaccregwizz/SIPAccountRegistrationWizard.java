@@ -138,7 +138,7 @@ public class SIPAccountRegistrationWizard
         String rememberPswdString = Resources.getString(
                 rememberPswd ? "service.gui.YES" : "service.gui.NO");
         String displayName = registration.getDisplayName();
-        if(displayName != null)
+        if(displayName != null && displayName.length() > 0)
             summaryTable.put(
                         Resources.getString("plugin.sipaccregwizz.DISPLAY_NAME"),
                         displayName);
@@ -156,15 +156,21 @@ public class SIPAccountRegistrationWizard
             summaryTable.put(
                         Resources.getString("plugin.sipaccregwizz.AUTH_NAME"),
                         authName);
-        summaryTable.put(
-            Resources.getString("plugin.sipaccregwizz.SERVER_PORT"),
-            registration.getServerPort());
-        summaryTable.put(
-            Resources.getString("plugin.sipaccregwizz.PROXY"),
-            registration.getProxy());
-        summaryTable.put(
-            Resources.getString("plugin.sipaccregwizz.PROXY_PORT"),
-            registration.getProxyPort());
+        String serverPort = registration.getServerPort();
+        if(serverPort != null && serverPort.length() > 0)
+            summaryTable.put(
+                Resources.getString("plugin.sipaccregwizz.SERVER_PORT"),
+                serverPort);
+        String proxy = registration.getProxy();
+        if(proxy != null && proxy.length() >0)
+            summaryTable.put(
+                Resources.getString("plugin.sipaccregwizz.PROXY"),
+                proxy);
+        String proxyPort = registration.getProxyPort();
+        if(proxyPort != null && proxyPort.length() > 0)
+            summaryTable.put(
+                Resources.getString("plugin.sipaccregwizz.PROXY_PORT"),
+                proxyPort);
         summaryTable.put(
             Resources.getString("plugin.sipaccregwizz.PREFERRED_TRANSPORT"),
             registration.getPreferredTransport());
@@ -384,19 +390,23 @@ public class SIPAccountRegistrationWizard
             accountProperties.put(ProtocolProviderFactory.AUTHORIZATION_NAME,
                 registration.getAuthorizationName());
 
-        accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
-                registration.getServerPort());
+        String serverPort = registration.getServerPort();
+        if(serverPort != null && serverPort.length() > 0)
+            accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
+                    serverPort);
 
         String proxyAddress = null;
         if (registration.getProxy() != null)
             proxyAddress = registration.getProxy();
 
-        if (proxyAddress != null)
+        if (proxyAddress != null && proxyAddress.length() > 0)
             accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
                 proxyAddress);
 
-        accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
-                registration.getProxyPort());
+        String proxyPort = registration.getProxyPort();
+        if(proxyPort != null && proxyPort.length() > 0)
+            accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
+                    proxyPort);
 
         accountProperties.put(ProtocolProviderFactory.PREFERRED_TRANSPORT,
                 registration.getPreferredTransport());
