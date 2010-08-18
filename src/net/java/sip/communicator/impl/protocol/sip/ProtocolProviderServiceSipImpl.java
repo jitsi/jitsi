@@ -1838,12 +1838,20 @@ public class ProtocolProviderServiceSipImpl
         //First init the proxy address
         String proxyAddressStr =
             accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PROXY_ADDRESS);
+                .getAccountPropertyString(ProtocolProviderFactory.
+                        PROXY_ADDRESS);
 
         if(proxyAddressStr == null || proxyAddressStr.trim().length() == 0)
         {
             proxyAddressStr = accountID
-                .getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
+                .getAccountPropertyString(ProtocolProviderFactory.
+                        SERVER_ADDRESS);
+
+            if(proxyAddressStr == null || proxyAddressStr.trim().length() == 0)
+            {
+                /* registrarless account */
+                return;
+            }
         }
 
         InetAddress proxyAddress = null;
