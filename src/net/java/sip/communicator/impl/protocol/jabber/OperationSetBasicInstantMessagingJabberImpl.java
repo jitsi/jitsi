@@ -452,31 +452,22 @@ public class OperationSetBasicInstantMessagingJabberImpl
     /**
      * Utility method throwing an exception if the stack is not properly
      * initialized.
+     *
      * @throws java.lang.IllegalStateException if the underlying stack is
      * not registered and initialized.
      */
-    private void assertConnected() throws IllegalStateException
+    private void assertConnected()
+        throws IllegalStateException
     {
-        if (jabberProvider == null)
-            throw new IllegalStateException(
-                "The provider must be non-null and signed on the "
-                +"service before being able to communicate.");
-        if (!jabberProvider.isRegistered())
+        if (opSetPersPresence == null)
         {
-            // if we are not registered but the current status is online
-            // change the current status
-            if(opSetPersPresence.getPresenceStatus().isOnline())
-            {
-                opSetPersPresence.fireProviderStatusChangeEvent(
-                    opSetPersPresence.getPresenceStatus(),
-                    jabberProvider.getJabberStatusEnum().getStatus(
-                        JabberStatusEnum.OFFLINE));
-            }
-
-            throw new IllegalStateException(
-                "The provider must be signed on the service before "
-                +"being able to communicate.");
+            throw
+                new IllegalStateException(
+                        "The provider must be signed on the service before"
+                            + " being able to communicate.");
         }
+        else
+            opSetPersPresence.assertConnected();
     }
 
     /**
@@ -501,9 +492,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             if (evt.getNewState() == RegistrationState.REGISTERING)
             {
-                opSetPersPresence =
-                    (OperationSetPersistentPresenceJabberImpl) jabberProvider
-                        .getOperationSet(OperationSetPersistentPresence.class);
+                opSetPersPresence
+                    = (OperationSetPersistentPresenceJabberImpl)
+                        jabberProvider.getOperationSet(
+                                OperationSetPersistentPresence.class);
 
                 if(smackMessageListener == null)
                     smackMessageListener = new SmackMessageListener();

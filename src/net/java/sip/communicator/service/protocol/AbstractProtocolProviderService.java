@@ -214,8 +214,8 @@ public abstract class AbstractProtocolProviderService
     /**
      * Indicates whether or not this provider is registered
      *
-     * @return true if the provider is currently registered and false
-     *   otherwise.
+     * @return <tt>true</tt> if the provider is currently registered and
+     * <tt>false</tt> otherwise.
      */
     public boolean isRegistered()
     {

@@ -391,32 +391,53 @@ public class OperationSetPersistentPresenceJabberImpl
     }
 
     /**
-     * Get the PresenceStatus for a particular contact.
+     * Gets the <tt>PresenceStatus</tt> of a contact with a specific
+     * <tt>String</tt> identifier.
      *
-     * @param contactIdentifier the identifier of the contact whose status
-     *   we're interested in.
-     * @return PresenceStatus the <tt>PresenceStatus</tt> of the specified
-     *   <tt>contact</tt>
-     * @throws IllegalArgumentException if <tt>contact</tt> is not a contact
-     *   known to the underlying protocol provider
-     * @throws IllegalStateException if the underlying protocol provider is
-     *   not registered/signed on a public service.
-     * @throws OperationFailedException with code NETWORK_FAILURE if
-     *   retrieving the status fails due to errors experienced during
-     *   network communication
+     * @param contactIdentifier the identifier of the contact whose status we're
+     * interested in.
+     * @return the <tt>PresenceStatus</tt> of the contact with the specified
+     * <tt>contactIdentifier</tt>
+     * @throws IllegalArgumentException if the specified
+     * <tt>contactIdentifier</tt> does not identify a contact known to the
+     * underlying protocol provider
+     * @throws IllegalStateException if the underlying protocol provider is not
+     * registered/signed on a public service
+     * @throws OperationFailedException with code NETWORK_FAILURE if retrieving
+     * the status fails due to errors experienced during network communication
      */
-    public PresenceStatus queryContactStatus(String contactIdentifier) throws
-        IllegalArgumentException, IllegalStateException,
-        OperationFailedException
+    public PresenceStatus queryContactStatus(String contactIdentifier)
+        throws IllegalArgumentException,
+               IllegalStateException,
+               OperationFailedException
     {
-        Presence presence = parentProvider.getConnection().getRoster().
-                getPresence(contactIdentifier);
+        /*
+         * As stated by the javadoc, IllegalStateException signals that the
+         * ProtocolProviderService is not registered.
+         */
+        assertConnected();
+
+        XMPPConnection xmppConnection = parentProvider.getConnection();
+
+        if (xmppConnection == null)
+        {
+            throw
+                new IllegalArgumentException(
+                        "The provider/account must be signed on in order to"
+                            + " query the status of a contact in its roster");
+        }
+
+        Presence presence
+            = xmppConnection.getRoster().getPresence(contactIdentifier);
 
         if(presence != null)
             return jabberStatusToPresenceStatus(presence, parentProvider);
         else
-            return parentProvider.getJabberStatusEnum().getStatus(
-                JabberStatusEnum.OFFLINE);
+        {
+            return
+                parentProvider.getJabberStatusEnum().getStatus(
+                        JabberStatusEnum.OFFLINE);
+        }
     }
 
     /**
@@ -633,30 +654,37 @@ public class OperationSetPersistentPresenceJabberImpl
     /**
      * Utility method throwing an exception if the stack is not properly
      * initialized.
-     * @throws java.lang.IllegalStateException if the underlying stack is
-     * not registered and initialized.
+     *
+     * @throws IllegalStateException if the underlying stack is not registered
+     * and initialized.
      */
-    private void assertConnected() throws IllegalStateException
+    void assertConnected()
+        throws IllegalStateException
     {
         if (parentProvider == null)
-            throw new IllegalStateException(
-                "The provider must be non-null and signed on the Jabber "
-                +"service before being able to communicate.");
+        {
+            throw
+                new IllegalStateException(
+                        "The provider must be non-null and signed on the"
+                            + " Jabber service before being able to"
+                            + " communicate.");
+        }
         if (!parentProvider.isRegistered())
         {
             // if we are not registered but the current status is online
             // change the current status
-            if(currentStatus.isOnline())
+            if((currentStatus != null) && currentStatus.isOnline())
             {
                 fireProviderStatusChangeEvent(
                     currentStatus,
                     parentProvider.getJabberStatusEnum().getStatus(
-                        JabberStatusEnum.OFFLINE));
+                            JabberStatusEnum.OFFLINE));
             }
 
-            throw new IllegalStateException(
-                "The provider must be signed on the Jabber service before "
-                +"being able to communicate.");
+            throw
+                new IllegalStateException(
+                        "The provider must be signed on the Jabber service"
+                            + " before being able to communicate.");
         }
     }
 
