@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -30,6 +31,73 @@ public class ProtocolProviderFactorySipImpl
     public ProtocolProviderFactorySipImpl()
     {
         super(SipActivator.getBundleContext(), ProtocolNames.SIP);
+    }
+
+    /**
+     * Ovverides the original in order not to load the XCAP_PASSWORD field.
+     *
+     * @param accountID the account identifier.
+     */
+    public boolean loadAccount(AccountID accountID)
+    {
+        boolean result = super.loadAccount(accountID);
+        if (result)
+        {
+            loadXCapPassword(accountID);
+        }
+        return result;
+    }
+
+    /**
+     * Ovverides the original in order not to save the XCAP_PASSWORD field.
+     *
+     * @param accountID the account identifier.
+     */
+    protected void storeAccount(AccountID accountID)
+    {
+        storeXCapPassword(accountID);
+        super.storeAccount(accountID);
+        loadXCapPassword(accountID);
+    }
+
+    /**
+     * Stores XCAP_PASSWORD property.
+     *
+     * @param accountID the account identifier.
+     */
+    private void storeXCapPassword(AccountID accountID)
+    {
+        CredentialsStorageService credentialsStorage
+                = ServiceUtils.getService(
+                getBundleContext(),
+                CredentialsStorageService.class);
+        String accountPrefix = accountID.getAccountUniqueID() + ".xcap";
+        String password = accountID.getAccountPropertyString(
+                ProtocolProviderServiceSipImpl.XCAP_PASSWORD);
+        if (password != null)
+        {
+            credentialsStorage.storePassword(accountPrefix, password);
+            accountID.removeAccountProperty(
+                    ProtocolProviderServiceSipImpl.XCAP_PASSWORD);
+        }
+    }
+
+    /**
+     * Loads XCAP_PASSWORD property.
+     *
+     * @param accountID the AccountID corresponding to the account that we would
+     * like to store.
+     */
+    private void loadXCapPassword(AccountID accountID)
+    {
+        CredentialsStorageService credentialsStorage
+                = ServiceUtils.getService(
+                getBundleContext(),
+                CredentialsStorageService.class);
+        String accountPrefix = accountID.getAccountUniqueID() + ".xcap";
+        accountID.putAccountProperty(
+                ProtocolProviderServiceSipImpl.XCAP_PASSWORD,
+                credentialsStorage.loadPassword(accountPrefix));
     }
 
     /**

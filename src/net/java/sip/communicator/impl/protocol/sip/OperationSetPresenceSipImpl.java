@@ -1626,7 +1626,7 @@ public class OperationSetPresenceSipImpl
     * the contact. When this happens the corresponding event would notify
     * interested subscription listeners.
     *
-    * @param addressStr an identifier of the contact that we'll be creating.
+    * @param contactId an identifier of the contact that we'll be creating.
     * @param persistentData a String returned Contact's getPersistentData()
     * method during a previous run and that has been persistently stored
     * locally.
@@ -1636,12 +1636,12 @@ public class OperationSetPresenceSipImpl
     * @return the unresolved <tt>Contact</tt> created from the specified
     * <tt>address</tt> and <tt>persistentData</tt>
     */
-    public Contact createUnresolvedContact(String addressStr,
+    public Contact createUnresolvedContact(String contactId,
                          String persistentData,
                          ContactGroup parent)
     {
         return ssContactList.createUnresolvedContact((ContactGroupSipImpl)
-                parent, addressStr);
+                parent, contactId, persistentData);
     }
 
     /**

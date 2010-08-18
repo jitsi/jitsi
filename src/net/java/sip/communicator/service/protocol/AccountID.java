@@ -283,6 +283,15 @@ public abstract class AccountID
     }
 
     /**
+     * Removes specified account property.
+     * @param key the key to remove.
+     */
+    public void removeAccountProperty(String key)
+    {
+        accountProperties.remove(key);
+    }
+
+    /**
      * Returns a hash code value for the object. This method is
      * supported for the benefit of hashtables such as those provided by
      * <tt>java.util.Hashtable</tt>.

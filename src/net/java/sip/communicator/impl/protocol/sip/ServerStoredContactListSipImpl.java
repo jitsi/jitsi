@@ -196,10 +196,14 @@ public class ServerStoredContactListSipImpl
      * @param parentGroup the group where the unersolved contact is to be
      *                    created.
      * @param contactId   the sip id of the contact to create.
+     * @param persistentData a String returned Contact's getPersistentData()
+     * method during a previous run and that has been persistently stored
+     * locally.
      * @return the newly created unresolved <tt>ContactSipImpl</tt>.
      */
     public synchronized ContactSipImpl createUnresolvedContact(
-            ContactGroupSipImpl parentGroup, String contactId)
+            ContactGroupSipImpl parentGroup, String contactId,
+            String persistentData)
     {
         if (parentGroup == null)
         {
@@ -226,6 +230,7 @@ public class ServerStoredContactListSipImpl
         ContactSipImpl newUnresolvedContact = new ContactSipImpl(contactAddress,
                 sipProvider);
         parentGroup.addContact(newUnresolvedContact);
+        newUnresolvedContact.setPersistentData(persistentData);
         fireContactAdded(parentGroup, newUnresolvedContact);
         return newUnresolvedContact;
     }
@@ -301,6 +306,7 @@ public class ServerStoredContactListSipImpl
                         OperationFailedException.NETWORK_FAILURE, e);
             }
             newContact.setResolved(true);
+            newContact.setXCapResolved(true);
             // Update pres-rules if needed
             if (!isContactExistsInWhiteRule(contactId))
             {
@@ -742,10 +748,10 @@ public class ServerStoredContactListSipImpl
             {
                 return;
             }
+            // Process resource-lists
             ResourceListsType resourceLists = xCapClient.getResourceLists();
             // Collect all root's subgroups to check if some of them were deleted
             ListType serverRootList = new ListType();
-            //serverRootList.getLists().addAll(resourceLists.getList());
             for (ListType list : resourceLists.getList())
             {
                 // If root group has sub group with ROOT_GROUP_NAME - it is
@@ -766,44 +772,38 @@ public class ServerStoredContactListSipImpl
                     serverRootList.getLists().add(list);
                 }
             }
-
-            // TODO: get it from somewhere
-            boolean firstRun = false;
             boolean updateResourceLists = false;
             // Resolve localy saved contacts and groups with server stored
             // contacts and groups
-            resolveContactGroup(rootGroup, serverRootList, !firstRun);
-            // If it is first run - upload unresolved contacts and groups to
-            // the server.
-            if(firstRun)
+            resolveContactGroup(rootGroup, serverRootList, false);
+            // Upload unresolved contacts and groups to the server.
+            for (ContactSipImpl contact : getAllContacts(rootGroup))
             {
-                for(ContactSipImpl contact : getAllContacts(rootGroup))
+                if (!contact.isResolved() && contact.isPersistent())
                 {
-                    if(!contact.isResolved() && contact.isPersistent())
-                    {
-                        updateResourceLists = true;
-                        contact.setResolved(true);
-                        fireContactResolved((ContactGroupSipImpl) contact
-                                .getParentContactGroup(), contact);
-                    }
+                    updateResourceLists = true;
+                    contact.setResolved(true);
+                    contact.setXCapResolved(true);
+                    fireContactResolved((ContactGroupSipImpl) contact
+                            .getParentContactGroup(), contact);
                 }
-                for(ContactGroupSipImpl group : getAllGroups(rootGroup))
-                {
-                    if(!group.isResolved() && group.isPersistent())
-                    {
-                        updateResourceLists = true;
-                        group.setResolved(true);
-                        fireGroupEvent(group,
-                                ServerStoredGroupEvent.GROUP_RESOLVED_EVENT);
-                    }
-                }
-                firstRun = false;
             }
+            for (ContactGroupSipImpl group : getAllGroups(rootGroup))
+            {
+                if (!group.isResolved() && group.isPersistent())
+                {
+                    updateResourceLists = true;
+                    group.setResolved(true);
+                    fireGroupEvent(group,
+                            ServerStoredGroupEvent.GROUP_RESOLVED_EVENT);
+                }
+            }
+            // Update resource-lists if needed
             if(updateResourceLists)
             {
                 updateResourceLists();
             }
-
+            // Process pres-rules
             if (xCapClient.isPresRulesSupported())
             {
                 // Get pres-rules and analyze it
@@ -1193,6 +1193,7 @@ public class ServerStoredContactListSipImpl
                 newContact.setOtherAttributes(serverEntry.getAnyAttributes());
                 newContact.setAny(serverEntry.getAny());
                 newContact.setResolved(true);
+                newContact.setXCapResolved(true);
                 clientGroup.addContact(newContact);
 
                 fireContactAdded(clientGroup, newContact);
@@ -1203,6 +1204,7 @@ public class ServerStoredContactListSipImpl
                 newContact.setOtherAttributes(serverEntry.getAnyAttributes());
                 newContact.setAny(serverEntry.getAny());
                 newContact.setResolved(true);
+                newContact.setXCapResolved(true);
                 unresolvedContacts.remove(newContact);
 
                 fireContactResolved(clientGroup, newContact);
@@ -1224,6 +1226,7 @@ public class ServerStoredContactListSipImpl
                     continue;
                 }
                 unresolvedContact.setResolved(true);
+                unresolvedContact.setXCapResolved(true);
                 // Remove unresolved contacts
                 clientGroup.removeContact(unresolvedContact);
                 // Tell listeners about the removed contact

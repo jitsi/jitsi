@@ -25,7 +25,12 @@ import java.util.*;
  */
 public class ContactSipImpl
     implements Contact
-{    
+{
+    /**
+     * Property used for store in persistent data indicating that contact
+     * is resolved against xcap server.
+     */
+    private static final String XCAP_RESOLVED_PROPERTY = "xcap.resolved";
 
     /**
      * The provider that created us.
@@ -69,6 +74,11 @@ public class ContactSipImpl
      * never resolved (for example if he doesn't support SIMPLE)
      */
     private boolean isResolvable = true;
+
+    /**
+     * Determines whether the contact has been resolved on the XCAP server.
+     */
+    private boolean xCapResolved = false;
 
     /**
      * The XCAP equivalent of SIP contact group.
@@ -357,16 +367,59 @@ public class ContactSipImpl
         this.isPersistent = isPersistent;
     }
 
+    /**
+     * Gets the value of the xCapResolved property.
+     *
+     * @return the xCapResolved property.
+     */
+    public boolean isXCapResolved()
+    {
+        return xCapResolved;
+    }
 
     /**
-     * Returns null as no persistent data is required and the contact address is
-     * sufficient for restoring the contact.
-     * <p>
-     * @return null as no such data is needed.
+     * Sets the value of the xCapResolved property.
+     *
+     * @param xCapResolved the xCapResolved to set.
+     */
+    public void setXCapResolved(boolean xCapResolved)
+    {
+        this.xCapResolved = xCapResolved;
+    }
+
+    /**
+     * Gets the persistent data - for now only the XCAP resolved is needed
+     * for restoring the contact data. Fields are properties separated by ;
+     * <p/>
+     *
+     * @return the persistent data
      */
     public String getPersistentData()
     {
-        return null;
+        return XCAP_RESOLVED_PROPERTY + "="
+            + Boolean.toString(xCapResolved) + ";";
+    }
+
+    /**
+     * Sets the persistent data.
+     *
+     * @param persistentData the persistent data to set.
+     */
+    public void setPersistentData(String persistentData)
+    {
+        if (persistentData == null)
+        {
+            return;
+        }
+        StringTokenizer tokenizer = new StringTokenizer(persistentData, ";");
+        while (tokenizer.hasMoreTokens())
+        {
+            String data[] = tokenizer.nextToken().split("=");
+            if (data[0].equals(XCAP_RESOLVED_PROPERTY) && data.length > 1)
+            {
+                xCapResolved = Boolean.valueOf(data[1]);
+            }
+        }
     }
 
     /**

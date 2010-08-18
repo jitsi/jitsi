@@ -56,10 +56,10 @@ public class PresencePanel
     private JPanel xCapButtonsPanel
             = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel xCapLabelsPanel
+    private JPanel xCapCredetialsLabelsPanel
             = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-    private JPanel xCapValuesPanel
+    private JPanel xCapCredetialsValuesPanel
             = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
     private JLabel xCapServerUriLabel = new JLabel(
@@ -137,7 +137,6 @@ public class PresencePanel
                 setXCapEnableEnabled(checkBox.isSelected());
             }
         });
-        xCapButtonsPanel.add(xCapEnableBox);
 
         xCapUseSipCredetialsBox.addActionListener(new ActionListener()
         {
@@ -147,21 +146,27 @@ public class PresencePanel
                 setXCapUseSipCredetialsEnabled(checkBox.isSelected());
             }
         });
-        xCapButtonsPanel.add(xCapUseSipCredetialsBox);
 
         setXCapEnableEnabled(xCapEnableBox.isSelected());
 
-        xCapLabelsPanel.add(xCapServerUriLabel);
-        xCapLabelsPanel.add(xCapUserLabel);
-        xCapLabelsPanel.add(xCapPasswordLabel);
+        JPanel xCapServerUriPanel
+                = new TransparentPanel(new BorderLayout(10, 10));
+        xCapServerUriPanel.add(xCapServerUriLabel, BorderLayout.WEST);
+        xCapServerUriPanel.add(xCapServerUriValue, BorderLayout.CENTER);
 
-        xCapValuesPanel.add(xCapServerUriValue);
-        xCapValuesPanel.add(xCapUserValue);
-        xCapValuesPanel.add(xCapPasswordValue);
+        xCapButtonsPanel.add(xCapEnableBox);
+        xCapButtonsPanel.add(xCapServerUriPanel);
+        xCapButtonsPanel.add(xCapUseSipCredetialsBox);
+
+        xCapCredetialsLabelsPanel.add(xCapUserLabel);
+        xCapCredetialsLabelsPanel.add(xCapPasswordLabel);
+
+        xCapCredetialsValuesPanel.add(xCapUserValue);
+        xCapCredetialsValuesPanel.add(xCapPasswordValue);
 
         xCapPanel.add(xCapButtonsPanel, BorderLayout.NORTH);
-        xCapPanel.add(xCapLabelsPanel, BorderLayout.WEST);
-        xCapPanel.add(xCapValuesPanel, BorderLayout.CENTER);
+        xCapPanel.add(xCapCredetialsLabelsPanel, BorderLayout.WEST);
+        xCapPanel.add(xCapCredetialsValuesPanel, BorderLayout.CENTER);
 
         xCapPanel.setBorder(BorderFactory.createTitledBorder(
                 Resources.getString("plugin.sipaccregwizz.XCAP_OPTIONS")));
