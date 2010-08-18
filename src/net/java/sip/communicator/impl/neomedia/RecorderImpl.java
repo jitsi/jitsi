@@ -153,8 +153,6 @@ public class RecorderImpl
 
         if (SoundFileUtils.wav.equalsIgnoreCase(format))
             type = FileTypeDescriptor.WAVE;
-        else if (SoundFileUtils.mp2.equalsIgnoreCase(format))
-            type = FileTypeDescriptor.MPEG_AUDIO;
         else if (SoundFileUtils.gsm.equalsIgnoreCase(format))
             type = FileTypeDescriptor.GSM;
         else if (SoundFileUtils.au.equalsIgnoreCase(format))

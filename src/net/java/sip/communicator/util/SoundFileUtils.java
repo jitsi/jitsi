@@ -50,16 +50,16 @@ public class SoundFileUtils
         if (ext != null)
         {
             return
-                ext.equals(wav)
-                    || ext.equals(mid)
-                    || ext.equals(mp2)
-                    || ext.equals(mp3)
-                    || ext.equals(mod)
+                ext.equals(wma)
+                    || ext.equals(wav)
+                    || ext.equals(ram)
                     || ext.equals(ogg)
-                    || ext.equals(wma)
+                    || ext.equals(mp3)
+                    || ext.equals(mp2)
+                    || ext.equals(mod)
+                    || ext.equals(mid)
                     || ext.equals(gsm)
-                    || ext.equals(au)
-                    || ext.equals(ram);
+                    || ext.equals(au);
         }
         return false;
     }
@@ -79,7 +79,6 @@ public class SoundFileUtils
         {
             return
                 ext.equals(wav)
-                    || ext.equals(mp2)
                     || ext.equals(gsm)
                     || ext.equals(au)
                     || ext.equals(aif);

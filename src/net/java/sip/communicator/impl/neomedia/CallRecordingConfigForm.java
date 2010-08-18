@@ -177,14 +177,15 @@ public class CallRecordingConfigForm
      */
     private Component createFormatsComboBox()
     {
-        ComboBoxModel formatsComboBoxModel =
-            new DefaultComboBoxModel(
-                new String[] {
-                    SoundFileUtils.mp2,
-                    SoundFileUtils.wav,
-                    SoundFileUtils.au,
-                    SoundFileUtils.aif,
-                    SoundFileUtils.gsm });
+        ComboBoxModel formatsComboBoxModel
+            = new DefaultComboBoxModel(
+                    new String[]
+                    {
+                        SoundFileUtils.wav,
+                        SoundFileUtils.gsm,
+                        SoundFileUtils.au,
+                        SoundFileUtils.aif
+                    });
         
         formatsComboBox = new JComboBox();
         formatsComboBox.setPreferredSize(new Dimension(200, 30));

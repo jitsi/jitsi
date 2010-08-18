@@ -100,7 +100,7 @@ public class RecordButton
                     public String getDescription()
                     {
                         return
-                            "Recorded call (*.wav, *.mp2, *.gsm, *.au, *.aif)";
+                            "Recorded call (*.wav, *.gsm, *.au, *.aif)";
                     }
                 });
 
@@ -153,8 +153,32 @@ public class RecordButton
                         String callFormat
                             = SoundFileUtils.getExtension(selectedFile);
 
-                        if (callFormat != null)
+                        if ((callFormat != null) && (callFormat.length() != 0))
                         {
+                            /*
+                             * If the use has specified an extension and thus a
+                             * format which is not supported, use a default
+                             * format instead.
+                             */
+                            if (!SoundFileUtils.isRecordedCall(selectedFile))
+                            {
+                                /*
+                                 * If what appears to be an extension seems a
+                                 * lot like an extension, then it should be
+                                 * somewhat safer to replace it.
+                                 */
+                                if (SoundFileUtils.isSoundFile(selectedFile))
+                                {
+                                    callFilename
+                                        = callFilename.substring(
+                                            0,
+                                            callFilename.lastIndexOf('.'));
+                                }
+                                callFormat
+                                    = SoundFileUtils
+                                        .DEFAULT_CALL_RECORDING_FORMAT;
+                                callFilename += '.' + callFormat;
+                            }
                             configuration.setProperty(
                                     Recorder.CALL_FORMAT,
                                     callFormat);
@@ -217,7 +241,10 @@ public class RecordButton
 
         String ext = configuration.getString(Recorder.CALL_FORMAT);
 
-        if ((ext == null) || (ext.length() == 0))
+        // Use a default format when the configured one seems invalid.
+        if ((ext == null)
+                || (ext.length() == 0)
+                || !SoundFileUtils.isRecordedCall(new File("./dummy." + ext)))
             ext = SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT;
         return
             ((savedCallsPath == null) ? "" : (savedCallsPath + File.separator))
