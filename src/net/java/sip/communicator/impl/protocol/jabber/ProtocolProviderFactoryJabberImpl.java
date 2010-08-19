@@ -132,7 +132,20 @@ public class ProtocolProviderFactoryJabberImpl
 
         // kill the service
         if (registration != null)
+        {
+            // unregister provider before removing it.
+            try
+            {
+                if(protocolProvider.isRegistered())
+                    protocolProvider.unregister();
+            } catch (Throwable e)
+            {
+                // we don't care for this, cause we are modifying and
+                // will unregister the service and will register again
+            }
+
             registration.unregister();
+        }
 
         if (accountProperties == null)
             throw new NullPointerException(
