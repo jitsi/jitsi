@@ -121,14 +121,9 @@ public class OperationSetBasicInstantMessagingMsnImpl
 
         msgDeliveryPendingEvt
             = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
-        
+
         if (msgDeliveryPendingEvt == null)
             return;
-        
-        msnProvider.getMessenger().
-            sendText(
-                ((ContactMsnImpl)to).getSourceContact().getEmail(),
-                msgDeliveryPendingEvt.getSourceMessage().getContent());
 
         MessageDeliveredEvent msgDeliveredEvt
             = new MessageDeliveredEvent(message, to);
@@ -137,6 +132,11 @@ public class OperationSetBasicInstantMessagingMsnImpl
         
         if (msgDeliveredEvt != null)
             fireMessageEvent(msgDeliveredEvt);
+
+        msnProvider.getMessenger().
+            sendText(
+                ((ContactMsnImpl)to).getSourceContact().getEmail(),
+                msgDeliveryPendingEvt.getSourceMessage().getContent());
     }
 
     /**
