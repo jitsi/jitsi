@@ -106,7 +106,7 @@ public class SipSecurityManager
      * @throws OperationFailedException if we fail to acquire a password from
      * our security authority.
      */
-    public ClientTransaction handleChallenge(
+    public synchronized ClientTransaction handleChallenge(
                                     Response          challenge,
                                     ClientTransaction challengedTransaction,
                                     SipProvider       transactionCreator)
@@ -311,7 +311,7 @@ public class SipSecurityManager
      * @throws TransactionUnavailableException if we get an exception white
      * creating the new transaction
      */
-    public ClientTransaction handleForbiddenResponse(
+    public synchronized ClientTransaction handleForbiddenResponse(
                                     Response          forbidden,
                                     ClientTransaction endedTransaction,
                                     SipProvider       transactionCreator)
