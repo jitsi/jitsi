@@ -296,6 +296,29 @@ public class CreateSip2SipAccountForm
                     passField.getPassword(),
                     null,
                     jsonObject.getString("outbound_proxy"));
+
+                String xcapRoot = jsonObject.getString("xcap_root");
+
+                // as sip2sip adds @sip2sip.info at the end of the
+                // xcap_uri but doesn't report it in resullt after
+                // creating account, we add it
+                String domain = null;
+                int delimIndex = newAccount.getUserName().indexOf("@");
+                if (delimIndex != -1)
+                {
+                    domain = newAccount.getUserName().substring(delimIndex);
+                }
+                if(domain != null)
+                {
+                    if(xcapRoot.endsWith("/"))
+                        xcapRoot =
+                            xcapRoot.substring(0, xcapRoot.length() - 1)
+                            + domain;
+                    else
+                        xcapRoot += domain;
+                }
+
+                newAccount.setXcapRoot(xcapRoot);
             }
             else
             {

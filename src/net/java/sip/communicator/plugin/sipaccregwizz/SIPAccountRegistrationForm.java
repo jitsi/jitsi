@@ -141,6 +141,7 @@ public class SIPAccountRegistrationForm
         char[] password = null;
         String serverAddress = null;
         String proxyAddress = null;
+        String xcapRoot = null;
         if (accountPanel.isCreateAccount())
         {
             NewAccount newAccount
@@ -151,6 +152,7 @@ public class SIPAccountRegistrationForm
                 password = newAccount.getPassword();
                 serverAddress = newAccount.getServerAddress();
                 proxyAddress = newAccount.getProxyAddress();
+                xcapRoot = newAccount.getXcapRoot();
 
                 if (serverAddress == null)
                     serverAddress = setServerFieldAccordingToUIN(userID);
@@ -238,10 +240,19 @@ public class SIPAccountRegistrationForm
         SIPAccRegWizzActivator.getUIService().getAccountRegWizardContainer()
             .setBackButtonEnabled(true);
 
-        registration.setXCapEnable(presencePanel.isXCapEnable());
+        if(xcapRoot != null)
+        {
+            registration.setXCapEnable(true);
+            registration.setXCapServerUri(xcapRoot);
+        }
+        else
+        {
+            registration.setXCapEnable(presencePanel.isXCapEnable());
+            registration.setXCapServerUri(presencePanel.getXCapServerUri());
+        }
+        
         registration.setXCapUseSipCredetials(
                 presencePanel.isXCapUseSipCredetials());
-        registration.setXCapServerUri(presencePanel.getXCapServerUri());
         registration.setXCapUser(presencePanel.getXCapUser());
         registration
                 .setXCapPassword(new String(presencePanel.getXCapPassword()));

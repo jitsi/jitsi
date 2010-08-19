@@ -31,6 +31,11 @@ public class NewAccount
     private String proxyAddress;
 
     /**
+     * The xcapRoot URI.
+     */
+    private String xcapRoot;
+
+    /**
      * Creates a new account by specifying the account user name and password.
      * @param userName the account user name
      * @param password the account password
@@ -118,5 +123,23 @@ public class NewAccount
     public String getProxyAddress()
     {
         return proxyAddress;
+    }
+
+    /**
+     * Returns the xcapRoot.
+     * @return the xcapRoot
+     */
+    public String getXcapRoot()
+    {
+        return xcapRoot;
+    }
+
+    /**
+     * Sets xcapRoot.
+     * @param xcapRoot the xcapRoot to set
+     */
+    public void setXcapRoot(String xcapRoot)
+    {
+        this.xcapRoot = xcapRoot;
     }
 }
