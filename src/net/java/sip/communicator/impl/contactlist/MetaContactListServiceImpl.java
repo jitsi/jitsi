@@ -2033,11 +2033,16 @@ public class MetaContactListServiceImpl
                                provider.getAccountID().getAccountUniqueID()))
             {
                 if (logger.isDebugEnabled())
-                    logger.debug("Ignoing an already installed account: "
-                                + provider.getAccountID());
+                    logger.debug("An already installed account: "
+                                + provider.getAccountID() + ". Modifying it.");
                 // the account is already installed and this event is coming
-                // from a modification. we don't need to do anything.
-                return;
+                // from a modification. we don't return here as
+                // the account is removed and added again and we must
+                // create its unresolved contact and give him a chance to resolve
+                // them and not fire new subscription to duplicate the already
+                // existing.
+
+                //return;
             }
 
             this.handleProviderAdded( (ProtocolProviderService) sService);
@@ -2056,7 +2061,20 @@ public class MetaContactListServiceImpl
             // remains stored we have nothing to do here.
             if(sourceFactory.getRegisteredAccounts().contains(accountID))
             {
-                //the account is still installed. we don't need to do anything.
+                //the account is still installed it means we are modifying it.
+                // we remove all its contacts from current contactlist
+                // but remove the storage manager in order to avoid
+                // losing those contacts from the storage
+                // as its modification later unresolved contacts will be created
+                // which will be resolved from the already modified account
+                synchronized(this)
+                {
+                    this.removeMetaContactListListener(storageManager);
+                    this.handleProviderRemoved(
+                        (ProtocolProviderService)sService);
+                    this.addMetaContactListListener(storageManager);
+                }
+
                 return;
             }
 
@@ -2548,7 +2566,7 @@ public class MetaContactListServiceImpl
      * to.
      * @param eventID the id indicating the exavt type of the event to fire.
      */
-    private void fireMetaContactEvent(MetaContact sourceContact,
+    private synchronized void fireMetaContactEvent(MetaContact sourceContact,
                                       MetaContactGroup parentGroup,
                                       int eventID)
     {
@@ -2600,11 +2618,13 @@ public class MetaContactListServiceImpl
     /**
      * Creates the corresponding <tt>MetaContactPropertyChangeEvent</tt>
      * instance and notifies all <tt>MetaContactListListener</tt>s that a
-     * MetaContact has been modified.
+     * MetaContact has been modified. Synchronized to avoid firing events
+     * when we are editing the account (there we temporally remove and then
+     * add again the storage manager and don't want anybody to interrupt us).
      *
      * @param event the event to dispatch.
      */
-    void fireMetaContactEvent(MetaContactPropertyChangeEvent event)
+    synchronized void fireMetaContactEvent(MetaContactPropertyChangeEvent event)
     {
         if (logger.isTraceEnabled())
             logger.trace("Will dispatch the following mcl property change event: "
@@ -2636,6 +2656,9 @@ public class MetaContactListServiceImpl
      * Creates the corresponding <tt>ProtoContactEvent</tt> instance and
      * notifies all <tt>MetaContactListListener</tt>s that a protocol specific
      * <tt>Contact</tt> has been added moved or removed.
+     * Synchronized to avoid firing events
+     * when we are editing the account (there we temporally remove and then
+     * add again the storage manager and don't want anybody to interrupt us).
      *
      * @param source the contact that has caused the event.
      * @param eventName One of the ProtoContactEvent.PROTO_CONTACT_XXX fields
@@ -2647,7 +2670,7 @@ public class MetaContactListServiceImpl
      * <tt>Contact</tt> after the event occurred or <tt>null</tt> if the event
      * is caused by removing a <tt>Contact</tt>
      */
-    private void fireProtoContactEvent(Contact     source,
+    private synchronized void fireProtoContactEvent(Contact     source,
                                        String      eventName,
                                        MetaContact oldParent,
                                        MetaContact newParent)
@@ -2883,6 +2906,9 @@ public class MetaContactListServiceImpl
      * Creates the corresponding MetaContactGroup event and notifies all
      * <tt>MetaContactListListener</tt>s that a MetaContactGroup is added or
      * removed from the MetaContactList.
+     * Synchronized to avoid firing events
+     * when we are editing the account (there we temporally remove and then
+     * add again the storage manager and don't want anybody to interrupt us).
      *
      * @param source
      *            the MetaContactGroup instance that is added to the
@@ -2895,7 +2921,7 @@ public class MetaContactListServiceImpl
      *            one of the METACONTACT_GROUP_XXX static fields indicating the
      *            nature of the event.
      */
-    private void fireMetaContactGroupEvent( MetaContactGroup source,
+    private synchronized void fireMetaContactGroupEvent( MetaContactGroup source,
                                             ProtocolProviderService provider,
                                             ContactGroup sourceProtoGroup,
                                             int eventID)
