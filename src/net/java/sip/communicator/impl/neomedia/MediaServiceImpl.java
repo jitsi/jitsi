@@ -329,13 +329,13 @@ public class MediaServiceImpl
             break;
         default:
             /*
-             * MediaService does not understad MediaTypes other than AUDIO and
+             * MediaService does not understand MediaTypes other than AUDIO and
              * VIDEO.
              */
             return EMPTY_DEVICES;
         }
 
-        List<MediaDevice> publicDevices = new ArrayList<MediaDevice>();
+        List<MediaDevice> publicDevices;
 
         synchronized (privateDevices)
         {
@@ -528,8 +528,7 @@ public class MediaServiceImpl
         if (screens != null)
         {
             screenList = new ArrayList<ScreenDevice>(screens.length);
-            for (ScreenDevice screen : screens)
-                screenList.add(screen);
+            screenList.addAll(Arrays.asList(screens));
         }
         else
             screenList = new ArrayList<ScreenDevice>();
