@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.protocol.media;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -129,27 +130,31 @@ public abstract class AbstractOperationSetBasicTelephony
     }
 
     /**
-     * Starts the recording of a specific <tt>Call</tt> into a file with a specific name.
+     * Creates a new <tt>Recorder</tt> which is to record the specified
+     * <tt>Call</tt> (into a file which is to be specified when starting the
+     * returned <tt>Recorder</tt>).
+     * <p>
+     * <tt>AbstractOperationSetBasicTelephony</tt> implements the described
+     * functionality for <tt>MediaAwareCall</tt> only; otherwise, does nothing
+     * and just returns <tt>null</tt>.
+     * </p>
      *
-     * @param call the <tt>Call</tt> to start recording into the file with the
-     * specified <tt>name</tt>
-     * @param filename the name of the file into which the specified
-     * <tt>call</tt> is to be recorded
+     * @param call the <tt>Call</tt> which is to be recorded by the returned
+     * <tt>Recorder</tt> when the latter is started
+     * @return a new <tt>Recorder</tt> which is to record the specified
+     * <tt>call</tt> (into a file which is to be specified when starting the
+     * returned <tt>Recorder</tt>)
+     * @throws OperationFailedException if anything goes wrong while creating
+     * the new <tt>Recorder</tt> for the specified <tt>call</tt>
+     * @see OperationSetBasicTelephony#createRecorder(Call)
      */
-    public void startRecording(Call call, String filename)
+    @SuppressWarnings("rawtypes")
+    public Recorder createRecorder(Call call)
+        throws OperationFailedException
     {
-        if (call instanceof MediaAwareCall)
-            ((MediaAwareCall) call).startRecording(filename);
-    }
-
-    /**
-     * Stops the recording of the <tt>Call</tt>.
-     *
-     * @param call the <tt>Call</tt> to stop recording
-     */
-    public void stopRecording(Call call)
-    {
-        if (call instanceof MediaAwareCall)
-            ((MediaAwareCall) call).stopRecording();
+        return
+            (call instanceof MediaAwareCall)
+                ? ((MediaAwareCall) call).createRecorder()
+                : null;
     }
 }

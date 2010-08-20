@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol;
 import java.text.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
@@ -162,19 +163,18 @@ public interface OperationSetBasicTelephony<T extends ProtocolProviderService>
     public T getProtocolProvider();
 
     /**
-     * Starts the recording of a specific <tt>Call</tt> into a file with a specific name.
+     * Creates a new <tt>Recorder</tt> which is to record the specified
+     * <tt>Call</tt> (into a file which is to be specified when starting the
+     * returned <tt>Recorder</tt>).
      *
-     * @param call the <tt>Call</tt> to start recording into the file with the
-     * specified <tt>name</tt>
-     * @param filename the name of the file into which the specified
-     * <tt>call</tt> is to be recorded
+     * @param call the <tt>Call</tt> which is to be recorded by the returned
+     * <tt>Recorder</tt> when the latter is started
+     * @return a new <tt>Recorder</tt> which is to record the specified
+     * <tt>call</tt> (into a file which is to be specified when starting the
+     * returned <tt>Recorder</tt>)
+     * @throws OperationFailedException if anything goes wrong while creating
+     * the new <tt>Recorder</tt> for the specified <tt>call</tt>
      */
-    public void startRecording(Call call, String filename);
-
-    /**
-     * Stops the recording of the <tt>Call</tt>.
-     *
-     * @param call the <tt>Call</tt> to stop recording
-     */
-    public void stopRecording(Call call);
+    public Recorder createRecorder(Call call)
+        throws OperationFailedException;
 }

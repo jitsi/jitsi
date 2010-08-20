@@ -50,7 +50,7 @@ public abstract class MediaAwareCall<
     /**
      * The indicator which determines whether the local peer represented by this
      * <tt>Call</tt> is acting as a conference focus and may thus be specifying
-     * a related parameter in its signalling, like for example the
+     * a related parameter in its signaling, like for example the
      * &quot;isfocus&quot; parameter in the Contact headers of its outgoing SIP
      * signaling.
      */
@@ -77,11 +77,6 @@ public abstract class MediaAwareCall<
      * to transmit "silence" instead of the actual media.
      */
     private boolean mute = false;
-
-    /**
-     * The <tt>Recorder</tt> used to record this call. 
-     */
-    private Recorder recorder;
 
     /**
      * Device used in call will be chosen according to <tt>MediaUseCase</tt>.
@@ -132,7 +127,7 @@ public abstract class MediaAwareCall<
         {
             // if there's someone listening for audio level events then they'd
             // also like to know about the new peer.
-            if(getCallPeersVector().size() == 0)
+            if(getCallPeersVector().isEmpty())
             {
                 callPeer.getMediaHandler().setLocalUserAudioLevelListener(
                                 localAudioLevelDelegator);
@@ -179,7 +174,7 @@ public abstract class MediaAwareCall<
             callPeer.setCall(null);
         }
 
-        if (getCallPeersVector().size() == 0)
+        if (getCallPeersVector().isEmpty())
             setCallState(CallState.CALL_ENDED);
     }
 
@@ -361,8 +356,7 @@ public abstract class MediaAwareCall<
     {
         synchronized(localUserAudioLevelListeners)
         {
-
-            if (localUserAudioLevelListeners.size() == 0)
+            if (localUserAudioLevelListeners.isEmpty())
             {
                 //if this is the first listener that's being registered with
                 //us, we also need to register ourselves as an audio level
@@ -386,11 +380,11 @@ public abstract class MediaAwareCall<
     }
 
     /**
-     * Removes a specific <tt>SoundLevelListener</tt> from the list of
-     * listeners interested in and notified about changes in local sound level
-     * related information. If <tt>l</tt> is the last listener that we had here
-     * we are also going to unregister our own level event delegator in order
-     * to stop level calculations.
+     * Removes a specific <tt>SoundLevelListener</tt> from the list of listeners
+     * interested in and notified about changes in local sound level related
+     * information. If <tt>l</tt> is the last listener that we had here we are
+     * also going to unregister our own level event delegate in order to stop
+     * level calculations.
      *
      * @param l the <tt>SoundLevelListener</tt> to remove
      */
@@ -400,7 +394,7 @@ public abstract class MediaAwareCall<
         {
             localUserAudioLevelListeners.add(l);
 
-            if (localUserAudioLevelListeners.size() == 0)
+            if (localUserAudioLevelListeners.isEmpty())
             {
                 //if this was the last listener that was registered with us then
                 //no long need to have a delegator registered with the call
@@ -474,7 +468,7 @@ public abstract class MediaAwareCall<
      *
      * @param allowed <tt>true</tt> if local video transmission is allowed and
      * <tt>false</tt> otherwise.
-     * @param useCase usecase for the video (i.e video call or desktop
+     * @param useCase the use case of the video (i.e video call or desktop
      * streaming/sharing session)
      *
      *  @throws OperationFailedException if video initialization fails.
@@ -539,11 +533,9 @@ public abstract class MediaAwareCall<
                                           PropertyChangeListener listener)
     {
         Iterator<T> peers = getCallPeers();
+
         while (peers.hasNext())
-        {
-            T peer = peers.next();
-            peer.addVideoPropertyChangeListener(listener);
-        }
+            peers.next().addVideoPropertyChangeListener(listener);
     }
 
     /**
@@ -559,33 +551,27 @@ public abstract class MediaAwareCall<
                                              PropertyChangeListener listener)
     {
         Iterator<T> peers = getCallPeers();
+
         while (peers.hasNext())
-        {
-            T peer = peers.next();
-            peer.removeVideoPropertyChangeListener(listener);
-        }
+            peers.next().removeVideoPropertyChangeListener(listener);
     }
 
     /**
-     * Starts the recording of this call.
+     * Creates a new <tt>Recorder</tt> which is to record this <tt>Call</tt>
+     * (into a file which is to be specified when starting the returned
+     * <tt>Recorder</tt>).
      *
-     * @param filename the name of the file into which this <tt>Call</tt> is to
-     * be recorded
+     * @return a new <tt>Recorder</tt> which is to record this <tt>Call</tt>
+     * (into a file which is to be specified when starting the returned
+     * <tt>Recorder</tt>)
+     * @throws OperationFailedException if anything goes wrong while creating
+     * the new <tt>Recorder</tt> for this <tt>Call</tt>
      */
-    public void startRecording(String filename)
+    public Recorder createRecorder()
+        throws OperationFailedException
     {
-        recorder
-            = ProtocolMediaActivator
-                .getMediaService()
-                    .createRecorder(getDefaultDevice(MediaType.AUDIO));
-        recorder.startRecording(filename);
-    }
-
-    /**
-     * Stops the recording of this call.
-     */
-    public void stopRecording()
-    {
-        recorder.stopRecording();
+        return
+            ProtocolMediaActivator.getMediaService().createRecorder(
+                    getDefaultDevice(MediaType.AUDIO));
     }
 }

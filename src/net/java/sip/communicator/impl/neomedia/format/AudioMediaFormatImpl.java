@@ -65,7 +65,7 @@ public class AudioMediaFormatImpl
      * @param encoding the encoding of the new <tt>AudioMediaFormatImpl</tt>
      * instance
      */
-    AudioMediaFormatImpl(String encoding)
+    public AudioMediaFormatImpl(String encoding)
     {
         this(new AudioFormat(encoding));
     }

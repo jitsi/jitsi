@@ -28,6 +28,18 @@ public class RecordButton
     extends AbstractCallToggleButton
 {
     /**
+     * The logger used by the <tt>RecordButton</tt> class and its instances for
+     * logging output.
+     */
+    private static final Logger logger = Logger.getLogger(RecordButton.class);
+
+    /**
+     * The date format used in file names.
+     */
+    private static final SimpleDateFormat FORMAT
+        = new SimpleDateFormat("yyyy-MM-dd@HH.mm.ss");
+
+    /**
      * Configuration service.
      */
     private static final ConfigurationService configuration
@@ -40,12 +52,6 @@ public class RecordButton
         = GuiActivator.getResources();
 
     /**
-     * The date format used in file names.
-     */
-    private static final SimpleDateFormat format
-        = new SimpleDateFormat("yyyy-MM-dd@HH.mm.ss");
-
-    /**
      * The full filename of the saved call on the file system.
      */
     private String callFilename;
@@ -54,6 +60,12 @@ public class RecordButton
      * Call file chooser.
      */
     private final SipCommFileChooser callFileChooser;
+
+    /**
+     * The <tt>Recorder</tt> which is depicted by this <tt>RecordButton</tt> and
+     * which is to record or records {@link #call} into {@link #callFilename}.
+     */
+    private Recorder recorder;
 
     /**
      * Initializes a new <tt>RecordButton</tt> instance which is to record the
@@ -93,14 +105,51 @@ public class RecordButton
                 {
                     public boolean accept(File f)
                     {
-                        return
-                            f.isDirectory() || SoundFileUtils.isRecordedCall(f);
+                        return f.isDirectory() || isSupportedFormat(f);
                     }
 
                     public String getDescription()
                     {
-                        return
-                            "Recorded call (*.wav, *.gsm, *.au, *.aif)";
+                        StringBuilder description = new StringBuilder();
+
+                        description.append("Recorded call");
+
+                        Recorder recorder;
+
+                        try
+                        {
+                            recorder = getRecorder();
+                        }
+                        catch (OperationFailedException ofex)
+                        {
+                            logger.error("Failed to get Recorder", ofex);
+                            recorder = null;
+                        }
+                        if (recorder != null)
+                        {
+                            List<String> supportedFormats
+                                = recorder.getSupportedFormats();
+
+                            if (supportedFormats != null)
+                            {
+                                description.append(" (");
+
+                                boolean firstSupportedFormat = true;
+
+                                for (String supportedFormat : supportedFormats)
+                                {
+                                    if (firstSupportedFormat)
+                                        firstSupportedFormat = false;
+                                    else
+                                        description.append(", ");
+                                    description.append("*.");
+                                    description.append(supportedFormat);
+                                }
+
+                                description.append(')');
+                            }
+                        }
+                        return description.toString();
                     }
                 });
 
@@ -122,91 +171,29 @@ public class RecordButton
     {
         if (call != null)
         {
-            OperationSetBasicTelephony<?> telephony
-                = call.getProtocolProvider().getOperationSet(
-                        OperationSetBasicTelephony.class);
-
             // start recording
             if (isSelected())
             {
-                String savedCallsPath
-                    = configuration.getString(Recorder.SAVED_CALLS_PATH);
-
-                // ask user input about where to save the call
-                if ((savedCallsPath == null) || (savedCallsPath.length() == 0))
-                {
-                    // Offer a default name for the file to record into.
-                    callFileChooser.setStartPath(createDefaultFilename(null));
-
-                    File selectedFile = callFileChooser.getFileFromDialog();
-
-                    if (selectedFile != null)
-                    {
-                        callFilename = selectedFile.getAbsolutePath();
-
-                        /*
-                         * If the user specified no extension (which seems
-                         * common on Mac OS X at least) i.e. no format, then it
-                         * is not obvious that we have to override the set
-                         * Recorder.CALL_FORMAT.
-                         */
-                        String callFormat
-                            = SoundFileUtils.getExtension(selectedFile);
-
-                        if ((callFormat != null) && (callFormat.length() != 0))
-                        {
-                            /*
-                             * If the use has specified an extension and thus a
-                             * format which is not supported, use a default
-                             * format instead.
-                             */
-                            if (!SoundFileUtils.isRecordedCall(selectedFile))
-                            {
-                                /*
-                                 * If what appears to be an extension seems a
-                                 * lot like an extension, then it should be
-                                 * somewhat safer to replace it.
-                                 */
-                                if (SoundFileUtils.isSoundFile(selectedFile))
-                                {
-                                    callFilename
-                                        = callFilename.substring(
-                                            0,
-                                            callFilename.lastIndexOf('.'));
-                                }
-                                callFormat
-                                    = SoundFileUtils
-                                        .DEFAULT_CALL_RECORDING_FORMAT;
-                                callFilename += '.' + callFormat;
-                            }
-                            configuration.setProperty(
-                                    Recorder.CALL_FORMAT,
-                                    callFormat);
-                        }
-                    }
-                    else
-                    {
-                        // user canceled the recording
-                        setSelected(false);
-                        return;
-                    }
-                }
-                else
-                    callFilename = createDefaultFilename(savedCallsPath);
-
-                telephony.startRecording(call, callFilename);
+                startRecording();
             }
             // stop recording
-            else
+            else if (recorder != null)
             {
-                telephony.stopRecording(call);
-                NotificationManager.fireNotification(
-                            NotificationManager.CALL_SAVED,
-                            resources.getI18NString(
-                                    "plugin.callrecordingconfig.CALL_SAVED"),
-                            resources.getI18NString(
-                                    "plugin.callrecordingconfig.CALL_SAVED_TO",
-                                    new String[] { callFilename }));
+                try
+                {
+                    recorder.stop();
+                    NotificationManager.fireNotification(
+                                NotificationManager.CALL_SAVED,
+                                resources.getI18NString(
+                                        "plugin.callrecordingconfig.CALL_SAVED"),
+                                resources.getI18NString(
+                                        "plugin.callrecordingconfig.CALL_SAVED_TO",
+                                        new String[] { callFilename }));
+                }
+                finally
+                {
+                    recorder = null;
+                }
             }
         }
     }
@@ -244,7 +231,7 @@ public class RecordButton
         // Use a default format when the configured one seems invalid.
         if ((ext == null)
                 || (ext.length() == 0)
-                || !SoundFileUtils.isRecordedCall(new File("./dummy." + ext)))
+                || !isSupportedFormat(ext))
             ext = SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT;
         return
             ((savedCallsPath == null) ? "" : (savedCallsPath + File.separator))
@@ -259,6 +246,201 @@ public class RecordButton
      */
     private String generateCallFilename(String ext)
     {
-        return format.format(new Date()) + "-confcall." + ext;
+        return FORMAT.format(new Date()) + "-confcall." + ext;
+    }
+
+    /**
+     * Gets the <tt>Recorder</tt> represented by this <tt>RecordButton</tt>
+     * creating it first if it does not exist.
+     *
+     * @return the <tt>Recorder</tt> represented by this <tt>RecordButton</tt>
+     * created first if it does not exist
+     * @throws OperationFailedException if anything goes wrong while creating
+     * the <tt>Recorder</tt> to be represented by this <tt>RecordButton</tt>
+     */
+    private Recorder getRecorder()
+        throws OperationFailedException
+    {
+        if (recorder == null)
+        {
+            OperationSetBasicTelephony<?> telephony
+                = call.getProtocolProvider().getOperationSet(
+                        OperationSetBasicTelephony.class);
+
+            recorder = telephony.createRecorder(call);
+        }
+        return recorder;
+    }
+
+    /**
+     * Determines whether the extension of a specific <tt>File</tt> specifies a
+     * format supported by the <tt>Recorder</tt> represented by this
+     * <tt>RecordButton</tt>.
+     *
+     * @param file the <tt>File</tt> whose extension is to be checked whether it
+     * specifies a format supported by the <tt>Recorder</tt> represented by this
+     * <tt>RecordButton</tt>
+     * @return <tt>true</tt> if the extension of the specified <tt>file</tt>
+     * specifies a format supported by the <tt>Recorder</tt> represented by this
+     * <tt>RecordButton</tt>; otherwise, <tt>false</tt>
+     */
+    private boolean isSupportedFormat(File file)
+    {
+        String extension = SoundFileUtils.getExtension(file);
+
+        return
+            (extension != null)
+                && (extension.length() != 0)
+                && isSupportedFormat(extension);
+    }
+
+    /**
+     * Determines whether a specific format is supported by the
+     * <tt>Recorder</tt> represented by this <tt>RecordButton</tt>.
+     *
+     * @param format the format which is to be checked whether it is supported
+     * by the <tt>Recorder</tt> represented by this <tt>RecordButton</tt>
+     * @return <tt>true</tt> if the specified <tt>format</tt> is supported by
+     * the <tt>Recorder</tt> represented by this <tt>RecordButton</tt>;
+     * otherwise, <tt>false</tt>
+     */
+    private boolean isSupportedFormat(String format)
+    {
+        Recorder recorder;
+
+        try
+        {
+            recorder = getRecorder();
+        }
+        catch (OperationFailedException ofex)
+        {
+            logger.error("Failed to get Recorder", ofex);
+            return false;
+        }
+
+        List<String> supportedFormats = recorder.getSupportedFormats();
+
+        return (supportedFormats != null) && supportedFormats.contains(format);
+    }
+
+    /**
+     * Starts recording {@link #call} creating {@link #recorder} first and
+     * asking the user for the recording format and file if they are not
+     * configured in the "Call Recording" configuration form.
+     */
+    private void startRecording()
+    {
+        String savedCallsPath
+            = configuration.getString(Recorder.SAVED_CALLS_PATH);
+
+        // Ask the user where to save the call.
+        if ((savedCallsPath == null) || (savedCallsPath.length() == 0))
+        {
+            // Offer a default name for the file to record into.
+            callFileChooser.setStartPath(createDefaultFilename(null));
+
+            File selectedFile = callFileChooser.getFileFromDialog();
+
+            if (selectedFile != null)
+            {
+                callFilename = selectedFile.getAbsolutePath();
+
+                /*
+                 * If the user specified no extension (which seems common on Mac 
+                 * OS X at least) i.e. no format, then it is not obvious that we
+                 * have to override the set Recorder.CALL_FORMAT.
+                 */
+                String callFormat = SoundFileUtils.getExtension(selectedFile);
+
+                if ((callFormat != null) && (callFormat.length() != 0))
+                {
+                    /*
+                     * If the use has specified an extension and thus a format
+                     * which is not supported, use a default format instead.
+                     */
+                    if (!isSupportedFormat(selectedFile))
+                    {
+                        /*
+                         * If what appears to be an extension seems a lot like
+                         * an extension, then it should be somewhat safer to
+                         * replace it.
+                         */
+                        if (SoundFileUtils.isSoundFile(selectedFile))
+                        {
+                            callFilename
+                                = callFilename.substring(
+                                    0,
+                                    callFilename.lastIndexOf('.'));
+                        }
+                        callFormat
+                            = SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT;
+                        callFilename += '.' + callFormat;
+                    }
+                    configuration.setProperty(Recorder.CALL_FORMAT, callFormat);
+                }
+            }
+            else
+            {
+                // user canceled the recording
+                setSelected(false);
+                if (recorder != null)
+                {
+                    try
+                    {
+                        recorder.stop();
+                    }
+                    finally
+                    {
+                        recorder = null;
+                    }
+                }
+                return;
+            }
+        }
+        else
+            callFilename = createDefaultFilename(savedCallsPath);
+
+        Throwable exception = null;
+
+        try
+        {
+            Recorder recorder = getRecorder();
+
+            if (recorder != null)
+                recorder.start(callFilename);
+
+            this.recorder = recorder;
+        }
+        catch (IOException ioex)
+        {
+            exception = ioex;
+        }
+        catch (MediaException mex)
+        {
+            exception = mex;
+        }
+        catch (OperationFailedException ofex)
+        {
+            exception = ofex;
+        }
+        if ((recorder == null) || (exception != null))
+        {
+            logger.error(
+                    "Failed to start recording call " + call
+                        + " into file " + callFilename,
+                    exception);
+            if (recorder != null)
+            {
+                try
+                {
+                    recorder.stop();
+                }
+                finally
+                {
+                    recorder = null;
+                }
+            }
+        }
+        setSelected(recorder != null);
     }
 }

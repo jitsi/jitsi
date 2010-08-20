@@ -32,6 +32,10 @@ public class MetaContactListServiceImpl
                ContactPresenceStatusListener,
                ContactCapabilitiesListener
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>MetaContactListServiceImpl</tt> class
+     * and its instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(MetaContactListServiceImpl.class);
 
@@ -2059,7 +2063,10 @@ public class MetaContactListServiceImpl
 
             // If the account is still registered or is just unloaded but
             // remains stored we remove its contacts but without storing this
-            if(ContactlistActivator.getAccountManager().getStoredAccounts().contains(accountID))
+            if(ContactlistActivator
+                    .getAccountManager()
+                        .getStoredAccounts()
+                            .contains(accountID))
             {
                 //the account is still installed it means we are modifying it.
                 // we remove all its contacts from current contactlist
