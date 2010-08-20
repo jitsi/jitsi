@@ -107,8 +107,10 @@ public class PopupMessageHandlerSwingImpl
     }
 
     /**
-     * Builds the popup component with given informations.
-     * 
+     * Builds the popup component with given informations. Wraps the specified
+     * <tt>message</tt> in HTML &lt;pre&gt; tags to ensure that text such as
+     * full pathnames is displayed correctly after HTML is stripped from it.
+     *
      * @param titleString message title
      * @param message message content
      * @param imageBytes message icon
@@ -131,13 +133,16 @@ public class PopupMessageHandlerSwingImpl
         }
 
         JLabel msgTitle = new JLabel(titleString);
+
         int msgTitleHeight
             = msgTitle.getFontMetrics(msgTitle.getFont()).getHeight();
         msgTitle.setPreferredSize(new Dimension(200, msgTitleHeight));
         msgTitle.setFont(msgTitle.getFont().deriveFont(Font.BOLD));
 
-        String plainMessage = Html2Text.extractText(message);
+        String plainMessage
+            = Html2Text.extractText("<pre>" + message + "</pre>");
         JTextArea msgContent = new JTextArea(plainMessage);
+
         msgContent.setLineWrap(true);
         msgContent.setWrapStyleWord(true);
         msgContent.setOpaque(false);
