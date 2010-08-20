@@ -395,6 +395,8 @@ public abstract class ProtocolProviderFactory
         // Unregister the protocol provider.
         ServiceReference serRef = getProviderForAccount(accountID);
 
+        boolean wasAccountExisting = false;
+
         // If the protocol provider service is registered, first unregister the
         // service.
         if (serRef != null)
@@ -421,6 +423,10 @@ public abstract class ProtocolProviderFactory
                 registration = registeredAccounts.remove(accountID);
             }
 
+            // first remove the stored account so when PP is unregistered we can distinguish
+            // between deleted or just disabled account
+            wasAccountExisting = removeStoredAccount(accountID);
+
             if (registration != null)
             {
                 // Kill the service.
@@ -428,7 +434,7 @@ public abstract class ProtocolProviderFactory
             }
         }
 
-        return removeStoredAccount(accountID);
+        return wasAccountExisting;
     }
 
     /**

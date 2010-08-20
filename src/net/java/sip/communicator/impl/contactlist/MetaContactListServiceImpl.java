@@ -2058,8 +2058,8 @@ public class MetaContactListServiceImpl
             AccountID accountID = provider.getAccountID();
 
             // If the account is still registered or is just unloaded but
-            // remains stored we have nothing to do here.
-            if(sourceFactory.getRegisteredAccounts().contains(accountID))
+            // remains stored we remove its contacts but without storing this
+            if(ContactlistActivator.getAccountManager().getStoredAccounts().contains(accountID))
             {
                 //the account is still installed it means we are modifying it.
                 // we remove all its contacts from current contactlist
