@@ -419,7 +419,9 @@ public class LoginManager
                     GuiActivator.getResources()
                         .getI18NString("service.gui.LOGIN_GENERAL_ERROR",
                     new String[]
-                    { accountID.getUserID(), accountID.getService() }))
+                    { accountID.getUserID(), 
+                      accountID.getProtocolName(),
+                      accountID.getService() }))
                 .showDialog();
             }
         }
@@ -440,7 +442,9 @@ public class LoginManager
                     GuiActivator.getResources().getI18NString(
                         "service.gui.LOGIN_GENERAL_ERROR",
                         new String[]
-                           { accountID.getUserID(), accountID.getService() });
+                           { accountID.getUserID(),
+                             accountID.getProtocolName(),
+                             accountID.getService() });
 
                 new ErrorDialog(mainFrame,
                     GuiActivator.getResources()
