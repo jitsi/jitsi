@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.gui.main.call;
@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * The button that starts/stops the call recording.
- * 
+ *
  * @author Dmitri Melnikov
  */
 public class RecordButton
@@ -70,7 +70,7 @@ public class RecordButton
     /**
      * Initializes a new <tt>RecordButton</tt> instance which is to record the
      * audio stream.
-     * 
+     *
      * @param call the <tt>Call</tt> to be associated with the new instance and
      *            to have the audio stream recorded
      */
@@ -164,7 +164,7 @@ public class RecordButton
 
     /**
      * Starts/stops the recording of the call when this button is pressed.
-     * 
+     *
      * @param evt the <tt>ActionEvent</tt> that notified us of the action
      */
     public void actionPerformed(ActionEvent evt)
@@ -246,7 +246,7 @@ public class RecordButton
      */
     private String generateCallFilename(String ext)
     {
-        return FORMAT.format(new Date()) + "-confcall." + ext;
+        return FORMAT.format(new Date()) + "-call." + ext;
     }
 
     /**
@@ -346,7 +346,7 @@ public class RecordButton
                 callFilename = selectedFile.getAbsolutePath();
 
                 /*
-                 * If the user specified no extension (which seems common on Mac 
+                 * If the user specified no extension (which seems common on Mac
                  * OS X at least) i.e. no format, then it is not obvious that we
                  * have to override the set Recorder.CALL_FORMAT.
                  */

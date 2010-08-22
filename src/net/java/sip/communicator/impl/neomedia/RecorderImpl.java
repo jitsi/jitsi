@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * The call recording implementation.
- * Provides the capability to start and stop call recording. 
+ * Provides the capability to start and stop call recording.
  *
  * @author Dmitri Melnikov
  * @author Lubomir Marinov
@@ -64,7 +64,7 @@ public class RecorderImpl
 
     /**
      * Constructs the <tt>RecorderImpl</tt> with the provided session.
-     * 
+     *
      * @param device device that can create a session that provides the output
      * data source
      */
@@ -73,18 +73,35 @@ public class RecorderImpl
         if (device == null)
             throw new NullPointerException("device");
 
-        String format
-            = NeomediaActivator
-                .getConfigurationService()
+        String format = NeomediaActivator.getConfigurationService()
                     .getString(Recorder.CALL_FORMAT);
 
-        this.format
-            = (format == null)
-                ? SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT
-                : format;
+        if (format == null)
+            format = SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT;
 
-        deviceSession
-            = device.createRecordingSession(getContentDescriptor(this.format));
+        try
+        {
+            deviceSession = device.createRecordingSession(getContentDescriptor(
+                            format));
+        }
+        catch(IllegalArgumentException exc)
+        {
+            //seems like we had an illegal format stored in the configuration
+            //service
+            logger.debug("Unable to crate a " + format
+                            + " record. Will retry default format");
+
+            format = SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT;
+
+            //make sure we don't try the faulty format again.
+            NeomediaActivator.getConfigurationService()
+                                .setProperty(Recorder.CALL_FORMAT, null);
+
+            deviceSession = device.createRecordingSession(getContentDescriptor(
+                            format));
+        }
+
+        this.format = format;
     }
 
     /**
@@ -106,7 +123,8 @@ public class RecorderImpl
         else if (SoundFileUtils.aif.equalsIgnoreCase(format))
             type = FileTypeDescriptor.AIFF;
         else
-            throw new IllegalArgumentException("format");
+            throw new IllegalArgumentException(format + " is not a "
+                            +"currently supported recording format.");
 
         return new ContentDescriptor(type);
     }
