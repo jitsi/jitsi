@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.io.IOException;
 import java.net.*;
 import java.text.*;
 import java.util.*;
@@ -214,9 +215,13 @@ public class SipRegistrarConnection
             setRegistrationState(RegistrationState.CONNECTION_FAILED,
                  RegistrationStateChangeEvent.REASON_INTERNAL_ERROR,
                  exc.getMessage());
-            throw new OperationFailedException(
-                "Failed to generate a from header for our register request.",
-                OperationFailedException.INTERNAL_ERROR, exc);
+
+            if(exc instanceof OperationFailedException)
+                throw (OperationFailedException)exc; 
+            else
+                throw new OperationFailedException(
+                    "Failed to generate a from header for our register request.",
+                    OperationFailedException.INTERNAL_ERROR, exc);
         }
 
         //Transaction

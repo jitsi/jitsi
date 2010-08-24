@@ -247,20 +247,20 @@ public class SIPAccountRegistrationWizard
                     "plugin.sipaccregwizz.XCAP_ENABLE"),
                     Resources.getString("service.gui.YES"));
 
-            summaryTable.put(Resources.getString(
-                "plugin.sipaccregwizz.XCAP_SERVER_URI_SUMMARY"),
+            summaryTable.put("XCAP " + Resources.getString(
+                "plugin.sipaccregwizz.XCAP_SERVER_URI"),
                 registration.getXCapServerUri());
 
             if (registration.isXCapUseSipCredetials())
             {
-                summaryTable.put(Resources.getString(
-                        "plugin.sipaccregwizz.XCAP_USE_SIP_CREDETIALS_SUMMARY"),
+                summaryTable.put("XCAP " + Resources.getString(
+                        "plugin.sipaccregwizz.XCAP_USE_SIP_CREDENTIALS"),
                         Resources.getString("service.gui.YES"));
             }
             else
             {
-                summaryTable.put(Resources.getString(
-                        "plugin.sipaccregwizz.XCAP_USER_SUMMARY"),
+                summaryTable.put("XCAP " + Resources.getString(
+                        "plugin.sipaccregwizz.XCAP_USER"),
                         registration.getXCapUser());
             }
         }

@@ -334,8 +334,12 @@ public class OperationSetBasicInstantMessagingSipImpl
 
         try
         {
-            cSeqHeader = this.sipProvider.getHeaderFactory()
-                .createCSeqHeader(seqN++, Request.MESSAGE);
+            // protect seqN
+            synchronized (this)
+            {
+                cSeqHeader = this.sipProvider.getHeaderFactory()
+                    .createCSeqHeader(seqN++, Request.MESSAGE);                
+            }
         }
         catch (InvalidArgumentException ex)
         {
@@ -945,11 +949,22 @@ public class OperationSetBasicInstantMessagingSipImpl
                 if (logger.isDebugEnabled())
                     logger.debug("Authenticating a message request.");
 
-                ClientTransaction retryTran
-                    = sipProvider.getSipSecurityManager().handleChallenge(
-                        response
-                        , clientTransaction
-                        , jainSipProvider);
+                ClientTransaction retryTran = null;
+
+                // we synch here to protect seqN increment
+                synchronized(this)
+                {
+                    retryTran = sipProvider.getSipSecurityManager()
+                        .handleChallenge(
+                            response
+                            , clientTransaction
+                            , jainSipProvider);
+
+                    // as in handleChallenge the original request is cloned
+                    // and cseq is incremented we must increment and local
+                    // value so we can continue next message with correct value
+                    seqN++;
+                }
 
                 if(retryTran == null)
                 {
