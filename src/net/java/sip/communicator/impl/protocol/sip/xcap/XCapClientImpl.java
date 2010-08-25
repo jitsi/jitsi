@@ -245,7 +245,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
             String xml = getResource(resourceId, XCapCapsClient.CONTENT_TYPE);
             if (xml == null)
             {
-                return new XCapCapsType();
+                throw new XCapException("Server xcap-caps wasn't find");
             }
             return XCapCapsParser.fromXml(xml);
         }

@@ -46,7 +46,7 @@ public class TransportManagerSipImpl extends TransportManager<CallPeerSipImpl>
     protected InetAddress getIntendedDestination(CallPeerSipImpl peer)
     {
         return peer.getProtocolProvider()
-            .getIntendedDestination(peer.getPeerAddress());
+            .getIntendedDestination(peer.getPeerAddress()).getAddress();
     }
 
 }

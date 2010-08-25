@@ -1077,22 +1077,22 @@ public class ProtocolProviderServiceSipImpl
                 = getListeningPoint(intendedDestination.getTransportParam());
         try
         {
+            InetSocketAddress targetAddress =
+                        getIntendedDestination(intendedDestination);
+
             InetAddress localAddress = SipActivator
                 .getNetworkAddressManagerService().getLocalHost(
-                                getIntendedDestination(intendedDestination));
+                    targetAddress.getAddress());
+
             int localPort = srcListeningPoint.getPort();
             String transport = srcListeningPoint.getTransport();
             if (ListeningPoint.TCP.equalsIgnoreCase(transport))
+                //|| ListeningPoint.TLS.equalsIgnoreCase(transport)
             {
-                int dstPort = intendedDestination.getPort();
-                if (dstPort == -1)
-                    dstPort = 5060;
-
                 InetSocketAddress localSockAddr
                     = sipStackSharing.obtainLocalAddress(
-                                    NetworkUtils.getInetAddress(
-                                                intendedDestination.getHost()),
-                                    dstPort,
+                                    targetAddress.getAddress(),
+                                    targetAddress.getPort(),
                                     localAddress);
                 localPort = localSockAddr.getPort();
             }
@@ -1138,7 +1138,7 @@ public class ProtocolProviderServiceSipImpl
             throw new OperationFailedException(
                 "Unable to create a via header for port "
                 + sipStackSharing.getLP(ListeningPoint.UDP).getPort()
-                ,OperationFailedException.INTERNAL_ERROR
+                ,OperationFailedException.NETWORK_FAILURE
                 ,ex);
         }
     }
@@ -1207,12 +1207,16 @@ public class ProtocolProviderServiceSipImpl
 
         ListeningPoint srcListeningPoint
                                   = getListeningPoint(intendedDestination);
-        InetAddress targetAddress = getIntendedDestination(intendedDestination);
+
+        InetSocketAddress targetAddress =
+                getIntendedDestination(intendedDestination);
+
         try
         {
             //find the address to use with the target
             InetAddress localAddress = SipActivator
-                .getNetworkAddressManagerService().getLocalHost(targetAddress);
+                .getNetworkAddressManagerService()
+                .getLocalHost(targetAddress.getAddress());
 
             SipURI contactURI = addressFactory.createSipURI(
                 getAccountID().getUserID()
@@ -1226,24 +1230,12 @@ public class ProtocolProviderServiceSipImpl
             //if we are using tcp, make sure that we include the port of the
             //socket that we are actually using and not that of LP
             if (ListeningPoint.TCP.equalsIgnoreCase(transport))
+                //|| ListeningPoint.TLS.equalsIgnoreCase(transport))
             {
-                InetAddress intendedDestinationAddress =
-                    NetworkUtils.getInetAddress(intendedDestination.getHost());
-                int dstPort = intendedDestination.getPort();
-
-                // addresses are different it means we are using the outbound
-                // proxy we must use its port
-                if(!targetAddress.equals(intendedDestinationAddress) &&
-                    getOutboundProxy() != null)
-                    dstPort = getOutboundProxy().getPort();
-
-                if (dstPort == -1)
-                    dstPort = 5060;
-
                 InetSocketAddress localSockAddr
                     = sipStackSharing.obtainLocalAddress(
-                                    targetAddress,
-                                    dstPort,
+                                    targetAddress.getAddress(),
+                                    targetAddress.getPort(),
                                     localAddress);
                 localPort = localSockAddr.getPort();
             }
@@ -1752,11 +1744,11 @@ public class ProtocolProviderServiceSipImpl
 
         //we are apparently running in "No Registrar" mode so let's create an
         //address by ourselves.
-        InetAddress destinationAddr
+        InetSocketAddress destinationAddr
                     = getIntendedDestination(intendedDestination);
 
         InetAddress localHost = SipActivator.getNetworkAddressManagerService()
-            .getLocalHost(destinationAddr);
+            .getLocalHost(destinationAddr.getAddress());
 
         String userID = getAccountID().getUserID();
 
@@ -2606,13 +2598,13 @@ public class ProtocolProviderServiceSipImpl
      *
      * @param destination the destination that we would contact.
      *
-     * @return the <tt>InetAddress</tt> that is most likely to be to be used
-     * as a next hop when contacting the specified <tt>destination</tt>.
+     * @return the <tt>InetSocketAddress</tt> that is most likely to be to be
+     * used as a next hop when contacting the specified <tt>destination</tt>.
      *
      * @throws IllegalArgumentException if <tt>destination</tt> is not a valid
      * host/ip/fqdn
      */
-    public InetAddress getIntendedDestination(Address destination)
+    public InetSocketAddress getIntendedDestination(Address destination)
         throws IllegalArgumentException
     {
         return getIntendedDestination((SipURI)destination.getURI());
@@ -2630,13 +2622,13 @@ public class ProtocolProviderServiceSipImpl
      *
      * @param destination the destination that we would contact.
      *
-     * @return the <tt>InetAddress</tt> that is most likely to be to be used
-     * as a next hop when contacting the specified <tt>destination</tt>.
+     * @return the <tt>InetSocketAddress</tt> that is most likely to be to be
+     * used as a next hop when contacting the specified <tt>destination</tt>.
      *
      * @throws IllegalArgumentException if <tt>destination</tt> is not a valid
      * host/ip/fqdn
      */
-    public InetAddress getIntendedDestination(SipURI destination)
+    public InetSocketAddress getIntendedDestination(SipURI destination)
         throws IllegalArgumentException
     {
         return getIntendedDestination(destination.getHost());
@@ -2653,17 +2645,17 @@ public class ProtocolProviderServiceSipImpl
      *
      * @param host the destination that we would contact.
      *
-     * @return the <tt>InetAddress</tt> that is most likely to be to be used
-     * as a next hop when contacting the specified <tt>destination</tt>.
+     * @return the <tt>InetSocketAddress</tt> that is most likely to be to be
+     * used as a next hop when contacting the specified <tt>destination</tt>.
      *
      * @throws IllegalArgumentException if <tt>destination</tt> is not a valid
      * host/ip/fqdn.
      */
-    public InetAddress getIntendedDestination(String host)
+    public InetSocketAddress getIntendedDestination(String host)
         throws IllegalArgumentException
     {
         // Address
-        InetAddress destinationInetAddress = null;
+        InetSocketAddress destinationInetAddress = null;
 
         //resolveSipAddress() verifies whether our destination is valid
         //but the destination could only be known to our outbound proxy
@@ -2675,13 +2667,13 @@ public class ProtocolProviderServiceSipImpl
         {
             if (logger.isTraceEnabled())
                 logger.trace("Will use proxy address");
-            destinationInetAddress = outboundProxy.getAddress();
+            destinationInetAddress = outboundProxy;
         }
         else
         {
             try
             {
-                destinationInetAddress = resolveSipAddress(host).getAddress();
+                destinationInetAddress = resolveSipAddress(host);
             }
             catch (UnknownHostException ex)
             {

@@ -99,7 +99,7 @@ public class PresencePanel
             Resources.getString("plugin.sipaccregwizz.XCAP_ENABLE"),
             regform.getRegistration().isXCapEnable());
         this.xCapUseSipCredetialsBox = new SIPCommCheckBox(
-            Resources.getString("plugin.sipaccregwizz.XCAP_USE_SIP_CREDETIALS"),
+            Resources.getString("plugin.sipaccregwizz.XCAP_USE_SIP_CREDENTIALS"),
             regform.getRegistration().isXCapUseSipCredetials());
 
         enablePresOpButton.addActionListener(new ActionListener()
