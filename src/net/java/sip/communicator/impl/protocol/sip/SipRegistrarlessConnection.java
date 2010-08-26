@@ -81,6 +81,11 @@ public class SipRegistrarlessConnection
     @Override
     public void unregister() throws OperationFailedException
     {
+        // using and transition states, cause some op.sets like
+        // OpSetPresence use it
+        setRegistrationState(RegistrationState.UNREGISTERING,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
+
         setRegistrationState(RegistrationState.UNREGISTERED,
                              RegistrationStateChangeEvent.REASON_USER_REQUEST,
                              null);

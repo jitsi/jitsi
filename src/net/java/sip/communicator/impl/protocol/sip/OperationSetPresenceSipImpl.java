@@ -121,26 +121,6 @@ public class OperationSetPresenceSipImpl
      */
     private final boolean presenceEnabled;
 
-    /**
-     * The document builder factory for generating document builders
-     */
-    private DocumentBuilderFactory docBuilderFactory = null;
-
-    /**
-     * The document builder which produce xml documents
-     */
-    private DocumentBuilder docBuilder = null;
-
-    /**
-     * The transformer factory used to create transformer
-     */
-    private TransformerFactory transFactory = null;
-
-    /**
-     * The transformer used to convert XML documents
-     */
-    private Transformer transformer = null;
-
     private final SipStatusEnum sipStatusEnum;
 
     /**
@@ -520,6 +500,11 @@ public class OperationSetPresenceSipImpl
             || parentProvider.getRegistrarConnection()
                 instanceof SipRegistrarlessConnection)//no registrar-no publish
         {
+            // inform the listeners of these changes in order to reflect
+            // to GUI
+            this.fireProviderStatusChangeEvent(oldStatus);
+            this.fireProviderMsgStatusChangeEvent(oldMessage);
+
             return;
         }
 
