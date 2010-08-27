@@ -1077,11 +1077,14 @@ public class MetaContactListServiceImpl
         }
         catch (Exception ex)
         {
-            throw new MetaContactListException("Failed to remove "
-                                               + contact +
-                                               " from its protocol provider.",
-                                               ex
-                                               ,
+            String errorTxt = "Failed to remove "
+                    + contact + " from its protocol provider. ";
+
+            if(ex instanceof OperationFailedException)
+                errorTxt += ex.getMessage();
+
+            throw new MetaContactListException(errorTxt,
+                                               ex,
                                                MetaContactListException.
                                                CODE_NETWORK_ERROR);
         }

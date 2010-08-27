@@ -1100,7 +1100,13 @@ public class OperationSetPersistentPresenceJabberImpl
                                 "");
 
                     handler.processAuthorizationResponse(response, contact);
-                    ssContactList.removeContact(contact);
+                    try{
+                        ssContactList.removeContact(contact);
+                    }
+                    catch(OperationFailedException e)
+                    {
+                        logger.error("Cannot remove contact that unsubscribed.");
+                    }
                 }
             }
             else if (presenceType == Presence.Type.subscribed)

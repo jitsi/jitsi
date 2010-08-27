@@ -447,7 +447,23 @@ public class ServerStoredContactListJabberImpl
         }
         catch (XMPPException ex)
         {
-            logger.error("Error adding new jabber entry", ex);
+            String errTxt = "Error adding new jabber entry";
+            logger.error(errTxt, ex);
+
+            int errorCode = OperationFailedException.INTERNAL_ERROR;
+
+            XMPPError err = ex.getXMPPError();
+            if(err != null)
+            {
+                if(err.getCode() > 400 && err.getCode() < 500)
+                    errorCode = OperationFailedException.FORBIDDEN;
+                else if(err.getCode() > 500)
+                    errorCode = OperationFailedException.INTERNAL_SERVER_ERROR;
+
+                errTxt = err.getCondition();
+            }
+
+            throw new OperationFailedException(errTxt, errorCode, ex);
         }
     }
 
@@ -623,6 +639,7 @@ public class ServerStoredContactListJabberImpl
      * @param contactToRemove ContactJabberImpl
      */
     void removeContact(ContactJabberImpl contactToRemove)
+        throws OperationFailedException
     {
         try
         {
@@ -633,7 +650,23 @@ public class ServerStoredContactListJabberImpl
         }
         catch (XMPPException ex)
         {
-            logger.error("Error removing contact", ex);
+            String errTxt = "Error removing contact";
+            logger.error(errTxt, ex);
+
+            int errorCode = OperationFailedException.INTERNAL_ERROR;
+
+            XMPPError err = ex.getXMPPError();
+            if(err != null)
+            {
+                if(err.getCode() > 400 && err.getCode() < 500)
+                    errorCode = OperationFailedException.FORBIDDEN;
+                else if(err.getCode() > 500)
+                    errorCode = OperationFailedException.INTERNAL_SERVER_ERROR;
+
+                errTxt = err.getCondition();                
+            }
+
+            throw new OperationFailedException(errTxt, errorCode, ex);
         }
     }
 
