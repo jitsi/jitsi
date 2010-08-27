@@ -1041,6 +1041,7 @@ public class OneToOneCallPeerPanel
             errorMessageComponent = new JTextPane();
 
             JTextPane textPane = (JTextPane) errorMessageComponent;
+            textPane.setEditable(false);
             textPane.setOpaque(false);
 
             StyledDocument doc = textPane.getStyledDocument();
