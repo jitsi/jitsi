@@ -1125,6 +1125,8 @@ public class ConferenceChatManager
             chatRoomWrapper.getParentProvider().getProtocolProvider(),
             chatRoomWrapper.getChatRoomID(),
             Constants.OFFLINE_STATUS);
+
+        this.closeChatRoom(existChatRoomWrapper);
     }
 
     /**

@@ -161,31 +161,37 @@ public class ChatRoomList
         ConfigurationService configService
             = GuiActivator.getConfigurationService();
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
-        String providerAccountUID
-            = chatRoomProvider
-                    .getProtocolProvider().getAccountID().getAccountUniqueID();
+        AccountID accountID =
+                chatRoomProvider.getProtocolProvider().getAccountID();
 
-        for (String accountRootPropName
-                : configService.getPropertyNamesByPrefix(prefix, true))
+        // if provider is just disabled don't remove its stored rooms
+        if(!GuiActivator.getAccountManager().getStoredAccounts()
+                .contains(accountID))
         {
-            String accountUID
-                = configService.getString(accountRootPropName);
+            String providerAccountUID = accountID.getAccountUniqueID();
 
-            if(accountUID.equals(providerAccountUID))
+            for (String accountRootPropName
+                    : configService.getPropertyNamesByPrefix(prefix, true))
             {
-                List<String> chatRooms
-                    = configService.getPropertyNamesByPrefix(
-                            accountRootPropName + ".chatRooms",
-                            true);
+                String accountUID
+                    = configService.getString(accountRootPropName);
 
-                for (String chatRoomPropName : chatRooms)
+                if(accountUID.equals(providerAccountUID))
                 {
-                    configService.setProperty(
-                        chatRoomPropName + ".chatRoomName",
-                        null);
-                }
+                    List<String> chatRooms
+                        = configService.getPropertyNamesByPrefix(
+                                accountRootPropName + ".chatRooms",
+                                true);
 
-                configService.setProperty(accountRootPropName, null);
+                    for (String chatRoomPropName : chatRooms)
+                    {
+                        configService.setProperty(
+                            chatRoomPropName + ".chatRoomName",
+                            null);
+                    }
+
+                    configService.setProperty(accountRootPropName, null);
+                }
             }
         }
 
@@ -253,6 +259,11 @@ public class ChatRoomList
     {
         for (ChatRoomProviderWrapper provider : providersList)
         {
+            // check only for the right PP
+            if(!chatRoom.getParentProvider()
+                    .equals(provider.getProtocolProvider()))
+                continue;
+
             ChatRoomWrapper systemRoomWrapper = provider.getSystemRoomWrapper();
             ChatRoom systemRoom = systemRoomWrapper.getChatRoom();
 

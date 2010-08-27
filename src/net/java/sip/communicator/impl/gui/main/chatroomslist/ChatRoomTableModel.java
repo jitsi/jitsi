@@ -26,7 +26,8 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class ChatRoomTableModel
     extends AbstractTableModel
     implements ChatRoomListChangeListener,
-               ProviderPresenceStatusListener
+               ProviderPresenceStatusListener,
+               ChatRoomList.ChatRoomProviderWrapperListener
 {
     /**
      * The <tt>ChatRoomsList</tt> is the list containing all chat rooms.
@@ -65,23 +66,64 @@ public class ChatRoomTableModel
         chatRoomList = GuiActivator.getUIService()
             .getConferenceChatManager().getChatRoomList();
 
+        chatRoomList.addChatRoomProviderWrapperListener(this);
+
         Iterator<ChatRoomProviderWrapper> iter =
             chatRoomList.getChatRoomProviders();
         while (iter.hasNext())
         {
             ChatRoomProviderWrapper provider = iter.next();
-            for (int i = 0; i < provider.countChatRooms(); i++)
+            if(!provider.getProtocolProvider().getAccountID().isEnabled())
             {
-                ChatRoomWrapper room = provider.getChatRoom(i);
-                rooms.add(room);
+                continue;
             }
 
-            OperationSetPresence presence
-                = provider.getProtocolProvider()
+            handleProviderAdded(provider);
+        }
+    }
+
+    /**
+     * Performs all actions on chat room provider added. Add listeners and
+     * add its saved rooms to the list of rooms.
+     *
+     * @param chatProviderWrapper the provider.
+     */
+    private void handleProviderAdded(
+            ChatRoomProviderWrapper chatProviderWrapper)
+    {
+        for (int i = 0; i < chatProviderWrapper.countChatRooms(); i++)
+        {
+            addChatRoom(chatProviderWrapper.getChatRoom(i), false);
+        }
+
+        OperationSetPresence presence =
+                chatProviderWrapper.getProtocolProvider()
                     .getOperationSet(OperationSetPresence.class);
 
-            if(presence != null)
-                presence.addProviderPresenceStatusListener(this);
+        if(presence != null)
+            presence.addProviderPresenceStatusListener(this);
+    }
+
+    /**
+     * Performs all actions on chat room provider removed. Remove listeners and
+     * remove its saved rooms of the list of rooms.
+     *
+     * @param chatProviderWrapper the provider.
+     */
+    private void handleProviderRemoved(
+            ChatRoomProviderWrapper chatProviderWrapper)
+    {
+        OperationSetPresence presence =
+                chatProviderWrapper.getProtocolProvider()
+                    .getOperationSet(OperationSetPresence.class);
+
+        if(presence != null)
+            presence.removeProviderPresenceStatusListener(this);
+
+        for (int i = 0; i < chatProviderWrapper.countChatRooms(); i++)
+        {
+            ChatRoomWrapper room = chatProviderWrapper.getChatRoom(i);
+            removeChatRoom(room);
         }
     }
 
@@ -221,32 +263,11 @@ public class ChatRoomTableModel
 
         if (evt.getEventID() == ChatRoomListChangeEvent.CHAT_ROOM_ADDED)
         {
-            rooms.add(chatRoomWrapper);
-            int index = rooms.indexOf(chatRoomWrapper);
-
-            if (index != -1)
-            {
-                fireTableRowsInserted(index, index);
-
-                parentTable.setRowSelectionInterval(index, index);
-            }
+            addChatRoom(chatRoomWrapper, true);
         }
         else if (evt.getEventID() == ChatRoomListChangeEvent.CHAT_ROOM_REMOVED)
         {
-            int ix = rooms.indexOf(chatRoomWrapper);
-            rooms.remove(chatRoomWrapper);
-
-            OperationSetPresence presence
-                = chatRoomWrapper.getParentProvider().getProtocolProvider()
-                    .getOperationSet(OperationSetPresence.class);
-
-            if(presence != null)
-                presence.removeProviderPresenceStatusListener(this);
-
-            if (ix != -1)
-            {
-                fireTableRowsDeleted(ix, ix);
-            }
+            removeChatRoom(chatRoomWrapper);
         }
         else if (evt.getEventID() == ChatRoomListChangeEvent.CHAT_ROOM_CHANGED)
         {
@@ -256,6 +277,41 @@ public class ChatRoomTableModel
             {
                 fireTableRowsUpdated(index, index);
             }
+        }
+    }
+
+    /**
+     * Remove chat room from the ui.
+     * @param chatRoomWrapper the room wrapper.
+     */
+    private void removeChatRoom(ChatRoomWrapper chatRoomWrapper)
+    {
+        int ix = rooms.indexOf(chatRoomWrapper);
+        rooms.remove(chatRoomWrapper);
+
+        if (ix != -1)
+        {
+            fireTableRowsDeleted(ix, ix);
+        }
+    }
+
+    /**
+     * Adds a chat room to the ui, updates the ui and if pointed selects
+     * that chat room.
+     * @param chatRoomWrapper the room to add.
+     * @param select whether we should select the room.
+     */
+    private void addChatRoom(ChatRoomWrapper chatRoomWrapper, boolean select)
+    {
+        rooms.add(chatRoomWrapper);
+        int index = rooms.indexOf(chatRoomWrapper);
+
+        if (index != -1)
+        {
+            fireTableRowsInserted(index, index);
+
+            if(select)
+                parentTable.setRowSelectionInterval(index, index);
         }
     }
 
@@ -289,4 +345,26 @@ public class ChatRoomTableModel
      */
     public void providerStatusMessageChanged(PropertyChangeEvent evt)
     {}
+
+    /**
+     * When a provider wrapper is added this method is called to inform
+     * listeners.
+     *
+     * @param provider which was added.
+     */
+    public void chatRoomProviderWrapperAdded(ChatRoomProviderWrapper provider)
+    {
+        handleProviderAdded(provider);
+    }
+
+    /**
+     * When a provider wrapper is removed this method is called to inform
+     * listeners.
+     *
+     * @param provider which was removed.
+     */
+    public void chatRoomProviderWrapperRemoved(ChatRoomProviderWrapper provider)
+    {
+        handleProviderRemoved(provider);
+    }
 }

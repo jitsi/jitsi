@@ -209,6 +209,11 @@ public class ChatRoomTableDialog
             public void keyTyped(KeyEvent e)
             {
                 chatRoomsTableUI.clearSelection();
+
+                if(editor.getText().trim().length() > 0)
+                    okButton.setEnabled(true);
+                else
+                    okButton.setEnabled(false);
             }
 
             public void keyPressed(KeyEvent e)
@@ -217,7 +222,7 @@ public class ChatRoomTableDialog
             public void keyReleased(KeyEvent e)
             {}
         });
-        // when we select a room from the available ones we clear anyting
+        // when we select a room from the available ones we clear anything
         // typed for the room name and set the room we selected
         chatRoomsTableUI.addSelectionListener(new ListSelectionListener() {
 
@@ -231,6 +236,7 @@ public class ChatRoomTableDialog
                     {
                         editor.setText(room.getChatRoomName());
                         providersCombo.setSelectedItem(room.getParentProvider());
+                        okButton.setEnabled(true);
                     }
                 }                
             }
@@ -404,7 +410,7 @@ public class ChatRoomTableDialog
                 if(rooms == null)
                 {
                     roomsCombo.setEnabled(true);
-                    okButton.setEnabled(true);
+                    //okButton.setEnabled(true);
                     return;
                 }
 
@@ -417,7 +423,7 @@ public class ChatRoomTableDialog
                 roomsCombo.setSelectedIndex(-1);
 
                 roomsCombo.setEnabled(true);
-                okButton.setEnabled(true);
+                //okButton.setEnabled(true);
             }
         }.start();
     }
