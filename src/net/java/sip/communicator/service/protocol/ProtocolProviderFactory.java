@@ -256,6 +256,42 @@ public abstract class ProtocolProviderFactory
     public static final String IS_ACCOUNT_DISABLED = "IS_ACCOUNT_DISABLED";
 
     /**
+     * Indicates if ICE should be used.
+     */
+    public static final String IS_USE_ICE = "IS_USE_ICE";
+
+    /**
+     * Indicates if STUN server should be automatically discovered.
+     */
+    public static final String AUTO_DISCOVER_STUN = "AUTO_DISCOVER_STUN";
+
+    /**
+     * The base property name for address of additional STUN servers specified.
+     */
+    public static final String STUN_ADDRESS = "STUN_ADDRESS";
+
+    /**
+     * The base property name for port of additional STUN servers specified.
+     */
+    public static final String STUN_PORT = "STUN_PORT";
+
+    /**
+     * The base property name for username of additional STUN servers specified.
+     */
+    public static final String STUN_USERNAME = "STUN_USERNAME";
+
+    /**
+     * The base property name for password of additional STUN servers specified.
+     */
+    public static final String STUN_PASSWORD = "STUN_PASSWORD";
+
+    /**
+     * The base property name for the turn supported property of additional
+     * STUN servers specified.
+     */
+    public static final String STUN_IS_TURN_SUPPORTED = "STUN_IS_TURN_SUPPORTED";
+
+    /**
      * The <code>BundleContext</code> containing (or to contain) the service
      * registration of this factory.
      */

@@ -118,6 +118,9 @@ public interface AccountRegistrationWizard
     /**
      * Defines the operations that will be executed when the user clicks on
      * the wizard "Signin" button.
+     * @return the created <tt>ProtocolProviderService</tt> corresponding to the
+     * new account
+     * @throws OperationFailedException if the operation didn't succeed
      */
     public ProtocolProviderService signin()
         throws OperationFailedException;
@@ -125,9 +128,12 @@ public interface AccountRegistrationWizard
     /**
      * Defines the operations that will be executed when the user clicks on
      * the wizard "Signin" button.
-     * 
+     *
      * @param userName the user name to sign in with
      * @param password the password to sign in with
+     * @return the created <tt>ProtocolProviderService</tt> corresponding to the
+     * new account
+     * @throws OperationFailedException if the operation didn't succeed
      */
     public ProtocolProviderService signin(  String userName,
                                             String password)

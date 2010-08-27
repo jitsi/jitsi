@@ -21,7 +21,6 @@ import net.java.sip.communicator.util.*;
 public abstract class SIPCommDialog
     extends JDialog
 {
-
     /**
      * The <tt>Logger</tt> used by the <tt>SIPCommDialog</tt> class and its
      * instances for logging output.

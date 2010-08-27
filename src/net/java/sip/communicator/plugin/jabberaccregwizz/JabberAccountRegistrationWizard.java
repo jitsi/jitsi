@@ -157,9 +157,10 @@ public class JabberAccountRegistrationWizard
     }
 
     /**
-     * Installs the account created through this wizard.
-     *
-     * @return ProtocolProviderService
+     * Installs the account defined in this wizard.
+     * @return the created <tt>ProtocolProviderService</tt> corresponding to the
+     * new account
+     * @throws OperationFailedException if the operation didn't succeed
      */
     public ProtocolProviderService signin()
         throws OperationFailedException
@@ -170,6 +171,15 @@ public class JabberAccountRegistrationWizard
                         registration.getPassword());
     }
 
+    /**
+     * Installs the account defined in this wizard.
+     *
+     * @param userName the user name to sign in with
+     * @param password the password to sign in with
+     * @return the created <tt>ProtocolProviderService</tt> corresponding to the
+     * new account
+     * @throws OperationFailedException if the operation didn't succeed
+     */
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
     {
@@ -189,6 +199,7 @@ public class JabberAccountRegistrationWizard
      * @param userName the user identifier
      * @param passwd the password
      * @return the <tt>ProtocolProviderService</tt> for the new account.
+     * @throws OperationFailedException if the operation didn't succeed
      */
     public ProtocolProviderService installAccount(
         ProtocolProviderFactory providerFactory,
@@ -235,13 +246,58 @@ public class JabberAccountRegistrationWizard
             serverName);
 
         accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
-            String.valueOf(registration.getPort()));
+                            String.valueOf(registration.getPort()));
 
         accountProperties.put(ProtocolProviderFactory.RESOURCE,
-                              registration.getResource());
+                            registration.getResource());
 
         accountProperties.put(ProtocolProviderFactory.RESOURCE_PRIORITY,
-                              String.valueOf(registration.getPriority()));
+                            String.valueOf(registration.getPriority()));
+
+//        Disable STUN and ICE configs until it's implemented.
+//        
+//        accountProperties.put(ProtocolProviderFactory.IS_USE_ICE,
+//                            String.valueOf(registration.isUseIce()));
+//
+//        accountProperties.put(ProtocolProviderFactory.AUTO_DISCOVER_STUN,
+//                            String.valueOf(registration.isAutoDiscoverStun()));
+
+        Iterator<StunServer> stunServers
+            = registration.getAdditionalStunServers();
+
+        while(stunServers != null && stunServers.hasNext())
+        {
+            StunServer stunServer = stunServers.next();
+
+            int stunIndex = stunServer.getIndex();
+            String stunPort = stunServer.getPort();
+            String stunUsername = stunServer.getUsername();
+            String stunPassword = stunServer.getPassword().toString();
+            boolean isSupportTurn = stunServer.isSupportTurn();
+
+            accountProperties.put(
+                ProtocolProviderFactory.STUN_ADDRESS + stunIndex,
+                stunServer.getIpAddress());
+
+            if (stunPort != null && stunPort.length() > 0)
+                accountProperties.put(
+                    ProtocolProviderFactory.STUN_PORT + stunIndex,
+                    stunPort);
+
+            if (stunUsername != null && stunUsername.length() > 0)
+                accountProperties.put(
+                    ProtocolProviderFactory.STUN_USERNAME + stunIndex,
+                    stunUsername);
+
+            if (stunPassword != null && stunPassword.length() > 0)
+                accountProperties.put(
+                    ProtocolProviderFactory.STUN_PASSWORD + stunIndex,
+                    stunPassword);
+
+            accountProperties.put(
+                ProtocolProviderFactory.STUN_IS_TURN_SUPPORTED + stunIndex,
+                new Boolean(isSupportTurn).toString());
+        }
 
         if (isModification)
         {
@@ -399,7 +455,7 @@ public class JabberAccountRegistrationWizard
      */
     public String getUserNameExample()
     {
-        return FirstWizardPage.USER_NAME_EXAMPLE;
+        return AccountPanel.USER_NAME_EXAMPLE;
     }
 
     /**

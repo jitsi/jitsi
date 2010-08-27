@@ -6,16 +6,13 @@
  */
 package net.java.sip.communicator.plugin.jabberaccregwizz;
 
+import java.awt.*;
 import java.util.*;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.event.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -27,92 +24,15 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class FirstWizardPage
     extends TransparentPanel
-    implements  WizardPage,
-                DocumentListener
+    implements  WizardPage
 {
-    private static final Logger logger = Logger
-        .getLogger(FirstWizardPage.class);
-
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
-    public static final String USER_NAME_EXAMPLE = "Ex: johnsmith@jabber.org";
+    private final AccountPanel accountPanel;
 
-    private JabberNewAccountDialog jabberNewAccountDialog;
+    private final ConnectionPanel connectionPanel;
 
-    private JPanel userIDPassPanel
-        = new TransparentPanel(new BorderLayout(10, 10));
-
-    private JPanel labelsPanel = new TransparentPanel();
-
-    private JPanel valuesPanel = new TransparentPanel();
-
-    private JLabel userIDLabel
-        = new JLabel(Resources.getString("plugin.jabberaccregwizz.USERNAME"));
-
-    private JLabel passLabel
-        = new JLabel(Resources.getString("service.gui.PASSWORD"));
-
-    private JPanel emptyPanel = new TransparentPanel();
-
-    private JLabel userIDExampleLabel = new JLabel(USER_NAME_EXAMPLE);
-
-    private JTextField userIDField = new JTextField();
-
-    private JPasswordField passField = new JPasswordField();
-
-    private JCheckBox rememberPassBox = new SIPCommCheckBox(Resources
-        .getString("service.gui.REMEMBER_PASSWORD"));
-
-    private JPanel advancedOpPanel
-        = new TransparentPanel(new BorderLayout(10, 10));
-
-    private JPanel labelsAdvOpPanel
-        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
-
-    private JPanel valuesAdvOpPanel
-        = new TransparentPanel(new GridLayout(0, 1, 10, 10));
-
-    private JCheckBox sendKeepAliveBox = new SIPCommCheckBox(Resources
-        .getString("plugin.jabberaccregwizz.ENABLE_KEEP_ALIVE"));
-
-    private JCheckBox gmailNotificationsBox = new SIPCommCheckBox(Resources
-            .getString("plugin.jabberaccregwizz.ENABLE_GMAIL_NOTIFICATIONS"));
-
-    private JLabel resourceLabel
-        = new JLabel(Resources.getString("plugin.jabberaccregwizz.RESOURCE"));
-
-    private JTextField resourceField
-        = new JTextField(JabberAccountRegistration.DEFAULT_RESOURCE);
-
-    private JLabel priorityLabel = new JLabel(
-        Resources.getString("plugin.jabberaccregwizz.PRIORITY"));
-
-    private JTextField priorityField
-        = new JTextField(JabberAccountRegistration.DEFAULT_PRIORITY);
-
-    private JLabel serverLabel
-        = new JLabel(Resources.getString("plugin.jabberaccregwizz.SERVER"));
-
-    private JTextField serverField = new JTextField();
-
-    private JLabel portLabel
-        = new JLabel(Resources.getString("plugin.jabberaccregwizz.PORT"));
-
-    private JTextField portField
-        = new JTextField(JabberAccountRegistration.DEFAULT_PORT);
-
-    private JPanel registerPanel = new TransparentPanel(new GridLayout(0, 1));
-
-    private JPanel buttonPanel
-        = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-
-    private JTextArea registerArea = new JTextArea(Resources
-        .getString("plugin.jabberaccregwizz.REGISTER_NEW_ACCOUNT_TEXT"));
-
-    private JButton registerButton = new JButton(Resources
-        .getString("plugin.jabberaccregwizz.NEW_ACCOUNT_TITLE"));
-
-    private JPanel mainPanel = new TransparentPanel();
+    private final IceConfigPanel iceConfigPanel;
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
@@ -133,17 +53,11 @@ public class FirstWizardPage
 
         this.wizard = wizard;
 
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        accountPanel = new AccountPanel(this);
+        connectionPanel = new ConnectionPanel(wizard);
+        iceConfigPanel = new IceConfigPanel();
 
         this.init();
-
-        this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        this.labelsPanel
-            .setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
-
-        this.valuesPanel
-            .setLayout(new BoxLayout(valuesPanel, BoxLayout.Y_AXIS));
     }
 
     /**
@@ -151,139 +65,19 @@ public class FirstWizardPage
      */
     private void init()
     {
-        this.mainPanel.setOpaque(false);
-        this.labelsPanel.setOpaque(false);
-        this.valuesPanel.setOpaque(false);
-        this.emptyPanel.setOpaque(false);
+        JTabbedPane tabbedPane = new JTabbedPane();
 
-        this.userIDField.getDocument().addDocumentListener(this);
-        this.rememberPassBox.setSelected(true);
+        this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        this.userIDExampleLabel.setForeground(Color.GRAY);
-        this.userIDExampleLabel.setFont(userIDExampleLabel.getFont()
-            .deriveFont(8));
-        this.emptyPanel.setMaximumSize(new Dimension(40, 35));
-        this.userIDExampleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0,
-            8, 0));
+        tabbedPane.addTab(  Resources.getString("service.gui.ACCOUNT"),
+                            accountPanel);
+        tabbedPane.addTab(  Resources.getString("service.gui.CONNECTION"),
+                            connectionPanel);
+//        tabbedPane.addTab(  Resources.getString("service.gui.ADVANCED"),
+//                            iceConfigPanel);
 
-        labelsPanel.add(userIDLabel);
-        labelsPanel.add(emptyPanel);
-        labelsPanel.add(passLabel);
-
-        valuesPanel.add(userIDField);
-        valuesPanel.add(userIDExampleLabel);
-        valuesPanel.add(passField);
-
-        userIDPassPanel.add(labelsPanel, BorderLayout.WEST);
-        userIDPassPanel.add(valuesPanel, BorderLayout.CENTER);
-        userIDPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
-
-        userIDPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("plugin.jabberaccregwizz.USERNAME_AND_PASSWORD")));
-
-        mainPanel.add(userIDPassPanel);
-
-        portField.getDocument().addDocumentListener(new DocumentListener()
-        {
-            public void changedUpdate(DocumentEvent evt)
-            {
-            }
-
-            public void insertUpdate(DocumentEvent evt)
-            {
-                setNextButtonAccordingToPortAndPriority();
-            }
-
-            public void removeUpdate(DocumentEvent evt)
-            {
-                setNextButtonAccordingToPortAndPriority();
-            }
-        });
-
-        priorityField.getDocument().addDocumentListener(new DocumentListener()
-        {
-            public void changedUpdate(DocumentEvent evt)
-            {
-            }
-
-            public void insertUpdate(DocumentEvent evt)
-            {
-                setNextButtonAccordingToPortAndPriority();
-            }
-
-            public void removeUpdate(DocumentEvent evt)
-            {
-                setNextButtonAccordingToPortAndPriority();
-            }
-        });
-
-        labelsAdvOpPanel.add(serverLabel);
-        labelsAdvOpPanel.add(portLabel);
-        labelsAdvOpPanel.add(resourceLabel);
-        labelsAdvOpPanel.add(priorityLabel);
-
-        valuesAdvOpPanel.add(serverField);
-        valuesAdvOpPanel.add(portField);
-        valuesAdvOpPanel.add(resourceField);
-        valuesAdvOpPanel.add(priorityField);
-
-        JPanel checkBoxesPanel
-            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
-        checkBoxesPanel.add(sendKeepAliveBox);
-        checkBoxesPanel.add(gmailNotificationsBox);
-
-        advancedOpPanel.add(checkBoxesPanel, BorderLayout.NORTH);
-        advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
-        advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
-
-        advancedOpPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("plugin.jabberaccregwizz.ADVANCED_OPTIONS")));
-
-        mainPanel.add(advancedOpPanel);
-
-        registerButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                if (logger.isDebugEnabled())
-                    logger.debug("Reg OK");
-
-                // Open the new account dialog.
-
-                jabberNewAccountDialog = new JabberNewAccountDialog();
-
-                if (jabberNewAccountDialog.isOK == true)
-                {
-                    serverField.setText(jabberNewAccountDialog.server);
-                    portField.setText(jabberNewAccountDialog.port);
-
-                    // This userIDField contains the username "@" the server.
-                    userIDField.setText(jabberNewAccountDialog.userID + "@"
-                        + jabberNewAccountDialog.server);
-
-                    passField.setText(jabberNewAccountDialog.password);
-                }
-                if (logger.isDebugEnabled())
-                    logger.debug("Reg End");
-            }
-        });
-
-        buttonPanel.add(registerButton);
-
-        registerArea.setEditable(false);
-        registerArea.setOpaque(false);
-        registerArea.setLineWrap(true);
-        registerArea.setWrapStyleWord(true);
-
-        registerPanel.add(registerArea);
-        registerPanel.add(buttonPanel);
-
-        registerPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("plugin.jabberaccregwizz.NEW_ACCOUNT_TITLE")));
-
-        mainPanel.add(registerPanel);
-
-        this.add(mainPanel, BorderLayout.NORTH);
+        add(tabbedPane, BorderLayout.NORTH);
+        tabbedPane.setSelectedIndex(0);
     }
 
     /**
@@ -347,27 +141,39 @@ public class FirstWizardPage
     {
         JabberAccountRegistration registration = wizard.getRegistration();
 
-        String userID = userIDField.getText();
+        String userID = accountPanel.getUsername();
 
         if(userID == null || userID.trim().length() == 0)
             throw new IllegalStateException("No user ID provided.");
 
         registration.setUserID(userID);
-        registration.setPassword(new String(passField.getPassword()));
-        registration.setRememberPassword(rememberPassBox.isSelected());
+        registration.setPassword(new String(accountPanel.getPassword()));
+        registration.setRememberPassword(accountPanel.isRememberPassword());
 
-        registration.setServerAddress(serverField.getText());
-        registration.setSendKeepAlive(sendKeepAliveBox.isSelected());
+        registration.setServerAddress(connectionPanel.getServerAddress());
+        registration.setSendKeepAlive(connectionPanel.isSendKeepAlive());
         registration.setGmailNotificationEnabled(
-                        this.gmailNotificationsBox.isSelected());
-        registration.setResource(resourceField.getText());
+            connectionPanel.isGmailNotificationsEnabled());
+        registration.setResource(connectionPanel.getResource());
 
-        if (portField.getText() != null)
-            registration.setPort(Integer.parseInt(portField.getText()));
+        String serverPort = connectionPanel.getServerPort();
+        if (serverPort != null)
+            registration.setPort(Integer.parseInt(serverPort));
 
-        if (priorityField.getText() != null)
-            registration.setPriority(
-                Integer.parseInt(priorityField.getText()));
+        String priority = connectionPanel.getPriority();
+        if (priority != null)
+            registration.setPriority(Integer.parseInt(priority));
+
+        registration.setUseIce(iceConfigPanel.isUseIce());
+        registration.setAutoDiscoverStun(iceConfigPanel.isAutoDiscoverStun());
+
+        Iterator<StunServer> stunServers
+            = iceConfigPanel.getAdditionalStunServers().iterator();
+
+        while (stunServers.hasNext())
+        {
+            registration.addStunServer(stunServers.next());
+        }
 
         nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
 
@@ -378,14 +184,14 @@ public class FirstWizardPage
      * Enables or disables the "Next" wizard button according to whether the
      * UserID field is empty.
      */
-    private void setNextButtonAccordingToUserIDAndResource()
+    void setNextButtonAccordingToUserIDAndResource()
     {
         boolean nextFinishButtonEnabled = false;
 
-        String userID = userIDField.getText();
+        String userID = accountPanel.getUsername();
         if ((userID != null) && !userID.equals(""))
         {
-            String resource = resourceField.getText();
+            String resource = connectionPanel.getResource();
             if ((resource != null) && !resource.equals(""))
             {
                 nextFinishButtonEnabled = true;
@@ -397,49 +203,11 @@ public class FirstWizardPage
                 .setNextFinishButtonEnabled(nextFinishButtonEnabled);
     }
 
-    /**
-     * Handles the <tt>DocumentEvent</tt> triggered when user types in the
-     * UserID field. Enables or disables the "Next" wizard button according to
-     * whether the UserID field is empty.
-     *
-     * @param evt the document event that has triggered this method call.
-     */
-    public void insertUpdate(DocumentEvent evt)
-    {
-        this.setNextButtonAccordingToUserIDAndResource();
+    public void pageHiding() {}
 
-        this.setServerFieldAccordingToUserID();
-    }
+    public void pageShown() {}
 
-    /**
-     * Handles the <tt>DocumentEvent</tt> triggered when user deletes letters
-     * from the User ID field. Enables or disables the "Next" wizard button
-     * according to whether the User ID field is empty.
-     *
-     * @param evt the document event that has triggered this method call.
-     */
-    public void removeUpdate(DocumentEvent evt)
-    {
-        this.setNextButtonAccordingToUserIDAndResource();
-
-        this.setServerFieldAccordingToUserID();
-    }
-
-    public void changedUpdate(DocumentEvent evt)
-    {
-    }
-
-    public void pageHiding()
-    {
-    }
-
-    public void pageShown()
-    {
-    }
-
-    public void pageBack()
-    {
-    }
+    public void pageBack() {}
 
     /**
      * Fills the User ID and Password fields in this panel with the data coming
@@ -457,45 +225,91 @@ public class FirstWizardPage
         String password
             = accountProperties.get(ProtocolProviderFactory.PASSWORD);
 
-        this.userIDField.setEnabled(false);
-        this.userIDField.setText(accountID.getUserID());
+        accountPanel.setRememberPassword(false);
+        accountPanel.setUsername(accountID.getUserID());
 
         if (password != null)
         {
-            this.passField.setText(password);
-            this.rememberPassBox.setSelected(true);
+            accountPanel.setPassword(password);
+            accountPanel.setRememberPassword(true);
         }
 
         String serverAddress
             = accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
 
-        serverField.setText(serverAddress);
+        connectionPanel.setServerAddress(serverAddress);
 
         String serverPort
             = accountProperties.get(ProtocolProviderFactory.SERVER_PORT);
 
-        portField.setText(serverPort);
+        connectionPanel.setServerPort(serverPort);
 
         boolean keepAlive
             = Boolean.parseBoolean(accountProperties.get("SEND_KEEP_ALIVE"));
 
-        sendKeepAliveBox.setSelected(keepAlive);
+        connectionPanel.setSendKeepAlive(keepAlive);
 
         boolean gmailNotificationEnabled
             = Boolean.parseBoolean(
                     accountProperties.get("GMAIL_NOTIFICATIONS_ENABLED"));
 
-        gmailNotificationsBox.setSelected(gmailNotificationEnabled);
+        connectionPanel.setGmailNotificationsEnabled(gmailNotificationEnabled);
 
         String resource
             = accountProperties.get(ProtocolProviderFactory.RESOURCE);
 
-        resourceField.setText(resource);
+        connectionPanel.setResource(resource);
 
         String priority
             = accountProperties.get(ProtocolProviderFactory.RESOURCE_PRIORITY);
 
-        priorityField.setText(priority);
+        connectionPanel.setPriority(priority);
+
+//        Disable STUN and ICE configs until it's implemented.
+//        
+//        boolean isUseIce
+//            = Boolean.parseBoolean(
+//                accountProperties.get(ProtocolProviderFactory.IS_USE_ICE));
+//
+//        iceConfigPanel.setUseIce(isUseIce);
+//
+//        boolean isAutoDiscoverStun
+//            = Boolean.parseBoolean(
+//                accountProperties.get(
+//                    ProtocolProviderFactory.AUTO_DISCOVER_STUN));
+//
+//        iceConfigPanel.setAutoDiscoverStun(isAutoDiscoverStun);
+
+        for (int i = 0; i < 100; i ++)
+        {
+            String stunAddress = accountProperties
+                .get(ProtocolProviderFactory.STUN_ADDRESS + i);
+
+            // If we don't find a stun address with the given index, it means
+            // that there're no more in the properties table, so we're nothing
+            // more to do here.
+            if (stunAddress == null)
+                break;
+
+            String stunPort = accountProperties
+                .get(ProtocolProviderFactory.STUN_PORT + i);
+            String stunUsername = accountProperties
+                .get(ProtocolProviderFactory.STUN_USERNAME + i);
+            String stunPassword = accountProperties
+                .get(ProtocolProviderFactory.STUN_PASSWORD + i);
+            boolean stunIsTurnSupported
+                = Boolean.parseBoolean(accountProperties
+                    .get(ProtocolProviderFactory.STUN_IS_TURN_SUPPORTED + i));
+
+            StunServer stunServer = new StunServer( stunAddress,
+                                                    stunPort,
+                                                    stunIsTurnSupported,
+                                                    stunUsername,
+                                                    stunPassword.toCharArray(),
+                                                    i);
+
+            iceConfigPanel.addStunServer(stunServer);
+        }
 
         this.isServerOverridden
             = accountID.getAccountPropertyBoolean(
@@ -504,43 +318,44 @@ public class FirstWizardPage
     }
 
     /**
-     * Parse the server part from the jabber id and set it to server as default
-     * value. If Advanced option is enabled Do nothing.
+     * Returns the simple form.
+     * @return the simple form
      */
-    private void setServerFieldAccordingToUserID()
+    public Object getSimpleForm()
+    {
+        return accountPanel;
+    }
+
+    /**
+     * Indicates if this page has been already committed.
+     * @return <tt>true</tt> if this page has been already committed,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isCommitted()
+    {
+        return isCommitted;
+    }
+
+    /**
+     * Parse the server part from the jabber id and set it to server as default
+     * value. If the server was overriden do nothing.
+     * @param username the username from which to extract the server address
+     */
+    void setServerFieldAccordingToUsername(String username)
     {
         if (!wizard.isModification() || !isServerOverridden)
         {
-            String userId = userIDField.getText();
-
-            serverField.setText(wizard.getServerFromUserName(userId));
+            connectionPanel.setServerAddress(
+                wizard.getServerFromUserName(username));
         }
     }
 
     /**
-     * Disables Next Button if Port field value is incorrect
+     * Returns the contained connection panel.
+     * @return the contained connection panel
      */
-    private void setNextButtonAccordingToPortAndPriority()
+    ConnectionPanel getConnectionPanel()
     {
-        try
-        {
-            Integer.parseInt(portField.getText());
-            Integer.parseInt(priorityField.getText());
-            wizard.getWizardContainer().setNextFinishButtonEnabled(true);
-        }
-        catch (NumberFormatException ex)
-        {
-            wizard.getWizardContainer().setNextFinishButtonEnabled(false);
-        }
-    }
-
-    public Object getSimpleForm()
-    {
-        return userIDPassPanel;
-    }
-
-    public boolean isCommitted()
-    {
-        return isCommitted;
+        return connectionPanel;
     }
 }
