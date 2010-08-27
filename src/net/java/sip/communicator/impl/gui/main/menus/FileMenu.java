@@ -52,7 +52,9 @@ public class FileMenu
 
         ResourceManagementService resources = GuiActivator.getResources();
         JMenuItem newAccountMenuItem = new JMenuItem(
-            resources.getI18NString("service.gui.NEW_ACCOUNT"));
+            resources.getI18NString("service.gui.NEW_ACCOUNT"),
+            new ImageIcon(ImageLoader.getImage(
+                ImageLoader.ADD_ACCOUNT_MENU_ICON)));
         JMenuItem addContactItem = new JMenuItem(
             resources.getI18NString("service.gui.ADD_CONTACT") + "...",
             new ImageIcon(ImageLoader.getImage(
