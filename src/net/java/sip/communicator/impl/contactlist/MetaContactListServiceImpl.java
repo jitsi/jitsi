@@ -2334,6 +2334,15 @@ public class MetaContactListServiceImpl
                                 evt.getSourceContact(),
                                 (byte[])evt.getNewValue());
             }
+            else if(ContactPropertyChangeEvent.PROPERTY_PERSISTENT_DATA
+                            .equals(evt.getPropertyName()))
+            {
+                // if persistent data changed fire an event to store it
+                fireProtoContactEvent(evt.getSourceContact(),
+                                    ProtoContactEvent.PROTO_CONTACT_MODIFIED,
+                                    mc,
+                                    mc);
+            }
         }
 
         /**

@@ -128,9 +128,9 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     }
 
     /**
-     * Dicsonnects user from the XCAP server.
+     * Disconnects user from the XCAP server.
      */
-    public void dicsonnect()
+    public void disconnect()
     {
         this.uri = null;
         this.userAddress = null;

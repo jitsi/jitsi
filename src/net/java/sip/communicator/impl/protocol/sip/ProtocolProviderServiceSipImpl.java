@@ -352,7 +352,7 @@ public class ProtocolProviderServiceSipImpl
         else if (newState.equals(RegistrationState.UNREGISTERING) ||
                 newState.equals(RegistrationState.CONNECTION_FAILED))
         {
-            xCapClient.dicsonnect();
+            xCapClient.disconnect();
         }
 
         super.fireRegistrationStateChanged(oldState, newState, reasonCode,
@@ -1090,10 +1090,11 @@ public class ProtocolProviderServiceSipImpl
                 //|| ListeningPoint.TLS.equalsIgnoreCase(transport)
             {
                 InetSocketAddress localSockAddr
-                    = sipStackSharing.obtainLocalAddress(
+                    = sipStackSharing.getLocalAddressForDestination(
                                     targetAddress.getAddress(),
                                     targetAddress.getPort(),
-                                    localAddress);
+                                    localAddress,
+                                    transport);
                 localPort = localSockAddr.getPort();
             }
 
@@ -1233,10 +1234,11 @@ public class ProtocolProviderServiceSipImpl
                 //|| ListeningPoint.TLS.equalsIgnoreCase(transport))
             {
                 InetSocketAddress localSockAddr
-                    = sipStackSharing.obtainLocalAddress(
+                    = sipStackSharing.getLocalAddressForDestination(
                                     targetAddress.getAddress(),
                                     targetAddress.getPort(),
-                                    localAddress);
+                                    localAddress,
+                                    transport);
                 localPort = localSockAddr.getPort();
             }
 

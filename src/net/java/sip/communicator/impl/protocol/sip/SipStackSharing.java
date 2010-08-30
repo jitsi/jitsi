@@ -1040,20 +1040,25 @@ public class SipStackSharing
      * with.
      * @param localAddress the address that we would like to bind on
      * (null for the "any" address).
+     * @param transport the transport that will be used TCP ot TLS
      *
      * @return the SocketAddress that this handler would use when connecting to
      * the specified destination address and port.
      *
      * @throws IOException !!!!!!!!!!!!!!!!!!!!!!! FILL IN !!!!!!!!!!!!!!
      */
-    public java.net.InetSocketAddress obtainLocalAddress(
+    public java.net.InetSocketAddress getLocalAddressForDestination(
                     java.net.InetAddress dst,
                     int                  dstPort,
-                    java.net.InetAddress localAddress)
+                    java.net.InetAddress localAddress,
+                    String transport)
         throws IOException
     {
-        return (java.net.InetSocketAddress)(((SipStackImpl)this.stack)
-                        .obtainLocalAddress( dst, dstPort, localAddress, 0));
-
+//        if(ListeningPoint.TLS.equalsIgnoreCase(transport))
+//            return (java.net.InetSocketAddress)(((SipStackImpl)this.stack)
+//                .getLocalTLSAddressForDestination(dst, dstPort, localAddress));
+//        else
+            return (java.net.InetSocketAddress)(((SipStackImpl)this.stack)
+            .getLocalAddressForDestination(dst, dstPort, localAddress, 0));
     }
 }

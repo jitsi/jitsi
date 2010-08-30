@@ -306,7 +306,12 @@ public class ServerStoredContactListSipImpl
                         OperationFailedException.NETWORK_FAILURE, e);
             }
             newContact.setResolved(true);
-            newContact.setXCapResolved(true);
+            XCapClient xCapClient = sipProvider.getXCapClient();
+            if (xCapClient.isConnected() &&
+                    xCapClient.isResourceListsSupported())
+            {
+                newContact.setXCapResolved(true);
+            }
             // Update pres-rules if needed
             if (!isContactExistsInWhiteRule(contactId))
             {
@@ -781,11 +786,33 @@ public class ServerStoredContactListSipImpl
             {
                 if (!contact.isResolved() && contact.isPersistent())
                 {
-                    updateResourceLists = true;
                     contact.setResolved(true);
-                    contact.setXCapResolved(true);
-                    fireContactResolved((ContactGroupSipImpl) contact
-                            .getParentContactGroup(), contact);
+                    ContactGroupSipImpl parentGroup = ((ContactGroupSipImpl)
+                            contact.getParentContactGroup());
+                    // If contact is xcap.resolved and is not on the server we
+                    // delete it
+                    if (contact.isXCapResolved())
+                    {
+                        parentGroup.removeContact(contact);
+                        fireContactRemoved(parentGroup, contact);
+                    }
+                    // If contact is added localy we upload it
+                    else
+                    {
+                        updateResourceLists = true;
+                        String oldValue = contact.getPersistentData();
+                        contact.setXCapResolved(true);
+                        fireContactResolved(parentGroup, contact);
+
+                        // fire that property is changed in order
+                        // to save change, event resolved doesn't save it
+                        parentOperationSet.fireContactPropertyChangeEvent(
+                            ContactPropertyChangeEvent.PROPERTY_PERSISTENT_DATA,
+                            contact,
+                            oldValue,
+                            contact.getPersistentData()
+                        );
+                    }
                 }
             }
             for (ContactGroupSipImpl group : getAllGroups(rootGroup))

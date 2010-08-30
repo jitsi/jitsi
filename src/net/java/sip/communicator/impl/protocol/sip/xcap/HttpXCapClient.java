@@ -30,9 +30,9 @@ public interface HttpXCapClient
             throws XCapException;
 
     /**
-     * Dicsonnects user from the XCAP server.
+     * Disconnects user from the XCAP server.
      */
-    public void dicsonnect();
+    public void disconnect();
 
     /**
      * Checks if user is connected to the XCAP server.

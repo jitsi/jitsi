@@ -67,7 +67,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
         }
         catch (XCapException e)
         {
-            dicsonnect();
+            disconnect();
             throw e;
         }
         for (String namespace : xCapCaps.getNamespaces().getNamespace())
@@ -90,9 +90,9 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
     /**
      * Disconnects user from the XCAP server.
      */
-    public void dicsonnect()
+    public void disconnect()
     {
-        super.dicsonnect();
+        super.disconnect();
         xCapCaps = null;
         resourceListsSupported = false;
     }
