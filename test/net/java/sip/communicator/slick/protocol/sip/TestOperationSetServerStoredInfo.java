@@ -113,7 +113,7 @@ public class TestOperationSetServerStoredInfo extends TestCase
     {
         super.tearDown();
         fixture.tearDown();
-        xCapClient.dicsonnect();
+        xCapClient.disconnect();
     }
 
     /**

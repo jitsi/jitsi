@@ -1059,6 +1059,6 @@ public class SipStackSharing
 //                .getLocalTLSAddressForDestination(dst, dstPort, localAddress));
 //        else
             return (java.net.InetSocketAddress)(((SipStackImpl)this.stack)
-            .getLocalAddressForDestination(dst, dstPort, localAddress, 0));
+            .obtainLocalAddress(dst, dstPort, localAddress, 0));
     }
 }
