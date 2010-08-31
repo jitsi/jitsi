@@ -239,7 +239,7 @@ public class ServerStoredContactListJabberImpl
      * @param parentGroup the group where that the removed contact belonged to.
      * @param contact the contact that was removed.
      */
-    private void fireContactRemoved( ContactGroup parentGroup,
+    void fireContactRemoved( ContactGroup parentGroup,
                                      ContactJabberImpl contact)
     {
         //bail out if no one's listening
@@ -750,13 +750,35 @@ public class ServerStoredContactListJabberImpl
      */
     private void initRoster()
     {
-        // first if unfiled exntries will move them in a group
+        // first if unfiled entries will move them in a group
         if(roster.getUnfiledEntryCount() > 0)
         {
             for (RosterEntry item : roster.getUnfiledEntries())
             {
                 ContactJabberImpl contact =
                     findContactById(item.getUser());
+
+                // some services automatically add contacts from their
+                // addressbook to the roster and those contacts are
+                // with subscription none. If such already exist,
+                // remove them. This is typically our own contact
+                if(item.getType() == RosterPacket.ItemType.none)
+                {
+                    if(contact != null)
+                    {
+                        ContactGroup parent = contact.getParentContactGroup();
+
+                        if(parent instanceof RootContactGroupJabberImpl)
+                            ((RootContactGroupJabberImpl)parent)
+                                .removeContact(contact);
+                        else
+                            ((ContactGroupJabberImpl)parent)
+                                .removeContact(contact);
+
+                        fireContactRemoved(parent, contact);
+                    }
+                    continue;
+                }
 
                 if(contact == null)
                 {

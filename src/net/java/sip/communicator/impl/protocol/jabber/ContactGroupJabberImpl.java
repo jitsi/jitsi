@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.packet.*;
 
 import net.java.sip.communicator.service.protocol.*;
 
@@ -107,10 +108,12 @@ public class ContactGroupJabberImpl
         if(rosterGroup != null)
             this.nameCopy = rosterGroup.getName();
 
-        Iterator<RosterEntry> iter = groupMembers;
-        while (iter.hasNext())
+        while (groupMembers.hasNext())
         {
-            RosterEntry rEntry = iter.next();
+            RosterEntry rEntry = groupMembers.next();
+
+            if(rEntry.getType() == RosterPacket.ItemType.none)
+                continue;
 
             //only add the buddy if it doesn't already exist in some other group
             //this is necessary because XMPP would allow having one and the
@@ -332,8 +335,10 @@ public class ContactGroupJabberImpl
     public String toString()
     {
         StringBuffer buff = new StringBuffer("JabberGroup.");
-        buff.append(getGroupName());
-        buff.append(", childContacts="+countContacts()+":[");
+        buff.append(getGroupName())
+            .append(", childContacts=")
+            .append(countContacts())
+            .append(":[");
 
         Iterator<Contact> contacts = contacts();
         while (contacts.hasNext())
@@ -435,6 +440,22 @@ public class ContactGroupJabberImpl
         {
             ContactJabberImpl contact =
                 ssclCallback.findContactById(item.getUser());
+
+            // some services automatically adds contacts from an addressbook
+            // to our roster and this contacts are with subscription none.
+            // if such already exist, remove it. This is typically our
+            // own contact
+            if(item.getType() == RosterPacket.ItemType.none)
+            {
+                if(contact != null)
+                {
+                    removeContact(contact);
+                    ssclCallback.fireContactRemoved(this, contact);
+                }
+
+                continue;
+            }
+
             if(contact != null)
             {
                 contact.setResolved(item);
