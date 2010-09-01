@@ -17,9 +17,11 @@ import org.osgi.framework.*;
 
 /**
  * The <tt>BundleActivator</tt> of the AudioConfiguration plugin.
+ *
  * @author Alexandre Maillard
  */
-public class NotificationConfigurationActivator implements BundleActivator
+public class NotificationConfigurationActivator
+    implements BundleActivator
 {
     private final Logger logger
         = Logger.getLogger(NotificationConfigurationActivator.class);
@@ -33,7 +35,8 @@ public class NotificationConfigurationActivator implements BundleActivator
      * contained in it to the configuration window obtained from the 
      * <tt>UIService</tt>.
      */
-    public void start(BundleContext bc) throws Exception
+    public void start(BundleContext bc)
+        throws Exception
     {
         bundleContext = bc;
 
@@ -56,9 +59,10 @@ public class NotificationConfigurationActivator implements BundleActivator
     }
 
     /**
-     * Stops this bundles.
+     * Stops this bundle.
      */
-    public void stop(BundleContext arg0) throws Exception
+    public void stop(BundleContext bc)
+        throws Exception
     {   
     }
     
@@ -72,12 +76,10 @@ public class NotificationConfigurationActivator implements BundleActivator
     {
         if(audioService == null)
         {
-            ServiceReference audioReference 
-                    = bundleContext.getServiceReference(
-                    AudioNotifierService.class.getName());
-
-            audioService = (AudioNotifierService) bundleContext.getService(
-                    audioReference);
+            audioService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        AudioNotifierService.class);
         }
         return audioService;
     }
@@ -95,11 +97,7 @@ public class NotificationConfigurationActivator implements BundleActivator
      */
     public static NotificationService getNotificationService()
     {
-        ServiceReference notificationReference =
-            bundleContext.getServiceReference(NotificationService.class
-                .getName());
-
-        return (NotificationService) bundleContext
-            .getService(notificationReference);
+        return
+            ServiceUtils.getService(bundleContext, NotificationService.class);
     }
 }

@@ -16,10 +16,51 @@ import java.io.*;
 public final class StringUtils
 {
     /**
-     * This class cannot be instanced.
+     * This class cannot be instantiated.
      */
     private StringUtils()
     {
+    }
+
+    /**
+     * Gets a <tt>String</tt> which represents the conversion of a specific
+     * camel-case formatted <tt>String</tt> to a more human-readable form (i.e.
+     * with spaces between the words).
+     *
+     * @param camelCase a camel-case (or Pascal-case) formatted <tt>String</tt>
+     * from which a human-readable <tt>String</tt> is to be constructed 
+     * @return a <tt>String</tt> which represents the conversion of the specified
+     * camel-case formatted <tt>String</tt> to a more human-readable form
+     */
+    public static String convertCamelCaseToDisplayString(String camelCase)
+    {
+        if (camelCase == null)
+            return null;
+
+        int camelCaseLength = camelCase.length();
+
+        if (camelCaseLength == 0)
+            return camelCase;
+
+        int wordEndIndex = 0;
+        int wordBeginIndex = 0;
+        StringBuilder display = new StringBuilder();
+
+        for (; wordEndIndex < camelCaseLength; wordEndIndex++)
+        {
+            char ch = camelCase.charAt(wordEndIndex);
+
+            if (Character.isUpperCase(ch) && (wordBeginIndex != wordEndIndex))
+            {
+                display.append(
+                        camelCase.substring(wordBeginIndex, wordEndIndex));
+                display.append(' ');
+                wordBeginIndex = wordEndIndex;
+            }
+        }
+        if (wordEndIndex >= camelCaseLength)
+            display.append(camelCase.substring(wordBeginIndex));
+        return display.toString();
     }
 
     /**
@@ -43,13 +84,9 @@ public final class StringUtils
     public static boolean isNullOrEmpty(String s, boolean trim)
     {
         if (s == null)
-        {
             return true;
-        }
         if (trim)
-        {
             s = s.trim();
-        }
         return s.length() == 0;
     }
 

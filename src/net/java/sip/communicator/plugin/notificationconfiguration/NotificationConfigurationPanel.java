@@ -323,5 +323,6 @@ public class NotificationConfigurationPanel
             entry.setSoundFile(soundFileTextField.getText());
         }
     }
+
     public void changedUpdate(DocumentEvent de) {}
 }

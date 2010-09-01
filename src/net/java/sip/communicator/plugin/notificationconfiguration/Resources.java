@@ -27,7 +27,6 @@ public class Resources
         try
         {
             return getResources().getI18NString(key);
-
         }
         catch (MissingResourceException e)
         {

@@ -11,11 +11,14 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * @author Alexandre Maillard
  * @author Yana Stamcheva
  */
-class StringTableRenderer extends DefaultTableCellRenderer
+class StringTableRenderer
+    extends DefaultTableCellRenderer
 {
     /**
      * Creates an instance of <tt>StringTableRenderer</tt>.
@@ -46,18 +49,13 @@ class StringTableRenderer extends DefaultTableCellRenderer
         if (value instanceof NotificationEntry)
         {
             NotificationEntry entry = (NotificationEntry) value;
-            setIcon(null);
-            setText(entry.getEvent());
-            setHorizontalAlignment(SwingConstants.LEFT);
 
-            if (entry.getEnabled())
-            {
-                this.setForeground(Color.BLACK);
-            }
-            else
-            {
-                this.setForeground(Color.GRAY);
-            }
+            setForeground(entry.getEnabled() ? Color.BLACK : Color.GRAY);
+            setHorizontalAlignment(SwingConstants.LEFT);
+            setIcon(null);
+            setText(
+                    StringUtils.convertCamelCaseToDisplayString(
+                            entry.getEvent()));
         }
         else if (value instanceof String)
         {
@@ -65,25 +63,25 @@ class StringTableRenderer extends DefaultTableCellRenderer
 
             if(stringValue.equals(NotificationsTable.ENABLED))
             {
-                setText(null);
-                setIcon(NotificationsTable.getColumnIconValue(column));
                 setHorizontalAlignment(SwingConstants.CENTER);
+                setIcon(NotificationsTable.getColumnIconValue(column));
+                setText(null);
             }
             else if (stringValue.equals(NotificationsTable.DISABLED))
             {
-                setText(null);
                 setIcon(null);
+                setText(null);
             }
         }
 
         if(isSelected)
         {
-            this.setOpaque(true);
-            this.setBackground(new Color(209, 212, 225));
+            setBackground(new Color(209, 212, 225));
+            setOpaque(true);
         }
         else
         {
-            this.setBackground(Color.WHITE);
+            setBackground(Color.WHITE);
         }
         return this;
     }
