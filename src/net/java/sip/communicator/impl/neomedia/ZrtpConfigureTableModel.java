@@ -13,8 +13,7 @@ import javax.swing.table.*;
 import gnu.java.zrtp.*;
 
 /**
- * 
- * 
+ * @author Werner Dittmann
  */
 public class ZrtpConfigureTableModel<T extends Enum<T>>
     extends AbstractTableModel

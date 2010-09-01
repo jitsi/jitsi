@@ -5,27 +5,35 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
-import gnu.java.zrtp.ZrtpConfigure;
-import gnu.java.zrtp.ZrtpConstants;
+import gnu.java.zrtp.*;
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
 import javax.swing.event.*;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.*;
 
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
 
+/**
+ * @author Werner Dittmann
+ * @author Lubomir Marinov
+ */
 @SuppressWarnings("serial")
 public class ZrtpConfigurePanel
     extends TransparentPanel
 {
-    private static String TRUSTED_PROP
+    /**
+     * The width and height of the margin to be applied to UI containers created
+     * by <tt>ZrtpConfigurePanel</tt>. 
+     */
+    private static final int MARGIN = 5;
+
+    private static final String TRUSTED_PROP
         = "net.java.sip.communicator.gnu.java.zrtp.trustedmitm";
-    private static String SASSIGN_PROP
+    private static final String SASSIGN_PROP
         = "net.java.sip.communicator.gnu.java.zrtp.sassignature";
 
     private ZrtpConfigure active = new ZrtpConfigure();
@@ -45,21 +53,24 @@ public class ZrtpConfigurePanel
     {
         super(new BorderLayout());
 
+        ResourceManagementService resources = NeomediaActivator.getResources();
+
         JPanel mainPanel = new TransparentPanel(new BorderLayout(0, 10));
 
-        final JButton stdButton = new JButton(
-            NeomediaActivator.getResources()
-                .getI18NString("impl.media.security.zrtp.STANDARD"));
+        final JButton stdButton
+            = new JButton(
+                    resources.getI18NString(
+                            "impl.media.security.zrtp.STANDARD"));
         stdButton.setOpaque(false);
 
-        final JButton mandButton = new JButton(
-            NeomediaActivator.getResources()
-                .getI18NString("impl.media.security.zrtp.MANDATORY"));
+        final JButton mandButton
+            = new JButton(
+                    resources.getI18NString(
+                            "impl.media.security.zrtp.MANDATORY"));
         mandButton.setOpaque(false);
 
-        final JButton saveButton = new JButton(
-            NeomediaActivator.getResources()
-                .getI18NString("service.gui.SAVE"));
+        final JButton saveButton
+            = new JButton(resources.getI18NString("service.gui.SAVE"));
         saveButton.setOpaque(false);
 
         JPanel buttonBar = new TransparentPanel(new GridLayout(1, 7));
@@ -77,11 +88,14 @@ public class ZrtpConfigurePanel
 
         JPanel checkBar = new TransparentPanel(new GridLayout(1,2));
         final JCheckBox trustedMitM
-            = new JCheckBox(NeomediaActivator.getResources()
-                .getI18NString("impl.media.security.zrtp.TRUSTED"), trusted);
+            = new JCheckBox(
+                    resources.getI18NString("impl.media.security.zrtp.TRUSTED"),
+                    trusted);
         final JCheckBox sasSignature
-            = new JCheckBox(NeomediaActivator.getResources()
-                .getI18NString("impl.media.security.zrtp.SASSIGNATURE"), sasSign);
+            = new JCheckBox(
+                    resources.getI18NString(
+                            "impl.media.security.zrtp.SASSIGNATURE"),
+                    sasSign);
         checkBar.add(trustedMitM);
         checkBar.add(sasSignature);
         mainPanel.add(checkBar, BorderLayout.NORTH);
@@ -150,20 +164,21 @@ public class ZrtpConfigurePanel
         JTabbedPane algorithmsPane = new JTabbedPane();
 
         algorithmsPane.addTab(
-            NeomediaActivator.getResources()
-            .getI18NString("impl.media.security.zrtp.PUB_KEYS"), pkc);
+                resources.getI18NString("impl.media.security.zrtp.PUB_KEYS"),
+                pkc);
         algorithmsPane.addTab(
-            NeomediaActivator.getResources()
-            .getI18NString("impl.media.security.zrtp.HASHES"), hc);
+                resources.getI18NString("impl.media.security.zrtp.HASHES"),
+                hc);
         algorithmsPane.addTab(
-            NeomediaActivator.getResources()
-            .getI18NString("impl.media.security.zrtp.SYM_CIPHERS"), cc);
+                resources.getI18NString("impl.media.security.zrtp.SYM_CIPHERS"),
+                cc);
         algorithmsPane.addTab(
-            NeomediaActivator.getResources()
-            .getI18NString("impl.media.security.zrtp.SAS_TYPES"), sc);
+                resources.getI18NString("impl.media.security.zrtp.SAS_TYPES"),
+                sc);
         algorithmsPane.addTab(
-            NeomediaActivator.getResources()
-            .getI18NString("impl.media.security.zrtp.SRTP_LENGTHS"), lc);
+                resources.getI18NString(
+                        "impl.media.security.zrtp.SRTP_LENGTHS"),
+                lc);
 
         algorithmsPane.setMinimumSize(new Dimension(400, 100));
         algorithmsPane.setPreferredSize(new Dimension(400, 200));
@@ -184,7 +199,7 @@ public class ZrtpConfigurePanel
         return strb.toString();
     }
 
-    class PublicKeyControls extends TransparentPanel
+    private class PublicKeyControls extends TransparentPanel
     {
         private final ZrtpConfigureTableModel<ZrtpConstants.SupportedPubKeys>
             dataModel;
@@ -204,9 +219,7 @@ public class ZrtpConfigurePanel
                     active,
                     inActive,
                     savedConf);
-            createControls(this, dataModel,
-                NeomediaActivator.getResources().getI18NString(
-                        "impl.media.security.zrtp.PUB_KEY_ALGORITHMS"));
+            createControls(this, dataModel);
         }
 
         void setStandard()
@@ -224,7 +237,7 @@ public class ZrtpConfigurePanel
         }
     }
 
-    class HashControls extends TransparentPanel
+    private class HashControls extends TransparentPanel
     {
 
         private final ZrtpConfigureTableModel<ZrtpConstants.SupportedHashes>
@@ -246,10 +259,7 @@ public class ZrtpConfigurePanel
                     active,
                     inActive,
                     savedConf);
-            createControls(this, dataModel,
-                NeomediaActivator.getResources()
-                        .getI18NString(
-                            "impl.media.security.zrtp.HASH_ALGORITHMS"));
+            createControls(this, dataModel);
         }
 
         void setStandard()
@@ -266,7 +276,7 @@ public class ZrtpConfigurePanel
         }
     }
 
-    class CipherControls
+    private class CipherControls
         extends TransparentPanel
     {
         private final ZrtpConfigureTableModel<ZrtpConstants.SupportedSymCiphers>
@@ -286,10 +296,7 @@ public class ZrtpConfigurePanel
                     active,
                     inActive,
                     savedConf);
-            createControls(this, dataModel,
-                NeomediaActivator.getResources()
-                    .getI18NString(
-                        "impl.media.security.zrtp.SYM_CIPHER_ALGORITHMS"));
+            createControls(this, dataModel);
         }
 
         void setStandard()
@@ -307,7 +314,7 @@ public class ZrtpConfigurePanel
         }
     }
 
-    class SasControls extends TransparentPanel
+    private class SasControls extends TransparentPanel
     {
         private final ZrtpConfigureTableModel<ZrtpConstants.SupportedSASTypes>
             dataModel;
@@ -327,9 +334,7 @@ public class ZrtpConfigurePanel
                     active,
                     inActive,
                     savedConf);
-            createControls(this, dataModel,
-                NeomediaActivator.getResources()
-                    .getI18NString("impl.media.security.zrtp.SAS_TYPES"));
+            createControls(this, dataModel);
         }
 
         void setStandard()
@@ -346,7 +351,7 @@ public class ZrtpConfigurePanel
         }
     }
 
-    class LengthControls
+    private class LengthControls
         extends TransparentPanel
     {
         private final ZrtpConfigureTableModel<ZrtpConstants.SupportedAuthLengths>
@@ -366,9 +371,7 @@ public class ZrtpConfigurePanel
                     active,
                     inActive,
                     savedConf);
-            createControls(this, dataModel,
-                NeomediaActivator.getResources()
-                    .getI18NString("impl.media.security.zrtp.SRTP_LENGTHS"));
+            createControls(this, dataModel);
         }
 
         void setStandard()
@@ -386,26 +389,32 @@ public class ZrtpConfigurePanel
         }
     }
 
-    private <T extends Enum<T>> void createControls(JPanel panel,
-            ZrtpConfigureTableModel<T> model, String title)
+    private <T extends Enum<T>> void createControls(
+            JPanel panel,
+            ZrtpConfigureTableModel<T> model)
     {
-        final JButton upButton = new JButton(
-            NeomediaActivator.getResources()
-                .getI18NString("impl.media.configform.UP"));
+        ResourceManagementService resources = NeomediaActivator.getResources();
+
+        final JButton upButton
+            = new JButton(resources.getI18NString("impl.media.configform.UP"));
         upButton.setOpaque(false);
 
-        final JButton downButton = new JButton(
-            NeomediaActivator.getResources()
-                .getI18NString("impl.media.configform.DOWN"));
+        final JButton downButton
+            = new JButton(
+                    resources.getI18NString("impl.media.configform.DOWN"));
         downButton.setOpaque(false);
 
         Container buttonBar = new TransparentPanel(new GridLayout(0, 1));
         buttonBar.add(upButton);
         buttonBar.add(downButton);
 
+        panel.setBorder(
+                BorderFactory.createEmptyBorder(
+                        MARGIN,
+                        MARGIN,
+                        MARGIN,
+                        MARGIN));
         panel.setLayout(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory
-                .createEtchedBorder(EtchedBorder.LOWERED), title));
 
         final JTable table = new JTable(model.getRowCount(), 2);
         table.setShowGrid(false);
