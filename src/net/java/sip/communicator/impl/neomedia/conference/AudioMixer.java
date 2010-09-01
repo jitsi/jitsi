@@ -144,15 +144,19 @@ public class AudioMixer
          * i.e. it has to be a PushBufferDataSource.
          */
         if (captureDevice instanceof PullBufferDataSource)
+        {
             captureDevice
                 = new PushBufferDataSourceAdapter(
                         (PullBufferDataSource) captureDevice);
+        }
 
         // Try to enable tracing on captureDevice.
         if (logger.isTraceEnabled())
+        {
             captureDevice
                 = MediaDeviceImpl
                     .createTracingCaptureDevice(captureDevice, logger);
+        }
 
         this.captureDevice = captureDevice;
 
@@ -221,6 +225,7 @@ public class AudioMixer
                  * connect to the new one as well.
                  */
                 if (connected > 0)
+                {
                     try
                     {
                         inputDataSourceDesc.connect(this);
@@ -229,6 +234,7 @@ public class AudioMixer
                     {
                         throw new UndeclaredThrowableException(ioex);
                     }
+                }
 
                 // Update outputStream with any new inputStreams.
                 if (outputStream != null)
@@ -239,6 +245,7 @@ public class AudioMixer
                  * new one as well.
                  */
                 if (started > 0)
+                {
                     try
                     {
                         inputDataSourceDesc.start();
@@ -247,6 +254,7 @@ public class AudioMixer
                     {
                         throw new UndeclaredThrowableException(ioe);
                     }
+                }
             }
         }
     }
@@ -617,27 +625,27 @@ public class AudioMixer
     }
 
     /**
-     * Gets the <tt>SourceStream</tt>s (in the form of
-     * <tt>InputStreamDesc</tt>) of a specific <tt>DataSource</tt>
-     * (provided in the form of <tt>InputDataSourceDesc</tt>) which produce
-     * data in a specific <tt>AudioFormat</tt> (or a matching one).
+     * Gets the <tt>SourceStream</tt>s (in the form of <tt>InputStreamDesc</tt>)
+     * of a specific <tt>DataSource</tt> (provided in the form of
+     * <tt>InputDataSourceDesc</tt>) which produce data in a specific
+     * <tt>AudioFormat</tt> (or a matching one).
      *
-     * @param inputDataSourceDesc
-     *            the <tt>DataSource</tt> (in the form of
-     *            <tt>InputDataSourceDesc</tt>) which is to be examined for
-     *            <tt>SourceStreams</tt> producing data in the specified
-     *            <tt>AudioFormat</tt>
-     * @param outputFormat
-     *            the <tt>AudioFormat</tt> in which the collected
-     *            <tt>SourceStream</tt>s are to produce data
-     * @param existingInputStreams
-     * @param inputStreams
-     *            the <tt>List</tt> of <tt>InputStreamDesc</tt> in which
-     *            the discovered <tt>SourceStream</tt>s are to be returned
-     * @return <tt>true</tt> if <tt>SourceStream</tt>s produced by the
-     *         specified input <tt>DataSource</tt> and outputting data in the
-     *         specified <tt>AudioFormat</tt> were discovered and reported
-     *         in <tt>inputStreams</tt>; otherwise, <tt>false</tt>
+     * @param inputDataSourceDesc the <tt>DataSource</tt> (in the form of
+     * <tt>InputDataSourceDesc</tt>) which is to be examined for
+     * <tt>SourceStreams</tt> producing data in the specified
+     * <tt>AudioFormat</tt>
+     * @param outputFormat the <tt>AudioFormat</tt> in which the collected
+     * <tt>SourceStream</tt>s are to produce data
+     * @param existingInputStreams the <tt>InputStreamDesc</tt> instances which
+     * already exist and which are used to avoid creating multiple
+     * <tt>InputStreamDesc</tt>s for input <tt>SourceStream</tt>s which already
+     * have ones
+     * @param inputStreams the <tt>List</tt> of <tt>InputStreamDesc</tt> in
+     * which the discovered <tt>SourceStream</tt>s are to be returned
+     * @return <tt>true</tt> if <tt>SourceStream</tt>s produced by the specified
+     * input <tt>DataSource</tt> and outputting data in the specified
+     * <tt>AudioFormat</tt> were discovered and reported in
+     * <tt>inputStreams</tt>; otherwise, <tt>false</tt>
      */
     private boolean getInputStreamsFromInputDataSource(
         InputDataSourceDesc inputDataSourceDesc,
@@ -984,12 +992,14 @@ public class AudioMixer
             boolean removed = false;
 
             while (inputDataSourceIter.hasNext())
+            {
                 if (dataSourceFilter
                         .accept(inputDataSourceIter.next().inputDataSource))
                 {
                     inputDataSourceIter.remove();
                     removed = true;
                 }
+            }
             if (removed && (outputStream != null))
                 getOutputStream();
         }
@@ -1075,8 +1085,10 @@ public class AudioMixer
                 return;
 
             if (started == 0)
+            {
                 for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
                     inputDataSourceDesc.start();
+            }
 
             started++;
         }
@@ -1111,8 +1123,10 @@ public class AudioMixer
             started--;
 
             if (started == 0)
+            {
                 for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
                     inputDataSourceDesc.stop();
+            }
         }
     }
 }

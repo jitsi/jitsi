@@ -13,10 +13,11 @@ import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * A Gibberish implementation of the <tt>CallPeer</tt> interface.
+ *
  * @author Yana Stamcheva
  */
 public class CallPeerGibberishImpl
-    extends AbstractCallPeer
+    extends AbstractCallPeer<CallGibberishImpl, ProtocolProviderServiceGibberishImpl>
 {
     /**
      * The sip address of this peer
@@ -113,7 +114,7 @@ public class CallPeerGibberishImpl
      *
      * @return a reference to the call containing this peer.
      */
-    public Call getCall()
+    public CallGibberishImpl getCall()
     {
         return call;
     }
@@ -165,10 +166,11 @@ public class CallPeerGibberishImpl
 
     /**
      * Returns the protocol provider that this peer belongs to.
+     *
      * @return a reference to the ProtocolProviderService that this peer
      * belongs to.
      */
-    public ProtocolProviderService getProtocolProvider()
+    public ProtocolProviderServiceGibberishImpl getProtocolProvider()
     {
         return this.call.getProtocolProvider();
     }

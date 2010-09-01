@@ -40,7 +40,7 @@ public class PushBufferDataSourceAdapter
     private static final boolean STRICT_STOP = false;
 
     /**
-     * The indicator which determines whether {@ link #start()} has been called
+     * The indicator which determines whether {@link #start()} has been called
      * on this <tt>DataSource</tt> without a subsequent call to {@link #stop()}.
      */
     private boolean started = false;
@@ -352,8 +352,8 @@ public class PushBufferDataSourceAdapter
         }
 
         /**
-         * Implements {@link Controls#getControl(String)}. Delegates to the
-         * wrapped <tt>PullBufferStream</tt>.
+         * Implements {@link javax.media.Controls#getControl(String)}. Delegates
+         * to the wrapped <tt>PullBufferStream</tt>.
          *
          * @param controlType a <tt>String</tt> value which specifies the type
          * of the control of the wrapped <tt>PullBufferStream</tt> to be
@@ -370,8 +370,8 @@ public class PushBufferDataSourceAdapter
         }
 
         /**
-         * Implements {@link Controls#getControls()}. Delegates to the wrapped
-         * <tt>PushBufferStream</tt>.
+         * Implements {@link javax.media.Controls#getControls()}. Delegates to
+         * the wrapped <tt>PushBufferStream</tt>.
          *
          * @return an array of <tt>Object</tt>s which represent the controls
          * available for the wrapped <tt>PushBufferStream</tt>

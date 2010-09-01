@@ -386,7 +386,7 @@ public class JNIEncoder
 
     /**
      * @return
-     * @see AbstractCodec#getOutputFormat()
+     * @see net.sf.fmj.media.AbstractCodec#getOutputFormat()
      */
     @Override
     public Format getOutputFormat()

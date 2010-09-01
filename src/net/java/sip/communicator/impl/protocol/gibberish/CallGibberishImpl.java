@@ -14,21 +14,16 @@ import net.java.sip.communicator.util.*;
 
 /**
  * A Gibberish implementation of the <tt>Call</tt> interface.
+ *
  * @author Yana Stamcheva
  * @author Damian Minkov
  */
 public class CallGibberishImpl
-    extends Call
+    extends AbstractCall<CallPeerGibberishImpl, ProtocolProviderServiceGibberishImpl>
     implements CallPeerListener
 {
     private static final Logger logger
         = Logger.getLogger(CallGibberishImpl.class);
-
-    /**
-     * A list containing all <tt>CallPeer</tt>s of this call.
-     */
-    private Vector<CallPeerGibberishImpl> callPeers
-        = new Vector<CallPeerGibberishImpl>();
 
     /**
      * Creates a <tt>CallGibberishImpl</tt> by specifying the
@@ -42,27 +37,6 @@ public class CallGibberishImpl
     }
 
     /**
-     * Returns an iterator over all call peers.
-     *
-     * @return an Iterator over all peers currently involved in the call.
-     */
-    public Iterator<CallPeerGibberishImpl> getCallPeers()
-    {
-        return new LinkedList<CallPeerGibberishImpl>(callPeers).iterator();
-    }
-
-    /**
-     * Returns the number of peers currently associated with this call.
-     *
-     * @return an <code>int</code> indicating the number of peers
-     *   currently associated with this call.
-     */
-    public int getCallPeerCount()
-    {
-        return callPeers.size();
-    }
-
-    /**
      * Adds <tt>callPeer</tt> to the list of peers in this call.
      * If the call peer is already included in the call, the method has
      * no effect.
@@ -71,12 +45,14 @@ public class CallGibberishImpl
      */
     public void addCallPeer(final CallPeerGibberishImpl callPeer)
     {
+        List<CallPeerGibberishImpl> callPeers = getCallPeersVector();
+
         if(callPeers.contains(callPeer))
             return;
 
         callPeer.addCallPeerListener(this);
 
-        this.callPeers.add(callPeer);
+        callPeers.add(callPeer);
 
         if (logger.isInfoEnabled())
             logger.info("Will fire peer added");
@@ -118,10 +94,12 @@ public class CallGibberishImpl
      */
     public void removeCallPeer(CallPeerGibberishImpl callPeer)
     {
+        List<CallPeerGibberishImpl> callPeers = getCallPeersVector();
+
         if(!callPeers.contains(callPeer))
             return;
 
-        this.callPeers.remove(callPeer);
+        callPeers.remove(callPeer);
         callPeer.removeCallPeerListener(this);
 
         fireCallPeerEvent(
@@ -175,27 +153,27 @@ public class CallGibberishImpl
         return true;
     }
 
-    /*
+    /**
      * Adds a specific <tt>SoundLevelListener</tt> to the list of
      * listeners interested in and notified about changes in local sound level
      * related information.
+     *
      * @param l the <tt>SoundLevelListener</tt> to add
      */
     public void addLocalUserSoundLevelListener(
         SoundLevelListener l)
     {
-
     }
 
     /**
      * Removes a specific <tt>SoundLevelListener</tt> of the list of
      * listeners interested in and notified about changes in local sound level
      * related information.
+     *
      * @param l the <tt>SoundLevelListener</tt> to remove
      */
     public void removeLocalUserSoundLevelListener(
         SoundLevelListener l)
     {
-        
     }
 }

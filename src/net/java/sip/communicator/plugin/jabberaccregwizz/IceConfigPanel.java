@@ -17,7 +17,6 @@ import javax.swing.table.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * 
  * @author Yana Stamcheva
  */
 public class IceConfigPanel
@@ -316,6 +315,7 @@ public class IceConfigPanel
             //if you have something better in mind.
             this.setSize(getWidth(), getHeight()+errorMessagePane.getHeight());
         }
+
         @Override
         protected void close(boolean escaped) {}
     }
@@ -330,7 +330,7 @@ public class IceConfigPanel
         // We need a place to store the color the JLabel should be returned 
         // to after its foreground and background colors have been set 
         // to the selection background color. 
-        // These ivars will be made protected when their names are finalized. 
+        // These vars will be made protected when their names are finalized. 
         private Color unselectedForeground; 
         private Color unselectedBackground; 
 
@@ -399,7 +399,6 @@ public class IceConfigPanel
     /**
      * A custom table model, with a non editable cells and a custom class column
      * objects.
-     *
      */
     private class StunServerTableModel
         extends DefaultTableModel
@@ -412,7 +411,7 @@ public class IceConfigPanel
          * @param columnIndex  the column being queried
          * @return the class of objects contained in the column
          */
-        public Class getColumnClass(int columnIndex)
+        public Class<?> getColumnClass(int columnIndex)
         {
             return getValueAt(0, columnIndex).getClass();
         }
@@ -475,7 +474,6 @@ public class IceConfigPanel
      * Returns the list of additional stun servers entered by the user.
      * @return the list of additional stun servers entered by the user
      */
-    @SuppressWarnings("unchecked")
     List<StunServer> getAdditionalStunServers()
     {
         LinkedList<StunServer> serversList = new LinkedList<StunServer>();
@@ -487,7 +485,6 @@ public class IceConfigPanel
 
             serversList.add((StunServer) row.elementAt(0));
         }
-
         return serversList;
     }
 

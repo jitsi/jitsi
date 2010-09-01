@@ -83,6 +83,6 @@ public abstract class AbstractCall<T extends CallPeer,
     @SuppressWarnings("unchecked")
     public U getProtocolProvider()
     {
-        return (U)super.getProtocolProvider();
+        return (U) super.getProtocolProvider();
     }
 }

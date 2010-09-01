@@ -23,6 +23,7 @@ import net.java.sip.communicator.util.swing.*;
  * The button that starts/stops the call recording.
  *
  * @author Dmitri Melnikov
+ * @author Lubomir Marinov
  */
 public class RecordButton
     extends AbstractCallToggleButton
@@ -59,7 +60,7 @@ public class RecordButton
     /**
      * Call file chooser.
      */
-    private final SipCommFileChooser callFileChooser;
+    private SipCommFileChooser callFileChooser;
 
     /**
      * The <tt>Recorder</tt> which is depicted by this <tt>RecordButton</tt> and
@@ -94,65 +95,6 @@ public class RecordButton
     {
         super(call, fullScreen, selected, ImageLoader.RECORD_BUTTON, null);
 
-        callFileChooser
-            = GenericFileDialog.create(
-                    null,
-                    resources.getI18NString(
-                            "plugin.callrecordingconfig.SAVE_CALL"),
-                    SipCommFileChooser.SAVE_FILE_OPERATION);
-        callFileChooser.addFilter(
-                new SipCommFileFilter()
-                {
-                    public boolean accept(File f)
-                    {
-                        return f.isDirectory() || isSupportedFormat(f);
-                    }
-
-                    public String getDescription()
-                    {
-                        StringBuilder description = new StringBuilder();
-
-                        description.append("Recorded call");
-
-                        Recorder recorder;
-
-                        try
-                        {
-                            recorder = getRecorder();
-                        }
-                        catch (OperationFailedException ofex)
-                        {
-                            logger.error("Failed to get Recorder", ofex);
-                            recorder = null;
-                        }
-                        if (recorder != null)
-                        {
-                            List<String> supportedFormats
-                                = recorder.getSupportedFormats();
-
-                            if (supportedFormats != null)
-                            {
-                                description.append(" (");
-
-                                boolean firstSupportedFormat = true;
-
-                                for (String supportedFormat : supportedFormats)
-                                {
-                                    if (firstSupportedFormat)
-                                        firstSupportedFormat = false;
-                                    else
-                                        description.append(", ");
-                                    description.append("*.");
-                                    description.append(supportedFormat);
-                                }
-
-                                description.append(')');
-                            }
-                        }
-                        return description.toString();
-                    }
-                });
-
         String toolTip
             = resources.getI18NString("service.gui.RECORD_BUTTON_TOOL_TIP");
         String saveDir = configuration.getString(Recorder.SAVED_CALLS_PATH);
@@ -174,7 +116,27 @@ public class RecordButton
             // start recording
             if (isSelected())
             {
-                startRecording();
+                boolean startedRecording = false;
+
+                try
+                {
+                    startedRecording = startRecording();
+                }
+                finally
+                {
+                    if (!startedRecording && (recorder != null))
+                    {
+                        try
+                        {
+                            recorder.stop();
+                        }
+                        finally
+                        {
+                            recorder = null;
+                        }
+                    }
+                    setSelected(startedRecording);
+                }
             }
             // stop recording
             else if (recorder != null)
@@ -193,6 +155,7 @@ public class RecordButton
                 finally
                 {
                     recorder = null;
+                    setSelected(false);
                 }
             }
         }
@@ -327,8 +290,11 @@ public class RecordButton
      * Starts recording {@link #call} creating {@link #recorder} first and
      * asking the user for the recording format and file if they are not
      * configured in the "Call Recording" configuration form.
+     *
+     * @return <tt>true</tt> if the recording has been started successfully;
+     * otherwise, <tt>false</tt>
      */
-    private void startRecording()
+    private boolean startRecording()
     {
         String savedCallsPath
             = configuration.getString(Recorder.SAVED_CALLS_PATH);
@@ -336,6 +302,71 @@ public class RecordButton
         // Ask the user where to save the call.
         if ((savedCallsPath == null) || (savedCallsPath.length() == 0))
         {
+            /*
+             * Delay the initialization of callFileChooser in order to delay the
+             * creation of the recorder.
+             */
+            if (callFileChooser == null)
+            {
+                callFileChooser
+                    = GenericFileDialog.create(
+                            null,
+                            resources.getI18NString(
+                                    "plugin.callrecordingconfig.SAVE_CALL"),
+                            SipCommFileChooser.SAVE_FILE_OPERATION);
+                callFileChooser.addFilter(
+                        new SipCommFileFilter()
+                        {
+                            public boolean accept(File f)
+                            {
+                                return f.isDirectory() || isSupportedFormat(f);
+                            }
+
+                            public String getDescription()
+                            {
+                                StringBuilder description = new StringBuilder();
+
+                                description.append("Recorded call");
+
+                                Recorder recorder;
+
+                                try
+                                {
+                                    recorder = getRecorder();
+                                }
+                                catch (OperationFailedException ofex)
+                                {
+                                    logger.error("Failed to get Recorder", ofex);
+                                    recorder = null;
+                                }
+                                if (recorder != null)
+                                {
+                                    List<String> supportedFormats
+                                        = recorder.getSupportedFormats();
+
+                                    if (supportedFormats != null)
+                                    {
+                                        description.append(" (");
+
+                                        boolean firstSupportedFormat = true;
+
+                                        for (String supportedFormat : supportedFormats)
+                                        {
+                                            if (firstSupportedFormat)
+                                                firstSupportedFormat = false;
+                                            else
+                                                description.append(", ");
+                                            description.append("*.");
+                                            description.append(supportedFormat);
+                                        }
+
+                                        description.append(')');
+                                    }
+                                }
+                                return description.toString();
+                            }
+                        });
+            }
             // Offer a default name for the file to record into.
             callFileChooser.setStartPath(createDefaultFilename(null));
 
@@ -382,19 +413,7 @@ public class RecordButton
             else
             {
                 // user canceled the recording
-                setSelected(false);
-                if (recorder != null)
-                {
-                    try
-                    {
-                        recorder.stop();
-                    }
-                    finally
-                    {
-                        recorder = null;
-                    }
-                }
-                return;
+                return false;
             }
         }
         else
@@ -429,18 +448,9 @@ public class RecordButton
                     "Failed to start recording call " + call
                         + " into file " + callFilename,
                     exception);
-            if (recorder != null)
-            {
-                try
-                {
-                    recorder.stop();
-                }
-                finally
-                {
-                    recorder = null;
-                }
-            }
+            return false;
         }
-        setSelected(recorder != null);
+        else
+            return true;
     }
 }

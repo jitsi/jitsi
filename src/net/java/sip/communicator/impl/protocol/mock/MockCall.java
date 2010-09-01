@@ -16,42 +16,14 @@ import net.java.sip.communicator.util.*;
  * @author Damian Minkov
  */
 public class MockCall
-    extends Call
+    extends AbstractCall<MockCallPeer, MockProvider>
     implements CallPeerListener
 {
     private static final Logger logger = Logger.getLogger(MockCall.class);
 
-    /**
-     * A list containing all <tt>CallPeer</tt>s of this call.
-     */
-    private Vector<CallPeer> callPeers = new Vector<CallPeer>();
-
-
     public MockCall(MockProvider sourceProvider)
     {
         super(sourceProvider);
-    }
-
-    /**
-     * Returns an iterator over all call peers.
-     *
-     * @return an Iterator over all peers currently involved in the
-     *   call.
-     */
-    public Iterator<CallPeer> getCallPeers()
-    {
-        return callPeers.iterator();
-    }
-
-    /**
-     * Returns the number of peers currently associated with this call.
-     *
-     * @return an <tt>int</tt> indicating the number of peers
-     *   currently associated with this call.
-     */
-    public int getCallPeerCount()
-    {
-        return callPeers.size();
     }
 
     /**
@@ -63,12 +35,14 @@ public class MockCall
      */
     public void addCallPeer(MockCallPeer callPeer)
     {
+        List<MockCallPeer> callPeers = getCallPeersVector();
+
         if(callPeers.contains(callPeer))
             return;
 
         callPeer.addCallPeerListener(this);
 
-        this.callPeers.add(callPeer);
+        callPeers.add(callPeer);
 
         if (logger.isInfoEnabled())
             logger.info("Will fire peer added");
@@ -86,10 +60,12 @@ public class MockCall
      */
     public void removeCallPeer(MockCallPeer callPeer)
     {
+        List<MockCallPeer> callPeers = getCallPeersVector();
+
         if(!callPeers.contains(callPeer))
             return;
 
-        this.callPeers.remove(callPeer);
+        callPeers.remove(callPeer);
         callPeer.removeCallPeerListener(this);
 
         fireCallPeerEvent(
@@ -157,7 +133,6 @@ public class MockCall
     public void addLocalUserSoundLevelListener(
         SoundLevelListener l)
     {
-        
     }
 
     /**
@@ -169,6 +144,5 @@ public class MockCall
     public void removeLocalUserSoundLevelListener(
         SoundLevelListener l)
     {
-
     }
 }

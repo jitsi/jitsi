@@ -11,8 +11,8 @@ import javax.media.protocol.*;
 /**
  * Implements a <tt>BufferTransferHandler</tt> wrapper which doesn't
  * expose a <tt>PushBufferStream</tt> but rather a specific substitute in order
- * to give full control to the {@link PushBufferStream#read(Buffer)} method of
- * the substitute.
+ * to give full control to the {@link PushBufferStream#read(javax.media.Buffer)}
+ * method of the substitute.
  * <p>
  * The purpose is achieved in <code>#transferData(PushBufferStream)</code>
  * where the method argument <code>stream</code> is ignored and the substitute

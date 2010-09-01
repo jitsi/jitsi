@@ -229,8 +229,11 @@ public class AudioMixerMediaDevice
                 {
                     processor.start();
                     if (logger.isTraceEnabled())
-                        logger.trace("Started Processor with hashCode "
-                            + processor.hashCode());
+                    {
+                        logger.trace(
+                                "Started Processor with hashCode "
+                                    + processor.hashCode());
+                    }
                 }
             }
 
@@ -721,6 +724,7 @@ public class AudioMixerMediaDevice
                 MediaStreamMediaDeviceSession mediaStreamMediaDeviceSession)
         {
             if (mediaStreamMediaDeviceSession != null)
+            {
                 synchronized (mediaStreamMediaDeviceSessions)
                 {
                     if (mediaStreamMediaDeviceSessions
@@ -728,6 +732,7 @@ public class AudioMixerMediaDevice
                             && mediaStreamMediaDeviceSessions.isEmpty())
                         close();
                 }
+            }
         }
 
         /**

@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Damian Minkov
  */
 public class MockCallPeer
-    extends AbstractCallPeer
+    extends AbstractCallPeer<MockCall, MockProvider>
 {
     /**
      * The sip address of this peer
@@ -57,7 +57,7 @@ public class MockCallPeer
      *
      * @return a reference to the call containing this peer.
      */
-    public Call getCall()
+    public MockCall getCall()
     {
         return call;
     }
@@ -109,10 +109,11 @@ public class MockCallPeer
 
     /**
      * Returns the protocol provider that this peer belongs to.
+     *
      * @return a reference to the ProtocolProviderService that this peer
      * belongs to.
      */
-    public ProtocolProviderService getProtocolProvider()
+    public MockProvider getProtocolProvider()
     {
         return this.call.getProtocolProvider();
     }
@@ -127,7 +128,6 @@ public class MockCallPeer
     public void addStreamSoundLevelListener(
         SoundLevelListener listener)
     {
-
     }
 
     /**
@@ -140,7 +140,6 @@ public class MockCallPeer
     public void removeStreamSoundLevelListener(
         SoundLevelListener listener)
     {
-
     }
 
     /**
@@ -153,7 +152,6 @@ public class MockCallPeer
     public void addConferenceMembersSoundLevelListener(
         ConferenceMembersSoundLevelListener listener)
     {
-
     }
 
     /**
@@ -167,6 +165,5 @@ public class MockCallPeer
     public void removeConferenceMembersSoundLevelListener(
         ConferenceMembersSoundLevelListener listener)
     {
-
     }
 }
