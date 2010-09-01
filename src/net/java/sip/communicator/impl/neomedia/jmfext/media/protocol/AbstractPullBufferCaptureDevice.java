@@ -114,7 +114,20 @@ public abstract class AbstractPullBufferCaptureDevice
     {
         if (!connected)
         {
-            doConnect();
+            try
+            {
+                doConnect();
+            }
+            catch (IOException ioex)
+            {
+                logger.error(
+                        "Failed to connect "
+                            + getClass().getSimpleName()
+                            + " "
+                            + getLocator(),
+                        ioex);
+                throw ioex;
+            }
             connected = true;
         }
     }
@@ -258,7 +271,11 @@ public abstract class AbstractPullBufferCaptureDevice
         }
         catch (IOException ioex)
         {
-            logger.error("Failed to stop " + getClass().getSimpleName(), ioex);
+            logger.error(
+                    "Failed to stop "
+                        + getClass().getSimpleName()
+                        + " "
+                        + getLocator(), ioex);
         }
 
         if (connected)
@@ -382,8 +399,8 @@ public abstract class AbstractPullBufferCaptureDevice
     }
 
     /**
-     * Implements {@link Controls#getControls()}. Gets the controls available
-     * for this instance.
+     * Implements {@link javax.media.Controls#getControls()}. Gets the controls
+     * available for this instance.
      *
      * @return an array of <tt>Object</tt>s which represent the controls
      * available for this instance
@@ -665,11 +682,26 @@ public abstract class AbstractPullBufferCaptureDevice
         if (!started)
         {
             if (!connected)
+            {
                 throw
                     new IOException(
                             getClass().getSimpleName() + " not connected");
+            }
 
-            doStart();
+            try
+            {
+                doStart();
+            }
+            catch (IOException ioex)
+            {
+                logger.error(
+                        "Failed to start "
+                            + getClass().getSimpleName()
+                            + " "
+                            + getLocator(),
+                        ioex);
+                throw ioex;
+            }
             started = true;
         }
     }
@@ -685,7 +717,20 @@ public abstract class AbstractPullBufferCaptureDevice
     {
         if (started)
         {
-            doStop();
+            try
+            {
+                doStop();
+            }
+            catch (IOException ioex)
+            {
+                logger.error(
+                        "Failed to stop "
+                            + getClass().getSimpleName()
+                            + " "
+                            + getLocator(),
+                        ioex);
+                throw ioex;
+            }
             started = false;
         }
     }

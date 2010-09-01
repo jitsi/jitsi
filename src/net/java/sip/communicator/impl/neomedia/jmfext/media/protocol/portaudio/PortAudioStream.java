@@ -14,6 +14,7 @@ import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements <tt>PullBufferStream</tt> for PortAudio.
@@ -24,6 +25,12 @@ import net.java.sip.communicator.impl.neomedia.portaudio.*;
 public class PortAudioStream
     extends AbstractPullBufferStream
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>PortAudioStream</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(PortAudioStream.class);
 
     /**
      * The indicator which determines whether audio quality improvement is
@@ -163,7 +170,7 @@ public class PortAudioStream
             }
             catch (PortAudioException paex)
             {
-                IOException ioex = new IOException();
+                IOException ioex = new IOException(paex.getLocalizedMessage());
 
                 ioex.initCause(paex);
                 throw ioex;
@@ -215,7 +222,12 @@ public class PortAudioStream
                 }
                 catch (PortAudioException paex)
                 {
-                    IOException ioex = new IOException();
+                    logger.error(
+                            "Failed to close " + getClass().getSimpleName(),
+                            paex);
+
+                    IOException ioex
+                        = new IOException(paex.getLocalizedMessage());
 
                     ioex.initCause(paex);
                     throw ioex;
@@ -271,7 +283,11 @@ public class PortAudioStream
             }
             catch (PortAudioException paex)
             {
-                IOException ioex = new IOException();
+                logger.error(
+                        "Failed to open " + getClass().getSimpleName(),
+                        paex);
+
+                IOException ioex = new IOException(paex.getLocalizedMessage());
 
                 ioex.initCause(paex);
                 throw ioex;
@@ -339,7 +355,9 @@ public class PortAudioStream
         }
         catch (PortAudioException paex)
         {
-            IOException ioex = new IOException();
+            logger.error("Failed to start " + getClass().getSimpleName(), paex);
+
+            IOException ioex = new IOException(paex.getLocalizedMessage());
 
             ioex.initCause(paex);
             throw ioex;
@@ -378,7 +396,9 @@ public class PortAudioStream
         }
         catch (PortAudioException paex)
         {
-            IOException ioex = new IOException();
+            logger.error("Failed to stop " + getClass().getSimpleName(), paex);
+
+            IOException ioex = new IOException(paex.getLocalizedMessage());
 
             ioex.initCause(paex);
             throw ioex;

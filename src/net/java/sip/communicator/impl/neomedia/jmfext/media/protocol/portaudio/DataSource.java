@@ -14,6 +14,7 @@ import javax.media.control.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements <tt>DataSource</tt> and <tt>CaptureDevice</tt> for PortAudio.
@@ -24,6 +25,11 @@ import net.java.sip.communicator.impl.neomedia.portaudio.*;
 public class DataSource
     extends AbstractPullBufferCaptureDevice
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>DataSource</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(DataSource.class);
 
     /**
      * The indicator which determines whether this <tt>DataSource</tt> will
@@ -156,6 +162,10 @@ public class DataSource
                         }
                         catch (IOException ioex)
                         {
+                            logger.error(
+                                    "Failed to close "
+                                        + stream.getClass().getSimpleName(),
+                                    ioex);
                         }
                     }
                 }
@@ -179,7 +189,7 @@ public class DataSource
         MediaLocator locator = getLocator();
 
         if (locator == null)
-            throw new IllegalStateException("locator");
+            throw new NullPointerException("locator");
         return getDeviceIndex(locator);
     }
 

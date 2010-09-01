@@ -198,7 +198,7 @@ public class AudioMixer
             AudioMixingPushBufferDataSource outputDataSource)
     {
         if (inputDataSource == null)
-            throw new IllegalArgumentException("inputDataSource");
+            throw new NullPointerException("inputDataSource");
 
         synchronized (inputDataSources)
         {
