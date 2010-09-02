@@ -1587,9 +1587,11 @@ public class ChatRoomJabberImpl
                 if (logger.isInfoEnabled())
                     logger.info("Message error received from " + fromUserName);
 
-                int errorCode = packet.getError().getCode();
+                XMPPError error = packet.getError();
+                int errorCode = error.getCode();
                 int errorResultCode
                     = ChatRoomMessageDeliveryFailedEvent.UNKNOWN_ERROR;
+                String errorReason = error.getMessage();
 
                 if(errorCode == 503)
                 {
@@ -1608,6 +1610,7 @@ public class ChatRoomJabberImpl
                         ChatRoomJabberImpl.this,
                         member,
                         errorResultCode,
+                        errorReason,
                         new Date(),
                         newMessage);
 

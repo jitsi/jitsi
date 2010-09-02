@@ -378,6 +378,12 @@ public class ConferenceChatManager
                  "service.gui.MSG_DELIVERY_UNKNOWN_ERROR");
         }
 
+        String reason = evt.getReason();
+        if (reason != null)
+            errorMsg += " " + GuiActivator.getResources().getI18NString(
+                "service.gui.ERROR_WAS",
+                new String[]{reason});
+
         ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
         ChatPanel chatPanel

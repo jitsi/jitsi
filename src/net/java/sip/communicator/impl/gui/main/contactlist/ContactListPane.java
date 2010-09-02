@@ -382,8 +382,7 @@ public class ContactListPane
                 == MessageDeliveryFailedEvent.NETWORK_FAILURE)
         {
             errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_NOT_DELIVERED",
-                    new String[]{evt.getReason()});
+                    "service.gui.MSG_NOT_DELIVERED");
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED)
@@ -395,15 +394,19 @@ public class ContactListPane
                 == MessageDeliveryFailedEvent.INTERNAL_ERROR)
         {
             errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_INTERNAL_ERROR",
-                    new String[]{evt.getReason()});
+                    "service.gui.MSG_DELIVERY_INTERNAL_ERROR");
         }
         else
         {
             errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_ERROR",
-                    new String[]{evt.getReason()});
+                    "service.gui.MSG_DELIVERY_ERROR");
         }
+
+        String reason = evt.getReason();
+        if (reason != null)
+            errorMsg += " " + GuiActivator.getResources().getI18NString(
+                "service.gui.ERROR_WAS",
+                new String[]{reason});
 
         ChatPanel chatPanel
             = chatWindowManager.getContactChat(metaContact, sourceContact);

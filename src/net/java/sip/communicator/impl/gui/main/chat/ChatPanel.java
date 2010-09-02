@@ -1242,10 +1242,17 @@ public class ChatPanel
                 messageText,
                 mimeType);
 
+            String protocolError = "";
+            if (ex.getMessage() != null)
+                protocolError = " " + GuiActivator.getResources().getI18NString(
+                    "service.gui.ERROR_WAS",
+                    new String[]{ex.getMessage()});
+
             this.addErrorMessage(
                 chatSession.getCurrentChatTransport().getName(),
                 GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_SEND_CONNECTION_PROBLEM"));
+                    "service.gui.MSG_SEND_CONNECTION_PROBLEM")
+                    + protocolError);
         }
         catch (Exception ex)
         {
@@ -1260,11 +1267,17 @@ public class ChatPanel
                 messageText,
                 mimeType);
 
+            String protocolError = "";
+            if (ex.getMessage() != null)
+                protocolError = " " + GuiActivator.getResources().getI18NString(
+                    "service.gui.ERROR_WAS",
+                    new String[]{ex.getMessage()});
+
             this.addErrorMessage(
                 chatSession.getCurrentChatTransport().getName(),
                 GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_DELIVERY_ERROR",
-                    new String[]{ex.getMessage()}));
+                    new String[]{protocolError}));
         }
 
         if (chatSession.getCurrentChatTransport().allowsTypingNotifications())
@@ -1403,6 +1416,12 @@ public class ChatPanel
                 errorMsg = GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_DELIVERY_UNKNOWN_ERROR");
             }
+
+            String reason = evt.getReason();
+            if (reason != null)
+                errorMsg += " " + GuiActivator.getResources().getI18NString(
+                    "service.gui.ERROR_WAS",
+                    new String[]{reason});
 
             addMessage(
                     metaContact.getDisplayName(),
