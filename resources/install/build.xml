@@ -150,6 +150,7 @@
         <echo message="'ant build-installation-linux' for building linux instalation file" />
         <echo message="'ant build-installation-windows' for building windows instalation file" />
         <echo message="'ant build-installation-wix' for building Windows MSI instalation file using WiX and mt.exe" />
+        <echo message="'ant build-installation-wix-64' for building Windows x64 MSI instalation file using WiX and mt.exe" />
     </target>
 
     <target name="clean-install-generic">
@@ -403,7 +404,23 @@
     </target>
 
     <target name="build-installation-wix"
-            depends="clean-install-windows,version,windows-generate-exe">
+            depends="version">
+        <property name="windows_native_path" value="${sc.basedir}\lib\native\windows"/>
+        <property name="windows.jre.arch.file" value="${windows.jre.file}"/>
+        <property name="windows.download.link" value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}-x86.exe"/>
+        <antcall target="build-installation-wix-base" />
+    </target>
+
+    <target name="build-installation-wix-64"
+            depends="version">
+        <property name="windows_native_path" value="${sc.basedir}\lib\native\windows-64"/>
+        <property name="windows.jre.arch.file" value="${windows.jre64.file}"/>
+        <property name="windows.download.link" value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}-x64.exe"/>
+        <antcall target="build-installation-wix-base" />
+    </target>
+
+    <target name="build-installation-wix-base"
+            depends="clean-install-windows,windows-generate-exe">
         <!--
             This versionupdate.properties file isn't of interest to the MSI but
             is necessary for the site.
@@ -411,7 +428,7 @@
         <propertyfile file="${windows.app.dir}/versionupdate.properties">
             <entry key="last_version" value="${sip-communicator.version}" />
             <entry key="download_link"
-                    value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}.exe" />
+                   value="${windows.download.link}" />
             <entry key="changes_html" value="updates/index.html" />
         </propertyfile>
 
@@ -456,7 +473,7 @@
         </copy>
         <mkdir dir="${light.dir}/native" />
         <copy todir="${light.dir}/native" overwrite="true">
-            <fileset dir="${sc.basedir}/lib/native/windows">
+            <fileset dir="${windows_native_path}">
                 <include name="*" />
             </fileset>
         </copy>
@@ -512,7 +529,7 @@
         <filter token="WelcomeText1" value="${installer.welcome.wtext1}" />
         <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
         <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
-        <filter token="WINDOWS_JRE_FILE" value="${windows.jre.file}" />
+        <filter token="WINDOWS_JRE_FILE" value="${windows.jre.arch.file}" />
         <filter token="WIX_PRODUCT_ID" value="${wix.product.id}" />
         <filter token="WIX_UPGRADE_CODE" value="${wix.upgrade.code}" />
         <copy

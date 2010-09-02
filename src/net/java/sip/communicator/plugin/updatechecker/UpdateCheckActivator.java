@@ -773,6 +773,9 @@ public class UpdateCheckActivator
                         if(OSUtils.IS_LINUX64)
                             downloadLink
                                 = downloadLink.replace("i386", "amd64");
+                        else if(OSUtils.IS_WINDOWS64)
+                            downloadLink
+                                = downloadLink.replace("x86", "x64");
 
                         getBrowserLauncher().openURL(downloadLink);
                         dialog.dispose();
