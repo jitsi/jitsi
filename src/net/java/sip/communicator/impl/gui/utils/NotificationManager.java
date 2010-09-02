@@ -14,23 +14,25 @@ import net.java.sip.communicator.service.protocol.*;
 public class NotificationManager
 {
     public static final String INCOMING_MESSAGE = "IncomingMessage";
-    
+
     public static final String INCOMING_CALL = "IncomingCall";
-    
+
     public static final String OUTGOING_CALL = "OutgoingCall";
-    
+
     public static final String BUSY_CALL = "BusyCall";
-    
+
     public static final String DIALING = "Dialing";
-    
+
+    public static final String HANG_UP = "HangUp";
+
     public static final String PROACTIVE_NOTIFICATION = "ProactiveNotification";
-    
+
     public static final String SECURITY_MESSAGE = "SecurityMessage";
-    
+
     public static final String CALL_SECURITY_ON = "CallSecurityOn";
-    
+
     public static final String CALL_SECURITY_ERROR = "CallSecurityError";
-    
+
     public static final String INCOMING_FILE = "IncomingFile";
 
     public static final String CALL_SAVED = "CallSaved";
@@ -103,6 +105,16 @@ public class NotificationManager
                 DIALING,
                 NotificationService.ACTION_SOUND,
                 dialSoundHandler);
+
+        // Register the hangup sound notification.
+        SoundNotificationHandler hangupSoundHandler
+            = notificationService
+                .createSoundNotificationHandler(SoundProperties.HANG_UP, -1);
+
+        notificationService.registerDefaultNotificationForEvent(
+                HANG_UP,
+                NotificationService.ACTION_SOUND,
+                hangupSoundHandler);
 
         // Register proactive notifications.
         notificationService.registerDefaultNotificationForEvent(

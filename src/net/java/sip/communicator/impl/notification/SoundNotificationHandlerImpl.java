@@ -18,14 +18,20 @@ public class SoundNotificationHandlerImpl
     implements SoundNotificationHandler
 {
     private String soundFileDescriptor;
-    
+
     /**
      * By default we don't play sounds in loop.
      */
     private int loopInterval = -1;
 
+    /**
+     * The audio clip that manages to play the sound.
+     */
     private SCAudioClip audio;
 
+    /**
+     * Indicates if this handler is enabled.
+     */
     private boolean isEnabled = true;
 
     /**
@@ -38,7 +44,7 @@ public class SoundNotificationHandlerImpl
     {
         this.soundFileDescriptor = soundDescriptor;
     }
-    
+
     /**
      * Creates an instance of <tt>SoundNotificationHandlerImpl</tt> by
      * specifying the sound file descriptor and the loop interval.
@@ -51,8 +57,8 @@ public class SoundNotificationHandlerImpl
     {
         this.soundFileDescriptor = soundDescriptor;
         this.loopInterval = loopInterval;
-    }    
-    
+    }
+
     /**
      * Returns the loop interval. This is the interval of milliseconds to wait
      * before repeating the sound, when playing a sound in loop. By default this
@@ -70,7 +76,7 @@ public class SoundNotificationHandlerImpl
      * sound is played in loop if the loopInterval is defined.
      */
     public void start()
-    {   
+    {
         AudioNotifierService audioNotifService
             = NotificationActivator.getAudioNotifier();
 

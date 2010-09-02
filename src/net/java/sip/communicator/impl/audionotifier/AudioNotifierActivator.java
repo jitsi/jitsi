@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.audionotifier;
 
-import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;

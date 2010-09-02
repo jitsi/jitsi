@@ -16,45 +16,110 @@ import net.java.sip.communicator.service.resources.*;
  */
 public final class SoundProperties
 {
+    /**
+     * The incoming message sound id.
+     */
     public static final String INCOMING_MESSAGE;
 
+    /**
+     * The incoming file sound id.
+     */
     public static final String INCOMING_FILE;
 
+    /**
+     * The outgoing call sound id.
+     */
     public static final String OUTGOING_CALL;
 
+    /**
+     * The incoming call sound id.
+     */
     public static final String INCOMING_CALL;
 
+    /**
+     * The zero tone sound id.
+     */
     public static final String DIAL_ZERO;
 
+    /**
+     * The one tone sound id.
+     */
     public static final String DIAL_ONE;
 
+    /**
+     * The two tone sound id.
+     */
     public static final String DIAL_TWO;
 
+    /**
+     * The three tone sound id.
+     */
     public static final String DIAL_THREE;
 
+    /**
+     * The four tone sound id.
+     */
     public static final String DIAL_FOUR;
 
+    /**
+     * The five tone sound id.
+     */
     public static final String DIAL_FIVE;
 
+    /**
+     * The six tone sound id.
+     */
     public static final String DIAL_SIX;
 
+    /**
+     * The seven tone sound id.
+     */
     public static final String DIAL_SEVEN;
 
+    /**
+     * The eight tone sound id.
+     */
     public static final String DIAL_EIGHT;
 
+    /**
+     * The nine tone sound id.
+     */
     public static final String DIAL_NINE;
 
+    /**
+     * The diez tone sound id.
+     */
     public static final String DIAL_DIEZ;
 
+    /**
+     * The star tone sound id.
+     */
     public static final String DIAL_STAR;
 
+    /**
+     * The busy sound id.
+     */
     public static final String BUSY;
 
+    /**
+     * The dialing sound id.
+     */
     public static final String DIALING;
 
+    /**
+     * The sound id of the sound played when call security is turned on.
+     */
     public static final String CALL_SECURITY_ON;
 
+    /**
+     * The sound id of the sound played when a call security error occurs.
+     */
     public static final String CALL_SECURITY_ERROR;
+
+    /**
+     * The hang up sound id.
+     */
+    public static final String HANG_UP;
 
     static
     {
@@ -89,6 +154,7 @@ public final class SoundProperties
         DIALING = resources.getSoundPath("DIAL");
         CALL_SECURITY_ON = resources.getSoundPath("CALL_SECURITY_ON");
         CALL_SECURITY_ERROR = resources.getSoundPath("CALL_SECURITY_ERROR");
+        HANG_UP = resources.getSoundPath("HANG_UP");
     }
 
     private SoundProperties() {

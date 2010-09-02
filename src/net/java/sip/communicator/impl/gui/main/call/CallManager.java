@@ -111,6 +111,9 @@ public class CallManager
             // Stop all telephony related sounds.
             stopAllSounds();
 
+            // Play the hangup sound.
+            NotificationManager.fireNotification(NotificationManager.HANG_UP);
+
             if (activeCalls.get(sourceCall) != null)
             {
                 CallDialog callDialog = activeCalls.get(sourceCall);
@@ -200,6 +203,8 @@ public class CallManager
     public static void hangupCallPeer(final CallPeer callPeer)
     {
         stopAllSounds();
+
+        NotificationManager.fireNotification(NotificationManager.HANG_UP);
 
         new HangupCallPeerThread(callPeer).start();
     }

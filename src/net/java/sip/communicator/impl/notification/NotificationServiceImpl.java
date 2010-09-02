@@ -399,7 +399,7 @@ public class NotificationServiceImpl
         while(actions.hasNext())
         {
             Action action = actions.next();
-            
+
             String actionType = action.getActionType();
 
             NotificationActionHandler handler = action.getActionHandler();
