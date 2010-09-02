@@ -163,10 +163,7 @@ public class ContactJabberImpl
     byte[] getImage(boolean retrieveIfNecessary)
     {
         if(image == null && retrieveIfNecessary)
-        {
             ssclCallback.addContactForImageUpdate(this);
-        }
-
         return image;
     }
 

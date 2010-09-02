@@ -10,7 +10,7 @@ import java.io.*;
 
 /**
  * A service used to provide the basic functionality required to access the
- * undelying file system.
+ * underlying file system.
  *
  * Note: Never store unencrypted sensitive information, such as passwords,
  * personal data, credit card numbers, etc..
@@ -77,8 +77,9 @@ public interface FileAccessService {
      * This method creates a directory specific to the current user.
      *
      * This directory should not be considered secure because the implementor
-     * may return a directory accesible to everyone. Generaly it will reside in
-     * current user's homedir, but it may as well reside in a shared directory.
+     * may return a directory accessible to everyone. Generally, it will reside
+     * in current user's homedir, but it may as well reside in a shared
+     * directory.
      *
      * It is guaranteed that you will be able to create files in it.
      *

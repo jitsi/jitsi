@@ -304,13 +304,9 @@ public class ContactListTreeCellRenderer
             this.nameLabel.setText(displayName);
 
             if(contactList.isContactActive(contact))
-            {
                 statusIcon.setImage(msgReceivedImage);
-            }
             else
-            {
                 statusIcon = contact.getStatusIcon();
-            }
             this.statusLabel.setIcon(statusIcon);
 
             this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
@@ -324,11 +320,21 @@ public class ContactListTreeCellRenderer
 
             this.initButtonsPanel(contact);
 
-            ImageIcon avatar = isSelected
-                ? contact.getAvatar(
-                    isSelected, EXTENDED_AVATAR_WIDTH, EXTENDED_AVATAR_HEIGHT)
-                : contact.getAvatar(
-                    isSelected, AVATAR_WIDTH, AVATAR_HEIGHT);
+            int avatarWidth, avatarHeight;
+
+            if (isSelected)
+            {
+                avatarWidth = EXTENDED_AVATAR_WIDTH;
+                avatarHeight = EXTENDED_AVATAR_HEIGHT;
+            }
+            else
+            {
+                avatarWidth = AVATAR_WIDTH;
+                avatarHeight = AVATAR_HEIGHT;
+            }
+
+            ImageIcon avatar
+                = contact.getAvatar(isSelected, avatarWidth, avatarHeight);
 
             if (avatar != null)
                 this.rightLabel.setIcon(avatar);

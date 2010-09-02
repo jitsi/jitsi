@@ -905,7 +905,7 @@ public class ServerStoredContactListJabberImpl
     }
 
     /**
-     * when there is no image for contact we must retreive it
+     * when there is no image for contact we must retrieve it
      * add contacts for image update
      *
      * @param c ContactJabberImpl
@@ -1150,8 +1150,8 @@ public class ServerStoredContactListJabberImpl
         /**
          * list with the accounts with missing image
          */
-        private Vector<ContactJabberImpl> contactsForUpdate
-                                        = new Vector<ContactJabberImpl>();
+        private final List<ContactJabberImpl> contactsForUpdate
+            = new Vector<ContactJabberImpl>();
 
         /**
          * Should we stop.
@@ -1172,10 +1172,10 @@ public class ServerStoredContactListJabberImpl
             {
                 Collection<ContactJabberImpl> copyContactsForUpdate = null;
                 running = true;
-                while (true && running)
+                while (running)
                 {
-                    synchronized(contactsForUpdate){
-
+                    synchronized(contactsForUpdate)
+                    {
                         if(contactsForUpdate.isEmpty())
                             contactsForUpdate.wait();
 
@@ -1198,8 +1198,8 @@ public class ServerStoredContactListJabberImpl
                         if(imgBytes != null)
                         {
                             byte[] oldImage = contact.getImage(false);
-                            contact.setImage(imgBytes);
 
+                            contact.setImage(imgBytes);
                             parentOperationSet.fireContactPropertyChangeEvent(
                                 ContactPropertyChangeEvent.PROPERTY_IMAGE,
                                 contact, oldImage, imgBytes);
@@ -1212,7 +1212,7 @@ public class ServerStoredContactListJabberImpl
             }
             catch (InterruptedException ex)
             {
-                logger.error("NickRetriever error waiting will stop now!", ex);
+                logger.error("ImageRetriever error waiting will stop now!", ex);
             }
         }
 
@@ -1262,17 +1262,21 @@ public class ServerStoredContactListJabberImpl
                     return null;
 
                 VCard card = new VCard();
-                card.load(connection, contact.getAddress());
 
+                card.load(connection, contact.getAddress());
                 return card.getAvatar();
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
                 if (logger.isDebugEnabled())
-                    logger.debug("Cannot load image for contact "
-                    + this + " : " + exc.getMessage()
-                    , exc);
-
+                {
+                    logger.debug(
+                            "Cannot load image for contact "
+                                + this
+                                + ": "
+                                + ex.getMessage(),
+                            ex);
+                }
                 return new byte[0];
             }
         }

@@ -11,6 +11,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
+import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -510,13 +511,13 @@ public class MetaContactImpl
     }
 
     /**
-     * Queries all protocol contacts in this meta contact for their avatars.
-     * Beware that this method could cause multiple network operations.
-     * Use with caution.
+     * Queries a specific protocol <tt>Contact</tt> for its avatar. Beware that
+     * this method could cause multiple network operations. Use with caution.
      *
-     * @return a byte array containing the first avatar returned by any of
-     * this metacontact's child contacts or <tt>null</tt> if none of them
-     * returned an avatar.
+     * @param contact the protocol <tt>Contact</tt> to query for its avatar
+     * @return an array of <tt>byte</tt>s representing the avatar returned by
+     * the specified <tt>Contact</tt> or <tt>null</tt> if the specified
+     * <tt>Contact</tt> did not or failed to return an avatar
      */
     private byte[] queryProtoContactAvatar(Contact contact)
     {
@@ -524,16 +525,13 @@ public class MetaContactImpl
         {
             byte[] contactImage = contact.getImage();
 
-            if (contactImage != null && contactImage.length > 0)
-            {
+            if ((contactImage != null) && (contactImage.length > 0))
                 return contactImage;
-            }
         }
         catch (Exception ex)
         {
-            logger.error("Failed to load contact photo.", ex);
+            logger.error("Failed to get the photo of contact " + contact, ex);
         }
-
         return null;
     }
 
@@ -563,7 +561,7 @@ public class MetaContactImpl
 
                 // if we got a result from the above, then let's cache and
                 // return it.
-                if (result != null && result.length > 0)
+                if ((result != null) && (result.length > 0))
                 {
                     cacheAvatar(contact, result);
                     return result;
@@ -574,37 +572,38 @@ public class MetaContactImpl
         //if we get here then the caller is probably not willing to perform
         //network operations and opted for a lazy retrieve (... or the
         //queryAvatar method returned null because we are calling it too often)
-        if(cachedAvatar != null
-           && cachedAvatar.length > 0)
+        if((cachedAvatar != null) && (cachedAvatar.length > 0))
         {
             //we already have a cached avatar, so let's return it
             return cachedAvatar;
         }
 
-        //no cached avatar. let'r try the file system for previously stored
+        //no cached avatar. let's try the file system for previously stored
         //ones. (unless we already did this)
         if ( avatarFileCacheAlreadyQueried )
             return null;
-
         avatarFileCacheAlreadyQueried = true;
 
         Iterator<Contact> iter = this.getContacts();
+
         while (iter.hasNext())
         {
             Contact protoContact = iter.next();
-
-            String accountUID = escapeSpecialCharacters(protoContact
-                .getProtocolProvider().getAccountID().getAccountUniqueID());
-
             String avatarPath = AVATAR_DIR
                 + File.separator
-                + accountUID
+                + escapeSpecialCharacters(
+                        protoContact
+                            .getProtocolProvider()
+                                .getAccountID().getAccountUniqueID())
                 + File.separator
                 + escapeSpecialCharacters(protoContact.getAddress());
 
             cachedAvatar = getLocallyStoredAvatar(avatarPath);
-
-            if(cachedAvatar != null)
+            /*
+             * Caching a zero-length avatar happens but such an avatar isn't
+             * very useful.
+             */
+            if ((cachedAvatar != null) && (cachedAvatar.length > 0))
                 return cachedAvatar;
         }
 
@@ -1012,56 +1011,67 @@ public class MetaContactImpl
         this.cachedAvatar = avatarBytes;
         this.avatarFileCacheAlreadyQueried = true;
 
-        String accountUID = protoContact.getProtocolProvider()
-            .getAccountID().getAccountUniqueID();
-
-        accountUID = escapeSpecialCharacters(accountUID);
-
-        String avatarDirPath = AVATAR_DIR
-            + File.separator
-            + accountUID;
-
-        String escapedProtocolId
+        String avatarDirPath
+            = AVATAR_DIR
+                + File.separator
+                + escapeSpecialCharacters(
+                        protoContact
+                            .getProtocolProvider()
+                                .getAccountID().getAccountUniqueID());
+        String avatarFileName
             = escapeSpecialCharacters(protoContact.getAddress());
 
         File avatarDir = null;
         File avatarFile = null;
         try
         {
-            avatarDir = ContactlistActivator.getFileAccessService()
-                .getPrivatePersistentDirectory(avatarDirPath);
+            FileAccessService fileAccessService
+                = ContactlistActivator.getFileAccessService();
 
+            avatarDir
+                = fileAccessService.getPrivatePersistentDirectory(
+                        avatarDirPath);
             avatarFile
-                = ContactlistActivator.getFileAccessService()
-                    .getPrivatePersistentFile(
-                        avatarDirPath
-                        + File.separator
-                        + escapedProtocolId);
+                = fileAccessService.getPrivatePersistentFile(
+                        avatarDirPath + File.separator + avatarFileName);
 
             if(!avatarFile.exists())
             {
-                if (!avatarDir.exists())
-                    if (!avatarDir.mkdirs())
-                        throw new IOException("Failed to create directory: "
-                            + avatarDir.getAbsolutePath());
+                if (!avatarDir.exists() && !avatarDir.mkdirs())
+                {
+                    throw
+                        new IOException(
+                                "Failed to create directory: "
+                                    + avatarDir.getAbsolutePath());
+                }
 
                 if (!avatarFile.createNewFile())
-                    throw new IOException("Failed to create file"
-                                          + avatarFile.getAbsolutePath());
+                {
+                    throw
+                        new IOException(
+                                "Failed to create file"
+                                    + avatarFile.getAbsolutePath());
+                }
             }
 
             FileOutputStream fileOutStream = new FileOutputStream(avatarFile);
 
-            fileOutStream.write(avatarBytes);
-            fileOutStream.flush();
-            fileOutStream.close();
+            try
+            {
+                fileOutStream.write(avatarBytes);
+                fileOutStream.flush();
+            }
+            finally
+            {
+                fileOutStream.close();
+            }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            logger.error("Failed to store avatar. dir ="
-                            + avatarDir
-                            + " file="
-                            + avatarFile, e);
+            logger.error(
+                    "Failed to store avatar. dir =" + avatarDir
+                        + " file=" + avatarFile,
+                    ex);
         }
     }
 
@@ -1075,25 +1085,41 @@ public class MetaContactImpl
     {
         try
         {
-            File avatarFile = ContactlistActivator.getFileAccessService()
-                .getPrivatePersistentFile(avatarPath);
+            File avatarFile
+                = ContactlistActivator
+                    .getFileAccessService()
+                        .getPrivatePersistentFile(avatarPath);
 
             if(avatarFile.exists())
             {
-                FileInputStream fileInStream = new FileInputStream(avatarFile);
+                FileInputStream avatarInputStream
+                    = new FileInputStream(avatarFile);
+                byte[] bs = null;
 
-                byte[] bs = new byte[fileInStream.available()];
-                fileInStream.read(bs);
-                fileInStream.close();
+                try
+                {
+                    int available = avatarInputStream.available();
 
-                return bs;
+                    if (available > 0)
+                    {
+                        bs = new byte[available];
+                        avatarInputStream.read(bs);
+                    }
+                }
+                finally
+                {
+                    avatarInputStream.close();
+                }
+                if (bs != null)
+                    return bs;
             }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            logger.error("Could not read avatar image", e);
+            logger.error(
+                    "Could not read avatar image from file " + avatarPath,
+                    ex);
         }
-
         return null;
     }
 

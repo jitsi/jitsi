@@ -252,7 +252,6 @@ public class MetaUIContact
         boolean isSelected, int width, int height)
     {
         byte[] avatarBytes = metaContact.getAvatar(true);
-        ImageIcon avatar = null;
 
         // If there'rs no avatar we have nothing more to do here.
         if((avatarBytes == null) || (avatarBytes.length <= 0))
@@ -261,28 +260,22 @@ public class MetaUIContact
         // If the cell is selected we return a zoomed version of the avatar
         // image.
         if (isSelected)
-            return ImageUtils.getScaledRoundedIcon(
-                avatarBytes,
-                width,
-                height);
+            return ImageUtils.getScaledRoundedIcon(avatarBytes, width, height);
 
         // In any other case try to get the avatar from the cache.
         Object[] avatarCache
             = (Object[]) metaContact.getData(AVATAR_DATA_KEY);
+        ImageIcon avatar = null;
 
         if ((avatarCache != null) && (avatarCache[0] == avatarBytes)) 
             avatar = (ImageIcon) avatarCache[1];
 
-        // Just 
-        int avatarWidth = width;
-        int avatarHeight = height;
-
         // If the avatar isn't available or it's not up-to-date, create it.
         if (avatar == null)
-            avatar = ImageUtils.getScaledRoundedIcon(
-                        avatarBytes,
-                        avatarWidth,
-                        avatarHeight);
+        {
+            avatar
+                = ImageUtils.getScaledRoundedIcon(avatarBytes, width, height);
+        }
 
         // Cache the avatar in case it has changed.
         if (avatarCache == null)
