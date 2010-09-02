@@ -1098,6 +1098,12 @@ public class OperationSetPersistentPresenceIcqImpl
                  || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
                  || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
             {
+                if(presenceQueryTimer != null)
+                {
+                    presenceQueryTimer.cancel();
+                    presenceQueryTimer = null;
+                }
+
                 //since we are disconnected, we won't receive any further status
                 //updates so we need to change by ourselves our own status as
                 //well as set to offline all contacts in our contact list that

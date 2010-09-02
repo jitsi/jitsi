@@ -6,9 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
+
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smackx.packet.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 
@@ -182,7 +184,45 @@ public class OperationSetServerStoredAccountInfoJabberImpl
                OperationFailedException,
                ArrayIndexOutOfBoundsException
     {
+        assertConnected();
 
+        /*
+        Currently as the function only provided the list of classes that
+        currently have data associated with them
+         in Jabber InfoRetreiver we have to skip this check*/
+        //if (!isDetailClassSupported(detail.getClass())) {
+        //    throw new IllegalArgumentException(
+        //            "implementation does not support such details " +
+        //            detail.getClass());
+        //}
+
+        Iterator iter = getDetails(detail.getClass());
+        int currentDetailsSize = 0;
+        while (iter.hasNext()) {
+            currentDetailsSize++;
+        }
+
+        if (currentDetailsSize >= getMaxDetailInstances(detail.getClass()))
+        {
+            throw new ArrayIndexOutOfBoundsException(
+                    "Max count for this detail is already reached");
+        }
+
+        if(detail instanceof ImageDetail)
+        {
+            try
+            {
+                VCard v1 = new VCard();
+                v1.load(jabberProvider.getConnection());
+
+                v1.setAvatar(((ImageDetail) detail).getBytes());
+
+                v1.save(jabberProvider.getConnection());
+            } catch (XMPPException xmppe)
+            {
+                xmppe.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -221,6 +261,55 @@ public class OperationSetServerStoredAccountInfoJabberImpl
                     ServerStoredDetails.GenericDetail newDetailValue)
         throws ClassCastException, OperationFailedException
     {
+        assertConnected();
+
+        if (!newDetailValue.getClass().equals(currentDetailValue.getClass()))
+        {
+            throw new ClassCastException(
+                    "New value to be replaced is not as the current one");
+        }
+        // if values are the same no change
+        if (currentDetailValue.equals(newDetailValue))
+        {
+            return true;
+        }
+
+        boolean isFound = false;
+        Iterator iter =
+                infoRetreiver.getDetails(uin, currentDetailValue.getClass());
+
+        while (iter.hasNext())
+        {
+            GenericDetail item = (GenericDetail) iter.next();
+            if (item.equals(currentDetailValue))
+            {
+                isFound = true;
+                break;
+            }
+        }
+        // current detail value does not exist
+        if (!isFound)
+        {
+            return false;
+        }
+
+        if(newDetailValue instanceof ImageDetail)
+        {
+            try
+            {
+                VCard v1 = new VCard();
+                v1.load(jabberProvider.getConnection());
+
+                v1.setAvatar(((ImageDetail) newDetailValue).getBytes());
+                v1.save(jabberProvider.getConnection());
+
+                return true;
+            } catch (XMPPException xmppe)
+            {
+                xmppe.printStackTrace();
+            }
+        }
+
         return false;
     }
 

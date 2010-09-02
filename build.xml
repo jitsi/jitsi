@@ -1389,7 +1389,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/protocol/msn/msn.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/msn"
                 prefix="net/java/sip/communicator/impl/protocol/msn"/>
-            <zipfileset src="${lib.noinst}/jml-1.0b2.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jml-1.0b5.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1400,7 +1400,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="${testsrc}/net/java/sip/communicator/slick/protocol/msn/msn.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/msn"
                 prefix="net/java/sip/communicator/slick/protocol/msn"/>
-            <zipfileset src="${lib.noinst}/jml-1.0b2.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jml-1.0b5.jar" prefix=""/>
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/generic"
                 prefix="net/java/sip/communicator/slick/protocol/generic"/>
         </jar>

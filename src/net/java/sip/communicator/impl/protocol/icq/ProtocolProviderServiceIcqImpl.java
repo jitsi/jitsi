@@ -497,12 +497,23 @@ public class ProtocolProviderServiceIcqImpl
                             infoRetreiver,
                             this));
 
-                addSupportedOperationSet(
-                    OperationSetServerStoredAccountInfo.class,
-                    new OperationSetServerStoredAccountInfoIcqImpl(
+                OperationSetServerStoredAccountInfoIcqImpl
+                    serverStoredAccountInfoOpSet =
+                        new OperationSetServerStoredAccountInfoIcqImpl(
                             infoRetreiver,
                             screenname,
-                            this));
+                            this);
+                addSupportedOperationSet(
+                    OperationSetServerStoredAccountInfo.class,
+                    serverStoredAccountInfoOpSet);
+
+//                Currently disabled as when we send avatar 
+//                we receive an error from server
+//                addSupportedOperationSet(
+//                    OperationSetAvatar.class,
+//                    new OperationSetAvatarIcqImpl(
+//                            this,
+//                            serverStoredAccountInfoOpSet));
 
                 addSupportedOperationSet(
                     OperationSetWebAccountRegistration.class,

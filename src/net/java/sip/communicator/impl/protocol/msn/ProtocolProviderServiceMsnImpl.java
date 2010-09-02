@@ -211,6 +211,12 @@ public class ProtocolProviderServiceMsnImpl
             persistentPresence.setMessenger(messenger);
             typingNotifications.setMessenger(messenger);
 
+            fireRegistrationStateChanged(
+                getRegistrationState(),
+                RegistrationState.REGISTERING,
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                null);
+
             try
             {
                 messenger.login();
@@ -305,6 +311,17 @@ public class ProtocolProviderServiceMsnImpl
             addSupportedOperationSet(
                 OperationSetPresence.class,
                 persistentPresence);
+
+            //initialize AccountInfo
+            OperationSetServerStoredAccountInfoMsnImpl accountInfo
+                = new OperationSetServerStoredAccountInfoMsnImpl(
+                    this, screenname);
+            addSupportedOperationSet(
+                    OperationSetServerStoredAccountInfo.class,
+                    accountInfo);
+            addSupportedOperationSet(
+                    OperationSetAvatar.class,
+                    new OperationSetAvatarMsnImpl(this, accountInfo));
 
             addSupportedOperationSet(
                 OperationSetAdHocMultiUserChat.class,

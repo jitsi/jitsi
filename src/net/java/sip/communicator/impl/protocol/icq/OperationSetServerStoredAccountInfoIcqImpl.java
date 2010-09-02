@@ -275,6 +275,24 @@ public class OperationSetServerStoredAccountInfoIcqImpl
             throw new ArrayIndexOutOfBoundsException(
                 "Max count for this detail is already reached");
 
+        if (detail instanceof ImageDetail)
+        {
+            if (iconListener == null)
+            {
+                iconListener = new IconUpdateListener();
+
+                this.icqProvider.getAimConnection().getExternalServiceManager().
+                        getIconServiceArbiter().addIconRequestListener(
+                        new IconUpdateListener());
+            }
+
+            icqProvider.getAimConnection().getMyBuddyIconManager().requestSetIcon(
+                    ByteBlock.wrap(((ServerStoredDetails.ImageDetail) detail).getBytes()));
+            infoRetreiver.detailsChanged(uin);
+
+            return;
+        }
+
         // everything is ok , so set it
         alreadySetDetails.add(detail);
 
@@ -561,6 +579,26 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         // current detail value does not exist
         if(!isFound)
             return false;
+
+        //replacing in case of image
+        if (newDetailValue instanceof ImageDetail)
+        {
+            if (iconListener == null)
+            {
+                iconListener = new IconUpdateListener();
+
+                this.icqProvider.getAimConnection().getExternalServiceManager().
+                        getIconServiceArbiter().addIconRequestListener(
+                        new IconUpdateListener());
+            }
+            icqProvider.getAimConnection().getMyBuddyIconManager()
+                .requestSetIcon(ByteBlock.wrap(
+                    ((ServerStoredDetails.ImageDetail) newDetailValue)
+                            .getBytes()));
+
+            infoRetreiver.detailsChanged(uin);
+            return true;
+        }
 
         SuccessResponseListener responseListener = new SuccessResponseListener();
 

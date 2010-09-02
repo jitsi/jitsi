@@ -818,6 +818,18 @@ public class ImageLoader
     public static final ImageID CHAT_ROOM_CONFIG
         = new ImageID("service.gui.buttons.CHAT_ROOM_CONFIG");
 
+    /**
+     * Zoom out Image for avatar panel
+     */
+    public static final ImageID MAGNIFIER_ZOOM_OUT
+        = new ImageID("service.gui.buttons.ZOOM_OUT");
+
+    /**
+     * Zoom in Image for avatar panel
+     */
+    public static final ImageID MAGNIFIER_ZOOM_IN
+        = new ImageID("service.gui.buttons.ZOOM_IN");
+
     /*
      * =======================================================================
      * ------------------------ EDIT TOOLBAR ICONS ---------------------------

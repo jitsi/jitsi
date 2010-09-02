@@ -84,7 +84,7 @@ public class ContactGroupMsnImpl
         for (MsnContact groupMember : groupMembers)
         {
             /*
-             *Only add the contact if it doesn't already exist in some other
+             * Only add the contact if it doesn't already exist in some other
              * group. This is necessary because MSN would allow having one and
              * the same contact in more than one group.
              */

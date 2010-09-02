@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.presence.avatar.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
@@ -31,7 +32,8 @@ import net.java.sip.communicator.util.swing.*;
 public class AccountStatusPanel
     extends TransparentPanel
     implements  RegistrationStateChangeListener,
-                PluginComponentListener
+                PluginComponentListener,
+                AvatarListener
 {
     /**
      * The desired height of the avatar.
@@ -109,13 +111,16 @@ public class AccountStatusPanel
         if (ConfigurationManager.isTransparentWindowEnabled())
             this.setUI(new SIPCommOpaquePanelUI());
 
-        accountImageLabel
-            = new FramedImage(
+        FramedImageWithMenu imageWithMenu
+            = new FramedImageWithMenu(
+                    mainFrame,
                     new ImageIcon(
                             ImageLoader
                                 .getImage(ImageLoader.DEFAULT_USER_PHOTO)),
                     AVATAR_ICON_WIDTH,
                     AVATAR_ICON_HEIGHT);
+        imageWithMenu.setPopupMenu(new SelectAvatarMenu(imageWithMenu));
+        this.accountImageLabel = imageWithMenu;
 
         accountNameLabel.setFont(
             accountNameLabel.getFont().deriveFont(Font.BOLD));
@@ -261,6 +266,19 @@ public class AccountStatusPanel
     }
 
     /**
+     * Updates the image that is shown.
+     * @param img the new image.
+     */
+    public void updateImage(ImageIcon img)
+    {
+        accountImageLabel.setImageIcon(img.getImage());
+        accountImageLabel.setMaximumSize(
+            new Dimension(AVATAR_ICON_WIDTH, AVATAR_ICON_HEIGHT));
+        revalidate();
+        repaint();
+    }
+
+    /**
      * Starts connecting user interface for the given <tt>protocolProvider</tt>.
      * @param protocolProvider the <tt>ProtocolProviderService</tt> to start
      * connecting for
@@ -391,6 +409,17 @@ public class AccountStatusPanel
                             accountNameLabel.setText(accountName);
                     }
                 }.start();
+
+            OperationSetAvatar avatarOpSet
+                = protocolProvider.getOperationSet(OperationSetAvatar.class);
+            avatarOpSet.addAvatarListener(this);
+        }
+        else if (evt.getNewState().equals(RegistrationState.UNREGISTERING)
+                || evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
+        {
+            OperationSetAvatar avatarOpSet
+                = protocolProvider.getOperationSet(OperationSetAvatar.class);
+            avatarOpSet.removeAvatarListener(this);
         }
     }
 
@@ -474,5 +503,17 @@ public class AccountStatusPanel
     public static byte[] getGlobalAccountImage()
     {
         return currentImage;
+    }
+
+    /**
+     * Called whenever a new avatar is defined for one of the protocols that we
+     * have subscribed for.
+     *
+     * @param event the event containing the new image
+     */
+    public void avatarChanged(AvatarEvent event)
+    {
+        currentImage = event.getNewAvatar();
+        accountImageLabel.setImageIcon(currentImage);
     }
 }

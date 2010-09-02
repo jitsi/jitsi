@@ -1626,6 +1626,9 @@ public class ChatRoomJabberImpl
                     newMessage,
                     messageReceivedEventType);
 
+            if(delay != null)
+                msgReceivedEvt.setHistoryMessage(true);
+
             fireMessageEvent(msgReceivedEvt);
         }
     }

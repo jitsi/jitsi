@@ -259,4 +259,52 @@ public class ImageUtils
         }
         return image;
     }
+
+    /**
+     * Returns the buffered image corresponding to the given image
+     * @param source an image
+     * @return the buffered image corresponding to the given image
+     */
+    public static BufferedImage getBufferedImage(Image source)
+    {
+        if (source == null)
+        {
+            return null;
+        }
+        else if (source instanceof BufferedImage)
+        {
+            return (BufferedImage) source;
+        }
+
+        int width = source.getWidth(null);
+        int height = source.getHeight(null);
+
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics graphics = image.createGraphics();
+        graphics.drawImage(source, 0, 0, null);
+        graphics.dispose();
+
+        return image;
+    }
+
+    /**
+     * Extracts bytes from image.
+     * @param image the image.
+     * @return the bytes of the image.
+     */
+    public static byte[] toByteArray(BufferedImage image)
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try
+        {
+            ImageIO.write(image, "png", out);
+        }
+        catch (IOException e)
+        {
+            logger.debug("Cannot convert buffered image to byte[]", e);
+            return null;
+        }
+
+        return out.toByteArray();
+    }
 }

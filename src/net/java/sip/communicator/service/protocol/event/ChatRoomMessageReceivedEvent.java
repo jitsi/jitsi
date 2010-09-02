@@ -64,6 +64,11 @@ public class ChatRoomMessageReceivedEvent
     private final int eventType;
 
     /**
+     * Some services can fill our room with message history.
+     */
+    private boolean historyMessage = false;
+
+    /**
      * Creates a <tt>MessageReceivedEvent</tt> representing reception of the
      * <tt>source</tt> message received from the specified <tt>from</tt>
      * contact.
@@ -137,5 +142,24 @@ public class ChatRoomMessageReceivedEvent
     public int getEventType()
     {
         return eventType;
+    }
+
+    /**
+     * Is current event for history message.
+     * @return is current event for history message.
+     */
+    public boolean isHistoryMessage()
+    {
+        return historyMessage;
+    }
+
+    /**
+     * Changes property, whether this event is for a history message.
+     *
+     * @param historyMessage whether its event for history message.
+     */
+    public void setHistoryMessage(boolean historyMessage)
+    {
+        this.historyMessage = historyMessage;
     }
 }

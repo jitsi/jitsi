@@ -9,9 +9,11 @@ package net.java.sip.communicator.impl.protocol.msn;
 import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 
+import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
@@ -27,6 +29,7 @@ public class MsnActivator
     private        ServiceRegistration  msnPpFactoryServReg   = null;
     private static BundleContext        bundleContext         = null;
     private static ConfigurationService configurationService  = null;
+    private static FileAccessService    fileAccessService     = null;
 
     private static ProtocolProviderFactoryMsnImpl msnProviderFactory = null;
 
@@ -143,5 +146,22 @@ public class MsnActivator
             resources
                 = ResourceManagementServiceUtils.getService(bundleContext);
         return resources;
+    }
+
+    /**
+     * Returns the <tt>FileAccessService</tt> obtained from the bundle context.
+     *
+     * @return the <tt>FileAccessService</tt> obtained from the bundle context
+     */
+    public static FileAccessService getFileAccessService()
+    {
+        if (fileAccessService == null)
+        {
+            fileAccessService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        FileAccessService.class);
+        }
+        return fileAccessService;
     }
 }

@@ -24,9 +24,9 @@ public class FramedImage
 
     private ImageIcon icon;
 
-    private final int width;
+    protected final int width;
 
-    private final int height;
+    protected final int height;
 
     /**
      * Creates a FramedImage by specifying the width and the height of the
@@ -82,6 +82,31 @@ public class FramedImage
             this.revalidate();
             this.repaint();
         }
+    }
+
+    /**
+     * Sets the image to display in the frame.
+     *
+     * @param image the image to display in the frame
+     */
+    public void setImageIcon(Image image)
+    {
+        icon = ImageUtils.getScaledRoundedIcon(image, width - 2, height - 2);
+
+        if (this.isVisible())
+        {
+            this.revalidate();
+            this.repaint();
+        }
+    }
+
+    /**
+     * Returns the image that is shown.
+     * @return
+     */
+    public Image getImage()
+    {
+        return icon.getImage();
     }
 
     /**
