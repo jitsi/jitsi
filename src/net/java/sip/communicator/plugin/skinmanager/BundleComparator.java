@@ -4,17 +4,18 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.pluginmanager;
+package net.java.sip.communicator.plugin.skinmanager;
 
 import java.util.*;
 import org.osgi.framework.*;
 
 /**
  * Comparator for bundle array sort
- * 
+ *
  * @author ROTH Damien
  */
-public class BundleComparator implements Comparator<Bundle>
+public class BundleComparator
+    implements Comparator<Bundle>
 {
     /**
      * Compares the bundles using their "Bundle-Name"s.
@@ -36,7 +37,7 @@ public class BundleComparator implements Comparator<Bundle>
         {
             n2 = "unknown";
         }
-
+        
         return n1.compareTo(n2);
     }
 }

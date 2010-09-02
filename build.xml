@@ -894,6 +894,7 @@
         bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
         bundle-fileaccess-slick,bundle-neomedia,
         bundle-resource-manager,bundle-resources-defaultpack,
+        bundle-resources-skinpack,
         bundle-protocol,bundle-protocol-media,bundle-icq,
         bundle-icq-slick,bundle-mock,bundle-smacklib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
@@ -911,8 +912,8 @@
         bundle-rss, bundle-rss-slick,bundle-plugin-rssaccregwizz,
         bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,bundle-plugin-whiteboard,
         bundle-irc,bundle-plugin-ircaccregwizz,
-        bundle-pluginmanager,bundle-notification,bundle-notification-config,
-        bundle-ssh,bundle-plugin-sshaccregwizz,
+        bundle-pluginmanager,bundle-skinmanager,bundle-notification,
+        bundle-notification-config,bundle-ssh,bundle-plugin-sshaccregwizz,
         bundle-contacteventhandler,bundle-plugin-contactinfo,
         bundle-plugin-accountinfo,bundle-plugin-chatalerter, bundle-keybindings,
         bundle-plugin-keybindingChooser,bundle-plugin-globalproxyconfig,
@@ -1799,6 +1800,16 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+    <!-- BUNDLE-SKIN MANAGER -->
+    <target name="bundle-skinmanager">
+        <!-- Creates a bundle for the skin manager plugin.-->
+        <jar compress="false" destfile="${bundles.dest}/skinmanager.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/skinmanager/skinmanager.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/skinmanager"
+                prefix="net/java/sip/communicator/plugin/skinmanager"/>
+        </jar>
+    </target>
+
     <!-- BUNDLE-RSS -->
     <target name="bundle-rss">
         <!-- Creates a bundle containing the Rss impl of the protocol provider.-->
@@ -2162,6 +2173,16 @@ org.apache.http.util"/>
                     prefix="resources/sounds"/>
             <zipfileset dir="${resources}/styles"
                     prefix="resources/styles"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-SKIN-RESOURCES-->
+    <target name="bundle-resources-skinpack">
+        <jar
+            compress="false" destfile="${bundles.dest}/skinresources.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/skinresourcepack/skinresourcepack.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/skinresourcepack"
+                    prefix="net/java/sip/communicator/plugin/skinresourcepack"/>
         </jar>
     </target>
 

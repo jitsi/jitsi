@@ -1,0 +1,8 @@
+Bundle-Activator: net.java.sip.communicator.plugin.skinresourcepack.SkinResourcesPack
+Bundle-Name: Skin Resource Pack
+Bundle-Description: The plugin offering skin related data.
+Bundle-Vendor: sip-communicator.org, Adam Netocny, CircleTech, s.r.o.
+Bundle-Version: 0.0.1
+System-Bundle: no
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.service.resources

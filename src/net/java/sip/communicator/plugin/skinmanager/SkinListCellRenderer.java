@@ -4,9 +4,11 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.pluginmanager;
+package net.java.sip.communicator.plugin.skinmanager;
 
 import java.awt.*;
+import java.io.IOException;
+import java.net.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -23,10 +25,11 @@ import org.osgi.framework.*;
  * The cell border and background are repainted.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny, CircleTech, s.r.o.
  */
-public class PluginListCellRenderer
-    extends JPanel
-    implements TableCellRenderer
+public class SkinListCellRenderer
+        extends JPanel
+        implements TableCellRenderer
 {
     /**
      * The end color used to paint a gradient selected background.
@@ -43,7 +46,8 @@ public class PluginListCellRenderer
     /**
      * The panel containing name and version information.
      */
-    private JPanel nameVersionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    private JPanel nameVersionPanel
+        = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
     /**
      * The name label.
@@ -71,13 +75,6 @@ public class PluginListCellRenderer
     private JLabel iconLabel = new JLabel();
 
     /**
-     * The system label indicating that a bundle is system (i.e. not optional).
-     */
-    private JLabel systemLabel
-        = new JLabel("( " + Resources.getString("plugin.pluginmanager.SYSTEM")
-                    + " )");
-
-    /**
      * Indicates if a skin is selected.
      */
     private boolean isSelected = false;
@@ -94,7 +91,7 @@ public class PluginListCellRenderer
     /**
      * Initialize the panel containing the node.
      */
-    public PluginListCellRenderer()
+    public SkinListCellRenderer()
     {
         super(new BorderLayout(8, 8));
 
@@ -114,7 +111,6 @@ public class PluginListCellRenderer
         this.nameLabel.setIconTextGap(2);
 
         this.nameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
-        this.systemLabel.setFont(this.getFont().deriveFont(Font.BOLD));
 
         this.nameVersionPanel.add(nameLabel);
         this.nameVersionPanel.add(versionLabel);
@@ -145,36 +141,79 @@ public class PluginListCellRenderer
             boolean isSelected, boolean hasFocus, int rowIndex, int vColIndex)
     {
         Bundle bundle = (Bundle) value;
-
+        URL res = bundle.getResource("info.properties");
         Dictionary<Object, Object> headers = bundle.getHeaders();
         Object bundleName = headers.get(Constants.BUNDLE_NAME);
         Object bundleVersion = headers.get(Constants.BUNDLE_VERSION);
         Object bundleDescription = headers.get(Constants.BUNDLE_DESCRIPTION);
 
+        if (res != null) {
+            Properties props = new Properties();
+            try {
+                props.load(res.openStream());
+                String disp = props.getProperty("display_name");
+                if (disp != null) {
+                    bundleName = disp;
+                }
+
+                disp = props.getProperty("version");
+                if (disp != null) {
+                    bundleVersion = disp;
+                }
+
+                disp = props.getProperty("author");
+                String desc = props.getProperty("description");
+                String bundString = "";
+                if (disp != null) {
+                    bundString = disp;
+                }
+                if (desc != null) {
+                    if (disp != null) {
+                        bundString += " - ";
+                    }
+                    bundString += desc;
+                }
+
+                if(!bundString.equals("")){
+                    bundleDescription = bundString;
+                }
+            } catch (IOException ex) {
+            }
+        }
+
         Icon stateIcon = getStateIcon(bundle.getState());
 
-        if(bundleName != null)
+        if (bundleName != null)
+        {
             this.nameLabel.setText(bundleName.toString());
+        }
         else
+        {
             this.nameLabel.setText("unknown");
+        }
 
-        if(bundleVersion != null)
+        if (bundleVersion != null)
+        {
             this.versionLabel.setText(bundleVersion.toString());
+        }
         else
+        {
             this.versionLabel.setText("");
+        }
 
-        if(bundleDescription != null)
+        if (bundleDescription != null)
+        {
             this.descriptionLabel.setText(bundleDescription.toString());
+        }
         else
+        {
             this.descriptionLabel.setText("");
+        }
 
-        if(stateIcon != null)
+        if (stateIcon != null)
+        {
             this.stateLabel.setIcon(stateIcon);
-
-        this.nameVersionPanel.remove(systemLabel);
-
-        if(PluginManagerActivator.isSystemBundle(bundle))
-            this.nameVersionPanel.add(systemLabel);
+        }
 
         this.isSelected = isSelected;
 
@@ -215,18 +254,20 @@ public class PluginListCellRenderer
             default:
                 return null;
         }
+
         ImageIcon stateIcon = stateIconCache[cacheIndex];
         if (stateIcon == null)
-            stateIconCache[cacheIndex] =
-                stateIcon = Resources.getResources().getImage(imageID);
+        {
+            stateIconCache[cacheIndex]
+                       = stateIcon = Resources.getResources().getImage(imageID);
+        }
         return stateIcon;
     }
 
     /**
-     * Paint a background for all groups and a round blue border and background
-     * when a cell is selected.
-     * @param g the <tt>Graphics</tt> object used for painting
+     * Paints a custom background of the cell.
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
@@ -257,7 +298,7 @@ public class PluginListCellRenderer
         if (this.isSelected)
         {
             GradientPaint p =
-                new GradientPaint(width / 2, 0, SELECTED_START_COLOR,
+                    new GradientPaint(width / 2, 0, SELECTED_START_COLOR,
                     width / 2, height, SELECTED_END_COLOR);
 
             g2.setPaint(p);

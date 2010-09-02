@@ -18,6 +18,7 @@ import javax.swing.*;
  * some configurations.
  *
  * @author Damian Minkov
+ * @author Adam Netocny, CircleTech, s.r.o.
  */
 public interface ResourceManagementService
 {
@@ -237,4 +238,12 @@ public interface ResourceManagementService
      * @return A byte array containing the image with the given identifier.
      */
     public byte[] getImageInBytes(String imageID);
+
+    /**
+     * Builds a new skin bundle from the zip file content.
+     * @param zipFile Zip file with skin information.
+     * @return <tt>File</tt> for the bundle.
+     * @throws Exception When something goes wrong.
+     */
+    public File prepareSkinBundleFromZip(File zipFile) throws Exception;
 }

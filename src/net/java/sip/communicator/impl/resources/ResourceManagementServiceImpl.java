@@ -13,6 +13,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.resources.util.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
@@ -24,6 +25,7 @@ import org.osgi.framework.*;
  * @author Damian Minkov
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny, CircleTech, s.r.o.
  */
 public class ResourceManagementServiceImpl
     implements ResourceManagementService,
@@ -53,6 +55,9 @@ public class ResourceManagementServiceImpl
 
     private Map<String, String> soundResources;
     private ResourcePack soundPack = null;
+
+    private Map<String, String> skinResources;
+    private SkinPack skinPack = null;
 
     /**
      * Initializes already registered default resource packs.
@@ -105,6 +110,16 @@ public class ResourceManagementServiceImpl
 
         if (soundPack != null)
             soundResources = getResources(soundPack);
+
+        skinPack = (SkinPack) getDefaultResourcePack(
+            SkinPack.class.getName(), SkinPack.RESOURCE_NAME_DEFAULT_VALUE);
+
+        if (skinPack != null)
+        {
+            skinResources = getResources(skinPack);
+            imageResources.putAll(skinPack.getImageResources());
+            colorResources.putAll(skinPack.getColorResources());
+        }
     }
 
     /**
@@ -207,6 +222,24 @@ public class ResourceManagementServiceImpl
                 soundPack = resourcePack;
                 soundResources = resources;
             }
+            else if(resourcePack instanceof SkinPack && skinPack == null)
+            {
+                skinPack = (SkinPack) resourcePack;
+
+                if(imagePack!=null)
+                {
+                    imageResources = getResources(imagePack);
+                }
+
+                if(colorPack!=null)
+                {
+                    colorResources = getResources(colorPack);
+                }
+
+                skinResources = resources;
+                imageResources.putAll(skinPack.getImageResources());
+                colorResources.putAll(skinPack.getColorResources());
+            }
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
         {
@@ -257,6 +290,30 @@ public class ResourceManagementServiceImpl
 
                 if (soundPack != null)
                     soundResources = getResources(soundPack);
+            }
+            else if(resourcePack instanceof SkinPack
+                    && skinPack.equals(resourcePack))
+            {
+                if(imagePack!=null)
+                {
+                    imageResources = getResources(imagePack);
+                }
+
+                if(colorPack!=null)
+                {
+                    colorResources = getResources(colorPack);
+                }
+
+                skinPack = (SkinPack) getDefaultResourcePack(
+                    SkinPack.class.getName(),
+                    SkinPack.RESOURCE_NAME_DEFAULT_VALUE);
+
+                if (skinPack != null)
+                {
+                    skinResources = getResources(skinPack);
+                    imageResources.putAll(skinPack.getImageResources());
+                    colorResources.putAll(skinPack.getColorResources());
+                }
             }
         }
     }
@@ -315,14 +372,24 @@ public class ResourceManagementServiceImpl
      */
     public InputStream getImageInputStreamForPath(String path)
     {
-       return imagePack.getClass().getClassLoader().getResourceAsStream(path);
+        if(skinPack!=null)
+        {
+            if(skinPack.getClass().getClassLoader()
+                .getResourceAsStream(path)!=null)
+            {
+                return skinPack.getClass().getClassLoader()
+                        .getResourceAsStream(path);
+            }
+        }
+
+        return imagePack.getClass().getClassLoader().getResourceAsStream(path);
     }
 
     /**
      * Returns the <tt>InputStream</tt> of the image corresponding to the given
      * key.
      *
-     * @param streamKey The identifier of the image in the resource properties
+     * @param streamKey The identifier of the image in the resource properties¿
      * file.
      * @return the <tt>InputStream</tt> of the image corresponding to the given
      * key.
@@ -378,6 +445,14 @@ public class ResourceManagementServiceImpl
      */
     public URL getImageURLForPath(String path)
     {
+        if(skinPack!=null)
+        {
+            if(skinPack.getClass().getClassLoader().getResource(path)!=null)
+            {
+                return skinPack.getClass().getClassLoader().getResource(path);
+            }
+        }
+
         return imagePack.getClass().getClassLoader().getResource(path);
     }
 
@@ -419,6 +494,7 @@ public class ResourceManagementServiceImpl
      * Returns an internationalized string corresponding to the given key.
      *
      * @param key The identifier of the string.
+     * @param params the parameters to pass to the localized string
      * @return An internationalized string corresponding to the given key.
      */
     public String getI18NString(String key, String[] params)
@@ -431,6 +507,7 @@ public class ResourceManagementServiceImpl
      *
      * @param key The identifier of the string in the resources properties
      * file.
+     * @param params the parameters to pass to the localized string
      * @param locale The locale.
      * @return An internationalized string corresponding to the given key.
      */
@@ -616,6 +693,7 @@ public class ResourceManagementServiceImpl
     /**
      * Returns the <tt>URL</tt> of the sound corresponding to the given path.
      *
+     * @param path the path, for which we're looking for a sound URL
      * @return the <tt>URL</tt> of the sound corresponding to the given path.
      */
     public URL getSoundURLForPath(String path)
@@ -627,6 +705,7 @@ public class ResourceManagementServiceImpl
      * Returns the path of the sound corresponding to the given
      * property key.
      *
+     * @param soundKey the key, for the sound path
      * @return the path of the sound corresponding to the given
      * property key.
      */
@@ -677,5 +756,17 @@ public class ResourceManagementServiceImpl
             return null;
         }
         return new ImageIcon(imageURL);
+    }
+
+    /**
+     * Builds a new skin bundle from the zip file content.
+     * @param zipFile Zip file with skin information.
+     * @return <tt>File</tt> for the bundle.
+     * @throws Exception When something goes wrong.
+     */
+    public File prepareSkinBundleFromZip(File zipFile)
+        throws Exception
+    {
+        return SkinJarBuilder.createBundleFromZip(zipFile);
     }
 }

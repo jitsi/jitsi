@@ -4,12 +4,13 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.pluginmanager;
+package net.java.sip.communicator.plugin.skinmanager;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.util.zip.ZipFile;
 
 import javax.swing.*;
 
@@ -20,18 +21,20 @@ import net.java.sip.communicator.util.swing.*;
 import org.osgi.framework.*;
 
 /**
+ * 
  * @author Yana Stamcheva
+ * @author Adam Netcony
  */
 public class NewBundleDialog
-    extends SIPCommDialog
-    implements ActionListener
+        extends SIPCommDialog
+        implements ActionListener
 {
+    private static final long serialVersionUID = 7638976584338100969L;
+
     /**
      * The object used for logging.
      */
     private Logger logger = Logger.getLogger(NewBundleDialog.class);
-
-    private static final long serialVersionUID = 7638976584338100969L;
 
     /**
      * The install button.
@@ -78,11 +81,16 @@ public class NewBundleDialog
     private JButton fileChooserButton = new JButton(
         Resources.getString("plugin.pluginmanager.CHOOSE_FILE"));
 
+    private JTable skinTable;
+
     /**
      * Creates an instance of <tt>NewBundleDialog</tt>.
+     * @param table the skin table
      */
-    public NewBundleDialog ()
+    public NewBundleDialog(JTable table)
     {
+        skinTable = table;
+
         this.mainPanel.setPreferredSize(new Dimension(450, 150));
 
         this.getContentPane().add(mainPanel);
@@ -111,7 +119,7 @@ public class NewBundleDialog
      * Performs corresponding actions, when a buttons is pressed.
      * @param e the <tt>ActionEvent</tt> that notified us
      */
-    public void actionPerformed (ActionEvent e)
+    public void actionPerformed(ActionEvent e)
     {
         JButton sourceButton = (JButton) e.getSource();
 
@@ -121,15 +129,57 @@ public class NewBundleDialog
             {
                 try
                 {
-                    PluginManagerActivator.bundleContext
-                        .installBundle(bundlePathField.getText());
+                    File jar = null;
+                    try
+                    {
+                        jar = Resources.getResources()
+                            .prepareSkinBundleFromZip(
+                                new File(bundlePathField.getText()));
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.info("Failed to load skin from zip.", ex);
+
+                        SkinManagerActivator.getUIService().getPopupDialog()
+                            .showMessagePopupDialog(ex.getMessage(), "Error",
+                                PopupDialog.ERROR_MESSAGE);
+                    }
+
+                    if (jar != null)
+                    {
+                        try
+                        {
+                            Bundle newBundle = SkinManagerActivator
+                                .bundleContext.installBundle(
+                                    jar.toURI().toURL().toString());
+
+                            for (int i = 0;
+                                    i < skinTable.getModel().getRowCount(); i++)
+                            {
+                                try
+                                {
+                                    ((Bundle) skinTable.getModel()
+                                        .getValueAt(i, 0)).stop();
+                                }
+                                catch (BundleException ex)
+                                {
+                                    logger.info("Failed to stop bundle.", ex);
+                                }
+                            }
+                            newBundle.start();
+                        }
+                        catch (MalformedURLException ex)
+                        {
+                            logger.info("Failed to load skin from zip.", ex);
+                        }
+                    }
                 }
                 catch (BundleException ex)
                 {
                     logger.info("Failed to install bundle.", ex);
-                    PluginManagerActivator.getUIService().getPopupDialog()
+                    SkinManagerActivator.getUIService().getPopupDialog()
                         .showMessagePopupDialog(ex.getMessage(), "Error",
-                        PopupDialog.ERROR_MESSAGE);
+                            PopupDialog.ERROR_MESSAGE);
                 }
                 catch (Throwable ex)
                 {
@@ -144,27 +194,59 @@ public class NewBundleDialog
         else if (sourceButton.equals(fileChooserButton))
         {
             SipCommFileChooser chooser = GenericFileDialog.create(
-                null, "New bundle...", 
-                SipCommFileChooser.LOAD_FILE_OPERATION);
+                    null, "New bundle...",
+                    SipCommFileChooser.LOAD_FILE_OPERATION);
 
-            File newBundleFile
-                = chooser.getFileFromDialog();
+            chooser.addFilter(new SipCommFileFilter()
+            {
+                @Override
+                public boolean accept(File f)
+                {
+                    if (f.isDirectory())
+                        return true;
+
+                    boolean good = true;
+                    try
+                    {
+                        ZipFile zip = new ZipFile(f);
+                    }
+                    catch (IOException ex)
+                    {
+                        good = false;
+                    }
+
+                    if (!f.getName().toLowerCase().endsWith(".zip"))
+                    {
+                        good = false;
+                    }
+                    return good;
+                }
+
+                @Override
+                public String getDescription()
+                {
+                    return "Zip files (*.zip)";
+                }
+            });
+
+            File newBundleFile = chooser.getFileFromDialog();
 
             if (newBundleFile != null)
             {
                 try
                 {
-                    bundlePathField.setText(newBundleFile.toURI()
-                               .toURL().toString());
+                    bundlePathField.setText(newBundleFile.getCanonicalPath());
                 }
-                catch (MalformedURLException ex)
+                catch (Exception ex)
                 {
-                    logger.info("Failed parse URL.", ex);
+                    bundlePathField.setText(newBundleFile.getAbsolutePath());
                 }
             }
         }
         else
+        {
             dispose();
+        }
     }
 
     /**

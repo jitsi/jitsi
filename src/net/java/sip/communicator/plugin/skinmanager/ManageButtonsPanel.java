@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.pluginmanager;
+package net.java.sip.communicator.plugin.skinmanager;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -21,11 +21,15 @@ import org.osgi.framework.*;
  * The panel containing all buttons for the <tt>PluginManagerConfigForm</tt>.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocony, CircleTech, s.r.o.
  */
 public class ManageButtonsPanel
-    extends TransparentPanel
-    implements ActionListener
+        extends TransparentPanel
+        implements ActionListener
 {
+    /**
+     * The object used for logging.
+     */
     private Logger logger = Logger.getLogger(ManageButtonsPanel.class);
 
     /**
@@ -47,12 +51,6 @@ public class ManageButtonsPanel
             Resources.getString("plugin.skinmanager.UNINSTALL"));
 
     /**
-     * The update button.
-     */
-    private JButton updateButton = new JButton(
-            Resources.getString("plugin.pluginmanager.UPDATE"));
-
-    /**
      * The new button.
      */
     private JButton newButton
@@ -65,17 +63,17 @@ public class ManageButtonsPanel
         = new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
     /**
-     * The plugins table.
+     * The table of skins.
      */
-    private JTable pluginTable;
+    private JTable skinTable;
 
     /**
      * Creates an instance of <tt>ManageButtonsPanel</tt>.
-     * @param pluginTable the table of bundles
+     * @param pluginTable the table of skins
      */
     public ManageButtonsPanel(JTable pluginTable)
     {
-        this.pluginTable = pluginTable;
+        this.skinTable = pluginTable;
 
         this.setLayout(new BorderLayout());
 
@@ -85,13 +83,11 @@ public class ManageButtonsPanel
         this.activateButton.setOpaque(false);
         this.deactivateButton.setOpaque(false);
         this.uninstallButton.setOpaque(false);
-        this.updateButton.setOpaque(false);
 
         this.buttonsPanel.add(newButton);
         this.buttonsPanel.add(activateButton);
         this.buttonsPanel.add(deactivateButton);
         this.buttonsPanel.add(uninstallButton);
-        this.buttonsPanel.add(updateButton);
 
         this.add(buttonsPanel, BorderLayout.NORTH);
 
@@ -99,7 +95,6 @@ public class ManageButtonsPanel
         this.activateButton.addActionListener(this);
         this.deactivateButton.addActionListener(this);
         this.uninstallButton.addActionListener(this);
-        this.updateButton.addActionListener(this);
 
         //default as nothing is selected
         defaultButtonState();
@@ -113,36 +108,44 @@ public class ManageButtonsPanel
     {
         JButton sourceButton = (JButton) e.getSource();
 
-        if(sourceButton.equals(newButton))
+        if (sourceButton.equals(newButton))
         {
-            NewBundleDialog dialog = new NewBundleDialog();
+            NewBundleDialog dialog = new NewBundleDialog(skinTable);
 
             dialog.pack();
             dialog.setLocation(
-                    Toolkit.getDefaultToolkit().getScreenSize().width/2
-                        - dialog.getWidth()/2,
-                    Toolkit.getDefaultToolkit().getScreenSize().height/2
-                        - dialog.getHeight()/2
-                    );
+                    Toolkit.getDefaultToolkit().getScreenSize().width / 2
+                    - dialog.getWidth() / 2,
+                    Toolkit.getDefaultToolkit().getScreenSize().height / 2
+                    - dialog.getHeight() / 2);
 
             dialog.setVisible(true);
         }
-        else if(sourceButton.equals(activateButton))
+        else if (sourceButton.equals(activateButton))
         {
-            int[] selectedRows = pluginTable.getSelectedRows();
+            int[] selectedRows = skinTable.getSelectedRows();
+
+            for (int i = 0; i < skinTable.getModel().getRowCount(); i++)
+            {
+                try
+                {
+                    ((Bundle) skinTable.getModel().getValueAt(i, 0)).stop();
+                }
+                catch (BundleException ex) { }
+            }
 
             for (int i = 0; i < selectedRows.length; i++)
             {
                 try
                 {
-                    ((Bundle)pluginTable.getModel()
-                            .getValueAt(selectedRows[i], 0)).start();
+                    ((Bundle) skinTable.getModel()
+                        .getValueAt(selectedRows[i], 0)).start();
                 }
                 catch (BundleException ex)
                 {
                     logger.error("Failed to activate bundle.", ex);
 
-                    PluginManagerActivator.getUIService().getPopupDialog()
+                    SkinManagerActivator.getUIService().getPopupDialog()
                         .showMessagePopupDialog(ex.getMessage(), "Error",
                             PopupDialog.ERROR_MESSAGE);
                 }
@@ -150,74 +153,50 @@ public class ManageButtonsPanel
 
             defaultButtonState();
         }
-        else if(sourceButton.equals(deactivateButton))
+        else if (sourceButton.equals(deactivateButton))
         {
-            int[] selectedRows = pluginTable.getSelectedRows();
+            int[] selectedRows = skinTable.getSelectedRows();
 
             for (int i = 0; i < selectedRows.length; i++)
             {
                 try
                 {
-                    ((Bundle)pluginTable.getModel()
-                            .getValueAt(selectedRows[i], 0)).stop();
+                    ((Bundle) skinTable.getModel()
+                        .getValueAt(selectedRows[i], 0)).stop();
                 }
                 catch (BundleException ex)
                 {
                     logger.error("Failed to desactivate bundle.", ex);
 
-                    PluginManagerActivator.getUIService().getPopupDialog()
+                    SkinManagerActivator.getUIService().getPopupDialog()
                         .showMessagePopupDialog(ex.getMessage(), "Error",
-                        PopupDialog.ERROR_MESSAGE);
+                            PopupDialog.ERROR_MESSAGE);
                 }
             }
 
             defaultButtonState();
         }
-        else if(sourceButton.equals(uninstallButton))
+        else if (sourceButton.equals(uninstallButton))
         {
-            int[] selectedRows = pluginTable.getSelectedRows();
+            int[] selectedRows = skinTable.getSelectedRows();
 
             for (int i = selectedRows.length - 1; i >= 0; i--)
             {
                 try
                 {
-                    ((Bundle)pluginTable.getModel()
-                            .getValueAt(selectedRows[i], 0)).uninstall();
+                    ((Bundle) skinTable.getModel()
+                        .getValueAt(selectedRows[i], 0)).uninstall();
                 }
                 catch (BundleException ex)
                 {
                     logger.error("Failed to uninstall bundle.", ex);
 
-                    PluginManagerActivator.getUIService().getPopupDialog()
+                    SkinManagerActivator.getUIService().getPopupDialog()
                         .showMessagePopupDialog(ex.getMessage(), "Error",
-                        PopupDialog.ERROR_MESSAGE);
+                            PopupDialog.ERROR_MESSAGE);
                 }
             }
 
-            defaultButtonState();
-        }
-        else if(sourceButton.equals(updateButton))
-        {
-            int[] selectedRows = pluginTable.getSelectedRows();
-
-            for (int i = 0; i < selectedRows.length; i++)
-            {
-                try
-                {
-                    ((Bundle)pluginTable.getModel()
-                            .getValueAt(selectedRows[i], 0)).update();
-                }
-                catch (BundleException ex)
-                {
-                    logger.error("Failed to update bundle.", ex);
-
-                    PluginManagerActivator.getUIService().getPopupDialog()
-                    .showMessagePopupDialog(ex.getMessage(), "Error",
-                        PopupDialog.ERROR_MESSAGE);
-                }
-            }
-
-            // update button deselects bundles, revert buttons to defautl state
             defaultButtonState();
         }
     }
@@ -230,7 +209,6 @@ public class ManageButtonsPanel
         enableActivateButton(false);
         enableDeactivateButton(false);
         enableUninstallButton(false);
-        enableUpdateButton(false);
     }
 
     /**
@@ -263,15 +241,5 @@ public class ManageButtonsPanel
     public void enableUninstallButton(boolean enable)
     {
         this.uninstallButton.setEnabled(enable);
-    }
-
-    /**
-     * Enable or disable the update button.
-     *
-     * @param enable TRUE - to enable the update button, FALSE - to disable it
-     */
-    public void enableUpdateButton(boolean enable)
-    {
-        this.updateButton.setEnabled(enable);
     }
 }
