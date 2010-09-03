@@ -389,7 +389,7 @@ public class ResourceManagementServiceImpl
      * Returns the <tt>InputStream</tt> of the image corresponding to the given
      * key.
      *
-     * @param streamKey The identifier of the image in the resource properties¿
+     * @param streamKey The identifier of the image in the resource properties
      * file.
      * @return the <tt>InputStream</tt> of the image corresponding to the given
      * key.
