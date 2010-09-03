@@ -412,14 +412,16 @@ public class AccountStatusPanel
 
             OperationSetAvatar avatarOpSet
                 = protocolProvider.getOperationSet(OperationSetAvatar.class);
-            avatarOpSet.addAvatarListener(this);
+            if (avatarOpSet != null)
+                avatarOpSet.addAvatarListener(this);
         }
         else if (evt.getNewState().equals(RegistrationState.UNREGISTERING)
                 || evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
         {
             OperationSetAvatar avatarOpSet
                 = protocolProvider.getOperationSet(OperationSetAvatar.class);
-            avatarOpSet.removeAvatarListener(this);
+            if (avatarOpSet != null)
+                avatarOpSet.removeAvatarListener(this);
         }
     }
 
