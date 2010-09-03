@@ -141,7 +141,8 @@ public class NewBundleDialog
                         logger.info("Failed to load skin from zip.", ex);
 
                         SkinManagerActivator.getUIService().getPopupDialog()
-                            .showMessagePopupDialog(ex.getMessage(), "Error",
+                            .showMessagePopupDialog(ex.getClass() + ": "
+                                + ex.getMessage(), "Error",
                                 PopupDialog.ERROR_MESSAGE);
                     }
 

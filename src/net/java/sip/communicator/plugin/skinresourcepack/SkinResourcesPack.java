@@ -12,6 +12,7 @@ import java.util.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The skin resource pack.
@@ -20,6 +21,11 @@ import net.java.sip.communicator.service.resources.*;
 public class SkinResourcesPack
     implements BundleActivator, SkinPack
 {
+    /**
+     * The object used for logging.
+     */
+    private static Logger logger = Logger.getLogger(SkinResourcesPack.class);
+
     /**
      * The default resource path.
      */
@@ -106,12 +112,19 @@ public class SkinResourcesPack
             return imageResources;
         }
 
-        ResourceBundle resourceBundle
-            = ResourceBundle.getBundle(DEFAULT_IMAGE_RESOURCE_PATH);
-
         Map<String, String> resources = new TreeMap<String, String>();
 
-        this.initResources(resourceBundle, resources);
+        try
+        {
+            ResourceBundle resourceBundle
+                = ResourceBundle.getBundle(DEFAULT_IMAGE_RESOURCE_PATH);
+
+            this.initResources(resourceBundle, resources);
+        }
+        catch (MissingResourceException ex)
+        {
+            logger.info("Failed to obtain bundle from image resource path.", ex);
+        }
 
         this.initImagePluginResources(resources);
 
@@ -134,12 +147,19 @@ public class SkinResourcesPack
             return styleResources;
         }
 
-        ResourceBundle resourceBundle
-            = ResourceBundle.getBundle(DEFAULT_STYLE_RESOURCE_PATH);
-
         Map<String, String> resources = new TreeMap<String, String>();
 
-        this.initResources(resourceBundle, resources);
+        try
+        {
+            ResourceBundle resourceBundle
+                = ResourceBundle.getBundle(DEFAULT_STYLE_RESOURCE_PATH);
+
+            this.initResources(resourceBundle, resources);
+        }
+        catch (MissingResourceException ex)
+        {
+            logger.info("Failed to obtain bundle from style resource path.", ex);
+        }
 
         this.initStylePluginResources(resources);
 
@@ -162,12 +182,19 @@ public class SkinResourcesPack
             return colorResources;
         }
 
-        ResourceBundle resourceBundle
-            = ResourceBundle.getBundle(DEFAULT_COLOR_RESOURCE_PATH);
-
         Map<String, String> resources = new TreeMap<String, String>();
 
-        this.initResources(resourceBundle, resources);
+        try
+        {
+            ResourceBundle resourceBundle
+                = ResourceBundle.getBundle(DEFAULT_COLOR_RESOURCE_PATH);
+
+            this.initResources(resourceBundle, resources);
+        }
+        catch (MissingResourceException ex)
+        {
+            logger.info("Failed to obtain bundle from color resource path.", ex);
+        }
 
         this.initColorPluginResources(resources);
 

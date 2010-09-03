@@ -26,6 +26,7 @@ public class SkinJarBuilder
         throws Exception
     {
         File tmpDir = unzipIntoTmp(zip);
+
         if (!test(tmpDir))
         {
             deleteDir(tmpDir);
@@ -297,6 +298,6 @@ public class SkinJarBuilder
                 return false;
             }
         }
-        return styles && (colors && images);
+        return styles || (colors || images);
     }
 }
