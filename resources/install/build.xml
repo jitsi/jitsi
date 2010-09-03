@@ -408,6 +408,7 @@
         <property name="windows_native_path" value="${sc.basedir}\lib\native\windows"/>
         <property name="windows.jre.arch.file" value="${windows.jre.file}"/>
         <property name="windows.download.link" value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}-x86.exe"/>
+        <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-x86.exe"/>
         <antcall target="build-installation-wix-base" />
     </target>
 
@@ -416,6 +417,7 @@
         <property name="windows_native_path" value="${sc.basedir}\lib\native\windows-64"/>
         <property name="windows.jre.arch.file" value="${windows.jre64.file}"/>
         <property name="windows.download.link" value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}-x64.exe"/>
+        <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-x64.exe"/>
         <antcall target="build-installation-wix-base" />
     </target>
 
@@ -608,14 +610,14 @@
         </exec>
         <copy
                 file="${windows.app.dir}/tmp/setup.exe"
-                tofile="${windows.app.dir}/${package.name}-${sip-communicator.version}.exe"
+                tofile="${windows.app.dir}/${windows.package.name}"
                 overwrite="true" />
         <!--exec
                 executable="C:\Program Files\WiX\setupbld.exe"
                 dir="${light.dir}"
                 failonerror="true">
             <arg value="-out" />
-            <arg value="${windows.app.dir}\${package.name}-${sip-communicator.version}.exe" />
+            <arg value="${windows.app.dir}\${windows.package.name}" />
             <arg value="-mps" />
             <arg value="${windows.app.dir}\tmp\setup.msi" />
             <arg value="-setup" />
@@ -624,7 +626,7 @@
         <exec executable="mt.exe" dir="${windows.app.dir}" failonerror="true">
             <arg value="-manifest" />
             <arg value="${inst.resrc}\windows\setup.exe.manifest" />
-            <arg value="-outputresource:${package.name}-${sip-communicator.version}.exe;#1" />
+            <arg value="-outputresource:${windows.package.name};#1" />
         </exec>
 
         <delete dir="${light.dir}" />
