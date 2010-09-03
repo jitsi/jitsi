@@ -243,38 +243,47 @@ public class SelectAvatarMenu
      *
      * @param image the new image.
      */
-    private void setNewImage(BufferedImage image)
+    private void setNewImage(final BufferedImage image)
     {
-        AccountManager accountManager = GuiActivator.getAccountManager();
-
-        for(AccountID accountID : accountManager.getStoredAccounts())
+        // Use separate thread to be sure we don't block UI thread.
+        new Thread()
         {
-            if(accountManager.isAccountLoaded(accountID))
+            public void run()
             {
-                ProtocolProviderService protocolProvider
-                    = GuiActivator.getRegisteredProviderForAccount(accountID);
+                AccountManager accountManager
+                        = GuiActivator.getAccountManager();
 
-                if(protocolProvider != null)
+                for(AccountID accountID : accountManager.getStoredAccounts())
                 {
-                    OperationSetAvatar opSetAvatar
-                            = protocolProvider
-                            .getOperationSet(OperationSetAvatar.class);
-
-                    if(opSetAvatar != null)
+                    if(accountManager.isAccountLoaded(accountID))
                     {
-                        try
+                        ProtocolProviderService protocolProvider
+                            = GuiActivator.getRegisteredProviderForAccount(
+                                accountID);
+
+                        if(protocolProvider != null)
                         {
-                            opSetAvatar.setAvatar(
-                                    ImageUtils.toByteArray(image));
-                        }
-                        catch(Throwable t)
-                        {
-                            logger.error("Error setting image", t);
+                            OperationSetAvatar opSetAvatar
+                                = protocolProvider
+                                    .getOperationSet(OperationSetAvatar.class);
+
+                            if(opSetAvatar != null)
+                            {
+                                try
+                                {
+                                    opSetAvatar.setAvatar(
+                                        ImageUtils.toByteArray(image));
+                                }
+                                catch(Throwable t)
+                                {
+                                    logger.error("Error setting image", t);
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
+        }.start();
     }
 
     /**
