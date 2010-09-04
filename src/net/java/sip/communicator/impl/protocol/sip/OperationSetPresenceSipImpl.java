@@ -11,17 +11,17 @@ import net.java.sip.communicator.util.xml.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+
 import org.w3c.dom.*;
+
+import java.net.*;
+import java.text.*;
+import java.util.*;
 
 import javax.sip.*;
 import javax.sip.address.Address;
 import javax.sip.header.*;
 import javax.sip.message.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import java.net.*;
-import java.text.*;
-import java.util.*;
 
 /**
  * Sip presence implementation (SIMPLE).

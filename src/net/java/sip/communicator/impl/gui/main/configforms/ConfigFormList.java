@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.configforms;
 
-import java.awt.*;
-
 import javax.swing.*;
 import javax.swing.event.*;
 

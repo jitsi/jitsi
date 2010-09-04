@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.menus;
 
-import java.awt.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.util.swing.*;

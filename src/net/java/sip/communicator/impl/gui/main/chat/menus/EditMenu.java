@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat.menus;
 
-import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;

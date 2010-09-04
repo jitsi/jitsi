@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.*;
 
 import javax.swing.*;
 

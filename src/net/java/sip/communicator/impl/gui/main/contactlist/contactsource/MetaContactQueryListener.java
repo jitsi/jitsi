@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.contactsource;
 
-import net.java.sip.communicator.service.contactlist.*;
-
 /**
  * The <tt>MetaContactQueryListener</tt> listens for events coming from a
  * <tt>MetaContactListService</tt> filtering.

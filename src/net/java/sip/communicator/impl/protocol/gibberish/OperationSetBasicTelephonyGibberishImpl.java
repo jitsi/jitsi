@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.gibberish;
 
-import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -85,13 +84,23 @@ public class OperationSetBasicTelephonyGibberishImpl
      *   CallParticipatn instance with the use of the corresponding method.
      * @throws OperationFailedException with the corresponding code if we
      *   fail to create the call.
-     * @throws ParseException if <tt>callee</tt> is not a valid sip address
-     *   string.
      */
-    public Call createCall(String uri) throws OperationFailedException,
-        ParseException
+    public Call createCall(String uri)
+        throws OperationFailedException
     {
-        return createNewCall(uri);
+        CallGibberishImpl call = new CallGibberishImpl(protocolProvider);
+
+        call.addCallChangeListener(this);
+        activeCalls.put(call.getCallID(), call);
+
+        CallPeerGibberishImpl callPeer
+            = new CallPeerGibberishImpl(uri, call);
+
+        call.addCallPeer(callPeer);
+
+        fireCallEvent(CallEvent.CALL_INITIATED, call);
+
+        return call;
     }
 
     /**
@@ -107,26 +116,10 @@ public class OperationSetBasicTelephonyGibberishImpl
      * @throws OperationFailedException with the corresponding code if we
      *   fail to create the call.
      */
-    public Call createCall(Contact callee) throws OperationFailedException
+    public Call createCall(Contact callee)
+        throws OperationFailedException
     {
-        return createNewCall(callee.getAddress());
-    }
-
-    private Call createNewCall(String address)
-    {
-        CallGibberishImpl newCall = new CallGibberishImpl(protocolProvider);
-
-        newCall.addCallChangeListener(this);
-        activeCalls.put(newCall.getCallID(), newCall);
-
-        CallPeerGibberishImpl callPeer
-            = new CallPeerGibberishImpl(address, newCall);
-
-        newCall.addCallPeer(callPeer);
-
-        this.fireCallEvent(CallEvent.CALL_INITIATED, newCall);
-
-        return newCall;
+        return createCall(callee.getAddress());
     }
 
     /**
@@ -166,7 +159,8 @@ public class OperationSetBasicTelephonyGibberishImpl
             logger.info("hangupCallPeer");
         callPeer.setState(CallPeerState.DISCONNECTED, null);
 
-        CallGibberishImpl call = (CallGibberishImpl) callPeer.getCall();
+        CallGibberishImpl call = callPeer.getCall();
+
         call.removeCallPeer(callPeer);
     }
 

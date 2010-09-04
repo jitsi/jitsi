@@ -14,7 +14,6 @@ import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
-import net.java.sip.communicator.impl.neomedia.imgstreaming.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.service.neomedia.*;
