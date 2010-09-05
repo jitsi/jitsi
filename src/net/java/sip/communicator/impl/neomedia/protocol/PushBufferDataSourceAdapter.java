@@ -488,7 +488,7 @@ public class PushBufferDataSourceAdapter
         {
             synchronized (streamReadThreadSyncRoot)
             {
-                started = true;
+                PushBufferStreamAdapter.this.started = true;
 
                 if (streamReadThread == null)
                 {
@@ -503,7 +503,7 @@ public class PushBufferDataSourceAdapter
                                 {
                                     synchronized (streamReadThreadSyncRoot)
                                     {
-                                        if (!started)
+                                        if (!PushBufferStreamAdapter.this.started)
                                             break;
                                         if (streamReadThread
                                                 != Thread.currentThread())
