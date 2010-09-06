@@ -26,19 +26,28 @@ public class SkinJarBuilder
         throws Exception
     {
         File tmpDir = unzipIntoTmp(zip);
+        File tmpDir2 = findBase(tmpDir);
 
-        if (!test(tmpDir))
+        if (tmpDir2 == null)
+        {
+            tmpDir2 = tmpDir;
+        }
+
+        if (!test(tmpDir2))
         {
             deleteDir(tmpDir);
             throw new Exception(
                 "Zip file doesn't contain all necessary files and folders.");
         }
         File jar = cpTmp();
-        insertIntoZip(jar, tmpDir);
+        insertIntoZip(jar, tmpDir2);
         deleteDir(tmpDir);
         return jar;
     }
 
+    /**
+     * Creates a copy of skinresources.jar in temp folder.
+     */
     private static File cpTmp()
         throws IOException
     {
@@ -70,6 +79,9 @@ public class SkinJarBuilder
         return tmp;
     }
 
+    /**
+     * Unzip given file to temp folder.
+     */
     private static File unzipIntoTmp(File zip)
         throws Exception
     {
@@ -118,6 +130,9 @@ public class SkinJarBuilder
         return dest;
     }
 
+    /**
+     * Inserts files into zip file.
+     */
     private static void insertIntoZip(File jar, File tmpDir)
         throws IOException
     {
@@ -157,6 +172,9 @@ public class SkinJarBuilder
         out.close();
     }
 
+    /**
+     * Zip the content of a folder.
+     */
     private static void zipDir(String dir2zip, ZipOutputStream zos)
         throws IOException
     {
@@ -164,6 +182,9 @@ public class SkinJarBuilder
         zip(directory, directory, zos);
     }
 
+    /**
+     * Zip a file.
+     */
     private static final void zip(File directory, File base, ZipOutputStream zos)
         throws IOException
     {
@@ -190,6 +211,9 @@ public class SkinJarBuilder
         }
     }
 
+    /**
+     * Deletes a dir with all subdirs.
+     */
     private static void deleteDir(File tmp)
     {
         if (tmp.exists())
@@ -210,6 +234,10 @@ public class SkinJarBuilder
         }
     }
 
+    /**
+     * Tests if the content of a folder has the same structure as the skin
+     * content.
+     */
     private static boolean test(File tmpDir)
     {
         boolean colors = false;
@@ -299,5 +327,46 @@ public class SkinJarBuilder
             }
         }
         return styles || (colors || images);
+    }
+
+    /**
+     * Moves to toplevel dir for unziped files. (e.g. /dir/info.propreties will
+     * be changed to /info.properties.)
+     */
+    private static File findBase(File tmpDir)
+    {
+        File[] list = tmpDir.listFiles();
+
+        if (list == null)
+        {
+            return null;
+        }
+
+        boolean test = false;
+
+        for (File f : list)
+        {
+            if (f.getName().equals("info.properties"))
+            {
+                if (f.isFile())
+                {
+                    test = true;
+                }
+            }
+        }
+
+        if (!test)
+        {
+            if (list.length == 1)
+            {
+                return list[0];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        return tmpDir;
     }
 }
