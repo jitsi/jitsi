@@ -22,18 +22,20 @@ public interface OperationSetDesktopSharingClient extends OperationSet
     /**
      * Send a keyboard notification.
      *
+     * @param callPeer <tt>CallPeer</tt> that will be notified
      * @param event <tt>KeyEvent</tt> received and that will be send to
      * remote peer
      */
-    public void sendKeyboardEvent(KeyEvent event);
+    public void sendKeyboardEvent(CallPeer callPeer, KeyEvent event);
 
     /**
      * Send a mouse notification.
      *
+     * @param callPeer <tt>CallPeer</tt> that will be notified
      * @param event <tt>MouseEvent</tt> received and that will be send to
      * remote peer
      */
-    public void sendMouseEvent(MouseEvent event);
+    public void sendMouseEvent(CallPeer callPeer, MouseEvent event);
 
     /**
      * Send a mouse notification for specific "moved" <tt>MouseEvent</tt>. As
@@ -41,11 +43,13 @@ public interface OperationSetDesktopSharingClient extends OperationSet
      * should take care to send the percentage of point x and point y regarding
      * to the video panel.
      *
+     * @param callPeer <tt>CallPeer</tt> that will be notified
      * @param event <tt>MouseEvent</tt> received and that will be send to
      * remote peer
      * @param videoPanelSize size of the panel that contains video
      */
-    public void sendMouseEvent(MouseEvent event, Dimension videoPanelSize);
+    public void sendMouseEvent(CallPeer callPeer, MouseEvent event,
+            Dimension videoPanelSize);
 
     /**
      * Add a <tt>RemoteControlListener</tt> to be notified when remote peer

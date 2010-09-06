@@ -141,7 +141,9 @@ public class JNIEncoder
     }
 
     /**
-     * @throws ResourceUnavailableException
+     * Inits the codec instances.
+     *
+     * @throws ResourceUnavailableException if codec initialization failed
      * @see AbstractCodecExt#doOpen()
      */
     protected void doOpen()
@@ -153,9 +155,12 @@ public class JNIEncoder
     }
 
     /**
-     * @param inputBuffer
-     * @param outputBuffer
-     * @return
+     * Processes (encode) a specific input <tt>Buffer</tt>.
+     *
+     * @param inputBuffer input buffer
+     * @param outputBuffer output buffer
+     * @return <tt>BUFFER_PROCESSED_OK</tt> if buffer has been successfully
+     * processed
      * @see AbstractCodecExt#doProcess(Buffer, Buffer)
      */
     protected int doProcess(Buffer inputBuffer, Buffer outputBuffer)
@@ -359,8 +364,10 @@ public class JNIEncoder
     }
 
     /**
-     * @param inputFormat
-     * @return
+     * Get the matching output formats for a specific format.
+     *
+     * @param inputFormat input format
+     * @return array for formats matching input format
      * @see AbstractCodecExt#getMatchingOutputFormats(Format)
      */
     @Override
@@ -385,7 +392,9 @@ public class JNIEncoder
     }
 
     /**
-     * @return
+     * Get the output format.
+     *
+     * @return output format
      * @see net.sf.fmj.media.AbstractCodec#getOutputFormat()
      */
     @Override
@@ -421,8 +430,10 @@ public class JNIEncoder
     }
 
     /**
-     * @param format
-     * @return
+     * Sets the input format.
+     *
+     * @param format format to set
+     * @return format
      * @see AbstractCodecExt#setInputFormat(Format)
      */
     @Override

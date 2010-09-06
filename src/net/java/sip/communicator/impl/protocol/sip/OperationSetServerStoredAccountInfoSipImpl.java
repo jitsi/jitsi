@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
 import java.util.*;
 
 /**
- * SIP  server stored account information. Supports the user avatar during
+ * SIP server stored account information. Supports the user avatar during
  * pres-content specification.
  *
  * @author Grigorii Balutsel
@@ -164,6 +164,7 @@ public class OperationSetServerStoredAccountInfoSipImpl
      * The method returns the number of instances supported for a particular
      * detail type.
      *
+     * @param detailClass GenericDetail subclass
      * @return int the maximum number of detail instances.
      */
     public int getMaxDetailInstances(Class<? extends GenericDetail> detailClass)
@@ -274,7 +275,9 @@ public class OperationSetServerStoredAccountInfoSipImpl
      * @param currentDetailValue the detail value we'd like to replace.
      * @param newDetailValue     the value of the detail that we'd like to
      *                           replace currentDetailValue with.
-     * @return 
+     * @return             true if the operation was a success or false if
+     *                     currentDetailValue did not previously exist (in this
+     *                     case an additional call to addDetail is required)
      * @throws ClassCastException       if newDetailValue is not an instance of
      *                                  the same class as currentDetailValue.
      * @throws OperationFailedException with code Network Failure if putting the

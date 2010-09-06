@@ -327,7 +327,7 @@ public final class PortAudio
         throws PortAudioException;
 
     /**
-     * Read samples from an input stream. The function doesn't return until 
+     * Read samples from an input stream. The function doesn't return until
      * the entire buffer has been filled - this may involve waiting for
      * the operating system to supply the data.
      * @param stream pointer to the stream.
@@ -499,7 +499,7 @@ public final class PortAudio
      * get the name of
      * @return the name of the PortAudio device specified by the
      * <tt>PaDeviceInfo</tt> instance pointed to by <tt>deviceInfo</tt>
-     * @deprecated Replaced by {@link #PaDeviceInfo_getCharsetAwareName()}
+     * @deprecated Replaced by {@link #PaDeviceInfo_getCharsetAwareName(long)}
      * because <tt>PaDeviceInfo_getName</tt> presumes that the <tt>name</tt> of
      * <tt>PaDeviceInfo</tt> is encoded in modified UTF-8
      */
@@ -588,7 +588,7 @@ public final class PortAudio
         /*
          * FFmpeg on Windows seems to be compiled with --enable-memalign-hack so
          * av_free(void *) isn't the same as free(void *) and thus is not a
-         * suitable/safe fallback. 
+         * suitable/safe fallback.
          */
         if (OSUtils.IS_LINUX || OSUtils.IS_MAC)
         {

@@ -76,7 +76,6 @@ public class OperationSetGeolocationJabberImpl
             GeolocationPacketExtensionProvider.ELEMENT_NAME
             , GeolocationPacketExtensionProvider.NAMESPACE
             , new GeolocationPacketExtensionProvider());
-
     }
 
     /**
@@ -142,7 +141,6 @@ public class OperationSetGeolocationJabberImpl
         {
             geolocationContactsListeners.remove(listener);
         }
-
     }
 
     /**
@@ -154,7 +152,7 @@ public class OperationSetGeolocationJabberImpl
         implements RegistrationStateChangeListener
     {
         /**
-         * The method is called by a ProtocolProvider implementation whenver
+         * The method is called by a ProtocolProvider implementation whenever
          * a change in the registration state of the corresponding provider had
          * occurred.
          * @param evt ProviderStatusChangeEvent the event describing the status

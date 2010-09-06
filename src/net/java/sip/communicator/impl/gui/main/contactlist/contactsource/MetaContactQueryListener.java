@@ -17,14 +17,14 @@ public interface MetaContactQueryListener
     /**
      * Indicates that a <tt>MetaContact</tt> has been received for a search in
      * the <tt>MetaContactListService</tt>.
-     * @param metaContact the received <tt>MetaContact</tt>
+     * @param event the received <tt>MetaContactQueryEvent</tt>
      */
     public void metaContactReceived(MetaContactQueryEvent event);
 
     /**
      * Indicates that a <tt>MetaGroup</tt> has been received from a search in
      * the <tt>MetaContactListService</tt>.
-     * @param metaGroup the <tt>MetaGroup</tt> that has been received
+     * @param event the <tt>MetaGroupQueryEvent</tt> that has been received
      */
     public void metaGroupReceived(MetaGroupQueryEvent event);
 

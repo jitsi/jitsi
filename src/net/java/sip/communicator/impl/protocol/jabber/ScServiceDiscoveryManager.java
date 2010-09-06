@@ -74,7 +74,7 @@ public class ScServiceDiscoveryManager
 
     /**
      * The unmodifiable view of {@link #features} which can be exposed to the
-     * public through {@link #getFeatures()}, for example. 
+     * public through {@link #getFeatures()}, for example.
      */
     private final List<String> unmodifiableFeatures;
 

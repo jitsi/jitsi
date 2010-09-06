@@ -102,7 +102,7 @@ public class FramedImage
 
     /**
      * Returns the image that is shown.
-     * @return
+     * @return the image that is shown
      */
     public Image getImage()
     {

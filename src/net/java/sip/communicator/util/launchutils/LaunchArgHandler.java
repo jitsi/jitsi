@@ -449,7 +449,6 @@ public class LaunchArgHandler
         System.out.println("  -m, --multiple    do not ensure single instance");
         System.out.println("  -6, --ipv6        prefer IPv6 addresses where possible only");
         System.out.println("  -4, --ipv4        forces use of IPv4 only");
-        System.out.println("  -s, --desktop-stream     use desktop streaming");
         System.out.println("  -v, --version     display the current version and exit");
     }
 

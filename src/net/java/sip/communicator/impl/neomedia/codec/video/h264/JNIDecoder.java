@@ -209,6 +209,8 @@ public class JNIDecoder
 
     /**
      * Inits the codec instances.
+     *
+     * @throws ResourceUnavailableException if codec initialization failed
      */
     @Override
     public synchronized void open()

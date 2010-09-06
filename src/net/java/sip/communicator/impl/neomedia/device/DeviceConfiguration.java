@@ -402,7 +402,8 @@ public class DeviceConfiguration
      *         capture devices available through this
      *         <code>DeviceConfiguration</code>
      */
-    public CaptureDeviceInfo[] getAvailableAudioCaptureDevices(String soundSystem)
+    public CaptureDeviceInfo[] getAvailableAudioCaptureDevices(
+            String soundSystem)
     {
         String protocol = null;
 
@@ -479,14 +480,14 @@ public class DeviceConfiguration
                 {
                     if(useCase == MediaUseCase.CALL &&
                             !dev.getLocator().getProtocol().equals(
-                                    ImageStreamingUtils.LOCATOR_PROTOCOL))
+                                    ImageStreamingAuto.LOCATOR_PROTOCOL))
                     {
                         // add only non-desktop capture device
                         videoCaptureDevices.add(dev);
                     }
                     else if(useCase == MediaUseCase.DESKTOP &&
                             dev.getLocator().getProtocol().equals(
-                                    ImageStreamingUtils.LOCATOR_PROTOCOL))
+                                    ImageStreamingAuto.LOCATOR_PROTOCOL))
                     {
                         // add only desktop streaming devices
                         videoCaptureDevices.add(dev);

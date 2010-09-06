@@ -146,7 +146,7 @@ public class EditPanel
     /**
      * Returns the clipped image.
      * 
-     * @return
+     * @return the clipped image
      */
     public byte[] getClippedImage()
     {

@@ -133,7 +133,9 @@ public class JNIDecoder
     }
 
     /**
-     * @throws ResourceUnavailableException
+     * Inits the codec instances.
+     *
+     * @throws ResourceUnavailableException if codec initialization failed
      * @see AbstractCodecExt#doOpen()
      */
     protected void doOpen()
@@ -145,9 +147,12 @@ public class JNIDecoder
     }
 
     /**
-     * @param inputBuffer
-     * @param outputBuffer
-     * @return
+     * Decodes Speex media from a specific input <tt>Buffer</tt>
+     *
+     * @param inputBuffer input <tt>Buffer</tt>
+     * @param outputBuffer output <tt>Buffer</tt>
+     * @return <tt>BUFFER_PROCESSED_OK</tt> if <tt>inBuffer</tt> has been
+     * successfully processed
      * @see AbstractCodecExt#doProcess(Buffer, Buffer)
      */
     protected int doProcess(Buffer inputBuffer, Buffer outputBuffer)
@@ -267,8 +272,11 @@ public class JNIDecoder
     }
 
     /**
-     * @param inputFormat
-     * @return
+     * Get all supported output <tt>Format</tt>s.
+     *
+     * @param inputFormat input <tt>Format</tt> to determine corresponding output
+     * <tt>Format/tt>s
+     * @return array of supported <tt>Format</tt>
      * @see AbstractCodecExt#getMatchingOutputFormats(Format)
      */
     @Override
@@ -293,8 +301,14 @@ public class JNIDecoder
     }
 
     /**
-     * @param format
-     * @return
+     * Sets the <tt>Format</tt> of the media data to be input for processing in
+     * this <tt>Codec</tt>.
+     *
+     * @param format the <tt>Format</tt> of the media data to be input for
+     * processing in this <tt>Codec</tt>
+     * @return the <tt>Format</tt> of the media data to be input for processing
+     * in this <tt>Codec</tt> if <tt>format</tt> is compatible with this
+     * <tt>Codec</tt>; otherwise, <tt>null</tt>
      * @see AbstractCodecExt#setInputFormat(Format)
      */
     @Override

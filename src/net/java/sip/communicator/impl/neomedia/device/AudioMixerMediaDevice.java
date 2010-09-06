@@ -205,6 +205,12 @@ public class AudioMixerMediaDevice
         return new MediaStreamMediaDeviceSession(deviceSession);
     }
 
+    /**
+     * Create a new recording session.
+     *
+     * @param contentDescriptor the content descriptor for the session.
+     * @return a new <tt>MediaDeviceSession</tt>
+     */
     public synchronized MediaDeviceSession createRecordingSession(
         final ContentDescriptor contentDescriptor)
     {
@@ -214,9 +220,9 @@ public class AudioMixerMediaDevice
         return new MediaStreamMediaDeviceSession(deviceSession)
         {
             /**
-             * Starts a specific <tt>Processor</tt> if this 
-             * <tt>MediaDeviceSession</tt> has been started and the specified 
-             * <tt>Processor</tt> is not started. Does not check the 
+             * Starts a specific <tt>Processor</tt> if this
+             * <tt>MediaDeviceSession</tt> has been started and the specified
+             * <tt>Processor</tt> is not started. Does not check the
              * <tt>MediaDirection</tt> of this session when starting.
              *
              * @param processor the <tt>Processor</tt> to start
@@ -240,9 +246,9 @@ public class AudioMixerMediaDevice
             /**
              * Overrides the method to set the processor's content descriptor
              * to <tt>FileTypeDescriptor.MPEG_AUDIO</tt>.
-             * 
+             *
              * @param event the <tt>ControllerEvent</tt> specifying the
-             * <tt>Controller</tt> which is the source of the event and the very 
+             * <tt>Controller</tt> which is the source of the event and the very
              * type of the event
              */
             @Override
@@ -252,7 +258,8 @@ public class AudioMixerMediaDevice
 
                 if (event instanceof ConfigureCompleteEvent)
                 {
-                    Processor processor = (Processor) event.getSourceController();
+                    Processor processor = (Processor) event.
+                        getSourceController();
 
                     if (processor != null)
                     {
@@ -262,10 +269,9 @@ public class AudioMixerMediaDevice
                         }
                         catch (NotConfiguredError nce)
                         {
-                            logger
-                                .error(
-                                    "Failed to set ContentDescriptor to Processor.",
-                                    nce);
+                            logger.error(
+                                "Failed to set ContentDescriptor to Processor.",
+                                nce);
                         }
 
                         if (format != null)
@@ -919,8 +925,8 @@ public class AudioMixerMediaDevice
          * <tt>playbackDataSource</tt> property has changed from a specific
          * <tt>oldValue</tt> to a specific <tt>newValue</tt>.
          *
-         * @param oldValue the <tt>DataSource</tt> which used to be the value of the
-         * <tt>playbackDataSource</tt> property of this instance
+         * @param oldValue the <tt>DataSource</tt> which used to be the value of
+         * the <tt>playbackDataSource</tt> property of this instance
          * @param newValue the <tt>DataSource</tt> which is the value of the
          * <tt>playbackDataSource</tt> property of this instance
          * @see MediaDeviceSession#playbackDataSourceChanged(DataSource,
@@ -982,7 +988,8 @@ public class AudioMixerMediaDevice
          * of the <tt>receiveStream</tt> property of this instance
          * @param newValue the <tt>ReceiveStream</tt> which is the value of the
          * <tt>receiveStream</tt> property of this instance
-         * @see MediaDeviceSession#receiveStreamChanged(ReceiveStream, ReceiveStream)
+         * @see MediaDeviceSession#receiveStreamChanged(ReceiveStream,
+         * ReceiveStream)
          */
         @Override
         protected void receiveStreamChanged(
@@ -1013,9 +1020,9 @@ public class AudioMixerMediaDevice
         }
 
         /**
-         * Adds a specific <tt>SoundLevelListener</tt> to the list of
-         * listeners interested in and notified about changes in local sound level
-         * related information.
+         * Adds a specific <tt>SoundLevelListener</tt> to the list of listeners
+         * interested in and notified about changes in local sound level related
+         * information.
          * @param l the <tt>SoundLevelListener</tt> to add
          */
         @Override
