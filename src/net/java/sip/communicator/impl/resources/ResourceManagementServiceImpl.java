@@ -25,7 +25,7 @@ import org.osgi.framework.*;
  * @author Damian Minkov
  * @author Yana Stamcheva
  * @author Lubomir Marinov
- * @author Adam Netocny, CircleTech, s.r.o.
+ * @author Adam Netocny
  */
 public class ResourceManagementServiceImpl
     implements ResourceManagementService,
@@ -34,13 +34,34 @@ public class ResourceManagementServiceImpl
     private static Logger logger =
         Logger.getLogger(ResourceManagementServiceImpl.class);
 
+    /**
+     * Resources for currently loaded <tt>ColorPack</tt>.
+     */
     private Map<String, String> colorResources;
+
+    /**
+     * Currently loaded color pack.
+     */
     private ResourcePack colorPack = null;
 
+    /**
+     * Resources for currently loaded <tt>ImagePack</tt>.
+     */
     private Map<String, String> imageResources;
+
+    /**
+     * Currently loaded image pack.
+     */
     private ResourcePack imagePack = null;
 
+    /**
+     * Resources for currently loaded <tt>LanguagePack</tt>.
+     */
     private Map<String, String> languageResources;
+
+    /**
+     * Currently loaded language pack.
+     */
     private LanguagePack languagePack = null;
 
     /**
@@ -50,13 +71,34 @@ public class ResourceManagementServiceImpl
      */
     private Locale languageLocale;
 
+    /**
+     * Resources for currently loaded <tt>SettingsPack</tt>.
+     */
     private Map<String, String> settingsResources;
+
+    /**
+     * Currently loaded settings pack.
+     */
     private ResourcePack settingsPack = null;
 
+    /**
+     * Resources for currently loaded <tt>SoundPack</tt>.
+     */
     private Map<String, String> soundResources;
+
+    /**
+     * Currently loaded sound pack.
+     */
     private ResourcePack soundPack = null;
 
+    /**
+     * Resources for currently loaded <tt>SkinPack</tt>.
+     */
     private Map<String, String> skinResources;
+
+    /**
+     * Currently loaded <tt>SkinPack</tt>.
+     */
     private SkinPack skinPack = null;
 
     /**
@@ -125,6 +167,7 @@ public class ResourceManagementServiceImpl
     /**
      * Searches for the <tt>ResourcePack</tt> corresponding to the given
      * <tt>className</tt> and <tt></tt>.
+     *
      * @param className The name of the resource class.
      * @param typeName The name of the type we're looking for.
      * For example: RESOURCE_NAME_DEFAULT_VALUE
@@ -176,6 +219,8 @@ public class ResourceManagementServiceImpl
     /**
      * Handles all <tt>ServiceEvent</tt>s corresponding to <tt>ResourcePack</tt>
      * being registered or unregistered.
+     *
+     * @param event the <tt>ServiceEvent</tt> that notified us
      */
     public void serviceChanged(ServiceEvent event)
     {
@@ -760,6 +805,7 @@ public class ResourceManagementServiceImpl
 
     /**
      * Builds a new skin bundle from the zip file content.
+     *
      * @param zipFile Zip file with skin information.
      * @return <tt>File</tt> for the bundle.
      * @throws Exception When something goes wrong.

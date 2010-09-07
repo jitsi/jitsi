@@ -18,7 +18,7 @@ import org.osgi.framework.*;
 
 /**
  * @author Yana Stamcheva
- * @author Adam Netocny, CircleTech, s.r.o.
+ * @author Adam Netocny
  */
 public class SkinManagerPanel
         extends TransparentPanel

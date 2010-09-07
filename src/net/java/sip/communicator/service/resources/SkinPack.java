@@ -10,7 +10,7 @@ import java.util.*;
 
 /**
  * Default Skin Pack interface.
- * @author Adam Netocny, CircleTech, s.r.o.
+ * @author Adam Netocny
  */
 public interface SkinPack
     extends ResourcePack

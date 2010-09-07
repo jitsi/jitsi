@@ -45,7 +45,7 @@
     <property name="inst.resrc" value="${sc.basedir}/resources/install"/>
     <property name='j2se_api' value='http://java.sun.com/j2se/1.5/docs/api' />
     <property name='maxwarns' value='10000' />
-    <property name='java.net.preferIPv6Addresses' value='true' />
+    <property name='java.net.preferIPv6Addresses' value='false' />
 
     <!-- set the build label property and make it take the cc bild into account -->
     <condition property="build.label"
@@ -746,8 +746,8 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="${java.net.preferIPv6Addresses}"/>
 
-            <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-                         value="${user.home}/schome"/-->
+            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                         value="${user.home}/schome"/>
 
             <!-- this is a temporary option that would need to disappear once
                  we finalize jingle -->

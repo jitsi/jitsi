@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.plugin.skinmanager.SkinManagerActivator
 Bundle-Name: Skin Manager plugin
 Bundle-Description: Manage all SIP Communicator skins.
-Bundle-Vendor: sip-communicator.org, Adam Netocny, CircleTech, s.r.o.
+Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

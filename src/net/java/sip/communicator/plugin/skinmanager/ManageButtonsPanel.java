@@ -21,7 +21,7 @@ import org.osgi.framework.*;
  * The panel containing all buttons for the <tt>PluginManagerConfigForm</tt>.
  *
  * @author Yana Stamcheva
- * @author Adam Netocony, CircleTech, s.r.o.
+ * @author Adam Netocony
  */
 public class ManageButtonsPanel
         extends TransparentPanel

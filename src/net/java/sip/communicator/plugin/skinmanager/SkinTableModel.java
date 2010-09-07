@@ -16,7 +16,7 @@ import org.osgi.framework.*;
  * The <tt>TableModel</tt> of the table containing all plug-ins.
  *
  * @author Yana Stamcheva
- * @author Adam Netocny, CircleTech, s.r.o.
+ * @author Adam Netocny
  */
 public class SkinTableModel
     extends AbstractTableModel

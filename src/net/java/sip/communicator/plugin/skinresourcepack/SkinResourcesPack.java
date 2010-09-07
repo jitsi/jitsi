@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * The skin resource pack.
- * @author Adam Netocny, CircleTech, s.r.o.
+ * @author Adam Netocny
  */
 public class SkinResourcesPack
     implements BundleActivator, SkinPack

@@ -12,12 +12,13 @@ import java.util.zip.*;
 
 /**
  * Class for building of skin bundles from zip files.
- * @author Adam Netocny, CircleTech, s.r.o.
+ * @author Adam Netocny
  */
 public class SkinJarBuilder
 {
     /**
      * Creates bundle from zip file.
+     *
      * @param zip Zip file with skin contents.
      * @return Jar <tt>File</tt>.
      * @throws Exception When something goes wrong.
@@ -47,6 +48,10 @@ public class SkinJarBuilder
 
     /**
      * Creates a copy of skinresources.jar in temp folder.
+     *
+     * @return the location of the temp file.
+     * @throws IOException Is thrown if the jar cannot be located or if a file
+     * operation goes wrong.
      */
     private static File cpTmp()
         throws IOException
@@ -81,9 +86,13 @@ public class SkinJarBuilder
 
     /**
      * Unzip given file to temp folder.
+     *
+     * @param zip ZIP <tt>File</tt> to be unzipped.
+     * @return temporary directory with the content of the ZIP file.
+     * @throws IOException Is thrown if a file operation goes wrong.
      */
     private static File unzipIntoTmp(File zip)
-        throws Exception
+        throws IOException
     {
         File dest = File.createTempFile("zip", null);
 
@@ -131,7 +140,11 @@ public class SkinJarBuilder
     }
 
     /**
-     * Inserts files into zip file.
+     * Inserts files into ZIP file.
+     *
+     * @param jar Destination ZIP file to store the data.
+     * @param tmpDir Folder which contains the data.
+     * @throws IOException Is thrown if a file operation goes wrong.
      */
     private static void insertIntoZip(File jar, File tmpDir)
         throws IOException
@@ -173,7 +186,11 @@ public class SkinJarBuilder
     }
 
     /**
-     * Zip the content of a folder.
+     * Zips the content of a folder.
+     * @param dir2zip Path to the directory with the data to be stored.
+     * @param zos Opened <tt>ZipOutputStream</tt> in which will be information
+     * stored.
+     * @throws IOException Is thrown if a file operation goes wrong.
      */
     private static void zipDir(String dir2zip, ZipOutputStream zos)
         throws IOException
@@ -183,7 +200,12 @@ public class SkinJarBuilder
     }
 
     /**
-     * Zip a file.
+     * Zips a file.
+     * @param directory Path to the dir with the data to be stored.
+     * @param base Base path for cutting paths into zip entries.
+     * @param zos Opened <tt>ZipOutputStream</tt> in which will be information
+     * stored. 
+     * @throws IOException Is thrown if a file operation goes wrong.
      */
     private static final void zip(File directory, File base, ZipOutputStream zos)
         throws IOException
@@ -212,7 +234,9 @@ public class SkinJarBuilder
     }
 
     /**
-     * Deletes a dir with all subdirs.
+     * Deletes a directory with all its sub-directories.
+     *
+     * @param tmp the directory to be deleted
      */
     private static void deleteDir(File tmp)
     {
@@ -237,6 +261,10 @@ public class SkinJarBuilder
     /**
      * Tests if the content of a folder has the same structure as the skin
      * content.
+     *
+     * @param tmpDir Directory to be tested.
+     * @return <tt>true</tt> - if the directory contains valid skin, else
+     * <tt>false</tt>.
      */
     private static boolean test(File tmpDir)
     {
@@ -330,8 +358,10 @@ public class SkinJarBuilder
     }
 
     /**
-     * Moves to toplevel dir for unziped files. (e.g. /dir/info.propreties will
-     * be changed to /info.properties.)
+     * Moves to top level directory for unziped files. (e.g.
+     * /dir/info.propreties will be changed to /info.properties.)
+     * @param tmpDir Directory in which is the skin unzipped.
+     * @return the top level directory
      */
     private static File findBase(File tmpDir)
     {
@@ -357,9 +387,21 @@ public class SkinJarBuilder
 
         if (!test)
         {
-            if (list.length == 1)
+            if (list.length != 0)
             {
-                return list[0];
+                File tmp = null;
+                for (File f : list)
+                {
+                    if(f.isDirectory())
+                    {
+                        File tmp2 = findBase(f);
+                        if(tmp2 != null && tmp == null)
+                        {
+                            tmp = tmp2;
+                        }
+                    }
+                }
+                return tmp;
             }
             else
             {

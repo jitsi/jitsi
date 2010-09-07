@@ -25,7 +25,7 @@ import org.osgi.framework.*;
  * The cell border and background are repainted.
  *
  * @author Yana Stamcheva
- * @author Adam Netocny, CircleTech, s.r.o.
+ * @author Adam Netocny
  */
 public class SkinListCellRenderer
         extends JPanel

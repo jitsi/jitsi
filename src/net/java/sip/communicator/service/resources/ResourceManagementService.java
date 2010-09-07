@@ -18,7 +18,7 @@ import javax.swing.*;
  * some configurations.
  *
  * @author Damian Minkov
- * @author Adam Netocny, CircleTech, s.r.o.
+ * @author Adam Netocny
  */
 public interface ResourceManagementService
 {
