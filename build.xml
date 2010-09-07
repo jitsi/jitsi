@@ -45,7 +45,7 @@
     <property name="inst.resrc" value="${sc.basedir}/resources/install"/>
     <property name='j2se_api' value='http://java.sun.com/j2se/1.5/docs/api' />
     <property name='maxwarns' value='10000' />
-    <property name='java.net.preferIPv6Addresses' value='false' />
+    <property name='java.net.preferIPv6Addresses' value='true' />
 
     <!-- set the build label property and make it take the cc bild into account -->
     <condition property="build.label"
@@ -746,8 +746,8 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="${java.net.preferIPv6Addresses}"/>
 
-            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-                         value="${user.home}/schome"/>
+            <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                         value="${user.home}/schome"/-->
 
             <!-- this is a temporary option that would need to disappear once
                  we finalize jingle -->
@@ -926,10 +926,13 @@
         bundle-filehistory,bundle-metahistory,bundle-metahistory-slick,
         bundle-plugin-facebookaccregwizz,
         bundle-bouncycastle,bundle-plugin-otr,bundle-plugin-iptelaccregwizz,
-        bundle-contactsource,bundle-plugin-reconnect,
-        bundle-plugin-securityconfig,bundle-plugin-advancedconfig,
-        bundle-plugin-sip2sipaccregwizz,
-        bundle-credentialsstorage,bundle-credentialsstorage-slick"/>
+        bundle-contactsource,bundle-plugin-reconnect,bundle-plugin-securityconfig,
+        bundle-plugin-advancedconfig,bundle-plugin-sip2sipaccregwizz,
+        bundle-credentialsstorage,bundle-credentialsstorage-slick,
+        bundle-youtube,bundle-dailymotion,bundle-smiley,bundle-vimeo,
+        bundle-vbox7,bundle-metacafe,bundle-flickr,bundle-hulu,
+        bundle-twitpic,bundle-directimage,bundle-bliptv,bundle-viddler,
+        bundle-plugin-chatconfig"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2373,6 +2376,156 @@ org.apache.http.util"/>
             manifest="${src}/net/java/sip/communicator/plugin/advancedconfig/advancedconfig.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/advancedconfig"
                 prefix="net/java/sip/communicator/plugin/advancedconfig"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-YOUTUBE -->
+    <target name="bundle-youtube">
+       <jar compress="false" destfile="${bundles.dest}/replacement-youtube.jar"
+            manifest="${src}/net/java/sip/communicator/impl/replacement/youtube/youtube.source.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/youtube"
+                   prefix="net/java/sip/communicator/impl/replacement/youtube"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/replacement"
+                   prefix="net/java/sip/communicator/service/replacement"/>
+            <zipfileset src="${lib.noinst}/json-20090723.jar" prefix=""/>
+       </jar>
+    </target>
+
+    <!-- BUNDLE-DAILYMOTION -->
+    <target name="bundle-dailymotion">
+        <jar compress="false" destfile="${bundles.dest}/replacement-dailymotion.jar"
+             manifest="${src}/net/java/sip/communicator/impl/replacement/dailymotion/dailymotion.source.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/dailymotion"
+                    prefix="net/java/sip/communicator/impl/replacement/dailymotion"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/replacement"
+                prefix="net/java/sip/communicator/service/replacement"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-SMILEY -->
+    <target name="bundle-smiley">
+        <jar compress="false" destfile="${bundles.dest}/replacement-smiley.jar"
+             manifest="${src}/net/java/sip/communicator/impl/replacement/smiley/smiley.source.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/smiley"
+                    prefix="net/java/sip/communicator/impl/replacement/smiley"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/replacement"
+                prefix="net/java/sip/communicator/service/replacement"/>
+              <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui/utils"
+                prefix="net/java/sip/communicator/impl/gui/utils"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
+                prefix="net/java/sip/communicator/impl/gui"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-VIMEO -->
+    <target name="bundle-vimeo">
+        <jar compress="false" destfile="${bundles.dest}/replacement-vimeo.jar"
+             manifest="${src}/net/java/sip/communicator/impl/replacement/vimeo/vimeo.source.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/vimeo"
+                    prefix="net/java/sip/communicator/impl/replacement/vimeo"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/replacement"
+                prefix="net/java/sip/communicator/service/replacement"/>
+             <zipfileset src="${lib.noinst}/json-20090723.jar" prefix=""/>
+        </jar>
+    </target>
+
+     <!-- BUNDLE-VBOX7 -->
+    <target name="bundle-vbox7">
+        <jar compress="false" destfile="${bundles.dest}/replacement-vbox7.jar"
+             manifest="${src}/net/java/sip/communicator/impl/replacement/vbox7/vbox7.source.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/vbox7"
+                    prefix="net/java/sip/communicator/impl/replacement/vbox7"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/replacement"
+                prefix="net/java/sip/communicator/service/replacement"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-METACAFE -->
+    <target name="bundle-metacafe">
+        <jar compress="false" destfile="${bundles.dest}/replacement-metacafe.jar"
+             manifest="${src}/net/java/sip/communicator/impl/replacement/metacafe/metacafe.source.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/metacafe"
+                    prefix="net/java/sip/communicator/impl/replacement/metacafe"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/replacement"
+                prefix="net/java/sip/communicator/service/replacement"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-FLICKR -->
+    <target name="bundle-flickr">
+        <jar compress="false" destfile="${bundles.dest}/replacement-flickr.jar"
+             manifest="${src}/net/java/sip/communicator/impl/replacement/flickr/flickr.source.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/flickr"
+                    prefix="net/java/sip/communicator/impl/replacement/flickr"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/replacement"
+                prefix="net/java/sip/communicator/service/replacement"/>
+            <zipfileset src="${lib.noinst}/json-20090723.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-HULU -->
+    <target name="bundle-hulu">
+         <jar compress="false" destfile="${bundles.dest}/replacement-hulu.jar"
+              manifest="${src}/net/java/sip/communicator/impl/replacement/hulu/hulu.source.manifest.mf">
+             <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/hulu"
+                     prefix="net/java/sip/communicator/impl/replacement/hulu"/>
+             <zipfileset dir="${dest}/net/java/sip/communicator/service/replacement"
+                 prefix="net/java/sip/communicator/service/replacement"/>
+             <zipfileset src="${lib.noinst}/json-20090723.jar" prefix=""/>
+         </jar>
+    </target>
+
+    <!-- BUNDLE-TWITPIC -->
+    <target name="bundle-twitpic">
+        <jar compress="false" destfile="${bundles.dest}/replacement-twitpic.jar"
+             manifest="${src}/net/java/sip/communicator/impl/replacement/twitpic/twitpic.source.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/twitpic"
+                    prefix="net/java/sip/communicator/impl/replacement/twitpic"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/replacement"
+                prefix="net/java/sip/communicator/service/replacement"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-DIRECTIMAGE -->
+    <target name="bundle-directimage">
+        <jar compress="false" destfile="${bundles.dest}/replacement-directimage.jar"
+             manifest="${src}/net/java/sip/communicator/impl/replacement/directimage/directimage.source.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/directimage"
+                    prefix="net/java/sip/communicator/impl/replacement/directimage"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/replacement"
+                prefix="net/java/sip/communicator/service/replacement"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-BLIPTV -->
+    <target name="bundle-bliptv">
+         <jar compress="false" destfile="${bundles.dest}/replacement-bliptv.jar"
+              manifest="${src}/net/java/sip/communicator/impl/replacement/bliptv/bliptv.source.manifest.mf">
+             <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/bliptv"
+                     prefix="net/java/sip/communicator/impl/replacement/bliptv"/>
+             <zipfileset dir="${dest}/net/java/sip/communicator/service/replacement"
+                 prefix="net/java/sip/communicator/service/replacement"/>
+             <zipfileset src="${lib.noinst}/json-20090723.jar" prefix=""/>
+         </jar>
+    </target>
+
+     <!-- BUNDLE-VIDDLER -->
+    <target name="bundle-viddler">
+        <jar compress="false" destfile="${bundles.dest}/replacement-viddler.jar"
+             manifest="${src}/net/java/sip/communicator/impl/replacement/viddler/viddler.source.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/viddler"
+                    prefix="net/java/sip/communicator/impl/replacement/viddler"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/replacement"
+                prefix="net/java/sip/communicator/service/replacement"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-Chat Config-->
+    <target name="bundle-plugin-chatconfig">
+        <jar compress="false" destfile="${bundles.dest}/chatconfig.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/chatconfig/chatconfig.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/chatconfig"
+                prefix="net/java/sip/communicator/plugin/chatconfig" />
         </jar>
     </target>
 </project>

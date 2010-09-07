@@ -1,0 +1,14 @@
+Bundle-Activator: net.java.sip.communicator.impl.replacement.dailymotion.DailymotionActivator
+Bundle-Name: Dailymotion Replacement Source
+Bundle-Description: A bundle providing replacement for dailymotion links.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 1.0.0
+System-Bundle: yes
+Export-Package: net.java.sip.communicator.service.replacement
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.service.configuration.event,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.version,
+ net.java.sip.communicator.service.replacement

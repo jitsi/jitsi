@@ -32,6 +32,7 @@ public class Smiley
      * @param imageID The image identifier of the smiley icon.
      * @param smileyStrings A set of strings corresponding to the smiley
      * icon.
+     * @param description the description of the smiley
      */
     public Smiley(ImageID imageID, String[] smileyStrings, String description)
     {
@@ -88,6 +89,24 @@ public class Smiley
     {
         URL url
             = GuiActivator.getResources()
+                .getImageURL(this.getImageID().getId());
+
+        if(url == null)
+            return null;
+
+        return url.toString();
+    }
+
+    /**
+     * Returns the path of the image corresponding to this smiley.
+     * @param resourcesService The ResourceManagementService required to get the 
+     *        image URL.
+     * @return the path of the image corresponding to this smiley.
+     */
+    public String getImagePath(ResourceManagementService resourcesService) 
+    {
+        URL url
+            = resourcesService
                 .getImageURL(this.getImageID().getId());
 
         if(url == null)

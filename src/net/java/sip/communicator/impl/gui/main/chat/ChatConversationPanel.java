@@ -11,6 +11,7 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.Map.*;
 import java.util.regex.*;
 
 import javax.swing.*;
@@ -24,8 +25,10 @@ import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.SwingWorker;
 
 /**
  * The <tt>ChatConversationPanel</tt> is the panel, where all sent and received
@@ -69,41 +72,68 @@ public class ChatConversationPanel
             + ")");
 
     /**
-     * The compiled <tt>Pattern</tt> which matches {@link #smileyStrings}. 
+     * The component rendering chat conversation panel text.
      */
-    private static Pattern smileyPattern;
-
-    /**
-     * The <tt>List</tt> of smiley strings which are matched by
-     * {@link #smileyPattern}.
-     */
-    private static final java.util.List<String> smileyStrings
-        = new ArrayList<String>();
-
     private final JTextPane chatTextPane = new MyTextPane();
 
+    /**
+     * The editor kit used by the text component.
+     */
     private final HTMLEditorKit editorKit;
 
+    /**
+     * The document used by the text component.
+     */
     private HTMLDocument document;
 
+    /**
+     * The parent container.
+     */
     private final ChatConversationContainer chatContainer;
 
+    /**
+     * The menu shown on right button mouse click.
+     */
     private final ChatRightButtonMenu rightButtonMenu;
 
+    /**
+     * The currently shown href.
+     */
     private String currentHref;
 
+    /**
+     * The copy link item, contained in the right mouse click menu.
+     */
     private final JMenuItem copyLinkItem;
 
+    /**
+     * The open link item, contained in the right mouse click menu.
+     */
     private final JMenuItem openLinkItem;
 
+    /**
+     * The right mouse click menu separator.
+     */
     private final JSeparator copyLinkSeparator = new JSeparator();
 
+    /**
+     * The timestamp of the last incoming message.
+     */
     private long lastIncomingMsgTimestamp;
 
+    /**
+     * Indicates if this component is rendering a history conversation.
+     */
     private final boolean isHistory;
 
+    /**
+     * The html text content type.
+     */
     public static final String HTML_CONTENT_TYPE = "text/html";
 
+    /**
+     * The plain text content type.
+     */
     public static final String TEXT_CONTENT_TYPE = "text/plain";
 
     /**
@@ -245,7 +275,7 @@ public class ChatConversationPanel
         getViewport().addComponentListener(componentListener);
     }
 
-    /*
+    /**
      * Overrides Component#setBounds(int, int, int, int) in order to determine
      * whether an automatic scroll of #chatTextPane to its bottom will be
      * necessary at a later time in order to keep its vertical scroll bar to its
@@ -519,7 +549,101 @@ public class ChatConversationPanel
             }
             if (!isHistory)
                 ensureDocumentSize();
+
+            // Process replacements.
+            final Element elem;
+            /*
+             * Check to make sure element isn't the first element in the HTML
+             * document.
+             */
+            if (!(root.getElementCount() < 2))
+            {
+                elem = root.getElement(root.getElementCount() - 2);
+            }
+            else
+                elem = root.getElement(1);
+
+            /*
+             * Replacements will be processed only if it is enabled in the
+             * property
+             */
+            if (GuiActivator.getConfigurationService().getBoolean(
+                ReplacementProperty.REPLACEMENT_ENABLE, true)
+                || GuiActivator.getConfigurationService().getBoolean(
+                    ReplacementProperty.getPropertyName("SMILEY"), true))
+            {
+                processReplacement(elem, chatString);
+            }
         }
+    }
+
+    /**
+    * Formats the given message. Processes the messages and replaces links to
+    * video/image sources with their previews or any other substitution. Spawns
+    * a separate thread for replacement.
+    * 
+    * @param elem the element in the HTML Document.
+    * @param chatString the message.
+    */
+    private void processReplacement(final Element elem, final String chatString)
+    {
+       final String chatFinal = chatString;
+
+       SwingWorker worker = new SwingWorker()
+       {
+           public Object construct() throws Exception
+           {
+               String temp = "", msgStore = chatFinal;
+
+               boolean isEnabled
+                   = GuiActivator.getConfigurationService().getBoolean(
+                       ReplacementProperty.REPLACEMENT_ENABLE, true);
+
+               Map<Object, ReplacementService> listSources
+                   = GuiActivator.getReplacementSources();
+
+               Iterator<Entry<Object, ReplacementService>> entrySetIter
+                   = listSources.entrySet().iterator();
+
+               for (int i = 0; i < listSources.size(); i++)
+               {
+                   Map.Entry<Object, ReplacementService> entry
+                       = entrySetIter.next();
+
+                   ReplacementService source = entry.getValue();
+
+                   if (!(GuiActivator.getConfigurationService().getBoolean(
+                       ReplacementProperty.getPropertyName((String) entry
+                           .getKey()), true) && (isEnabled || entry.getKey()
+                       .equals("SMILEY"))))
+                       continue;
+
+                   temp = source.getReplacedMessage(msgStore);
+
+                   /*
+                    * replace the msgStore variable with the current replaced
+                    * message before next iteration
+                    */
+
+                   if (!temp.equals(msgStore))
+                   {
+                       msgStore = temp;
+                   }
+               }
+
+               if (!temp.equals(chatFinal))
+               {
+                   synchronized (scrollToBottomRunnable)
+                   {
+                       scrollToBottomIsPending = true;
+                       document.setOuterHTML(elem, temp.toString().substring(
+                           temp.indexOf("<DIV")));
+                   }
+               }
+               return "";
+           }
+       };
+       worker.start();
     }
 
     /**
@@ -703,9 +827,6 @@ public class ChatConversationPanel
             message = processImgTags(processBrTags(message));
         }
 
-        if (ConfigurationManager.isShowSmileys())
-            message = processSmileys(message, contentType);
-
         return message;
     }
 
@@ -803,123 +924,6 @@ public class ChatConversationPanel
                 .replaceAll(
                     "\n",
                     END_PLAINTEXT_TAG + "<BR>&#10;" + START_PLAINTEXT_TAG);
-    }
-
-    /**
-     * Formats message smileys.
-     *
-     * @param message the source message string
-     * @param contentType the content type
-     * @return the message string with properly formated smileys
-     */
-    private String processSmileys(String message, String contentType)
-    {
-        String startPlainTextTag;
-        String endPlainTextTag;
-        if (!HTML_CONTENT_TYPE.equals(contentType))
-        {
-            startPlainTextTag = START_PLAINTEXT_TAG;
-            endPlainTextTag = END_PLAINTEXT_TAG;
-        }
-        else
-        {
-            startPlainTextTag = "";
-            endPlainTextTag = "";
-        }
-
-        Collection<Smiley> smileys = ImageLoader.getDefaultSmileyPack();
-        Matcher m = getSmileyPattern(smileys).matcher(message);
-        StringBuffer msgBuffer = new StringBuffer();
-        int prevEnd = 0;
-
-        while (m.find())
-        {
-            msgBuffer.append(message.substring(prevEnd, m.start()));
-            prevEnd = m.end();
-
-            String smileyString = m.group().trim();
-
-            msgBuffer.append(endPlainTextTag);
-            msgBuffer.append("<IMG SRC=\"");
-            msgBuffer
-                .append(ImageLoader.getSmiley(smileyString).getImagePath());
-            msgBuffer.append("\" ALT=\"");
-            msgBuffer.append(smileyString);
-            msgBuffer.append("\"></IMG>");
-            msgBuffer.append(startPlainTextTag);
-        }
-        msgBuffer.append(message.substring(prevEnd));
-
-        return msgBuffer.toString();
-    }
-
-    /**
-     * Gets a compiled <tt>Pattern</tt> which matches the smiley strings of the
-     * specified <tt>Collection</tt> of <tt>Smiley</tt>s.
-     *
-     * @param smileys the <tt>Collection</tt> of <tt>Smiley</tt>s for which to
-     * get a compiled <tt>Pattern</tt> which matches its smiley strings
-     * @return a compiled <tt>Pattern</tt> which matches the smiley strings of
-     * the specified <tt>Collection</tt> of <tt>Smiley</tt>s
-     */
-    private static Pattern getSmileyPattern(Collection<Smiley> smileys)
-    {
-        synchronized (smileyStrings)
-        {
-            boolean smileyStringsIsEqual;
-
-            if (smileyPattern == null)
-                smileyStringsIsEqual = false;
-            else
-            {
-                smileyStringsIsEqual = true;
-
-                int smileyStringIndex = 0;
-                int smileyStringCount = smileyStrings.size();
-
-                smileyLoop: for (Smiley smiley : smileys)
-                    for (String smileyString : smiley.getSmileyStrings())
-                        if ((smileyStringIndex < smileyStringCount)
-                                && smileyString
-                                    .equals(
-                                        smileyStrings.get(smileyStringIndex)))
-                            smileyStringIndex++;
-                        else
-                        {
-                            smileyStringsIsEqual = false;
-                            break smileyLoop;
-                        }
-                if (smileyStringsIsEqual
-                        && (smileyStringIndex != smileyStringCount))
-                    smileyStringsIsEqual = false;
-            }
-
-            if (!smileyStringsIsEqual)
-            {
-                smileyStrings.clear();
-
-                StringBuffer regex = new StringBuffer();
-
-                regex.append("(?<!(alt='|alt=\"))(");
-                for (Smiley smiley : smileys)
-                    for (String smileyString : smiley.getSmileyStrings())
-                    {
-                        smileyStrings.add(smileyString);
-
-                        regex
-                            .append(
-                                    GuiUtils
-                                        .replaceSpecialRegExpChars(
-                                            smileyString))
-                                .append("|");
-                    }
-                regex = regex.deleteCharAt(regex.length() - 1);
-                regex.append(')');
-
-                smileyPattern = Pattern.compile(regex.toString());
-            }
-            return smileyPattern;
-        }
     }
 
     /**

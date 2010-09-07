@@ -25,6 +25,7 @@ import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.service.systray.*;
@@ -83,10 +84,13 @@ public class GuiActivator implements BundleActivator
     private static final Map<Object, ProtocolProviderFactory>
         providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
 
+    private static final Map<Object, ReplacementService>
+        replacementSourcesMap = new Hashtable<Object, ReplacementService>();
+
     /**
      * Indicates if this bundle has been started.
      */
-    public  static boolean isStarted = false;
+    public static boolean isStarted = false;
 
     /**
      * The contact list object.
@@ -611,6 +615,44 @@ public class GuiActivator implements BundleActivator
             }
         }
         return contactSources;
+    }
+
+    /**
+     * Returns all <tt>ReplacementService</tt>s obtained from the bundle
+     * context.
+     * 
+     * @return all <tt>ReplacementService</tt> implementation obtained from the
+     *         bundle context
+     */
+    public static Map<Object, ReplacementService> getReplacementSources()
+    {
+        ServiceReference[] serRefs = null;
+        try
+        {
+            // get all registered sources
+            serRefs
+                = bundleContext.getServiceReferences(ReplacementService.class
+                    .getName(), null);
+
+        }
+        catch (InvalidSyntaxException e)
+        {
+            logger.error("Error : " + e);
+        }
+
+        if (serRefs != null)
+        {
+            for (int i = 0; i < serRefs.length; i++)
+            {
+                ReplacementService replacementSources =
+                    (ReplacementService) bundleContext.getService(serRefs[i]);
+
+                replacementSourcesMap.put(serRefs[i]
+                    .getProperty(ReplacementService.SOURCE_NAME),
+                    replacementSources);
+            }
+        }
+        return replacementSourcesMap;
     }
 
     /**

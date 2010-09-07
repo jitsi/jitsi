@@ -1,0 +1,137 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.plugin.chatconfig;
+
+import java.awt.*;
+import java.util.*;
+
+import javax.swing.*;
+
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
+
+import org.osgi.framework.*;
+
+/**
+ * The chat configuration form activator.
+ * 
+ * @author Purvesh Sahoo
+ */
+public class ChatConfigActivator
+    implements BundleActivator
+{
+    /**
+     * The <tt>Logger</tt> used by the <tt>ChatConfigActivator</tt> class.
+     */
+    private final static Logger logger =
+        Logger.getLogger(ChatConfigActivator.class);
+
+    /**
+     * The currently valid bundle context.
+     */
+    public static BundleContext bundleContext;
+
+    /**
+     * The configuration service.
+     */
+    private static ConfigurationService configService;
+
+    /**
+     * The resource management service.
+     */
+    private static ResourceManagementService resourceService;
+
+    /**
+     * Starts this bundle.
+     * 
+     * @param bc the BundleContext
+     * @throws Exception if some of the operations executed in the start method
+     *             fails
+     */
+    public void start(BundleContext bc) throws Exception
+    {
+        bundleContext = bc;
+
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+        properties.put(ConfigurationForm.FORM_TYPE,
+            ConfigurationForm.GENERAL_TYPE);
+        bundleContext.registerService(ConfigurationForm.class.getName(),
+            new LazyConfigurationForm(
+                "net.java.sip.communicator.plugin.chatconfig.ChatConfigPanel",
+                getClass().getClassLoader(), "plugin.chatconfig.PLUGIN_ICON",
+                "plugin.chatconfig.TITLE", 40), properties);
+
+        if (logger.isTraceEnabled())
+            logger.trace("Chat Configuration: [ STARTED ]");
+    }
+
+    /**
+     * Stops this bundle.
+     * 
+     * @param bc the bundle context
+     * @throws Exception if something goes wrong
+     */
+    public void stop(BundleContext bc) throws Exception {}
+
+    /**
+     * Gets the service giving access to all application resources.
+     * 
+     * @return the service giving access to all application resources.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+            resourceService =
+                ResourceManagementServiceUtils.getService(bundleContext);
+        return resourceService;
+    }
+
+    /**
+     * Creates a config section label from the given text.
+     * 
+     * @param labelText the text of the label.
+     * @return the created label
+     */
+
+    public static Component createConfigSectionComponent(String labelText)
+    {
+        JLabel label = new JLabel(labelText);
+        label.setFont(label.getFont().deriveFont(Font.BOLD));
+        label.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        JPanel parentPanel = new TransparentPanel(new BorderLayout());
+        parentPanel.add(label, BorderLayout.NORTH);
+        parentPanel.setPreferredSize(new Dimension(180, 25));
+
+        return parentPanel;
+    }
+
+    /**
+     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
+     * context.
+     * 
+     * @return the <tt>ConfigurationService</tt> obtained from the bundle
+     *         context
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if (configService == null)
+        {
+            ServiceReference configReference =
+                bundleContext.getServiceReference(ConfigurationService.class
+                    .getName());
+
+            configService =
+                (ConfigurationService) bundleContext
+                    .getService(configReference);
+        }
+
+        return configService;
+    }
+}
