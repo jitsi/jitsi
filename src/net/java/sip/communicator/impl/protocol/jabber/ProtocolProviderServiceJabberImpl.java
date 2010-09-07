@@ -382,8 +382,22 @@ public class ProtocolProviderServiceJabberImpl
             try
             {
                 //XMPPConnection.DEBUG_ENABLED = true;
-                String userID
-                    = StringUtils.parseName(getAccountID().getUserID());
+                String userID = null;
+
+                /* with a google account (either gmail or google apps
+                 * related ones), the userID MUST be the full e-mail address
+                 * not just the ID
+                 */
+                if(getAccountID().getProtocolDisplayName().
+                        equals("Google Talk"))
+                {
+                    userID = getAccountID().getUserID();
+                }
+                else
+                {
+                    userID = StringUtils.parseName(getAccountID().getUserID());
+                }
+
                 String serviceName
                     = StringUtils.parseServer(getAccountID().getUserID());
 

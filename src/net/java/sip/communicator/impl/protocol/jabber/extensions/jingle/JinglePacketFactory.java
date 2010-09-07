@@ -30,8 +30,8 @@ public class JinglePacketFactory
      */
     public static JingleIQ createRinging(JingleIQ sessionInitiate)
     {
-        return createSessionInfo(sessionInitiate.getFrom(),
-                                 sessionInitiate.getTo(),
+        return createSessionInfo(sessionInitiate.getTo(),
+                                 sessionInitiate.getFrom(),
                                  sessionInitiate.getSID(),
                                  SessionInfoType.ringing);
     }
