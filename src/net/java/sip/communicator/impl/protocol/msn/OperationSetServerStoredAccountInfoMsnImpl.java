@@ -34,7 +34,7 @@ public class OperationSetServerStoredAccountInfoMsnImpl
             Logger.getLogger(OperationSetServerStoredAccountInfoMsnImpl.class);
 
     /**
-     * The jabber provider that created us.
+     * The msn provider that created us.
      */
     private ProtocolProviderServiceMsnImpl msnProvider = null;
     /**
@@ -499,14 +499,14 @@ public class OperationSetServerStoredAccountInfoMsnImpl
         if (msnProvider == null)
         {
             throw new IllegalStateException(
-                    "The jabber provider must be non-null and signed on "
+                    "The msn provider must be non-null and signed on "
                     + "before being able to communicate.");
         }
 
         if (!msnProvider.isRegistered())
         {
             throw new IllegalStateException(
-                    "The jabber provider must be signed on before "
+                    "The msn provider must be signed on before "
                     + "being able to communicate.");
         }
     }

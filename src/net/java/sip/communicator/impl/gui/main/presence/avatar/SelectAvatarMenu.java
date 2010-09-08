@@ -260,7 +260,8 @@ public class SelectAvatarMenu
                             = GuiActivator.getRegisteredProviderForAccount(
                                 accountID);
 
-                        if(protocolProvider != null)
+                        if(protocolProvider != null
+                           && protocolProvider.isRegistered())
                         {
                             OperationSetAvatar opSetAvatar
                                 = protocolProvider

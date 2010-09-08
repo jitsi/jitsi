@@ -8,36 +8,38 @@ package net.java.sip.communicator.impl.gui.main.presence.avatar.imagepicker;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.audionotifier.*;
-//import net.java.sip.communicator.service.media.*;
-import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * A dialog showing the webcam and allowing the user to grap a snapshot 
  *
  * @author Damien Roth
+ * @author Damian Minkov
  */
 public class WebcamDialog
     extends SIPCommDialog
     implements ActionListener
-//        , VideoListener
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>WebcamDialog</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(WebcamDialog.class);
+
     private VideoContainer videoContainer;
-    private Component videoComponent = null;
-    
-    private JButton cancelButton;
+
     private JButton grabSnapshot;
-    
+
     private byte[] grabbedImage = null;
     
-    private TransparentPanel southPanel;
-    
-    private TransparentPanel timerPanel;
     private TimerImage[] timerImages = new TimerImage[3];
     
     /**
@@ -66,40 +68,40 @@ public class WebcamDialog
         this.grabSnapshot.addActionListener(this);
         this.grabSnapshot.setEnabled(false);
 
-        this.cancelButton = new JButton(GuiActivator.getResources()
+        JButton cancelButton = new JButton(GuiActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.CANCEL"));
-        this.cancelButton.setName("cancel");
-        this.cancelButton.addActionListener(this);
+        cancelButton.setName("cancel");
+        cancelButton.addActionListener(this);
         
         initAccessWebcam();
 
-
         // Timer Panel
-        this.timerPanel = new TransparentPanel();
-        this.timerPanel.setLayout(new GridLayout(0, 3));
+        TransparentPanel timerPanel = new TransparentPanel();
+        timerPanel.setLayout(new GridLayout(0, timerImages.length));
         
         TransparentPanel tp;
         for (int i = 0; i < this.timerImages.length; i++)
         {
-            this.timerImages[i] = new TimerImage("" + (3-i));
+            this.timerImages[i] = new TimerImage("" + (timerImages.length - i));
             
             tp = new TransparentPanel();
             tp.add(this.timerImages[i], BorderLayout.CENTER);
             
-            this.timerPanel.add(tp);
+            timerPanel.add(tp);
         }
         
-        TransparentPanel buttonsPanel = new TransparentPanel(new GridLayout(1, 2));
+        TransparentPanel buttonsPanel
+                = new TransparentPanel(new GridLayout(1, 2));
         buttonsPanel.add(this.grabSnapshot);
-        buttonsPanel.add(this.cancelButton);
+        buttonsPanel.add(cancelButton);
         
         // South Panel
-        this.southPanel = new TransparentPanel(new BorderLayout());
-        this.southPanel.add(this.timerPanel, BorderLayout.CENTER);
-        this.southPanel.add(buttonsPanel, BorderLayout.SOUTH);
+        TransparentPanel southPanel = new TransparentPanel(new BorderLayout());
+        southPanel.add(timerPanel, BorderLayout.CENTER);
+        southPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
         this.add(this.videoContainer, BorderLayout.CENTER);
-        this.add(this.southPanel, BorderLayout.SOUTH);   
+        this.add(southPanel, BorderLayout.SOUTH);   
     }
 
     /**
@@ -107,46 +109,39 @@ public class WebcamDialog
      */
     private void initAccessWebcam()
     {
-        Dimension d = new Dimension(320, 240);
-        
-        // Create a container for the video
-        this.videoContainer = new VideoContainer(new JLabel(
-                GuiActivator.getResources()
-                .getI18NString("service.gui.avatar.imagepicker.INITIALIZING"),
-                JLabel.CENTER));
-        this.videoContainer.setPreferredSize(d);
-        this.videoContainer.setMinimumSize(d);
-        this.videoContainer.setMaximumSize(d);
-        
-//        try
-//        {
-//            // Call the method in the media service
-//            GuiActivator.getMediaService().createLocalVideoComponent(this);
-//        } catch (MediaException e)
-//        {
-//            //todo: In what scenarios are exceptions thrown and how to manage them?
-//            this.videoContainer = new VideoContainer(new JLabel(
-//                    GuiActivator.getResources()
-//                    .getI18NString("service.gui.avatar.imagepicker.WEBCAM_ERROR")));
-//            e.printStackTrace();
-//        }
+        //Call the method in the media service
+        this.videoContainer =
+            (VideoContainer)GuiActivator.getMediaService()
+                .getVideoPreviewComponent(
+                    GuiActivator.getMediaService().getDefaultDevice(
+                        MediaType.VIDEO,
+                        MediaUseCase.CALL
+                        ), 320, 240);
+        this.grabSnapshot.setEnabled(true);
     }
     
     /**
-     * Grap the current image of the webcam throught the MediaService
+     * Grab the current image of the webcam through the MediaService
      */
     private void grabSnapshot()
     {
-        // Just call the method "grabSnapshot" from the MediaService with the component
-//        try
-//        {
-//            this.grabbedImage = GuiActivator.getMediaService()
-//                .grabSnapshot(this.videoComponent);
-//        }
-//        catch (Exception e)
-//        {
-//            e.printStackTrace();
-//        }
+        try
+        {
+            Robot robot = new Robot();
+            Point location = videoContainer.getLocationOnScreen();
+
+            BufferedImage bi = robot.createScreenCapture(new Rectangle(
+                    location.x,
+                    location.y,
+                    videoContainer.getWidth(),
+                    videoContainer.getHeight()));
+            this.grabbedImage = ImageUtils.toByteArray(bi);
+        }
+        catch (Throwable e)
+        {
+            logger.error("Cannot create snapshot!", e);
+        }
+
         close(false);
         this.setVisible(false);
     }
@@ -177,41 +172,8 @@ public class WebcamDialog
 
     protected void close(boolean isEscaped)
     {
-//        try
-//        {
-//            if (this.videoComponent != null)
-//            {
-//                GuiActivator.getMediaService()
-//                    .disposeLocalVideoComponent(this.videoComponent);
-//                this.videoComponent = null;
-//            }
-//        }
-//        catch (MediaException e)
-//        {
-//            // Better manager the exception !
-//            e.printStackTrace();
-//        }
-    }
-    
-    public void videoAdded(VideoEvent event)
-    {
-        // Here is the important part. With this event, you get the component
-        // containing the video !
-
-        // You need to keep it. The returned componant is the key for all
-        // the other methods !
-        this.videoComponent = event.getVisualComponent();
-
-        // Add the component in the container
-        this.videoContainer.add(this.videoComponent);
-
-        this.grabSnapshot.setEnabled(true);
-    }
-
-    public void videoRemoved(VideoEvent event)
-    {
-        // In case of the video is removed elsewhere
-        this.videoComponent = null;
+        this.videoContainer = null;
+        dispose();
     }
     
     public void actionPerformed(ActionEvent e)
@@ -220,21 +182,21 @@ public class WebcamDialog
         
         if (actName.equals("grab"))
         {
-            if (this.videoComponent == null)
-                return;
-            
             this.grabSnapshot.setEnabled(false);
             new SnapshotTimer().start();
         }
         else
         {
             close(false);
-            this.setVisible(false);
+            dispose();
         }
     }
-    
+
+    /**
+     * This thread grabs the snapshot by counting down.
+     */
     private class SnapshotTimer
-    extends Thread
+        extends Thread
     {        
         @Override
         public void run()
@@ -250,7 +212,7 @@ public class WebcamDialog
                 }
                 catch (InterruptedException e)
                 {
-                    e.printStackTrace();
+                    logger.error("", e);
                 }
             }
             
@@ -262,7 +224,10 @@ public class WebcamDialog
 
         }
     }
-    
+
+    /**
+     * These are the images shown as timer while grabbing the snapshot.
+     */
     private class TimerImage
         extends JComponent
     {

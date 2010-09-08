@@ -6,16 +6,25 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 import javax.media.*;
+import javax.media.control.*;
+import javax.media.protocol.*;
+import javax.swing.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
+import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * Implements <tt>MediaService</tt> for JMF.
@@ -26,6 +35,11 @@ import net.java.sip.communicator.service.neomedia.format.*;
 public class MediaServiceImpl
     implements MediaService
 {
+    /**
+     * The logger.
+     */
+    private static final Logger logger
+        = Logger.getLogger(MediaServiceImpl.class);
 
     /**
      * With this property video support can be disabled (enabled by default).
@@ -607,5 +621,247 @@ public class MediaServiceImpl
             dynamicPayloadTypePreferences.put(telephoneEvent, (byte)101);
         }
         return dynamicPayloadTypePreferences;
+    }
+
+    /**
+     * Creates a preview component for the specified device(video device) used
+     * to show video preview from that device.
+     *
+     * @param device the video device
+     * @param preferredWidth the width we prefer for the component
+     * @param preferredHeight the height we prefer for the component
+     * @return the preview component.
+     */
+    public Object getVideoPreviewComponent(MediaDevice device
+                    , int preferredWidth, int preferredHeight)
+    {
+        JLabel noPreview =
+        new JLabel(NeomediaActivator.getResources().getI18NString(
+                "impl.media.configform.NO_PREVIEW"));
+        noPreview.setHorizontalAlignment(SwingConstants.CENTER);
+        noPreview.setVerticalAlignment(SwingConstants.CENTER);
+        final JComponent videoContainer
+                = new VideoContainer(noPreview);
+
+        videoContainer.setPreferredSize(
+                new Dimension(preferredWidth, preferredHeight));
+        videoContainer.setMaximumSize(
+                new Dimension(preferredWidth, preferredHeight));
+
+        try
+        {
+            if (device == null ||
+                    ((MediaDeviceImpl)device).getCaptureDeviceInfo() == null)
+            {
+                return videoContainer;
+            }
+
+            DataSource dataSource = Manager.createDataSource(
+                ((MediaDeviceImpl)device).getCaptureDeviceInfo().getLocator());
+
+            /*
+            * Don't let the size be uselessly small just because the videoContainer
+            * has too small a preferred size.
+            */
+            if ((preferredWidth < 128) || (preferredHeight < 96))
+            {
+                preferredHeight = 128;
+                preferredWidth = 96;
+            }
+            VideoMediaStreamImpl
+                .selectVideoSize(dataSource, preferredWidth, preferredHeight);
+
+            // A Player is documented to be created on a connected DataSource.
+            dataSource.connect();
+
+            Processor player = Manager.createProcessor(dataSource);
+
+            player.addControllerListener(new ControllerListener()
+            {
+                public void controllerUpdate(ControllerEvent event)
+                {
+                    controllerUpdateForPreview(event, videoContainer);
+                }
+            });
+            player.configure();
+
+            return videoContainer;
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Listens and shows the video in the video container when needed.
+     * @param event the event when player has ready visual component.
+     * @param videoContainer the container.
+     */
+    private static void controllerUpdateForPreview(ControllerEvent event,
+        JComponent videoContainer)
+    {
+        if (event instanceof ConfigureCompleteEvent)
+        {
+            Processor player = (Processor) event.getSourceController();
+
+            /*
+             * Use SwScaler for the scaling since it produces an image with
+             * better quality.
+             */
+            TrackControl[] trackControls = player.getTrackControls();
+
+            if ((trackControls != null) && (trackControls.length != 0))
+                try
+                {
+                    for (TrackControl trackControl : trackControls)
+                    {
+                        trackControl.setCodecChain(
+                                new Codec[] { new SwScaler() });
+                        break;
+                    }
+                }
+                catch (UnsupportedPlugInException upiex)
+                {
+                    logger.warn("Failed to add SwScaler to codec chain", upiex);
+                }
+
+            // Turn the Processor into a Player.
+            try
+            {
+                player.setContentDescriptor(null);
+            }
+            catch (NotConfiguredError nce)
+            {
+                logger.error(
+                    "Failed to set ContentDescriptor of Processor",
+                    nce);
+            }
+
+            player.realize();
+        }
+        else if (event instanceof RealizeCompleteEvent)
+        {
+            Player player = (Player) event.getSourceController();
+            Component video = player.getVisualComponent();
+
+            showPreview(videoContainer, video, player);
+        }
+    }
+
+    /**
+     * Shows the preview panel.
+     * @param previewContainer the container
+     * @param preview the preview component.
+     * @param player the player.
+     */
+    private static void showPreview(final JComponent previewContainer,
+        final Component preview, final Player player)
+    {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    showPreview(previewContainer, preview, player);
+                }
+            });
+            return;
+        }
+
+        previewContainer.removeAll();
+
+        if (preview != null)
+        {
+            HierarchyListener hierarchyListener = new HierarchyListener()
+            {
+                private Window window;
+
+                private WindowListener windowListener;
+
+                public void dispose()
+                {
+                    if (windowListener != null)
+                    {
+                        if (window != null)
+                        {
+                            window.removeWindowListener(windowListener);
+                            window = null;
+                        }
+                        windowListener = null;
+                    }
+                    preview.removeHierarchyListener(this);
+
+                    disposePlayer(player);
+
+                    /*
+                     * We've just disposed the player which created the preview
+                     * component so the preview component is of no use
+                     * regardless of whether the Media configuration form will
+                     * be redisplayed or not. And since the preview component
+                     * appears to be a huge object even after its player is
+                     * disposed, make sure to not reference it.
+                     */
+                    previewContainer.remove(preview);
+                }
+
+                public void hierarchyChanged(HierarchyEvent event)
+                {
+                    if ((event.getChangeFlags()
+                                    & HierarchyEvent.DISPLAYABILITY_CHANGED)
+                                == 0)
+                        return;
+
+                    if (!preview.isDisplayable())
+                    {
+                        dispose();
+                        return;
+                    }
+                    else
+                    {
+                        player.start();
+                    }
+
+                    if (windowListener == null)
+                    {
+                        window = SwingUtilities.windowForComponent(preview);
+                        if (window != null)
+                        {
+                            windowListener = new WindowAdapter()
+                            {
+                                @Override
+                                public void windowClosing(WindowEvent event)
+                                {
+                                    dispose();
+                                }
+                            };
+                            window.addWindowListener(windowListener);
+                        }
+                    }
+                }
+            };
+            preview.addHierarchyListener(hierarchyListener);
+
+            previewContainer.add(preview);
+
+            previewContainer.revalidate();
+            previewContainer.repaint();
+        }
+        else
+            disposePlayer(player);
+    }
+
+    /**
+     * Dispose the player used for the preview.
+     * @param player the player.
+     */
+    private static void disposePlayer(Player player)
+    {
+        player.stop();
+        player.deallocate();
+        player.close();
     }
 }

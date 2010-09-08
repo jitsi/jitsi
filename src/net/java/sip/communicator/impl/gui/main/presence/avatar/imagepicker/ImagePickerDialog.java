@@ -96,8 +96,6 @@ public class ImagePickerDialog
         
         this.webcamButton = new JButton(GuiActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.TAKE_PHOTO"));
-        // disable it till we support it
-        this.webcamButton.setEnabled(false);
 
         this.webcamButton.addActionListener(this);
         this.webcamButton.setName("webcamButton");
@@ -158,17 +156,17 @@ public class ImagePickerDialog
         {
             this.editPanel.reset();
         }
-        else
+        else if (name.equals("webcamButton"))
         {
-//            WebcamDialog dialog = new WebcamDialog(this);
-//            dialog.setVisible(true);
-//            byte[] bimage = dialog.getGrabbedImage();
-//
-//            if (bimage != null)
-//            {
-//                Image i = new ImageIcon(bimage).getImage();
-//                editPanel.setImage(ImageUtils.getBufferedImage(i));
-//            }
+            WebcamDialog dialog = new WebcamDialog(this);
+            dialog.setVisible(true);
+            byte[] bimage = dialog.getGrabbedImage();
+
+            if (bimage != null)
+            {
+                Image i = new ImageIcon(bimage).getImage();
+                editPanel.setImage(ImageUtils.getBufferedImage(i));
+            }
         }
     }
     

@@ -6,7 +6,9 @@
  */
 package net.java.sip.communicator.service.neomedia;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -178,4 +180,16 @@ public interface MediaService
      * payload type number.
      */
     public Map<MediaFormat, Byte> getDynamicPayloadTypePreferences();
+
+    /**
+     * Creates a preview component for the specified device(video device) used
+     * to show video preview from it.
+     *
+     * @param device the video device
+     * @param preferredWidth the width we prefer for the component
+     * @param preferredHeight the height we prefer for the component
+     * @return the preview component.
+     */
+    public Object getVideoPreviewComponent(
+            MediaDevice device, int preferredWidth, int preferredHeight);
 }
