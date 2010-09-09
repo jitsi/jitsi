@@ -579,10 +579,10 @@ public class MediaServiceImpl
     /**
      * Creates a new <tt>Recorder</tt> instance that can be used to record a
      * call which captures and plays back media using a specific
-     * <tt>MediaDevice</tt>. 
+     * <tt>MediaDevice</tt>.
      *
      * @param device the <tt>MediaDevice</tt> which is used for media capture
-     * and playback by the call to be recorded 
+     * and playback by the call to be recorded
      * @return a new <tt>Recorder</tt> instance that can be used to record a
      * call which captures and plays back media using the specified
      * <tt>MediaDevice</tt>

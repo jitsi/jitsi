@@ -72,6 +72,12 @@ public class ProtocolProviderServiceJabberImpl
         = "urn:xmpp:jingle:apps:rtp:video";
 
     /**
+     * Jingle's Discovery Info URN for ZRTP support with RTP.
+     */
+    public static final String URN_XMPP_JINGLE_RTP_ZRTP
+        = ZrtpHashPacketExtension.NAMESPACE;
+
+    /**
      * Jingle's Discovery Info URN for ICE_UDP transport support.
      */
     public static final String URN_XMPP_JINGLE_RAW_UDP_0
@@ -370,7 +376,6 @@ public class ProtocolProviderServiceJabberImpl
                 }
                 password = new String(pass);
 
-
                 if (credentials.isPasswordPersistent())
                 {
                     JabberActivator.getProtocolProviderFactory()
@@ -564,7 +569,7 @@ public class ProtocolProviderServiceJabberImpl
                 SASLAuthentication.supportSASLMechanism("PLAIN", 0);
 
                 // Insert our sasl mechanism implementation
-                // in order to support some incompatable servers
+                // in order to support some incompatible servers
                 SASLAuthentication.unregisterSASLMechanism("DIGEST-MD5");
                 SASLAuthentication.registerSASLMechanism("DIGEST-MD5",
                     SASLDigestMD5Mechanism.class);
@@ -576,11 +581,11 @@ public class ProtocolProviderServiceJabberImpl
                 } catch (XMPPException e1)
                 {
                     // after updating to new smack lib
-                    // login mechanisum changed
+                    // login mechanism changed
                     // this is a way to avoid the problem
                     try
                     {
-                        // server disconnect us after such un error
+                        // server disconnect us after such an error
                         // cleanup
                         try
                         {
@@ -637,7 +642,6 @@ public class ProtocolProviderServiceJabberImpl
 
                     disconnectAndCleanConnection();
                 }
-
             }
             catch (NumberFormatException ex)
             {
@@ -648,7 +652,7 @@ public class ProtocolProviderServiceJabberImpl
 
         synchronized(connectAndLoginLock)
         {
-            // Checks if an error has occured during login, if so we fire
+            // Checks if an error has occurred during login, if so we fire
             // it here in order to avoid a deadlock which occurs in
             // reconnect plugin. The deadlock is cause we fired an event during
             // login process and have locked initializationLock and we cannot
@@ -958,9 +962,14 @@ public class ProtocolProviderServiceJabberImpl
             {
                 OperationSetBasicTelephonyJabberImpl basicTelephony =
                     new OperationSetBasicTelephonyJabberImpl(this);
+
                 addSupportedOperationSet(
                     OperationSetBasicTelephony.class,
                     basicTelephony);
+
+                addSupportedOperationSet(
+                        OperationSetSecureTelephony.class,
+                        basicTelephony);
 
                 // initialize video telephony OperationSet
                 addSupportedOperationSet(
@@ -980,6 +989,7 @@ public class ProtocolProviderServiceJabberImpl
                 //supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
                 supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
                 supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
+                supportedFeatures.add(URN_XMPP_JINGLE_RTP_ZRTP);
             }
 
             // OperationSetContactCapabilities

@@ -21,8 +21,14 @@ import net.java.sip.communicator.util.*;
  */
 public abstract class ChatContact<T>
 {
+    /**
+     * The height of the avatar icon.
+     */
     public static final int AVATAR_ICON_HEIGHT = 25;
 
+    /**
+     * The width of the avatar icon.
+     */
     public static final int AVATAR_ICON_WIDTH = 25;
 
     /**
@@ -42,6 +48,9 @@ public abstract class ChatContact<T>
      */
     protected final T descriptor;
 
+    /**
+     * If this instance is selected.
+     */
     private boolean selected;
 
     /**
@@ -112,7 +121,7 @@ public abstract class ChatContact<T>
     /**
      * Gets the avatar image corresponding to the source contact in the form of
      * an array of bytes.
-     * 
+     *
      * @return an array of bytes which represents the avatar image corresponding
      *         to the source contact
      */
@@ -122,7 +131,7 @@ public abstract class ChatContact<T>
      * Returns the descriptor object corresponding to this chat contact. In the
      * case of single chat this could be the <tt>MetaContact</tt> and in the
      * case of conference chat this could be the <tt>ChatRoomMember</tt>.
-     * 
+     *
      * @return the descriptor object corresponding to this chat contact.
      */
     public T getDescriptor()
@@ -140,7 +149,7 @@ public abstract class ChatContact<T>
     /**
      * Gets the implementation-specific identifier which uniquely specifies this
      * contact.
-     * 
+     *
      * @return an identifier which uniquely specifies this contact
      */
     public abstract String getUID();

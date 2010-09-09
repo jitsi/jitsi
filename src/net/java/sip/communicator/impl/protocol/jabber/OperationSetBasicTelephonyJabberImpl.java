@@ -32,7 +32,8 @@ public class OperationSetBasicTelephonyJabberImpl
    extends AbstractOperationSetBasicTelephony<ProtocolProviderServiceJabberImpl>
    implements RegistrationStateChangeListener,
               PacketListener,
-              PacketFilter
+              PacketFilter,
+              OperationSetSecureTelephony
 {
 
     /**
@@ -89,7 +90,7 @@ public class OperationSetBasicTelephonyJabberImpl
         }
         else if ((evt.getNewState() == RegistrationState.UNREGISTERED))
         {
-            // TODO: plug jingle unregistraion
+            // TODO: plug jingle unregistration
             if (logger.isInfoEnabled())
                 logger.info("Jingle : OFF ");
         }
@@ -557,5 +558,30 @@ public class OperationSetBasicTelephonyJabberImpl
     public ProtocolProviderServiceJabberImpl getProtocolProvider()
     {
         return protocolProvider;
+    }
+
+    /**
+     * Gets the secure state of the call session in which a specific peer
+     * is involved
+     *
+     * @param peer the peer for who the call state is required
+     * @return the call state
+     */
+    public boolean isSecure(CallPeer peer)
+    {
+        return ((CallPeerJabberImpl) peer).getMediaHandler().isSecure();
+    }
+
+    /**
+     * Sets the SAS verifications state of the call session in which a specific
+     * peer is involved
+     *
+     * @param peer the peer who toggled (or for whom is remotely
+     *        toggled) the SAS verified flag
+     * @param verified the new SAS verification status
+     */
+    public void setSasVerified(CallPeer peer, boolean verified)
+    {
+        ((CallPeerJabberImpl) peer).getMediaHandler().setSasVerified(verified);
     }
 }

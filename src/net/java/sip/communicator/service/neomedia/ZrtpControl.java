@@ -19,7 +19,7 @@ public interface ZrtpControl
      * Cleans up the current zrtp control and its engine.
      */
     public void cleanup();
-    
+
     /**
      * Sets a <tt>ZrtpListener</tt> that will listen for
      * zrtp security events.
@@ -73,4 +73,14 @@ public interface ZrtpControl
      * @return String the zrtp hello hash.
      */
     public String getHelloHash();
+
+    /**
+     * Get the ZRTP Hello Hash data - separate strings.
+     *
+     * @return String array containing the version string at offset 0, the Hello
+     *         hash value as hex-digits at offset 1. Hello hash is available
+     *         immediately after class instantiation. Returns <code>null</code>
+     *         if ZRTP is not available.
+     */
+    public String[] getHelloHashSep();
 }

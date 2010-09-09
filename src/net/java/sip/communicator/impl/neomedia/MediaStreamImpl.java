@@ -571,7 +571,8 @@ public class MediaStreamImpl
                                 + " in RTPManager with hashCode "
                                 + rtpManager.hashCode());
 
-                // If a ZRTP engine is availabe then set the SSRC of this stream
+                // If a ZRTP engine is available then set the SSRC of this
+                // stream
                 // currently ZRTP supports only one SSRC per engine
                 ZRTPTransformEngine engine = zrtpControl.getZrtpEngine();
 

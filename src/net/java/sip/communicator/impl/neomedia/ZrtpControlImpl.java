@@ -227,6 +227,19 @@ public class ZrtpControlImpl
     }
 
     /**
+     * Get the ZRTP Hello Hash data - separate strings.
+     *
+     * @return String array containing the version string at offset 0, the Hello
+     *         hash value as hex-digits at offset 1. Hello hash is available
+     *         immediately after class instantiation. Returns <code>null</code>
+     *         if ZRTP is not available.
+     */
+    public String[] getHelloHashSep()
+    {
+        return getZrtpEngine().getHelloHashSep();
+    }
+
+    /**
      * Sets the <tt>RTPConnector</tt> which is to use or uses this ZRTP engine.
      *
      * @param connector the <tt>RTPConnector</tt> which is to use or uses this

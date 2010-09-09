@@ -12,6 +12,7 @@ import org.jivesoftware.smackx.packet.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -492,7 +493,8 @@ public class CallPeerJabberImpl
     public void sendModifyVideoContent(boolean allowed)
     {
         ContentPacketExtension ext = new ContentPacketExtension();
-        SendersEnum senders = getMediaHandler().getDirection("video");
+        SendersEnum senders = getMediaHandler().getDirection(
+                MediaType.VIDEO.toString());
 
         /* adjust the senders attribute depending on current value and if we
          * allowed or not local video streaming
@@ -528,7 +530,7 @@ public class CallPeerJabberImpl
         ext.setSenders(senders);
         ext.setCreator(isInitiator ? CreatorEnum.initiator :
             CreatorEnum.responder);
-        ext.setName("video");
+        ext.setName(MediaType.VIDEO.toString());
 
         JingleIQ contentIQ = JinglePacketFactory
             .createContentModify(getProtocolProvider().getOurJID(),
@@ -538,7 +540,8 @@ public class CallPeerJabberImpl
 
         try
         {
-            getMediaHandler().reinitContent("video", senders);
+            getMediaHandler().reinitContent(MediaType.VIDEO.toString(),
+                    senders);
         }
         catch(Exception e)
         {

@@ -248,6 +248,30 @@ public class CallPeerMediaHandlerJabberImpl
                 mutuallySupportedFormats, rtpExtensions,
                 getDynamicPayloadTypes(), getRtpExtensionsRegistry());
 
+            // ZRTP
+            if(getPeer().getCall().isSipZrtpAttribute())
+            {
+                ZrtpControl control = getZrtpControls().get(mediaType);
+                if(control == null)
+                {
+                    control = JabberActivator.getMediaService()
+                        .createZrtpControl();
+                    getZrtpControls().put(mediaType, control);
+                }
+
+                String helloHash[] = control.getHelloHashSep();
+
+                if(helloHash != null && helloHash[1].length() > 0)
+                {
+                    ZrtpHashPacketExtension hash
+                    = new ZrtpHashPacketExtension();
+                    hash.setVersion(helloHash[0]);
+                    hash.setValue(helloHash[1]);
+
+                    ourContent.addChildExtension(hash);
+                }
+            }
+
             answerContentList.add(ourContent);
             localContentMap.put(content.getName(), ourContent);
 
@@ -376,17 +400,19 @@ public class CallPeerMediaHandlerJabberImpl
                             getZrtpControls().put(mediaType, control);
                         }
 
-                        String helloHash = control.getHelloHash();
-                        if(helloHash != null && helloHash.length() > 0)
+                        String helloHash[] = control.getHelloHashSep();
+
+                        if(helloHash != null && helloHash[1].length() > 0)
                         {
                             ZrtpHashPacketExtension hash
                                 = new ZrtpHashPacketExtension();
-                            hash.setValue(helloHash);
-                            //we are currently disabling ZRTP until we find the
-                            //time to fix it
+                            hash.setVersion(helloHash[0]);
+                            hash.setValue(helloHash[1]);
+
                             content.addChildExtension(hash);
                         }
                     }
+                    
                     mediaDescs.add(content);
                 }
             }
