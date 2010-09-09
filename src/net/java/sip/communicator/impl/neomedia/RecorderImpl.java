@@ -13,6 +13,7 @@ import javax.media.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.device.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.MediaException; // disambiguation
 import net.java.sip.communicator.util.*;
@@ -43,6 +44,7 @@ public class RecorderImpl
                     SoundFileUtils.aif,
                     SoundFileUtils.au,
                     SoundFileUtils.gsm,
+                    SoundFileUtils.mp3,
                     SoundFileUtils.wav
                 };
 
@@ -73,32 +75,36 @@ public class RecorderImpl
         if (device == null)
             throw new NullPointerException("device");
 
-        String format = NeomediaActivator.getConfigurationService()
-                    .getString(Recorder.CALL_FORMAT);
+        ConfigurationService configuration
+            = NeomediaActivator.getConfigurationService();
+        String format = configuration.getString(Recorder.CALL_FORMAT);
 
         if (format == null)
             format = SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT;
 
         try
         {
-            deviceSession = device.createRecordingSession(getContentDescriptor(
-                            format));
+            deviceSession
+                = device.createRecordingSession(getContentDescriptor(
+                        format));
         }
-        catch(IllegalArgumentException exc)
+        catch (IllegalArgumentException iaex)
         {
             //seems like we had an illegal format stored in the configuration
             //service
-            logger.debug("Unable to crate a " + format
-                            + " record. Will retry default format");
+            logger.debug(
+                    "Unable to crate a "
+                        + format
+                        + " record. Will retry default format");
 
             format = SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT;
 
             //make sure we don't try the faulty format again.
-            NeomediaActivator.getConfigurationService()
-                                .setProperty(Recorder.CALL_FORMAT, null);
+            configuration.setProperty(Recorder.CALL_FORMAT, null);
 
-            deviceSession = device.createRecordingSession(getContentDescriptor(
-                            format));
+            deviceSession
+                = device.createRecordingSession(getContentDescriptor(
+                        format));
         }
 
         this.format = format;
@@ -109,13 +115,18 @@ public class RecorderImpl
      *
      * @param format the format that corresponding to the content descriptor
      * @return content descriptor
+     * @throws IllegalArgumentException if the specified <tt>format</tt> is not
+     * a supported recording format
      */
     private ContentDescriptor getContentDescriptor(String format)
+        throws IllegalArgumentException
     {
         String type;
 
         if (SoundFileUtils.wav.equalsIgnoreCase(format))
             type = FileTypeDescriptor.WAVE;
+        else if (SoundFileUtils.mp3.equalsIgnoreCase(format))
+            type = FileTypeDescriptor.MPEG_AUDIO;
         else if (SoundFileUtils.gsm.equalsIgnoreCase(format))
             type = FileTypeDescriptor.GSM;
         else if (SoundFileUtils.au.equalsIgnoreCase(format))
@@ -123,8 +134,11 @@ public class RecorderImpl
         else if (SoundFileUtils.aif.equalsIgnoreCase(format))
             type = FileTypeDescriptor.AIFF;
         else
-            throw new IllegalArgumentException(format + " is not a "
-                            +"currently supported recording format.");
+        {
+            throw
+                new IllegalArgumentException(
+                        format + " is not a supported recording format.");
+        }
 
         return new ContentDescriptor(type);
     }

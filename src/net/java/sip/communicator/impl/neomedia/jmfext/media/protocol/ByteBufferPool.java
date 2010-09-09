@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.util.*;
 

@@ -10,6 +10,7 @@ import java.awt.*;
 
 import javax.media.*;
 
+import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 
 /**

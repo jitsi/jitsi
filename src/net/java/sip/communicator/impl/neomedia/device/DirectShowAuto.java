@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia.device;
 
 import javax.media.*;
 
+import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.directshow.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.directshow.*;

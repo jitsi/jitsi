@@ -97,7 +97,7 @@ public class BindingAdaptor
      * which includes: KEY_PRESSED, KEY_RELEASED, or KEY_TYPED.
      * 
      * @param type type of keystroke registered by input
-     * @throws IllegalArgumentExeption if type doesn't match a valid key event
+     * @throws IllegalArgumentException if type doesn't match a valid key event
      */
     public void setInputEventType(int type)
     {

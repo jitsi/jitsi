@@ -20,7 +20,7 @@ public class QTCaptureDevice
 
     /**
      * The cached <tt>QTCaptureDevice</tt> instances previously returned by the
-     * last call to {@link #inputDevicesWithMediaType(QTMediaType).
+     * last call to {@link #inputDevicesWithMediaType(QTMediaType)}.
      */
     private static final Map<QTMediaType, List<QTCaptureDevice>> inputDevices
         = new HashMap<QTMediaType, List<QTCaptureDevice>>();

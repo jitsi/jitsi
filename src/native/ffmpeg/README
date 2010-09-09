@@ -1,4 +1,18 @@
-1. x264-snapshot-20100518-2245
+1. lame-3.98.4
+
+./configure --disable-shared --enable-static --enable-nasm \
+        --disable-analyzer-hooks --disable-decoder \
+        --disable-frontend --with-pic
+
+FFmpeg looks for lame.h as lame/lame.h but the uninstalled lame-3.98.4 does not
+have the lame directory so go into lame-3.98.4/include and "ln -s . lame".
+
+MS Windows notes
+    - before make, open Makefile, libmp3lame/Makefile and libmp3lame/i386/Makefile
+    and replace "NASM = C:\Program Files\nasm\nasm" by "NASM = nasm" (be sure nasm is in your PATH anyway);
+    - For Windows x64, add --build=x86_64-w64-mingw32 to the configure line.
+
+2. x264-snapshot-20100518-2245
 
 - Windows
 
@@ -20,7 +34,7 @@ gmake
 ./configure --enable-pic
 make
 
-2. ffmpeg-r23181
+3. ffmpeg-r23181
 
 First patch ffmpeg with ffmpeg-23181.diff
 patch -p0 < ffmpeg-23181.diff
@@ -37,7 +51,8 @@ patch -p0 < ffmpeg-23181.diff
   --disable-network \
   --enable-libx264 --enable-gpl --enable-parser=h264 --enable-encoder=libx264 \
   --enable-decoder=h264 --enable-muxer=h264 --enable-demuxer=h264 \
-  --extra-ldflags=-L$X264_HOME --extra-cflags=-I$X264_HOME \
+  --enable-libmp3lame --enable-encoder=libmp3lame \
+  --extra-ldflags="-L$MP3LAME_HOME/libmp3lame/.libs -L$X264_HOME" --extra-cflags="-I$MP3LAME_HOME/include -I$X264_HOME" \
   --disable-debug \
   --disable-ffserver --disable-ffplay --disable-ffmpeg \
   --disable-pthreads --enable-w32threads
@@ -57,7 +72,8 @@ Then run:
   --disable-network \
   --enable-libx264 --enable-gpl --enable-parser=h264 --enable-encoder=libx264 \
   --enable-decoder=h264 --enable-muxer=h264 --enable-demuxer=h264 \
-  --extra-ldflags=-L$X264_HOME --extra-cflags=-I$X264_HOME \
+  --enable-libmp3lame --enable-encoder=libmp3lame \
+  --extra-ldflags="-L$MP3LAME_HOME/libmp3lame/.libs -L$X264_HOME" --extra-cflags="-I$MP3LAME_HOME/include -I$X264_HOME" \
   --disable-debug \
   --disable-ffserver --disable-ffplay --disable-ffmpeg \
   --disable-pthreads --enable-w32threads
@@ -78,9 +94,10 @@ Note: mingw64-make failed to work (segmentation fault) that's why we fallback to
   --enable-libx264 --enable-gpl --enable-parser=h264 --enable-encoder=libx264 \
   --enable-decoder=h264 --enable-muxer=h264 --enable-demuxer=h264 \
   --enable-decoder=mjpeg --enable-muxer=mjpeg --enable-demuxer=mjpeg --enable-parser=mjpeg \
-  --extra-ldflags=-L$X264_HOME --extra-cflags=-I$X264_HOME \
+  --enable-libmp3lame --enable-encoder=libmp3lame \
+  --extra-ldflags="-L$MP3LAME_HOME/libmp3lame/.libs -L$X264_HOME" --extra-cflags="-I$MP3LAME_HOME/include -I$X264_HOME" \
   --disable-debug \
-  --disable-ffserver --disable-ffplay --disable-ffmpeg \
+  --disable-ffserver --disable-ffprobe --disable-ffplay --disable-ffmpeg \
   --enable-pthreads
 
 - Mac OS X 
@@ -89,21 +106,23 @@ Note: mingw64-make failed to work (segmentation fault) that's why we fallback to
  for i386 architecture (intel 32-bit).
 
 ./configure \
+  --enable-pic \
   --enable-static --disable-shared --shlibdir=. \
   --disable-encoders --disable-decoders --disable-muxers --disable-demuxers \
   --disable-parsers --disable-bsfs --disable-protocols --disable-devices \
   --disable-network \
   --enable-libx264 --enable-gpl --enable-parser=h264 --enable-encoder=libx264 \
   --enable-decoder=h264 --enable-muxer=h264 --enable-demuxer=h264 \
-  --extra-ldflags="-fPIC -L$X264_HOME" --extra-cflags="-fPIC -I$X264_HOME" \
+  --enable-libmp3lame --enable-encoder=libmp3lame \
+  --extra-ldflags="-fPIC -L$MP3LAME_HOME/libmp3lame/.libs -L$X264_HOME" --extra-cflags="-fPIC -I$MP3LAME_HOME/include -I$X264_HOME" \
   --disable-debug \
-  --disable-ffserver --disable-ffplay --disable-ffmpeg \
+  --disable-ffserver --disable-ffprobe --disable-ffplay --disable-ffmpeg \
   --enable-pthreads
 
-3. libffmpeg
+4. libffmpeg
 
 Open Makefile, uncomment the section for your OS and comment out the others.
-Be careful to correctly set X264_HOME, FFMPEG_HOME and JAVA_HOME variables.
+Be careful to correctly set FFMPEG_HOME, JAVA_HOME, MP3LAME_HOME and X264_HOME variables.
 
 Then run:
 make (gmake on FreeBSD)

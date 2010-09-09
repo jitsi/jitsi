@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia.codec.video;
 
+import net.java.sip.communicator.impl.neomedia.codec.*;
+
 /**
  * Represents a buffer of native memory with a specific size/capacity which
  * either contains a specific number of bytes of valid data or is free for

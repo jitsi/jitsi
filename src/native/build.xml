@@ -83,6 +83,7 @@
   <!--
   <echo message="ffmpeg library: ${ffmpeg}" />
   <echo message="x264 library: ${x264}" />
+  <echo message="lame library: ${lame}" />
   <echo message="portaudio library: ${portaudio}" />
   <echo message="speex library: ${speex}" />
   <echo message="Install directory ${native_install_dir}" />
@@ -231,6 +232,7 @@
 
     <fail message="ffmpeg repository not set!" unless="ffmpeg" />
     <fail message="x264 repository not set!" unless="x264" />
+    <fail message="lame repository not set!" unless="lame" />
 
     <cc outtype="shared" name="gcc" outfile="${native_install_dir}/ffmpeg" objdir="${obj}">
       <!-- common compiler flags -->
@@ -245,6 +247,7 @@
       <linkerarg value="-L${ffmpeg}/libavutil" />
       <linkerarg value="-L${ffmpeg}/libswscale" />
       <linkerarg value="-L${x264}" />
+      <linkerarg value="-L${lame}/libmp3lame/.libs" />
       <!-- static libraries MUST be at the end otherwise
       they will not be added to shared library
       -->
@@ -253,6 +256,7 @@
       <linkerarg value="-lavutil" location="end" />
       <linkerarg value="-lswscale" location="end" />
       <linkerarg value="-lx264" location="end" />
+      <linkerarg value="-lmp3lame" location="end" />
 
       <!-- Linux specific flags -->
       <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
@@ -661,14 +665,15 @@
     <echo message="Options:" />
     <echo message="-Darch: cross-compile for 32-bit (-Darch=32), 64-bit (-Darch=64) or ppc (-Darch=ppc, Mac OS X only) targets. Windows users have to use gcc >= 4.5." />
     <echo message="-Dx264: path to x264 directory (ffmpeg JNI compilation)." />
+    <echo message="-Dlame: path to lame directory (ffmpeg JNI compilation)." />
     <echo message="-Dffmpeg: path to ffmpeg directory (ffmpeg JNI compilation)." />
     <echo message="-Dportaudio path to portaudio directory (jportaudio JNI compilation)." />
     <echo message="-Dspeex: path to speex directory (jportaudio/jspeex JNI compilation)." />
     <echo message="" />
-    <echo message="Please note that external libraries such as ffmpeg, x264, portaudio and speex have to be compiled" />
+    <echo message="Please note that external libraries such as ffmpeg, x264, lame, portaudio and speex have to be compiled" />
     <echo message="(follow READMEs in relevant directory) before trying to compile libffmpeg and libjportaudio"  />
     <echo message="When compiling libffmpeg you have to tell ant script the directory of ffmpeg and x264 with"  />
-    <echo message="-Dffmpeg=/path/to/ffmpeg and -Dx264=/path/to/x264"  />
+    <echo message="-Dffmpeg=/path/to/ffmpeg and -Dx264=/path/to/x264 -Dlame=/path/to/lame"  />
     <echo message="When compiling libjportaudio you have to tell ant script the directory of portaudio and speex with"  />
     <echo message="-Dportaudio=/path/to/portaudio and -Dspeex=/path/to/speex"  />
   </target>

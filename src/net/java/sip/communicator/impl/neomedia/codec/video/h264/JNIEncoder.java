@@ -130,7 +130,7 @@ public class JNIEncoder
     }
 
     /**
-     * Close the <tt>Codec</tt>.
+     * Closes this <tt>Codec</tt>.
      */
     @Override
     public synchronized void close()
@@ -154,7 +154,7 @@ public class JNIEncoder
     }
 
     /**
-     * Get the matching output formats for a specific format.
+     * Gets the matching output formats for a specific format.
      *
      * @param in input format
      * @return array for formats matching input format
@@ -176,7 +176,7 @@ public class JNIEncoder
     }
 
     /**
-     * Get codec name.
+     * Gets the name of this <tt>Codec</tt>.
      *
      * @return codec name
      */
@@ -187,7 +187,7 @@ public class JNIEncoder
     }
 
     /**
-     * Return the list of formats supported at the output.
+     * Returns the list of formats supported at the output.
      *
      * @param in input <tt>Format</tt> to determine corresponding output
      * <tt>Format/tt>s
@@ -208,7 +208,7 @@ public class JNIEncoder
     }
 
     /**
-     * Inits <tt>Codec</tt> instance.
+     * Opens this <tt>Codec</tt>.
      */
     @Override
     public synchronized void open()
@@ -325,7 +325,7 @@ public class JNIEncoder
     }
 
     /**
-     * Processes (encode) a buffer.
+     * Processes/encodes a buffer.
      *
      * @param inBuffer input buffer
      * @param outBuffer output buffer
@@ -349,7 +349,7 @@ public class JNIEncoder
 
         Format inFormat = inBuffer.getFormat();
 
-        if ((inFormat != inputFormat) && !(inFormat.matches(inputFormat)))
+        if ((inFormat != inputFormat) && !inFormat.matches(inputFormat))
             setInputFormat(inFormat);
 
         if (inBuffer.getLength() < 10)

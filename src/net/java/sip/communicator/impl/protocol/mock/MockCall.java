@@ -14,6 +14,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * @author Damian Minkov
+ * @author Lubomir Marinov
  */
 public class MockCall
     extends AbstractCall<MockCallPeer, MockProvider>

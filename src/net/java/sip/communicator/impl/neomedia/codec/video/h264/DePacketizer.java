@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.util.*;
+import net.sf.fmj.media.*;
 
 /**
  * Implements <tt>Codec</tt> to represent a depacketizer of H.264 RTP packets
@@ -326,9 +327,15 @@ public class DePacketizer
     }
 
     /**
-     * Open and initialize the <tt>Codec</tt>.
+     * Opens this <tt>Codec</tt> and acquires the resources that it needs to
+     * operate. A call to {@link PlugIn#open()} on this instance will result in
+     * a call to <tt>doOpen</tt> only if {@link AbstractCodec#opened} is
+     * <tt>false</tt>. All required input and/or output formats are assumed to
+     * have been set on this <tt>Codec</tt> before <tt>doOpen</tt> is called.
      *
-     * @throws ResourceUnavailableException if resources are unavailable
+     * @throws ResourceUnavailableException if any of the resources that this
+     * <tt>Codec</tt> needs to operate cannot be acquired
+     * @see AbstractCodecExt#doOpen()
      */
     protected void doOpen()
         throws ResourceUnavailableException

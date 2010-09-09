@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.rss;
 
+import java.security.*;
+import java.security.cert.*;
 import java.util.*;
 
 import javax.net.ssl.*;
@@ -89,7 +91,9 @@ public class ProtocolProviderFactoryRssImpl
         return accountID;
     }
 
-    protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
+    protected AccountID createAccountID(
+            String userID,
+            Map<String, String> accountProperties)
     {
         return new RssAccountID(userID, accountProperties);
     }
@@ -136,14 +140,14 @@ public class ProtocolProviderFactoryRssImpl
      * certificates.
      */
     private static void installCustomSSLTrustManager()
-        throws java.security.GeneralSecurityException
+        throws GeneralSecurityException
     {
         // Let us create the factory where we can set some parameters for the
         // connection
         SSLContext sc = SSLContext.getInstance("SSL");
         sc.init(null,
                 new TrustManager[] { new TrustlessManager()},
-                new java.security.SecureRandom());
+                new SecureRandom());
 
         // Create the socket connection and open it to the secure remote web server
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
@@ -165,7 +169,7 @@ public class ProtocolProviderFactoryRssImpl
     private static class TrustlessManager
         implements X509TrustManager
     {
-        public java.security.cert.X509Certificate[] getAcceptedIssuers()
+        public X509Certificate[] getAcceptedIssuers()
         {
             return null;
         }
@@ -178,7 +182,7 @@ public class ProtocolProviderFactoryRssImpl
          * actual certificate used. For instance, if RSAPublicKey is used, the
          * authType should be "RSA". Checking is case-sensitive.
          *
-         * @param chain the peer certificate chain
+         * @param certs the peer certificate chain
          * @param authType the authentication type based on the client
          * certificate
          *
@@ -188,9 +192,8 @@ public class ProtocolProviderFactoryRssImpl
          * @throws CertificateException - if the certificate chain is not
          * trusted by this TrustManager.
          */
-        public void checkClientTrusted(
-                        java.security.cert.X509Certificate[] certs,
-                        String authType)
+        public void checkClientTrusted(X509Certificate[] certs, String authType)
+            throws CertificateException
         {
         }
 
@@ -207,7 +210,7 @@ public class ProtocolProviderFactoryRssImpl
          * the key exchange, and RSA when the key from the server certificate
          * is used. Checking is case-sensitive.
          *
-         * @param chain the peer certificate chain
+         * @param certs the peer certificate chain
          * @param authType the key exchange algorithm used
          *
          * @throws IllegalArgumentException if null or zero-length chain is
@@ -216,9 +219,8 @@ public class ProtocolProviderFactoryRssImpl
          * @throws CertificateException if the certificate chain is not trusted
          * by this TrustManager.
          */
-        public void checkServerTrusted(
-                        java.security.cert.X509Certificate[] certs,
-                        String authType)
+        public void checkServerTrusted(X509Certificate[] certs, String authType)
+            throws CertificateException
         {
         }
     }

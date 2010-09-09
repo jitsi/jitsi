@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.replacement.dailymotion;
 import java.util.*;
 
 import net.java.sip.communicator.service.replacement.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;

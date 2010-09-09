@@ -25,7 +25,10 @@ import java.io.*;
  * <li>If necessary rewind from 2.</li>
  * </ol>
  *
- * @see setAtomUsage, setServerBehaviour, start, stop
+ * @see #setAtomUsage(boolean)
+ * @see #setServerBehaviour(int)
+ * @see #start()
+ * @see #stop()
  * @author Mihai Balan
  */
 public class TestingServer

@@ -10,7 +10,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.nio.charset.*;
 
-import net.java.sip.communicator.impl.neomedia.codec.video.*;
+import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.util.*;
 
 /**

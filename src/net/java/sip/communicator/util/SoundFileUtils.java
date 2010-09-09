@@ -35,7 +35,7 @@ public class SoundFileUtils
      * The file extension and the format of call recording to be used by
      * default. 
      */
-    public static final String DEFAULT_CALL_RECORDING_FORMAT = wav;
+    public static final String DEFAULT_CALL_RECORDING_FORMAT = mp3;
 
     /**
      * Checks whether this file is a sound file.

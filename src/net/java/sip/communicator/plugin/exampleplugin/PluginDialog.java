@@ -86,10 +86,14 @@ public class PluginDialog
     }
 
     /**
-     * No special operations when the dialog is closed.
-     * @see SIPCommDialog#close(boolean).
+     * Implements {@link SIPCommDialog#close(boolean)} and does not perform any
+     * special operations when the dialog is closed.
+     *
+     * @param escaped <tt>true</tt> if this dialog has been closed by pressing
+     * the Esc key; otherwise, <tt>false</tt>
+     * @see SIPCommDialog#close(boolean)
      */
-    protected void close(boolean isEscaped)
+    protected void close(boolean escaped)
     {
     }
 }

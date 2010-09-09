@@ -39,7 +39,7 @@ import net.java.sip.communicator.util.xml.*;
  * Prints XML output of the test to a specified Writer.
  *
  * @author Emil Ivov
- * @see FormatterElement
+ * @see Element
  */
 
 public class XmlFormatter extends ResultPrinter implements XMLConstants {

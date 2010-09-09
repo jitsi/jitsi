@@ -10,6 +10,7 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
+import net.sf.fmj.media.*;
 
 /**
  * Implements a Speex decoder and RTP depacketizer using the native Speex
@@ -133,9 +134,14 @@ public class JNIDecoder
     }
 
     /**
-     * Inits the codec instances.
+     * Opens this <tt>Codec</tt> and acquires the resources that it needs to
+     * operate. A call to {@link PlugIn#open()} on this instance will result in
+     * a call to <tt>doOpen</tt> only if {@link AbstractCodec#opened} is
+     * <tt>false</tt>. All required input and/or output formats are assumed to
+     * have been set on this <tt>Codec</tt> before <tt>doOpen</tt> is called.
      *
-     * @throws ResourceUnavailableException if codec initialization failed
+     * @throws ResourceUnavailableException if any of the resources that this
+     * <tt>Codec</tt> needs to operate cannot be acquired
      * @see AbstractCodecExt#doOpen()
      */
     protected void doOpen()

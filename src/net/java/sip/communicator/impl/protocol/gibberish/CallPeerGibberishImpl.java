@@ -172,7 +172,7 @@ public class CallPeerGibberishImpl
      */
     public ProtocolProviderServiceGibberishImpl getProtocolProvider()
     {
-        return this.call.getProtocolProvider();
+        return call.getProtocolProvider();
     }
 
     /**

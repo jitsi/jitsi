@@ -53,6 +53,16 @@ public abstract class AbstractCodecExt
 
     protected abstract void doClose();
 
+    /**
+     * Opens this <tt>Codec</tt> and acquires the resources that it needs to
+     * operate. A call to {@link PlugIn#open()} on this instance will result in
+     * a call to <tt>doOpen</tt> only if {@link AbstractCodec#opened} is
+     * <tt>false</tt>. All required input and/or output formats are assumed to
+     * have been set on this <tt>Codec</tt> before <tt>doOpen</tt> is called.
+     *
+     * @throws ResourceUnavailableException if any of the resources that this
+     * <tt>Codec</tt> needs to operate cannot be acquired
+     */
     protected abstract void doOpen()
         throws ResourceUnavailableException;
 
@@ -70,8 +80,12 @@ public abstract class AbstractCodecExt
         return (name == null) ? super.getName() : name;
     }
 
-    /*
-     * Implements AbstractCodec#getSupportedOutputFormats(Format).
+    /**
+     * Implements {AbstractCodec#getSupportedOutputFormats(Format)}.
+     *
+     * @param inputFormat
+     * @return
+     * @see AbstractCodec#getSupportedOutputFormats(Format)
      */
     public Format[] getSupportedOutputFormats(Format inputFormat)
     {
@@ -79,7 +93,7 @@ public abstract class AbstractCodecExt
             return supportedOutputFormats;
 
         if (!formatClass.isInstance(inputFormat)
-                || (null == matches(inputFormat, inputFormats)))
+                || (matches(inputFormat, inputFormats) == null))
             return new Format[0];
 
         return getMatchingOutputFormats(inputFormat);
@@ -96,6 +110,17 @@ public abstract class AbstractCodecExt
         return null;
     }
 
+    /**
+     * Opens this <tt>PlugIn</tt> software or hardware component and acquires
+     * the resources that it needs to operate. All required input and/or output
+     * formats have to be set on this <tt>PlugIn</tt> before <tt>open</tt> is
+     * called. Buffers should not be passed into this <tt>PlugIn</tt> without
+     * first calling <tt>open</tt>.
+     *
+     * @throws ResourceUnavailableException if any of the resources that this
+     * <tt>PlugIn</tt> needs to operate cannot be acquired
+     * @see AbstractPlugIn#open()
+     */
     public void open()
         throws ResourceUnavailableException
     {
@@ -108,8 +133,13 @@ public abstract class AbstractCodecExt
         super.open();
     }
 
-    /*
+    /**
      * Implements AbstractCodec#process(Buffer, Buffer).
+     *
+     * @param inputBuffer
+     * @param outputBuffer
+     * @return
+     * @see AbstractCodec#process(Buffer, Buffer)
      */
     public int process(Buffer inputBuffer, Buffer outputBuffer)
     {
@@ -132,7 +162,7 @@ public abstract class AbstractCodecExt
     public Format setInputFormat(Format format)
     {
         if (!formatClass.isInstance(format)
-                || (null == matches(format, inputFormats)))
+                || (matches(format, inputFormats) == null))
             return null;
 
         return super.setInputFormat(format);
@@ -141,7 +171,8 @@ public abstract class AbstractCodecExt
     public Format setOutputFormat(Format format)
     {
         if (!formatClass.isInstance(format)
-                || (null == matches(format, getMatchingOutputFormats(inputFormat))))
+                || (matches(format, getMatchingOutputFormats(inputFormat))
+                        == null))
             return null;
 
         return super.setOutputFormat(format);
