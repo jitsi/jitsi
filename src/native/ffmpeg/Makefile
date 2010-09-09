@@ -42,7 +42,7 @@ LIBS=-L$(FFMPEG_HOME)/libavcodec -L$(FFMPEG_HOME)/libavformat -L$(FFMPEG_HOME)/l
      -L$(FFMPEG_HOME)/libswscale \
      -L$(MP3LAME_HOME)/libmp3lame/.libs \
      -L$(X264_HOME) \
-     -lavcodec -lavformat -lavutil \
+     -lavformat -lavcodec -lavutil \
      -lswscale \
      -lmp3lame \
      -lx264
