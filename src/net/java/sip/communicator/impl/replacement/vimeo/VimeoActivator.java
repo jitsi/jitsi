@@ -45,7 +45,8 @@ public class VimeoActivator
     public void start(BundleContext context) throws Exception
     {
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
-        hashtable.put(ReplacementService.SOURCE_NAME, "VIMEO");
+        hashtable.put(ReplacementService.SOURCE_NAME,
+            ReplacementServiceVimeoImpl.VIMEO_CONFIG_LABEL);
         vimeoSource = new ReplacementServiceVimeoImpl();
 
         vimeoServReg =

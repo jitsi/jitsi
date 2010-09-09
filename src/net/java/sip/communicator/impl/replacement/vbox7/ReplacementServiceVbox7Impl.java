@@ -32,19 +32,20 @@ public class ReplacementServiceVbox7Impl
         "(http.*?(www\\.)*?vbox7\\.com\\/play\\:([a-zA-Z0-9_\\-]+))([?&]\\w+=[\\w-]*)*";
 
     /**
-     * Configuration label property name. The label is saved in the languages
-     * file under this property.
+     * Configuration label shown in the config form. 
      */
-    public static final String VBOX7_CONFIG_LABEL = "VBOX7";
+    public static final String VBOX7_CONFIG_LABEL = "Vbox7";
 
     /**
-     * Constructor for <tt>ReplacementServiceVbox7Impl</tt>. The source needs
-     * to register itself with {@link ReplacementService} sourceList to be
-     * displayed in the configuration panel.
+     * Source name; also used as property label.
+     */
+    public static final String SOURCE_NAME = "VBOX7";
+    
+    /**
+     * Constructor for <tt>ReplacementServiceVbox7Impl</tt>.
      */
     public ReplacementServiceVbox7Impl()
     {
-        sourceList.add(VBOX7_CONFIG_LABEL);
         logger.trace("Creating a Vbox7 Source.");
     }
 
@@ -92,5 +93,15 @@ public class ReplacementServiceVbox7Impl
             return msgBuff.toString();
 
         return chatString;
+    }
+    
+    /**
+     * Returns the source name
+     * 
+     * @return the source name
+     */
+    public String getSourceName()
+    {
+        return SOURCE_NAME;
     }
 }

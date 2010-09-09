@@ -18,6 +18,8 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.util.swing.*;
 
+import java.util.*;
+
 /**
  * The <tt>ConfigurationForm</tt> that would be added in the chat configuration
  * window.
@@ -134,8 +136,15 @@ public class ReplacementConfigPanel
         container.add(Box.createRigidArea(new Dimension(0, 5)));
         container.add(tablePane, BorderLayout.EAST);
 
-        table.setModel(new ReplacementConfigurationTableModel(
-            ReplacementService.sourceList));
+        /*
+         * list of the source names. Removing 'Smiley' as it shouldn't show up in
+         * the table. 
+         */
+        Set<String> keys = ChatConfigActivator.getReplacementSources().keySet();
+        ArrayList<String> sourceList = new ArrayList<String>(keys);
+        sourceList.remove("SMILEY");
+
+        table.setModel(new ReplacementConfigurationTableModel(sourceList));
 
         table.getSelectionModel().addListSelectionListener(
             new ListSelectionListener()

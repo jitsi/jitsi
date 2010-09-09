@@ -84,8 +84,8 @@ public class GuiActivator implements BundleActivator
     private static final Map<Object, ProtocolProviderFactory>
         providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
 
-    private static final Map<Object, ReplacementService>
-        replacementSourcesMap = new Hashtable<Object, ReplacementService>();
+    private static final Map<String, ReplacementService>
+        replacementSourcesMap = new Hashtable<String, ReplacementService>();
 
     /**
      * Indicates if this bundle has been started.
@@ -624,7 +624,7 @@ public class GuiActivator implements BundleActivator
      * @return all <tt>ReplacementService</tt> implementation obtained from the
      *         bundle context
      */
-    public static Map<Object, ReplacementService> getReplacementSources()
+    public static Map<String, ReplacementService> getReplacementSources()
     {
         ServiceReference[] serRefs = null;
         try
@@ -647,7 +647,7 @@ public class GuiActivator implements BundleActivator
                 ReplacementService replacementSources =
                     (ReplacementService) bundleContext.getService(serRefs[i]);
 
-                replacementSourcesMap.put(serRefs[i]
+                replacementSourcesMap.put((String)serRefs[i]
                     .getProperty(ReplacementService.SOURCE_NAME),
                     replacementSources);
             }

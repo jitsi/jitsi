@@ -39,15 +39,16 @@ public class DirectImageActivator
 
     /**
      * Starts the Direct image links replacement source bundle
-     *
+     * 
      * @param context the <tt>BundleContext</tt> as provided from the OSGi
-     * framework
+     *            framework
      * @throws Exception if anything goes wrong
      */
     public void start(BundleContext context) throws Exception
     {
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
-        hashtable.put(ReplacementService.SOURCE_NAME, "DIRECTIMAGE");
+        hashtable.put(ReplacementService.SOURCE_NAME,
+            ReplacementServiceDirectImageImpl.DIRECT_IMAGE_CONFIG_LABEL);
         directImageSource = new ReplacementServiceDirectImageImpl();
 
         directImageSourceServReg =

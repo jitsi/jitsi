@@ -32,19 +32,20 @@ public class ReplacementServiceDailymotionImpl
         "(http.*?(www\\.)*?dailymotion\\.com\\/video\\/([a-zA-Z0-9_\\-]+))([?#]([a-zA-Z0-9_\\-]+))*";
 
     /**
-     * Configuration label property name. The label is saved in the languages
-     * file under this property.
+     * Configuration label shown in the config form. 
      */
-    public static final String DAILYMOTION_CONFIG_LABEL = "DAILYMOTION";
+    public static final String DAILYMOTION_CONFIG_LABEL = "DailyMotion";
+    
+    /**
+     * Source name; also used as property label.
+     */
+    public static final String SOURCE_NAME = "DAILYMOTION";
 
     /**
-     * Constructor for <tt>ReplacementServiceDailymotionImpl</tt>. The source
-     * needs to add itself to {@link ReplacementService} sourceList to be
-     * displayed in the configuration panel.
+     * Constructor for <tt>ReplacementServiceDailymotionImpl</tt>.
      */
     public ReplacementServiceDailymotionImpl()
     {
-        sourceList.add(DAILYMOTION_CONFIG_LABEL);
         logger.trace("Creating a DailyMotion Source.");
     }
 
@@ -94,5 +95,15 @@ public class ReplacementServiceDailymotionImpl
             return msgBuff.toString();
 
         return chatString;
+    }
+    
+    /**
+     * Returns the source name
+     * 
+     * @return the source name
+     */
+    public String getSourceName()
+    {
+        return SOURCE_NAME;
     }
 }

@@ -599,15 +599,15 @@ public class ChatConversationPanel
                    = GuiActivator.getConfigurationService().getBoolean(
                        ReplacementProperty.REPLACEMENT_ENABLE, true);
 
-               Map<Object, ReplacementService> listSources
+               Map<String, ReplacementService> listSources
                    = GuiActivator.getReplacementSources();
 
-               Iterator<Entry<Object, ReplacementService>> entrySetIter
+               Iterator<Entry<String, ReplacementService>> entrySetIter
                    = listSources.entrySet().iterator();
 
                for (int i = 0; i < listSources.size(); i++)
                {
-                   Map.Entry<Object, ReplacementService> entry
+                   Map.Entry<String, ReplacementService> entry
                        = entrySetIter.next();
 
                    ReplacementService source = entry.getValue();
@@ -624,7 +624,6 @@ public class ChatConversationPanel
                     * replace the msgStore variable with the current replaced
                     * message before next iteration
                     */
-
                    if (!temp.equals(msgStore))
                    {
                        msgStore = temp;

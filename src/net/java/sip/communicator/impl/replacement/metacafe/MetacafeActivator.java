@@ -46,7 +46,8 @@ public class MetacafeActivator
     public void start(BundleContext context) throws Exception
     {
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
-        hashtable.put(ReplacementService.SOURCE_NAME, "METACAFE");
+        hashtable.put(ReplacementService.SOURCE_NAME,
+            ReplacementServiceMetacafeImpl.METACAFE_CONFIG_LABEL);
         metacafeSource = new ReplacementServiceMetacafeImpl();
 
         metacafeServReg =

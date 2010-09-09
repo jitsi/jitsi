@@ -12,6 +12,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -47,6 +48,12 @@ public class ChatConfigActivator
      */
     private static ResourceManagementService resourceService;
 
+    /**
+     * The Replacement sources map.
+     */
+    private static final Map<String, ReplacementService>
+    replacementSourcesMap = new Hashtable<String, ReplacementService>();
+    
     /**
      * Starts this bundle.
      * 
@@ -134,4 +141,43 @@ public class ChatConfigActivator
 
         return configService;
     }
+
+    /**
+     * Returns all <tt>ReplacementService</tt>s obtained from the bundle
+     * context.
+     * 
+     * @return all <tt>ReplacementService</tt> implementation obtained from the
+     *         bundle context
+     */
+    public static Map<String, ReplacementService> getReplacementSources()
+    {
+        ServiceReference[] serRefs = null;
+        try
+        {
+            // get all registered sources
+            serRefs =
+                bundleContext.getServiceReferences(ReplacementService.class
+                    .getName(), null);
+
+        }
+        catch (InvalidSyntaxException e)
+        {
+            logger.error("Error : " + e);
+        }
+
+        if (serRefs != null)
+        {
+            for (int i = 0; i < serRefs.length; i++)
+            {
+                ReplacementService replacementSources =
+                    (ReplacementService) bundleContext.getService(serRefs[i]);
+
+                replacementSourcesMap.put((String)serRefs[i]
+                    .getProperty(ReplacementService.SOURCE_NAME),
+                    replacementSources);
+            }
+        }
+        return replacementSourcesMap;
+    }
+
 }

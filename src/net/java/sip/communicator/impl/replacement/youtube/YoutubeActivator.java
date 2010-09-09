@@ -46,7 +46,8 @@ public class YoutubeActivator
     public void start(BundleContext context) throws Exception
     {
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
-        hashtable.put(ReplacementService.SOURCE_NAME, "YOUTUBE");
+        hashtable.put(ReplacementService.SOURCE_NAME,
+            ReplacementServiceYoutubeImpl.YOUTUBE_CONFIG_LABEL);
         youtubeSource = new ReplacementServiceYoutubeImpl();
 
         youtubeSourceServReg =

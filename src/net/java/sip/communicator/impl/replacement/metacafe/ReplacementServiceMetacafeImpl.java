@@ -32,20 +32,21 @@ public class ReplacementServiceMetacafeImpl
         "(http.*?(www\\.)*?metacafe\\.com\\/watch\\/([a-zA-Z0-9_\\-]+))(\\/[a-zA-Z0-9_\\-\\/]+)*";
 
     /**
-     * Configuration label property name. The label is saved in the languages
-     * file under this property.
+     * Configuration label shown in the config form. 
      */
-    public static final String METACAFE_CONFIG_LABEL = "METACAFE";
+    public static final String METACAFE_CONFIG_LABEL = "Metacafe";
 
     /**
-     * Constructor for <tt>ReplacementServiceMetacafeImpl</tt>. The source needs
-     * to register itself with {@link ReplacementService} sourceList to be
-     * displayed in the configuration panel.
+     * Source name; also used as property label.
+     */
+    public static final String SOURCE_NAME = "METACAFE";
+
+    /**
+     * Constructor for <tt>ReplacementServiceMetacafeImpl</tt>. 
      */
     public ReplacementServiceMetacafeImpl()
     {
         logger.trace("Creating a Metacafe Source.");
-        sourceList.add(METACAFE_CONFIG_LABEL);
     }
 
     /**
@@ -91,5 +92,15 @@ public class ReplacementServiceMetacafeImpl
             return msgBuff.toString();
 
         return chatString;
+    }
+    
+    /**
+     * Returns the source name
+     * 
+     * @return the source name
+     */
+    public String getSourceName()
+    {
+        return SOURCE_NAME;
     }
 }

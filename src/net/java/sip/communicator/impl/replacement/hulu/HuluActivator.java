@@ -45,7 +45,8 @@ public class HuluActivator
     public void start(BundleContext context) throws Exception
     {
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
-        hashtable.put(ReplacementService.SOURCE_NAME, "HULU");
+        hashtable.put(ReplacementService.SOURCE_NAME,
+            ReplacementServiceHuluImpl.HULU_CONFIG_LABEL);
         huluSource = new ReplacementServiceHuluImpl();
 
         huluServReg =

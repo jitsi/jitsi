@@ -21,12 +21,6 @@ public interface ReplacementService
     public final String SOURCE_NAME = "SOURCE";
 
     /**
-     * List of all the available replacement sources. All sources need to
-     * register itself.
-     */
-    public static ArrayList<String> sourceList = new ArrayList<String>();
-
-    /**
      * Returns the chat message with the text replacements if any or returns the
      * original chat message.
      * 
@@ -35,4 +29,11 @@ public interface ReplacementService
      *         in case of no match.
      */
     public String getReplacedMessage(String chatString);
+    
+    /**
+     * Returns the name of the replacement source.
+     * 
+     * @return the replacement source name
+     */
+    public String getSourceName();
 }

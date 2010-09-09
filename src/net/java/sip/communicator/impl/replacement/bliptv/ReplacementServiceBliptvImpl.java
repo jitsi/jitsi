@@ -36,19 +36,20 @@ public class ReplacementServiceBliptvImpl
         "(?:[\\>])(http:\\/\\/(?:www\\.)?blip\\.tv\\/file\\/(\\d+).*(?=<))";
 
     /**
-     * Configuration label property name. The label is saved in the languages
-     * file under this property.
+     * Configuration label shown in the config form. 
      */
-    public static final String BLIPTV_CONFIG_LABEL = "BLIPTV";
+    public static final String BLIPTV_CONFIG_LABEL = "Blip.tv";
 
     /**
-     * Constructor for <tt>ReplacementServiceBliptvImpl</tt>. The source needs
-     * to add itself to {@link ReplacementService} sourceList to be displayed in
-     * the configuration panel.
+     * Source name; also used as property label.
+     */
+    public static final String SOURCE_NAME = "BLIPTV";
+    
+    /**
+     * Constructor for <tt>ReplacementServiceBliptvImpl</tt>.
      */
     public ReplacementServiceBliptvImpl()
     {
-        sourceList.add(BLIPTV_CONFIG_LABEL);
         logger.trace("Creating a Blip.TV Source.");
     }
 
@@ -126,5 +127,15 @@ public class ReplacementServiceBliptvImpl
             return msgBuff.toString();
 
         return chatString;
+    }
+    
+    /**
+     * Returns the source name
+     * 
+     * @return the source name
+     */
+    public String getSourceName()
+    {
+        return SOURCE_NAME;
     }
 }

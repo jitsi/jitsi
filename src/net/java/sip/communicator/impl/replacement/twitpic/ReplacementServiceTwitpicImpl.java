@@ -32,19 +32,20 @@ public class ReplacementServiceTwitpicImpl
         "http:\\/\\/(?:www\\.)?twitpic\\.com\\/([^\\/<]*)(?=<)";
 
     /**
-     * Configuration label property name. The label is saved in the languages
-     * file under this property.
+     * Configuration label shown in the config form. 
      */
-    public static final String TWITPIC_CONFIG_LABEL = "TWITPIC";
+    public static final String TWITPIC_CONFIG_LABEL = "Twitpic";
+    
+    /**
+     * Source name; also used as property label.
+     */
+    public static final String SOURCE_NAME = "TWITPIC";
 
     /**
-     * Constructor for <tt>ReplacementServiceTwitpicImpl</tt>. The source needs
-     * to register itself with {@link ReplacementService} sourceList to be
-     * displayed in the configuration panel.
+     * Constructor for <tt>ReplacementServiceTwitpicImpl</tt>.
      */
     public ReplacementServiceTwitpicImpl()
     {
-        sourceList.add(TWITPIC_CONFIG_LABEL);
         logger.trace("Creating a Twitpic Source.");
     }
 
@@ -85,5 +86,15 @@ public class ReplacementServiceTwitpicImpl
             return msgBuff.toString();
 
         return chatString;
+    }
+    
+    /**
+     * Returns the source name
+     * 
+     * @return the source name
+     */
+    public String getSourceName()
+    {
+        return SOURCE_NAME;
     }
 }

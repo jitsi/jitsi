@@ -35,19 +35,20 @@ public class ReplacementServiceHuluImpl
         "(http.*?(www\\.)*?hulu\\.com\\/watch\\/([a-zA-Z0-9_\\-]+))(\\/([^\\\"\\<]*)*)";
 
     /**
-     * Configuration label property name. The label is saved in the languages
-     * file under this property.
+     * Configuration label shown in the config form. 
      */
-    public static final String HULU_CONFIG_LABEL = "HULU";
+    public static final String HULU_CONFIG_LABEL = "Hulu";
 
     /**
-     * Constructor for <tt>ReplacementServiceHuluImpl</tt>. The source needs to
-     * register itself with {@link ReplacementService} sourceList to be
-     * displayed in the configuration panel.
+     * Source name; also used as property label.
+     */
+    public static final String SOURCE_NAME = "HULU";
+
+    /**
+     * Constructor for <tt>ReplacementServiceHuluImpl</tt>. 
      */
     public ReplacementServiceHuluImpl()
     {
-        sourceList.add(HULU_CONFIG_LABEL);
         logger.trace("Creating a Hulu Source.");
     }
 
@@ -134,5 +135,15 @@ public class ReplacementServiceHuluImpl
             return msgBuff.toString();
 
         return chatString;
+    }
+    
+    /**
+     * Returns the source name
+     * 
+     * @return the source name
+     */
+    public String getSourceName()
+    {
+        return SOURCE_NAME;
     }
 }

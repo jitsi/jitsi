@@ -40,14 +40,15 @@ public class ViddlerActivator
 
     /**
      * Starts this bundle.
-     *
+     * 
      * @param context bundle context.
-     * @throws Exception 
+     * @throws Exception
      */
     public void start(BundleContext context) throws Exception
     {
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
-        hashtable.put(ReplacementService.SOURCE_NAME, "VIDDLER");
+        hashtable.put(ReplacementService.SOURCE_NAME,
+            ReplacementServiceViddlerImpl.VIDDLER_CONFIG_LABEL);
         viddlerSource = new ReplacementServiceViddlerImpl();
 
         viddlerServReg =

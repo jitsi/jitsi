@@ -38,15 +38,16 @@ public class DailymotionActivator
 
     /**
      * Starts the Dailymotion replacement source bundle
-     *
+     * 
      * @param context the <tt>BundleContext</tt> as provided from the OSGi
-     * framework
+     *            framework
      * @throws Exception if anything goes wrong
      */
     public void start(BundleContext context) throws Exception
     {
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
-        hashtable.put(ReplacementService.SOURCE_NAME, "DAILYMOTION");
+        hashtable.put(ReplacementService.SOURCE_NAME,
+            ReplacementServiceDailymotionImpl.DAILYMOTION_CONFIG_LABEL);
         dailymotionSource = new ReplacementServiceDailymotionImpl();
 
         dailymotionSourceServReg =

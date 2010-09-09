@@ -38,15 +38,16 @@ public class Vbox7Activator
 
     /**
      * Starts the Vbox7 replacement source bundle
-     *
+     * 
      * @param context the <tt>BundleContext</tt> as provided from the OSGi
-     * framework
+     *            framework
      * @throws Exception if anything goes wrong
      */
     public void start(BundleContext context) throws Exception
     {
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
-        hashtable.put(ReplacementService.SOURCE_NAME, "VBOX7");
+        hashtable.put(ReplacementService.SOURCE_NAME,
+            ReplacementServiceVbox7Impl.VBOX7_CONFIG_LABEL);
         vbox7Source = new ReplacementServiceVbox7Impl();
 
         vbox7ServReg =

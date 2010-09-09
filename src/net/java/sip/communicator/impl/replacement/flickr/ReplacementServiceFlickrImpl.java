@@ -41,19 +41,20 @@ public class ReplacementServiceFlickrImpl
     public static final String API_KEY = "8b5d9cee22f0f5154bf4e9846c025484";
 
     /**
-     * Configuration label property name. The label is saved in the languages
-     * file under this property.
+     * Configuration label shown in the config form. 
      */
-    public static final String FLICKR_CONFIG_LABEL = "FLICKR";
+    public static final String FLICKR_CONFIG_LABEL = "Flickr Images";
+    
+    /**
+     * Source name; also used as property label.
+     */
+    public static final String SOURCE_NAME = "FLICKR";
 
     /**
-     * Constructor for <tt>ReplacementServiceFlickrImpl</tt>. The source needs
-     * to add itself to {@link ReplacementService} sourceList to be displayed in
-     * the configuration panel.
+     * Constructor for <tt>ReplacementServiceFlickrImpl</tt>. 
      */
     public ReplacementServiceFlickrImpl()
     {
-        sourceList.add(FLICKR_CONFIG_LABEL);
         logger.trace("Creating a Flickr Source.");
     }
 
@@ -154,5 +155,15 @@ public class ReplacementServiceFlickrImpl
             return msgBuff.toString();
 
         return chatString;
+    }
+    
+    /**
+     * Returns the source name
+     * 
+     * @return the source name
+     */
+    public String getSourceName()
+    {
+        return SOURCE_NAME;
     }
 }

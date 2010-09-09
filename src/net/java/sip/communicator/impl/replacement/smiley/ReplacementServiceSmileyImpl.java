@@ -45,8 +45,7 @@ public class ReplacementServiceSmileyImpl
     private static final String START_PLAINTEXT_TAG = "<PLAINTEXT>";
 
     /**
-     * Configuration label property name. The label is saved in the languages
-     * file under this property.
+     * Configuration label shown in the config form. 
      */
     public static final String SMILEY_SOURCE = "SMILEY";
 
@@ -162,5 +161,15 @@ public class ReplacementServiceSmileyImpl
             }
             return smileyPattern;
         }
+    }
+    
+    /**
+     * Returns the source name
+     * 
+     * @return the source name
+     */
+    public String getSourceName()
+    {
+        return SMILEY_SOURCE;
     }
 }

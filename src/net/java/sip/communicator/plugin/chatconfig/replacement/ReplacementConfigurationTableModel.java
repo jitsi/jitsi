@@ -80,17 +80,19 @@ public class ReplacementConfigurationTableModel
      */
     public Object getValueAt(int rowIndex, int columnIndex)
     {
-        String source = sourceList.get(rowIndex);
+        String sourceName = sourceList.get(rowIndex);
+        ReplacementService source =
+            ChatConfigActivator.getReplacementSources().get(sourceName);
+        
         switch (columnIndex)
         {
         case 0:
             boolean e =
                 configService.getBoolean(ReplacementProperty
-                    .getPropertyName(source), true);
+                    .getPropertyName(source.getSourceName()), true);
             return e;
         case 1:
-            return ChatConfigActivator.getResources().getI18NString(
-                "plugin.chatconfig.replacement.sources." + source);
+            return sourceName;
         default:
             return null;
         }
@@ -121,12 +123,14 @@ public class ReplacementConfigurationTableModel
     {
         if ((columnIndex == 0) && (value instanceof Boolean))
         {
-            String source = sourceList.get(rowIndex);
+            String sourceName = sourceList.get(rowIndex);
+            ReplacementService source =
+                ChatConfigActivator.getReplacementSources().get(sourceName);
+            
             boolean e = (Boolean) value;
             configService.setProperty(ReplacementProperty
-                .getPropertyName(source), e);
-            configService.setProperty(ReplacementProperty.REPLACEMENT_ENABLE,
-                Boolean.toString(e));
+                .getPropertyName(source.getSourceName()), e);
+
             fireTableCellUpdated(rowIndex, columnIndex);
 
         }

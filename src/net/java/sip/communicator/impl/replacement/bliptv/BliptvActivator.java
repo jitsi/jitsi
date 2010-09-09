@@ -46,7 +46,8 @@ public class BliptvActivator
     public void start(BundleContext context) throws Exception
     {
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
-        hashtable.put(ReplacementService.SOURCE_NAME, "BLIPTV");
+        hashtable.put(ReplacementService.SOURCE_NAME,
+            ReplacementServiceBliptvImpl.BLIPTV_CONFIG_LABEL);
         bliptvSource = new ReplacementServiceBliptvImpl();
 
         bliptvServReg =

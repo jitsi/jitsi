@@ -60,7 +60,8 @@ public class SmileyActivator
         bundleContext = context;
 
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
-        hashtable.put(ReplacementService.SOURCE_NAME, "SMILEY");
+        hashtable.put(ReplacementService.SOURCE_NAME,
+            ReplacementServiceSmileyImpl.SMILEY_SOURCE);
         smileySource = new ReplacementServiceSmileyImpl();
 
         smileyServReg =

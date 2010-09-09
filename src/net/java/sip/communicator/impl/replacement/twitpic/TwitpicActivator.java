@@ -46,7 +46,8 @@ public class TwitpicActivator
     public void start(BundleContext context) throws Exception
     {
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
-        hashtable.put(ReplacementService.SOURCE_NAME, "TWITPIC");
+        hashtable.put(ReplacementService.SOURCE_NAME,
+            ReplacementServiceTwitpicImpl.TWITPIC_CONFIG_LABEL);
         twitpicSource = new ReplacementServiceTwitpicImpl();
 
         twitpicServReg =

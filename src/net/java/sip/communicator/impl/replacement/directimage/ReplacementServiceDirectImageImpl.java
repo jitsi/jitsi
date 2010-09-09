@@ -32,19 +32,20 @@ public class ReplacementServiceDirectImageImpl
         "[^<>]+\\.(?:jpg|png|gif)[^<>]*(?=</a>)";
 
     /**
-     * Configuration label property name. The label is saved in the languages
-     * file under this property.
+     * Configuration label shown in the config form. 
      */
-    public static final String DIRECT_IMAGE_CONFIG_LABEL = "DIRECTIMAGE";
+    public static final String DIRECT_IMAGE_CONFIG_LABEL = "Direct Image Link";
 
     /**
-     * Constructor for <tt>ReplacementServiceDirectImageImpl</tt>. The source
-     * needs to add itself to {@link ReplacementService} sourceList to be
-     * displayed in the configuration panel.
+     * Source name; also used as property label.
+     */
+    public static final String SOURCE_NAME = "DIRECTIMAGE";
+    
+    /**
+     * Constructor for <tt>ReplacementServiceDirectImageImpl</tt>. 
      */
     public ReplacementServiceDirectImageImpl()
     {
-        sourceList.add(DIRECT_IMAGE_CONFIG_LABEL);
         logger.trace("Creating a Direct Image Link Source.");
     }
 
@@ -86,5 +87,15 @@ public class ReplacementServiceDirectImageImpl
             return msgBuff.toString();
 
         return chatString;
+    }
+    
+    /**
+     * Returns the source name
+     * 
+     * @return the source name
+     */
+    public String getSourceName()
+    {
+        return SOURCE_NAME;
     }
 }
