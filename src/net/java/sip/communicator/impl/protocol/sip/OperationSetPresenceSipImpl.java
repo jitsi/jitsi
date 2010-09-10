@@ -2904,6 +2904,10 @@ public class OperationSetPresenceSipImpl
             // stop any task associated with the timer
             cancelTimer();
             waitedCallIds.clear();
+
+            // update UI that our status is OFFLINE
+            fireProviderStatusChangeEvent(
+                sipStatusEnum.getStatus(SipStatusEnum.OFFLINE));
         }
     }
 

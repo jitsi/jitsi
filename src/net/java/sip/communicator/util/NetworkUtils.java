@@ -337,6 +337,34 @@ public class NetworkUtils
     }
 
     /**
+     * Returns an <tt>InetSocketAddress</tt> representing the first SRV
+     * record available for the specified domain or <tt>null</tt> if there are
+     * not SRV records for <tt>domain</tt>.
+     *
+     * @param domain the name of the domain we'd like to resolve.
+     * @param service the service that we are trying to get a record for.
+     * @param proto the protocol that we'd like <tt>service</tt> on.
+     *
+     * @return the InetSocketAddress[] containing records returned by the
+     * DNS server - address and port .
+     * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     */
+    public static InetSocketAddress[] getSRVRecords(String service,
+                                                   String proto,
+                                                   String domain)
+        throws ParseException
+    {
+        InetSocketAddress[] records = getSRVRecords("_" + service
+                                                 + "._" + proto
+                                                 + "."  + domain);
+
+        if(records == null || records.length == 0)
+            return null;
+
+        return records;
+    }
+
+    /**
      * Creates an InetAddress from the specified <tt>hostAddress</tt>. The point
      * of using the method rather than creating the address by yourself is that
      * it would first check whether the specified <tt>hostAddress</tt> is indeed
@@ -400,6 +428,78 @@ public class NetworkUtils
         else
         {
             return InetAddress.getByName(hostAddress);
+        }
+    }
+
+    /**
+     * Returns array of hosts from the SRV record of the specified domain.
+     * The records are ordered against the SRV record priority
+     * @param domain the name of the domain we'd like to resolve (_proto._tcp
+     * included).
+     * @param port 
+     * @return an array of InetSocketAddress containing records returned by the DNS
+     * server - address and port .
+     * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     */
+    public static InetSocketAddress getARecord(String domain, int port)
+        throws ParseException
+    {
+        Record[] records = null;
+        try
+        {
+            Lookup lookup = new Lookup(domain, Type.A);
+            records = lookup.run();
+        }
+        catch (TextParseException tpe)
+        {
+            logger.error("Failed to parse domain="+domain, tpe);
+            throw new ParseException(tpe.getMessage(), 0);
+        }
+        if (records != null && records.length > 0)
+        {
+            return new InetSocketAddress(
+                ((ARecord)records[0]).getAddress(),
+                port);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Returns array of hosts from the SRV record of the specified domain.
+     * The records are ordered against the SRV record priority
+     * @param domain the name of the domain we'd like to resolve (_proto._tcp
+     * included).
+     * @param port 
+     * @return an array of InetSocketAddress containing records returned by the DNS
+     * server - address and port .
+     * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     */
+    public static InetSocketAddress getAAAARecord(String domain, int port)
+        throws ParseException
+    {
+        Record[] records = null;
+        try
+        {
+            Lookup lookup = new Lookup(domain, Type.AAAA);
+            records = lookup.run();
+        }
+        catch (TextParseException tpe)
+        {
+            logger.error("Failed to parse domain="+domain, tpe);
+            throw new ParseException(tpe.getMessage(), 0);
+        }
+        if (records != null && records.length > 0)
+        {
+            return new InetSocketAddress(
+                ((AAAARecord)records[0]).getAddress(),
+                port);
+        }
+        else
+        {
+            return null;
         }
     }
 

@@ -410,7 +410,7 @@ public class ProtocolProviderServiceSipImpl
         // The same here, we check if the outbound proxy is initialized in case
         // through the initialization process there was no internet connection.
         if (outboundProxySocketAddress == null)
-            initOutboundProxy((SipAccountID)accountID);
+            initOutboundProxy((SipAccountID)accountID, 0);
 
         //connect to the Registrar.
         if (sipRegistrarConnection != null)
@@ -476,7 +476,7 @@ public class ProtocolProviderServiceSipImpl
             this.sipStatusEnum = new SipStatusEnum(protocolIconPath);
 
             //init the proxy
-            initOutboundProxy(accountID);
+            initOutboundProxy(accountID, 0);
 
             //init proxy port
             int preferredSipPort = ListeningPoint.PORT_5060;
@@ -1533,7 +1533,7 @@ public class ProtocolProviderServiceSipImpl
         }
 
         //from this point on we are certain to have a registrar.
-        InetAddress registrarAddress = null;
+        InetSocketAddress[] registrarSocketAddresses = null;
 
         //init registrar port
         int registrarPort = ListeningPoint.PORT_5060;
@@ -1548,11 +1548,8 @@ public class ProtocolProviderServiceSipImpl
             if(registrarTransport == null)
                 registrarTransport = getDefaultTransport();
 
-            InetSocketAddress registrarSocketAddress = resolveSipAddress(
-                registrarAddressStr, registrarTransport);
-
-            registrarAddress = registrarSocketAddress.getAddress();
-            registrarPort = registrarSocketAddress.getPort();
+            registrarSocketAddresses =
+                resolveSipAddress(registrarAddressStr, registrarTransport);
 
             // We should set here the property to indicate that the server
             // address is validated. When we load stored accounts we check
@@ -1599,7 +1596,8 @@ public class ProtocolProviderServiceSipImpl
         // telling the user. We'll enter here only if the server has been
         // already validated (this means that the account is already created
         // and we're trying to login, but we have no internet connection).
-        if(registrarAddress == null)
+        if(registrarSocketAddresses == null
+            || registrarSocketAddresses.length == 0)
         {
             fireRegistrationStateChanged(
                 RegistrationState.UNREGISTERED,
@@ -1652,8 +1650,7 @@ public class ProtocolProviderServiceSipImpl
         try
         {
             this.sipRegistrarConnection = new SipRegistrarConnection(
-                registrarAddress
-                , registrarPort
+                registrarSocketAddresses
                 , registrarTransport
                 , expires
                 , this);
@@ -1662,11 +1659,11 @@ public class ProtocolProviderServiceSipImpl
         {
             //this really shouldn't happen as we're using InetAddress-es
             logger.error("Failed to create a registrar connection with "
-                +registrarAddress.getHostAddress()
+                +registrarSocketAddresses[0].getAddress().getHostAddress()
                 , ex);
             throw new IllegalArgumentException(
                 "Failed to create a registrar connection with "
-                + registrarAddress.getHostAddress() + ": "
+                + registrarSocketAddresses[0].getAddress().getHostAddress() + ": "
                 + ex.getMessage());
         }
     }
@@ -1826,8 +1823,9 @@ public class ProtocolProviderServiceSipImpl
      * this account.
      * @param accountID the account whose outbound proxy we are currently
      * initializing.
+     * @param ix index of the address to use.
      */
-    private void initOutboundProxy(SipAccountID accountID)
+    void initOutboundProxy(SipAccountID accountID, int ix)
     {
         //First init the proxy address
         String proxyAddressStr =
@@ -1864,7 +1862,7 @@ public class ProtocolProviderServiceSipImpl
                     proxyTransport = getDefaultTransport();
 
             InetSocketAddress proxySocketAddress = resolveSipAddress(
-                            proxyAddressStr, proxyTransport);
+                            proxyAddressStr, proxyTransport)[ix];
 
             proxyAddress = proxySocketAddress.getAddress();
             proxyPort = proxySocketAddress.getPort();
@@ -2511,9 +2509,13 @@ public class ProtocolProviderServiceSipImpl
      * @throws UnknownHostException if <tt>address</tt> is not a valid host
      * address.
      */
-    public InetSocketAddress resolveSipAddress(String address, String transport)
+    public InetSocketAddress[] resolveSipAddress(
+            String address, String transport)
         throws UnknownHostException
     {
+        ArrayList<InetSocketAddress> resultAddresses =
+            new ArrayList<InetSocketAddress>();
+
         InetSocketAddress sockAddr = null;
 
         //we need to resolve the address only if its a hostname.
@@ -2527,7 +2529,7 @@ public class ProtocolProviderServiceSipImpl
             if(transport.equalsIgnoreCase(ListeningPoint.TLS))
                 port = ListeningPoint.PORT_5061;
 
-            return new InetSocketAddress(addressObj, port);
+            resultAddresses.add(new InetSocketAddress(addressObj, port));
         }
 
         //try to obtain SRV mappings from the DNS
@@ -2551,21 +2553,55 @@ public class ProtocolProviderServiceSipImpl
         }
 
         if(sockAddr != null)
-            return sockAddr;
+            resultAddresses.add(sockAddr);
 
         //there were no SRV mappings so we only need to A/AAAA resolve the
         //address. Do this before we instantiate the resulting InetSocketAddress
         //because its constructor suprresses UnknownHostException-s and we want
         //to know if something goes wrong.
-        InetAddress addressObj = InetAddress.getByName(address);
 
         //no SRV means default ports
         int defaultPort = ListeningPoint.PORT_5060;
         if(transport.equalsIgnoreCase(ListeningPoint.TLS))
             defaultPort = ListeningPoint.PORT_5061;
 
+        // after checking SRVs, lets add and AAAA and A records
+        // in order corresponding java preferences.
+        InetSocketAddress addressObj4 = null;
+        InetSocketAddress addressObj6 = null;
+        try
+        {
+            addressObj4 = NetworkUtils.getARecord(address, defaultPort);
+        } catch (ParseException ex)
+        {
+            logger.error("Error parsing dns record.", ex);
+        }
+        try
+        {
+            addressObj6 = NetworkUtils.getAAAARecord(address, defaultPort);
+        } catch (ParseException ex)
+        {
+            logger.error("Error parsing dns record.", ex);
+        }
+        
+        if(Boolean.getBoolean("java.net.preferIPv6Addresses"))
+        {
+            if(addressObj6 != null)
+                resultAddresses.add(addressObj6);
 
-        return new InetSocketAddress(addressObj, defaultPort);
+            if(addressObj4 != null)
+                resultAddresses.add(addressObj4);
+        }
+        else
+        {
+            if(addressObj4 != null)
+                resultAddresses.add(addressObj4);
+
+            if(addressObj6 != null)
+                resultAddresses.add(addressObj6);
+        }
+
+        return resultAddresses.toArray(new InetSocketAddress[]{});
     }
 
     /**
@@ -2586,7 +2622,7 @@ public class ProtocolProviderServiceSipImpl
     public InetSocketAddress resolveSipAddress(String address)
         throws UnknownHostException
     {
-        return resolveSipAddress(address, getDefaultTransport());
+        return resolveSipAddress(address, getDefaultTransport())[0];
     }
 
     /**

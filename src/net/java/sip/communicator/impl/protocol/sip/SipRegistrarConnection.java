@@ -48,7 +48,7 @@ public class SipRegistrarConnection
     /**
     * The InetAddress of the registrar we are connecting to.
     */
-    private InetAddress registrarAddress = null;
+    private InetSocketAddress currentRegistrarAddress = null;
 
     /**
     * The default amount of time (in seconds) that registration take to
@@ -127,12 +127,20 @@ public class SipRegistrarConnection
     private CallIdHeader callIdHeader = null;
 
     /**
+     * Array of ordered addresses to try when connecting.
+     */
+    private InetSocketAddress[] registrarAddresses =null;
+
+    /**
+     * The transport to use.
+     */
+    private String registrationTransport = null;
+
+    /**
     * Creates a new instance of this class.
     *
-    * @param registrarAddress the ip address or FQDN of the registrar we will
+    * @param registrarAddresses the ip addresses or FQDN of the registrar we will
     * be registering with.
-    * @param registrarPort the port on which the specified registrar is
-    * accepting connections.
     * @param registrationTransport the transport to use when sending our
     * REGISTER request to the server.
     * @param expirationTimeout the number of seconds to wait before
@@ -141,23 +149,24 @@ public class SipRegistrarConnection
     * ProtocolProviderServiceSipImpl instance that created us.
     *
     * @throws ParseException in case the specified registrar address is not a
-    * valid reigstrar address.
+    * valid registrar address.
     */
     public SipRegistrarConnection(
-                            InetAddress  registrarAddress,
-                            int          registrarPort,
+                            InetSocketAddress[] registrarAddresses,
                             String       registrationTransport,
                             int          expirationTimeout,
                             ProtocolProviderServiceSipImpl sipProviderCallback)
         throws ParseException
     {
+        this.registrationTransport = registrationTransport;
+        this.registrarAddresses = registrarAddresses;
         this.sipProvider = sipProviderCallback;
-        this.registrarAddress = registrarAddress;
+        this.currentRegistrarAddress = registrarAddresses[0];
         registrarURI = sipProvider.getAddressFactory().createSipURI(
-                null, registrarAddress.getHostName());
+                null, this.currentRegistrarAddress.getHostName());
 
-        if(registrarPort != ListeningPoint.PORT_5060)
-            registrarURI.setPort(registrarPort);
+        if(this.currentRegistrarAddress.getPort() != ListeningPoint.PORT_5060)
+            registrarURI.setPort(this.currentRegistrarAddress.getPort());
 
         registrarURI.setTransportParam(registrationTransport);
         this.registrationsExpiration = expirationTimeout;
@@ -209,6 +218,12 @@ public class SipRegistrarConnection
         }
         catch (Exception exc)
         {
+            if(exc.getCause() instanceof SocketException)
+            {
+                if(registerUsingNextAddress())
+                    return;
+            }
+
             //catches InvalidArgumentException, ParseExeption
             //this should never happen so let's just log and bail.
             logger.error("Failed to create a Register request." , exc);
@@ -255,6 +270,12 @@ public class SipRegistrarConnection
         //we sometimes get a null pointer exception here so catch them all
         catch (Exception ex)
         {
+            if(ex.getCause() instanceof SocketException)
+            {
+                if(registerUsingNextAddress())
+                    return;
+            }
+
             logger.error("Could not send out the register request!", ex);
             setRegistrationState(RegistrationState.CONNECTION_FAILED
                 , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
@@ -266,6 +287,61 @@ public class SipRegistrarConnection
         }
 
         this.registerRequest = request;
+    }
+
+    /**
+     * Finds the next address to retry registering. If doesn't process anything
+     * (we have already tried the last one) return false.
+     *
+     * @return <tt>true</tt> if we triggered new register with next address.
+     */
+    private boolean registerUsingNextAddress()
+    {
+        int i = 0;
+        for (; i < registrarAddresses.length; i++)
+        {
+            if(registrarAddresses[i].equals(currentRegistrarAddress))
+                break;
+        }
+
+        if(i + 1 < registrarAddresses.length)
+        {
+            this.currentRegistrarAddress =
+                registrarAddresses[i + 1];
+
+            sipProvider.initOutboundProxy(
+                (SipAccountID)sipProvider.getAccountID(), i + 1);
+
+            try
+            {
+                registrarURI = sipProvider.getAddressFactory().createSipURI(
+                    null, this.currentRegistrarAddress.getHostName());
+
+                if(this.currentRegistrarAddress.getPort() != ListeningPoint.PORT_5060)
+                    registrarURI.setPort(this.currentRegistrarAddress.getPort());
+
+                registrarURI.setTransportParam(registrationTransport);
+            } catch (Throwable e)
+            {
+                logger.error("Cannot create register URI", e);
+            }
+
+            try
+            {
+                register();
+            } catch (Throwable e)
+            {
+                logger.error("Cannot send register!", e);
+                setRegistrationState(
+                    RegistrationState.CONNECTION_FAILED,
+                    RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                    "A timeout occurred while trying to connect to the server.");
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -661,7 +737,7 @@ public class SipRegistrarConnection
             setRegistrationState(
                 RegistrationState.CONNECTION_FAILED
                 , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
-                , registrarAddress.getHostAddress()
+                , currentRegistrarAddress.getAddress().getHostAddress()
                 + " does not appear to be a sip registrar. (Returned a "
                 +"NOT_IMPLEMENTED response to a register request)");
     }
@@ -673,7 +749,7 @@ public class SipRegistrarConnection
      */
     private InetAddress getRegistrarAddress()
     {
-        return registrarAddress;
+        return currentRegistrarAddress.getAddress();
     }
 
     /**
@@ -912,6 +988,9 @@ public class SipRegistrarConnection
     */
     public boolean processTimeout(TimeoutEvent timeoutEvent)
     {
+        if(registerUsingNextAddress())
+            return false;
+
         // don't alert the user if we're already off
         if (getRegistrationState().equals(RegistrationState.UNREGISTERED) == false)
         {

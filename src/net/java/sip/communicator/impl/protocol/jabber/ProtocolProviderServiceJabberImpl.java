@@ -203,6 +203,26 @@ public class ProtocolProviderServiceJabberImpl
     private org.jivesoftware.smack.proxy.ProxyInfo proxy;
 
     /**
+     * State for connect and login state.
+     */
+    enum ConnectState
+    {
+        /**
+         * Abort any further connecting.
+         */
+        ABORT_CONNECTING,
+        /**
+         * Continue trying with next address.
+         */
+        CONTINUE_TRYING,
+        /**
+         * Stop trying we succeeded or just have a final state for
+         * the whole connecting procedure.
+         */
+        STOP_TRYING
+    }
+
+    /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
      * currently in or null in case it is in a unknown state.
@@ -386,7 +406,6 @@ public class ProtocolProviderServiceJabberImpl
             //init the necessary objects
             try
             {
-                //XMPPConnection.DEBUG_ENABLED = true;
                 String userID = null;
 
                 /* with a google account (either gmail or google apps
@@ -406,26 +425,90 @@ public class ProtocolProviderServiceJabberImpl
                 String serviceName
                     = StringUtils.parseServer(getAccountID().getUserID());
 
-                String serverAddress
+                List<String> serverAddresses = new ArrayList<String>();
+
+                String serverAddressUserSetting
                     = getAccountID().getAccountPropertyString(
                         ProtocolProviderFactory.SERVER_ADDRESS);
 
-                String serverPort = getAccountID().getAccountPropertyString(
-                        ProtocolProviderFactory.SERVER_PORT);
+                int serverPort = getAccountID().getAccountPropertyInt(
+                        ProtocolProviderFactory.SERVER_PORT, 5222);
 
                 String accountResource
                     = getAccountID().getAccountPropertyString(
                         ProtocolProviderFactory.RESOURCE);
 
+                if(accountResource == null || accountResource.equals(""))
+                    accountResource = "sip-comm";
+
                 // check to see is there SRV records for this server domain
                 try
                 {
-                    InetSocketAddress srvAddress = NetworkUtils
-                        .getSRVRecord("xmpp-client", "tcp", serviceName);
+                    InetSocketAddress[] srvAddresses = NetworkUtils
+                        .getSRVRecords("xmpp-client", "tcp", serviceName);
 
-                    if (srvAddress != null)
-                        serverAddress = srvAddress.getHostName();
+                    if(srvAddresses != null)
+                    {
+                        for (int i = 0; i < srvAddresses.length; i++)
+                        {
+                            String addr =
+                                srvAddresses[i].getAddress().getHostAddress();
 
+                            serverAddresses.add(addr);
+                        }
+                    }
+
+                    // after SRV records, check A/AAAA records
+                    InetSocketAddress addressObj4 = null;
+                    InetSocketAddress addressObj6 = null;
+                    try
+                    {
+                        addressObj4 = NetworkUtils.getARecord(
+                            serverAddressUserSetting, serverPort);
+                    } catch (ParseException ex)
+                    {
+                        logger.error("Cannot obtain A record for "
+                            + serverAddressUserSetting, ex);
+                    }
+                    try
+                    {
+                        addressObj6 = NetworkUtils.getAAAARecord(
+                            serverAddressUserSetting, serverPort);
+                    } catch (ParseException ex)
+                    {
+                        logger.error("Cannot obtain AAAA record for "
+                            + serverAddressUserSetting, ex);
+                    }
+
+                    // add address according their priorities setting
+                    if(Boolean.getBoolean("java.net.preferIPv6Addresses"))
+                    {
+                        if(addressObj6 != null)
+                        {
+                            serverAddresses
+                                .add(addressObj6.getAddress().getHostAddress());
+                        }
+                        if(addressObj4 != null)
+                        {
+                            serverAddresses
+                                .add(addressObj4.getAddress().getHostAddress());
+                        }
+                    }
+                    else
+                    {
+                        if(addressObj4 != null)
+                        {
+                            serverAddresses
+                                .add(addressObj4.getAddress().getHostAddress());
+                        }
+                        if(addressObj6 != null)
+                        {
+                            serverAddresses
+                                .add(addressObj6.getAddress().getHostAddress());
+                        }
+                    }
+
+                    serverAddresses.add(serverAddressUserSetting);
                 }
                 catch (ParseException ex1)
                 {
@@ -509,138 +592,67 @@ public class ProtocolProviderServiceJabberImpl
                     }
                 }
 
-                ConnectionConfiguration confConn = new ConnectionConfiguration(
-                        serverAddress, Integer.parseInt(serverPort),
-                        serviceName, proxy
-                );
-
-                confConn.setReconnectionAllowed(false);
-
-                if(connection != null)
+                // try connecting to all serverAddresses
+                // as if connecting with username fails
+                // try with username@serviceName
+                for (int i = 0; i < serverAddresses.size(); i++)
                 {
-                    logger.error("Connection is not null and isConnected:"
-                        + connection.isConnected(),
-                        new Exception("Trace possible duplicate connections"));
-                }
+                    String currentAddress = serverAddresses.get(i);
 
-                connection = new XMPPConnection(confConn);
-
-                try
-                {
-                    CertificateVerificationService gvs =
-                        getCertificateVerificationService();
-                    if(gvs != null)
-                        connection.setCustomTrustManager(
-                            new HostTrustManager(gvs.getTrustManager(
-                                serverAddress,
-                                Integer.parseInt(serverPort))));
-                }
-                catch(GeneralSecurityException e)
-                {
-                    logger.error("Error creating custom trust manager", e);
-                }
-
-                connection.connect();
-
-                registerServiceDiscoveryManager();
-
-                if(connectionListener == null)
-                    connectionListener = new JabberConnectionListener();
-
-                connection.addConnectionListener(connectionListener);
-
-                if(abortConnecting)
-                {
-                    abortConnecting = false;
-                    disconnectAndCleanConnection();
-
-                    return;
-                }
-
-                fireRegistrationStateChanged(
-                        getRegistrationState()
-                        , RegistrationState.REGISTERING
-                        , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
-                        , null);
-
-                if(accountResource == null || accountResource.equals(""))
-                    accountResource = "sip-comm";
-
-                SASLAuthentication.supportSASLMechanism("PLAIN", 0);
-
-                // Insert our sasl mechanism implementation
-                // in order to support some incompatible servers
-                SASLAuthentication.unregisterSASLMechanism("DIGEST-MD5");
-                SASLAuthentication.registerSASLMechanism("DIGEST-MD5",
-                    SASLDigestMD5Mechanism.class);
-                SASLAuthentication.supportSASLMechanism("DIGEST-MD5");
-
-                try
-                {
-                    connection.login(userID, password, accountResource);
-                } catch (XMPPException e1)
-                {
-                    // after updating to new smack lib
-                    // login mechanism changed
-                    // this is a way to avoid the problem
                     try
                     {
+                        ConnectState state = connectAndLogin(
+                            currentAddress, serverPort, serviceName,
+                            userID, password, accountResource);
+
+                        if(state == ConnectState.ABORT_CONNECTING)
+                            return;
+                        else if(state == ConnectState.CONTINUE_TRYING)
+                            continue;
+                        else if(state == ConnectState.STOP_TRYING)
+                            break;
+
+                    }catch(XMPPException ex)
+                    {
+                        if(isAuthenticationFailed(ex))
+                            throw ex;
                         // server disconnect us after such an error
                         // cleanup
+                        disconnectAndCleanConnection();
+
                         try
                         {
-                            connection.disconnect();
-                        } catch (Exception e)
-                        {}
-                        // and connect again
-                        connection.connect();
+                            // after updating to new smack lib
+                            // login mechanisum changed
+                            // this is a way to avoid the problem
 
-                        // as disconnect clears all listeners lets add it again
-                        connection.addConnectionListener(connectionListener);
+                            // logging in to google need and service name
+                            ConnectState state = connectAndLogin(
+                                currentAddress, serverPort, serviceName,
+                                userID + "@" + serviceName,
+                                password, accountResource);
 
-                        if(abortConnecting)
+                            if(state == ConnectState.ABORT_CONNECTING)
+                                return;
+                            else if(state == ConnectState.CONTINUE_TRYING)
+                                continue;
+                            else if(state == ConnectState.STOP_TRYING)
+                                break;
+                        } catch (XMPPException e)
                         {
-                            abortConnecting = false;
+                            if(isAuthenticationFailed(ex))
+                                throw ex;
+
                             disconnectAndCleanConnection();
 
-                            return;
+                            // if it happens once again throw
+                            // the original exception
+                            if(i == serverAddresses.size())
+                            {
+                                throw ex;
+                            }
                         }
-
-                        fireRegistrationStateChanged(
-                            getRegistrationState()
-                            , RegistrationState.REGISTERING
-                            , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
-                            , null);
-
-                        // logging in to google need and service name
-                        connection.login(userID + "@" + serviceName,
-                                password, accountResource);
-                    } catch (XMPPException e2)
-                    {
-                        // if it happens once again throw the original exception
-                        throw e1;
                     }
-                }
-
-                if(connection.isAuthenticated())
-                {
-                    connection.getRoster().
-                        setSubscriptionMode(Roster.SubscriptionMode.manual);
-
-                    fireRegistrationStateChanged(
-                        getRegistrationState(),
-                        RegistrationState.REGISTERED,
-                        RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
-                }
-                else
-                {
-                    fireRegistrationStateChanged(
-                        getRegistrationState()
-                        , RegistrationState.UNREGISTERED
-                        , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
-                        , null);
-
-                    disconnectAndCleanConnection();
                 }
             }
             catch (NumberFormatException ex)
@@ -672,6 +684,119 @@ public class ProtocolProviderServiceJabberImpl
             }
 
             inConnectAndLogin = false;
+        }
+    }
+
+    /**
+     * Connects xmpp connection and login. Returning the state whether is it
+     * final - Abort due to certificate cancel or keep trying cause only current
+     * address has failed or stop trying cause we succeeded.
+     * @param address the address to connect to
+     * @param serverPort the port to use
+     * @param serviceName the service name to use
+     * @param userName the username to use
+     * @param password the password to use
+     * @param resource and the resource.
+     * @return return the state how to continue the connect process.
+     * @throws XMPPException if we cannot connect for some reason
+     */
+    private ConnectState connectAndLogin(
+            String address, int serverPort, String serviceName,
+            String userName, String password, String resource)
+        throws XMPPException
+    {
+        ConnectionConfiguration confConn = new ConnectionConfiguration(
+                address, serverPort,
+                serviceName, proxy
+        );
+
+        confConn.setReconnectionAllowed(false);
+
+        if(connection != null)
+        {
+            logger.error("Connection is not null and isConnected:"
+                + connection.isConnected(),
+                new Exception("Trace possible duplicate connections"));
+        }
+
+        connection = new XMPPConnection(confConn);
+
+        try
+        {
+            CertificateVerificationService gvs =
+                getCertificateVerificationService();
+            if(gvs != null)
+            {
+                connection.setCustomTrustManager(
+                    new HostTrustManager(gvs.getTrustManager(
+                        address,
+                        serverPort)));
+            }
+        }
+        catch(GeneralSecurityException e)
+        {
+            logger.error("Error creating custom trust manager", e);
+        }
+
+        connection.connect();
+
+        registerServiceDiscoveryManager();
+
+        if(connectionListener == null)
+        {
+            connectionListener = new JabberConnectionListener();
+        }
+
+        connection.addConnectionListener(connectionListener);
+
+        if(abortConnecting)
+        {
+            abortConnecting = false;
+            disconnectAndCleanConnection();
+
+            return ConnectState.ABORT_CONNECTING;
+        }
+
+        fireRegistrationStateChanged(
+                getRegistrationState()
+                , RegistrationState.REGISTERING
+                , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+                , null);
+
+        SASLAuthentication.supportSASLMechanism("PLAIN", 0);
+
+        // Insert our sasl mechanism implementation
+        // in order to support some incompatible servers
+        SASLAuthentication.unregisterSASLMechanism("DIGEST-MD5");
+        SASLAuthentication.registerSASLMechanism("DIGEST-MD5",
+            SASLDigestMD5Mechanism.class);
+        SASLAuthentication.supportSASLMechanism("DIGEST-MD5");
+
+        connection.login(userName, password, resource);
+
+        if(connection.isAuthenticated())
+        {
+            connection.getRoster().
+                setSubscriptionMode(Roster.SubscriptionMode.manual);
+
+            fireRegistrationStateChanged(
+                getRegistrationState(),
+                RegistrationState.REGISTERED,
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+
+            return ConnectState.STOP_TRYING;
+        }
+        else
+        {
+            fireRegistrationStateChanged(
+                getRegistrationState()
+                , RegistrationState.UNREGISTERED
+                , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+                , null);
+
+            disconnectAndCleanConnection();
+
+            return ConnectState.CONTINUE_TRYING;
         }
     }
 
@@ -1064,6 +1189,25 @@ public class ProtocolProviderServiceJabberImpl
         return connection;
     }
 
+    private boolean isAuthenticationFailed(XMPPException ex)
+    {
+        String exMsg = ex.getMessage().toLowerCase();
+
+        // as there are no types or reasons for XMPPException
+        // we try determine the reason according to their message
+        // all messages that were found in smack 3.1.0 were took in count
+        if(exMsg.indexOf("authentication failed") != -1
+            || (exMsg.indexOf("authentication") != -1
+                && exMsg.indexOf("failed") != -1)
+            || exMsg.indexOf("login failed") != -1
+            || exMsg.indexOf("unable to determine password") != -1)
+        {
+            return true;
+        }
+        else
+            return false;
+    }
+
     /**
      * Tries to determine the appropriate message and status to fire,
      * according the exception.
@@ -1091,11 +1235,7 @@ public class ProtocolProviderServiceJabberImpl
             // as there are no types or reasons for XMPPException
             // we try determine the reason according to their message
             // all messages that were found in smack 3.1.0 were took in count
-            if(exMsg.indexOf("authentication failed") != -1
-                || (exMsg.indexOf("authentication") != -1
-                    && exMsg.indexOf("failed") != -1)
-                || exMsg.indexOf("login failed") != -1
-                || exMsg.indexOf("unable to determine password") != -1)
+            if(isAuthenticationFailed(ex))
             {
                 JabberActivator.getProtocolProviderFactory().
                     storePassword(getAccountID(), null);
