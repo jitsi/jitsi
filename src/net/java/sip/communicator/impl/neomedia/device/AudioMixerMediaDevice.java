@@ -1020,6 +1020,16 @@ public class AudioMixerMediaDevice
         }
 
         /**
+         * Override it here cause we won't register effects to that stream
+         * cause we already have one.
+         * 
+         * @param processor the processor.
+         */
+        protected void registerLocalUserAudioLevelEffect(Processor processor)
+        {
+        }
+
+        /**
          * Adds a specific <tt>SoundLevelListener</tt> to the list of listeners
          * interested in and notified about changes in local sound level related
          * information.
@@ -1039,7 +1049,13 @@ public class AudioMixerMediaDevice
             if( l != null)
             {
                 this.localUserAudioLevelListener = l;
-                audioMixerMediaDeviceSession.addLocalUserAudioLevelListener(l);
+
+                // add the listener only if we are not muted
+                // this happens when holding a conversation, stream is muted
+                // and when recreated listener is again set
+                if(!isMute())
+                    audioMixerMediaDeviceSession
+                            .addLocalUserAudioLevelListener(l);
             }
         }
 
@@ -1108,6 +1124,37 @@ public class AudioMixerMediaDevice
         {
             return ((AudioMixerMediaDevice)getDevice())
                 .lastMeasuredLocalUserAudioLevel;
+        }
+
+        /**
+         * Sets the indicator which determines whether this
+         * <tt>MediaDeviceSession</tt> is set to output "silence" instead of the
+         * actual media fed from its <tt>CaptureDevice</tt>.
+         * If we are muted we just remove the local level listener from the
+         * session.
+         *
+         * @param mute <tt>true</tt> to set this <tt>MediaDeviceSession</tt> to
+         *             output "silence" instead of the actual media fed from its
+         *             <tt>CaptureDevice</tt>; otherwise, <tt>false</tt>
+         */
+        @Override
+        public void setMute(boolean mute)
+        {            
+            if(super.isMute() == mute)
+                return;
+
+            super.setMute(mute);
+
+            if(mute)
+            {
+                audioMixerMediaDeviceSession.removeLocalUserAudioLevelListener(
+                        this.localUserAudioLevelListener);
+            }
+            else
+            {
+                audioMixerMediaDeviceSession.addLocalUserAudioLevelListener(
+                        this.localUserAudioLevelListener);
+            }
         }
     }
 

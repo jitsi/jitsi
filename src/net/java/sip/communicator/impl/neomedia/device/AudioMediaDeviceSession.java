@@ -113,26 +113,7 @@ public class AudioMediaDeviceSession
 
             if (processor != null)
             {
-                // here we add sound level indicator for captured media
-                // from the microphone if there are interested listeners
-                try
-                {
-                    TrackControl tcs[] = processor.getTrackControls();
-
-                    if (tcs != null)
-                        for (TrackControl tc : tcs)
-                            if (tc.getFormat() instanceof AudioFormat)
-                            {
-                                //we assume a single track
-                                registerLocalUserAudioLevelJMFEffect(tc);
-                                break;
-                            }
-                }
-                catch (UnsupportedPlugInException ex)
-                {
-                    logger.error(
-                        "Effects are not supported by the datasource.", ex);
-                }
+                registerLocalUserAudioLevelEffect(processor);
             }
         }
     }
@@ -141,12 +122,12 @@ public class AudioMediaDeviceSession
      * Creates an audio level effect and add its to the codec chain of the
      * <tt>TrackControl</tt> assuming that it only contains a single track.
      *
-     * @param tc the track control that we need to register a level effect with.
+     * @param processor the processor on which track control we need
+     * to register a level effect with.
      * @throws UnsupportedPlugInException if we <tt>tc</tt> does not support
      * effects.
      */
-    private void registerLocalUserAudioLevelJMFEffect(TrackControl tc)
-        throws UnsupportedPlugInException
+    protected void registerLocalUserAudioLevelEffect(Processor processor)
     {
         //we register the effect regardless of whether or not we have any
         //listeners at this point because we won't get a second chance.
@@ -156,7 +137,28 @@ public class AudioMediaDeviceSession
         //XXX: i am assuming that a single effect could be reused multiple times
         // if that turns out not to be the case we need to create a new instance
         // here.
-        tc.setCodecChain(new Codec[] { localUserAudioLevelEffect });
+
+        // here we add sound level indicator for captured media
+        // from the microphone if there are interested listeners
+        try
+        {
+            TrackControl tcs[] = processor.getTrackControls();
+
+            if (tcs != null)
+                for (TrackControl tc : tcs)
+                    if (tc.getFormat() instanceof AudioFormat)
+                    {
+                        //we assume a single track
+                        tc.setCodecChain(
+                                new Codec[] { localUserAudioLevelEffect });
+                        break;
+                    }
+        }
+        catch (UnsupportedPlugInException ex)
+        {
+            logger.error(
+                "Effects are not supported by the datasource.", ex);
+        }
     }
 
     /**
