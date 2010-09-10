@@ -613,8 +613,8 @@ public class ChatConversationPanel
                    ReplacementService source = entry.getValue();
 
                    if (!(GuiActivator.getConfigurationService().getBoolean(
-                       ReplacementProperty.getPropertyName(entry
-                           .getKey()), true) && (isEnabled || entry.getKey()
+                       ReplacementProperty.getPropertyName(source
+                       .getSourceName()), true) && (isEnabled || entry.getKey()
                        .equals("SMILEY"))))
                        continue;
 
