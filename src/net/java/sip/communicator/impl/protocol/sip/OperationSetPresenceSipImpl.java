@@ -3176,7 +3176,7 @@ public class OperationSetPresenceSipImpl
 
         /**
          * Implements the corresponding <tt>SipListener</tt> method by
-         * terminating the corresponding subsctiption and polling the related
+         * terminating the corresponding subscription and polling the related
          * contact.
          *
          * @param requestEvent the event containing the request that was \

@@ -46,6 +46,10 @@ public class ChatConversationPanel
                 MouseListener,
                 ClipboardOwner
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>ChatConversationPanel</tt> class and
+     * its instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(ChatConversationPanel.class);
 
@@ -335,7 +339,8 @@ public class ChatConversationPanel
      * Processes the message given by the parameters.
      *
      * @param chatMessage the message
-     * @param keyword
+     * @param keyword a substring of <tt>chatMessage</tt> to be highlighted upon
+     * display of <tt>chatMessage</tt> in the UI
      * @return the processed message
      */
     public String processMessage(ChatMessage chatMessage, String keyword)
@@ -1266,12 +1271,13 @@ public class ChatConversationPanel
          * @param event the <tt>MouseEvent</tt> 
          * @return the string to be used as the tooltip for <i>event</i>.
          */
+        @Override
         public String getToolTipText(MouseEvent event)
         {
-            if(currentHref != null && currentHref.length() != 0)
-                return currentHref;
-            else
-                return null;
+            return
+                ((currentHref != null) && (currentHref.length() != 0))
+                    ? currentHref
+                    : null;
         }
     }
 

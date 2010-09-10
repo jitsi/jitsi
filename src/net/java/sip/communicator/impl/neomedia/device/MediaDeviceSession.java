@@ -71,6 +71,13 @@ public class MediaDeviceSession
     private boolean captureDeviceIsConnected;
 
     /**
+     * The <tt>ContentDescriptor</tt> which specifies the content type in which
+     * this <tt>MediaDeviceSession</tt> is to output the media captured by its
+     * <tt>MediaDevice</tt>.
+     */
+    private ContentDescriptor contentDescriptor;
+
+    /**
      * The <tt>MediaDevice</tt> used by this instance to capture and play back
      * media.
      */
@@ -498,6 +505,27 @@ public class MediaDeviceSession
     }
 
     /**
+     * Creates a <tt>ContentDescriptor</tt> to be set on a specific
+     * <tt>Processor</tt> of captured media to be sent to the remote peer.
+     * Allows extenders to override. The default implementation returns
+     * {@link ContentDescriptor#RAW_RTP}.
+     *
+     * @param processor the <tt>Processor</tt> of captured media to be sent to
+     * the remote peer which is to have its <tt>contentDescriptor</tt> set to
+     * the returned <tt>ContentDescriptor</tt>
+     * @return a <tt>ContentDescriptor</tt> to be set on the specified
+     * <tt>processor</tt> of captured media to be sent to the remote peer
+     */
+    protected ContentDescriptor createProcessorContentDescriptor(
+            Processor processor)
+    {
+        return
+            (contentDescriptor == null)
+                ? new ContentDescriptor(ContentDescriptor.RAW_RTP)
+                : contentDescriptor;
+    }
+
+    /**
      * Makes sure {@link #captureDevice} is disconnected.
      */
     private void disconnectCaptureDevice()
@@ -705,13 +733,13 @@ public class MediaDeviceSession
                     continue;
 
                 Format jmfFormat = trackControl.getFormat();
-                MediaType type = jmfFormat instanceof VideoFormat
-                    ? MediaType.VIDEO : MediaType.AUDIO;
+                MediaType type
+                    = (jmfFormat instanceof VideoFormat)
+                        ? MediaType.VIDEO
+                        : MediaType.AUDIO;
 
-                if(mediaType.equals((type)))
-                {
+                if(mediaType.equals(type))
                     return jmfFormat;
-                }
             }
         }
         return null;
@@ -1113,10 +1141,8 @@ public class MediaDeviceSession
             {
                 try
                 {
-                    processor
-                        .setContentDescriptor(
-                            new ContentDescriptor(
-                                    ContentDescriptor.RAW_RTP));
+                    processor.setContentDescriptor(
+                            createProcessorContentDescriptor(processor));
                 }
                 catch (NotConfiguredError nce)
                 {
@@ -1217,6 +1243,25 @@ public class MediaDeviceSession
             ReceiveStream oldValue,
             ReceiveStream newValue)
     {
+    }
+
+    /**
+     * Sets the <tt>ContentDescriptor</tt> which specifies the content type in
+     * which this <tt>MediaDeviceSession</tt> is to output the media captured by
+     * its <tt>MediaDevice</tt>. The default content type in which
+     * <tt>MediaDeviceSession</tt> outputs the media captured by its
+     * <tt>MediaDevice</tt> is {@link ContentDescriptor#RAW_RTP}.
+     *
+     * @param contentDescriptor the <tt>ContentDescriptor</tt> which specifies
+     * the content type in which this <tt>MediaDeviceSession</tt> is to output
+     * the media captured by its <tt>MediaDevice</tt>
+     */
+    public void setContentDescriptor(ContentDescriptor contentDescriptor)
+    {
+        if (contentDescriptor == null)
+            throw new NullPointerException("contentDescriptor");
+
+        this.contentDescriptor = contentDescriptor;
     }
 
     /**

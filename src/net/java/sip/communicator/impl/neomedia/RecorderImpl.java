@@ -13,7 +13,6 @@ import javax.media.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.device.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.MediaException; // disambiguation
 import net.java.sip.communicator.util.*;
@@ -28,11 +27,6 @@ import net.java.sip.communicator.util.*;
 public class RecorderImpl
     implements Recorder
 {
-    /**
-     * The <tt>Logger</tt> used by the <tt>RecorderImpl</tt> class and its
-     * instances for logging output.
-     */
-    private static final Logger logger = Logger.getLogger(RecorderImpl.class);
 
     /**
      * The list of formats in which <tt>RecorderImpl</tt> instances support
@@ -49,15 +43,22 @@ public class RecorderImpl
                 };
 
     /**
+     * The <tt>AudioMixerMediaDevice</tt> which is to be or which is already
+     * being recorded by this <tt>Recorder</tt>.
+     */
+    private final AudioMixerMediaDevice device;
+
+    /**
      * The <tt>MediaDeviceSession</tt> is used to create an output data source.
      */
     private MediaDeviceSession deviceSession;
 
     /**
-     * The format of {@link #deviceSession} in particular and of the recording
-     * produced by this <tt>Recorder</tt> in general.
+     * The <tt>List</tt> of <tt>Recorder.Listener</tt>s interested in
+     * notifications from this <tt>Recorder</tt>.
      */
-    private final String format;
+    private final List<Recorder.Listener> listeners
+        = new ArrayList<Recorder.Listener>();
 
     /**
      * <tt>DataSink</tt> used to save the output data.
@@ -75,39 +76,27 @@ public class RecorderImpl
         if (device == null)
             throw new NullPointerException("device");
 
-        ConfigurationService configuration
-            = NeomediaActivator.getConfigurationService();
-        String format = configuration.getString(Recorder.CALL_FORMAT);
+        this.device = device;
+    }
 
-        if (format == null)
-            format = SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT;
+    /**
+     * Adds a new <tt>Recorder.Listener</tt> to the list of listeners interested
+     * in notifications from this <tt>Recorder</tt>.
+     *
+     * @param listener the new <tt>Recorder.Listener</tt> to be added to the
+     * list of listeners interested in notifications from this <tt>Recorder</tt>
+     * @see Recorder#addListener(Recorder.Listener)
+     */
+    public void addListener(Recorder.Listener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
 
-        try
+        synchronized (listeners)
         {
-            deviceSession
-                = device.createRecordingSession(getContentDescriptor(
-                        format));
+            if (!listeners.contains(listener))
+                listeners.add(listener);
         }
-        catch (IllegalArgumentException iaex)
-        {
-            //seems like we had an illegal format stored in the configuration
-            //service
-            logger.debug(
-                    "Unable to crate a "
-                        + format
-                        + " record. Will retry default format");
-
-            format = SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT;
-
-            //make sure we don't try the faulty format again.
-            configuration.setProperty(Recorder.CALL_FORMAT, null);
-
-            deviceSession
-                = device.createRecordingSession(getContentDescriptor(
-                        format));
-        }
-
-        this.format = format;
     }
 
     /**
@@ -157,24 +146,48 @@ public class RecorderImpl
     }
 
     /**
+     * Removes a existing <tt>Recorder.Listener</tt> from the list of listeners
+     * interested in notifications from this <tt>Recorder</tt>.
+     *
+     * @param listener the existing <tt>Recorder.Listener</tt> to be removed
+     * from the list of listeners interested in notifications from this
+     * <tt>Recorder</tt>
+     * @see Recorder#removeListener(Recorder.Listener)
+     */
+    public void removeListener(Recorder.Listener listener)
+    {
+        if (listener != null)
+        {
+            synchronized (listeners)
+            {
+                listeners.remove(listener);
+            }
+        }
+    }
+
+    /**
      * Starts the recording of the media associated with this <tt>Recorder</tt>
      * (e.g. the media being sent and received in a <tt>Call</tt>) into a file
      * with a specific name.
      *
+     * @param format the format into which the media associated with this
+     * <tt>Recorder</tt> is to be recorded into the specified file
      * @param filename the name of the file into which the media associated with
      * this <tt>Recorder</tt> is to be recorded
      * @throws IOException if anything goes wrong with the input and/or output
      * performed by this <tt>Recorder</tt>
      * @throws MediaException if anything else goes wrong while starting the
      * recording of media performed by this <tt>Recorder</tt>
-     * @see Recorder#start(String)
+     * @see Recorder#start(String, String)
      */
-    public void start(String filename)
+    public void start(String format, String filename)
         throws IOException,
                MediaException
     {
         if (this.sink == null)
         {
+            if (format == null)
+                throw new NullPointerException("format");
             if (filename == null)
                 throw new NullPointerException("filename");
 
@@ -186,18 +199,48 @@ public class RecorderImpl
             int extensionBeginIndex = filename.lastIndexOf('.');
 
             if (extensionBeginIndex < 0)
-                filename += '.' + this.format;
+                filename += '.' + format;
             else if (extensionBeginIndex == filename.length() - 1)
-                filename += this.format;
+                filename += format;
 
-            DataSource outputDataSource = deviceSession.getOutputDataSource();
+            MediaDeviceSession deviceSession = device.createSession();
 
             try
             {
+                deviceSession.setContentDescriptor(getContentDescriptor(format));
+
+                /*
+                 * This RecorderImpl will use deviceSession to get a hold of the
+                 * media being set to the remote peers associated with the same
+                 * AudioMixerMediaDevice i.e. this RecorderImpl needs
+                 * deviceSession to only capture and not play back.
+                 */
+                deviceSession.start(MediaDirection.SENDONLY);
+
+                this.deviceSession = deviceSession;
+            }
+            finally
+            {
+                if (this.deviceSession == null)
+                {
+                    throw new MediaException(
+                            "Failed to create MediaDeviceSession from"
+                                + " AudioMixerMediaDevice for the purposes of"
+                                + " recording");
+                }
+            }
+
+            Throwable exception = null;
+
+            try
+            {
+                DataSource outputDataSource
+                    = deviceSession.getOutputDataSource();
                 DataSink sink
                     = Manager.createDataSink(
                             outputDataSource,
                             new MediaLocator("file:" + filename));
+
                 sink.open();
                 sink.start();
 
@@ -205,10 +248,18 @@ public class RecorderImpl
             }
             catch (NoDataSinkException ndsex)
             {
-                throw
-                    new MediaException(
+                exception = ndsex;
+            }
+            finally
+            {
+                if ((this.sink == null) || (exception != null))
+                {
+                    stop();
+
+                    throw new MediaException(
                             "Failed to start recording into file " + filename,
-                            ndsex);
+                            exception);
+                }
             }
         }
     }
@@ -232,6 +283,23 @@ public class RecorderImpl
         {
             sink.close();
             sink = null;
+
+            /*
+             * RecorderImpl creates the sink upon start() and it does it only if
+             * it is null so this RecorderImpl has really stopped only if it has
+             * managed to close() the (existing) sink. Notify the registered
+             * listeners.
+             */
+            Recorder.Listener[] listeners;
+
+            synchronized (this.listeners)
+            {
+                listeners
+                    = this.listeners.toArray(
+                            new Recorder.Listener[this.listeners.size()]);
+            }
+            for (Recorder.Listener listener : listeners)
+                listener.recorderStopped(this);
         }
     }
 }

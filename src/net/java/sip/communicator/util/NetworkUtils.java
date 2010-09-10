@@ -21,8 +21,11 @@ import java.text.*;
  */
 public class NetworkUtils
 {
-    private static final Logger logger
-        = Logger.getLogger(NetworkUtils.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>NetworkUtils</tt> class for logging
+     * output.
+     */
+    private static final Logger logger = Logger.getLogger(NetworkUtils.class);
 
     /**
      * A string containing the "any" local address for IPv6.
@@ -436,7 +439,7 @@ public class NetworkUtils
      * The records are ordered against the SRV record priority
      * @param domain the name of the domain we'd like to resolve (_proto._tcp
      * included).
-     * @param port 
+     * @param port the port number of the returned <tt>InetSocketAddress</tt>
      * @return an array of InetSocketAddress containing records returned by the DNS
      * server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
@@ -472,7 +475,7 @@ public class NetworkUtils
      * The records are ordered against the SRV record priority
      * @param domain the name of the domain we'd like to resolve (_proto._tcp
      * included).
-     * @param port 
+     * @param port the port number of the returned <tt>InetSocketAddress</tt>
      * @return an array of InetSocketAddress containing records returned by the DNS
      * server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.

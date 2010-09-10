@@ -88,18 +88,16 @@ public class CallRecordingConfigForm
      */
     private void loadValues()
     {
-        ConfigurationService configurationService
+        ConfigurationService configuration
             = NeomediaActivator.getConfigurationService();
-        String callFormat
-            = configurationService.getString(Recorder.CALL_FORMAT);
+        String format = configuration.getString(Recorder.FORMAT);
 
         formatsComboBox.setSelectedItem(
-                (callFormat == null)
+                (format == null)
                     ? SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT
-                    : callFormat);
+                    : format);
 
-        savedCallsDir
-            = configurationService.getString(Recorder.SAVED_CALLS_PATH);
+        savedCallsDir = configuration.getString(Recorder.SAVED_CALLS_PATH);
         saveCallsToCheckBox.setSelected(savedCallsDir != null);
         callDirTextField.setText(savedCallsDir);
         callDirTextField.setEnabled(saveCallsToCheckBox.isSelected());
@@ -192,7 +190,7 @@ public class CallRecordingConfigForm
                 {
                     NeomediaActivator
                         .getConfigurationService()
-                            .setProperty(Recorder.CALL_FORMAT, event.getItem());
+                            .setProperty(Recorder.FORMAT, event.getItem());
                 }
             }
         });

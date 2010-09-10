@@ -570,8 +570,40 @@ public abstract class MediaAwareCall<
     public Recorder createRecorder()
         throws OperationFailedException
     {
-        return
-            ProtocolMediaActivator.getMediaService().createRecorder(
+        final Recorder recorder
+            = ProtocolMediaActivator.getMediaService().createRecorder(
                     getDefaultDevice(MediaType.AUDIO));
+
+        if (recorder != null)
+        {
+            // Make sure the recorder is stopped when this call ends.
+            final CallChangeListener callChangeListener
+                = new CallChangeAdapter()
+                {
+                    @Override
+                    public void callStateChanged(CallChangeEvent evt)
+                    {
+                        if (CallState.CALL_ENDED.equals(evt.getNewValue()))
+                            recorder.stop();
+                    }
+                };
+
+            addCallChangeListener(callChangeListener);
+
+            /*
+             * If the recorder gets stopped earlier than this call ends, don't
+             * wait for the end of the call because callChangeListener will keep
+             * a reference to the stopped recorder.
+             */
+            recorder.addListener(
+                    new Recorder.Listener()
+                    {
+                        public void recorderStopped(Recorder recorder)
+                        {
+                            removeCallChangeListener(callChangeListener);
+                        }
+                    });
+        }
+        return recorder;
     }
 }

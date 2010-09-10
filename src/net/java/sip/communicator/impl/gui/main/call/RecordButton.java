@@ -137,6 +137,27 @@ public class RecordButton
                     }
                     setSelected(startedRecording);
                 }
+                /*
+                 * Notify the user the call has been successfully saved upon the
+                 * recorder stopping.
+                 */
+                if (startedRecording && (recorder != null))
+                {
+                    recorder.addListener(
+                            new Recorder.Listener()
+                            {
+                                public void recorderStopped(Recorder recorder)
+                                {
+                                    NotificationManager.fireNotification(
+                                            NotificationManager.CALL_SAVED,
+                                            resources.getI18NString(
+                                                    "plugin.callrecordingconfig.CALL_SAVED"),
+                                            resources.getI18NString(
+                                                    "plugin.callrecordingconfig.CALL_SAVED_TO",
+                                                    new String[] { callFilename }));
+                                }
+                            });
+                }
             }
             // stop recording
             else if (recorder != null)
@@ -144,13 +165,6 @@ public class RecordButton
                 try
                 {
                     recorder.stop();
-                    NotificationManager.fireNotification(
-                                NotificationManager.CALL_SAVED,
-                                resources.getI18NString(
-                                        "plugin.callrecordingconfig.CALL_SAVED"),
-                                resources.getI18NString(
-                                        "plugin.callrecordingconfig.CALL_SAVED_TO",
-                                        new String[] { callFilename }));
                 }
                 finally
                 {
@@ -189,7 +203,7 @@ public class RecordButton
             }
         }
 
-        String ext = configuration.getString(Recorder.CALL_FORMAT);
+        String ext = configuration.getString(Recorder.FORMAT);
 
         // Use a default format when the configured one seems invalid.
         if ((ext == null)
@@ -298,6 +312,7 @@ public class RecordButton
     {
         String savedCallsPath
             = configuration.getString(Recorder.SAVED_CALLS_PATH);
+        String callFormat;
 
         // Ask the user where to save the call.
         if ((savedCallsPath == null) || (savedCallsPath.length() == 0))
@@ -381,7 +396,7 @@ public class RecordButton
                  * OS X at least) i.e. no format, then it is not obvious that we
                  * have to override the set Recorder.CALL_FORMAT.
                  */
-                String callFormat = SoundFileUtils.getExtension(selectedFile);
+                callFormat = SoundFileUtils.getExtension(selectedFile);
 
                 if ((callFormat != null) && (callFormat.length() != 0))
                 {
@@ -407,7 +422,7 @@ public class RecordButton
                             = SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT;
                         callFilename += '.' + callFormat;
                     }
-                    configuration.setProperty(Recorder.CALL_FORMAT, callFormat);
+                    configuration.setProperty(Recorder.FORMAT, callFormat);
                 }
             }
             else
@@ -417,7 +432,10 @@ public class RecordButton
             }
         }
         else
+        {
             callFilename = createDefaultFilename(savedCallsPath);
+            callFormat = SoundFileUtils.getExtension(new File(callFilename));
+        }
 
         Throwable exception = null;
 
@@ -426,7 +444,12 @@ public class RecordButton
             Recorder recorder = getRecorder();
 
             if (recorder != null)
-                recorder.start(callFilename);
+            {
+                if ((callFormat == null) || (callFormat.length() <= 0))
+                    callFormat = SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT;
+
+                recorder.start(callFormat, callFilename);
+            }
 
             this.recorder = recorder;
         }

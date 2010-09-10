@@ -301,7 +301,26 @@ public class ProtocolProviderServiceSipImpl
         return this.registeredEvents;
     }
 
-
+    /**
+     * Overrides
+     * {@link AbstractProtocolProviderService#fireRegistrationStateChanged(
+     * RegistrationState, RegistrationState, int, String)} in order to add
+     * enabling/disabling XCAP functionality in accord with the current
+     * <tt>RegistrationState</tt> of this
+     * <tt>ProtocolProviderServiceSipImpl</tt>.
+     *
+     * @param oldState the state that the provider had before the change
+     * occurred
+     * @param newState the state that the provider is currently in
+     * @param reasonCode a value corresponding to one of the REASON_XXX fields
+     * of the <tt>RegistrationStateChangeEvent</tt> class, indicating the reason
+     * for this state transition
+     * @param reason a <tt>String</tt> further explaining the reason code or
+     * <tt>null</tt> if no such explanation is necessary
+     * @see AbstractProtocolProviderService#fireRegistrationStateChanged(
+     * RegistrationState, RegistrationState, int, String)
+     */
+    @Override
     public void fireRegistrationStateChanged(RegistrationState oldState,
                                              RegistrationState newState,
                                              int reasonCode,

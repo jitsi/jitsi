@@ -1189,6 +1189,15 @@ public class ProtocolProviderServiceJabberImpl
         return connection;
     }
 
+    /**
+     * Determines whether a specific <tt>XMPPException</tt> signals that
+     * attempted authentication has failed.
+     *
+     * @param ex the <tt>XMPPException</tt> which is to be determined whether it
+     * signals that attempted authentication has failed
+     * @return <tt>true</tt> if the specified <tt>ex</tt> signals that attempted
+     * authentication has failed; otherwise, <tt>false</tt>
+     */
     private boolean isAuthenticationFailed(XMPPException ex)
     {
         String exMsg = ex.getMessage().toLowerCase();
@@ -1196,16 +1205,12 @@ public class ProtocolProviderServiceJabberImpl
         // as there are no types or reasons for XMPPException
         // we try determine the reason according to their message
         // all messages that were found in smack 3.1.0 were took in count
-        if(exMsg.indexOf("authentication failed") != -1
-            || (exMsg.indexOf("authentication") != -1
-                && exMsg.indexOf("failed") != -1)
-            || exMsg.indexOf("login failed") != -1
-            || exMsg.indexOf("unable to determine password") != -1)
-        {
-            return true;
-        }
-        else
-            return false;
+        return
+            (exMsg.indexOf("authentication failed") != -1)
+                || ((exMsg.indexOf("authentication") != -1)
+                        && (exMsg.indexOf("failed") != -1))
+                || (exMsg.indexOf("login failed") != -1)
+                || (exMsg.indexOf("unable to determine password") != -1);
     }
 
     /**

@@ -18,6 +18,12 @@ public class SipCommFileDialogImpl
     extends FileDialog 
     implements SipCommFileChooser
 {
+    /**
+     * The serialization-related version of the <tt>SipCommFileDialogImpl</tt>
+     * class explicitly defined to silence a related warning (e.g. in Eclipse
+     * IDE) since the <tt>SipCommFileDialogImpl</tt> class does not add instance
+     * fields.
+     */
     private static final long serialVersionUID = 0L;
 
     /**
@@ -67,7 +73,7 @@ public class SipCommFileDialogImpl
         if ((file != null) && !file.isDirectory())
         {
             setDirectory(file.getParent());
-            setFile(path);
+            setFile(file.getName());
         }
         else
             setDirectory(path);
