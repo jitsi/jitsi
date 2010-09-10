@@ -411,7 +411,10 @@ public class CallPeerJabberImpl
         if(onHold)
             type = SessionInfoType.hold;
         else
+        {
             type = SessionInfoType.unhold;
+            getMediaHandler().reinitAllContents();
+        }
 
         //we are now on hold and need to realize this before potentially
         //spoling it all with an exception while sending the packet :).

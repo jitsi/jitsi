@@ -532,6 +532,7 @@ public class CallPeerSipImpl
         if (!CallPeerState.isOnHold(peerState))
         {
             setState(CallPeerState.CONNECTED);
+            getMediaHandler().start();
 
             // as its connected, set initial mute status,
             // corresponding call status
@@ -656,6 +657,7 @@ public class CallPeerSipImpl
         if (!CallPeerState.isOnHold(getState()))
         {
             setState(CallPeerState.CONNECTED);
+            getMediaHandler().start();
 
             // as its connected, set initial mute status,
             // corresponding call status

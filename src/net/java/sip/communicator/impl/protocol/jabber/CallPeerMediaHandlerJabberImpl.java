@@ -412,7 +412,7 @@ public class CallPeerMediaHandlerJabberImpl
                             content.addChildExtension(hash);
                         }
                     }
-                    
+
                     mediaDescs.add(content);
                 }
             }
@@ -466,6 +466,33 @@ public class CallPeerMediaHandlerJabberImpl
 
         this.localContentMap.put(content.getName(), content);
         return content;
+    }
+
+     /**
+     * Reinitialize all media contents.
+     *
+     * @throws OperationFailedException if we fail to handle <tt>content</tt>
+     * for reasons like failing to initialize media devices or streams.
+     * @throws IllegalArgumentException if there's a problem with the syntax or
+     * the semantics of <tt>content</tt>. Method is synchronized in order to
+     * avoid closing mediaHandler when we are currently in process of
+     * initializing, configuring and starting streams and anybody interested
+     * in this operation can synchronize to the mediaHandler instance to wait
+     * processing to stop (method setState in CallPeer).
+     */
+    public void reinitAllContents()
+            throws OperationFailedException,
+            IllegalArgumentException
+    {
+        for(String key : remoteContentMap.keySet())
+        {
+            ContentPacketExtension ext = remoteContentMap.get(key);
+
+            if(ext != null)
+            {
+                processContent(ext);
+            }
+        }
     }
 
     /**
