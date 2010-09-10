@@ -26,8 +26,12 @@ import net.java.sip.communicator.service.contactsource.*;
 public class CallHistoryActivator
     implements BundleActivator
 {
-    private static Logger logger =
-        Logger.getLogger(CallHistoryActivator.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>CallHistoryActivator</tt> class and
+     * its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(CallHistoryActivator.class);
 
     /**
      * The bundle context.
@@ -55,7 +59,7 @@ public class CallHistoryActivator
      * Initialize and start call history
      *
      * @param bc the <tt>BundleContext</tt>
-     * @throws Exception
+     * @throws Exception if initializing and starting call history fails
      */
     public void start(BundleContext bc) throws Exception
     {
@@ -128,14 +132,10 @@ public class CallHistoryActivator
     {
         if (resourcesService == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-
-            resourcesService = (ResourceManagementService) bundleContext
-                .getService(serviceReference);
+            resourcesService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ResourceManagementService.class);
         }
         return resourcesService;
     }
@@ -166,15 +166,14 @@ public class CallHistoryActivator
 
         if (serRefs != null) 
         {
-            for (int i = 0; i < serRefs.length; i++) 
+            for (ServiceReference serRef : serRefs) 
             {
-
                 ProtocolProviderFactory providerFactory
-                    = (ProtocolProviderFactory) bundleContext
-                        .getService(serRefs[i]);
+                    = (ProtocolProviderFactory)
+                        bundleContext.getService(serRef);
 
-                providerFactoriesMap.put(serRefs[i]
-                        .getProperty(ProtocolProviderFactory.PROTOCOL),
+                providerFactoriesMap.put(
+                        serRef.getProperty(ProtocolProviderFactory.PROTOCOL),
                         providerFactory);
             }
         }

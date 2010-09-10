@@ -79,6 +79,13 @@ public class XMLConfigurationStore
         return (Map<String, Object>) properties.clone();
     }
 
+    /**
+     * Creates a new runtime XML document which is to contain the properties
+     * managed by this <tt>ConfigurationStore</tt>.
+     *
+     * @return a new runtime XML <tt>Document</tt> which is to contain the
+     * properties managed by this <tt>ConfigurationStore</tt>
+     */
     private Document createPropertiesDocument()
     {
         if (propertiesDocument == null)
@@ -102,8 +109,17 @@ public class XMLConfigurationStore
         return propertiesDocument;
     }
 
-    /*
-     * Implements ConfigurationStore#getProperty(String).
+    /**
+     * Implements {@link ConfigurationStore#getProperty(String)}. Gets the value
+     * in this <code>ConfigurationStore</code> of a property with a specific
+     * name.
+     *
+     * @param propertyName the name of the property to get the value of
+     * @return the value in this <tt>ConfigurationStore</tt> of the property
+     * with the specified name; <tt>null</tt> if the property with the specified
+     * name does not have an association with a value in this
+     * <tt>ConfigurationStore</tt>
+     * @see ConfigurationStore#getProperty(String)
      */
     public Object getProperty(String propertyName)
     {
@@ -117,8 +133,16 @@ public class XMLConfigurationStore
             return value;
     }
 
-    /*
-     * Implements ConfigurationStore#getPropertyNames().
+    /**
+     * Implements {ConfigurationStore#getPropertyNames()}. Gets the names of the
+     * properties which have values associated in this
+     * <tt>ConfigurationStore</tt>.
+     *
+     * @return an array of <tt>String</tt>s which specify the names of the
+     * properties that have values associated in this
+     * <tt>ConfigurationStore</tt>; an empty array if this instance contains no
+     * property values
+     * @see ConfigurationStore#getPropertyNames()
      */
     public String[] getPropertyNames()
     {
@@ -126,8 +150,15 @@ public class XMLConfigurationStore
         return propertyNames.toArray(new String[propertyNames.size()]);
     }
 
-    /*
-     * Implements ConfigurationStore#isSystemProperty(String).
+    /**
+     * Implements {ConfigurationStore#isSystemProperty(String)}. Determines
+     * whether a specific name stands for a system property.
+     *
+     * @param propertyName the name of a property which is to be determined
+     * whether it is a system property
+     * @return <tt>true</tt> if the specified name stands for a system property;
+     * <tt>false</tt>, otherwise
+     * @see ConfigurationStore#isSystemProperty(String)
      */
     public boolean isSystemProperty(String propertyName)
     {
@@ -137,10 +168,10 @@ public class XMLConfigurationStore
     /**
      * Loads the contents of the specified configuration file into the local
      * properties object.
+     *
      * @param file a reference to the configuration file to load.
      * @return a hashtable containing all properties extracted from the
      * specified file.
-     *
      * @throws IOException if the specified file does not exist
      * @throws XMLException if there is a problem with the file syntax.
      */
@@ -315,8 +346,20 @@ public class XMLConfigurationStore
             newNode.setAttribute(SYSTEM_ATTRIBUTE_NAME, SYSTEM_ATTRIBUTE_TRUE);
     }
 
-    /*
-     * Implements ConfigurationStore#reloadConfiguration(File).
+    /**
+     * Implements {@link ConfigurationStore#reloadConfiguration(File)}. Removes
+     * all property name-value associations currently present in this
+     * <tt>ConfigurationStore</tt> and deserializes new property name-value
+     * associations from a specific <tt>File</tt> which presumably is in the
+     * format represented by this instance.
+     *
+     * @param file the <tt>File</tt> to be read and to deserialize new property
+     * name-value associations from into this instance
+     * @throws IOException if there is an input error while reading from the
+     * specified <tt>file</tt>
+     * @throws XMLException if parsing the contents of the specified
+     * <tt>file</tt> fails
+     * @see ConfigurationStore#reloadConfiguration(File)
      */
     public void reloadConfiguration(File file)
         throws IOException,
@@ -328,8 +371,16 @@ public class XMLConfigurationStore
         properties.putAll(fileExtractedProperties);
     }
 
-    /*
-     * Implements ConfigurationStore#removeProperty(String).
+    /**
+     * Implements {@link ConfigurationStore#removeProperty(String)}. Removes the
+     * value association in this <tt>ConfigurationStore</tt> of the property
+     * with a specific name. If the property with the specified name is not
+     * associated with a value in this <tt>ConfigurationStore</tt>, does
+     * nothing.
+     *
+     * @param propertyName the name of the property which is to have its value
+     * association in this <tt>ConfigurationStore</tt> removed
+     * @see ConfigurationStore#removeProperty(String)
      */
     public void removeProperty(String propertyName)
     {
@@ -338,24 +389,47 @@ public class XMLConfigurationStore
         fileExtractedProperties.remove(propertyName);
     }
 
-    /*
-     * Implements ConfigurationStore#setNonSystemProperty(String, Object).
+    /**
+     * Implements
+     * {@link ConfigurationStore#setNonSystemProperty(String, Object)}. Sets the
+     * value of a non-system property with a specific name to a specific value
+     * in this <tt>ConfigurationStore</tt>.
+     *
+     * @param propertyName the name of the non-system property to be set to the
+     * specified value in this <tt>ConfigurationStore</tt>
+     * @param property the value to be assigned to the non-system property with the
+     * specified name in this <tt>ConfigurationStore</tt>
+     * @see ConfigurationStore#setNonSystemProperty(String, Object)
      */
     public void setNonSystemProperty(String propertyName, Object property)
     {
         properties.put(propertyName, property);
     }
 
-    /*
-     * Implements ConfigurationStore#setSystemProperty(String).
+    /**
+     * Implements {@link ConfigurationStore#setSystemProperty(String)}. Sets a
+     * property with a specific name to be considered a system property by the
+     * <tt>ConfigurationStore</tt>.
+     *
+     * @param propertyName the name of the property to be set as a system
+     * property in this <tt>ConfigurationStore</tt>
+     * @see ConfigurationStore#setSystemProperty(String)
      */
     public void setSystemProperty(String propertyName)
     {
         setNonSystemProperty(propertyName, new PropertyReference(propertyName));
     }
 
-    /*
-     * Implements ConfigurationStore#storeConfiguration(OutputStream).
+    /**
+     * Implements {@link ConfigurationStore#storeConfiguration(OutputStream)}.
+     * Stores/serializes the property name-value associations currently present
+     * in this <tt>ConfigurationStore</tt> into a specific <tt>OutputStream</tt>
+     * in the format represented by this instance.
+     *
+     * @param out the <tt>OutputStream</tt> to receive the serialized form of
+     * the property name-value associations currently present in this
+     * <tt>ConfigurationStore</tt>
+     * @see ConfigurationStore#storeConfiguration(OutputStream)
      */
     public void storeConfiguration(OutputStream out)
     {

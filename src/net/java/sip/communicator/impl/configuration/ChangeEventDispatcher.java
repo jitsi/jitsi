@@ -46,7 +46,7 @@ public class ChangeEventDispatcher
     /**
      * The object to be provided as the "source" for any generated events.
      */
-    private Object source;
+    private final Object source;
 
     /**
      * Constructs a <tt>VetoableChangeSupport</tt> object.
@@ -56,9 +56,8 @@ public class ChangeEventDispatcher
     public ChangeEventDispatcher(Object sourceObject)
     {
         if (sourceObject == null)
-        {
-            throw new NullPointerException();
-        }
+            throw new NullPointerException("sourceObject");
+
         source = sourceObject;
     }
 
@@ -72,9 +71,7 @@ public class ChangeEventDispatcher
         PropertyChangeListener listener)
     {
         if (propertyChangeListeners == null)
-        {
             propertyChangeListeners = new Vector<PropertyChangeListener>();
-        }
 
         propertyChangeListeners.add(listener);
     }
@@ -87,7 +84,6 @@ public class ChangeEventDispatcher
      * @param propertyName  The name of the property to listen on.
      * @param listener  The ConfigurationChangeListener to be added
      */
-
     public synchronized void addPropertyChangeListener(
         String propertyName,
         PropertyChangeListener listener)
@@ -118,9 +114,7 @@ public class ChangeEventDispatcher
         PropertyChangeListener listener)
     {
         if (propertyChangeListeners != null)
-        {
             propertyChangeListeners.remove(listener);
-        }
     }
 
     /**
@@ -133,17 +127,14 @@ public class ChangeEventDispatcher
         String propertyName,
         PropertyChangeListener listener)
     {
-        if (propertyChangeChildren == null)
+        if (propertyChangeChildren != null)
         {
-            return;
-        }
-        ChangeEventDispatcher child = propertyChangeChildren.get(propertyName);
+            ChangeEventDispatcher child
+                = propertyChangeChildren.get(propertyName);
 
-        if (child == null)
-        {
-            return;
+            if (child != null)
+                child.removePropertyChangeListener(listener);
         }
-        child.removePropertyChangeListener(listener);
     }
 
     /**
@@ -157,7 +148,8 @@ public class ChangeEventDispatcher
     {
         if (vetoableChangeListeners == null)
         {
-            vetoableChangeListeners = new Vector<ConfigVetoableChangeListener>();
+            vetoableChangeListeners
+                = new Vector<ConfigVetoableChangeListener>();
         }
 
         vetoableChangeListeners.add(listener);
@@ -174,9 +166,7 @@ public class ChangeEventDispatcher
         ConfigVetoableChangeListener listener)
     {
         if (vetoableChangeListeners != null)
-        {
             vetoableChangeListeners.remove(listener);
-        }
     }
 
     /**
@@ -194,7 +184,8 @@ public class ChangeEventDispatcher
     {
         if (vetoableChangeChildren == null)
         {
-            vetoableChangeChildren = new Hashtable<String, ChangeEventDispatcher>();
+            vetoableChangeChildren
+                = new Hashtable<String, ChangeEventDispatcher>();
         }
         ChangeEventDispatcher child = vetoableChangeChildren.get(propertyName);
         if (child == null)
@@ -215,24 +206,21 @@ public class ChangeEventDispatcher
         String propertyName,
         ConfigVetoableChangeListener listener)
     {
-        if (vetoableChangeChildren == null)
+        if (vetoableChangeChildren != null)
         {
-            return;
-        }
-        ChangeEventDispatcher child = vetoableChangeChildren.get( propertyName );
+            ChangeEventDispatcher child
+                = vetoableChangeChildren.get( propertyName );
 
-        if (child == null)
-        {
-            return;
+            if (child != null)
+                child.removeVetoableChangeListener(listener);
         }
-        child.removeVetoableChangeListener(listener);
     }
 
     /**
      * Report a vetoable property update to any registered listeners.  If
      * no one vetos the change, then fire a new ConfigurationChangeEvent
      * indicating that the change has been accepted. In the case of a
-     * PropertyVetoException, end eventdispatch and rethrow the eception
+     * PropertyVetoException, end eventdispatch and rethrow the exception
      * <p>
      * No event is fired if old and new are equal and non-null.
      *
@@ -247,20 +235,19 @@ public class ChangeEventDispatcher
                                    Object oldValue, Object newValue) 
         //throws PropertyVetoException
     {
-        if (vetoableChangeListeners == null && vetoableChangeChildren == null)
+        if (vetoableChangeListeners != null || vetoableChangeChildren != null)
         {
-            return;
+            fireVetoableChange(
+                new PropertyChangeEvent(
+                        source,
+                        propertyName,
+                        oldValue, newValue));
         }
-
-        PropertyChangeEvent evt = new PropertyChangeEvent(source,
-            propertyName, oldValue, newValue);
-            fireVetoableChange(evt);
     }
 
     /**
-     * Fire a vetoable property update to any registered listeners.  If
-     * anyone vetos the change, then the excption will be rethrown by this
-     * method.
+     * Fire a vetoable property update to any registered listeners.  If anyone
+     * vetos the change, then the exception will be rethrown by this method.
      * <p>
      * No event is fired if old and new are equal and non-null.
      *
@@ -271,14 +258,11 @@ public class ChangeEventDispatcher
     public void fireVetoableChange(PropertyChangeEvent evt) 
         // throws PropertyVetoException
     {
-
         Object oldValue = evt.getOldValue();
         Object newValue = evt.getNewValue();
         String propertyName = evt.getPropertyName();
         if (oldValue != null && newValue != null && oldValue.equals(newValue))
-        {
             return;
-        }
 
         ConfigVetoableChangeListener[] targets = null;
         ChangeEventDispatcher child = null;
@@ -286,30 +270,23 @@ public class ChangeEventDispatcher
         {
             if (vetoableChangeListeners != null)
             {
-                targets =
-                    vetoableChangeListeners
-                        .toArray(new ConfigVetoableChangeListener[vetoableChangeListeners
-                            .size()]);
+                targets
+                    = vetoableChangeListeners.toArray(
+                            new ConfigVetoableChangeListener[
+                                    vetoableChangeListeners.size()]);
             }
             if (vetoableChangeChildren != null && propertyName != null)
-            {
                 child = vetoableChangeChildren.get(propertyName);
-            }
         }
 
         if (vetoableChangeListeners != null && targets != null)
         {
-            for (int i = 0; i < targets.length; i++)
-            {
-                ConfigVetoableChangeListener target = targets[i];
+            for (ConfigVetoableChangeListener target : targets)
                 target.vetoableChange(evt);
-            }
         }
 
         if (child != null)
-        {
             child.fireVetoableChange(evt);
-        }
     }
 
 
@@ -325,12 +302,14 @@ public class ChangeEventDispatcher
     public void firePropertyChange(String propertyName,
                                    Object oldValue, Object newValue)
     {
-        if (oldValue != null && newValue != null && oldValue.equals(newValue))
+        if (oldValue == null || newValue == null || !oldValue.equals(newValue))
         {
-            return;
+            firePropertyChange(
+                new PropertyChangeEvent(
+                        source,
+                        propertyName,
+                        oldValue, newValue));
         }
-        firePropertyChange(new PropertyChangeEvent(source, propertyName,
-            oldValue, newValue));
     }
 
     /**
@@ -345,26 +324,21 @@ public class ChangeEventDispatcher
         Object newValue = evt.getNewValue();
         String propertyName = evt.getPropertyName();
         if (oldValue != null && newValue != null && oldValue.equals(newValue))
-        {
             return;
-        }
 
         if (propertyChangeListeners != null)
         {
             for (PropertyChangeListener target : propertyChangeListeners)
-            {
                 target.propertyChange(evt);
-            }
         }
 
         if (propertyChangeChildren != null && propertyName != null)
         {
-            ChangeEventDispatcher child =
-                propertyChangeChildren.get(propertyName);
+            ChangeEventDispatcher child
+                = propertyChangeChildren.get(propertyName);
+
             if (child != null)
-            {
                 child.firePropertyChange(evt);
-            }
         }
     }
 
@@ -384,12 +358,11 @@ public class ChangeEventDispatcher
         }
         if (propertyChangeChildren != null)
         {
-            ChangeEventDispatcher child =
-                propertyChangeChildren.get(propertyName);
+            ChangeEventDispatcher child
+                = propertyChangeChildren.get(propertyName);
+
             if (child != null && child.propertyChangeListeners != null)
-            {
                 return!child.propertyChangeListeners.isEmpty();
-            }
         }
         return false;
     }
@@ -410,15 +383,12 @@ public class ChangeEventDispatcher
         }
         if (vetoableChangeChildren != null)
         {
-            ChangeEventDispatcher child =
-                vetoableChangeChildren.get(propertyName);
+            ChangeEventDispatcher child
+                = vetoableChangeChildren.get(propertyName);
 
             if (child != null && child.vetoableChangeListeners != null)
-            {
                 return!child.vetoableChangeListeners.isEmpty();
-            }
         }
         return false;
     }
-
 }

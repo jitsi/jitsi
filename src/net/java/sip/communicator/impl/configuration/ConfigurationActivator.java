@@ -18,19 +18,26 @@ import net.java.sip.communicator.util.*;
 public class ConfigurationActivator
     implements BundleActivator
 {
+    /**
+     * The <tt>Logger</tt> used by this <tt>ConfigurationActivator</tt> instance
+     * for logging output.
+     */
     private final Logger logger
         = Logger.getLogger(ConfigurationServiceImpl.class);
 
+    /**
+     * The <tt>ConfigurationService</tt> implementation provided by the bundle
+     * represented by this <tt>ConfigurationActivator</tt>.
+     */
     private final ConfigurationServiceImpl impl
         = new ConfigurationServiceImpl();
 
     /**
      * Starts the configuration service
      * 
-     * @param bundleContext
-     *            the BundleContext as provided from the OSGi framework.
-     * @throws Exception
-     *             if anything goes wrong
+     * @param bundleContext the <tt>BundleContext</tt> as provided by the OSGi
+     * framework.
+     * @throws Exception if anything goes wrong
      */
     public void start(BundleContext bundleContext)
         throws Exception
@@ -52,8 +59,10 @@ public class ConfigurationActivator
      * Causes the configuration service to store the properties object and
      * unregisters the configuration service.
      *
-     * @param bundleContext BundleContext
-     * @throws Exception
+     * @param bundleContext <tt>BundleContext</tt>
+     * @throws Exception if anything goes wrong while storing the properties
+     * managed by the <tt>ConfigurationService</tt> implementation provided by
+     * this bundle and while unregistering the service in question
      */
     public void stop(BundleContext bundleContext)
         throws Exception

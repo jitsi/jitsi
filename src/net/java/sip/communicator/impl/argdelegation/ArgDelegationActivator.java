@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.argdelegation;
 
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.launchutils.*;
 
 import org.osgi.framework.*;
@@ -43,6 +44,8 @@ public class ArgDelegationActivator
      * the util package URI manager.
      *
      * @param bc a reference to the currently active bundle context.
+     * @throws Exception if starting the arg delegation bundle and registering
+     * the delegationPeer with the util package URI manager fails
      */
     public void start(BundleContext bc) throws Exception
     {
@@ -52,7 +55,6 @@ public class ArgDelegationActivator
 
         //register our instance of delegation peer.
         LaunchArgHandler.getInstance().setDelegationPeer(delegationPeer);
-
     }
 
     /**
@@ -60,6 +62,8 @@ public class ArgDelegationActivator
      * bundle.
      *
      * @param bc an instance of the currently valid bundle context.
+     * @throws Exception if unsetting the delegation peer instance that we set
+     * when we start this bundle fails
      */
     public void stop(BundleContext bc) throws Exception
     {
@@ -79,13 +83,7 @@ public class ArgDelegationActivator
     public static UIService getUIService()
     {
         if(uiService == null)
-        {
-            ServiceReference versionServiceReference
-                = bundleContext.getServiceReference(
-                    UIService.class.getName());
-            uiService = (UIService)bundleContext
-                .getService(versionServiceReference);
-        }
+            uiService = ServiceUtils.getService(bundleContext, UIService.class);
         return uiService;
     }
 }

@@ -26,6 +26,10 @@ public class ArgDelegationPeerImpl
     implements ArgDelegationPeer,
                ServiceListener
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>ArgDelegationPeerImpl</tt> class and
+     * its instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(ArgDelegationPeerImpl.class);
 
