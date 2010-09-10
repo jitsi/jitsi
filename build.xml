@@ -906,7 +906,7 @@
         bundle-httpcore,bundle-httpclient,
         bundle-version,bundle-version-impl,bundle-shutdown-timeout,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
-        bundle-sparkle, bundle-plugin-branding, bundle-audionotifier,
+        bundle-sparkle, bundle-plugin-branding,
         bundle-osdependent,bundle-browserlauncher,bundle-gibberish,
         bundle-gibberish-slick,bundle-plugin-gibberishaccregwizz,
         bundle-rss, bundle-rss-slick,bundle-plugin-rssaccregwizz,
@@ -1731,18 +1731,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/sparkle/sparkle.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/sparkle"
                 prefix="net/java/sip/communicator/impl/sparkle" />
-        </jar>
-    </target>
-
-    <!--BUNDLE-AUDIO NOTIFIER-->
-    <target name="bundle-audionotifier">
-        <!-- Creates a bundle for the audio notifier service.-->
-        <jar compress="false" destfile="${bundles.dest}/audionotifier.jar"
-            manifest="${src}/net/java/sip/communicator/impl/audionotifier/audionotifier.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
-                            prefix="net/java/sip/communicator/service/audionotifier"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/audionotifier"
-                prefix="net/java/sip/communicator/impl/audionotifier" />
         </jar>
     </target>
 
