@@ -85,6 +85,10 @@ public class MetaContactImpl
      */
     private Map<String, List<String>> details;
 
+    /**
+     * The name (i.e. not the whole path) of the directory in which the avatar
+     * files are to be cached for later reuse.
+     */
     private final static String AVATAR_DIR = "avatarcache";
 
     /**
@@ -965,6 +969,17 @@ public class MetaContactImpl
         fireMetaContactModified(name, oldValue, newValue);
     }
 
+    /**
+     * Fires a new <tt>MetaContactModifiedEvent</tt> which is to notify about a
+     * modification with a specific name of this <tt>MetaContact</tt> which has
+     * caused a property value change from a specific <tt>oldValue</tt> to a
+     * specific <tt>newValue</tt>.
+     *
+     * @param modificationName the name of the modification which has caused
+     * a new <tt>MetaContactModifiedEvent</tt> to be fired
+     * @param oldValue the value of the property before the modification
+     * @param newValue the value of the property after the modification
+     */
     private void fireMetaContactModified(
             String modificationName,
             Object oldValue,
@@ -984,8 +999,11 @@ public class MetaContactImpl
     }
 
     /**
-     * Get all details with given name.
-     * @param name the name of the details we are searching.
+     * Gets all details with a given name.
+     *
+     * @param name the name of the details we are searching for
+     * @return a <tt>List</tt> of <tt>String</tt>s which represent the details
+     * with the specified <tt>name</tt>
      */
     public List<String> getDetails(String name)
     {
@@ -995,7 +1013,6 @@ public class MetaContactImpl
             values = new ArrayList<String>();
         else
             values = new ArrayList<String>(values);
-
         return values;
     }
 
@@ -1124,25 +1141,35 @@ public class MetaContactImpl
     }
 
     /**
-     * Replacing the characters that we must escape
-     * used for the created filename.
+     * Replaces the characters that we must escape used for the created
+     * filename.
      *
-     * @param id
+     * @param id the <tt>String</tt> which is to have its characters escaped
+     * @return a <tt>String</tt> derived from the specified <tt>id</tt> by
+     * escaping characters
      */
     private String escapeSpecialCharacters(String id)
     {
         String resultId = id;
+
         for (int j = 0; j < ESCAPE_SEQUENCES.length; j++)
         {
             resultId = resultId.
                 replaceAll(ESCAPE_SEQUENCES[j][0], ESCAPE_SEQUENCES[j][1]);
         }
-
         return resultId;
     }
 
-    /*
-     * Implements MetaContact#getData(Object).
+    /**
+     * Implements {@link MetaContact#getData(Object)}. Gets the user data
+     * associated with this instance and a specific key.
+     *
+     * @param key the key of the user data associated with this instance to be
+     * retrieved
+     * @return an <tt>Object</tt> which represents the value associated with
+     * this instance and the specified <tt>key</tt>; <tt>null</tt> if no
+     * association with the specified <tt>key</tt> exists in this instance
+     * @see MetaContact#getData(Object)
      */
     public Object getData(Object key)
     {
@@ -1154,8 +1181,26 @@ public class MetaContactImpl
         return (index == -1) ? null : data[index + 1];
     }
 
-    /*
-     * Implements MetaContact#setData(Object, Object).
+    /**
+     * Implements {@link MetaContact#setData(Object, Object)}. Sets a
+     * user-specific association in this instance in the form of a key-value
+     * pair. If the specified <tt>key</tt> is already associated in this
+     * instance with a value, the existing value is overwritten with the
+     * specified <tt>value</tt>.
+     * <p>
+     * The user-defined association created by this method and stored in this
+     * instance is not serialized by this instance and is thus only meant for
+     * runtime use.
+     * </p>
+     * <p>
+     * The storage of the user data is implementation-specific and is thus not
+     * guaranteed to be optimized for execution time and memory use.
+     * </p>
+     *
+     * @param key the key to associate in this instance with the specified value
+     * @param value the value to be associated in this instance with the
+     * specified <tt>key</tt>
+     * @see MetaContact#setData(Object, Object)
      */
     public void setData(Object key, Object value)
     {
@@ -1172,8 +1217,10 @@ public class MetaContactImpl
              * add it).
              */
             if (data == null)
+            {
                 if (value != null)
                     data = new Object[] { key, value };
+            }
             else if (value == null)
             {
                 int length = data.length - 2;
@@ -1196,9 +1243,9 @@ public class MetaContactImpl
                 Object[] newData = new Object[length + 2];
 
                 System.arraycopy(data, 0, newData, 0, length);
+                data = newData;
                 data[length++] = key;
                 data[length++] = value;
-                data = newData;
             }
         }
         else

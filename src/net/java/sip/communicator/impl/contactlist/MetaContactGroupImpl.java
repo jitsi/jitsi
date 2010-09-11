@@ -23,8 +23,13 @@ import net.java.sip.communicator.util.*;
 public class MetaContactGroupImpl
     implements MetaContactGroup
 {
-    private static final Logger logger =
-        Logger.getLogger(MetaContactGroupImpl.class);
+    /**
+     * The <tt>Logger</tt> used by the class <tt>MetaContactGroupImpl</tt> and
+     * its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(MetaContactGroupImpl.class);
+
     /**
      * All the subgroups that this group contains.
      */
@@ -65,6 +70,10 @@ public class MetaContactGroupImpl
      */
     private MetaContactGroupImpl parentMetaContactGroup = null;
 
+    /**
+     * The <tt>MetaContactListService</tt> implementation which manages this
+     * <tt>MetaContactGroup</tt> and its associated hierarchy.
+     */
     private final MetaContactListServiceImpl mclServiceImpl;
 
     /**
@@ -86,7 +95,8 @@ public class MetaContactGroupImpl
     /**
      * Creates an instance of the root meta contact group.
      *
-     * @param mclServiceImpl
+     * @param mclServiceImpl the <tt>MetaContactListService</tt> implementation
+     * which is to use the new <tt>MetaContactGroup</tt> instance as its root
      * @param groupName the name of the group to create
      */
     MetaContactGroupImpl(
@@ -996,8 +1006,10 @@ public class MetaContactGroupImpl
              * add it).
              */
             if (data == null)
+            {
                 if (value != null)
                     data = new Object[] { key, value };
+            }
             else if (value == null)
             {
                 int length = data.length - 2;
@@ -1020,9 +1032,9 @@ public class MetaContactGroupImpl
                 Object[] newData = new Object[length + 2];
 
                 System.arraycopy(data, 0, newData, 0, length);
+                data = newData;
                 data[length++] = key;
                 data[length++] = value;
-                data = newData;
             }
         }
         else
