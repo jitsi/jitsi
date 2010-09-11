@@ -23,8 +23,12 @@ import net.java.sip.communicator.util.*;
  */
 public class JabberStatusEnum
 {
-    private static final Logger logger =
-        Logger.getLogger(JabberStatusEnum.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>JabberStatusEnum</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(JabberStatusEnum.class);
 
     /**
      * The Online status. Indicate that the user is able and willing to

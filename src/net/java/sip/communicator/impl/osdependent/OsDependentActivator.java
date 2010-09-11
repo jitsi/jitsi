@@ -37,8 +37,12 @@ public class OsDependentActivator
 
     private static ResourceManagementService resourcesService;
 
-    private static final Logger logger =
-        Logger.getLogger(OsDependentActivator.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>OsDependentActivator</tt> class and
+     * its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(OsDependentActivator.class);
 
     /**
      * Called when this bundle is started.

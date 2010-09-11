@@ -22,8 +22,13 @@ import net.java.sip.communicator.util.*;
  */
 public class ProtocolIconIrcImpl
     implements ProtocolIcon
-{    
-    private static Logger logger = Logger.getLogger(ProtocolIconIrcImpl.class);
+{
+    /**
+     * The <tt>Logger</tt> used by the <tt>ProtocolIconIrcImpl</tt> class and
+     * its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(ProtocolIconIrcImpl.class);
     
     /**
      * A hash table containing the protocol icon in different sizes.

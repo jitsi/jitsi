@@ -25,8 +25,12 @@ import org.osgi.framework.*;
  */
 public class ProtocolIconJabberImpl
     implements ProtocolIcon
-{    
-    private static Logger logger
+{
+    /**
+     * The <tt>Logger</tt> used by the <tt>ProtocolIconJabberImpl</tt> class and
+     * its instances for logging output. 
+     */
+    private static final Logger logger
         = Logger.getLogger(ProtocolIconJabberImpl.class); 
 
     /**

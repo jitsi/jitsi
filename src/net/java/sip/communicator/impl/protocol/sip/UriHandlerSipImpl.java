@@ -26,8 +26,12 @@ import net.java.sip.communicator.util.*;
 public class UriHandlerSipImpl
     implements UriHandler, ServiceListener, AccountManagerListener
 {
-    private static final Logger logger =
-        Logger.getLogger(UriHandlerSipImpl.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>UriHandlerSipImpl</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(UriHandlerSipImpl.class);
 
     /**
      * The protocol provider factory that created us.

@@ -27,6 +27,10 @@ import net.java.sip.communicator.util.*;
 public class ProtocolProviderFactoryRssImpl
     extends ProtocolProviderFactory
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>ProtocolProviderFactoryRssImpl</tt>
+     * class and its instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(ProtocolProviderFactoryRssImpl.class);
 

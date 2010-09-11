@@ -31,8 +31,12 @@ public class ResourceManagementServiceImpl
     implements ResourceManagementService,
                ServiceListener
 {
-    private static Logger logger =
-        Logger.getLogger(ResourceManagementServiceImpl.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>ResourceManagementServiceImpl</tt>
+     * class and its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(ResourceManagementServiceImpl.class);
 
     /**
      * Resources for currently loaded <tt>ColorPack</tt>.

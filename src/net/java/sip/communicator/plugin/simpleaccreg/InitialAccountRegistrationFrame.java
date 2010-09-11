@@ -38,6 +38,10 @@ public class InitialAccountRegistrationFrame
 {
     private ConfigurationService configurationService;
 
+    /**
+     * The <tt>Logger</tt> used by this <tt>InitialAccountRegistrationFrame</tt>
+     * for logging output.
+     */
     private final Logger logger
         = Logger.getLogger(InitialAccountRegistrationFrame.class);
 

@@ -45,7 +45,8 @@ public class AccountManagerEvent
      * 
      * @param accountManager the <code>AccountManager</code> issuing the
      *            notification i.e. the source of the event
-     * @param type
+     * @param type the type of the event which is one of
+     * {@link #STORED_ACCOUNTS_LOADED}
      * @param factory the <code>ProtocolProviderFactory</code> being worked on
      *            at the time this event has been fired
      */

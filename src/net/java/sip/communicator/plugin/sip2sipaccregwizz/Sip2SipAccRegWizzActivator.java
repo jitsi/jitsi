@@ -14,7 +14,6 @@ import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Registers the <tt>GoogleTalkAccountRegistrationWizard</tt> in the UI Service.
@@ -29,12 +28,6 @@ public class Sip2SipAccRegWizzActivator
      * The bundle context.
      */
     public static BundleContext bundleContext;
-
-    /**
-     * The logger.
-     */
-    private static final Logger logger = Logger.getLogger(
-        Sip2SipAccRegWizzActivator.class.getName());
 
     /**
      * The browser launcher service.

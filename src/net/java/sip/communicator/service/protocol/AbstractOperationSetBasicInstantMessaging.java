@@ -23,8 +23,13 @@ import net.java.sip.communicator.util.*;
 public abstract class AbstractOperationSetBasicInstantMessaging
     implements OperationSetBasicInstantMessaging
 {
-    private static final Logger logger =
-        Logger.getLogger(AbstractOperationSetBasicInstantMessaging.class);
+    /**
+     * The <tt>Logger</tt> used by the
+     * <tt>AbstractOperationSetBasicInstantMessaging</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(AbstractOperationSetBasicInstantMessaging.class);
 
     /**
      * A list of listeners registered for message events.

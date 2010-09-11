@@ -19,6 +19,10 @@ import net.java.sip.communicator.util.*;
  */
 public class SystemTray
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>SystemTray</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger = Logger.getLogger(SystemTray.class);
 
     private static SystemTray defaultSystemTray;

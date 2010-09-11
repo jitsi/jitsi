@@ -20,8 +20,12 @@ import net.java.sip.communicator.util.*;
 public abstract class AbstractMessage
     implements Message
 {
-    private static final Logger logger =
-        Logger.getLogger(AbstractMessage.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>AbstractMessage</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(AbstractMessage.class);
 
     private static boolean equals(String a, String b)
     {

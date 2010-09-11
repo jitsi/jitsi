@@ -41,7 +41,11 @@ public class StatusSubMenu
     private final Map<AccountID, Object> accountSelectors =
         new Hashtable<AccountID, Object>();
 
-    private final Logger logger = Logger.getLogger(StatusSubMenu.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>StatusSubMenu</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(StatusSubMenu.class);
 
     private final Object menu;
 

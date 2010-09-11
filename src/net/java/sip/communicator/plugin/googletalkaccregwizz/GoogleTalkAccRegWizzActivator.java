@@ -25,8 +25,12 @@ public class GoogleTalkAccRegWizzActivator
 {
     public static BundleContext bundleContext;
 
-    private static final Logger logger = Logger.getLogger(
-        GoogleTalkAccRegWizzActivator.class.getName());
+    /**
+     * The <tt>Logger</tt> used by the <tt>GoogleTalkAccRegWizzActivator</tt>
+     * and its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(GoogleTalkAccRegWizzActivator.class);
 
     private static BrowserLauncherService browserLauncherService;
 

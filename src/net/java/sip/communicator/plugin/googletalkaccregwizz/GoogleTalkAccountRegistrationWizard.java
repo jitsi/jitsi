@@ -25,6 +25,10 @@ import org.osgi.framework.*;
 public class GoogleTalkAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    /**
+     * The <tt>Logger</tt> used by this
+     * <tt>GoogleTalkAccountRegistrationWizard</tt> for logging output.
+     */
     private final Logger logger
         = Logger.getLogger(GoogleTalkAccountRegistrationWizard.class);
 

@@ -20,6 +20,10 @@ public class MockCall
     extends AbstractCall<MockCallPeer, MockProvider>
     implements CallPeerListener
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>MockCall</tt> class and its instances
+     * for logging output.
+     */
     private static final Logger logger = Logger.getLogger(MockCall.class);
 
     public MockCall(MockProvider sourceProvider)

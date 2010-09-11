@@ -28,6 +28,10 @@ public class FirstWizardPage
     extends TransparentPanel
     implements WizardPage
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>FirstWizardPage</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(FirstWizardPage.class);
 

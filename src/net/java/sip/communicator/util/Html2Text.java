@@ -121,8 +121,10 @@ public class Html2Text
         /**
          * Appends the given text to the string buffer.
          *
-         * @param text
-         * @param pos
+         * @param text the text of a text node which has been parsed from the
+         * specified HTML
+         * @param pos the zero-based position of the specified <tt>text</tt> in
+         * the specified HTML
          */
         @Override
         public void handleText(char[] text, int pos)

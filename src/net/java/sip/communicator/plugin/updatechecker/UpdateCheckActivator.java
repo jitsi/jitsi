@@ -38,6 +38,10 @@ import org.osgi.framework.*;
 public class UpdateCheckActivator
     implements BundleActivator
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>UpdateCheckActivator</tt> class and
+     * its instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(UpdateCheckActivator.class);
 
