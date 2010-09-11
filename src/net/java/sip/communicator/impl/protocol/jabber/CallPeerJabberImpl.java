@@ -487,17 +487,85 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Send a <tt>content-modify</tt> to reflect change in video setup (start or
-     * stop).
+     * Send a <tt>content-add</tt> to add video setup.
+     */
+    private void sendAddVideoContent()
+    {
+        List<ContentPacketExtension> contents = null;
+
+        try
+        {
+            contents = getMediaHandler().
+                        createContentList(MediaType.VIDEO);
+        }
+        catch(Exception exc)
+        {
+            logger.warn("Failed to gather content for video type", exc);
+            return;
+        }
+
+        JingleIQ contentIQ = JinglePacketFactory
+            .createContentAdd(getProtocolProvider().getOurJID(),
+                            this.peerJID, getJingleSID(), contents);
+
+        getProtocolProvider().getConnection().sendPacket(contentIQ);
+    }
+
+    /**
+     * Send a <tt>content-remove</tt> to remove video setup.
+     */
+    private void sendRemoveVideoContent()
+    {
+        ContentPacketExtension content = new ContentPacketExtension();
+        ContentPacketExtension remoteContent = getMediaHandler().
+            getRemoteContent(MediaType.VIDEO.toString());
+        List<ContentPacketExtension> contents =
+            new ArrayList<ContentPacketExtension>();
+
+        content.setName(remoteContent.getName());
+        content.setCreator(remoteContent.getCreator());
+        content.setSenders(remoteContent.getSenders());
+        contents.add(content);
+
+        JingleIQ contentIQ = JinglePacketFactory
+            .createContentRemove(getProtocolProvider().getOurJID(),
+                            this.peerJID, getJingleSID(), contents);
+
+        getProtocolProvider().getConnection().sendPacket(contentIQ);
+        getMediaHandler().removeRemoteContent(remoteContent.getName());
+    }
+
+    /**
+     * Send a <tt>content</tt> message to reflect change in video setup (start
+     * or stop). Message can be content-modify if video content exists,
+     * content-add if we start video but video is not enabled on the peer or
+     * content-remove if we stop video and video is not enabled on the peer. 
      *
      * @param allowed if the local video is allowed or not
-
      */
     public void sendModifyVideoContent(boolean allowed)
     {
         ContentPacketExtension ext = new ContentPacketExtension();
-        SendersEnum senders = getMediaHandler().getDirection(
-                MediaType.VIDEO.toString());
+        ContentPacketExtension remoteContent = getMediaHandler().
+            getRemoteContent(MediaType.VIDEO.toString());
+
+        if(remoteContent == null)
+        {
+            if(allowed)
+                sendAddVideoContent();
+            return;
+        }
+        else if(!allowed &&
+                ((!isInitiator &&
+                 remoteContent.getSenders() == SendersEnum.initiator) ||
+                (isInitiator &&
+                 remoteContent.getSenders() == SendersEnum.responder)))
+        {
+            sendRemoveVideoContent();
+            return;
+        }
+
+        SendersEnum senders = remoteContent.getSenders();
 
         /* adjust the senders attribute depending on current value and if we
          * allowed or not local video streaming
@@ -531,9 +599,8 @@ public class CallPeerJabberImpl
         }
 
         ext.setSenders(senders);
-        ext.setCreator(isInitiator ? CreatorEnum.initiator :
-            CreatorEnum.responder);
-        ext.setName(MediaType.VIDEO.toString());
+        ext.setCreator(remoteContent.getCreator());
+        ext.setName(remoteContent.getName());
 
         JingleIQ contentIQ = JinglePacketFactory
             .createContentModify(getProtocolProvider().getOurJID(),
@@ -543,8 +610,7 @@ public class CallPeerJabberImpl
 
         try
         {
-            getMediaHandler().reinitContent(MediaType.VIDEO.toString(),
-                    senders);
+            getMediaHandler().reinitContent(remoteContent.getName(), senders);
         }
         catch(Exception e)
         {
@@ -560,7 +626,35 @@ public class CallPeerJabberImpl
      */
     public void processContentAdd(JingleIQ content)
     {
-        /* TODO */
+        List<ContentPacketExtension> contents = content.getContentList();
+        JingleIQ contentIQ = null;
+        List<ContentPacketExtension> answerContents =
+            new ArrayList<ContentPacketExtension>();
+
+        try
+        {
+            getMediaHandler().processOffer(contents);
+            answerContents = getMediaHandler().generateSessionAccept();
+        }
+        catch(Exception e)
+        {
+            logger.warn("Exception occurred", e);
+
+            contentIQ = JinglePacketFactory.createContentReject(
+                    getProtocolProvider().getOurJID(),
+                    this.peerJID, getJingleSID(), answerContents);
+        }
+
+        if(contentIQ == null)
+        {
+            /* send content-accept */
+            contentIQ = JinglePacketFactory.
+                createContentAccept(getProtocolProvider().getOurJID(),
+                            this.peerJID, getJingleSID(), answerContents);
+        }
+
+        getProtocolProvider().getConnection().sendPacket(contentIQ);
+        getMediaHandler().start();
     }
 
     /**
@@ -571,7 +665,27 @@ public class CallPeerJabberImpl
      */
     public void processContentAccept(JingleIQ content)
     {
-        /* TODO */
+        List<ContentPacketExtension> contents = content.getContentList();
+
+        try
+        {
+            getMediaHandler().processAnswer(contents);
+        }
+        catch(Exception exc)
+        {
+            logger.warn("Exception occurred", exc);
+            //send an error response;
+            JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
+                    sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
+                    sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
+                    "Error: " + exc.getMessage());
+
+            setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
+            getProtocolProvider().getConnection().sendPacket(errResp);
+            return;
+        }
+
+        getMediaHandler().start();
     }
 
     /**
@@ -613,7 +727,12 @@ public class CallPeerJabberImpl
      */
     public void processContentRemove(JingleIQ content)
     {
-        /* TODO */
+        List<ContentPacketExtension> contents = content.getContentList();
+
+        for(ContentPacketExtension ext : contents)
+        {
+            getMediaHandler().removeRemoteContent(ext.getName());
+        }
     }
 
     /**
@@ -623,6 +742,17 @@ public class CallPeerJabberImpl
      */
     public void processContentReject(JingleIQ content)
     {
-        /* TODO */
+        if(content.getContentList().size() == 0)
+        {
+            //send an error response;
+            JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
+                sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
+                sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
+                "Error: content rejected");
+
+            setState(CallPeerState.FAILED, "Error: content rejected");
+            getProtocolProvider().getConnection().sendPacket(errResp);
+            return;
+        }
     }
 }

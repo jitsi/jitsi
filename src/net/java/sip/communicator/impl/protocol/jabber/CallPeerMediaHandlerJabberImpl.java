@@ -97,15 +97,47 @@ public class CallPeerMediaHandlerJabberImpl
     }
 
     /**
-     * Get the direction of a specific content (like audio or video).
+     * Get the remote content of a specific content type (like audio or video).
      *
-     * @param content content name
-     * @return the direction of the media
+     * @param contentType content type name
+     * @return remote <tt>ContentPacketExtension</tt> or null if not found
      */
-    public SendersEnum getDirection(String content)
+    public ContentPacketExtension getRemoteContent(String contentType)
     {
-        ContentPacketExtension pkt = remoteContentMap.get(content);
-        return pkt.getSenders();
+        for(String key : remoteContentMap.keySet())
+        {
+            ContentPacketExtension content = remoteContentMap.get(key);
+            RtpDescriptionPacketExtension description
+                = JingleUtils.getRtpDescription(content);
+
+            if(description.getMedia().equals(contentType))
+            {
+                return content;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get the local content of a specific content type (like audio or video).
+     *
+     * @param contentType content type name
+     * @return remote <tt>ContentPacketExtension</tt> or null if not found
+     */
+    public ContentPacketExtension getLocalContent(String contentType)
+    {
+        for(String key : localContentMap.keySet())
+        {
+            ContentPacketExtension content = localContentMap.get(key);
+            RtpDescriptionPacketExtension description
+                = JingleUtils.getRtpDescription(content);
+
+            if(description.getMedia().equals(contentType))
+            {
+                return content;
+            }
+        }
+        return null;
     }
 
     /**
@@ -334,9 +366,29 @@ public class CallPeerMediaHandlerJabberImpl
 
             //let's now see what was the format we announced as first and
             //configure the stream with it.
-            MediaFormat format = JingleUtils.payloadTypeToMediaFormat(
-                theirDescription.getPayloadTypes().get(0),
-                getDynamicPayloadTypes());
+            MediaFormat format = null;
+            List<PayloadTypePacketExtension> payloadTypes =
+                theirDescription.getPayloadTypes();
+
+            for(PayloadTypePacketExtension payload : payloadTypes)
+            {
+                format = JingleUtils.payloadTypeToMediaFormat(
+                    payload,
+                    getDynamicPayloadTypes());
+
+                if(format != null)
+                    break;
+            }
+
+            if(format == null)
+            {
+                ProtocolProviderServiceJabberImpl.
+                    throwOperationFailedException(
+                        "No matching codec.",
+                        OperationFailedException.ILLEGAL_ARGUMENT,
+                        null,
+                        logger);
+            }
 
             //extract the extensions that we are advertising:
             // check whether we will be exchanging any RTP extensions.
@@ -349,6 +401,107 @@ public class CallPeerMediaHandlerJabberImpl
                             direction, rtpExtensions);
         }
         return sessAccept;
+    }
+
+    /**
+     * Creates a {@link ContentPacketExtension}s of the streams for a
+     * specific <tt>MediaDevice</tt>.
+     *
+     * @param type <tt>MediaDevice</tt>
+     * @return the {@link ContentPacketExtension}s of stream that this
+     * handler is prepared to initiate.
+     * @throws OperationFailedException if we fail to create the descriptions
+     * for reasons like - problems with device interaction, allocating ports,
+     * etc.
+     */
+    private ContentPacketExtension createContent(MediaDevice dev)
+    {
+        MediaDirection direction = dev.getDirection().and(
+                        getDirectionUserPreference(
+                            dev.getMediaType()));
+
+        if(isLocallyOnHold())
+            direction = direction.and(MediaDirection.SENDONLY);
+
+        if(direction != MediaDirection.INACTIVE)
+        {
+            ContentPacketExtension content = createContentForOffer(
+                    dev.getSupportedFormats(), direction,
+                    dev.getSupportedExtensions());
+
+            //ZRTP
+            if(getPeer().getCall().isSipZrtpAttribute())
+            {
+                ZrtpControl control = getZrtpControls().get(dev.getMediaType());
+                if(control == null)
+                {
+                    control = JabberActivator.getMediaService()
+                        .createZrtpControl();
+                    getZrtpControls().put(dev.getMediaType(), control);
+                }
+
+               String helloHash[] = control.getHelloHashSep();
+
+                if(helloHash != null && helloHash[1].length() > 0)
+                {
+                    ZrtpHashPacketExtension hash
+                        = new ZrtpHashPacketExtension();
+                    hash.setVersion(helloHash[0]);
+                    hash.setValue(helloHash[1]);
+
+                    content.addChildExtension(hash);
+                }
+            }
+
+            return content;
+        }
+        return null;
+    }
+
+    /**
+     * Creates a <tt>List</tt> containing the {@link ContentPacketExtension}s of
+     * the streams of a specific <tt>MediaType</tt> that this handler is
+     * prepared to initiate depending on available <tt>MediaDevice</tt>s and
+     * local on-hold and video transmission preferences.
+     *
+     * @param type <tt>MediaType</tt> of the content
+     * @return a {@link List} containing the {@link ContentPacketExtension}s of
+     * streams that this handler is prepared to initiate.
+     *
+     * @throws OperationFailedException if we fail to create the descriptions
+     * for reasons like - problems with device interaction, allocating ports,
+     * etc.
+     */
+    public List<ContentPacketExtension> createContentList(MediaType mediaType)
+        throws OperationFailedException
+    {
+        MediaDevice dev = getDefaultDevice(mediaType);
+        List<ContentPacketExtension> mediaDescs
+                                    = new ArrayList<ContentPacketExtension>();
+
+        if (dev != null)
+        {
+            ContentPacketExtension content = createContent(dev);
+
+            if(content != null)
+                mediaDescs.add(content);
+        }
+
+        //fail if all devices were inactive
+        if(mediaDescs.isEmpty())
+        {
+            ProtocolProviderServiceJabberImpl
+                .throwOperationFailedException(
+                    "We couldn't find any active Audio/Video devices and "
+                        + "couldn't create a call",
+                    OperationFailedException.GENERAL_ERROR, null, logger);
+        }
+
+        //now add the transport elements
+        getTransportManager().startCandidateHarvest(mediaDescs);
+
+        //XXX ideally we wouldn't wrapup that quickly. we need to revisit this
+        return getTransportManager().wrapupHarvest();
     }
 
     /**
@@ -468,7 +621,7 @@ public class CallPeerMediaHandlerJabberImpl
         return content;
     }
 
-     /**
+    /**
      * Reinitialize all media contents.
      *
      * @throws OperationFailedException if we fail to handle <tt>content</tt>
@@ -521,6 +674,60 @@ public class CallPeerMediaHandlerJabberImpl
             ext.setSenders(senders);
             processContent(ext);
             remoteContentMap.put(name, ext);
+        }
+    }
+
+    /**
+     * Remove a media content and stop the corresponding stream.
+     *
+     * @param name of the Jingle content
+     */
+    public void removeLocalContent(String name)
+    {
+        ContentPacketExtension content = localContentMap.remove(name);
+
+        if(content == null)
+        {
+            return;
+        }
+
+        RtpDescriptionPacketExtension description
+            = JingleUtils.getRtpDescription(content);
+
+        String media = description.getMedia();
+
+        if(media != null )
+        {
+              MediaStream stream = getStream(MediaType.parseString(media));
+              stream.stop();
+              stream = null;
+        }
+    }
+
+    /**
+     * Remove a media content and stop the corresponding stream.
+     *
+     * @param name of the Jingle content
+     */
+    public void removeRemoteContent(String name)
+    {
+        ContentPacketExtension content = remoteContentMap.remove(name);
+
+        if(content == null)
+        {
+            return;
+        }
+
+        RtpDescriptionPacketExtension description
+            = JingleUtils.getRtpDescription(content);
+
+        String media = description.getMedia();
+
+        if(media != null )
+        {
+              MediaStream stream = getStream(MediaType.parseString(media));
+              stream.stop();
+              stream = null;
         }
     }
 
