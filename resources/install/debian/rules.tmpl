@@ -71,6 +71,8 @@ endif
 	install -m 755 debian/sip-communicator.sh debian/$(PACKAGE_NAME)/usr/bin/sip-communicator
 
 	# Remove all slicks, SVN info and unnecessary librairies.
+	rm debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/sc-bundles/slickless.jar
+	rm debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/sc-bundles/slick-runner.jar
 	rm debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/sc-bundles/*-slick.jar
 	rm -rf debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/native/.svn
 	rm -rf debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/bundle/.svn
