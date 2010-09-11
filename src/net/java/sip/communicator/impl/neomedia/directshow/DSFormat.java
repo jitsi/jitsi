@@ -30,14 +30,50 @@ public class DSFormat
     }
 
     /* supported formats */
+
+    /**
+     * The RGB24 constant.
+     */
     public static final long RGB24;
+
+    /**
+     * The RGB32 constant.
+     */
     public static final long RGB32;
+
+    /**
+     * The ARGB32 constant.
+     */
     public static final long ARGB32;
+
+    /**
+     * The YUY2 constant.
+     */
     public static final long YUY2;
+
+    /**
+     * The UYVY constant.
+     */
     public static final long UYVY;
+
+    /**
+     * The Y411 constant.
+     */
     public static final long Y411;
+
+    /**
+     * The Y41P constant.
+     */
     public static final long Y41P;
+
+    /**
+     * The NV12 constant.
+     */
     public static final long NV12;
+
+    /**
+     * The I420 constant.
+     */
     public static final long I420;
 
     /**
@@ -100,27 +136,146 @@ public class DSFormat
     }
 
     /* RGB */
+    /**
+     * Get the RGB24 native pixel format
+     *
+     * @return RGB24 native format value
+     */
     public static native long getRGB24PixelFormat();
+
+    /**
+     * Get the RGB32 native pixel format
+     *
+     * @return RGB32 native format value
+     */
     public static native long getRGB32PixelFormat();
+
+    /**
+     * Get the ARGB32 native pixel format
+     *
+     * @return ARGB32 native format value
+     */
     public static native long getARGBPixelFormat();
 
     /* YUV */
+
+    /**
+     * Get the AYUV native pixel format
+     *
+     * @return AYUV native format value
+     */
     public static native long getAYUVPixelFormat();
+
+    /**
+     * Get the YUY2 native pixel format
+     *
+     * @return YUY2 native format value
+     */
     public static native long getYUY2PixelFormat();
+
+    /**
+     * Get the UYVY native pixel format
+     *
+     * @return UYVY native format value
+     */
     public static native long getUYVYPixelFormat();
+
+    /**
+     * Get the IMC1 native pixel format
+     *
+     * @return IMC1 native format value
+     */
     public static native long getIMC1PixelFormat();
+
+    /**
+     * Get the IMC2 native pixel format
+     *
+     * @return IMC2 native format value
+     */
     public static native long getIMC2PixelFormat();
+
+    /**
+     * Get the IMC3 native pixel format
+     *
+     * @return IMC3 native format value
+     */
     public static native long getIMC3PixelFormat();
+
+    /**
+     * Get the IMC4 native pixel format
+     *
+     * @return IMC4 native format value
+     */
     public static native long getIMC4PixelFormat();
+
+    /**
+     * Get the YV12 native pixel format
+     *
+     * @return YV12 native format value
+     */
     public static native long getYV12PixelFormat();
+
+    /**
+     * Get the NV12 native pixel format
+     *
+     * @return NV12 native format value
+     */
     public static native long getNV12PixelFormat();
+
+    /**
+     * Get the IF09 native pixel format
+     *
+     * @return IF09 native format value
+     */
     public static native long getIF09PixelFormat();
+
+    /**
+     * Get the IYUV native pixel format
+     *
+     * @return IYUV native format value
+     */
     public static native long getIYUVPixelFormat();
+
+    /**
+     * Get the Y211 native pixel format
+     *
+     * @return Y211 native format value
+     */
     public static native long getY211PixelFormat();
+
+    /**
+     * Get the Y411 native pixel format
+     *
+     * @return Y411 native format value
+     */
     public static native long getY411PixelFormat();
+
+    /**
+     * Get the Y41P native pixel format
+     *
+     * @return Y41P native format value
+     */
     public static native long getY41PPixelFormat();
+
+    /**
+     * Get the YVU9 native pixel format
+     *
+     * @return YVU9 native format value
+     */
     public static native long getYVU9PixelFormat();
+
+    /**
+     * Get the YVYU native pixel format
+     *
+     * @return YVYU native format value
+     */
     public static native long getYVYUPixelFormat();
+
+    /**
+     * Get the I420 native pixel format
+     *
+     * @return I420 native format value
+     */
     public static native long getI420PixelFormat();
 }
 

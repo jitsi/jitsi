@@ -70,10 +70,10 @@ public class TestOperationSetBasicTelephonyJabberImpl
     public void testCreateCancelCall()
         throws ParseException, OperationFailedException
     {
-        OperationSetBasicTelephony basicTelephonyP1
+        OperationSetBasicTelephony<?> basicTelephonyP1
             = fixture.provider1.getOperationSet(
                 OperationSetBasicTelephony.class);
-        OperationSetBasicTelephony basicTelephonyP2
+        OperationSetBasicTelephony<?> basicTelephonyP2
             = fixture.provider2.getOperationSet(
                 OperationSetBasicTelephony.class);
 
@@ -298,10 +298,10 @@ public class TestOperationSetBasicTelephonyJabberImpl
     public void testCreateRejectCall()
         throws ParseException, OperationFailedException
     {
-        OperationSetBasicTelephony basicTelephonyP1
+        OperationSetBasicTelephony<?> basicTelephonyP1
             = fixture.provider1.getOperationSet(
                 OperationSetBasicTelephony.class);
-        OperationSetBasicTelephony basicTelephonyP2
+        OperationSetBasicTelephony<?> basicTelephonyP2
             = fixture.provider2.getOperationSet(
                 OperationSetBasicTelephony.class);
 
@@ -533,10 +533,10 @@ public class TestOperationSetBasicTelephonyJabberImpl
     public void aTestCreateAnswerHangupCall()
         throws ParseException, OperationFailedException
     {
-        OperationSetBasicTelephony basicTelephonyP1
+        OperationSetBasicTelephony<?> basicTelephonyP1
             = fixture.provider1.getOperationSet(
                 OperationSetBasicTelephony.class);
-        OperationSetBasicTelephony basicTelephonyP2
+        OperationSetBasicTelephony<?> basicTelephonyP2
             = fixture.provider2.getOperationSet(
                 OperationSetBasicTelephony.class);
 
@@ -747,7 +747,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
     public class CallEventCollector implements CallListener
     {
         public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
-        public OperationSetBasicTelephony listenedOpSet = null;
+        public OperationSetBasicTelephony<?> listenedOpSet = null;
 
         /**
          * Creates an instance of this call event collector and registers it
@@ -755,7 +755,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
          * @param listenedOpSet the operation set that we will be scanning for
          * new calls.
          */
-        public CallEventCollector(OperationSetBasicTelephony listenedOpSet)
+        public CallEventCollector(OperationSetBasicTelephony<?> listenedOpSet)
         {
             this.listenedOpSet = listenedOpSet;
             this.listenedOpSet.addCallListener(this);

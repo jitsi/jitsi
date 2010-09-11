@@ -253,12 +253,12 @@ public class OperationSetWhiteboardingJabberImpl
     }
 
     /**
-     * Returns a list of the <tt>WhiteboardSession</tt>s that 
+     * Returns a list of the <tt>WhiteboardSession</tt>s that
      * <tt>WhiteboardParticipant</tt> has joined and is currently active in.
      *
      * @param participant the participant whose current
      * <tt>WhiteboardSession</tt>s we will be querying.
-     * @return a list of the <tt>WhiteboardSession</tt>s that 
+     * @return a list of the <tt>WhiteboardSession</tt>s that
      * <tt>WhiteboardParticipant</tt> has joined and is currently active in.
      *
      * @throws OperationFailedException if an error occurs while trying to
@@ -266,7 +266,7 @@ public class OperationSetWhiteboardingJabberImpl
      * @throws OperationNotSupportedException if the server does not support
      * white-boarding
      */
-    public List getCurrentlyJoinedWhiteboards(WhiteboardParticipant participant)
+    public List<WhiteboardSession> getCurrentlyJoinedWhiteboards(WhiteboardParticipant participant)
         throws OperationFailedException,
         OperationNotSupportedException
     {
@@ -377,7 +377,7 @@ public class OperationSetWhiteboardingJabberImpl
             }
 
             // If we're here this means that no white board session has been
-            // found and we will send an invitation to the user to join a 
+            // found and we will send an invitation to the user to join a
             // white-board session created by us.
             WhiteboardObjectPacketExtension newMessage
                 = (WhiteboardObjectPacketExtension) ext;
@@ -417,14 +417,14 @@ public class OperationSetWhiteboardingJabberImpl
     /**
      * Delivers a <tt>WhiteboardInvitationEvent</tt> to all
      * registered <tt>WhiteboardInvitationListener</tt>s.
-     * 
+     *
      * @param targetWhiteboard the white-board that invitation refers to
      * @param whiteboardObject the white-board object that inviter send
      * with this invitation and which will be shown on the white-board if the
-     * user accepts the invitation 
+     * user accepts the invitation
      * @param inviter the inviter that sent the invitation
      * @param reason the reason why the inviter sent the invitation
-     * @param password the password to use when joining the room 
+     * @param password the password to use when joining the room
      */
     public void fireInvitationEvent(WhiteboardSession targetWhiteboard,
                                     WhiteboardObject whiteboardObject,
@@ -463,7 +463,7 @@ public class OperationSetWhiteboardingJabberImpl
     /**
      * Delivers a <tt>WhiteboardSessionPresenceChangeEvent</tt> to all
      * registered <tt>WhiteboardSessionPresenceChangeEvent</tt>s.
-     * 
+     *
      * @param session the <tt>WhiteboardSession</tt> which has been joined,
      * left, etc.
      * @param eventType the type of this event; one of LOCAL_USER_JOINED,

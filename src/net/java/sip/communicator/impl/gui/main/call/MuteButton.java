@@ -73,7 +73,7 @@ public class MuteButton
     {
         if (call != null)
         {
-            OperationSetBasicTelephony telephony
+            OperationSetBasicTelephony<?> telephony
                 = call.getProtocolProvider().getOperationSet(
                         OperationSetBasicTelephony.class);
 

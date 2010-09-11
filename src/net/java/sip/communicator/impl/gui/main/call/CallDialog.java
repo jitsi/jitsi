@@ -88,7 +88,7 @@ public class CallDialog
 
     /**
      * The button which allows starting and stopping the recording of the
-     * {@link #call}. 
+     * {@link #call}.
      */
     private RecordButton recordButton;
 

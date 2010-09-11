@@ -195,13 +195,13 @@ public class RssFeedReader
     private String getNewsAbstract(SyndEntry syndEntry)
     {
         StringBuffer newsAbstract = new StringBuffer();
-        List contents;
+        List<?> contents;
 
         // get item contents
         contents = syndEntry.getContents();
         if (!contents.isEmpty())
         {
-            Iterator it = contents.iterator();
+            Iterator<?> it = contents.iterator();
             while (it.hasNext())
             {
                 newsAbstract.append(((SyndContent)it.next()).getValue());

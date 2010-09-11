@@ -39,7 +39,7 @@ public class ChatContactCellRenderer
      * @param index the index of the current cell in the source list
      * @param isSelected indicates if this cell is selected
      * @param cellHasFocus indicates if this cell is focused
-     * 
+     *
      * @return this panel
      */
     @Override
@@ -53,13 +53,13 @@ public class ChatContactCellRenderer
 
         this.rightLabel.setIcon(null);
 
-        final ChatContact chatContact = (ChatContact) value;
+        final ChatContact<?> chatContact = (ChatContact<?>) value;
 
         if(chatContact == null)
             return this;
 
         ChatRoomMember member = null;
-        
+
         if (chatContact.getDescriptor() instanceof ChatRoomMember)
             member = (ChatRoomMember) chatContact.getDescriptor();
 
@@ -138,12 +138,12 @@ public class ChatContactCellRenderer
                         while(itr.hasNext())
                         {
                             GenericDetail detail = itr.next();
-    
+
                             if(detail instanceof BinaryDetail)
                             {
                                 BinaryDetail bin = (BinaryDetail)detail;
                                 byte[] binBytes = bin.getBytes();
-    
+
                                 if(binBytes != null)
                                     this.rightLabel.setIcon(
                                         ImageUtils.getScaledRoundedIcon(

@@ -76,7 +76,7 @@ public class EmptyAccountRegistrationWizardPage
     /**
      * Returns the <tt>JPanel</tt> that contains the message prompting the user
      * to select a protocol.
-     * 
+     *
      * @return the <tt>JPanel</tt> that contains the message prompting the user
      * to select a protocol.
      */
@@ -84,7 +84,7 @@ public class EmptyAccountRegistrationWizardPage
     {
         return mainPanel;
     }
-    
+
     /**
      * Implements the <code>WizardPage.getIdentifier</code> to return this
      * page identifier.

@@ -83,7 +83,7 @@ public class HoldButton
         {
             Iterator<? extends CallPeer> peers = call.getCallPeers();
             boolean on = isSelected();
-            OperationSetBasicTelephony telephony
+            OperationSetBasicTelephony<?> telephony
                 = call.getProtocolProvider().getOperationSet(
                         OperationSetBasicTelephony.class);
 

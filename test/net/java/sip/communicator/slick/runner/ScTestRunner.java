@@ -35,7 +35,7 @@ public class ScTestRunner extends BaseTestRunner {
     /**
      * Runs a suite extracted from a TestCase subclass.
      */
-    static public void run(Class testClass, XmlFormatter fmtr)
+    static public void run(Class<? extends Test> testClass, XmlFormatter fmtr)
     {
         run(new TestSuite(testClass), fmtr);
     }

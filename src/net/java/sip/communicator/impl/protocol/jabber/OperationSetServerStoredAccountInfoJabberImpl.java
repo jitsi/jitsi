@@ -29,7 +29,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
     private ProtocolProviderServiceJabberImpl jabberProvider = null;
 
     /**
-     * Our account uin
+     * Our account UIN.
      */
     private String uin = null;
 
@@ -196,9 +196,10 @@ public class OperationSetServerStoredAccountInfoJabberImpl
         //            detail.getClass());
         //}
 
-        Iterator iter = getDetails(detail.getClass());
+        Iterator<GenericDetail> iter = getDetails(detail.getClass());
         int currentDetailsSize = 0;
-        while (iter.hasNext()) {
+        while (iter.hasNext())
+        {
             currentDetailsSize++;
         }
 
@@ -251,6 +252,9 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      * @param currentDetailValue the detail value we'd like to replace.
      * @param newDetailValue the value of the detail that we'd like to replace
      * currentDetailValue with.
+     * @return true if the operation was a success or false if
+     * currentDetailValue did not previously exist (in this case an additional
+     * call to addDetail is required).
      * @throws ClassCastException if newDetailValue is not an instance of the
      * same class as currentDetailValue.
      * @throws OperationFailedException with code Network Failure if putting the
@@ -275,12 +279,12 @@ public class OperationSetServerStoredAccountInfoJabberImpl
         }
 
         boolean isFound = false;
-        Iterator iter =
+        Iterator<GenericDetail> iter =
                 infoRetreiver.getDetails(uin, currentDetailValue.getClass());
 
         while (iter.hasNext())
         {
-            GenericDetail item = (GenericDetail) iter.next();
+            GenericDetail item = iter.next();
             if (item.equals(currentDetailValue))
             {
                 isFound = true;

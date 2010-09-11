@@ -14,7 +14,7 @@ import javax.media.protocol.*;
 /**
  * Represents a <tt>PushBufferStream</tt> which reads its data from a
  * specific <tt>PushSourceStream</tt>.
- * 
+ *
  * @author Lubomir Marinov
  */
 public class PushBufferStreamAdapter
@@ -26,7 +26,7 @@ public class PushBufferStreamAdapter
      * Initializes a new <tt>PushBufferStreamAdapter</tt> instance which
      * reads its data from a specific <tt>PushSourceStream</tt> with a
      * specific <tt>Format</tt>
-     * 
+     *
      * @param stream the <tt>PushSourceStream</tt> the new instance is to
      *            read its data from
      * @param format the <tt>Format</tt> of the specified input
@@ -37,10 +37,13 @@ public class PushBufferStreamAdapter
         super(stream, format);
     }
 
-    /*
+    /**
      * Implements PushBufferStream#read(Buffer). Delegates to the wrapped
      * PushSourceStream by allocating a new byte[] buffer of size equal to
-     * PushSourceStream#getMinimumTransferSize(). 
+     * PushSourceStream#getMinimumTransferSize().
+     *
+     * @param buffer the <tt>Buffer</tt> to read
+     * @throws IOException if I/O related errors occurred during read operation
      */
     public void read(Buffer buffer)
         throws IOException
@@ -48,9 +51,15 @@ public class PushBufferStreamAdapter
         read(buffer, new byte[stream.getMinimumTransferSize()]);
     }
 
-    /*
+    /**
      * Implements BufferStreamAdapter#read(byte[], int, int). Delegates to the
      * wrapped PushSourceStream.
+     *
+     * @param buffer byte array to read
+     * @param offset offset to start reading
+     * @param length length to read
+     * @return number of bytes read
+     * @throws IOException if I/O related errors occurred during read operation
      */
     protected int read(byte[] buffer, int offset, int length)
         throws IOException
@@ -58,10 +67,12 @@ public class PushBufferStreamAdapter
         return stream.read(buffer, offset, length);
     }
 
-    /*
+    /**
      * Implements PushBufferStream#setTransferHandler(BufferTransferHandler).
      * Delegates to the wrapped PushSourceStream by translating the specified
      * BufferTransferHandler to a SourceTransferHandler.
+     *
+     * @param transferHandler a <tt>BufferTransferHandler</tt> to set
      */
     public void setTransferHandler(final BufferTransferHandler transferHandler)
     {

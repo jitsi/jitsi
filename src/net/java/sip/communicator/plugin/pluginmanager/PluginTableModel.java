@@ -14,7 +14,7 @@ import org.osgi.framework.*;
 
 /**
  * The <tt>TableModel</tt> of the table containing all plug-ins.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class PluginTableModel
@@ -200,7 +200,7 @@ public class PluginTableModel
         {
             for(Bundle b : list)
             {
-                Dictionary headers = b.getHeaders();
+                Dictionary<?, ?> headers = b.getHeaders();
                 if(headers.get(Constants.BUNDLE_ACTIVATOR)!=null)
                 {
                     if(!headers.get(Constants.BUNDLE_ACTIVATOR).toString()

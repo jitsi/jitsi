@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public abstract class ActiveCallsRepository<T extends Call,
-                                   U extends OperationSetBasicTelephony>
+        U extends OperationSetBasicTelephony<? extends ProtocolProviderService>>
     extends CallChangeAdapter
 {
     /**

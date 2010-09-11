@@ -65,8 +65,8 @@ public class ChatRoomMemberListPanel
         this.memberList.setModel(memberListModel);
         this.memberList.addKeyListener(new CListKeySearchListener(memberList));
         this.memberList.setCellRenderer(new ChatContactCellRenderer());
-        
-        // It's pertinent to add the ChatContactRightButtonMenu only we aren't 
+
+        // It's pertinent to add the ChatContactRightButtonMenu only we aren't
         // in an ad-hoc multi user chat (which support roles)
         if(this.chatPanel.getChatSession().getCurrentChatTransport()
                 .getProtocolProvider().getSupportedOperationSets().containsKey(
@@ -82,8 +82,8 @@ public class ChatRoomMemberListPanel
                         memberList.setSelectedIndex(
                             memberList.locationToIndex(e.getPoint()));
 
-                        ChatContact chatContact
-                            = (ChatContact) memberList.getSelectedValue();
+                        ChatContact<?> chatContact
+                            = (ChatContact<?>) memberList.getSelectedValue();
 
                         if (chatContact != null)
                             new ChatContactRightButtonMenu(
@@ -94,7 +94,7 @@ public class ChatRoomMemberListPanel
                 }
             });
         }
-        
+
 
         JScrollPane contactsScrollPane = new SCScrollPane();
         contactsScrollPane.setHorizontalScrollBarPolicy(
@@ -114,7 +114,7 @@ public class ChatRoomMemberListPanel
      *
      * @param chatContact the <tt>ChatContact</tt> to add
      */
-    public void addContact(ChatContact chatContact)
+    public void addContact(ChatContact<?> chatContact)
     {
         memberListModel.addElement(chatContact);
     }
@@ -124,7 +124,7 @@ public class ChatRoomMemberListPanel
      *
      * @param chatContact the <tt>ChatContact</tt> to remove
      */
-    public void removeContact(ChatContact chatContact)
+    public void removeContact(ChatContact<?> chatContact)
     {
         memberListModel.removeElement(chatContact);
     }
@@ -135,7 +135,7 @@ public class ChatRoomMemberListPanel
      *
      * @param chatContact the <tt>ChatContact</tt> to be renamed
      */
-    public void renameContact(ChatContact chatContact)
+    public void renameContact(ChatContact<?> chatContact)
     {
     }
 

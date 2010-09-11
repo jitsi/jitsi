@@ -280,7 +280,7 @@ public class ChatPanel
         if (chatContactListPanel != null)
         {
             // Initialize chat participants' panel.
-            Iterator<ChatContact> chatParticipants
+            Iterator<ChatContact<?>> chatParticipants
                 = chatSession.getParticipants();
 
             while (chatParticipants.hasNext())
@@ -302,7 +302,7 @@ public class ChatPanel
 
     /**
      * Shows or hides the Stylebar depending on the value of parameter b.
-     * 
+     *
      * @param b if true, makes the Stylebar visible, otherwise hides the
      * Stylebar
      */
@@ -438,7 +438,7 @@ public class ChatPanel
         this.conversationPanel.appendMessageToEnd(
             "<DIV identifier=\"message\" style=\"color:#707070;\">"
             + GuiActivator.getResources().getI18NString("service.gui.IS_NOW",
-                new String[]{evt.getSourceMember().getName(), 
+                new String[]{evt.getSourceMember().getName(),
                 getRoleDescription(evt.getNewRole())})
                 +"</DIV>");
     }
@@ -677,7 +677,7 @@ public class ChatPanel
      * Passes the message to the contained <code>ChatConversationPanel</code>
      * for processing and appends it at the end of the conversationPanel
      * document.
-     * 
+     *
      * @param chatMessage the chat message to add
      */
     private void addChatMessage(ChatMessage chatMessage)
@@ -700,7 +700,7 @@ public class ChatPanel
 
     /**
      * Adds the given error message to the chat window conversation area.
-     * 
+     *
      * @param contactName the name of the contact, for which the error occured
      * @param message the error message
      */
@@ -708,7 +708,7 @@ public class ChatPanel
                                 String message)
     {
         this.addMessage(contactName,  System.currentTimeMillis(),
-                Chat.ERROR_MESSAGE, 
+                Chat.ERROR_MESSAGE,
                 GuiActivator.getResources()
                     .getI18NString("service.gui.MSG_DELIVERY_FAILURE"),
                 message, "text");
@@ -716,7 +716,7 @@ public class ChatPanel
 
     /**
      * Adds the given error message to the chat window conversation area.
-     * 
+     *
      * @param contactName the name of the contact, for which the error occurred
      * @param title the title of the error
      * @param message the error message
@@ -726,7 +726,7 @@ public class ChatPanel
                                 String message)
     {
         this.addMessage(contactName,  System.currentTimeMillis(),
-                Chat.ERROR_MESSAGE, 
+                Chat.ERROR_MESSAGE,
                 title,
                 message, "text");
     }
@@ -735,7 +735,7 @@ public class ChatPanel
      * Passes the message to the contained <code>ChatConversationPanel</code>
      * for processing and appends it at the end of the conversationPanel
      * document.
-     * 
+     *
      * @param chatMessage the message to append
      */
     private void appendChatMessage(ChatMessage chatMessage)
@@ -888,7 +888,7 @@ public class ChatPanel
     /**
      * Brings the <tt>ChatWindow</tt> containing this <tt>ChatPanel</tt> to the
      * front if <tt>isVisble</tt> is <tt>true</tt>; hides it, otherwise.
-     * 
+     *
      * @param isVisible <tt>true</tt> to bring the <tt>ChatWindow</tt> of this
      * <tt>ChatPanel</tt> to the front; <tt>false</tt> to close this
      * <tt>ChatPanel</tt>
@@ -996,7 +996,7 @@ public class ChatPanel
      * Sends the given file through the currently selected chat transport by
      * using the given fileComponent to visualize the transfer process in the
      * chat conversation panel.
-     * 
+     *
      * @param file the file to send
      * @param fileComponent the file component to use for visualization
      */
@@ -1079,7 +1079,7 @@ public class ChatPanel
 
     /**
      * Sends the given file through the currently selected chat transport.
-     * 
+     *
      * @param file the file to send
      */
     public void sendFile(final File file)
@@ -1348,7 +1348,7 @@ public class ChatPanel
     private class SmsMessageListener implements MessageListener
     {
         /**
-         * @param chatTransport Currently unused 
+         * @param chatTransport Currently unused
          */
         public SmsMessageListener(ChatTransport chatTransport)
         {
@@ -1461,7 +1461,7 @@ public class ChatPanel
 
     /**
      * Loads history messages ignoring the message with the specified id.
-     * 
+     *
      * @param escapedMessageID the id of the message to be ignored;
      * <tt>null</tt> if no message is to be ignored
      */
@@ -1559,11 +1559,11 @@ public class ChatPanel
     /**
      * Renames all occurrences of the given <tt>chatContact</tt> in this chat
      * panel.
-     * 
+     *
      * @param chatContact the contact to rename
      * @param name the new name
      */
-    public void setContactName(ChatContact chatContact, String name)
+    public void setContactName(ChatContact<?> chatContact, String name)
     {
         if (chatContactListPanel != null)
         {
@@ -1581,7 +1581,7 @@ public class ChatPanel
 
     /**
      * Adds the given chatTransport to the given send via selector box.
-     * 
+     *
      * @param chatTransport the transport to add
      */
     public void addChatTransport(ChatTransport chatTransport)
@@ -1593,7 +1593,7 @@ public class ChatPanel
 
     /**
      * Removes the given chat status state from the send via selector box.
-     * 
+     *
      * @param chatTransport the transport to remove
      */
     public void removeChatTransport(ChatTransport chatTransport)
@@ -1605,7 +1605,7 @@ public class ChatPanel
 
     /**
      * Selects the given chat transport in the send via box.
-     * 
+     *
      * @param chatTransport the chat transport to be selected
      */
     public void setSelectedChatTransport(ChatTransport chatTransport)
@@ -1751,7 +1751,7 @@ public class ChatPanel
      * participating in the corresponding to this chat panel chat.
      * @param chatContact the contact to add
      */
-    public void addChatContact(ChatContact chatContact)
+    public void addChatContact(ChatContact<?> chatContact)
     {
         if (chatContactListPanel != null)
             chatContactListPanel.addContact(chatContact);
@@ -1762,7 +1762,7 @@ public class ChatPanel
      * participating in the corresponding to this chat panel chat.
      * @param chatContact the contact to remove
      */
-    public void removeChatContact(ChatContact chatContact)
+    public void removeChatContact(ChatContact<?> chatContact)
     {
         if (chatContactListPanel != null)
             chatContactListPanel.removeContact(chatContact);
@@ -1773,7 +1773,7 @@ public class ChatPanel
      * @param chatContact the chat contact to update
      * @param statusMessage the status message to show
      */
-    public void updateChatContactStatus(ChatContact chatContact,
+    public void updateChatContactStatus(ChatContact<?> chatContact,
                                         String statusMessage)
     {
         this.addMessage(
@@ -1820,7 +1820,7 @@ public class ChatPanel
     /**
      * Adds the given <tt>IncomingFileTransferRequest</tt> to the conversation
      * panel in order to notify the user of the incoming file.
-     * 
+     *
      * @param fileTransferOpSet the file transfer operation set
      * @param request the request to display in the conversation panel
      * @param date the date on which the request has been received
@@ -1984,7 +1984,7 @@ public class ChatPanel
             {
                 ChatRoomWrapper chatRoomWrapper
                     = conferenceChatManager.createChatRoom(
-                        inviteChatTransport.getProtocolProvider(), 
+                        inviteChatTransport.getProtocolProvider(),
                         chatContacts,
                         reason);
 
@@ -2161,7 +2161,7 @@ public class ChatPanel
     /**
      * Adds the given file transfer <tt>id</tt> to the list of active file
      * transfers.
-     * 
+     *
      * @param id the identifier of the file transfer to add
      * @param descriptor the descriptor of the file transfer
      */

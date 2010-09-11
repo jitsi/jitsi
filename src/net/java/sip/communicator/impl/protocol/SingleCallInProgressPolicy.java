@@ -228,7 +228,7 @@ public class SingleCallInProgressPolicy
      *            the <code>Call</code>s created by the former
      */
     private void addOperationSetBasicTelephonyListener(
-        OperationSetBasicTelephony telephony)
+        OperationSetBasicTelephony<? extends ProtocolProviderService> telephony)
     {
         telephony.addCallListener(listener);
     }
@@ -318,7 +318,7 @@ public class SingleCallInProgressPolicy
      */
     private void putOnHold(Call call)
     {
-        OperationSetBasicTelephony telephony =
+        OperationSetBasicTelephony<?> telephony =
             call.getProtocolProvider()
                 .getOperationSet(OperationSetBasicTelephony.class);
 
@@ -377,7 +377,7 @@ public class SingleCallInProgressPolicy
      *            the <code>Call</code>s created by the former
      */
     private void removeOperationSetBasicTelephonyListener(
-        OperationSetBasicTelephony telephony)
+        OperationSetBasicTelephony<? extends ProtocolProviderService> telephony)
     {
         telephony.removeCallListener(listener);
     }
@@ -401,7 +401,7 @@ public class SingleCallInProgressPolicy
 
         if (service instanceof ProtocolProviderService)
         {
-            OperationSetBasicTelephony telephony =
+            OperationSetBasicTelephony<?> telephony =
                 ((ProtocolProviderService) service)
                     .getOperationSet(OperationSetBasicTelephony.class);
 

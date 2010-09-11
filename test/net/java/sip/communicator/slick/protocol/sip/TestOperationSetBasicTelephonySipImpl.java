@@ -9,7 +9,7 @@ package net.java.sip.communicator.slick.protocol.sip;
 import junit.framework.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
-import java.text.ParseException;
+import java.text.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import java.util.*;
 
@@ -69,10 +69,10 @@ public class TestOperationSetBasicTelephonySipImpl
     public void testCreateCancelCall()
         throws ParseException, OperationFailedException
     {
-        OperationSetBasicTelephony basicTelephonyP1
+        OperationSetBasicTelephony<?> basicTelephonyP1
             = fixture.provider1.getOperationSet(
                 OperationSetBasicTelephony.class);
-        OperationSetBasicTelephony basicTelephonyP2
+        OperationSetBasicTelephony<?> basicTelephonyP2
             = fixture.provider2.getOperationSet(
                 OperationSetBasicTelephony.class);
 
@@ -299,10 +299,10 @@ public class TestOperationSetBasicTelephonySipImpl
     public void testCreateRejectCall()
         throws ParseException, OperationFailedException
     {
-        OperationSetBasicTelephony basicTelephonyP1
+        OperationSetBasicTelephony<?> basicTelephonyP1
             = fixture.provider1.getOperationSet(
                 OperationSetBasicTelephony.class);
-        OperationSetBasicTelephony basicTelephonyP2
+        OperationSetBasicTelephony<?> basicTelephonyP2
             = fixture.provider2.getOperationSet(
                 OperationSetBasicTelephony.class);
 
@@ -536,10 +536,10 @@ public class TestOperationSetBasicTelephonySipImpl
     public void aTestCreateAnswerHangupCall()
         throws ParseException, OperationFailedException
     {
-        OperationSetBasicTelephony basicTelephonyP1
+        OperationSetBasicTelephony<?> basicTelephonyP1
             = fixture.provider1.getOperationSet(
                 OperationSetBasicTelephony.class);
-        OperationSetBasicTelephony basicTelephonyP2
+        OperationSetBasicTelephony<?> basicTelephonyP2
             = fixture.provider2.getOperationSet(
                 OperationSetBasicTelephony.class);
 
@@ -752,7 +752,7 @@ public class TestOperationSetBasicTelephonySipImpl
     public class CallEventCollector implements CallListener
     {
         public ArrayList<EventObject> collectedEvents = new ArrayList<EventObject>();
-        public OperationSetBasicTelephony listenedOpSet = null;
+        public OperationSetBasicTelephony<?> listenedOpSet = null;
 
         /**
          * Creates an instance of this call event collector and registers it
@@ -760,7 +760,7 @@ public class TestOperationSetBasicTelephonySipImpl
          * @param listenedOpSet the operation set that we will be scanning for
          * new calls.
          */
-        public CallEventCollector(OperationSetBasicTelephony listenedOpSet)
+        public CallEventCollector(OperationSetBasicTelephony<?> listenedOpSet)
         {
             this.listenedOpSet = listenedOpSet;
             this.listenedOpSet.addCallListener(this);

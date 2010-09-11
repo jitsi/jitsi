@@ -19,7 +19,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * An implementation of <tt>ChatSession</tt> for conference chatting.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Valentin Martinet
@@ -56,7 +56,7 @@ public class ConferenceChatSession
      * Creates an instance of <tt>ConferenceChatSession</tt>, by specifying the
      * sessionRenderer to be used for communication with the UI and the chatRoom
      * corresponding to this conference session.
-     * 
+     *
      * @param sessionRenderer the renderer to be used for communication with the
      * UI.
      * @param chatRoomWrapper the chat room corresponding to this conference
@@ -82,7 +82,7 @@ public class ConferenceChatSession
 
     /**
      * Returns the descriptor of this chat session.
-     * 
+     *
      * @return the descriptor of this chat session.
      */
     public Object getDescriptor()
@@ -106,7 +106,7 @@ public class ConferenceChatSession
 
     /**
      * Returns the name of the chat room.
-     * 
+     *
      * @return the name of the chat room.
      */
     public String getChatName()
@@ -116,7 +116,7 @@ public class ConferenceChatSession
 
     /**
      * Returns the subject of the chat room.
-     * 
+     *
      * @return the subject of the chat room.
      */
     public String getChatSubject()
@@ -126,7 +126,7 @@ public class ConferenceChatSession
 
     /**
      * Returns the configuration form corresponding to the chat room.
-     * 
+     *
      * @return the configuration form corresponding to the chat room.
      * @throws OperationFailedException if no configuration form is available
      * for the chat room.
@@ -140,7 +140,7 @@ public class ConferenceChatSession
     /**
      * Returns the currently used transport for all operation within this chat
      * session.
-     * 
+     *
      * @return the currently used transport for all operation within this chat
      * session.
      */
@@ -152,7 +152,7 @@ public class ConferenceChatSession
     /**
      * Returns the default mobile number used to send sms-es in this session. In
      * the case of conference this is for now null.
-     * 
+     *
      * @return the default mobile number used to send sms-es in this session.
      */
     public String getDefaultSmsNumber()
@@ -162,7 +162,7 @@ public class ConferenceChatSession
 
     /**
      * Returns a collection of the last N number of messages given by count.
-     * 
+     *
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
@@ -185,7 +185,7 @@ public class ConferenceChatSession
 
     /**
      * Returns a collection of the last N number of messages given by count.
-     * 
+     *
      * @param date The date up to which we're looking for messages.
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
@@ -210,7 +210,7 @@ public class ConferenceChatSession
 
     /**
      * Returns a collection of the last N number of messages given by count.
-     * 
+     *
      * @param date The date from which we're looking for messages.
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
@@ -235,7 +235,7 @@ public class ConferenceChatSession
 
     /**
      * Returns the start date of the history of this chat session.
-     * 
+     *
      * @return the start date of the history of this chat session.
      */
     public long getHistoryStartDate()
@@ -284,7 +284,7 @@ public class ConferenceChatSession
 
     /**
      * Returns the end date of the history of this chat session.
-     * 
+     *
      * @return the end date of the history of this chat session.
      */
     public long getHistoryEndDate()
@@ -333,7 +333,7 @@ public class ConferenceChatSession
     /**
      * Sets the transport that will be used for all operations within this chat
      * session.
-     * 
+     *
      * @param chatTransport The transport to set as a default transport for this
      * session.
      */
@@ -348,7 +348,7 @@ public class ConferenceChatSession
 
     /**
      * Sets the default mobile number used to send sms-es in this session.
-     * 
+     *
      * @param smsPhoneNumber The default mobile number used to send sms-es in
      * this session.
      */
@@ -357,7 +357,7 @@ public class ConferenceChatSession
     /**
      * Returns the <tt>ChatSessionRenderer</tt> that provides the connection
      * between this chat session and its UI.
-     * 
+     *
      * @return The <tt>ChatSessionRenderer</tt>.
      */
     public ChatSessionRenderer getChatSessionRenderer()
@@ -390,7 +390,7 @@ public class ConferenceChatSession
         {
             ConferenceChatContact chatContact
                 = new ConferenceChatContact(chatRoomMember);
-            
+
             // Check if not ever present in the chat room. In some cases, the
             // considered chatroom member may appear twice in the chat contact
             // list panel.
@@ -400,7 +400,7 @@ public class ConferenceChatSession
                     chatParticipants.add(chatContact);
                     sessionRenderer.addChatContact(chatContact);
             }
-            
+
             /*
              * When the whole list of members of a given chat room is reported,
              * it doesn't make sense to see "ChatContact has joined #ChatRoom"
@@ -444,7 +444,7 @@ public class ConferenceChatSession
                     new String[] {sourceChatRoom.getName()});
             }
 
-            for (ChatContact chatContact : chatParticipants)
+            for (ChatContact<?> chatContact : chatParticipants)
             {
                 if(chatContact.getDescriptor().equals(chatRoomMember))
                 {
@@ -463,7 +463,7 @@ public class ConferenceChatSession
 
     /**
      * Updates the chat panel when a property of the chat room has been modified.
-     * 
+     *
      * @param evt the event containing information about the property change
      */
     public void chatRoomPropertyChanged(ChatRoomPropertyChangeEvent evt)
@@ -489,7 +489,7 @@ public class ConferenceChatSession
     /**
      * Loads the given chat room in the this chat conference panel. Loads all
      * members and adds all corresponding listeners.
-     * 
+     *
      * @param chatRoom the <tt>ChatRoom</tt> to load
      */
     public void loadChatRoom(ChatRoom chatRoom)

@@ -47,7 +47,7 @@ public class TransferCallButton
         setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.TRANSFER_BUTTON_TOOL_TIP"));
 
-        OperationSetAdvancedTelephony telephony =
+        OperationSetAdvancedTelephony<?> telephony =
             call.getProtocolProvider()
                 .getOperationSet(OperationSetAdvancedTelephony.class);
 
@@ -75,7 +75,7 @@ public class TransferCallButton
      */
     private void transferCall()
     {
-        OperationSetAdvancedTelephony telephony
+        OperationSetAdvancedTelephony<?> telephony
             = call.getProtocolProvider()
                 .getOperationSet(OperationSetAdvancedTelephony.class);
 

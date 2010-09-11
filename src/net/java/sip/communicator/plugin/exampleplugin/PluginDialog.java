@@ -16,50 +16,50 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * A plugin dialog that is open through the right button menu over a contact and
  * shows the contact name.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class PluginDialog
     extends SIPCommDialog
 {
     private JTextArea infoTextArea = new JTextArea();
-    
+
     private JPanel mainPanel = new TransparentPanel();
-    
+
     private JLabel contactLabel = new JLabel();
     private JLabel nameLabel = new JLabel();
-    
+
     /**
      * Creates an instance of this <tt>PluginDialog</tt> by specifying the
      * current <tt>MetaContact</tt>.
-     * 
+     *
      * @param metaContact the <tt>MetaContact</tt> we're going to treat.
      */
     public PluginDialog(MetaContact metaContact)
     {
         this.setTitle("Example plugin");
-        
+
         this.infoTextArea.setPreferredSize(new Dimension(250, 70));
-        
+
         this.infoTextArea.setText("This is an example plugin that shows the "
             + "currently selected contact"
             + " in a separate window.");
-        
+
         this.nameLabel.setText("The name of the selected contact is:");
         this.contactLabel.setText(metaContact.getDisplayName());
-        
+
         this.mainPanel.add(infoTextArea);
         this.mainPanel.add(nameLabel);
         this.mainPanel.add(contactLabel);
-        
+
         this.getContentPane().add(mainPanel);
-        
+
         this.initStyles();
-        
+
         this.setResizable(false);
         this.pack();
     }
-    
+
     /**
      * Initializes needed layouts, alignments, borders and different text area
      * style constants.
@@ -67,19 +67,19 @@ public class PluginDialog
     private void initStyles()
     {
         this.mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        
+
         this.mainPanel.setBorder(
             BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
+
         this.infoTextArea.setEditable(false);
         this.infoTextArea.setOpaque(false);
         this.infoTextArea.setWrapStyleWord(true);
         this.infoTextArea.setLineWrap(true);
         this.infoTextArea.setFont(infoTextArea.getFont().deriveFont(Font.BOLD));
         this.infoTextArea.setAlignmentX(JTextArea.CENTER_ALIGNMENT);
-        
+
         this.nameLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
-        
+
         this.contactLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         this.contactLabel.setAlignmentY(JLabel.TOP_ALIGNMENT);
         this.contactLabel.setFont(contactLabel.getFont().deriveFont(Font.BOLD));

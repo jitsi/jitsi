@@ -18,7 +18,7 @@ import javax.media.protocol.*;
  * where the method argument <code>stream</code> is ignored and the substitute
  * is used instead.
  * </p>
- * 
+ *
  * @author Lubomir Marinov
  */
 public class StreamSubstituteBufferTransferHandler
@@ -48,7 +48,7 @@ public class StreamSubstituteBufferTransferHandler
      * Initializes a new <tt>StreamSubstituteBufferTransferHandler</tt> instance
      * which is to overwrite the source <tt>PushBufferStream</tt> of a specific
      * <tt>BufferTransferHandler</tt>.
-     * 
+     *
      * @param transferHandler the <tt>BufferTransferHandler</tt> the new
      *            instance is to overwrite the source <tt>PushBufferStream</tt>
      *            of
@@ -69,11 +69,13 @@ public class StreamSubstituteBufferTransferHandler
         this.substitute = substitute;
     }
 
-    /*
+    /**
      * Implements BufferTransferHandler#transferData(PushBufferStream). Puts in
      * place the essence of the StreamSubstituteBufferTransferHandler class
      * which is to report to the transferHandler from the same PushBufferStream
      * to which it was set so that the substitute can gain full control.
+     *
+     * @param stream the <tt>PushBufferStream</tt> to transfer
      */
     public void transferData(PushBufferStream stream)
     {

@@ -32,7 +32,7 @@ public class GeolocationEvent
     /**
      * The new location of the contact that has caused this event.
      */
-    private Map newLocation = null;
+    private Map<String, String> newLocation = null;
 
     /**
      * Creates an event instance indicating that the specified source contact
@@ -45,7 +45,7 @@ public class GeolocationEvent
      */
     public GeolocationEvent(Contact                 sourceContact,
                             ProtocolProviderService sourceProvider,
-                            Map                     newLocation,
+                            Map<String, String>     newLocation,
                             OperationSetGeolocation geolocationOpSet)
     {
         super(geolocationOpSet);
@@ -81,7 +81,7 @@ public class GeolocationEvent
      * @return geolocation stored into a Map indicating the current location
      * of the source Contact at the moment the event was dispatched.
      */
-    public Map getNewLocation()
+    public Map<String, String> getNewLocation()
     {
         return newLocation;
     }

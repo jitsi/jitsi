@@ -161,8 +161,8 @@ public abstract class AbstractPushBufferStream
     }
 
     /**
-     * Implements {@link Controls#getControls()}. Gets the controls available
-     * for this instance.
+     * Implements {@link javax.media.protocol.Controls#getControls()}. Gets the
+     * controls available for this instance.
      *
      * @return an array of <tt>Object</tt>s which represent the controls
      * available for this instance

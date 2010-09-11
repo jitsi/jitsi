@@ -53,6 +53,11 @@ public class OperationSetServerStoredAccountInfoMsnImpl
     private Hashtable<String,List<GenericDetail>> retrievedDetails
             = new Hashtable<String,List<GenericDetail>>();
 
+    /**
+     * Constructor.
+     * @param msnProvider MSN service provider
+     * @param uin MSN UIN
+     */
     protected OperationSetServerStoredAccountInfoMsnImpl(
             ProtocolProviderServiceMsnImpl msnProvider,
             String uin)
@@ -76,7 +81,8 @@ public class OperationSetServerStoredAccountInfoMsnImpl
      * @return a java.util.Iterator over all details that are instances or
      * descendants of the specified class.
      */
-    public Iterator<GenericDetail> getDetailsAndDescendants(Class detailClass)
+    public Iterator<GenericDetail> getDetailsAndDescendants(
+            Class<? extends GenericDetail> detailClass)
     {
         assertConnected();
 
@@ -180,7 +186,8 @@ public class OperationSetServerStoredAccountInfoMsnImpl
      * <p>
      * @return a java.util.Iterator over all details of specified class.
      */
-    public Iterator<GenericDetail> getDetails(Class detailClass)
+    public Iterator<GenericDetail> getDetails(
+            Class<? extends GenericDetail> detailClass)
     {
         assertConnected();
 
@@ -262,7 +269,7 @@ public class OperationSetServerStoredAccountInfoMsnImpl
      * <p>
      * @return int the maximum number of detail instances.
      */
-    public int getMaxDetailInstances(Class detailClass)
+    public int getMaxDetailInstances(Class<? extends GenericDetail> detailClass)
     {
         return 1;
     }
@@ -275,7 +282,8 @@ public class OperationSetServerStoredAccountInfoMsnImpl
      * @param detailClass Class
      * @return Iterator
      */
-    private Iterator<GenericDetail> getDetails(String uin, Class detailClass)
+    private Iterator<GenericDetail> getDetails(String uin,
+            Class<? extends GenericDetail> detailClass)
     {
         List<GenericDetail> details = getContactDetails(uin);
         List<GenericDetail> result = new LinkedList<GenericDetail>();
@@ -329,7 +337,7 @@ public class OperationSetServerStoredAccountInfoMsnImpl
 //                    detail.getClass());
 //        }
 
-        Iterator iter = getDetails(detail.getClass());
+        Iterator<GenericDetail> iter = getDetails(detail.getClass());
         int currentDetailsSize = 0;
         while (iter.hasNext())
         {
@@ -367,7 +375,7 @@ public class OperationSetServerStoredAccountInfoMsnImpl
      * Stores the picture.
      * @param data data to store
      * @return the picture path.
-     * @throws Exception
+     * @throws Exception if the storage of the picture failed
      */
     private String storePicture(byte[] data)
         throws Exception
@@ -418,6 +426,9 @@ public class OperationSetServerStoredAccountInfoMsnImpl
      * @param currentDetailValue the detail value we'd like to replace.
      * @param newDetailValue the value of the detail that we'd like to replace
      * currentDetailValue with.
+     * @return true if the operation was a success or false if
+     * currentDetailValue did not previously exist (in this case an additional
+     * call to addDetail is required).
      * @throws ClassCastException if newDetailValue is not an instance of the
      * same class as currentDetailValue.
      * @throws OperationFailedException with code Network Failure if putting the
@@ -426,7 +437,7 @@ public class OperationSetServerStoredAccountInfoMsnImpl
     public boolean replaceDetail(
             ServerStoredDetails.GenericDetail currentDetailValue,
             ServerStoredDetails.GenericDetail newDetailValue)
-        throws ClassCastException, OperationFailedException 
+        throws ClassCastException, OperationFailedException
     {
         assertConnected();
 
@@ -442,10 +453,10 @@ public class OperationSetServerStoredAccountInfoMsnImpl
         }
 
         boolean isFound = false;
-        Iterator iter = getDetails(uin, currentDetailValue.getClass());
+        Iterator<GenericDetail> iter = getDetails(uin, currentDetailValue.getClass());
         while (iter.hasNext())
         {
-            GenericDetail item = (GenericDetail) iter.next();
+            GenericDetail item = iter.next();
             if (item.equals(currentDetailValue))
             {
                 isFound = true;

@@ -29,17 +29,20 @@ public class ChatContactListModel
      * The backing store of this <tt>AbstractListModel</tt> listing the
      * <tt>ChatContact</tt>s.
      */
-    private final List<ChatContact> chatContacts = new ArrayList<ChatContact>();
+    private final List<ChatContact<?>> chatContacts =
+        new ArrayList<ChatContact<?>>();
 
     /**
      * The implementation of the sorting rules - the <tt>ChatContact</tt>s are
      * first sorted according to their roles in decreasing order of their
      * privileges and then they are sorted according to their names in
-     * alphabetical order. 
+     * alphabetical order.
      */
-    private final Comparator<ChatContact> sorter = new Comparator<ChatContact>()
+    private final Comparator<ChatContact<?>> sorter =
+    new Comparator<ChatContact<?>>()
     {
-        public int compare(ChatContact chatContact0, ChatContact chatContact1)
+        public int compare(ChatContact<?> chatContact0,
+                ChatContact<?> chatContact1)
         {
 
             /*
@@ -98,7 +101,7 @@ public class ChatContactListModel
 
                         for (int i = 0; i < chatContactCount; i++)
                         {
-                            ChatContact containedChatContact = chatContacts.get(i);
+                            ChatContact<?> containedChatContact = chatContacts.get(i);
 
                             if(containedChatContact.getDescriptor().equals(
                                 event.getSourceChatRoomMember()))
@@ -116,11 +119,11 @@ public class ChatContactListModel
     /**
      * Adds a specific <tt>ChatContact</tt> to this <tt>AbstractListModel</tt>
      * implementation and preserves the sorting it applies.
-     * 
+     *
      * @param chatContact a <tt>ChatContact</tt> to be added to this
      * <tt>AbstractListModel</tt>
      */
-    public void addElement(ChatContact chatContact)
+    public void addElement(ChatContact<?> chatContact)
     {
         if (chatContact == null)
             throw new IllegalArgumentException("chatContact");
@@ -129,11 +132,11 @@ public class ChatContactListModel
 
         synchronized(chatContacts)
         {
-            int chatContactCount = chatContacts.size();            
+            int chatContactCount = chatContacts.size();
 
             for (int i = 0; i < chatContactCount; i++)
             {
-                ChatContact containedChatContact = chatContacts.get(i);
+                ChatContact<?> containedChatContact = chatContacts.get(i);
 
                 // We don't want duplicates.
                 if (chatContact.equals(containedChatContact))
@@ -174,11 +177,11 @@ public class ChatContactListModel
     /**
      * Removes a specific <tt>ChatContact</tt> from this
      * <tt>AbstractListModel</tt> implementation.
-     * 
+     *
      * @param chatContact a <tt>ChatContact</tt> to be removed from this
      * <tt>AbstractListModel</tt> if it's already contained
      */
-    public void removeElement(ChatContact chatContact)
+    public void removeElement(ChatContact<?> chatContact)
     {
         synchronized(chatContacts)
         {

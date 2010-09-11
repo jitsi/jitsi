@@ -19,7 +19,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * An implementation of <tt>ChatSession</tt> for ad-hoc conference chatting.
- * 
+ *
  * @author Valentin Martinet
  */
 public class AdHocConferenceChatSession
@@ -34,12 +34,12 @@ public class AdHocConferenceChatSession
 
     /**
      * Creates an instance of <tt>AdHocConferenceChatSession</tt>, by specifying
-     * the sessionRenderer to be used for communication with the UI and the 
+     * the sessionRenderer to be used for communication with the UI and the
      * ad-hoc chat room corresponding to this conference session.
-     * 
+     *
      * @param sessionRenderer the renderer to be used for communication with the
      * UI.
-     * @param chatRoomWrapper the ad-hoc chat room corresponding to this 
+     * @param chatRoomWrapper the ad-hoc chat room corresponding to this
      * conference session.
      */
     public AdHocConferenceChatSession(  ChatSessionRenderer  sessionRenderer,
@@ -61,7 +61,7 @@ public class AdHocConferenceChatSession
 
     /**
      * Returns the descriptor of this chat session.
-     * 
+     *
      * @return the descriptor of this chat session.
      */
     public Object getDescriptor()
@@ -80,7 +80,7 @@ public class AdHocConferenceChatSession
 
     /**
      * Returns the name of the ad-hoc chat room.
-     * 
+     *
      * @return the name of the ad-hoc chat room.
      */
     public String getChatName()
@@ -90,7 +90,7 @@ public class AdHocConferenceChatSession
 
     /**
      * Returns the configuration form corresponding to the chat room.
-     * 
+     *
      * @return the configuration form corresponding to the chat room.
      * @throws OperationFailedException if no configuration form is available
      * for the chat room.
@@ -104,7 +104,7 @@ public class AdHocConferenceChatSession
     /**
      * Returns the currently used transport for all operation within this chat
      * session.
-     * 
+     *
      * @return the currently used transport for all operation within this chat
      * session.
      */
@@ -116,7 +116,7 @@ public class AdHocConferenceChatSession
     /**
      * Returns the default mobile number used to send sms-es in this session. In
      * the case of conference this is for now null.
-     * 
+     *
      * @return the default mobile number used to send sms-es in this session.
      */
     public String getDefaultSmsNumber()
@@ -126,7 +126,7 @@ public class AdHocConferenceChatSession
 
     /**
      * Returns a collection of the last N number of messages given by count.
-     * 
+     *
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
      */
@@ -149,7 +149,7 @@ public class AdHocConferenceChatSession
 
     /**
      * Returns a collection of the last N number of messages given by count.
-     * 
+     *
      * @param date The date up to which we're looking for messages.
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
@@ -174,7 +174,7 @@ public class AdHocConferenceChatSession
 
     /**
      * Returns a collection of the last N number of messages given by count.
-     * 
+     *
      * @param date The date from which we're looking for messages.
      * @param count The number of messages from history to return.
      * @return a collection of the last N number of messages given by count.
@@ -199,7 +199,7 @@ public class AdHocConferenceChatSession
 
     /**
      * Returns the start date of the history of this chat session.
-     * 
+     *
      * @return the start date of the history of this chat session.
      */
     public long getHistoryStartDate()
@@ -248,7 +248,7 @@ public class AdHocConferenceChatSession
 
     /**
      * Returns the end date of the history of this chat session.
-     * 
+     *
      * @return the end date of the history of this chat session.
      */
     public long getHistoryEndDate()
@@ -297,7 +297,7 @@ public class AdHocConferenceChatSession
     /**
      * Sets the transport that will be used for all operations within this chat
      * session.
-     * 
+     *
      * @param chatTransport The transport to set as a default transport for this
      * session.
      */
@@ -308,7 +308,7 @@ public class AdHocConferenceChatSession
 
     /**
      * Sets the default mobile number used to send sms-es in this session.
-     * 
+     *
      * @param smsPhoneNumber The default mobile number used to send sms-es in
      * this session.
      */
@@ -318,7 +318,7 @@ public class AdHocConferenceChatSession
     /**
      * Returns the <tt>ChatSessionRenderer</tt> that provides the connection
      * between this chat session and its UI.
-     * 
+     *
      * @return The <tt>ChatSessionRenderer</tt>.
      */
     public ChatSessionRenderer getChatSessionRenderer()
@@ -340,7 +340,7 @@ public class AdHocConferenceChatSession
     /**
      * Loads the given chat room in the this chat conference panel. Loads all
      * members and adds all corresponding listeners.
-     * 
+     *
      * @param chatRoom the <tt>ChatRoom</tt> to load
      */
     public void loadChatRoom(AdHocChatRoom chatRoom)
@@ -400,8 +400,8 @@ public class AdHocConferenceChatSession
     }
 
     /**
-     * Invoked when <tt>AdHocChatRoomParticipantPresenceChangeEvent</tt> are 
-     * received. When a new participant (<tt>Contact</tt>) has joined the chat 
+     * Invoked when <tt>AdHocChatRoomParticipantPresenceChangeEvent</tt> are
+     * received. When a new participant (<tt>Contact</tt>) has joined the chat
      * adds it to the list of chat participants on the right of the chat window.
      * When a participant has left or quit it's removed from the chat window.
      */
@@ -447,7 +447,7 @@ public class AdHocConferenceChatSession
         }
         else if (eventType.equals(
                 AdHocChatRoomParticipantPresenceChangeEvent.CONTACT_LEFT)
-            || 
+            ||
                 eventType.equals(
                     AdHocChatRoomParticipantPresenceChangeEvent.CONTACT_QUIT))
         {
@@ -466,7 +466,7 @@ public class AdHocConferenceChatSession
                     new String[] {sourceChatRoom.getName()});
             }
 
-            for (ChatContact chatContact : chatParticipants)
+            for (ChatContact<?> chatContact : chatParticipants)
             {
                 if(chatContact.getDescriptor().equals(participant))
                 {

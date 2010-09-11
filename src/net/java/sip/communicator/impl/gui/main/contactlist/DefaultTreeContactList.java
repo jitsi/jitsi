@@ -135,9 +135,9 @@ public class DefaultTreeContactList
             tip = new ExtendedTooltip(true);
             tip.setTitle(group.getDisplayName());
         }
-        else if (element instanceof ChatContact)
+        else if (element instanceof ChatContact<?>)
         {
-            ChatContact chatContact = (ChatContact) element;
+            ChatContact<?> chatContact = (ChatContact<?>) element;
 
             ImageIcon avatarImage = chatContact.getAvatar();
 

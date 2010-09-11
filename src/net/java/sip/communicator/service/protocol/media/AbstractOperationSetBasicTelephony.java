@@ -148,13 +148,12 @@ public abstract class AbstractOperationSetBasicTelephony
      * the new <tt>Recorder</tt> for the specified <tt>call</tt>
      * @see OperationSetBasicTelephony#createRecorder(Call)
      */
-    @SuppressWarnings("rawtypes")
     public Recorder createRecorder(Call call)
         throws OperationFailedException
     {
         return
-            (call instanceof MediaAwareCall)
-                ? ((MediaAwareCall) call).createRecorder()
+            (call instanceof MediaAwareCall<?, ?, ?>)
+                ? ((MediaAwareCall<?, ?, ?>) call).createRecorder()
                 : null;
     }
 }

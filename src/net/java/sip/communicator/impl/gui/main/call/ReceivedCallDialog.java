@@ -56,7 +56,7 @@ public class ReceivedCallDialog
 
         this.initComponents();
 
-        OperationSetBasicTelephony telephonyOpSet
+        OperationSetBasicTelephony<?> telephonyOpSet
             = call.getProtocolProvider()
                 .getOperationSet(OperationSetBasicTelephony.class);
 

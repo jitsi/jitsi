@@ -60,7 +60,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
     {
         this.id = id;
     }
-    
+
     /**
      * Code when shape is preselected
      * @param g graphics context
@@ -88,21 +88,21 @@ public abstract class WhiteboardShape implements WhiteboardObject
 
         g2.setComposite (oldComposite);
     }
-    
+
     /**
      * Code to paint the specific shape
      * @param g graphics context
      * @param t 2D affine transform
      */
     public abstract void paintShape (Graphics2D g, AffineTransform t);
-    
+
     /**
      * method to test if the shape contains a point
      * @param p coord point
      * @return true if shape contains p
      */
     public abstract boolean contains (Point2D p);
-    
+
     /**
      * Sets color of the WhiteboardShape (or rather it's border)
      *
@@ -112,7 +112,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
     {
         this.color = color;
     }
-    
+
     /**
      * Returns WhiteboardShape's opacity
      *
@@ -122,7 +122,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
     {
         return opacity;
     }
-    
+
     /**
      * Sets WhiteboardShape's opacity
      *
@@ -132,7 +132,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
     {
         this.opacity = opacity;
     }
-    
+
     /**
      * Returns true if the Shape is selected
      *
@@ -142,7 +142,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
     {
         return selected;
     }
-    
+
     /**
      * Sets selected the shape
      *
@@ -155,7 +155,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
 
     /**
      * Sets the point from which a modification could start.
-     * 
+     *
      * @param point the point from which a modification could start.
      */
     public void setModifyPoint(WhiteboardPoint point)
@@ -165,7 +165,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
 
     /**
      * The last selected for modification point.
-     * 
+     *
      * @return the last selected for modification point.
      */
     public WhiteboardPoint getModifyPoint()
@@ -182,10 +182,10 @@ public abstract class WhiteboardShape implements WhiteboardObject
     {
         drawSelectionPoints (g, t, Color.cyan);
     }
-    
+
     /**
      * Draws selection points when a shape is preselected.
-     * 
+     *
      * @param g graphics context
      * @param t 2D affine transform
      */
@@ -193,7 +193,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
     {
         drawSelectionPoints (g, t, Color.lightGray);
     }
-    
+
     /**
      * Draw all the points on the shape
      *
@@ -205,16 +205,16 @@ public abstract class WhiteboardShape implements WhiteboardObject
                                         AffineTransform t,
                                         Color color)
     {
-        List list = getSelectionPoints ();
+        List<WhiteboardPoint> list = getSelectionPoints ();
         WhiteboardPoint point;
 
         for (int i = 0; i < list.size (); i++)
         {
-            point = (WhiteboardPoint) list.get (i);
+            point = list.get (i);
             drawSelectedPoint (g, t, point, color);
         }
     }
-    
+
     /**
      * Draw a point on the shape
      *
@@ -250,13 +250,13 @@ public abstract class WhiteboardShape implements WhiteboardObject
             g.dispose();
         }
     }
-    
+
     /**
      * Returns the list of selected points
      *
      * @return list of selected points
      */
-    public abstract List getSelectionPoints ();
+    public abstract List<WhiteboardPoint> getSelectionPoints ();
     /**
      * Translates the shape
      *
@@ -264,7 +264,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
      * @param deltaY y coord
      */
     public abstract void translate (double deltaX, double deltaY);
-    
+
     /**
      * Translates the shape point at p
      *
@@ -272,7 +272,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
      * @param deltaY y coord
      */
     public abstract void translateSelectedPoint (double deltaX, double deltaY);
-    
+
     /**
      * Returns a String uniquely identifying this WhiteboardShape.
      *
@@ -282,7 +282,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
     {
         return this.id;
     }
-    
+
     /**
      * Sets a new identification for this WhiteboardShape
      *
@@ -292,7 +292,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
     {
         this.id = id;
     }
-    
+
     /**
      * Returns an integer indicating the thickness (represented as number of
      * pixels) of this whiteboard shape (or its border).
@@ -303,7 +303,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
     {
         return this.thickness;
     }
-    
+
     /**
      * Sets the thickness (in pixels) of this whiteboard shape.
      *
@@ -314,7 +314,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
     {
         this.thickness = thickness;
     }
-    
+
     /**
      * Returns an integer representing the color of this object. The return
      * value uses standard RGB encoding: bits 24-31 are alpha, 16-23 are red,
@@ -326,7 +326,7 @@ public abstract class WhiteboardShape implements WhiteboardObject
     {
         return this.color.getRGB ();
     }
-    
+
     /**
      * Sets the color of this whiteboard shape (or rather it's border). The
      * color parameter must be encoded with standard RGB encoding: bits 24-31
@@ -339,8 +339,8 @@ public abstract class WhiteboardShape implements WhiteboardObject
     {
         this.color = Color.getColor ("",color);
     }
-    
-    
+
+
     /**
      * Indicates whether some other WhiteboardShape is "equal to" this one.
      * @param obj the reference object with which to compare.
@@ -355,17 +355,17 @@ public abstract class WhiteboardShape implements WhiteboardObject
         if (obj == this
           || ((WhiteboardShape)obj).getID ().equals ( getID () ))
             return true;
-        
+
         return false;
     }
     /**
      * Returns a selection point contained in this <tt>WhiteboardShape</tt>,
      * which corresponds to the given point (i.e. is in a near radius close
      * to it).
-     * 
+     *
      * @param p point to check
      * @return the nearest selection point
      */
     public abstract WhiteboardPoint getSelectionPoint (Point2D p);
-    
+
 }

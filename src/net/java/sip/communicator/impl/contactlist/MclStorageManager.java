@@ -803,7 +803,7 @@ public class MclStorageManager
                             String name = e.getAttribute(DETAIL_NAME_ATTR_NAME);
                             String value
                                 = e.getAttribute(DETAIL_VALUE_ATTR_NAME);
-    
+
                             List<String> detailsObj = details.get(name);
                             if (detailsObj == null)
                             {
@@ -1044,7 +1044,7 @@ public class MclStorageManager
      * Creates a new XML <code>Element</code> corresponding to
      * <tt>protoGroup</tt> or <tt>null</tt> if <tt>protoGroup</tt> is not
      * eligible for serialization in its current state.
-     * 
+     *
      * @param protoGroup
      *            the <code>ContactGroup</code> which a corresponding XML
      *            <code>Element</code> is to be created for
@@ -1618,9 +1618,9 @@ public class MclStorageManager
         else if (oldValue != null && newValue == null)
         {
             // indicates remove
-            if (oldValue instanceof List)
+            if (oldValue instanceof List<?>)
             {
-                List valuesToRemove = (List) oldValue;
+                List<?> valuesToRemove = (List<?>) oldValue;
                 // indicates removing multiple values at one time
                 List<Element> nodes =
                     XMLUtils.locateElements(metaContactNode,

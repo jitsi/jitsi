@@ -95,7 +95,8 @@ public class JavaEncoder
 
     /**
      * No resources to be opened.
-     * @throws ResourceUnavailableException
+     * @throws ResourceUnavailableException if open failed (which cannot
+     * happend for this codec since no resources are to be opened)
      */
     public void open() throws ResourceUnavailableException
     {}
@@ -206,12 +207,12 @@ public class JavaEncoder
      * @return integer.
      */
     public static int uShortToInt(short value)
-	{
+    {
         if (value >= 0)
-			return value;
-		else
-			return MAX_USHORT + 1 + value;
-	}
+            return value;
+        else
+            return MAX_USHORT + 1 + value;
+    }
 
     /**
      *  Encode an array of pcm values into a pre-allocated target array
@@ -226,10 +227,10 @@ public class JavaEncoder
     public static void aLawEncode(boolean bigEndian,
         byte[] data, int offset, int length, byte[] target)
     {
-    	if (bigEndian)
-    		aLawEncodeBigEndian(data, offset, length, target);
-    	else
-    		aLawEncodeLittleEndian(data, offset, length, target);
+        if (bigEndian)
+            aLawEncodeBigEndian(data, offset, length, target);
+        else
+            aLawEncodeLittleEndian(data, offset, length, target);
      }
 
     /**
@@ -305,7 +306,7 @@ public class JavaEncoder
         int exponent = 7;
         //Move to the right and decrement exponent until
         //we hit the 1 or the exponent hits 0
-        for (int expMask = 0x4000; 
+        for (int expMask = 0x4000;
             (pcm & expMask) == 0 && exponent>0;
             exponent--, expMask >>= 1) { }
 

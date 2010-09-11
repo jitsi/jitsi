@@ -279,7 +279,7 @@ public class RTPConnectorOutputStream
         /**
          * The maximum number of RTP packets to be sent by this
          * <tt>OutputDataStream</tt> through its <tt>DatagramSocket</tt> per
-         * {@link #perMillis} milliseconds.
+         * {@link #perNanos} nanoseconds.
          */
         private int maxPackets = -1;
 
@@ -371,7 +371,7 @@ public class RTPConnectorOutputStream
 
         /**
          * Sends the RTP packets in {@link #packetQueue} in accord with
-         * {@link #maxPackets} and {@link #perMillis}.
+         * {@link #maxPackets} and {@link #perNanos}.
          */
         private void runInSendThread()
         {

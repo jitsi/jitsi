@@ -32,7 +32,9 @@ import net.java.sip.communicator.util.*;
 public class OperationSetGeolocationJabberImpl
     implements OperationSetGeolocation
 {
-
+    /**
+     * Our logger.
+     */
     private static final Logger logger =
         Logger.getLogger(OperationSetGeolocationJabberImpl.class);
 

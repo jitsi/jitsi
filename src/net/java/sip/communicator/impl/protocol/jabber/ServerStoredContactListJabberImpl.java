@@ -205,7 +205,7 @@ public class ServerStoredContactListJabberImpl
          */
         if(eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
         {
-            Iterator iter = group.contacts();
+            Iterator<Contact> iter = group.contacts();
             while (iter.hasNext())
             {
                 ContactJabberImpl c = (ContactJabberImpl)iter.next();
@@ -663,7 +663,7 @@ public class ServerStoredContactListJabberImpl
                 else if(err.getCode() > 500)
                     errorCode = OperationFailedException.INTERNAL_SERVER_ERROR;
 
-                errTxt = err.getCondition();                
+                errTxt = err.getCondition();
             }
 
             throw new OperationFailedException(errTxt, errorCode, ex);

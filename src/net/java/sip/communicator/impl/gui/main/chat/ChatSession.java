@@ -30,8 +30,8 @@ public abstract class ChatSession
     /**
      * The list of <tt>ChatContact</tt>s contained in this chat session.
      */
-    protected final List<ChatContact> chatParticipants
-        = new ArrayList<ChatContact>();
+    protected final List<ChatContact<?>> chatParticipants
+        = new ArrayList<ChatContact<?>>();
 
     /**
      * The list of <tt>ChatTransport</tt>s available in this session.
@@ -41,7 +41,7 @@ public abstract class ChatSession
 
     /**
      * Returns the descriptor of this chat session.
-     * 
+     *
      * @return the descriptor of this chat session.
      */
     public abstract Object getDescriptor();
@@ -61,7 +61,7 @@ public abstract class ChatSession
      * @return an iterator to the list of all participants contained in this
      * chat session.
      */
-    public Iterator<ChatContact> getParticipants()
+    public Iterator<ChatContact<?>> getParticipants()
     {
         return chatParticipants.iterator();
     }
@@ -241,7 +241,7 @@ public abstract class ChatSession
     public abstract boolean isContactListSupported();
 
     /**
-     * Adds the given {@link ChatSessionChangeListener} to this 
+     * Adds the given {@link ChatSessionChangeListener} to this
      * <tt>ChatSession</tt>.
      *
      * @param l the <tt>ChatSessionChangeListener</tt> to add
@@ -250,7 +250,7 @@ public abstract class ChatSession
         ChatSessionChangeListener l);
 
     /**
-     * Removes the given {@link ChatSessionChangeListener} to this 
+     * Removes the given {@link ChatSessionChangeListener} to this
      * <tt>ChatSession</tt>.
      *
      * @param l the <tt>ChatSessionChangeListener</tt> to add

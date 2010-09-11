@@ -37,7 +37,7 @@ public class DefaultLanguagePackImpl
     public DefaultLanguagePackImpl()
     {
         // Finds all the files *.properties in the path : /resources/languages.
-        Enumeration fsEnum = DefaultResourcePackActivator.bundleContext.getBundle().
+        Enumeration<?> fsEnum = DefaultResourcePackActivator.bundleContext.getBundle().
                 findEntries("/resources/languages", "*.properties", false);
 
         while (fsEnum.hasMoreElements())

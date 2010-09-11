@@ -427,8 +427,8 @@ public class MainFrame
 
         if (supportedOperationSets.containsKey(telOpSetClassName))
         {
-            OperationSetBasicTelephony telephony
-                = (OperationSetBasicTelephony)
+            OperationSetBasicTelephony<?> telephony
+                = (OperationSetBasicTelephony<?>)
                     supportedOperationSets.get(telOpSetClassName);
 
             telephony.addCallListener(new CallManager.GuiCallListener());
@@ -642,14 +642,14 @@ public class MainFrame
      * @return OperationSetBasicTelephony The telephony operation
      * set for the given protocol provider.
      */
-    public OperationSetBasicTelephony getTelephonyOpSet(
+    public OperationSetBasicTelephony<?> getTelephonyOpSet(
             ProtocolProviderService protocolProvider)
     {
         OperationSet opSet
             = protocolProvider.getOperationSet(OperationSetBasicTelephony.class);
 
-        return (opSet instanceof OperationSetBasicTelephony)
-            ? (OperationSetBasicTelephony) opSet
+        return (opSet instanceof OperationSetBasicTelephony<?>)
+            ? (OperationSetBasicTelephony<?>) opSet
             : null;
     }
 

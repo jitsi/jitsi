@@ -18,7 +18,7 @@ import javax.swing.KeyStroke;
  * text key/value pairs.<br>
  * PROPERTIES_XML- Persistence provided by java.util.Properties using its XML
  * format.
- * 
+ *
  * @author Damian Johnson (atagar1@gmail.com)
  * @version September 21, 2007
  */
@@ -31,7 +31,7 @@ public enum Persistence
 
     /**
      * Returns the enum representation of a string. This is case sensitive.
-     * 
+     *
      * @param str toString representation of this enum
      * @return enum associated with a string
      * @throws IllegalArgumentException if argument is not represented by this
@@ -50,7 +50,7 @@ public enum Persistence
     /**
      * Attempts to load this type of persistent keystroke map from a given path.
      * This is unable to parse any null content.
-     * 
+     *
      * @param path absolute path to resource to be loaded
      * @return keybinding map reflecting file contents
      * @throws IOException if unable to load resource
@@ -66,7 +66,7 @@ public enum Persistence
     /**
      * Attempts to load this type of persistent keystroke map from a given
      * stream. This is unable to parse any null content.
-     * 
+     *
      * @param input source of keybindings to be parsed
      * @return keybinding map reflecting file contents
      * @throws IOException if unable to load resource
@@ -96,13 +96,13 @@ public enum Persistence
 
             if (this == SERIAL_HASH)
             {
-                if (!(instance instanceof HashMap))
+                if (!(instance instanceof HashMap<?, ?>))
                 {
                     throw new ParseException(
                         "Serialized resource doesn't represent a HashMap", 0);
                 }
 
-                HashMap mapping = (HashMap) instance;
+                HashMap<?, ?> mapping = (HashMap<?, ?>)instance;
                 for (Object key : mapping.keySet())
                 {
                     Object value = mapping.get(key);
@@ -218,7 +218,7 @@ public enum Persistence
 
     /**
      * Writes the persistent state of the bindings to an output stream.
-     * 
+     *
      * @param output stream where persistent state should be written
      * @param bindings keybindings to be saved
      * @throws IOException if unable to save bindings
@@ -275,7 +275,7 @@ public enum Persistence
 
     /**
      * Writes the persistent state of the bindings to a file.
-     * 
+     *
      * @param path absolute path to where bindings should be saved
      * @param bindings keybindings to be saved
      * @throws IOException if unable to save bindings
@@ -310,7 +310,7 @@ public enum Persistence
      * Provides the textual output of what this persistence format would save
      * given a set of bindings. This silently fails, returning null if unable to
      * generate output from bindings.
-     * 
+     *
      * @param bindings bindings for which to generate saved output
      * @return string reflecting what would be saved by this persistence format
      */
@@ -376,7 +376,7 @@ public enum Persistence
      * underscores and this changes the input to lowercase except the first
      * letter of each word. For instance, "RARE_CARDS" would become
      * "Rare Cards".
-     * 
+     *
      * @param input string to be converted
      * @return reader friendly variant of constant name
      */

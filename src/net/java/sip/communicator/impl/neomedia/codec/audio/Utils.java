@@ -28,7 +28,8 @@ public class Utils
      * @return a short array, or <code>null</code> if byteArray is of zero
      *    length
      *
-     * @throws java.lang.ArrayIndexOutOfBoundsException
+     * @throws java.lang.ArrayIndexOutOfBoundsException if the array is too
+     * small to fill data
      */
     public static short[] byteToShortArray
         (byte[] byteArray, int offset, int length, boolean little)

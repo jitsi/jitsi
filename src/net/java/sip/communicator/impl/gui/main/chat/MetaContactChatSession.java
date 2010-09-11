@@ -25,7 +25,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
- * 
+ *
  */
 public class MetaContactChatSession
     extends  ChatSession
@@ -62,7 +62,7 @@ public class MetaContactChatSession
         this.sessionRenderer = sessionRenderer;
         this.metaContact = metaContact;
 
-        ChatContact chatContact = new MetaContactChatContact(metaContact);
+        ChatContact<?> chatContact = new MetaContactChatContact(metaContact);
 
         chatParticipants.add(chatContact);
 
@@ -386,7 +386,7 @@ public class MetaContactChatSession
 
         if(evt.getSourceMetaContact().equals(metaContact))
         {
-            ChatContact chatContact
+            ChatContact<?> chatContact
                 = findChatContactByMetaContact(evt.getSourceMetaContact());
 
             sessionRenderer.setContactName(chatContact, newName);
@@ -461,9 +461,9 @@ public class MetaContactChatSession
      * @return the <tt>ChatContact</tt> corresponding to the given
      * <tt>MetaContact</tt>.
      */
-    private ChatContact findChatContactByMetaContact(MetaContact metaContact)
+    private ChatContact<?> findChatContactByMetaContact(MetaContact metaContact)
     {
-        for (ChatContact chatContact : chatParticipants)
+        for (ChatContact<?> chatContact : chatParticipants)
         {
             Object chatSourceContact = chatContact.getDescriptor();
             if (chatSourceContact instanceof MetaContact)
@@ -475,7 +475,8 @@ public class MetaContactChatSession
             else
             {
                 assert chatSourceContact instanceof ChatRoomMember;
-                ChatRoomMember metaChatContact = (ChatRoomMember) chatSourceContact;
+                ChatRoomMember metaChatContact =
+                    (ChatRoomMember)chatSourceContact;
                 Contact contact = metaChatContact.getContact();
                 MetaContact parentMetaContact
                         = GuiActivator.getContactListService()

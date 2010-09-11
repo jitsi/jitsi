@@ -85,7 +85,7 @@ public class ChatContactRightButtonMenu
     /**
      * The contact associated with this menu
      */
-    private final ChatContact chatContact;
+    private final ChatContact<?> chatContact;
 
     /**
      * The Chatroom in which the chatContact is currently participating.
@@ -95,10 +95,10 @@ public class ChatContactRightButtonMenu
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
      * @param chatPanel the chat panel containing this menu
-     * @param chatContact the contact 
+     * @param chatContact the contact
      */
     public ChatContactRightButtonMenu(  ChatPanel chatPanel,
-                                        ChatContact chatContact)
+                                        ChatContact<?> chatContact)
     {
         this.chatPanel = chatPanel;
         this.chatContact = chatContact;
@@ -191,7 +191,7 @@ public class ChatContactRightButtonMenu
         this.revokeModeratorItem.setName("revokeModeratorItem");
         this.revokeOwnershipItem.setName("revokeOwnershipItem");
         this.revokeVoiceItem.setName("revokeVoiceItem");
-        
+
         this.grantOwnershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
             ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_OWNER), 16, 16));
         this.grantAdminItem.setIcon(ImageUtils.getScaledRoundedIcon(
@@ -310,7 +310,7 @@ public class ChatContactRightButtonMenu
     public void actionPerformed(ActionEvent e)
     {
         String menuItemName = ((JMenuItem) e.getSource()).getName();
-   
+
         if (menuItemName.equals("kickItem"))
         {
             ChatOperationReasonDialog reasonDialog
@@ -341,14 +341,14 @@ public class ChatContactRightButtonMenu
                     GuiActivator.getResources().getI18NString(
                     "service.gui.CHANGE_ROOM_SUBJECT"),
                     GuiActivator.getResources().getI18NString(
-                    "service.gui.CHANGE_ROOM_SUBJECT_LABEL"), 
+                    "service.gui.CHANGE_ROOM_SUBJECT_LABEL"),
                     "Ok",
                     false);
 
             //reasonDialog.setIconImage(
             //ImageLoader.getImage(ImageLoader.CHANGE_ROOM_SUBJECT_ICON_16x16));
             reasonDialog.setReasonFieldText(room.getSubject());
-            
+
             int result = reasonDialog.showDialog();
 
             if (result == 0)
@@ -378,7 +378,7 @@ public class ChatContactRightButtonMenu
            // reasonDialog.setIconImage(ImageLoader.getImage(
            //   ImageLoader.CHANGE_NICKNAME_ICON_16x16));
             reasonDialog.setReasonFieldText(chatContact.getName());
-            
+
             int result = reasonDialog.showDialog();
 
             if (result == 0)
@@ -505,7 +505,7 @@ public class ChatContactRightButtonMenu
                 }
                 else if (e.getErrorCode()
                     == OperationFailedException.FORBIDDEN)
-                {   
+                {
                     new ErrorDialog(chatPanel.getChatWindow(),
                         GuiActivator.getResources()
                             .getI18NString("service.gui.KICK_FAILED"),
@@ -527,7 +527,7 @@ public class ChatContactRightButtonMenu
             }
         }
     }
-    
+
     /**
      * Bans the the selected chat room participant or shows a message to the
      * user that he/she has not enough permissions to do a ban.
@@ -535,15 +535,15 @@ public class ChatContactRightButtonMenu
     private class BanParticipantThread extends Thread
     {
         private final ChatRoom chatRoom;
-        
+
         private final String reason;
-        
+
         BanParticipantThread(ChatRoom chatRoom, String reason)
         {
             this.chatRoom = chatRoom;
             this.reason = reason;
         }
-        
+
         public void run()
         {
             try
@@ -562,7 +562,7 @@ public class ChatContactRightButtonMenu
 
                 switch (e.getErrorCode()) {
                 case OperationFailedException.NOT_ENOUGH_PRIVILEGES:
-                    errorMessageKey = 
+                    errorMessageKey =
                         "service.gui.BAN_FAILED_NOT_ENOUGH_PERMISSIONS";
                     break;
                 case OperationFailedException.FORBIDDEN:

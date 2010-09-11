@@ -719,7 +719,7 @@ public class CallHistoryServiceImpl
             logger.debug("Adding protocol provider " + provider.getProtocolName());
 
         // check whether the provider has a basic telephony operation set
-        OperationSetBasicTelephony opSetTelephony
+        OperationSetBasicTelephony<?> opSetTelephony
             = provider.getOperationSet(OperationSetBasicTelephony.class);
 
         if (opSetTelephony != null)
@@ -741,7 +741,7 @@ public class CallHistoryServiceImpl
      */
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
-        OperationSetBasicTelephony opSetTelephony
+        OperationSetBasicTelephony<?> opSetTelephony
             = provider.getOperationSet(OperationSetBasicTelephony.class);
 
         if (opSetTelephony != null)

@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.sip;
@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
 /**
  * The sip implementation of the URI handler. This class handles sip URIs by
  * trying to establish a call to them.
- * 
+ *
  * @author Emil Ivov
  * @author Lubomir Marinov
  */
@@ -76,9 +76,9 @@ public class UriHandlerSipImpl
      * Creates an instance of this uri handler, so that it would start handling
      * URIs by passing them to the providers registered by <tt>protoFactory</tt>
      * .
-     * 
+     *
      * @param protoFactory the provider that created us.
-     * 
+     *
      * @throws NullPointerException if <tt>protoFactory</tt> is <tt>null</tt>.
      */
     public UriHandlerSipImpl(ProtocolProviderFactorySipImpl protoFactory)
@@ -150,7 +150,7 @@ public class UriHandlerSipImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.protocol.event.AccountManagerListener
      * #handleAccountManagerEvent
@@ -240,7 +240,7 @@ public class UriHandlerSipImpl
     /**
      * Returns the protocol that this handler is responsible for or "sip" in
      * other words.
-     * 
+     *
      * @return the "sip" string to indicate that this handler is responsible for
      *         handling "sip" uris.
      */
@@ -252,7 +252,7 @@ public class UriHandlerSipImpl
     /**
      * Parses the specified URI and creates a call with the currently active
      * telephony operation set.
-     * 
+     *
      * @param uri the SIP URI that we have to call.
      */
     public void handleUri(String uri)
@@ -297,7 +297,7 @@ public class UriHandlerSipImpl
             return;
         }
 
-        OperationSetBasicTelephony telephonyOpSet
+        OperationSetBasicTelephony<?> telephonyOpSet
             = provider.getOperationSet(OperationSetBasicTelephony.class);
 
         try
@@ -324,7 +324,7 @@ public class UriHandlerSipImpl
     /**
      * Informs the user that they need to be registered before placing calls and
      * asks them whether they would like us to do it for them.
-     * 
+     *
      * @param uri the uri that the user would like us to call after registering.
      * @param provider the provider that we may have to reregister.
      */
@@ -351,7 +351,7 @@ public class UriHandlerSipImpl
      * only register our own uri handling service and thus only handle URIs
      * while the factory is available as an OSGi service. We remove ourselves
      * when our factory unregisters its service reference.
-     * 
+     *
      * @param event the OSGi <tt>ServiceEvent</tt>
      */
     public void serviceChanged(ServiceEvent event)
@@ -384,7 +384,7 @@ public class UriHandlerSipImpl
     /**
      * Uses the <tt>UIService</tt> to show an error <tt>message</tt> and log and
      * <tt>exception</tt>.
-     * 
+     *
      * @param message the message that we'd like to show to the user.
      * @param exc the exception that we'd like to log
      */
@@ -399,7 +399,7 @@ public class UriHandlerSipImpl
      * We use this class when launching a provider registration by ourselves in
      * order to track for provider registration states and retry uri handling,
      * once the provider is registered.
-     * 
+     *
      */
     private class ProtocolRegistrationThread
         extends Thread
@@ -416,7 +416,7 @@ public class UriHandlerSipImpl
         /**
          * Configures this thread register our parent provider and re-attempt
          * connection to the specified <tt>uri</tt>.
-         * 
+         *
          * @param uri the uri that we need to handle.
          * @param handlerProvider the provider that we are going to make
          *            register and that we are going to use to handle the
@@ -459,7 +459,7 @@ public class UriHandlerSipImpl
          * registration. It would ignore intermediate states such as
          * REGISTERING. Disconnection and failure events would simply cause this
          * listener to remove itself from the list of registration listeners.
-         * 
+         *
          * @param evt the <tt>RegistrationStateChangeEvent</tt> that this thread
          *            was initiated with.
          */
@@ -493,12 +493,12 @@ public class UriHandlerSipImpl
      * or null if there aren't any. Depending on the implementation this method
      * may require user intervention so make sure you don't rely on a quick
      * outcome when calling it.
-     * 
+     *
      * @param uri the uri that we'd like to handle with the provider that we are
      *            about to select.
-     * 
+     *
      * @return the provider that we should handle URIs through.
-     * 
+     *
      * @throws OperationFailedException with code <tt>OPERATION_CANCELED</tt> if
      *             the users.
      */
@@ -574,7 +574,7 @@ public class UriHandlerSipImpl
         /**
          * Returns a human readable <tt>String</tt> representing the provider
          * encapsulated by this class.
-         * 
+         *
          * @return a human readable string representing the provider.
          */
         @Override

@@ -89,7 +89,7 @@ public class CachingPushBufferStream
 
     /**
      * The <tt>PushBufferStream</tt> being paced by this instance with
-     * respect to the maximum number of data units it provides in a single push. 
+     * respect to the maximum number of data units it provides in a single push.
      */
     private final PushBufferStream stream;
 
@@ -97,7 +97,7 @@ public class CachingPushBufferStream
      * Initializes a new <tt>CachingPushBufferStream</tt> instance which is
      * to pace the number of per-push data units a specific
      * <tt>PushBufferStream</tt> provides.
-     * 
+     *
      * @param stream the <tt>PushBufferStream</tt> to be paced with respect to
      * the number of per-push data units it provides
      */
@@ -236,10 +236,11 @@ public class CachingPushBufferStream
     }
 
     /**
-     * Implements {@link Controls#getControl(String)}. Delegates to the wrapped
-     * <tt>PushBufferStream</tt> and gives access to the <tt>BufferControl</tt>
-     * of this instance if such a <tt>controlType</tt> is specified and the
-     * wrapped <tt>PushBufferStream</tt> does not have such a control available.
+     * Implements {@link javax.media.Controls#getControl(String)}. Delegates to
+     * the wrapped <tt>PushBufferStream</tt> and gives access to the
+     * <tt>BufferControl</tt> of this instance if such a <tt>controlType</tt> is
+     * specified and the wrapped <tt>PushBufferStream</tt> does not have such a
+     * control available.
      *
      * @param controlType a <tt>String</tt> value which names the type of the
      * control of the wrapped <tt>PushBufferStream</tt> to be retrieved
@@ -258,10 +259,10 @@ public class CachingPushBufferStream
     }
 
     /**
-     * Implements {@link Controls#getControls()}. Delegates to the wrapped
-     * <tt>PushBufferStream</tt> and adds the <tt>BufferControl</tt> of this
-     * instance if the wrapped <tt>PushBufferStream</tt> does not have a control
-     * of such type available.
+     * Implements {@link javax.media.Controls#getControls()}. Delegates to the
+     * wrapped <tt>PushBufferStream</tt> and adds the <tt>BufferControl</tt> of
+     * this instance if the wrapped <tt>PushBufferStream</tt> does not have a
+     * control of such type available.
      *
      * @return an array of <tt>Object</tt>s which represent the control
      * available for the wrapped <tt>PushBufferStream</tt>
@@ -428,7 +429,7 @@ public class CachingPushBufferStream
      * matches that of the input <tt>Buffer</tt>, it will be used and thus the
      * output <tt>Buffer</tt> may control the maximum number of data units to be
      * read into it.
-     * 
+     *
      * @param input the <tt>Buffer</tt> to read data from
      * @param output the <tt>Buffer</tt> into which to write the data read
      * from the specified <tt>input</tt>

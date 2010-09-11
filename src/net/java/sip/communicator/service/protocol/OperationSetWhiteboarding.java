@@ -25,15 +25,15 @@ public interface OperationSetWhiteboarding
      * @return a <tt>List</tt> of the <tt>WhiteboardSession</tt>s where the user
      * has joined using a given connection.
      */
-    public List getCurrentlyJoinedWhiteboards();
+    public List<WhiteboardSession> getCurrentlyJoinedWhiteboards();
 
     /**
-     * Returns a list of the <tt>WhiteboardSession</tt>s that 
+     * Returns a list of the <tt>WhiteboardSession</tt>s that
      * <tt>WhiteboardParticipant</tt> has joined and is currently active in.
      *
      * @param participant the participant whose current
      * <tt>WhiteboardSession</tt>s we will be querying.
-     * @return a list of the <tt>WhiteboardSession</tt>s that 
+     * @return a list of the <tt>WhiteboardSession</tt>s that
      * <tt>WhiteboardParticipant</tt> has joined and is currently active in.
      *
      * @throws OperationFailedException if an error occurs while trying to
@@ -41,7 +41,8 @@ public interface OperationSetWhiteboarding
      * @throws OperationNotSupportedException if the server does not support
      * white-boarding
      */
-    public List getCurrentlyJoinedWhiteboards(WhiteboardParticipant participant)
+    public List<WhiteboardSession> getCurrentlyJoinedWhiteboards(
+            WhiteboardParticipant participant)
         throws OperationFailedException, OperationNotSupportedException;
 
     /**
@@ -138,7 +139,7 @@ public interface OperationSetWhiteboarding
      * white-boards.
      */
     public boolean isWhiteboardingSupportedByContact(Contact contact);
-    
+
     /**
      * Adds a listener that will be notified of changes in our participation in
      * a white-board session such as us being joined, left, dropped.
@@ -151,7 +152,7 @@ public interface OperationSetWhiteboarding
     /**
      * Removes a listener that was being notified of changes in our
      * participation in a room such as us being kicked, joined, left.
-     * 
+     *
      * @param listener a local user participation listener.
      */
     public void removePresenceListener(

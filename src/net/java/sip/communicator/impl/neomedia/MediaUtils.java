@@ -247,6 +247,7 @@ public class MediaUtils
      * @param clockRates the optional list of clock rates of the
      * <tt>MediaFormat</tt>s to be associated with <tt>rtpPayloadType</tt>
      */
+    @SuppressWarnings("unchecked")
     private static void addMediaFormats(
             byte rtpPayloadType,
             String encoding,
@@ -354,6 +355,7 @@ public class MediaUtils
      * represents <tt>format</tt> if any; <tt>null</tt> if there is no such
      * representing <tt>MediaFormat</tt> in <tt>MediaUtils</tt>
      */
+    @SuppressWarnings("unchecked")
     public static MediaFormat getMediaFormat(Format format)
     {
         double clockRate;
@@ -409,6 +411,7 @@ public class MediaUtils
      * @return a <tt>List</tt> of <tt>MediaFormat</tt>s corresponding to the
      * specified encoding (name)
      */
+    @SuppressWarnings("unchecked")
     public static List<MediaFormat> getMediaFormats(String encoding)
     {
         String jmfEncoding = null;
@@ -433,6 +436,7 @@ public class MediaUtils
                                     rtpPayloadTypeMediaFormat)
                                 .getJMFEncoding().equals(jmfEncoding))
                         mediaFormats.add(rtpPayloadTypeMediaFormat);
+
 
             if (mediaFormats.size() < 1)
             {

@@ -158,6 +158,11 @@ public class JAWTRenderer
             component = new Canvas()
             {
                 /**
+                 * Serial version UID.
+                 */
+                public static final long serialVersionUID = 0L;
+
+                /**
                  * The indicator which determines whether the native counterpart
                  * of this <tt>JAWTRenderer</tt> wants <tt>paint</tt> calls on
                  * its AWT <tt>Component</tt> to be delivered. For example,
@@ -241,6 +246,8 @@ public class JAWTRenderer
      * operate. The input format of this <tt>Renderer</tt> has to be set before
      * <tt>open</tt> is called. Buffers should not be passed into this
      * <tt>PlugIn</tt> without first calling <tt>open</tt>.
+     *
+     * @throws ResourceUnavailableException if there is a problem during opening
      */
     public synchronized void open()
         throws ResourceUnavailableException
@@ -268,6 +275,7 @@ public class JAWTRenderer
      * to be valid.
      * @return a handle to a native counterpart of a <tt>JAWTRenderer</tt> which
      * is to draw into the specified AWT <tt>Component</tt>
+     * @throws ResourceUnavailableException if there is a problem during opening
      */
     private static native long open(Component component)
         throws ResourceUnavailableException;

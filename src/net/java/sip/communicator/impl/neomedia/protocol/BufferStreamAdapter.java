@@ -41,8 +41,8 @@ public abstract class BufferStreamAdapter<T extends SourceStream>
      * specific <tt>SourceStream</tt> into a <tt>SourceStream</tt> with
      * a specific <tt>Format</tt>.
      *
-     * @param stream
-     * @param format
+     * @param stream the <tt>SourceStream</tt> to be adapted
+     * @param format the specific <tt>Format</tt> of the <tt>SourceStream</tt>
      */
     public BufferStreamAdapter(T stream, Format format)
     {
@@ -50,44 +50,57 @@ public abstract class BufferStreamAdapter<T extends SourceStream>
         this.format = format;
     }
 
-    /*
+    /**
      * Implements SourceStream#endOfStream(). Delegates to the wrapped
      * SourceStream.
+     *
+     * @return true if the stream is finished, false otherwise
      */
     public boolean endOfStream()
     {
         return stream.endOfStream();
     }
 
-    /*
+    /**
      * Implements SourceStream#getContentDescriptor(). Delegates to the wrapped
      * SourceStream.
+     *
+     * @return the <tt>ContentDescriptor</tt> of the stream
      */
     public ContentDescriptor getContentDescriptor()
     {
         return stream.getContentDescriptor();
     }
 
-    /*
+    /**
      * Implements SourceStream#getContentLength(). Delegates to the wrapped
      * SourceStream.
+     *
+     * @return content length
      */
     public long getContentLength()
     {
         return stream.getContentLength();
     }
 
-    /*
+    /**
      * Implements Controls#getControl(String). Delegates to the wrapped
      * SourceStream.
+     *
+     * @param controlType a <tt>String</tt> value naming the type of the control
+     * of this instance to be retrieved
+     * @return an <tt>Object</tt> which represents the control of this instance
+     * with the specified type
      */
     public Object getControl(String controlType)
     {
         return stream.getControl(controlType);
     }
 
-    /*
+    /**
      * Implements Controls#getControls(). Delegates to the wrapped SourceStream.
+     *
+     * @return array of JMF <tt>Control</tt> objects
      */
     public Object[] getControls()
     {
@@ -123,7 +136,7 @@ public abstract class BufferStreamAdapter<T extends SourceStream>
      * @param bytes the array of <tt>byte</tt>s to read data into from this
      *            instance and to be set as the data of the specified
      *            <tt>buffer</tt>
-     * @throws IOException
+     * @throws IOException if I/O related errors occurred during read operation
      */
     protected void read(Buffer buffer, byte[] bytes)
         throws IOException
@@ -157,7 +170,7 @@ public abstract class BufferStreamAdapter<T extends SourceStream>
      *            specified <tt>buffer</tt>
      * @return the number of bytes read from this stream and written into the
      *         specified <tt>buffer</tt>
-     * @throws IOException
+     * @throws IOException if I/O related errors occurred during read operation
      */
     protected abstract int read(byte[] buffer, int offset, int length)
         throws IOException;

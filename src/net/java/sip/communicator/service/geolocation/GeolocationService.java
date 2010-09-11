@@ -25,7 +25,7 @@ public interface GeolocationService
      * @return the last <tt>Geolocation</tt> that we have set by a geolocation
      * backend.
      */
-    public Map getCurrentGeolocation();
+    public Map<String, String> getCurrentGeolocation();
 
     /**
      * Registers a listener that would get notifications any time the provider
@@ -40,7 +40,8 @@ public interface GeolocationService
      * Remove a listener that would get notifications any time the provider
      * geolocation was succesfully refreshed.
      *
-     * @param listener
+     * @param listener the <tt>ProviderGeolocationPresenceListener</tt> to
+     * remove
      */
     public void removeGeolocationListener(GeolocationListener listener);
 }

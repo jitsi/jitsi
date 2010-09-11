@@ -33,6 +33,9 @@ public class EncodingConfiguration
      */
     private final Logger logger = Logger.getLogger(EncodingConfiguration.class);
 
+    /**
+     * The SDP preference property.
+     */
     private static final String PROP_SDP_PREFERENCE
         = "net.java.sip.communicator.impl.neomedia.codec.EncodingConfiguration";
 
@@ -52,6 +55,9 @@ public class EncodingConfiguration
     private static final String SPEEX_RESAMPLER
         = "net.java.sip.communicator.impl.neomedia.codec.audio.speex.SpeexResampler";
 
+    /**
+     * The additional custom JMF codecs.
+     */
     private static final String[] CUSTOM_CODECS =
         {
             FMJConditionals.FMJ_CODECS
@@ -295,10 +301,11 @@ public class EncodingConfiguration
      * encodings to those of audio encodings.
      *
      * @param encoding the SDP int of the encoding whose pref we're setting.
-     * @param clockRate
+     * @param clockRate clock rate
      * @param pref a positive int indicating the preference for that encoding.
      */
-    private void setEncodingPreference(String encoding, double clockRate, int pref)
+    private void setEncodingPreference(String encoding, double clockRate,
+            int pref)
     {
         MediaFormat mediaFormat = MediaUtils.getMediaFormat(encoding, clockRate);
 
@@ -334,6 +341,11 @@ public class EncodingConfiguration
         updateSupportedEncodings();
     }
 
+    /**
+     * Set the priority for a <tt>MediaFormat</tt>.
+     * @param encoding the <tt>MediaFormat</tt>
+     * @return the priority
+     */
     public int getPriority(MediaFormat encoding)
     {
 
@@ -504,6 +516,14 @@ public class EncodingConfiguration
         }
     }
 
+    /**
+     * Get the available encodings for a specific <tt>MediaType</tt>.
+     *
+     * @param type the <tt>MediaType</tt> we would like to know its available
+     * encodings
+     * @return array of <tt>MediaFormat</tt> supported for the
+     * <tt>MediaType</tt>
+     */
     public MediaFormat[] getAvailableEncodings(MediaType type)
     {
         return MediaUtils.getMediaFormats(type);

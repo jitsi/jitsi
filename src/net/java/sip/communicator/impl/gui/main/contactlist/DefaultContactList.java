@@ -164,9 +164,9 @@ public class DefaultContactList
 
             tip.setTitle(metaGroup.getGroupName());
         }
-        else if (element instanceof ChatContact)
+        else if (element instanceof ChatContact<?>)
         {
-            ChatContact chatContact = (ChatContact) element;
+            ChatContact<?> chatContact = (ChatContact<?>) element;
 
             ImageIcon avatarImage = chatContact.getAvatar();
 
@@ -232,9 +232,9 @@ public class DefaultContactList
 
             return metaGroup.getMetaUID();
         }
-        else if (element instanceof ChatContact)
+        else if (element instanceof ChatContact<?>)
         {
-            ChatContact chatContact = (ChatContact) element;
+            ChatContact<?> chatContact = (ChatContact<?>) element;
 
             return chatContact.getUID();
         }

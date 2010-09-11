@@ -19,6 +19,9 @@ import net.java.sip.communicator.impl.neomedia.codec.*;
 public class Packetizer
     extends AudioPacketizer
 {
+    /**
+     * Constructs a new ALAW packetizer.
+     */
     public Packetizer()
     {
         packetSize = 160;
