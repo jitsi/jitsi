@@ -614,8 +614,6 @@ public class ProtocolProviderServiceJabberImpl
 
                     }catch(XMPPException ex)
                     {
-                        if(isAuthenticationFailed(ex))
-                            throw ex;
                         // server disconnect us after such an error
                         // cleanup
                         disconnectAndCleanConnection();
