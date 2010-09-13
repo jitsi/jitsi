@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
+import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.*;
 import java.util.*;
@@ -244,7 +245,7 @@ public class ContactListTransferHandler
      */
     public Icon getVisualRepresentation(Transferable t)
     {
-        ContactListTreeCellRenderer renderer = null;
+        Icon icon = null;
 
         if (t instanceof ContactListTransferable)
         {
@@ -252,17 +253,11 @@ public class ContactListTransferHandler
 
             try
             {
-                renderer = (ContactListTreeCellRenderer)
-                    contactList.getCellRenderer()
-                        .getTreeCellRendererComponent(
+                icon = ((ContactListTreeCellRenderer)
+                    contactList.getCellRenderer()).getDragIcon(
                         contactList,
                         transferable.getTransferData(uiContactDataFlavor),
-                        true, // is selected
-                        false, // is expanded
-                        true, // is leaf
-                        transferable.getTransferIndex(),
-                        true // has focus
-                        );
+                        transferable.getTransferIndex());
             }
             catch (UnsupportedFlavorException e)
             {
@@ -280,7 +275,7 @@ public class ContactListTransferHandler
             }
         }
 
-        return renderer;
+        return icon;
     }
 
     /**

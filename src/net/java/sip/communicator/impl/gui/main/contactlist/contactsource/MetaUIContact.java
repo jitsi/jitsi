@@ -273,8 +273,7 @@ public class MetaUIContact
         // If the avatar isn't available or it's not up-to-date, create it.
         if (avatar == null)
         {
-            avatar
-                = ImageUtils.getScaledRoundedIcon(avatarBytes, width, height);
+            avatar = ImageUtils.getScaledRoundedIcon(avatarBytes, width, height);
         }
 
         // Cache the avatar in case it has changed.

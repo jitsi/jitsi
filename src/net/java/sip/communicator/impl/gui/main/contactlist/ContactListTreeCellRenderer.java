@@ -196,7 +196,7 @@ public class ContactListTreeCellRenderer
         statusLabel.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 2));
 
         constraints.anchor = GridBagConstraints.WEST;
-        constraints.fill = GridBagConstraints.VERTICAL;
+        constraints.fill = GridBagConstraints.NONE;
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.gridheight = 1;
@@ -337,7 +337,9 @@ public class ContactListTreeCellRenderer
                 = contact.getAvatar(isSelected, avatarWidth, avatarHeight);
 
             if (avatar != null)
+            {
                 this.rightLabel.setIcon(avatar);
+            }
             this.rightLabel.setText("");
 
             this.setToolTipText(contact.getDescriptor().toString());
@@ -461,21 +463,21 @@ public class ContactListTreeCellRenderer
     }
 
     /**
-     * Returns the height of this icon.
+     * Returns the height of this icon. Used for the drag&drop component.
      * @return the height of this icon
      */
     public int getIconHeight()
     {
-        return this.getHeight() + 10;
+        return getPreferredSize().height + 10;
     }
 
     /**
-     * Returns the width of this icon.
+     * Returns the width of this icon. Used for the drag&drop component.
      * @return the widht of this icon
      */
     public int getIconWidth()
     {
-        return this.getWidth() + 10;
+        return tree.getWidth() + 10;
     }
 
     /**
@@ -611,9 +613,10 @@ public class ContactListTreeCellRenderer
      */
     public void paintIcon(Component c, Graphics g, int x, int y)
     {
-        Graphics2D g2 = (Graphics2D) g.create();
+        g = g.create();
         try
         {
+            Graphics2D g2 = (Graphics2D) g;
             AntialiasingManager.activateAntialiasing(g2);
 
             g2.setColor(Color.WHITE);
@@ -630,10 +633,8 @@ public class ContactListTreeCellRenderer
             // Indent component content from the border. 
             g2.translate(x + 5, y + 5);
 
-            // Paint component.
             super.paint(g2);
 
-            //
             g2.translate(x, y);
         }
         finally
@@ -744,5 +745,59 @@ public class ContactListTreeCellRenderer
 
             chooseAccountDialog.showPopupMenu(location.x + 8, location.y - 8);
         }
+    }
+
+    /**
+     * Returns the drag icon used to represent a cell in all drag operations.
+     *
+     * @param tree the parent tree object
+     * @param dragObject the dragged object
+     * @param index the index of the dragged object in the tree
+     *
+     * @return the drag icon
+     */
+    public Icon getDragIcon(JTree tree, Object dragObject, int index)
+    {
+        ContactListTreeCellRenderer dragC
+            = (ContactListTreeCellRenderer) getTreeCellRendererComponent(
+                                                        tree,
+                                                        dragObject,
+                                                        false, // is selected
+                                                        false, // is expanded
+                                                        true, // is leaf
+                                                        index,
+                                                        true // has focus
+                                                     );
+
+        // We should explicitly set the bounds of all components in order that
+        // they're correctly painted by paintIcon afterwards. This fixes empty
+        // drag component in contact list!
+        dragC.setBounds(0, 0, dragC.getIconWidth(), dragC.getIconHeight());
+
+        Icon rightLabelIcon = rightLabel.getIcon();
+        int imageHeight = 0;
+        int imageWidth = 0;
+        if (rightLabelIcon != null)
+        {
+            imageWidth = rightLabelIcon.getIconWidth();
+            imageHeight = rightLabelIcon.getIconHeight();
+            dragC.rightLabel.setBounds(
+                tree.getWidth() - imageWidth, 0, imageWidth, imageHeight);
+        }
+
+        statusLabel.setBounds(  0, 0,
+                                statusLabel.getWidth(),
+                                statusLabel.getHeight());
+
+        nameLabel.setBounds(statusLabel.getWidth(), 0,
+            tree.getWidth() - imageWidth - 5, nameLabel.getHeight());
+
+        displayDetailsLabel.setBounds(
+            displayDetailsLabel.getX(),
+            nameLabel.getHeight(),
+            displayDetailsLabel.getWidth(),
+            displayDetailsLabel.getHeight());
+
+        return dragC;
     }
 }
