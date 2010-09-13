@@ -9,14 +9,16 @@ package net.java.sip.communicator.impl.configuration;
 import java.io.*;
 import java.util.*;
 
+import net.java.sip.communicator.util.*;
+
 /**
- * Implements a <code>ConfigurationStore</code> which stores property name-value
- * associations in a <code>Properties</code> instance and supports its
+ * Implements a <tt>ConfigurationStore</tt> which stores property name-value
+ * associations in a <tt>Properties</tt> instance and supports its
  * serialization format for the configuration file of
- * <code>ConfigurationServiceImpl</code>. Because of the <code>Properties</code>
- * backend which can associate names only <code>String</code> values, instances
- * of <code>PropertyConfigurationStore</code> convert property values to
- * <code>String</code> using <code>Object#toString()</code>.
+ * <tt>ConfigurationServiceImpl</tt>. Because of the <tt>Properties</tt>
+ * backend which can associate names only <tt>String</tt> values, instances
+ * of <tt>PropertyConfigurationStore</tt> convert property values to
+ * <tt>String</tt> using <tt>Object#toString()</tt>.
  *
  * @author Lubomir Marinov
  */
@@ -30,7 +32,7 @@ public class PropertyConfigurationStore
      * is effectively adapted by this instance to
      * <code>ConfigurationStore</code>.
      */
-    private final Properties properties = new Properties();
+    private final Properties properties = new SortedProperties();
 
     /**
      * Implements {@link ConfigurationStore#getProperty(String)}. If this
