@@ -466,6 +466,7 @@ public class NetworkUtils
         }
         else
         {
+            logger.warn("No A record found for: " + domain);
             return null;
         }
     }
@@ -502,6 +503,7 @@ public class NetworkUtils
         }
         else
         {
+            logger.warn("No AAAA record found for: " + domain);
             return null;
         }
     }

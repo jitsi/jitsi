@@ -494,7 +494,8 @@ public class ProtocolProviderServiceSipImpl
 
             this.sipStatusEnum = new SipStatusEnum(protocolIconPath);
 
-            //init the proxy
+            //init the proxy, we had to have at least one address configured
+            // so use it, if it fails later we will use next one
             initOutboundProxy(accountID, 0);
 
             //init proxy port
@@ -2516,6 +2517,9 @@ public class ProtocolProviderServiceSipImpl
     /**
      * Tries to resolve <tt>address</tt> into a valid InetSocketAddress using
      * an <tt>SRV</tt> query where it exists and A/AAAA where it doesn't.
+     * If there is no SRV,A or AAAA records return the socket address created
+     * with the supplied <tt>address</tt>, so we can keep old behaviour.
+     * When letting underling libs and java to resolve the address.
      *
      * @param address the address we'd like to resolve.
      * @param transport the protocol that we'd like to use when accessing
@@ -2535,8 +2539,6 @@ public class ProtocolProviderServiceSipImpl
         ArrayList<InetSocketAddress> resultAddresses =
             new ArrayList<InetSocketAddress>();
 
-        InetSocketAddress sockAddr = null;
-
         //we need to resolve the address only if its a hostname.
         if(NetworkUtils.isValidIPAddress(address))
         {
@@ -2549,35 +2551,43 @@ public class ProtocolProviderServiceSipImpl
                 port = ListeningPoint.PORT_5061;
 
             resultAddresses.add(new InetSocketAddress(addressObj, port));
+
+            // as its ip address return, no dns is needed.
+            return resultAddresses.toArray(new InetSocketAddress[]{});
         }
+
+        boolean preferIPv6Addresses =
+                Boolean.getBoolean("java.net.preferIPv6Addresses");
 
         //try to obtain SRV mappings from the DNS
         try
         {
-            if(transport.equalsIgnoreCase(ListeningPoint.TLS))
+            InetSocketAddress[] sockAddrs =
+                    NetworkUtils.getSRVRecords(
+                            transport.equalsIgnoreCase(ListeningPoint.TLS) ?
+                                "sips" : "sip",
+                            ListeningPoint.TCP, address);
+            for(InetSocketAddress s : sockAddrs)
             {
-                sockAddr = NetworkUtils.getSRVRecord(
-                                "sips", ListeningPoint.TCP, address);
+                // add corresponding A and AAAA records to the host address
+                // from SRV records
+                resolveAddresses(
+                    s.getHostName(),
+                    resultAddresses,
+                    preferIPv6Addresses,
+                    s.getPort());
+
+                // add and every SRV address itself
+                resultAddresses.add(s);
+
+                if (logger.isTraceEnabled())
+                    logger.trace("Returned SRV " + s);
             }
-            else
-            {
-                sockAddr = NetworkUtils.getSRVRecord("sip", transport, address);
-            }
-            if (logger.isTraceEnabled())
-                logger.trace("Returned SRV " + sockAddr);
         }
         catch (ParseException e)
         {
-            throw new UnknownHostException(address);
+            logger.error("Error parsing dns record.", e);
         }
-
-        if(sockAddr != null)
-            resultAddresses.add(sockAddr);
-
-        //there were no SRV mappings so we only need to A/AAAA resolve the
-        //address. Do this before we instantiate the resulting InetSocketAddress
-        //because its constructor suprresses UnknownHostException-s and we want
-        //to know if something goes wrong.
 
         //no SRV means default ports
         int defaultPort = ListeningPoint.PORT_5060;
@@ -2585,7 +2595,41 @@ public class ProtocolProviderServiceSipImpl
             defaultPort = ListeningPoint.PORT_5061;
 
         // after checking SRVs, lets add and AAAA and A records
-        // in order corresponding java preferences.
+        resolveAddresses(
+                address,
+                resultAddresses,
+                preferIPv6Addresses,
+                defaultPort);
+
+        // make sure we don't return empty array
+        if(resultAddresses.size() == 0)
+        {
+            resultAddresses.add(new InetSocketAddress(address, defaultPort));
+
+            // there were no SRV mappings so we only need to A/AAAA resolve the
+            // address. Do this before we instantiate the
+            // resulting InetSocketAddress because its constructor
+            // suppresses UnknownHostException-s and we want to know if
+            // something goes wrong.
+            InetAddress addressObj = InetAddress.getByName(address);
+        }
+
+        return resultAddresses.toArray(new InetSocketAddress[]{});
+    }
+
+    /**
+     * Resolves the given address. Resolves A and AAAA records and returns
+     * them in <tt>resultAddresses</tt> ordered according
+     * <tt>preferIPv6Addresses</tt> option.
+     * @param address the address to resolve.
+     * @param resultAddresses the List in which we provide the result.
+     * @param preferIPv6Addresses whether ipv6 address should go before ipv4.
+     * @param defaultPort the port to use for the result address.
+     */
+    private void resolveAddresses(
+            String address, List<InetSocketAddress> resultAddresses,
+            boolean preferIPv6Addresses, int defaultPort)
+    {
         InetSocketAddress addressObj4 = null;
         InetSocketAddress addressObj6 = null;
         try
@@ -2602,8 +2646,8 @@ public class ProtocolProviderServiceSipImpl
         {
             logger.error("Error parsing dns record.", ex);
         }
-        
-        if(Boolean.getBoolean("java.net.preferIPv6Addresses"))
+
+        if(preferIPv6Addresses)
         {
             if(addressObj6 != null)
                 resultAddresses.add(addressObj6);
@@ -2619,8 +2663,6 @@ public class ProtocolProviderServiceSipImpl
             if(addressObj6 != null)
                 resultAddresses.add(addressObj6);
         }
-
-        return resultAddresses.toArray(new InetSocketAddress[]{});
     }
 
     /**
