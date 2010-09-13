@@ -2567,21 +2567,24 @@ public class ProtocolProviderServiceSipImpl
                             transport.equalsIgnoreCase(ListeningPoint.TLS) ?
                                 "sips" : "sip",
                             ListeningPoint.TCP, address);
-            for(InetSocketAddress s : sockAddrs)
+            if(sockAddrs != null)
             {
-                // add corresponding A and AAAA records to the host address
-                // from SRV records
-                resolveAddresses(
-                    s.getHostName(),
-                    resultAddresses,
-                    preferIPv6Addresses,
-                    s.getPort());
+                for(InetSocketAddress s : sockAddrs)
+                {
+                    // add corresponding A and AAAA records to the host address
+                    // from SRV records
+                    resolveAddresses(
+                        s.getHostName(),
+                        resultAddresses,
+                        preferIPv6Addresses,
+                        s.getPort());
 
-                // add and every SRV address itself
-                resultAddresses.add(s);
+                    // add and every SRV address itself
+                    resultAddresses.add(s);
 
-                if (logger.isTraceEnabled())
-                    logger.trace("Returned SRV " + s);
+                    if (logger.isTraceEnabled())
+                        logger.trace("Returned SRV " + s);
+                }
             }
         }
         catch (ParseException e)
