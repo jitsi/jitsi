@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.replacement.smiley;
 import java.util.*;
 
 import net.java.sip.communicator.service.replacement.*;
+import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
@@ -64,8 +65,12 @@ public class SmileyActivator
             ReplacementServiceSmileyImpl.SMILEY_SOURCE);
         smileySource = new ReplacementServiceSmileyImpl();
 
-        smileyServReg =
-            context.registerService(ReplacementService.class.getName(),
+        smileyServReg
+            = context.registerService(SmiliesReplacementService.class.getName(),
+                smileySource, hashtable);
+
+        smileyServReg
+            = context.registerService(ReplacementService.class.getName(),
                 smileySource, hashtable);
 
         logger.info("Smiley source implementation [STARTED].");

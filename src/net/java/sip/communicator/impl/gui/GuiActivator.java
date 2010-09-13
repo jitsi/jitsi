@@ -26,6 +26,7 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.replacement.*;
+import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.service.systray.*;
@@ -76,6 +77,8 @@ public class GuiActivator implements BundleActivator
     private static DesktopService desktopService;
 
     private static MediaService mediaService;
+
+    private static SmiliesReplacementService smiliesService;
 
     private static AccountManager accountManager;
 
@@ -653,6 +656,24 @@ public class GuiActivator implements BundleActivator
             }
         }
         return replacementSourcesMap;
+    }
+
+    /**
+     * Returns the <tt>SmiliesReplacementService</tt> obtained from the bundle
+     * context.
+     * 
+     * @return the <tt>SmiliesReplacementService</tt> implementation obtained
+     * from the bundle context
+     */
+    public static SmiliesReplacementService getSmiliesReplacementSource()
+    {
+        if (smiliesService == null)
+        {
+            smiliesService
+                = ServiceUtils.getService(bundleContext,
+                    SmiliesReplacementService.class);
+        }
+        return smiliesService;
     }
 
     /**

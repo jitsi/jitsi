@@ -347,7 +347,6 @@ public class SkinJarBuilder
                         styles = true;
                     }
                 }
-
             }
             else
             {

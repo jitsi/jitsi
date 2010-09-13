@@ -8,8 +8,8 @@ package net.java.sip.communicator.impl.replacement.smiley;
 import java.util.*;
 import java.util.regex.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.replacement.*;
+import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
  * @author Purvesh Sahoo
  */
 public class ReplacementServiceSmileyImpl
-    implements ReplacementService
+    implements SmiliesReplacementService
 {
     /**
      * The compiled <tt>Pattern</tt> which matches {@link #smileyStrings}.
@@ -61,9 +61,9 @@ public class ReplacementServiceSmileyImpl
     {
         String startPlainTextTag = START_PLAINTEXT_TAG;
         String endPlainTextTag = END_PLAINTEXT_TAG;
-        Collection<Smiley> smileys = ImageLoader.getDefaultSmileyPack();
+        Collection<Smiley> smilies = Resources.getDefaultSmileyPack();
 
-        Matcher m = getSmileyPattern(smileys).matcher(chatString);
+        Matcher m = getSmileyPattern(smilies).matcher(chatString);
         StringBuffer msgBuffer = new StringBuffer();
 
         int prevEnd = 0;
@@ -79,8 +79,8 @@ public class ReplacementServiceSmileyImpl
             msgBuffer.append("<IMG SRC=\"");
             try
             {
-                msgBuffer.append(ImageLoader.getSmiley(smileyString)
-                    .getImagePath(SmileyActivator.getResources()));
+                msgBuffer.append(
+                    Resources.getSmiley(smileyString).getImagePath());
             }
             catch (Exception e)
             {
@@ -162,7 +162,7 @@ public class ReplacementServiceSmileyImpl
             return smileyPattern;
         }
     }
-    
+
     /**
      * Returns the source name
      * 
@@ -171,5 +171,14 @@ public class ReplacementServiceSmileyImpl
     public String getSourceName()
     {
         return SMILEY_SOURCE;
+    }
+
+    /**
+     * Returns the smileys pack to use in the user interface.
+     * @return a collection of all smileys available
+     */
+    public Collection<Smiley> getSmiliesPack()
+    {
+        return Resources.getDefaultSmileyPack();
     }
 }

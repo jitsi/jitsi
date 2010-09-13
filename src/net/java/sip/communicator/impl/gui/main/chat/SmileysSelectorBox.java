@@ -15,6 +15,7 @@ import javax.swing.event.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -30,10 +31,25 @@ public class SmileysSelectorBox
                MouseListener,
                PopupMenuListener
 {
+    /**
+     * The chat write panel.
+     */
     private final ChatWritePanel chatWritePanel;
 
+    /**
+     * The smiley text label.
+     */
     private final JLabel smileyTextLabel = new JLabel();
+
+    /**
+     * The smiley description label.
+     */
     private final JLabel smileyDescriptionLabel = new JLabel();
+
+    /**
+     * The smilies service.
+     */
+    private final SmiliesReplacementService smiliesService;
 
     /**
      * Initializes a new <tt>SmileysSelectorBox</tt> instance.
@@ -62,6 +78,8 @@ public class SmileysSelectorBox
          * they are not always necessary.
          */
         popupMenu.addPopupMenuListener(this);
+
+        this.smiliesService = GuiActivator.getSmiliesReplacementSource();
     }
 
     /**
@@ -139,7 +157,8 @@ public class SmileysSelectorBox
          */
         public SmileyMenuItem(Smiley smiley)
         {
-            super(new ImageIcon(ImageLoader.getImage(smiley.getImageID())));
+            super(GuiActivator.getResources().getImage(smiley.getImageID()));
+
             this.setUI(new SIPCommMenuItemUI());
 
             this.smiley = smiley;
@@ -157,7 +176,7 @@ public class SmileysSelectorBox
         Smiley smiley = smileyItem.smiley;
 
         ImageIcon imageIcon
-            = GuiActivator.getResources().getImage(smiley.getImageID().getId());
+            = GuiActivator.getResources().getImage(smiley.getImageID());
         smileyItem.setIcon(imageIcon);
 
         smileyDescriptionLabel.setText(smiley.getDescription());
@@ -191,7 +210,7 @@ public class SmileysSelectorBox
     private void clearMouseOverEffects(SmileyMenuItem smileyItem)
     {
         ImageIcon imageIcon =
-            new ImageIcon(ImageLoader.getImage(smileyItem.smiley.getImageID()));
+            GuiActivator.getResources().getImage(smileyItem.smiley.getImageID());
 
         smileyItem.setIcon(imageIcon);
         smileyTextLabel.setText("");
@@ -227,7 +246,7 @@ public class SmileysSelectorBox
         if (popupMenu.getComponentIndex(smileyTextLabel) != -1)
             return;
 
-        Collection<Smiley> imageList = ImageLoader.getDefaultSmileyPack();
+        Collection<Smiley> imageList = smiliesService.getSmiliesPack();
 
         Dimension gridDimensions
             = this.calculateGridDimensions(imageList.size());

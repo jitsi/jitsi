@@ -4,11 +4,11 @@ Bundle-Description: A bundle providing replacement for youtube links.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 1.0.0
 System-Bundle: yes
-Export-Package: net.java.sip.communicator.service.replacement
 Import-Package: org.osgi.framework,
+ net.java.sip.communicator.service.replacement,
  net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.resources,
  net.java.sip.communicator.service.configuration.event,
  net.java.sip.communicator.util,
- net.java.sip.communicator.service.replacement,
- org.apache.http
+ org.apache.http,
+ org.json

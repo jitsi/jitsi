@@ -5,8 +5,6 @@
  */
 package net.java.sip.communicator.service.replacement;
 
-import java.util.*;
-
 /**
  * A service used to provide substitution for any text in chat messages, like
  * smileys, video and image previews, etc.
@@ -29,7 +27,7 @@ public interface ReplacementService
      *         in case of no match.
      */
     public String getReplacedMessage(String chatString);
-    
+
     /**
      * Returns the name of the replacement source.
      * 

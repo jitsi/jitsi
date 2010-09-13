@@ -59,7 +59,6 @@ public class ReplacementServiceDailymotionImpl
      */
     public String getReplacedMessage(final String chatString)
     {
-
         final Pattern p =
             Pattern.compile(DAILYMOTION_PATTERN, Pattern.CASE_INSENSITIVE
                 | Pattern.DOTALL);
