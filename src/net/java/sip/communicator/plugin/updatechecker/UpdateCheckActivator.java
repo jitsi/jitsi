@@ -31,7 +31,7 @@ import org.osgi.framework.*;
 
 /**
  * Activates the UpdateCheck plugin
- * 
+ *
  * @author Damian Minkov
  * @author Lubomir Marinov
  */
@@ -61,7 +61,7 @@ public class UpdateCheckActivator
 
     private static UserCredentials userCredentials = null;
 
-    private static final String UPDATE_USERNAME_CONFIG = 
+    private static final String UPDATE_USERNAME_CONFIG =
         "net.java.sip.communicator.plugin.updatechecker.UPDATE_SITE_USERNAME";
     private static final String UPDATE_PASSWORD_CONFIG =
         "net.java.sip.communicator.plugin.updatechecker.UPDATE_SITE_PASSWORD";
@@ -107,7 +107,7 @@ public class UpdateCheckActivator
     /**
      * Stop the bundle. Nothing to stop for now.
      * @param bundleContext
-     * @throws Exception 
+     * @throws Exception
      */
     public void stop(BundleContext bundleContext)
         throws Exception
@@ -164,7 +164,7 @@ public class UpdateCheckActivator
      * The returned reference to <code>ShutdownService</code> is not being
      * cached.
      * </p>
-     * 
+     *
      * @return reference to a <code>ShutdownService</code> implementation
      *         currently registered in the bundle context of the active
      *         <code>UpdateCheckActivator</code> instance
@@ -355,6 +355,9 @@ public class UpdateCheckActivator
 
                 public void actionPerformed(ActionEvent e)
                 {
+                    if(OSUtils.IS_WINDOWS64)
+                        downloadLink = downloadLink.replace("x86", "x64");
+
                     dialog.dispose();
                     windowsUpdate();
                 }
@@ -777,9 +780,6 @@ public class UpdateCheckActivator
                         if(OSUtils.IS_LINUX64)
                             downloadLink
                                 = downloadLink.replace("i386", "amd64");
-                        else if(OSUtils.IS_WINDOWS64)
-                            downloadLink
-                                = downloadLink.replace("x86", "x64");
 
                         getBrowserLauncher().openURL(downloadLink);
                         dialog.dispose();

@@ -6,6 +6,7 @@
 <JVMSearchPath>jdkpath</JVMSearchPath>
 <JVMSearchPath>exepath</JVMSearchPath>
 <JVMSearchPath>jview</JVMSearchPath>
+<bundledJVMPath>..\..\..\..\..\..\..\..\Program Files\Java\jre6</bundledJVMPath>
 <classPath>lib\felix.jar</classPath>
 <classPath>lib\jdic-all.jar</classPath>
 <classPath>lib\jdic_stub.jar</classPath>
