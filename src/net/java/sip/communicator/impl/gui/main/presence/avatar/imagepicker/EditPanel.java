@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.presence.avatar.imagepicker;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.*;
 
 import javax.swing.*;
@@ -24,12 +25,13 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class EditPanel
     extends TransparentPanel
-    implements ChangeListener
+    implements ChangeListener,
+               ActionListener
 {
     private ImageClipper imageClipper;
     private BufferedImage image;
     private JSlider imageSizeSlider;
-    private JLabel zoomIn, zoomOut;
+    private JButton zoomIn, zoomOut, reset;
     
     private boolean resizeOnWidth = true;
     private boolean smallImage = false;
@@ -52,11 +54,17 @@ public class EditPanel
         this.clippingZoneWidth = clippingZoneWidth;
         this.clippingZoneHeight = clippingZoneHeight;
         
-        this.zoomOut = new JLabel(GuiActivator.getResources()
+        this.zoomOut = new JButton(GuiActivator.getResources()
                 .getImage("service.gui.buttons.ZOOM_OUT"));
-
-        this.zoomIn = new JLabel(GuiActivator.getResources()
+        this.zoomOut.addActionListener(this);
+        this.zoomIn = new JButton(GuiActivator.getResources()
                 .getImage("service.gui.buttons.ZOOM_IN"));
+        this.zoomIn.addActionListener(this);
+        this.reset = new JButton(GuiActivator.getResources()
+                .getImage("service.gui.buttons.RESET"));
+        this.reset.setToolTipText(GuiActivator.getResources()
+                .getI18NString("service.gui.avatar.imagepicker.RESET"));
+        this.reset.addActionListener(this);
 
         imageSizeSlider = new JSlider(clippingZoneWidth, clippingZoneWidth,
                 clippingZoneWidth);
@@ -66,9 +74,10 @@ public class EditPanel
                 .getI18NString("service.gui.avatar.imagepicker.IMAGE_SIZE"));
     
         TransparentPanel sliderPanel = new TransparentPanel();
-        sliderPanel.add(this.zoomOut);
+        sliderPanel.add(zoomOut);
         sliderPanel.add(this.imageSizeSlider);
         sliderPanel.add(this.zoomIn);
+        sliderPanel.add(this.reset);
     
         this.imageClipper = new ImageClipper(this.clippingZoneWidth,
                 this.clippingZoneHeight);
@@ -153,7 +162,7 @@ public class EditPanel
         BufferedImage fullImage = getResizedImage(true);
         
 
-        Rectangle clipping = this.imageClipper.getClipping();
+        Rectangle clipping = this.imageClipper.getCroppedArea();
         
         BufferedImage subImage = fullImage.getSubimage(clipping.x, clipping.y,
                 clipping.width, clipping.height);
@@ -193,6 +202,9 @@ public class EditPanel
         return i;
     }
 
+    /**
+     * Draw the image.
+     */
     private void drawImage()
     {
         // Use high quality scalling when the image is smaller than the clipper
@@ -204,11 +216,43 @@ public class EditPanel
         this.imageSizeSlider.setEnabled(enabled);
         this.zoomIn.setEnabled(enabled);
         this.zoomOut.setEnabled(enabled);
+        this.reset.setEnabled(enabled);
     }
 
+    /**
+     * New size image selected update the clipper.
+     * @param e the event.
+     */
     public void stateChanged(ChangeEvent e)
     {
-        // New size selected update the clipper 
         drawImage();
+    }
+
+    /**
+     * Listens for button actions.
+     * @param e
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        if(e.getSource().equals(zoomIn))
+        {
+            if(imageSizeSlider.getValue() < imageSizeSlider.getMaximum())
+            {
+                imageSizeSlider.setValue(imageSizeSlider.getValue() + 1);
+                drawImage();
+            }
+        }
+        else if(e.getSource().equals(zoomOut))
+        {
+            if(imageSizeSlider.getValue() > imageSizeSlider.getMinimum())
+            {
+                imageSizeSlider.setValue(imageSizeSlider.getValue() - 1);
+                drawImage();
+            }
+        }
+        else if(e.getSource().equals(reset))
+        {
+            reset();
+        }
     }
 }

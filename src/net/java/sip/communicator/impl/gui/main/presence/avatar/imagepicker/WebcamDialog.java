@@ -48,12 +48,14 @@ public class WebcamDialog
      */
     public WebcamDialog(ImagePickerDialog parent)
     {
-        super(parent);
+        super(false);
         this.setTitle(GuiActivator.getResources()
                 .getI18NString("service.gui.avatar.imagepicker.TAKE_PHOTO"));
         this.setModal(true);
         
         init();
+
+        this.setSize(320, 240);
     }
 
     /**
@@ -91,7 +93,7 @@ public class WebcamDialog
         }
         
         TransparentPanel buttonsPanel
-                = new TransparentPanel(new GridLayout(1, 2));
+                = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonsPanel.add(this.grabSnapshot);
         buttonsPanel.add(cancelButton);
         
@@ -99,9 +101,15 @@ public class WebcamDialog
         TransparentPanel southPanel = new TransparentPanel(new BorderLayout());
         southPanel.add(timerPanel, BorderLayout.CENTER);
         southPanel.add(buttonsPanel, BorderLayout.SOUTH);
-        
-        this.add(this.videoContainer, BorderLayout.CENTER);
-        this.add(southPanel, BorderLayout.SOUTH);   
+
+        TransparentPanel videoPanel
+                = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+        videoPanel.add(this.videoContainer);
+
+        this.add(videoPanel, BorderLayout.CENTER);
+        this.add(southPanel, BorderLayout.SOUTH);
+
+        this.setResizable(false);
     }
 
     /**
@@ -170,12 +178,20 @@ public class WebcamDialog
         audio.play();
     }
 
+    /**
+     * Invoked when a window is closed. Dispose dialog.
+     * @param isEscaped
+     */
     protected void close(boolean isEscaped)
     {
         this.videoContainer = null;
         dispose();
     }
-    
+
+    /**
+     * Listens for actions for the buttons in this dialog.
+     * @param e
+     */
     public void actionPerformed(ActionEvent e)
     {
         String actName = ((JButton) e.getSource()).getName();
@@ -231,11 +247,29 @@ public class WebcamDialog
     private class TimerImage
         extends JComponent
     {
+        /**
+         * Image width.
+         */
         private static final int WIDTH = 30;
+
+        /**
+         * Image height.
+         */
         private static final int HEIGHT = 30;
-        
+
+        /**
+         * Whether image is already elapsed.
+         */
         private boolean isElapsed = false;
+
+        /**
+         * Font of the image.
+         */
         private Font textFont = null;
+
+        /**
+         * The string that will be shown in the image.
+         */
         private String second;
         
         public TimerImage(String second)
@@ -248,13 +282,20 @@ public class WebcamDialog
             this.textFont = new Font("Sans", Font.BOLD, 20);
             this.second = second;
         }
-        
+
+        /**
+         * Is current image elapsed. 
+         */
         public void setElapsed()
         {
             this.isElapsed = true;
             this.repaint();
         }
-        
+
+        /**
+         * Paint the number image.
+         * @param g
+         */
         @Override
         protected void paintComponent(Graphics g)
         {

@@ -15,160 +15,195 @@ import javax.swing.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * Component allowing the user to easily clip an image
+ * Component allowing the user to easily crop an image
  * 
  * @author Damien Roth
+ * @author Damian Minkov
  */
 public class ImageClipper
     extends JComponent
-    implements MouseListener, MouseMotionListener
+    implements MouseListener,
+               MouseMotionListener
 {
-    private static final int CLIP_PANEL_WIDTH = 320;
-    private static final int CLIP_PANEL_HEIGHT = 240;
-    
+    /**
+     * Border of the image.
+     */
     private static final Color IMAGE_BORDER_COLOR
             = new Color(174, 189, 215);
+
+    /**
+     * Image overlay color.
+     */
     private static final Color IMAGE_OVERLAY_COLOR
             = new Color(1.0f, 1.0f, 1.0f, 0.4f);
-    
+
+    /**
+     * The last remembered component width, to see when component is resized.
+     */
+    private int lastComponentWidth = 0;
+
+    /**
+     * The last remembered component height, to see when component is resized.
+     */
+    private int lastComponentHeight = 0;
+
+    /**
+     * The image that we will crop.
+     */
     private BufferedImage image = null;
-    private Rectangle imageRect;
-    private Point imageBottomRight;
-    
-    private Rectangle clippingZoneRect;
-    private Point clippingZoneBottomRight;
-    
-    // Mouse drag vars
-    private int mouseStartX;
-    private int mouseStartY;
-    private int xInit;
-    private int yInit;
+
+    /**
+     * The rectangle in which we are currently drawing the image.
+     */
+    private Rectangle imageRect = new Rectangle();
+
+    /**
+     * The zone that we will crop later from the image.
+     */
+    private Rectangle cropZoneRect;
     
     /**
-     * Construct an new image clipper
+     * Used for mouse dragging.
+     * This is every time the initial X coordinate of the mouse
+     * and the coordinates are according the image.
+     */
+    private int mouseStartX;
+
+    /**
+     * Used for mouse dragging.
+     * This is every time the initial Y coordinate of the mouse
+     * and the coordinates are according the image.
+     */
+    private int mouseStartY;
+
+    /**
+     * Construct an new image cropper
      * 
-     * @param cropZoneWidth the width of the clip zone
-     * @param cropZoneHeight the height of the clip zone
+     * @param cropZoneWidth the width of the crop zone
+     * @param cropZoneHeight the height of the crop zone
      */
     public ImageClipper(int cropZoneWidth, int cropZoneHeight)
     {
-        Dimension d = new Dimension(CLIP_PANEL_WIDTH, CLIP_PANEL_HEIGHT);
-        
+        this.cropZoneRect = new Rectangle(cropZoneWidth, cropZoneHeight);
+        updateCropZone();
+
+        Dimension d = new Dimension(320, 240);
+
         this.setSize(d);
-        this.setMaximumSize(d);
         this.setMinimumSize(d);
         this.setPreferredSize(d);
-        
-        this.initClippingZone(cropZoneWidth, cropZoneHeight);
-        this.imageRect = new Rectangle(this.clippingZoneRect.getLocation());
-        this.imageBottomRight = new Point(0,0);
-        
+
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
     }
     
     /**
-     * Compute static values of the clipping zone
-     * 
-     * @param width the width of the clipping zone
-     * @param height the height of the clipping zone
+     * Compute static values of the cropping zone
      */
-    private void initClippingZone(int width, int height)
+    private void updateCropZone()
     {
-        this.clippingZoneRect = new Rectangle(width, height);
-        this.clippingZoneRect.x = (CLIP_PANEL_WIDTH / 2) - (width / 2);
-        this.clippingZoneRect.y = (CLIP_PANEL_HEIGHT / 2) - (height / 2);
-        
-        this.clippingZoneBottomRight = new Point(
-                this.clippingZoneRect.x + this.clippingZoneRect.width,
-                this.clippingZoneRect.y + this.clippingZoneRect.height
-        );
+        this.cropZoneRect.x =
+            (this.getWidth() / 2) - (this.cropZoneRect.width / 2);
+        this.cropZoneRect.y =
+            (this.getHeight() / 2) - (this.cropZoneRect.height / 2);
     }
     
     /**
-     * Defines the image to be clipped
+     * Defines the image to be cropped
      * 
-     * @param image the image to be clipped
+     * @param image the image to be cropped
      */
     public void setImage(BufferedImage image)
     {
-        boolean updated = false;
         this.image = image;
-        
+
         this.imageRect.width = image.getWidth(this);
         this.imageRect.height = image.getHeight(this);
-        
-        this.imageBottomRight.x = this.imageRect.x + this.imageRect.width;
-        this.imageBottomRight.y = this.imageRect.y + this.imageRect.height;
-        
-        if (this.imageBottomRight.x < this.clippingZoneBottomRight.x)
-        {
-            this.imageRect.x +=
-                    this.clippingZoneBottomRight.x - this.imageBottomRight.x;
-            updated = true;
-        }
-        if (this.imageBottomRight.y < this.clippingZoneBottomRight.y)
-        {
-            this.imageRect.y +=
-                    this.clippingZoneBottomRight.y - this.imageBottomRight.y;
-            updated = true;
-        }
-        
-        if (updated)
-        {
-            this.imageBottomRight.x = this.imageRect.x + this.imageRect.width;
-            this.imageBottomRight.y = this.imageRect.y + this.imageRect.height;
-        }
+        // put the image in the center
+        this.imageRect.x = (this.getWidth() - this.imageRect.width)/2;
+        this.imageRect.y = (this.getHeight() - this.imageRect.height)/2;
+
+        // set the initial values
+        this.lastComponentHeight = this.getHeight();
+        this.lastComponentWidth = this.getWidth();
+
+        updateImagePoints();
         
         this.repaint();
     }
-    
+
     /**
-     * Returns the clipped area of the image
-     * 
-     * @return the clipped area
+     * Update image points if needed, when component is resized.
      */
-    public Rectangle getClipping()
+    private void updateImagePoints()
     {
-        Rectangle clipping = new Rectangle();
-        
-        clipping.setSize(this.clippingZoneRect.getSize());
-        clipping.x = this.clippingZoneRect.x - this.imageRect.x;
-        clipping.y = this.clippingZoneRect.y - this.imageRect.y;
-        
-        return clipping;
+        if(lastComponentWidth != this.getWidth())
+        {
+            this.imageRect.x += (this.getWidth() - lastComponentWidth)/2;
+            lastComponentWidth = this.getWidth();
+        }
+
+        if(lastComponentHeight != this.getHeight())
+        {
+            this.imageRect.y += (this.getHeight() - lastComponentHeight)/2;
+            lastComponentHeight = this.getHeight();
+        }
     }
     
+    /**
+     * Returns the cropped area of the image
+     * 
+     * @return the cropped area
+     */
+    public Rectangle getCroppedArea()
+    {
+        Rectangle croppedArea = new Rectangle();
+        
+        croppedArea.setSize(this.cropZoneRect.getSize());
+        croppedArea.x = this.cropZoneRect.x - this.imageRect.x;
+        croppedArea.y = this.cropZoneRect.y - this.imageRect.y;
+        
+        return croppedArea;
+    }
+
+    /**
+     * Paint the component with the image we have and the settings
+     * we have for it.
+     * @param g the graphics to draw.
+     */
     @Override
     protected void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        
+
         g = g.create();
         AntialiasingManager.activateAntialiasing(g);
-        
+
         // Draw image
+        updateImagePoints();
         g.drawImage(this.image, this.imageRect.x, this.imageRect.y,
                 this.imageRect.width, this.imageRect.height, this);
-        
+
+        // Select rect
+        updateCropZone();
+        g.setColor(Color.BLACK);
+        g.drawRect(this.cropZoneRect.x, this.cropZoneRect.y,
+                this.cropZoneRect.width, this.cropZoneRect.height);
+
         // Image overlay
         drawImageOverlay(g);
-        
+
         // Image border
-        g.setColor(ImageClipper.IMAGE_BORDER_COLOR);
+        g.setColor(IMAGE_BORDER_COLOR);
         g.drawRoundRect(this.imageRect.x-2, this.imageRect.y-2,
                 this.imageRect.width+3, this.imageRect.height+3, 2, 2);
         g.drawRoundRect(this.imageRect.x-1, this.imageRect.y-1,
                 this.imageRect.width+1, this.imageRect.height+1, 2, 2);
-        
-        // Select rect
-        g.setColor(Color.BLACK);
-        g.drawRect(this.clippingZoneRect.x, this.clippingZoneRect.y,
-                this.clippingZoneRect.width, this.clippingZoneRect.height);
     }
     
     /**
-     * Draw an overlay over the parts of the images which are not in the clip zone
+     * Draw an overlay over the parts of the images
+     * which are not in the crop zone
      * 
      * @param g the Graphics used to draw
      */
@@ -176,67 +211,116 @@ public class ImageClipper
     {
         int width, height;
         
-        g.setColor(ImageClipper.IMAGE_OVERLAY_COLOR);
-        
-        width = this.clippingZoneRect.x - this.imageRect.x;
+        g.setColor(IMAGE_OVERLAY_COLOR);
+
+        // left vertical non cropped part
+        width = this.cropZoneRect.x - this.imageRect.x;
         if (width > 0)
+        {
             g.fillRect(this.imageRect.x, this.imageRect.y,
                     width, this.imageRect.height);
-        
+        }
+
+        // right vertical non cropped
         width = this.imageRect.x + this.imageRect.width
-                - this.clippingZoneBottomRight.x;
+                - (this.cropZoneRect.x + this.cropZoneRect.width);
         if (width > 0)
-            g.fillRect(this.clippingZoneBottomRight.x, this.imageRect.y,
-                    width, this.imageRect.height);
-        
-        // Top
-        height = this.clippingZoneRect.y - this.imageRect.y;
+        {
+            g.fillRect(
+                this.cropZoneRect.x + this.cropZoneRect.width,
+                this.imageRect.y,
+                width,
+                this.imageRect.height);
+        }
+
+        // Top horizontal non croppped part
+        height = this.cropZoneRect.y - this.imageRect.y;
         if (height > 0)
-            g.fillRect(this.clippingZoneRect.x, this.imageRect.y,
-                    this.clippingZoneRect.width, height);
-        
-        // Bottom
+        {
+            g.fillRect(this.cropZoneRect.x, this.imageRect.y,
+                    this.cropZoneRect.width, height);
+        }
+
+        // Bottom horizontal non croppped part
         height = (this.imageRect.y + this.imageRect.height)
-                - (this.clippingZoneBottomRight.y);
+            - (this.cropZoneRect.y + this.cropZoneRect.height);
         if (height > 0)
-            g.fillRect(this.clippingZoneRect.x, this.clippingZoneBottomRight.y,
-                    this.clippingZoneRect.width, height);
+        {
+            g.fillRect(
+                this.cropZoneRect.x,
+                this.cropZoneRect.y + this.cropZoneRect.height,
+                this.cropZoneRect.width,
+                height);
+        }
     }
 
+    /**
+     * Start image cropping action.
+     * @param e the mouse event, initial clicking.
+     */
     public void mousePressed(MouseEvent e)
     {
         // Init the dragging
         mouseStartX = e.getX();
         mouseStartY = e.getY();
-        xInit = this.imageRect.x;
-        yInit = this.imageRect.y;
     }
 
+    /**
+     * Event that user is dragging the mouse.
+     * @param e the mouse event.
+     */
     public void mouseDragged(MouseEvent e)
     {
         // New position of the image
-        int xpos = xInit + (e.getX() - mouseStartX);
-        int ypos = yInit + (e.getY() - mouseStartY);
-        
-        // Checks if the image doesn't go out of the clip zone
-        if (xpos <= this.clippingZoneRect.x && xpos
-                + this.imageRect.width > this.clippingZoneBottomRight.x)
-            this.imageRect.x = xpos;
+        int newXpos = this.imageRect.x + e.getX() - mouseStartX;
+        int newYpos = this.imageRect.y + e.getY() - mouseStartY;
 
-        if (ypos <= this.clippingZoneRect.y && ypos
-                + this.imageRect.height > this.clippingZoneBottomRight.y)
-            this.imageRect.y = ypos;
-        
+        if(newXpos <= cropZoneRect.x
+           && newXpos + imageRect.width
+                >= cropZoneRect.x + cropZoneRect.width)
+        {
+            this.imageRect.x = newXpos;
+            mouseStartX = e.getX();
+        }
+
+        if(newYpos < cropZoneRect.y
+           && newYpos + imageRect.height
+                >= cropZoneRect.y + cropZoneRect.height)
+        {
+            this.imageRect.y = newYpos;
+            mouseStartY = e.getY();
+        }
+
         this.repaint();
     }
 
+    /**
+     * Not used.
+     * @param e
+     */
     public void mouseClicked(MouseEvent e) {}
 
+    /**
+     * Not used.
+     * @param e
+     */
     public void mouseEntered(MouseEvent e) {}
 
+    /**
+     * Not used.
+     * @param e
+     */
     public void mouseExited(MouseEvent e) {}
 
+    /**
+     * Not used.
+     * @param e
+     */
     public void mouseReleased(MouseEvent e) {}
-    
+
+    /**
+     * Not used.
+     * @param e
+     */
     public void mouseMoved(MouseEvent e) {}
 }

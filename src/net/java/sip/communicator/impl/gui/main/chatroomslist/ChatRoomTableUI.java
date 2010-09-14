@@ -289,15 +289,19 @@ public class ChatRoomTableUI
 
             this.setText(pps.getAccountID().getDisplayName());
 
-            byte[] protocolStatusImage = presence.getPresenceStatus().getStatusIcon();
+            if(presence.getPresenceStatus() != null)
+            {
+                byte[] protocolStatusImage =
+                    presence.getPresenceStatus().getStatusIcon();
 
-            if(protocolStatusImage != null)
-            {
-                this.setIcon(new ImageIcon(protocolStatusImage));
-            }
-            else
-            {
-                this.setIcon(null);
+                if(protocolStatusImage != null)
+                {
+                    this.setIcon(new ImageIcon(protocolStatusImage));
+                }
+                else
+                {
+                    this.setIcon(null);
+                }
             }
 
             if(isSelected)
