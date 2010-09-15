@@ -2638,14 +2638,16 @@ public class ProtocolProviderServiceSipImpl
         try
         {
             addressObj4 = NetworkUtils.getARecord(address, defaultPort);
-        } catch (ParseException ex)
+        }
+        catch (ParseException ex)
         {
             logger.error("Error parsing dns record.", ex);
         }
         try
         {
             addressObj6 = NetworkUtils.getAAAARecord(address, defaultPort);
-        } catch (ParseException ex)
+        }
+        catch (ParseException ex)
         {
             logger.error("Error parsing dns record.", ex);
         }

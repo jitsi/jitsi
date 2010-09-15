@@ -287,9 +287,7 @@ public class ChatRoomTableUI
             OperationSetPresence presence
                 = pps.getOperationSet(OperationSetPresence.class);
 
-            this.setText(pps.getAccountID().getDisplayName());
-
-            if(presence.getPresenceStatus() != null)
+            if(presence != null)
             {
                 byte[] protocolStatusImage =
                     presence.getPresenceStatus().getStatusIcon();
@@ -303,6 +301,8 @@ public class ChatRoomTableUI
                     this.setIcon(null);
                 }
             }
+
+            this.setText(pps.getAccountID().getDisplayName());
 
             if(isSelected)
                 this.setBackground(table.getSelectionBackground());

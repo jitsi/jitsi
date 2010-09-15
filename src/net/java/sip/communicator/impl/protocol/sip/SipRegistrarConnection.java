@@ -321,7 +321,8 @@ public class SipRegistrarConnection
                     registrarURI.setPort(this.currentRegistrarAddress.getPort());
 
                 registrarURI.setTransportParam(registrationTransport);
-            } catch (Throwable e)
+            }
+            catch (Throwable e)
             {
                 logger.error("Cannot create register URI", e);
             }
@@ -329,7 +330,8 @@ public class SipRegistrarConnection
             try
             {
                 register();
-            } catch (Throwable e)
+            }
+            catch (Throwable e)
             {
                 logger.error("Cannot send register!", e);
                 setRegistrationState(

@@ -2905,9 +2905,16 @@ public class OperationSetPresenceSipImpl
             cancelTimer();
             waitedCallIds.clear();
 
-            // update UI that our status is OFFLINE
-            fireProviderStatusChangeEvent(
-                sipStatusEnum.getStatus(SipStatusEnum.OFFLINE));
+            // update ourself and the UI that our status is OFFLINE
+            try
+            {
+                publishPresenceStatus(
+                        sipStatusEnum.getStatus(SipStatusEnum.OFFLINE), "");
+            }
+            catch (OperationFailedException e)
+            {
+                logger.error("can't set the offline mode", e);
+            }
         }
     }
 
