@@ -34,7 +34,8 @@ public class ReplacementServiceVimeoImpl
      * The regex used to match the link in the message.
      */
     public static final String VIMEO_PATTERN =
-        "(http.*?(www\\.)*?vimeo\\.com\\/([a-zA-Z0-9_\\-]+))";
+        "(?<=>)(https?\\:\\/\\/(www\\.)*?vimeo\\.com"
+        + "\\/([a-zA-Z0-9_\\-]+))(?=</A>)";
 
     /**
      * Configuration label shown in the config form. 
@@ -55,87 +56,56 @@ public class ReplacementServiceVimeoImpl
     }
 
     /**
-     * Replaces the vimeo video links in the chat message with their
-     * corresponding thumbnails.
-     *
-     * @param chatString the original chat message.
-     * @return replaced chat message with the thumbnail image; the original
-     *         message in case of no match.
+     * Returns the thumbnail URL of the video link provided.
+     * 
+     * @param sourceString the original video link.
+     * @return the thumbnail image link; the original link in case of no match.
      */
-    public String getReplacedMessage(String chatString)
+    public String getReplacement(String sourceString)
     {
         final Pattern p =
-            Pattern.compile(VIMEO_PATTERN, Pattern.CASE_INSENSITIVE
-                | Pattern.DOTALL);
-        Matcher m = p.matcher(chatString);
+            Pattern.compile(".+\\.com\\/([a-zA-Z0-9_\\-]+)",
+                Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Matcher m = p.matcher(sourceString);
 
-        int count = 0, startPos = 0;
-        StringBuffer msgBuff = new StringBuffer();
+        String thumbUrl = sourceString;
 
         while (m.find())
         {
-
-            count++;
-            msgBuff.append(chatString.substring(startPos, m.start()));
-            startPos = m.end();
-
-            if (count % 2 == 0)
+            try
             {
+                String url =
+                    "http://vimeo.com/api/v2/video/" + m.group(1) + ".json";
+                URL vimeoURL = new URL(url);
+                URLConnection conn = vimeoURL.openConnection();
 
-                try
+                BufferedReader in =
+                    new BufferedReader(new InputStreamReader(conn
+                        .getInputStream()));
+
+                String inputLine, holder = "";
+
+                while ((inputLine = in.readLine()) != null)
+                    holder = inputLine;
+                in.close();
+
+                JSONArray result = new JSONArray(holder);
+
+                if (!(result.length() == 0))
                 {
-                    String url =
-                        "http://vimeo.com/api/v2/video/" + m.group(3) + ".json";
-                    URL vimeoURL = new URL(url);
-                    URLConnection conn = vimeoURL.openConnection();
-
-                    BufferedReader in =
-                        new BufferedReader(new InputStreamReader(conn
-                            .getInputStream()));
-
-                    String inputLine, holder = "";
-
-                    while ((inputLine = in.readLine()) != null)
-                        holder = inputLine;
-                    in.close();
-
-                    JSONArray result = new JSONArray(holder);
-
-                    if (!(result.length() == 0))
-                    {
-                        msgBuff
-                            .append("<IMG HEIGHT=\"150\" WIDTH=\"200\" SRC=\"");
-                        msgBuff.append(result.getJSONObject(0).getString(
-                            "thumbnail_medium"));
-                        msgBuff.append("\"></IMG>");
-                    }
-                    else
-                    {
-                        startPos = 0;
-                        msgBuff = new StringBuffer();
-                    }
-                }
-                catch (Exception e)
-                {
-                    startPos = 0;
-                    msgBuff = new StringBuffer();
-                    e.printStackTrace();
+                    thumbUrl
+                        = result.getJSONObject(0).getString("thumbnail_medium");
                 }
             }
-            else
+            catch (Exception e)
             {
-                msgBuff.append(chatString.substring(m.start(), m.end()));
+                e.printStackTrace();
             }
         }
 
-        msgBuff.append(chatString.substring(startPos));
-
-        if (!msgBuff.toString().equals(chatString))
-            return msgBuff.toString();
-
-        return chatString;
+        return thumbUrl;
     }
-    
+
     /**
      * Returns the source name
      * 
@@ -144,5 +114,15 @@ public class ReplacementServiceVimeoImpl
     public String getSourceName()
     {
         return SOURCE_NAME;
+    }
+
+    /**
+     * Returns the pattern of the source
+     * 
+     * @return the source pattern
+     */
+    public String getPattern()
+    {
+        return VIMEO_PATTERN;
     }
 }

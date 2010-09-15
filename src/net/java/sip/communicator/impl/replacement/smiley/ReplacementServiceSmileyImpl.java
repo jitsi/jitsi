@@ -6,7 +6,6 @@
 package net.java.sip.communicator.impl.replacement.smiley;
 
 import java.util.*;
-import java.util.regex.*;
 
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
@@ -23,97 +22,60 @@ public class ReplacementServiceSmileyImpl
     implements SmiliesReplacementService
 {
     /**
-     * The compiled <tt>Pattern</tt> which matches {@link #smileyStrings}.
-     */
-    private static Pattern smileyPattern;
-
-    /**
      * The <tt>List</tt> of smiley strings which are matched by
-     * {@link #smileyPattern}.
+     * {@link #smileyRegex}.
      */
     private static final java.util.List<String> smileyStrings =
         new ArrayList<String>();
 
     /**
-     * The closing tag of the <code>PLAINTEXT</code> HTML element.
-     */
-    private static final String END_PLAINTEXT_TAG = "</PLAINTEXT>";
-
-    /**
-     * The opening tag of the <code>PLAINTEXT</code> HTML element.
-     */
-    private static final String START_PLAINTEXT_TAG = "<PLAINTEXT>";
-
-    /**
-     * Configuration label shown in the config form. 
+     * Configuration label shown in the config form.
      */
     public static final String SMILEY_SOURCE = "SMILEY";
 
     /**
-     * Replaces the smiley strings in the chat message with their
-     * corresponding smiley image.
-     * 
-     * @param chatString the original chat message.
-     * @return replaced chat message with the smiley images; the original
-     *         message in case of no match.
+     * The regex used to match the smileys in the message.
      */
-    public String getReplacedMessage(final String chatString)
+    public static String smileyRegex;
+
+    /**
+     * Replaces the smiley strings with their corresponding smiley image.
+     *
+     * @param sourceString the original smiley string.
+     * @return the smiley image replaced for the smiley string; the original
+     *         smiley string in case of no match.
+     */
+    public String getReplacement(final String sourceString)
     {
-        String startPlainTextTag = START_PLAINTEXT_TAG;
-        String endPlainTextTag = END_PLAINTEXT_TAG;
-        Collection<Smiley> smilies = Resources.getDefaultSmileyPack();
-
-        Matcher m = getSmileyPattern(smilies).matcher(chatString);
-        StringBuffer msgBuffer = new StringBuffer();
-
-        int prevEnd = 0;
-
-        while (m.find())
+        try
         {
-            msgBuffer.append(chatString.substring(prevEnd, m.start()));
-            prevEnd = m.end();
-
-            String smileyString = m.group().trim();
-
-            msgBuffer.append(endPlainTextTag);
-            msgBuffer.append("<IMG SRC=\"");
-            try
-            {
-                msgBuffer.append(
-                    Resources.getSmiley(smileyString).getImagePath());
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            msgBuffer.append("\" ALT=\"");
-            msgBuffer.append(smileyString);
-            msgBuffer.append("\"></IMG>");
-            msgBuffer.append(startPlainTextTag);
-
+            return Resources.getSmiley(sourceString.trim()).getImagePath();
         }
-        msgBuffer.append(chatString.substring(prevEnd));
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
-        return msgBuffer.toString();
+        return sourceString;
     }
 
     /**
-     * Gets a compiled <tt>Pattern</tt> which matches the smiley strings of the
-     * specified <tt>Collection</tt> of <tt>Smiley</tt>s.
+     * Gets a regex string which matches the smiley strings of the specified
+     * <tt>Collection</tt> of <tt>Smiley</tt>s.
      *
      * @param smileys the <tt>Collection</tt> of <tt>Smiley</tt>s for which to
      *            get a compiled <tt>Pattern</tt> which matches its smiley
      *            strings
-     * @return a compiled <tt>Pattern</tt> which matches the smiley strings of
-     *         the specified <tt>Collection</tt> of <tt>Smiley</tt>s
+     * @return a regex string which matches the smiley strings of the specified
+     *         <tt>Collection</tt> of <tt>Smiley</tt>s
      */
-    private static Pattern getSmileyPattern(Collection<Smiley> smileys)
+    private static String getSmileyPattern(Collection<Smiley> smileys)
     {
         synchronized (smileyStrings)
         {
             boolean smileyStringsIsEqual;
 
-            if (smileyPattern == null)
+            if (smileyRegex == null)
                 smileyStringsIsEqual = false;
             else
             {
@@ -157,15 +119,15 @@ public class ReplacementServiceSmileyImpl
                 regex = regex.deleteCharAt(regex.length() - 1);
                 regex.append(')');
 
-                smileyPattern = Pattern.compile(regex.toString());
+                smileyRegex = regex.toString();
             }
-            return smileyPattern;
+            return smileyRegex;
         }
     }
 
     /**
      * Returns the source name
-     * 
+     *
      * @return the source name
      */
     public String getSourceName()
@@ -174,7 +136,19 @@ public class ReplacementServiceSmileyImpl
     }
 
     /**
+     * Returns the pattern of the source
+     *
+     * @return the source pattern
+     */
+    public String getPattern()
+    {
+        Collection<Smiley> smileys = Resources.getDefaultSmileyPack();
+        return getSmileyPattern(smileys);
+    }
+
+    /**
      * Returns the smileys pack to use in the user interface.
+     *
      * @return a collection of all smileys available
      */
     public Collection<Smiley> getSmiliesPack()

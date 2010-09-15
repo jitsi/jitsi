@@ -29,7 +29,8 @@ public class ReplacementServiceVbox7Impl
      * The regex used to match the link in the message.
      */
     public static final String VBOX7_PATTERN =
-        "(http.*?(www\\.)*?vbox7\\.com\\/play\\:([a-zA-Z0-9_\\-]+))([?&]\\w+=[\\w-]*)*";
+        "(?<=>)(https?\\:\\/\\/(www\\.)*?vbox7\\.com"
+        + "\\/play\\:([a-zA-Z0-9_\\-]+))([?&]\\w+=[\\w-]*)*(?=</A>)";
 
     /**
      * Configuration label shown in the config form. 
@@ -50,51 +51,27 @@ public class ReplacementServiceVbox7Impl
     }
 
     /**
-     * Replaces the vbox7 video links in the chat message with their
-     * corresponding thumbnails.
+     * Returns the thumbnail URL of the video link provided.
      *
-     * @param chatString the original chat message.
-     * @return replaced chat message with the thumbnail image; the original
-     *         message in case of no match.
+     * @param sourceString the original video link.
+     * @return the thumbnail image link; the original link in case of no match.
      */
-    public String getReplacedMessage(String chatString)
+    public String getReplacement(String sourceString)
     {
         final Pattern p =
-            Pattern.compile(VBOX7_PATTERN, Pattern.CASE_INSENSITIVE
-                | Pattern.DOTALL);
-        Matcher m = p.matcher(chatString);
-
-        int count = 0, startPos = 0;
-        StringBuffer msgBuff = new StringBuffer();
+            Pattern.compile("\\/play\\:([a-zA-Z0-9_\\-]+)([?&]\\w+=[\\w-]*)*",
+                Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Matcher m = p.matcher(sourceString);
+        String thumbUrl = sourceString;
 
         while (m.find())
         {
-            count++;
-            msgBuff.append(chatString.substring(startPos, m.start()));
-            startPos = m.end();
-
-            if (count % 2 == 0)
-            {
-                msgBuff.append("<IMG HEIGHT=\"90\" WIDTH=\"120\" SRC=\"");
-                msgBuff
-                    .append("http://i.vbox7.com/p/");
-                msgBuff.append(m.group(3));
-                msgBuff.append("3.jpg\"></IMG>");
-            }
-            else
-            {
-                msgBuff.append(chatString.substring(m.start(), m.end()));
-            }
+            thumbUrl = "http://i.vbox7.com/p/" + m.group(1) + "3.jpg";
         }
 
-        msgBuff.append(chatString.substring(startPos));
-
-        if (!msgBuff.toString().equals(chatString))
-            return msgBuff.toString();
-
-        return chatString;
+        return thumbUrl;
     }
-    
+
     /**
      * Returns the source name
      * 
@@ -103,5 +80,15 @@ public class ReplacementServiceVbox7Impl
     public String getSourceName()
     {
         return SOURCE_NAME;
+    }
+
+    /**
+     * Returns the pattern of the source
+     * 
+     * @return the source pattern
+     */
+    public String getPattern()
+    {
+        return VBOX7_PATTERN;
     }
 }

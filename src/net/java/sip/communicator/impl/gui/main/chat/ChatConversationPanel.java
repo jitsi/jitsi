@@ -26,6 +26,7 @@ import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.replacement.*;
+import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.SwingWorker;
@@ -617,31 +618,82 @@ public class ChatConversationPanel
 
                    ReplacementService source = entry.getValue();
 
+                   boolean isSmiley
+                       = source instanceof SmiliesReplacementService;
+
                    if (!(GuiActivator.getConfigurationService().getBoolean(
                        ReplacementProperty.getPropertyName(source
-                       .getSourceName()), true) && (isEnabled || entry.getKey()
-                       .equals("SMILEY"))))
+                       .getSourceName()), true) && (isEnabled || isSmiley)))
                        continue;
 
-                   temp = source.getReplacedMessage(msgStore);
+                   String sourcePattern = source.getPattern();
+                   Pattern p = Pattern.compile(sourcePattern,
+                                   Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+                   Matcher m = p.matcher(msgStore);
+
+                   String startPlainTextTag = START_PLAINTEXT_TAG;
+                   String endPlainTextTag = END_PLAINTEXT_TAG;
+
+                   int count = 0, startPos = 0;
+                   StringBuffer msgBuff = new StringBuffer();
+
+                   while (m.find())
+                   {
+                       count++;
+                       msgBuff.append(msgStore.substring(startPos, m.start()));
+                       startPos = m.end();
+
+                       temp = source.getReplacement(m.group());
+
+                       if(!temp.equals(m.group(0)) || source.getSourceName()
+                               .equals("DIRECTIMAGE"))
+                       {
+                           if(isSmiley)
+                           {
+                               msgBuff.append(endPlainTextTag);
+                               msgBuff.append("<IMG SRC=\"");
+                           }
+                           else
+                           {
+                               msgBuff.append(
+                                   "<IMG HEIGHT=\"90\" WIDTH=\"120\" SRC=\"");
+                           }
+
+                           msgBuff.append(temp);
+                           msgBuff.append("\" BORDER=\"0\" ALT=\"");
+                           msgBuff.append(m.group(0));
+                           msgBuff.append("\"></IMG>");
+
+                           if(isSmiley)
+                               msgBuff.append(startPlainTextTag);
+                       }
+                       else
+                       {
+                           msgBuff.append(
+                               msgStore.substring(m.start(), m.end()));
+                       }
+                   }
+
+                   msgBuff.append(msgStore.substring(startPos));
 
                    /*
                     * replace the msgStore variable with the current replaced
                     * message before next iteration
                     */
-                   if (!temp.equals(msgStore))
+                   if (!msgBuff.toString().equals(msgStore))
                    {
-                       msgStore = temp;
+                       msgStore = msgBuff.toString();
                    }
                }
 
-               if (!temp.equals(chatFinal))
+               if (!msgStore.equals(chatFinal))
                {
                    synchronized (scrollToBottomRunnable)
                    {
                        scrollToBottomIsPending = true;
-                       document.setOuterHTML(elem, temp.toString().substring(
-                           temp.indexOf("<DIV")));
+                       document.setOuterHTML(elem, msgStore.toString()
+                           .substring(msgStore.indexOf("<DIV")));
                    }
                }
                return "";

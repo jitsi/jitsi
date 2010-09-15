@@ -13,7 +13,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Implements the {@link ReplacementService} to provide previews for Dailymotion
  * links.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class ReplacementServiceDailymotionImpl
@@ -29,13 +29,14 @@ public class ReplacementServiceDailymotionImpl
      * The regex used to match the link in the message.
      */
     public static final String DAILYMOTION_PATTERN =
-        "(http.*?(www\\.)*?dailymotion\\.com\\/video\\/([a-zA-Z0-9_\\-]+))([?#]([a-zA-Z0-9_\\-]+))*";
+        "(?<=>)(https?\\:\\/\\/(www\\.)*?dailymotion\\.com"
+        + "\\/video\\/([a-zA-Z0-9_\\-]+))([?#]([a-zA-Z0-9_\\-]+))*(?=</A>)";
 
     /**
      * Configuration label shown in the config form. 
      */
     public static final String DAILYMOTION_CONFIG_LABEL = "DailyMotion";
-    
+
     /**
      * Source name; also used as property label.
      */
@@ -50,52 +51,29 @@ public class ReplacementServiceDailymotionImpl
     }
 
     /**
-     * Replaces the dailymotion video links in the chat message with their
-     * corresponding thumbnails.
-     * 
-     * @param chatString the original chat message.
-     * @return replaced chat message with the thumbnail image; the original
-     *         message in case of no match.
+     * Returns the thumbnail URL of the video link provided.
+     *
+     * @param sourceString the original video link.
+     * @return the thumbnail image link; the original link in case of no match.
      */
-    public String getReplacedMessage(final String chatString)
+    public String getReplacement(String sourceString)
     {
         final Pattern p =
-            Pattern.compile(DAILYMOTION_PATTERN, Pattern.CASE_INSENSITIVE
-                | Pattern.DOTALL);
-        Matcher m = p.matcher(chatString);
-
-        int count = 0, startPos = 0;
-        StringBuffer msgBuff = new StringBuffer();
+            Pattern.compile(
+                "(.+\\/video\\/([a-zA-Z0-9_\\-]+))([?#]([a-zA-Z0-9_\\-]+))*",
+                Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Matcher m = p.matcher(sourceString);
+ 
+        String thumbUrl = sourceString;
 
         while (m.find())
-        {
+            thumbUrl =
+                "http://www.dailymotion.com/thumbnail/160x120/video/"
+                    + m.group(2);
 
-            count++;
-            msgBuff.append(chatString.substring(startPos, m.start()));
-            startPos = m.end();
-
-            if (count % 2 == 0)
-            {
-                msgBuff.append("<IMG HEIGHT=\"120\" WIDTH=\"160\" SRC=\"");
-                msgBuff
-                    .append("http://www.dailymotion.com/thumbnail/160x120/video/");
-                msgBuff.append(m.group(3));
-                msgBuff.append("\"></IMG>");
-            }
-            else
-            {
-                msgBuff.append(chatString.substring(m.start(), m.end()));
-            }
-        }
-
-        msgBuff.append(chatString.substring(startPos));
-
-        if (!msgBuff.toString().equals(chatString))
-            return msgBuff.toString();
-
-        return chatString;
+        return thumbUrl;
     }
-    
+
     /**
      * Returns the source name
      * 
@@ -104,5 +82,15 @@ public class ReplacementServiceDailymotionImpl
     public String getSourceName()
     {
         return SOURCE_NAME;
+    }
+
+    /**
+     * Returns the pattern of the source
+     * 
+     * @return the source pattern
+     */
+    public String getPattern()
+    {
+        return DAILYMOTION_PATTERN;
     }
 }

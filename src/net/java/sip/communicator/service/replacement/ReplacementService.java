@@ -19,14 +19,14 @@ public interface ReplacementService
     public final String SOURCE_NAME = "SOURCE";
 
     /**
-     * Returns the chat message with the text replacements if any or returns the
-     * original chat message.
-     * 
-     * @param chatString the original chat message.
-     * @return the replaced chat message in case of match; the original message
-     *         in case of no match.
+     * Returns the text replacements if any or returns the original source
+     * string.
+     *
+     * @param sourceString the original source string.
+     * @return the replacement string for the source string provided; the
+     *         original string in case of no match.
      */
-    public String getReplacedMessage(String chatString);
+    public String getReplacement(String sourceString);
 
     /**
      * Returns the name of the replacement source.
@@ -34,4 +34,11 @@ public interface ReplacementService
      * @return the replacement source name
      */
     public String getSourceName();
+
+    /**
+     * Returns the pattern used to match the source URL.
+     * 
+     * @return the pattern of the source
+     */
+    public String getPattern();
 }

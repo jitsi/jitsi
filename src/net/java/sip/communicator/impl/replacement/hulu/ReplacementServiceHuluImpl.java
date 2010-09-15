@@ -7,7 +7,6 @@ package net.java.sip.communicator.impl.replacement.hulu;
 
 import java.io.*;
 import java.net.*;
-import java.util.regex.*;
 
 import org.json.*;
 
@@ -32,7 +31,8 @@ public class ReplacementServiceHuluImpl
      * The regex used to match the link in the message.
      */
     public static final String HULU_PATTERN =
-        "(http.*?(www\\.)*?hulu\\.com\\/watch\\/([a-zA-Z0-9_\\-]+))(\\/([^\\\"\\<]*)*)";
+        "(?<=>)(https?\\:\\/\\/(www\\.)*?hulu\\.com"
+        + "\\/watch\\/([a-zA-Z0-9_\\-]+))(\\/([^\\\"\\<]*)*)(?=<\\/A>)";
 
     /**
      * Configuration label shown in the config form. 
@@ -53,90 +53,46 @@ public class ReplacementServiceHuluImpl
     }
 
     /**
-     * Replaces the Hulu video links in the chat message with their
-     * corresponding thumbnails.
+     * Replaces the Hulu video links with their corresponding thumbnails.
      *
-     * @param chatString the original chat message.
-     * @return replaced chat message with the thumbnail image; the original
-     *         message in case of no match.
+     * @param sourceString the original video link.
+     * @return thumbnail image link; the original video link in case of no
+     *         match.
      */
-    public String getReplacedMessage(String chatString)
+    public String getReplacement(String sourceString)
     {
-        final Pattern p =
-            Pattern.compile(HULU_PATTERN, Pattern.CASE_INSENSITIVE
-                | Pattern.DOTALL);
-        Matcher m = p.matcher(chatString);
-
-        int count = 0, startPos = 0;
-        StringBuffer msgBuff = new StringBuffer();
-
-        while (m.find())
+        try
         {
+            String url = "http://oohembed.com/oohembed/?url=" + sourceString;
+            URL sourceURL = new URL(url);
+            URLConnection conn = sourceURL.openConnection();
 
-            count++;
-            msgBuff.append(chatString.substring(startPos, m.start()));
-            startPos = m.end();
+            BufferedReader in =
+                new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
-            if (count % 2 == 0)
+            String inputLine, holder = "";
+
+            while ((inputLine = in.readLine()) != null)
+                holder = inputLine;
+            in.close();
+
+            JSONObject wrapper = new JSONObject(holder);
+
+            String thumbUrl = wrapper.getString("thumbnail_url");
+
+            if (thumbUrl != null)
             {
-                try
-                {
-                    String url =
-                        "http://oohembed.com/oohembed/?url=" + m.group(0);
-
-                    URL sourceURL = new URL(url);
-                    URLConnection conn = sourceURL.openConnection();
-
-                    BufferedReader in =
-                        new BufferedReader(new InputStreamReader(conn
-                            .getInputStream()));
-
-                    String inputLine, holder = "";
-
-                    while ((inputLine = in.readLine()) != null)
-                        holder = inputLine;
-                    in.close();
-
-                    JSONObject wrapper = new JSONObject(holder);
-
-                    String thumbUrl = wrapper.getString("thumbnail_url");
-
-                    if (thumbUrl != null)
-                    {
-                        msgBuff
-                            .append("<IMG HEIGHT=\"90\" WIDTH=\"120\" SRC=\"");
-                        msgBuff.append(thumbUrl);
-                        msgBuff.append("\"></IMG>");
-
-                    }
-                    else
-                    {
-                        startPos = 0;
-                        msgBuff = new StringBuffer();
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    startPos = 0;
-                    msgBuff = new StringBuffer();
-                    e.printStackTrace();
-                }
-            }
-            else
-            {
-                msgBuff.append(chatString.substring(m.start(), m.end()));
+                return thumbUrl;
             }
         }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
-        msgBuff.append(chatString.substring(startPos));
-
-        if (!msgBuff.toString().equals(chatString))
-            return msgBuff.toString();
-
-        return chatString;
+        return sourceString;
     }
-    
+
     /**
      * Returns the source name
      * 
@@ -145,5 +101,15 @@ public class ReplacementServiceHuluImpl
     public String getSourceName()
     {
         return SOURCE_NAME;
+    }
+
+    /**
+     * Returns the pattern of the source
+     * 
+     * @return the source pattern
+     */
+    public String getPattern()
+    {
+        return HULU_PATTERN;
     }
 }

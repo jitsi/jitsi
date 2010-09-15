@@ -33,7 +33,8 @@ public class ReplacementServiceFlickrImpl
      * The regex used to match the link in the message.
      */
     public static final String FLICKR_PATTERN =
-        "(http.*?(www\\.)*?flickr\\.com\\/photos\\/[0-9a-zA-Z_\\-\\@]+\\/([0-9]+)(\\/[^\"\\<]*)*)";
+        "(?<=>)(https?\\:\\/\\/(www\\.)*?flickr\\.com"
+        + "\\/photos\\/[0-9a-zA-Z_\\-\\@]+\\/([0-9]+)(\\/[^\"\\<]*)*)(?=</A>)";
 
     /**
      * API Key required to access the Flickr api.
@@ -59,104 +60,72 @@ public class ReplacementServiceFlickrImpl
     }
 
     /**
-     * Replaces the Flickr image links in the chat message with their
-     * corresponding thumbnails.
-     * 
-     * @param chatString the original chat message.
-     * @return replaced chat message with the thumbnail image; the original
-     *         message in case of no match.
+     * Replaces the Flickr image links with their corresponding thumbnails.
+     *
+     * @param sourceString the original flickr image link.
+     * @return replaced thumbnail image link; the original image link in case of
+     *         no match.
      */
-    public String getReplacedMessage(String chatString)
+    public String getReplacement(String sourceString)
     {
         final Pattern p =
-            Pattern.compile(FLICKR_PATTERN, Pattern.CASE_INSENSITIVE
-                | Pattern.DOTALL);
-        Matcher m = p.matcher(chatString);
-
-        int count = 0, startPos = 0;
-        StringBuffer msgBuff = new StringBuffer();
+            Pattern.compile(
+                "\\/photos\\/[0-9a-zA-Z_\\-\\@]+\\/([0-9]+)(\\/[^\"\\<]*)*",
+                Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Matcher m = p.matcher(sourceString);
+        String thumbUrl = sourceString;
 
         while (m.find())
         {
-
-            count++;
-            msgBuff.append(chatString.substring(startPos, m.start()));
-            startPos = m.end();
-
-            if (count % 2 == 0)
+            try
             {
-                try
+                // API URL
+                String url =
+                    "http://api.flickr.com/services/rest/"
+                    + "?method=flickr.photos.getInfo&api_key="
+                        + API_KEY + "&photo_id=" + m.group(1)
+                        + "&format=json&nojsoncallback=1";
+
+                URL flickrURL = new URL(url);
+                URLConnection conn = flickrURL.openConnection();
+
+                BufferedReader in =
+                    new BufferedReader(new InputStreamReader(conn
+                        .getInputStream()));
+
+                String inputLine, holder = "";
+
+                while ((inputLine = in.readLine()) != null)
+                    holder = inputLine;
+                in.close();
+
+                JSONObject wrapper = new JSONObject(holder);
+
+                if (wrapper.getString("stat").equals("ok"))
                 {
-                    // API URL
-                    String url =
-                        "http://api.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key="
-                            + API_KEY + "&photo_id=" + m.group(3)
-                            + "&format=json&nojsoncallback=1";
-
-                    URL flickrURL = new URL(url);
-                    URLConnection conn = flickrURL.openConnection();
-
-                    BufferedReader in =
-                        new BufferedReader(new InputStreamReader(conn
-                            .getInputStream()));
-
-                    String inputLine, holder = "";
-
-                    while ((inputLine = in.readLine()) != null)
-                        holder = inputLine;
-                    in.close();
-
-                    JSONObject wrapper = new JSONObject(holder);
-
-                    if (wrapper.getString("stat").equals("ok"))
+                    JSONObject result = wrapper.getJSONObject("photo");
+                    if (!(result.length() == 0))
                     {
-
-                        JSONObject result = wrapper.getJSONObject("photo");
-
                         String farmID = result.getString("farm");
                         String serverID = result.getString("server");
                         String secret = result.getString("secret");
 
-                        String thumbURL =
+                        thumbUrl =
                             "http://farm" + farmID + ".static.flickr.com/"
-                                + serverID + "/" + m.group(3) + "_" + secret
+                                + serverID + "/" + m.group(1) + "_" + secret
                                 + "_t.jpg";
-
-                        if (!(result.length() == 0))
-                        {
-                            msgBuff
-                                .append("<IMG HEIGHT=\"90\" WIDTH=\"120\" SRC=\"");
-                            msgBuff.append(thumbURL);
-                            msgBuff.append("\"></IMG>");
-                        }
                     }
-                    else
-                    {
-                        startPos = 0;
-                        msgBuff = new StringBuffer();
-                    }
-                }
-                catch (Exception e)
-                {
-                    startPos = 0;
-                    msgBuff = new StringBuffer();
-                    e.printStackTrace();
                 }
             }
-            else
+            catch(Exception e)
             {
-                msgBuff.append(chatString.substring(m.start(), m.end()));
+                e.printStackTrace();
             }
         }
 
-        msgBuff.append(chatString.substring(startPos));
-
-        if (!msgBuff.toString().equals(chatString))
-            return msgBuff.toString();
-
-        return chatString;
+        return thumbUrl;
     }
-    
+
     /**
      * Returns the source name
      * 
@@ -165,5 +134,15 @@ public class ReplacementServiceFlickrImpl
     public String getSourceName()
     {
         return SOURCE_NAME;
+    }
+
+    /**
+     * Returns the pattern of the source
+     * 
+     * @return the source pattern
+     */
+    public String getPattern()
+    {
+        return FLICKR_PATTERN;
     }
 }

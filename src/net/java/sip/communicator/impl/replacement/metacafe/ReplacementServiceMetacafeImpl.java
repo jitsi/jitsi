@@ -29,7 +29,8 @@ public class ReplacementServiceMetacafeImpl
      * The regex used to match the link in the message.
      */
     public static final String METACAFE_PATTERN =
-        "(http.*?(www\\.)*?metacafe\\.com\\/watch\\/([a-zA-Z0-9_\\-]+))(\\/[a-zA-Z0-9_\\-\\/]+)*";
+        "(?<=>)(https?\\:\\/\\/(www\\.)*?metacafe\\.com"
+        + "\\/watch\\/([a-zA-Z0-9_\\-]+))(\\/[a-zA-Z0-9_\\-\\/]+)*(?=</A>)";
 
     /**
      * Configuration label shown in the config form. 
@@ -50,50 +51,28 @@ public class ReplacementServiceMetacafeImpl
     }
 
     /**
-     * Replaces the metacafe video links in the chat message with their
-     * corresponding thumbnails.
+     * Replaces the metacafe video links with their corresponding thumbnails.
      *
-     * @param chatString the original chat message.
-     * @return replaced chat message with the thumbnail image; the original
-     *         message in case of no match.
+     * @param sourceString the original video link.
+     * @return replaced thumbnail image; the original video link in case of no
+     *         match.
      */
-    public String getReplacedMessage(String chatString)
+    public String getReplacement(String sourceString)
     {
         final Pattern p =
-            Pattern.compile(METACAFE_PATTERN, Pattern.CASE_INSENSITIVE
-                | Pattern.DOTALL);
-        Matcher m = p.matcher(chatString);
+            Pattern.compile(
+                "\\/watch\\/([a-zA-Z0-9_\\-]+)(\\/[a-zA-Z0-9_\\-\\/]+)*",
+                Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Matcher m = p.matcher(sourceString);
 
-        int count = 0, startPos = 0;
-        StringBuffer msgBuff = new StringBuffer();
+        String thumbUrl = sourceString;
 
         while (m.find())
-        {
-            count++;
-            msgBuff.append(chatString.substring(startPos, m.start()));
-            startPos = m.end();
+            thumbUrl = "http://www.metacafe.com/thumb/" + m.group(1) + ".jpg";
 
-            if (count % 2 == 0)
-            {
-                msgBuff.append("<IMG HEIGHT=\"81\" WIDTH=\"136\" SRC=\"");
-                msgBuff.append("http://www.metacafe.com/thumb/");
-                msgBuff.append(m.group(3));
-                msgBuff.append(".jpg\"></IMG>");
-            }
-            else
-            {
-                msgBuff.append(chatString.substring(m.start(), m.end()));
-            }
-        }
-
-        msgBuff.append(chatString.substring(startPos));
-
-        if (!msgBuff.toString().equals(chatString))
-            return msgBuff.toString();
-
-        return chatString;
+        return thumbUrl;
     }
-    
+
     /**
      * Returns the source name
      * 
@@ -102,5 +81,15 @@ public class ReplacementServiceMetacafeImpl
     public String getSourceName()
     {
         return SOURCE_NAME;
+    }
+
+    /**
+     * Returns the pattern of the source
+     * 
+     * @return the source pattern
+     */
+    public String getPattern()
+    {
+        return METACAFE_PATTERN;
     }
 }

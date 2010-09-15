@@ -33,7 +33,8 @@ public class ReplacementServiceBliptvImpl
      * The regex used to match the link in the message.
      */
     public static final String BLIPTV_PATTERN =
-        "(?:[\\>])(http:\\/\\/(?:www\\.)?blip\\.tv\\/file\\/(\\d+).*(?=<))";
+        "(?<=>)(http:\\/\\/(?:www\\.)?blip\\.tv"
+        + "\\/file\\/(\\d+)([?&\\?]\\w+=[\\w-]+)*)(?=</A>)";
 
     /**
      * Configuration label shown in the config form. 
@@ -44,7 +45,7 @@ public class ReplacementServiceBliptvImpl
      * Source name; also used as property label.
      */
     public static final String SOURCE_NAME = "BLIPTV";
-    
+
     /**
      * Constructor for <tt>ReplacementServiceBliptvImpl</tt>.
      */
@@ -54,81 +55,47 @@ public class ReplacementServiceBliptvImpl
     }
 
     /**
-     * Replaces the Blip.tv video links in the chat message with their
-     * corresponding thumbnails.
-     * 
-     * @param chatString the original chat message.
-     * @return replaced chat message with the thumbnail image; the original
-     *         message in case of no match.
+     * Replaces the Blip.tv video links with their corresponding thumbnails.
+     *
+     * @param sourceString the original chat message.
+     * @return replaced thumbnail image link; the original video link in case of
+     *         no match.
      */
-    public String getReplacedMessage(String chatString)
+    public String getReplacement(String sourceString)
     {
-        final Pattern p =
-            Pattern.compile(BLIPTV_PATTERN, Pattern.CASE_INSENSITIVE
-                | Pattern.DOTALL);
-        Matcher m = p.matcher(chatString);
-
-        int count = 0, startPos = 0;
-        StringBuffer msgBuff = new StringBuffer();
-
-        while (m.find())
+        try
         {
-            count++;
-            msgBuff.append(chatString.substring(startPos, m.start()));
-            startPos = m.end();
+            String url = "http://oohembed.com/oohembed/?url=" + sourceString;
 
-            try
+            URL sourceURL = new URL(url);
+            URLConnection conn = sourceURL.openConnection();
+
+            BufferedReader in =
+                new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            String inputLine, holder = "";
+
+            while ((inputLine = in.readLine()) != null)
+                holder += inputLine;
+            in.close();
+
+            JSONObject wrapper = new JSONObject(holder);
+
+            String thumbUrl = wrapper.getString("thumbnail_url");
+
+            if (thumbUrl != null)
             {
-                String url = "http://oohembed.com/oohembed/?url=" + m.group(1);
-
-                URL sourceURL = new URL(url);
-                URLConnection conn = sourceURL.openConnection();
-
-                BufferedReader in =
-                    new BufferedReader(new InputStreamReader(conn
-                        .getInputStream()));
-
-                String inputLine, holder = "";
-
-                while ((inputLine = in.readLine()) != null)
-                    holder += inputLine;
-                in.close();
-
-                JSONObject wrapper = new JSONObject(holder);
-
-                String thumbUrl = wrapper.getString("thumbnail_url");
-
-                if (thumbUrl != null)
-                {
-                    msgBuff.append("<IMG HEIGHT=\"90\" WIDTH=\"120\" SRC=\"");
-                    msgBuff.append(thumbUrl);
-                    msgBuff.append("\"></IMG>");
-
-                }
-                else
-                {
-                    startPos = 0;
-                    msgBuff = new StringBuffer();
-                }
-
+                return thumbUrl;
             }
-            catch (Exception e)
-            {
-                startPos = 0;
-                msgBuff = new StringBuffer();
-                e.printStackTrace();
-            }
-
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
 
-        msgBuff.append(chatString.substring(startPos));
-
-        if (!msgBuff.toString().equals(chatString))
-            return msgBuff.toString();
-
-        return chatString;
+        return sourceString;
     }
-    
+
     /**
      * Returns the source name
      * 
@@ -137,5 +104,15 @@ public class ReplacementServiceBliptvImpl
     public String getSourceName()
     {
         return SOURCE_NAME;
+    }
+
+    /**
+     * Returns the pattern of the source
+     * 
+     * @return the source pattern
+     */
+    public String getPattern()
+    {
+        return BLIPTV_PATTERN;
     }
 }

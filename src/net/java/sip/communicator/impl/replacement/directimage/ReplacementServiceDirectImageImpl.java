@@ -5,8 +5,6 @@
  */
 package net.java.sip.communicator.impl.replacement.directimage;
 
-import java.util.regex.*;
-
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.util.*;
 
@@ -40,7 +38,7 @@ public class ReplacementServiceDirectImageImpl
      * Source name; also used as property label.
      */
     public static final String SOURCE_NAME = "DIRECTIMAGE";
-    
+
     /**
      * Constructor for <tt>ReplacementServiceDirectImageImpl</tt>. 
      */
@@ -50,45 +48,16 @@ public class ReplacementServiceDirectImageImpl
     }
 
     /**
-     * Replaces the direct image links in the chat message with their
-     * corresponding thumbnails.
-     * 
-     * @param chatString the original chat message.
-     * @return replaced chat message with the thumbnail image; the original
-     *         message in case of exception.
+     * Returns the thumbnail URL of the image link provided.
+     *
+     * @param sourceString the original image link.
+     * @return the thumbnail image link; the original link in case of no match.
      */
-    public String getReplacedMessage(String chatString)
+    public String getReplacement(String sourceString)
     {
-        final Pattern p =
-            Pattern.compile(URL_PATTERN, Pattern.CASE_INSENSITIVE
-                | Pattern.DOTALL);
-        Matcher m = p.matcher(chatString);
-
-        int count = 0, startPos = 0;
-        StringBuffer msgBuff = new StringBuffer();
-
-        while (m.find())
-        {
-
-            count++;
-            msgBuff.append(chatString.substring(startPos, m.start()));
-            startPos = m.end();
-
-            String url =
-                "<IMG HEIGHT=\"90\" WIDTH=\"120\" SRC=\"" + m.group(0)
-                    + "\"></IMG>";
-            msgBuff.append(url);
-
-        }
-
-        msgBuff.append(chatString.substring(startPos));
-
-        if (!msgBuff.toString().equals(chatString))
-            return msgBuff.toString();
-
-        return chatString;
+        return sourceString;
     }
-    
+
     /**
      * Returns the source name
      * 
@@ -97,5 +66,15 @@ public class ReplacementServiceDirectImageImpl
     public String getSourceName()
     {
         return SOURCE_NAME;
+    }
+
+    /**
+     * Returns the pattern of the source
+     * 
+     * @return the source pattern 
+     */
+    public String getPattern()
+    {
+        return URL_PATTERN;
     }
 }
