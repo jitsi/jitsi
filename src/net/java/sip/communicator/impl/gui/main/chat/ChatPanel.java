@@ -2097,16 +2097,25 @@ public class ChatPanel
 
         while (activeKeys.hasMoreElements())
         {
-            String key = activeKeys.nextElement();
-            Object descriptor = activeFileTransfers.get(key);
+            // catchall so if anything happens we still
+            // will close the chat/window
+            try
+            {
+                String key = activeKeys.nextElement();
+                Object descriptor = activeFileTransfers.get(key);
 
-            if (descriptor instanceof IncomingFileTransferRequest)
-            {
-                ((IncomingFileTransferRequest) descriptor).rejectFile();
+                if (descriptor instanceof IncomingFileTransferRequest)
+                {
+                    ((IncomingFileTransferRequest) descriptor).rejectFile();
+                }
+                else if (descriptor instanceof FileTransfer)
+                {
+                    ((FileTransfer) descriptor).cancel();
+                }
             }
-            else if (descriptor instanceof FileTransfer)
+            catch(Throwable t)
             {
-                ((FileTransfer) descriptor).cancel();
+                logger.error("Cannot cancel file transfer.", t);
             }
         }
     }
