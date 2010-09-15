@@ -14,6 +14,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.resources.util.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
@@ -106,6 +107,11 @@ public class ResourceManagementServiceImpl
     private SkinPack skinPack = null;
 
     /**
+     * UI Service reference.
+     */
+    private UIService uiService = null;
+
+    /**
      * Initializes already registered default resource packs.
      */
     ResourceManagementServiceImpl()
@@ -166,6 +172,12 @@ public class ResourceManagementServiceImpl
             imageResources.putAll(skinPack.getImageResources());
             colorResources.putAll(skinPack.getColorResources());
         }
+
+        UIService serv = getUIService();
+        if (serv != null)
+        {
+            serv.repaintUI();
+        }
     }
 
     /**
@@ -207,6 +219,32 @@ public class ResourceManagementServiceImpl
     }
 
     /**
+     * Returns the <tt>UIService</tt> obtained from the bundle context.
+     *
+     * @return the <tt>UIService</tt> obtained from the bundle context
+     */
+    private UIService getUIService()
+    {
+        if (uiService == null)
+        {
+            ServiceReference uiReference =
+                ResourceManagementActivator
+                .bundleContext.getServiceReference(UIService.class.getName());
+
+            if (uiReference == null)
+            {
+                return null;
+            }
+
+            uiService =
+                (UIService) ResourceManagementActivator
+                .bundleContext.getService(uiReference);
+        }
+
+        return uiService;
+    }
+
+    /**
      * Returns the <tt>Map</tt> of (key, value) pairs contained in the given
      * resource pack.
      *
@@ -224,12 +262,29 @@ public class ResourceManagementServiceImpl
      * Handles all <tt>ServiceEvent</tt>s corresponding to <tt>ResourcePack</tt>
      * being registered or unregistered.
      *
+     * Also handles <tt>UIService</tt> reference.
+     *
      * @param event the <tt>ServiceEvent</tt> that notified us
      */
     public void serviceChanged(ServiceEvent event)
     {
         Object sService = ResourceManagementActivator.bundleContext.getService(
             event.getServiceReference());
+
+        if (sService instanceof UIService && uiService == null
+                && event.getType() == ServiceEvent.REGISTERED)
+        {
+            uiService = (UIService) sService;
+            uiService.repaintUI();
+        }
+        else if (sService instanceof UIService
+                && event.getType() == ServiceEvent.UNREGISTERING)
+        {
+            if (uiService != null && uiService.equals(sService))
+            {
+                uiService = null;
+            }
+        }
 
         if (!(sService instanceof ResourcePack))
         {
@@ -288,6 +343,12 @@ public class ResourceManagementServiceImpl
                 skinResources = resources;
                 imageResources.putAll(skinPack.getImageResources());
                 colorResources.putAll(skinPack.getColorResources());
+
+                UIService serv = getUIService();
+                if (serv != null)
+                {
+                    serv.repaintUI();
+                }
             }
         }
         else if (event.getType() == ServiceEvent.UNREGISTERING)
@@ -362,6 +423,12 @@ public class ResourceManagementServiceImpl
                     skinResources = getResources(skinPack);
                     imageResources.putAll(skinPack.getImageResources());
                     colorResources.putAll(skinPack.getColorResources());
+                }
+
+                UIService serv = getUIService();
+                if (serv != null)
+                {
+                    serv.repaintUI();
                 }
             }
         }
@@ -817,6 +884,6 @@ public class ResourceManagementServiceImpl
     public File prepareSkinBundleFromZip(File zipFile)
         throws Exception
     {
-        return SkinJarBuilder.createBundleFromZip(zipFile);
+        return SkinJarBuilder.createBundleFromZip(zipFile, imagePack);
     }
 }

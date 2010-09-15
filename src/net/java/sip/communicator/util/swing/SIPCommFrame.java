@@ -97,6 +97,8 @@ public abstract class SIPCommFrame
                 KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK),
                 "close");
         }
+
+        GuiUtils.addWindow(this);
     }
 
     /**

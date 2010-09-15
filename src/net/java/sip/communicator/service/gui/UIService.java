@@ -45,6 +45,7 @@ import net.java.sip.communicator.service.contactlist.*;
  * 
  * @author Yana Stamcheva
  * @author Dmitri Melnikov
+ * @author Adam Netocny
  */
 public interface UIService
 {
@@ -423,4 +424,10 @@ public interface UIService
      * @return the master password obtained from the user
      */
     public String getMasterPassword(boolean prevSuccess);
+
+    /**
+     * Repaints and revalidates the whole UI. This method is meant to be used
+     * to runtime apply a skin and refresh automatically the user interface.
+     */
+    public void repaintUI();
 }

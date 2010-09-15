@@ -18,13 +18,13 @@ import net.java.sip.communicator.util.*;
  * The skin resource pack.
  * @author Adam Netocny
  */
-public class SkinResourcesPack
+public class SkinResourcePack
     implements BundleActivator, SkinPack
 {
     /**
      * The object used for logging.
      */
-    private static Logger logger = Logger.getLogger(SkinResourcesPack.class);
+    private static Logger logger = Logger.getLogger(SkinResourcePack.class);
 
     /**
      * The default resource path.

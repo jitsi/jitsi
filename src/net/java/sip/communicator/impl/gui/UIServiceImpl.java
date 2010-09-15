@@ -46,6 +46,7 @@ import com.sun.jna.examples.*;
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Dmitri Melnikov
+ * @author Adam Netocny
  */
 public class UIServiceImpl
     implements UIService,
@@ -1226,5 +1227,21 @@ public class UIServiceImpl
     public String getMasterPassword(boolean prevSuccess)
     {
         return MasterPasswordInputDialog.showInput(prevSuccess);
+    }
+
+    /**
+     * Repaints and revalidates the whole UI Tree.
+     *
+     * Calls {@link SwingUtilities#updateComponentTreeUI(Component c)}
+     * for every window owned by the application which cause UI skin and
+     * layout repaint.
+     */
+    public void repaintUI()
+    {
+        Window[] windows = GuiUtils.getWindows();
+        for(Window win : windows)
+        {
+            GuiUtils.updateComponentTreeUI(win);
+        }
     }
 }

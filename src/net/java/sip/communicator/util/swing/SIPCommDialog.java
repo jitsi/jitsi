@@ -131,6 +131,8 @@ public abstract class SIPCommDialog
         this.addWindowListener(new DialogWindowAdapter());
 
         this.initInputMap();
+
+        GuiUtils.addWindow(this);
     }
 
     private void initInputMap()

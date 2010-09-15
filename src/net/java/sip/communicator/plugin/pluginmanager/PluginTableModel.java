@@ -194,36 +194,7 @@ public class PluginTableModel
      */
     private void refreshSortedBundlesList()
     {
-        Bundle[] list = this.bundleContext.getBundles();
-        ArrayList<Bundle> show = new ArrayList<Bundle>();
-        if(list != null)
-        {
-            for(Bundle b : list)
-            {
-                Dictionary<?, ?> headers = b.getHeaders();
-                if(headers.get(Constants.BUNDLE_ACTIVATOR)!=null)
-                {
-                    if(!headers.get(Constants.BUNDLE_ACTIVATOR).toString()
-                        .equals("net.java.sip.communicator.plugin." +
-                                "skinresourcepack.SkinResourcesPack"))
-                    {
-                        show.add(b);
-                    }
-                }
-                else
-                {
-                    show.add(b);
-                }
-            }
-        }
-
-        this.bundles = new Bundle[show.size()];
-        int i = 0;
-        for(Bundle b : show)
-        {
-            this.bundles[i] = b;
-            i++;
-        }
+        this.bundles = this.bundleContext.getBundles();
         Arrays.sort(this.bundles, bundleComparator);
     }
 }

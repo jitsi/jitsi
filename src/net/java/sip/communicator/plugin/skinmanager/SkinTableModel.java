@@ -150,7 +150,7 @@ public class SkinTableModel
                 {
                     if (headers.get(Constants.BUNDLE_ACTIVATOR).toString()
                         .equals("net.java.sip.communicator.plugin." +
-                                "skinresourcepack.SkinResourcesPack"))
+                                "skinresourcepack.SkinResourcePack"))
                     {
                         show.add(b);
                     }

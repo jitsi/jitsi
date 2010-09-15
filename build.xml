@@ -894,7 +894,6 @@
         bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
         bundle-fileaccess-slick,bundle-neomedia,
         bundle-resource-manager,bundle-resources-defaultpack,
-        bundle-resources-skinpack,
         bundle-protocol,bundle-protocol-media,bundle-icq,
         bundle-icq-slick,bundle-mock,bundle-smacklib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
@@ -2138,8 +2137,21 @@ org.apache.http.util"/>
         </jar>
     </target>
 
+    <!--BUNDLE-RESOURCES-SKINPACK-->
+    <target name="bundle-resources-skinpack">
+        <!-- Copy manifest for skinresourcepack. -->
+        <copy file="${src}/net/java/sip/communicator/plugin/skinresourcepack/skinresourcepack.manifest.mf"
+              tofile="${dest}/net/java/sip/communicator/plugin/skinresourcepack/skinresourcepack.manifest.mf"/>
+        <!-- Copy skinresourcepack folder. -->
+        <copy todir="${resources}/skinresourcepack">
+            <fileset dir="${dest}/net/java/sip/communicator/plugin/skinresourcepack">
+
+            </fileset>
+        </copy>
+    </target>
+
     <!--BUNDLE-DEFAULT-RESOURCES-->
-    <target name="bundle-resources-defaultpack">
+    <target name="bundle-resources-defaultpack" depends="bundle-resources-skinpack">
         <!-- Copy the default resources to english one, as our defualt
             language is English and without the resource we cannot excplictly set it.-->
         <copy file="${sc.basedir}/resources/languages/resources.properties"
@@ -2163,16 +2175,10 @@ org.apache.http.util"/>
                     prefix="resources/sounds"/>
             <zipfileset dir="${resources}/styles"
                     prefix="resources/styles"/>
-        </jar>
-    </target>
 
-    <!--BUNDLE-SKIN-RESOURCES-->
-    <target name="bundle-resources-skinpack">
-        <jar
-            compress="false" destfile="${bundles.dest}/skinresources.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/skinresourcepack/skinresourcepack.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/skinresourcepack"
-                    prefix="net/java/sip/communicator/plugin/skinresourcepack"/>
+            <!-- Include skinresourcepack folder. -->
+            <zipfileset dir="${resources}/skinresourcepack"
+                    prefix="resources/skinresourcepack"/>
         </jar>
     </target>
 

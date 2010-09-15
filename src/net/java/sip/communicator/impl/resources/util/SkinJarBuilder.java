@@ -10,6 +10,8 @@ import java.io.*;
 import java.util.*;
 import java.util.zip.*;
 
+import net.java.sip.communicator.service.resources.*;
+
 /**
  * Class for building of skin bundles from zip files.
  * @author Adam Netocny
@@ -18,12 +20,13 @@ public class SkinJarBuilder
 {
     /**
      * Creates bundle from zip file.
-     *
+     * @param srv <tt>ResourcePack</tt> containing class files and manifest
+     *            for the SkinResourcePack.
      * @param zip Zip file with skin contents.
      * @return Jar <tt>File</tt>.
      * @throws Exception When something goes wrong.
      */
-    public static File createBundleFromZip(File zip)
+    public static File createBundleFromZip(File zip, ResourcePack srv)
         throws Exception
     {
         File tmpDir = unzipIntoTmp(zip);
@@ -40,36 +43,68 @@ public class SkinJarBuilder
             throw new Exception(
                 "Zip file doesn't contain all necessary files and folders.");
         }
-        File jar = cpTmp();
-        insertIntoZip(jar, tmpDir2);
+        cpTmp(tmpDir2, srv);
+        File jar = insertIntoZip(tmpDir2);
         deleteDir(tmpDir);
+
         return jar;
     }
 
     /**
      * Creates a copy of skinresources.jar in temp folder.
      *
-     * @return the location of the temp file.
+     * @param unzippedBase Base dir where files should appear.
+     * @param srv <tt>ResourcePack</tt> containing class files and manifest
+     *            for the SkinResourcePack.
      * @throws IOException Is thrown if the jar cannot be located or if a file
      * operation goes wrong.
      */
-    private static File cpTmp()
+    private static void cpTmp(File unzippedBase, ResourcePack srv)
         throws IOException
     {
-        File jar = new File(System.getProperty("user.dir"),
-                            "sc-bundles/skinresources.jar");
+        InputStream in = srv.getClass().getClassLoader()
+            .getResourceAsStream(
+                "resources/skinresourcepack/SkinResourcePack.class");
 
-        if (!jar.exists())
+        File dest = new File(unzippedBase, "net" + File.separatorChar + "java"
+            + File.separatorChar + "sip" + File.separatorChar
+            + "communicator" + File.separatorChar + "plugin"
+            + File.separatorChar + "skinresourcepack");
+
+        if(!dest.mkdirs())
         {
-            throw new IOException("Cannot find skinresources.jar file");
+            throw new IOException("Unable to build resource pack.");
         }
 
-        File tmp = File.createTempFile("skinresources", ".jar");
+        OutputStream out = new FileOutputStream(
+            new File(dest, "SkinResourcePack.class"));
 
-        InputStream in = new FileInputStream(jar);
+        copy(in, out);
 
-        OutputStream out = new FileOutputStream(tmp);
+        in = srv.getClass().getClassLoader()
+            .getResourceAsStream(
+                "resources/skinresourcepack/skinresourcepack.manifest.mf");
 
+        dest = new File(unzippedBase, "META-INF");
+
+        if(!dest.mkdirs()) {
+            throw new IOException("Unable to build resource pack.");
+        }
+
+        out = new FileOutputStream(new File(dest, "MANIFEST.MF"));
+
+        copy(in, out);
+    }
+
+    /**
+     * Simple file copy operation.
+     * @param in <tt>InputStream</tt> for the source.
+     * @param out <tt>OutputStream</tt> for the destination file.
+     * @throws IOException Is thrown if the jar cannot be located or if a file
+     * operation goes wrong.
+     */
+    private static void copy(InputStream in, OutputStream out) throws IOException
+    {
         byte[] buf = new byte[1024];
         int len;
 
@@ -80,8 +115,6 @@ public class SkinJarBuilder
 
         in.close();
         out.close();
-
-        return tmp;
     }
 
     /**
@@ -142,47 +175,22 @@ public class SkinJarBuilder
     /**
      * Inserts files into ZIP file.
      *
-     * @param jar Destination ZIP file to store the data.
      * @param tmpDir Folder which contains the data.
+     * @return <tt>File</tt> containing reference of the jar file.
      * @throws IOException Is thrown if a file operation goes wrong.
      */
-    private static void insertIntoZip(File jar, File tmpDir)
+    private static File insertIntoZip(File tmpDir)
         throws IOException
     {
-        File tempFile = File.createTempFile(jar.getName(), null);
-        tempFile.delete();
+        File jar = File.createTempFile("skinresourcepack", ".jar");
 
-        boolean renameOk = jar.renameTo(tempFile);
-        if (!renameOk)
-        {
-            throw new IOException("Error moving file " + jar.getAbsolutePath()
-                                    + " to " + tempFile.getAbsolutePath());
-        }
-
-        byte[] buf = new byte[8192];
-        ZipInputStream zin = new ZipInputStream(new FileInputStream(tempFile));
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(jar));
-
-        ZipEntry entry = zin.getNextEntry();
-        while (entry != null)
-        {
-            String name = entry.getName();
-            out.putNextEntry(new ZipEntry(name));
-
-            int len;
-            while ((len = zin.read(buf)) > 0)
-            {
-                out.write(buf, 0, len);
-            }
-            entry = zin.getNextEntry();
-        }
-        zin.close();
-
-        tempFile.delete();
 
         zipDir(tmpDir.getAbsolutePath(), out);
 
         out.close();
+
+        return jar;
     }
 
     /**
@@ -347,10 +355,6 @@ public class SkinJarBuilder
                         styles = true;
                     }
                 }
-            }
-            else
-            {
-                return false;
             }
         }
         return styles || (colors || images);

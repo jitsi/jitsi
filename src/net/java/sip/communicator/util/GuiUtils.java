@@ -19,9 +19,15 @@ import javax.swing.*;
  * 
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class GuiUtils
 {
+    /**
+     * List of all windows owned by the app.
+     */
+    private static final ArrayList<Window> WINDOW_LIST = new ArrayList<Window>();
+
     private static Calendar c1 = Calendar.getInstance();
 
     private static Calendar c2 = Calendar.getInstance();
@@ -394,5 +400,101 @@ public class GuiUtils
         }
 
         return buf.toString().trim();
+    }
+
+    /**
+     * Returns an array of all {@code Window}s, both owned and ownerless,
+     * created by this application.
+     * If called from an applet, the array includes only the {@code Window}s
+     * accessible by that applet.
+     * <p>
+     * <b>Warning:</b> this method may return system created windows, such
+     * as a print dialog. Applications should not assume the existence of
+     * these dialogs, nor should an application assume anything about these
+     * dialogs such as component positions, <code>LayoutManager</code>s
+     * or serialization.
+     *
+     * @return Returns an array of all {@code Window}s.
+     */
+    public static Window[] getWindows()
+    {
+        Window[] retVal = new Window[WINDOW_LIST.size()];
+
+        int c = 0;
+        for(Window w : WINDOW_LIST)
+        {
+            retVal[c++] = w;
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Adds a {@link Window} into window list
+     * @param w {@link Window} to be added.
+     */
+    public static void addWindow(Window w)
+    {
+        WINDOW_LIST.add(w);
+    }
+
+    /**
+     * Removes a {@link Window} into window list
+     * @param w {@link Window} to be removed.
+     */
+    public static void removeWindow(Window w)
+    {
+        WINDOW_LIST.remove(w);
+    }
+
+    /**
+     * A simple minded look and feel change: ask each node in the tree
+     * to <code>updateUI()</code> -- that is, to initialize its UI property
+     * with the current look and feel.
+     *
+     * @param c UI component.
+     */
+    public static void updateComponentTreeUI(Component c)
+    {
+        updateComponentTreeUI0(c);
+        c.invalidate();
+        c.validate();
+        c.repaint();
+    }
+
+    /**
+     * Repaints UI tree recursively.
+     * @param c UI component.
+     */
+    private static void updateComponentTreeUI0(Component c)
+    {
+        if (c instanceof JComponent)
+        {
+            JComponent jc = (JComponent) c;
+            jc.invalidate();
+            jc.validate();
+            jc.repaint();
+            JPopupMenu jpm =jc.getComponentPopupMenu();
+            if(jpm != null && jpm.isVisible() && jpm.getInvoker() == jc)
+            {
+                updateComponentTreeUI(jpm);
+            }
+        }
+        Component[] children = null;
+        if (c instanceof JMenu)
+        {
+            children = ((JMenu)c).getMenuComponents();
+        }
+        else if (c instanceof java.awt.Container)
+        {
+            children = ((java.awt.Container)c).getComponents();
+        }
+        if (children != null)
+        {
+            for(int i = 0; i < children.length; i++)
+            {
+                updateComponentTreeUI0(children[i]);
+            }
+        }
     }
 }
