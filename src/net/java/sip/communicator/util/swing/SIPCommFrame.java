@@ -11,7 +11,6 @@ import java.awt.event.*;
 import java.awt.image.*;
 import java.net.*;
 import java.util.*;
-import java.beans.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.configuration.*;
@@ -25,6 +24,7 @@ import net.java.sip.communicator.util.*;
  * 
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public abstract class SIPCommFrame
     extends JFrame
@@ -70,11 +70,7 @@ public abstract class SIPCommFrame
     {
         this.setContentPane(new MainContentPane());
 
-        Image scLogo = UtilActivator.getImage(SIP_COMMUNICATOR_LOGO);
-        this.setIconImage(scLogo);
-
-        // In order to have the same icon when using option panes
-        JOptionPane.getRootFrame().setIconImage(scLogo);
+        init();
 
         this.addWindowListener(new FrameWindowAdapter());
 
@@ -99,6 +95,43 @@ public abstract class SIPCommFrame
         }
 
         GuiUtils.addWindow(this);
+    }
+
+    /**
+     * Validates this container and all of its subcomponents.
+     * <p>
+     * The <code>validate</code> method is used to cause a container
+     * to lay out its subcomponents again. It should be invoked when
+     * this container's subcomponents are modified (added to or
+     * removed from the container, or layout-related information
+     * changed) after the container has been displayed.
+     *
+     * <p>If this {@code Container} is not valid, this method invokes
+     * the {@code validateTree} method and marks this {@code Container}
+     * as valid. Otherwise, no action is performed.
+     *
+     * @see #add(java.awt.Component)
+     * @see Component#invalidate
+     * @see javax.swing.JComponent#revalidate()
+     * @see #validateTree
+     */
+    @Override
+    public void validate()
+    {
+        init();
+        super.validate();
+    }
+
+    /**
+     * Initialize default values.
+     */
+    private void init()
+    {
+        Image scLogo = UtilActivator.getImage(SIP_COMMUNICATOR_LOGO);
+        this.setIconImage(scLogo);
+
+        // In order to have the same icon when using option panes
+        JOptionPane.getRootFrame().setIconImage(scLogo);
     }
 
     /**
@@ -174,6 +207,7 @@ public abstract class SIPCommFrame
     private static class FrameWindowAdapter
         extends WindowAdapter
     {
+        @Override
         public void windowClosing(WindowEvent e)
         {
             ((SIPCommFrame) e.getWindow()).windowClosing(e);
@@ -222,8 +256,8 @@ public abstract class SIPCommFrame
      *
      * @param component the <tt>Component</tt> which is to have its size and
      * location saved through the <tt>ConfigurationService</tt>
-     * @throws PropertyVetoException if the <tt>ConfigurationService</tt> does
-     * not accept the saving because of objections from its
+     * @throws ConfigPropertyVetoException if the <tt>ConfigurationService</tt>
+     * does not accept the saving because of objections from its
      * <tt>PropertyVetoListener</tt>s.
      */
     static void saveSizeAndLocation(Component component)
@@ -415,6 +449,7 @@ public abstract class SIPCommFrame
      * position of this window before showing it.
      * @param isVisible indicates if this frame should be visible
      */
+    @Override
     public void setVisible(boolean isVisible)
     {
         if (isVisible)
@@ -457,6 +492,7 @@ public abstract class SIPCommFrame
      * Overwrites the dispose method in order to save the size and the position
      * of this window before closing it.
      */
+    @Override
     public void dispose()
     {
         if (isSaveSizeAndLocation)
@@ -504,13 +540,13 @@ public abstract class SIPCommFrame
     public static class MainContentPane
         extends JPanel
     {
-        private final boolean isColorBgEnabled;
+        private boolean isColorBgEnabled;
 
-        private final boolean isImageBgEnabled;
+        private boolean isImageBgEnabled;
 
-        private final Color bgStartColor;
+        private Color bgStartColor;
 
-        private final Color bgEndColor;
+        private Color bgEndColor;
 
         private BufferedImage bgImage = null;
 
@@ -523,14 +559,52 @@ public abstract class SIPCommFrame
         {
             super(new BorderLayout());
 
+            initColors();
+            initStyles();
+        }
+
+        /**
+         * Validates this container and all of its subcomponents.
+         * <p>
+         * The <code>validate</code> method is used to cause a container
+         * to lay out its subcomponents again. It should be invoked when
+         * this container's subcomponents are modified (added to or
+         * removed from the container, or layout-related information
+         * changed) after the container has been displayed.
+         *
+         * <p>If this {@code Container} is not valid, this method invokes
+         * the {@code validateTree} method and marks this {@code Container}
+         * as valid. Otherwise, no action is performed.
+         *
+         * @see #add(java.awt.Component)
+         * @see Component#invalidate
+         * @see javax.swing.JComponent#revalidate()
+         * @see #validateTree
+         */
+        @Override
+        public void validate()
+        {
+            initStyles();
+            super.validate();
+        }
+
+        /**
+         * Repaints this component.
+         */
+        @Override
+        public void repaint()
+        {
+            initColors();
+            super.repaint();
+        }
+
+        /**
+         * Initialize color values.
+         */
+        private void initColors()
+        {
             ResourceManagementService resources =
                 UtilActivator.getResources();
-
-            int borderSize =
-                resources
-                    .getSettingsInt("impl.gui.MAIN_WINDOW_BORDER_SIZE");
-            this.setBorder(BorderFactory.createEmptyBorder(borderSize,
-                borderSize, borderSize, borderSize));
 
             isColorBgEnabled =
                 new Boolean(resources.getSettingsString(
@@ -572,9 +646,25 @@ public abstract class SIPCommFrame
         }
 
         /**
+         * Initialize style values.
+         */
+        private void initStyles()
+        {
+            ResourceManagementService resources =
+                UtilActivator.getResources();
+
+            int borderSize =
+                resources
+                    .getSettingsInt("impl.gui.MAIN_WINDOW_BORDER_SIZE");
+            this.setBorder(BorderFactory.createEmptyBorder(borderSize,
+                borderSize, borderSize, borderSize));
+        }
+
+        /**
          * Paints this content pane.
          * @param g the <tt>Graphics</tt> object used for painting
          */
+        @Override
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);
