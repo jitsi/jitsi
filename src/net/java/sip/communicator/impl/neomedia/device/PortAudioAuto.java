@@ -149,27 +149,29 @@ public class PortAudioAuto
             ConfigurationService config
                 = NeomediaActivator.getConfigurationService();
 
-            boolean echoCancelEnabled =
-                config.getBoolean(
-                    DeviceConfiguration.PROP_AUDIO_ECHOCANCEL_ENABLED,
-                    PortAudioManager.isEnabledEchoCancel());
-            if(echoCancelEnabled)
-            {
-                long echoCancelFilterLengthInMillis =
-                    config.getLong(
-                        DeviceConfiguration
-                            .PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS,
-                        PortAudioManager.getFilterLengthInMillis());
+            boolean echoCancelEnabled
+                = config.getBoolean(
+                        DeviceConfiguration.PROP_AUDIO_ECHOCANCEL_ENABLED,
+                        PortAudioManager.isEnabledEchoCancel());
+            long echoCancelFilterLengthInMillis
+                = PortAudioManager.getFilterLengthInMillis();
 
-                PortAudioManager.setEchoCancel(
+            if (echoCancelEnabled)
+            {
+                echoCancelFilterLengthInMillis
+                    = config.getLong(
+                            DeviceConfiguration
+                                .PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS,
+                            echoCancelFilterLengthInMillis);
+            }
+            PortAudioManager.setEchoCancel(
                     echoCancelEnabled,
                     echoCancelFilterLengthInMillis);
-            }
 
-            boolean denoiseEnabled =
-                config.getBoolean(
-                    DeviceConfiguration.PROP_AUDIO_DENOISE_ENABLED,
-                    PortAudioManager.isEnabledDeNoise());
+            boolean denoiseEnabled
+                = config.getBoolean(
+                        DeviceConfiguration.PROP_AUDIO_DENOISE_ENABLED,
+                        PortAudioManager.isEnabledDeNoise());
             PortAudioManager.setDeNoise(denoiseEnabled);
 
             // suggested latency is saved in configuration as
@@ -183,9 +185,9 @@ public class PortAudioAuto
                     PortAudioManager.setSuggestedLatency(
                         (double)audioLatency/1000d);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            logger.error("Error parsing audio config", e);
+            logger.error("Error parsing audio config", ex);
         }
 
         supported = true;
@@ -274,8 +276,10 @@ public class PortAudioAuto
     }
 
     /**
-     * Whether portaudio is supported.
-     * @return the supported
+     * Determines whether PortAudio is supported.
+     *
+     * @return <tt>true</tt> if PortAudio is supported; otherwise,
+     * <tt>false</tt>
      */
     public static boolean isSupported()
     {
