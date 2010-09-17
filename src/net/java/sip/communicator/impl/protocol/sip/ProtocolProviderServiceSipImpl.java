@@ -987,13 +987,9 @@ public class ProtocolProviderServiceSipImpl
             return;
         }
 
-        // launch the shutdown process in a thread to free the GUI as soon
-        // as possible even if the SIP un-registration process may take time
-        // especially for ending SIMPLE
-        Thread t = new Thread(new ShutdownThread());
-        t.setDaemon(false);
-        t.start();
-
+        // don't run in Thread cause shutting down may finish before
+        // we were able to unregister
+        new ShutdownThread().run();
     }
 
     /**
@@ -1031,7 +1027,7 @@ public class ProtocolProviderServiceSipImpl
 
                     //leave ourselves time to complete un-registration (may include
                     //2 REGISTER requests in case notification is needed.)
-                    listener.waitForEvent(5000L);
+                    listener.waitForEvent(3000L);
                 }
                 catch (OperationFailedException ex)
                 {
@@ -1555,21 +1551,54 @@ public class ProtocolProviderServiceSipImpl
         //from this point on we are certain to have a registrar.
         InetSocketAddress[] registrarSocketAddresses = null;
 
+        //registrar transport
+        String registrarTransport = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.PREFERRED_TRANSPORT);
+
+        if(registrarTransport != null && registrarTransport.length() > 0)
+        {
+            if( ! registrarTransport.equals(ListeningPoint.UDP)
+                && !registrarTransport.equals(ListeningPoint.TCP)
+                && !registrarTransport.equals(ListeningPoint.TLS))
+            {
+                throw new IllegalArgumentException(registrarTransport
+                    + " is not a valid transport protocol. Transport must be "
+                    +"left blanc or set to TCP, UDP or TLS.");
+            }
+        }
+        else
+        {
+            registrarTransport = getDefaultTransport();
+        }
+
         //init registrar port
         int registrarPort = ListeningPoint.PORT_5060;
 
         try
         {
-            // first check for srv records exists
-            String registrarTransport =
-                accountID
-                    .getAccountPropertyString(ProtocolProviderFactory.PREFERRED_TRANSPORT);
+            // if port is set we must use the explicitly set settings and 
+            // skip SRV queries
+            if(accountID.getAccountProperty(
+                    ProtocolProviderFactory.SERVER_PORT) != null)
+            {
+                ArrayList<InetSocketAddress> registrarSocketAddressesList =
+                        new ArrayList<InetSocketAddress>();
 
-            if(registrarTransport == null)
-                registrarTransport = getDefaultTransport();
-
-            registrarSocketAddresses =
-                resolveSipAddress(registrarAddressStr, registrarTransport);
+                // get only AAAA and A records
+                resolveAddresses(
+                        registrarAddressStr,
+                        registrarSocketAddressesList,
+                        Boolean.getBoolean("java.net.preferIPv6Addresses"),
+                        registrarPort
+                );
+                registrarSocketAddresses = registrarSocketAddressesList
+                        .toArray(new InetSocketAddress[0]);
+            }
+            else
+            {
+                registrarSocketAddresses =
+                    resolveSipAddress(registrarAddressStr, registrarTransport);
+            }
 
             // We should set here the property to indicate that the server
             // address is validated. When we load stored accounts we check
@@ -1577,10 +1606,11 @@ public class ProtocolProviderServiceSipImpl
             // address. And this is needed because in the case we don't have
             // network while loading the application we still want to have our
             // accounts loaded.
-            accountID.putAccountProperty(
-                ProtocolProviderFactory.SERVER_ADDRESS_VALIDATED,
-                Boolean.toString(true));
-
+            if(registrarSocketAddresses != null
+                    && registrarSocketAddresses.length > 0)
+                accountID.putAccountProperty(
+                    ProtocolProviderFactory.SERVER_ADDRESS_VALIDATED,
+                    Boolean.toString(true));
         }
         catch (UnknownHostException ex)
         {
@@ -1637,27 +1667,6 @@ public class ProtocolProviderServiceSipImpl
             throw new IllegalArgumentException(registrarPort
                 + " is larger than " + NetworkUtils.MAX_PORT_NUMBER
                 + " and does not therefore represent a valid port number.");
-        }
-
-        //registrar transport
-        String registrarTransport =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PREFERRED_TRANSPORT);
-
-        if(registrarTransport != null && registrarTransport.length() > 0)
-        {
-            if( ! registrarTransport.equals(ListeningPoint.UDP)
-                && !registrarTransport.equals(ListeningPoint.TCP)
-                && !registrarTransport.equals(ListeningPoint.TLS))
-            {
-                throw new IllegalArgumentException(registrarTransport
-                    + " is not a valid transport protocol. Transport must be "
-                    +"left blanc or set to TCP, UDP or TLS.");
-            }
-        }
-        else
-        {
-            registrarTransport = ListeningPoint.UDP;
         }
 
         //init expiration timeout
@@ -1852,6 +1861,7 @@ public class ProtocolProviderServiceSipImpl
             accountID
                 .getAccountPropertyString(ProtocolProviderFactory.
                         PROXY_ADDRESS);
+        boolean proxyAddressAndPortEntered = false;
 
         if(proxyAddressStr == null || proxyAddressStr.trim().length() == 0)
         {
@@ -1865,24 +1875,76 @@ public class ProtocolProviderServiceSipImpl
                 return;
             }
         }
+        else
+        {
+            if(accountID.getAccountProperty(ProtocolProviderFactory.PROXY_PORT)
+                    != null)
+            {
+                proxyAddressAndPortEntered = true;
+            }
+        }
 
         InetAddress proxyAddress = null;
 
         //init proxy port
         int proxyPort = ListeningPoint.PORT_5060;
 
+        //proxy transport
+        String proxyTransport = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.PREFERRED_TRANSPORT);
+
+        if (proxyTransport != null && proxyTransport.length() > 0)
+        {
+            if (!proxyTransport.equals(ListeningPoint.UDP)
+                && !proxyTransport.equals(ListeningPoint.TCP)
+                && !proxyTransport.equals(ListeningPoint.TLS))
+            {
+                throw new IllegalArgumentException(proxyTransport
+                    + " is not a valid transport protocol. Transport must be "
+                    + "left blank or set to TCP, UDP or TLS.");
+            }
+        }
+        else
+        {
+            proxyTransport = getDefaultTransport();
+        }
+
         try
         {
-            // first check for srv records exists
-            String proxyTransport =
-                accountID
-                    .getAccountPropertyString(ProtocolProviderFactory.PREFERRED_TRANSPORT);
+            //check if user has overridden proxy port.
+            proxyPort = accountID.getAccountPropertyInt(
+                    ProtocolProviderFactory.PROXY_PORT,
+                    proxyPort);
+            if (proxyPort > NetworkUtils.MAX_PORT_NUMBER)
+            {
+                throw new IllegalArgumentException(proxyPort + " is larger than "
+                    + NetworkUtils.MAX_PORT_NUMBER
+                    + " and does not therefore represent a valid port number.");
+            }
 
-            if(proxyTransport == null)
-                    proxyTransport = getDefaultTransport();
+            InetSocketAddress proxySocketAddress = null;
 
-            InetSocketAddress proxySocketAddress = resolveSipAddress(
-                            proxyAddressStr, proxyTransport)[ix];
+            // according rfc3263 if proxy address is explicitly entered
+            // don't make SRV queries
+            if(proxyAddressAndPortEntered)
+            {
+                ArrayList<InetSocketAddress> addresses
+                        = new ArrayList<InetSocketAddress>();
+
+                resolveAddresses(
+                        proxyAddressStr,
+                        addresses,
+                        Boolean.getBoolean("java.net.preferIPv6Addresses"),
+                        proxyPort);
+                // only set if enough results found
+                if(addresses.size() > ix)
+                    proxySocketAddress = addresses.get(ix);
+            }
+            else
+            {
+                proxySocketAddress = resolveSipAddress(
+                    proxyAddressStr, proxyTransport)[ix];
+            }
 
             proxyAddress = proxySocketAddress.getAddress();
             proxyPort = proxySocketAddress.getPort();
@@ -1934,38 +1996,6 @@ public class ProtocolProviderServiceSipImpl
            || proxyAddress == null)
         {
             return;
-        }
-
-        //check if user has overridden proxy port.
-        proxyPort =
-            accountID.getAccountPropertyInt(ProtocolProviderFactory.PROXY_PORT,
-                proxyPort);
-        if (proxyPort > NetworkUtils.MAX_PORT_NUMBER)
-        {
-            throw new IllegalArgumentException(proxyPort + " is larger than "
-                + NetworkUtils.MAX_PORT_NUMBER
-                + " and does not therefore represent a valid port number.");
-        }
-
-        //proxy transport
-        String proxyTransport =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PREFERRED_TRANSPORT);
-
-        if (proxyTransport != null && proxyTransport.length() > 0)
-        {
-            if (!proxyTransport.equals(ListeningPoint.UDP)
-                && !proxyTransport.equals(ListeningPoint.TCP)
-                && !proxyTransport.equals(ListeningPoint.TLS))
-            {
-                throw new IllegalArgumentException(proxyTransport
-                    + " is not a valid transport protocol. Transport must be "
-                    + "left blanc or set to TCP, UDP or TLS.");
-            }
-        }
-        else
-        {
-            proxyTransport = ListeningPoint.UDP;
         }
 
         StringBuilder proxyStringBuffer
@@ -2566,7 +2596,10 @@ public class ProtocolProviderServiceSipImpl
                     NetworkUtils.getSRVRecords(
                             transport.equalsIgnoreCase(ListeningPoint.TLS) ?
                                 "sips" : "sip",
-                            ListeningPoint.TCP, address);
+                            transport.equalsIgnoreCase(ListeningPoint.UDP) ?
+                                ListeningPoint.UDP : ListeningPoint.TCP,
+                            address);
+
             if(sockAddrs != null)
             {
                 for(InetSocketAddress s : sockAddrs)
