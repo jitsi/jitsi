@@ -6,82 +6,35 @@
  */
 package net.java.sip.communicator.impl.netaddr;
 
+import java.beans.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.beans.*;
+
+import org.ice4j.ice.*;
+import org.ice4j.ice.harvest.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.stun4j.*;
-import net.java.stun4j.client.*;
 
 /**
  * This implementation of the Network Address Manager allows you to
- * intelligently retrieve the address of your localhost according to preferences
- * specified in a number of properties like:
- * <br>
- * net.java.sip.communicator.STUN_SERVER_ADDRESS - the address of the stun
- * server to use for NAT traversal
- * <br>
- * net.java.sip.communicator.STUN_SERVER_PORT - the port of the stun server
- * to use for NAT traversal
- * <br>
- * java.net.preferIPv6Addresses - a system property specifying weather ipv6
- * addresses are to be preferred in address resolution (default is false for
- * backward compatibility)
- * <br>
- * net.java.sip.communicator.common.PREFERRED_NETWORK_ADDRESS - the address
- * that the user would like to use. (If this is a valid address it will be
- * returned in getLocalhost() calls)
- * <br>
- * net.java.sip.communicator.common.PREFERRED_NETWORK_INTERFACE - the network
- * interface that the user would like to use for fommunication (addresses
- * belonging to that interface will be prefered when selecting a localhost
- * address)
- *
- * @todo further explain the way the service works. explain address selection
- * algorithms and priorities.
+ * intelligently retrieve the address of your localhost according to the
+ * destinations that you will be trying to reach. It also provides an interface
+ * to the ICE implementation in ice4j.
  *
  * @author Emil Ivov
  */
 public class NetworkAddressManagerServiceImpl
-    implements NetworkAddressManagerService,  ConfigVetoableChangeListener
+    implements NetworkAddressManagerService
 {
     /**
      * Our class logger.
      */
     private static  Logger logger =
         Logger.getLogger(NetworkAddressManagerServiceImpl.class);
-
-    /**
-     * The name of the property containing the stun server address.
-     */
-    private static final String PROP_STUN_SERVER_ADDRESS
-                = "net.java.sip.communicator.impl.netaddr.STUN_SERVER_ADDRESS";
-    /**
-     * The port number of the stun server to use for NAT traversal
-     */
-    private static final String PROP_STUN_SERVER_PORT
-                = "net.java.sip.communicator.impl.netaddr.STUN_SERVER_PORT";
-
-    /**
-     * A stun4j address resolver
-     */
-    private SimpleAddressDetector detector = null;
-
-    /**
-     * Specifies whether or not STUN should be used for NAT traversal
-     */
-    private boolean useStun = false;
-
-    /**
-     * The address of the stun server that we're currently using.
-     */
-    private StunAddress stunServerAddress = null;
-
 
     /**
      * The socket that we use for dummy connections during selection of a local
@@ -94,14 +47,6 @@ public class NetworkAddressManagerServiceImpl
      * address to use when sending messages to a specific destination.
      */
     private static final int RANDOM_ADDR_DISC_PORT = 55721;
-
-    /**
-     * The prefix used for Dynamic Configuration of IPv4 Link-Local Addresses.
-     * <br>
-     * {@link http://ietf.org/rfc/rfc3927.txt}
-     */
-    // TODO Remove after confirmation that it is not used
-//    private static final String DYNAMIC_CONF_FOR_IPV4_ADDR_PREFIX = "169.254";
 
     /**
      * The name of the property containing the number of binds that we should
@@ -123,113 +68,22 @@ public class NetworkAddressManagerServiceImpl
     private NetworkConfigurationWatcher networkConfigurationWatcher = null;
 
      /**
-      * Initializes this network address manager service implementation and
-      * starts all processes/threads associated with this address manager, such
-      * as a stun firewall/nat detector, keep alive threads, binding lifetime
-      * discovery threads and etc. The method may also be used after a call to
-      * stop() as a reinitialization technique.
+      * Initializes this network address manager service implementation.
       */
      public void start()
      {
-         // init stun
-         ConfigurationService configurationService
-             = NetaddrActivator.getConfigurationService();
-         String stunAddressStr
-             = configurationService.getString(PROP_STUN_SERVER_ADDRESS);
-         String portStr
-             = configurationService.getString(PROP_STUN_SERVER_PORT);
-
          this.localHostFinderSocket = initRandomPortSocket();
-
-         if ((stunAddressStr == null) || (portStr == null))
-         {
-            useStun = false;
-
-            if (logger.isInfoEnabled())
-                logger.info("Stun server address("
-                        +stunAddressStr+")/port("
-                        +portStr
-                        +") not set (or invalid). Disabling STUN.");
-
-         }
-         else
-         {
-             int port = -1;
-
-             try
-             {
-                port = Integer.parseInt(portStr);
-             }
-             catch (NumberFormatException ex)
-             {
-                 if (logger.isInfoEnabled())
-                     logger.info(portStr + " is not a valid port number. "
-                             +"Defaulting to 3478",
-                             ex);
-                 port = DEFAULT_STUN_SERVER_PORT;
-             }
-
-             stunServerAddress = new StunAddress(stunAddressStr, port);
-             detector = new SimpleAddressDetector(stunServerAddress);
-
-             if (logger.isDebugEnabled())
-             {
-                 logger.debug(
-                     "Created a STUN Address detector for the following "
-                     + "STUN server: "
-                     + stunAddressStr + ":" + port);
-             }
-             detector.start();
-             if (logger.isDebugEnabled())
-                 logger.debug("STUN server detector started;");
-
-             //make sure that someone doesn't set invalid stun address and port
-             configurationService
-                 .addVetoableChangeListener(PROP_STUN_SERVER_ADDRESS, this);
-             configurationService
-                 .addVetoableChangeListener(PROP_STUN_SERVER_PORT, this);
-
-             //now start a thread query to the stun server and only set the
-             //useStun flag to true if it succeeds.
-             launchStunServerTest();
-         }
      }
 
      /**
-      * Kills all threads/processes lauched by this thread and prepares it for
-      * shutdown. You may use this method as a reinitialization technique (
-      * you'll have to call start afterwards)
+      * Kills all threads/processes launched by this thread (if any) and
+      * prepares it for shutdown. You may use this method as a reinitialization
+      * technique (you'll have to call start afterwards)
       */
      public void stop()
      {
          try
          {
-             if (detector != null)
-             {
-                 try
-                 {
-                     detector.shutDown();
-                 }
-                 catch (Exception ex)
-                 {
-                     logger
-                         .debug(
-                             "Failed to properly shutdown a stun detector: "
-                                 + ex.getMessage());
-
-                 }
-                 detector = null;
-             }
-             useStun = false;
-
-             //remove the listeners
-             ConfigurationService configurationService
-                 = NetaddrActivator.getConfigurationService();
-             configurationService
-                 .removeVetoableChangeListener( PROP_STUN_SERVER_ADDRESS, this);
-             configurationService
-                 .removeVetoableChangeListener( PROP_STUN_SERVER_PORT, this);
-
              if(networkConfigurationWatcher != null)
                  networkConfigurationWatcher.stop();
          }
@@ -410,116 +264,26 @@ public class NetworkAddressManagerServiceImpl
 
 
     /**
-     * The method queries a Stun server for a binding for the specified port.
-     * @param port the port to resolve (the stun message gets sent trhough that
-     * port)
-     * @return StunAddress the address returned by the stun server or null
-     * if an error occurred or no address was returned
-     *
-     * @throws IOException if an error occurs while stun4j is using sockets.
-     * @throws BindException if the port is already in use.
-     */
-    private StunAddress queryStunServer(int port)
-        throws IOException, BindException
-    {
-        StunAddress mappedAddress = null;
-        if (detector != null && useStun)
-        {
-            mappedAddress = detector.getMappingFor(port);
-            if (logger.isDebugEnabled())
-                logger.debug("For port:"
-                             + port + "a Stun server returned the "
-                             + "following mapping [" + mappedAddress);
-        }
-        return mappedAddress;
-    }
-
-    /**
-     * The method queries a Stun server for a binding for the port and address
-     * that <tt>sock</tt> is bound on.
-     *
-     * @param sock the socket whose port and address we'dlike to resolve (the
-     * stun message gets sent trhough that socket)
-     *
-     * @return StunAddress the address returned by the stun server or null
-     * if an error occurred or no address was returned
-     *
-     * @throws IOException if an error occurs while stun4j is using sockets.
-     * @throws BindException if the port is already in use.
-     */
-    private StunAddress queryStunServer(DatagramSocket sock)
-        throws IOException, BindException
-    {
-        StunAddress mappedAddress = null;
-        if (detector != null && useStun)
-        {
-            mappedAddress = detector.getMappingFor(sock);
-            if (logger.isTraceEnabled())
-            {
-                logger.trace("For socket with address "
-                             + sock.getLocalAddress().getHostAddress()
-                             + " and port "
-                             + sock.getLocalPort()
-                             + " the stun server returned the "
-                             + "following mapping [" + mappedAddress + "]");
-            }
-        }
-        return mappedAddress;
-    }
-
-
-    /**
-     * Tries to obtain a mapped/public address for the specified port (possibly
-     * by executing a STUN query).
+     * Tries to obtain an for the specified port.
      *
      * @param dst the destination that we'd like to use this address with.
      * @param port the port whose mapping we are interested in.
      * @return a public address corresponding to the specified port or null
      *   if all attempts to retrieve such an address have failed.
      *
-     * @throws IOException if an error occurs while stun4j is using sockets.
+     * @throws IOException if an error occurs while creating the socket.
      * @throws BindException if the port is already in use.
      */
     public InetSocketAddress getPublicAddressFor(InetAddress dst, int port)
         throws IOException, BindException
     {
-        if (!useStun || (dst instanceof Inet6Address))
-        {
-            if (logger.isDebugEnabled())
-                logger.debug(
-                "Stun is disabled for destination "
-                + dst
-                +", skipping mapped address recovery (useStun="
-                +useStun
-                +", IPv6@="
-                +(dst instanceof Inet6Address)
-                +").");
-            //we'll still try to bind though so that we could notify the caller
-            //if the port has been taken already.
-            DatagramSocket bindTestSocket = new DatagramSocket(port);
-            bindTestSocket.close();
+        //we'll try to bind so that we could notify the caller
+        //if the port has been taken already.
+        DatagramSocket bindTestSocket = new DatagramSocket(port);
+        bindTestSocket.close();
 
-            //if we're here then the port was free.
-            return new InetSocketAddress(getLocalHost(dst), port);
-        }
-        StunAddress mappedAddress = queryStunServer(port);
-        InetSocketAddress result;
-        if (mappedAddress != null)
-            result = mappedAddress.getSocketAddress();
-        else
-        {
-            //Apparently STUN failed. Let's try to temporarily disable it
-            //and use algorithms in getLocalHost(). ... We should probably
-            //even think about completely disabling stun, and not only
-            //temporarily.
-            //Bug report - John J. Barton - IBM
-            InetAddress localHost = getLocalHost(dst);
-            result = new InetSocketAddress(localHost, port);
-        }
-        if (logger.isDebugEnabled())
-            logger.debug("Returning mapping for port:"
-                         + port +" as follows: " + result);
-        return result;
+        //if we're here then the port was free.
+        return new InetSocketAddress(getLocalHost(dst), port);
     }
 
     /**
@@ -539,85 +303,6 @@ public class NetworkAddressManagerServiceImpl
 
         //Reinitializaion will therefore only happen if the reinitialize()
         //method is called.
-    }
-
-    /**
-     * This method gets called when a property we're interested in is about to
-     * change. In case we don't like the new value we throw a
-     * PropertyVetoException to prevent the actual change from happening.
-     *
-     * @param evt a <tt>PropertyChangeEvent</tt> object describing the
-     *            event source and the property that will change.
-     * @exception PropertyVetoException if we don't want the change to happen.
-     */
-    public void vetoableChange(PropertyChangeEvent evt) throws
-        ConfigPropertyVetoException
-    {
-        if (evt.getPropertyName().equals(PROP_STUN_SERVER_ADDRESS))
-        {
-            //make sure that we have a valid fqdn or ip address.
-
-            //null or empty port is ok since it implies turning STUN off.
-            if (evt.getNewValue() == null)
-                return;
-
-            String host = evt.getNewValue().toString();
-            if (host.trim().length() == 0)
-                return;
-
-            boolean ipv6Expected = false;
-            if (host.charAt(0) == '[')
-            {
-                // This is supposed to be an IPv6 litteral
-                if (host.length() > 2 &&
-                    host.charAt(host.length() - 1) == ']')
-                {
-                    host = host.substring(1, host.length() - 1);
-                    ipv6Expected = true;
-                }
-                else
-                {
-                    // This was supposed to be a IPv6 address, but it's not!
-                    throw new ConfigPropertyVetoException(
-                        "Invalid address string" + host, evt);
-                }
-            }
-
-            for(int i = 0; i < host.length(); i++)
-            {
-                char c = host.charAt(i);
-                if( Character.isLetterOrDigit(c))
-                    continue;
-
-                if( (c != '.' && c!= ':')
-                    ||( c == '.' && ipv6Expected)
-                    ||( c == ':' && !ipv6Expected))
-                    throw new ConfigPropertyVetoException(
-                                host + " is not a valid address nor host name",
-                                evt);
-            }
-
-        }//is prop_stun_server_address
-        else if (evt.getPropertyName().equals(PROP_STUN_SERVER_PORT)){
-
-            //null or empty port is ok since it implies turning STUN off.
-            if (evt.getNewValue() == null)
-                return;
-
-            String port = evt.getNewValue().toString();
-            if (port.trim().length() == 0)
-                return;
-
-            try
-            {
-                Integer.valueOf(evt.getNewValue().toString());
-            }
-            catch (NumberFormatException ex)
-            {
-                throw new ConfigPropertyVetoException(
-                    port + " is not a valid port! " + ex.getMessage(), evt);
-            }
-        }
     }
 
     /**
@@ -684,62 +369,6 @@ public class NetworkAddressManagerServiceImpl
         }
 
         return resultSocket;
-    }
-
-    /**
-     * Runs a test query agains the stun server. If it works we set useStun to
-     * true, otherwise we set it to false.
-     */
-    private void launchStunServerTest()
-    {
-        Thread stunServerTestThread
-            = new Thread("StunServerTestThread")
-        {
-            @Override
-            public void run()
-            {
-                DatagramSocket randomSocket = initRandomPortSocket();
-                try
-                {
-                    StunAddress stunAddress
-                        = detector.getMappingFor(randomSocket);
-                    randomSocket.disconnect();
-                    if (stunAddress != null)
-                    {
-                        useStun = true;
-                        if (logger.isTraceEnabled())
-                            logger.trace(
-                            "StunServer check succeeded for server: "
-                            + detector.getServerAddress()
-                            + " and local port: "
-                            + randomSocket.getLocalPort());
-                    }
-                    else
-                    {
-                        useStun = false;
-                        if (logger.isTraceEnabled())
-                            logger.trace(
-                            "StunServer check failed for server: "
-                            + detector.getServerAddress()
-                            + " and local port: "
-                            + randomSocket.getLocalPort()
-                            + ". No address returned by server.");
-                    }
-                }
-                catch (Throwable ex)
-                {
-                    logger.error("Failed to run a stun query against "
-                                 + "server :" + detector.getServerAddress(),
-                                 ex);
-                    if (randomSocket.isConnected())
-                        randomSocket.disconnect();
-                    useStun = false;
-                }
-            }
-        };
-        stunServerTestThread.setDaemon(true);
-        stunServerTestThread.start();
-
     }
 
     /**
@@ -840,6 +469,7 @@ public class NetworkAddressManagerServiceImpl
     /**
       * Adds new <tt>NetworkConfigurationChangeListener</tt> which will
       * be informed for network configuration changes.
+      *
       * @param listener the listener.
       */
      public void addNetworkConfigurationChangeListener(
@@ -854,6 +484,7 @@ public class NetworkAddressManagerServiceImpl
 
      /**
       * Remove <tt>NetworkConfigurationChangeListener</tt>.
+      *
       * @param listener the listener.
       */
      public void removeNetworkConfigurationChangeListener(
@@ -863,4 +494,18 @@ public class NetworkAddressManagerServiceImpl
             networkConfigurationWatcher
                 .removeNetworkConfigurationChangeListener(listener);
      }
+
+     /**
+      * Creates and returns an ICE agent that a protocol could use for the
+      * negotiation of media transport addresses. One ICE agent should only be
+      * used for a single session negotiation.
+      *
+      * @return the newly created ICE Agent.
+      */
+     public Agent createIceAgent()
+     {
+         return new Agent();
+     }
+
+
 }
