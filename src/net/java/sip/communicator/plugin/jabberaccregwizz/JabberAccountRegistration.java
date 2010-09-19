@@ -8,6 +8,8 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.*;
+
 /**
  * The <tt>JabberAccountRegistration</tt> is used to store all user input data
  * through the <tt>JabberAccountRegistrationWizard</tt>.
@@ -94,7 +96,7 @@ public class JabberAccountRegistration
     /**
      * The list of additional STUN servers entered by user.
      */
-    private LinkedList<StunServer> additionalStunServers;
+    private List<StunServerDescriptor> additionalStunServers;
 
     /**
      * Returns the password of the jabber registration account.
@@ -317,10 +319,10 @@ public class JabberAccountRegistration
      * Adds the given <tt>stunServer</tt> to the list of additional stun servers.
      * @param stunServer the <tt>StunServer</tt> to add
      */
-    public void addStunServer(StunServer stunServer)
+    public void addStunServer(StunServerDescriptor stunServer)
     {
         if (additionalStunServers == null)
-            additionalStunServers = new LinkedList<StunServer>();
+            additionalStunServers = new LinkedList<StunServerDescriptor>();
 
         additionalStunServers.add(stunServer);
     }
@@ -330,7 +332,7 @@ public class JabberAccountRegistration
      * entered by the user.
      * @return an <tt>Iterator</tt> over a list of all additional stun servers
      */
-    public Iterator<StunServer> getAdditionalStunServers()
+    public Iterator<StunServerDescriptor> getAdditionalStunServers()
     {
         if (additionalStunServers != null)
             return additionalStunServers.iterator();

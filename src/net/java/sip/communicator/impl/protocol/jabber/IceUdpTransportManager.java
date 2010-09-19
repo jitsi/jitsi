@@ -8,8 +8,13 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import org.ice4j.ice.*;
+
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+//resolves ambiguity with ice4j's CandidateType
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.CandidateType;
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -58,6 +63,9 @@ public class IceUdpTransportManager
                                       List<ContentPacketExtension> ourAnswer)
         throws OperationFailedException
     {
+        Agent agent = JabberActivator
+                        .getNetworkAddressManagerService().createIceAgent();
+
         for(ContentPacketExtension content : theirOffer)
         {
             RtpDescriptionPacketExtension rtpDesc

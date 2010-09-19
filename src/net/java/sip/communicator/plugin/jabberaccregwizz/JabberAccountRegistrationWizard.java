@@ -254,49 +254,23 @@ public class JabberAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.RESOURCE_PRIORITY,
                             String.valueOf(registration.getPriority()));
 
-//        Disable STUN and ICE configs until it's implemented.
-//        
-//        accountProperties.put(ProtocolProviderFactory.IS_USE_ICE,
-//                            String.valueOf(registration.isUseIce()));
-//
-//        accountProperties.put(ProtocolProviderFactory.AUTO_DISCOVER_STUN,
-//                            String.valueOf(registration.isAutoDiscoverStun()));
+        accountProperties.put(ProtocolProviderFactory.IS_USE_ICE,
+                            String.valueOf(registration.isUseIce()));
 
-        Iterator<StunServer> stunServers
+        accountProperties.put(ProtocolProviderFactory.AUTO_DISCOVER_STUN,
+                            String.valueOf(registration.isAutoDiscoverStun()));
+
+        Iterator<StunServerDescriptor> stunServers
             = registration.getAdditionalStunServers();
 
+        int serverIndex = -1;
         while(stunServers != null && stunServers.hasNext())
         {
-            StunServer stunServer = stunServers.next();
+            serverIndex ++;
+            StunServerDescriptor stunServer = stunServers.next();
 
-            int stunIndex = stunServer.getIndex();
-            String stunPort = stunServer.getPort();
-            String stunUsername = stunServer.getUsername();
-            String stunPassword = stunServer.getPassword().toString();
-            boolean isSupportTurn = stunServer.isSupportTurn();
-
-            accountProperties.put(
-                ProtocolProviderFactory.STUN_ADDRESS + stunIndex,
-                stunServer.getIpAddress());
-
-            if (stunPort != null && stunPort.length() > 0)
-                accountProperties.put(
-                    ProtocolProviderFactory.STUN_PORT + stunIndex,
-                    stunPort);
-
-            if (stunUsername != null && stunUsername.length() > 0)
-                accountProperties.put(
-                    ProtocolProviderFactory.STUN_USERNAME + stunIndex,
-                    stunUsername);
-
-            if (stunPassword != null && stunPassword.length() > 0)
-                accountProperties.put(
-                    ProtocolProviderFactory.STUN_PASSWORD + stunIndex,
-                    stunPassword);
-
-            accountProperties.put(
-                ProtocolProviderFactory.STUN_IS_TURN_SUPPORTED + stunIndex,
-                new Boolean(isSupportTurn).toString());
+            stunServer.storeDescriptor(accountProperties,
+                            ProtocolProviderFactory.STUN_PREFIX + serverIndex);
         }
 
         if (isModification)
@@ -460,6 +434,9 @@ public class JabberAccountRegistrationWizard
 
     /**
      * Enables the simple "Sign in" form.
+     *
+     * @return <tt>true</tt> if the simple form is enabled and <tt>false</tt>
+     * otherwise.
      */
     public boolean isSimpleFormEnabled()
     {
@@ -469,6 +446,10 @@ public class JabberAccountRegistrationWizard
     /**
      * Parse the server part from the jabber id and set it to server as default
      * value. If Advanced option is enabled Do nothing.
+     *
+     * @param userName the full JID that we'd like to parse.
+     *
+     * @return returns the server part of a full JID
      */
     protected String getServerFromUserName(String userName)
     {
@@ -489,6 +470,9 @@ public class JabberAccountRegistrationWizard
         return null;
     }
 
+    /**
+     * Opens the GMail signup URI in the OS's default browser.
+     */
     public void webSignup()
     {
         JabberAccRegWizzActivator.getBrowserLauncher()
@@ -506,6 +490,11 @@ public class JabberAccountRegistrationWizard
         return true;
     }
 
+    /**
+     * Returns the first wizard page.
+     *
+     * @return the first wizard page.
+     */
     public Object getSimpleForm()
     {
         firstWizardPage = new FirstWizardPage(this);

@@ -12,12 +12,12 @@ import java.net.*;
 import java.util.*;
 
 import org.ice4j.ice.*;
-import org.ice4j.ice.harvest.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.NetworkUtils;//disambiguates with ice4j's
 
 /**
  * This implementation of the Network Address Manager allows you to
@@ -506,6 +506,4 @@ public class NetworkAddressManagerServiceImpl
      {
          return new Agent();
      }
-
-
 }

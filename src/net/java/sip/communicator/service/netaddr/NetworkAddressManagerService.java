@@ -9,6 +9,8 @@ package net.java.sip.communicator.service.netaddr;
 import java.net.*;
 import java.io.*;
 
+import org.ice4j.ice.*;
+
 import net.java.sip.communicator.service.netaddr.event.*;
 
 /**
@@ -136,4 +138,12 @@ public interface NetworkAddressManagerService
      public void removeNetworkConfigurationChangeListener(
          NetworkConfigurationChangeListener listener);
 
+     /**
+      * Creates and returns an ICE agent that a protocol could use for the
+      * negotiation of media transport addresses. One ICE agent should only be
+      * used for a single session negotiation.
+      *
+      * @return the newly created ICE Agent.
+      */
+     public Agent createIceAgent();
 }

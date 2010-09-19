@@ -73,8 +73,8 @@ public class FirstWizardPage
                             accountPanel);
         tabbedPane.addTab(  Resources.getString("service.gui.CONNECTION"),
                             connectionPanel);
-//        tabbedPane.addTab(  Resources.getString("service.gui.ADVANCED"),
-//                            iceConfigPanel);
+        tabbedPane.addTab(  Resources.getString("service.gui.ADVANCED"),
+                            iceConfigPanel);
 
         add(tabbedPane, BorderLayout.NORTH);
         tabbedPane.setSelectedIndex(0);
@@ -167,7 +167,7 @@ public class FirstWizardPage
         registration.setUseIce(iceConfigPanel.isUseIce());
         registration.setAutoDiscoverStun(iceConfigPanel.isAutoDiscoverStun());
 
-        Iterator<StunServer> stunServers
+        Iterator<StunServerDescriptor> stunServers
             = iceConfigPanel.getAdditionalStunServers().iterator();
 
         while (stunServers.hasNext())
@@ -203,10 +203,19 @@ public class FirstWizardPage
                 .setNextFinishButtonEnabled(nextFinishButtonEnabled);
     }
 
+    /**
+     * Dummy implementation
+     */
     public void pageHiding() {}
 
+    /**
+     * Dummy implementation
+     */
     public void pageShown() {}
 
+    /**
+     * Dummy implementation
+     */
     public void pageBack() {}
 
     /**
@@ -265,48 +274,32 @@ public class FirstWizardPage
 
         connectionPanel.setPriority(priority);
 
-//        Disable STUN and ICE configs until it's implemented.
-//        
-//        boolean isUseIce
-//            = Boolean.parseBoolean(
-//                accountProperties.get(ProtocolProviderFactory.IS_USE_ICE));
-//
-//        iceConfigPanel.setUseIce(isUseIce);
-//
-//        boolean isAutoDiscoverStun
-//            = Boolean.parseBoolean(
-//                accountProperties.get(
-//                    ProtocolProviderFactory.AUTO_DISCOVER_STUN));
-//
-//        iceConfigPanel.setAutoDiscoverStun(isAutoDiscoverStun);
+        boolean isUseIce
+            = Boolean.parseBoolean(
+                accountProperties.get(ProtocolProviderFactory.IS_USE_ICE));
 
-        for (int i = 0; i < 100; i ++)
+        iceConfigPanel.setUseIce(isUseIce);
+
+        boolean isAutoDiscoverStun
+            = Boolean.parseBoolean(
+                accountProperties.get(
+                    ProtocolProviderFactory.AUTO_DISCOVER_STUN));
+
+        iceConfigPanel.setAutoDiscoverStun(isAutoDiscoverStun);
+
+        for (int i = 0; i < StunServerDescriptor.MAX_STUN_SERVER_COUNT; i ++)
         {
-            String stunAddress = accountProperties
-                .get(ProtocolProviderFactory.STUN_ADDRESS + i);
+            StunServerDescriptor stunServer
+                = StunServerDescriptor.loadDescriptor(
+                    accountProperties, ProtocolProviderFactory.STUN_PREFIX + i);
 
-            // If we don't find a stun address with the given index, it means
-            // that there're no more in the properties table, so we're nothing
+
+
+            // If we don't find a stun server with the given index, it means
+            // that there're no more servers left i nthe table so we've nothing
             // more to do here.
-            if (stunAddress == null)
+            if (stunServer == null)
                 break;
-
-            String stunPort = accountProperties
-                .get(ProtocolProviderFactory.STUN_PORT + i);
-            String stunUsername = accountProperties
-                .get(ProtocolProviderFactory.STUN_USERNAME + i);
-            String stunPassword = accountProperties
-                .get(ProtocolProviderFactory.STUN_PASSWORD + i);
-            boolean stunIsTurnSupported
-                = Boolean.parseBoolean(accountProperties
-                    .get(ProtocolProviderFactory.STUN_IS_TURN_SUPPORTED + i));
-
-            StunServer stunServer = new StunServer( stunAddress,
-                                                    stunPort,
-                                                    stunIsTurnSupported,
-                                                    stunUsername,
-                                                    stunPassword.toCharArray(),
-                                                    i);
 
             iceConfigPanel.addStunServer(stunServer);
         }

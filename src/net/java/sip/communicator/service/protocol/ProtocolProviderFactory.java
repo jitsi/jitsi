@@ -171,17 +171,17 @@ public abstract class ProtocolProviderFactory
      * The name of the property under which we store resource priority.
      */
     public static final String RESOURCE_PRIORITY = "RESOURCE_PRIORITY";
-    
+
     /**
      * The name of the property which defines that the call is encrypted by default
      */
-    public static final String DEFAULT_ENCRYPTION = "DEFAULT_ENCRYPTION"; 
+    public static final String DEFAULT_ENCRYPTION = "DEFAULT_ENCRYPTION";
 
     /**
      * The name of the property which defines if to include the ZRTP attribute to SIP/SDP
      */
     public static final String DEFAULT_SIPZRTP_ATTRIBUTE = "DEFAULT_SIPZRTP_ATTRIBUTE";
-    
+
     /**
      * The name of the property under which we store the boolean value
      * indicating if the user name should be automatically changed if the
@@ -266,30 +266,37 @@ public abstract class ProtocolProviderFactory
     public static final String AUTO_DISCOVER_STUN = "AUTO_DISCOVER_STUN";
 
     /**
+     * The property name prefix for all stun server properties. We generally use
+     * this prefix in conjunction with an index which is how we store multiple
+     * servers.
+     */
+    public static final String STUN_PREFIX = "STUN";
+
+    /**
      * The base property name for address of additional STUN servers specified.
      */
-    public static final String STUN_ADDRESS = "STUN_ADDRESS";
+    public static final String STUN_ADDRESS = "ADDRESS";
 
     /**
      * The base property name for port of additional STUN servers specified.
      */
-    public static final String STUN_PORT = "STUN_PORT";
+    public static final String STUN_PORT = "PORT";
 
     /**
      * The base property name for username of additional STUN servers specified.
      */
-    public static final String STUN_USERNAME = "STUN_USERNAME";
+    public static final String STUN_USERNAME = "USERNAME";
 
     /**
      * The base property name for password of additional STUN servers specified.
      */
-    public static final String STUN_PASSWORD = "STUN_PASSWORD";
+    public static final String STUN_PASSWORD = "PASSWORD";
 
     /**
      * The base property name for the turn supported property of additional
      * STUN servers specified.
      */
-    public static final String STUN_IS_TURN_SUPPORTED = "STUN_IS_TURN_SUPPORTED";
+    public static final String STUN_IS_TURN_SUPPORTED = "IS_TURN_SUPPORTED";
 
     /**
      * The <code>BundleContext</code> containing (or to contain) the service
@@ -324,7 +331,7 @@ public abstract class ProtocolProviderFactory
     /**
      * Gets the <code>BundleContext</code> containing (or to contain) the
      * service registration of this factory.
-     * 
+     *
      * @return the <code>BundleContext</code> containing (or to contain) the
      *         service registration of this factory
      */
@@ -484,7 +491,7 @@ public abstract class ProtocolProviderFactory
      * <tt>sourceFactory</tt>'s package name and add to it a unique identifier
      * (e.g. the current miliseconds.)
      * </p>
-     * 
+     *
      * @param accountID the AccountID corresponding to the account that we would
      * like to store.
      */
@@ -504,11 +511,11 @@ public abstract class ProtocolProviderFactory
      * Saves the password for the specified account after scrambling it a bit so
      * that it is not visible from first sight. (The method remains highly
      * insecure).
-     * 
+     *
      * @param accountID the AccountID for the account whose password we're
      *            storing
      * @param password the password itself
-     * 
+     *
      * @throws IllegalArgumentException if no account corresponding to
      *             <code>accountID</code> has been previously stored
      */
@@ -534,12 +541,12 @@ public abstract class ProtocolProviderFactory
      * knows the format in which the password (among the other account
      * properties) is to be saved.
      * </p>
-     * 
+     *
      * @param bundleContext a currently valid bundle context.
      * @param accountID the <tt>AccountID</tt> of the account whose password is
      * to be stored
      * @param password the password to be stored
-     * 
+     *
      * @throws IllegalArgumentException if no account corresponding to
      * <tt>accountID</tt> has been previously stored.
      * @throws OperationFailedException if anything goes wrong while storing the
@@ -583,10 +590,10 @@ public abstract class ProtocolProviderFactory
 
     /**
      * Returns the password last saved for the specified account.
-     * 
+     *
      * @param accountID the AccountID for the account whose password we're
      *            looking for
-     * 
+     *
      * @return a String containing the password for the specified accountID
      */
     public String loadPassword(AccountID accountID)
@@ -601,11 +608,11 @@ public abstract class ProtocolProviderFactory
      * knows the format in which the password (among the other account
      * properties) was saved.
      * </p>
-     * 
+     *
      * @param bundleContext a currently valid bundle context.
      * @param accountID the AccountID for the account whose password we're
      *            looking for..
-     * 
+     *
      * @return a String containing the password for the specified accountID.
      */
     protected String loadPassword(BundleContext bundleContext,
@@ -631,7 +638,7 @@ public abstract class ProtocolProviderFactory
      * <tt>context</tt> BundleContext parameter. This method has a persistent
      * effect. Once created the resulting account will remain installed until
      * removed through the uninstallAccount method.
-     * 
+     *
      * @param accountProperties a set of protocol (or implementation) specific
      *            properties defining the new account.
      * @return the AccountID of the newly loaded account
@@ -650,7 +657,7 @@ public abstract class ProtocolProviderFactory
      * registers it in the bundle context. This method has a persistent
      * effect. Once created the resulting account will remain installed until
      * removed through the uninstallAccount method.
-     * 
+     *
      * @param accountID the account identifier
      * @return <tt>true</tt> if the account with the given <tt>accountID</tt> is
      * successfully loaded, otherwise returns <tt>false</tt>
@@ -689,7 +696,7 @@ public abstract class ProtocolProviderFactory
      * Unloads the account corresponding to the given <tt>accountID</tt>.
      * Unregisters the corresponding protocol provider, but keeps the account in
      * contrast to the uninstallAccount method.
-     * 
+     *
      * @param accountID the account identifier
      * @return true if an account with the specified ID existed and was unloaded
      * and false otherwise.
@@ -739,7 +746,7 @@ public abstract class ProtocolProviderFactory
     /**
      * Initializes and creates an account corresponding to the specified
      * accountProperties.
-     * 
+     *
      * @param accountProperties a set of protocol (or implementation) specific
      * properties defining the new account.
      * @return the AccountID of the newly created account
@@ -777,7 +784,7 @@ public abstract class ProtocolProviderFactory
      * <code>ProtocolProviderService</code> by the caller (e.g. using
      * {@link #createService(String, AccountID)}).
      * </p>
-     * 
+     *
      * @param userID the user ID of the new instance
      * @param accountProperties the set of properties to be represented by the
      *            new instance
@@ -791,7 +798,7 @@ public abstract class ProtocolProviderFactory
      * Gets the name of the protocol this factory registers its
      * <code>ProtocolProviderService</code>s with and to be placed in the
      * properties of the accounts created by this factory.
-     * 
+     *
      * @return the name of the protocol this factory registers its
      *         <code>ProtocolProviderService</code>s with and to be placed in
      *         the properties of the accounts created by this factory
@@ -810,7 +817,7 @@ public abstract class ProtocolProviderFactory
      * the instance. The caller will later register the returned service with
      * the <code>BundleContext</code> of this factory.
      * </p>
-     * 
+     *
      * @param userID the user ID to initialize the new instance with
      * @param accountID the <code>AccountID</code> to be represented by the new
      *            instance
@@ -920,7 +927,7 @@ public abstract class ProtocolProviderFactory
     /**
      * Shuts down the <code>ProtocolProviderService</code> representing an
      * account registered with this factory.
-     * 
+     *
      * @param registeredAccount the <code>ServiceRegistration</code> of the
      *            <code>ProtocolProviderService</code> representing an account
      *            registered with this factory

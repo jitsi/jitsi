@@ -45,4 +45,48 @@ public class JabberAccountID
 
         return (serviceName != null) ? serviceName : "jabber.org";
     }
+
+    /**
+     * Returns the list of STUN servers that this account is currently
+     * configured to use.
+     *
+     * @return the list of STUN servers that this account is currently
+     * configured to use.
+     */
+    public List<StunServerDescriptor> getStunServers()
+    {
+        List<StunServerDescriptor> serList
+                            = new ArrayList<StunServerDescriptor>();
+
+        for (int i = 0; i < StunServerDescriptor.MAX_STUN_SERVER_COUNT; i ++)
+        {
+            StunServerDescriptor stunServer
+                = StunServerDescriptor.loadDescriptor(
+                    getAccountProperties(),
+                    ProtocolProviderFactory.STUN_PREFIX + i);
+
+            // If we don't find a stun server with the given index, it means
+            // that there're no more servers left in the table so we've nothing
+            // more to do here.
+            if (stunServer == null)
+                break;
+
+            serList.add(stunServer);
+        }
+
+        return serList;
+    }
+
+    /**
+     * Determines whether this account's provider is supposed to auto discover
+     * STUN and TURN servers.
+     *
+     * @return <tt>true</tt> if this provider would need to discover STUN/TURN
+     * servers and false otherwise.
+     */
+    public boolean isStunServerDiscoveryEnabled()
+    {
+        return Boolean.parseBoolean(getAccountProperties().get(
+                            ProtocolProviderFactory.AUTO_DISCOVER_STUN));
+    }
 }

@@ -14,6 +14,8 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -38,7 +40,7 @@ public class IceConfigPanel
     /**
      * The table model for our additional stun servers table.
      */
-    private final DefaultTableModel tableModel = new StunServerTableModel();
+    private final StunServerTableModel tableModel = new StunServerTableModel();
 
     /**
      * The stun server table.
@@ -79,7 +81,7 @@ public class IceConfigPanel
         tableModel.addColumn(
             Resources.getString("plugin.jabberaccregwizz.SUPPORT_TURN"));
 
-        table.setDefaultRenderer(   StunServer.class,
+        table.setDefaultRenderer(   StunServerDescriptor.class,
                                     new StunServerCellRenderer());
 
         //Create the scroll pane and add the table to it.
@@ -103,16 +105,16 @@ public class IceConfigPanel
         {
             public void actionPerformed(ActionEvent e)
             {
-                StunServer stunServer
-                    = (StunServer) tableModel.getValueAt(
+                StunServerDescriptor stunServer
+                    = (StunServerDescriptor) tableModel.getValueAt(
                         table.getSelectedRow(), 0);
 
                 if (stunServer != null)
                 {
                     StunConfigDialog dialog
-                        = new StunConfigDialog( stunServer.getIpAddress(),
+                        = new StunConfigDialog( stunServer.getAddress(),
                                                 stunServer.getPort(),
-                                                stunServer.isSupportTurn(),
+                                                stunServer.isTurnSupported(),
                                                 stunServer.getUsername(),
                                                 stunServer.getPassword());
 
@@ -153,30 +155,77 @@ public class IceConfigPanel
      */
     private class StunConfigDialog extends SIPCommDialog
     {
-        private final JPanel mainPanel = new TransparentPanel(new BorderLayout());
+        /**
+         * The main panel
+         */
+        private final JPanel mainPanel
+                                = new TransparentPanel(new BorderLayout());
+
+        /**
+         * The address of the stun server.
+         */
         private final JTextField addressField = new JTextField();
+
+        /**
+         * The port number field
+         */
         private final JTextField portField = new JTextField();
+
+        /**
+         * The input verifier that we will be using to validate port numbers.
+         */
+        private final PortVerifier portVerifier = new PortVerifier();
+
+        /**
+         * The check box where user would indicate whether a STUN server is also
+         * a TURN server.
+         */
         private final JCheckBox supportTurnCheckBox = new JCheckBox(
             Resources.getString("plugin.jabberaccregwizz.SUPPORT_TURN"));
+
+        /**
+         * The user name field
+         */
         private final JTextField usernameField = new JTextField();
+
+        /**
+         * The password field.
+         */
         private final JPasswordField passwordField = new JPasswordField();
+
+        /**
+         * The pane where we show errors.
+         */
         private JEditorPane errorMessagePane;
 
-        public StunConfigDialog(String address,
-                                String port,
+        /**
+         * Creates a new StunConfigDialog with filled in values.
+         *
+         * @param address the IP or FQDN of the server
+         * @param port the port number
+         * @param isSupportTurn a <tt>boolean</tt> indicating whether the server
+         * is also a TURN relay
+         * @param username the username we should use with this server
+         * @param password the password we should use with this server
+         */
+        public StunConfigDialog(String  address,
+                                int     port,
                                 boolean isSupportTurn,
-                                String username,
-                                char[] password)
+                                String  username,
+                                char[]  password)
         {
             this();
 
             addressField.setText(address);
-            portField.setText(port);
+            portField.setText(Integer.toString( port ));
             supportTurnCheckBox.setSelected(isSupportTurn);
             usernameField.setText(username);
             passwordField.setText(password.toString());
         }
 
+        /**
+         * Creates an empty dialog.
+         */
         public StunConfigDialog()
         {
             super(false);
@@ -211,6 +260,10 @@ public class IceConfigPanel
             valuesPanel.add(usernameField);
             valuesPanel.add(passwordField);
 
+            //register an input verifier so that we would only accept valid
+            //port numbers.
+            portField.setInputVerifier(portVerifier);
+
             JButton addButton
                 = new JButton(Resources.getString("service.gui.ADD"));
             JButton cancelButton
@@ -221,7 +274,12 @@ public class IceConfigPanel
                 public void actionPerformed(ActionEvent e)
                 {
                     String address = addressField.getText();
-                    String port = portField.getText();
+                    String portStr = portField.getText();
+
+                    int port = -1;
+                    if(portStr != null && portStr.trim().length() > 0)
+                        port = Integer.parseInt( portField.getText() );
+
                     String username = usernameField.getText();
                     char[] password = passwordField.getPassword();
 
@@ -234,9 +292,6 @@ public class IceConfigPanel
                         errorMessage = Resources.getString(
                             "plugin.jabberaccregwizz.NO_STUN_USERNAME");
 
-                    if (port == null || port.length() <= 0)
-                        port = JabberAccountRegistration.DEFAULT_STUN_PORT;
-
                     if (containsStunServer(address, port))
                         errorMessage = Resources.getString(
                             "plugin.jabberaccregwizz.STUN_ALREADY_EXIST");
@@ -247,13 +302,9 @@ public class IceConfigPanel
                         return;
                     }
 
-                    StunServer stunServer = new StunServer(
-                        address,
-                        port,
-                        supportTurnCheckBox.isSelected(),
-                        username,
-                        password,
-                        table.getRowCount());
+                    StunServerDescriptor stunServer = new StunServerDescriptor(
+                        address, port, supportTurnCheckBox.isSelected(),
+                        username, password);
 
                     addStunServer(stunServer);
 
@@ -316,6 +367,11 @@ public class IceConfigPanel
             this.setSize(getWidth(), getHeight()+errorMessagePane.getHeight());
         }
 
+        /**
+         * Dummy implementation that we are not using.
+         *
+         * @param escaped unused
+         */
         @Override
         protected void close(boolean escaped) {}
     }
@@ -327,23 +383,26 @@ public class IceConfigPanel
     private static class StunServerCellRenderer
         extends DefaultTableCellRenderer
     {
-        // We need a place to store the color the JLabel should be returned 
-        // to after its foreground and background colors have been set 
-        // to the selection background color. 
-        // These vars will be made protected when their names are finalized. 
-        private Color unselectedForeground; 
-        private Color unselectedBackground; 
+        // We need a place to store the color the JLabel should be returned
+        // to after its foreground and background colors have been set
+        // to the selection background color.
+        // These vars will be made protected when their names are finalized.
+        /** the fore ground color to use when not selected */
+        private Color unselectedForeground;
+
+        /** the fore ground color to use when selected */
+        private Color unselectedBackground;
 
         /**
          * Overrides <code>JComponent.setForeground</code> to assign
          * the unselected-foreground color to the specified color.
-         * 
+         *
          * @param c set the foreground color to this value
          */
         public void setForeground(Color c)
         {
-            super.setForeground(c); 
-            unselectedForeground = c; 
+            super.setForeground(c);
+            unselectedForeground = c;
         }
 
         /**
@@ -354,10 +413,22 @@ public class IceConfigPanel
          */
         public void setBackground(Color c)
         {
-            super.setBackground(c); 
-            unselectedBackground = c; 
+            super.setBackground(c);
+            unselectedBackground = c;
         }
 
+        /**
+         * Returns a cell renderer for the specified cell.
+         *
+         * @param table the {@link JTable} that the cell belongs to.
+         * @param value the cell value
+         * @param isSelected indicates whether the cell is selected
+         * @param hasFocus indicates whether the cell is currently on focus.
+         * @param row the row index
+         * @param column the column index
+         *
+         * @return the cell renderer
+         */
         public Component getTableCellRendererComponent( JTable table,
                                                         Object value,
                                                         boolean isSelected,
@@ -366,11 +437,11 @@ public class IceConfigPanel
                                                         int column)
         {
 
-            if (value instanceof StunServer)
+            if (value instanceof StunServerDescriptor)
             {
-                StunServer stunServer = (StunServer) value;
+                StunServerDescriptor stunServer = (StunServerDescriptor) value;
 
-                this.setText(   stunServer.getIpAddress()
+                this.setText(   stunServer.getAddress()
                                 + "/" + stunServer.getPort());
 
                 if (isSelected)
@@ -381,10 +452,10 @@ public class IceConfigPanel
                 else
                 {
                      super.setForeground((unselectedForeground != null)
-                         ? unselectedForeground 
+                         ? unselectedForeground
                          : table.getForeground());
                      super.setBackground((unselectedBackground != null)
-                         ? unselectedBackground 
+                         ? unselectedBackground
                          : table.getBackground());
                 }
             }
@@ -472,18 +543,22 @@ public class IceConfigPanel
 
     /**
      * Returns the list of additional stun servers entered by the user.
+     *
      * @return the list of additional stun servers entered by the user
      */
-    List<StunServer> getAdditionalStunServers()
+    @SuppressWarnings("unchecked")//getDataVector() is simply not parametrized
+    List<StunServerDescriptor> getAdditionalStunServers()
     {
-        LinkedList<StunServer> serversList = new LinkedList<StunServer>();
-        Iterator i = tableModel.getDataVector().iterator();
+        LinkedList<StunServerDescriptor> serversList
+                                    = new LinkedList<StunServerDescriptor>();
+        Iterator<Vector<StunServerDescriptor>> i
+                                  = tableModel.getDataVector().iterator();
 
         while(i.hasNext())
         {
-            Vector row = (Vector) i.next();
+            Vector<StunServerDescriptor> row = i.next();
 
-            serversList.add((StunServer) row.elementAt(0));
+            serversList.add(row.elementAt(0));
         }
         return serversList;
     }
@@ -493,31 +568,78 @@ public class IceConfigPanel
      * servers.
      * @param stunServer the stun server to add
      */
-    void addStunServer(StunServer stunServer)
+    void addStunServer(StunServerDescriptor stunServer)
     {
         tableModel.addRow(new Object[]{stunServer,
-            stunServer.isSupportTurn()});
+            stunServer.isTurnSupported()});
     }
 
     /**
      * Indicates if a stun server with the given <tt>address</tt> and
      * <tt>port</tt> already exists in the additional stun servers table.
+     *
      * @param address the STUN server address to check
      * @param port the STUN server port to check
+     *
      * @return <tt>true</tt> if a STUN server with the given <tt>address</tt>
      * and <tt>port</tt> already exists in the table, otherwise returns
      * <tt>false</tt>
      */
-    boolean containsStunServer(String address, String port)
+    boolean containsStunServer(String address, int port)
     {
         for (int i = 0; i < tableModel.getRowCount(); i++)
         {
-            StunServer stunServer = (StunServer) tableModel.getValueAt(i, 0);
+            StunServerDescriptor stunServer
+                = (StunServerDescriptor) tableModel.getValueAt(i, 0);
 
-            if (stunServer.getIpAddress().equalsIgnoreCase(address)
-                && stunServer.getPort().equalsIgnoreCase(port))
+            if (stunServer.getAddress().equalsIgnoreCase(address)
+                && stunServer.getPort() == port)
                 return true;
         }
         return false;
+    }
+
+    /**
+     * The input verifier that we use to verify port numbers.
+     */
+    private static class PortVerifier extends InputVerifier
+    {
+        /**
+         * Checks whether the JComponent's input is a valid port number. This
+         * has no side effects. It returns a boolean indicating
+         * the status of the argument's input.
+         *
+         * @param input the JComponent to verify
+         * @return <tt>true</tt> when valid, <tt>false</tt> when invalid or when
+         * <tt>input</tt> is not a {@link JTextField} instance.
+         */
+        public boolean verify(JComponent input)
+        {
+            if ( !( input instanceof JTextField ) )
+                return false;
+
+            JTextField portField = (JTextField)input;
+
+            String portStr = portField.getText();
+
+            int port = -1;
+
+            //we accept empty strings as that would mean the default port.
+            if( portStr== null || portStr.trim().length() == 0)
+                return true;
+
+            try
+            {
+                 port = Integer.parseInt(portStr);
+            }
+            catch(Throwable t)
+            {
+                //something's wrong and whatever it is - we don't care we
+                //simply return false.
+                return false;
+            }
+
+            return NetworkUtils.isValidPortNumber(port);
+        }
     }
 }
