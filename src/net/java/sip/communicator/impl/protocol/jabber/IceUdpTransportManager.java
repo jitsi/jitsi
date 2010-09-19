@@ -7,15 +7,10 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.io.*;
-import java.net.*;
-import java.nio.charset.*;
-import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.CandidateType;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -100,6 +95,8 @@ public class IceUdpTransportManager
                 autoHarvester = namSer.discoverStunServer( accID.getService(),
                                 username.getBytes("UTF-8"),
                                 password.getBytes("UTF-8"));
+
+                logger.info("Auto discovered harvester is " + autoHarvester);
             }
             catch(UnsupportedEncodingException exc)
             {
@@ -133,6 +130,8 @@ public class IceUdpTransportManager
                 //this is a STUN only server
                 harvester = new StunCandidateHarvester(addr);
             }
+
+            logger.info("Adding pre-conficugred harvester " + harvester);
 
             agent.addCandidateHarvester(harvester);
         }

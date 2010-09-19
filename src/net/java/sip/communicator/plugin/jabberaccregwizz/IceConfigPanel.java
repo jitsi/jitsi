@@ -553,15 +553,13 @@ public class IceConfigPanel
     {
         LinkedList<StunServerDescriptor> serversList
                                     = new LinkedList<StunServerDescriptor>();
-        Iterator<Vector<StunServerDescriptor>> i
-                                  = tableModel.getDataVector().iterator();
 
-        while(i.hasNext())
-        {
-            Vector<StunServerDescriptor> row = i.next();
+        Vector<Vector<StunServerDescriptor>> serverRows
+                                    = tableModel.getDataVector();
 
+        for(Vector<StunServerDescriptor> row : serverRows)
             serversList.add(row.elementAt(0));
-        }
+
         return serversList;
     }
 

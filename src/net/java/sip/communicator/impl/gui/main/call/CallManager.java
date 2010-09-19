@@ -657,7 +657,7 @@ public class CallManager
             }
             if (exception != null)
             {
-                logger.error("The call could not be created: " + exception);
+                logger.error("The call could not be created: ", exception);
 
                 new ErrorDialog(
                         null,

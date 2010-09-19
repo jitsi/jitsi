@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -260,14 +261,13 @@ public class JabberAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.AUTO_DISCOVER_STUN,
                             String.valueOf(registration.isAutoDiscoverStun()));
 
-        Iterator<StunServerDescriptor> stunServers
+        List<StunServerDescriptor> stunServers
             = registration.getAdditionalStunServers();
 
         int serverIndex = -1;
-        while(stunServers != null && stunServers.hasNext())
+        for(StunServerDescriptor stunServer : stunServers)
         {
             serverIndex ++;
-            StunServerDescriptor stunServer = stunServers.next();
 
             stunServer.storeDescriptor(accountProperties,
                             ProtocolProviderFactory.STUN_PREFIX + serverIndex);

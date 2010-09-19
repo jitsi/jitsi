@@ -96,7 +96,8 @@ public class JabberAccountRegistration
     /**
      * The list of additional STUN servers entered by user.
      */
-    private List<StunServerDescriptor> additionalStunServers;
+    private List<StunServerDescriptor> additionalStunServers
+        = new ArrayList<StunServerDescriptor>();
 
     /**
      * Returns the password of the jabber registration account.
@@ -317,25 +318,23 @@ public class JabberAccountRegistration
 
     /**
      * Adds the given <tt>stunServer</tt> to the list of additional stun servers.
+     *
      * @param stunServer the <tt>StunServer</tt> to add
      */
     public void addStunServer(StunServerDescriptor stunServer)
     {
-        if (additionalStunServers == null)
-            additionalStunServers = new LinkedList<StunServerDescriptor>();
-
         additionalStunServers.add(stunServer);
     }
 
     /**
-     * Returns an <tt>Iterator</tt> over a list of all additional stun servers
-     * entered by the user.
-     * @return an <tt>Iterator</tt> over a list of all additional stun servers
+     * Returns the <tt>List</tt> of all additional stun servers entered by the
+     * user. The list is guaranteed not to be <tt>null</tt>.
+     *
+     * @return the <tt>List</tt> of all additional stun servers entered by the
+     * user.
      */
-    public Iterator<StunServerDescriptor> getAdditionalStunServers()
+    public List<StunServerDescriptor> getAdditionalStunServers()
     {
-        if (additionalStunServers != null)
-            return additionalStunServers.iterator();
-        return null;
+        return additionalStunServers;
     }
 }

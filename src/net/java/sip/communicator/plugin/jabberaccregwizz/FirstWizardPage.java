@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -167,13 +168,15 @@ public class FirstWizardPage
         registration.setUseIce(iceConfigPanel.isUseIce());
         registration.setAutoDiscoverStun(iceConfigPanel.isAutoDiscoverStun());
 
-        Iterator<StunServerDescriptor> stunServers
-            = iceConfigPanel.getAdditionalStunServers().iterator();
+        //we will be reentering all stun servers so let's make sure we clear
+        //the servers vector in case we already did that with a "Next".
+        registration.getAdditionalStunServers().clear();
 
-        while (stunServers.hasNext())
-        {
-            registration.addStunServer(stunServers.next());
-        }
+        List<StunServerDescriptor> stunServers
+            = iceConfigPanel.getAdditionalStunServers();
+
+        for (StunServerDescriptor descriptor : stunServers)
+            registration.addStunServer(descriptor);
 
         nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
 

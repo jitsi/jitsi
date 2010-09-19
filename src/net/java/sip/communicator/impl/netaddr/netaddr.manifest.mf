@@ -1,6 +1,6 @@
 Bundle-Activator: net.java.sip.communicator.impl.netaddr.NetaddrActivator
-Bundle-Name: Network address managment service
-Bundle-Description: A bundle that provide a gesture of the ip addresses. prospere est le toi du pain d'epice
+Bundle-Name: Network Address Management service
+Bundle-Description: A bundle that provides local address selection and negotiation via ice4j.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
@@ -8,5 +8,9 @@ Import-Package: net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.configuration.event,
  net.java.sip.communicator.util,
  org.osgi.framework,
+ javax.crypto
 Export-Package: net.java.sip.communicator.service.netaddr,
- net.java.sip.communicator.service.netaddr.event
+ net.java.sip.communicator.service.netaddr.event,
+ org.ice4j,
+ org.ice4j.ice,
+ org.ice4j.ice.harvest

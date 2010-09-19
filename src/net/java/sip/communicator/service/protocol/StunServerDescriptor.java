@@ -206,7 +206,7 @@ public class StunServerDescriptor
         if (getPassword() != null && getPassword().length > 0)
             props.put(namePrefix + STUN_PASSWORD, new String(getPassword()));
 
-        props.put(namePrefix + STUN_ADDRESS,
+        props.put(namePrefix + STUN_IS_TURN_SUPPORTED,
                         Boolean.toString( isTurnSupported() ));
     }
 
@@ -309,5 +309,17 @@ public class StunServerDescriptor
             //this happens, we'll cheat
             return new String(bytes);
         }
+    }
+
+    /**
+     * Returns a <tt>String</tt> representation of this descriptor
+     *
+     * @return a <tt>String</tt> representation of this descriptor.
+     */
+    public String toString()
+    {
+        return "StunServerDesc: " + getAddress() + "/"
+               + getPort()
+               + " turnSupp=" + this.isTurnSupported();
     }
 }
