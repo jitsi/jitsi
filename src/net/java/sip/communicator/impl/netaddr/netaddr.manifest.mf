@@ -8,7 +8,8 @@ Import-Package: net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.configuration.event,
  net.java.sip.communicator.util,
  org.osgi.framework,
- javax.crypto
+ javax.crypto,
+ javax.crypto.spec
 Export-Package: net.java.sip.communicator.service.netaddr,
  net.java.sip.communicator.service.netaddr.event,
  org.ice4j,

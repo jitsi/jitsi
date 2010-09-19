@@ -539,7 +539,7 @@ public class CallPeerJabberImpl
      * Send a <tt>content</tt> message to reflect change in video setup (start
      * or stop). Message can be content-modify if video content exists,
      * content-add if we start video but video is not enabled on the peer or
-     * content-remove if we stop video and video is not enabled on the peer. 
+     * content-remove if we stop video and video is not enabled on the peer.
      *
      * @param allowed if the local video is allowed or not
      */

@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
@@ -148,19 +147,26 @@ public class IceUdpTransportManager
                                       List<ContentPacketExtension> ourAnswer)
         throws OperationFailedException
     {
-        for(ContentPacketExtension content : theirOffer)
+        for(ContentPacketExtension theirContent : theirOffer)
         {
-
-
             //now add our transport to our answer
-            ContentPacketExtension cpExt
-                = findContentByName(ourAnswer, content.getName());
+            ContentPacketExtension ourContent
+                = findContentByName(ourAnswer, theirContent.getName());
 
             //it might be that we decided not to reply to this content
-            if(cpExt == null)
+            if(ourContent == null)
                 continue;
 
-            //cpExt.addChildExtension(ourTransport);
+            RtpDescriptionPacketExtension rtpDesc
+            = (RtpDescriptionPacketExtension)ourContent
+                .getFirstChildOfType(RtpDescriptionPacketExtension.class);
+
+            IceMediaStream stream = createIceStream(rtpDesc.getMedia());
+
+            //we now generate the XMPP code containing the candidates.
+            ourContent.addChildExtension(JingleUtils.createTransport(stream));
+
+
         }
 
         this.cpeList = ourAnswer;
@@ -182,48 +188,68 @@ public class IceUdpTransportManager
                             List<ContentPacketExtension>   ourOffer)
         throws OperationFailedException
     {
-        for(ContentPacketExtension content : ourOffer)
+        for(ContentPacketExtension ourContent : ourOffer)
         {
             RtpDescriptionPacketExtension rtpDesc
-                = (RtpDescriptionPacketExtension)content
+                = (RtpDescriptionPacketExtension)ourContent
                     .getFirstChildOfType(RtpDescriptionPacketExtension.class);
 
-            IceMediaStream stream;
-            try
-            {
-                //the following call involves STUN calls so it may take a while.
-                stream = getNetAddrMgr().createIceStream(
-                            nextMediaPortToTry, rtpDesc.getMedia(), iceAgent);
-            }
-            catch (Exception exc)
-            {
-                throw new OperationFailedException(
-                        "Failed to initialize stream " + rtpDesc.getMedia(),
-                        OperationFailedException.INTERNAL_ERROR);
-            }
+            IceMediaStream stream = createIceStream(rtpDesc.getMedia());
 
-            //let's now update the next port var as best we can: we would assume
-            //that all local candidates are bound on the same port and set it
-            //to the one just above. if the assumption is wrong the next bind
-            //would simply include one more bind retry.
-            try
-            {
-                nextMediaPortToTry = stream.getComponent(Component.RTCP)
-                    .getLocalCandidates().get(0)
-                        .getTransportAddress().getPort() + 1;
-            }
-            catch(Throwable t)
-            {
-                //hey, we were just trying to be nice. if that didn't work for
-                //some reason we really can't be held responsible!
-                logger.debug("Determining next port didn't work: ", t);
-            }
 
             //we now generate the XMPP code containing the candidates.
-            content.addChildExtension(JingleUtils.createTransport(stream));
+            ourContent.addChildExtension(JingleUtils.createTransport(stream));
         }
 
         this.cpeList = ourOffer;
+    }
+
+    /**
+     * Creates an {@link IceMediaStream} with the specified <tt>media</tt>
+     * name.
+     *
+     * @param media the name of the stream we'd like to create.
+     *
+     * @return the newly created {@link IceMediaStream}
+     *
+     * @throws OperationFailedException if binding on the specified media stream
+     * fails for some reason.
+     */
+    private IceMediaStream createIceStream(String media)
+        throws OperationFailedException
+    {
+        IceMediaStream stream;
+        try
+        {
+            //the following call involves STUN processing so it may take a while
+            stream = getNetAddrMgr().createIceStream(
+                        nextMediaPortToTry, media, iceAgent);
+        }
+        catch (Exception exc)
+        {
+            throw new OperationFailedException(
+                    "Failed to initialize stream " + media,
+                    OperationFailedException.INTERNAL_ERROR);
+        }
+
+        //let's now update the next port var as best we can: we would assume
+        //that all local candidates are bound on the same port and set it
+        //to the one just above. if the assumption is wrong the next bind
+        //would simply include one more bind retry.
+        try
+        {
+            nextMediaPortToTry = stream.getComponent(Component.RTCP)
+                .getLocalCandidates().get(0)
+                    .getTransportAddress().getPort() + 1;
+        }
+        catch(Throwable t)
+        {
+            //hey, we were just trying to be nice. if that didn't work for
+            //some reason we really can't be held responsible!
+            logger.debug("Determining next port didn't work: ", t);
+        }
+
+        return stream;
     }
 
 

@@ -133,6 +133,11 @@ public class CallJabberImpl extends MediaAwareCall<
         callPeer.getMediaHandler().setLocalVideoTransmissionEnabled(
                                                             localVideoAllowed);
 
+        //set call state to connecting so that the user interface would start
+        //playing the tones. we do that here because we may be harvesting
+        //stun/turn addresses in initiateSession() which would take a while..
+        callPeer.setState( CallPeerState.CONNECTING);
+
         callPeer.initiateSession();
 
         return callPeer;
