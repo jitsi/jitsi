@@ -88,22 +88,12 @@ public class IceUdpTransportManager
             String password = JabberActivator
                 .getProtocolProviderFactory().loadPassword(accID);
 
-            StunCandidateHarvester autoHarvester = null;
+            StunCandidateHarvester autoHarvester = namSer.discoverStunServer(
+                                accID.getService(),
+                                StringUtils.getUTF8Bytes(username),
+                                StringUtils.getUTF8Bytes(password) );
 
-            try
-            {
-                autoHarvester = namSer.discoverStunServer( accID.getService(),
-                                username.getBytes("UTF-8"),
-                                password.getBytes("UTF-8"));
-
-                logger.info("Auto discovered harvester is " + autoHarvester);
-            }
-            catch(UnsupportedEncodingException exc)
-            {
-                //this shouldn't really happen because UTF-8 should always be
-                //supported. anyways, let's just act as if there were no STUN/
-                //TURN record for our domain and leave the harvester to null
-            }
+            logger.info("Auto discovered harvester is " + autoHarvester);
 
             if (autoHarvester != null)
                 agent.addCandidateHarvester(autoHarvester);

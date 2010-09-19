@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.util;
 
+import java.io.*;
 import java.util.logging.*;
 
 /**
@@ -15,8 +16,11 @@ import java.util.logging.*;
  */
 public class Logger
 {
+    /**
+     * The java.util.Logger that would actually be doing the logging.
+     */
     private final java.util.logging.Logger loggerDelegate;
-    
+
     /**
      * Base constructor
      *
@@ -352,5 +356,26 @@ public class Logger
             handler.setLevel(level);
 
         loggerDelegate.setLevel(level);
+    }
+
+    /**
+     * Reinitialize the logging properties and reread the logging configuration.
+     * <p>
+     * The same rules are used for locating the configuration properties
+     * as are used at startup. So if the properties containing the log dir
+     * locations have changed, we would read the new configuration.
+     */
+    public void reset()
+    {
+        try
+        {
+            FileHandler.pattern = null;
+            LogManager.getLogManager().reset();
+            LogManager.getLogManager().readConfiguration();
+        }
+        catch (Exception e)
+        {
+            loggerDelegate.log(Level.INFO, "Failed to reinit logger.", e);
+        }
     }
 }

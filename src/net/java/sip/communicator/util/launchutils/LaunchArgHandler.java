@@ -21,6 +21,9 @@ import net.java.sip.communicator.util.*;
  */
 public class LaunchArgHandler
 {
+    /**
+     * Our class logger.
+     */
      private static final net.java.sip.communicator.util.Logger logger =
         net.java.sip.communicator.util.Logger.getLogger(LaunchArgHandler.class);
 
@@ -120,6 +123,9 @@ public class LaunchArgHandler
      */
     private static LaunchArgHandler argHandler = null;
 
+    /**
+     * The properties where we load version info from our update location.
+     */
     private Properties versionProperties = new Properties();
 
     /**
@@ -293,7 +299,7 @@ public class LaunchArgHandler
     /**
      * Passes <tt>uriArg</tt> to our uri manager for handling.
      *
-     * @param arg the uri that we'd like to pass to
+     * @param uri the uri that we'd like to pass to
      */
     private void handleUri(String uri)
     {
@@ -305,7 +311,7 @@ public class LaunchArgHandler
     /**
      * Instructs SIP Communicator to print logging messages to the console.
      *
-     * @param the debug arg which we are not really using in this method.
+     * @param arg the debug arg which we are not really using in this method.
      */
     private void handleDebugArg(String arg)
     {
@@ -338,8 +344,9 @@ public class LaunchArgHandler
     }
 
     /**
-     * Instructs SIP Communicator to allow for more than a single running
-     * instance.
+     * Instructs SIP Communicator change the location of its home dir.
+     *
+     * @param configArg the arg containing the location of the new dir.
      *
      * @return either ACTION_ERROR or ACTION_CONTINUE depending on whether or
      * not parsing the option went fine.
@@ -365,6 +372,10 @@ public class LaunchArgHandler
 
         System.setProperty(PNAME_SC_HOME_DIR_LOCATION, configDir.getParent());
         System.setProperty(PNAME_SC_HOME_DIR_NAME, configDir.getName());
+
+        //we instantiated our class logger before we had a chance to change
+        //the dir so we need to reset it now.
+        logger.reset();
 
         return ACTION_CONTINUE;
     }
@@ -426,6 +437,8 @@ public class LaunchArgHandler
     }
     /**
      * Prints an error message and then prints the help message.
+     *
+     * @param arg the unknown argument we need to print
      */
     public void handleUnknownArg(String arg)
     {

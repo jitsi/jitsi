@@ -42,9 +42,13 @@ public class FileHandler
      *  %t, %h, %g, %u.
      * Also adds the special component :
      * %s sip-communicator's home directory, typically -
-     * ${net.java.sip.communicator.SC_HOME_DIR_LOCATION}/${net.java.sip.communicator.SC_HOME_DIR_NAME}.
+     * ${net.java.sip.communicator.SC_HOME_DIR_LOCATION}/
+     * ${net.java.sip.communicator.SC_HOME_DIR_NAME}.
+     * <p>
+     * The field is public so that our <tt>Logger</tt> could reset it if
+     * necessary.
      */
-    private static String pattern = null;
+    public static String pattern = null;
 
     /**
      * Initialize a <tt>FileHandler</tt> to write to a set of files.  When
@@ -65,7 +69,7 @@ public class FileHandler
      * @param count  the number of files to use
      * @exception  IOException if there are IO problems opening the files.
      * @exception  SecurityException  if a security manager exists and if
-     *             the caller does not have <tt>LoggingPermission("control")</tt>.
+     * the caller does not have <tt>LoggingPermission("control")</tt>.
      * @exception IllegalArgumentException if limit < 0, or count < 1.
      * @exception  IllegalArgumentException if pattern is an empty string
      */
@@ -82,7 +86,7 @@ public class FileHandler
      * <p>
      * @exception  IOException if there are IO problems opening the files.
      * @exception  SecurityException  if a security manager exists and if
-     *             the caller does not have <tt>LoggingPermission("control"))</tt>.
+     * the caller does not have <tt>LoggingPermission("control"))</tt>.
      * @exception  NullPointerException if pattern property is an empty String.
      */
     public FileHandler()
@@ -101,15 +105,17 @@ public class FileHandler
     {
         if(limit == -1)
         {
-            String limitStr =
-                LogManager.getLogManager().getProperty(FileHandler.class.getName() + ".limit");
+            String limitStr = LogManager.getLogManager().getProperty(
+                            FileHandler.class.getName() + ".limit");
 
             // default value
             limit = 0;
 
-            try {
+            try
+            {
                 limit = Integer.parseInt(limitStr);
-            } catch (Exception ex) {}
+            }
+            catch (Exception ex) {}
         }
 
         return limit;
@@ -129,10 +135,10 @@ public class FileHandler
                 LogManager.getLogManager().getProperty(
                     FileHandler.class.getName() + ".pattern");
 
-            String homeLocation =
-                System.getProperty("net.java.sip.communicator.SC_HOME_DIR_LOCATION");
-            String dirName =
-                System.getProperty("net.java.sip.communicator.SC_HOME_DIR_NAME");
+            String homeLocation = System.getProperty(
+                            "net.java.sip.communicator.SC_HOME_DIR_LOCATION");
+            String dirName = System.getProperty(
+                            "net.java.sip.communicator.SC_HOME_DIR_NAME");
 
             if(homeLocation != null && dirName != null)
             {
@@ -164,15 +170,17 @@ public class FileHandler
     {
         if(count == -1)
         {
-            String countStr =
-                LogManager.getLogManager().getProperty(FileHandler.class.getName() + ".count");
+            String countStr = LogManager.getLogManager().getProperty(
+                            FileHandler.class.getName() + ".count");
 
             // default value
             count = 1;
 
-            try {
+            try
+            {
                 count = Integer.parseInt(countStr);
-            } catch (Exception ex) {}
+            }
+            catch (Exception ex) {}
         }
 
         return count;
@@ -180,7 +188,8 @@ public class FileHandler
 
     /**
      * Creates the directory in the pattern.
-     * @param pattern
+     *
+     * @param pattern the directory we'd like to check.
      */
     private static void checkDestinationDirectory(String pattern)
     {
@@ -191,8 +200,10 @@ public class FileHandler
             if(ix != -1)
             {
                 String dirName = pattern.substring(0, ix);
-                dirName = dirName.replaceAll("%h", System.getProperty("user.home"));
-                dirName = dirName.replaceAll("%t", System.getProperty("java.io.tmpdir"));
+                dirName = dirName.replaceAll(
+                                "%h", System.getProperty("user.home"));
+                dirName = dirName.replaceAll(
+                                "%t", System.getProperty("java.io.tmpdir"));
 
                 new File(dirName).mkdirs();
             }

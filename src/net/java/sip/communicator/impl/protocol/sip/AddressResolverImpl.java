@@ -23,13 +23,26 @@ import net.java.sip.communicator.util.*;
  *
  * @author Damian Minkov
  * @author Alan Kelly
+ * @author Emil Ivov
  */
 public class AddressResolverImpl
     implements AddressResolver
 {
+    /**
+     * Our class logger
+     */
     private static final Logger logger
         = Logger.getLogger(AddressResolverImpl.class);
 
+    /**
+     * Implements the actual resolving. This is where we do the DNS queries.
+     *
+     * @param inputAddress the unresolved <tt>Hop</tt> that we'd need to find
+     * an address for.
+     *
+     * @return the newly created <tt>Hop</tt> containing the resolved
+     * destination.
+     */
     public Hop resolveAddress(Hop inputAddress)
     {
         try
@@ -47,12 +60,12 @@ public class AddressResolverImpl
             {
                 byte[] addr = null;
 
-                addr = IPAddressUtil.textToNumericFormatV4(hostAddress);
+                addr = NetworkUtils.strToIPv4(hostAddress);
 
                 // not an IPv4, try IPv6
                 if (addr == null)
                 {
-                    addr = IPAddressUtil.textToNumericFormatV6(hostAddress);
+                    addr = NetworkUtils.strToIPv6(hostAddress);
                 }
 
                 host = new InetSocketAddress(

@@ -23,16 +23,24 @@ import org.apache.felix.main.*;
  */
 public class SIPCommunicator
 {
+    /**
+     * The name of the property that stores our home dir location.
+     */
     public static final String PNAME_SC_HOME_DIR_LOCATION =
             "net.java.sip.communicator.SC_HOME_DIR_LOCATION";
 
+    /**
+     * The name of the property that stores our home dir name.
+     */
     public static final String PNAME_SC_HOME_DIR_NAME =
             "net.java.sip.communicator.SC_HOME_DIR_NAME";
 
     /**
      * Starts the SIP Communicator.
      *
-     * @param args
+     * @param args command line args if any
+     *
+     * @throws Exception whenever it makes sense.
      */
     public static void main(String[] args)
         throws Exception
@@ -48,7 +56,7 @@ public class SIPCommunicator
          */
         setScHomeDir(osName);
 
-        if (version.startsWith("1.4") || vmVendor.startsWith("Gnu") || 
+        if (version.startsWith("1.4") || vmVendor.startsWith("Gnu") ||
                 vmVendor.startsWith("Free"))
         {
             String os = "";

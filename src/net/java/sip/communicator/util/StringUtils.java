@@ -12,6 +12,7 @@ import java.io.*;
  * Utility class that helps to work with <tt>String</tt> class.
  *
  * @author Grigorii Balutsel
+ * @author Emil Ivov
  */
 public final class StringUtils
 {
@@ -28,7 +29,7 @@ public final class StringUtils
      * with spaces between the words).
      *
      * @param camelCase a camel-case (or Pascal-case) formatted <tt>String</tt>
-     * from which a human-readable <tt>String</tt> is to be constructed 
+     * from which a human-readable <tt>String</tt> is to be constructed
      * @return a <tt>String</tt> which represents the conversion of the specified
      * camel-case formatted <tt>String</tt> to a more human-readable form
      */
@@ -64,10 +65,10 @@ public final class StringUtils
     }
 
     /**
-     * Indicates whether string is null or empty.
+     * Indicates whether string is <tt>null</tt> or empty.
      *
      * @param s the string to analyze.
-     * @return true if string is null or empty.
+     * @return true if string is <tt>null</tt> or empty.
      */
     public static boolean isNullOrEmpty(String s)
     {
@@ -75,11 +76,11 @@ public final class StringUtils
     }
 
     /**
-     * Indicates whether string is null or empty.
+     * Indicates whether string is <tt>null</tt> or empty.
      *
      * @param s    the string to analyze.
      * @param trim indicates whether to trim the string.
-     * @return true if string is null or empty.
+     * @return true if string is <tt>null</tt> or empty.
      */
     public static boolean isNullOrEmpty(String s, boolean trim)
     {
@@ -128,5 +129,50 @@ public final class StringUtils
     {
         byte[] bytes = string.getBytes(encoding);
         return new ByteArrayInputStream(bytes);
+    }
+
+    /**
+     * Returns the UTF8 bytes for <tt>string</tt> and handles the unlikely case
+     * where UTF-8 is not supported.
+     *
+     * @param string the <tt>String</tt> whose bytes we'd like to obtain.
+     *
+     * @return <tt>string</tt>'s bytes.
+     */
+    public static byte[] getUTF8Bytes(String string)
+    {
+        try
+        {
+            return string.getBytes("UTF-8");
+        }
+        catch(UnsupportedEncodingException exc)
+        {
+            // shouldn't happen. UTF-8 is always supported, anyways ... if
+            //this happens, we'll cheat
+            return string.getBytes();
+        }
+    }
+
+    /**
+     * Converts <tt>string</tt> into an UTF8 <tt>String</tt> and handles the
+     * unlikely case where UTF-8 is not supported.
+     *
+     * @param bytes the <tt>byte</tt> array that we'd like to convert into a
+     * <tt>String</tt>.
+     *
+     * @return the UTF-8 <tt>String</tt>.
+     */
+    public static String getUTF8String(byte[] bytes)
+    {
+        try
+        {
+            return new String(bytes, "UTF-8");
+        }
+        catch(UnsupportedEncodingException exc)
+        {
+            // shouldn't happen. UTF-8 is always supported, anyways ... if
+            //this happens, we'll cheat
+            return new String(bytes);
+        }
     }
 }

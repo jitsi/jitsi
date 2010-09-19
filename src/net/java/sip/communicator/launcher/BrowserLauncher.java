@@ -13,28 +13,46 @@ import net.java.sip.communicator.util.*;
 /**
  * A simple implementation of the BrowserLauncherService. Checks the operating
  * system and launches the appropriate browser.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class BrowserLauncher
 {
+    /**
+     * Creates a <tt>LaunchBrowser</tt> thread for the specified <tt>url</tt>.
+     *
+     * @param url the url we'd like to launch a browser for.
+     */
     public void openURL(String url)
     {
         new LaunchBrowser(url).start();
     }
-    
+
     /**
      * Launch browser in a separate thread.
      */
     private static class LaunchBrowser extends Thread
     {
+        /**
+         * The URL we'd be launching a browser for.
+         */
         private final String url;
-        
+
+        /**
+         * Creates a new instance.
+         *
+         * @param url the url we'd like to launch a browser for.
+         */
         public LaunchBrowser(String url)
         {
             this.url = url;
         }
-        
+
+        /**
+         * On mac, asks FileManager to open the the url, on Windows uses
+         * FileProtocolHandler to do so, on Linux, loops through a list of
+         * known browsers until we find one that seems to work.
+         */
         public void run()
         {
             try
@@ -51,11 +69,11 @@ public class BrowserLauncher
                 else
                 {
                    /* Linux and other Unix systems */
-                   String[] browsers = {"firefox", "iceweasel", "opera", "konqueror",
-                       "epiphany", "mozilla", "netscape" };
-                   
+                   String[] browsers = {"firefox", "iceweasel", "opera",
+                             "konqueror", "epiphany", "mozilla", "netscape" };
+
                    String browser = null;
-                   
+
                    for (int i = 0; i < browsers.length && browser == null; i ++)
                    {
                       if (Runtime.getRuntime().exec(

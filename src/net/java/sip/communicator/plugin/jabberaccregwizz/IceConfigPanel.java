@@ -115,9 +115,9 @@ public class IceConfigPanel
                                     stunServer.getAddress(),
                                     stunServer.getPort(),
                                     stunServer.isTurnSupported(),
-                                    StunServerDescriptor.getUTF8String(
+                                    StringUtils.getUTF8String(
                                                     stunServer.getUsername()),
-                                    StunServerDescriptor.getUTF8String(
+                                    StringUtils.getUTF8String(
                                                     stunServer.getPassword()));
 
                     dialog.setVisible(true);

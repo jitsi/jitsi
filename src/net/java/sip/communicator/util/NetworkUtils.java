@@ -8,6 +8,7 @@ package net.java.sip.communicator.util;
 
 import java.net.*;
 import java.util.*;
+
 import org.xbill.DNS.*;
 import java.text.*;
 
@@ -43,12 +44,28 @@ public class NetworkUtils
     public static final String IN_ADDR_ANY = determineAnyAddress();
 
     /**
-     * The maximum int value that could correspond to a port nubmer.
+     * The length of IPv6 addresses.
+     */
+    private final static int IN6_ADDR_SIZE = 16;
+
+    /**
+     * The size of the tokens in a <tt>String</tt> representation of IPv6
+     * addresses.
+     */
+    private final static int IN6_ADDR_TOKEN_SIZE = 2;
+
+    /**
+     * The length of IPv4 addresses.
+     */
+    private final static int IN4_ADDR_SIZE = 4;
+
+    /**
+     * The maximum int value that could correspond to a port number.
      */
     public static final int    MAX_PORT_NUMBER = 65535;
 
     /**
-     * The minimum int value that could correspond to a port nubmer bindable
+     * The minimum int value that could correspond to a port number bindable
      * by the SIP Communicator.
      */
     public static final int    MIN_PORT_NUMBER = 1024;
@@ -161,7 +178,7 @@ public class NetworkUtils
      */
     public static boolean isIPv4Address(String address)
     {
-        return IPAddressUtil.isIPv4LiteralAddress(address);
+        return strToIPv4(address) != null;
     }
 
     /**
@@ -174,7 +191,7 @@ public class NetworkUtils
      */
     public static boolean isIPv6Address(String address)
     {
-        return IPAddressUtil.isIPv6LiteralAddress(address);
+        return strToIPv6(address) != null;
     }
 
     /**
@@ -195,7 +212,7 @@ public class NetworkUtils
         boolean ipv6Expected = false;
         if (address.charAt(0) == '[')
         {
-            // This is supposed to be an IPv6 litteral
+            // This is supposed to be an IPv6 literal
             if (address.length() > 2
                             && address.charAt(address.length() - 1) == ']')
             {
@@ -216,11 +233,11 @@ public class NetworkUtils
             byte[] addr = null;
 
             // see if it is IPv4 address
-            addr = IPAddressUtil.textToNumericFormatV4(address);
+            addr = strToIPv4(address);
             // if not, see if it is IPv6 address
             if (addr == null)
             {
-                addr = IPAddressUtil.textToNumericFormatV6(address);
+                addr = strToIPv6(address);
             }
             // if IPv4 is found when IPv6 is expected
             else if (ipv6Expected)
@@ -237,6 +254,256 @@ public class NetworkUtils
         }
         // no matches found
         return false;
+    }
+
+    /**
+     * Creates a byte array containing the specified <tt>ipv4AddStr</tt>.
+     *
+     * @param ipv4AddrStr a <tt>String</tt> containing an IPv4 address.
+     *
+     * @return a byte array containing the four bytes of the address represented
+     * by ipv4AddrStr or <tt>null</tt> if <tt>ipv4AddrStr</tt> does not contain
+     * a valid IPv4 address string.
+     */
+    public static byte[] strToIPv4(String ipv4AddrStr)
+    {
+        if (ipv4AddrStr.length() == 0)
+            return null;
+
+        byte[] address = new byte[IN4_ADDR_SIZE];
+        String[] tokens = ipv4AddrStr.split("\\.", -1);
+        long currentTkn;
+        try
+        {
+            switch(tokens.length)
+            {
+                case 1:
+                    //If the address was specified as a single String we can
+                    //directly copy it into the byte array.
+                   currentTkn = Long.parseLong(tokens[0]);
+                   if (currentTkn < 0 || currentTkn > 0xffffffffL)
+                       return null;
+                   address[0] = (byte) ((currentTkn >> 24) & 0xff);
+                   address[1] = (byte) (((currentTkn & 0xffffff) >> 16) & 0xff);
+                   address[2] = (byte) (((currentTkn & 0xffff) >> 8) & 0xff);
+                   address[3] = (byte) (currentTkn & 0xff);
+                   break;
+                case 2:
+                    // If the address was passed in two parts (e.g. when dealing
+                    // with a Class A address representation), we place the
+                    // first one in the leftmost byte and the rest in the three
+                    // remaining bytes of the address array.
+                    currentTkn = Integer.parseInt(tokens[0]);
+
+                    if (currentTkn < 0 || currentTkn > 0xff)
+                        return null;
+
+                    address[0] = (byte) (currentTkn & 0xff);
+                    currentTkn = Integer.parseInt(tokens[1]);
+
+                    if (currentTkn < 0 || currentTkn > 0xffffff)
+                        return null;
+
+                    address[1] = (byte) ((currentTkn >> 16) & 0xff);
+                    address[2] = (byte) (((currentTkn & 0xffff) >> 8) &0xff);
+                    address[3] = (byte) (currentTkn & 0xff);
+                    break;
+                case 3:
+                    // If the address was passed in three parts (e.g. when
+                    // dealing with a Class B address representation), we place
+                    // the first two parts in the two leftmost bytes and the
+                    // rest in the two remaining bytes of the address array.
+                    for (int i = 0; i < 2; i++)
+                    {
+                        currentTkn = Integer.parseInt(tokens[i]);
+
+                        if (currentTkn < 0 || currentTkn > 0xff)
+                            return null;
+
+                        address[i] = (byte) (currentTkn & 0xff);
+                    }
+
+                    currentTkn = Integer.parseInt(tokens[2]);
+
+                    if (currentTkn < 0 || currentTkn > 0xffff)
+                        return null;
+
+                    address[2] = (byte) ((currentTkn >> 8) & 0xff);
+                    address[3] = (byte) (currentTkn & 0xff);
+                    break;
+                case 4:
+                    // And now for the most common - four part case. This time
+                    // there's a byte for every part :). Yuppiee! :)
+                    for (int i = 0; i < 4; i++)
+                    {
+                        currentTkn = Integer.parseInt(tokens[i]);
+
+                        if (currentTkn < 0 || currentTkn > 0xff)
+                            return null;
+
+                        address[i] = (byte) (currentTkn & 0xff);
+                    }
+                    break;
+                default:
+                    return null;
+            }
+        }
+        catch(NumberFormatException e)
+        {
+            return null;
+        }
+
+        return address;
+    }
+
+    /**
+     * Creates a byte array containing the specified <tt>ipv6AddStr</tt>.
+     *
+     * @param ipv6AddrStr a <tt>String</tt> containing an IPv6 address.
+     *
+     * @return a byte array containing the four bytes of the address represented
+     * by <tt>ipv6AddrStr</tt> or <tt>null</tt> if <tt>ipv6AddrStr</tt> does
+     * not contain a valid IPv6 address string.
+     */
+    public static byte[] strToIPv6(String ipv6AddrStr)
+    {
+        // Bail out if the string is shorter than "::"
+        if (ipv6AddrStr.length() < 2)
+            return null;
+
+        int colonIndex;
+        char currentChar;
+        boolean sawtDigit;
+        int currentTkn;
+        char[] addrBuff = ipv6AddrStr.toCharArray();
+        byte[] dst = new byte[IN6_ADDR_SIZE];
+
+        int srcb_length = addrBuff.length;
+        int scopeID = ipv6AddrStr.indexOf ("%");
+
+        if (scopeID == srcb_length -1)
+            return null;
+
+        if (scopeID != -1)
+            srcb_length = scopeID;
+
+        colonIndex = -1;
+        int i = 0, j = 0;
+        // Starting : mean we need to have at least one more.
+        if (addrBuff[i] == ':')
+            if (addrBuff[++i] != ':')
+                return null;
+
+        int curtok = i;
+        sawtDigit = false;
+        currentTkn = 0;
+        while (i < srcb_length)
+        {
+            currentChar = addrBuff[i++];
+            int chval = Character.digit(currentChar, 16);
+            if (chval != -1)
+            {
+                currentTkn <<= 4;
+                currentTkn |= chval;
+                if (currentTkn > 0xffff)
+                    return null;
+                sawtDigit = true;
+                continue;
+            }
+
+            if (currentChar == ':')
+            {
+                curtok = i;
+
+                if (!sawtDigit)
+                {
+                    if (colonIndex != -1)
+                        return null;
+                    colonIndex = j;
+                    continue;
+                }
+                else if (i == srcb_length)
+                {
+                    return null;
+                }
+
+                if (j + IN6_ADDR_TOKEN_SIZE > IN6_ADDR_SIZE)
+                    return null;
+
+                dst[j++] = (byte) ((currentTkn >> 8) & 0xff);
+                dst[j++] = (byte) (currentTkn & 0xff);
+                sawtDigit = false;
+                currentTkn = 0;
+                continue;
+            }
+
+            if (currentChar == '.' && ((j + IN4_ADDR_SIZE) <= IN6_ADDR_SIZE))
+            {
+                String ia4 = ipv6AddrStr.substring(curtok, srcb_length);
+                // check this IPv4 address has 3 dots, ie. A.B.C.D
+                int dot_count = 0, index=0;
+                while ((index = ia4.indexOf ('.', index)) != -1)
+                {
+                    dot_count ++;
+                    index ++;
+                }
+
+                if (dot_count != 3)
+                    return null;
+
+                byte[] v4addr = strToIPv4(ia4);
+                if (v4addr == null)
+                    return null;
+
+                for (int k = 0; k < IN4_ADDR_SIZE; k++)
+                {
+                    dst[j++] = v4addr[k];
+                }
+
+                sawtDigit = false;
+                break;  /* '\0' was seen by inet_pton4(). */
+            }
+            return null;
+        }
+
+        if (sawtDigit)
+        {
+            if (j + IN6_ADDR_TOKEN_SIZE > IN6_ADDR_SIZE)
+                return null;
+
+            dst[j++] = (byte) ((currentTkn >> 8) & 0xff);
+            dst[j++] = (byte) (currentTkn & 0xff);
+        }
+
+        if (colonIndex != -1)
+        {
+            int n = j - colonIndex;
+
+            if (j == IN6_ADDR_SIZE)
+                return null;
+
+            for (i = 1; i <= n; i++)
+            {
+                dst[IN6_ADDR_SIZE - i] = dst[colonIndex + n - i];
+                dst[colonIndex + n - i] = 0;
+            }
+
+            j = IN6_ADDR_SIZE;
+        }
+
+        if (j != IN6_ADDR_SIZE)
+            return null;
+
+        byte[] newdst = mappedIPv4ToRealIPv4(dst);
+
+        if (newdst != null)
+        {
+            return newdst;
+        }
+        else
+        {
+            return dst;
+        }
     }
 
     /**
@@ -419,12 +686,12 @@ public class NetworkUtils
             byte[] addr = null;
 
             // attempt parse as IPv4 address
-            addr = IPAddressUtil.textToNumericFormatV4(hostAddress);
+            addr = strToIPv4(hostAddress);
 
             // if not IPv4, parse as IPv6 address
             if (addr == null)
             {
-                addr = IPAddressUtil.textToNumericFormatV6(hostAddress);
+                addr = strToIPv6(hostAddress);
             }
             return InetAddress.getByAddress(hostAddress, addr);
         }
@@ -562,6 +829,57 @@ public class NetworkUtils
     public static boolean isValidPortNumber(int port)
     {
         return MIN_PORT_NUMBER < port && port < MAX_PORT_NUMBER;
+    }
 
+    /**
+     * Returns an IPv4 address matching the one mapped in the IPv6
+     * <tt>addr</tt>. Both input and returned value are in network order.
+     *
+     * @param addr a String representing an IPv4-Mapped address in textual
+     * format
+     *
+     * @return a byte array numerically representing the IPv4 address
+     */
+    public static byte[] mappedIPv4ToRealIPv4(byte[] addr)
+    {
+        if (isMappedIPv4Addr(addr))
+        {
+            byte[] newAddr = new byte[IN4_ADDR_SIZE];
+            System.arraycopy(addr, 12, newAddr, 0, IN6_ADDR_SIZE);
+            return newAddr;
+        }
+
+        return null;
+    }
+
+    /**
+     * Utility method to check if the specified <tt>address</tt> is an IPv4
+     * mapped IPv6 address.
+     *
+     * @param address the address that we'd like to determine as an IPv4 mapped
+     * one or not.
+     *
+     * @return <tt>true</tt> if address is an IPv4 mapped IPv6 address and
+     * <tt>false</tt> otherwise.
+     */
+    private static boolean isMappedIPv4Addr(byte[] address)
+    {
+        if (address.length < IN6_ADDR_SIZE)
+        {
+            return false;
+        }
+
+        if ((address[0] == 0x00) && (address[1] == 0x00)
+            && (address[2] == 0x00) && (address[3] == 0x00)
+            && (address[4] == 0x00) && (address[5] == 0x00)
+            && (address[6] == 0x00) && (address[7] == 0x00)
+            && (address[8] == 0x00) && (address[9] == 0x00)
+            && (address[10] == (byte)0xff)
+            && (address[11] == (byte)0xff))
+        {
+            return true;
+        }
+
+        return false;
     }
 }
