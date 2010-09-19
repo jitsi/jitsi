@@ -13,4 +13,5 @@ Export-Package: net.java.sip.communicator.service.netaddr,
  net.java.sip.communicator.service.netaddr.event,
  org.ice4j,
  org.ice4j.ice,
- org.ice4j.ice.harvest
+ org.ice4j.ice.harvest,
+ org.ice4j.security
