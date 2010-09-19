@@ -8,8 +8,6 @@ import junit.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.util.*;
-import net.java.stun4j.*;
-import net.java.stun4j.client.*;
 
 /**
  * Tests basic Network Address Manager Service behaviour.
@@ -584,32 +582,6 @@ public class TestNetworkAddressManagerService extends TestCase {
     {
         return (add.getAddress()[0] & 0xFF) == 169
             && (add.getAddress()[1] & 0xFF) == 254;
-    }
-
-    /**
-     * return an ipv4 address get by stun
-     * @return an inet address
-     */
-    private InetAddress getStunAddress()
-    {
-        try
-        {
-            String valuePropertyStunName="stun01.sipphone.com";
-            Integer propertieStunPort=new Integer(3478);
-            SimpleAddressDetector detector = null;
-            detector =new SimpleAddressDetector(new StunAddress(
-                            valuePropertyStunName,propertieStunPort.intValue()));
-            detector.start();
-            InetAddress mappedAddress =
-                    detector.getMappingFor(1024).getSocketAddress().getAddress();
-            return mappedAddress;
-        }
-        catch(Exception ex)
-        {
-            logger.error("Can't get Stun Address : " + ex );
-        }
-        return null;
-
     }
 
     private void initProperties()
