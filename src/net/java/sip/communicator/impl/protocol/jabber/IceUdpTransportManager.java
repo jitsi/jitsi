@@ -8,14 +8,14 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import org.ice4j.ice.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-//resolves ambiguity with ice4j's CandidateType
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.CandidateType;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.ice4j.ice.*;
+import org.ice4j.ice.harvest.*;
 
 /**
  * A {@link TransportManagerJabberImpl} implementation that would use ICE for
@@ -33,6 +33,12 @@ public class IceUdpTransportManager
     private List<ContentPacketExtension> cpeList;
 
     /**
+     * The ICE agent that this transport manager would be using for ICE
+     * negotiation.
+     */
+    private final Agent iceAgent;
+
+    /**
      * Creates a new instance of this transport manager, binding it to the
      * specified peer.
      *
@@ -42,6 +48,49 @@ public class IceUdpTransportManager
     protected IceUdpTransportManager(CallPeerJabberImpl callPeer)
     {
         super(callPeer);
+
+        iceAgent = createIceAgent();
+    }
+
+    /**
+     * Creates the ICE agent that we would be using in this transport manager
+     * for all negotiation.
+     *
+     * @return the ICE agent to use for all the ICE negotiation that this
+     * transport manager would be going through
+     */
+    private Agent createIceAgent()
+    {
+        ProtocolProviderServiceJabberImpl provider
+                = getCallPeer().getProtocolProvider();
+        NetworkAddressManagerService namSer
+                = JabberActivator.getNetworkAddressManagerService();
+
+        Agent agent = namSer.createIceAgent();
+
+        //we will now create the harvesters
+        JabberAccountID accID = (JabberAccountID)provider.getAccountID();
+
+        List<StunServerDescriptor> stunServers
+            = new ArrayList<StunServerDescriptor>();
+        if (accID.isStunServerDiscoveryEnabled())
+        {
+            //the default server is supposed to use the same user name and
+            //password as the account itself.
+            String username = provider.getOurJID();
+            String password = JabberActivator
+                .getProtocolProviderFactory().loadPassword(accID);
+
+            StunCandidateHarvester autoHarvester
+                = namSer.discoverStunServer(
+                    accID.getService(), username.getBytes("UTF-8"), password.getBytes("UTF-8"));
+
+        }
+
+        List<StunServerDescriptor> additionalStunServers
+            = accID.getStunServers();
+
+        return agent;
     }
 
     /**
@@ -63,9 +112,6 @@ public class IceUdpTransportManager
                                       List<ContentPacketExtension> ourAnswer)
         throws OperationFailedException
     {
-        Agent agent = JabberActivator
-                        .getNetworkAddressManagerService().createIceAgent();
-
         for(ContentPacketExtension content : theirOffer)
         {
             RtpDescriptionPacketExtension rtpDesc
@@ -75,7 +121,7 @@ public class IceUdpTransportManager
             StreamConnector connector = getStreamConnector(
                             MediaType.parseString( rtpDesc.getMedia()));
 
-            RawUdpTransportPacketExtension ourTransport
+            IceUdpTransportPacketExtension ourTransport
                                         = createTransport(connector);
 
             //now add our transport to our answer
@@ -117,7 +163,7 @@ public class IceUdpTransportManager
             StreamConnector connector = getStreamConnector(
                             MediaType.parseString( rtpDesc.getMedia()));
 
-            RawUdpTransportPacketExtension ourTransport
+            IceUdpTransportPacketExtension ourTransport
                                         = createTransport(connector);
 
             //now add our transport to our answer
@@ -130,7 +176,7 @@ public class IceUdpTransportManager
     }
 
     /**
-     * Creates a raw udp transport element according to the specified stream
+     * Creates an ICE UDP transport element according to the specified stream
      * <tt>connector</tt>
      *
      * @param connector the connector that we'd like to describe within the
@@ -139,11 +185,15 @@ public class IceUdpTransportManager
      * @return a {@link RawUdpTransportPacketExtension} containing the RTP and
      * RTCP candidates of the specified {@link StreamConnector}.
      */
-    private RawUdpTransportPacketExtension createTransport(
+    private IceUdpTransportPacketExtension createTransport(
                                                 StreamConnector connector)
     {
         RawUdpTransportPacketExtension ourTransport
             = new RawUdpTransportPacketExtension();
+
+
+
+
 
         // create and add candidates that correspond to the stream connector
         // rtp

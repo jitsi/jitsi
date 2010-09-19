@@ -7,9 +7,11 @@
 package net.java.sip.communicator.service.netaddr;
 
 import java.net.*;
+import java.text.*;
 import java.io.*;
 
 import org.ice4j.ice.*;
+import org.ice4j.ice.harvest.*;
 
 import net.java.sip.communicator.service.netaddr.event.*;
 
@@ -146,4 +148,27 @@ public interface NetworkAddressManagerService
       * @return the newly created ICE Agent.
       */
      public Agent createIceAgent();
+
+     /**
+      * Tries to discover a TURN or a STUN server for the specified
+      * <tt>domainName</tt>. The method would first try to discover a TURN
+      * server and then fall back to STUN only. In both cases we would only care
+      * about a UDP transport.
+      *
+      * @param domainName the domain name that we are trying to discover a
+      * TURN server for.
+      * @param userName the name of the user we'd like to use when connecting to
+      * a TURN server (we won't be using credentials in case we only have a STUN
+      * server).
+      * @param password the password that we'd like to try when connecting to
+      * a TURN server (we won't be using credentials in case we only have a STUN
+      * server).
+      *
+      * @return A {@link StunCandidateHarvester} corresponding to the TURN or
+      * STUN server we discovered or <tt>null</tt> if there were no such records
+      * for the specified <tt>domainName</tt>
+      */
+     public StunCandidateHarvester discoverStunServer(String domainName,
+                                                      byte[] userName,
+                                                      byte[] password);
 }

@@ -9,12 +9,14 @@ package net.java.sip.communicator.impl.netaddr;
 import java.beans.*;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.*;
 import java.text.*;
 import java.util.*;
 
 import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
+import org.ice4j.security.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.netaddr.*;
@@ -530,30 +532,47 @@ public class NetworkAddressManagerServiceImpl
       *
       * @param domainName the domain name that we are trying to discover a
       * TURN server for.
+      * @param userName the name of the user we'd like to use when connecting to
+      * a TURN server (we won't be using credentials in case we only have a STUN
+      * server).
+      * @param password the password that we'd like to try when connecting to
+      * a TURN server (we won't be using credentials in case we only have a STUN
+      * server).
       *
       * @return A {@link StunCandidateHarvester} corresponding to the TURN or
       * STUN server we discovered or <tt>null</tt> if there were no such records
       * for the specified <tt>domainName</tt>
-      *
-      * @throws ParseException in case there's an issue with the domain name.
       */
-     public StunCandidateHarvester discoverStunServer(String domainName)
-         throws ParseException
+     public StunCandidateHarvester discoverStunServer(String domainName,
+                                                      byte[] userName,
+                                                      byte[] password)
      {
-         InetSocketAddress srvrAddress = NetworkUtils.getSRVRecord(
-                         TURN_SRV_NAME, Transport.UDP.toString(), domainName);
+         InetSocketAddress srvrAddress;
 
-         if(srvrAddress != null)
+         try
          {
-             //yay! we seem to have a TURN server, so we'll be using it for both
-             //TURN and STUN harvesting.
-             return new TurnCandidateHarvester(
-                             new TransportAddress(srvrAddress, Transport.UDP));
-         }
+             srvrAddress = NetworkUtils.getSRVRecord(
+                              TURN_SRV_NAME, Transport.UDP.toString(), domainName);
 
-         //srvrAddres was null. try for a STUN only server.
-         srvrAddress = NetworkUtils.getSRVRecord(
-             STUN_SRV_NAME, Transport.UDP.toString(), domainName);
+
+             if(srvrAddress != null)
+             {
+                 //yay! we seem to have a TURN server, so we'll be using it for both
+                 //TURN and STUN harvesting.
+                 return new TurnCandidateHarvester(
+                             new TransportAddress(srvrAddress, Transport.UDP),
+                             new LongTermCredential(userName, password));
+             }
+
+             //srvrAddres was null. try for a STUN only server.
+             srvrAddress = NetworkUtils.getSRVRecord(
+                         STUN_SRV_NAME, Transport.UDP.toString(), domainName);
+         }
+         catch (ParseException e)
+         {
+             logger.info(domainName + " seems to be causing parse problems", e);
+             srvrAddress = null;
+         }
 
          if(srvrAddress != null)
          {
