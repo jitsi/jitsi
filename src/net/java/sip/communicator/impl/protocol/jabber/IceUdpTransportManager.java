@@ -7,15 +7,18 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.io.*;
+import java.net.*;
 import java.nio.charset.*;
 import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.CandidateType;
+import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 import org.ice4j.*;
 import org.ice4j.ice.*;
@@ -31,6 +34,13 @@ import org.ice4j.security.*;
 public class IceUdpTransportManager
     extends TransportManagerJabberImpl
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>IceUdpTransportManager</tt>
+     * class and its instances for logging output.
+     */
+    private static final Logger logger = Logger
+                    .getLogger(IceUdpTransportManager.class.getName());
+
     /**
      * This is where we keep our answer between the time we get the offer and
      * are ready with the answer;
@@ -68,8 +78,7 @@ public class IceUdpTransportManager
     {
         ProtocolProviderServiceJabberImpl provider
                 = getCallPeer().getProtocolProvider();
-        NetworkAddressManagerService namSer
-                = JabberActivator.getNetworkAddressManagerService();
+        NetworkAddressManagerService namSer = getNetAddrMgr();
 
         Agent agent = namSer.createIceAgent();
 
@@ -190,16 +199,49 @@ public class IceUdpTransportManager
                 = (RtpDescriptionPacketExtension)content
                     .getFirstChildOfType(RtpDescriptionPacketExtension.class);
 
-            IceMediaStream stream =  content.getName()
+            IceMediaStream stream;
+            try
+            {
+                //the following call involves STUN calls so it may take a while.
+                stream = getNetAddrMgr().createIceStream(
+                            nextMediaPortToTry, rtpDesc.getMedia(), iceAgent);
+            }
+            catch (Exception exc)
+            {
+                throw new OperationFailedException(
+                        "Failed to initialize stream " + rtpDesc.getMedia(),
+                        OperationFailedException.INTERNAL_ERROR);
+            }
 
+            //let's now update the next port var as best we can: we would assume
+            //that all local candidates are bound on the same port and set it
+            //to the one just above. if the assumption is wrong the next bind
+            //would simply include one more bind retry.
+            try
+            {
+                nextMediaPortToTry = stream.getComponent(Component.RTCP)
+                    .getLocalCandidates().get(0)
+                        .getTransportAddress().getPort() + 1;
+            }
+            catch(Throwable t)
+            {
+                //hey, we were just trying to be nice. if that didn't work for
+                //some reason we really can't be held responsible!
+                logger.debug("Determining next port didn't work: ", t);
+            }
 
+            //we now generate the XMPP code containing the candidates.
+            content.addChildExtension(JingleUtils.createTransport(stream));
         }
+
         this.cpeList = ourOffer;
     }
 
+
+
     /**
      * Simply returns the list of local candidates that we gathered during the
-     * harvest. This is a raw udp transport manager so there's no real wraping
+     * harvest. This is a raw udp transport manager so there's no real wrapping
      * up to do.
      *
      * @return the list of local candidates that we gathered during the
@@ -231,5 +273,18 @@ public class IceUdpTransportManager
         }
 
         return null;
+    }
+
+    /**
+     * Returns a reference to the {@link NetworkAddressManagerService}. The only
+     * reason this method exists is that {@link JabberActivator
+     * #getNetworkAddressManagerService()} is too long to write and makes code
+     * look clumsy.
+     *
+     * @return  a reference to the {@link NetworkAddressManagerService}.
+     */
+    private static NetworkAddressManagerService getNetAddrMgr()
+    {
+        return JabberActivator.getNetworkAddressManagerService();
     }
 }

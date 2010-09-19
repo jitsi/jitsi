@@ -45,7 +45,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * The port that we should try to bind our next media stream's RTP socket
      * to.
      */
-    private static int nextMediaPortToTry = minMediaPort;
+    protected static int nextMediaPortToTry = minMediaPort;
 
     /**
      * The RTP/RTCP socket couple that this media handler should use to send

@@ -111,12 +111,14 @@ public class IceConfigPanel
 
                 if (stunServer != null)
                 {
-                    StunConfigDialog dialog
-                        = new StunConfigDialog( stunServer.getAddress(),
-                                                stunServer.getPort(),
-                                                stunServer.isTurnSupported(),
-                                                stunServer.getUsername(),
-                                                stunServer.getPassword());
+                    StunConfigDialog dialog = new StunConfigDialog(
+                                    stunServer.getAddress(),
+                                    stunServer.getPort(),
+                                    stunServer.isTurnSupported(),
+                                    StunServerDescriptor.getUTF8String(
+                                                    stunServer.getUsername()),
+                                    StunServerDescriptor.getUTF8String(
+                                                    stunServer.getPassword()));
 
                     dialog.setVisible(true);
                 }
@@ -212,7 +214,7 @@ public class IceConfigPanel
                                 int     port,
                                 boolean isSupportTurn,
                                 String  username,
-                                char[]  password)
+                                String  password)
         {
             this();
 
@@ -220,7 +222,7 @@ public class IceConfigPanel
             portField.setText(Integer.toString( port ));
             supportTurnCheckBox.setSelected(isSupportTurn);
             usernameField.setText(username);
-            passwordField.setText(password.toString());
+            passwordField.setText(password);
         }
 
         /**
@@ -304,7 +306,7 @@ public class IceConfigPanel
 
                     StunServerDescriptor stunServer = new StunServerDescriptor(
                         address, port, supportTurnCheckBox.isSelected(),
-                        username, password);
+                        username, new String( password ));
 
                     addStunServer(stunServer);
 

@@ -603,9 +603,9 @@ public class NetworkAddressManagerServiceImpl
       * @throws BindException if we couldn't find a free port between within the
       * default number of retries.
       */
-     public static IceMediaStream createStream( int    rtpPort,
-                                                String streamName,
-                                                Agent  agent)
+     public IceMediaStream createIceStream( int    rtpPort,
+                                            String streamName,
+                                            Agent  agent)
          throws IllegalArgumentException,
                 IOException,
                 BindException

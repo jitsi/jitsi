@@ -71,7 +71,7 @@ public class CallPeerMediaHandlerJabberImpl
     {
         super(peer, peer);
 
-        transportManager = new RawUdpTransportManager(peer);
+        transportManager = new IceUdpTransportManager(peer);
     }
 
     /**

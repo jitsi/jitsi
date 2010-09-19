@@ -67,14 +67,14 @@ public class StunServerDescriptor
     public StunServerDescriptor( String  address,
                                  int     port,
                                  boolean supportTurn,
-                                 byte[]  username,
-                                 byte[]  password)
+                                 String  username,
+                                 String  password)
     {
         this.address = address;
         this.port = port;
         this.isTurnSupported = supportTurn;
-        this.username = username;
-        this.password = password;
+        this.username = getUTF8Bytes( username );
+        this.password = getUTF8Bytes( password );
     }
 
     /**
@@ -260,8 +260,8 @@ public class StunServerDescriptor
                   new StunServerDescriptor( stunAddress,
                                             stunPort,
                                             stunIsTurnSupported,
-                                            getUTF8Bytes(stunUsername),
-                                            getUTF8Bytes(stunPassword));
+                                            stunUsername,
+                                            stunPassword);
 
         return stunServer;
     }
@@ -274,7 +274,7 @@ public class StunServerDescriptor
      *
      * @return <tt>string</tt>'s bytes.
      */
-    private static byte[] getUTF8Bytes(String string)
+    public static byte[] getUTF8Bytes(String string)
     {
         try
         {
@@ -297,7 +297,7 @@ public class StunServerDescriptor
      *
      * @return the UTF-8 <tt>String</tt>.
      */
-    private static String getUTF8String(byte[] bytes)
+    public static String getUTF8String(byte[] bytes)
     {
         try
         {
