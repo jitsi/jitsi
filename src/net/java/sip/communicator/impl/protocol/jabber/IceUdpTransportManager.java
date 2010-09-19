@@ -190,7 +190,7 @@ public class IceUdpTransportManager
                 = (RtpDescriptionPacketExtension)content
                     .getFirstChildOfType(RtpDescriptionPacketExtension.class);
 
-            content.getName()
+            IceMediaStream stream =  content.getName()
 
 
         }
