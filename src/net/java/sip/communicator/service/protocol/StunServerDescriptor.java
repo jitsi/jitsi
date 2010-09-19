@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.io.*;
 import java.util.*;
 import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.*;
 
@@ -46,13 +47,13 @@ public class StunServerDescriptor
      * The username that we need to use with the server or <tt>null</tt> if
      * this server does not require a user name.
      */
-    private String username;
+    private byte[] username;
 
     /**
      * The password that we need to use when authenticating with the server
      * or <tt>null</tt> if no password is necessary.
      */
-    private char[] password;
+    private byte[] password;
 
     /**
      * Creates an instance of <tt>StunServer</tt> by specifying all parameters.
@@ -66,8 +67,8 @@ public class StunServerDescriptor
     public StunServerDescriptor( String  address,
                                  int     port,
                                  boolean supportTurn,
-                                 String  username,
-                                 char[]  password)
+                                 byte[]  username,
+                                 byte[]  password)
     {
         this.address = address;
         this.port = port;
@@ -143,7 +144,7 @@ public class StunServerDescriptor
      *
      * @return the username associated to this server
      */
-    public String getUsername()
+    public byte[] getUsername()
     {
         return username;
     }
@@ -155,7 +156,7 @@ public class StunServerDescriptor
      */
     public void setUsername(String username)
     {
-        this.username = username;
+        this.username = getUTF8Bytes(username);
     }
 
     /**
@@ -163,7 +164,7 @@ public class StunServerDescriptor
      *
      * @return the password associated to this server username
      */
-    public char[] getPassword()
+    public byte[] getPassword()
     {
         return password;
     }
@@ -173,9 +174,9 @@ public class StunServerDescriptor
      *
      * @param password the password to set
      */
-    public void setPassword(char[] password)
+    public void setPassword(String password)
     {
-        this.password = password;
+        this.password = getUTF8Bytes(password);
     }
 
     /**
@@ -199,8 +200,8 @@ public class StunServerDescriptor
         if(getPort() != -1)
             props.put(namePrefix + STUN_PORT, Integer.toString( getPort() ));
 
-        if (getUsername() != null && getUsername().trim().length() == 0)
-            props.put(namePrefix + STUN_USERNAME, getUsername());
+        if (getUsername() != null && getUsername().length > 0)
+            props.put(namePrefix + STUN_USERNAME, getUTF8String(getUsername()));
 
         if (getPassword() != null && getPassword().length > 0)
             props.put(namePrefix + STUN_PASSWORD, new String(getPassword()));
@@ -259,9 +260,54 @@ public class StunServerDescriptor
                   new StunServerDescriptor( stunAddress,
                                             stunPort,
                                             stunIsTurnSupported,
-                                            stunUsername,
-                                            stunPassword.toCharArray());
+                                            getUTF8Bytes(stunUsername),
+                                            getUTF8Bytes(stunPassword));
 
         return stunServer;
+    }
+
+    /**
+     * Returns the UTF8 bytes for <tt>string</tt> and handles the unlikely case
+     * where UTF-8 is not supported.
+     *
+     * @param string the <tt>String</tt> whose bytes we'd like to obtain.
+     *
+     * @return <tt>string</tt>'s bytes.
+     */
+    private static byte[] getUTF8Bytes(String string)
+    {
+        try
+        {
+            return string.getBytes("UTF-8");
+        }
+        catch(UnsupportedEncodingException exc)
+        {
+            // shouldn't happen. UTF-8 is always supported, anyways ... if
+            //this happens, we'll cheat
+            return string.getBytes();
+        }
+    }
+
+    /**
+     * Converts <tt>string</tt> into an UTF8 <tt>String</tt> and handles the
+     * unlikely case where UTF-8 is not supported.
+     *
+     * @param bytes the <tt>byte</tt> array that we'd like to convert into a
+     * <tt>String</tt>.
+     *
+     * @return the UTF-8 <tt>String</tt>.
+     */
+    private static String getUTF8String(byte[] bytes)
+    {
+        try
+        {
+            return new String(bytes, "UTF-8");
+        }
+        catch(UnsupportedEncodingException exc)
+        {
+            // shouldn't happen. UTF-8 is always supported, anyways ... if
+            //this happens, we'll cheat
+            return new String(bytes);
+        }
     }
 }

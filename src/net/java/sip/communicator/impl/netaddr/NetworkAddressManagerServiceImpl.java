@@ -9,20 +9,19 @@ package net.java.sip.communicator.impl.netaddr;
 import java.beans.*;
 import java.io.*;
 import java.net.*;
-import java.nio.charset.*;
 import java.text.*;
 import java.util.*;
-
-import org.ice4j.*;
-import org.ice4j.ice.*;
-import org.ice4j.ice.harvest.*;
-import org.ice4j.security.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.NetworkUtils;//disambiguates with ice4j's
+import net.java.sip.communicator.util.NetworkUtils;
+
+import org.ice4j.*;
+import org.ice4j.ice.*;
+import org.ice4j.ice.harvest.*;
+import org.ice4j.security.*;
 
 /**
  * This implementation of the Network Address Manager allows you to
@@ -552,7 +551,7 @@ public class NetworkAddressManagerServiceImpl
          try
          {
              srvrAddress = NetworkUtils.getSRVRecord(
-                              TURN_SRV_NAME, Transport.UDP.toString(), domainName);
+                          TURN_SRV_NAME, Transport.UDP.toString(), domainName);
 
 
              if(srvrAddress != null)
@@ -583,5 +582,44 @@ public class NetworkAddressManagerServiceImpl
          //srvrAddress was still null. sigh ...
          return null;
 
+     }
+
+     /**
+      * Creates an <tt>IceMediaStrean</tt> and adds to it an RTP and and RTCP
+      * component, which also implies running the currently installed
+      * harvesters so that they would.
+      *
+      * @param rtpPort the port that we should try to bind the RTP component on
+      * (the RTCP one would automatically go to rtpPort + 1)
+      * @param streamName the name of the stream to create
+      * @param agent the <tt>Agent</tt> that should create the stream.
+      *
+      *@return the newly created <tt>IceMediaStream</tt>.
+      *
+      * @throws IllegalArgumentException if <tt>rtpPort</tt> is not a valid port
+      * number.
+      * @throws IOException if an error occurs while the underlying resolver
+      * is using sockets.
+      * @throws BindException if we couldn't find a free port between within the
+      * default number of retries.
+      */
+     public static IceMediaStream createStream( int    rtpPort,
+                                                String streamName,
+                                                Agent  agent)
+         throws IllegalArgumentException,
+                IOException,
+                BindException
+     {
+         IceMediaStream stream = agent.createMediaStream(streamName);
+
+         //rtp
+         agent.createComponent(
+                 stream, Transport.UDP, rtpPort, rtpPort, rtpPort + 100);
+
+         //rtcpComp
+         agent.createComponent(stream, Transport.UDP,
+                         rtpPort + 1, rtpPort + 1, rtpPort + 101);
+
+         return stream;
      }
 }

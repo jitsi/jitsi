@@ -6,6 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.io.*;
+import java.nio.charset.*;
+import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
@@ -14,8 +17,10 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 
+import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
+import org.ice4j.security.*;
 
 /**
  * A {@link TransportManagerJabberImpl} implementation that would use ICE for
@@ -71,8 +76,6 @@ public class IceUdpTransportManager
         //we will now create the harvesters
         JabberAccountID accID = (JabberAccountID)provider.getAccountID();
 
-        List<StunServerDescriptor> stunServers
-            = new ArrayList<StunServerDescriptor>();
         if (accID.isStunServerDiscoveryEnabled())
         {
             //the default server is supposed to use the same user name and
@@ -81,14 +84,49 @@ public class IceUdpTransportManager
             String password = JabberActivator
                 .getProtocolProviderFactory().loadPassword(accID);
 
-            StunCandidateHarvester autoHarvester
-                = namSer.discoverStunServer(
-                    accID.getService(), username.getBytes("UTF-8"), password.getBytes("UTF-8"));
+            StunCandidateHarvester autoHarvester = null;
 
+            try
+            {
+                autoHarvester = namSer.discoverStunServer( accID.getService(),
+                                username.getBytes("UTF-8"),
+                                password.getBytes("UTF-8"));
+            }
+            catch(UnsupportedEncodingException exc)
+            {
+                //this shouldn't really happen because UTF-8 should always be
+                //supported. anyways, let's just act as if there were no STUN/
+                //TURN record for our domain and leave the harvester to null
+            }
+
+            if (autoHarvester != null)
+                agent.addCandidateHarvester(autoHarvester);
         }
 
-        List<StunServerDescriptor> additionalStunServers
-            = accID.getStunServers();
+        //now create stun server descriptors for whatever other STUN/TURN
+        //servers the user may have set.
+        for(StunServerDescriptor desc : accID.getStunServers())
+        {
+            TransportAddress addr = new TransportAddress(
+                            desc.getAddress(), desc.getPort(), Transport.UDP);
+
+            StunCandidateHarvester harvester;
+
+            if(desc.isTurnSupported())
+            {
+                //Yay! a TURN server
+                harvester = new TurnCandidateHarvester(
+                    addr, new LongTermCredential(
+                                    desc.getUsername(), desc.getPassword()));
+            }
+            else
+            {
+                //this is a STUN only server
+                harvester = new StunCandidateHarvester(addr);
+            }
+
+            agent.addCandidateHarvester(harvester);
+        }
 
         return agent;
     }
@@ -114,15 +152,7 @@ public class IceUdpTransportManager
     {
         for(ContentPacketExtension content : theirOffer)
         {
-            RtpDescriptionPacketExtension rtpDesc
-                = (RtpDescriptionPacketExtension)content
-                    .getFirstChildOfType(RtpDescriptionPacketExtension.class);
 
-            StreamConnector connector = getStreamConnector(
-                            MediaType.parseString( rtpDesc.getMedia()));
-
-            IceUdpTransportPacketExtension ourTransport
-                                        = createTransport(connector);
 
             //now add our transport to our answer
             ContentPacketExtension cpExt
@@ -132,7 +162,7 @@ public class IceUdpTransportManager
             if(cpExt == null)
                 continue;
 
-            cpExt.addChildExtension(ourTransport);
+            //cpExt.addChildExtension(ourTransport);
         }
 
         this.cpeList = ourAnswer;
@@ -145,82 +175,26 @@ public class IceUdpTransportManager
      * harvest would then need to be concluded in the {@link #wrapupHarvest()}
      * method which would be called once we absolutely need the candidates.
      *
-     * @param ourAnswer the content list that should tell us how many stream
+     * @param ourOffer the content list that should tell us how many stream
      * connectors we actually need.
      *
      * @throws OperationFailedException in case we fail allocating ports
      */
     public void startCandidateHarvest(
-                            List<ContentPacketExtension>   ourAnswer)
+                            List<ContentPacketExtension>   ourOffer)
         throws OperationFailedException
     {
-        for(ContentPacketExtension content : ourAnswer)
+        for(ContentPacketExtension content : ourOffer)
         {
             RtpDescriptionPacketExtension rtpDesc
                 = (RtpDescriptionPacketExtension)content
                     .getFirstChildOfType(RtpDescriptionPacketExtension.class);
 
-            StreamConnector connector = getStreamConnector(
-                            MediaType.parseString( rtpDesc.getMedia()));
+            content.getName()
 
-            IceUdpTransportPacketExtension ourTransport
-                                        = createTransport(connector);
 
-            //now add our transport to our answer
-            ContentPacketExtension cpExt
-                = findContentByName(ourAnswer, content.getName());
-
-            cpExt.addChildExtension(ourTransport);
         }
-        this.cpeList = ourAnswer;
-    }
-
-    /**
-     * Creates an ICE UDP transport element according to the specified stream
-     * <tt>connector</tt>
-     *
-     * @param connector the connector that we'd like to describe within the
-     * transport element.
-     *
-     * @return a {@link RawUdpTransportPacketExtension} containing the RTP and
-     * RTCP candidates of the specified {@link StreamConnector}.
-     */
-    private IceUdpTransportPacketExtension createTransport(
-                                                StreamConnector connector)
-    {
-        RawUdpTransportPacketExtension ourTransport
-            = new RawUdpTransportPacketExtension();
-
-
-
-
-
-        // create and add candidates that correspond to the stream connector
-        // rtp
-        CandidatePacketExtension rtpCand = new CandidatePacketExtension();
-        rtpCand.setComponent(CandidatePacketExtension.RTP_COMPONENT_ID);
-        rtpCand.setGeneration(getCurrentGeneration());
-        rtpCand.setID(getNextID());
-        rtpCand.setIP(connector.getDataSocket().getLocalAddress()
-                        .getHostAddress());
-        rtpCand.setPort(connector.getDataSocket().getLocalPort());
-        rtpCand.setType(CandidateType.host);
-
-        ourTransport.addCandidate(rtpCand);
-
-        // rtcp
-        CandidatePacketExtension rtcpCand = new CandidatePacketExtension();
-        rtcpCand.setComponent(CandidatePacketExtension.RTCP_COMPONENT_ID);
-        rtcpCand.setGeneration(getCurrentGeneration());
-        rtcpCand.setID(getNextID());
-        rtcpCand.setIP(connector.getControlSocket().getLocalAddress()
-                        .getHostAddress());
-        rtcpCand.setPort(connector.getControlSocket().getLocalPort());
-        rtcpCand.setType(CandidateType.host);
-
-        ourTransport.addCandidate(rtcpCand);
-
-        return ourTransport;
+        this.cpeList = ourOffer;
     }
 
     /**
