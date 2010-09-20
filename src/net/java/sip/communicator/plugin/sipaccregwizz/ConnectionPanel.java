@@ -105,15 +105,15 @@ public class ConnectionPanel
                 "plugin.sipaccregwizz.PREFERRED_TRANSPORT"));
 
         labelsPanel.add(serverLabel);
-        labelsPanel.add(authNameLabel);
         labelsPanel.add(serverPortLabel);
+        labelsPanel.add(authNameLabel);
         labelsPanel.add(proxyLabel);
         labelsPanel.add(proxyPortLabel);
         labelsPanel.add(transportLabel);
 
         valuesPanel.add(serverField);
-        valuesPanel.add(authNameField);
         valuesPanel.add(serverPortField);
+        valuesPanel.add(authNameField);
         valuesPanel.add(proxyField);
         valuesPanel.add(proxyPortField);
         valuesPanel.add(transportCombo);

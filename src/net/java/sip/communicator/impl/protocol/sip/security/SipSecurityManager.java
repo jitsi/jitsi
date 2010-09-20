@@ -115,7 +115,48 @@ public class SipSecurityManager
                OperationFailedException,
                NullPointerException
     {
+        return this.handleChallenge(
+            challenge, challengedTransaction, transactionCreator, -1);
+    }
 
+    /**
+     * Uses securityAuthority to determine a set of valid user credentials
+     * for the specified Response (Challenge) and appends it to the challenged
+     * request so that it could be retransmitted.
+     *
+     * Fredrik Wickstrom reported that dialog cseq counters are not incremented
+     * when resending requests. He later uncovered additional problems and
+     * proposed a way to fix them (his proposition was taken into account).
+     *
+     * @param challenge the 401/407 challenge response
+     * @param challengedTransaction the transaction established by the
+     * challenged request
+     * @param transactionCreator the JAIN SipProvider that we should use to
+     * create the new transaction.
+     * @param newCSeq if the caller is generating its own cseqs can supply such,
+     * otherwise can provide -1 for auto generating it. Mean that the value
+     * from the initial request will be incremented.
+     *
+     * @return a transaction containing a reoriginated request with the
+     *         necessary authorization header.
+     * @throws SipException if we get an exception white creating the
+     * new transaction
+     * @throws InvalidArgumentException if we fail to create a new header
+     * containing user credentials.
+     * @throws NullPointerException if an argument or a header is null.
+     * @throws OperationFailedException if we fail to acquire a password from
+     * our security authority.
+     */
+    public synchronized ClientTransaction handleChallenge(
+                                    Response          challenge,
+                                    ClientTransaction challengedTransaction,
+                                    SipProvider       transactionCreator,
+                                    long               newCSeq)
+        throws SipException,
+               InvalidArgumentException,
+               OperationFailedException,
+               NullPointerException
+    {
         String branchID = challengedTransaction.getBranchId();
         Request challengedRequest = challengedTransaction.getRequest();
         Request reoriginatedRequest = cloneReqForAuthentication(
@@ -125,7 +166,7 @@ public class SipSecurityManager
         //request. do it here so that the new dialog (created together with
         //the new client transaction) takes it into account.
         //Bug report - Fredrik Wickstrom
-        incrementRequestSeqNo(reoriginatedRequest);
+        incrementRequestSeqNo(reoriginatedRequest, newCSeq);
 
         ListIterator<WWWAuthenticateHeader> authHeaders
             = extractChallenges(challenge);
@@ -344,7 +385,7 @@ public class SipSecurityManager
         //request. do it here so that the new dialog (created together with
         //the new client transaction) takes it into account.
         //Bug report - Fredrik Wickstrom
-        incrementRequestSeqNo(reoriginatedRequest);
+        incrementRequestSeqNo(reoriginatedRequest, -1);
 
         ClientTransaction retryTran =
             transactionCreator.getNewClientTransaction(reoriginatedRequest);
@@ -734,16 +775,20 @@ public class SipSecurityManager
      * Increments the given <tt>request</tt> sequence number.
      * @param request the <tt>Request</tt>, which sequence number we would like
      * to increment
+     * @param newCSeq if the caller is generating its own cseqs can supply such,
+     * otherwise can provide -1 for auto generating it.
      *
      * @throws InvalidArgumentException if we fail to increase the value of the
      * cSeq header.
      */
-    private void incrementRequestSeqNo(Request request)
+    private void incrementRequestSeqNo(Request request, long newCSeq)
         throws InvalidArgumentException
     {
         CSeqHeader cSeq = (CSeqHeader) request.getHeader(CSeqHeader.NAME);
-
-        cSeq.setSeqNumber(cSeq.getSeqNumber() + 1l);
+        if(newCSeq == -1)
+            cSeq.setSeqNumber(cSeq.getSeqNumber() + 1l);
+        else
+            cSeq.setSeqNumber(newCSeq);
     }
 
     /**

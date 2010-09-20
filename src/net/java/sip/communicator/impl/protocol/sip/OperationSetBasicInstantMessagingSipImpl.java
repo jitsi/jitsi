@@ -958,12 +958,9 @@ public class OperationSetBasicInstantMessagingSipImpl
                         .handleChallenge(
                             response
                             , clientTransaction
-                            , jainSipProvider);
+                            , jainSipProvider,
+                            seqN++);
 
-                    // as in handleChallenge the original request is cloned
-                    // and cseq is incremented we must increment and local
-                    // value so we can continue next message with correct value
-                    seqN++;
                 }
 
                 if(retryTran == null)
