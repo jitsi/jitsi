@@ -2661,11 +2661,25 @@ public class ProtocolProviderServiceSipImpl
      * @param resultAddresses the List in which we provide the result.
      * @param preferIPv6Addresses whether ipv6 address should go before ipv4.
      * @param defaultPort the port to use for the result address.
+     * @throws UnknownHostException its not supposed to be thrown, cause
+     * the address we use is an ip address.
      */
     private void resolveAddresses(
             String address, List<InetSocketAddress> resultAddresses,
             boolean preferIPv6Addresses, int defaultPort)
+            throws UnknownHostException
     {
+        //we need to resolve the address only if its a hostname.
+        if(NetworkUtils.isValidIPAddress(address))
+        {
+            InetAddress addressObj = NetworkUtils.getInetAddress(address);
+
+            resultAddresses.add(new InetSocketAddress(addressObj, defaultPort));
+
+            // as its ip address return, no dns is needed.
+            return;
+        }
+
         InetSocketAddress addressObj4 = null;
         InetSocketAddress addressObj6 = null;
         try
