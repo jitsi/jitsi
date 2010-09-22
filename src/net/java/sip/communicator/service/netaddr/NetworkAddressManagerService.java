@@ -7,7 +7,6 @@
 package net.java.sip.communicator.service.netaddr;
 
 import java.net.*;
-import java.text.*;
 import java.io.*;
 
 import org.ice4j.ice.*;
@@ -89,6 +88,15 @@ public interface NetworkAddressManagerService
                                             int port)
         throws IOException,
                BindException;
+
+    /**
+     * Returns the hardware address (i.e. MAC address) of the specified
+     * interface name.
+     *
+     * @param iface the <tt>NetworkInterface</tt>
+     * @return array of bytes representing the layer 2 address
+     */
+    public byte[] getHardwareAddress(NetworkInterface iface);
 
     /**
      * Creates a <tt>DatagramSocket</tt> and binds it to on the specified

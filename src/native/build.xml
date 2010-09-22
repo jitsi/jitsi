@@ -468,6 +468,60 @@
     </cc>
   </target>
 
+  <!-- compile hwaddressretriever library -->
+  <target name="hwaddressretriever" description="Build hwaddressretriever shared library" depends="init-native,hwaddressretriever-windows"
+    unless="is.running.windows">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/hwaddressretriever" objdir="${obj}">
+      <!-- common compiler flags -->
+      <compilerarg value="-Wall" />
+      <compilerarg value="-O2" />
+
+      <fileset dir="${src}/native/hwaddressretriever" includes="net*.c HardwareAddressRetriever_unix.c" />
+
+      <!-- Linux specific flags -->
+      <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
+
+      <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+
+      <!-- Mac OS X specific flags -->
+      <compilerarg value="-arch" if="is.running.macos" />
+      <compilerarg value="x86_64" if="is.running.macos" />
+      <compilerarg value="-arch" if="is.running.macos" />
+      <compilerarg value="i386" if="is.running.macos" />
+      <compilerarg value="-arch" if="is.running.macos" />
+      <compilerarg value="ppc" if="is.running.macos" />
+      <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
+
+      <linkerarg value="-o" location="end" if="is.running.macos" />
+      <linkerarg value="libhwaddressretriever.jnilib" location="end" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="x86_64" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="i386" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="ppc" if="is.running.macos" />
+    </cc>
+  </target>
+
+  <!-- compile hwaddressretrieverr library for Windows-->
+  <target name="hwaddressretriever-windows" description="Build hwaddressretriever shared library for Windows" if="is.running.windows"
+    depends="init-native">
+    <cc outtype="shared" name="msvc" outfile="${native_install_dir}/hwaddressretriever" objdir="${obj}">
+      <compilerarg value="/O2" />
+      <compilerarg value="/MT" location="end" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
+
+      <linkerarg value="iphlpapi.lib" location="end" />
+
+      <fileset dir="${src}/native/hwaddressretriever" includes="net*.c HardwareAddressRetriever_win.c" />
+    </cc>
+  </target>
+
   <!-- compile jvideo4linux2 library -->
   <target name="video4linux2" description="Build jvideo4linux2 shared library" if="is.running.linux"
     depends="init-native">
@@ -654,6 +708,7 @@
     <echo message="'ant ffmpeg' to compile ffmpeg shared library" />
     <echo message="'ant portaudio' to compile jportaudio shared library" />
     <echo message="'ant speex' to compile jspeex shared library" />
+    <echo message="'ant hwaddressretriever' to compile hwaddressretriever shared library" />
     <echo message="'ant video4linux2 (Linux only)' to compile jvideo4linux2 shared library" />
     <echo message="'ant galagonotification (Linux only)' to compile galagonotification shared library" />
     <echo message="'ant localhostretriever (Windows only)' to compile LocalhostRetriever shared library" />

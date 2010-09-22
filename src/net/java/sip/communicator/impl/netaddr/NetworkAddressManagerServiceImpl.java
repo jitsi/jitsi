@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.netaddr;
 
+import java.lang.reflect.*;
 import java.beans.*;
 import java.io.*;
 import java.net.*;
@@ -119,7 +120,8 @@ public class NetworkAddressManagerServiceImpl
      * @return an InetAddress instance representing the local host, and that
      * a socket can bind upon or distribute to peers as a contact address.
      */
-    public synchronized InetAddress getLocalHost(InetAddress intendedDestination)
+    public synchronized InetAddress getLocalHost(
+            InetAddress intendedDestination)
     {
         InetAddress localHost = null;
         String osVersion = System.getProperty("os.version");
@@ -128,18 +130,20 @@ public class NetworkAddressManagerServiceImpl
             logger.trace(
                     "Querying a localhost addr for dst=" + intendedDestination);
 
-        /* use native code (JNI) to find source address for a specific destination
-         * address on Windows XP SP1 and over.
+        /* use native code (JNI) to find source address for a specific
+         * destination address on Windows XP SP1 and over.
          *
          * For other systems, we used method based on DatagramSocket.connect
          * which will returns us source address. The reason why we cannot use it
-         * on Windows is because its socket implementation returns the any address...
+         * on Windows is because its socket implementation returns the any
+         * address...
          */
         if(OSUtils.IS_WINDOWS &&
            !osVersion.startsWith("4") && /* 95/98/Me/NT */
            !osVersion.startsWith("5.0")) /* 2000 */
         {
-            byte[] src = Win32LocalhostRetriever.getSourceForDestination(intendedDestination.getAddress());
+            byte[] src = Win32LocalhostRetriever.getSourceForDestination(
+                    intendedDestination.getAddress());
 
             if(src == null)
             {
@@ -160,7 +164,8 @@ public class NetworkAddressManagerServiceImpl
         else
         {
 
-            //no point in making sure that the localHostFinderSocket is initialized.
+            //no point in making sure that the localHostFinderSocket is
+            //initialized.
             //better let it through a NullPointerException.
             localHostFinderSocket.connect(intendedDestination,
                                           RANDOM_ADDR_DISC_PORT);
@@ -235,8 +240,8 @@ public class NetworkAddressManagerServiceImpl
                     if (!(localHost instanceof Inet4Address))
                     {
                         // return the first non localhost interface we find.
-                        Enumeration<NetworkInterface> interfaces = NetworkInterface
-                                        .getNetworkInterfaces();
+                        Enumeration<NetworkInterface> interfaces =
+                            NetworkInterface.getNetworkInterfaces();
 
                         while (interfaces.hasMoreElements())
                         {
@@ -278,6 +283,51 @@ public class NetworkAddressManagerServiceImpl
         return localHost;
     }
 
+    /**
+     * Returns the hardware address (i.e. MAC address) of the specified
+     * interface name.
+     *
+     * @param iface the <tt>NetworkInterface</tt>
+     * @return array of bytes representing the layer 2 address or null if
+     * interface does not exist
+     */
+    public byte[] getHardwareAddress(NetworkInterface iface)
+    {
+        String ifName = null;
+        byte hwAddress[] = null;
+
+        /* try reflection */
+        try
+        {
+            Method method = iface.getClass().
+                getMethod("getHardwareAddress");
+
+            if(method != null)
+            {
+                hwAddress = (byte[])method.invoke(iface, new Object[]{});
+                return hwAddress;
+            }
+        }
+        catch(Exception e)
+        {
+        }
+
+        /* maybe getHardwareAddress not available on this JVM try
+         * with our JNI
+         */
+        if(OSUtils.IS_WINDOWS)
+        {
+            ifName = iface.getDisplayName();
+        }
+        else
+        {
+            ifName = iface.getName();
+        }
+
+        hwAddress = HardwareAddressRetriever.getHardwareAddress(ifName);
+
+        return hwAddress;
+    }
 
     /**
      * Tries to obtain an for the specified port.
@@ -556,8 +606,8 @@ public class NetworkAddressManagerServiceImpl
 
              if(srvrAddress != null)
              {
-                 //yay! we seem to have a TURN server, so we'll be using it for both
-                 //TURN and STUN harvesting.
+                 //yay! we seem to have a TURN server, so we'll be using it for
+                 //both TURN and STUN harvesting.
                  return new TurnCandidateHarvester(
                              new TransportAddress(srvrAddress, Transport.UDP),
                              new LongTermCredential(userName, password));
