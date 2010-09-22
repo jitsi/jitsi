@@ -24,6 +24,7 @@ import net.java.sip.communicator.util.swing.*;
  * 
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class SimpleStatusMenu
     extends StatusSelectorMenu
@@ -155,5 +156,23 @@ public class SimpleStatusMenu
 
         setSelected(new SelectedObject(statusImage, menuItem));
         setToolTipText(tooltip.concat("<br>" + menuItem.getText()));
+    }
+
+    /**
+     * Loads resources for this component.
+     */
+    @Override
+    public void loadSkin()
+    {
+        super.loadSkin();
+        setIcon(new ImageIcon(ImageLoader.getBytesInImage(
+                protocolProvider.getProtocolIcon().getIcon(
+                    ProtocolIcon.ICON_SIZE_16x16))));
+        onlineItem.setIcon(getIcon());
+        offlineItem.setIcon(
+            new ImageIcon(LightGrayFilter.createDisabledImage(
+                ImageLoader.getBytesInImage(
+                    protocolProvider.getProtocolIcon().getIcon(
+                        ProtocolIcon.ICON_SIZE_16x16)))));
     }
 }

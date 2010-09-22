@@ -16,8 +16,9 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Represents an account in the account list.
- * 
+ *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class Account
 {
@@ -39,7 +40,7 @@ public class Account
     /**
      * The icon of the image.
      */
-    private final ImageIcon icon;
+    private ImageIcon icon;
 
     /**
      * Indicates if the account is enabled.
@@ -130,6 +131,10 @@ public class Account
      */
     public Icon getIcon()
     {
+        icon = ImageLoader.getImageForPath(
+            accountID.getAccountPropertyString(
+                ProtocolProviderFactory.ACCOUNT_ICON_PATH));
+
         return icon;
     }
 
@@ -155,6 +160,10 @@ public class Account
             return ImageLoader.getAccountStatusImage(protocolProvider);
         else if (icon != null)
         {
+            icon = ImageLoader.getImageForPath(
+                accountID.getAccountPropertyString(
+                    ProtocolProviderFactory.ACCOUNT_ICON_PATH));
+
             Image scaledImage
                 = ImageUtils.scaleImageWithinBounds(icon.getImage(), 16, 16);
 

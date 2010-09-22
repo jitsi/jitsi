@@ -13,11 +13,11 @@ import java.util.*;
 
 import javax.imageio.*;
 import javax.swing.*;
-import javax.swing.event.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -26,9 +26,11 @@ import net.java.sip.communicator.util.swing.*;
  * listing all of the details.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class AccountDetailsPanel
     extends TransparentPanel
+    implements Skinnable
 {
     private static final long serialVersionUID = 5524135388175045624L;
 
@@ -38,11 +40,6 @@ public class AccountDetailsPanel
      * The operation set giving access to the server stored account details.
      */
     private OperationSetServerStoredAccountInfo accountInfoOpSet;
-
-    /**
-     * The protocol provider.
-     */
-    private ProtocolProviderService protocolProvider;
 
     private JTextField firstNameField = new JTextField();
 
@@ -68,8 +65,6 @@ public class AccountDetailsPanel
     private JPanel buttonPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private JPanel mainPanel = new TransparentPanel(new BorderLayout());
-
     private JScrollPane mainScrollPane = new JScrollPane();
 
     private boolean isDataLoaded = false;
@@ -92,6 +87,8 @@ public class AccountDetailsPanel
 
     private byte[] newAvatarImage;
 
+    private ImageIcon avatarImageIcon = null;
+
     /**
      * The last avatar file directory open.
      */
@@ -113,8 +110,6 @@ public class AccountDetailsPanel
         accountInfoOpSet
             = protocolProvider
                 .getOperationSet(OperationSetServerStoredAccountInfo.class);
-
-        this.protocolProvider = protocolProvider;
 
         if (accountInfoOpSet == null)
         {
@@ -146,8 +141,6 @@ public class AccountDetailsPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
         changeAvatarButton.addActionListener(new ChangeAvatarActionListener());
-
-        avatarLabel.setIcon(Resources.getImage("accountInfoDefaultPersonIcon"));
 
         changeButtonPanel.add(changeAvatarButton);
 
@@ -208,6 +201,9 @@ public class AccountDetailsPanel
         this.buttonPanel.add(applyButton);
 
         this.add(buttonPanel, BorderLayout.SOUTH);
+
+        // All items are now instantiated and could safely load the skin.
+        loadSkin();
     }
 
     /**
@@ -222,20 +218,18 @@ public class AccountDetailsPanel
     /**
      * Creates the panel that indicates to the user that the currently selected
      * contact does not support server stored contact info.
-     * 
-     * @return the panel that is added and shows a message that the selected
-     *         sub-contact does not have the operation set for server stored
-     *         contact info supported.
      */
     private void initUnsupportedPanel()
     {
         JTextArea unsupportedTextArea =
-            new JTextArea(Resources.getString("plugin.accountinfo.NOT_SUPPORTED"));
+            new JTextArea(Resources.getString(
+                "plugin.accountinfo.NOT_SUPPORTED"));
 
         unsupportedTextArea.setEditable(false);
         unsupportedTextArea.setLineWrap(true);
 
-        JPanel unsupportedPanel = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel unsupportedPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
         unsupportedTextArea.setPreferredSize(new Dimension(200, 200));
 
@@ -255,8 +249,6 @@ public class AccountDetailsPanel
      * LastNameDetail - BirthdateDetail (and calculate age) - GenderDetail -
      * EmailAddressDetail - PhoneNumberDetail. All other details will be* added
      * to our list of extended details.
-     * 
-     * @return the panel that will be added as the summary tab.
      */
     private void loadSummaryDetails()
     {
@@ -275,8 +267,11 @@ public class AccountDetailsPanel
         }
 
         if (avatarImage != null && avatarImage.length > 0)
-            avatarLabel.setIcon(new ImageIcon(
-                getScaledImageInstance(avatarImage)));
+        {
+            avatarImageIcon = new ImageIcon(
+                getScaledImageInstance(avatarImage));
+            avatarLabel.setIcon(avatarImageIcon);
+        }
 
         // First name details.
         contactDetails =
@@ -393,150 +388,6 @@ public class AccountDetailsPanel
         }
 
         phoneField.setText(phoneNumberDetailString);
-    }
-
-    /**
-     * A panel that displays all of the details retrieved from the opSet.
-     */
-    private void initExtendedPanel()
-    {
-        JPanel mainExtendedPanel = new TransparentPanel(new BorderLayout());
-
-        JPanel extendedPanel = new TransparentPanel();
-        extendedPanel.setLayout(new BoxLayout(extendedPanel, BoxLayout.Y_AXIS));
-
-        JPanel imagePanel = new TransparentPanel();
-
-        // The imagePanel will be used for any BinaryDetails and will be added at
-        // the bottom so we don't disrupt the standard look of the other details
-        imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.LINE_AXIS));
-        imagePanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-            .createTitledBorder(Resources.getString("plugin.accountinfo.USER_PICTURES")),
-            BorderFactory.createEmptyBorder(0, 5, 5, 5)));
-
-        // Obtain all the details for a contact.
-        Iterator<GenericDetail> iter = accountInfoOpSet.getAllAvailableDetails();
-
-        GenericDetail detail;
-        JLabel detailLabel;
-        JTextArea detailValueArea;
-        JPanel detailPanel;
-
-        while (iter.hasNext())
-        {
-            detail = iter.next();
-
-            if (detail.getDetailValue().toString().equals(""))
-                continue;
-
-            detailLabel = new JLabel();
-            detailValueArea = new JTextArea();
-            detailPanel = new TransparentPanel(new BorderLayout(10, 10));
-
-            detailValueArea.setAlignmentX(JTextArea.CENTER_ALIGNMENT);
-            detailValueArea.setLineWrap(true);
-            detailValueArea.setEditable(true);
-
-            detailPanel.add(detailLabel, BorderLayout.WEST);
-            detailPanel.add(detailValueArea, BorderLayout.CENTER);
-            detailPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-            extendedPanel.add(detailPanel);
-
-            if (detail instanceof BinaryDetail)
-            {
-                JLabel imageLabel =
-                    new JLabel(new ImageIcon((byte[]) detail
-                        .getDetailValue()));
-
-                imagePanel.add(imageLabel);
-            }
-            else if (detail instanceof CalendarDetail)
-            {
-                detailLabel.setText(detail.getDetailDisplayName() + ": ");
-
-                Date detailDate =
-                    ((Calendar) detail.getDetailValue()).getTime();
-                DateFormat df = DateFormat.getDateInstance();
-
-                detailValueArea.setText(df.format(detailDate).trim());
-            }
-            else if (detail instanceof LocaleDetail)
-            {
-                detailLabel.setText(detail.getDetailDisplayName() + ": ");
-
-                detailValueArea.setText(((Locale) detail.getDetailValue())
-                        .getDisplayName().trim());
-            }
-            else if (detail instanceof TimeZoneDetail)
-            {
-                detailLabel.setText(detail.getDetailDisplayName() + ": ");
-
-                detailValueArea.setText(((TimeZone) detail.getDetailValue())
-                        .getDisplayName().trim());
-            }
-            else
-            {
-                detailLabel.setText(detail.getDetailDisplayName() + ": ");
-
-                detailValueArea.setText(
-                    detail.getDetailValue().toString().trim());
-            }
-        }
-
-        // If the contact's protocol supports web info, give them a button to
-        // get it
-        if (protocolProvider.getOperationSet(
-                OperationSetWebContactInfo.class) != null)
-        {
-            final String urlString
-                = protocolProvider
-                    .getOperationSet(OperationSetWebContactInfo.class)
-                        .getWebContactInfo(
-                                protocolProvider
-                                    .getAccountID().getAccountAddress())
-                            .toString();
-
-            JLabel webInfoLabel = new JLabel("Click to see web info: ");
-            JEditorPane webInfoValue = new JEditorPane();
-            JPanel webInfoPanel = new TransparentPanel(new BorderLayout());
-
-            webInfoPanel.add(webInfoLabel, BorderLayout.WEST);
-            webInfoPanel.add(webInfoValue, BorderLayout.CENTER);
-
-            extendedPanel.add(webInfoPanel);
-
-            webInfoValue.setOpaque(false);
-            webInfoValue.setContentType("text/html");
-            webInfoValue.setEditable(false);
-            webInfoValue.setText(   "<a href='"
-                                    + urlString + "'>"
-                                    + protocolProvider.getAccountID().getUserID()
-                                    + " web info</a>");
-
-            webInfoValue.addHyperlinkListener(new HyperlinkListener()
-            {
-                public void hyperlinkUpdate(HyperlinkEvent e)
-                {
-                    if (e.getEventType()
-                            .equals(HyperlinkEvent.EventType.ACTIVATED))
-                    {
-                        AccountInfoActivator
-                            .getBrowserLauncher().openURL(urlString);
-                    }
-                }
-            });
-        }
-
-        if (imagePanel.getComponentCount() > 0)
-            mainExtendedPanel.add(imagePanel, BorderLayout.CENTER);
-
-        mainExtendedPanel.add(extendedPanel, BorderLayout.NORTH);
-
-        this.mainPanel.add(mainExtendedPanel);
-
-        this.mainPanel.revalidate();
-        this.mainPanel.repaint();
     }
 
     private class SubmitActionListener implements ActionListener
@@ -684,8 +535,9 @@ public class AccountDetailsPanel
 
                     newAvatarImage = buffer;
 
-                    avatarLabel.setIcon(new ImageIcon(
-                        getScaledImageInstance(newAvatarImage)));
+                    avatarImageIcon = new ImageIcon(
+                        getScaledImageInstance(newAvatarImage));
+                    avatarLabel.setIcon(avatarImageIcon);
                 }
                 catch (IOException ex)
                 {
@@ -699,14 +551,14 @@ public class AccountDetailsPanel
      * A custom filter that would accept only image files.
      */
     private static class ImageFilter extends SipCommFileFilter
-    {		
+    {
         /**
          * Accept all directories and all gif, jpg, tiff, or png files.
          * Method implemented from FileFilter abstract class.
          *
          * @param f a file to accept or not
          */
-		@Override
+        @Override
         public boolean accept(File f)
         {
             if (f.isDirectory())
@@ -800,5 +652,13 @@ public class AccountDetailsPanel
     public boolean isDataLoaded()
     {
         return isDataLoaded;
+    }
+
+    /**
+     * Loads the avatar default icon.
+     */
+    public void loadSkin()
+    {
+        avatarLabel.setIcon(Resources.getImage("accountInfoDefaultPersonIcon"));
     }
 }

@@ -12,13 +12,17 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * A custom panel to handle systray popup notification
  *
  * @author Symphorien Wanko
+ * @author Adam Netocny
  */
-public class PopupNotificationPanel extends SIPCommFrame.MainContentPane
+public class PopupNotificationPanel
+    extends SIPCommFrame.MainContentPane
+    implements Skinnable
 {
     /**
      * Logger for this class.
@@ -31,21 +35,28 @@ public class PopupNotificationPanel extends SIPCommFrame.MainContentPane
     private Object tag;
 
     /**
+     * Close button.
+     */
+    private final SIPCommButton notifClose;
+
+    /**
+     * Notification title.
+     */
+    private JLabel notifTitle;
+
+    /**
      * Creates a new <tt>PopupNotificationPanel</tt> with a customized panel
      * title.
      */
     private PopupNotificationPanel()
     {
-        JLabel notifTitle = new JLabel(
+        notifTitle = new JLabel(
                 UtilActivator.getResources().getSettingsString(
                 "service.gui.APPLICATION_NAME"),
-                UtilActivator.getResources().getImage(
-                "service.gui.SIP_COMMUNICATOR_LOGO"),
                 SwingConstants.LEFT);
 
-        final SIPCommButton notifClose = new SIPCommButton(
-                UtilActivator.getResources()
-                .getImage("service.gui.lookandfeel.CLOSE_TAB_ICON").getImage());
+        notifClose = new SIPCommButton();
+
         notifClose.setToolTipText(UtilActivator.getResources()
                 .getI18NString("service.gui.CLOSE"));
 
@@ -84,6 +95,9 @@ public class PopupNotificationPanel extends SIPCommFrame.MainContentPane
 
         add(notificationWindowTitle, BorderLayout.NORTH);
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
+        // All items are now instantiated and could safely load the skin.
+        loadSkin();
     }
 
     /**
@@ -115,5 +129,16 @@ public class PopupNotificationPanel extends SIPCommFrame.MainContentPane
     public void setTag(Object tag)
     {
         this.tag = tag;
+    }
+
+    /**
+     * Reloads resources for this component.
+     */
+    public void loadSkin()
+    {
+        notifTitle.setIcon(UtilActivator.getResources().getImage(
+                "service.gui.SIP_COMMUNICATOR_LOGO"));
+        notifClose.setBackgroundImage(UtilActivator.getResources()
+                .getImage("service.gui.lookandfeel.CLOSE_TAB_ICON").getImage());
     }
 }

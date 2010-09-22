@@ -13,6 +13,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * Represents a <tt>JMenuBar</tt> with SIP Communicator specific decorations. In
@@ -21,16 +22,22 @@ import net.java.sip.communicator.impl.gui.utils.*;
  *
  * @author Lubomir Marinov
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SIPCommWindowMenuBar
     extends JMenuBar
+    implements Skinnable
 {
-
     /**
      * The <tt>Image</tt> to be drawn as the background of this
      * <tt>JMenuBar</tt>.
      */
-    private final Image backgroundImage;
+    private Image backgroundImage;
+
+    /**
+     * Color code for the foreground.
+     */
+    private String foreground;
 
     /**
      * Initializes a new <tt>SIPCommWindowMenuBar</tt> instance which is to use
@@ -41,32 +48,9 @@ public class SIPCommWindowMenuBar
      */
     public SIPCommWindowMenuBar(String foreground)
     {
-        Image backgroundImage
-            = ImageLoader.getImage(ImageLoader.MENU_BACKGROUND);
-        LookAndFeel laf = UIManager.getLookAndFeel();
-        boolean setForeground = true;
+        this.foreground = foreground;
 
-        if (laf != null)
-        {
-            String lafClassName = laf.getClass().getName();
-
-            if (lafClassName.equals(UIManager.getSystemLookAndFeelClassName())
-                    && !lafClassName.equals(
-                            UIManager.getCrossPlatformLookAndFeelClassName())
-                    && ((backgroundImage == null)
-                            || isTransparent(backgroundImage)))
-            {
-                backgroundImage = null;
-                setForeground = false;
-            }
-        }
-        this.backgroundImage = backgroundImage;
-
-        if (setForeground)
-        {
-            setForeground(
-                new Color(GuiActivator.getResources().getColor(foreground)));
-        }
+        loadSkin();
     }
 
     /**
@@ -135,5 +119,37 @@ public class SIPCommWindowMenuBar
 
         if (backgroundImage != null)
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+    }
+
+    /**
+     * Loads images and colors used in this menu bar.
+     */
+    public void loadSkin()
+    {
+        backgroundImage = ImageLoader.getImage(ImageLoader.MENU_BACKGROUND);
+
+        LookAndFeel laf = UIManager.getLookAndFeel();
+        boolean setForeground = true;
+
+        if (laf != null)
+        {
+            String lafClassName = laf.getClass().getName();
+
+            if (lafClassName.equals(UIManager.getSystemLookAndFeelClassName())
+                    && !lafClassName.equals(
+                            UIManager.getCrossPlatformLookAndFeelClassName())
+                    && ((backgroundImage == null)
+                            || isTransparent(backgroundImage)))
+            {
+                backgroundImage = null;
+                setForeground = false;
+            }
+        }
+
+        if (setForeground)
+        {
+            setForeground(
+                new Color(GuiActivator.getResources().getColor(foreground)));
+        }
     }
 }

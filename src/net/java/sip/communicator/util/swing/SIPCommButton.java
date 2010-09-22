@@ -18,15 +18,24 @@ import org.jvnet.lafwidget.animation.*;
  * to configure its background, its icon, the look when a mouse is over it, etc.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SIPCommButton
     extends JButton
 {
     private Image bgImage;
 
-    private final Image pressedImage;
+    private Image pressedImage;
 
-    private final Image iconImage;
+    private Image iconImage;
+
+    /**
+     * Creates a button.
+     */
+    public SIPCommButton()
+    {
+        this(null);
+    }
 
     /**
      * Creates a button with custom background image and icon image.
@@ -236,6 +245,34 @@ public class SIPCommButton
     public void setBackgroundImage(Image bgImage)
     {
         this.bgImage = bgImage;
+
+        if (bgImage != null)
+        {
+            this.setPreferredSize(new Dimension(bgImage.getWidth(null),
+                                                bgImage.getHeight(null)));
+
+            this.setIcon(new ImageIcon(this.bgImage));
+        }
+    }
+
+    /**
+     * Sets the pressed image of this button.
+     *
+     * @param pressedImage the pressed image of this button.
+     */
+    public void setPressedImage(Image pressedImage)
+    {
+        this.pressedImage = pressedImage;
+    }
+
+    /**
+     * Sets the icon image of this button.
+     *
+     * @param iconImage the icon image of this button.
+     */
+    public void setIconImage(Image iconImage)
+    {
+        this.iconImage = iconImage;
     }
 
     /**

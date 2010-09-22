@@ -16,28 +16,29 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>CallHistoryButton</tt> is the button shown on the top of the contact
  * list.
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class CallHistoryButton
     extends SIPCommTextButton
-    implements MissedCallsListener
+    implements  MissedCallsListener,
+                Skinnable
 {
     /**
      * The history icon.
      */
-    private final Image historyImage
-        = ImageLoader.getImage(ImageLoader.CALL_HISTORY_BUTTON);
+    private Image historyImage;
 
     /**
      * The history pressed icon.
      */
-    private final Image pressedImage
-        = ImageLoader.getImage(ImageLoader.CALL_HISTORY_BUTTON_PRESSED);
+    private Image pressedImage;
 
     /**
      * Indicates if the history is visible.
@@ -78,8 +79,6 @@ public class CallHistoryButton
     {
         super("");
 
-        this.setBgImage(historyImage);
-
         CallManager.setMissedCallsListener(this);
 
         this.setPreferredSize(new Dimension(29, 22));
@@ -88,6 +87,9 @@ public class CallHistoryButton
         this.setFont(getFont().deriveFont(Font.BOLD, 10f));
         this.setToolTipText(callHistoryToolTip);
         this.setBackground(new Color(255, 255, 255, 160));
+
+        // All items are now instantiated and could safely load the skin.
+        loadSkin();
 
         this.addActionListener(new ActionListener()
         {
@@ -189,5 +191,19 @@ public class CallHistoryButton
 
         this.setBackground(new Color(200, 0, 0));
         this.setText(new Integer(missedCalls.size()).toString());
+    }
+
+    /**
+     * Loads images and sets history view.
+     */
+    public void loadSkin()
+    {
+        historyImage
+            = ImageLoader.getImage(ImageLoader.CALL_HISTORY_BUTTON);
+
+        pressedImage
+            = ImageLoader.getImage(ImageLoader.CALL_HISTORY_BUTTON_PRESSED);
+
+        setHistoryView();
     }
 }

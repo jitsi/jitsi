@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.plaf.*;
 
@@ -28,10 +29,13 @@ import org.osgi.framework.*;
  * name, version, license etc..
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class AboutWindow
     extends JDialog
-    implements HyperlinkListener, ActionListener, ExportedWindow
+    implements  HyperlinkListener,
+                ActionListener,
+                ExportedWindow
 {
 
     /**
@@ -216,19 +220,31 @@ public class AboutWindow
                 KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK),
                 "close");
         }
+
+        GuiUtils.addWindow(this);
     }
 
     /**
      * Constructs the window background in order to have a background image.
      */
-    private static class WindowBackground extends JPanel
+    private static class WindowBackground
+        extends JPanel
+        implements Skinnable
     {
         private final Logger logger =
             Logger.getLogger(WindowBackground.class.getName());
-        
+
         private Image bgImage = null;
 
         public WindowBackground()
+        {
+            loadSkin();
+        }
+
+        /**
+         * Reloads resources for this component.
+         */
+        public void loadSkin()
         {
             try
             {

@@ -82,9 +82,11 @@ public class FileMenu
 
     /**
      * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
+     *
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
-    public void actionPerformed(ActionEvent e) {
-
+    public void actionPerformed(ActionEvent e)
+    {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemText = menuItem.getName();
 

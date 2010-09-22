@@ -28,6 +28,7 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class PresenceStatusMenu
     extends StatusSelectorMenu
@@ -325,5 +326,16 @@ public class PresenceStatusMenu
                 logger.error("Error - changing status", e1);
             }
         }
+    }
+
+    /**
+     * Loads resources for this component.
+     */
+    @Override
+    public void loadSkin()
+    {
+        super.loadSkin();
+
+        this.setIcon(ImageLoader.getAccountStatusImage(protocolProvider));
     }
 }

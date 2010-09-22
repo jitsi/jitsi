@@ -22,6 +22,7 @@ import net.java.sip.communicator.util.*;
  * All look and feel related constants are stored here.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class Constants
 {
@@ -78,7 +79,7 @@ public class Constants
      * The color used to paint the background of an incoming call history
      * record.
      */
-    public static final Color HISTORY_IN_CALL_COLOR
+    public static Color HISTORY_IN_CALL_COLOR
         = new Color(GuiActivator.getResources().
             getColor("service.gui.HISTORY_INCOMING_CALL_BACKGROUND"));
 
@@ -86,7 +87,7 @@ public class Constants
      * The color used to paint the background of an outgoing call history
      * record.
      */
-    public static final Color HISTORY_OUT_CALL_COLOR
+    public static Color HISTORY_OUT_CALL_COLOR
         = new Color(GuiActivator.getResources().
             getColor("service.gui.HISTORY_OUTGOING_CALL_BACKGROUND"));
 
@@ -94,7 +95,7 @@ public class Constants
      * The end color used to paint a gradient selected background of some
      * components.
      */
-    public static final Color SELECTED_COLOR
+    public static Color SELECTED_COLOR
         = new Color(GuiActivator.getResources().
             getColor("service.gui.LIST_SELECTION_COLOR"));
 
@@ -102,7 +103,7 @@ public class Constants
      * The start color used to paint a gradient mouse over background of some
      * components.
      */
-    public static final Color GRADIENT_DARK_COLOR
+    public static Color GRADIENT_DARK_COLOR
         = new Color(GuiActivator.getResources().
             getColor("service.gui.GRADIENT_DARK_COLOR"));
 
@@ -110,14 +111,14 @@ public class Constants
      * The end color used to paint a gradient mouse over background of some
      * components.
      */
-    public static final Color GRADIENT_LIGHT_COLOR
+    public static Color GRADIENT_LIGHT_COLOR
         = new Color(GuiActivator.getResources().
             getColor("service.gui.GRADIENT_LIGHT_COLOR"));
 
     /**
      * A color between blue and gray used to paint some borders.
      */
-    public static final Color BORDER_COLOR
+    public static Color BORDER_COLOR
         = new Color(GuiActivator.getResources().
             getColor("service.gui.BORDER_COLOR"));
 
@@ -125,14 +126,14 @@ public class Constants
      * A color between blue and gray (darker than the other one), used to paint
      * some borders.
      */
-    public static final Color LIST_SELECTION_BORDER_COLOR
+    public static Color LIST_SELECTION_BORDER_COLOR
         = new Color(GuiActivator.getResources().
             getColor("service.gui.LIST_SELECTION_BORDER_COLOR"));
 
     /**
      * The color used to paint the background of contact list groups.
      */
-    public static final Color CONTACT_LIST_GROUP_BG_COLOR
+    public static Color CONTACT_LIST_GROUP_BG_COLOR
         = new Color(GuiActivator.getResources()
                 .getColor("service.gui.CONTACT_LIST_GROUP_ROW"));
 
@@ -140,7 +141,7 @@ public class Constants
      * The end color used to paint a gradient mouse over background of some
      * components.
      */
-    public static final Color CONTACT_LIST_GROUP_BG_GRADIENT_COLOR
+    public static Color CONTACT_LIST_GROUP_BG_GRADIENT_COLOR
         = new Color(GuiActivator.getResources().
             getColor("service.gui.CONTACT_LIST_GROUP_GRADIENT"));
 
@@ -394,5 +395,47 @@ public class Constants
                 logger.error("Failed to close CSS stream.", ex);
             }
         }
+    }
+
+    /**
+     * Reloads constants.
+     */
+    public static void reload()
+    {
+        HISTORY_IN_CALL_COLOR
+            = new Color(GuiActivator.getResources().
+                getColor("service.gui.HISTORY_INCOMING_CALL_BACKGROUND"));
+
+        HISTORY_OUT_CALL_COLOR
+            = new Color(GuiActivator.getResources().
+                getColor("service.gui.HISTORY_OUTGOING_CALL_BACKGROUND"));
+
+        SELECTED_COLOR
+            = new Color(GuiActivator.getResources().
+                getColor("service.gui.LIST_SELECTION_COLOR"));
+
+        GRADIENT_DARK_COLOR
+            = new Color(GuiActivator.getResources().
+                getColor("service.gui.GRADIENT_DARK_COLOR"));
+
+        GRADIENT_LIGHT_COLOR
+            = new Color(GuiActivator.getResources().
+                getColor("service.gui.GRADIENT_LIGHT_COLOR"));
+
+        BORDER_COLOR
+            = new Color(GuiActivator.getResources().
+                getColor("service.gui.BORDER_COLOR"));
+
+        LIST_SELECTION_BORDER_COLOR
+            = new Color(GuiActivator.getResources().
+                getColor("service.gui.LIST_SELECTION_BORDER_COLOR"));
+
+        CONTACT_LIST_GROUP_BG_COLOR
+            = new Color(GuiActivator.getResources()
+                    .getColor("service.gui.CONTACT_LIST_GROUP_ROW"));
+
+        CONTACT_LIST_GROUP_BG_GRADIENT_COLOR
+            = new Color(GuiActivator.getResources().
+                getColor("service.gui.CONTACT_LIST_GROUP_GRADIENT"));
     }
 }

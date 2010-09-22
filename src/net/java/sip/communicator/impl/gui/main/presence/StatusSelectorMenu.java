@@ -15,6 +15,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -24,17 +25,17 @@ import net.java.sip.communicator.util.swing.*;
  * @see GlobalStatusSelectorBox
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public abstract class StatusSelectorMenu
     extends SIPCommMenu
-    implements ImageObserver
+    implements  ImageObserver,
+                Skinnable
 {
     /**
      * The connecting icon.
      */
-    private final Image connectingIcon
-        = GuiActivator.getResources().getImage("service.gui.icons.CONNECTING")
-            .getImage();
+    private Image connectingIcon;
 
     /**
      * Indicates if this menu is currently connecting.
@@ -69,6 +70,8 @@ public abstract class StatusSelectorMenu
         super(text, defaultIcon);
 
         this.protocolProvider = protocolProvider;
+
+        loadSkin();
     }
 
     /**
@@ -212,5 +215,15 @@ public abstract class StatusSelectorMenu
     public ProtocolProviderService getProtocolProvider()
     {
         return protocolProvider;
+    }
+
+    /**
+     * Load connecting icon.
+     */
+    public void loadSkin()
+    {
+        connectingIcon
+            = GuiActivator.getResources()
+                .getImage("service.gui.icons.CONNECTING").getImage();
     }
 }

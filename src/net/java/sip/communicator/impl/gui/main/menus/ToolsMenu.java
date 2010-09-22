@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
@@ -30,13 +31,35 @@ import org.osgi.framework.*;
  * 
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class ToolsMenu
     extends SIPCommMenu
     implements  ActionListener,
-                PluginComponentListener
+                PluginComponentListener,
+                Skinnable
 {
     private final Logger logger = Logger.getLogger(ToolsMenu.class);
+
+    /**
+    * Conference call menu item.
+    */
+    private JMenuItem conferenceMenuItem;
+
+   /**
+    * Show/Hide offline contacts menu item.
+    */
+    private JMenuItem hideOfflineMenuItem;
+
+   /**
+    * Sound menu item.
+    */
+    private JMenuItem soundMenuItem;
+
+   /**
+    * Preferences menu item.
+    */
+    JMenuItem configMenuItem;
 
     /**
      * Creates an instance of <tt>FileMenu</tt>.
@@ -199,11 +222,9 @@ public class ToolsMenu
 
         // Marks this feature as an ongoing work until its completed and fully
         // tested.
-        JMenuItem conferenceMenuItem = new JMenuItem(
+        conferenceMenuItem = new JMenuItem(
             GuiActivator.getResources().getI18NString(
-                "service.gui.CREATE_CONFERENCE_CALL"),
-            GuiActivator.getResources().getImage(
-                "service.gui.icons.CHAT_ROOM_16x16_ICON"));
+                "service.gui.CREATE_CONFERENCE_CALL"));
 
         conferenceMenuItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.CREATE_CONFERENCE_CALL"));
@@ -216,10 +237,8 @@ public class ToolsMenu
                             ? "service.gui.HIDE_OFFLINE_CONTACTS"
                             : "service.gui.SHOW_OFFLINE_CONTACTS";
 
-        JMenuItem hideOfflineMenuItem = new JMenuItem(
-            GuiActivator.getResources().getI18NString(offlineTextKey),
-            GuiActivator.getResources().getImage(
-                "service.gui.icons.SHOW_HIDE_OFFLINE_ICON"));
+        hideOfflineMenuItem = new JMenuItem(
+            GuiActivator.getResources().getI18NString(offlineTextKey));
 
         hideOfflineMenuItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic(offlineTextKey));
@@ -232,16 +251,17 @@ public class ToolsMenu
                             ? "service.gui.SOUND_ON"
                             : "service.gui.SOUND_OFF";
 
-        JMenuItem soundMenuItem = new JMenuItem(
-            GuiActivator.getResources().getI18NString(soundTextKey),
-            GuiActivator.getResources().getImage(
-                "service.gui.icons.SOUND_MENU_ICON"));
+        soundMenuItem = new JMenuItem(
+            GuiActivator.getResources().getI18NString(soundTextKey));
 
         soundMenuItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic(soundTextKey));
         soundMenuItem.setName("sound");
         soundMenuItem.addActionListener(this);
         this.add(soundMenuItem);
+
+        // All items are now instantiated and we could safely load the skin.
+        loadSkin();
     }
 
     /**
@@ -259,7 +279,7 @@ public class ToolsMenu
      */
     private void registerConfigMenuItemNonMacOSX()
     {
-        JMenuItem configMenuItem = new JMenuItem(
+        configMenuItem = new JMenuItem(
             GuiActivator.getResources().getI18NString("service.gui.SETTINGS"),
             GuiActivator.getResources().getImage(
                                 "service.gui.icons.CONFIGURE_ICON"));
@@ -269,5 +289,24 @@ public class ToolsMenu
             .getI18nMnemonic("service.gui.SETTINGS"));
         configMenuItem.setName("config");
         configMenuItem.addActionListener(this);
+    }
+
+    /**
+     * Loads menu item icons.
+     */
+    public void loadSkin()
+    {
+        conferenceMenuItem.setIcon(GuiActivator.getResources().getImage(
+                "service.gui.icons.CHAT_ROOM_16x16_ICON"));
+        hideOfflineMenuItem.setIcon(GuiActivator.getResources().getImage(
+                "service.gui.icons.SHOW_HIDE_OFFLINE_ICON"));
+        soundMenuItem.setIcon(GuiActivator.getResources().getImage(
+                "service.gui.icons.SOUND_MENU_ICON"));
+
+        if(configMenuItem != null)
+        {
+            configMenuItem.setIcon(GuiActivator.getResources().getImage(
+                    "service.gui.icons.CONFIGURE_ICON"));
+        }
     }
 }

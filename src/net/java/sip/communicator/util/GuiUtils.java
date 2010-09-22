@@ -26,7 +26,8 @@ public class GuiUtils
     /**
      * List of all windows owned by the app.
      */
-    private static final ArrayList<Window> WINDOW_LIST = new ArrayList<Window>();
+    private static final ArrayList<Window> WINDOW_LIST
+        = new ArrayList<Window>();
 
     private static Calendar c1 = Calendar.getInstance();
 

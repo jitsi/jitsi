@@ -11,7 +11,6 @@ import java.awt.image.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.List;
 
 import javax.imageio.*;
 import javax.swing.*;
@@ -27,6 +26,7 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class ImageLoader
 {
@@ -1416,5 +1416,13 @@ public class ImageLoader
             logger.error("Failed to load icon: " + imagePath, e);
         }
         return new ImageIcon(icon);
+    }
+
+    /**
+     * Clears the images cache.
+     */
+    public static void clearCache()
+    {
+        loadedImages.clear();
     }
 }

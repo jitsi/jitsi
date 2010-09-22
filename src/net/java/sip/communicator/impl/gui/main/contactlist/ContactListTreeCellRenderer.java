@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -32,11 +33,13 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class ContactListTreeCellRenderer
     extends JPanel
     implements  TreeCellRenderer,
-                Icon
+                Icon,
+                Skinnable
 {
     private static final Color glowOuterHigh = new Color(223, 238, 249, 100);
     private static final Color glowOuterLow = new Color(219, 233, 243, 100);
@@ -74,14 +77,12 @@ public class ContactListTreeCellRenderer
     /**
      * The icon used for opened groups.
      */
-    private final ImageIcon openedGroupIcon =
-        new ImageIcon(ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON));
+    private ImageIcon openedGroupIcon;
 
     /**
      * The icon used for closed groups.
      */
-    private final ImageIcon closedGroupIcon =
-        new ImageIcon(ImageLoader.getImage(ImageLoader.RIGHT_ARROW_ICON));
+    private ImageIcon closedGroupIcon;
 
     /**
      * The foreground color for groups.
@@ -106,18 +107,12 @@ public class ContactListTreeCellRenderer
     /**
      * The call button.
      */
-    private final SIPCommButton callButton = new SIPCommButton(
-        ImageLoader.getImage(ImageLoader.CALL_BUTTON_SMALL),
-        ImageLoader.getImage(ImageLoader.CALL_BUTTON_SMALL_PRESSED),
-        null);
+    private final SIPCommButton callButton = new SIPCommButton();
 
     /**
      * The chat button.
      */
-    private final SIPCommButton chatButton = new SIPCommButton(
-        ImageLoader.getImage(ImageLoader.CHAT_BUTTON_SMALL),
-        ImageLoader.getImage(ImageLoader.CHAT_BUTTON_SMALL_PRESSED),
-        null);
+    private final SIPCommButton chatButton = new SIPCommButton();
 
     /**
      * The constraints used to align components in the <tt>centerPanel</tt>.
@@ -130,8 +125,7 @@ public class ContactListTreeCellRenderer
      */
     protected final JLabel rightLabel = new JLabel();
 
-    private final Image msgReceivedImage =
-        ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
+    private Image msgReceivedImage;
 
     /**
      * The label containing the status icon.
@@ -172,17 +166,7 @@ public class ContactListTreeCellRenderer
 
         this.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 2));
 
-        int groupForegroundProperty = GuiActivator.getResources()
-            .getColor("service.gui.CONTACT_LIST_GROUP_FOREGROUND");
-
-        if (groupForegroundProperty > -1)
-            groupForegroundColor = new Color (groupForegroundProperty);
-
-        int contactForegroundProperty = GuiActivator.getResources()
-                .getColor("service.gui.CONTACT_LIST_CONTACT_FOREGROUND");
-
-        if (contactForegroundProperty > -1)
-            contactForegroundColor = new Color(contactForegroundProperty);
+        loadSkin();
 
         this.setOpaque(false);
         this.nameLabel.setOpaque(false);
@@ -799,5 +783,42 @@ public class ContactListTreeCellRenderer
             displayDetailsLabel.getHeight());
 
         return dragC;
+    }
+
+    /**
+     * Loads all images and colors.
+     */
+    public void loadSkin()
+    {
+        openedGroupIcon
+            = new ImageIcon(ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON));
+
+        closedGroupIcon
+            = new ImageIcon(ImageLoader.getImage(ImageLoader.RIGHT_ARROW_ICON));
+
+        callButton.setBackgroundImage(ImageLoader.getImage(
+                ImageLoader.CALL_BUTTON_SMALL));
+        callButton.setPressedImage(ImageLoader.getImage(
+                ImageLoader.CALL_BUTTON_SMALL_PRESSED));
+
+        chatButton.setBackgroundImage(ImageLoader.getImage(
+                ImageLoader.CHAT_BUTTON_SMALL));
+        chatButton.setPressedImage(ImageLoader.getImage(
+                ImageLoader.CHAT_BUTTON_SMALL_PRESSED));
+
+        msgReceivedImage
+            = ImageLoader.getImage(ImageLoader.MESSAGE_RECEIVED_ICON);
+
+        int groupForegroundProperty = GuiActivator.getResources()
+            .getColor("service.gui.CONTACT_LIST_GROUP_FOREGROUND");
+
+        if (groupForegroundProperty > -1)
+            groupForegroundColor = new Color (groupForegroundProperty);
+
+        int contactForegroundProperty = GuiActivator.getResources()
+                .getColor("service.gui.CONTACT_LIST_CONTACT_FOREGROUND");
+
+        if (contactForegroundProperty > -1)
+            contactForegroundColor = new Color(contactForegroundProperty);
     }
 }

@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -30,12 +31,14 @@ import net.java.sip.communicator.util.swing.*;
  * a contact.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class AddContactDialog
     extends SIPCommDialog
     implements  ExportedWindow,
                 ActionListener,
-                WindowFocusListener
+                WindowFocusListener,
+                Skinnable
 {
     private final Logger logger
         = Logger.getLogger(AddContactDialog.class.getName());
@@ -67,6 +70,11 @@ public class AddContactDialog
     private final MainFrame mainFrame;
 
     private MetaContact metaContact;
+
+    /**
+     * Image label.
+     */
+    private JLabel imageLabel = new JLabel();
 
     /**
      * Creates an instance of <tt>AddContactDialog</tt> that represents a dialog
@@ -139,12 +147,6 @@ public class AddContactDialog
      */
     private void init()
     {
-        JLabel imageLabel = new JLabel(
-            GuiActivator.getResources().getImage(
-                "service.gui.icons.ADD_CONTACT_DIALOG_ICON"));
-
-        imageLabel.setVerticalAlignment(JLabel.TOP);
-
         TransparentPanel labelsPanel
             = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
@@ -198,6 +200,9 @@ public class AddContactDialog
 
         this.setPreferredSize(new Dimension(450, 200));
         this.addWindowFocusListener(this);
+
+        // All items are now instantiated and could safely load the skin.
+        loadSkin();
     }
 
     /**
@@ -430,9 +435,7 @@ public class AddContactDialog
         this.contactAddressField.requestFocus();
     }
 
-    public void windowLostFocus(WindowEvent e)
-    {
-    }
+    public void windowLostFocus(WindowEvent e) {}
 
     /**
      * A custom renderer displaying accounts in a combo box.
@@ -595,5 +598,16 @@ public class AddContactDialog
             addButton.setEnabled(true);
         else
             addButton.setEnabled(false);
+    }
+
+    /**
+     * Reloads resources for this component.
+     */
+    public void loadSkin()
+    {
+        imageLabel.setIcon(GuiActivator.getResources().getImage(
+                "service.gui.icons.ADD_CONTACT_DIALOG_ICON"));
+
+        imageLabel.setVerticalAlignment(JLabel.TOP);
     }
 }

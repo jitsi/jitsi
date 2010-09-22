@@ -21,6 +21,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -28,12 +29,14 @@ import net.java.sip.communicator.util.swing.*;
  * current status menu and the avatar of the user.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class AccountStatusPanel
     extends TransparentPanel
     implements  RegistrationStateChangeListener,
                 PluginComponentListener,
-                AvatarListener
+                AvatarListener,
+                Skinnable
 {
     /**
      * The desired height of the avatar.
@@ -61,15 +64,12 @@ public class AccountStatusPanel
     /**
      * The background color property.
      */
-    private final Color bgColor
-        = new Color(GuiActivator.getResources()
-                        .getColor("service.gui.LOGO_BAR_BACKGROUND"));
+    private Color bgColor;
 
     /**
      * The background image property.
      */
-    private final Image logoBgImage
-        = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
+    private Image logoBgImage;
 
     /**
      * The combo box containing status menu.
@@ -79,7 +79,7 @@ public class AccountStatusPanel
     /**
      * TexturePaint used to paint background image.
      */
-    private final TexturePaint texture;
+    private TexturePaint texture;
 
     /**
      * The tool bar plug-in container.
@@ -162,17 +162,7 @@ public class AccountStatusPanel
 
         this.add(southPluginPanel, BorderLayout.SOUTH);
 
-        // texture
-        BufferedImage bgImage
-            = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR_BG);
-        texture
-            = new TexturePaint(
-                    bgImage,
-                    new Rectangle(
-                            0,
-                            0,
-                            bgImage.getWidth(null),
-                            bgImage.getHeight(null)));
+        loadSkin();
 
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
@@ -517,5 +507,36 @@ public class AccountStatusPanel
     {
         currentImage = event.getNewAvatar();
         accountImageLabel.setImageIcon(currentImage);
+    }
+
+    /**
+     * Loads images for the account status panel.
+     */
+    public void loadSkin()
+    {
+        bgColor
+            = new Color(GuiActivator.getResources()
+                .getColor("service.gui.LOGO_BAR_BACKGROUND"));
+
+        logoBgImage
+            = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
+
+        // texture
+        BufferedImage bgImage
+            = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR_BG);
+        texture
+            = new TexturePaint(
+                    bgImage,
+                    new Rectangle(
+                            0,
+                            0,
+                            bgImage.getWidth(null),
+                            bgImage.getHeight(null)));
+
+        GuiActivator.getUIService().addPluginComponentListener(this);
+
+        if(currentImage == null)
+            accountImageLabel.setImageIcon(ImageLoader
+                .getImage(ImageLoader.DEFAULT_USER_PHOTO));
     }
 }

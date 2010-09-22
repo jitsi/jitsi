@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * DeafultContactlist used to display <code>JList</code>s with contacts.
@@ -28,6 +29,7 @@ import net.java.sip.communicator.service.contactlist.*;
  */
 public class DefaultTreeContactList
     extends JTree
+    implements Skinnable
 {
     private static final long serialVersionUID = 0L;
 
@@ -35,6 +37,11 @@ public class DefaultTreeContactList
      * The cached selection event.
      */
     private TreeSelectionEvent myCachedSelectionEvent;
+
+    /**
+     * The tree cell renderer.
+     */
+    private ContactListTreeCellRenderer renderer;
 
     /**
      * Creates an instance of <tt>DefaultContactList</tt>.
@@ -45,7 +52,10 @@ public class DefaultTreeContactList
         this.setBackground(Color.WHITE);
         this.setDragEnabled(true);
         this.setTransferHandler(new ContactListTransferHandler(this));
-        this.setCellRenderer(new ContactListTreeCellRenderer());
+
+        renderer = new ContactListTreeCellRenderer();
+        this.setCellRenderer(renderer);
+
         ToolTipManager.sharedInstance().registerComponent(this);
 
         // By default 2 successive clicks are need to begin dragging.
@@ -190,5 +200,13 @@ public class DefaultTreeContactList
                     + element.toString();
         }
         return null;
+    }
+
+    /**
+     * Reloads renderer resources for this tree.
+     */
+    public void loadSkin()
+    {
+        renderer.loadSkin();
     }
 }

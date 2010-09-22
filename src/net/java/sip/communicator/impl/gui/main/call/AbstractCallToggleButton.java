@@ -12,6 +12,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -19,15 +20,38 @@ import net.java.sip.communicator.util.swing.*;
  * Allows extending buttons to focus on performing their toggle actions.
  *
  * @author Dmitri Melnikov
+ * @author Adam Netocny
+ * @author Yana Stamcheva
  */
 public abstract class AbstractCallToggleButton
     extends SIPCommToggleButton
-    implements ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     /**
      * The <tt>Call</tt> that this button controls.
      */
     protected final Call call;
+
+    /**
+     * The background image.
+     */
+    protected ImageID bgImage;
+
+    /**
+     * The rollover image
+     */
+    protected ImageID bgRolloverImage;
+
+    /**
+     * The pressed image.
+     */
+    protected ImageID pressedImage;
+
+    /**
+     * The icon image.
+     */
+    protected ImageID iconImageID;
 
     /**
      * Initializes a new <tt>AbstractCallToggleButton</tt> instance which is to
@@ -52,10 +76,7 @@ public abstract class AbstractCallToggleButton
             String toolTipTextKey)
     {
         this.call = call;
-
-        ImageID bgImage;
-        ImageID bgRolloverImage;
-        ImageID pressedImage;
+        this.iconImageID = iconImageID;
 
         if (fullScreen)
         {
@@ -69,11 +90,7 @@ public abstract class AbstractCallToggleButton
             bgRolloverImage = ImageLoader.CALL_SETTING_BUTTON_BG;
             pressedImage = ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG;
         }
-        setBgImage(ImageLoader.getImage(bgImage));
-        setBgRolloverImage(ImageLoader.getImage(bgRolloverImage));
-        setPressedImage(ImageLoader.getImage(pressedImage));
 
-        setIconImage(ImageLoader.getImage(iconImageID));
         if (toolTipTextKey != null)
         {
             setToolTipText(
@@ -82,8 +99,22 @@ public abstract class AbstractCallToggleButton
 
         addActionListener(this);
         setSelected(selected);
+
+        // All items are now instantiated and could safely load the skin.
+        loadSkin();
     }
-    
+
+    /**
+     * Loads images.
+     */
+    public void loadSkin()
+    {
+        setBgImage(ImageLoader.getImage(bgImage));
+        setBgRolloverImage(ImageLoader.getImage(bgRolloverImage));
+        setPressedImage(ImageLoader.getImage(pressedImage));
+        setIconImage(ImageLoader.getImage(iconImageID));
+    }
+
     /**
      * Notifies this <tt>AbstractCallToggleButton</tt> that its associated
      * action has been performed and that it should execute its very logic.

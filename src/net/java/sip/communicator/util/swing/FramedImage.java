@@ -11,21 +11,36 @@ import java.awt.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * A custom component, used to show images in a frame.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class FramedImage
     extends JComponent
+    implements Skinnable
 {
-    private final Image frameImage;
+    /**
+     * The frame image.
+     */
+    private Image frameImage;
 
+    /**
+     * The icon image.
+     */
     private ImageIcon icon;
 
+    /**
+     * The default width of the image.
+     */
     protected final int width;
 
+    /**
+     * The default height of the image.
+     */
     protected final int height;
 
     /**
@@ -43,14 +58,7 @@ public class FramedImage
 
         this.setPreferredSize(new Dimension(width, height));
 
-        this.frameImage
-            = ImageUtils
-                .scaleImageWithinBounds(
-                    UtilActivator
-                        .getResources()
-                            .getImage("service.gui.USER_PHOTO_FRAME").getImage(),
-                    width,
-                    height);
+        loadSkin();
 
         if (imageIcon != null)
             this.icon = ImageUtils.scaleIconWithinBounds(
@@ -136,5 +144,20 @@ public class FramedImage
                 width / 2 - frameWidth / 2,
                 height / 2 - frameHeight / 2,
                 null);
+    }
+
+    /**
+     * Loads the framed image.
+     */
+    public void loadSkin()
+    {
+        this.frameImage
+            = ImageUtils
+                .scaleImageWithinBounds(
+                    UtilActivator
+                        .getResources()
+                            .getImage("service.gui.USER_PHOTO_FRAME").getImage(),
+                    width,
+                    height);
     }
 }

@@ -37,6 +37,7 @@ import net.java.sip.communicator.util.swing.*;
  * 
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class GlobalStatusSelectorBox
     extends StatusSelectorMenu
@@ -51,7 +52,7 @@ public class GlobalStatusSelectorBox
      * The arrow icon shown on the right of the status and indicating that
      * this is a menu.
      */
-    private final Image arrowImage
+    private Image arrowImage
         = ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON);
 
     /**
@@ -110,6 +111,8 @@ public class GlobalStatusSelectorBox
      */
     public GlobalStatusSelectorBox(MainFrame mainFrame)
     {
+        super();
+
         this.mainFrame = mainFrame;
 
         JLabel titleLabel = new JLabel(GuiActivator.getResources()
@@ -949,5 +952,31 @@ public class GlobalStatusSelectorBox
                 return menu;
         }
         return null;
+    }
+
+    /**
+     * Loads all icons and updates global status.
+     */
+    @Override
+    public void loadSkin()
+    {
+        super.loadSkin();
+
+        arrowImage
+            = ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON);
+
+        onlineItem.setIcon(new ImageIcon(ImageLoader.getImage(
+                ImageLoader.USER_ONLINE_ICON)));
+
+        ffcItem.setIcon(new ImageIcon(ImageLoader.getImage(
+                ImageLoader.USER_FFC_ICON)));
+
+        awayItem.setIcon(new ImageIcon(ImageLoader.getImage(
+                ImageLoader.USER_AWAY_ICON)));
+
+        offlineItem.setIcon(new ImageIcon(ImageLoader.getImage(
+                ImageLoader.USER_OFFLINE_ICON)));
+
+        updateGlobalStatus();
     }
 }

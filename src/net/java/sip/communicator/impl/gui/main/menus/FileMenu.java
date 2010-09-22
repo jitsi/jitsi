@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -29,10 +30,12 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class FileMenu
     extends SIPCommMenu
-    implements ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     /**
      * The <tt>Logger</tt> used by the <tt>FileMenu</tt> class and its instances
@@ -43,6 +46,31 @@ public class FileMenu
     private final MainFrame parentWindow;
 
     /**
+     * Add new account menu item.
+     */
+    private JMenuItem newAccountMenuItem;
+
+    /**
+     * Add new contact menu item.
+     */
+    private JMenuItem addContactItem;
+
+    /**
+     * Create group menu item.
+     */
+    private JMenuItem createGroupItem;
+
+    /**
+     * Chat rooms menu item.
+     */
+    private JMenuItem myChatRoomsItem;
+
+    /**
+     * Close menu item.
+     */
+    private JMenuItem closeMenuItem;
+
+    /**
      * Creates an instance of <tt>FileMenu</tt>.
      * @param parentWindow The parent <tt>ChatWindow</tt>.
      */
@@ -51,21 +79,14 @@ public class FileMenu
         super(GuiActivator.getResources().getI18NString("service.gui.FILE"));
 
         ResourceManagementService resources = GuiActivator.getResources();
-        JMenuItem newAccountMenuItem = new JMenuItem(
-            resources.getI18NString("service.gui.NEW_ACCOUNT"),
-            new ImageIcon(ImageLoader.getImage(
-                ImageLoader.ADD_ACCOUNT_MENU_ICON)));
-        JMenuItem addContactItem = new JMenuItem(
-            resources.getI18NString("service.gui.ADD_CONTACT") + "...",
-            new ImageIcon(ImageLoader.getImage(
-                ImageLoader.ADD_CONTACT_16x16_ICON)));
-        JMenuItem createGroupItem = new JMenuItem(
-            resources.getI18NString("service.gui.CREATE_GROUP"),
-            new ImageIcon(ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
-        JMenuItem myChatRoomsItem = new JMenuItem(
-            resources.getI18NString("service.gui.MY_CHAT_ROOMS"),
-            new ImageIcon(ImageLoader.getImage(
-                ImageLoader.CHAT_ROOM_16x16_ICON)));
+        newAccountMenuItem = new JMenuItem(
+            resources.getI18NString("service.gui.NEW_ACCOUNT"));
+        addContactItem = new JMenuItem(
+            resources.getI18NString("service.gui.ADD_CONTACT") + "...");
+        createGroupItem = new JMenuItem(
+            resources.getI18NString("service.gui.CREATE_GROUP"));
+        myChatRoomsItem = new JMenuItem(
+            resources.getI18NString("service.gui.MY_CHAT_ROOMS"));
 
         this.setOpaque(false);
 
@@ -83,6 +104,9 @@ public class FileMenu
         this.add(myChatRoomsItem);
 
         registerCloseMenuItem();
+
+        // All items are now instantiated and could safely load the skin.
+        loadSkin();
 
         //this.addContactItem.setIcon(new ImageIcon(ImageLoader
         //        .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
@@ -110,10 +134,37 @@ public class FileMenu
     }
 
     /**
-     * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
+     * Loads icons.
      */
-    public void actionPerformed(ActionEvent e) {
+    public void loadSkin()
+    {
+        newAccountMenuItem.setIcon(
+            new ImageIcon(ImageLoader.getImage(
+                ImageLoader.ADD_ACCOUNT_MENU_ICON)));
+        addContactItem.setIcon(
+            new ImageIcon(ImageLoader.getImage(
+                ImageLoader.ADD_CONTACT_16x16_ICON)));
+        createGroupItem.setIcon(
+            new ImageIcon(ImageLoader.getImage(
+                ImageLoader.GROUPS_16x16_ICON)));
+        myChatRoomsItem.setIcon(
+            new ImageIcon(ImageLoader.getImage(
+                ImageLoader.CHAT_ROOM_16x16_ICON)));
 
+        if(closeMenuItem != null)
+        {
+            closeMenuItem.setIcon(
+                new ImageIcon(ImageLoader.getImage(
+                    ImageLoader.QUIT_16x16_ICON)));
+        }
+    }
+
+    /**
+     * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
+     * @param e the <tt>ActionEvent</tt> that notified us
+     */
+    public void actionPerformed(ActionEvent e)
+    {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
@@ -143,11 +194,17 @@ public class FileMenu
         }
     }
 
+    /**
+     * Indicates that the close menu has been selected.
+     */
     void closeActionPerformed()
     {
         GuiActivator.getUIService().beginShutdown();
     }
 
+    /**
+     * Registers the close menu item.
+     */
     private void registerCloseMenuItem()
     {
         UIService uiService = GuiActivator.getUIService();
@@ -158,11 +215,23 @@ public class FileMenu
         }
     }
 
+    /**
+     * Registers the close menu item for the MacOSX platform.
+     * @return <tt>true</tt> if the operation succeeded, <tt>false</tt> -
+     * otherwise
+     */
     private boolean registerCloseMenuItemMacOSX()
     {
         return registerMenuItemMacOSX("Quit", this);
     }
 
+    /**
+     * Registers the close menu item for the MacOSX platform.
+     * @param menuItemText the name of the item
+     * @param userData the user data
+     * @return <tt>true</tt> if the operation succeeded, <tt>false</tt> -
+     * otherwise
+     */
     static boolean registerMenuItemMacOSX(String menuItemText, Object userData)
     {
         Exception exception = null;
@@ -201,11 +270,13 @@ public class FileMenu
         return false;
     }
 
+    /**
+     * Registers the close menu item for all NON-MacOSX platforms.
+     */
     private void registerCloseMenuItemNonMacOSX()
     {
-        JMenuItem closeMenuItem = new JMenuItem(
-            GuiActivator.getResources().getI18NString("service.gui.QUIT"),
-            new ImageIcon(ImageLoader.getImage(ImageLoader.QUIT_16x16_ICON)));
+        closeMenuItem = new JMenuItem(
+            GuiActivator.getResources().getI18NString("service.gui.QUIT"));
 
         this.addSeparator();
         this.add(closeMenuItem);

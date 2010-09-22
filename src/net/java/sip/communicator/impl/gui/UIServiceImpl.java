@@ -26,6 +26,7 @@ import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
@@ -33,6 +34,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
@@ -467,6 +469,12 @@ public class UIServiceImpl
         }
     }
 
+    /**
+     * Adds the given <tt>PluginComponentListener</tt> to the list of component
+     * listeners registered in this <tt>UIService</tt> implementation.
+     *
+     * @param l the <tt>PluginComponentListener</tt> to add
+     */
     public void addPluginComponentListener(PluginComponentListener l)
     {
         synchronized (pluginComponentListeners)
@@ -475,6 +483,12 @@ public class UIServiceImpl
         }
     }
 
+    /**
+     * Removes the given <tt>PluginComponentListener</tt> from the list of
+     * component listeners registered in this <tt>UIService</tt> implementation.
+     *
+     * @param l the <tt>PluginComponentListener</tt> to remove
+     */
     public void removePluginComponentListener(PluginComponentListener l)
     {
         synchronized (pluginComponentListeners)
@@ -661,6 +675,15 @@ public class UIServiceImpl
     /**
      * Returns an instance of <tt>AuthenticationWindow</tt> for the given
      * protocol provider, realm and user credentials.
+     *
+     * @param protocolProvider the protocol provider, for which we'd like to
+     * obtain an authentication window
+     * @param realm the realm to use in the authentication window
+     * @param userCredentials the <tt>UserCredentials</tt>, which would carry
+     * the information entered by the user
+     * @param isUserNameEditable indicates if the user name is editable or not
+     * @return the <tt>ExportedWindow</tt>, corresponding to the authentication
+     * window
      */
     public ExportedWindow getAuthenticationWindow(
         ProtocolProviderService protocolProvider,
@@ -930,6 +953,7 @@ public class UIServiceImpl
     /**
      * Notifies all plugin containers of a <tt>PluginComponent</tt>
      * registration.
+     * @param event the <tt>ServiceEvent</tt> that notified us
      */
     public void serviceChanged(ServiceEvent event)
     {
@@ -1001,6 +1025,11 @@ public class UIServiceImpl
         return layoutConstraint;
     }
 
+    /**
+     * Indicates that a <tt>PropertyChangeEvent</tt> has occurred.
+     *
+     * @param evt the <tt>PropertyChangeEvent</tt> that notified us
+     */
     public void propertyChange(PropertyChangeEvent evt)
     {
         String propertyName = evt.getPropertyName();
@@ -1065,20 +1094,23 @@ public class UIServiceImpl
         }
     }
 
-    /*
+    /**
      * Implements UIService#useMacOSXScreenMenuBar(). Indicates that the Mac OS
      * X screen menu bar is to be used on Mac OS X and the Windows-like
      * per-window menu bars are to be used on non-Mac OS X operating systems.
+     *
+     * @return <tt>true</tt> to indicate that MacOSX screen menu bar should be
+     * used, <tt>false</tt> - otherwise
      */
     public boolean useMacOSXScreenMenuBar()
     {
         return OSUtils.IS_MAC;
     }
 
-    /*
-     * Implements ShutdownService#beginShutdown(). Disposes of the mainFrame (if
-     * it exists) and then instructs Felix to start shutting down the bundles so
-     * that the application can gracefully quit.
+    /**
+     * Implements ShutdownService#beginShutdown(). Disposes of the mainFrame
+     * (if it exists) and then instructs Felix to start shutting down the
+     * bundles so that the application can gracefully quit.
      */
     public void beginShutdown()
     {
@@ -1101,10 +1133,13 @@ public class UIServiceImpl
         }
     }
 
-    /*
+    /**
      * Implements UIService#setConfigurationWindowVisible(boolean). Makes sure
      * there is only one ConfigurationFrame instance visible at one and the same
      * time.
+     *
+     * @param visible <tt>true</tt> to show the configuration frame,
+     * <tt>false</tt> - otherwise
      */
     public void setConfigurationWindowVisible(boolean visible)
     {
@@ -1238,10 +1273,43 @@ public class UIServiceImpl
      */
     public void repaintUI()
     {
+        Constants.reload();
+        ImageLoader.clearCache();
+
         Window[] windows = GuiUtils.getWindows();
         for(Window win : windows)
         {
+            reloadComponents(win);
             GuiUtils.updateComponentTreeUI(win);
+        }
+    }
+
+    /**
+     * Reloads reload-able children of the given <tt>window</tt>.
+     *
+     * @param window the window, which components to reload
+     */
+    private void reloadComponents(Window window)
+    {
+        reloadComponents((java.awt.Container) window);
+    }
+
+    /**
+     * Reloads all children components of the given <tt>container</tt> in depth.
+     *
+     * @param container the container, which children to reload
+     */
+    private void reloadComponents(java.awt.Container container)
+    {
+        for (int i = 0; i < container.getComponentCount(); i++)
+        {
+            Component c = container.getComponent(i);
+
+            if (c instanceof Skinnable)
+                ((Skinnable) c).loadSkin();
+
+            if (c instanceof java.awt.Container)
+                reloadComponents((java.awt.Container) c);
         }
     }
 }
