@@ -619,17 +619,22 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
                 }
                 throw new XCapException(errorMessage);
             }
+
+            // an empty list
+            if (StringUtils.isNullOrEmpty(response.getContentType())
+                    || (content == null || content.length == 0))
+            {
+                return null;
+            }
+
             if (!contentType.equals(response.getContentType()))
             {
                 String errorMessage = String.format(
                         "XCAP server returns invalid content type: %1s",
-                        contentType);
+                        response.getContentType());
                 throw new XCapException(errorMessage);
             }
-            if (content == null || content.length == 0)
-            {
-                return null;
-            }
+
             return new String(content, "UTF-8");
         }
         catch (IOException e)

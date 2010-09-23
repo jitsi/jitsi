@@ -865,7 +865,11 @@ public class ServerStoredContactListSipImpl
         }
         catch (XCapException e)
         {
-            logger.error(e);
+            logger.error("Error initializing serverside list!", e);
+
+            // if for some reason we cannot init the contact list
+            // disconnect xcap client
+            sipProvider.getXCapClient().disconnect();
         }
     }
 
