@@ -3,16 +3,15 @@
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.util;
 
 import java.util.*;
 
 /**
  * The GenericBuffer class provides a way to minimize the effort needed to
- * bufferize any kind of information. This class is particularly suited to
+ * buffer any kind of information. This class is particularly suited to
  * optimizations based on reusing already computed data.
- * 
+ *
  * @author Benoit Pradelle
  */
 public class GenericBuffer<T>

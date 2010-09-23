@@ -509,7 +509,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             }
             else if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                //subscribe for Google (GMail or Google Apps) notifications
+                //subscribe for Google (Gmail or Google Apps) notifications
                 //for new mail messages.
                 boolean enableGmailNotifications
                    = jabberProvider
@@ -893,7 +893,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
     /**
      * Subscribes this provider as interested in receiving notifications for
-     * new mail messages from Google mail services such as GMail or Google Apps.
+     * new mail messages from Google mail services such as Gmail or Google Apps.
      */
     private void subscribeForGmailNotifications()
     {
@@ -908,14 +908,14 @@ public class OperationSetBasicInstantMessagingJabberImpl
         {
             if (logger.isDebugEnabled())
                 logger.debug(accountIDService
-                        +" does not seem to provide a GMail notification "
+                        +" does not seem to provide a Gmail notification "
                         +" service so we won't be trying to subscribe for it");
             return;
         }
 
         if (logger.isDebugEnabled())
             logger.debug(accountIDService
-                        +" seems to provide a GMail notification "
+                        +" seems to provide a Gmail notification "
                         +" service so we will try to subscribe for it");
 
         ProviderManager providerManager = ProviderManager.getInstance();

@@ -32,7 +32,6 @@ package net.java.sip.communicator.util;
 
 import java.io.*;
 
-
 public class Base64
 {
     private static final Base64Encoder encoder = new Base64Encoder();

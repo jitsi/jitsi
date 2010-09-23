@@ -30,8 +30,8 @@ public class CallPeerMediaHandlerJabberImpl
      * The <tt>Logger</tt> used by the <tt>CallPeerMediaHandlerJabberImpl</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger = Logger
-                    .getLogger(CallPeerMediaHandlerJabberImpl.class.getName());
+    private static final Logger logger
+        = Logger.getLogger(CallPeerMediaHandlerJabberImpl.class);
 
     /**
      * A temporarily single transport manager that we use for generating
@@ -111,9 +111,7 @@ public class CallPeerMediaHandlerJabberImpl
                 = JingleUtils.getRtpDescription(content);
 
             if(description.getMedia().equals(contentType))
-            {
                 return content;
-            }
         }
         return null;
     }
@@ -133,9 +131,7 @@ public class CallPeerMediaHandlerJabberImpl
                 = JingleUtils.getRtpDescription(content);
 
             if(description.getMedia().equals(contentType))
-            {
                 return content;
-            }
         }
         return null;
     }
@@ -296,7 +292,7 @@ public class CallPeerMediaHandlerJabberImpl
                 if(helloHash != null && helloHash[1].length() > 0)
                 {
                     ZrtpHashPacketExtension hash
-                    = new ZrtpHashPacketExtension();
+                        = new ZrtpHashPacketExtension();
                     hash.setVersion(helloHash[0]);
                     hash.setValue(helloHash[1]);
 
@@ -407,7 +403,7 @@ public class CallPeerMediaHandlerJabberImpl
      * Creates a {@link ContentPacketExtension}s of the streams for a
      * specific <tt>MediaDevice</tt>.
      *
-     * @param type <tt>MediaDevice</tt>
+     * @param dev <tt>MediaDevice</tt>
      * @return the {@link ContentPacketExtension}s of stream that this
      * handler is prepared to initiate.
      * @throws OperationFailedException if we fail to create the descriptions
@@ -464,7 +460,7 @@ public class CallPeerMediaHandlerJabberImpl
      * prepared to initiate depending on available <tt>MediaDevice</tt>s and
      * local on-hold and video transmission preferences.
      *
-     * @param type <tt>MediaType</tt> of the content
+     * @param mediaType <tt>MediaType</tt> of the content
      * @return a {@link List} containing the {@link ContentPacketExtension}s of
      * streams that this handler is prepared to initiate.
      *
@@ -642,9 +638,7 @@ public class CallPeerMediaHandlerJabberImpl
             ContentPacketExtension ext = remoteContentMap.get(key);
 
             if(ext != null)
-            {
                 processContent(ext);
-            }
         }
     }
 
@@ -687,9 +681,7 @@ public class CallPeerMediaHandlerJabberImpl
         ContentPacketExtension content = localContentMap.remove(name);
 
         if(content == null)
-        {
             return;
-        }
 
         RtpDescriptionPacketExtension description
             = JingleUtils.getRtpDescription(content);
@@ -714,9 +706,7 @@ public class CallPeerMediaHandlerJabberImpl
         ContentPacketExtension content = remoteContentMap.remove(name);
 
         if(content == null)
-        {
             return;
-        }
 
         RtpDescriptionPacketExtension description
             = JingleUtils.getRtpDescription(content);
@@ -853,7 +843,6 @@ public class CallPeerMediaHandlerJabberImpl
      *
      * @return the transport manager that is handling our address management.
      */
-    @Override
     public TransportManagerJabberImpl getTransportManager()
     {
         return transportManager;
@@ -889,13 +878,9 @@ public class CallPeerMediaHandlerJabberImpl
         {
             //off hold - make sure that we re-enable sending if that's
             if(audioStream != null)
-            {
                 calculatePostHoldDirection(audioStream);
-            }
             if(videoStream != null)
-            {
                 calculatePostHoldDirection(videoStream);
-            }
         }
     }
 

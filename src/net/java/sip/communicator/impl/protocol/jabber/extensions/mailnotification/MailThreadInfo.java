@@ -601,7 +601,7 @@ public class MailThreadInfo
 
     /**
      * Creates an html description of all participant names in the thread.
-     * We try to do this in a GMail-like (although quite simplified) way:<br/>
+     * We try to do this in a Gmail-like (although quite simplified) way:<br/>
      * We print the whole name for a sole participant. <br/>
      * We print only the first names for more than one participant. <br/>
      * We print up to three names max. <br/>

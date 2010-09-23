@@ -22,6 +22,10 @@ import net.java.sip.communicator.util.*;
  */
 class ArgDelegator
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>ArgDelegator</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger = Logger.getLogger(ArgDelegator.class);
 
     /**
@@ -96,9 +100,7 @@ class ArgDelegator
         synchronized(recordedArgs)
         {
             if(uriDelegationPeer != null)
-            {
                 uriDelegationPeer.handleConcurrentInvocationRequest();
-            }
         }
     }
 }

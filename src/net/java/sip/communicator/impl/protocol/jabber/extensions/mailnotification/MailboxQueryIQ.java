@@ -11,7 +11,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * A straightforward <tt>IQ</tt> extension. The <tt>QueryNotify</tt> object is
- * used to create queries for the GMail mail server. It creates a simple
+ * used to create queries for the Gmail mail server. It creates a simple
  * <tt>IQ</tt> packet which represents the query.
  *
  * @author Matthieu Helleringer

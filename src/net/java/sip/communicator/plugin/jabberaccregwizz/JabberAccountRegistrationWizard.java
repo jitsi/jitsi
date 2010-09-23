@@ -471,7 +471,7 @@ public class JabberAccountRegistrationWizard
     }
 
     /**
-     * Opens the GMail signup URI in the OS's default browser.
+     * Opens the Gmail signup URI in the OS's default browser.
      */
     public void webSignup()
     {

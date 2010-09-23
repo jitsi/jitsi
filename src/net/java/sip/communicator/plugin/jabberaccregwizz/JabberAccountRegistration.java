@@ -175,10 +175,10 @@ public class JabberAccountRegistration
     }
 
     /**
-     * Determines whether SIP Communicator should be querying GMail servers
+     * Determines whether SIP Communicator should be querying Gmail servers
      * for unread mail messages.
      *
-     * @return <tt>true</tt> if we are to enable GMail notifications and
+     * @return <tt>true</tt> if we are to enable Gmail notifications and
      * <tt>false</tt> otherwise.
      */
     public boolean isGmailNotificationEnabled()
@@ -229,10 +229,10 @@ public class JabberAccountRegistration
     }
 
     /**
-     * Specifies whether SIP Communicator should be querying GMail servers
+     * Specifies whether SIP Communicator should be querying Gmail servers
      * for unread mail messages.
      *
-     * @param enabled <tt>true</tt> if we are to enable GMail notification and
+     * @param enabled <tt>true</tt> if we are to enable Gmail notification and
      * <tt>false</tt> otherwise.
      */
     public void setGmailNotificationEnabled(boolean enabled)

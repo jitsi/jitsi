@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.util;
 
-import java.io.*;
 import java.util.logging.*;
 
 /**

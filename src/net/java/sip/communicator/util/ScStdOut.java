@@ -272,6 +272,4 @@ public class ScStdOut extends PrintStream
         if(stdOutPrintingEnabled)
             super.println();
     }
-
-
 }

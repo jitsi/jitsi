@@ -76,19 +76,14 @@ public class ChangeJVMFrame
         this.javaLinkPane.setContentType("text/html");
         this.javaLinkPane.setEditable(false);
 
-        if (osName.equals(MAC_OSX))
-            this.javaLinkPane.setText(macLink);
-        else
-            this.javaLinkPane.setText(defaultLink);
+        this.javaLinkPane.setText(osName.equals(MAC_OSX) ? macLink : defaultLink);
 
         this.javaLinkPane.addHyperlinkListener(new HyperlinkListener()
         {
             public void hyperlinkUpdate(HyperlinkEvent e)
             {
                 if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
-                {
                     new BrowserLauncher().openURL(e.getDescription());
-                }
             }
         });
 

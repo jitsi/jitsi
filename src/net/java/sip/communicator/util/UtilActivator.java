@@ -29,6 +29,10 @@ public class UtilActivator
     implements BundleActivator, 
                Thread.UncaughtExceptionHandler
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>UtilActivator</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger
         = Logger.getLogger(UtilActivator.class);
 
@@ -99,14 +103,10 @@ public class UtilActivator
     {
         if (configurationService == null)
         {
-            ServiceReference serviceReference =
-                bundleContext.getServiceReference(ConfigurationService.class
-                    .getName());
-
-            if (serviceReference != null)
-                configurationService =
-                    (ConfigurationService) bundleContext
-                        .getService(serviceReference);
+            configurationService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
         }
         return configurationService;
     }
@@ -115,14 +115,10 @@ public class UtilActivator
     {
         if (keybindingsService == null)
         {
-            ServiceReference serviceReference =
-                bundleContext.getServiceReference(KeybindingsService.class
-                    .getName());
-
-            if (serviceReference != null)
-                keybindingsService =
-                    (KeybindingsService) bundleContext
-                        .getService(serviceReference);
+            keybindingsService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        KeybindingsService.class);
         }
         return keybindingsService;
     }
@@ -135,9 +131,10 @@ public class UtilActivator
     public static ResourceManagementService getResources()
     {
         if (resourceService == null)
-            resourceService =
-                ResourceManagementServiceUtils.getService(bundleContext);
-
+        {
+            resourceService
+                = ResourceManagementServiceUtils.getService(bundleContext);
+        }
         return resourceService;
     }
 
@@ -154,9 +151,7 @@ public class UtilActivator
         URL path = getResources().getImageURL(imageID);
 
         if (path == null)
-        {
             return null;
-        }
 
         try
         {
