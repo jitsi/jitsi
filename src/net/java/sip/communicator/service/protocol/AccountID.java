@@ -269,6 +269,13 @@ public abstract class AccountID
         return intValue;
     }
 
+    /**
+     * Returns the account property string corresponding to the given key.
+     *
+     * @param key the key, corresponding to the property string we're looking
+     * for
+     * @return the account property string corresponding to the given key
+     */
     public String getAccountPropertyString(Object key)
     {
         Object value = getAccountProperty(key);

@@ -498,7 +498,11 @@ public class ResourceManagementServiceImpl
             }
         }
 
-        return imagePack.getClass().getClassLoader().getResourceAsStream(path);
+        if (path != null)
+            return imagePack.getClass().getClassLoader()
+                    .getResourceAsStream(path);
+
+        return null;
     }
 
     /**

@@ -1403,7 +1403,12 @@ public class ImageLoader
 
         if(is == null)
             is = GuiActivator.getResources()
-                .getImageInputStreamForPath(imagePath);
+                    .getImageInputStreamForPath(imagePath);
+
+        // If we didn't find the icon corresponding to the given path, we have
+        // nothing more to do here.
+        if (is == null)
+            return null;
 
         byte[] icon = null;
         try

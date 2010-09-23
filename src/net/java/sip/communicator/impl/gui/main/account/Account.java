@@ -82,9 +82,11 @@ public class Account
 
         this.name = accountID.getDisplayName();
 
-        this.icon = ImageLoader.getImageForPath(
-            accountID.getAccountPropertyString(
-                ProtocolProviderFactory.ACCOUNT_ICON_PATH));
+        String iconPath = accountID.getAccountPropertyString(
+            ProtocolProviderFactory.ACCOUNT_ICON_PATH);
+
+        if (iconPath != null)
+            this.icon = ImageLoader.getImageForPath(iconPath);
 
         this.isEnabled = accountID.isEnabled();
     }
@@ -131,10 +133,6 @@ public class Account
      */
     public Icon getIcon()
     {
-        icon = ImageLoader.getImageForPath(
-            accountID.getAccountPropertyString(
-                ProtocolProviderFactory.ACCOUNT_ICON_PATH));
-
         return icon;
     }
 
