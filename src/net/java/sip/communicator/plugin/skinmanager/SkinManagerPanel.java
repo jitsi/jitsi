@@ -7,125 +7,115 @@
 package net.java.sip.communicator.plugin.skinmanager;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-
 import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
 /**
- * @author Yana Stamcheva
  * @author Adam Netocny
  */
 public class SkinManagerPanel
         extends TransparentPanel
 {
     /**
-     * The table containing all skins.
+     * Remove button.
      */
-    private final JTable skinTable = new JTable();
+    private final JButton rmButton = new JButton("Remove selected skin");
 
     /**
-     * The table model.
+     * <tt>SkinSelector</tt> component.
      */
-    private final SkinTableModel tableModel = new SkinTableModel();
-
-    /**
-     * The panel containing manage buttons.
-     */
-    private final ManageButtonsPanel buttonsPanel;
+    private final SkinSelector skinSelector = new SkinSelector();
 
     /**
      * Creates an instance of <tt>SkinManagerPanel</tt>.
      */
     public SkinManagerPanel()
     {
-        super(new BorderLayout());
-        JScrollPane pluginListScrollPane = new JScrollPane();
+        super(new FlowLayout(FlowLayout.CENTER));
 
-        skinTable.setModel(tableModel);
+        JPanel selectorPanel = new TransparentPanel();
+        selectorPanel.setLayout(new BoxLayout(selectorPanel, BoxLayout.Y_AXIS));
 
-        TableColumn col = skinTable.getColumnModel().getColumn(0);
-        col.setCellRenderer(new SkinListCellRenderer());
+        skinSelector.setAlignmentX(Component.CENTER_ALIGNMENT);
+        skinSelector.addItemListener(new EnableDisableListener());
+        selectorPanel.add(skinSelector);
 
-        SkinListSelectionListener selectionListener =
-                new SkinListSelectionListener();
+        rmButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        rmButton.addActionListener(new RemoveListener());
+        selectorPanel.add(rmButton);
 
-        skinTable.getSelectionModel().addListSelectionListener(
-                selectionListener);
-        skinTable.getColumnModel().getSelectionModel()
-            .addListSelectionListener(selectionListener);
+        enableDisableButton();
 
-        skinTable.setRowHeight(48);
-
-        skinTable.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-
-        skinTable.setTableHeader(null);
-
-        buttonsPanel = new ManageButtonsPanel(skinTable);
-
-        this.add(pluginListScrollPane, BorderLayout.CENTER);
-
-        this.add(buttonsPanel, BorderLayout.EAST);
-
-        pluginListScrollPane.getViewport().add(skinTable);
-
-        pluginListScrollPane.getVerticalScrollBar().setUnitIncrement(30);
-
-        SkinManagerActivator.bundleContext
-            .addBundleListener(new SkinListBundleListener());
+        add(selectorPanel, BorderLayout.NORTH);
     }
 
     /**
-     * Listens for events triggered when a selection is made in the plugin list.
+     * Enables(if a skin <tt>Bundle</tt> is selected) or disables the remove
+     * button.
      */
-    private class SkinListSelectionListener
-        implements ListSelectionListener
+    private void enableDisableButton()
     {
-        public void valueChanged(ListSelectionEvent e)
+        Object tmp = skinSelector.getSelectedItem();
+
+        if(tmp != null)
         {
-            int selectedRow = skinTable.getSelectedRow();
+            if(tmp instanceof Bundle)
+            {
+                rmButton.setEnabled(true);
 
-            if (selectedRow == -1)
                 return;
-
-            Bundle selectedBundle
-                = (Bundle) skinTable.getValueAt(selectedRow, 0);
-
-            buttonsPanel.enableUninstallButton(true);
-
-            if (selectedBundle.getState() != Bundle.ACTIVE)
-            {
-                buttonsPanel.enableActivateButton(true);
-                buttonsPanel.enableDeactivateButton(false);
             }
-            else
+        }
+        rmButton.setEnabled(false);
+    }
+
+    /**
+     * Listener for the remove button events.
+     */
+    private class RemoveListener implements ActionListener
+    {
+        /**
+         * Invoked when an action occurs.
+         * @param e <tt>ActionEvent</tt>.
+         */
+        public void actionPerformed(ActionEvent e)
+        {
+            Object tmp = skinSelector.getSelectedItem();
+            if(tmp != null)
             {
-                buttonsPanel.enableActivateButton(false);
-                buttonsPanel.enableDeactivateButton(true);
+                if(tmp instanceof Bundle)
+                {
+                    try
+                    {
+                        ((Bundle) tmp).uninstall();
+                    }
+                    catch (BundleException ex)
+                    {
+                    }
+                }
             }
         }
     }
 
     /**
-     * Listens for <tt>BundleEvents</tt> triggered by the bundle context.
+     * Selection listener for enabling/disabling of remove button.
      */
-    private class SkinListBundleListener
-            implements BundleListener
+    private class EnableDisableListener
+        implements ItemListener
     {
-        public void bundleChanged(BundleEvent event)
+        public void itemStateChanged(ItemEvent e)
         {
-            tableModel.update();
-
-            if (event.getType() == BundleEvent.INSTALLED)
+            SwingUtilities.invokeLater(new Runnable()
             {
-                skinTable.scrollRectToVisible(
-                    new Rectangle(  0, skinTable.getHeight(),
-                                    1, skinTable.getHeight()));
-            }
+                public void run()
+                {
+                    enableDisableButton();
+                }
+            });
         }
     }
 }

@@ -44,7 +44,7 @@ public class ManageButtonsPanel
      * The uninstall button.
      */
     private JButton uninstallButton = new JButton(
-            Resources.getString("plugin.skinmanager.UNINSTALL"));
+            Resources.getString("plugin.pluginmanager.UNINSTALL"));
 
     /**
      * The update button.
@@ -56,7 +56,7 @@ public class ManageButtonsPanel
      * The new button.
      */
     private JButton newButton
-        = new JButton(Resources.getString("plugin.skinmanager.NEW"));
+        = new JButton(Resources.getString("plugin.pluginmanager.NEW"));
 
     /**
      * The panel, containing all buttons.
