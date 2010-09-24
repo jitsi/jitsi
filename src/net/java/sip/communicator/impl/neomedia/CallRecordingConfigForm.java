@@ -27,28 +27,28 @@ public class CallRecordingConfigForm
     implements ActionListener
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>CallRecordingConfigForm</tt> class and
-     * its instances for logging output.
+     * The <tt>Logger</tt> used by the <tt>CallRecordingConfigForm</tt> class
+     * and its instances for logging output.
      */
     private static final Logger logger
         = Logger.getLogger(CallRecordingConfigForm.class);
-    
+
     /**
      * The resource service.
      */
     private static final ResourceManagementService resources
         = NeomediaActivator.getResources();
-    
+
     /**
      * Directory where calls are stored. Default is SC_HOME/calls.
      */
     private String savedCallsDir;
-    
+
     /**
      * Directory choose dialog.
      */
     private final SipCommFileChooser dirChooser;
-    
+
     /**
      * UI components.
      */
@@ -65,7 +65,7 @@ public class CallRecordingConfigForm
     public CallRecordingConfigForm()
     {
         super(new BorderLayout());
-        
+
         initComponents();
         loadValues();
 
@@ -110,7 +110,7 @@ public class CallRecordingConfigForm
     private void initComponents()
     {
         // labels panel
-        JPanel labelsPanel = new TransparentPanel(new GridLayout(2, 1));        
+        JPanel labelsPanel = new TransparentPanel(new GridLayout(2, 1));
         JLabel formatsLabel
             = new JLabel(
                     resources.getI18NString(
@@ -125,21 +125,10 @@ public class CallRecordingConfigForm
         labelsPanel.add(formatsLabel);
         labelsPanel.add(saveCallsToCheckBox);
 
-        // combo box panel
-        JPanel comboPanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
-        JLabel emptyLabel = new JLabel();
-
-        emptyLabel.setPreferredSize(new Dimension(30, 30));
-        comboPanel.add(createFormatsComboBox());
-        comboPanel.add(emptyLabel);
-
         // saved calls directory panel 
-        JPanel callDirPanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel callDirPanel = new TransparentPanel(new BorderLayout());
 
         callDirTextField = new JTextField();
-        callDirTextField.setPreferredSize(new Dimension(200, 30));
         callDirTextField.addActionListener(this);
         callDirPanel.add(callDirTextField);
 
@@ -148,15 +137,14 @@ public class CallRecordingConfigForm
                     new ImageIcon(
                             resources.getImageInBytes(
                                     "plugin.notificationconfig.FOLDER_ICON")));
-        callDirChooseButton.setMinimumSize(new Dimension(30,30));
-        callDirChooseButton.setPreferredSize(new Dimension(30,30));
+
         callDirChooseButton.addActionListener(this);
-        callDirPanel.add(callDirChooseButton);
+        callDirPanel.add(callDirChooseButton, BorderLayout.EAST);
 
         // values panel
         JPanel valuesPanel = new TransparentPanel(new GridLayout(2, 1));
 
-        valuesPanel.add(comboPanel);
+        valuesPanel.add(createFormatsComboBox());
         valuesPanel.add(callDirPanel);
 
         // main panel
