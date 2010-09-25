@@ -38,7 +38,7 @@ public class ReplacementServiceYoutubeImpl
     /**
      * Configuration label shown in the config form. 
      */
-    public static final String YOUTUBE_CONFIG_LABEL = "Youtube";
+    public static final String YOUTUBE_CONFIG_LABEL = "YouTube";
 
     /**
      * Source name; also used as property label.

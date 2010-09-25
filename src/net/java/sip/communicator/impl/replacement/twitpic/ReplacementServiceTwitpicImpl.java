@@ -34,8 +34,8 @@ public class ReplacementServiceTwitpicImpl
     /**
      * Configuration label shown in the config form. 
      */
-    public static final String TWITPIC_CONFIG_LABEL = "Twitpic";
-    
+    public static final String TWITPIC_CONFIG_LABEL = "TwitPic";
+
     /**
      * Source name; also used as property label.
      */

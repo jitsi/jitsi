@@ -144,6 +144,8 @@ public class ReplacementConfigPanel
         ArrayList<String> sourceList = new ArrayList<String>(keys);
         sourceList.remove("SMILEY");
 
+        Collections.sort(sourceList);
+
         table.setModel(new ReplacementConfigurationTableModel(sourceList));
 
         table.getSelectionModel().addListSelectionListener(

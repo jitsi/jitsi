@@ -35,7 +35,7 @@ public class ReplacementServiceDailymotionImpl
     /**
      * Configuration label shown in the config form. 
      */
-    public static final String DAILYMOTION_CONFIG_LABEL = "DailyMotion";
+    public static final String DAILYMOTION_CONFIG_LABEL = "Dailymotion";
 
     /**
      * Source name; also used as property label.
