@@ -8,7 +8,9 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A SIP extension of the account ID property.
@@ -122,5 +124,28 @@ public class SipAccountID
                     getProtocolName())
                 && (getService() != null ?
                     getService().equals(((SipAccountID)obj).getService()) : true);
+    }
+
+    /**
+     * Returns the account property string corresponding to the given key.
+     * If property is xcap password obtain it from credential storage.
+     *
+     * @param key the key, corresponding to the property string we're looking
+     * for
+     * @return the account property string corresponding to the given key
+     */
+    public String getAccountPropertyString(Object key)
+    {
+        if(key.equals(ProtocolProviderServiceSipImpl.XCAP_PASSWORD))
+        {
+            CredentialsStorageService credentialsStorage
+                = ServiceUtils.getService(SipActivator.getBundleContext(),
+                                          CredentialsStorageService.class);
+
+            return credentialsStorage.loadPassword(
+                    getAccountUniqueID() + ".xcap");
+        }
+        else
+            return super.getAccountPropertyString(key);
     }
 }
