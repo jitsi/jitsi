@@ -90,7 +90,7 @@ public class FirstWizardPage
     private JTextField serverField = new JTextField();
 
     private JLabel portLabel
-        = new JLabel(Resources.getString("plugin.jabberaccregwizz.PORT"));
+        = new JLabel(Resources.getString("service.gui.PORT"));
 
     private JTextField portField
         = new JTextField(

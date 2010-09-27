@@ -1596,8 +1596,22 @@ public class ProtocolProviderServiceSipImpl
             }
             else
             {
-                registrarSocketAddresses =
-                    resolveSipAddress(registrarAddressStr, registrarTransport);
+                ArrayList<InetSocketAddress> registrarSocketAddressesList =
+                        new ArrayList<InetSocketAddress>();
+                ArrayList<String> registrarTransports =
+                        new ArrayList<String>();
+
+                resolveSipAddress(
+                    registrarAddressStr,
+                    registrarTransport,
+                    registrarSocketAddressesList,
+                    registrarTransports,
+                    accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.PROXY_AUTO_CONFIG, false));
+
+                registrarTransport = registrarTransports.get(0);
+                registrarSocketAddresses = registrarSocketAddressesList
+                        .toArray(new InetSocketAddress[0]);
             }
 
             // We should set here the property to indicate that the server
@@ -1924,26 +1938,59 @@ public class ProtocolProviderServiceSipImpl
 
             InetSocketAddress proxySocketAddress = null;
 
-            // according rfc3263 if proxy address is explicitly entered
-            // don't make SRV queries
-            if(proxyAddressAndPortEntered)
+            if(accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.PROXY_AUTO_CONFIG, false))
             {
-                ArrayList<InetSocketAddress> addresses
+                ArrayList<InetSocketAddress> proxySocketAddressesList
+                        = new ArrayList<InetSocketAddress>();
+                ArrayList<String> proxyTransportsList
+                        = new ArrayList<String>();
+
+                resolveSipAddress(
+                        proxyAddressStr,
+                        proxyTransport,
+                        proxySocketAddressesList,
+                        proxyTransportsList,
+                        true);
+
+                proxyTransport = proxyTransportsList.get(ix); 
+                proxySocketAddress = proxySocketAddressesList.get(ix);
+            }
+            else
+            {
+                // according rfc3263 if proxy address and port are
+                // explicitly entered don't make SRV queries
+                if(proxyAddressAndPortEntered)
+                {
+                    ArrayList<InetSocketAddress> addresses
                         = new ArrayList<InetSocketAddress>();
 
-                resolveAddresses(
+                    resolveAddresses(
                         proxyAddressStr,
                         addresses,
                         Boolean.getBoolean("java.net.preferIPv6Addresses"),
                         proxyPort);
-                // only set if enough results found
-                if(addresses.size() > ix)
-                    proxySocketAddress = addresses.get(ix);
-            }
-            else
-            {
-                proxySocketAddress = resolveSipAddress(
-                    proxyAddressStr, proxyTransport)[ix];
+                    // only set if enough results found
+                    if(addresses.size() > ix)
+                        proxySocketAddress = addresses.get(ix);
+                }
+                else
+                {
+                    ArrayList<InetSocketAddress> proxySocketAddressesList
+                        = new ArrayList<InetSocketAddress>();
+                    ArrayList<String> proxyTransportsList
+                        = new ArrayList<String>();
+
+                    resolveSipAddress(
+                        proxyAddressStr,
+                        proxyTransport,
+                        proxySocketAddressesList,
+                        proxyTransportsList,
+                        false);
+
+                    proxyTransport = proxyTransportsList.get(ix); 
+                    proxySocketAddress = proxySocketAddressesList.get(ix);
+                }
             }
 
             proxyAddress = proxySocketAddress.getAddress();
@@ -2554,21 +2601,26 @@ public class ProtocolProviderServiceSipImpl
      * @param address the address we'd like to resolve.
      * @param transport the protocol that we'd like to use when accessing
      * address.
-     *
-     * @return an <tt>InetSocketAddress</tt> instance containing the
+     * @param resultAddresses the list that will be filled with the result
+     * addresses. An <tt>InetSocketAddress</tt> instances containing the
      * <tt>SRV</tt> record for <tt>address</tt> if one has been defined and the
      * A/AAAA record where it hasn't.
+     * @param resultTransports the transports for the <tt>resultAddresses</tt>.
+     *
+     * @return the transports that is used, when the <tt>transport</tt> is with
+     * value Auto we resolve the address with NAPTR query, if no NAPTR record
+     * we will use the default one.
      *
      * @throws UnknownHostException if <tt>address</tt> is not a valid host
      * address.
      */
-    public InetSocketAddress[] resolveSipAddress(
-            String address, String transport)
+    public void resolveSipAddress(
+            String address, String transport,
+            List<InetSocketAddress> resultAddresses,
+            List<String> resultTransports,
+            boolean resolveProtocol)
         throws UnknownHostException
     {
-        ArrayList<InetSocketAddress> resultAddresses =
-            new ArrayList<InetSocketAddress>();
-
         //we need to resolve the address only if its a hostname.
         if(NetworkUtils.isValidIPAddress(address))
         {
@@ -2580,45 +2632,57 @@ public class ProtocolProviderServiceSipImpl
             if(transport.equalsIgnoreCase(ListeningPoint.TLS))
                 port = ListeningPoint.PORT_5061;
 
+            resultTransports.add(transport);
             resultAddresses.add(new InetSocketAddress(addressObj, port));
 
             // as its ip address return, no dns is needed.
-            return resultAddresses.toArray(new InetSocketAddress[]{});
+            return;
         }
 
         boolean preferIPv6Addresses =
                 Boolean.getBoolean("java.net.preferIPv6Addresses");
 
-        //try to obtain SRV mappings from the DNS
-        try
+        // first make NAPTR resolve to get protocol, if needed
+        if(resolveProtocol)
         {
-            InetSocketAddress[] sockAddrs =
-                    NetworkUtils.getSRVRecords(
-                            transport.equalsIgnoreCase(ListeningPoint.TLS) ?
-                                "sips" : "sip",
-                            transport.equalsIgnoreCase(ListeningPoint.UDP) ?
-                                ListeningPoint.UDP : ListeningPoint.TCP,
-                            address);
-
-            if(sockAddrs != null)
+            try
             {
-                for(InetSocketAddress s : sockAddrs)
+                String[][] naptrRecords = NetworkUtils.getNAPTRRecords(address);
+
+                if(naptrRecords != null && naptrRecords.length > 0)
                 {
-                    // add corresponding A and AAAA records to the host address
-                    // from SRV records
-                    resolveAddresses(
-                        s.getHostName(),
-                        resultAddresses,
-                        preferIPv6Addresses,
-                        s.getPort());
+                    for(String[] rec : naptrRecords)
+                    {
+                        resolveSRV(
+                                address,
+                                rec[1],
+                                resultAddresses,
+                                resultTransports,
+                                preferIPv6Addresses);
+                    }
 
-                    // add and every SRV address itself
-                    resultAddresses.add(s);
-
-                    if (logger.isTraceEnabled())
-                        logger.trace("Returned SRV " + s);
+                    // NAPTR found use only it
+                    if(logger.isInfoEnabled())
+                        logger.info("Found NAPRT record and using it:"
+                            + resultAddresses);
+                    return;
                 }
             }
+            catch (ParseException e)
+            {
+                logger.error("Error parsing dns record.", e);
+            }
+        }
+
+        //try to obtain SRV mappings from the DNS 
+        try
+        {
+            resolveSRV(
+                address,
+                transport,
+                resultAddresses,
+                resultTransports,
+                preferIPv6Addresses);
         }
         catch (ParseException e)
         {
@@ -2630,17 +2694,29 @@ public class ProtocolProviderServiceSipImpl
         if(transport.equalsIgnoreCase(ListeningPoint.TLS))
             defaultPort = ListeningPoint.PORT_5061;
 
+        ArrayList<InetSocketAddress> tempResultAddresses
+            = new ArrayList<InetSocketAddress>();
+
         // after checking SRVs, lets add and AAAA and A records
         resolveAddresses(
                 address,
-                resultAddresses,
+                tempResultAddresses,
                 preferIPv6Addresses,
                 defaultPort);
+        for(InetSocketAddress a : tempResultAddresses)
+        {
+            if(!resultAddresses.contains(a))
+            {
+                resultAddresses.add(a);
+                resultTransports.add(transport);
+            }
+        }
 
         // make sure we don't return empty array
         if(resultAddresses.size() == 0)
         {
             resultAddresses.add(new InetSocketAddress(address, defaultPort));
+            resultTransports.add(transport);
 
             // there were no SRV mappings so we only need to A/AAAA resolve the
             // address. Do this before we instantiate the
@@ -2649,8 +2725,6 @@ public class ProtocolProviderServiceSipImpl
             // something goes wrong.
             InetAddress addressObj = InetAddress.getByName(address);
         }
-
-        return resultAddresses.toArray(new InetSocketAddress[]{});
     }
 
     /**
@@ -2701,18 +2775,18 @@ public class ProtocolProviderServiceSipImpl
 
         if(preferIPv6Addresses)
         {
-            if(addressObj6 != null)
+            if(addressObj6 != null && !resultAddresses.contains(addressObj6))
                 resultAddresses.add(addressObj6);
 
-            if(addressObj4 != null)
+            if(addressObj4 != null && !resultAddresses.contains(addressObj4))
                 resultAddresses.add(addressObj4);
         }
         else
         {
-            if(addressObj4 != null)
+            if(addressObj4 != null && !resultAddresses.contains(addressObj4))
                 resultAddresses.add(addressObj4);
 
-            if(addressObj6 != null)
+            if(addressObj6 != null && !resultAddresses.contains(addressObj6))
                 resultAddresses.add(addressObj6);
         }
     }
@@ -2735,7 +2809,83 @@ public class ProtocolProviderServiceSipImpl
     public InetSocketAddress resolveSipAddress(String address)
         throws UnknownHostException
     {
-        return resolveSipAddress(address, getDefaultTransport())[0];
+        ArrayList<InetSocketAddress> socketAddressesList =
+            new ArrayList<InetSocketAddress>();
+
+        resolveSipAddress(address, getDefaultTransport(), socketAddressesList,
+                new ArrayList<String>(),
+                getAccountID().getAccountPropertyBoolean(
+                        ProtocolProviderFactory.PROXY_AUTO_CONFIG, false));
+
+        return socketAddressesList.get(0);
+    }
+
+    /**
+     * Resolves the SRV records add their corresponding AAAA and A records
+     * in the <tt>resultAddresses</tt> ordered by the preference
+     * <tt>preferIPv6Addresses</tt> and their corresponding <tt>transport</tt>
+     * in the <tt>resultTransports</tt>.
+     * @param address the address to resolve.
+     * @param transport the transport to use
+     * @param resultAddresses the result address after resolve.
+     * @param resultTransports and the addresses transports.
+     * @param preferIPv6Addresses is ipv6 addresses are preferred over ipv4.
+     * @throws ParseException exception when parsing dns address
+     */
+    private void resolveSRV(String address,
+                            String transport,
+                            List<InetSocketAddress> resultAddresses,
+                            List<String> resultTransports,
+                            boolean preferIPv6Addresses)
+            throws  ParseException
+    {
+        InetSocketAddress[] socketAddresses =
+            NetworkUtils.getSRVRecords(
+                    transport.equalsIgnoreCase(ListeningPoint.TLS)
+                            ? "sips" : "sip",
+                    transport.equalsIgnoreCase(ListeningPoint.UDP)
+                            ? ListeningPoint.UDP : ListeningPoint.TCP,
+                    address);
+
+        if(socketAddresses != null)
+        {
+            ArrayList<InetSocketAddress> tempResultAddresses
+                = new ArrayList<InetSocketAddress>();
+
+            for(InetSocketAddress s : socketAddresses)
+            {
+                // add corresponding A and AAAA records
+                // to the host address from SRV records
+                try
+                {
+                    resolveAddresses(
+                        s.getHostName(),
+                        tempResultAddresses,
+                        preferIPv6Addresses,
+                        s.getPort());
+                }
+                catch(UnknownHostException e)
+                {
+                    logger.warn("Address unknown:" + s.getHostName(), e);
+                }
+
+                // add and every SRV address itself if not already there
+                if(!tempResultAddresses.contains(s))
+                    tempResultAddresses.add(s);
+
+                if (logger.isTraceEnabled())
+                    logger.trace("Returned SRV " + s);
+            }
+
+            for(InetSocketAddress a : tempResultAddresses)
+            {
+                if(!resultAddresses.contains(a))
+                {
+                    resultAddresses.add(a);
+                    resultTransports.add(transport);
+                }
+            }
+        }
     }
 
     /**

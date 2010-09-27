@@ -137,7 +137,7 @@ public class GoogleTalkAccountRegistrationWizard
             registration.getServerAddress());
 
         summaryTable.put(
-            Resources.getString("plugin.jabberaccregwizz.PORT"),
+            Resources.getString("service.gui.PORT"),
             String.valueOf(registration.getPort()));
 
         summaryTable.put(

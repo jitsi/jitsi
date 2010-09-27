@@ -44,7 +44,7 @@ public class FirstWizardPage
     private JLabel hostExampleLabel = new JLabel("Ex: dict.org");
 
     private JLabel portLabel
-        = new JLabel(Resources.getString("plugin.dictaccregwizz.PORT"));
+        = new JLabel(Resources.getString("service.gui.PORT"));
 
     private JTextField hostField = new JTextField();
 

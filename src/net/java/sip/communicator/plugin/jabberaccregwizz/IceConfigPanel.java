@@ -77,7 +77,7 @@ public class IceConfigPanel
 
         tableModel.addColumn(
             Resources.getString("plugin.jabberaccregwizz.IP_ADDRESS")
-            + "/" + Resources.getString("plugin.jabberaccregwizz.PORT"));
+            + "/" + Resources.getString("service.gui.PORT"));
         tableModel.addColumn(
             Resources.getString("plugin.jabberaccregwizz.SUPPORT_TURN"));
 
@@ -238,7 +238,7 @@ public class IceConfigPanel
             JLabel addressLabel = new JLabel(
                 Resources.getString("plugin.jabberaccregwizz.IP_ADDRESS"));
             JLabel portLabel = new JLabel(
-                Resources.getString("plugin.jabberaccregwizz.PORT"));
+                Resources.getString("service.gui.PORT"));
             JLabel usernameLabel = new JLabel(
                 Resources.getString("plugin.jabberaccregwizz.USERNAME"));
             JLabel passwordLabel = new JLabel(

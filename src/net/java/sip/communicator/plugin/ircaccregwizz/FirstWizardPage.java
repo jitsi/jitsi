@@ -70,7 +70,7 @@ public class FirstWizardPage
         = new JLabel(Resources.getString("plugin.ircaccregwizz.HOST"));
 
     private JLabel port
-        = new JLabel(Resources.getString("plugin.ircaccregwizz.PORT"));
+        = new JLabel(Resources.getString("service.gui.PORT" + ":"));
 
     private JPanel emptyPanel = new TransparentPanel();
 

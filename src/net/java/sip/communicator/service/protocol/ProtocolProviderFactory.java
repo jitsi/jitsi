@@ -110,6 +110,12 @@ public abstract class ProtocolProviderFactory
     public static final String PROXY_PORT = "PROXY_PORT";
 
     /**
+     * The name of the property which defines whether proxy is auto configured
+     * bu the protocol by using known methods such as specific DNS queries. 
+     */
+    public static final String PROXY_AUTO_CONFIG = "PROXY_AUTO_CONFIG";
+
+    /**
      * The property indicating the preferred UDP and TCP
      * port to bind to for clear communications.
      */
@@ -458,23 +464,23 @@ public abstract class ProtocolProviderFactory
                     .error("Failed to unregister protocol provider for account : "
                         + accountID + " caused by: " + ex);
             }
+        }
 
-            ServiceRegistration registration;
+        ServiceRegistration registration;
 
-            synchronized (registeredAccounts)
-            {
-                registration = registeredAccounts.remove(accountID);
-            }
+        synchronized (registeredAccounts)
+        {
+            registration = registeredAccounts.remove(accountID);
+        }
 
-            // first remove the stored account so when PP is unregistered we can distinguish
-            // between deleted or just disabled account
-            wasAccountExisting = removeStoredAccount(accountID);
+        // first remove the stored account so when PP is unregistered we can distinguish
+        // between deleted or just disabled account
+        wasAccountExisting = removeStoredAccount(accountID);
 
-            if (registration != null)
-            {
-                // Kill the service.
-                registration.unregister();
-            }
+        if (registration != null)
+        {
+            // Kill the service.
+            registration.unregister();
         }
 
         return wasAccountExisting;

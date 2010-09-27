@@ -56,7 +56,7 @@ public class ConnectionPanel
     private final JTextField serverField = new JTextField();
 
     private final JLabel portLabel
-        = new JLabel(Resources.getString("plugin.jabberaccregwizz.PORT"));
+        = new JLabel(Resources.getString("service.gui.PORT"));
 
     private final JTextField portField
         = new JTextField(JabberAccountRegistration.DEFAULT_PORT);

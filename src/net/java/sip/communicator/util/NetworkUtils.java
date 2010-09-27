@@ -559,23 +559,32 @@ public class NetworkUtils
         });
 
         /* put sorted host names in an array, get rid of any trailing '.' */
-        InetSocketAddress[] sortedHostNames = new InetSocketAddress[pvhn.length];
+        ArrayList<InetSocketAddress> sortedHostNames
+            = new ArrayList<InetSocketAddress>();
         for (int i = 0; i < pvhn.length; i++)
         {
-            sortedHostNames[i] =
-                new InetSocketAddress(pvhn[i][3], Integer.valueOf(pvhn[i][2]));
+            try
+            {
+                sortedHostNames.add(new InetSocketAddress(
+                        Address.getByName(pvhn[i][3]),
+                        Integer.valueOf(pvhn[i][2])));
+            }
+            catch(UnknownHostException e)
+            {
+                logger.warn("Unknown host: " + pvhn[i][3], e);
+            }
         }
 
         if (logger.isTraceEnabled())
         {
             logger.trace("DNS SRV query for domain " + domain + " returned:");
-            for (int i = 0; i < sortedHostNames.length; i++)
+            for (int i = 0; i < sortedHostNames.size(); i++)
             {
                 if (logger.isTraceEnabled())
-                    logger.trace(sortedHostNames[i]);
+                    logger.trace(sortedHostNames.get(i));
             }
         }
-        return sortedHostNames;
+        return sortedHostNames.toArray(new InetSocketAddress[0]);
     }
 
     /**
@@ -632,6 +641,85 @@ public class NetworkUtils
             return null;
 
         return records;
+    }
+
+    /**
+     * Makes a NAPTR query. 
+     * @param domain the name of the domain we'd like to resolve.
+     * @return an array with the values or null if no records found.
+     * The returned records are an array of
+     * [Order, Service(Transport) and Replacement
+     * (the srv to query for servers and ports)] this all for supplied
+     * <tt>domain</tt>. 
+
+     * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     */
+    public static String[][] getNAPTRRecords(String domain)
+        throws ParseException
+    {
+        Record[] records = null;
+        try
+        {
+            Lookup lookup = new Lookup(domain, Type.NAPTR);
+            records = lookup.run();
+        }
+        catch (TextParseException tpe)
+        {
+            logger.error("Failed to parse domain="+domain, tpe);
+            throw new ParseException(tpe.getMessage(), 0);
+        }
+        if (records == null)
+        {
+            return null;
+        }
+
+        String[][] recVals = new String[records.length][3];
+        for (int i = 0; i < records.length; i++)
+        {
+            NAPTRRecord r = (NAPTRRecord)records[i];
+
+            // todo - check here for broken records as missing transport 
+            recVals[i][0] = "" + r.getOrder();
+            recVals[i][1] = getProtocolFromNAPTRRecords(r.getService());
+            String replacement = r.getReplacement().toString();
+
+            if (replacement.endsWith("."))
+            {
+                recVals[i][2] =
+                        replacement.substring(0, replacement.length() - 1);
+            }
+            else
+                recVals[i][2] = replacement;
+        }
+
+        /* sort the SRV RRs by RR value (lower is preferred) */
+        Arrays.sort(recVals, new Comparator<String[]>()
+        {
+            public int compare(String array1[], String array2[])
+            {
+                return (Integer.parseInt(   array1[0])
+                        - Integer.parseInt( array2[0]));
+            }
+        });
+
+        return recVals;
+    }
+
+    /**
+     * Returns the mapping from rfc3263 between service and the protocols.
+     * @param service the service from NAPTR record.
+     * @return the protocol TCP, UDP or TLS.
+     */
+    private static String getProtocolFromNAPTRRecords(String service)
+    {
+        if(service.equalsIgnoreCase("SIP+D2U"))
+            return "UDP";
+        else if(service.equalsIgnoreCase("SIP+D2T"))
+            return "TCP";
+        else if(service.equalsIgnoreCase("SIP+D2TS"))
+            return "TLS";
+        else
+            return null;
     }
 
     /**

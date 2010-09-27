@@ -66,7 +66,7 @@ public class JabberNewAccountDialog
             "plugin.jabberaccregwizz.PASSWORD_CONFIRM"));
 
     private JLabel portLabel
-        = new JLabel(Resources.getString("plugin.jabberaccregwizz.PORT"));
+        = new JLabel(Resources.getString("service.gui.PORT"));
 
     private JLabel westIconLabel = new JLabel();
 

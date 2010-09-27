@@ -39,6 +39,11 @@ public class AccountList
     private final Logger logger = Logger.getLogger(AccountList.class);
 
     /**
+     * Property that is changed when an account is enabled/disabled.
+     */
+    final static String ACCOUNT_STATE_CHANGED = "ACCOUNT_STATE_CHANGED";
+
+    /**
      * The account list model.
      */
     private final AccountListModel accountListModel = new AccountListModel();
@@ -346,6 +351,9 @@ public class AccountList
                 accountManager.loadAccount(accountID);
             else
                 accountManager.unloadAccount(accountID);
+
+            // fire an event that account is enabled/disabled
+            firePropertyChange(ACCOUNT_STATE_CHANGED, !enable, enable);
         }
         catch (OperationFailedException ofex)
         {

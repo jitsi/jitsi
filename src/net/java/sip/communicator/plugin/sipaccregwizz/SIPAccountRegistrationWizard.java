@@ -161,19 +161,29 @@ public class SIPAccountRegistrationWizard
             summaryTable.put(
                 Resources.getString("plugin.sipaccregwizz.SERVER_PORT"),
                 serverPort);
-        String proxy = registration.getProxy();
-        if(proxy != null && proxy.length() >0)
+
+        if(registration.isProxyAutoConfigure())
+        {
             summaryTable.put(
-                Resources.getString("plugin.sipaccregwizz.PROXY"),
-                proxy);
-        String proxyPort = registration.getProxyPort();
-        if(proxyPort != null && proxyPort.length() > 0)
+                    Resources.getString("plugin.sipaccregwizz.PROXY_AUTO"),
+                    Resources.getString("service.gui.YES"));
+        }
+        else
+        {
+            String proxy = registration.getProxy();
+            if(proxy != null && proxy.length() >0)
+                summaryTable.put(
+                    Resources.getString("plugin.sipaccregwizz.PROXY"),
+                    proxy);
+            String proxyPort = registration.getProxyPort();
+            if(proxyPort != null && proxyPort.length() > 0)
+                summaryTable.put(
+                    Resources.getString("plugin.sipaccregwizz.PROXY_PORT"),
+                    proxyPort);
             summaryTable.put(
-                Resources.getString("plugin.sipaccregwizz.PROXY_PORT"),
-                proxyPort);
-        summaryTable.put(
-            Resources.getString("plugin.sipaccregwizz.PREFERRED_TRANSPORT"),
-            registration.getPreferredTransport());
+                Resources.getString("plugin.sipaccregwizz.PREFERRED_TRANSPORT"),
+                registration.getPreferredTransport());
+        }
 
         if (registration.isEnablePresence())
         {
@@ -391,14 +401,22 @@ public class SIPAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
             registration.getServerPort());
 
-        accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
-            registration.getProxy());
+        if(registration.isProxyAutoConfigure())
+        {
+            accountProperties.put(ProtocolProviderFactory.PROXY_AUTO_CONFIG,
+                    Boolean.TRUE.toString());
+        }
+        else
+        {
+            accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
+                registration.getProxy());
 
-        accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
+            accountProperties.put(ProtocolProviderFactory.PROXY_PORT,
                 registration.getProxyPort());
 
-        accountProperties.put(ProtocolProviderFactory.PREFERRED_TRANSPORT,
+            accountProperties.put(ProtocolProviderFactory.PREFERRED_TRANSPORT,
                 registration.getPreferredTransport());
+        }
 
         accountProperties.put(ProtocolProviderFactory.IS_PRESENCE_ENABLED,
                 Boolean.toString(registration.isEnablePresence()));

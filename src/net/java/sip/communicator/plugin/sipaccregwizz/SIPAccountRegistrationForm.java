@@ -215,6 +215,9 @@ public class SIPAccountRegistrationForm
         registration.setPreferredTransport(
             connectionPanel.getSelectedTransport());
 
+        registration.setProxyAutoConfigure(
+            connectionPanel.isProxyAutoConfigureEnabled());
+
         registration.setEnablePresence(
             presencePanel.isPresenceEnabled());
         registration.setForceP2PMode(
@@ -302,6 +305,9 @@ public class SIPAccountRegistrationForm
         boolean enabledSipZrtpAttribute = accountID.getAccountPropertyBoolean(
         ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE, true);
 
+        boolean proxyAutoConfigureEnabled = accountID.getAccountPropertyBoolean(
+            ProtocolProviderFactory.PROXY_AUTO_CONFIG, false);;
+
         String pollingPeriod = accountID.getAccountPropertyString(
                     ProtocolProviderFactory.POLLING_PERIOD);
 
@@ -349,6 +355,8 @@ public class SIPAccountRegistrationForm
 
         if(authName != null && authName.length() > 0)
             connectionPanel.setAuthenticationName(authName);
+
+        connectionPanel.enablesProxyAutoConfigure(proxyAutoConfigureEnabled);
 
         connectionPanel.setServerPort(serverPort);
         connectionPanel.setProxy(proxyAddress);

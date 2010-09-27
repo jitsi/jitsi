@@ -320,7 +320,10 @@ public class SipRegistrarConnection
                 if(this.currentRegistrarAddress.getPort() != ListeningPoint.PORT_5060)
                     registrarURI.setPort(this.currentRegistrarAddress.getPort());
 
-                registrarURI.setTransportParam(registrationTransport);
+                // as the transport may change NAPTR records provides
+                // and transport
+                registrarURI.setTransportParam(
+                    sipProvider.getOutboundProxyTransport());
             }
             catch (Throwable e)
             {

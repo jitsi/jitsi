@@ -40,6 +40,8 @@ public class SIPAccountRegistration
 
     private String serverPort = null;
 
+    private boolean proxyAutoConfigure = false;
+
     private String proxyPort = null;
 
     private String proxy;
@@ -586,4 +588,21 @@ public class SIPAccountRegistration
         this.xCapPassword = xCapPassword;
     }
 
+    /**
+     * Is proxy auto configured.
+     * @return
+     */
+    public boolean isProxyAutoConfigure()
+    {
+        return proxyAutoConfigure;
+    }
+
+    /**
+     * Sets auto configuration of proxy enabled or disabled.
+     * @param proxyAutoConfigure
+     */
+    public void setProxyAutoConfigure(boolean proxyAutoConfigure)
+    {
+        this.proxyAutoConfigure = proxyAutoConfigure;
+    }
 }

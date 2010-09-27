@@ -7,6 +7,7 @@ package net.java.sip.communicator.impl.gui.main.account;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.util.List;
 
 import javax.swing.*;
@@ -27,7 +28,8 @@ import net.java.sip.communicator.util.swing.*;
 public class AccountsConfigurationPanel
     extends TransparentPanel
     implements ActionListener,
-               ListSelectionListener
+               ListSelectionListener,
+               PropertyChangeListener
 {
     private final AccountList accountList;
 
@@ -90,6 +92,8 @@ public class AccountsConfigurationPanel
         this.add(buttonsPanel, BorderLayout.SOUTH);
 
         accountList.addListSelectionListener(this);
+        accountList.addPropertyChangeListener(
+            AccountList.ACCOUNT_STATE_CHANGED, this);
         updateButtons();
     }
 
@@ -211,5 +215,17 @@ public class AccountsConfigurationPanel
     {
         if (!e.getValueIsAdjusting())
             updateButtons();
+    }
+
+    /**
+     * This method gets called when a property is changed.
+     *
+     * @param evt A PropertyChangeEvent object describing the event source
+     *            and the property that has changed.
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        // update buttons whenever an account changes its state
+        updateButtons();
     }
 }

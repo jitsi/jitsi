@@ -2906,15 +2906,13 @@ public class OperationSetPresenceSipImpl
             waitedCallIds.clear();
 
             // update ourself and the UI that our status is OFFLINE
-            try
-            {
-                publishPresenceStatus(
-                        sipStatusEnum.getStatus(SipStatusEnum.OFFLINE), "");
-            }
-            catch (OperationFailedException e)
-            {
-                logger.error("can't set the offline mode", e);
-            }
+            // don't call publishPresenceStatus as we are in connection failed
+            // and it seems we have no connectivity and there is no sense in
+            // sending packest(PUBLISH)
+            PresenceStatus oldStatus = this.presenceStatus;
+            this.presenceStatus = sipStatusEnum.getStatus(SipStatusEnum.OFFLINE);
+
+            this.fireProviderStatusChangeEvent(oldStatus);
         }
     }
 

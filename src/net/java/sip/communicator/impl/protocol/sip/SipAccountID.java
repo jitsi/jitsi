@@ -104,4 +104,23 @@ public class SipAccountID
 
         return returnValue;
     }
+
+    /**
+     * Indicates whether some other object is "equal to" this account id.
+     * <p>
+     * @param   obj   the reference object with which to compare.
+     * @return  <tt>true</tt> if this object is the same as the obj
+     *          argument; <tt>false</tt> otherwise.
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        // service name can be null when using registerless accounts
+        // if its null ignore it.
+        return super.equals(obj)
+                && ((SipAccountID)obj).getProtocolName().equals(
+                    getProtocolName())
+                && (getService() != null ?
+                    getService().equals(((SipAccountID)obj).getService()) : true);
+    }
 }

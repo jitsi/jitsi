@@ -43,6 +43,9 @@ public class IptelAccountRegistrationWizard
     public IptelAccountRegistrationWizard(WizardContainer wizardContainer)
     {
         super(wizardContainer);
+
+        getRegistration().setDefaultDomain("iptel.org");
+        getRegistration().setDefaultTransport("TCP");
     }
 
     /**
