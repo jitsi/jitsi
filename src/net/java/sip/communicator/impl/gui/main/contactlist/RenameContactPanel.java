@@ -12,6 +12,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -19,9 +20,11 @@ import net.java.sip.communicator.util.swing.*;
  * meta contact.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class RenameContactPanel
     extends TransparentPanel
+    implements Skinnable
 {
     private JLabel uinLabel = new JLabel(
         GuiActivator.getResources().getI18NString("service.gui.NEW_NAME"));
@@ -38,9 +41,7 @@ public class RenameContactPanel
     private JLabel infoTitleLabel = new JLabel(
         GuiActivator.getResources().getI18NString("service.gui.RENAME_CONTACT"));
 
-    private JLabel iconLabel
-        = new JLabel(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.RENAME_DIALOG_ICON)));
+    private JLabel iconLabel = new JLabel();
 
     private TransparentPanel labelsPanel
         = new TransparentPanel(new GridLayout(0, 1));
@@ -50,6 +51,8 @@ public class RenameContactPanel
 
     /**
      * Creates an instance of <tt>RenameContactPanel</tt> and initializes it.
+     *
+     * @param oldName the old name of the contact to rename
      */
     public RenameContactPanel(String oldName)
     {
@@ -81,6 +84,8 @@ public class RenameContactPanel
 
         this.add(iconLabel, BorderLayout.WEST);
         this.add(rightPanel, BorderLayout.CENTER);
+
+        loadSkin();
     }
 
     /**
@@ -99,5 +104,14 @@ public class RenameContactPanel
     public void requestFocusInField()
     {
         this.textField.requestFocus();
+    }
+
+    /**
+     * Reloads the icon.
+     */
+    public void loadSkin()
+    {
+        iconLabel.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.RENAME_DIALOG_ICON)));
     }
 }

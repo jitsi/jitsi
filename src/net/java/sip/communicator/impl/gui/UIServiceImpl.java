@@ -1291,6 +1291,9 @@ public class UIServiceImpl
      */
     private void reloadComponents(Window window)
     {
+        if (window instanceof Skinnable)
+            ((Skinnable) window).loadSkin();
+
         reloadComponents((java.awt.Container) window);
     }
 
@@ -1308,7 +1311,34 @@ public class UIServiceImpl
             if (c instanceof Skinnable)
                 ((Skinnable) c).loadSkin();
 
-            if (c instanceof java.awt.Container)
+            if (c instanceof JComponent)
+            {
+                JPopupMenu jpm = ((JComponent) c).getComponentPopupMenu();
+                if(jpm != null && jpm.isVisible()
+                        && jpm.getInvoker() == (JComponent)c)
+                {
+                    if (jpm instanceof Skinnable)
+                        ((Skinnable) jpm).loadSkin();
+
+                    if (jpm instanceof java.awt.Container)
+                        reloadComponents((java.awt.Container) jpm);
+                }
+            }
+
+            if (c instanceof JMenu)
+            {
+                Component[] children = null;
+                children = ((JMenu)c).getMenuComponents();
+                for(int ii = 0; ii < children.length; ii++)
+                {
+                    if (children[ii] instanceof Skinnable)
+                        ((Skinnable) children[ii]).loadSkin();
+
+                    if (children[ii] instanceof java.awt.Container)
+                        reloadComponents((java.awt.Container) children[ii]);
+                }
+            }
+            else if (c instanceof java.awt.Container)
                 reloadComponents((java.awt.Container) c);
         }
     }

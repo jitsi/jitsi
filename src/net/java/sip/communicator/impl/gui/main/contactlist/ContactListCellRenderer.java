@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -26,11 +27,13 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class ContactListCellRenderer
     extends JPanel
     implements  ListCellRenderer,
-                Icon
+                Icon,
+                Skinnable
 {
     /**
      * The avatar icon height.
@@ -52,13 +55,13 @@ public class ContactListCellRenderer
     /**
      * The icon indicating an open group.
      */
-    private final ImageIcon openedGroupIcon =
+    private ImageIcon openedGroupIcon =
         new ImageIcon(ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON));
 
     /**
      * The icon indicating a closed group.
      */
-    private final ImageIcon closedGroupIcon =
+    private ImageIcon closedGroupIcon =
         new ImageIcon(ImageLoader.getImage(ImageLoader.RIGHT_ARROW_ICON));
 
     /**
@@ -469,5 +472,29 @@ public class ContactListCellRenderer
         {
             g.dispose();
         }
+    }
+
+    /**
+     * Reloads skin information for this render class.
+     */
+    public void loadSkin()
+    {
+        openedGroupIcon
+            = new ImageIcon(ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON));
+
+        closedGroupIcon
+            = new ImageIcon(ImageLoader.getImage(ImageLoader.RIGHT_ARROW_ICON));
+
+        int groupForegroundProperty = GuiActivator.getResources()
+            .getColor("service.gui.CONTACT_LIST_GROUP_FOREGROUND");
+
+        if (groupForegroundProperty > -1)
+            groupForegroundColor = new Color (groupForegroundProperty);
+
+        int contactForegroundProperty = GuiActivator.getResources()
+                .getColor("service.gui.CONTACT_LIST_CONTACT_FOREGROUND");
+
+        if (contactForegroundProperty > -1)
+            contactForegroundColor = new Color(contactForegroundProperty);
     }
 }

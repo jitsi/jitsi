@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.event.*;
 
@@ -27,20 +28,18 @@ import net.java.sip.communicator.util.swing.event.*;
  * the contact list.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class UnknownContactPanel
     extends TransparentPanel
-    implements TextFieldChangeListener
+    implements  TextFieldChangeListener,
+                Skinnable
 {
     private final JButton addContact = new JButton(
-        GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"),
-        GuiActivator.getResources()
-            .getImage("service.gui.icons.ADD_CONTACT_16x16_ICON"));
+        GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"));
 
     private final JButton callContact = new JButton(
-        GuiActivator.getResources().getI18NString("service.gui.CALL_CONTACT"),
-        GuiActivator.getResources()
-            .getImage("service.gui.icons.CALL_16x16_ICON"));
+        GuiActivator.getResources().getI18NString("service.gui.CALL_CONTACT"));
 
     private final JTextPane textArea = new JTextPane();
 
@@ -128,6 +127,8 @@ public class UnknownContactPanel
                 }
             }
         });
+
+        loadSkin();
     }
 
     /**
@@ -196,5 +197,16 @@ public class UnknownContactPanel
                 new String[]{'"' + searchText + '"'}));
         this.revalidate();
         this.repaint();
+    }
+
+    /**
+     * Reloads button resources.
+     */
+    public void loadSkin()
+    {
+        addContact.setIcon(GuiActivator.getResources()
+            .getImage("service.gui.icons.ADD_CONTACT_16x16_ICON"));
+        callContact.setIcon(GuiActivator.getResources()
+            .getImage("service.gui.icons.CALL_16x16_ICON"));
     }
 }

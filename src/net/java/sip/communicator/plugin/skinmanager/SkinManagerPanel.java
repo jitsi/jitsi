@@ -35,7 +35,7 @@ public class SkinManagerPanel
      */
     public SkinManagerPanel()
     {
-        super(new FlowLayout(FlowLayout.CENTER));
+        super(new BorderLayout());
 
         JPanel selectorPanel = new TransparentPanel();
         selectorPanel.setLayout(new BoxLayout(selectorPanel, BoxLayout.Y_AXIS));

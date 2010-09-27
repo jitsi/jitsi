@@ -8,23 +8,32 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.event.*;
 
 /**
  * The field shown on the top of the main window, which allows the user to
  * search for users.
+ *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SearchField
     extends SIPCommTextField
     implements  TextFieldChangeListener,
-                FilterQueryListener
+                FilterQueryListener,
+                Skinnable
 {
     /**
      * The main application window.
      */
     private final MainFrame mainFrame;
+
+    /**
+     * SearchFieldUI defs.
+     */
+    private final SearchFieldUI textFieldUI;
 
     /**
      * Creates the <tt>SearchField</tt>.
@@ -37,7 +46,7 @@ public class SearchField
 
         this.mainFrame = frame;
 
-        SearchFieldUI textFieldUI = new SearchFieldUI();
+        textFieldUI = new SearchFieldUI();
         textFieldUI.setDeleteButtonEnabled(true);
         this.setUI(textFieldUI);
         this.setBorder(null);
@@ -178,5 +187,13 @@ public class SearchField
         GuiActivator.getContactList().selectFirstContact();
 
         query.setQueryListener(null);
+    }
+
+    /**
+     * Reloads text field UI defs.
+     */
+    public void loadSkin()
+    {
+        textFieldUI.loadSkin();
     }
 }

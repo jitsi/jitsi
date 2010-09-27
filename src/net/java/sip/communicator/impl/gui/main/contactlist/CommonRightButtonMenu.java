@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * The GroupRightButtonMenu is the menu, opened when user clicks with the
@@ -21,18 +22,19 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * user could add a contact to a group.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
-public class CommonRightButtonMenu extends JPopupMenu
-    implements ActionListener
+public class CommonRightButtonMenu
+    extends JPopupMenu
+    implements  ActionListener,
+                Skinnable
 {
     private final JMenuItem addContactItem = new JMenuItem(
         GuiActivator.getResources()
-            .getI18NString("service.gui.ADD_CONTACT") + "...",
-        new ImageIcon(ImageLoader.getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
+            .getI18NString("service.gui.ADD_CONTACT") + "...");
 
     private final JMenuItem createGroupItem = new JMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.CREATE_GROUP"),
-        new ImageIcon(ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
+        GuiActivator.getResources().getI18NString("service.gui.CREATE_GROUP"));
 
     private MainFrame mainFrame;
 
@@ -55,6 +57,8 @@ public class CommonRightButtonMenu extends JPopupMenu
 
         this.addContactItem.addActionListener(this);
         this.createGroupItem.addActionListener(this);
+
+        loadSkin();
     }
 
     /**
@@ -80,5 +84,17 @@ public class CommonRightButtonMenu extends JPopupMenu
 
             dialog.setVisible(true);
         }
+    }
+
+    /**
+     * Reloads icons.
+     */
+    public void loadSkin()
+    {
+        addContactItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
+
+        createGroupItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
     }
 }

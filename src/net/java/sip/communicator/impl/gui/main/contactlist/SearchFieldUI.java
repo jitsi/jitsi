@@ -11,6 +11,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.plaf.*;
 
@@ -20,9 +21,11 @@ import net.java.sip.communicator.util.swing.plaf.*;
  * of the editor rectangle according to it.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SearchFieldUI
     extends SIPCommTextFieldUI
+    implements Skinnable
 {
     /**
      * The icon indicating that this is a search field.
@@ -60,15 +63,7 @@ public class SearchFieldUI
      */
     public SearchFieldUI()
     {
-        searchIcon = UtilActivator.getResources()
-            .getImage("service.gui.icons.SEARCH_ICON");
-
-        callIcon = UtilActivator.getResources()
-            .getImage("service.gui.buttons.SEARCH_CALL_ICON").getImage();
-
-        callRolloverIcon = UtilActivator.getResources()
-            .getImage("service.gui.buttons.SEARCH_CALL_ROLLOVER_ICON")
-                .getImage();
+        loadSkin();
     }
 
     /**
@@ -317,5 +312,21 @@ public class SearchFieldUI
                                 dy,
                                 callRolloverIcon.getWidth(null),
                                 callRolloverIcon.getHeight(null));
+    }
+
+    /**
+     * Reloads UI icons.
+     */
+    public void loadSkin()
+    {
+        searchIcon = UtilActivator.getResources()
+            .getImage("service.gui.icons.SEARCH_ICON");
+
+        callIcon = UtilActivator.getResources()
+            .getImage("service.gui.buttons.SEARCH_CALL_ICON").getImage();
+
+        callRolloverIcon = UtilActivator.getResources()
+            .getImage("service.gui.buttons.SEARCH_CALL_ROLLOVER_ICON")
+                .getImage();
     }
 }

@@ -18,15 +18,18 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * DeafultContactlist used to display <code>JList</code>s with contacts.
  *
  * @author Damian Minkov
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class DefaultContactList
     extends JList
+    implements Skinnable
 {
     private static final long serialVersionUID = 0L;
 
@@ -34,6 +37,11 @@ public class DefaultContactList
      * The cached mouse event.
      */
     private MouseEvent cachedMouseEvent;
+
+    /**
+     * List cell renderer.
+     */
+    ContactListCellRenderer renderer = new ContactListCellRenderer();
 
     /**
      * Creates an instance of <tt>DefaultContactList</tt>.
@@ -47,7 +55,7 @@ public class DefaultContactList
 
         this.setDragEnabled(true);
 //        this.setTransferHandler(new ContactListTransferHandler(this));
-        this.setCellRenderer(new ContactListCellRenderer());
+        this.setCellRenderer(renderer);
     }
 
     /**
@@ -344,5 +352,13 @@ public class DefaultContactList
         if ((event.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0)
             cachedMouseEvent= event;
         super.processMouseEvent(event);
+    }
+
+    /**
+     * Reloads skin information stored in render class.
+     */
+    public void loadSkin()
+    {
+        renderer.loadSkin();
     }
 }

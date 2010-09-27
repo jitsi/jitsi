@@ -27,6 +27,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
@@ -36,12 +37,14 @@ import org.osgi.framework.*;
  * user could add a subcontact, remove a contact, send message, etc.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class MetaContactRightButtonMenu
     extends JPopupMenu
     implements  ActionListener,
                 PluginComponentListener,
-                ContactListListener
+                ContactListListener,
+                Skinnable
 {
     /**
      * An eclipse generated serial version unique ID
@@ -96,31 +99,18 @@ public class MetaContactRightButtonMenu
 
     private final JMenuItem addContactItem = new JMenuItem();
 
-    private final JMenuItem callItem = new JMenuItem(
-        callString,
-        new ImageIcon(ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
+    private final JMenuItem callItem = new JMenuItem(callString);
 
-    private final JMenuItem sendMessageItem = new JMenuItem(
-        sendMessageString,
-        new ImageIcon(ImageLoader
-            .getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
+    private final JMenuItem sendMessageItem = new JMenuItem(sendMessageString);
 
-    private final JMenuItem sendFileItem = new JMenuItem(
-        sendFileString,
-        new ImageIcon(ImageLoader.getImage(ImageLoader.SEND_FILE_16x16_ICON)));
+    private final JMenuItem sendFileItem = new JMenuItem(sendFileString);
 
-    private final JMenuItem sendSmsItem = new JMenuItem(
-        sendSmsString,
-        new ImageIcon(ImageLoader
-            .getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
+    private final JMenuItem sendSmsItem = new JMenuItem(sendSmsString);
 
     private final JMenuItem renameContactItem = new JMenuItem(
-        renameContactString,
-        new ImageIcon(ImageLoader.getImage(ImageLoader.RENAME_16x16_ICON)));
+                                                        renameContactString);
 
-    private final JMenuItem viewHistoryItem = new JMenuItem(
-        viewHistoryString,
-        new ImageIcon(ImageLoader.getImage(ImageLoader.HISTORY_16x16_ICON)));
+    private final JMenuItem viewHistoryItem = new JMenuItem(viewHistoryString);
 
     private final MetaContact contactItem;
 
@@ -160,6 +150,8 @@ public class MetaContactRightButtonMenu
         this.init();
 
         this.initMnemonics();
+
+        loadSkin();
     }
 
     /**
@@ -170,21 +162,6 @@ public class MetaContactRightButtonMenu
         addContactItem.setText(GuiActivator.getResources()
             .getI18NString("service.gui.ADD_CONTACT_TO")
                 + " " + contactItem.getDisplayName());
-
-        this.moveToMenu.setIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.GROUPS_16x16_ICON)));
-
-        this.addContactItem.setIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
-
-        this.removeContactMenu.setIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.DELETE_16x16_ICON)));
-
-        this.moveSubcontactMenu.setIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.MOVE_CONTACT_ICON)));
-
-        this.callContactMenu.setIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.CALL_16x16_ICON)));
 
         //Initialize moveTo menu.
         Iterator<MetaContactGroup> groups
@@ -779,5 +756,44 @@ public class MetaContactRightButtonMenu
                 ImageLoader.getBytesInImage(
                     protoContact.getPresenceStatus().getStatusIcon()),
                 protoContact.getProtocolProvider());
+    }
+
+    /**
+     * Reloads skin related information.
+     */
+    public void loadSkin()
+    {
+        callItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
+
+        sendMessageItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
+
+        sendFileItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.SEND_FILE_16x16_ICON)));
+
+        sendSmsItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
+
+        renameContactItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.RENAME_16x16_ICON)));
+
+        viewHistoryItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.HISTORY_16x16_ICON)));
+
+        moveToMenu.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
+
+        addContactItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
+
+        removeContactMenu.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.DELETE_16x16_ICON)));
+
+        moveSubcontactMenu.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.MOVE_CONTACT_ICON)));
+
+        callContactMenu.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
     }
 }

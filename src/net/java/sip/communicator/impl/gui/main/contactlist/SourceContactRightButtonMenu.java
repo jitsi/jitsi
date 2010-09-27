@@ -19,16 +19,31 @@ import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * The right button menu for external contact sources.
  * @see ExternalContactSource
+ * 
+ * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SourceContactRightButtonMenu
     extends JPopupMenu
+    implements Skinnable
 {
     private final SourceContact sourceContact;
+
+    /**
+     * Call contact menu.
+     */
+    private SIPCommMenu callContactMenu;
+
+    /**
+     * Add contact component.
+     */
+    private Component addContactComponent;
 
     /**
      * Creates an instance of <tt>SourceContactRightButtonMenu</tt> by
@@ -55,7 +70,8 @@ public class SourceContactRightButtonMenu
         if (cDetail != null)
             add(initCallMenu());
 
-        Component addContactComponent = initAddContactMenu();
+        addContactComponent = initAddContactMenu();
+
         if (addContactComponent != null)
             add(addContactComponent);
     }
@@ -66,7 +82,7 @@ public class SourceContactRightButtonMenu
      */
     private Component initCallMenu()
     {
-        SIPCommMenu callContactMenu = new SIPCommMenu(
+        callContactMenu = new SIPCommMenu(
             GuiActivator.getResources().getI18NString("service.gui.CALL"));
         callContactMenu.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.CALL_16x16_ICON)));
@@ -107,13 +123,13 @@ public class SourceContactRightButtonMenu
      */
     private Component initAddContactMenu()
     {
-        Component addContactComponent = null;
+        Component addContactComponentTmp = null;
 
         List<ContactDetail> details = sourceContact.getContactDetails();
 
         if (details.size() == 1)
         {
-            addContactComponent
+            addContactComponentTmp
                 = new JMenuItem(GuiActivator.getResources().getI18NString(
                     "service.gui.ADD_CONTACT"),
                     new ImageIcon(ImageLoader
@@ -121,7 +137,7 @@ public class SourceContactRightButtonMenu
 
             final ContactDetail detail = details.get(0);
 
-            ((JMenuItem) addContactComponent)
+            ((JMenuItem) addContactComponentTmp)
                 .addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
@@ -134,7 +150,7 @@ public class SourceContactRightButtonMenu
         // item for each one of them.
         else if (details.size() > 1)
         {
-            addContactComponent
+            addContactComponentTmp
                 = new JMenu(GuiActivator.getResources().getI18NString(
                     "service.gui.ADD_CONTACT"));
 
@@ -146,7 +162,7 @@ public class SourceContactRightButtonMenu
 
                 JMenuItem addMenuItem
                     = new JMenuItem(detail.getContactAddress());
-                ((JMenu) addContactComponent).add(addMenuItem);
+                ((JMenu) addContactComponentTmp).add(addMenuItem);
 
                 addMenuItem.addActionListener(new ActionListener()
                 {
@@ -157,7 +173,8 @@ public class SourceContactRightButtonMenu
                 });
             }
         }
-        return addContactComponent;
+
+        return addContactComponentTmp;
     }
 
     /**
@@ -226,4 +243,19 @@ public class SourceContactRightButtonMenu
 //        }
 //        return callContactMenu;
 //    }
+
+    /**
+     * Reloads icons for menu items.
+     */
+    public void loadSkin()
+    {
+        callContactMenu.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.CALL_16x16_ICON)));
+
+        if(addContactComponent instanceof JMenuItem)
+        {
+            ((JMenuItem) addContactComponent).setIcon(new ImageIcon(ImageLoader
+                        .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
+        }
+    }
 }

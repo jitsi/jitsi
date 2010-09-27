@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 
 import org.osgi.framework.*;
 
@@ -25,29 +26,29 @@ import org.osgi.framework.*;
  * The GroupRightButtonMenu is the menu, opened when user clicks with the right
  * mouse button on a group in the contact list. Through this menu the user could
  * add a contact to a group.
- * 
+ *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class GroupRightButtonMenu
     extends JPopupMenu
-    implements ActionListener, PluginComponentListener
+    implements  ActionListener,
+                PluginComponentListener,
+                Skinnable
 {
     private final Logger logger = Logger.getLogger(GroupRightButtonMenu.class);
 
-    private final JMenuItem addContactItem =
-        new JMenuItem(GuiActivator.getResources().getI18NString(
-            "service.gui.ADD_CONTACT") + "...", new ImageIcon(ImageLoader
-            .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
+    private final JMenuItem addContactItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.ADD_CONTACT") + "...");
 
-    private final JMenuItem removeGroupItem =
-        new JMenuItem(GuiActivator.getResources().getI18NString(
-            "service.gui.REMOVE_GROUP"), new ImageIcon(ImageLoader
-            .getImage(ImageLoader.DELETE_16x16_ICON)));
+    private final JMenuItem removeGroupItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.REMOVE_GROUP"));
 
-    private final JMenuItem renameGroupItem =
-        new JMenuItem(GuiActivator.getResources().getI18NString(
-            "service.gui.RENAME_GROUP"), new ImageIcon(ImageLoader
-            .getImage(ImageLoader.RENAME_16x16_ICON)));
+    private final JMenuItem renameGroupItem
+        = new JMenuItem(GuiActivator.getResources().getI18NString(
+            "service.gui.RENAME_GROUP"));
 
     private final MetaContactGroup group;
 
@@ -83,6 +84,8 @@ public class GroupRightButtonMenu
         this.addContactItem.addActionListener(this);
         this.renameGroupItem.addActionListener(this);
         this.removeGroupItem.addActionListener(this);
+
+        loadSkin();
 
         this.initPluginComponents();
     }
@@ -213,5 +216,20 @@ public class GroupRightButtonMenu
         {
             this.remove((Component) c.getComponent());
         }
+    }
+
+    /**
+     * Reloads label icons.
+     */
+    public void loadSkin()
+    {
+        addContactItem.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
+
+        removeGroupItem.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.DELETE_16x16_ICON)));
+
+        renameGroupItem.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.RENAME_16x16_ICON)));
     }
 }

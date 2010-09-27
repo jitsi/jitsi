@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -24,9 +25,11 @@ import net.java.sip.communicator.util.swing.*;
  * choosen contact will be moved.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class MoveSubcontactMessageDialog
     extends SIPCommDialog
+    implements Skinnable
 {
     private SIPCommMsgTextArea infoArea = new SIPCommMsgTextArea(
         GuiActivator.getResources()
@@ -36,8 +39,7 @@ public class MoveSubcontactMessageDialog
         GuiActivator.getResources()
             .getI18NString("service.gui.MOVE_SUBCONTACT"));
 
-    private JLabel iconLabel = new JLabel(
-            new ImageIcon(ImageLoader.getImage(ImageLoader.INFO_ICON)));
+    private JLabel iconLabel = new JLabel();
 
     private JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
@@ -113,6 +115,9 @@ public class MoveSubcontactMessageDialog
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         this.getContentPane().add(mainPanel);
+
+        loadSkin();
+
         this.pack();
     }
 
@@ -138,15 +143,36 @@ public class MoveSubcontactMessageDialog
         }
     }
 
+    /**
+     * Automatically clicks the cancel button when the dialog is closed.
+     *
+     * @param isEscaped indicates if the dialog has been closed by pressing the
+     * Esc key
+     */
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
     }
 
+    /**
+     * In addition to setVisible this method would also set the dialog location
+     * to fit the main frame.
+     *
+     * @param isVisible indicates if the component should be visible or not
+     */
     public void setVisible(boolean isVisible)
     {
         super.setVisible(isVisible);
 
         this.setDialogLocation(mainFrame);
+    }
+
+    /**
+     * Reloads the icon.
+     */
+    public void loadSkin()
+    {
+        iconLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.INFO_ICON)));
     }
 }
