@@ -13,6 +13,7 @@ import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.version.*;
@@ -35,6 +36,7 @@ public class SipActivator
     private static MediaService         mediaService          = null;
     private static VersionService       versionService        = null;
     private static UIService            uiService             = null;
+    private static HIDService            hidService           = null;
 
     private static ProtocolProviderFactorySipImpl sipProviderFactory = null;
 
@@ -119,6 +121,24 @@ public class SipActivator
         return networkAddressManagerService;
     }
 
+    /**
+     * Returns a reference to <tt>HIDService</tt> implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found
+     *
+     * @return a currently valid implementation of the <tt>HIDService</tt>
+     */
+    public static HIDService getHIDService()
+    {
+        if(hidService == null)
+        {
+            ServiceReference hidReference =
+                bundleContext.getServiceReference(
+                        HIDService.class.getName());
+            hidService = (HIDService)bundleContext.getService(hidReference);
+        }
+        return hidService;
+    }
 
     /**
      * Returns a reference to the bundle context that we were started with.

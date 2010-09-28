@@ -29,11 +29,17 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Sebastien Vincent
  */
 public class OneToOneCallPeerPanel
     extends TransparentPanel
     implements CallPeerRenderer
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The <tt>Logger</tt> used by the <tt>OneToOneCallPeerPanel</tt> class and
      * its instances for logging output.
@@ -41,6 +47,10 @@ public class OneToOneCallPeerPanel
     private static final Logger logger
         = Logger.getLogger(OneToOneCallPeerPanel.class);
 
+    /**
+     * The <tt>CallPeerAdapter</tt> that implements all common tt>CallPeer</tt>
+     * related listeners.
+     */
     private CallPeerAdapter callPeerAdapter;
 
     /**
@@ -129,9 +139,26 @@ public class OneToOneCallPeerPanel
     private Component localVideo;
 
     /**
+     * The component showing the remote video.
+     */
+    private Component remoteVideo;
+
+    /**
      * The <tt>CallPeer</tt>, which is rendered in this panel.
      */
     private CallPeer callPeer;
+
+    /**
+     * In case of desktop streaming (client-side) if the local peer can control
+     * remote peer's computer.
+     */
+    private boolean allowRemoteControl = false;
+
+    /**
+     * Listener for all key and mouse events. It is used for desktop sharing
+     * purposes.
+     */
+    private MouseAndKeyListener mouseAndKeyListener = null;
 
     /**
      * Creates a <tt>CallPeerPanel</tt> for the given call peer.
@@ -201,6 +228,7 @@ public class OneToOneCallPeerPanel
         this.createSoundLevelIndicators();
 
         addVideoListener();
+        addRemoteControlListener();
     }
 
     /**
@@ -382,10 +410,18 @@ public class OneToOneCallPeerPanel
             });
     }
 
+    /**
+     * Listener that will process change related to video such as if local
+     * streaming has been turned on/off or a video component has been
+     * added/removed.
+     */
     private class VideoTelephonyListener
         implements PropertyChangeListener,
                    VideoListener
     {
+        /**
+         * {@inheritDoc}
+         */
         public void propertyChange(PropertyChangeEvent event)
         {
             if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING
@@ -393,20 +429,53 @@ public class OneToOneCallPeerPanel
                 handleLocalVideoStreamingChange(this);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void videoAdded(VideoEvent event)
         {
             handleVideoEvent(event);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void videoRemoved(VideoEvent event)
         {
             handleVideoEvent(event);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void videoUpdate(VideoEvent event)
         {
             handleVideoEvent(event);
         }
+    }
+
+    /**
+     * Sets up listening to remote-control notifications (granted or revoked).
+     *
+     * @return reference to <tt>OperationSetDesktopSharingClient</tt>
+     */
+    private OperationSetDesktopSharingClient addRemoteControlListener()
+    {
+        final Call call = callPeer.getCall();
+
+        if (call == null)
+            return null;
+
+        OperationSetDesktopSharingClient desktopSharingClient =
+            call.getProtocolProvider()
+            .getOperationSet(OperationSetDesktopSharingClient.class);
+
+        if(desktopSharingClient != null)
+        {
+            mouseAndKeyListener = new MouseAndKeyListener(desktopSharingClient);
+            desktopSharingClient.addRemoteControlListener(mouseAndKeyListener);
+        }
+        return desktopSharingClient;
     }
 
     /**
@@ -434,7 +503,7 @@ public class OneToOneCallPeerPanel
         final VideoTelephonyListener videoTelephonyListener
             = new VideoTelephonyListener();
 
-        /*
+        /**
          * The video is only available while the #callPeer is in a Call
          * and that call is in progress so only listen to VideoEvents during
          * that time.
@@ -462,10 +531,12 @@ public class OneToOneCallPeerPanel
                 }
             }
 
-            /*
+            /**
              * When the #callPeer of this CallPeerPanel gets added
              * to the Call, starts listening for changes in the video in order
              * to display it.
+             *
+             * @param event the <tt>CallPeerEvent</tt> received
              */
             public synchronized void callPeerAdded(
                 CallPeerEvent event)
@@ -482,10 +553,12 @@ public class OneToOneCallPeerPanel
                 }
             }
 
-            /*
+            /**
              * When the #callPeer of this CallPeerPanel leaves the
              * Call, stops listening for changes in the video because it should
              * no longer be updated anyway.
+             *
+             * @param event the <tt>CallPeerEvent</tt> received
              */
             public synchronized void callPeerRemoved(
                 CallPeerEvent event)
@@ -498,12 +571,14 @@ public class OneToOneCallPeerPanel
                 }
             }
 
-            /*
+            /**
              * When the Call of #callPeer ends, stops tracking the
              * updates in the video because there should no longer be any video
              * anyway. When the Call in question starts, starts tracking any
              * changes to the video because it's negotiated and it should be
              * displayed in this CallPeerPanel.
+             *
+             * @param event the <tt>CallChangeEvent</tt> received
              */
             public synchronized void callStateChanged(CallChangeEvent event)
             {
@@ -519,6 +594,12 @@ public class OneToOneCallPeerPanel
                     if (videoListenerIsAdded)
                         removeVideoListener();
                     call.removeCallChangeListener(this);
+
+                    if(allowRemoteControl)
+                    {
+                        allowRemoteControl = false;
+                        removeMouseAndKeyListeners();
+                    }
                 }
                 else if (CallState.CALL_IN_PROGRESS.equals(newCallState))
                 {
@@ -571,15 +652,27 @@ public class OneToOneCallPeerPanel
         synchronized (videoContainers)
         {
             if ((event != null)
-                    && !event.isConsumed()
-                    && (event.getOrigin() == VideoEvent.LOCAL))
+                    && !event.isConsumed())
             {
                 Component video = event.getVisualComponent();
 
                 switch (event.getType())
                 {
                 case VideoEvent.VIDEO_ADDED:
-                    this.localVideo = video;
+                    if(event.getOrigin() == VideoEvent.LOCAL)
+                    {
+                        this.localVideo = video;
+                    }
+                    else if(event.getOrigin() == VideoEvent.REMOTE)
+                    {
+                        this.remoteVideo = video;
+
+                        if(allowRemoteControl)
+                        {
+                            addMouseAndKeyListeners();
+                        }
+                    }
+
                     /*
                      * Let the creator of the local visual Component know it
                      * shouldn't be disposed of because we're going to use it.
@@ -588,8 +681,16 @@ public class OneToOneCallPeerPanel
                     break;
 
                 case VideoEvent.VIDEO_REMOVED:
-                    if (this.localVideo == video)
+                    if (event.getOrigin() == VideoEvent.LOCAL &&
+                            localVideo == video)
+                    {
                         this.localVideo = null;
+                    }
+                    else if(event.getOrigin() == VideoEvent.REMOTE &&
+                            remoteVideo == video)
+                    {
+                        this.remoteVideo = video;
+                    }
                     break;
                 }
             }
@@ -727,6 +828,12 @@ public class OneToOneCallPeerPanel
         videoContainer.repaint();
     }
 
+    /**
+     * Handles the change when we turn on/off local video streaming such as
+     * creating/releasing visual component.
+     *
+     * @param listener Listener that will be callbacked
+     */
     private void handleLocalVideoStreamingChange(
             VideoTelephonyListener listener)
     {
@@ -768,22 +875,33 @@ public class OneToOneCallPeerPanel
         return peerName;
     }
 
+    /**
+     * The <tt>TransparentPanel</tt> that will display the peer status.
+     */
     private static class PeerStatusPanel
         extends TransparentPanel
     {
-        /*
+        /**
          * Silence the serial warning. Though there isn't a plan to serialize
          * the instances of the class, there're no fields so the default
          * serialization routine will work.
          */
         private static final long serialVersionUID = 0L;
 
+        /**
+         * Constructs a new <tt>PeerStatusPanel</tt>.
+         *
+         * @param layout the <tt>LayoutManager</tt> to use
+         */
         public PeerStatusPanel(LayoutManager layout)
         {
             super(layout);
             this.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
         }
 
+        /**
+         * @{inheritDoc}
+         */
         @Override
         public void paintComponent(Graphics g)
         {
@@ -1030,6 +1148,38 @@ public class OneToOneCallPeerPanel
     }
 
     /**
+     * Add <tt>KeyListener</tt>, <tt>MouseListener</tt>,
+     * <tt>MouseWheelListener</tt> and <tt>MouseMotionListener</tt> to remote
+     * video component.
+     */
+    private void addMouseAndKeyListeners()
+    {
+        if(remoteVideo != null)
+        {
+            remoteVideo.addKeyListener(mouseAndKeyListener);
+            remoteVideo.addMouseListener(mouseAndKeyListener);
+            remoteVideo.addMouseMotionListener(mouseAndKeyListener);
+            remoteVideo.addMouseWheelListener(mouseAndKeyListener);
+        }
+    }
+
+    /**
+     * Remove <tt>KeyListener</tt>, <tt>MouseListener</tt>,
+     * <tt>MouseWheelListener</tt> and <tt>MouseMotionListener</tt> to remote
+     * video component.
+     */
+    private void removeMouseAndKeyListeners()
+    {
+        if(remoteVideo != null)
+        {
+            remoteVideo.removeKeyListener(mouseAndKeyListener);
+            remoteVideo.removeMouseListener(mouseAndKeyListener);
+            remoteVideo.removeMouseMotionListener(mouseAndKeyListener);
+            remoteVideo.removeMouseWheelListener(mouseAndKeyListener);
+        }
+    }
+
+    /**
      * Sets the reason of a call failure if one occurs. The renderer should
      * display this reason to the user.
      * @param reason the reason to display
@@ -1069,5 +1219,184 @@ public class OneToOneCallPeerPanel
 
         if (isVisible())
             errorMessageComponent.repaint();
+    }
+
+    /**
+     * Listener for all key and mouse events and will transfer them to
+     * the <tt>OperationSetDesktopSharingClient</tt>.
+     *
+     * @author Sebastien Vincent
+     */
+    private class MouseAndKeyListener
+        implements RemoteControlListener,
+                   KeyListener,
+                   MouseListener,
+                   MouseMotionListener,
+                   MouseWheelListener
+    {
+        /**
+         * Desktop sharing clien-side <tt>OperationSet</tt>.
+         */
+        private final OperationSetDesktopSharingClient desktopSharingClient;
+
+        /**
+         * Last time the mouse has moved inside remote video. It is used mainly
+         * to avoid sending too much <tt>MouseEvent</tt> which can take a lot of
+         * bandwidth.
+         */
+        private long lastMouseMovedTime = 0;
+
+        /**
+         * Constructor.
+         *
+         * @param opSet <tt>OperationSetDesktopSharingClient</tt> object
+         */
+        public MouseAndKeyListener(OperationSetDesktopSharingClient opSet)
+        {
+            desktopSharingClient = opSet;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void mouseMoved(MouseEvent event)
+        {
+            if(System.currentTimeMillis() > lastMouseMovedTime + 50)
+            {
+                desktopSharingClient.sendMouseEvent(callPeer, event,
+                        remoteVideo.getSize());
+                lastMouseMovedTime = System.currentTimeMillis();
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void mousePressed(MouseEvent event)
+        {
+            desktopSharingClient.sendMouseEvent(callPeer, event);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void mouseReleased(MouseEvent event)
+        {
+            desktopSharingClient.sendMouseEvent(callPeer, event);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void mouseClicked(MouseEvent event)
+        {
+            /* do nothing */
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void mouseEntered(MouseEvent event)
+        {
+            /* do nothing */
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void mouseExited(MouseEvent event)
+        {
+            /* do nothing */
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void mouseWheelMoved(MouseWheelEvent event)
+        {
+            desktopSharingClient.sendMouseEvent(callPeer, event);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void mouseDragged(MouseEvent event)
+        {
+             desktopSharingClient.sendMouseEvent(callPeer, event,
+                     remoteVideo.getSize());
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void keyPressed(KeyEvent event)
+        {
+            char key = event.getKeyChar();
+            int code = event.getKeyCode();
+
+            if(key == KeyEvent.CHAR_UNDEFINED ||
+                    code == KeyEvent.VK_CLEAR ||
+                    code == KeyEvent.VK_DELETE ||
+                    code == KeyEvent.VK_BACK_SPACE ||
+                    code == KeyEvent.VK_ENTER)
+            {
+                desktopSharingClient.sendKeyboardEvent(callPeer, event);
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void keyReleased(KeyEvent event)
+        {
+            char key = event.getKeyChar();
+            int code = event.getKeyCode();
+
+            if(key == KeyEvent.CHAR_UNDEFINED ||
+                    code == KeyEvent.VK_CLEAR ||
+                    code == KeyEvent.VK_DELETE ||
+                    code == KeyEvent.VK_BACK_SPACE ||
+                    code == KeyEvent.VK_ENTER)
+            {
+                desktopSharingClient.sendKeyboardEvent(callPeer, event);
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void keyTyped(KeyEvent event)
+        {
+            char key = event.getKeyChar();
+
+            if(key != '\n' && key != '\b')
+            {
+                desktopSharingClient.sendKeyboardEvent(callPeer, event);
+            }
+        }
+
+        /**
+         * This method is called when remote control has been granted.
+         *
+         * @param event <tt>RemoteControlGrantedEvent</tt>
+         */
+        public void remoteControlGranted(RemoteControlGrantedEvent event)
+        {
+            allowRemoteControl = true;
+        }
+
+        /**
+         * This method is called when remote control has been revoked.
+         *
+         * @param event <tt>RemoteControlRevokedEvent</tt>
+         */
+        public void remoteControlRevoked(RemoteControlRevokedEvent event)
+        {
+            if(allowRemoteControl)
+            {
+                allowRemoteControl = false;
+                removeMouseAndKeyListeners();
+            }
+        }
     }
 }

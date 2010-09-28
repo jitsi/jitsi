@@ -110,10 +110,10 @@ public class OperationSetVideoTelephonyJabberImpl
      * @param calleeAddress Contact address
      * @return true if contact support Jingle video, false otherwise
      *
-     * @exception OperationFailedException with the corresponding code if we fail
+     * @throws OperationFailedException with the corresponding code if we fail
      * to create the video call.
      */
-    private Call createOutgoingVideoCall(String calleeAddress)
+    protected Call createOutgoingVideoCall(String calleeAddress)
         throws OperationFailedException
     {
         if (logger.isInfoEnabled())

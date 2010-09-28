@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -58,7 +59,8 @@ public class JabberActivator
     /**
      * The Jabber protocol provider factory.
      */
-    private static ProtocolProviderFactoryJabberImpl jabberProviderFactory = null;
+    private static ProtocolProviderFactoryJabberImpl
+                                        jabberProviderFactory = null;
 
     /**
      * The <tt>UriHandler</tt> implementation that we use to handle "xmpp:" URIs
@@ -75,6 +77,11 @@ public class JabberActivator
      * instance.
      */
     private static ResourceManagementService resourcesService = null;
+
+    /**
+     * A reference to the currently valid <tt>HIDService</tt> instance.
+     */
+    private static HIDService hidService = null;
 
     /**
      * Called when this bundle is started so the Framework can perform the
@@ -273,5 +280,24 @@ public class JabberActivator
                 bundleContext.getService(confReference);
         }
         return networkAddressManagerService;
+    }
+
+    /**
+     * Returns a reference to <tt>HIDService</tt> implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found
+     *
+     * @return a currently valid implementation of the <tt>HIDService</tt>
+     */
+    public static HIDService getHIDService()
+    {
+        if(hidService == null)
+        {
+            ServiceReference hidReference =
+                bundleContext.getServiceReference(
+                        HIDService.class.getName());
+            hidService = (HIDService)bundleContext.getService(hidReference);
+        }
+        return hidService;
     }
 }

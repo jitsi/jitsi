@@ -871,11 +871,11 @@ public abstract class EventPackageNotifier
      *
      * @param response a <tt>Response</tt> identifying the <tt>Subscription</tt>
      * to be removed from the list of subscriptions managed by this instance
-     * @param eventId
+     * @param eventId  the value of the id tag
      * @param clientTransaction the <tt>ClientTransaction</tt> through which the
      * specified <tt>Response</tt> came
      */
-    private void removeSubscription(
+    protected void removeSubscription(
         Response response,
         String eventId,
         ClientTransaction clientTransaction)

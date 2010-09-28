@@ -5,13 +5,13 @@
  * See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
+
 import java.util.logging.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.XmlPullParser;
-
 
 /**
  * An implementation of a Jingle IQ provider that parses incoming Jingle IQs.
@@ -107,6 +107,13 @@ public class JingleIQProvider implements IQProvider
             IceUdpTransportPacketExtension.NAMESPACE,
             new DefaultPacketExtensionProvider<RemoteCandidatePacketExtension>(
                             RemoteCandidatePacketExtension.class));
+
+        //inputevt <inputevt/> provider
+        providerManager.addExtensionProvider(
+                InputEvtPacketExtension.ELEMENT_NAME,
+                InputEvtPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<InputEvtPacketExtension>(
+                        InputEvtPacketExtension.class));
     }
 
     /**

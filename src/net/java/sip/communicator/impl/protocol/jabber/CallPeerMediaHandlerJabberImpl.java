@@ -61,6 +61,12 @@ public class CallPeerMediaHandlerJabberImpl
     private boolean remotelyOnHold = false;
 
     /**
+     * Indicates if the <tt>CallPeer</tt> will support </tt>inputevt</tt>
+     * extension (i.e. will be able to be remote-controlled).
+     */
+    private boolean localInputEvtAware = false;
+
+    /**
      * Creates a new handler that will be managing media streams for
      * <tt>peer</tt>.
      *
@@ -94,6 +100,16 @@ public class CallPeerMediaHandlerJabberImpl
     {
         ProtocolProviderServiceJabberImpl.throwOperationFailedException(
                             message, errorCode, cause, logger);
+    }
+
+    /**
+     * Enable or disable <tt>inputevt</tt> support (remote-control).
+     *
+     * @param enable new state of inputevt support
+     */
+    public void setLocalInputEvtAware(boolean enable)
+    {
+        localInputEvtAware = enable;
     }
 
     /**
@@ -300,6 +316,14 @@ public class CallPeerMediaHandlerJabberImpl
                 }
             }
 
+            // got an content which have inputevt, it means that peer requests
+            // a desktop sharing session so tell it we support inputevt
+            if(content.getChildExtensionsOfType(
+                    InputEvtPacketExtension.class) != null)
+            {
+                ourContent.addChildExtension(new InputEvtPacketExtension());
+            }
+
             answerContentList.add(ourContent);
             localContentMap.put(content.getName(), ourContent);
 
@@ -395,6 +419,22 @@ public class CallPeerMediaHandlerJabberImpl
             // create the corresponding stream...
             initStream(ourContent.getName(), connector, dev, format, target,
                             direction, rtpExtensions);
+
+            // if remote peer requires inputevt, notify UI to capture mouse
+            // and keyboard events
+            if(ourContent.getChildExtensionsOfType(
+                            InputEvtPacketExtension.class) != null)
+            {
+                OperationSetDesktopSharingClientJabberImpl client =
+                    (OperationSetDesktopSharingClientJabberImpl)
+                    this.getPeer().getProtocolProvider().getOperationSet(
+                    OperationSetDesktopSharingClient.class);
+
+                if(client != null)
+                {
+                    client.fireRemoteControlGranted();
+                }
+            }
         }
         return sessAccept;
     }
@@ -560,6 +600,18 @@ public class CallPeerMediaHandlerJabberImpl
 
                             content.addChildExtension(hash);
                         }
+                    }
+
+                    /* we request a desktop sharing session so add the inputevt
+                     * extension in the "video" content
+                     */
+                    RtpDescriptionPacketExtension description
+                        = JingleUtils.getRtpDescription(content);
+                    if(description.getMedia().equals(
+                        MediaType.VIDEO.toString()) && localInputEvtAware)
+                    {
+                        content.addChildExtension(
+                                new InputEvtPacketExtension());
                     }
 
                     mediaDescs.add(content);

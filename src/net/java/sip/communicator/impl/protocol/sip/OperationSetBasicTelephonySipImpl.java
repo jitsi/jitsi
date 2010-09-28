@@ -487,6 +487,35 @@ public class OperationSetBasicTelephonySipImpl
         default:
             int responseStatusCodeRange = responseStatusCode / 100;
 
+            if(responseStatusCode == 500 && responseEvent.
+                    getClientTransaction().getRequest().getMethod().
+                    equals(Request.NOTIFY))
+            {
+                /* maybe this one comes from desktop sharing session, it is
+                 * possible that keyboard and mouse notifications comes in
+                 * disorder as interval between two events can be very short
+                 * (especially for "mouse moved").
+                 */
+                /* XXX this is not an optimal solution, the ideal will be
+                 * to prevent disordering
+                 */
+                byte raw[] = responseEvent.getClientTransaction().
+                                    getRequest().getRawContent();
+                String content = new String(raw);
+
+                /*
+                 * we have to bypass SIP specifications in the SIP NOTIFY
+                 * message is desktop sharing specific and thus do not close the
+                 * call.
+                 */
+                if(content.startsWith(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+                        "<remote-control>"))
+                {
+                    return true;
+                }
+            }
+
             if ((responseStatusCodeRange == 4)
                 || (responseStatusCodeRange == 5)
                 || (responseStatusCodeRange == 6))

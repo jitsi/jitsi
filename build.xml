@@ -892,7 +892,7 @@
         bundle-callhistory, bundle-callhistory-slick, bundle-popupmessagehandler-slick,
         bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
         bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
-        bundle-fileaccess-slick,bundle-neomedia,
+        bundle-fileaccess-slick,bundle-neomedia,bundle-hid,
         bundle-resource-manager,bundle-resources-defaultpack,
         bundle-protocol,bundle-protocol-media,bundle-icq,
         bundle-icq-slick,bundle-mock,bundle-smacklib,
@@ -1179,6 +1179,18 @@
             <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-HID -->
+    <target name="bundle-hid">
+        <jar compress="false" destfile="${bundles.dest}/hid.jar"
+            manifest="${src}/net/java/sip/communicator/impl/hid/hid.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/hid"
+                prefix="net/java/sip/communicator/service/hid"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/hid"
+                prefix="net/java/sip/communicator/impl/hid" />
         </jar>
     </target>
 

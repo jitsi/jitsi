@@ -31,6 +31,9 @@ import net.java.sip.communicator.util.*;
  */
 public class CallManager
 {
+    /**
+     * Our class logger.
+     */
     private static final Logger logger = Logger.getLogger(CallManager.class);
 
     /**
@@ -329,7 +332,7 @@ public class CallManager
      */
     public static void transferCall(CallPeer peer, CallPeer target)
     {
-        OperationSetAdvancedTelephony telephony
+        OperationSetAdvancedTelephony<?> telephony
             = peer.getCall().getProtocolProvider()
                 .getOperationSet(OperationSetAdvancedTelephony.class);
 
@@ -354,7 +357,7 @@ public class CallManager
      */
     public static void transferCall(CallPeer peer, String target)
     {
-        OperationSetAdvancedTelephony telephony
+        OperationSetAdvancedTelephony<?> telephony
             = peer.getCall().getProtocolProvider()
                 .getOperationSet(OperationSetAdvancedTelephony.class);
 

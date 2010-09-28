@@ -101,7 +101,6 @@ public class ProtocolProviderServiceSipImpl
     private static final String PREFERRED_SIP_PORT =
         "net.java.sip.communicator.service.protocol.sip.PREFERRED_SIP_PORT";
 
-
     /**
      * The name of the property under which the user may specify the number of
      * seconds that registrations take to expire.
@@ -390,7 +389,6 @@ public class ProtocolProviderServiceSipImpl
      * @throws OperationFailedException with the corresponding code it the
      * registration fails for some reason (e.g. a networking error or an
      * implementation problem).
-
      */
     public void register(SecurityAuthority authority)
         throws OperationFailedException
@@ -626,6 +624,17 @@ public class ProtocolProviderServiceSipImpl
                 OperationSetDesktopStreaming.class,
                 new OperationSetDesktopStreamingSipImpl(
                         opSetBasicTelephonySipImpl));
+
+            // OperationSetDesktopSharingServer
+            addSupportedOperationSet(
+               OperationSetDesktopSharingServer.class,
+               new OperationSetDesktopSharingServerSipImpl(
+                       opSetBasicTelephonySipImpl));
+
+            // OperationSetDesktopSharingClient
+            addSupportedOperationSet(
+                OperationSetDesktopSharingClient.class,
+                new OperationSetDesktopSharingClientSipImpl(this));
 
             // init DTMF (from JM Heitz)
             addSupportedOperationSet(

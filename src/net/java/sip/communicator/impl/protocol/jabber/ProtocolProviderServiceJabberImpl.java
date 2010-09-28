@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.impl.protocol.jabber.sasl.*;
 import net.java.sip.communicator.service.gui.*;
 
@@ -1078,6 +1079,11 @@ public class ProtocolProviderServiceJabberImpl
                                            JingleIQ.NAMESPACE,
                                            new JingleIQProvider());
 
+            // register our input event provider
+            providerManager.addIQProvider(InputEvtIQ.ELEMENT_NAME,
+                                          InputEvtIQ.NAMESPACE,
+                                          new InputEvtIQProvider());
+
             //initialize the telephony operation set
             //until we actually finish jingle, we'll have a clumsy way of
             //enabling it through a system property.
@@ -1104,6 +1110,15 @@ public class ProtocolProviderServiceJabberImpl
                     OperationSetDesktopStreaming.class,
                     new OperationSetDesktopStreamingJabberImpl(basicTelephony));
 
+                // initialize desktop sharing OperationSets
+                addSupportedOperationSet(
+                    OperationSetDesktopSharingServer.class,
+                    new OperationSetDesktopSharingServerJabberImpl(
+                            basicTelephony));
+                addSupportedOperationSet(
+                        OperationSetDesktopSharingClient.class,
+                        new OperationSetDesktopSharingClientJabberImpl(this));
+
                 // Add Jingle features to supported features.
                 supportedFeatures.add(URN_XMPP_JINGLE);
                 supportedFeatures.add(URN_XMPP_JINGLE_RTP);
@@ -1113,6 +1128,9 @@ public class ProtocolProviderServiceJabberImpl
                 supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
                 supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
                 supportedFeatures.add(URN_XMPP_JINGLE_RTP_ZRTP);
+
+                /* add extension to support remote control */
+                supportedFeatures.add(InputEvtIQ.NAMESPACE);
             }
 
             // OperationSetContactCapabilities

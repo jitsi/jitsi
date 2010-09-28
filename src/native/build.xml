@@ -148,6 +148,63 @@
     </cc>
   </target>
 
+  <!-- compile hid library -->
+  <target name="hid" description="Build hid shared library"
+    depends="init-native">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/hid" objdir="${obj}">
+      <!-- common compiler flags -->
+      <compilerarg value="-Wall" />
+      <compilerarg value="-Wextra" />
+
+      <!-- Linux specific flags -->
+      <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
+
+      <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+      <linkerarg value="-lX11" location="end" if="is.running.linux" />
+      
+      <fileset dir="${src}/native/hid" includes="net*.c KeyboardUtil_unix.c" if="is.running.linux" />
+
+      <!-- Mac OS X specific flags -->
+      <compilerarg value="-arch" if="is.running.macos" />
+      <compilerarg value="x86_64" if="is.running.macos" />
+      <compilerarg value="-arch" if="is.running.macos" />
+      <compilerarg value="i386" if="is.running.macos" />
+      <compilerarg value="-arch" if="is.running.macos" />
+      <compilerarg value="ppc" if="is.running.macos" />
+      <compilerarg value="-I/System/Library/Frameworks/ApplicationServices.framework/Headers" if="is.running.macos" />
+      <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
+
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="x86_64" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="i386" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="ppc" if="is.running.macos" />
+      <linkerarg value="-framework" if="is.running.macos" />
+      <linkerarg value="ApplicationServices" if="is.running.macos" />
+      <linkerarg value="-framework" if="is.running.macos" />
+      <linkerarg value="Carbon" if="is.running.macos" />
+      <linkerarg value="-o" location="end" if="is.running.macos" />
+      <linkerarg value="libhid.jnilib" location="end" if="is.running.macos" />
+      
+      <fileset dir="${src}/native/hid" includes="net*.c KeyboardUtil_mac.c" if="is.running.macos" />
+
+      <!-- Windows specific flags -->
+      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.windows" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
+
+      <linkerarg value="-lgdi32" location="end" if="is.running.windows" />
+      <linkerarg value="-ohid.dll" if="is.running.windows" />
+      <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
+
+      <fileset dir="${src}/native/hid" includes="net*.c KeyboardUtil_windows.c" if="is.running.windows" />
+    </cc>
+  </target>
+
   <!-- compile jawtrenderer library -->
   <target name="jawtrenderer" description="Build jawtrenderer shared library" depends="init-native,jawtrenderer-windows"
     unless="is.running.windows">
@@ -708,6 +765,7 @@
     <echo message="'ant ffmpeg' to compile ffmpeg shared library" />
     <echo message="'ant portaudio' to compile jportaudio shared library" />
     <echo message="'ant speex' to compile jspeex shared library" />
+    <echo message="'ant hid' to compile hid shared library" />
     <echo message="'ant hwaddressretriever' to compile hwaddressretriever shared library" />
     <echo message="'ant video4linux2 (Linux only)' to compile jvideo4linux2 shared library" />
     <echo message="'ant galagonotification (Linux only)' to compile galagonotification shared library" />

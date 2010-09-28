@@ -1,0 +1,9 @@
+Bundle-Activator: net.java.sip.communicator.impl.hid.HIDActivator
+Bundle-Name: HID Service Implementation
+Bundle-Description: A bundle that offers Human Interaction features.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+System-Bundle: yes
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.util
+Export-Package: net.java.sip.communicator.service.hid

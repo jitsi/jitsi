@@ -36,6 +36,12 @@ public class CallJabberImpl extends MediaAwareCall<
     private final OperationSetBasicTelephonyJabberImpl parentOpSet;
 
     /**
+     * Indicates if the <tt>CallPeer</tt> will support </tt>inputevt</tt>
+     * extension (i.e. will be able to be remote-controlled).
+     */
+    private boolean localInputEvtAware = false;
+
+    /**
      * Crates a CallJabberImpl instance belonging to <tt>sourceProvider</tt> and
      * associated with the jingle session with the specified <tt>jingleSID</tt>.
      * If this call corresponds to an incoming jingle session then the jingleSID
@@ -54,6 +60,26 @@ public class CallJabberImpl extends MediaAwareCall<
         //let's add ourselves to the calls repo. we are doing it ourselves just
         //to make sure that no one ever forgets.
         parentOpSet.getActiveCallsRepository().addCall(this);
+    }
+
+    /**
+     * Enable or disable <tt>inputevt</tt> support (remote control).
+     *
+     * @param enable new state of inputevt support
+     */
+    public void setLocalInputEvtAware(boolean enable)
+    {
+        localInputEvtAware = enable;
+    }
+
+    /**
+     * Returns if the call support <tt>inputevt</tt> (remote control).
+     *
+     * @return true if the call support <tt>inputevt</tt>, false otherwise
+     */
+    public boolean getLocalInputEvtAware()
+    {
+        return localInputEvtAware;
     }
 
     /**
@@ -132,6 +158,8 @@ public class CallJabberImpl extends MediaAwareCall<
         /* enable video if it is a videocall */
         callPeer.getMediaHandler().setLocalVideoTransmissionEnabled(
                                                             localVideoAllowed);
+        /* enable remote-control if it is a desktop sharing session */
+        callPeer.getMediaHandler().setLocalInputEvtAware(localInputEvtAware);
 
         //set call state to connecting so that the user interface would start
         //playing the tones. we do that here because we may be harvesting
@@ -151,8 +179,13 @@ public class CallJabberImpl extends MediaAwareCall<
      * @throws OperationFailedException if problem occurred during message
      * generation or network problem
      */
-    public void modifyVideoContent(boolean allowed) throws OperationFailedException
+    public void modifyVideoContent(boolean allowed)
+        throws OperationFailedException
     {
+        if(logger.isInfoEnabled())
+            logger.info(allowed ? "Start local video streaming" :
+                "Stop local video streaming");
+
         for(CallPeerJabberImpl peer : getCallPeersVector())
         {
             peer.sendModifyVideoContent(allowed);
