@@ -82,7 +82,6 @@ public class DefaultSecurityAuthority
                                         isUserNameEditable,
                                         icon);
 
-        loginWindow.pack();
         loginWindow.setVisible(true);
 
         if (!loginWindow.isCanceled())

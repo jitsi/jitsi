@@ -88,7 +88,6 @@ public class SecurityAuthorityImpl
                 icon,
                 errorMessage);
 
-        loginWindow.pack();
         loginWindow.setVisible(true);
 
         if (!loginWindow.isCanceled())

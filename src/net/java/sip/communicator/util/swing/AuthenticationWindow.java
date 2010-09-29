@@ -127,10 +127,10 @@ public class AuthenticationWindow
         this.server = server;
 
         Image logoImage = null;
-        
+
         if(icon != null)
         {
-        	logoImage = icon.getImage();
+            logoImage = icon.getImage();
         }
 
         if(!isUserNameEditable)
@@ -405,6 +405,8 @@ public class AuthenticationWindow
     public void setVisible(boolean isVisible)
     {
         this.setName("AUTHENTICATION");
+
+        pack();
 
         super.setVisible(isVisible);
 
