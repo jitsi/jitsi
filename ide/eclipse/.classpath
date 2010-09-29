@@ -11,6 +11,7 @@
     <classpathentry kind="lib" path="lib/installer-exclude/commons-logging-1.1.1.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/concurrent.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/dict4j.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/dhcp4java-1.00.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/dnsjava-2.0.3.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/fmj.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/httpclient-4.0.1.jar"/>
