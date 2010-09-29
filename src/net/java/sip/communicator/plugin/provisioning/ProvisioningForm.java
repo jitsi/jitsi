@@ -23,20 +23,63 @@ public class ProvisioningForm
     extends TransparentPanel
 {
     /**
+     * The enable provisioning check box.
+     */
+    private final JCheckBox enableCheckBox;
+
+    /**
+     * The DHCP provisioning discovery button.
+     */
+    private final JRadioButton dhcpButton;
+
+    /**
+     * The DNS provisioning discovery button.
+     */
+    private final JRadioButton dnsButton;
+
+    /**
+     * The Bonjour provisioning discovery button.
+     */
+    private final JRadioButton bonjourButton;
+
+    /**
+     * The manual provisioning button.
+     */
+    private final JRadioButton manualButton;
+
+    /**
+     * The URI field to specify manually a provisioning server.
+     */
+    private final SIPCommTextField uriField;
+
+    /**
      * Creates an instance of the <tt>ProvisioningForm</tt>.
      */
     public ProvisioningForm()
     {
         super(new BorderLayout());
 
-        init();
-    }
+        ResourceManagementService resources
+            = ProvisioningActivator.getResourceService();
 
-    /**
-     * Initializes all contained components.
-     */
-    private void init()
-    {
+        enableCheckBox = new JCheckBox(
+            resources.getI18NString("plugin.provisioning.ENABLE_DISABLE"));
+
+        dhcpButton = new JRadioButton(
+            resources.getI18NString("plugin.provisioning.DHCP"));
+
+        dnsButton = new JRadioButton(
+            resources.getI18NString("plugin.provisioning.DNS"));
+
+        bonjourButton = new JRadioButton(
+            resources.getI18NString("plugin.provisioning.BONJOUR"));
+
+        manualButton = new JRadioButton(
+            resources.getI18NString("plugin.provisioning.MANUAL"));
+
+        uriField = new SIPCommTextField(
+            resources.getI18NString("plugin.provisioning.URI"));
+
         JPanel mainPanel = new TransparentPanel();
 
         add(mainPanel, BorderLayout.NORTH);
@@ -44,12 +87,6 @@ public class ProvisioningForm
         mainPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints c = new GridBagConstraints();
-
-        ResourceManagementService resources
-            = ProvisioningActivator.getResourceService();
-
-        final JCheckBox enableCheckBox = new JCheckBox(
-            resources.getI18NString("plugin.provisioning.ENABLE_DISABLE"));
 
         enableCheckBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -59,21 +96,6 @@ public class ProvisioningForm
         c.gridy = 0;
         c.insets = new Insets(0, 0, 10, 0);
         mainPanel.add(enableCheckBox, c);
-
-        final JRadioButton dhcpButton = new JRadioButton(
-            resources.getI18NString("plugin.provisioning.DHCP"));
-
-        final JRadioButton dnsButton = new JRadioButton(
-            resources.getI18NString("plugin.provisioning.DNS"));
-
-        final JRadioButton bonjourButton = new JRadioButton(
-            resources.getI18NString("plugin.provisioning.BONJOUR"));
-
-        final JRadioButton manualButton = new JRadioButton(
-            resources.getI18NString("plugin.provisioning.MANUAL"));
-
-        final SIPCommTextField uriField = new SIPCommTextField(
-            resources.getI18NString("plugin.provisioning.URI"));
 
         final ButtonGroup buttonGroup = new ButtonGroup();
 
@@ -113,6 +135,15 @@ public class ProvisioningForm
         c.gridy = 3;
         mainPanel.add(uriField, c);
 
+        initButtonStates();
+        initListeners();
+    }
+
+    /**
+     * Initializes all contained components.
+     */
+    private void initButtonStates()
+    {
         String provMethod = ProvisioningActivator.getProvisioningMethod();
         boolean isProvEnabled
             = (provMethod != null && !provMethod.equals("NONE"));
@@ -142,7 +173,13 @@ public class ProvisioningForm
         uriField.setEnabled(manualButton.isSelected());
         dnsButton.setEnabled(false);
         bonjourButton.setEnabled(false);
+    }
 
+    /**
+     * Initializes all listeners.
+     */
+    private void initListeners()
+    {
         enableCheckBox.addChangeListener(new ChangeListener()
         {
             public void stateChanged(ChangeEvent e)
