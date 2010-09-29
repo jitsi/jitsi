@@ -147,6 +147,7 @@ public abstract class MediaAwareCall<
      * also we can obtain the reason for the <tt>CallPeerChangeEvent</tt> if
      * any. Use the event as cause for the call state change event..
      */
+    @SuppressWarnings("unchecked")
     private void removeCallPeer(CallPeerChangeEvent evt)
     {
         T callPeer = (T)evt.getSourceCallPeer();

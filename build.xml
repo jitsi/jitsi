@@ -931,7 +931,9 @@
         bundle-replacement,bundle-youtube,bundle-dailymotion,bundle-smiley,
         bundle-vimeo,bundle-vbox7,bundle-metacafe,bundle-flickr,bundle-hulu,
         bundle-twitpic,bundle-directimage,bundle-bliptv,bundle-viddler,
-        bundle-plugin-chatconfig,bundle-certificate"/>
+        bundle-plugin-chatconfig,bundle-certificate,
+        bundle-provdisc,bundle-provdisc-dhcp,
+        bundle-provisioning"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2523,6 +2525,35 @@ org.apache.http.util"/>
             manifest="${src}/net/java/sip/communicator/plugin/chatconfig/chatconfig.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/chatconfig"
                 prefix="net/java/sip/communicator/plugin/chatconfig" />
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PROVDISC-->
+    <target name="bundle-provdisc">
+        <!-- Creates a bundle containing the provisioning discovery service.-->
+        <jar compress="false" destfile="${bundles.dest}/provdisc.jar"
+            manifest="${src}/net/java/sip/communicator/service/provdisc/provdisc.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/provdisc"
+                prefix="net/java/sip/communicator/service/provdisc"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-PROVDISC-DHCP -->
+    <target name="bundle-provdisc-dhcp">
+        <jar compress="false" destfile="${bundles.dest}/provdisc-dhcp.jar"
+            manifest="${src}/net/java/sip/communicator/impl/provdisc/dhcp/dhcp.provdisc.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/provdisc/dhcp"
+                prefix="net/java/sip/communicator/impl/provdisc/dhcp" />
+            <zipfileset src="${lib.noinst}/dhcp4java-1.00.jar"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-PROVISIONING -->
+    <target name="bundle-provisioning">
+        <jar compress="false" destfile="${bundles.dest}/provisioning.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/provisioning/provisioning.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/provisioning"
+                prefix="net/java/sip/communicator/plugin/provisioning" />
         </jar>
     </target>
 

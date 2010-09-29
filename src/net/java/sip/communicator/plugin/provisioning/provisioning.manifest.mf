@@ -1,0 +1,17 @@
+Bundle-Activator: net.java.sip.communicator.plugin.provisioning.ProvisioningPluginActivator
+Bundle-Name: ProvisioningPlugin
+Bundle-Description: A bundle that implements the Provisioning Plugin Package.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+System-Bundle: yes
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.credentialsstorage,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.provdisc,
+ net.java.sip.communicator.service.certificate,
+ net.java.sip.communicator.service.netaddr,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.util.swing,
+ javax.net.ssl,
+ javax.swing,

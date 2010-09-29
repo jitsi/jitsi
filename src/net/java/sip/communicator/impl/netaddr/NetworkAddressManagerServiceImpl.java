@@ -163,7 +163,6 @@ public class NetworkAddressManagerServiceImpl
         }
         else
         {
-
             //no point in making sure that the localHostFinderSocket is
             //initialized.
             //better let it through a NullPointerException.

@@ -126,7 +126,12 @@ public class AuthenticationWindow
     {
         this.server = server;
 
-        Image logoImage = icon.getImage();
+        Image logoImage = null;
+        
+        if(icon != null)
+        {
+        	logoImage = icon.getImage();
+        }
 
         if(!isUserNameEditable)
             this.uinValue = new JLabel();
