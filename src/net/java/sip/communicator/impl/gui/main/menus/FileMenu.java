@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
+import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -92,7 +93,11 @@ public class FileMenu
 
         this.parentWindow = parentWindow;
 
-        this.add(newAccountMenuItem);
+        Boolean showAccountConfig = GuiActivator.getConfigurationService()
+            .getBoolean(ConfigurationFrame.SHOW_ACCOUNT_CONFIG_PROPERTY, true);
+
+        if (showAccountConfig.booleanValue())
+            this.add(newAccountMenuItem);
 
         this.addSeparator();
 

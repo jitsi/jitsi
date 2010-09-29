@@ -46,14 +46,14 @@ public class ConfigurationFrame
     /**
      * Indicates if the account config form should be shown.
      */
-    private static final String SHOW_ACCOUNT_CONFIG_PROPERTY
+    public static final String SHOW_ACCOUNT_CONFIG_PROPERTY
         = "net.java.sip.communicator.impl.gui.main."
             + "configforms.SHOW_ACCOUNT_CONFIG";
 
     /**
      * Indicates if the configuration window should be shown.
      */
-    public static final String SHOW_OPTIONS_WINDOW
+    public static final String SHOW_OPTIONS_WINDOW_PROPERTY
         = "net.java.sip.communicator.impl.gui.main."
             + "configforms.SHOW_OPTIONS_WINDOW";
 

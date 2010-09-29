@@ -136,7 +136,8 @@ public class MainToolBar
         // specifies so or if it's not set.
         Boolean showOptionsProp
             = GuiActivator.getConfigurationService()
-                .getBoolean(ConfigurationFrame.SHOW_OPTIONS_WINDOW, true);
+                .getBoolean(ConfigurationFrame.SHOW_OPTIONS_WINDOW_PROPERTY,
+                            true);
 
         if (showOptionsProp.booleanValue())
         {

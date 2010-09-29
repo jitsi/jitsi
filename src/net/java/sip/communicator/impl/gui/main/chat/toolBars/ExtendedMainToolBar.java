@@ -116,7 +116,8 @@ public class ExtendedMainToolBar
 
         Boolean showOptionsProp
             = GuiActivator.getConfigurationService()
-                .getBoolean(ConfigurationFrame.SHOW_OPTIONS_WINDOW, true);
+                .getBoolean(ConfigurationFrame.SHOW_OPTIONS_WINDOW_PROPERTY,
+                    true);
 
         if (showOptionsProp.booleanValue())
         {
