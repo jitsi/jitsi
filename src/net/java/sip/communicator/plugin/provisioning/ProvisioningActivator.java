@@ -148,6 +148,20 @@ public class ProvisioningActivator
 
         ProvisioningActivator.bundleContext = bundleContext;
 
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+        properties.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.ADVANCED_TYPE);
+
+        bundleContext.registerService(
+            ConfigurationForm.class.getName(),
+            new LazyConfigurationForm(
+                "net.java.sip.communicator.plugin.provisioning.ProvisioningForm",
+                getClass().getClassLoader(),
+                "plugin.provisioning.PLUGIN_ICON",
+                "plugin.provisioning.PROVISIONING",
+                2000, true),
+            properties);
+
         String method = getConfigurationService().getString(
                 PROVISIONING_METHOD_PROP);
 
@@ -202,23 +216,6 @@ public class ProvisioningActivator
             }
         }
 
-        /* This code would be un-commented when the provisioning form is ready.
-         * 
-        Dictionary<String, String> properties = new Hashtable<String, String>();
-        properties.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.ADVANCED_TYPE);
-
-        bundleContext.registerService(
-            ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                "net.java.sip.communicator.plugin.provisioning.ProvisioningForm",
-                getClass().getClassLoader(),
-                "plugin.provisioning.PLUGIN_ICON",
-                "plugin.provisioning.PROVISIONING",
-                2000, true),
-            properties);
-         */
-
         if (logger.isDebugEnabled())
             logger.debug("Provisioning discovery [REGISTERED]");
     }
@@ -235,6 +232,50 @@ public class ProvisioningActivator
 
         if (logger.isDebugEnabled())
             logger.debug("Provisioning discovery [STOPPED]");
+    }
+
+    /**
+     * Indicates if the provisioning has been enabled.
+     *
+     * @return <tt>true</tt> if the provisioning is enabled, <tt>false</tt> -
+     * otherwise
+     */
+    public static String getProvisioningMethod()
+    {
+        return getConfigurationService().getString(PROVISIONING_METHOD_PROP);
+    }
+
+    /**
+     * Enables the provisioning with the given method. If the provisioningMethod
+     * is null disables the provisioning.
+     *
+     * @param provisioningMethod the provisioning method
+     */
+    public static void setProvisioningMethod(String provisioningMethod)
+    {
+        getConfigurationService().setProperty(
+            PROVISIONING_METHOD_PROP, provisioningMethod);
+    }
+
+    /**
+     * Returns the provisioning URI.
+     *
+     * @return the provisioning URI
+     */
+    public static String getProvisioningUri()
+    {
+        return getConfigurationService().getString(PROPERTY_PROVISIONING_URL);
+    }
+
+    /**
+     * Sets the provisioning URI.
+     *
+     * @param uri the provisioning URI to set
+     */
+    public static void setProvisioningUri(String uri)
+    {
+        getConfigurationService().setProperty(
+            PROPERTY_PROVISIONING_URL, uri);
     }
 
     /**
