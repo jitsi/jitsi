@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.impl.protocol.jabber.sasl.*;
-import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.certificate.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;

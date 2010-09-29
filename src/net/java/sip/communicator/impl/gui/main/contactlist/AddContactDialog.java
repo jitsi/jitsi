@@ -461,7 +461,7 @@ public class AddContactDialog
                 if (provider != null)
                 {
                     Image protocolImg
-                        = GuiUtils.getBytesInImage(provider.getProtocolIcon()
+                        = ImageUtils.getBytesInImage(provider.getProtocolIcon()
                             .getIcon(ProtocolIcon.ICON_SIZE_16x16));
 
                     if (protocolImg != null)

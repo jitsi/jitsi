@@ -10,14 +10,19 @@ import java.util.*;
 
 import org.osgi.framework.*;
 import junit.framework.*;
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
+/**
+ * Test for account installation.
+ *
+ * @author Damian Minkov
+ * @author Valentin Martinet
+ */
 public class TestAccountInstallation
     extends TestCase
 {
-
     /**
      * Creates the test with the specified method name.
      * @param name the name of the method to execute.
@@ -73,7 +78,9 @@ public class TestAccountInstallation
             = JabberSlickFixture.bc.getServiceReference(
                 ConfigurationService.class.getName());
         ConfigurationService configurationService
-            = (ConfigurationService) JabberSlickFixture.bc.getService(confReference);
+            = (ConfigurationService) JabberSlickFixture.
+                bc.getService(confReference);
+
         configurationService.setProperty(
             CertificateVerificationService.ALWAYS_TRUST_MODE_ENABLED_PROP_NAME,
             Boolean.TRUE);
@@ -90,12 +97,15 @@ public class TestAccountInstallation
 
         //Prepare the properties of the first jabber account.
 
-        Hashtable<String, String> jabberAccount1Properties = getAccountProperties(
-            JabberProtocolProviderServiceLick.ACCOUNT_1_PREFIX);
-        Hashtable<String, String> jabberAccount2Properties = getAccountProperties(
-            JabberProtocolProviderServiceLick.ACCOUNT_2_PREFIX);
-        Hashtable<String, String> jabberAccount3Properties = getAccountProperties(
-            JabberProtocolProviderServiceLick.ACCOUNT_3_PREFIX);
+        Hashtable<String, String> jabberAccount1Properties
+            = getAccountProperties(
+                JabberProtocolProviderServiceLick.ACCOUNT_1_PREFIX);
+        Hashtable<String, String> jabberAccount2Properties
+            = getAccountProperties(
+                JabberProtocolProviderServiceLick.ACCOUNT_2_PREFIX);
+        Hashtable<String, String> jabberAccount3Properties
+            = getAccountProperties(
+                JabberProtocolProviderServiceLick.ACCOUNT_3_PREFIX);
 
         //try to install an account with a null account id
         try{
@@ -212,8 +222,9 @@ public class TestAccountInstallation
 
         table.put(ProtocolProviderFactory.PASSWORD, passwd);
 
-        String serverAddress = System.getProperty(
-                    accountPrefix + ProtocolProviderFactory.SERVER_ADDRESS, null);
+        String serverAddress
+            = System.getProperty(accountPrefix
+                + ProtocolProviderFactory.SERVER_ADDRESS, null);
 
         // optional
         if(serverAddress != null)

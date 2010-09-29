@@ -283,7 +283,9 @@ public class ImageUtils
         int width = source.getWidth(null);
         int height = source.getHeight(null);
 
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image
+            = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
         Graphics graphics = image.createGraphics();
         graphics.drawImage(source, 0, 0, null);
         graphics.dispose();
@@ -310,5 +312,26 @@ public class ImageUtils
         }
 
         return out.toByteArray();
+    }
+
+    /**
+     * Loads an image from a given bytes array.
+     * @param imageBytes The bytes array to load the image from.
+     * @return The image for the given bytes array.
+     */
+    public static Image getBytesInImage(byte[] imageBytes)
+    {
+        Image image = null;
+        try
+        {
+            image = ImageIO.read(
+                    new ByteArrayInputStream(imageBytes));
+
+        }
+        catch (Exception e)
+        {
+            logger.error("Failed to convert bytes to image.", e);
+        }
+        return image;
     }
 }

@@ -931,7 +931,7 @@
         bundle-replacement,bundle-youtube,bundle-dailymotion,bundle-smiley,
         bundle-vimeo,bundle-vbox7,bundle-metacafe,bundle-flickr,bundle-hulu,
         bundle-twitpic,bundle-directimage,bundle-bliptv,bundle-viddler,
-        bundle-plugin-chatconfig"/>
+        bundle-plugin-chatconfig,bundle-certificate"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2523,6 +2523,16 @@ org.apache.http.util"/>
             manifest="${src}/net/java/sip/communicator/plugin/chatconfig/chatconfig.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/chatconfig"
                 prefix="net/java/sip/communicator/plugin/chatconfig" />
+        </jar>
+    </target>
+
+    <target name="bundle-certificate">
+        <jar compress="false" destfile="${bundles.dest}/certificate.jar"
+            manifest="${src}/net/java/sip/communicator/impl/certificate/certificate.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/certificate"
+                prefix="net/java/sip/communicator/service/certificate" />
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/certificate"
+                prefix="net/java/sip/communicator/impl/certificate" />
         </jar>
     </target>
 </project>

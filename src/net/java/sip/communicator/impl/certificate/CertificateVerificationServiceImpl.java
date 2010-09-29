@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.login;
+package net.java.sip.communicator.impl.certificate;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -24,19 +24,17 @@ import javax.naming.ldap.*;
 import javax.net.ssl.*;
 import javax.security.auth.x500.*;
 
-import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
-
 
 /**
  * Asks the user for permission for the
  * certificates which are for some reason not valid and not globally trusted.
  *
  * @author Damian Minkov
+ * @author Yana Stamcheva
  */
 public class CertificateVerificationServiceImpl
     implements CertificateVerificationService
@@ -88,11 +86,11 @@ public class CertificateVerificationServiceImpl
     private File getKeyStoreLocation()
         throws Exception
     {
-        String keyStoreFile = GuiActivator.getConfigurationService()
-                        .getString(KEYSTORE_FILE_PROP);
+        String keyStoreFile = CertificateVerificationActivator.
+            getConfigurationService().getString(KEYSTORE_FILE_PROP);
 
         if(keyStoreFile == null || keyStoreFile.length() == 0)
-            return GuiActivator.getFileAccessService()
+            return CertificateVerificationActivator.getFileAccessService()
                     .getPrivatePersistentFile(KEY_STORE_FILE_NAME);
 
         File f = new File(keyStoreFile);
@@ -106,10 +104,10 @@ public class CertificateVerificationServiceImpl
             // An old version used to store the whole path to the file
             // and if the user changes location of its home dir
             // it breaks things.
-            GuiActivator.getConfigurationService().removeProperty(
-                KEYSTORE_FILE_PROP);
+            CertificateVerificationActivator.getConfigurationService()
+                .removeProperty(KEYSTORE_FILE_PROP);
 
-            return GuiActivator.getFileAccessService()
+            return CertificateVerificationActivator.getFileAccessService()
                     .getPrivatePersistentFile(KEY_STORE_FILE_NAME);
         }
     }
@@ -211,6 +209,8 @@ public class CertificateVerificationServiceImpl
      * @param   toHost the host we are connecting.
      * @param   toPort the port used when connecting.
      * @return SSL context object
+     *
+     * @throws IOException if the SSLContext could not be initialized
      */
     public SSLContext getSSLContext(String toHost, int toPort)
         throws IOException
@@ -351,7 +351,8 @@ public class CertificateVerificationServiceImpl
          * which will be always trusted.
          */
         SIPCommCheckBox alwaysTrustCheckBox = new SIPCommCheckBox(
-            GuiActivator.getResources().getI18NString("service.gui.ALWAYS_TRUST"),
+            CertificateVerificationActivator.getResources()
+                .getI18NString("service.gui.ALWAYS_TRUST"),
             false);
 
         /**
@@ -361,16 +362,19 @@ public class CertificateVerificationServiceImpl
 
         /**
          * Creates the dialog.
-         * @param certs
-         * @param host 
-         * @param port
+         *
+         * @param certs the certificates list
+         * @param host the host
+         * @param port the port
          */
-        public VerifyCertificateDialog(Certificate[] certs, String host, int port)
+        public VerifyCertificateDialog( Certificate[] certs,
+                                        String host,
+                                        int port)
         {
-            super(GuiActivator.getUIService().getMainFrame(), false);
+            super(false);
 
-            setTitle(GuiActivator.getResources().getI18NString(
-                "service.gui.CERT_DIALOG_TITLE"));
+            setTitle(CertificateVerificationActivator.getResources()
+                .getI18NString("service.gui.CERT_DIALOG_TITLE"));
             setModal(true);
 
             // for now shows only the first certificate from the chain
@@ -400,17 +404,17 @@ public class CertificateVerificationServiceImpl
             northPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
 
             JLabel imgLabel = new JLabel(
-                GuiActivator.getResources().getImage(
+                CertificateVerificationActivator.getResources().getImage(
                     "impl.media.security.zrtp.CONF_ICON"));
             imgLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
             northPanel.add(imgLabel, BorderLayout.WEST);
 
-            String descriptionTxt = GuiActivator.getResources()
-                .getI18NString(
+            String descriptionTxt = CertificateVerificationActivator
+                .getResources().getI18NString(
                     "service.gui.CERT_DIALOG_DESCRIPTION_TXT",
                     new String[]{
-                        GuiActivator.getResources().getSettingsString(
-                            "service.gui.APPLICATION_NAME"),
+                        CertificateVerificationActivator.getResources()
+                        .getSettingsString("service.gui.APPLICATION_NAME"),
                         host,
                         String.valueOf(port)});
 
@@ -436,8 +440,8 @@ public class CertificateVerificationServiceImpl
             contentPane.add(southPanel, BorderLayout.SOUTH);
 
             certButton = new JButton();
-            certButton.setText(GuiActivator.getResources()
-                .getI18NString("service.gui.SHOW_CERT"));
+            certButton.setText(CertificateVerificationActivator
+                .getResources().getI18NString("service.gui.SHOW_CERT"));
             certButton.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e)
@@ -453,7 +457,9 @@ public class CertificateVerificationServiceImpl
             TransparentPanel secondButonPanel =
                 new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
             JButton cancelButton = new JButton(
-                GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
+                CertificateVerificationActivator.getResources()
+                    .getI18NString("service.gui.CANCEL"));
+
             cancelButton.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e)
@@ -462,7 +468,9 @@ public class CertificateVerificationServiceImpl
                 }
             });
             JButton continueButton = new JButton(
-                GuiActivator.getResources().getI18NString("service.gui.CONTINUE"));
+                CertificateVerificationActivator.getResources()
+                    .getI18NString("service.gui.CONTINUE"));
+
             continueButton.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e)
@@ -487,8 +495,9 @@ public class CertificateVerificationServiceImpl
             if(certOpened)
             {
                 certPanel.removeAll();
-                certButton.setText(GuiActivator.getResources()
-                    .getI18NString("service.gui.SHOW_CERT"));
+                certButton.setText(
+                    CertificateVerificationActivator.getResources()
+                        .getI18NString("service.gui.SHOW_CERT"));
 
                 certPanel.revalidate();
                 certPanel.repaint();
@@ -527,9 +536,10 @@ public class CertificateVerificationServiceImpl
                 }
             });
 
-                certButton.setText(GuiActivator.getResources()
-                .getI18NString("service.gui.HIDE_CERT"));
-            
+                certButton.setText(
+                    CertificateVerificationActivator.getResources()
+                    .getI18NString("service.gui.HIDE_CERT"));
+
             certPanel.revalidate();
             certPanel.repaint();
             // restore default values for prefered size,
@@ -569,9 +579,10 @@ public class CertificateVerificationServiceImpl
         }
 
         /**
+         * Returns the display component for X509 certificate.
          *
-         * @param certificate
-         * @return
+         * @param certificate the certificate to show
+         * @return the created component
          */
         private static Component getX509DisplayComponent(
             X509Certificate certificate)
@@ -579,10 +590,11 @@ public class CertificateVerificationServiceImpl
             Insets valueInsets = new Insets(2,10,0,0);
             Insets titleInsets = new Insets(10,5,0,0);
 
-            ResourceManagementService resources = GuiActivator.getResources();
+            ResourceManagementService resources
+                = CertificateVerificationActivator.getResources();
 
-            TransparentPanel certDisplayPanel =
-                new TransparentPanel(new GridBagLayout());
+            TransparentPanel certDisplayPanel
+                = new TransparentPanel(new GridBagLayout());
 
             int currentRow = 0;
 
@@ -1016,9 +1028,10 @@ public class CertificateVerificationServiceImpl
 
         /**
          * Not used.
-         * @return
+         * @return UnsupportedOperationException
          */
-        public X509Certificate[] getAcceptedIssuers() {
+        public X509Certificate[] getAcceptedIssuers()
+        {
             throw new UnsupportedOperationException();
         }
 
@@ -1044,16 +1057,20 @@ public class CertificateVerificationServiceImpl
         public void checkServerTrusted(X509Certificate[] chain, String authType)
             throws CertificateException
         {
-            if(GuiActivator.getConfigurationService().getBoolean(
-                CertificateVerificationService.ALWAYS_TRUST_MODE_ENABLED_PROP_NAME,
-                false))
-                    return;
+            if(CertificateVerificationActivator.getConfigurationService()
+                .getBoolean(CertificateVerificationService
+                    .ALWAYS_TRUST_MODE_ENABLED_PROP_NAME,
+                    false))
+            {
+                return;
+            }
 
             try
             {
                 tm.checkServerTrusted(chain, authType);
                 // everything is fine certificate is globally trusted
-            } catch (CertificateException certificateException)
+            }
+            catch (CertificateException certificateException)
             {
                 KeyStore kStore = getKeyStore();
 

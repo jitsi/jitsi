@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.customcontrols;
+package net.java.sip.communicator.util.swing;
 
 import java.io.*;
 
@@ -12,20 +12,39 @@ import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
 
+/**
+ * A custom styled HTML editor pane.
+ *
+ * @author Yana Stamcheva
+ */
 public class StyledHTMLEditorPane
     extends JEditorPane
 {
+    /**
+     * The serial version id.
+     */
     private static final long serialVersionUID = 1L;
 
+    /**
+     * The logger for this class.
+     */
     private final Logger logger = Logger.getLogger(StyledHTMLEditorPane.class);
-    
+
+    /**
+     * The editor kit of this editor pane.
+     */
     private final HTMLEditorKit editorKit;
-    
+
+    /**
+     * The document of this editor pane.
+     */
     private final HTMLDocument document;
-    
+
+    /**
+     * Creates an instance of <tt>StyledHTMLEditorPane</tt>.
+     */
     public StyledHTMLEditorPane()
     {
         editorKit = new SIPCommHTMLEditorKit(this);
@@ -38,14 +57,18 @@ public class StyledHTMLEditorPane
         this.setDocument(document);
 
         putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
-        Constants.loadSimpleStyle(document.getStyleSheet(), getFont());
     }
 
+    /**
+     * Appends text to end of the editor pane.
+     *
+     * @param text the text to append
+     */
     public void appendToEnd(String text)
     {
         Element root = document.getDefaultRootElement();
         try
-        {   
+        {
             document.insertAfterEnd(root
                 .getElement(root.getElementCount() - 1), text);
         }
@@ -58,17 +81,27 @@ public class StyledHTMLEditorPane
             logger.error("Insert in the HTMLDocument failed.", e);
         }
     }
-    
+
+    /**
+     * Inserts the given text in the beginning of the editor pane.
+     *
+     * @param text the text to insert
+     */
     public void insertAfterStart(String text)
     {
         Element root = this.document.getDefaultRootElement();
-        
-        try {
+
+        try
+        {
             this.document.insertBeforeStart(root
-                    .getElement(0), text);            
-        } catch (BadLocationException e) {
+                    .getElement(0), text);
+        }
+        catch (BadLocationException e)
+        {
             logger.error("Insert in the HTMLDocument failed.", e);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             logger.error("Insert in the HTMLDocument failed.", e);
         }
     }

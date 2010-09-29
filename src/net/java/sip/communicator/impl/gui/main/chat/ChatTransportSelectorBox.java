@@ -161,7 +161,7 @@ public class ChatTransportSelectorBox
     {
         return
             ImageLoader.badgeImageWithProtocolIndex(
-                GuiUtils.getBytesInImage(
+                ImageUtils.getBytesInImage(
                     chatTransport.getStatus().getStatusIcon()),
                 chatTransport.getProtocolProvider());
     }

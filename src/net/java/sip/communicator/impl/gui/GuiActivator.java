@@ -138,11 +138,6 @@ public class GuiActivator implements BundleActivator
                                           (ShutdownService) uiService,
                                           null);
 
-            bundleContext.registerService(
-                CertificateVerificationService.class.getName(),
-                new CertificateVerificationServiceImpl(),
-                null);
-
             logger.logEntry();
         }
         finally

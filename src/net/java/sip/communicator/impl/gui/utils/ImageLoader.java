@@ -1305,13 +1305,13 @@ public class ImageLoader
         Image statusImage;
         if (presence != null)
         {
-            statusImage = GuiUtils.getBytesInImage(
+            statusImage = ImageUtils.getBytesInImage(
                 presence.getPresenceStatus().getStatusIcon());
         }
         else
         {
             statusImage
-                = GuiUtils.getBytesInImage(pps.getProtocolIcon().getIcon(
+                = ImageUtils.getBytesInImage(pps.getProtocolIcon().getIcon(
                     ProtocolIcon.ICON_SIZE_16x16));
 
             if (!pps.isRegistered())
@@ -1427,10 +1427,10 @@ public class ImageLoader
             ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
 
             if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_64x64))
-                image = GuiUtils.getBytesInImage(
+                image = ImageUtils.getBytesInImage(
                     protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
             else if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_48x48))
-                image = GuiUtils.getBytesInImage(
+                image = ImageUtils.getBytesInImage(
                     protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
         }
 

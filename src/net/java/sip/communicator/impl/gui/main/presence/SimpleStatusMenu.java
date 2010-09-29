@@ -40,17 +40,24 @@ public class SimpleStatusMenu
     /**
      * Creates an instance of <tt>SimpleStatusMenu</tt>.
      * 
-     * @param protocolProvider The protocol provider.
+     * @param protocolProvider the protocol provider
      */
     public SimpleStatusMenu(ProtocolProviderService protocolProvider)
     {
         this(protocolProvider,
             protocolProvider.getAccountID().getDisplayName(),
-            GuiUtils.getBytesInImage(
+            ImageUtils.getBytesInImage(
                 protocolProvider.getProtocolIcon().getIcon(
                     ProtocolIcon.ICON_SIZE_16x16)));
     }
 
+    /**
+     * Creates an instance of <tt>SimpleStatusMenu</tt>.
+     *
+     * @param protocolProvider the protocol provider
+     * @param displayName the display name for the menu
+     * @param onlineImage the image used for the online state
+     */
     private SimpleStatusMenu(ProtocolProviderService protocolProvider,
                              String displayName,
                              Image onlineImage)
@@ -167,13 +174,13 @@ public class SimpleStatusMenu
     public void loadSkin()
     {
         super.loadSkin();
-        setIcon(new ImageIcon(GuiUtils.getBytesInImage(
+        setIcon(new ImageIcon(ImageUtils.getBytesInImage(
                 protocolProvider.getProtocolIcon().getIcon(
                     ProtocolIcon.ICON_SIZE_16x16))));
         onlineItem.setIcon(getIcon());
         offlineItem.setIcon(
             new ImageIcon(LightGrayFilter.createDisabledImage(
-                GuiUtils.getBytesInImage(
+                ImageUtils.getBytesInImage(
                     protocolProvider.getProtocolIcon().getIcon(
                         ProtocolIcon.ICON_SIZE_16x16)))));
     }

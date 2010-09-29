@@ -15,7 +15,7 @@ import javax.net.ssl.*;
 import gov.nist.core.net.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
-import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 

@@ -5,7 +5,7 @@
  * See terms of license at gnu.org.
  */
 
-package net.java.sip.communicator.impl.gui.utils;
+package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 
@@ -24,6 +24,12 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
 {
     private final JComponent container;
 
+    /**
+     * Creates an instance of <tt>SIPCommHTMLEditorKit</tt> by specifying the
+     * container, where the editor kit would be used.
+     *
+     * @param container
+     */
     public SIPCommHTMLEditorKit(JComponent container)
     {
         this.container = container;
@@ -31,6 +37,8 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
 
     /**
      * Returns the extended <tt>HTMLFactory</tt> defined here.
+     *
+     * @return the extended view factory
      */
     public ViewFactory getViewFactory()
     {
@@ -62,6 +70,10 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
         }
     }
 
+    /**
+     * An extended component view, which provides horizontal and vertical
+     * filling.
+     */
     private class MyComponentView extends ComponentView
     {
         /**
@@ -153,6 +165,11 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
      */
     static class ParagraphViewX extends ParagraphView
     {
+        /**
+         * Creates an instance of <tt>ParagraphViewX</tt>.
+         *
+         * @param elem the element that this view is responsible for
+         */
         public ParagraphViewX(Element elem)
         {
             super(elem);
@@ -163,6 +180,10 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
          * is implemented to forward the request to the logical
          * view by calling getMinimumSpan, getPreferredSpan, and
          * getMaximumSpan on it.
+         *
+         * @param axis the axis, for which we calculate size requirements
+         * @param sizeRequirements the initial size requirements
+         * @return the recalculated size requirements for the given axis
          */
         protected SizeRequirements calculateMinorAxisRequirements (
                 int axis, SizeRequirements sizeRequirements)
