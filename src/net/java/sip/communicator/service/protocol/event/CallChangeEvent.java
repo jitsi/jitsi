@@ -35,6 +35,12 @@ public class CallChangeEvent
     public static final String CALL_FOCUS_CHANGE = "CallFocusState";
 
     /**
+     * The event which was the cause for current event, like last peer
+     * removed from call will hangup current call, if any, otherwise is null.
+     */
+    private final CallPeerChangeEvent cause;
+
+    /**
      * Creates a CallChangeEvent with the specified source, type, oldValue and
      * newValue.
      * @param source the peer that produced the event.
@@ -47,7 +53,26 @@ public class CallChangeEvent
     public CallChangeEvent(Call source, String type,
                                       Object oldValue, Object newValue)
     {
+        this(source, type, oldValue, newValue, null);
+    }
+
+    /**
+     * Creates a CallChangeEvent with the specified source, type, oldValue and
+     * newValue.
+     * @param source the peer that produced the event.
+     * @param type the type of the event (the name of the property that has
+     * changed).
+     * @param oldValue the value of the changed property before the event
+     * occurred
+     * @param newValue current value of the changed property.
+     * @param cause the event that causes this event, if any(null otherwise).
+     */
+    public CallChangeEvent(Call source, String type,
+                            Object oldValue, Object newValue,
+                            CallPeerChangeEvent cause)
+    {
         super(source, type, oldValue, newValue);
+        this.cause = cause;
     }
 
     /**
@@ -81,6 +106,15 @@ public class CallChangeEvent
     public Call getSourceCall()
     {
         return (Call)getSource();
+    }
+
+    /**
+     * The event which was the cause for current event, like last peer
+     * removed from call will hangup current call, if any, otherwise is null.
+     */
+    public CallPeerChangeEvent getCause()
+    {
+        return cause;
     }
 }
 

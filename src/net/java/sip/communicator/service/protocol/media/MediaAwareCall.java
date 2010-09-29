@@ -143,10 +143,14 @@ public abstract class MediaAwareCall<
      * call. The method has no effect if there was no such peer in the
      * call.
      *
-     * @param callPeer the <tt>CallPeer</tt> leaving the call;
+     * @param evt the event containing the <tt>CallPeer</tt> leaving the call;
+     * also we can obtain the reason for the <tt>CallPeerChangeEvent</tt> if
+     * any. Use the event as cause for the call state change event..
      */
-    private void removeCallPeer(T callPeer)
+    private void removeCallPeer(CallPeerChangeEvent evt)
     {
+        T callPeer = (T)evt.getSourceCallPeer();
+
         if (!getCallPeersVector().contains(callPeer))
             return;
 
@@ -175,7 +179,7 @@ public abstract class MediaAwareCall<
         }
 
         if (getCallPeersVector().isEmpty())
-            setCallState(CallState.CALL_ENDED);
+            setCallState(CallState.CALL_ENDED, evt);
     }
 
     /**
@@ -237,7 +241,7 @@ public abstract class MediaAwareCall<
         if (CallPeerState.DISCONNECTED.equals(newState)
                 || CallPeerState.FAILED.equals(newState))
         {
-            removeCallPeer((T) evt.getSourceCallPeer());
+            removeCallPeer(evt);
         }
         else if (CallPeerState.CONNECTED.equals(newState)
                 || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(newState))

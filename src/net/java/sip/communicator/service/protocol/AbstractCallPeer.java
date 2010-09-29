@@ -199,8 +199,30 @@ public abstract class AbstractCallPeer<T extends Call,
                                                   Object newValue,
                                                   String reason)
     {
+        this.fireCallPeerChangeEvent(eventType, oldValue, newValue, reason, -1);
+    }
+
+    /**
+     * Constructs a <tt>CallPeerChangeEvent</tt> using this call peer as source,
+     * setting it to be of type <tt>eventType</tt> and the corresponding
+     * <tt>oldValue</tt> and <tt>newValue</tt>.
+     *
+     * @param eventType the type of the event to create and dispatch.
+     * @param oldValue the value of the source property before it changed.
+     * @param newValue the current value of the source property.
+     * @param reason a string that could be set to contain a human readable
+     * explanation for the transition (particularly handy when moving into a
+     * FAILED state).
+     * @param reasonCode the reason code for the reason of this event.
+     */
+    protected void fireCallPeerChangeEvent(String eventType,
+                                                  Object oldValue,
+                                                  Object newValue,
+                                                  String reason,
+                                                  int reasonCode)
+    {
         CallPeerChangeEvent evt = new CallPeerChangeEvent(
-            this, eventType, oldValue, newValue, reason);
+            this, eventType, oldValue, newValue, reason, reasonCode);
 
         if (logger.isDebugEnabled())
             logger.debug("Dispatching a CallPeerChangeEvent event to "
@@ -400,6 +422,21 @@ public abstract class AbstractCallPeer<T extends Call,
      */
     public void setState(CallPeerState newState, String reason)
     {
+        this.setState(newState, reason, -1);
+    }
+
+    /**
+     * Causes this CallPeer to enter the specified state. The method also sets
+     * the currentStateStartDate field and fires a CallPeerChangeEvent.
+     *
+     * @param newState the state this call peer should enter.
+     * @param reason a string that could be set to contain a human readable
+     * explanation for the transition (particularly handy when moving into a
+     * FAILED state).
+     * @param reasonCode the code for the reason of the state change.
+     */
+    public void setState(CallPeerState newState, String reason, int reasonCode)
+    {
         CallPeerState oldState = getState();
 
         if(oldState == newState)
@@ -417,7 +454,8 @@ public abstract class AbstractCallPeer<T extends Call,
                 CallPeerChangeEvent.CALL_PEER_STATE_CHANGE,
                 oldState,
                 newState,
-                reason);
+                reason,
+                reasonCode);
     }
 
     /**

@@ -432,7 +432,18 @@ public class CallPeerSipImpl
         }
         else
         {
-            setState(CallPeerState.DISCONNECTED);
+            ReasonHeader reasonHeader =
+                    (ReasonHeader)byeRequest.getHeader(ReasonHeader.NAME);
+
+            if(reasonHeader != null)
+            {
+                setState(
+                        CallPeerState.DISCONNECTED,
+                        reasonHeader.getText(),
+                        reasonHeader.getCause());
+            }
+            else
+                setState(CallPeerState.DISCONNECTED);
         }
     }
 
@@ -498,8 +509,18 @@ public class CallPeerSipImpl
                 + "an INVITE request.", ex);
         }
 
-        // change status
-        setState(CallPeerState.DISCONNECTED);
+        ReasonHeader reasonHeader =
+                    (ReasonHeader)cancel.getHeader(ReasonHeader.NAME);
+
+        if(reasonHeader != null)
+        {
+            setState(
+                    CallPeerState.DISCONNECTED,
+                    reasonHeader.getText(),
+                    reasonHeader.getCause());
+        }
+        else
+            setState(CallPeerState.DISCONNECTED);
     }
 
     /**

@@ -75,6 +75,16 @@ public class CallPeerChangeEvent
     private final String reason;
 
     /**
+     * Reason code, if any, for the peer state change. 
+     */
+    private final int reasonCode;
+
+    /**
+     * Code indicating normal call clear.
+     */
+    public static final int NORMAL_CALL_CLEARING = 200;
+
+    /**
      * Creates a CallPeerChangeEvent with the specified source, type,
      * oldValue and newValue.
      * @param source the peer that produced the event.
@@ -106,8 +116,31 @@ public class CallPeerChangeEvent
                                       Object newValue,
                                       String reason)
     {
+        this(source, type, oldValue, newValue, reason, -1);
+    }
+
+    /**
+     * Creates a CallPeerChangeEvent with the specified source, type,
+     * oldValue and newValue.
+     * @param source the peer that produced the event.
+     * @param type the type of the event (i.e. address change, state change etc.).
+     * @param oldValue the value of the changed property before the event occurred
+     * @param newValue current value of the changed property.
+     * @param reason a string containing a human readable explanation for the
+     * reason that triggered this event (may be null).
+     * @param reasonCode a code for the reason that triggered this
+     * event (may be -1 as not specified). 
+     */
+    public CallPeerChangeEvent(CallPeer source,
+                                      String type,
+                                      Object oldValue,
+                                      Object newValue,
+                                      String reason,
+                                      int reasonCode)
+    {
         super(source, type, oldValue, newValue);
         this.reason = reason;
+        this.reasonCode = reasonCode;
     }
 
     /**
@@ -159,6 +192,15 @@ public class CallPeerChangeEvent
         return reason;
     }
 
-
+    /**
+     * Returns a reason code for the event (may be -1).
+     *
+     * @return a reason code for the event or -1 if no reason code
+     * was set.
+     */
+    public int getReasonCode()
+    {
+        return reasonCode;
+    }
 }
 

@@ -16,6 +16,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
@@ -1124,7 +1125,11 @@ public class ChatWindow
             // from the TooltipManager.
             this.setToolTipText("");
 
-            if (!chatSession.isDescriptorPersistent())
+            // if its multichat don't show addContactButton, cause
+            // it sa mutlichat room which
+            // cannot be saved with add contact dialog
+            if (!chatSession.isDescriptorPersistent()
+                && !(chatSession instanceof ConferenceChatSession))
                 this.add(addContactButton, 0);
             else
                 this.remove(addContactButton);

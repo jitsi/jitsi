@@ -94,7 +94,13 @@ public class CallManager
                         && evt.getOldValue()
                             .equals(CallState.CALL_INITIALIZATION))
                     {
-                        addMissedCall(new MissedCall(peerName, callDate));
+                        // if call was answered elsewhere, don't add it
+                        // to missed calls
+                        if(evt.getCause() == null
+                           || (evt.getCause().getReasonCode() !=
+                                CallPeerChangeEvent.NORMAL_CALL_CLEARING))
+                            addMissedCall(new MissedCall(peerName, callDate));
+
                         evt.getSourceCall().removeCallChangeListener(this);
                     }
                 }

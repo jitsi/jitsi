@@ -227,8 +227,29 @@ public abstract class Call
                                         Object oldValue,
                                         Object newValue)
     {
+        this.fireCallChangeEvent(type, oldValue, newValue, null);
+    }
+
+    /**
+     * Creates a <tt>CallChangeEvent</tt> with this class as
+     * <tt>sourceCall</tt>,  and the specified <tt>eventID</tt> and old and new
+     * values and  dispatches it on all currently registered listeners.
+     *
+     * @param type the type of the event to create (see CallChangeEvent member
+     * ints)
+     * @param oldValue the value of the call property that changed, before the
+     * event had occurred.
+     * @param newValue the value of the call property that changed, after the
+     * event has occurred.
+     * @param cause the event that is the initial cause of the current one.
+     */
+    protected void fireCallChangeEvent( String type,
+                                        Object oldValue,
+                                        Object newValue,
+                                        CallPeerChangeEvent cause)
+    {
         CallChangeEvent ccEvent = new CallChangeEvent(
-            this, type, oldValue, newValue);
+            this, type, oldValue, newValue, cause);
 
         if (logger.isDebugEnabled())
             logger.debug("Dispatching a CallChange event to "
@@ -271,6 +292,19 @@ public abstract class Call
      */
     protected void setCallState(CallState newState)
     {
+        this.setCallState(newState, null);
+    }
+
+    /**
+     * Sets the state of this call and fires a call change event notifying
+     * registered listeners for the change.
+     *
+     * @param newState a reference to the <tt>CallState</tt> instance that the
+     *            call is to enter.
+     * @param cause the event that is the cause of the current change of state. 
+     */
+    protected void setCallState(CallState newState, CallPeerChangeEvent cause)
+    {
         CallState oldState = getCallState();
 
         if (oldState != newState)
@@ -278,7 +312,7 @@ public abstract class Call
             this.callState = newState;
 
             fireCallChangeEvent(
-                CallChangeEvent.CALL_STATE_CHANGE, oldState, newState);
+                CallChangeEvent.CALL_STATE_CHANGE, oldState, newState, cause);
         }
     }
 
