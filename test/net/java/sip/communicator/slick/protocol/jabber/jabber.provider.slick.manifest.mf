@@ -6,6 +6,7 @@ Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.configuration.event,
+ net.java.sip.communicator.service.certificate,
  junit.framework,
  org.osgi.framework,
  org.jivesoftware.smack.util,
