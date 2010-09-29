@@ -56,7 +56,7 @@ public class ProvisioningDiscoveryServiceDHCPImpl
     {
         try
         {
-            discover = new DHCPProvisioningDiscover(6768, (byte)120);
+            discover = new DHCPProvisioningDiscover(6768, (byte)224);
             discover.addDiscoveryListener(this);
         }
         catch(Exception e)
