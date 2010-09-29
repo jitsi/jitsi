@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
+import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
@@ -213,11 +214,20 @@ public class ToolsMenu
      */
     private void registerMenuItems()
     {
-        UIService uiService = GuiActivator.getUIService();
-        if ((uiService == null) || !uiService.useMacOSXScreenMenuBar()
-            || !registerConfigMenuItemMacOSX())
+        // We only add the options button if the property SHOW_OPTIONS_WINDOW
+        // specifies so or if it's not set.
+        Boolean showOptionsProp
+            = GuiActivator.getConfigurationService()
+                .getBoolean(ConfigurationFrame.SHOW_OPTIONS_WINDOW, true);
+
+        if (showOptionsProp.booleanValue())
         {
-            registerConfigMenuItemNonMacOSX();
+            UIService uiService = GuiActivator.getUIService();
+            if ((uiService == null) || !uiService.useMacOSXScreenMenuBar()
+                || !registerConfigMenuItemMacOSX())
+            {
+                registerConfigMenuItemNonMacOSX();
+            }
         }
 
         // Marks this feature as an ongoing work until its completed and fully

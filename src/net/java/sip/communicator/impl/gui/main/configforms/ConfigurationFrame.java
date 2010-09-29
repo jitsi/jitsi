@@ -44,6 +44,20 @@ public class ConfigurationFrame
         = new TransparentPanel(new BorderLayout(5, 5));
 
     /**
+     * Indicates if the account config form should be shown.
+     */
+    private static final String SHOW_ACCOUNT_CONFIG_PROPERTY
+        = "net.java.sip.communicator.impl.gui.main."
+            + "configforms.SHOW_ACCOUNT_CONFIG";
+
+    /**
+     * Indicates if the configuration window should be shown.
+     */
+    public static final String SHOW_OPTIONS_WINDOW
+        = "net.java.sip.communicator.impl.gui.main."
+            + "configforms.SHOW_OPTIONS_WINDOW";
+
+    /**
      * Initializes a new <tt>ConfigurationFrame</tt> instance.
      *
      * @param mainFrame The main application window.
@@ -127,13 +141,19 @@ public class ConfigurationFrame
      */
     public void addDefaultForms()
     {
-        addConfigurationForm(
-            new LazyConfigurationForm(
-                "net.java.sip.communicator.impl.gui.main.account.AccountsConfigurationPanel",
-                getClass().getClassLoader(),
-                "service.gui.icons.ACCOUNT_ICON",
-                "service.gui.ACCOUNTS",
-                0));
+        Boolean showAccountConfigProp
+            = GuiActivator.getConfigurationService()
+                .getBoolean(SHOW_ACCOUNT_CONFIG_PROPERTY, true);
+
+        if (showAccountConfigProp.booleanValue())
+            addConfigurationForm(
+                new LazyConfigurationForm(
+                    "net.java.sip.communicator.impl.gui.main."
+                    + "account.AccountsConfigurationPanel",
+                    getClass().getClassLoader(),
+                    "service.gui.icons.ACCOUNT_ICON",
+                    "service.gui.ACCOUNTS",
+                    0));
     }
 
     /**

@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
+import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -130,7 +131,18 @@ public class MainToolBar
 
         this.add(callButton);
         this.add(historyButton);
-        this.add(optionsButton);
+
+        // We only add the options button if the property SHOW_OPTIONS_WINDOW
+        // specifies so or if it's not set.
+        Boolean showOptionsProp
+            = GuiActivator.getConfigurationService()
+                .getBoolean(ConfigurationFrame.SHOW_OPTIONS_WINDOW, true);
+
+        if (showOptionsProp.booleanValue())
+        {
+            this.add(optionsButton);
+        }
+
         this.add(sendFileButton);
 
         this.add(previousButton);

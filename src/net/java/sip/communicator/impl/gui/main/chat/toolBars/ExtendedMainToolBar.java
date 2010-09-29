@@ -15,6 +15,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
+import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -98,7 +99,7 @@ public class ExtendedMainToolBar
     public ExtendedMainToolBar(ChatWindow messageWindow)
     {
         super(messageWindow);
-    }        
+    }
 
     protected void init()
     {
@@ -108,11 +109,19 @@ public class ExtendedMainToolBar
         this.add(cutButton);
         this.add(copyButton);
         this.add(pasteButton);
-        this.add(settingsButton);
         this.add(previousButton);
         this.add(nextButton);
         this.add(historyButton);
         this.add(addButton);
+
+        Boolean showOptionsProp
+            = GuiActivator.getConfigurationService()
+                .getBoolean(ConfigurationFrame.SHOW_OPTIONS_WINDOW, true);
+
+        if (showOptionsProp.booleanValue())
+        {
+            this.add(settingsButton);
+        }
 
         this.saveButton.setName("save");
         this.saveButton.setToolTipText(
