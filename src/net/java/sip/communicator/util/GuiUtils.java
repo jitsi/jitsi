@@ -9,8 +9,10 @@ package net.java.sip.communicator.util;
 import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
+import java.io.*;
 import java.util.*;
 
+import javax.imageio.*;
 import javax.swing.*;
 
 /**
@@ -23,6 +25,11 @@ import javax.swing.*;
  */
 public class GuiUtils
 {
+    /**
+     * The logger for this class.
+     */
+    private static Logger logger = Logger.getLogger(GuiUtils.class);
+
     /**
      * List of all windows owned by the app.
      */
@@ -497,5 +504,26 @@ public class GuiUtils
                 updateComponentTreeUI0(children[i]);
             }
         }
+    }
+
+    /**
+     * Loads an image from a given bytes array.
+     * @param imageBytes The bytes array to load the image from.
+     * @return The image for the given bytes array.
+     */
+    public static Image getBytesInImage(byte[] imageBytes)
+    {
+        Image image = null;
+        try
+        {
+            image = ImageIO.read(
+                    new ByteArrayInputStream(imageBytes));
+
+        }
+        catch (Exception e)
+        {
+            logger.error("Failed to convert bytes to image.", e);
+        }
+        return image;
     }
 }

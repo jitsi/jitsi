@@ -18,7 +18,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -462,7 +461,7 @@ public class AddContactDialog
                 if (provider != null)
                 {
                     Image protocolImg
-                        = ImageLoader.getBytesInImage(provider.getProtocolIcon()
+                        = GuiUtils.getBytesInImage(provider.getProtocolIcon()
                             .getIcon(ProtocolIcon.ICON_SIZE_16x16));
 
                     if (protocolImg != null)

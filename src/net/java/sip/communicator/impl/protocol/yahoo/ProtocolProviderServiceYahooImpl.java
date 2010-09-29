@@ -145,6 +145,16 @@ public class ProtocolProviderServiceYahooImpl
                     credentials,
                     authReasonCode);
 
+                // in case user has canceled the login window
+                if(credentials == null)
+                {
+                    fireRegistrationStateChanged(
+                        getRegistrationState(),
+                        RegistrationState.UNREGISTERED,
+                        RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
+                    return;
+                }
+
                 //extract the password the user passed us.
                 char[] pass = credentials.getPassword();
 

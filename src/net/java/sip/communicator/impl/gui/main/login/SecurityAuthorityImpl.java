@@ -6,9 +6,12 @@
  */
 package net.java.sip.communicator.impl.gui.main.login;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>SecurityAuthorityImpl</tt> is an implementation of the
@@ -16,25 +19,21 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Yana Stamcheva
  */
-public class SecurityAuthorityImpl implements SecurityAuthority {
-
-    private MainFrame mainFrame;
-
+public class SecurityAuthorityImpl
+    implements SecurityAuthority
+{
     private ProtocolProviderService protocolProvider;
 
     private boolean isUserNameEditable = false;
 
     /**
      * Creates an instance of <tt>SecurityAuthorityImpl</tt>.
-     * @param mainFrame The parent window of the <tt>AuthenticationWIndow</tt>
-     * created in this class.
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> for this
      * <tt>SecurityAuthority</tt>.
      */
-    public SecurityAuthorityImpl(MainFrame mainFrame,
-            ProtocolProviderService protocolProvider)
+    public SecurityAuthorityImpl(ProtocolProviderService protocolProvider)
     {
-        this.mainFrame = mainFrame;
         this.protocolProvider = protocolProvider;
     }
 
@@ -67,23 +66,43 @@ public class SecurityAuthorityImpl implements SecurityAuthority {
         }
 
         AuthenticationWindow loginWindow = null;
-        
+
+        String userName = userCredentials.getUserName();
+        char[] password = userCredentials.getPassword();
+        ImageIcon icon
+            = ImageLoader.getAuthenticationWindowIcon(protocolProvider);
+
         if (errorMessage == null)
-            loginWindow = new AuthenticationWindow( mainFrame,
-                                        protocolProvider,
-                                        realm,
-                                        userCredentials,
-                                        isUserNameEditable);
-        else
-            loginWindow = new AuthenticationWindow( mainFrame,
-                protocolProvider,
+            loginWindow = new AuthenticationWindow(
+                userName,
+                password,
                 realm,
-                userCredentials,
                 isUserNameEditable,
+                icon);
+        else
+            loginWindow = new AuthenticationWindow(
+                userName,
+                password,
+                realm,
+                isUserNameEditable,
+                icon,
                 errorMessage);
 
         loginWindow.pack();
         loginWindow.setVisible(true);
+
+        if (!loginWindow.isCanceled())
+        {
+            userCredentials.setUserName(loginWindow.getUserName());
+            userCredentials.setPassword(loginWindow.getPassword());
+            userCredentials.setPasswordPersistent(
+                loginWindow.isRememberPassword());
+        }
+        else
+        {
+            userCredentials.setUserName(null);
+            userCredentials = null;
+        }
 
         return userCredentials;
     }

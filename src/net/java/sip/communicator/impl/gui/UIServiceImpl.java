@@ -417,7 +417,6 @@ public class UIServiceImpl
     public void initExportedWindows()
     {
         registerExportedWindow(new AddContactDialog(mainFrame));
-        registerExportedWindow(new AuthenticationExportedWindow(mainFrame));
     }
 
     /**
@@ -670,34 +669,6 @@ public class UIServiceImpl
     public WizardContainer getAccountRegWizardContainer()
     {
         return this.wizardContainer;
-    }
-
-    /**
-     * Returns an instance of <tt>AuthenticationWindow</tt> for the given
-     * protocol provider, realm and user credentials.
-     *
-     * @param protocolProvider the protocol provider, for which we'd like to
-     * obtain an authentication window
-     * @param realm the realm to use in the authentication window
-     * @param userCredentials the <tt>UserCredentials</tt>, which would carry
-     * the information entered by the user
-     * @param isUserNameEditable indicates if the user name is editable or not
-     * @return the <tt>ExportedWindow</tt>, corresponding to the authentication
-     * window
-     */
-    public ExportedWindow getAuthenticationWindow(
-        ProtocolProviderService protocolProvider,
-        String realm,
-        UserCredentials userCredentials,
-        boolean isUserNameEditable)
-    {
-        return
-            new AuthenticationExportedWindow(
-                new AuthenticationWindow(mainFrame,
-                                         protocolProvider,
-                                         realm,
-                                         userCredentials,
-                                         isUserNameEditable));
     }
 
     /**

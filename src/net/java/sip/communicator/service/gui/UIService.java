@@ -264,28 +264,6 @@ public interface UIService
     public void setCurrentPhoneNumber(String phoneNumber);
 
     /**
-     * Returns an <tt>ExportableComponent</tt> that corresponds to an
-     * authentication window for the given protocol provider and user
-     * information. Initially this method is meant to be used by the
-     * <tt>SystrayService</tt> in order to show a login window when user tries
-     * to connect using the systray menu.
-     * 
-     * @param protocolProvider the <tt>ProtocolProviderService</tt> for which
-     *            the authentication window is about.
-     * @param realm the realm
-     * @param userCredentials the <tt>UserCredentials</tt>, where the username
-     *            and password details are stored
-     * @param isUserNameEditable indicates if the user name could be changed by
-     *            user.
-     * @return an <tt>ExportableComponent</tt> that corresponds to an
-     *         authentication window for the given protocol provider and user
-     *         information.
-     */
-    public ExportedWindow getAuthenticationWindow(
-        ProtocolProviderService protocolProvider, String realm,
-        UserCredentials userCredentials, boolean isUserNameEditable);
-
-    /**
      * Returns a default implementation of the <tt>SecurityAuthority</tt>
      * interface that can be used by non-UI components that would like to launch
      * the registration process for a protocol provider. Initially this method

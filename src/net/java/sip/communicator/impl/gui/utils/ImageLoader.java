@@ -1263,27 +1263,6 @@ public class ImageLoader
     }
 
     /**
-     * Loads an image from a given bytes array.
-     * @param imageBytes The bytes array to load the image from.
-     * @return The image for the given bytes array.
-     */
-    public static Image getBytesInImage(byte[] imageBytes)
-    {
-        Image image = null;
-        try
-        {
-            image = ImageIO.read(
-                    new ByteArrayInputStream(imageBytes));
-
-        }
-        catch (Exception e)
-        {
-            logger.error("Failed to convert bytes to image.", e);
-        }
-        return image;
-    }
-
-    /**
      * Returns the URI corresponding to the image with the given image
      * identifier.
      *
@@ -1326,13 +1305,13 @@ public class ImageLoader
         Image statusImage;
         if (presence != null)
         {
-            statusImage = ImageLoader.getBytesInImage(
+            statusImage = GuiUtils.getBytesInImage(
                 presence.getPresenceStatus().getStatusIcon());
         }
         else
         {
             statusImage
-                = ImageLoader.getBytesInImage(pps.getProtocolIcon().getIcon(
+                = GuiUtils.getBytesInImage(pps.getProtocolIcon().getIcon(
                     ProtocolIcon.ICON_SIZE_16x16));
 
             if (!pps.isRegistered())
@@ -1429,5 +1408,35 @@ public class ImageLoader
     public static void clearCache()
     {
         loadedImages.clear();
+    }
+
+    /**
+     * Returns the icon corresponding to the given <tt>protocolProvider</tt>.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>, which icon
+     * we're looking for
+     * @return the icon to show on the authentication window
+     */
+    public static ImageIcon getAuthenticationWindowIcon(
+        ProtocolProviderService protocolProvider)
+    {
+        Image image = null;
+
+        if(protocolProvider != null)
+        {
+            ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
+
+            if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_64x64))
+                image = GuiUtils.getBytesInImage(
+                    protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
+            else if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_48x48))
+                image = GuiUtils.getBytesInImage(
+                    protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
+        }
+
+        if (image != null)
+            return new ImageIcon(image);
+
+        return null;
     }
 }

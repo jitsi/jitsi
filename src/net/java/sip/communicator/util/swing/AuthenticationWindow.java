@@ -4,22 +4,18 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.login;
+package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.*;
 
 /**
- * The <tt>LoginWindow</tt> is the window where the user should type his
- * user identifier and password to login.
+ * The <tt>AuthenticationWindow</tt> is the window where the user should type
+ * his user identifier and password to login.
  *
  * @author Yana Stamcheva
  */
@@ -27,81 +23,115 @@ public class AuthenticationWindow
     extends SIPCommFrame
     implements ActionListener
 {
-    private final JTextArea realmTextArea = new JTextArea();
+    /**
+     * Info text area.
+     */
+    private final JTextArea infoTextArea = new JTextArea();
 
+    /**
+     * The uin component.
+     */
     private JComponent uinValue;
 
+    /**
+     * The password field.
+     */
     private final JPasswordField passwdField = new JPasswordField(15);
 
+    /**
+     * The login button.
+     */
     private final JButton loginButton = new JButton(
-        GuiActivator.getResources().getI18NString("service.gui.OK"));
+        UtilActivator.getResources().getI18NString("service.gui.OK"));
 
+    /**
+     * The cancel button.
+     */
     private final JButton cancelButton = new JButton(
-        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
+        UtilActivator.getResources().getI18NString("service.gui.CANCEL"));
 
+    /**
+     * The labels panel.
+     */
     private final TransparentPanel labelsPanel
         = new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
+    /**
+     * The text fields panel.
+     */
     private final TransparentPanel textFieldsPanel
         = new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
+    /**
+     * The panel containing all other components.
+     */
     private final TransparentPanel mainPanel
         = new TransparentPanel(new BorderLayout(10, 10));
 
+    /**
+     * The panel containing all buttons.
+     */
     private final TransparentPanel buttonsPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
+    /**
+     * The check box indicating if the password should be remembered.
+     */
     private final JCheckBox rememberPassCheckBox
-        = new SIPCommCheckBox(GuiActivator.getResources()
+        = new SIPCommCheckBox(UtilActivator.getResources()
             .getI18NString("service.gui.REMEMBER_PASSWORD"));
 
+    /**
+     * The background of the login window.
+     */
     private LoginWindowBackground backgroundPanel;
 
-    private UserCredentials userCredentials;
+    private String server;
 
+    /**
+     * The user name.
+     */
+    private String userName;
+
+    /**
+     * The password.
+     */
+    private char[] password;
+
+    /**
+     * Indicates if the password should be remembered.
+     */
+    private boolean isRememberPassword = false;
+
+    /**
+     * Indicates if the window has been canceled.
+     */
+    private boolean isCanceled = false;
+
+    /**
+     * A lock used to synchronize data setting.
+     */
     private final Object lock = new Object();
-
-    private String realm;
-
-    private final boolean isUserNameEditable;
 
     /**
      * Creates an instance of the <tt>LoginWindow</tt>.
-     * @param mainFrame the parent <tt>MainFrame</tt> window.
-     * @param protocolProvider the protocol provider.
-     * @param realm the realm
-     * @param userCredentials the user credentials
-     * @param isUserNameEditable indicates if the user name should be editable
-     * by the user or not.
+     *
+     * @param server the server name
+     * @param isUserNameEditable indicates if the user name is editable
+     * @param icon the icon to display on the left of the authentication window
      */
-    public AuthenticationWindow(MainFrame mainFrame,
-                ProtocolProviderService protocolProvider,
-                String realm,
-                UserCredentials userCredentials,
-                boolean isUserNameEditable)
+    public AuthenticationWindow(String server,
+                                boolean isUserNameEditable,
+                                ImageIcon icon)
     {
-        this.userCredentials = userCredentials;
+        this.server = server;
 
-        this.realm = realm;
+        Image logoImage = icon.getImage();
 
-        this.isUserNameEditable = isUserNameEditable;
-
-        Image logoImage = null;
-        if(protocolProvider != null)
-        {
-            ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
-
-            if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_64x64))
-                logoImage = ImageLoader.getBytesInImage(
-                    protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
-            else if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_48x48))
-                logoImage = ImageLoader.getBytesInImage(
-                    protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
-
-            this.setTitle(GuiActivator.getResources().getI18NString(
-                "service.gui.AUTHENTICATION_WINDOW_TITLE",
-                new String[]{protocolProvider.getProtocolName()}));
-        }
+        if(!isUserNameEditable)
+            this.uinValue = new JLabel();
+        else
+            this.uinValue = new JTextField();
 
         backgroundPanel = new LoginWindowBackground(logoImage);
         this.backgroundPanel.setBorder(
@@ -115,8 +145,6 @@ public class AuthenticationWindow
 
         this.getContentPane().add(backgroundPanel, BorderLayout.CENTER);
 
-        this.setResizable(false);
-
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         this.enableKeyActions();
@@ -124,39 +152,58 @@ public class AuthenticationWindow
 
     /**
      * Creates an instance of the <tt>LoginWindow</tt>.
-     * @param mainFrame the parent <tt>MainFrame</tt> window.
+     *
+     * @param userName the user name to set by default
+     * @param password the password to set by default
+     * @param server the server name this authentication window is about
+     * @param isUserNameEditable indicates if the user name should be editable
+     * by the user or not
+     * @param icon the icon displayed on the left of the authentication window
+     * @param errorMessage an error message explaining a reason for opening
+     * the authentication dialog (when a wrong password was provided, etc.)
      */
-    public AuthenticationWindow(MainFrame mainFrame)
+    public AuthenticationWindow(String userName,
+                                char[] password,
+                                String server,
+                                boolean isUserNameEditable,
+                                ImageIcon icon,
+                                String errorMessage)
     {
-        this(mainFrame, null, null, null, false);
+        this(userName, password, server, isUserNameEditable, icon);
+
+        this.infoTextArea.setForeground(Color.RED);
+        this.infoTextArea.setText(errorMessage);
     }
 
     /**
      * Creates an instance of the <tt>LoginWindow</tt>.
-     * @param mainFrame the parent <tt>MainFrame</tt> window.
-     * @param protocolProvider the protocol provider.
-     * @param realm the realm
-     * @param userCredentials the user credentials
+     *
+     * @param userName the user name to set by default
+     * @param password the password to set by default
+     * @param server the server name this authentication window is about
      * @param isUserNameEditable indicates if the user name should be editable
-     * by the user or not.
-     * @param errorMessage an error message explaining a reason for opening
-     * the authentication dialog (when a wrong password was provided, etc.)
+     * by the user or not
+     * @param icon the icon displayed on the left of the authentication window
      */
-    public AuthenticationWindow(MainFrame mainFrame,
-                ProtocolProviderService protocolProvider,
-                String realm,
-                UserCredentials userCredentials,
+    public AuthenticationWindow(
+                String userName,
+                char[] password,
+                String server,
                 boolean isUserNameEditable,
-                String errorMessage)
+                ImageIcon icon)
     {
-        this(  mainFrame,
-                protocolProvider,
-                realm,
-                userCredentials,
-                isUserNameEditable);
+        this(server, isUserNameEditable, icon);
 
-        this.realmTextArea.setForeground(Color.RED);
-        this.realmTextArea.setText(errorMessage);
+        if (userName != null)
+        {
+            if (uinValue instanceof JLabel)
+               ((JLabel) uinValue).setText(userName);
+            else if (uinValue instanceof JTextField)
+                ((JTextField) uinValue).setText(userName);
+        }
+
+        if (password != null)
+            passwdField.setText(new String(password));
     }
 
     /**
@@ -164,45 +211,27 @@ public class AuthenticationWindow
      */
     private void init()
     {
-        if(userCredentials != null)
-        {
-            if(!isUserNameEditable)
-                this.uinValue = new JLabel(userCredentials.getUserName());
-            else
-                this.uinValue = new JTextField(userCredentials.getUserName());
+        setTitle(UtilActivator.getResources().getI18NString(
+            "service.gui.AUTHENTICATION_WINDOW_TITLE", new String[]{server}));
 
-            char[] password = userCredentials.getPassword();
-            if (password != null)
-            {
-                this.passwdField.setText(String.valueOf(password));
-            }
-        }
-        else
-        {
-            // no user credentials just an empty field
-            this.uinValue = new JTextField();
-        }
-
-        this.realmTextArea.setEditable(false);
-        this.realmTextArea.setOpaque(false);
-        this.realmTextArea.setLineWrap(true);
-        this.realmTextArea.setWrapStyleWord(true);
-        this.realmTextArea.setFont(
-            realmTextArea.getFont().deriveFont(Font.BOLD));
-        this.realmTextArea.setText(
-            GuiActivator.getResources().getI18NString(
-                "service.gui.SECURITY_AUTHORITY_REALM",
-                new String[]{realm}));
+        this.infoTextArea.setEditable(false);
+        this.infoTextArea.setOpaque(false);
+        this.infoTextArea.setLineWrap(true);
+        this.infoTextArea.setWrapStyleWord(true);
+        this.infoTextArea.setFont(
+            infoTextArea.getFont().deriveFont(Font.BOLD));
+        this.infoTextArea.setText(
+            UtilActivator.getResources().getI18NString(
+                "service.gui.AUTHENTICATION_REQUESTED_SERVER",
+                new String[]{server}));
 
         JLabel uinLabel
-            = new JLabel(
-                    GuiActivator.getResources().getI18NString(
+            = new JLabel(UtilActivator.getResources().getI18NString(
                         "service.gui.IDENTIFIER"));
         uinLabel.setFont(uinLabel.getFont().deriveFont(Font.BOLD));
 
         JLabel passwdLabel
-            = new JLabel(
-                    GuiActivator.getResources().getI18NString(
+            = new JLabel(UtilActivator.getResources().getI18NString(
                         "service.gui.PASSWORD"));
         passwdLabel.setFont(passwdLabel.getFont().deriveFont(Font.BOLD));
 
@@ -219,7 +248,7 @@ public class AuthenticationWindow
         this.buttonsPanel.add(loginButton);
         this.buttonsPanel.add(cancelButton);
 
-        this.mainPanel.add(realmTextArea, BorderLayout.NORTH);
+        this.mainPanel.add(infoTextArea, BorderLayout.NORTH);
         this.mainPanel.add(labelsPanel, BorderLayout.WEST);
         this.mainPanel.add(textFieldsPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
@@ -230,9 +259,9 @@ public class AuthenticationWindow
         this.cancelButton.setName("cancel");
 
         this.loginButton.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.OK"));
+            UtilActivator.getResources().getI18nMnemonic("service.gui.OK"));
         this.cancelButton.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
+            UtilActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
         this.loginButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
@@ -258,7 +287,7 @@ public class AuthenticationWindow
 
     /**
      * Handles the <tt>ActionEvent</tt> triggered when one of the buttons is
-     * clicked. When "Login" button is choosen installs a new account from
+     * clicked. When "Login" button is chosen installs a new account from
      * the user input and logs in.
      *
      * @param evt the action event that has just occurred.
@@ -271,24 +300,16 @@ public class AuthenticationWindow
         if ("ok".equals(buttonName))
         {
             if(uinValue instanceof JLabel)
-                userCredentials.setUserName(((JLabel)uinValue).getText());
+                userName = ((JLabel) uinValue).getText();
             else if(uinValue instanceof JTextField)
-                userCredentials.setUserName(((JTextField)uinValue).getText());
+                userName = ((JTextField) uinValue).getText();
 
-            userCredentials.setPassword(
-                    passwdField.getPassword());
-            userCredentials.setPasswordPersistent(
-                    rememberPassCheckBox.isSelected());
+            password = passwdField.getPassword();
+            isRememberPassword = rememberPassCheckBox.isSelected();
         }
         else
         {
-            // if userCredentials are created outside the exported window
-            // by specifying null username we note that the window was canceled
-            if (this.userCredentials != null)
-            {
-                this.userCredentials.setUserName(null);
-                this.userCredentials = null;
-            }
+            isCanceled = true;
         }
 
         synchronized (lock)
@@ -357,6 +378,12 @@ public class AuthenticationWindow
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
     }
 
+    /**
+     * Automatically clicks the cancel button, when this window is closed.
+     *
+     * @param isEscaped indicates if the window has been closed by pressing the
+     * Esc key
+     */
     @Override
     protected void close(boolean isEscaped)
     {
@@ -395,15 +422,46 @@ public class AuthenticationWindow
         }
     }
 
-    void setParams(Object[] windowParams)
+    /**
+     * Indicates if this window has been canceled.
+     *
+     * @return <tt>true</tt> if this window has been canceled, <tt>false</tt> -
+     * otherwise
+     */
+    public boolean isCanceled()
     {
-        if(windowParams != null && windowParams.length > 0)
-        {
-            Object param = windowParams[0];
-            if(param instanceof UserCredentials)
-            {
-                this.userCredentials = (UserCredentials)param;
-            }
-        }
+        return isCanceled;
+    }
+
+    /**
+     * Returns the user name entered by the user or previously set if the
+     * user name is not editable.
+     *
+     * @return the user name
+     */
+    public String getUserName()
+    {
+        return userName;
+    }
+
+    /**
+     * Returns the password entered by the user.
+     *
+     * @return the password
+     */
+    public char[] getPassword()
+    {
+        return password;
+    }
+
+    /**
+     * Indicates if the password should be remembered.
+     *
+     * @return <tt>true</tt> if the password should be remembered,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isRememberPassword()
+    {
+        return isRememberPassword;
     }
 }

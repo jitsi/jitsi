@@ -1298,7 +1298,7 @@ public class ChatPanel
         if (transportSelectorBox == null)
         {
             transportSelectorBox = new ChatTransportSelectorBox(
-                this, chatSession, chatSession.getCurrentChatTransport());
+                chatSession, chatSession.getCurrentChatTransport());
 
             sendViaLabel = new JLabel(
                 GuiActivator.getResources().getI18NString(

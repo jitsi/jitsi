@@ -6,9 +6,11 @@
  */
 package net.java.sip.communicator.impl.gui.main.login;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.service.gui.*;
+import javax.swing.*;
+
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.swing.AuthenticationWindow;
 
 /**
  * Utility class that can be used in cases where components other than the main
@@ -30,6 +32,9 @@ public class DefaultSecurityAuthority
 
     /**
      * Creates this authority for a particular provider.
+     *
+     * @param provider the protocol provider, for which this security authority
+     * is about
      */
     public DefaultSecurityAuthority(ProtocolProviderService provider)
     {
@@ -66,14 +71,32 @@ public class DefaultSecurityAuthority
             UserCredentials userCredentials,
             int reasonCode)
     {
-        ExportedWindow loginWindow
-            = GuiActivator.getUIService()
-                .getAuthenticationWindow(provider,
-                                        realm,
-                                        userCredentials,
-                                        isUserNameEditable);
+        String userName = userCredentials.getUserName();
+        char[] password = userCredentials.getPassword();
+        ImageIcon icon = ImageLoader.getAuthenticationWindowIcon(provider);
 
+        AuthenticationWindow loginWindow
+            = new AuthenticationWindow( userName,
+                                        password,
+                                        realm,
+                                        isUserNameEditable,
+                                        icon);
+
+        loginWindow.pack();
         loginWindow.setVisible(true);
+
+        if (!loginWindow.isCanceled())
+        {
+            userCredentials.setUserName(loginWindow.getUserName());
+            userCredentials.setPassword(loginWindow.getPassword());
+            userCredentials.setPasswordPersistent(
+                loginWindow.isRememberPassword());
+        }
+        else
+        {
+            userCredentials.setUserName(null);
+            userCredentials = null;
+        }
 
         return userCredentials;
     }

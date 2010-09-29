@@ -40,10 +40,12 @@ public class ChatTransportSelectorBox
     private final ChatSession chatSession;
 
     /**
-     * @param chatPanel Currently not used 
+     * Creates an instance of <tt>ChatTransportSelectorBox</tt>.
+     *
+     * @param chatSession the corresponding chat session
+     * @param selectedChatTransport the chat transport to select by default
      */
-    public ChatTransportSelectorBox(ChatPanel chatPanel,
-                                    ChatSession chatSession,
+    public ChatTransportSelectorBox(ChatSession chatSession,
                                     ChatTransport selectedChatTransport)
     {
         this.chatSession = chatSession;
@@ -121,6 +123,8 @@ public class ChatTransportSelectorBox
 
     /**
      * The listener of the chat transport selector box.
+     *
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -157,7 +161,7 @@ public class ChatTransportSelectorBox
     {
         return
             ImageLoader.badgeImageWithProtocolIndex(
-                ImageLoader.getBytesInImage(
+                GuiUtils.getBytesInImage(
                     chatTransport.getStatus().getStatusIcon()),
                 chatTransport.getProtocolProvider());
     }
@@ -256,8 +260,9 @@ public class ChatTransportSelectorBox
     /**
      * Searches online contacts in the send via combo box.
      *
-     * @return TRUE if the send via combo box contains online contacts, otherwise
-     * returns FALSE.
+     * @param chatTransport the chat transport to check
+     * @return TRUE if the send via combo box contains online contacts,
+     * otherwise returns FALSE.
      */
     private boolean containsOtherOnlineContacts(ChatTransport chatTransport)
     {

@@ -231,7 +231,7 @@ public class Account
     {
         ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
         Image protocolImage
-            = ImageLoader.getBytesInImage(
+            = GuiUtils.getBytesInImage(
                     protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_32x32));
 
         if (protocolImage != null)
@@ -240,14 +240,13 @@ public class Account
         }
         else
         {
-            protocolImage = ImageLoader.getBytesInImage(
+            protocolImage = GuiUtils.getBytesInImage(
                 protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
 
             if (protocolImage == null)
                 protocolImage
-                    = ImageLoader
-                        .getBytesInImage(
-                            protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
+                    = GuiUtils.getBytesInImage(
+                        protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
 
             if (protocolImage != null)
                 return ImageUtils.scaleIconWithinBounds(protocolImage, 32, 32);

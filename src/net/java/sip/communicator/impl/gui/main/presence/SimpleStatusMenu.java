@@ -46,7 +46,7 @@ public class SimpleStatusMenu
     {
         this(protocolProvider,
             protocolProvider.getAccountID().getDisplayName(),
-            ImageLoader.getBytesInImage(
+            GuiUtils.getBytesInImage(
                 protocolProvider.getProtocolIcon().getIcon(
                     ProtocolIcon.ICON_SIZE_16x16)));
     }
@@ -100,6 +100,8 @@ public class SimpleStatusMenu
     /**
      * Handles the <tt>ActionEvent</tt> triggered when one of the items in the
      * list is selected.
+     *
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -165,13 +167,13 @@ public class SimpleStatusMenu
     public void loadSkin()
     {
         super.loadSkin();
-        setIcon(new ImageIcon(ImageLoader.getBytesInImage(
+        setIcon(new ImageIcon(GuiUtils.getBytesInImage(
                 protocolProvider.getProtocolIcon().getIcon(
                     ProtocolIcon.ICON_SIZE_16x16))));
         onlineItem.setIcon(getIcon());
         offlineItem.setIcon(
             new ImageIcon(LightGrayFilter.createDisabledImage(
-                ImageLoader.getBytesInImage(
+                GuiUtils.getBytesInImage(
                     protocolProvider.getProtocolIcon().getIcon(
                         ProtocolIcon.ICON_SIZE_16x16)))));
     }
