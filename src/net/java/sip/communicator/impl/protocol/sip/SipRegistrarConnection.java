@@ -55,7 +55,7 @@ public class SipRegistrarConnection
     * expire or otherwise put - the number of seconds we wait before re-
     * registering.
     */
-    public static final int DEFAULT_REGISTRATION_EXPIRATION = 3600;
+    public static final int DEFAULT_REGISTRATION_EXPIRATION = 600;
 
     /**
     * The amount of time (in seconds) that registration take to expire or

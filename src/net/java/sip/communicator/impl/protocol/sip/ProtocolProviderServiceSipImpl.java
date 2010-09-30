@@ -606,11 +606,16 @@ public class ProtocolProviderServiceSipImpl
                     new OperationSetTypingNotificationsSipImpl(
                             this,
                             opSetBasicIM));
+                OperationSetServerStoredAccountInfo opSetSSAccountInfo =
+                    new OperationSetServerStoredAccountInfoSipImpl(this);
                 // init avatar
                 addSupportedOperationSet(
                     OperationSetServerStoredAccountInfo.class,
-                    new OperationSetServerStoredAccountInfoSipImpl(this));
+                    opSetSSAccountInfo);
 
+                addSupportedOperationSet(
+                    OperationSetAvatar.class,
+                    new OperationSetAvatarSipImpl(this, opSetSSAccountInfo));
             }
 
             // OperationSetVideoTelephony

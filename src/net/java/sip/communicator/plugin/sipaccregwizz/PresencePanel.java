@@ -102,6 +102,10 @@ public class PresencePanel
             Resources.getString("plugin.sipaccregwizz.XCAP_USE_SIP_CREDENTIALS"),
             regform.getRegistration().isXCapUseSipCredetials());
 
+        if(regform.getRegistration().isXCapEnable())
+            this.xCapServerUriValue.setText(
+                    regform.getRegistration().getXCapServerUri());
+
         enablePresOpButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)

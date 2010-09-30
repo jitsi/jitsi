@@ -2443,7 +2443,9 @@ public class OperationSetPresenceSipImpl
                     String errorMessage = String.format(
                             "Error while getting icon %1s for the contact %2s",
                             imageUri, contact.getUri());
-                    logger.error(errorMessage, e);
+                    logger.warn(errorMessage);
+                    if(logger.isDebugEnabled())
+                        logger.debug(errorMessage, e);
                 }
             }
             else

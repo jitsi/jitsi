@@ -54,6 +54,10 @@ public class Sip2SipAccountRegistrationWizard
         getRegistration().setKeepAliveMethod("NONE");
         getRegistration().setDefaultKeepAliveMethod("NONE");
         getRegistration().setDefaultDomain("sip2sip.info");
+        getRegistration().setXCapEnable(true);
+        getRegistration().setXCapServerUri(
+                "https://xcap.sipthor.net/xcap-root@sip2sip.info");
+        getRegistration().setXCapUseSipCredetials(true);
     }
 
     /**
