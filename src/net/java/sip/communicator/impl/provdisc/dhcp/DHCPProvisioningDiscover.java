@@ -35,6 +35,11 @@ public class DHCPProvisioningDiscover
     private DatagramSocket socket = null;
 
     /**
+     * DHCP transaction number.
+     */
+    private int xid = 0;
+
+    /**
      * Listening port of the client. Note that the socket will send packet to
      * DHCP server on port - 1.
      */
@@ -43,12 +48,12 @@ public class DHCPProvisioningDiscover
     /**
      * Option code of the specific provisioning option.
      */
-    private byte option = (byte)120;
+    private byte option = (byte)224;
 
     /**
-     * DHCP timeout (in milliseconds).
+     * DHCP socket timeout (in milliseconds).
      */
-    private static final int DHCP_TIMEOUT = 5000;
+    private static final int DHCP_TIMEOUT = 10000;
 
     /**
      * List of <tt>ProvisioningListener</tt> that will be notified when
@@ -68,7 +73,9 @@ public class DHCPProvisioningDiscover
     {
         this.port = port;
         this.option = option;
+
         socket = new DatagramSocket(port);
+        xid = new Random().nextInt();
 
         /* set timeout so that we will not blocked forever if we
          * have no response from DHCP server
@@ -90,11 +97,10 @@ public class DHCPProvisioningDiscover
         byte zeroIPAddress[] = {0x00, 0x00, 0x00, 0x00};
         byte broadcastIPAddr[] = {(byte)255, (byte)255, (byte)255, (byte)255};
         DHCPOption dhcpOpts[] = new DHCPOption[1];
-        int xid = new Random().nextInt();
+        List<DHCPTransaction> transactions = new ArrayList<DHCPTransaction>();
 
         try
         {
-
             inform.setOp(DHCPConstants.BOOTREQUEST);
             inform.setHtype(DHCPConstants.HTYPE_ETHER);
             inform.setHlen((byte) 6);
@@ -148,7 +154,11 @@ public class DHCPProvisioningDiscover
                                     InetAddress.getByAddress(broadcastIPAddr),
                                     port - 1);
 
-                            socket.send(pkt);
+                            DHCPTransaction transaction =
+                                new DHCPTransaction(socket, pkt);
+
+                            transaction.schedule();
+                            transactions.add(transaction);
                             msg = null;
                             pkt = null;
                             p = null;
@@ -168,7 +178,7 @@ public class DHCPProvisioningDiscover
 
                 while(!found)
                 {
-                    /* we timeout after 5 seconds if no DHCP response are
+                    /* we timeout after some seconds if no DHCP response are
                      * received
                      */
                     socket.receive(pkt2);
@@ -185,6 +195,11 @@ public class DHCPProvisioningDiscover
                     if(optProvisioning != null)
                     {
                         found = true;
+
+                        for(DHCPTransaction t : transactions)
+                        {
+                            t.cancel();
+                        }
                         return new String(optProvisioning.getValue());
                     }
                 }
@@ -199,6 +214,10 @@ public class DHCPProvisioningDiscover
             logger.warn("Exception occurred during DHCP discover", e);
         }
 
+        for(DHCPTransaction t : transactions)
+        {
+            t.cancel();
+        }
         return null;
     }
 

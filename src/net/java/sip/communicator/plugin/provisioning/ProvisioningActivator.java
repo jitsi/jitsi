@@ -600,6 +600,13 @@ public class ProvisioningActivator
 
                 if(responseCode == HttpURLConnection.HTTP_UNAUTHORIZED)
                 {
+                    /* remove stored username and password if authorization
+                     * failed
+                     */
+                    getConfigurationService().removeProperty(
+                            PROPERTY_PROVISIONING_USERNAME);
+                    getCredentialsStorageService().removePassword(
+                            PROPERTY_PROVISIONING_PASSWORD);
                     AuthenticationWindow authWindow = new AuthenticationWindow(
                             u.getHost(), true, null);
 
