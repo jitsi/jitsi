@@ -52,30 +52,18 @@ public class ProvisioningActivator
         = "net.java.sip.communicator.plugin.provisioning.URL";
 
     /**
-     * Name of the username for the HTTP authentication.
-     */
-    private static final String PROPERTY_HTTP_USERNAME
-        = "net.java.sip.communicator.plugin.provisioning.auth.http.USERNAME";
-
-    /**
-     * Name of the password for the HTTP authentication.
-     */
-    private static final String PROPERTY_HTTP_PASSWORD
-        = "net.java.sip.communicator.plugin.provisioning.auth.http";
-
-    /**
      * Name of the provisioning username in the configuration service
      * authentication).
      */
     private static final String PROPERTY_PROVISIONING_USERNAME
-        = "net.java.sip.communicator.plugin.provisioning.auth.access.USERNAME";
+        = "net.java.sip.communicator.plugin.provisioning.auth.USERNAME";
 
     /**
      * Name of the provisioning password in the configuration service (HTTP
      * authentication).
      */
     private static final String PROPERTY_PROVISIONING_PASSWORD
-        = "net.java.sip.communicator.plugin.provisioning.auth.access";
+        = "net.java.sip.communicator.plugin.provisioning.auth";
 
     /**
      * Name of the property that contains the provisioning method (i.e. DHCP,
@@ -91,7 +79,7 @@ public class ProvisioningActivator
     private static ConfigurationService configurationService = null;
 
     /**
-     * A reference to the CredentialsStorageService implementation instance 
+     * A reference to the CredentialsStorageService implementation instance
      * that is registered with the bundle context.
      */
     private static CredentialsStorageService credentialsService = null;
@@ -102,21 +90,16 @@ public class ProvisioningActivator
     private static CertificateVerificationService certVerification = null;
 
     /**
-     * A reference to the NetworkAddressManagerService implementation instance 
+     * A reference to the NetworkAddressManagerService implementation instance
      * that is registered with the bundle context.
      */
     private static NetworkAddressManagerService netaddrService = null;
 
     /**
-     * User credentials to access URL (protected by HTTP authentication) if any.
+     * User credentials to access URL (protected by HTTP authentication and/or
+     * by provisioning) if any.
      */
     private static UserCredentials userCredentials = null;
-
-    /**
-     * User credentials that user have to provide to the provisioning server
-     * if any.
-     */
-    private static UserCredentials provCredentials = null;
 
     /**
      * The user interface service.
@@ -324,7 +307,7 @@ public class ProvisioningActivator
     /**
      * Configure HTTP connection to provide HTTP authentication and SSL
      * truster.
-     * 
+     *
      * @param url provisioning URL
      * @param connection the <tt>URLConnection</tt>
      */
@@ -336,19 +319,19 @@ public class ProvisioningActivator
 
             if(method.equals("POST"))
             {
-                connection.setRequestProperty("Content-Type", 
+                connection.setRequestProperty("Content-Type",
                         "application/x-www-form-urlencoded");
             }
 
             if(connection instanceof HttpsURLConnection)
             {
-                CertificateVerificationService vs = 
+                CertificateVerificationService vs =
                     getCertificateVerificationService();
 
                 int port = url.getPort();
 
                 /* if we do not specify port in the URL (http://domain.org:port)
-                 * we have to set up the default port of HTTP (80) or 
+                 * we have to set up the default port of HTTP (80) or
                  * HTTPS (443).
                  */
                 if(port == -1)
@@ -384,12 +367,12 @@ public class ProvisioningActivator
 
                 String uName
                     = (String) config.getProperty(
-                            PROPERTY_HTTP_USERNAME);
+                            PROPERTY_PROVISIONING_USERNAME);
 
                 if(uName != null)
                 {
                     String pass = credStorage.loadPassword(
-                            PROPERTY_HTTP_PASSWORD);
+                            PROPERTY_PROVISIONING_PASSWORD);
 
                     if(pass != null)
                         return new PasswordAuthentication(uName,
@@ -416,7 +399,7 @@ public class ProvisioningActivator
     private void handleProvisioningAuth()
     {
         ConfigurationService configService = getConfigurationService();
-        CredentialsStorageService credService = 
+        CredentialsStorageService credService =
             getCredentialsStorageService();
 
         String username = configService.getString(
@@ -427,10 +410,10 @@ public class ProvisioningActivator
         if(username != null && password != null)
         {
             /* we have already the credentials stored so return them */
-            provCredentials = new UserCredentials();
-            provCredentials.setUserName(username);
-            provCredentials.setPassword(password.toCharArray());
-            provCredentials.setPasswordPersistent(true);    
+            userCredentials = new UserCredentials();
+            userCredentials.setUserName(username);
+            userCredentials.setPassword(password.toCharArray());
+            userCredentials.setPasswordPersistent(true);
             return;
         }
 
@@ -441,20 +424,20 @@ public class ProvisioningActivator
 
         if(!authWindow.isCanceled())
         {
-            provCredentials = new UserCredentials();
-            provCredentials.setUserName(authWindow.getUserName());
-            provCredentials.setPassword(authWindow.getPassword());
-            provCredentials.setPasswordPersistent(
+            userCredentials = new UserCredentials();
+            userCredentials.setUserName(authWindow.getUserName());
+            userCredentials.setPassword(authWindow.getPassword());
+            userCredentials.setPasswordPersistent(
                 authWindow.isRememberPassword());
 
-            if(provCredentials.getUserName() == null)
+            if(userCredentials.getUserName() == null)
             {
-                provCredentials = null;
+                userCredentials = null;
             }
         }
         else
         {
-            provCredentials = null;
+            userCredentials = null;
         }
     }
 
@@ -515,36 +498,26 @@ public class ProvisioningActivator
                     {
                         if(s.equals("username"))
                         {
-                            if(provCredentials == null)
+                            if(userCredentials == null)
                             {
                                 handleProvisioningAuth();
-                            }
-
-                            if(provCredentials == null)
-                            {
-                                return null;
                             }
 
                             content.append("username=" +
                                     URLEncoder.encode(
-                                            provCredentials.getUserName(),
+                                            userCredentials.getUserName(),
                                             "UTF-8"));
                         }
                         else if(s.equals("password"))
                         {
-                            if(provCredentials == null)
+                            if(userCredentials == null)
                             {
                                 handleProvisioningAuth();
                             }
 
-                            if(provCredentials == null)
-                            {
-                                return null;
-                            }
-
                             content.append("&password=" +
                                     URLEncoder.encode(
-                                            provCredentials.
+                                            userCredentials.
                                                     getPasswordAsString(),
                                                     "UTF-8"));
                         }
@@ -556,11 +529,11 @@ public class ProvisioningActivator
                         else if(s.equals("build"))
                         {
                             content.append("&build=" + URLEncoder.encode(
-                                System.getProperty("sip-communicator.version"), 
+                                System.getProperty("sip-communicator.version"),
                                 "UTF-8"));
                         }
                         else if(s.equals("ipaddr"))
-                        {                    
+                        {
                             content.append("&ipaddr=" + URLEncoder.encode(
                                     ipaddr.getHostAddress(), "UTF-8"));
                         }
@@ -580,7 +553,7 @@ public class ProvisioningActivator
                                 {
                                     NetworkInterface iface = en.nextElement();
 
-                                    Enumeration<InetAddress> enInet = 
+                                    Enumeration<InetAddress> enInet =
                                         iface.getInetAddresses();
 
                                     while(enInet.hasMoreElements())
@@ -602,13 +575,13 @@ public class ProvisioningActivator
                                                         (hi <= 0xf) ? "0" : "");
                                                 t += Integer.toHexString(hi);
                                                 buf.append(t);
-                                                buf.append("-");
+                                                buf.append(":");
                                             }
 
                                             buf.deleteCharAt(buf.length() - 1);
 
                                             hwaddr = buf.toString();
-                                            content.append("&hwaddr=" + 
+                                            content.append("&hwaddr=" +
                                                     URLEncoder.encode(
                                                     hwaddr, "UTF-8"));
                                             break;
@@ -631,13 +604,13 @@ public class ProvisioningActivator
                             u.getHost(), true, null);
 
                     authWindow.setVisible(true);
-                    
+
                     userCredentials = new UserCredentials();
                     userCredentials.setUserName(authWindow.getUserName());
                     userCredentials.setPassword(authWindow.getPassword());
                     userCredentials.setPasswordPersistent(
                             authWindow.isRememberPassword());
-                    
+
                     if(userCredentials.getUserName() == null)
                     {
                         userCredentials = null;
@@ -651,10 +624,10 @@ public class ProvisioningActivator
                 else if(responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
                     responseCode == HttpURLConnection.HTTP_MOVED_TEMP)
                 {
-                    String loc = 
+                    String loc =
                         ((HttpURLConnection)uc).getHeaderField("Location");
 
-                    if(loc != null && (loc.startsWith("http://") || 
+                    if(loc != null && (loc.startsWith("http://") ||
                             loc.startsWith("https://")))
                     {
                         tmpFile.delete();
@@ -670,23 +643,11 @@ public class ProvisioningActivator
                     {
                         // if save password is checked save the pass
                         getConfigurationService().setProperty(
-                                PROPERTY_HTTP_USERNAME, 
+                                PROPERTY_PROVISIONING_USERNAME,
                                 userCredentials.getUserName());
                         getCredentialsStorageService().storePassword(
-                            PROPERTY_HTTP_PASSWORD,
-                            userCredentials.getPasswordAsString());
-                    }
-
-                    if(provCredentials != null &&
-                            provCredentials.getUserName() != null &&
-                            provCredentials.isPasswordPersistent())
-                    {
-                        getConfigurationService().setProperty(
-                                PROPERTY_PROVISIONING_USERNAME, 
-                                provCredentials.getUserName());
-                        getCredentialsStorageService().storePassword(
                             PROPERTY_PROVISIONING_PASSWORD,
-                            provCredentials.getPasswordAsString());
+                            userCredentials.getPasswordAsString());
                     }
                 }
             }
@@ -729,7 +690,7 @@ public class ProvisioningActivator
             catch (Exception e)
             {
                 logger.error("Error saving", e);
-                
+
                 try
                 {
                     pin.close();
@@ -739,7 +700,7 @@ public class ProvisioningActivator
                 catch (Exception e1)
                 {
                 }
-                
+
                 return null;
             }
         }
@@ -754,7 +715,7 @@ public class ProvisioningActivator
 
     /**
      * Update configuration with properties retrieved from provisioning URL.
-     * 
+     *
      * @param file provisioning file
      */
     private void updateConfiguration(final File file)
@@ -831,7 +792,7 @@ public class ProvisioningActivator
      * Return the certificate verification service impl.
      * @return the CertificateVerification service.
      */
-    private static CertificateVerificationService 
+    private static CertificateVerificationService
         getCertificateVerificationService()
     {
         if(certVerification == null)
@@ -840,7 +801,7 @@ public class ProvisioningActivator
                 = bundleContext.getServiceReference(
                     CertificateVerificationService.class.getName());
             if(certVerifyReference != null)
-                certVerification 
+                certVerification
                 = (CertificateVerificationService)bundleContext.getService(
                         certVerifyReference);
         }
@@ -873,7 +834,7 @@ public class ProvisioningActivator
      * currently registered in the bundle context or null if no such
      * implementation was found.
      *
-     * @return a currently valid implementation of the 
+     * @return a currently valid implementation of the
      * CredentialsStorageService.
      */
     public static CredentialsStorageService getCredentialsStorageService()
@@ -889,7 +850,7 @@ public class ProvisioningActivator
         }
         return credentialsService;
     }
-    
+
     /**
      * Returns a reference to a NetworkAddressManagerService implementation
      * currently registered in the bundle context or null if no such

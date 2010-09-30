@@ -49,7 +49,7 @@ public class DHCPProvisioningDiscover
      * DHCP timeout (in milliseconds).
      */
     private static final int DHCP_TIMEOUT = 5000;
-    
+
     /**
      * List of <tt>ProvisioningListener</tt> that will be notified when
      * a provisioning URL is retrieved.
@@ -91,10 +91,10 @@ public class DHCPProvisioningDiscover
         byte broadcastIPAddr[] = {(byte)255, (byte)255, (byte)255, (byte)255};
         DHCPOption dhcpOpts[] = new DHCPOption[1];
         int xid = new Random().nextInt();
-        
+
         try
         {
-        	
+
             inform.setOp(DHCPConstants.BOOTREQUEST);
             inform.setHtype(DHCPConstants.HTYPE_ETHER);
             inform.setHlen((byte) 6);
@@ -173,10 +173,10 @@ public class DHCPProvisioningDiscover
                      */
                     socket.receive(pkt2);
                     DHCPPacket dhcp = DHCPPacket.getPacket(pkt2);
-                    
+
                     if(dhcp.getXid() != xid)
                     {
-                    	continue;
+                        continue;
                     }
 
                     DHCPOption optProvisioning = dhcp.getOption(option);
