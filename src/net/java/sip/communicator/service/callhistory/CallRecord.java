@@ -57,6 +57,12 @@ public class CallRecord
     protected ProtocolProviderService protocolProvider;
 
     /**
+     * This is the end reason of the call if any. -1 default value for
+     * no reason specified.
+     */
+    protected int endReason = -1;
+
+    /**
      * Creates CallRecord
      */
     public CallRecord()
@@ -141,5 +147,15 @@ public class CallRecord
     public ProtocolProviderService getProtocolProvider()
     {
         return protocolProvider;
+    }
+
+    /**
+     * This is the end reason of the call if any. -1 the default value
+     * for no reason specified.
+     * @return end reason code if any.
+     */
+    public int getEndReason()
+    {
+        return endReason;
     }
 }

@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -213,7 +214,12 @@ public class CallHistorySourceContact implements SourceContact
     {
         if (callRecord.getDirection().equals(CallRecord.IN))
         {
-            if (callRecord.getStartTime().equals(callRecord.getEndTime()))
+            // if the call record has reason for normal call clearing
+            // means it was answered somewhere else and we don't
+            // mark it as missed
+            if (callRecord.getStartTime().equals(callRecord.getEndTime())
+                && (callRecord.getEndReason()
+                        != CallPeerChangeEvent.NORMAL_CALL_CLEARING))
                 return missedCallIcon;
             else
                 return incomingIcon;

@@ -105,4 +105,13 @@ public class CallRecordImpl
     {
         this.protocolProvider = pps;
     }
+
+    /**
+     * This is the end reason of the call if any.
+     * @param endReason the reason code.
+     */
+    public void setEndReason(int endReason)
+    {
+        this.endReason = endReason;
+    }
 }

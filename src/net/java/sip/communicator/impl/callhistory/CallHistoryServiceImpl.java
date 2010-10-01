@@ -44,7 +44,7 @@ public class CallHistoryServiceImpl
     private static String[] STRUCTURE_NAMES =
         new String[] { "accountUID", "callStart", "callEnd", "dir",
             "callParticipantIDs", "callParticipantStart",
-            "callParticipantEnd", "callParticipantStates" };
+            "callParticipantEnd", "callParticipantStates", "callEndReason" };
 
     private static HistoryRecordStructure recordStructure =
         new HistoryRecordStructure(STRUCTURE_NAMES);
@@ -400,6 +400,8 @@ public class CallHistoryServiceImpl
                 callPeerEnd = getCSVs(value);
             else if(propName.equals(STRUCTURE_NAMES[7]))
                 callPeerStates = getStates(value);
+            else if(propName.equals(STRUCTURE_NAMES[8]))
+                result.setEndReason(Integer.parseInt(value));
         }
 
         final int callPeerCount = callPeerIDs == null ? 0 : callPeerIDs.size();
@@ -623,7 +625,8 @@ public class CallHistoryServiceImpl
                     callPeerIDs.toString(),
                     callPeerStartTime.toString(),
                     callPeerEndTime.toString(),
-                    callPeerStates.toString()},
+                    callPeerStates.toString(),
+                    String.valueOf(callRecord.getEndReason())},
                     new Date());    // this date is when the history
                                     // record is written
         }
@@ -1122,7 +1125,18 @@ public class CallHistoryServiceImpl
             if (evt.getNewValue().equals(CallState.CALL_ENDED))
             {
                 if(evt.getOldValue().equals(CallState.CALL_INITIALIZATION))
+                {
                     callRecord.setEndTime(callRecord.getStartTime());
+
+                    // if call was answered elsewhere, add its reason
+                    // so we can distinguish it from missed
+                    if(evt.getCause() != null
+                           && evt.getCause().getReasonCode() ==
+                                CallPeerChangeEvent.NORMAL_CALL_CLEARING)
+                    {
+                        callRecord.setEndReason(evt.getCause().getReasonCode());
+                    }
+                }
                 else
                     callRecord.setEndTime(new Date());
 
