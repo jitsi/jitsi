@@ -120,6 +120,13 @@ public class AuthenticationWindow
 
         this.setResizable(false);
 
+        /*
+         * Workaround for the following bug:
+         * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4446522
+         * Need to pack() the window after it's opened in order to obtain the
+         * correct size of our infoTextArea, otherwise window size is wrong and
+         * buttons on the south are cut.
+         */
         this.addWindowListener(new WindowAdapter()
         {
             public void windowOpened(WindowEvent e)
