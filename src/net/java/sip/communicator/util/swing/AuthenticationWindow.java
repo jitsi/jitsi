@@ -51,30 +51,6 @@ public class AuthenticationWindow
         UtilActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     /**
-     * The labels panel.
-     */
-    private final TransparentPanel labelsPanel
-        = new TransparentPanel(new GridLayout(0, 1, 8, 8));
-
-    /**
-     * The text fields panel.
-     */
-    private final TransparentPanel textFieldsPanel
-        = new TransparentPanel(new GridLayout(0, 1, 8, 8));
-
-    /**
-     * The panel containing all other components.
-     */
-    private final TransparentPanel mainPanel
-        = new TransparentPanel(new BorderLayout(10, 10));
-
-    /**
-     * The panel containing all buttons.
-     */
-    private final TransparentPanel buttonsPanel
-        = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-
-    /**
      * The check box indicating if the password should be remembered.
      */
     private final JCheckBox rememberPassCheckBox
@@ -82,10 +58,8 @@ public class AuthenticationWindow
             .getI18NString("service.gui.REMEMBER_PASSWORD"));
 
     /**
-     * The background of the login window.
+     * The name of the server, for which this authentication window is about.
      */
-    private LoginWindowBackground backgroundPanel;
-
     private String server;
 
     /**
@@ -124,13 +98,13 @@ public class AuthenticationWindow
                                 boolean isUserNameEditable,
                                 ImageIcon icon)
     {
-        this.server = server;
+        super(false);
 
-        Image logoImage = null;
+        this.server = server;
 
         if(icon != null)
         {
-            logoImage = icon.getImage();
+            initIcon(icon);
         }
 
         if(!isUserNameEditable)
@@ -138,21 +112,22 @@ public class AuthenticationWindow
         else
             this.uinValue = new JTextField();
 
-        backgroundPanel = new LoginWindowBackground(logoImage);
-        this.backgroundPanel.setBorder(
-                BorderFactory.createEmptyBorder(20, 5, 5, 5));
-        this.backgroundPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        this.backgroundPanel.setPreferredSize(new Dimension(420, 230));
-
-        this.getContentPane().setLayout(new BorderLayout());
-
         this.init();
-
-        this.getContentPane().add(backgroundPanel, BorderLayout.CENTER);
 
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         this.enableKeyActions();
+
+        this.setResizable(false);
+
+        this.addWindowListener(new WindowAdapter()
+        {
+            public void windowOpened(WindowEvent e)
+            {
+                pack();
+                removeWindowListener(this);
+            }
+        });
     }
 
     /**
@@ -212,6 +187,25 @@ public class AuthenticationWindow
     }
 
     /**
+     * Initializes the icon image.
+     *
+     * @param icon the icon to show on the left of the window
+     */
+    private void initIcon(ImageIcon icon)
+    {
+        JLabel iconLabel = new JLabel(icon);
+
+        iconLabel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        iconLabel.setAlignmentY(Component.TOP_ALIGNMENT);
+
+        JPanel iconPanel = new TransparentPanel(new BorderLayout());
+        iconPanel.add(iconLabel, BorderLayout.NORTH);
+
+        getContentPane().add(iconPanel, BorderLayout.WEST);
+    }
+
+    /**
      * Constructs the <tt>LoginWindow</tt>.
      */
     private void init()
@@ -219,16 +213,17 @@ public class AuthenticationWindow
         setTitle(UtilActivator.getResources().getI18NString(
             "service.gui.AUTHENTICATION_WINDOW_TITLE", new String[]{server}));
 
-        this.infoTextArea.setEditable(false);
-        this.infoTextArea.setOpaque(false);
-        this.infoTextArea.setLineWrap(true);
-        this.infoTextArea.setWrapStyleWord(true);
-        this.infoTextArea.setFont(
+        infoTextArea.setEditable(false);
+        infoTextArea.setOpaque(false);
+        infoTextArea.setLineWrap(true);
+        infoTextArea.setWrapStyleWord(true);
+        infoTextArea.setFont(
             infoTextArea.getFont().deriveFont(Font.BOLD));
-        this.infoTextArea.setText(
+        infoTextArea.setText(
             UtilActivator.getResources().getI18NString(
                 "service.gui.AUTHENTICATION_REQUESTED_SERVER",
                 new String[]{server}));
+        infoTextArea.setAlignmentX(0.5f);
 
         JLabel uinLabel
             = new JLabel(UtilActivator.getResources().getI18NString(
@@ -240,25 +235,44 @@ public class AuthenticationWindow
                         "service.gui.PASSWORD"));
         passwdLabel.setFont(passwdLabel.getFont().deriveFont(Font.BOLD));
 
-        this.labelsPanel.add(uinLabel);
-        this.labelsPanel.add(passwdLabel);
-        this.labelsPanel.add(new JLabel());
+        TransparentPanel labelsPanel
+            = new TransparentPanel(new GridLayout(0, 1, 8, 8));
+
+        labelsPanel.add(uinLabel);
+        labelsPanel.add(passwdLabel);
+        labelsPanel.add(new JLabel());
 
         this.rememberPassCheckBox.setOpaque(false);
+        this.rememberPassCheckBox.setBorder(null);
 
-        this.textFieldsPanel.add(uinValue);
-        this.textFieldsPanel.add(passwdField);
-        this.textFieldsPanel.add(rememberPassCheckBox);
+        TransparentPanel textFieldsPanel
+            = new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
-        this.buttonsPanel.add(loginButton);
-        this.buttonsPanel.add(cancelButton);
+        textFieldsPanel.add(uinValue);
+        textFieldsPanel.add(passwdField);
+        textFieldsPanel.add(rememberPassCheckBox);
 
-        this.mainPanel.add(infoTextArea, BorderLayout.NORTH);
-        this.mainPanel.add(labelsPanel, BorderLayout.WEST);
-        this.mainPanel.add(textFieldsPanel, BorderLayout.CENTER);
-        this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+        JPanel buttonPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
-        this.backgroundPanel.add(mainPanel, BorderLayout.CENTER);
+        buttonPanel.add(loginButton);
+        buttonPanel.add(cancelButton);
+
+        JPanel southEastPanel = new TransparentPanel(new BorderLayout());
+        southEastPanel.add(buttonPanel, BorderLayout.EAST);
+
+        TransparentPanel mainPanel
+            = new TransparentPanel(new BorderLayout(10, 10));
+
+        mainPanel.setBorder(
+            BorderFactory.createEmptyBorder(20, 0, 20, 20));
+
+        mainPanel.add(infoTextArea, BorderLayout.NORTH);
+        mainPanel.add(labelsPanel, BorderLayout.WEST);
+        mainPanel.add(textFieldsPanel, BorderLayout.CENTER);
+        mainPanel.add(southEastPanel, BorderLayout.SOUTH);
+
+        this.getContentPane().add(mainPanel, BorderLayout.EAST);
 
         this.loginButton.setName("ok");
         this.cancelButton.setName("cancel");
@@ -272,22 +286,6 @@ public class AuthenticationWindow
         this.cancelButton.addActionListener(this);
 
         this.getRootPane().setDefaultButton(loginButton);
-
-        this.setTransparent(true);
-    }
-
-    /**
-     * Sets transparent background to all components in the login window,
-     * because of the non-white background.
-     * @param transparent <code>true</code> to set a transparent background,
-     * <code>false</code> otherwise.
-     */
-    private void setTransparent(boolean transparent)
-    {
-        this.mainPanel.setOpaque(!transparent);
-        this.labelsPanel.setOpaque(!transparent);
-        this.textFieldsPanel.setOpaque(!transparent);
-        this.buttonsPanel.setOpaque(!transparent);
     }
 
     /**
@@ -323,43 +321,6 @@ public class AuthenticationWindow
         }
 
         this.dispose();
-    }
-
-    /**
-     * The <tt>LoginWindowBackground</tt> is a <tt>JPanel</tt> that overrides
-     * the <code>paintComponent</code> method to provide a custom background
-     * image for this window.
-     */
-    private static class LoginWindowBackground
-        extends TransparentPanel
-    {
-        private final Image bgImage;
-
-        LoginWindowBackground(Image bgImage)
-        {
-            this.bgImage = bgImage;
-        }
-
-        @Override
-        protected void paintComponent(Graphics g)
-        {
-            super.paintComponent(g);
-
-            if (bgImage != null)
-            {
-                g = g.create();
-                try
-                {
-                    AntialiasingManager.activateAntialiasing(g);
-
-                    g.drawImage(bgImage, 30, 30, null);
-                }
-                finally
-                {
-                    g.dispose();
-                }
-            }
-        }
     }
 
     /**
@@ -405,8 +366,6 @@ public class AuthenticationWindow
     public void setVisible(boolean isVisible)
     {
         this.setName("AUTHENTICATION");
-
-        pack();
 
         super.setVisible(isVisible);
 
