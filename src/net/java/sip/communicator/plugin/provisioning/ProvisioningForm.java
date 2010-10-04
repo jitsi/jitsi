@@ -16,12 +16,17 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ProvisioningForm
     extends TransparentPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The enable provisioning check box.
      */

@@ -727,7 +727,7 @@ public class ProvisioningActivator
      */
     private void updateConfiguration(final File file)
     {
-        Properties fileProps = new Properties();
+        Properties fileProps = new OrderedProperties();
         InputStream in = null;
 
         try
