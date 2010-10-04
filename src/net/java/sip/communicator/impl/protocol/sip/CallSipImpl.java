@@ -96,7 +96,7 @@ public class CallSipImpl
             if (cp.getDialog() == dialog)
             {
                 if (logger.isTraceEnabled())
-                    logger.trace("Returing cp=" + cp);
+                    logger.trace("Returning cp=" + cp);
                 return cp;
             }
             else

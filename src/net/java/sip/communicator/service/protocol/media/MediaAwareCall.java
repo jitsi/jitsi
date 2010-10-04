@@ -84,6 +84,20 @@ public abstract class MediaAwareCall<
     protected MediaUseCase mediaUseCase = MediaUseCase.ANY;
 
     /**
+     * The <tt>MediaDevice</tt> for video we should use in the call.
+     * In case this member is null, a lookup corresponding to MediaType.VIDEO is
+     * performed to the <tt>MediaService</tt>.
+     */
+    private MediaDevice videoDevice = null;
+
+    /**
+     * The <tt>MediaDevice</tt> for audio we should use in the call.
+     * In case this member is null, a lookup corresponding to MediaType.AUDIO is
+     * performed to the <tt>MediaService</tt>.
+     */
+    private MediaDevice audioDevice = null;
+
+    /**
      * The listener that would actually subscribe for level events from the
      * media handler if there's at least one listener in
      * <tt>localUserAudioLevelListeners</tt>.
@@ -234,7 +248,6 @@ public abstract class MediaAwareCall<
      * @param evt The <tt>CallPeerChangeEvent</tt> instance containing
      * the source event as well as its previous and its new status.
      */
-    @SuppressWarnings("unchecked") // should refactor at some point
     public void peerStateChanged(CallPeerChangeEvent evt)
     {
         CallPeerState newState = (CallPeerState) evt.getNewValue();
@@ -331,9 +344,27 @@ public abstract class MediaAwareCall<
      */
     public MediaDevice getDefaultDevice(MediaType mediaType)
     {
+        MediaDevice device = null;
         MediaService mediaService = ProtocolMediaActivator.getMediaService();
-        MediaDevice device = mediaService.getDefaultDevice(mediaType,
-                mediaUseCase);
+
+        switch(mediaType)
+        {
+        case AUDIO:
+            device = audioDevice;
+            break;
+        case VIDEO:
+            device = videoDevice;
+            break;
+        default:
+            /* no other type supported */
+            return null;
+        }
+
+        if(device == null)
+        {
+            device = mediaService.getDefaultDevice(mediaType,
+                    mediaUseCase);
+        }
 
         if (MediaType.AUDIO.equals(mediaType))
         {
@@ -610,5 +641,26 @@ public abstract class MediaAwareCall<
                     });
         }
         return recorder;
+    }
+
+
+    /**
+     * Set the <tt>MediaDevice</tt> used for the video.
+     *
+     * @param dev video <tt>MediaDevice</tt>
+     */
+    public void setVideoDevice(MediaDevice dev)
+    {
+        videoDevice = dev;
+    }
+
+    /**
+     * Set the <tt>MediaDevice</tt> used for the audio.
+     *
+     * @param dev audio <tt>MediaDevice</tt>
+     */
+    public void setAudioDevice(MediaDevice dev)
+    {
+        this.audioDevice = dev;
     }
 }

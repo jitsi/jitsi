@@ -20,6 +20,7 @@ import org.jivesoftware.smackx.packet.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -120,6 +121,7 @@ public class OperationSetDesktopSharingServerJabberImpl
      *
      * @param uri the address of the callee that we should invite to a new
      * call.
+     * @param device video device that will be used to stream desktop.
      * @return CallPeer the CallPeer that will represented by the
      * specified uri. All following state change events will be delivered
      * through that call peer. The Call that this peer is a member
@@ -129,7 +131,7 @@ public class OperationSetDesktopSharingServerJabberImpl
      * to create the video call.
      */
     @Override
-    public Call createVideoCall(String uri)
+    public Call createVideoCall(String uri, MediaDevice device)
         throws OperationFailedException
     {
         CallJabberImpl call = (CallJabberImpl)super.createVideoCall(uri);
@@ -146,6 +148,7 @@ public class OperationSetDesktopSharingServerJabberImpl
      *
      * @param callee the address of the callee that we should invite to a new
      * call.
+     * @param device video device that will be used to stream desktop.
      * @return CallPeer the CallPeer that will represented by the
      * specified uri. All following state change events will be delivered
      * through that call peer. The Call that this peer is a member
@@ -155,7 +158,8 @@ public class OperationSetDesktopSharingServerJabberImpl
      * to create the video call.
      */
     @Override
-    public Call createVideoCall(Contact callee) throws OperationFailedException
+    public Call createVideoCall(Contact callee, MediaDevice device)
+        throws OperationFailedException
     {
         CallJabberImpl call = (CallJabberImpl)super.createVideoCall(callee);
         CallPeerJabberImpl callPeer = call.getCallPeers().next();
