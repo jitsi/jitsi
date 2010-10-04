@@ -72,6 +72,12 @@ public class UpdateCheckActivator
     private static final String UPDATECHECKER_ENABLED =
         "net.java.sip.communicator.plugin.updatechecker.ENABLED";
 
+    /**
+     * Property name for the update link in the configuration file.
+     */
+    private static final String PROP_UPDATE_LINK =
+        "net.java.sip.communicator.UPDATE_LINK";
+
     static
     {
         removeDownloadRestrictions();
@@ -237,7 +243,15 @@ public class UpdateCheckActivator
             net.java.sip.communicator.service.version.Version
                 ver = verService.getCurrentVersion();
 
-            String configString = Resources.getConfigString("update_link");
+            String configString = null;
+
+            configString = getConfigurationService().getString(
+                    PROP_UPDATE_LINK);
+
+            if(configString == null)
+            {
+                configString = Resources.getConfigString("update_link");
+            }
 
             if(configString == null)
             {
@@ -283,6 +297,8 @@ public class UpdateCheckActivator
     {
         final JDialog dialog = new SIPCommDialog()
         {
+            private static final long serialVersionUID = 0L;
+
             protected void close(boolean isEscaped)
             {
             }
@@ -695,9 +711,7 @@ public class UpdateCheckActivator
     {
         public void run()
         {
-            String osName = System.getProperty("os.name");
-
-            if (osName.startsWith("Windows"))
+            if (OSUtils.IS_WINDOWS)
             {
                 // register update button
                 Hashtable<String, String> toolsMenuFilter
@@ -715,7 +729,7 @@ public class UpdateCheckActivator
             if(isNewestVersion())
                 return;
 
-            if (osName.startsWith("Windows"))
+            if (OSUtils.IS_WINDOWS)
             {
                 windowsUpdaterShow();
                 return;
@@ -723,6 +737,8 @@ public class UpdateCheckActivator
 
             final JDialog dialog = new SIPCommDialog()
             {
+                private static final long serialVersionUID = 0L;
+
                 protected void close(boolean isEscaped)
                 {
                 }

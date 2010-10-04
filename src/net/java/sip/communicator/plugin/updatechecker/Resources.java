@@ -39,7 +39,8 @@ public class Resources
             if (!configPropsFile.exists())
             {
                 if (logger.isInfoEnabled())
-                    logger.info("No config file specified for update checker. Disabling update checks");
+                    logger.info("No config file specified for update checker." +
+                            " Disabling update checks");
                 return null;
             }
 

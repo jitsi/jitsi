@@ -7,6 +7,8 @@
 package net.java.sip.communicator.impl.sparkle;
 
 import org.osgi.framework.*;
+
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -23,16 +25,31 @@ public class SparkleActivator
     private static Logger logger = Logger.getLogger(SparkleActivator.class);
 
     /**
+     * A reference to the ConfigurationService implementation instance that
+     * is currently registered with the bundle context.
+     */
+    private static ConfigurationService configurationService = null;
+
+    /**
+     * The current BundleContext.
+     */
+    private static BundleContext bundleContext = null;
+
+    /**
      * Native method declaration
      *
      * @param pathToSparkleFramework the path to the Sparkle framerok
      * @param updateAtStartup specifies whether Sparkle should be checking for
      * updates on startup.
      * @param checkInterval specifies an interval for the update checks.
+     * @param downloadLink a custom download link for sparkle (i.e. the
+     * SUFeedURL). If null the default URL will be choosen (the
+     * SUFeedURL parameter in the .app/Contents/Info.pList).
      */
     public native static void initSparkle(String pathToSparkleFramework,
                                           boolean updateAtStartup,
-                                          int checkInterval);
+                                          int checkInterval,
+                                          String downloadLink);
 
     /**
      * Whether updates are checked at startup
@@ -51,6 +68,12 @@ public class SparkleActivator
     private static boolean sparkleLibLoaded = false;
 
     /**
+     * Property name for the update link in the configuration file.
+     */
+    private static final String PROP_UPDATE_LINK =
+        "net.java.sip.communicator.UPDATE_LINK";
+
+    /**
      * Initialize and start Sparkle
      *
      * @param bundleContext BundleContext
@@ -58,6 +81,8 @@ public class SparkleActivator
      */
     public void start(BundleContext bundleContext) throws Exception
     {
+        this.bundleContext = bundleContext;
+
         /**
          * Dynamically loads JNI object. Will fail if non-MacOSX
          * or when libinit_sparkle.dylib is outside of the LD_LIBRARY_PATH
@@ -79,10 +104,14 @@ public class SparkleActivator
             return;
         }
 
+        String downloadLink = getConfigurationService().getString(
+                PROP_UPDATE_LINK);
+
+        System.out.println("download link is: " + downloadLink);
         // TODO: better way to get the Sparkle Framework path?
         initSparkle(System.getProperty("user.dir")
                     + "/../../Frameworks/Sparkle.framework",
-                    updateAtStartup, checkInterval);
+                    updateAtStartup, checkInterval, downloadLink);
         if (logger.isInfoEnabled())
             logger.info("Sparkle Plugin ...[Started]");
     }
@@ -97,7 +126,28 @@ public class SparkleActivator
      */
     public void stop(BundleContext bundleContext) throws Exception
     {
+        bundleContext = null;
         if (logger.isInfoEnabled())
             logger.info("Sparkle Plugin ...[Stopped]");
+    }
+
+    /**
+     * Returns a reference to a ConfigurationService implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     *
+     * @return a currently valid implementation of the ConfigurationService.
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if (configurationService == null)
+        {
+            ServiceReference confReference
+                = bundleContext.getServiceReference(
+                    ConfigurationService.class.getName());
+            configurationService
+                = (ConfigurationService)bundleContext.getService(confReference);
+        }
+        return configurationService;
     }
 }

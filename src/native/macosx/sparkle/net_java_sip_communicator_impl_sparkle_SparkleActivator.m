@@ -16,7 +16,7 @@
  * installed in /Library/Frameworks/. This Framework is 
  * available at http://sparkle.andymatuschak.org/
  *
- * @author Romain Kuntz	
+ * @author Romain Kuntz
  * @author Egidijus Jankauskas
  */
 
@@ -27,21 +27,21 @@
 /*
  * Class:     net_java_sip_communicator_impl_sparkle_SparkleActivator
  * Method:    initSparkle
- * Signature: (Ljava/lang/String;ZI)V
+ * Signature: (Ljava/lang/String;ZILjava/lang/String;)V
  */
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_sparkle_SparkleActivator_initSparkle
   (JNIEnv *env, jclass obj, jstring pathToSparkleFramework, 
-   jboolean updateAtStartup, jint checkInterval)
+   jboolean updateAtStartup, jint checkInterval, jstring downloadLink)
 {
     BOOL hasLaunchedBefore = [[NSUserDefaults standardUserDefaults] boolForKey:@"SCHasLaunchedBefore"];
-	
+
     if(!hasLaunchedBefore)
     {
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"SCHasLaunchedBefore"];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
-	
+
     // The below code was used to avoid to link the Sparkle framework
     // at comilation time. 
     //const char *path = (*env)->GetStringUTFChars(env, pathToSparkleFramework, 0); 
@@ -49,9 +49,21 @@ Java_net_java_sip_communicator_impl_sparkle_SparkleActivator_initSparkle
     //Class suUpdaterClass = [bundle classNamed:@"SUUpdater"];
     //id suUpdater = [[suUpdaterClass alloc] init];
     //(*env)->ReleaseStringUTFChars(env, pathToSparkleFramework, path);
-	
+
     SUUpdater *suUpdater = [SUUpdater updaterForBundle:[NSBundle mainBundle]];
-	
+
+    if(downloadLink)
+    {
+        const char* link = (*env)->GetStringUTFChars(env, downloadLink, 0);
+        NSString* sLink = [NSString stringWithCString: link length: strlen(link)];
+        NSURL* nsLink = [NSURL URLWithString: sLink];
+
+        if(nsLink)
+        {
+            [suUpdater setFeedURL: nsLink];
+        }
+    }
+
     NSMenu* menu = [[NSApplication sharedApplication] mainMenu];
     NSMenu* applicationMenu = [[menu itemAtIndex:0] submenu];
     NSMenuItem* checkForUpdatesMenuItem = [[NSMenuItem alloc]
@@ -61,7 +73,7 @@ Java_net_java_sip_communicator_impl_sparkle_SparkleActivator_initSparkle
 
     [checkForUpdatesMenuItem setEnabled:YES];
     [checkForUpdatesMenuItem setTarget:suUpdater];
-	
+
     // 0 => top, 1 => after "About..."
     [applicationMenu insertItem:checkForUpdatesMenuItem atIndex:1];
 
