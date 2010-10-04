@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * A default implementation of the ResourceManagementService.
+ * A default implementation of the <tt>ResourceManagementService</tt>.
  *
  * @author Damian Minkov
  * @author Yana Stamcheva
@@ -227,20 +227,11 @@ public class ResourceManagementServiceImpl
     {
         if (uiService == null)
         {
-            ServiceReference uiReference =
-                ResourceManagementActivator
-                .bundleContext.getServiceReference(UIService.class.getName());
-
-            if (uiReference == null)
-            {
-                return null;
-            }
-
-            uiService =
-                (UIService) ResourceManagementActivator
-                .bundleContext.getService(uiReference);
+            uiService
+                = ServiceUtils.getService(
+                        ResourceManagementActivator.bundleContext,
+                        UIService.class);
         }
-
         return uiService;
     }
 

@@ -163,7 +163,6 @@ public class ProtocolProviderFactoryRssImpl
         throws NullPointerException
     {
         // TODO Auto-generated method stub
-
     }
 
     /**

@@ -10,6 +10,7 @@ import java.util.*;
 
 /**
  * Default Skin Pack interface.
+ *
  * @author Adam Netocny
  */
 public interface SkinPack
@@ -18,7 +19,7 @@ public interface SkinPack
     /**
      * Default resource name.
      */
-    public String RESOURCE_NAME_DEFAULT_VALUE = "SkinPack";
+    public static final String RESOURCE_NAME_DEFAULT_VALUE = "SkinPack";
 
     /**
      * Returns a <tt>Map</tt>, containing all [key, value] pairs for image

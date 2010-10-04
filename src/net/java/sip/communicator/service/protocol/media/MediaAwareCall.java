@@ -62,9 +62,9 @@ public abstract class MediaAwareCall<
     protected boolean localVideoAllowed = false;
 
     /**
-     * A reference to the <tt>OperationSetBasicTelephony</tt> that created us;
+     * The <tt>OperationSetBasicTelephony</tt> implementation which created us.
      */
-    private final U parentOpSet;
+    protected final U parentOpSet;
 
     /**
      * Holds listeners registered for level changes in local audio.
@@ -250,7 +250,7 @@ public abstract class MediaAwareCall<
      */
     public void peerStateChanged(CallPeerChangeEvent evt)
     {
-        CallPeerState newState = (CallPeerState) evt.getNewValue();
+        Object newState = evt.getNewValue();
 
         if (CallPeerState.DISCONNECTED.equals(newState)
                 || CallPeerState.FAILED.equals(newState))
@@ -642,7 +642,6 @@ public abstract class MediaAwareCall<
         }
         return recorder;
     }
-
 
     /**
      * Set the <tt>MediaDevice</tt> used for the video.

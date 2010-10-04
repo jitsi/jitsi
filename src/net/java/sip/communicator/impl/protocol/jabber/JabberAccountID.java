@@ -55,15 +55,16 @@ public class JabberAccountID
      */
     public List<StunServerDescriptor> getStunServers()
     {
+        Map<String, String> accountProperties = getAccountProperties();
         List<StunServerDescriptor> serList
-                            = new ArrayList<StunServerDescriptor>();
+            = new ArrayList<StunServerDescriptor>();
 
         for (int i = 0; i < StunServerDescriptor.MAX_STUN_SERVER_COUNT; i ++)
         {
             StunServerDescriptor stunServer
                 = StunServerDescriptor.loadDescriptor(
-                    getAccountProperties(),
-                    ProtocolProviderFactory.STUN_PREFIX + i);
+                        accountProperties,
+                        ProtocolProviderFactory.STUN_PREFIX + i);
 
             // If we don't find a stun server with the given index, it means
             // that there're no more servers left in the table so we've nothing
@@ -86,7 +87,9 @@ public class JabberAccountID
      */
     public boolean isStunServerDiscoveryEnabled()
     {
-        return Boolean.parseBoolean(getAccountProperties().get(
-                            ProtocolProviderFactory.AUTO_DISCOVER_STUN));
+        return
+            getAccountPropertyBoolean(
+                    ProtocolProviderFactory.AUTO_DISCOVER_STUN,
+                    false);
     }
 }

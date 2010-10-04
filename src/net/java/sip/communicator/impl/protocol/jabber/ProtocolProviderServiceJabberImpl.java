@@ -1031,7 +1031,8 @@ public class ProtocolProviderServiceJabberImpl
                         infoRetreiver,
                         screenname);
 
-            addSupportedOperationSet(OperationSetServerStoredAccountInfo.class,
+            addSupportedOperationSet(
+                OperationSetServerStoredAccountInfo.class,
                 accountInfo);
 
             // Initialize avatar operation set
@@ -1123,8 +1124,18 @@ public class ProtocolProviderServiceJabberImpl
                 supportedFeatures.add(URN_XMPP_JINGLE);
                 supportedFeatures.add(URN_XMPP_JINGLE_RTP);
                 supportedFeatures.add(URN_XMPP_JINGLE_RAW_UDP_0);
-                //un-comment when ice integration is ready
-                //supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
+
+                /*
+                 * Reflect the preference of the user with respect to the use of
+                 * ICE.
+                 */
+                if (accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.IS_USE_ICE,
+                        false))
+                {
+                    supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
+                }
+
                 supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
                 supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
                 supportedFeatures.add(URN_XMPP_JINGLE_RTP_ZRTP);

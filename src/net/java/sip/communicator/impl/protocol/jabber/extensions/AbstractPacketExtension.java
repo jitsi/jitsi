@@ -317,13 +317,14 @@ public abstract class AbstractPacketExtension
      * Returns this packet's first direct child extension that matches the
      * specified <tt>type</tt>.
      *
+     * @param <T> the specific type of <tt>PacketExtension</tt> to be returned 
+     *
      * @param type the <tt>Class</tt> of the extension we are looking for.
      *
      * @return this packet's first direct child extension that matches specified
      * <tt>type</tt> or <tt>null</tt> if no such child extension was found.
      */
-    public PacketExtension getFirstChildOfType(
-                        Class<? extends PacketExtension> type)
+    public <T extends PacketExtension> T getFirstChildOfType(Class<T> type)
     {
         List<? extends PacketExtension> childExtensions = getChildExtensions();
 
@@ -331,11 +332,15 @@ public abstract class AbstractPacketExtension
         {
             for(PacketExtension extension : childExtensions)
             {
-                if(type.isAssignableFrom(extension.getClass()))
-                    return extension;
+                if(type.isInstance(extension))
+                {
+                    @SuppressWarnings("unchecked")
+                    T extensionAsType = (T) extension;
+
+                    return extensionAsType;
+                }
             }
         }
-
         return null;
     }
 
@@ -343,23 +348,31 @@ public abstract class AbstractPacketExtension
      * Returns this packet's direct child extensions that match the
      * specified <tt>type</tt>.
      *
+     * @param <T> the specific <tt>PacketExtension</tt> type of child extensions
+     * to be returned
+     *
      * @param type the <tt>Class</tt> of the extension we are looking for.
      *
-     * @return a list containing all or (none) of this packet's direct child
-     * extensions that match the specified <tt>type</tt>
+     * @return a (possibly empty) list containing all of this packet's direct
+     * child extensions that match the specified <tt>type</tt>
      */
-    public List<? extends PacketExtension> getChildExtensionsOfType(
-                        Class<? extends PacketExtension> type)
+    public <T extends PacketExtension> List<T> getChildExtensionsOfType(
+            Class<T> type)
     {
         List<? extends PacketExtension> childExtensions = getChildExtensions();
-        List<PacketExtension> result = new ArrayList<PacketExtension>();
+        List<T> result = new ArrayList<T>();
 
         synchronized (childExtensions)
         {
             for(PacketExtension extension : childExtensions)
             {
-                if(type.isAssignableFrom(extension.getClass()))
-                    result.add(extension);
+                if(type.isInstance(extension))
+                {
+                    @SuppressWarnings("unchecked")
+                    T extensionAsType = (T) extension;
+
+                    result.add(extensionAsType);
+                }
             }
         }
 

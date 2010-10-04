@@ -23,7 +23,7 @@ import org.jivesoftware.smackx.packet.*;
 
 /**
  * Implements all call management logic and exports basic telephony support by
- * implementing OperationSetBasicTelephony.
+ * implementing <tt>OperationSetBasicTelephony</tt>.
  *
  * @author Emil Ivov
  * @author Symphorien Wanko
@@ -37,22 +37,24 @@ public class OperationSetBasicTelephonyJabberImpl
 {
 
     /**
-     * The logger used by this class
+     * The <tt>Logger</tt> used by the
+     * <tt>OperationSetBasicTelephonyJabberImpl</tt> class and its instances for
+     * logging output.
      */
     private static final Logger logger
-            = Logger.getLogger(OperationSetBasicTelephonyJabberImpl.class);
+        = Logger.getLogger(OperationSetBasicTelephonyJabberImpl.class);
 
     /**
      * A reference to the <tt>ProtocolProviderServiceJabberImpl</tt> instance
      * that created us.
      */
-    private ProtocolProviderServiceJabberImpl protocolProvider = null;
+    private final ProtocolProviderServiceJabberImpl protocolProvider;
 
     /**
      * Contains references for all currently active (non ended) calls.
      */
     private ActiveCallsRepositoryJabberImpl activeCallsRepository
-            = new ActiveCallsRepositoryJabberImpl(this);
+        = new ActiveCallsRepositoryJabberImpl(this);
 
     /**
      * Creates a new instance.
@@ -64,7 +66,7 @@ public class OperationSetBasicTelephonyJabberImpl
             ProtocolProviderServiceJabberImpl protocolProvider)
     {
         this.protocolProvider = protocolProvider;
-        protocolProvider.addRegistrationStateChangeListener(this);
+        this.protocolProvider.addRegistrationStateChangeListener(this);
     }
 
     /**
@@ -76,21 +78,23 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
-        if ((evt.getNewState() == RegistrationState.REGISTERING))
+        RegistrationState registrationState = evt.getNewState();
+
+        if (registrationState == RegistrationState.REGISTERING)
         {
-            ProviderManager providerManager = ProviderManager.getInstance();
-            providerManager.addIQProvider( JingleIQ.ELEMENT_NAME,
-                                           JingleIQ.NAMESPACE,
-                                           new JingleIQProvider());
+            ProviderManager.getInstance().addIQProvider(
+                    JingleIQ.ELEMENT_NAME,
+                    JingleIQ.NAMESPACE,
+                    new JingleIQProvider());
 
             subscribeForJinglePackets();
 
             if (logger.isInfoEnabled())
                 logger.info("Jingle : ON ");
         }
-        else if ((evt.getNewState() == RegistrationState.UNREGISTERED))
+        else if (registrationState == RegistrationState.UNREGISTERED)
         {
-            // TODO: plug jingle unregistration
+            // TODO plug jingle unregistration
             if (logger.isInfoEnabled())
                 logger.info("Jingle : OFF ");
         }
@@ -110,10 +114,9 @@ public class OperationSetBasicTelephonyJabberImpl
      * to create the call.
      */
     public Call createCall(String callee)
-            throws OperationFailedException
+        throws OperationFailedException
     {
-        CallJabberImpl call = new CallJabberImpl(this);
-        return createOutgoingCall(call, callee);
+        return createOutgoingCall(new CallJabberImpl(this), callee);
     }
 
     /**
@@ -132,8 +135,7 @@ public class OperationSetBasicTelephonyJabberImpl
     public Call createCall(Contact callee)
             throws OperationFailedException
     {
-        CallJabberImpl call = new CallJabberImpl(this);
-        return createOutgoingCall(call, callee.getAddress());
+        return createCall(callee.getAddress());
     }
 
     /**
@@ -153,18 +155,19 @@ public class OperationSetBasicTelephonyJabberImpl
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call.
      */
-    public CallJabberImpl createOutgoingCall(CallJabberImpl call,
+    CallJabberImpl createOutgoingCall(
+            CallJabberImpl call,
             String calleeAddress)
-            throws OperationFailedException
+        throws OperationFailedException
     {
         if (logger.isInfoEnabled())
             logger.info("creating outgoing call...");
         if (protocolProvider.getConnection() == null || call == null)
         {
             throw new OperationFailedException(
-                    "Failed to create OutgoingJingleSession.\n"
-                    + "we don't have a valid XMPPConnection."
-                    , OperationFailedException.INTERNAL_ERROR);
+                    "Failed to create OutgoingJingleSession."
+                        + " We don't have a valid XMPPConnection.",
+                    OperationFailedException.INTERNAL_ERROR);
         }
 
         // we determine on which resource the remote user is connected if the
@@ -193,14 +196,15 @@ public class OperationSetBasicTelephonyJabberImpl
         */
 
         DiscoverInfo di = null;
+
         try
         {
             // check if the remote client supports telephony.
             di = protocolProvider.getDiscoveryManager()
                     .discoverInfo(fullCalleeURI);
 
-            if (di.containsFeature(ProtocolProviderServiceJabberImpl
-                            .URN_XMPP_JINGLE))
+            if (di.containsFeature(
+                    ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE))
             {
                 if (logger.isInfoEnabled())
                     logger.info(fullCalleeURI + ": jingle supported ");
@@ -220,15 +224,25 @@ public class OperationSetBasicTelephonyJabberImpl
             logger.warn("could not retrieve info for " + fullCalleeURI, ex);
         }
 
-        // initiate call */
+        // initiate call
         try
         {
             call.initiateSession(fullCalleeURI, di);
         }
         catch(Throwable t)
         {
-            throw new OperationFailedException("Failed to create a call",
-                            OperationFailedException.INTERNAL_ERROR, t);
+            /*
+             * The Javadoc on ThreadDeath says: If ThreadDeath is caught by a
+             * method, it is important that it be rethrown so that the thread
+             * actually dies.
+             */
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+
+            throw new OperationFailedException(
+                    "Failed to create a call",
+                    OperationFailedException.INTERNAL_ERROR,
+                    t);
         }
 
         return call;
@@ -282,8 +296,7 @@ public class OperationSetBasicTelephonyJabberImpl
     private void putOnHold(CallPeer peer, boolean on)
         throws OperationFailedException
     {
-        CallPeerJabberImpl jabberPeer = (CallPeerJabberImpl) peer;
-        jabberPeer.putOnHold(on);
+        ((CallPeerJabberImpl) peer).putOnHold(on);
     }
 
     /**
@@ -296,9 +309,7 @@ public class OperationSetBasicTelephonyJabberImpl
     @Override
     public void setMute(Call call, boolean mute)
     {
-        CallJabberImpl jabberCall = (CallJabberImpl)call;
-
-        jabberCall.setMute(mute);
+        ((CallJabberImpl) call).setMute(mute);
     }
 
     /**
@@ -312,10 +323,9 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public synchronized void hangupCallPeer(CallPeer peer)
         throws ClassCastException,
-        OperationFailedException
+               OperationFailedException
     {
-        CallPeerJabberImpl peerJabberImpl = (CallPeerJabberImpl)peer;
-        peerJabberImpl.hangup();
+        ((CallPeerJabberImpl) peer).hangup();
     }
 
     /**
@@ -326,11 +336,9 @@ public class OperationSetBasicTelephonyJabberImpl
      * @throws OperationFailedException if we fails to answer
      */
     public void answerCallPeer(CallPeer peer)
-            throws OperationFailedException
+        throws OperationFailedException
     {
-        CallPeerJabberImpl callPeer = (CallPeerJabberImpl)peer;
-
-        callPeer.answer();
+        ((CallPeerJabberImpl) peer).answer();
     }
 
     /**
@@ -369,7 +377,7 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Subscribes us for notifications on incoming jingle packets.
+     * Subscribes us to notifications about incoming jingle packets.
      */
     private void subscribeForJinglePackets()
     {
@@ -397,19 +405,14 @@ public class OperationSetBasicTelephonyJabberImpl
         if( jingleIQ.getAction() == JingleAction.SESSION_INITIATE)
         {
             //we only accept session-initiate-s dealing RTP
-            if( jingleIQ.containsContentChildOfType(
-                        RtpDescriptionPacketExtension.class))
-                return true;
-            else
-                return false;
+            return
+                jingleIQ.containsContentChildOfType(
+                        RtpDescriptionPacketExtension.class);
         }
 
         //if this is not a session-initiate we'll only take it if we've
         //already seen its session ID.
-        if( activeCallsRepository.findJingleSID(jingleIQ.getSID()) != null )
-            return true;
-        else
-            return false;
+        return (activeCallsRepository.findJingleSID(jingleIQ.getSID()) != null);
     }
 
     /**
@@ -442,9 +445,17 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             processJinglePacket(jingleIQ);
         }
-        catch(Throwable thr)
+        catch(Throwable t)
         {
-            logger.info("Error while handling incoming Jingle packet: ", thr);
+            logger.info("Error while handling incoming Jingle packet: ", t);
+
+            /*
+             * The Javadoc on ThreadDeath says: If ThreadDeath is caught by a
+             * method, it is important that it be rethrown so that the thread
+             * actually dies.
+             */
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
         }
     }
 
@@ -457,12 +468,13 @@ public class OperationSetBasicTelephonyJabberImpl
     private void processJinglePacket(JingleIQ jingleIQ)
     {
         //let's first see whether we have a peer that's concerned by this IQ
-        CallPeerJabberImpl callPeer =
-                    activeCallsRepository.findCallPeer(jingleIQ.getSID());
+        CallPeerJabberImpl callPeer
+            = activeCallsRepository.findCallPeer(jingleIQ.getSID());
 
         if (jingleIQ.getType() == Type.ERROR)
         {
             logger.error("Received error");
+
             XMPPError error = jingleIQ.getError();
             String message = "Remote party returned an error!";
 
@@ -486,6 +498,7 @@ public class OperationSetBasicTelephonyJabberImpl
         if(action == JingleAction.SESSION_INITIATE)
         {
             CallJabberImpl call = new CallJabberImpl(this);
+
             call.processSessionInitiate(jingleIQ);
             return;
         }
@@ -509,11 +522,11 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             SessionInfoPacketExtension info = jingleIQ.getSessionInfo();
 
-            if(info == null)
-                return;
-
-            // change status.
-            callPeer.processSessionInfo(info);
+            if(info != null)
+            {
+                // change status.
+                callPeer.processSessionInfo(info);
+            }
         }
         else if (action == JingleAction.CONTENT_ACCEPT)
         {

@@ -186,7 +186,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
                 MsnMessenger msnMessenger = msnProvider.getMessenger();
 
                 /*
-                 * FIXME What's the point of having to MsnMessageListener
+                 * FIXME What's the point of having two MsnMessageListener
                  * instances?
                  */
                 msnMessenger.addMessageListener(new MsnMessageListener());

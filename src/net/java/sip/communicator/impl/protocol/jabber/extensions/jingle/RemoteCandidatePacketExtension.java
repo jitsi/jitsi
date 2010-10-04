@@ -25,5 +25,4 @@ public class RemoteCandidatePacketExtension extends CandidatePacketExtension
     {
         super(ELEMENT_NAME);
     }
-
 }

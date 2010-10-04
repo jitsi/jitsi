@@ -29,8 +29,13 @@ import net.kano.joustsim.oscar.oscar.service.ssi.*;
 public class ServerStoredContactListIcqImpl
         implements BuddyInfoTrackerListener
 {
-    private static final Logger logger =
-        Logger.getLogger(ServerStoredContactListIcqImpl.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>ServerStoredContactListIcqImpl</tt>
+     * class and its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(ServerStoredContactListIcqImpl.class);
+
     /**
      * The joustsim buddy list that we encapsulate
      */
@@ -84,19 +89,19 @@ public class ServerStoredContactListIcqImpl
      * Listeners that would receive event notifications for changes in group
      * names or other properties, removal or creation of groups.
      */
-    private Vector<ServerStoredGroupListener> serverStoredGroupListeners
+    private final List<ServerStoredGroupListener> serverStoredGroupListeners
         = new Vector<ServerStoredGroupListener>();
 
     /**
-     * Used for retrieveing missing nicks on specified contacts
+     * Used for retrieving missing nicks on specified contacts
      */
     private NickRetriever nickRetriever = null;
 
     /**
-     * Used for retrieveing missing nicks on specified contacts
+     * Used for retrieving missing nicks on specified contacts
      */
-    static String awaitingAuthorizationGroupName
-        = new String("Awaiting authorization");
+    static final String awaitingAuthorizationGroupName
+        = "Awaiting authorization";
 
     /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
@@ -228,7 +233,6 @@ public class ServerStoredContactListIcqImpl
      * added event.
      * @param parentGroup the group where the new contact was added
      * @param contact the contact that was added
-     * @param index the index at which it was added.
      */
     private void fireContactAdded( ContactGroup parentGroup,
                                    Contact contact)
@@ -611,8 +615,11 @@ public class ServerStoredContactListIcqImpl
                 logger.debug("Contact " + screenname + " already exists. Gen. evt.");
             //broadcast the event in a separate thread so that we don't
             //block the calling thread.
-            new Thread(){
-                public void run(){
+            new Thread()
+            {
+                @Override
+                public void run()
+                {
                     parentOperationSet.fireSubscriptionEvent(
                         existingContact,
                         findContactGroup(existingContact),
@@ -1381,7 +1388,7 @@ public class ServerStoredContactListIcqImpl
         /**
          * list with the accounts with missing nicknames
          */
-        private final Vector<ContactIcqImpl> contactsForUpdate
+        private final List<ContactIcqImpl> contactsForUpdate
             = new Vector<ContactIcqImpl>();
 
         private boolean isReadyForRetreive = false;
@@ -1452,7 +1459,8 @@ public class ServerStoredContactListIcqImpl
          */
         synchronized void addContact(ContactIcqImpl contact)
         {
-            synchronized(contactsForUpdate){
+            synchronized(contactsForUpdate)
+            {
                 if (!contactsForUpdate.contains(contact))
                 {
                     if (isReadyForRetreive)

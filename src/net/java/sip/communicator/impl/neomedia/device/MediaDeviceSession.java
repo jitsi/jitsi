@@ -1665,10 +1665,11 @@ public class MediaDeviceSession
         {
             processor.start();
             if (logger.isTraceEnabled())
-                logger
-                    .trace(
+            {
+                logger.trace(
                         "Started Processor with hashCode "
                             + processor.hashCode());
+            }
         }
     }
 

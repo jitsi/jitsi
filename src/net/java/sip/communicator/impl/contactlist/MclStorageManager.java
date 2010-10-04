@@ -2069,7 +2069,7 @@ public class MclStorageManager
      */
     public void metaContactAvatarUpdated(MetaContactAvatarUpdateEvent evt)
     {
-        // TODO: Store meta contact avatar.
+        // TODO Store MetaContact avatar.
     }
 
     /**
@@ -2079,6 +2079,10 @@ public class MclStorageManager
      */
     public void metaContactCapabilitiesChanged(MetaContactCapabilitiesEvent evt)
     {
-        // TODO Auto-generated method stub
+        /*
+         * The OperationSet capabilities of MetaContact are not pesistent so
+         * MclStorageManager has nothing to do in response to
+         * MetaContactCapabilitiesEvent.
+         */
     }
 }

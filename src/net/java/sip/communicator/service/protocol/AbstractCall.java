@@ -63,7 +63,7 @@ public abstract class AbstractCall<T extends CallPeer,
     /**
      * Returns the {@link Vector} containing {@link CallPeer}s currently
      * part of this call. This method should eventually be removed and code
-     * that is using it in the descendents should be brought here.
+     * that is using it in the descendants should be brought here.
      *
      * @return  the {@link Vector} containing {@link CallPeer}s currently
      * participating in this call.

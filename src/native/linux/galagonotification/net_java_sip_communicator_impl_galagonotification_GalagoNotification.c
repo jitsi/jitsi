@@ -378,7 +378,6 @@ GalagoNotification_stringArray2jstringArray(
 static void
 GalagoNotification_throwException(JNIEnv *env, DBusError *error)
 {
-    /* TODO Auto-generated method stub */
     jclass clazz
         = (*env)
             ->FindClass(
