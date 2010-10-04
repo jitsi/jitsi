@@ -24,6 +24,7 @@ import org.xml.sax.*;
 
 import net.java.sip.communicator.service.neomedia.MediaType; // disambiguation
 import net.java.sip.communicator.service.neomedia.format.*;
+import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -153,6 +154,7 @@ public class OperationSetDesktopSharingServerSipImpl
      *
      * @param uri the address of the callee that we should invite to a new
      * call.
+     * @param device <tt>MediaDevice</tt> to use for this call
      * @return CallPeer the CallPeer that will represented by the
      * specified uri. All following state change events will be delivered
      * through that call peer. The Call that this peer is a member
@@ -164,15 +166,14 @@ public class OperationSetDesktopSharingServerSipImpl
      * string.
      */
     @Override
-    public Call createVideoCall(String uri)
+    public Call createVideoCall(String uri, MediaDevice device)
         throws OperationFailedException, ParseException
     {
-        CallSipImpl call = (CallSipImpl)super.createVideoCall(uri);
+        CallSipImpl call = (CallSipImpl)super.createVideoCall(uri, device);
         CallPeerSipImpl callPeer = call.getCallPeers().next();
         callPeer.addMethodProcessorListener(this);
         callPeer.addCallPeerListener(callPeerListener);
 
-        /* TODO change to MediaType.DESKTOP */
         size = (((VideoMediaFormat)call.getDefaultDevice(MediaType.VIDEO).
                 getFormat()).getSize());
         return call;
@@ -183,6 +184,7 @@ public class OperationSetDesktopSharingServerSipImpl
      *
      * @param callee the address of the callee that we should invite to a new
      * call.
+     * @param device <tt>MediaDevice</tt> to use for this call
      * @return CallPeer the CallPeer that will represented by the
      * specified uri. All following state change events will be delivered
      * through that call peer. The Call that this peer is a member
@@ -192,14 +194,14 @@ public class OperationSetDesktopSharingServerSipImpl
      * to create the video call.
      */
     @Override
-    public Call createVideoCall(Contact callee) throws OperationFailedException
+    public Call createVideoCall(Contact callee, MediaDevice device)
+        throws OperationFailedException
     {
-        CallSipImpl call = (CallSipImpl)super.createVideoCall(callee);
+        CallSipImpl call = (CallSipImpl)super.createVideoCall(callee, device);
         CallPeerSipImpl callPeer = call.getCallPeers().next();
         callPeer.addMethodProcessorListener(this);
         callPeer.addCallPeerListener(callPeerListener);
 
-        /* TODO change to MediaType.DESKTOP */
         size = (((VideoMediaFormat)call.getDefaultDevice(MediaType.VIDEO).
                 getFormat()).getSize());
         return call;

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 import java.util.List; // disambiguation
+import java.text.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -132,9 +133,9 @@ public class OperationSetDesktopSharingServerJabberImpl
      */
     @Override
     public Call createVideoCall(String uri, MediaDevice device)
-        throws OperationFailedException
+        throws OperationFailedException, ParseException
     {
-        CallJabberImpl call = (CallJabberImpl)super.createVideoCall(uri);
+        CallJabberImpl call = (CallJabberImpl)super.createVideoCall(uri, device);
         CallPeerJabberImpl callPeer = call.getCallPeers().next();
         callPeer.addCallPeerListener(callPeerListener);
 
@@ -161,7 +162,7 @@ public class OperationSetDesktopSharingServerJabberImpl
     public Call createVideoCall(Contact callee, MediaDevice device)
         throws OperationFailedException
     {
-        CallJabberImpl call = (CallJabberImpl)super.createVideoCall(callee);
+        CallJabberImpl call = (CallJabberImpl)super.createVideoCall(callee, device);
         CallPeerJabberImpl callPeer = call.getCallPeers().next();
         callPeer.addCallPeerListener(callPeerListener);
 
