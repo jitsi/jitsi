@@ -32,11 +32,10 @@ import static net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.C
 public class JingleUtils
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>JingleUtils</tt>
-     * class and its instances for logging output.
+     * The <tt>Logger</tt> used by the <tt>JingleUtils</tt> class and its
+     * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(JingleUtils.class
-                    .getName());
+    private static final Logger logger = Logger.getLogger(JingleUtils.class);
 
     /**
      * Extracts and returns an {@link RtpDescriptionPacketExtension} provided
@@ -51,8 +50,7 @@ public class JingleUtils
     public static RtpDescriptionPacketExtension getRtpDescription(
                                         ContentPacketExtension content)
     {
-        return (RtpDescriptionPacketExtension)content
-                    .getFirstChildOfType(RtpDescriptionPacketExtension.class);
+        return content.getFirstChildOfType(RtpDescriptionPacketExtension.class);
     }
 
     /**
@@ -93,10 +91,9 @@ public class JingleUtils
             {
                 if(logger.isTraceEnabled())
                     logger.trace("Unsupported remote format: " + ptExt.toXML());
-                continue;
             }
-
-            mediaFmts.add(format);
+            else
+                mediaFmts.add(format);
         }
 
         return mediaFmts;
@@ -181,9 +178,11 @@ public class JingleUtils
 
         for (ExtmapPacketExtension extmap : extmapList)
         {
-            RTPExtension rtpExtension = new RTPExtension(extmap.getUri(),
+            RTPExtension rtpExtension
+                    = new RTPExtension(
+                            extmap.getUri(),
                             MediaDirection.parseString(extmap.getDirection()),
-                            extmap.getAttributes());;
+                            extmap.getAttributes());
 
             if(rtpExtension != null)
                 extensionsList.add( rtpExtension );
@@ -242,7 +241,7 @@ public class JingleUtils
      * content 'senders' attribute) or the absence thereof and returns the
      * corresponding <tt>MediaDirection</tt> entry. The
      * <tt>initiatorPerspectice</tt> allows callers to specify whether the
-     * direction is to be considered from the session initator's perspective
+     * direction is to be considered from the session initiator's perspective
      * or that of the responder.
      * <p>
      * Example: An <tt>initiator</tt> value would be translated to
@@ -318,7 +317,8 @@ public class JingleUtils
         catch (UnknownHostException exc)
         {
             throw new IllegalArgumentException(
-                "Failed to parse address " + rtpCand.getIP(), exc);
+                    "Failed to parse address " + rtpCand.getIP(),
+                    exc);
         }
 
         //rtp port
@@ -346,11 +346,13 @@ public class JingleUtils
             catch (UnknownHostException exc)
             {
                 throw new IllegalArgumentException(
-                    "Failed to parse address " + rtcpCand.getIP(), exc);
+                        "Failed to parse address " + rtcpCand.getIP(),
+                        exc);
             }
 
             //rtcp port
             int rtcpPort = rtcpCand.getPort();
+
             rtcpTarget = new InetSocketAddress(rtcpAddress, rtcpPort);
         }
 
@@ -376,8 +378,7 @@ public class JingleUtils
         //passing IceUdp would also return RawUdp transports as one extends
         //the other.
         IceUdpTransportPacketExtension transport
-            = (IceUdpTransportPacketExtension)content.getFirstChildOfType(
-                                IceUdpTransportPacketExtension.class);
+            = content.getFirstChildOfType(IceUdpTransportPacketExtension.class);
 
         if ( transport == null)
             return null;
@@ -473,9 +474,7 @@ public class JingleUtils
         int payloadType = format.getRTPPayloadType();
 
         if (payloadType == MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN)
-        {
                 payloadType = ptRegistry.obtainPayloadTypeNumber(format);
-        }
 
         ptExt.setId(payloadType);
         ptExt.setName(format.getEncoding());
@@ -520,22 +519,20 @@ public class JingleUtils
                                                         IceMediaStream stream)
     {
         IceUdpTransportPacketExtension trans
-                                    = new IceUdpTransportPacketExtension();
+            = new IceUdpTransportPacketExtension();
+        Agent iceAgent = stream.getParentAgent();
 
-        trans.setUfrag(stream.getParentAgent().getLocalUfrag());
-        trans.setPassword(stream.getParentAgent().getLocalPassword());
+        trans.setUfrag(iceAgent.getLocalUfrag());
+        trans.setPassword(iceAgent.getLocalPassword());
 
         for(Component component : stream.getComponents())
         {
             for(Candidate cand : component.getLocalCandidates())
-            {
                 trans.addCandidate(createCandidate(cand));
-            }
         }
 
         return trans;
     }
-
 
     /**
      * Creates a {@link CandidatePacketExtension} and initializes it so that it
@@ -556,14 +553,19 @@ public class JingleUtils
         //make sure that doesn't change ... possibly by setting a property there
         packet.setFoundation(Integer.parseInt( candidate.getFoundation()));
 
-        packet.setComponent( candidate.getParentComponent().getComponentID());
+        Component component = candidate.getParentComponent();
+
+        packet.setComponent(component.getComponentID());
         packet.setProtocol(candidate.getTransport().toString());
         packet.setPriority(candidate.getPriority());
-        packet.setGeneration(candidate.getParentComponent()
-                        .getParentStream().getParentAgent().getGeneration());
+        packet.setGeneration(
+                component.getParentStream().getParentAgent().getGeneration());
 
-        packet.setIP(candidate.getTransportAddress().getHostAddress());
-        packet.setPort(candidate.getTransportAddress().getPort());
+        TransportAddress transportAddress = candidate.getTransportAddress();
+
+        packet.setIP(transportAddress.getHostAddress());
+        packet.setPort(transportAddress.getPort());
+
         packet.setType(CandidateType.valueOf(candidate.getType().toString()));
 
         TransportAddress relAddr = candidate.getRelatedAddress();
@@ -574,8 +576,6 @@ public class JingleUtils
             packet.setRelPort(relAddr.getPort());
         }
 
-
         return packet;
     }
-
 }
