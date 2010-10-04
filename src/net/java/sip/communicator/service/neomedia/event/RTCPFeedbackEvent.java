@@ -18,6 +18,11 @@ public class RTCPFeedbackEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Transport layer type (payload type).
      */
     public static final int PT_TL = 205;

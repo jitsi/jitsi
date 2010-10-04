@@ -28,6 +28,11 @@ public class GrowlNotificationActivator
      */
     public static BundleContext bundleContext;
 
+    /**
+     * The <tt>Logger</tt> instance used by the
+     * <tt>GrowlNotificationActivator</tt> class and its instances for logging
+     * output.
+     */
     private static final Logger logger =
         Logger.getLogger(GrowlNotificationActivator.class);
 
@@ -35,7 +40,7 @@ public class GrowlNotificationActivator
      * A reference to the configuration service.
      */
     private static ConfigurationService configService;
-    
+
     /**
      * A reference to the resource management service.
      */
@@ -45,38 +50,44 @@ public class GrowlNotificationActivator
      * A reference to the Growl notification service
      */
     private static GrowlNotificationServiceImpl handler;
-    
+
     /**
      * Initialize and start Growl Notifications Service
      *
      * @param bc BundleContext
-     * @throws Exception
+     * @throws Exception if initializing and starting this service fails
      */
     public void start(BundleContext bc) throws Exception
     {
         if (logger.isInfoEnabled())
             logger.info("Growl Notification ...[Starting]");
         bundleContext  = bc;
-        
+
         getConfigurationService();
 
         handler = new GrowlNotificationServiceImpl();
-        
+
         if (handler.isGrowlInstalled())
         {
             handler.start(bc);
             bc.registerService(PopupMessageHandler.class.getName(), handler, null);
-        } else 
+        } else
         {
             if (logger.isInfoEnabled())
                 logger.info("Growl Notification ...[Aborted]");
             return;
         }
-        
+
         if (logger.isInfoEnabled())
             logger.info("Growl Notification ...[Started]");
     }
 
+    /**
+     * Stops this bundle.
+     *
+     * @param bContext the <tt>BundleContext</tt>
+     * @throws Exception if the stop operation goes wrong
+     */
     public void stop(BundleContext bContext) throws Exception
     {
         handler.stop(bContext);
@@ -102,7 +113,7 @@ public class GrowlNotificationActivator
 
         return configService;
     }
-    
+
     /**
      * Returns the <tt>ResourceManagementService</tt> obtained from the bundle
      * context.

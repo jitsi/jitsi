@@ -19,6 +19,10 @@ import java.util.*;
 public class VideoEvent
     extends EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
 
     /**
      * The video origin of a <code>VideoEvent</code> which is local to the

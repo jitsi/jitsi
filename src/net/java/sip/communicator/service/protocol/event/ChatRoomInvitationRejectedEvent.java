@@ -21,26 +21,31 @@ public class ChatRoomInvitationRejectedEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The <tt>ChatRoom</tt> for which the initial invitation was.
      */
     private ChatRoom chatRoom;
-    
+
     /**
      * The invitee that rejected the invitation.
      */
     private String invitee;
-    
+
     /**
      * The reason why this invitation is rejected or null if there is no reason
      * specified.
      */
     private String reason;
-    
+
     /**
      * The exact date at which this event occured.
      */
     private Date timestamp;
-    
+
     /**
      * Creates a <tt>ChatRoomInvitationRejectedEvent</tt> representing the
      * rejection of an invitation, rejected by the given <tt>invitee</tt>.
@@ -60,33 +65,33 @@ public class ChatRoomInvitationRejectedEvent
                                             Date timestamp)
     {
         super(source);
-        
+
         this.chatRoom = chatRoom;
         this.invitee = invitee;
         this.reason = reason;
         this.timestamp = timestamp;
     }
-    
+
     /**
      * Returns the multi user chat operation set that dispatches this event.
-     * 
+     *
      * @return the multi user chat operation set that dispatches this event
      */
     public OperationSetMultiUserChat getSourceOperationSet()
     {
         return (OperationSetMultiUserChat)getSource();
     }
-    
+
     /**
      * Returns the <tt>ChatRoom</tt> for which the initial invitation was.
-     * 
+     *
      * @return the <tt>ChatRoom</tt> for which the initial invitation was
      */
     public ChatRoom getChatRoom()
     {
         return chatRoom;
     }
-    
+
     /**
      * Returns the name of the invitee that rejected the invitation.
      *
@@ -96,7 +101,7 @@ public class ChatRoomInvitationRejectedEvent
     {
         return invitee;
     }
-    
+
     /**
      * Returns the reason for which the <tt>ChatRoomInvitation</tt> is rejected.
      *
@@ -106,7 +111,7 @@ public class ChatRoomInvitationRejectedEvent
     {
         return reason;
     }
-    
+
     /**
      * A timestamp indicating the exact date when the event ocurred.
      * @return a Date indicating when the event ocurred.

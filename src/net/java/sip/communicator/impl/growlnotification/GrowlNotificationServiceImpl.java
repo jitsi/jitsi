@@ -35,12 +35,15 @@ public class GrowlNotificationServiceImpl
         Logger.getLogger(GrowlNotificationServiceImpl.class);
 
     /**
-     * A variable that acts as a buffer to temporarily keep all PopupMessages 
+     * A variable that acts as a buffer to temporarily keep all PopupMessages
      * that were sent to Growl Daemon.
      */
-    private static final HashMap<Long, PopupMessage> shownPopups =  
+    private static final HashMap<Long, PopupMessage> shownPopups =
                                         new HashMap<Long, PopupMessage>(10);
 
+    /**
+     * The <tt>Growl</tt> object.
+     */
     private Growl growl = null;
 
     /**
@@ -54,7 +57,7 @@ public class GrowlNotificationServiceImpl
     {
         if (logger.isDebugEnabled())
             logger.debug("Starting the Growl Notification implementation.");
-        
+
         if(Growl.isGrowlRunning())
         {
             String[] dict = { "Default", "Welcome message" };
@@ -63,11 +66,11 @@ public class GrowlNotificationServiceImpl
             growl = new Growl ("SIP Communicator", "net.sip-communicator", sipIcon, dict, dict);
             growl.addClickedNotificationsListener(this);
 
-            growl.notifyGrowlOf("SIP Communicator", 
-                                "http://www.sip-communicator.org/", 
-                                "Welcome message", 
+            growl.notifyGrowlOf("SIP Communicator",
+                                "http://www.sip-communicator.org/",
+                                "Welcome message",
                                 null, null);
-        } 
+        }
     }
 
     /**
@@ -82,20 +85,20 @@ public class GrowlNotificationServiceImpl
             growl.doFinalCleanUp();
         }
     }
-    
+
     /**
      * Checks if Growl is present on the system
-     * @return <code>true</code> if Growl is installed and <code>false</code> otherwise
+     * @return <tt>true</tt> if Growl is installed and <tt>false</tt>otherwise
      */
     public boolean isGrowlInstalled()
     {
         return Growl.isGrowlInstalled();
     }
-    
+
     /**
      * Checks if Growl is running
      *
-     * @return <code>true</code> if Growl is running and <code>false</code> otherwise
+     * @return <tt>true</tt> if Growl is running and <tt>false</tt> otherwise
      */
     public boolean isGrowlRunning()
     {
@@ -116,15 +119,15 @@ public class GrowlNotificationServiceImpl
 
         String messageBody = popupMessage.getMessage();
         String messageTitle = popupMessage.getMessageTitle();
-        
+
         // remove eventual HTML code before showing the pop-up message
         messageBody = messageBody.replaceAll("</?\\w++[^>]*+>", "");
         messageTitle = messageTitle.replaceAll("</?\\w++[^>]*+>", "");
-        
-        growl.notifyGrowlOf(messageTitle, 
-                            messageBody, 
-                            "Default", 
-                            popupMessage.getIcon(), 
+
+        growl.notifyGrowlOf(messageTitle,
+                            messageBody,
+                            "Default",
+                            popupMessage.getIcon(),
                             timestamp);
     }
 
@@ -141,7 +144,7 @@ public class GrowlNotificationServiceImpl
                 shownPopups.remove(context);
             }
             if (logger.isTraceEnabled())
-                logger.trace("Growl notification timed-out :" + 
+                logger.trace("Growl notification timed-out :" +
                 m.getMessageTitle() + ": " + m.getMessage());
         }
     }
@@ -158,14 +161,15 @@ public class GrowlNotificationServiceImpl
             synchronized(shownPopups) {
                 shownPopups.remove(context);
             }
-            
-            firePopupMessageClicked(new SystrayPopupMessageEvent(this, m.getTag()));
+
+            firePopupMessageClicked(new SystrayPopupMessageEvent(this,
+                    m.getTag()));
             if (logger.isTraceEnabled())
-                logger.trace("Growl message clicked :" + 
+                logger.trace("Growl message clicked :" +
                 m.getMessageTitle() + ": " + m.getMessage());
         }
     }
-    
+
     /**
      * Implements <tt>toString</tt> from <tt>PopupMessageHandler</tt>.
      *
@@ -179,8 +183,8 @@ public class GrowlNotificationServiceImpl
     }
 
     /**
-     * Implements <tt>getPreferenceIndex</tt> from <tt>PopupMessageHandler</tt>. 
-     * This handler is able to show images, detect clicks, match a click to a 
+     * Implements <tt>getPreferenceIndex</tt> from <tt>PopupMessageHandler</tt>.
+     * This handler is able to show images, detect clicks, match a click to a
      * message, and use a native popup mechanism, thus the index is 4.
      *
      * @return a preference index

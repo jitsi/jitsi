@@ -15,6 +15,11 @@ public class ChangeEvent
     extends java.util.EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Event type for interface going up.
      */
     public static final int IFACE_DOWN = 0;
@@ -22,7 +27,7 @@ public class ChangeEvent
     /**
      * Event type for interface going down.
      */
-    public static final int IFACE_UP = 1;   
+    public static final int IFACE_UP = 1;
 
     /**
      * The type of the current event.

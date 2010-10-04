@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.service.protocol.jabberconstants;
@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
  * The <tt>JabberStatusEnum</tt> gives access to presence states for the Sip
  * protocol. All status icons corresponding to presence states are located with
  * the help of the <tt>imagePath</tt> parameter
- * 
+ *
  * @author Emil Ivov
  * @author Yana Stamcheva
  * @author Lubomir Marinov
@@ -53,7 +53,7 @@ public class JabberStatusEnum
      * communicate.
      */
     public static final String FREE_FOR_CHAT = "Free For Chat";
-    
+
     /**
      * The Free For Chat status. Indicates that the user is eager to
      * communicate.
@@ -99,7 +99,7 @@ public class JabberStatusEnum
      * Indicates an Offline status or status with 0 connectivity.
      */
     private final JabberPresenceStatus offlineStatus;
-    
+
     /**
      * Indicates an Extended Away status or status.
      */
@@ -117,38 +117,38 @@ public class JabberStatusEnum
      * not.
      */
     private final JabberPresenceStatus unknownStatus;
-    
+
     private static final Map<String, JabberStatusEnum> existingEnums =
         new Hashtable<String, JabberStatusEnum>();
 
     /**
-     * Returns an instance of JabberStatusEnum for the specified 
+     * Returns an instance of JabberStatusEnum for the specified
      * <tt>iconPath</tt> or creates a new one if it doesn't already exist.
-     * 
-     * @param iconPath the location containing the status icons that should 
+     *
+     * @param iconPath the location containing the status icons that should
      * be used by this enumeration.
-     * 
+     *
      * @return the newly created JabberStatusEnum instance.
      */
     public static JabberStatusEnum getJabberStatusEnum(String iconPath)
     {
         JabberStatusEnum statusEnum = existingEnums.get(iconPath);
-        
+
         if(statusEnum != null)
             return statusEnum;
-        
+
         statusEnum = new JabberStatusEnum(iconPath);
-        
+
         existingEnums.put(iconPath, statusEnum);
-        
+
         return statusEnum;
     }
-    
+
     /**
      * Creates a new instance of JabberStatusEnum using <tt>iconPath</tt> as the
      * root path where it should be reading status icons from.
-     * 
-     * @param iconPath the location containing the status icons that should 
+     *
+     * @param iconPath the location containing the status icons that should
      * be used by this enumeration.
      */
     private JabberStatusEnum(String iconPath)
@@ -160,7 +160,7 @@ public class JabberStatusEnum
         this.doNotDisturbStatus =
             new JabberPresenceStatus(30, DO_NOT_DISTURB, loadIcon(iconPath
                 + "/status16x16-dnd.png"));
-        
+
         this.extendedAwayStatus =
             new JabberPresenceStatus(35, EXTENDED_AWAY, loadIcon(iconPath
                 + "/status16x16-xa.png"));
@@ -192,7 +192,7 @@ public class JabberStatusEnum
 
     /**
      * Returns the offline Jabber status.
-     * 
+     *
      * @param statusName the name of the status.
      * @return the offline Jabber status.
      */
@@ -217,7 +217,7 @@ public class JabberStatusEnum
     /**
      * Returns an iterator over all status instances supported by the sip
      * provider.
-     * 
+     *
      * @return an <tt>Iterator</tt> over all status instances supported by the
      *         sip provider.
      */
@@ -226,6 +226,11 @@ public class JabberStatusEnum
         return supportedStatusSet.iterator();
     }
 
+    /**
+     * Get all status name as array.
+     *
+     * @return array of <tt>String</tt> representing the different status name
+     */
     public static String[] getStatusNames()
     {
         return new String[]
@@ -234,7 +239,7 @@ public class JabberStatusEnum
 
     /**
      * Loads an image from a given image path.
-     * 
+     *
      * @param imagePath The path to the image resource.
      * @return The image extracted from the resource at the specified path.
      */
@@ -306,7 +311,7 @@ public class JabberStatusEnum
         /**
          * Creates an instance of <tt>JabberPresenceStatus</tt> with the
          * specified parameters.
-         * 
+         *
          * @param status the connectivity level of the new presence status
          *            instance
          * @param statusName the name of the presence status.

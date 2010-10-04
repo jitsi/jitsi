@@ -594,7 +594,6 @@ public class CallPeerMediaHandlerSipImpl
         return getPeer().getProtocolProvider().getAccountID().getUserID();
     }
 
-
     /**
      * Generates an SDP <tt>MediaDescription</tt> for <tt>MediaDevice</tt>
      * taking account the local streaming preference for the corresponding

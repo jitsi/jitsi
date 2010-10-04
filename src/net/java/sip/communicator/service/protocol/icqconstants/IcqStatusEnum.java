@@ -26,7 +26,10 @@ import net.java.sip.communicator.util.*;
 public class IcqStatusEnum
     extends PresenceStatus
 {
-
+    /**
+     * The <tt>Logger</tt> used by the <tt>IcqStatusEnum</tt> class and its
+     * instances for logging output.
+     */
     private static Logger logger = Logger.getLogger(IcqStatusEnum.class);
 
     /**
@@ -100,7 +103,7 @@ public class IcqStatusEnum
     /**
      * The minimal set of states that any ICQ implementation must support.
      */
-    public static final ArrayList<IcqStatusEnum> icqStatusSet 
+    public static final ArrayList<IcqStatusEnum> icqStatusSet
         = new ArrayList<IcqStatusEnum>();
     static{
             icqStatusSet.add(FREE_FOR_CHAT);

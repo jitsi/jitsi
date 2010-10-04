@@ -139,6 +139,9 @@ public class FFmpeg
      */
     public static native long avcodec_find_encoder(int id);
 
+    /**
+     * Initializes FFmpeg's avcodec.
+     */
     public static native void avcodec_init();
 
     /**
@@ -181,7 +184,7 @@ public class FFmpeg
      * property is to be set by the user when encoding and is unused for
      * constant quantizer encoding. It is set by libavcodec when decoding and
      * its value is <tt>0</tt> or some bitrate if this info is available in the
-     * stream. 
+     * stream.
      *
      * @param avctx the <tt>AVCodecContext</tt> to set the average bit rate of
      * @param bit_rate the average bit rate to be set to the specified

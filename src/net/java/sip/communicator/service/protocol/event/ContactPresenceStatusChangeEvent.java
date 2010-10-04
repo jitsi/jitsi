@@ -17,9 +17,20 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class ContactPresenceStatusChangeEvent extends PropertyChangeEvent
 {
-    private ProtocolProviderService sourceProvider = null;
-    private ContactGroup parentGroup = null;
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
 
+    /**
+     * The contact's <tt>ProtocolProviderService</tt>.
+     */
+    private ProtocolProviderService sourceProvider = null;
+
+    /**
+     * The parent group of the contact.
+     */
+    private ContactGroup parentGroup = null;
 
     /**
      * Creates an event instance indicating that the specified source contact

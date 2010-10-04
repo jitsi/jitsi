@@ -20,6 +20,11 @@ public class CallEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * An event id value indicating that this event has been triggered as a
      * result of an outgoing call.
      */

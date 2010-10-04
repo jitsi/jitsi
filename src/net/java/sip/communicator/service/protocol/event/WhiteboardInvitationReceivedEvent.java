@@ -12,17 +12,22 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * <tt>WhiteboardInvitationReceivedEvent</tt>s indicate reception of an
  * invitation to join a whiteboard.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class WhiteboardInvitationReceivedEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The invitation corresponding to this event.
      */
     private WhiteboardInvitation invitation;
-    
+
     /**
      * A timestamp indicating the exact date when the event occurred.
      */
@@ -49,17 +54,17 @@ public class WhiteboardInvitationReceivedEvent
         this.invitation = invitation;
         this.timestamp = timestamp;
     }
-    
+
     /**
      * Returns the whiteboarding operation set that dispatches this event.
-     * 
+     *
      * @return the whiteboarding operation set that dispatches this event.
      */
     public OperationSetWhiteboarding getSourceOperationSet()
     {
         return (OperationSetWhiteboarding) getSource();
     }
-    
+
     /**
      * Returns the <tt>WhiteboardInvitation</tt> that this event is for.
      *
@@ -69,7 +74,7 @@ public class WhiteboardInvitationReceivedEvent
     {
         return invitation;
     }
-    
+
     /**
      * A timestamp indicating the exact date when the event ocurred.
      *

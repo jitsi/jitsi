@@ -19,21 +19,26 @@ public class NotificationActionTypeEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates that a new action is added to an event type.
      */
     public static final String ACTION_ADDED = "ActionAdded";
-    
+
     /**
      * Indicates that an action was removed for a given event type.
      */
     public static final String ACTION_REMOVED = "ActionRemoved";
-    
+
     /**
      * Indicates that an action for a given event type has changed. For example
      * the action descriptor is changed.
      */
     public static final String ACTION_CHANGED = "ActionChanged";
-        
+
     /**
      * The type of the notification action that is being added.
      */
@@ -55,15 +60,15 @@ public class NotificationActionTypeEvent
      * The type of this event. One of the static field constants declared in
      * this class.
      */
-    private String eventType = null; 
-    
+    private String eventType = null;
+
     /**
      * Creates an instance of this event according to the specified type.
-     * 
+     *
      * @param source the <tt>NotificationService</tt> that dispatched this event
      * @param eventType the type of this event. One of the static fields
      * declared in this class
-     * @param sourceEventType the event type for which this event occured 
+     * @param sourceEventType the event type for which this event occured
      * @param sourceActionType the action type corresponding to this event
      * @param actionHandler the <tt>NotificationActionHandler</tt> that handles
      * the given action
@@ -75,7 +80,7 @@ public class NotificationActionTypeEvent
                                         NotificationActionHandler actionHandler)
     {
         super(source);
-        
+
         this.eventType = eventType;
         this.sourceEventType = sourceEventType;
         this.sourceActionType = sourceActionType;
@@ -84,7 +89,7 @@ public class NotificationActionTypeEvent
 
     /**
      * Returns the action type, for which this event is about.
-     * 
+     *
      * @return the action type, for which this event is about.
      */
     public String getSourceActionType()
@@ -94,7 +99,7 @@ public class NotificationActionTypeEvent
 
     /**
      * Returns the event type, to which the given action belongs.
-     * 
+     *
      * @return the event type, to which the given action belongs
      */
     public String getSourceEventType()
@@ -105,7 +110,7 @@ public class NotificationActionTypeEvent
     /**
      * Returns the <tt>NotificationActionHandler</tt> that handles the action,
      * for which this event is about.
-     * 
+     *
      * @return the <tt>NotificationActionHandler</tt> that handles the action,
      * for which this event is about.
      */
@@ -117,7 +122,7 @@ public class NotificationActionTypeEvent
     /**
      * The type of this event. One of ACTION_XXX constants declared in this
      * class.
-     * 
+     *
      * @return the type of this event
      */
     public String getEventType()

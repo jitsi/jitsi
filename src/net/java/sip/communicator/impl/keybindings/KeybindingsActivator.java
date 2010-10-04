@@ -13,20 +13,28 @@ import org.osgi.framework.*;
 
 /**
  * Enabling and disabling osgi functionality for keybindings.
- * 
+ *
  * @author Damian Johnson
  */
 public class KeybindingsActivator
     implements BundleActivator
 {
+    /**
+     * The <tt>Logger</tt> instance used by the
+     * <tt>KeybindingsActivator</tt> class and its instances for logging
+     * output.
+     */
     private static final Logger logger =
         Logger.getLogger(KeybindingsActivator.class);
 
+    /**
+     * The <tt>KeybindingsService</tt> reference.
+     */
     private KeybindingsServiceImpl keybindingsService = null;
 
     /**
      * Called when this bundle is started.
-     * 
+     *
      * @param context The execution context of the bundle being started.
      */
     public void start(BundleContext context)
@@ -46,7 +54,7 @@ public class KeybindingsActivator
     /**
      * Called when this bundle is stopped so the Framework can perform the
      * bundle-specific activities necessary to stop the bundle.
-     * 
+     *
      * @param context The execution context of the bundle being stopped.
      */
     public void stop(BundleContext context)

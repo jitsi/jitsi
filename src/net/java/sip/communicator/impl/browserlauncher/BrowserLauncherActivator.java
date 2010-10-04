@@ -29,6 +29,12 @@ public class BrowserLauncherActivator
     private static final Logger logger
         = Logger.getLogger(BrowserLauncherActivator.class);
 
+    /**
+     * Initialize and start the service.
+     *
+     * @param bundleContext the <tt>BundleContext</tt>
+     * @throws Exception if initializing and starting this service fails
+     */
     public void start(BundleContext bundleContext)
         throws Exception
     {
@@ -48,6 +54,12 @@ public class BrowserLauncherActivator
             logger.info("Browser Launcher Service REGISTERED");
     }
 
+    /**
+     * Stops this bundle.
+     *
+     * @param bundleContext the <tt>BundleContext</tt>
+     * @throws Exception if the stop operation goes wrong
+     */
     public void stop(BundleContext bundleContext)
         throws Exception
     {

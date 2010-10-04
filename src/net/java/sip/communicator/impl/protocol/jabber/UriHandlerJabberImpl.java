@@ -27,6 +27,9 @@ import net.java.sip.communicator.util.*;
 public class UriHandlerJabberImpl
     implements UriHandler, ServiceListener, AccountManagerListener
 {
+    /**
+     * The logger of this class.
+     */
     private static final Logger logger =
         Logger.getLogger(UriHandlerJabberImpl.class);
 

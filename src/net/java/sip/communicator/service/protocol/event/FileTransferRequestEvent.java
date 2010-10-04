@@ -13,13 +13,18 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>FileTransferRequestEvent</tt> indicates the reception of a file
  * transfer request.
- * 
+ *
  * @author Nicolas Riegel
  * @author Yana Stamcheva
  */
 public class FileTransferRequestEvent
     extends EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The request that triggered this event.
      */
@@ -53,7 +58,7 @@ public class FileTransferRequestEvent
     /**
      * Returns the <tt>OperationSetFileTransfer</tt>, where this event initially
      * occurred.
-     * 
+     *
      * @return the <tt>OperationSetFileTransfer</tt>, where this event initially
      * occurred
      */
@@ -64,7 +69,7 @@ public class FileTransferRequestEvent
 
      /**
      * Returns the incoming file transfer request that triggered this event.
-     * 
+     *
      * @return the <tt>IncomingFileTransferRequest</tt> that triggered this
      * event.
      */
@@ -75,7 +80,7 @@ public class FileTransferRequestEvent
 
     /**
      * A timestamp indicating the exact date when the event occurred.
-     * 
+     *
      * @return a Date indicating when the event occurred.
      */
     public Date getTimestamp()

@@ -33,6 +33,11 @@ public class PortAudioRenderer
     private static final Logger logger
         = Logger.getLogger(PortAudioRenderer.class);
 
+    /**
+     * The constant which represents an empty array with
+     * <tt>Format</tt> element type. Explicitly defined in order to
+     * reduce unnecessary allocations.
+     */
     private static final Format[] EMPTY_SUPPORTED_INPUT_FORMATS
         = new Format[0];
 
@@ -140,6 +145,9 @@ public class PortAudioRenderer
      */
     private boolean streamIsBusy = false;
 
+    /**
+     * Array of supported input formats.
+     */
     private Format[] supportedInputFormats;
 
     /**

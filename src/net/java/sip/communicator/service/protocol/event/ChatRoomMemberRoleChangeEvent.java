@@ -14,7 +14,7 @@ import net.java.sip.communicator.service.protocol.*;
  * Dispatched to notify interested parties that a change in a member role in the
  * source room has occurred. Changes may include member being granted admin
  * permissions, or other permissions.
- * 
+ *
  * @see ChatRoomMemberRole
  *
  * @author Emil Ivov
@@ -24,24 +24,29 @@ public class ChatRoomMemberRoleChangeEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The member that the event relates to.
      */
     private ChatRoomMember sourceMember = null;
-    
+
     /**
      * The previous role that this member had.
      */
     private ChatRoomMemberRole previousRole = null;
-    
+
     /**
      * The new role that this member get.
      */
     private ChatRoomMemberRole newRole = null;
-    
+
     /**
      * Creates a <tt>ChatRoomMemberRoleChangeEvent</tt> representing that
      * a change in member role in the source chat room has occured.
-     * 
+     *
      * @param sourceRoom the <tt>ChatRoom</tt> that produced this event
      * @param sourceMember the <tt>ChatRoomMember</tt> that this event is about
      * @param previousRole the previous role that member had
@@ -50,14 +55,14 @@ public class ChatRoomMemberRoleChangeEvent
     public ChatRoomMemberRoleChangeEvent(ChatRoom sourceRoom,
                                         ChatRoomMember sourceMember,
                                         ChatRoomMemberRole previousRole,
-                                        ChatRoomMemberRole newRole)                                     
+                                        ChatRoomMemberRole newRole)
     {
         super(sourceRoom);
         this.sourceMember = sourceMember;
         this.previousRole = previousRole;
         this.newRole = newRole;
     }
-    
+
     /**
      * Returns the new role given to the member that this event is about.
      *
@@ -67,7 +72,7 @@ public class ChatRoomMemberRoleChangeEvent
     {
         return newRole;
     }
-    
+
     /**
      * Returns the previous role the member that this event is about had.
      *
@@ -77,7 +82,7 @@ public class ChatRoomMemberRoleChangeEvent
     {
         return previousRole;
     }
-    
+
     /**
      * Returns the chat room that produced this event.
      *
@@ -87,7 +92,7 @@ public class ChatRoomMemberRoleChangeEvent
     {
         return (ChatRoom)getSource();
     }
-    
+
     /**
      * Returns the member that this event is about.
      * @return the <tt>ChatRoomMember</tt> that this event is about

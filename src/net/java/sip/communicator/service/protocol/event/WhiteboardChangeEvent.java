@@ -21,6 +21,11 @@ public class WhiteboardChangeEvent
     extends java.beans.PropertyChangeEvent
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * An event type indicating that the corresponding event is caused by a
      * change of the Whiteboard state.
      */

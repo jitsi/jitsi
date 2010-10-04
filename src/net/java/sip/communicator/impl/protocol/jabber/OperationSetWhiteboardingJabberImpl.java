@@ -29,6 +29,9 @@ import org.jivesoftware.smack.util.StringUtils;
 public class OperationSetWhiteboardingJabberImpl
     implements OperationSetWhiteboarding
 {
+    /**
+     * The logger of this class.
+     */
     private static final Logger logger =
         Logger.getLogger(OperationSetWhiteboardingJabberImpl.class);
 
@@ -191,7 +194,7 @@ public class OperationSetWhiteboardingJabberImpl
      */
     public WhiteboardSession createWhiteboardSession(
         String sessionName,
-        Hashtable sessionProperties)
+        Hashtable<Object, Object> sessionProperties)
         throws  OperationFailedException,
                 OperationNotSupportedException
     {

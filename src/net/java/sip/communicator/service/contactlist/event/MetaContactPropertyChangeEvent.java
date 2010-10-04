@@ -20,6 +20,11 @@ public abstract class MetaContactPropertyChangeEvent
     extends PropertyChangeEvent
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates that the source meta contact has moved from one location to
      * another. The old and new values contain the previous and the new
      * parent group of this meta contact.

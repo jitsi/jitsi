@@ -21,6 +21,11 @@ public class ProtoContactEvent
     extends PropertyChangeEvent
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates that the MetaContactEvent instance was triggered by the
      * removal of a protocol specific contact from an existing MetaContact.
      */

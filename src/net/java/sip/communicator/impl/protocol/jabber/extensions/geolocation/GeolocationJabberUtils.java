@@ -21,6 +21,9 @@ import net.java.sip.communicator.util.*;
  */
 public class GeolocationJabberUtils
 {
+    /**
+     * The logger of this class.
+     */
     private static final Logger logger =
         Logger.getLogger(GeolocationJabberUtils.class);
 

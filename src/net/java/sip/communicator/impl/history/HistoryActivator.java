@@ -12,15 +12,24 @@ import net.java.sip.communicator.service.history.*;
 
 /**
  * Invoke "Service Binder" to parse the service XML and register all services.
- * 
+ *
  * @author Alexander Pelov
  * @author Lubomir Marinov
  */
 public class HistoryActivator
     implements BundleActivator
 {
+    /**
+     * The service registration.
+     */
     private ServiceRegistration serviceRegistration;
 
+    /**
+     * Initialize and start history service
+     *
+     * @param bundleContext the <tt>BundleContext</tt>
+     * @throws Exception if initializing and starting history service fails
+     */
     public void start(BundleContext bundleContext) throws Exception
     {
         serviceRegistration =
@@ -28,7 +37,14 @@ public class HistoryActivator
                 new HistoryServiceImpl(bundleContext), null);
     }
 
+    /**
+     * Stops this bundle.
+     *
+     * @param bundleContext the <tt>BundleContext</tt>
+     * @throws Exception if the stop operation goes wrong
+     */
     public void stop(BundleContext bundleContext)
+        throws Exception
     {
         if (serviceRegistration != null)
         {

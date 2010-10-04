@@ -16,8 +16,19 @@ package net.java.sip.communicator.service.protocol;
 
 public class UserCredentials
 {
+    /**
+     * The user name.
+     */
     private String  userName     = null;
+
+    /**
+     * The user password.
+     */
     private char[]  password     = null;
+
+    /**
+     * If we will store the password persistently.
+     */
     private boolean storePassword = false;
 
     /**
@@ -73,7 +84,7 @@ public class UserCredentials
 
     /**
      * Specifies whether or not the password associated with this credentials
-     * object is to be sored persistently (insecure!) or not.
+     * object is to be stored persistently (insecure!) or not.
      * <p>
      * @param storePassword indicates whether passwords contained by this
      * credentials object are to be stored persistently.
@@ -85,10 +96,10 @@ public class UserCredentials
 
     /**
      * Determines whether or not the password associated with this credentials
-     * object is to be sored persistently (insecure!) or not.
+     * object is to be stored persistently (insecure!) or not.
      * <p>
      * @return true if the underlying protocol provider is to persistently
-     * (and possiblu insecurely) store the password and false otherwise.
+     * (and possibly insecurely) store the password and false otherwise.
      */
     public boolean isPasswordPersistent()
     {

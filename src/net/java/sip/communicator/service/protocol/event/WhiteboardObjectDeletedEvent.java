@@ -21,20 +21,25 @@ public class WhiteboardObjectDeletedEvent
   extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The contact that has sent this wbObject.
      */
     private Contact from = null;
-    
+
     /**
      * A timestamp indicating the exact date when the event occurred.
      */
     private Date timestamp = null;
-    
+
     /**
      * A String that uniquely identifies this WhiteboardObject.
      */
     private String id;
-    
+
     /**
      * Creates a <tt>WhiteboardObjectReceivedEvent</tt>
      * representing reception of the <tt>source</tt> WhiteboardObject
@@ -60,7 +65,7 @@ public class WhiteboardObjectDeletedEvent
     /**
      * Returns the source white-board session, to which the received object
      * belongs.
-     * 
+     *
      * @return the source white-board session, to which the received object
      * belongs
      */
@@ -80,7 +85,7 @@ public class WhiteboardObjectDeletedEvent
     {
         return from;
     }
-    
+
     /**
      * Returns the identification of the deleted WhiteboardObject
      * that triggered this event
@@ -91,7 +96,7 @@ public class WhiteboardObjectDeletedEvent
     {
         return id;
     }
-    
+
     /**
      * A timestamp indicating the exact date when the event ocurred.
      * @return a Date indicating when the event ocurred.

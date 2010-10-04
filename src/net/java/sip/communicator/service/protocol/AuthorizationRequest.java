@@ -26,6 +26,10 @@ package net.java.sip.communicator.service.protocol;
  */
 public class AuthorizationRequest
 {
+    /**
+     * The reason phrase that should be sent to the user we're demanding for
+     * authorization.
+     */
     private String reason = "";
 
     /**

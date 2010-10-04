@@ -19,26 +19,31 @@ public class WhiteboardInvitationRejectedEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The <tt>WhiteboardSession</tt> for which the initial invitation was.
      */
     private WhiteboardSession whiteboardSession;
-    
+
     /**
      * The invitee that rejected the invitation.
      */
     private String invitee;
-    
+
     /**
      * The reason why this invitation is rejected or null if there is no reason
      * specified.
      */
     private String reason;
-    
+
     /**
      * The exact date at which this event occured.
      */
     private Date timestamp;
-    
+
     /**
      * Creates a <tt>WhiteboardInvitationRejectedEvent</tt> representing the
      * rejection of an invitation, rejected by the given <tt>invitee</tt>.
@@ -65,21 +70,21 @@ public class WhiteboardInvitationRejectedEvent
         this.reason = reason;
         this.timestamp = timestamp;
     }
-    
+
     /**
      * Returns the whiteboarding operation set that dispatches this event.
-     * 
+     *
      * @return the whiteboarding operation set that dispatches this event
      */
     public OperationSetWhiteboarding getSourceOperationSet()
     {
         return (OperationSetWhiteboarding) getSource();
     }
-    
+
     /**
      * Returns the <tt>WhiteboardSession</tt> for which the initial invitation
      * was.
-     * 
+     *
      * @return the <tt>WhiteboardSession</tt> for which the initial invitation
      * was
      */
@@ -87,7 +92,7 @@ public class WhiteboardInvitationRejectedEvent
     {
         return whiteboardSession;
     }
-    
+
     /**
      * Returns the name of the invitee that rejected the invitation.
      *
@@ -97,7 +102,7 @@ public class WhiteboardInvitationRejectedEvent
     {
         return invitee;
     }
-    
+
     /**
      * Returns the reason for which the <tt>ChatRoomInvitation</tt> is rejected.
      *
@@ -107,7 +112,7 @@ public class WhiteboardInvitationRejectedEvent
     {
         return reason;
     }
-    
+
     /**
      * A timestamp indicating the exact date when the event ocurred.
      * @return a Date indicating when the event ocurred.

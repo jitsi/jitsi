@@ -20,6 +20,11 @@ public class CallRecordEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The <tt>CallRecord</tt> this event is about.
      */
     private final CallRecord callRecord;

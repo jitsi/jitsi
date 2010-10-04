@@ -25,6 +25,8 @@ public class SortedProperties extends Properties
      * Get an enumeration of keys hold by the <tt>Properties</tt> object.
      * Contrary to the original <tt>Properties</tt> implementation, it forces
      * the keys to be sorted alphabetically.
+     *
+     * @return enumeration of the keys hold by the <tt>Properties</tt>.
      */
     public synchronized Enumeration<Object> keys()
     {

@@ -13,13 +13,18 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * Represents an event/<tt>EventObject</tt> fired by
  * <tt>OperationSetClientCapabilities</tt> in order to notify about changes in
- * the list of the <tt>OperationSet</tt> capabilities of a <tt>Contact</tt>. 
+ * the list of the <tt>OperationSet</tt> capabilities of a <tt>Contact</tt>.
  *
  * @author Lubomir Marinov
  */
 public class ContactCapabilitiesEvent
     extends EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The ID of the <tt>ContactCapabilitiesEvent</tt> which notifies about
      * changes in the list of the <tt>OperationSet</tt> capabilities of a

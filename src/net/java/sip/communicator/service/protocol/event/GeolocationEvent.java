@@ -18,6 +18,10 @@ import net.java.sip.communicator.service.protocol.*;
 public class GeolocationEvent
     extends EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
 
     /**
      * The provider that has generated the event.

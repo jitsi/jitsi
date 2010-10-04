@@ -26,11 +26,15 @@ public interface AudioNotifierService
 
     /**
      * Destroys the given audio.
+     *
+     * @param audio <tt>SCAudioClip</tt> to destroy
      */
     public void destroyAudio(SCAudioClip audio);
 
     /**
      * Stops/Restores all currently playing sounds.
+     *
+     * @param isMute mute or not currently playing sounds
      */
     public void setMute(boolean isMute);
 

@@ -12,7 +12,7 @@ import org.jivesoftware.smack.packet.*;
 import net.java.sip.communicator.impl.protocol.jabber.*;
 
 /**
- * This class represents a Jabber presence message includin a Geolocation
+ * This class represents a Jabber presence message including a Geolocation
  * Extension.
  *
  * @author Guillaume Schreiner
@@ -44,11 +44,21 @@ public class GeolocationPresence
                 .getPresenceStatus()));
     }
 
+    /**
+     * Set the Geolocation extension packet.
+     *
+     * @param ext the <tt>GeolocationPacketExtension</tt> to set
+     */
     public void setGeolocationExtention(GeolocationPacketExtension ext)
     {
         this.prez.addExtension(ext);
     }
 
+    /**
+     * Get the Geolocation presence message.
+     *
+     * @return the Geolocation presence message.
+     */
     public Presence getGeolocPresence()
     {
         return this.prez;

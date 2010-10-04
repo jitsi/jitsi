@@ -18,6 +18,14 @@ import net.java.sip.communicator.service.protocol.*;
 public class MetaContactGroupEvent
     extends EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
+     * ID of the event.
+     */
     private int eventID = -1;
 
     /**
@@ -68,8 +76,15 @@ public class MetaContactGroupEvent
      */
     public static final int META_CONTACT_GROUP_RENAMED = 7;
 
+    /**
+     * the ProtocolProviderService instance where this event
+     * occurred.
+     */
     private ProtocolProviderService sourceProvider = null;
 
+    /**
+     * The proto group associated with this event.
+     */
     private ContactGroup sourceProtoGroup = null;
 
     /**

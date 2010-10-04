@@ -22,6 +22,11 @@ public class WhiteboardObjectDeliveryFailedEvent
         extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The contact that this whiteboard object has been sent to.
      */
     private Contact to = null;

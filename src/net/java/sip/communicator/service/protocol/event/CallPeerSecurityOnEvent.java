@@ -18,6 +18,11 @@ import net.java.sip.communicator.service.protocol.*;
 public class CallPeerSecurityOnEvent
     extends CallPeerSecurityStatusEvent
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final String securityString;
 
     private final boolean isVerified;

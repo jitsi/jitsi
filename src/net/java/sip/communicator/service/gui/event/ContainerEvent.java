@@ -9,8 +9,16 @@ package net.java.sip.communicator.service.gui.event;
 import java.util.*;
 
 public class ContainerEvent
-    extends EventObject{
+    extends EventObject
+{
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
 
+    /**
+     * ID of the event.
+     */
     private int eventID = -1;
 
     /**

@@ -26,6 +26,11 @@ import net.java.sip.communicator.service.protocol.*;
 public class CallPeerControlEvent
     extends java.util.EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final String targetURI;
 
     /**

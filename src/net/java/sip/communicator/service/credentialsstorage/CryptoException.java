@@ -14,6 +14,9 @@ package net.java.sip.communicator.service.credentialsstorage;
 public class CryptoException
     extends Exception
 {
+    /**
+     * Serial version UID.
+     */
     private static final long serialVersionUID = -5424208764356198091L;
 
     /**
@@ -27,7 +30,7 @@ public class CryptoException
     public static final int DECRYPTION_ERROR = 2;
 
     /**
-     * Set when a decryption fail is caused by the wrong key.  
+     * Set when a decryption fail is caused by the wrong key.
      */
     public static final int WRONG_KEY = 3;
 
@@ -38,7 +41,7 @@ public class CryptoException
 
     /**
      * Constructs the crypto exception.
-     * 
+     *
      * @param code the error code
      * @param cause the original exception that this instance wraps
      */

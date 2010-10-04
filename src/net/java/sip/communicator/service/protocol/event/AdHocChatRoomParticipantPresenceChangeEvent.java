@@ -11,7 +11,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Dispatched to notify interested parties that a change in the presence of an
- * ad-hoc chat room participant has occurred. Changes may include the 
+ * ad-hoc chat room participant has occurred. Changes may include the
  * participant being join, left...
  *
  * @author Valentin Martinet
@@ -65,10 +65,10 @@ public class AdHocChatRoomParticipantPresenceChangeEvent
      * Creates an <tt>AdHocChatRoomParticipantPresenceChangeEvent</tt>
      * representing that a change in the presence of an <tt>Contact</tt>
      * has occurred. Changes may include the participant being join, left, etc.
-     * 
-     * @param sourceAdHocRoom the <tt>AdHocChatRoom</tt> that produced this 
+     *
+     * @param sourceAdHocRoom the <tt>AdHocChatRoom</tt> that produced this
      * event
-     * @param sourceParticipant the <tt>Contact</tt> that this event is about 
+     * @param sourceParticipant the <tt>Contact</tt> that this event is about
      * @param eventType the event type; one of the CONTACT_XXX constants
      * @param reason the reason explaining why this event might have occurred
      */
@@ -96,7 +96,7 @@ public class AdHocChatRoomParticipantPresenceChangeEvent
 
     /**
      * Returns the participant that this event is about.
-     * 
+     *
      * @return the <tt>Contact</tt> that this event is about.
      */
     public Contact getParticipant()
@@ -118,7 +118,7 @@ public class AdHocChatRoomParticipantPresenceChangeEvent
     /**
      * Gets the indicator which determines whether this event has occurred with
      * the well-known reason of listing all users in a <code>ChatRoom</code>.
-     *  
+     *
      * @return <tt>true</tt> if this event has occurred with the well-known
      * reason of listing all users in a <code>ChatRoom</code> i.e.
      * {@link #getReason()} returns a value of {@link #REASON_USER_LIST};
@@ -143,6 +143,8 @@ public class AdHocChatRoomParticipantPresenceChangeEvent
 
     /**
      * Returns a String representation of this event.
+     *
+     * @return string representation of this event
      */
     public String toString()
     {

@@ -17,6 +17,11 @@ public abstract class CallPeerSecurityStatusEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Constant value defining that security is enabled.
      */
     public static final int AUDIO_SESSION = 1;

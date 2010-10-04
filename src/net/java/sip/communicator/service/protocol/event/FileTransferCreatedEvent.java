@@ -13,12 +13,17 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>FileTransferCreatedEvent</tt> indicates the creation of a file
  * transfer.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class FileTransferCreatedEvent
     extends EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The timestamp indicating the exact date when the event occurred.
      */
@@ -43,7 +48,7 @@ public class FileTransferCreatedEvent
 
      /**
      * Returns the file transfer that triggered this event.
-     * 
+     *
      * @return the <tt>FileTransfer</tt> that triggered this
      * event.
      */
@@ -54,7 +59,7 @@ public class FileTransferCreatedEvent
 
     /**
      * A timestamp indicating the exact date when the event occurred.
-     * 
+     *
      * @return a Date indicating when the event occurred.
      */
     public Date getTimestamp()

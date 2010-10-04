@@ -16,6 +16,11 @@ public class MetaContactRenamedEvent
     extends MetaContactPropertyChangeEvent
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Creates an instance of this event using the specified arguments.
      * @param source the <tt>MetaContact</tt> that this event is about.
      * @param oldDisplayName the new display name of this meta contact.

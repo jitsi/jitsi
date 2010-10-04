@@ -327,6 +327,12 @@ public abstract class ProtocolProviderFactory
     protected final Hashtable<AccountID, ServiceRegistration> registeredAccounts
         = new Hashtable<AccountID, ServiceRegistration>();
 
+    /**
+     * Creates a new <tt>ProtocolProviderFactory</tt>.
+     *
+     * @param bundleContext the bundle context reference of the service
+     * @param protocolName the name of the protocol
+     */
     protected ProtocolProviderFactory(BundleContext bundleContext,
         String protocolName)
     {
@@ -947,6 +953,11 @@ public abstract class ProtocolProviderFactory
         protocolProviderService.shutdown();
     }
 
+    /**
+     * Get the <tt>AccountManager</tt> of the protocol.
+     *
+     * @return <tt>AccountManager</tt> of the protocol
+     */
     private AccountManager getAccountManager()
     {
         BundleContext bundleContext = getBundleContext();

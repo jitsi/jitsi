@@ -18,8 +18,12 @@ public class ConfigPropertyVetoException
     extends RuntimeException
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * A PropertyChangeEvent describing the vetoed change.
-     * @serial
      */
     private final PropertyChangeEvent evt;
 

@@ -26,6 +26,10 @@ import net.java.sip.communicator.util.*;
 public class MsnStatusEnum
     extends PresenceStatus
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>MsnStatusEnum</tt> class and its
+     * instances for logging output.
+     */
     private static Logger logger = Logger.getLogger(MsnStatusEnum.class);
 
     /**

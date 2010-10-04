@@ -19,6 +19,11 @@ public class MessageReceivedEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * An event type indicating that the message being received is a standard
      * conversation message sent by another contact.
      */
@@ -62,19 +67,19 @@ public class MessageReceivedEvent
      */
     public MessageReceivedEvent(Message source, Contact from, long timestamp)
     {
-       this(source, from, timestamp, CONVERSATION_MESSAGE_RECEIVED); 
+       this(source, from, timestamp, CONVERSATION_MESSAGE_RECEIVED);
     }
-    
+
     /**
      * Creates a <tt>MessageReceivedEvent</tt> representing reception of the
      * <tt>source</tt> message received from the specified <tt>from</tt>
      * contact.
-     * 
+     *
      * @param source the <tt>Message</tt> whose reception this event represents.
      * @param from the <tt>Contact</tt> that has sent this message.
      * @param timestamp the exact date when the event occurred.
      * @param eventType the type of message event that this instance represents
-     * (one of the XXX_MESSAGE_RECEIVED static fields). 
+     * (one of the XXX_MESSAGE_RECEIVED static fields).
      */
     public MessageReceivedEvent(Message source, Contact from,
         long timestamp, int eventType)
@@ -85,7 +90,7 @@ public class MessageReceivedEvent
         this.timestamp = timestamp;
         this.eventType = eventType;
     }
-    
+
     /**
      * Returns a reference to the <tt>Contact</tt> that has send the
      * <tt>Message</tt> whose reception this event represents.
@@ -100,7 +105,7 @@ public class MessageReceivedEvent
 
     /**
      * Returns the message that triggered this event
-     * 
+     *
      * @return the <tt>Message</tt> that triggered this event.
      */
     public Message getSourceMessage()
@@ -110,19 +115,19 @@ public class MessageReceivedEvent
 
     /**
      * A timestamp indicating the exact date when the event occurred.
-     * 
+     *
      * @return a Date indicating when the event occurred.
      */
     public long getTimestamp()
     {
         return timestamp;
     }
-    
+
     /**
      * Returns the type of message event represented by this event instance.
      * Message event type is one of the XXX_MESSAGE_RECEIVED fields of this
      * class.
-     * 
+     *
      * @return one of the XXX_MESSAGE_RECEIVED fields of this class indicating
      * the type of this event.
      */

@@ -28,6 +28,9 @@ public class OutgoingFileTransferJabberImpl
     extends AbstractFileTransfer
     implements PacketInterceptor
 {
+    /**
+     * The logger of this class.
+     */
     private final Logger logger
         = Logger.getLogger(OutgoingFileTransferJabberImpl.class);
 

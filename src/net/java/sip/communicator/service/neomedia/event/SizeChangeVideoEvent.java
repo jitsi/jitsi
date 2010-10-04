@@ -18,6 +18,11 @@ public class SizeChangeVideoEvent
     extends VideoEvent
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The type of a <tt>VideoEvent</tt> which notifies about an update to the
      * size of a specific visual <tt>Component</tt> depicting video.
      */

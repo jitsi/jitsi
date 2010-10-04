@@ -22,6 +22,11 @@ public class OperationFailedException
     extends Exception
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Set when no other error code can describe the exception that occurred.
      */
     public static final int GENERAL_ERROR = 1;

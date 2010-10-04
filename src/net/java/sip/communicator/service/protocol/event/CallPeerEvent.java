@@ -18,6 +18,11 @@ public class CallPeerEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The call that the source call peer is associated with.
      */
     private final Call sourceCall;

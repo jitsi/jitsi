@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
  * @author Alexander Pelov
  * @author Lubomir Marinov
  */
-public class FileAccessServiceImpl implements FileAccessService 
+public class FileAccessServiceImpl implements FileAccessService
 {
 
     /**
@@ -70,6 +70,12 @@ public class FileAccessServiceImpl implements FileAccessService
         return retVal;
     }
 
+    /**
+     * Returns the temporary directory.
+     *
+     * @return the created temporary directory
+     * @throws IOException if the temporary directory cannot not be created
+     */
     public File getTemporaryDirectory() throws IOException
     {
         File file = getTemporaryFile();
@@ -249,7 +255,7 @@ public class FileAccessServiceImpl implements FileAccessService
 
         return scHomeDirName;
     }
-    
+
     /**
      * Returns the location of the directory where SIP Communicator is to store
      * user specific data such as configuration files, message and call history
@@ -322,13 +328,13 @@ public class FileAccessServiceImpl implements FileAccessService
 
             homedir = homedir.trim();
             if (!homedir.endsWith(File.separator))
-	    {
+        {
                 homedir += File.separator;
             }
 
             file = new File(homedir + fileName);
             if (file.canRead() || file.canWrite())
-	    {
+        {
                 return file;
             }
 
@@ -340,7 +346,7 @@ public class FileAccessServiceImpl implements FileAccessService
                     logger.debug("Creating home directory : "
                         + homedirFile.getAbsolutePath());
                 if (!homedirFile.mkdirs())
-		{
+        {
                     String message = "Could not create the home directory : "
                             + homedirFile.getAbsolutePath();
 
@@ -367,8 +373,9 @@ public class FileAccessServiceImpl implements FileAccessService
 
     /**
      * Returns the default download directory.
-     * 
+     *
      * @return the default download directory
+     * @throws IOException if it I/O error occurred
      */
     public File getDefaultDownloadDirectory()
         throws IOException
@@ -379,7 +386,7 @@ public class FileAccessServiceImpl implements FileAccessService
         // would be the home directory (i.e. the Desktop folder).
         if (OSUtils.IS_WINDOWS && getMajorOSVersion() <= 5)
         {
-            FileSystemView fsv = FileSystemView.getFileSystemView(); 
+            FileSystemView fsv = FileSystemView.getFileSystemView();
 
             downloadDir = fsv.getHomeDirectory();
         }
@@ -425,9 +432,9 @@ public class FileAccessServiceImpl implements FileAccessService
     /**
      * Creates a failsafe transaction which can be used to safely store
      * informations into a file.
-     * 
+     *
      * @param file The file concerned by the transaction, null if file is null.
-     * 
+     *
      * @return A new failsafe transaction related to the given file.
      */
     public FailSafeTransaction createFailSafeTransaction(File file)

@@ -21,6 +21,11 @@ import net.java.sip.communicator.service.protocol.*;
 public class TypingNotificationEvent
     extends EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private int typingState = OperationSetTypingNotifications.STATE_UNKNOWN;
 
     /**

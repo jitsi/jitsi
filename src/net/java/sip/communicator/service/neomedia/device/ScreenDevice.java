@@ -10,14 +10,14 @@ import java.awt.*;
 
 /**
  * The <tt>ScreenDevice</tt> interface represent physical screen display.
- * 
+ *
  * @author Sebastien Vincent
  */
-public interface ScreenDevice 
+public interface ScreenDevice
 {
     /**
      * Get current resolution of <tt>ScreenDevice</tt> device.
-     * 
+     *
      * @return current resolution of the screen
      */
     public Dimension getSize();

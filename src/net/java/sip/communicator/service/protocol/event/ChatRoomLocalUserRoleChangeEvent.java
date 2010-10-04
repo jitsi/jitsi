@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.protocol.*;
  * Dispatched to notify interested parties that a change in our role in the
  * source chat room has occurred. Changes may include us being granted admin
  * permissions, or other permissions.
- * 
+ *
  * @see ChatRoomMemberRole
  *
  * @author Emil Ivov
@@ -21,35 +21,40 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class ChatRoomLocalUserRoleChangeEvent
     extends EventObject
-{   
+{
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The previous role that local participant had.
      */
     private ChatRoomMemberRole previousRole = null;
-    
+
     /**
      * The new role that local participant get.
      */
     private ChatRoomMemberRole newRole = null;
-    
+
     /**
      * Creates a <tt>ChatRoomLocalUserRoleChangeEvent</tt> representing that
      * a change in local participant role in the source chat room has
      * occured.
-     * 
+     *
      * @param sourceRoom the <tt>ChatRoom</tt> that produced the event
      * @param previousRole the previous role that local participant had
      * @param newRole the new role that local participant get
      */
     public ChatRoomLocalUserRoleChangeEvent(ChatRoom sourceRoom,
                                         ChatRoomMemberRole previousRole,
-                                        ChatRoomMemberRole newRole)                                     
+                                        ChatRoomMemberRole newRole)
     {
         super(sourceRoom);
         this.previousRole = previousRole;
         this.newRole = newRole;
     }
-    
+
     /**
      * Returns the new role the local participant get.
      *
@@ -59,7 +64,7 @@ public class ChatRoomLocalUserRoleChangeEvent
     {
         return newRole;
     }
-    
+
     /**
      * Returns the previous role that local participant had.
      *
@@ -69,7 +74,7 @@ public class ChatRoomLocalUserRoleChangeEvent
     {
         return previousRole;
     }
-    
+
     /**
      * Returns the <tt>ChatRoom</tt>, where this event occured.
      *

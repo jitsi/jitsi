@@ -21,6 +21,11 @@ public class ChatRoomMessageDeliveryFailedEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
       * The chat room member that this message has been sent to.
       */
      private ChatRoomMember to = null;
@@ -114,7 +119,7 @@ public class ChatRoomMessageDeliveryFailedEvent
      {
          return to;
      }
-     
+
      /**
       * Returns the received message.
       * @return the <tt>Message</tt> that triggered this event.

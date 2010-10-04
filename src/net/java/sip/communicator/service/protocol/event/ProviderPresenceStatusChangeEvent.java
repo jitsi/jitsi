@@ -17,6 +17,10 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class ProviderPresenceStatusChangeEvent extends PropertyChangeEvent
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
 
     /**
      * Creates an event instance indicating a change of the property

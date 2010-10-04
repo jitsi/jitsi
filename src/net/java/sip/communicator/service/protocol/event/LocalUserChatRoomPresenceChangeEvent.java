@@ -21,6 +21,11 @@ public class LocalUserChatRoomPresenceChangeEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates that this event was triggered as a result of the local
      * participant joining a chat room.
      */
@@ -43,7 +48,7 @@ public class LocalUserChatRoomPresenceChangeEvent
     * participant being kicked from a chat room.
     */
     public static final String LOCAL_USER_KICKED = "LocalUserKicked";
-    
+
     /**
      * Indicates that this event was triggered as a result of the local
      * participant beeing disconnected from the server brutally, or ping timeout.
@@ -54,7 +59,7 @@ public class LocalUserChatRoomPresenceChangeEvent
      * The <tt>ChatRoom</tt> to which the change is related.
      */
     private ChatRoom chatRoom = null;
-    
+
     /**
      * The type of this event.
      */
@@ -70,7 +75,7 @@ public class LocalUserChatRoomPresenceChangeEvent
      * Creates a <tt>ChatRoomLocalUserPresenceChangeEvent</tt> representing that
      * a change in local participant presence in the source chat room has
      * occured.
-     * 
+     *
      * @param source the <tt>OperationSetMultiUserChat</tt>, which produced this
      * event
      * @param chatRoom the <tt>ChatRoom</tt> that this event is about
@@ -83,7 +88,7 @@ public class LocalUserChatRoomPresenceChangeEvent
                                                 String reason)
     {
         super(source);
-        
+
         this.chatRoom = chatRoom;
         this.eventType = eventType;
         this.reason = reason;
@@ -100,7 +105,7 @@ public class LocalUserChatRoomPresenceChangeEvent
     {
         return (OperationSetMultiUserChat) getSource();
     }
-    
+
     /**
      * Returns the <tt>ChatRoom</tt>, that this event is about.
      *
@@ -135,6 +140,8 @@ public class LocalUserChatRoomPresenceChangeEvent
 
     /**
      * Returns a String representation of this event.
+     *
+     * @return String representation of this event
      */
     public String toString()
     {

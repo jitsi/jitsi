@@ -12,12 +12,16 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Represents a notifying event fired by a specific {@link AccountManager}.
- * 
+ *
  * @author Lubomir Marinov
  */
 public class AccountManagerEvent
     extends EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
 
     /**
      * The type of event notifying that the loading of the stored accounts of a
@@ -42,7 +46,7 @@ public class AccountManagerEvent
      * specific <code>AccountManager</code> in order to notify of an event of a
      * specific type occurring while working on a specific
      * <code>ProtocolProviderFactory</code>.
-     * 
+     *
      * @param accountManager the <code>AccountManager</code> issuing the
      *            notification i.e. the source of the event
      * @param type the type of the event which is one of
@@ -62,7 +66,7 @@ public class AccountManagerEvent
     /**
      * Gets the <code>ProtocolProviderFactory</code> being worked on at the time
      * this event has been fired.
-     * 
+     *
      * @return the <code>ProtocolProviderFactory</code> being worked on at the
      *         time this event has been fired
      */
@@ -74,7 +78,7 @@ public class AccountManagerEvent
     /**
      * Gets the (detail) type of this event which is one of
      * <code>STORED_ACCOUNTS_LOADED</code>.
-     * 
+     *
      * @return the (detail) type of this event which is one of
      *         <code>STORED_ACCOUNTS_LOADED</code>
      */

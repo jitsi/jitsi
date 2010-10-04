@@ -10,7 +10,7 @@ package net.java.sip.communicator.service.configuration;
 import java.beans.*;
 import java.util.EventListener;
 
-/*
+/**
  * This interface uses SC's own ProperteyVetoException.
  */
 public interface ConfigVetoableChangeListener extends EventListener
@@ -22,4 +22,4 @@ public interface ConfigVetoableChangeListener extends EventListener
    * @throws ConfigPropertyVetoException if the change is vetoed by the listener
    */
   void vetoableChange(PropertyChangeEvent e) throws ConfigPropertyVetoException;
-} 
+}

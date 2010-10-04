@@ -21,6 +21,11 @@ public class CallHistoryQueryStatusEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates the type of this event.
      */
     private final int eventType;

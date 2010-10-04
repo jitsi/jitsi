@@ -94,5 +94,15 @@ public class ScreenDeviceImpl implements ScreenDevice
         }
         return null;
     }
+
+    /**
+     * Get the identifier of the screen.
+     *
+     * @return ID of the screen
+     */
+    public String getName()
+    {
+        return screen.getIDstring();
+    }
 }
 

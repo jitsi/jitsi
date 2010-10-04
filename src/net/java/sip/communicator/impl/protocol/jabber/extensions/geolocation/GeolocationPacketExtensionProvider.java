@@ -21,7 +21,9 @@ import org.xmlpull.v1.XmlPullParser;
 public class GeolocationPacketExtensionProvider
     implements PacketExtensionProvider
 {
-
+    /**
+     * The logger of this class.
+     */
     private static final Logger logger =
         Logger.getLogger(GeolocationPacketExtensionProvider.class);
 

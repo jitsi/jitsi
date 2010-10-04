@@ -20,6 +20,11 @@ public class WhiteboardSessionPresenceChangeEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates that this event was triggered as a result of the local
      * participant joining a whiteboard.
      */
@@ -42,7 +47,7 @@ public class WhiteboardSessionPresenceChangeEvent
     * participant being kicked from a whiteboard.
     */
     public static final String LOCAL_USER_KICKED = "LocalUserKicked";
-    
+
     /**
      * Indicates that this event was triggered as a result of the local
      * participant beeing disconnected from the server brutally, or ping timeout.
@@ -53,7 +58,7 @@ public class WhiteboardSessionPresenceChangeEvent
      * The <tt>WhiteboardSession</tt> to which the change is related.
      */
     private WhiteboardSession whiteboardSession = null;
-    
+
     /**
      * The type of this event.
      */
@@ -69,7 +74,7 @@ public class WhiteboardSessionPresenceChangeEvent
      * Creates a <tt>WhiteboardSessionPresenceChangeEvent</tt> representing that
      * a change in local participant presence in the source white-board has
      * occured.
-     * 
+     *
      * @param source the <tt>OperationSetWhiteboarding</tt>, which produced this
      * event
      * @param session the <tt>WhiteboardSession</tt> that this event is about
@@ -82,7 +87,7 @@ public class WhiteboardSessionPresenceChangeEvent
                                                 String reason)
     {
         super(source);
-        
+
         this.whiteboardSession = session;
         this.eventType = eventType;
         this.reason = reason;
@@ -99,7 +104,7 @@ public class WhiteboardSessionPresenceChangeEvent
     {
         return (OperationSetWhiteboarding) getSource();
     }
-    
+
     /**
      * Returns the <tt>WhiteboardSession</tt>, that this event is about.
      *
@@ -134,6 +139,8 @@ public class WhiteboardSessionPresenceChangeEvent
 
     /**
      * Returns a String representation of this event.
+     *
+     * @return String representation of this event
      */
     public String toString()
     {

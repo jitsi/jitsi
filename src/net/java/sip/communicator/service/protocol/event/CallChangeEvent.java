@@ -19,6 +19,9 @@ import net.java.sip.communicator.service.protocol.*;
 public class CallChangeEvent
     extends java.beans.PropertyChangeEvent
 {
+    /**
+     * Serial version UID.
+     */
     private static final long serialVersionUID = 0L;
 
     /**

@@ -51,10 +51,13 @@ public class FileHistoryServiceImpl
      */
     private BundleContext bundleContext = null;
 
+    /**
+     * The <tt>HistoryService</tt> reference.
+     */
     private HistoryService historyService = null;
 
     /**
-     * Starts the service. Check the current registerd protocol providers
+     * Starts the service. Check the current registered protocol providers
      * which supports FileTransfer and adds a listener to them.
      *
      * @param bc BundleContext

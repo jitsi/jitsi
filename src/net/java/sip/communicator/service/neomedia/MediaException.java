@@ -18,6 +18,11 @@ public class MediaException
     extends Exception
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The error code value which specifies that the <tt>MediaException</tt>
      * carrying it does not give more information about its specifics.
      */

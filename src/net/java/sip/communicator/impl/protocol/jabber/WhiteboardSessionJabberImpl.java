@@ -30,6 +30,9 @@ public class WhiteboardSessionJabberImpl
     implements  WhiteboardParticipantListener,
                 WhiteboardSession
 {
+    /**
+     * The logger of this class.
+     */
     private static final Logger logger =
         Logger.getLogger(WhiteboardSessionJabberImpl.class);
 

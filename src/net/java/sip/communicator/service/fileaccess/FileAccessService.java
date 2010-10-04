@@ -110,17 +110,18 @@ public interface FileAccessService {
 
     /**
      * Returns the default download directory depending on the operating system.
-     * 
+     *
      * @return the default download directory depending on the operating system
+     * @throws IOException if it I/O error occurred
      */
     File getDefaultDownloadDirectory() throws IOException;
 
     /**
      * Creates a failsafe transaction which can be used to safely store
      * informations into a file.
-     * 
+     *
      * @param file The file concerned by the transaction, null if file is null.
-     * 
+     *
      * @return A new failsafe transaction related to the given file.
      */
     FailSafeTransaction createFailSafeTransaction(File file);

@@ -20,15 +20,20 @@ public class ChatRoomPropertyChangeEvent
     extends java.beans.PropertyChangeEvent
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The name of the <tt>ChatRoom</tt> subject property.
      */
     public static final String CHAT_ROOM_SUBJECT = "ChatRoomSubject";
-    
+
     /**
      * The name of the <tt>ChatRoom</tt> subject property.
      */
     public static final String CHAT_ROOM_USER_NICKNAME = "ChatRoomUserNickname";
-    
+
     /**
      * Creates a <tt>ChatRoomPropertyChangeEvent</tt> indicating that a change
      * has occurred for property <tt>propertyName</tt> in the <tt>source</tt>
@@ -58,9 +63,11 @@ public class ChatRoomPropertyChangeEvent
     {
         return (ChatRoom)getSource();
     }
-    
+
     /**
      * Returns a String representation of this event.
+     *
+     * @return String representation of this event
      */
     public String toString()
     {

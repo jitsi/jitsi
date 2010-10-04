@@ -20,6 +20,11 @@ public class MessageDeliveryFailedEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
       * The contact that this message has been sent to.
       */
      private Contact to = null;
@@ -142,7 +147,7 @@ public class MessageDeliveryFailedEvent
      {
          return (Message) getSource();
      }
-     
+
      /**
       * Returns an error code descibing the reason for the failure of the
       * message delivery.
@@ -158,7 +163,7 @@ public class MessageDeliveryFailedEvent
      * A timestamp indicating the exact date when the event ocurred (in this
      * case it is the moment when it was determined that message delivery has
      * failed).
-     * 
+     *
      * @return a long indicating when the event ocurred in the form of
      *         date timestamp.
      */

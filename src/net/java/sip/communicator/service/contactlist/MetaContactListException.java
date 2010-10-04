@@ -18,6 +18,11 @@ public class MetaContactListException
     extends RuntimeException
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates that an error has occurred while performing a local IO
      * operation (e.g. while writing in a file).
      */
@@ -52,13 +57,13 @@ public class MetaContactListException
      * An error code indicating the nature of this exception.
      */
     private int errCode = CODE_UNKNOWN_ERROR;
-    
+
     /**
      * Indicates that the exception was caused by the fact that we tried to
      * remove a group that cannot be removed or an error occur during remove.
      */
     public static final int CODE_REMOVE_GROUP_ERROR  = 6;
-    
+
    /**
      * Indicates that the exception was caused by the fact that we tried to
      * move a contact that cannot be moved or an error occur during move.

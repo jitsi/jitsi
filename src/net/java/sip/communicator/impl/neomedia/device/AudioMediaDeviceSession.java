@@ -124,8 +124,6 @@ public class AudioMediaDeviceSession
      *
      * @param processor the processor on which track control we need
      * to register a level effect with.
-     * @throws UnsupportedPlugInException if we <tt>tc</tt> does not support
-     * effects.
      */
     protected void registerLocalUserAudioLevelEffect(Processor processor)
     {

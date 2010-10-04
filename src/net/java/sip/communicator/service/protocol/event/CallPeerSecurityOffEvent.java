@@ -17,6 +17,10 @@ import net.java.sip.communicator.service.protocol.*;
 public class CallPeerSecurityOffEvent
     extends CallPeerSecurityStatusEvent
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
 
     /**
      * The event constructor.

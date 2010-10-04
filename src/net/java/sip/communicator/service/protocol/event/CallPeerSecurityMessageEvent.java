@@ -21,6 +21,11 @@ public class CallPeerSecurityMessageEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * This is a information message. Security will be established.
      */
     public static final int INFORMATION = 0;

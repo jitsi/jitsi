@@ -20,6 +20,11 @@ public class DTMFToneEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The tone that this event is pertaining to.
      */
     private final DTMFTone dtmfTone;

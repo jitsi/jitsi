@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * <tt>ChatRoomInvitationReceivedEvent</tt>s indicate reception of an
  * invitation to join a chat room.
- * 
+ *
  * @author Emil Ivov
  * @author Stephane Remy
  * @author Yana Stamcheva
@@ -21,10 +21,15 @@ public class ChatRoomInvitationReceivedEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The invitation corresponding to this event.
      */
     private final ChatRoomInvitation invitation;
-    
+
     /**
      * A timestamp indicating the exact date when the event occurred.
      */
@@ -50,17 +55,17 @@ public class ChatRoomInvitationReceivedEvent
         this.invitation = invitation;
         this.timestamp = timestamp;
     }
-    
+
     /**
      * Returns the multi user chat operation set that dispatches this event.
-     * 
+     *
      * @return the multi user chat operation set that dispatches this event.
      */
     public OperationSetMultiUserChat getSourceOperationSet()
     {
         return (OperationSetMultiUserChat) getSource();
     }
-    
+
     /**
      * Returns the <tt>ChatRoomInvitation</tt> that this event is for.
      *
@@ -70,7 +75,7 @@ public class ChatRoomInvitationReceivedEvent
     {
         return invitation;
     }
-    
+
     /**
      * A timestamp indicating the exact date when the event ocurred.
      *

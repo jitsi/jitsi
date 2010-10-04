@@ -13,6 +13,11 @@ public class ContactPropertyChangeEvent
     extends java.beans.PropertyChangeEvent
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates that a change has occurred in the display name of the source
      * contact.
      */

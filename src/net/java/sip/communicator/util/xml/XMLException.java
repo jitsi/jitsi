@@ -16,6 +16,9 @@ package net.java.sip.communicator.util.xml;
 public class XMLException
     extends Exception
 {
+    /**
+     * Serial version UID.
+     */
     private static final long serialVersionUID = 0L;
 
     /**

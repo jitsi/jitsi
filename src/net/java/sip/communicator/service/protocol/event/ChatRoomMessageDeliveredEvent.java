@@ -21,6 +21,11 @@ public class ChatRoomMessageDeliveredEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * An event type indicating that the message being received is a standard
      * conversation message sent by another member of the chat room to all
      * current participants.

@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.keybindings;
@@ -14,7 +14,7 @@ import net.java.sip.communicator.service.keybindings.KeybindingSet;
 
 /**
  * Default implementation for the wrapper of keybinding sets.
- * 
+ *
  * @author Damian Johnson
  */
 class KeybindingSetImpl
@@ -24,11 +24,15 @@ class KeybindingSetImpl
 
     private Category category;
 
-    // Destination where custom bindings are saved, null if it couldn't be
-    // secured
+    /**
+     * Destination where custom bindings are saved, null if it couldn't be
+     * secured.
+     */
     private File customFile;
 
-    // Flag indicating that the associated service has been stopped
+    /**
+     * Flag indicating that the associated service has been stopped.
+     */
     private boolean isInvalidated = false;
 
     KeybindingSetImpl(Map<KeyStroke, String> initial, Category category,
@@ -41,7 +45,7 @@ class KeybindingSetImpl
 
     /**
      * Provides current keybinding mappings.
-     * 
+     *
      * @return mapping of keystrokes to the string representation of the actions
      *         they perform
      */
@@ -53,7 +57,7 @@ class KeybindingSetImpl
     /**
      * Resets the bindings and notifies the observer's listeners if they've
      * changed. If the bindings can be written then they will be.
-     * 
+     *
      * @param newBindings new keybindings to be held
      */
     public void setBindings(Map<KeyStroke, String> newBindings)
@@ -68,7 +72,7 @@ class KeybindingSetImpl
 
     /**
      * Provides the portion of the UI to which the bindings belong.
-     * 
+     *
      * @return binding category
      */
     public Category getCategory()
@@ -78,7 +82,7 @@ class KeybindingSetImpl
 
     /**
      * Provides if the keybindings can be written when changed or not.
-     * 
+     *
      * @return true if bindings can be written when changed, false otherwise
      */
     boolean isWritable()
@@ -88,7 +92,7 @@ class KeybindingSetImpl
 
     /**
      * Provides the file where custom bindings are to be saved.
-     * 
+     *
      * @return custom bindings save destination
      */
     File getCustomFile()

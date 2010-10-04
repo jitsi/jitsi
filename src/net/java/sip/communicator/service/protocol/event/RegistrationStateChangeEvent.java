@@ -30,6 +30,11 @@ import net.java.sip.communicator.service.protocol.*;
 public class RegistrationStateChangeEvent extends PropertyChangeEvent
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates that no reason is specified for this event transition.
      */
     public static final int REASON_NOT_SPECIFIED = -1;

@@ -18,6 +18,11 @@ public class AudioConfigurationPanel
     extends TransparentPanel
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Creates an instance of the <tt>AudioConfigurationPanel</tt>.
      */
     public AudioConfigurationPanel()

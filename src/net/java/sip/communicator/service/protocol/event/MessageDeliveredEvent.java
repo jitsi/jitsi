@@ -20,6 +20,11 @@ public class MessageDeliveredEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
       * The contact that has sent this message.
       */
      private Contact to = null;

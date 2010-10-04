@@ -22,6 +22,11 @@ public class WhiteboardObjectReceivedEvent
   extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The contact that has sent this wbObject.
      */
     private Contact from = null;
@@ -60,7 +65,7 @@ public class WhiteboardObjectReceivedEvent
     /**
      * Returns the source white-board session, to which the received object
      * belongs.
-     * 
+     *
      * @return the source white-board session, to which the received object
      * belongs
      */

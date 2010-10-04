@@ -32,7 +32,6 @@ public enum MediaUseCase
 
     /**
      * Name of this <tt>MediaUseCase</tt>.
-     *
      */
     private final String mediaUseCase;
 

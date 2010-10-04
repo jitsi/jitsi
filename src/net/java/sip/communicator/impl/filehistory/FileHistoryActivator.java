@@ -18,16 +18,23 @@ import net.java.sip.communicator.util.*;
 public class FileHistoryActivator
     implements BundleActivator
 {
+    /**
+     * The <tt>Logger</tt> instance used by the
+     * <tt>FileHistoryActivator</tt> class and its instances for logging output.
+     */
     private static Logger logger =
         Logger.getLogger(FileHistoryActivator.class);
 
+    /**
+     * A <tt>FileHistoryService</tt> service reference.
+     */
     private FileHistoryServiceImpl fileHistoryService = null;
 
     /**
      * Initialize and start file history
      *
      * @param bundleContext BundleContext
-     * @throws Exception
+     * @throws Exception if initializing and starting file history fails
      */
     public void start(BundleContext bundleContext) throws Exception
     {
@@ -62,6 +69,12 @@ public class FileHistoryActivator
 
     }
 
+    /**
+     * Stops this bundle.
+     *
+     * @param bundleContext the <tt>BundleContext</tt>
+     * @throws Exception if the stop operation goes wrong
+     */
     public void stop(BundleContext bundleContext) throws Exception
     {
         if(fileHistoryService != null)

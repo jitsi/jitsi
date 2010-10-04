@@ -14,28 +14,33 @@ import net.java.sip.communicator.service.protocol.*;
  * Dispatched to indicate that a change of a chat room property has failed.
  * The modification of a property could fail, because the implementation
  * doesn't support such a property.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatRoomPropertyChangeFailedEvent
     extends PropertyChangeEvent
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates that the current implementation doesn't support the given
      * property.
      */
     public static final int PROPERTY_NOT_SUPPORTED = 0;
-    
+
     /**
      * The reason of the failure.
      */
     private final String reason;
-    
+
     /**
      * Indicates why the failure occurred.
      */
     private final int reasonCode;
-    
+
     /**
      * Creates a <tt>ChatRoomPropertyChangeEvent</tt> indicating that a change
      * has occurred for property <tt>propertyName</tt> in the <tt>source</tt>
@@ -49,7 +54,7 @@ public class ChatRoomPropertyChangeFailedEvent
      * @param reasonCode the code indicating the reason for the failure
      * @param reason more detailed explanation of the failure
      */
-    public ChatRoomPropertyChangeFailedEvent(   ChatRoom source, 
+    public ChatRoomPropertyChangeFailedEvent(   ChatRoom source,
                                                 String propertyName,
                                                 Object propertyValue,
                                                 Object expectedValue,
@@ -57,7 +62,7 @@ public class ChatRoomPropertyChangeFailedEvent
                                                 String reason)
     {
         super(source, propertyName, propertyValue, expectedValue);
-        
+
         this.reasonCode = reasonCode;
         this.reason = reason;
     }
@@ -72,27 +77,27 @@ public class ChatRoomPropertyChangeFailedEvent
     {
         return (ChatRoom)getSource();
     }
-    
+
     /**
      * Returns the value of the property.
-     * 
+     *
      * @return the value of the property.
      */
     public Object getPropertyValue()
     {
-        return getOldValue(); 
+        return getOldValue();
     }
-    
+
     /**
      * Return the expected after the change value of the property.
-     * 
+     *
      * @return the expected after the change value of the property
      */
     public Object getExpectedValue()
     {
         return getNewValue();
     }
-    
+
     /**
      * Returns the code of the failure. One of the static constants declared in
      * this class.
@@ -103,7 +108,7 @@ public class ChatRoomPropertyChangeFailedEvent
     {
         return reasonCode;
     }
-    
+
     /**
      * Returns the reason of the failure.
      * @return the reason of the failure
@@ -112,9 +117,11 @@ public class ChatRoomPropertyChangeFailedEvent
     {
         return reason;
     }
-    
+
     /**
      * Returns a String representation of this event.
+     *
+     * @return String representation of this event
      */
     public String toString()
     {

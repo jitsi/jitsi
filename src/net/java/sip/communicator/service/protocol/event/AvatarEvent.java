@@ -12,12 +12,17 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Instances of this class represent a change avatar of a protocol
- * 
+ *
  * @author Damien Roth
  */
 public class AvatarEvent
     extends EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The new avatar
      */
@@ -31,7 +36,7 @@ public class AvatarEvent
     /**
      * Creates an event instance indicating that the specified protocol
      * has changed its avatar to <tt>newAvatar</tt>.
-     * 
+     *
      * @param sourceOp the operation set that generated this event
      * @param sourceProvider the protocol provider that the contact belongs to
      * @param newAvatar the new avatar
@@ -77,7 +82,7 @@ public class AvatarEvent
 
     /**
      * Returns a String representation of this AvatarEvent
-     * 
+     *
      * @return a <tt>String</tt> representation of this <tt>AvatarEvent</tt>.
      */
     public String toString()

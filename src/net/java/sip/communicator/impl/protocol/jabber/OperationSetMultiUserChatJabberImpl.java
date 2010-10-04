@@ -629,7 +629,8 @@ public class OperationSetMultiUserChatJabberImpl
          * passes to it the chat room for which it will listen for rejection
          * events.
          *
-         * @param chatRoom
+         * @param chatRoom chat room for which this intance will listen for
+         * rejection events
          */
         public SmackInvitationRejectionListener(ChatRoom chatRoom)
         {

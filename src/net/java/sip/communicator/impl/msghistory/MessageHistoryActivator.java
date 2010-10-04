@@ -20,18 +20,30 @@ import org.osgi.framework.*;
 public class MessageHistoryActivator
     implements BundleActivator
 {
+    /**
+     * The <tt>Logger</tt> instance used by the
+     * <tt>MessageHistoryActivator</tt> class and its instances for logging
+     * output.
+     */
     private static Logger logger =
         Logger.getLogger(MessageHistoryActivator.class);
 
+    /**
+     * The <tt>MessageHistoryService</tt> reference.
+     */
     private MessageHistoryServiceImpl msgHistoryService = null;
 
+    /**
+     * The <tt>BundleContext</tt> of the service.
+     */
     static BundleContext bundleContext;
 
     /**
      * Initialize and start message history
      *
      * @param bc the BundleContext
-     * @throws Exception
+     * @throws Exception if initializing and starting message history service
+     * fails
      */
     public void start(BundleContext bc) throws Exception
     {
@@ -67,6 +79,12 @@ public class MessageHistoryActivator
 
     }
 
+    /**
+     * Stops this bundle.
+     *
+     * @param bundleContext the <tt>BundleContext</tt>
+     * @throws Exception if the stop operation goes wrong
+     */
     public void stop(BundleContext bundleContext) throws Exception
     {
         if(msgHistoryService != null)

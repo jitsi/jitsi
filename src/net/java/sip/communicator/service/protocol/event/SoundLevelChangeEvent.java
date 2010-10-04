@@ -28,6 +28,11 @@ public class SoundLevelChangeEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The maximum level that can be reported for a participant.
      * Level values should be distributed among MAX_LEVEL and MIN_LEVEL in a
      * way that would appear uniform to users.

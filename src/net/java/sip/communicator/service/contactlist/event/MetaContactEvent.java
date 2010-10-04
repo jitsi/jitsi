@@ -19,6 +19,14 @@ import net.java.sip.communicator.service.contactlist.*;
 public class MetaContactEvent
     extends EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
+     * ID of the event.
+     */
     private int eventID = -1;
 
     /**
@@ -39,6 +47,9 @@ public class MetaContactEvent
      */
     public static final int META_CONTACT_MOVED = 3;
 
+    /**
+     * The parent group of the contact.
+     */
     private MetaContactGroup  parentGroup = null;
 
     /**

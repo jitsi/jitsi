@@ -21,6 +21,11 @@ public class HistoryRecordEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The <tt>HistoryRecord</tt> this event is about.
      */
     private final HistoryRecord historyRecord;

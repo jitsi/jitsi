@@ -26,8 +26,12 @@ import net.java.sip.communicator.util.*;
 public class YahooStatusEnum
     extends PresenceStatus
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>YahooStatusEnum</tt> class and its
+     * instances for logging output.
+     */
     private static Logger logger = Logger.getLogger(YahooStatusEnum.class);
-    
+
     /**
      * The Online status. Indicate that the user is able and willing to
      * communicate.
@@ -73,7 +77,7 @@ public class YahooStatusEnum
     public static final YahooStatusEnum NOT_AT_HOME
         = new YahooStatusEnum(38, "Not at home",
                 loadIcon("resources/images/protocol/yahoo/yahoo16x16-na.png"));
-    
+
     /**
      * The On the phone status. Indicates that the user is talking to the phone.
      */
@@ -82,13 +86,13 @@ public class YahooStatusEnum
                 loadIcon("resources/images/protocol/yahoo/yahoo16x16-phone.png"));
 
     /**
-     * The Not at desk status. Indicates that the user is not at his desk, but 
+     * The Not at desk status. Indicates that the user is not at his desk, but
      * somewhere in the office.
      */
     public static final YahooStatusEnum NOT_AT_DESK
         = new YahooStatusEnum(36, "Not at desk",
                 loadIcon("resources/images/protocol/yahoo/yahoo16x16-na.png"));
-    
+
     /**
      * The Not Available status. Indicates that the user has connectivity
      * but might not be able to immediately act (i.e. even less immediately than
@@ -105,15 +109,15 @@ public class YahooStatusEnum
     public static final YahooStatusEnum NOT_IN_OFFICE
         = new YahooStatusEnum(34, "Not in office",
                 loadIcon("resources/images/protocol/yahoo/yahoo16x16-na.png"));
-    
+
     /**
-     * The On vacation status. Indicates that the user is somewhere on the 
+     * The On vacation status. Indicates that the user is somewhere on the
      * beach or skiing.
      */
     public static final YahooStatusEnum ON_VACATION
         = new YahooStatusEnum(33, "On vacation",
                 loadIcon("resources/images/protocol/yahoo/yahoo16x16-vacation.png"));
-    
+
     /**
      * The DND status. Indicates that the user has connectivity but prefers
      * not to be contacted.

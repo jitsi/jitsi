@@ -18,6 +18,11 @@ import java.util.*;
 public class ProgressEvent
     extends java.util.EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private net.java.sip.communicator.service.history.event.ProgressEvent evt;
 
     /**

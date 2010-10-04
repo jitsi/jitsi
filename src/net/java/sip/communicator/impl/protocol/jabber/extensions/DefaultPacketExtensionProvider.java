@@ -16,6 +16,7 @@ import org.xmlpull.v1.*;
  * A provider that parses incoming packet extensions into instances of the
  * {@link Class} that it has been instantiated for.
  *
+ * @param <C> Class that the packets we will be parsing belong to
  * @author Emil Ivov
  */
 public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>

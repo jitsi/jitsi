@@ -1,6 +1,6 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.jabber;
@@ -14,13 +14,15 @@ import net.java.sip.communicator.util.*;
 /**
  * The WhiteboardParticipantJabberImpl is a class that represents participants
  * in a whiteboard.
- * 
+ *
  * @author Julien Waechter
  */
 public class WhiteboardParticipantJabberImpl
     implements WhiteboardParticipant
 {
-
+    /**
+     * The logger of this class.
+     */
     private static final Logger logger =
         Logger.getLogger(WhiteboardParticipantJabberImpl.class);
 
@@ -60,10 +62,10 @@ public class WhiteboardParticipantJabberImpl
     /**
      * Creates a new whiteboard participant with address
      * <tt>participantAddress</tt>.
-     * 
+     *
      * @param participant the JAIN SIP <tt>Address</tt> of the new whiteboard
      *            participant.
-     * 
+     *
      * @param owningWhiteboard the whiteboard that contains this whiteboard
      *            participant.
      */
@@ -82,7 +84,7 @@ public class WhiteboardParticipantJabberImpl
 
     /**
      * Returns the contact identifier representing this contact.
-     * 
+     *
      * @return a String contact address
      */
     public String getContactAddress()
@@ -93,7 +95,7 @@ public class WhiteboardParticipantJabberImpl
     /**
      * Returns an object representing the current state of that participant.
      * WhiteboardParticipantState may vary among CONNECTING, BUSY, CONNECTED...
-     * 
+     *
      * @return a WhiteboardParticipantState instance representin the
      *         participant's state.
      */
@@ -106,7 +108,7 @@ public class WhiteboardParticipantJabberImpl
      * Causes this WhiteboardParticipant to enter the specified state. The
      * method also sets the currentStateStartDate field and fires a
      * WhiteboardParticipantChangeEvent.
-     * 
+     *
      * @param newState the state this whiteboard participant should enter.
      * @param reason a string that could be set to contain a human readable
      *            explanation for the transition (particularly handy when moving
@@ -130,7 +132,7 @@ public class WhiteboardParticipantJabberImpl
      * Causes this WhiteboardParticipant to enter the specified state. The
      * method also sets the currentStateStartDate field and fires a
      * WhiteboardParticipantChangeEvent.
-     * 
+     *
      * @param newState the state this whiteboard participant should enter.
      */
     protected void setState(WhiteboardParticipantState newState)
@@ -141,7 +143,7 @@ public class WhiteboardParticipantJabberImpl
     /**
      * Returns the date (time) when this whiteboard participant acquired its
      * current status.
-     * 
+     *
      * @return a java.util.Date object containing the date when this whiteboard
      *         participant entered its current state.
      */
@@ -152,7 +154,7 @@ public class WhiteboardParticipantJabberImpl
 
     /**
      * Returns a human readable name representing this participant.
-     * 
+     *
      * @return a String containing a name for that participant.
      */
     public String getDisplayName()
@@ -163,7 +165,7 @@ public class WhiteboardParticipantJabberImpl
 
     /**
      * Sets a human readable name representing this participant.
-     * 
+     *
      * @param displayName the participant's display name
      */
     protected void setDisplayName(String displayName)
@@ -183,7 +185,7 @@ public class WhiteboardParticipantJabberImpl
     /**
      * The method returns an image representation of the whiteboard participant
      * (e.g.
-     * 
+     *
      * @return byte[] a byte array containing the image or null if no image is
      *         available.
      */
@@ -195,7 +197,7 @@ public class WhiteboardParticipantJabberImpl
     /**
      * Sets the byte array containing an image representation (photo or picture)
      * of the whiteboard participant.
-     * 
+     *
      * @param image a byte array containing the image
      */
     protected void setImage(byte[] image)
@@ -211,7 +213,7 @@ public class WhiteboardParticipantJabberImpl
 
     /**
      * Returns a unique identifier representing this participant.
-     * 
+     *
      * @return an identifier representing this whiteboard participant.
      */
     public String getParticipantID()
@@ -222,7 +224,7 @@ public class WhiteboardParticipantJabberImpl
     /**
      * Sets the String that serves as a unique identifier of this
      * WhiteboardParticipant.
-     * 
+     *
      * @param participantID the ID of this whiteboard participant.
      */
     protected void setParticipantID(String participantID)
@@ -232,7 +234,7 @@ public class WhiteboardParticipantJabberImpl
 
     /**
      * Returns the chat room that this member is participating in.
-     * 
+     *
      * @return the <tt>WhiteboardSession</tt> instance that this member
      *         belongs to.
      */
@@ -243,7 +245,7 @@ public class WhiteboardParticipantJabberImpl
 
     /**
      * Sets the whiteboard containing this participant.
-     * 
+     *
      * @param whiteboard the whiteboard that this whiteboard participant is
      *            partdicipating in.
      */
@@ -255,7 +257,7 @@ public class WhiteboardParticipantJabberImpl
     /**
      * Returns the protocol provider instance that this member has originated
      * in.
-     * 
+     *
      * @return the <tt>ProtocolProviderService</tt> instance that created this
      *         member and its containing cht room
      */
@@ -268,7 +270,7 @@ public class WhiteboardParticipantJabberImpl
      * Returns the contact corresponding to this participant or null if no
      * particular contact has been associated.
      * <p>
-     * 
+     *
      * @return the <tt>Contact</tt> corresponding to this participant or null
      *         if no particular contact has been associated.
      */
@@ -286,7 +288,7 @@ public class WhiteboardParticipantJabberImpl
 
     /**
      * Allows the user interface to register a listener interested in changes
-     * 
+     *
      * @param listener a listener instance to register with this participant.
      */
     public void addWhiteboardParticipantListener(
@@ -301,7 +303,7 @@ public class WhiteboardParticipantJabberImpl
 
     /**
      * Unregisters the specified listener.
-     * 
+     *
      * @param listener the listener to unregister.
      */
     public void removeWhiteboardParticipantListener(
@@ -321,7 +323,7 @@ public class WhiteboardParticipantJabberImpl
      * whiteboard participant as source, setting it to be of type
      * <tt>eventType</tt> and the corresponding <tt>oldValue</tt> and
      * <tt>newValue</tt>,
-     * 
+     *
      * @param eventType the type of the event to create and dispatch.
      * @param oldValue the value of the source property before it changed.
      * @param newValue the current value of the source property.
@@ -338,7 +340,7 @@ public class WhiteboardParticipantJabberImpl
      * whiteboard participant as source, setting it to be of type
      * <tt>eventType</tt> and the corresponding <tt>oldValue</tt> and
      * <tt>newValue</tt>,
-     * 
+     *
      * @param eventType the type of the event to create and dispatch.
      * @param oldValue the value of the source property before it changed.
      * @param newValue the current value of the source property.
@@ -389,7 +391,7 @@ public class WhiteboardParticipantJabberImpl
     /**
      * Returns a string representation of the participant in the form of <br>
      * Display Name <address>;status=WhiteboardParticipantStatus
-     * 
+     *
      * @return a string representation of the participant and its state.
      */
     public String toString()
@@ -399,7 +401,7 @@ public class WhiteboardParticipantJabberImpl
 
     /**
      * Returns the name of this member
-     * 
+     *
      * @return the name of this member in the room (nickname).
      */
     public String getName()
@@ -409,7 +411,7 @@ public class WhiteboardParticipantJabberImpl
 
     /**
      * Sets the chat room that this member is participating in.
-     * 
+     *
      * @param session
      */
     public void setWhiteboardSession(WhiteboardSessionJabberImpl session)

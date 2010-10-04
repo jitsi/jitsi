@@ -34,7 +34,7 @@ public class ConfigurationActivator
 
     /**
      * Starts the configuration service
-     * 
+     *
      * @param bundleContext the <tt>BundleContext</tt> as provided by the OSGi
      * framework.
      * @throws Exception if anything goes wrong

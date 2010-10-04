@@ -23,6 +23,8 @@ public interface UriHandler
 
     /**
      * Returns the protocol that this handler is responsible for.
+     *
+     * @return protocol that this handler is responsible for
      */
     public String getProtocol();
 

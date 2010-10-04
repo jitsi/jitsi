@@ -23,9 +23,15 @@ public class AudioNotifierServiceImpl
     implements AudioNotifierService,
                PropertyChangeListener
 {
+    /**
+     * Map of differents audio clips.
+     */
     private static final Map<String, SCAudioClipImpl> audioClips =
         new HashMap<String, SCAudioClipImpl>();
 
+    /**
+     * If the sound is currently disabled.
+     */
     private boolean isMute;
 
     /**
@@ -48,6 +54,7 @@ public class AudioNotifierServiceImpl
      * available audio-s.
      *
      * @param uri the path where the audio file could be found
+     * @return a newly created <tt>SCAudioClip</tt> from <tt>uri</tt>
      */
     public SCAudioClipImpl createAudio(String uri)
     {
@@ -77,7 +84,7 @@ public class AudioNotifierServiceImpl
                         return null;
                     }
                 }
-                
+
                 try
                 {
                     if(getDeviceConfiguration().getAudioSystem().equals(
@@ -90,7 +97,7 @@ public class AudioNotifierServiceImpl
                     {
                         audioClip = new PortAudioClipImpl(url, this);
                     }
-                    else 
+                    else
                         return null;
                 }
                 catch (Throwable e)

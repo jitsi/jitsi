@@ -13,18 +13,36 @@ import org.osgi.framework.*;
 public class GuiServiceActivator
     implements BundleActivator
 {
+    /**
+     * The <tt>BundleContext</tt> of the service.
+     */
     private static BundleContext bundleContext;
 
+    /**
+     * Returns the <tt>BundleContext</tt>.
+     *
+     * @return bundle context
+     */
     public static BundleContext getBundleContext()
     {
         return bundleContext;
     }
 
+    /**
+     * Initialize and start GUI service
+     *
+     * @param bundleContext the <tt>BundleContext</tt>
+     */
     public void start(BundleContext bundleContext)
     {
         GuiServiceActivator.bundleContext = bundleContext;
     }
 
+    /**
+     * Stops this bundle.
+     *
+     * @param bundleContext the <tt>BundleContext</tt>
+     */
     public void stop(BundleContext bundleContext)
     {
         if (GuiServiceActivator.bundleContext == bundleContext)

@@ -66,7 +66,7 @@ public class AESCrypto
 
     /**
      * Creates the encryption and decryption objects and the key.
-     * 
+     *
      * @param masterPassword used to derive the key. Can be null.
      */
     public AESCrypto(String masterPassword)
@@ -117,9 +117,10 @@ public class AESCrypto
      *
      * @param masterPassword used to derive the key. Can be null.
      * @param keyLength Length of the key in bits.
-     * @throws InvalidKeyException
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeySpecException
+     * @throws InvalidKeyException if the key is invalid (bad encoding,
+     * wrong length, uninitialized, etc).
+     * @throws NoSuchAlgorithmException if the algorithm chosen does not exist
+     * @throws InvalidKeySpecException if the key specifications are invalid
      */
     private void initKey(String masterPassword, int keyLength)
         throws  InvalidKeyException,
@@ -153,7 +154,7 @@ public class AESCrypto
 
     /**
      * Decrypts the cyphertext using the key.
-     * 
+     *
      * @param ciphertext base64 encoded encrypted data
      * @return decrypted data
      * @throws CryptoException when the ciphertext cannot be decrypted with the
@@ -178,9 +179,9 @@ public class AESCrypto
 
     /**
      * Encrypts the plaintext using the key.
-     * 
+     *
      * @param plaintext data to be encrypted
-     * @return base64 encoded encrypted data 
+     * @return base64 encoded encrypted data
      * @throws CryptoException on encryption error
      */
     public String encrypt(String plaintext) throws CryptoException

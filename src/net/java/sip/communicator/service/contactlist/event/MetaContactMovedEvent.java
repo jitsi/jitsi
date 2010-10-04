@@ -18,6 +18,10 @@ import net.java.sip.communicator.service.contactlist.*;
 public class MetaContactMovedEvent
     extends MetaContactPropertyChangeEvent
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
 
     /**
      * Createas an instance of this <tt>MetaContactMovedEvent</tt> using the

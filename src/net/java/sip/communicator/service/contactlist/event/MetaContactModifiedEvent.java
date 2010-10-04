@@ -16,6 +16,11 @@ public class MetaContactModifiedEvent
     extends MetaContactPropertyChangeEvent
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Name of the modification.
      */
     private String modificationName;

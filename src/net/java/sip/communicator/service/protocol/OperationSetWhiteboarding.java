@@ -66,7 +66,7 @@ public interface OperationSetWhiteboarding
      */
     public WhiteboardSession createWhiteboardSession(
             String sessionName,
-            Hashtable sessionProperties)
+            Hashtable<Object, Object> sessionProperties)
         throws OperationFailedException, OperationNotSupportedException;
 
     /**

@@ -29,26 +29,39 @@ import net.java.sip.communicator.util.*;
  * </ol>
  * Custom bindings attempt to be written again whenever they're changed if the
  * service is running. Each category of keybindings are stored in its own file.
- * 
+ *
  * @author Damian Johnson
  */
 class KeybindingsServiceImpl
     implements KeybindingsService, Observer
 {
+    /**
+     * The <tt>Logger</tt> instance used by the
+     * <tt>KeybindingsServiceImpl</tt> class and its instances for logging
+     * output.
+     */
     private static final Logger logger =
         Logger.getLogger(KeybindingsServiceImpl.class);
 
-    // Name of the relative directory that holds default bindings
+    /**
+     * Name of the relative directory that holds default bindings.
+     */
     private static final String DEFAULT_KEYBINDING_DIR =
         "/resources/config/defaultkeybindings";
 
-    // Name of the directory that holds custom bindings
+    /**
+     * Name of the directory that holds custom bindings.
+     */
     private static final String CUSTOM_KEYBINDING_DIR = "keybindings";
 
-    // Flag indicating if service is running
+    /**
+     * Flag indicating if service is running.
+     */
     private boolean isRunning = false;
 
-    // Loaded keybinding mappings, maps to null if defaults failed to be loaded
+    /**
+     * Loaded keybinding mappings, maps to null if defaults failed to be loaded.
+     */
     private final HashMap<KeybindingSet.Category, KeybindingSetImpl> bindings =
         new HashMap<KeybindingSet.Category, KeybindingSetImpl>();
 
@@ -57,7 +70,7 @@ class KeybindingsServiceImpl
      * default bindings then overwriting them with any custom bindings that can
      * be retrieved. This writes the merged copy back if it differs from the
      * custom bindings. This is a no-op if the service has already been started.
-     * 
+     *
      * @param bc the currently valid OSGI bundle context.
      */
     synchronized void start(BundleContext bc)
@@ -226,7 +239,7 @@ class KeybindingsServiceImpl
     /**
      * Provides the bindings associated with a given category. This may be null
      * if the default bindings failed to be loaded.
-     * 
+     *
      * @param category segment of the UI for which bindings should be retrieved
      * @return mappings of keystrokes to the string representation of their
      *         actions
@@ -243,7 +256,9 @@ class KeybindingsServiceImpl
         return this.bindings.get(category);
     }
 
-    // Listens for changes in binding sets so changes can be written
+    /**
+     * Listens for changes in binding sets so changes can be written.
+     */
     public void update(Observable obs, Object arg)
     {
         if (obs instanceof KeybindingSetImpl)

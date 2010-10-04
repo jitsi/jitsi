@@ -18,13 +18,18 @@ import gnu.java.zrtp.*;
 public class ZrtpConfigureTableModel<T extends Enum<T>>
     extends AbstractTableModel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final ZrtpConfigure active;
     private final ZrtpConfigure inActive;
-    
+
     // used to identify the Enum class when calling ZrtpConfigure methods.
-    private final T algorithm;  
+    private final T algorithm;
     private final Class<T> clazz;
-    
+
     boolean onOff[];
 
     public ZrtpConfigureTableModel(T algo, ZrtpConfigure act,
@@ -83,7 +88,7 @@ public class ZrtpConfigureTableModel<T extends Enum<T>>
     }
 
     public int getRowCount()
-    { 
+    {
         return active.getNumConfiguredAlgos(algorithm)
             + inActive.getNumConfiguredAlgos(algorithm);
     }
@@ -102,7 +107,7 @@ public class ZrtpConfigureTableModel<T extends Enum<T>>
                 row -= active.getNumConfiguredAlgos(algorithm);
                 return (inActive.getAlgoAt(row, algorithm).name());
             }
-            else 
+            else
                 return (active.getAlgoAt(row, algorithm).name());
         default:
             return null;
@@ -141,10 +146,10 @@ public class ZrtpConfigureTableModel<T extends Enum<T>>
 
     /**
      * Move a Configuration entry up or down one position.
-     * 
+     *
      * The "move up" is Converted to a "move down" with modified row index
      * and flags.
-     * 
+     *
      * @param row
      *        Which row to move
      * @param up
@@ -223,7 +228,7 @@ public class ZrtpConfigureTableModel<T extends Enum<T>>
 
     /**
      * Sets the ZrtpConfigure data for this algorithm to a predefined set.
-     * 
+     *
      * The caller prepared active ZrtpConfigureto contain a standard set of
      * algorithms. Get the names and construct a string, then call initialize
      * to setup the inActive ZrtpConfigure data.

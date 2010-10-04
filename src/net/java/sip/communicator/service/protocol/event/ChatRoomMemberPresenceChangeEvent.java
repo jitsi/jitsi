@@ -21,6 +21,11 @@ public class ChatRoomMemberPresenceChangeEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates that this event was triggered as a result of the participant
      * joining the source chat room.
      */
@@ -78,9 +83,9 @@ public class ChatRoomMemberPresenceChangeEvent
      * Creates a <tt>ChatRoomMemberPresenceChangeEvent</tt> representing that
      * a change in the presence of a <tt>ChatRoomMember</tt> has occurred.
      * Changes may include the participant being kicked, join, left, etc.
-     * 
+     *
      * @param sourceRoom the <tt>ChatRoom</tt> that produced this event
-     * @param sourceMember the <tt>ChatRoomMember</tt> that this event is about 
+     * @param sourceMember the <tt>ChatRoomMember</tt> that this event is about
      * @param eventType the event type; one of the MEMBER_XXX constants
      * @param reason the reason explaining why this event might have occurred
      */
@@ -96,11 +101,11 @@ public class ChatRoomMemberPresenceChangeEvent
      * Creates a <tt>ChatRoomMemberPresenceChangeEvent</tt> representing that
      * a change in the presence of a <tt>ChatRoomMember</tt> has occurred.
      * Changes may include the participant being kicked, join, left, etc.
-     * 
+     *
      * @param sourceRoom the <tt>ChatRoom</tt> that produced this event
      * @param sourceMember the <tt>ChatRoomMember</tt> that this event is about
      * @param actorMember the <tt>ChatRoomMember</tt> that participated as an
-     * actor in this event 
+     * actor in this event
      * @param eventType the event type; one of the MEMBER_XXX constants
      * @param reason the reason explaining why this event might have occurred
      */
@@ -129,7 +134,7 @@ public class ChatRoomMemberPresenceChangeEvent
 
     /**
      * Returns the chat room member that this event is about.
-     * 
+     *
      * @return the <tt>ChatRoomMember</tt> that this event is about.
      */
     public ChatRoomMember getChatRoomMember()
@@ -151,7 +156,7 @@ public class ChatRoomMemberPresenceChangeEvent
     /**
      * Gets the indicator which determines whether this event has occurred with
      * the well-known reason of listing all users in a <code>ChatRoom</code>.
-     *  
+     *
      * @return <tt>true</tt> if this event has occurred with the well-known
      * reason of listing all users in a <code>ChatRoom</code> i.e.
      * {@link #getReason()} returns a value of {@link #REASON_USER_LIST};
@@ -176,6 +181,8 @@ public class ChatRoomMemberPresenceChangeEvent
 
     /**
      * Returns a String representation of this event.
+     *
+     * @return String representation of this event
      */
     public String toString()
     {

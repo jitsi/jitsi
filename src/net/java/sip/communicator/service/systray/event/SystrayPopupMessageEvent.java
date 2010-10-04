@@ -11,15 +11,25 @@ import java.util.*;
 /**
  * The <tt>SystrayPopupMessageEvent</tt>s are posted when user clicks on the
  * system tray popup message.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SystrayPopupMessageEvent
     extends EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /** an object to distinguish this <tt>SystrayPopupMessageEvent</tt> */
     private Object tag;
 
+    /**
+     * Constructs a new <tt>SystrayPopupMessageEvent</tt> object.
+     *
+     * @param source object on which the Event initially occurred
+     */
     public SystrayPopupMessageEvent(Object source)
     {
         super(source);

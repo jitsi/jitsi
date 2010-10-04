@@ -40,7 +40,14 @@ public class Constants
      */
     public static int ILBC_MODE = 30;
 
+    /**
+     * Default video width.
+     */
     public static final int VIDEO_WIDTH;
+
+    /**
+     * Default video height.
+     */
     public static final int VIDEO_HEIGHT;
 
     static

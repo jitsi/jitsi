@@ -20,6 +20,11 @@ public class ServerStoredGroupEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates that a contact group has been successfully created.
      */
     public static final int GROUP_CREATED_EVENT = 1;

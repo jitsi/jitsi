@@ -13,12 +13,20 @@ import net.java.sip.communicator.service.gui.*;
 /**
  * The <tt>ChatFocusEvent</tt> indicates that a <tt>Chat</tt> has gained or lost
  * the current focus.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChatFocusEvent
     extends EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
+     * ID of the event.
+     */
     private int eventID = -1;
 
     /**
@@ -45,19 +53,19 @@ public class ChatFocusEvent
         super(source);
         this.eventID = eventID;
     }
-    
+
     /**
-     * Returns an event id specifying what is the type of this event 
+     * Returns an event id specifying what is the type of this event
      * (FOCUS_GAINED or FOCUS_LOST)
      * @return one of the REGISTRATION_XXX int fields of this class.
      */
     public int getEventID(){
         return eventID;
     }
-    
+
     /**
      * Returns the <tt>Chat</tt> object that corresponds to this event.
-     * 
+     *
      * @return the <tt>Chat</tt> object that corresponds to this event
      */
     public Chat getChat()

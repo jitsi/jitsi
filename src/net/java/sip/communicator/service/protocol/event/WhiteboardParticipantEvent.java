@@ -21,6 +21,11 @@ public class WhiteboardParticipantEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * An event id value indicating that this event is about the fact that
      * the source whiteboard participant has joined the source whiteboard.
      */
