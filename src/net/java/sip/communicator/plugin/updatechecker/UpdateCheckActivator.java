@@ -10,7 +10,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
-import java.security.cert.*;
 import java.util.*;
 
 import javax.net.ssl.*;
@@ -19,7 +18,8 @@ import javax.swing.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.gui.Container; // disambiguation
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.shutdown.*;
@@ -45,24 +45,65 @@ public class UpdateCheckActivator
     private static final Logger logger
         = Logger.getLogger(UpdateCheckActivator.class);
 
+    /**
+     * The bundle context.
+     */
     private static BundleContext bundleContext = null;
 
+    /**
+     * Reference to the <tt>BrowserLauncherService</tt>.
+     */
     private static BrowserLauncherService browserLauncherService;
 
+    /**
+     * Reference to the <tt>ResourceManagementService</tt>.
+     */
     private static ResourceManagementService resourcesService;
 
+    /**
+     * Reference to the <tt>ConfigurationService</tt>.
+     */
     private static ConfigurationService configService;
 
+    /**
+     * Reference to the <tt>UIService</tt>.
+     */
     private static UIService uiService = null;
 
+    /**
+     * Reference to the <tt>CertificateVerificationService</tt>.
+     */
+    private static CertificateVerificationService certificateService = null;
+
+    /**
+     * The download link of the update.
+     */
     private String downloadLink = null;
+
+    /**
+     * The last version of the software.
+     */
     private String lastVersion = null;
+
+    /**
+     * The ChangeLog link.
+     */
     private String changesLink = null;
 
+    /**
+     * The user credentials.
+     */
     private static UserCredentials userCredentials = null;
 
+    /**
+     * Property name of the username used if HTTP authentication is required.
+     */
     private static final String UPDATE_USERNAME_CONFIG =
         "net.java.sip.communicator.plugin.updatechecker.UPDATE_SITE_USERNAME";
+
+    /**
+     * Property name of the password used if HTTP authentication is required.
+     */
     private static final String UPDATE_PASSWORD_CONFIG =
         "net.java.sip.communicator.plugin.updatechecker.UPDATE_SITE_PASSWORD";
 
@@ -86,8 +127,8 @@ public class UpdateCheckActivator
     /**
      * Starts this bundle
      *
-     * @param bundleContext BundleContext
-     * @throws Exception
+     * @param bundleContext <tt>BundleContext</tt> provided by OSGi framework
+     * @throws Exception if something goes wrong during start
      */
     public void start(BundleContext bundleContext) throws Exception
     {
@@ -112,8 +153,8 @@ public class UpdateCheckActivator
 
     /**
      * Stop the bundle. Nothing to stop for now.
-     * @param bundleContext
-     * @throws Exception
+     * @param bundleContext <tt>BundleContext</tt> provided by OSGi framework
+     * @throws Exception if something goes wrong during stop
      */
     public void stop(BundleContext bundleContext)
         throws Exception
@@ -125,7 +166,7 @@ public class UpdateCheckActivator
      * @return the <tt>BrowserLauncherService</tt> obtained from the bundle
      * context
      */
-    public static BrowserLauncherService getBrowserLauncher()
+    private static BrowserLauncherService getBrowserLauncher()
     {
         if (browserLauncherService == null)
         {
@@ -146,7 +187,7 @@ public class UpdateCheckActivator
      * @return the <tt>ConfigurationService</tt> obtained from the bundle
      *         context
      */
-    public static ConfigurationService getConfigurationService()
+    private static ConfigurationService getConfigurationService()
     {
         if (configService == null)
         {
@@ -191,7 +232,7 @@ public class UpdateCheckActivator
      * @return a reference to a UIService implementation currently registered
      * in the bundle context or null if no such implementation was found.
      */
-    public static UIService getUIService()
+    private static UIService getUIService()
     {
         if(uiService == null)
         {
@@ -208,7 +249,7 @@ public class UpdateCheckActivator
      * Returns resource service.
      * @return the resource service.
      */
-    public static ResourceManagementService getResources()
+    private static ResourceManagementService getResources()
     {
         if (resourcesService == null)
         {
@@ -223,6 +264,27 @@ public class UpdateCheckActivator
         }
 
         return resourcesService;
+    }
+
+    /**
+     * Return the certificate verification service impl.
+     * @return the CertificateVerification service.
+     */
+    private static CertificateVerificationService
+        getCertificateVerificationService()
+    {
+        if(certificateService == null)
+        {
+            ServiceReference certVerifyReference
+                = bundleContext.getServiceReference(
+                    CertificateVerificationService.class.getName());
+            if(certVerifyReference != null)
+                certificateService
+                = (CertificateVerificationService)bundleContext.getService(
+                        certVerifyReference);
+        }
+
+        return certificateService;
     }
 
     /**
@@ -420,6 +482,35 @@ public class UpdateCheckActivator
 
             if (uc instanceof HttpURLConnection)
             {
+                if(uc instanceof HttpsURLConnection)
+                {
+                    CertificateVerificationService vs =
+                        getCertificateVerificationService();
+
+                    int port = u.getPort();
+
+                    /* if we do not specify port in the URL
+                     * (http://domain.org:port) we have to set up the default
+                     * port of HTTP (80) or
+                     * HTTPS (443).
+                     */
+                    if(port == -1)
+                    {
+                        if(u.getProtocol().equals("http"))
+                        {
+                            port = 80;
+                        }
+                        else if(u.getProtocol().equals("https"))
+                        {
+                            port = 443;
+                        }
+                    }
+
+                    ((HttpsURLConnection)uc).setSSLSocketFactory(
+                            vs.getSSLContext(
+                            u.getHost(), port).getSocketFactory());
+                }
+
                 int responseCode = ((HttpURLConnection) uc).getResponseCode();
 
                 if(responseCode == HttpURLConnection.HTTP_UNAUTHORIZED)
@@ -570,18 +661,6 @@ public class UpdateCheckActivator
      */
     private static void removeDownloadRestrictions()
     {
-        try
-        {
-            SSLContext sc = SSLContext.getInstance("SSLv3");
-            TrustManager[] tma = {new DummyTrustManager()};
-            sc.init(null, tma, null);
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        }
-        catch (Exception e)
-        {
-            logger.warn("Failed to init dummy trust magaer", e);
-        }
-
         HostnameVerifier hv = new HostnameVerifier()
         {
             public boolean verify(String urlHostName, SSLSession session)
@@ -640,7 +719,8 @@ public class UpdateCheckActivator
 
         /**
          * Creates update menu component.
-         * @param container
+         *
+         * @param container the container of the update menu component
          */
         UpdateMenuButtonComponent(Container container)
         {
@@ -655,51 +735,25 @@ public class UpdateCheckActivator
             });
         }
 
+        /**
+         * Get the name of the component.
+         *
+         * @return name of the component
+         */
         public String getName()
         {
             return getResources().getI18NString(
                 "plugin.updatechecker.UPDATE_MENU_ENTRY");
         }
 
+        /**
+         * Get the <tt>Component</tt>.
+         *
+         * @return the <tt>Component</tt>
+         */
         public Object getComponent()
         {
             return updateMenuItem;
-        }
-    }
-
-    /**
-     * Dummy trust manager, trusts everything.
-     */
-    private static class DummyTrustManager
-        implements X509TrustManager
-    {
-        /**
-         * Not used.
-         * @param chain
-         * @param authType
-         * @throws CertificateException
-         */
-        public void checkClientTrusted(X509Certificate[] chain, String authType)
-            throws CertificateException
-        {}
-
-        /**
-         * Not used.
-         * @param chain
-         * @param authType
-         * @throws CertificateException
-         */
-        public void checkServerTrusted(X509Certificate[] chain, String authType)
-            throws CertificateException
-        {}
-
-        /**
-         * Accepts everything.
-         * @return
-         */
-        public X509Certificate[] getAcceptedIssuers()
-        {
-            return null;
         }
     }
 
@@ -709,6 +763,9 @@ public class UpdateCheckActivator
     private class UpdateCheckThread
         implements Runnable
     {
+        /**
+         * Thread entry point.
+         */
         public void run()
         {
             if (OSUtils.IS_WINDOWS)

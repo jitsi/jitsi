@@ -77,11 +77,11 @@ public class SparkleActivator
      * Initialize and start Sparkle
      *
      * @param bundleContext BundleContext
-     * @throws Exception
+     * @throws Exception if something goes wrong during sparkle initialization
      */
     public void start(BundleContext bundleContext) throws Exception
     {
-        this.bundleContext = bundleContext;
+        SparkleActivator.bundleContext = bundleContext;
 
         /**
          * Dynamically loads JNI object. Will fail if non-MacOSX
