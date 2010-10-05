@@ -550,6 +550,7 @@ public class GlobalStatusSelectorBox
 
     /**
      * Updates the status of the given <tt>protocolProvider</tt>.
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt>
      * corresponding to the menu to update
      */
@@ -671,7 +672,7 @@ public class GlobalStatusSelectorBox
             return;
 
         int imgType = SystrayService.SC_IMG_OFFLINE_TYPE;
-        
+
         if(status < PresenceStatus.ONLINE_THRESHOLD)
         {
             imgType = SystrayService.SC_IMG_OFFLINE_TYPE;

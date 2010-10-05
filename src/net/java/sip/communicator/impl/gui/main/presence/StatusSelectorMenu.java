@@ -131,7 +131,8 @@ public abstract class StatusSelectorMenu
             }
         }
 
-        if(!savedAccount) {
+        if(!savedAccount)
+        {
             String accNodeName
                 = "acc" + Long.toString(System.currentTimeMillis());
 
@@ -146,13 +147,13 @@ public abstract class StatusSelectorMenu
                     accountPackage+".lastAccountStatus",
                     statusName);
         }
-
-        this.setPreferredSize(new Dimension(28, 24));
     }
 
     /**
      * Paints this component. If the state of this menu is connecting, paints
      * the connecting icon.
+     *
+     * @param g the <tt>Graphics</tt> object used for painting
      */
     public void paintComponent(Graphics g)
     {
