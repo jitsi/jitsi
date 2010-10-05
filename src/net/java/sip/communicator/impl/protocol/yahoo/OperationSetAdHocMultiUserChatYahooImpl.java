@@ -11,7 +11,6 @@ import java.util.*;
 
 import ymsg.network.*;
 import ymsg.network.event.*;
-import ymsg.support.MessageDecoder;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -67,12 +66,6 @@ implements OperationSetAdHocMultiUserChat
      * format functions.
      */
     private final OperationSetBasicInstantMessagingYahooImpl opSetBasic;
-
-    /**
-     * Message decoder allows to convert Yahoo formated messages, which can
-     * contains some specials characters, to HTML or to plain text.
-     */
-    private final MessageDecoder messageDecoder = new MessageDecoder();
 
     /**
      * Instantiates the user operation set with a currently valid instance of
@@ -648,25 +641,7 @@ implements OperationSetAdHocMultiUserChat
                 if (logger.isDebugEnabled())
                     logger.debug("original message received : " + formattedMessage);
 
-                // if the message is decorated by Yahoo, we try to "decode" it
-                // first.
-                if (formattedMessage.startsWith("\u001b"))
-                    formattedMessage
-                    = messageDecoder.decodeToHTML(formattedMessage);
-
-                formattedMessage = opSetBasic.processLinks(formattedMessage);
-
-                // now, we try to fix a wrong usage of the size attribute in the
-                // <font> HTML element
-                // here, the zero 0 correspond to 10px
-                formattedMessage =
-                    formattedMessage.replaceAll("(<font) (.*) size=\"0\">",
-                    "$1 $2 size=\"10\">");
-                formattedMessage =
-                    formattedMessage.replaceAll(
-                        "(<font) (.*) size=\"(\\d+)\">",
-                    "$1 $2 style=\"font-size: $3px;\">");
-
+                formattedMessage = opSetBasic.decodeMessage(formattedMessage);
                 if (logger.isDebugEnabled())
                     logger.debug("formatted Message : " + formattedMessage);
                 // As no indications in the protocol is it html or not. No harm

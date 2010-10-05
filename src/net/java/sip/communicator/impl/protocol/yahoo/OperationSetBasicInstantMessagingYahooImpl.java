@@ -61,6 +61,8 @@ public class OperationSetBasicInstantMessagingYahooImpl
      * to match incoming messages to <tt>Contact</tt>s and vice versa.
      */
     private OperationSetPersistentPresenceYahooImpl opSetPersPresence = null;
+    private static final Pattern FONT_SIZE_0_PATTERN = Pattern.compile("(<font) (.*) size=\"0\">");
+    private static final Pattern FONT_SIZE_INT_PATTERN = Pattern.compile("(<font) (.*) size=\"(\\d+)\">");
 
     /**
      * Creates an instance of this operation set.
@@ -123,9 +125,9 @@ public class OperationSetBasicInstantMessagingYahooImpl
      *
      * @param to the <tt>Contact</tt> to send <tt>message</tt> to
      * @param message the <tt>Message</tt> to send.
-     * @throws java.lang.IllegalStateException if the underlying stack is
+     * @throws IllegalStateException if the underlying stack is
      * not registered and initialized.
-     * @throws java.lang.IllegalArgumentException if <tt>to</tt> is not an
+     * @throws IllegalArgumentException if <tt>to</tt> is not an
      * instance of ContactImpl.
      */
     public void sendInstantMessage(Contact to, Message message)
@@ -213,7 +215,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
     /**
      * Utility method throwing an exception if the stack is not properly
      * initialized.
-     * @throws java.lang.IllegalStateException if the underlying stack is
+     * @throws IllegalStateException if the underlying stack is
      * not registered and initialized.
      */
     private void assertConnected() throws IllegalStateException
@@ -418,19 +420,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
             if (logger.isDebugEnabled())
                 logger.debug("original message received : " + formattedMessage);
 
-            // make sure we always decode message
-            formattedMessage = processLinks(
-                    messageDecoder.decodeToHTML(formattedMessage));
-
-            // now, we try to fix a wrong usage of the size attribute in the
-            // <font> HTML element
-            // here, the zero 0 correspond to 10px
-            formattedMessage =
-                    formattedMessage.replaceAll("(<font) (.*) size=\"0\">",
-                    "$1 $2 size=\"10\">");
-            formattedMessage = 
-                    formattedMessage.replaceAll("(<font) (.*) size=\"(\\d+)\">",
-                    "$1 $2 style=\"font-size: $3px;\">");
+            formattedMessage = decodeMessage(formattedMessage);
 
             if (logger.isDebugEnabled())
                 logger.debug("formatted Message : " + formattedMessage);
@@ -459,10 +449,36 @@ public class OperationSetBasicInstantMessagingYahooImpl
                  newMessage, sourceContact , System.currentTimeMillis() );
 
              // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
-             
+
              if (msgReceivedEvt != null)
                  fireMessageEvent(msgReceivedEvt);
         }
+    }
+
+    /**
+     * Decode the received chat message.
+     * If the message contains \u001b the following text is decoded by
+     * the MessageDecoder of yahoo api
+     * Then make http links clickable and fix the font size of html code
+     *
+     * @param message the chat message
+     * @return a decoded message.
+     */
+    String decodeMessage(String message)
+    {
+        int i = message.indexOf('\u001b');
+        if (i != -1)
+        {
+            message = messageDecoder.decodeToHTML(message);
+        }
+        message = processLinks(message);
+        message =
+                FONT_SIZE_0_PATTERN.matcher(message)
+                        .replaceAll("$1 $2 size=\"10\">");
+        message =
+                FONT_SIZE_INT_PATTERN.matcher(message)
+                        .replaceAll("$1 $2 style=\"font-size: $3px;\">");
+        return message;
     }
 
     /**
