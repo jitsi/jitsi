@@ -105,6 +105,11 @@ public class SelectAvatarMenu
         JLabel titleLabel = new JLabel(GuiActivator.getResources()
                 .getI18NString("service.gui.avatar.RECENT_ICONS"));
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
+
+        // fix for displaying text in menu
+        // when using a dark OS theme (as default one in ubuntu)
+        titleLabel.setForeground(new JMenuItem().getForeground());
+
         panel.add(titleLabel, BorderLayout.NORTH);
 
 

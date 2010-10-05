@@ -1148,6 +1148,12 @@ public class ImageLoader
     public static final ImageID USER_OCCUPIED_ICON
         = new ImageID("service.gui.statusicons.USER_OCCUPIED_ICON");
 
+    /**
+     * Contact "on the phone" icon.
+     */
+    public static final ImageID USER_USER_ON_THE_PHONE_ICON
+        = new ImageID("service.gui.statusicons.USER_ON_THE_PHONE_ICON");
+
    /**
     * Owner chatroom member.
     */

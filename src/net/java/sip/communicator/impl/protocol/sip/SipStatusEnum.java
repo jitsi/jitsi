@@ -108,7 +108,7 @@ public class SipStatusEnum
             loadIcon(iconPath + "/sip16x16-busy.png"));
 
         this.onThePhoneStatus = new SipPresenceStatus(
-            37,
+            31,
             ON_THE_PHONE,
             loadIcon(iconPath + "/sip16x16-phone.png"));
 

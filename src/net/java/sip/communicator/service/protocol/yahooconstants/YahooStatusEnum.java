@@ -41,10 +41,19 @@ public class YahooStatusEnum
                 loadIcon("resources/images/protocol/yahoo/yahoo16x16-online.png"));
 
     /**
+     * The Not Available status. Indicates that the user has connectivity
+     * but might not be able to immediately act (i.e. even less immediately than
+     * when in an Away status ;-P ) upon initiation of communication.
+     */
+    public static final YahooStatusEnum BE_RIGHT_BACK
+        = new YahooStatusEnum(48, "Be Right Back",
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-away.png"));
+
+    /**
      * The Idle status. Indicates that the user is not using the messanger.
      */
     public static final YahooStatusEnum IDLE
-        = new YahooStatusEnum(55, "Idle",
+        = new YahooStatusEnum(46, "Idle",
                 loadIcon("resources/images/protocol/yahoo/yahoo16x16-idle.png"));
 
     /**
@@ -79,29 +88,12 @@ public class YahooStatusEnum
                 loadIcon("resources/images/protocol/yahoo/yahoo16x16-na.png"));
 
     /**
-     * The On the phone status. Indicates that the user is talking to the phone.
-     */
-    public static final YahooStatusEnum ON_THE_PHONE
-        = new YahooStatusEnum(37, "On the phone",
-                loadIcon("resources/images/protocol/yahoo/yahoo16x16-phone.png"));
-
-    /**
      * The Not at desk status. Indicates that the user is not at his desk, but
      * somewhere in the office.
      */
     public static final YahooStatusEnum NOT_AT_DESK
         = new YahooStatusEnum(36, "Not at desk",
                 loadIcon("resources/images/protocol/yahoo/yahoo16x16-na.png"));
-
-    /**
-     * The Not Available status. Indicates that the user has connectivity
-     * but might not be able to immediately act (i.e. even less immediately than
-     * when in an Away status ;-P ) upon initiation of communication.
-     *
-     */
-    public static final YahooStatusEnum BE_RIGHT_BACK
-        = new YahooStatusEnum(35, "Be Right Back",
-                loadIcon("resources/images/protocol/yahoo/yahoo16x16-away.png"));
 
     /**
      * The Not in office status. Indicates that the user is out of the office.
@@ -117,6 +109,13 @@ public class YahooStatusEnum
     public static final YahooStatusEnum ON_VACATION
         = new YahooStatusEnum(33, "On vacation",
                 loadIcon("resources/images/protocol/yahoo/yahoo16x16-vacation.png"));
+
+    /**
+     * The On the phone status. Indicates that the user is talking to the phone.
+     */
+    public static final YahooStatusEnum ON_THE_PHONE
+        = new YahooStatusEnum(31, "On the phone",
+                loadIcon("resources/images/protocol/yahoo/yahoo16x16-phone.png"));
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers

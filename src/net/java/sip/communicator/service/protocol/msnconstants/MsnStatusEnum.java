@@ -41,10 +41,18 @@ public class MsnStatusEnum
                 loadIcon("resources/images/protocol/msn/msn16x16-online.png"));
 
     /**
+     * The Away  status. Indicates that the user has connectivity but might
+     * not be able to immediately act upon initiation of communication.
+     */
+    public static final MsnStatusEnum AWAY
+        = new MsnStatusEnum(48, "Away",
+                loadIcon("resources/images/protocol/msn/msn16x16-away.png"));
+
+    /**
      * The Idle status. Indicates that the user is not using the messanger.
      */
     public static final MsnStatusEnum IDLE
-        = new MsnStatusEnum(55, "Idle",
+        = new MsnStatusEnum(46, "Idle",
                 loadIcon("resources/images/protocol/msn/msn16x16-na.png"));
 
     /**
@@ -57,26 +65,11 @@ public class MsnStatusEnum
                 loadIcon("resources/images/protocol/msn/msn16x16-invisible.png"));
 
     /**
-     * The Away  status. Indicates that the user has connectivity but might
-     * not be able to immediately act upon initiation of communication.
-     */
-    public static final MsnStatusEnum AWAY
-        = new MsnStatusEnum(40, "Away",
-                loadIcon("resources/images/protocol/msn/msn16x16-away.png"));
-
-    /**
      * The Out to lunch status. Indicates that the user is eating.
      */
     public static final MsnStatusEnum OUT_TO_LUNCH
         = new MsnStatusEnum(39, "Out to lunch",
                 loadIcon("resources/images/protocol/msn/msn16x16-lunch.png"));
-
-    /**
-     * The On the phone status. Indicates that the user is talking to the phone.
-     */
-    public static final MsnStatusEnum ON_THE_PHONE
-        = new MsnStatusEnum(37, "On the phone",
-                loadIcon("resources/images/protocol/msn/msn16x16-phone.png"));
 
     /**
      * The Not Available status. Indicates that the user has connectivity
@@ -87,6 +80,13 @@ public class MsnStatusEnum
     public static final MsnStatusEnum BE_RIGHT_BACK
         = new MsnStatusEnum(35, "Be Right Back",
                 loadIcon("resources/images/protocol/msn/msn16x16-brb.png"));
+
+    /**
+     * The On the phone status. Indicates that the user is talking to the phone.
+     */
+    public static final MsnStatusEnum ON_THE_PHONE
+        = new MsnStatusEnum(31, "On the phone",
+                loadIcon("resources/images/protocol/msn/msn16x16-phone.png"));
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers

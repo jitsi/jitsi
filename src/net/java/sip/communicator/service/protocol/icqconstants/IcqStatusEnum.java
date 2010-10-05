@@ -49,6 +49,14 @@ public class IcqStatusEnum
                 loadIcon("resources/images/protocol/icq/icq16x16-online.png"));
 
     /**
+     * The Away ICQ status. Indicates that the user has connectivity but might
+     * not be able to immediately act upon initiation of communication.
+     */
+    public static final IcqStatusEnum AWAY
+        = new IcqStatusEnum(48, "Away",
+                loadIcon("resources/images/protocol/icq/icq16x16-away.png"));
+
+    /**
      * The Invisible ICQ status. Indicates that the user has connectivity even
      * though it may appear otherwise to others, to whom she would appear to be
      * offline.
@@ -56,15 +64,6 @@ public class IcqStatusEnum
     public static final IcqStatusEnum INVISIBLE
         = new IcqStatusEnum(45, "Invisible",
                 loadIcon("resources/images/protocol/icq/icq16x16-invisible.png"));
-
-    /**
-     * The Away ICQ status. Indicates that the user has connectivity but might
-     * not be able to immediately act upon initiation of communication.
-     */
-    public static final IcqStatusEnum AWAY
-        = new IcqStatusEnum(40, "Away",
-                loadIcon("resources/images/protocol/icq/icq16x16-away.png"));
-
 
     /**
      * The Not Available ICQ status. Indicates that the user has connectivity

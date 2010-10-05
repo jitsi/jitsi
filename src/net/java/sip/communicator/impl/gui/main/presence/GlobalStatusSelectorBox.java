@@ -84,10 +84,10 @@ public class GlobalStatusSelectorBox
      */
     private final JMenuItem awayItem;
 
-//    private JMenuItem dndItem = new JMenuItem(
-//        GuiActivator.getResources().getI18NString("service.gui.DND_STATUS")
-//    .getText(),
-//        dndIcon);
+    /**
+     * The item corresponding to DnD status.
+     */
+    private final JMenuItem dndItem;
 
     /**
      * The item corresponding to the free for chat status.
@@ -138,6 +138,11 @@ public class GlobalStatusSelectorBox
                 "service.gui.AWAY_STATUS",
                 ImageLoader.USER_AWAY_ICON,
                 Constants.AWAY_STATUS);
+        dndItem
+            = createMenuItem(
+                "service.gui.DND_STATUS",
+                ImageLoader.USER_DND_ICON,
+                Constants.DO_NOT_DISTURB_STATUS);
         offlineItem
             = createMenuItem(
                 "service.gui.OFFLINE",
@@ -458,96 +463,88 @@ public class GlobalStatusSelectorBox
             }
             else if (itemName.equals(Constants.FREE_FOR_CHAT_STATUS))
             {
-                if (!protocolProvider.isRegistered())
-                    continue;
-
-                OperationSetPresence presence
-                    = protocolProvider
-                        .getOperationSet(OperationSetPresence.class);
-
-                if (presence == null)
-                    continue;
-
-                Iterator<PresenceStatus> statusSet
-                    = presence.getSupportedStatusSet();
-
-                PresenceStatus status = null;
-
-                while (statusSet.hasNext())
-                {
-                    PresenceStatus currentStatus = statusSet.next();
-
-                    if (status == null)
-                        status = currentStatus; 
-
-                    if(status.getStatus() < currentStatus.getStatus())
-                    {
-                        status = currentStatus;
-                    }
-                }
-
-                if (status != null)
-                {
-                    new PublishPresenceStatusThread(presence, status)
-                        .start();
-
-                    this.saveStatusInformation( protocolProvider,
-                        status.getStatusName());
-                }
+                // we search for highest available status here
+                publishStatus(
+                        protocolProvider,
+                        PresenceStatus.AVAILABLE_THRESHOLD,
+                        PresenceStatus.MAX_STATUS_VALUE);
+            }
+            else if (itemName.equals(Constants.DO_NOT_DISTURB_STATUS))
+            {
+                // status between online and away is DND
+                publishStatus(
+                        protocolProvider,
+                        PresenceStatus.ONLINE_THRESHOLD,
+                        PresenceStatus.AWAY_THRESHOLD);
             }
             else if (itemName.equals(Constants.AWAY_STATUS))
             {
-                if (!protocolProvider.isRegistered())
-                    continue;
+                // a status in the away interval
+                publishStatus(
+                        protocolProvider,
+                        PresenceStatus.AWAY_THRESHOLD,
+                        PresenceStatus.AVAILABLE_THRESHOLD);
+            }
+        }
+    }
 
-                OperationSetPresence presence
-                    = protocolProvider
-                        .getOperationSet(OperationSetPresence.class);
+    /**
+     * Publish present status. We search for the highest value in the
+     * given interval.
+     * 
+     * @param protocolProvider the protocol provider to which we
+     * change the status.
+     * @param floorStatusValue the min status value.
+     * @param ceilStatusValue the max status value.
+     */
+    private void publishStatus(
+            ProtocolProviderService protocolProvider,
+            int floorStatusValue, int ceilStatusValue)
+    {
+        if (!protocolProvider.isRegistered())
+            return;
 
-                if (presence == null)
-                    continue;
+        OperationSetPresence presence
+            = protocolProvider
+                .getOperationSet(OperationSetPresence.class);
 
-                Iterator<PresenceStatus> statusSet
-                    = presence.getSupportedStatusSet();
+        if (presence == null)
+            return;
 
-                PresenceStatus status = null;
+        Iterator<PresenceStatus> statusSet
+            = presence.getSupportedStatusSet();
 
-                while (statusSet.hasNext())
+        PresenceStatus status = null;
+
+        while (statusSet.hasNext())
+        {
+            PresenceStatus currentStatus = statusSet.next();
+
+            if (status == null
+                && currentStatus.getStatus() < ceilStatusValue
+                && currentStatus.getStatus() >= floorStatusValue)
+            {
+                status = currentStatus;
+            }
+
+            if (status != null)
+            {
+                if (currentStatus.getStatus() < ceilStatusValue
+                    && currentStatus.getStatus() >= floorStatusValue
+                    && currentStatus.getStatus() > status.getStatus())
                 {
-                    PresenceStatus currentStatus = statusSet.next();
-
-                    if (status == null
-                        && currentStatus.getStatus()
-                            < PresenceStatus.AVAILABLE_THRESHOLD
-                        && currentStatus.getStatus()
-                            >= PresenceStatus.ONLINE_THRESHOLD)
-                    {
-                        status = currentStatus;
-                    }
-
-                    if (status != null) 
-                    {
-                        if (currentStatus.getStatus()
-                                < PresenceStatus.AVAILABLE_THRESHOLD
-                                && currentStatus.getStatus()
-                                    >= PresenceStatus.ONLINE_THRESHOLD
-                                && currentStatus.getStatus()
-                                    > status.getStatus()) 
-                        {
-                            status = currentStatus;
-                        }
-                    }
-                }
-
-                if (status != null)
-                {
-                    new PublishPresenceStatusThread(presence, status)
-                        .start();
-
-                    this.saveStatusInformation( protocolProvider,
-                        status.getStatusName());
+                    status = currentStatus;
                 }
             }
+        }
+
+        if (status != null)
+        {
+            new PublishPresenceStatusThread(presence, status)
+                .start();
+
+            this.saveStatusInformation( protocolProvider,
+                status.getStatusName());
         }
     }
 

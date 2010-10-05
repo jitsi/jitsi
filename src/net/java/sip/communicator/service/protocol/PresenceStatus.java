@@ -37,6 +37,12 @@ public class PresenceStatus
 
     /**
      * An integer above which all values of the status coefficient indicate both
+     * connectivity and availability but the person is away from the computer. 
+     */
+    public static final int AWAY_THRESHOLD = 31;
+
+    /**
+     * An integer above which all values of the status coefficient indicate both
      * connectivity and availability.
      */
     public static final int AVAILABLE_THRESHOLD = 50;

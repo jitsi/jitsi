@@ -292,6 +292,18 @@ public class Constants
                 return ImageLoader
                     .getImage(ImageLoader.USER_OFFLINE_ICON);
             }
+            else if(connectivity < PresenceStatus.AWAY_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.USER_DND_ICON);
+            }
+            else if(connectivity == PresenceStatus.AWAY_THRESHOLD)
+            {
+                // the special status On The Phone is state
+                // between DND and AWAY states.
+                return ImageLoader
+                    .getImage(ImageLoader.USER_USER_ON_THE_PHONE_ICON);
+            }
             else if(connectivity < PresenceStatus.AVAILABLE_THRESHOLD)
             {
                 return ImageLoader

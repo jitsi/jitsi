@@ -172,16 +172,30 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
                     new UsernamePasswordCredentials(getUserName(), password);
             httpClient.getCredentialsProvider().
                     setCredentials(AuthScope.ANY, credentials);
+
+            HttpResponse response = httpClient.execute(getMethod);
+            XCapHttpResponse result = createResponse(response);
             if (logger.isDebugEnabled())
             {
+                byte[] contentBytes = result.getContent();
+                String contenString;
+                // for debug purposes print only xmls
+                // skip the icon queries
+                if(contentBytes != null && result.getContentType() != null
+                        && !result.getContentType().equalsIgnoreCase
+                        (PresContentClient.CONTENT_TYPE))
+                    contenString = new String(contentBytes);
+                else
+                    contenString = "";
+
                 String logMessage = String.format(
-                        "Getting resource %1s from the server",
-                        uri.toString()
+                        "Getting resource %1s from the server content:%2s",
+                        uri.toString(),
+                        contenString
                 );
                 logger.debug(logMessage);
             }
-            HttpResponse response = httpClient.execute(getMethod);
-            return createResponse(response);
+            return result; 
         }
         catch (IOException e)
         {
@@ -391,7 +405,7 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     private XCapHttpResponse createResponse(HttpResponse response)
             throws IOException
     {
-        XCapHttpResponse XCapHttpResponse = new XCapHttpResponse();
+        XCapHttpResponse xcapHttpResponse = new XCapHttpResponse();
         int statusCode = response.getStatusLine().getStatusCode();
         if (statusCode == HttpStatus.SC_OK ||
                 statusCode == HttpStatus.SC_CREATED ||
@@ -402,12 +416,12 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
             byte[] content = StreamUtils.read(
                     response.getEntity().getContent());
             String eTag = getSingleHeaderValue(response, HEADER_ETAG);
-            XCapHttpResponse.setContentType(contentType);
-            XCapHttpResponse.setContent(content);
-            XCapHttpResponse.setETag(eTag);
+            xcapHttpResponse.setContentType(contentType);
+            xcapHttpResponse.setContent(content);
+            xcapHttpResponse.setETag(eTag);
         }
-        XCapHttpResponse.setHttpCode(statusCode);
-        return XCapHttpResponse;
+        xcapHttpResponse.setHttpCode(statusCode);
+        return xcapHttpResponse;
     }
 
     /**
