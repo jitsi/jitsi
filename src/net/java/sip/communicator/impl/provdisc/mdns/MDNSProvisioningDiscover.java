@@ -50,14 +50,6 @@ public class MDNSProvisioningDiscover
      */
     public MDNSProvisioningDiscover()
     {
-        try
-        {
-            jmdns = JmDNS.create();
-        }
-        catch(IOException e)
-        {
-            logger.info("Failed to create mDNS", e);
-        }
     }
 
     /**
@@ -90,6 +82,17 @@ public class MDNSProvisioningDiscover
     public String discoverProvisioningURL()
     {
         StringBuffer url = new StringBuffer();
+
+        try
+        {
+            jmdns = JmDNS.create();
+        }
+        catch(IOException e)
+        {
+            logger.info("Failed to create JmDNS", e);
+            return null;
+        }
+
         ServiceInfo info = jmdns.getServiceInfo("_https._tcp.local",
                 "Provisioning URL", MDNS_TIMEOUT);
 
@@ -133,6 +136,17 @@ public class MDNSProvisioningDiscover
                     url.append("&");
                 }
             }
+        }
+
+        /* close jmdns */
+        try
+        {
+            jmdns.close();
+            jmdns = null;
+        }
+        catch(Exception e)
+        {
+            logger.warn("Failed to close JmDNS", e);
         }
 
         return (url.toString().length() > 0) ? url.toString() : null;
