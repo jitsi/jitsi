@@ -349,6 +349,19 @@ public class ProvisioningActivator
                 ((HttpsURLConnection)connection).setSSLSocketFactory(
                         vs.getSSLContext(
                         url.getHost(), port).getSocketFactory());
+
+                HostnameVerifier hv = new HostnameVerifier()
+                {
+                    public boolean verify(String urlHostName,
+                            SSLSession session)
+                    {
+                        logger.warn("Warning: URL Host: " + urlHostName +
+                                " vs. " + session.getPeerHost());
+                        return true;
+                    }
+                };
+
+                ((HttpsURLConnection)connection).setHostnameVerifier(hv);
             }
         }
         catch (Exception e)
@@ -496,7 +509,8 @@ public class ProvisioningActivator
                 {
                     for(String s : args)
                     {
-                        if(s.equals("username"))
+                        if(s.equals("username=$username") ||
+                                s.equals("username"))
                         {
                             if(userCredentials == null)
                             {
@@ -508,36 +522,41 @@ public class ProvisioningActivator
                                             userCredentials.getUserName(),
                                             "UTF-8"));
                         }
-                        else if(s.equals("password"))
+                        else if(s.equals("password=$password") ||
+                                s.equals("password"))
                         {
                             if(userCredentials == null)
                             {
                                 handleProvisioningAuth();
                             }
 
-                            content.append("&password=" +
+                            content.append("password=" +
                                     URLEncoder.encode(
                                             userCredentials.
                                                     getPasswordAsString(),
                                                     "UTF-8"));
                         }
-                        else if(s.equals("osname"))
+                        else if(s.equals("osname=$osname") ||
+                                s.equals("osname"))
                         {
-                            content.append("&osname=" + URLEncoder.encode(
+                            content.append("osname=" + URLEncoder.encode(
                                     System.getProperty("os.name"), "UTF-8"));
                         }
-                        else if(s.equals("build"))
+                        else if(s.equals("build=$build") ||
+                                s.equals("build"))
                         {
-                            content.append("&build=" + URLEncoder.encode(
+                            content.append("build=" + URLEncoder.encode(
                                 System.getProperty("sip-communicator.version"),
                                 "UTF-8"));
                         }
-                        else if(s.equals("ipaddr"))
+                        else if(s.equals("ipaddr=$ipaddr") ||
+                                s.equals("ipaddr"))
                         {
-                            content.append("&ipaddr=" + URLEncoder.encode(
+                            content.append("ipaddr=" + URLEncoder.encode(
                                     ipaddr.getHostAddress(), "UTF-8"));
                         }
-                        else if(s.equals("hwaddr"))
+                        else if(s.equals("hwaddr=$hwaddr") ||
+                                s.equals("hwaddr"))
                         {
                             String hwaddr = null;
 
@@ -581,7 +600,7 @@ public class ProvisioningActivator
                                             buf.deleteCharAt(buf.length() - 1);
 
                                             hwaddr = buf.toString();
-                                            content.append("&hwaddr=" +
+                                            content.append("hwaddr=" +
                                                     URLEncoder.encode(
                                                     hwaddr, "UTF-8"));
                                             break;
@@ -590,6 +609,8 @@ public class ProvisioningActivator
                                 }
                             }
                         }
+
+                        content.append("&");
                     }
                 }
 

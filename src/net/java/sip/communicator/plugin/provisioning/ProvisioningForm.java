@@ -105,8 +105,8 @@ public class ProvisioningForm
         final ButtonGroup buttonGroup = new ButtonGroup();
 
         buttonGroup.add(dhcpButton);
-        buttonGroup.add(dnsButton);
         buttonGroup.add(bonjourButton);
+        buttonGroup.add(dnsButton);
         buttonGroup.add(manualButton);
 
         final JPanel radioButtonPanel
@@ -116,8 +116,8 @@ public class ProvisioningForm
             resources.getI18NString("plugin.provisioning.AUTO")));
 
         radioButtonPanel.add(dhcpButton);
-        radioButtonPanel.add(dnsButton);
         radioButtonPanel.add(bonjourButton);
+        radioButtonPanel.add(dnsButton);
 
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
@@ -176,8 +176,8 @@ public class ProvisioningForm
         dhcpButton.setEnabled(isProvEnabled);
         manualButton.setEnabled(isProvEnabled);
         uriField.setEnabled(manualButton.isSelected());
+        bonjourButton.setEnabled(isProvEnabled);
         dnsButton.setEnabled(false);
-        bonjourButton.setEnabled(false);
     }
 
     /**
@@ -192,6 +192,7 @@ public class ProvisioningForm
                 boolean isSelected = enableCheckBox.isSelected();
 
                 dhcpButton.setEnabled(isSelected);
+                bonjourButton.setEnabled(isSelected);
                 manualButton.setEnabled(isSelected);
 
                 String provisioningMethod = null;

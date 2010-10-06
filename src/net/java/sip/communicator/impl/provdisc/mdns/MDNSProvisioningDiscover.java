@@ -1,0 +1,168 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.provdisc.mdns;
+
+import java.io.*;
+import java.util.*;
+
+import net.java.sip.communicator.service.provdisc.event.*;
+import net.java.sip.communicator.util.*;
+
+import javax.jmdns.*;
+
+/**
+ * Class that will perform mDNS provisioning discovery.
+ *
+ * @author Sebastien Vincent
+ */
+public class MDNSProvisioningDiscover
+    implements Runnable
+{
+    /**
+     * Logger.
+     */
+    private final Logger logger
+        = Logger.getLogger(MDNSProvisioningDiscover.class);
+
+    /**
+     * MDNS timeout (in milliseconds).
+     */
+    private static final int MDNS_TIMEOUT = 2000;
+
+    /**
+     * List of <tt>ProvisioningListener</tt> that will be notified when
+     * a provisioning URL is retrieved.
+     */
+    private List<DiscoveryListener> listeners =
+        new ArrayList<DiscoveryListener>();
+
+    /**
+     * Reference to JmDNS singleton.
+     */
+    private JmDNS jmdns = null;
+
+    /**
+     * Constructor.
+     */
+    public MDNSProvisioningDiscover()
+    {
+        try
+        {
+            jmdns = JmDNS.create();
+        }
+        catch(IOException e)
+        {
+            logger.info("Failed to create mDNS", e);
+        }
+    }
+
+    /**
+     * Thread entry point. It runs <tt>discoverProvisioningURL</tt> in a
+     * separate thread.
+     */
+    public void run()
+    {
+        String url = discoverProvisioningURL();
+
+        if(url != null)
+        {
+            /* as we run in an asynchronous manner, notify the listener */
+            DiscoveryEvent evt = new DiscoveryEvent(this, url);
+
+            for(DiscoveryListener listener : listeners)
+            {
+                listener.notifyProvisioningURL(evt);
+            }
+        }
+    }
+
+    /**
+     * It sends a mDNS to retrieve provisioning URL and wait for a response.
+     * Thread stops after first successful answer that contains the provisioning
+     * URL.
+     *
+     * @return provisioning URL or null if no provisioning URL was discovered
+     */
+    public String discoverProvisioningURL()
+    {
+        StringBuffer url = new StringBuffer();
+        ServiceInfo info = jmdns.getServiceInfo("_https._tcp.local",
+                "Provisioning URL", MDNS_TIMEOUT);
+
+        if(info == null)
+        {
+            /* try HTTP */
+            info = jmdns.getServiceInfo("_http._tcp.local", "Provisioning URL",
+                    MDNS_TIMEOUT);
+        }
+
+        if(info != null && info.getName().equals("Provisioning URL"))
+        {
+            String protocol = info.getApplication();
+
+            url.append(info.getURL(protocol));
+
+            Enumeration<String> en = info.getPropertyNames();
+
+            if(en.hasMoreElements())
+            {
+                url.append("?");
+            }
+
+            /* add the parameters */
+            while(en.hasMoreElements())
+            {
+                String tmp = en.nextElement();
+
+                /* take all other parameters except "path" */
+                if(tmp.equals("path"))
+                {
+                    continue;
+                }
+
+                url.append(tmp);
+                url.append("=");
+                url.append(info.getPropertyString(tmp));
+
+                if(en.hasMoreElements())
+                {
+                    url.append("&");
+                }
+            }
+        }
+
+        return (url.toString().length() > 0) ? url.toString() : null;
+    }
+
+    /**
+     * Add a listener that will be notified when the
+     * <tt>discoverProvisioningURL</tt> has finished.
+     *
+     * @param listener <tt>ProvisioningListener</tt> to add
+     */
+    public void addDiscoveryListener(DiscoveryListener listener)
+    {
+        if(!listeners.contains(listener))
+        {
+            listeners.add(listener);
+        }
+    }
+
+    /**
+     * Add a listener that will be notified when the
+     * <tt>discoverProvisioningURL</tt> has finished.
+     *
+     * @param listener <tt>ProvisioningListener</tt> to add
+     */
+    public void removeDiscoveryListener(DiscoveryListener listener)
+    {
+        if(listeners.contains(listener))
+        {
+            listeners.remove(listener);
+        }
+    }
+}

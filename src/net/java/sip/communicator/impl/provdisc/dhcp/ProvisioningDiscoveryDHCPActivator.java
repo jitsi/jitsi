@@ -21,7 +21,7 @@ public class ProvisioningDiscoveryDHCPActivator
     implements BundleActivator
 {
    /**
-    * <tt>Logger</tt> used by this <tt>DHCPProvisioningDiscoveryActivator</tt>
+    * <tt>Logger</tt> used by this <tt>ProvisioningDiscoveryDHCPActivator</tt>
     * instance for logging output.
     */
    private final Logger logger

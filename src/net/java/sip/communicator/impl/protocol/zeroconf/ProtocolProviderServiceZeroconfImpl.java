@@ -19,30 +19,33 @@ import net.java.sip.communicator.util.*;
 public class ProtocolProviderServiceZeroconfImpl
     extends AbstractProtocolProviderService
 {
+    /**
+     * The logger for this class.
+     */
     private static final Logger logger =
         Logger.getLogger(ProtocolProviderServiceZeroconfImpl.class);
-    
+
     /**
      * We use this to lock access to initialization.
      */
     private final Object initializationLock = new Object();
-    
+
     /**
      * The id of the account that this protocol provider represents.
      */
     private AccountID accountID = null;
-    
+
     /**
      * Indicates whether or not the provider is initialized and ready for use.
      */
     private boolean isInitialized = false;
-    
+
     /**
      * The logo corresponding to the zeroconf protocol.
      */
     private final ProtocolIconZeroconfImpl zeroconfIcon
         = new ProtocolIconZeroconfImpl();
-    
+
     /**
      * The registration state that we are currently in. Note that in a real
      * world protocol implementation this field won't exist and the registration
@@ -50,13 +53,13 @@ public class ProtocolProviderServiceZeroconfImpl
      */
     private RegistrationState currentRegistrationState
         = RegistrationState.UNREGISTERED;
-    
+
     /**
      * The BonjourService corresponding to this ProtocolProviderService
      */
-    
+
     private BonjourService bonjourService;
-    
+
     /**
      * The default constructor for the Zeroconf protocol provider.
      */
@@ -65,7 +68,7 @@ public class ProtocolProviderServiceZeroconfImpl
         if (logger.isTraceEnabled())
             logger.trace("Creating a zeroconf provider.");
     }
-    
+
     /**
      * Returns the AccountID that uniquely identifies the account represented
      * by this instance of the ProtocolProviderService.
@@ -76,18 +79,17 @@ public class ProtocolProviderServiceZeroconfImpl
     {
         return accountID;
     }
-    
+
     /**
      * Returns the Bonjour Service that handles the Bonjour protocol stack.
-     * 
+     *
      *@return the Bonjour Service linked with this Protocol Provider
      */
-    public BonjourService getBonjourService() 
+    public BonjourService getBonjourService()
     {
         return bonjourService;
     }
-    
-    
+
     /**
      * Initializes the service implementation, and puts it in a sate where it
      * could interoperate with other services. It is strongly recomended that
@@ -108,7 +110,7 @@ public class ProtocolProviderServiceZeroconfImpl
         {
             this.accountID = accountID;
 
-           
+
            //initialize the presence operationset
             OperationSetPersistentPresenceZeroconfImpl persistentPresence =
                 new OperationSetPersistentPresenceZeroconfImpl(this);
@@ -163,7 +165,7 @@ public class ProtocolProviderServiceZeroconfImpl
     {
         return currentRegistrationState;
     }
-    
+
     /**
      * Starts the registration process.
      *
@@ -183,21 +185,21 @@ public class ProtocolProviderServiceZeroconfImpl
         RegistrationState oldState = currentRegistrationState;
         currentRegistrationState = RegistrationState.REGISTERED;
 
-        
+
         //ICI : creer le service Zeroconf !!
         if (logger.isInfoEnabled())
             logger.info("ZEROCONF: Starting the service");
         this.bonjourService = new BonjourService(5298, this);
-        
+
         //bonjourService.changeStatus(ZeroconfStatusEnum.ONLINE);
-        
+
         fireRegistrationStateChanged(
             oldState
             , currentRegistrationState
             , RegistrationStateChangeEvent.REASON_USER_REQUEST
             , null);
     }
-    
+
     /**
      * Makes the service implementation close all open sockets and release
      * any resources that it might have taken and prepare for
@@ -231,7 +233,7 @@ public class ProtocolProviderServiceZeroconfImpl
 
         isInitialized = false;
     }
-    
+
     /**
      * Ends the registration of this protocol provider with the current
      * registration service.
@@ -247,20 +249,20 @@ public class ProtocolProviderServiceZeroconfImpl
         currentRegistrationState = RegistrationState.UNREGISTERED;
 
         bonjourService.shutdown();
-        
+
         fireRegistrationStateChanged(
             oldState
             , currentRegistrationState
             , RegistrationStateChangeEvent.REASON_USER_REQUEST
             , null);
     }
-    
+
     /**
      * Returns the zeroconf protocol icon.
      * @return the zeroconf protocol icon
      */
     public ProtocolIcon getProtocolIcon()
-    {           
+    {
         return zeroconfIcon;
     }
 }

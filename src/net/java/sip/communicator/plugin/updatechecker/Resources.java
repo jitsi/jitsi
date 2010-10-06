@@ -16,11 +16,20 @@ import net.java.sip.communicator.util.*;
  */
 public class Resources
 {
+    /**
+     * Logger for this class.
+     */
     private static Logger logger = Logger.getLogger(Resources.class);
 
+    /**
+     * Name of the configuration file name.
+     */
     private static final String CONFIG_PROP_FILE_NAME
         = "versionupdate.properties";
 
+    /**
+     * The properties contained in CONFIG_PROP_FILE_NAME.
+     */
     private static Properties configProps = null;
 
     /**

@@ -107,7 +107,6 @@ public class SparkleActivator
         String downloadLink = getConfigurationService().getString(
                 PROP_UPDATE_LINK);
 
-        System.out.println("download link is: " + downloadLink);
         // TODO: better way to get the Sparkle Framework path?
         initSparkle(System.getProperty("user.dir")
                     + "/../../Frameworks/Sparkle.framework",

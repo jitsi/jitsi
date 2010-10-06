@@ -30,6 +30,11 @@ public class DHCPProvisioningDiscover
         = Logger.getLogger(DHCPProvisioningDiscover.class);
 
     /**
+     * DHCP socket timeout (in milliseconds).
+     */
+    private static final int DHCP_TIMEOUT = 10000;
+
+    /**
      * UDP socket.
      */
     private DatagramSocket socket = null;
@@ -50,10 +55,6 @@ public class DHCPProvisioningDiscover
      */
     private byte option = (byte)224;
 
-    /**
-     * DHCP socket timeout (in milliseconds).
-     */
-    private static final int DHCP_TIMEOUT = 10000;
 
     /**
      * List of <tt>ProvisioningListener</tt> that will be notified when

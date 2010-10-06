@@ -71,7 +71,7 @@ public class DHCPTransaction
     /**
      * Schedule a timer for retransmission.
      *
-     * @throw Exception if message cannot be sent on the socket
+     * @throws Exception if message cannot be sent on the socket
      */
     public void schedule() throws Exception
     {
@@ -118,6 +118,9 @@ public class DHCPTransaction
     private class RetransmissionHandler
         extends TimerTask
     {
+        /**
+         * Thread entry point.
+         */
         public void run()
         {
             int rand = new Random().nextInt(2) - 1;

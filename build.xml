@@ -895,7 +895,7 @@
         bundle-fileaccess-slick,bundle-neomedia,bundle-hid,
         bundle-resource-manager,bundle-resources-defaultpack,
         bundle-protocol,bundle-protocol-media,bundle-icq,
-        bundle-icq-slick,bundle-mock,bundle-smacklib,
+        bundle-icq-slick,bundle-mock,bundle-smacklib,bundle-jmdnslib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
         bundle-msn,bundle-msn-slick,bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
@@ -932,7 +932,7 @@
         bundle-vimeo,bundle-vbox7,bundle-metacafe,bundle-flickr,bundle-hulu,
         bundle-twitpic,bundle-directimage,bundle-bliptv,bundle-viddler,
         bundle-plugin-chatconfig,bundle-certificate,
-        bundle-provdisc,bundle-provdisc-dhcp,
+        bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
         bundle-provisioning"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
@@ -1333,6 +1333,14 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/smackx-debug.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/smack.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/smackx.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <target name="bundle-jmdnslib">
+        <!-- Creates a bundle containing the jmdns lib.-->
+        <jar compress="false" destfile="${bundles.dest}/jmdnslib.jar"
+            manifest="${lib.noinst}/jmdns.manifest.mf">
+            <zipfileset src="${lib.noinst}/jmdns.jar" prefix=""/>
         </jar>
     </target>
 
@@ -2545,6 +2553,15 @@ org.apache.http.util"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/provdisc/dhcp"
                 prefix="net/java/sip/communicator/impl/provdisc/dhcp" />
             <zipfileset src="${lib.noinst}/dhcp4java-1.00.jar"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-PROVDISC-MDNS -->
+    <target name="bundle-provdisc-mdns">
+        <jar compress="false" destfile="${bundles.dest}/provdisc-mdns.jar"
+            manifest="${src}/net/java/sip/communicator/impl/provdisc/mdns/mdns.provdisc.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/provdisc/mdns"
+                prefix="net/java/sip/communicator/impl/provdisc/mdns" />
         </jar>
     </target>
 
