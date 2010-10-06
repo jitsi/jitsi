@@ -19,4 +19,5 @@ install:$(TARGET)
 
 libsparkle_init.dylib:$(OBJS)
 	$(CC) -dynamiclib -o $(TARGET) $(LIBS) $(CFLAGS) $<
+	install_name_tool -change "@loader_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle" "@executable_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle" libsparkle_init.dylib 
 
