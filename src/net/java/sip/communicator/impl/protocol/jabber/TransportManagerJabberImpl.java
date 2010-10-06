@@ -10,6 +10,7 @@ import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 
@@ -21,6 +22,7 @@ import net.java.sip.communicator.service.protocol.media.*;
  * it has not yet completed.
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public abstract class TransportManagerJabberImpl
     extends TransportManager<CallPeerJabberImpl>
@@ -83,6 +85,27 @@ public abstract class TransportManagerJabberImpl
     }
 
     /**
+     * Gets the <tt>MediaStreamTarget</tt> to be used as the <tt>target</tt> of
+     * the <tt>MediaStream</tt> with a specific <tt>MediaType</tt>.
+     *
+     * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> which
+     * is to have its <tt>target</tt> set to the returned
+     * <tt>MediaStreamTarget</tt>
+     * @return the <tt>MediaStreamTarget</tt> to be used as the <tt>target</tt>
+     * of the <tt>MediaStream</tt> with the specified <tt>MediaType</tt>
+     */
+    public abstract MediaStreamTarget getStreamTarget(MediaType mediaType);
+
+    /**
+     * Gets the XML namespace of the Jingle transport implemented by this
+     * <tt>TransportManagerJabberImpl</tt>.
+     *
+     * @return the XML namespace of the Jingle transport implemented by this
+     * <tt>TransportManagerJabberImpl</tt>
+     */
+    public abstract String getXmlNamespace();
+
+    /**
      * Returns the generation that our current candidates belong to.
      *
      * @return the generation that we should assign to candidates that we are
@@ -134,7 +157,7 @@ public abstract class TransportManagerJabberImpl
      * @throws OperationFailedException if we fail to allocate a port number.
      */
     public abstract void startCandidateHarvest(
-                                    List<ContentPacketExtension>   ourOffer)
+            List<ContentPacketExtension> ourOffer)
         throws OperationFailedException;
 
     /**
@@ -146,4 +169,39 @@ public abstract class TransportManagerJabberImpl
      * a new instance) and that we have updated with transport lists.
      */
     public abstract List<ContentPacketExtension> wrapupHarvest();
+
+    /**
+     * Looks through the <tt>cpExtList</tt> and returns the {@link
+     * ContentPacketExtension} with the specified name.
+     *
+     * @param cpExtList the list that we will be searching for a specific
+     * content.
+     * @param name the name of the content element we are looking for.
+     * @return the {@link ContentPacketExtension} with the specified name or
+     * <tt>null</tt> if no such content element exists.
+     */
+    protected ContentPacketExtension findContentByName(
+                                        List<ContentPacketExtension> cpExtList,
+                                        String                       name)
+    {
+        for(ContentPacketExtension cpExt : cpExtList)
+        {
+            if(cpExt.getName().equals(name))
+                return cpExt;
+        }
+        return null;
+    }
+
+    /**
+     * Starts the connectivity establishment of this
+     * <tt>TransportManagerJabberImpl</tt> i.e. checks the connectivity between
+     * the local and the remote peers given the remote counterpart of the
+     * negotiation between them.
+     *
+     * @param remote the collection of <tt>ContentPacketExtension</tt>s which
+     * represents the remote counterpart of the negotiation between the local
+     * and the remote peer
+     */
+    public abstract void startConnectivityEstablishment(
+            Collection<ContentPacketExtension> remote);
 }

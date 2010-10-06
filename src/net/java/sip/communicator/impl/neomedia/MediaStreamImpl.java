@@ -725,6 +725,66 @@ public class MediaStreamImpl
     }
 
     /**
+     * Sets the target of this <tt>MediaStream</tt> to which it is to send and
+     * from which it is to receive data (e.g. RTP) and control data (e.g. RTCP).
+     * In contrast to {@link #setTarget(MediaStreamTarget)}, sets the specified
+     * <tt>target</tt> on this <tt>MediaStreamImpl</tt> even if its current
+     * <tt>target</tt> is equal to the specified one.
+     *
+     * @param target the <tt>MediaStreamTarget</tt> describing the data
+     * (e.g. RTP) and the control data (e.g. RTCP) locations to which this
+     * <tt>MediaStream</tt> is to send and from which it is to receive
+     * @see MediaStreamImpl#setTarget(MediaStreamTarget)
+     */
+    private void doSetTarget(MediaStreamTarget target)
+    {
+        rtpConnector.removeTargets();
+        rtpConnectorTarget = null;
+
+        boolean targetIsSet;
+
+        if (target != null)
+        {
+            InetSocketAddress dataAddr = target.getDataAddress();
+            InetSocketAddress controlAddr = target.getControlAddress();
+
+            try
+            {
+                rtpConnector
+                    .addTarget(
+                        new SessionAddress(
+                                dataAddr.getAddress(),
+                                dataAddr.getPort(),
+                                controlAddr.getAddress(),
+                                controlAddr.getPort()));
+                targetIsSet = true;
+            }
+            catch (IOException ioe)
+            {
+                // TODO
+                targetIsSet = false;
+                logger.error("Failed to set target " + target, ioe);
+            }
+        }
+        else
+            targetIsSet = true;
+
+        if (targetIsSet)
+        {
+            rtpConnectorTarget = target;
+
+            if (logger.isTraceEnabled())
+                logger
+                    .trace(
+                        "Set target of "
+                            + getClass().getSimpleName()
+                            + " with hashCode "
+                            + hashCode()
+                            + " to "
+                            + target);
+        }
+    }
+    /**
      * Gets the <tt>MediaDevice</tt> that this stream uses to play back and
      * capture media.
      *
@@ -1091,8 +1151,17 @@ public class MediaStreamImpl
     {
         zrtpControl.setConnector(newValue);
 
-        // Register the transform engines that we will be using in this stream.
-        rtpConnector.setEngine(createTransformEngineChain());
+        if (newValue != null)
+        {
+            /*
+             * Register the transform engines that we will be using in this
+             * stream.
+             */
+            newValue.setEngine(createTransformEngineChain());
+
+            if (rtpConnectorTarget != null)
+                doSetTarget(rtpConnectorTarget);
+        }
     }
 
     /**
@@ -1354,51 +1423,7 @@ public class MediaStreamImpl
         else if (target.equals(rtpConnectorTarget))
             return;
 
-        rtpConnector.removeTargets();
-        rtpConnectorTarget = null;
-
-        boolean targetIsSet;
-
-        if (target != null)
-        {
-            InetSocketAddress dataAddr = target.getDataAddress();
-            InetSocketAddress controlAddr = target.getControlAddress();
-
-            try
-            {
-                rtpConnector
-                    .addTarget(
-                        new SessionAddress(
-                                dataAddr.getAddress(),
-                                dataAddr.getPort(),
-                                controlAddr.getAddress(),
-                                controlAddr.getPort()));
-                targetIsSet = true;
-            }
-            catch (IOException ioe)
-            {
-                // TODO
-                targetIsSet = false;
-                logger.error("Failed to set target " + target, ioe);
-            }
-        }
-        else
-            targetIsSet = true;
-
-        if (targetIsSet)
-        {
-            rtpConnectorTarget = target;
-
-            if (logger.isTraceEnabled())
-                logger
-                    .trace(
-                        "Set target of "
-                            + getClass().getSimpleName()
-                            + " with hashCode "
-                            + hashCode()
-                            + " to "
-                            + target);
-        }
+        doSetTarget(target);
     }
 
     /**

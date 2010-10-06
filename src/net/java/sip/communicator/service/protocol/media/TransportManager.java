@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.protocol.media;
 
 import java.net.*;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -21,6 +22,7 @@ import net.java.sip.communicator.util.*;
  * or <tt>CallPeerJabberImpl</tt>
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
 {
@@ -28,8 +30,8 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * The <tt>Logger</tt> used by the <tt>TransportManager</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger = Logger
-                    .getLogger(TransportManager.class.getName());
+    private static final Logger logger
+        = Logger.getLogger(TransportManager.class);
 
     /**
      * The minimum port number that we'd like our RTP sockets to bind upon.
@@ -48,21 +50,17 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     protected static int nextMediaPortToTry = minMediaPort;
 
     /**
-     * The RTP/RTCP socket couple that this media handler should use to send
-     * and receive audio flows through.
-     */
-    private StreamConnector audioStreamConnector = null;
-
-    /**
-     * The RTP/RTCP socket couple that this media handler should use to send
-     * and receive video flows through.
-     */
-    private StreamConnector videoStreamConnector = null;
-
-    /**
      * The {@link MediaAwareCallPeer} whose traffic we will be taking care of.
      */
     private U callPeer;
+
+    /**
+     * The RTP/RTCP socket couples that this <tt>TransportManager</tt> uses to
+     * send and receive media flows through indexed by <tt>MediaType</tt>
+     * (ordinal).
+     */
+    private final StreamConnector[] streamConnectors
+        = new StreamConnector[MediaType.values().length];
 
     /**
      * Creates a new instance of this transport manager, binding it to the
@@ -83,8 +81,8 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * been initialized for this <tt>mediaType</tt> yet or in case one
      * of its underlying sockets has been closed.
      *
-     * @param mediaType the MediaType that we'd like to create a connector for.
-     *
+     * @param mediaType the <tt>MediaType</tt> that we'd like to create a
+     * connector for.
      * @return this media handler's <tt>StreamConnector</tt> for the specified
      * <tt>mediaType</tt>.
      *
@@ -94,28 +92,18 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     public StreamConnector getStreamConnector(MediaType mediaType)
         throws OperationFailedException
     {
-        if (mediaType == MediaType.AUDIO)
-        {
-            if ( audioStreamConnector == null
-                 || audioStreamConnector.getDataSocket().isClosed()
-                 || audioStreamConnector.getControlSocket().isClosed())
-            {
-                audioStreamConnector = createStreamConnector();
-            }
+        StreamConnector streamConnector = streamConnectors[mediaType.ordinal()];
 
-            return audioStreamConnector;
-        }
-        else
+        if ((streamConnector == null)
+                || streamConnector.getDataSocket().isClosed()
+                || streamConnector.getControlSocket().isClosed())
         {
-            if ( videoStreamConnector == null
-                 || videoStreamConnector.getDataSocket().isClosed()
-                 || videoStreamConnector.getControlSocket().isClosed())
-            {
-                videoStreamConnector = createStreamConnector();
-            }
-
-            return videoStreamConnector;
+            streamConnectors[mediaType.ordinal()]
+                = streamConnector
+                    = createStreamConnector(mediaType);
         }
+
+        return streamConnector;
     }
 
     /**
@@ -127,31 +115,30 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     public void closeStreamConnector(MediaType mediaType)
     {
         StreamConnector connector
-            = (mediaType == MediaType.VIDEO)
-                ? videoStreamConnector
-                : audioStreamConnector;
+            = streamConnectors[mediaType.ordinal()];
 
-        if(connector == null)
-            return;
-
-        synchronized(connector)
+        if(connector != null)
         {
-            connector.getDataSocket().close();
-            connector.getControlSocket().close();
-            connector = null;
+            synchronized(connector)
+            {
+                connector.getDataSocket().close();
+                connector.getControlSocket().close();
+                streamConnectors[mediaType.ordinal()] = null;
+            }
         }
-
     }
 
     /**
      * Creates a media <tt>StreamConnector</tt>. The method takes into account
      * the minimum and maximum media port boundaries.
      *
+     * @param mediaType the <tt>MediaType</tt> of the stream for which a new
+     * <tt>StreamConnector</tt> is to be created
      * @return a new <tt>StreamConnector</tt>.
      *
      * @throws OperationFailedException if we fail binding the the sockets.
      */
-    protected StreamConnector createStreamConnector()
+    protected StreamConnector createStreamConnector(MediaType mediaType)
         throws OperationFailedException
     {
         NetworkAddressManagerService nam
@@ -192,7 +179,8 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         {
            throw new OperationFailedException(
                 "Failed to allocate the network ports necessary for the call.",
-                OperationFailedException.INTERNAL_ERROR, exc);
+                OperationFailedException.INTERNAL_ERROR,
+                exc);
         }
 
         //make sure that next time we don't try to bind on occupied ports
@@ -201,11 +189,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         if (nextMediaPortToTry > maxMediaPort -1)// take RTCP into account.
             nextMediaPortToTry = minMediaPort;
 
-        //create the RTCP socket
-        DefaultStreamConnector connector = new DefaultStreamConnector(
-                        rtpSocket, rtcpSocket);
-
-        return connector;
+        return new DefaultStreamConnector(rtpSocket, rtcpSocket);
     }
 
     /**
@@ -219,10 +203,12 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         maxMediaPort = 6000;
 
         //then set to anything the user might have specified.
+        ConfigurationService configuration
+            = ProtocolMediaActivator.getConfigurationService();
         String minPortNumberStr
-            = ProtocolMediaActivator.getConfigurationService()
-                .getString(OperationSetBasicTelephony
-                    .MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+            = configuration.getString(
+                    OperationSetBasicTelephony
+                        .MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
 
         if (minPortNumberStr != null)
         {
@@ -239,8 +225,8 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         }
 
         String maxPortNumberStr
-                = ProtocolMediaActivator.getConfigurationService()
-                    .getString(OperationSetBasicTelephony
+            = configuration.getString(
+                    OperationSetBasicTelephony
                         .MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
 
         if (maxPortNumberStr != null)
@@ -270,7 +256,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * descriptions so we already have a specific local address assigned to them
      * at the time we get ready to create the c= and o= fields. It is therefore
      * better to try and return one of these addresses before trying the net
-     * address manager again ang running the slight risk of getting a different
+     * address manager again and running the slight risk of getting a different
      * address.
      *
      * @return an <tt>InetAddress</tt> that we use in one of the
@@ -278,14 +264,17 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      */
     public InetAddress getLastUsedLocalHost()
     {
-        if (audioStreamConnector != null)
-            return audioStreamConnector.getDataSocket().getLocalAddress();
+        for (MediaType mediaType : MediaType.values())
+        {
+            StreamConnector streamConnector
+                = streamConnectors[mediaType.ordinal()];
 
-        if (videoStreamConnector != null)
-            return videoStreamConnector.getDataSocket().getLocalAddress();
+            if (streamConnector != null)
+                return streamConnector.getDataSocket().getLocalAddress();
+        }
 
         NetworkAddressManagerService nam
-                    = ProtocolMediaActivator.getNetworkAddressManagerService();
+            = ProtocolMediaActivator.getNetworkAddressManagerService();
         InetAddress intendedDestination = getIntendedDestination(getCallPeer());
 
         return nam.getLocalHost(intendedDestination);

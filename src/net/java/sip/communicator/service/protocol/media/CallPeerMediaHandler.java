@@ -173,7 +173,7 @@ public abstract class CallPeerMediaHandler<
      * Indicates whether this handler has already started at least one of its
      * streams, at least once.
      */
-    private boolean isStarted = false;
+    private boolean started = false;
 
     /**
      * Contains all dynamic payload type mappings that have been made for this
@@ -387,19 +387,15 @@ public abstract class CallPeerMediaHandler<
     protected void closeStream(MediaType type)
     {
         if( type == MediaType.AUDIO)
-        {
             setAudioStream(null);
-
-        }
         else
-        {
             setVideoStream(null);
-        }
 
-        this.getTransportManager().closeStreamConnector(type);
+        getTransportManager().closeStreamConnector(type);
 
-        // clears the zrtp controls used for current call.
+        // Clear the ZRTP controls used for the associated Call.
         ZrtpControl zrtpCtrl = zrtpControls.get(type);
+
         if (zrtpCtrl != null)
         {
             zrtpCtrl.cleanup();
@@ -1126,34 +1122,35 @@ public abstract class CallPeerMediaHandler<
                                      List<RTPExtension>   rtpExtensions)
         throws OperationFailedException
     {
-        MediaStream stream = null;
-
-        if (device.getMediaType() == MediaType.AUDIO)
-            stream = this.audioStream;
-        else
-        {
-            stream = this.videoStream;
-        }
+        MediaType mediaType = device.getMediaType();
+        MediaStream stream = getStream(mediaType);
 
         if (stream == null)
         {
+            if (logger.isTraceEnabled() && (mediaType != format.getMediaType()))
+                logger.trace("The media types of device and format differ.");
+
             // check whether a control already exists
-            ZrtpControl control = zrtpControls.get(format.getMediaType());
+            ZrtpControl control = zrtpControls.get(mediaType);
             MediaService mediaService
-                                = ProtocolMediaActivator.getMediaService();
+                = ProtocolMediaActivator.getMediaService();
 
             if(control == null)
                 stream = mediaService.createMediaStream(connector, device);
             else
-                stream = mediaService.createMediaStream(
-                                            connector, device, control);
+            {
+                stream
+                    = mediaService.createMediaStream(
+                            connector, device, control);
+            }
         }
         else
         {
             //this is a reinit
         }
 
-        return  configureStream(
+        return
+            configureStream(
                     device, format, target, direction, rtpExtensions, stream);
     }
 
@@ -1209,7 +1206,7 @@ public abstract class CallPeerMediaHandler<
         if(peer.getCall().isDefaultEncrypted())
         {
             // we use the audio stream for master stream
-            // when using zrtp multistreams
+            // when using ZRTP multistreams.
             ZrtpControl zrtpControl = stream.getZrtpControl();
 
             zrtpControl.setZrtpListener(zrtpController);
@@ -1220,9 +1217,9 @@ public abstract class CallPeerMediaHandler<
     }
 
     /**
-     * Send empty UDP packet to target destination data/control ports
-     * in order to open port on NAT or RTP proxy if any. In order to be really
-     * efficient, this method should be called after we send our offer or answer
+     * Sends empty UDP packets to target destination data/control ports in order
+     * to open port on NAT or RTP proxy if any. In order to be really efficient,
+     * this method should be called after we send our offer or answer.
      *
      * @param target <tt>MediaStreamTarget</tt>
      */
@@ -1536,16 +1533,15 @@ public abstract class CallPeerMediaHandler<
      */
     public boolean isStarted()
     {
-        return isStarted;
+        return started;
     }
 
     /**
-     * Returns <tt>true</tt> if this handler has already started at least one
-     * of its streams, at least once, and <tt>false</tt> otherwise. If the
-     * handler is already started, this method has no effect.
+     * Starts this <tt>CallPeerMediaHandler</tt>. If it has already been
+     * started, does nothing.
      *
      * @throws IllegalStateException if this method is called without this
-     * handler having first seen a media description or having generate an
+     * handler having first seen a media description or having generated an
      * offer.
      */
     public void start()
@@ -1555,21 +1551,22 @@ public abstract class CallPeerMediaHandler<
             return;
 
         MediaStream stream = getStream(MediaType.AUDIO);
-        if ( stream != null && !stream.isStarted()
-             && isLocalAudioTransmissionEnabled())
+        if ((stream != null)
+                && !stream.isStarted()
+                && isLocalAudioTransmissionEnabled())
         {
             stream.start();
         }
 
         stream = getStream(MediaType.VIDEO);
-        if ( stream != null && !stream.isStarted())
+        if ((stream != null) && !stream.isStarted())
         {
             stream.start();
 
              // send empty packet to deblock some kind of RTP proxy to let just
              // one user sends its video
-            if(stream instanceof VideoMediaStream
-               && !isLocalVideoTransmissionEnabled())
+            if ((stream instanceof VideoMediaStream)
+                    && !isLocalVideoTransmissionEnabled())
             {
                 sendHolePunchPacket(stream.getTarget());
             }
@@ -1606,9 +1603,11 @@ public abstract class CallPeerMediaHandler<
         throws OperationFailedException;
 
     /**
-     * Returns the transport manager that is handling our address management.
+     * Gets the <tt>TransportManager</tt> implementation handling our address
+     * management.
      *
-     * @return the transport manager that is handling our address management.
+     * @return the <tt>TransportManager</tt> implementation handling our address
+     * management
      */
     public abstract TransportManager<T> getTransportManager();
 }

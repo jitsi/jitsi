@@ -6,7 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.lang.reflect.*;
 import java.util.*;
+
+import org.jivesoftware.smackx.packet.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.*;
@@ -22,6 +25,7 @@ import net.java.sip.communicator.util.*;
  * An XMPP specific extension of the generic media handler.
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public class CallPeerMediaHandlerJabberImpl
     extends CallPeerMediaHandler<CallPeerJabberImpl>
@@ -34,10 +38,10 @@ public class CallPeerMediaHandlerJabberImpl
         = Logger.getLogger(CallPeerMediaHandlerJabberImpl.class);
 
     /**
-     * A temporarily single transport manager that we use for generating
-     * addresses until we properly implement both ICE and Raw UDP managers.
+     * The <tt>TransportManager</tt> implementation handling our address
+     * management.
      */
-    private final TransportManagerJabberImpl transportManager;
+    private TransportManagerJabberImpl transportManager;
 
     /**
      * The current description of the streams that we have going toward the
@@ -76,8 +80,6 @@ public class CallPeerMediaHandlerJabberImpl
     public CallPeerMediaHandlerJabberImpl(CallPeerJabberImpl peer)
     {
         super(peer, peer);
-
-        transportManager = new IceUdpTransportManager(peer);
     }
 
     /**
@@ -94,12 +96,17 @@ public class CallPeerMediaHandlerJabberImpl
      * @throws OperationFailedException the exception that we wanted this method
      * to throw.
      */
-    @Override
-    protected void throwOperationFailedException(String message, int errorCode,
-                    Throwable cause) throws OperationFailedException
+    protected void throwOperationFailedException(
+            String message,
+            int errorCode,
+            Throwable cause)
+        throws OperationFailedException
     {
         ProtocolProviderServiceJabberImpl.throwOperationFailedException(
-                            message, errorCode, cause, logger);
+                message,
+                errorCode,
+                cause,
+                logger);
     }
 
     /**
@@ -188,8 +195,14 @@ public class CallPeerMediaHandlerJabberImpl
                                      List<RTPExtension>   rtpExtensions)
         throws OperationFailedException
     {
-        MediaStream stream = super.initStream(connector, device, format,
-                        target, direction, rtpExtensions);
+        MediaStream stream
+            = super.initStream(
+                    connector,
+                    device,
+                    format,
+                    target,
+                    direction,
+                    rtpExtensions);
 
         if(stream != null)
             stream.setName(streamName);
@@ -218,8 +231,7 @@ public class CallPeerMediaHandlerJabberImpl
     {
         // prepare to generate answers to all the incoming descriptions
         List<ContentPacketExtension> answerContentList
-                        = new ArrayList<ContentPacketExtension>(offer.size());
-
+            = new ArrayList<ContentPacketExtension>(offer.size());
         boolean atLeastOneValidDescription = false;
 
         for (ContentPacketExtension content : offer)
@@ -227,18 +239,19 @@ public class CallPeerMediaHandlerJabberImpl
             remoteContentMap.put(content.getName(), content);
 
             RtpDescriptionPacketExtension description
-                                    = JingleUtils.getRtpDescription(content);
+                = JingleUtils.getRtpDescription(content);
             MediaType mediaType
-                            = MediaType.parseString( description.getMedia() );
+                = MediaType.parseString( description.getMedia() );
 
-            List<MediaFormat> remoteFormats = JingleUtils.extractFormats(
-                            description, getDynamicPayloadTypes());
+            List<MediaFormat> remoteFormats
+                = JingleUtils.extractFormats(
+                        description,
+                        getDynamicPayloadTypes());
 
             MediaDevice dev = getDefaultDevice(mediaType);
 
-            MediaDirection devDirection = (dev == null)
-                                                      ? MediaDirection.INACTIVE
-                                                      : dev.getDirection();
+            MediaDirection devDirection
+                = (dev == null) ? MediaDirection.INACTIVE : dev.getDirection();
 
             // Take the preference of the user with respect to streaming
             // mediaType into account.
@@ -271,6 +284,22 @@ public class CallPeerMediaHandlerJabberImpl
                 = JingleUtils.extractDefaultTarget(content);
 
             int targetDataPort = target.getDataAddress().getPort();
+
+            // transport
+            /*
+             * RawUdpTransportPacketExtension extends
+             * IceUdpTransportPacketExtension so getting
+             * IceUdpTransportPacketExtension should suffice.
+             */
+            IceUdpTransportPacketExtension transport
+                = content.getFirstChildOfType(
+                        IceUdpTransportPacketExtension.class);
+
+            /*
+             * TODO If the offered transport is not supported, attempt to
+             * fall back to a supported one using transport-replace.
+             */
+            setTransportManager(transport.getNamespace());
 
             if (mutuallySupportedFormats.isEmpty()
                 || (devDirection == MediaDirection.INACTIVE)
@@ -331,10 +360,14 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         if (!atLeastOneValidDescription)
-            ProtocolProviderServiceJabberImpl
-                .throwOperationFailedException("Offer contained no media "
-                       + " formats or no valid media descriptions.",
-                       OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
+        {
+            ProtocolProviderServiceJabberImpl.throwOperationFailedException(
+                    "Offer contained no media formats"
+                        + " or no valid media descriptions.",
+                    OperationFailedException.ILLEGAL_ARGUMENT,
+                    null,
+                    logger);
+        }
 
         //now, before we go, tell the transport manager to start our candidate
         //harvest
@@ -354,20 +387,22 @@ public class CallPeerMediaHandlerJabberImpl
     protected List<ContentPacketExtension> generateSessionAccept()
         throws OperationFailedException
     {
+        TransportManagerJabberImpl transportManager = getTransportManager();
         List<ContentPacketExtension> sessAccept
-                                    = getTransportManager().wrapupHarvest();
+            = transportManager.wrapupHarvest();
+        CallPeerJabberImpl peer = getPeer();
 
         //user answered an incoming call so we go through whatever content
         //entries we are initializing and init their corresponding streams
         for(ContentPacketExtension ourContent : sessAccept)
         {
             RtpDescriptionPacketExtension description
-                            = JingleUtils.getRtpDescription(ourContent);
+                = JingleUtils.getRtpDescription(ourContent);
             MediaType type = MediaType.parseString(description.getMedia());
 
             //
             StreamConnector connector
-                = getTransportManager().getStreamConnector(type);
+                = transportManager.getStreamConnector(type);
 
             //the device this stream would be reading from and writing to.
             MediaDevice dev = getDefaultDevice(type);
@@ -382,7 +417,7 @@ public class CallPeerMediaHandlerJabberImpl
 
             //stream direction
             MediaDirection direction = JingleUtils.getDirection(
-                                       ourContent, !getPeer().isInitiator());
+                                       ourContent, !peer.isInitiator());
 
             //let's now see what was the format we announced as first and
             //configure the stream with it.
@@ -425,15 +460,13 @@ public class CallPeerMediaHandlerJabberImpl
             if(ourContent.getChildExtensionsOfType(
                             InputEvtPacketExtension.class) != null)
             {
-                OperationSetDesktopSharingClientJabberImpl client =
-                    (OperationSetDesktopSharingClientJabberImpl)
-                    this.getPeer().getProtocolProvider().getOperationSet(
-                    OperationSetDesktopSharingClient.class);
+                OperationSetDesktopSharingClientJabberImpl client
+                    = (OperationSetDesktopSharingClientJabberImpl)
+                        peer.getProtocolProvider().getOperationSet(
+                                OperationSetDesktopSharingClient.class);
 
-                if(client != null)
-                {
+                if (client != null)
                     client.fireRemoteControlGranted();
-                }
             }
         }
         return sessAccept;
@@ -447,14 +480,14 @@ public class CallPeerMediaHandlerJabberImpl
      * @return the {@link ContentPacketExtension}s of stream that this
      * handler is prepared to initiate.
      * @throws OperationFailedException if we fail to create the descriptions
-     * for reasons like - problems with device interaction, allocating ports,
-     * etc.
+     * for reasons like problems with device interaction, allocating ports, etc.
      */
     private ContentPacketExtension createContent(MediaDevice dev)
+        throws OperationFailedException
     {
-        MediaDirection direction = dev.getDirection().and(
-                        getDirectionUserPreference(
-                            dev.getMediaType()));
+        MediaDirection direction
+            = dev.getDirection().and(
+                    getDirectionUserPreference(dev.getMediaType()));
 
         if(isLocallyOnHold())
             direction = direction.and(MediaDirection.SENDONLY);
@@ -469,10 +502,11 @@ public class CallPeerMediaHandlerJabberImpl
             if(getPeer().getCall().isSipZrtpAttribute())
             {
                 ZrtpControl control = getZrtpControls().get(dev.getMediaType());
+
                 if(control == null)
                 {
-                    control = JabberActivator.getMediaService()
-                        .createZrtpControl();
+                    control
+                        = JabberActivator.getMediaService().createZrtpControl();
                     getZrtpControls().put(dev.getMediaType(), control);
                 }
 
@@ -482,6 +516,7 @@ public class CallPeerMediaHandlerJabberImpl
                 {
                     ZrtpHashPacketExtension hash
                         = new ZrtpHashPacketExtension();
+
                     hash.setVersion(helloHash[0]);
                     hash.setValue(helloHash[1]);
 
@@ -534,10 +569,15 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         //now add the transport elements
-        getTransportManager().startCandidateHarvest(mediaDescs);
+        TransportManagerJabberImpl transportManager = getTransportManager();
 
-        //XXX ideally we wouldn't wrapup that quickly. we need to revisit this
-        return getTransportManager().wrapupHarvest();
+        transportManager.startCandidateHarvest(mediaDescs);
+
+        /*
+         * XXX Ideally, we wouldn't wrap up that quickly. We need to revisit
+         * this.
+         */
+        return transportManager.wrapupHarvest();
     }
 
     /**
@@ -550,15 +590,14 @@ public class CallPeerMediaHandlerJabberImpl
      * streams that this handler is prepared to initiate.
      *
      * @throws OperationFailedException if we fail to create the descriptions
-     * for reasons like - problems with device interaction, allocating ports,
-     * etc.
+     * for reasons like problems with device interaction, allocating ports, etc.
      */
     public List<ContentPacketExtension> createContentList()
         throws OperationFailedException
     {
         //Audio Media Description
         List<ContentPacketExtension> mediaDescs
-                                    = new ArrayList<ContentPacketExtension>();
+            = new ArrayList<ContentPacketExtension>();
 
         for (MediaType mediaType : MediaType.values())
         {
@@ -574,9 +613,11 @@ public class CallPeerMediaHandlerJabberImpl
 
                 if(direction != MediaDirection.INACTIVE)
                 {
-                    ContentPacketExtension content = createContentForOffer(
-                            dev.getSupportedFormats(), direction,
-                            dev.getSupportedExtensions());
+                    ContentPacketExtension content
+                        = createContentForOffer(
+                                dev.getSupportedFormats(),
+                                direction,
+                                dev.getSupportedExtensions());
 
                     //ZRTP
                     if(getPeer().getCall().isSipZrtpAttribute())
@@ -607,8 +648,8 @@ public class CallPeerMediaHandlerJabberImpl
                      */
                     RtpDescriptionPacketExtension description
                         = JingleUtils.getRtpDescription(content);
-                    if(description.getMedia().equals(
-                        MediaType.VIDEO.toString()) && localInputEvtAware)
+                    if(description.getMedia().equals(MediaType.VIDEO.toString())
+                            && localInputEvtAware)
                     {
                         content.addChildExtension(
                                 new InputEvtPacketExtension());
@@ -622,18 +663,24 @@ public class CallPeerMediaHandlerJabberImpl
         //fail if all devices were inactive
         if(mediaDescs.isEmpty())
         {
-            ProtocolProviderServiceJabberImpl
-                .throwOperationFailedException(
-                    "We couldn't find any active Audio/Video devices and "
-                        + "couldn't create a call",
-                    OperationFailedException.GENERAL_ERROR, null, logger);
+            ProtocolProviderServiceJabberImpl.throwOperationFailedException(
+                    "We couldn't find any active Audio/Video devices"
+                        + " and couldn't create a call",
+                    OperationFailedException.GENERAL_ERROR,
+                    null,
+                    logger);
         }
 
         //now add the transport elements
-        getTransportManager().startCandidateHarvest(mediaDescs);
+        TransportManagerJabberImpl transportManager = getTransportManager();
 
-        //XXX ideally we wouldn't wrapup that quickly. we need to revisit this
-        return getTransportManager().wrapupHarvest();
+        transportManager.startCandidateHarvest(mediaDescs);
+
+        /*
+         * XXX Ideally, we wouldn't wrap up that quickly. We need to revisit
+         * this.
+         */
+        return transportManager.wrapupHarvest();
     }
 
     /**
@@ -656,14 +703,15 @@ public class CallPeerMediaHandlerJabberImpl
                                         MediaDirection     direction,
                                         List<RTPExtension> supportedExtensions)
     {
-        ContentPacketExtension content = JingleUtils.createDescription(
-            CreatorEnum.initiator,
-            supportedFormats.get(0).getMediaType().toString(),
-            JingleUtils.getSenders(direction, !getPeer().isInitiator()),
-            supportedFormats,
-            supportedExtensions,
-            getDynamicPayloadTypes(),
-            getRtpExtensionsRegistry());
+        ContentPacketExtension content
+            = JingleUtils.createDescription(
+                    CreatorEnum.initiator,
+                    supportedFormats.get(0).getMediaType().toString(),
+                    JingleUtils.getSenders(direction, !getPeer().isInitiator()),
+                    supportedFormats,
+                    supportedExtensions,
+                    getDynamicPayloadTypes(),
+                    getRtpExtensionsRegistry());
 
         this.localContentMap.put(content.getName(), content);
         return content;
@@ -708,10 +756,11 @@ public class CallPeerMediaHandlerJabberImpl
      * in this operation can synchronize to the mediaHandler instance to wait
      * processing to stop (method setState in CallPeer).
      */
-    public void reinitContent(String name,
+    public void reinitContent(
+            String name,
             ContentPacketExtension.SendersEnum senders)
-            throws OperationFailedException,
-            IllegalArgumentException
+        throws OperationFailedException,
+               IllegalArgumentException
     {
         ContentPacketExtension ext = remoteContentMap.get(name);
 
@@ -790,13 +839,13 @@ public class CallPeerMediaHandlerJabberImpl
      */
     private void processContent(ContentPacketExtension content)
         throws OperationFailedException,
-        IllegalArgumentException
+               IllegalArgumentException
     {
         RtpDescriptionPacketExtension description
-                                = JingleUtils.getRtpDescription(content);
+            = JingleUtils.getRtpDescription(content);
 
         MediaType mediaType
-                        = MediaType.parseString( description.getMedia() );
+            = MediaType.parseString( description.getMedia() );
 
         //stream target
         MediaStreamTarget target
@@ -882,22 +931,128 @@ public class CallPeerMediaHandlerJabberImpl
         throws OperationFailedException,
                IllegalArgumentException
     {
-        for ( ContentPacketExtension content : answer)
+        for (ContentPacketExtension content : answer)
         {
             remoteContentMap.put(content.getName(), content);
 
             processContent(content);
         }
+
+        /*
+         * Since we've received (the) remote candidates from the peer, we can
+         * start checking them for connectivity.
+         */
+        startConnectivityEstablishment(answer);
     }
 
     /**
-     * Returns the transport manager that is handling our address management.
+     * Gets the <tt>TransportManager</tt> implementation handling our address
+     * management.
      *
-     * @return the transport manager that is handling our address management.
+     * @return the <tt>TransportManager</tt> implementation handling our address
+     * management
+     * @see CallPeerMediaHandler#getTransportManager()
      */
     public TransportManagerJabberImpl getTransportManager()
     {
+        if (transportManager == null)
+        {
+            CallPeerJabberImpl peer = getPeer();
+
+            if (peer.isInitiator())
+            {
+                throw new IllegalStateException(
+                        "The initiator is expected to specify the transport"
+                            + " in their offer.");
+            }
+            else
+            {
+                ScServiceDiscoveryManager discoveryManager
+                    = peer.getProtocolProvider().getDiscoveryManager();
+                DiscoverInfo peerDiscoverInfo = peer.getDiscoverInfo();
+
+                if (discoveryManager.includesFeature(
+                            ProtocolProviderServiceJabberImpl
+                                .URN_XMPP_JINGLE_ICE_UDP_1)
+                        && ((peerDiscoverInfo == null)
+                                || peerDiscoverInfo.containsFeature(
+                                        ProtocolProviderServiceJabberImpl
+                                            .URN_XMPP_JINGLE_ICE_UDP_1)))
+                {
+                    transportManager = new IceUdpTransportManager(peer);
+                }
+                else if (discoveryManager.includesFeature(
+                            ProtocolProviderServiceJabberImpl
+                                .URN_XMPP_JINGLE_RAW_UDP_0)
+                        && ((peerDiscoverInfo == null)
+                                || peerDiscoverInfo.containsFeature(
+                                        ProtocolProviderServiceJabberImpl
+                                            .URN_XMPP_JINGLE_RAW_UDP_0)))
+                {
+                    transportManager = new RawUdpTransportManager(peer);
+                }
+                else if (logger.isDebugEnabled())
+                {
+                    logger.debug(
+                            "No known Jingle transport supported"
+                                + " by Jabber call peer "
+                                + peer);
+                }
+            }
+        }
         return transportManager;
+    }
+
+    /**
+     * Sets the <tt>TransportManager</tt> implementation to handle our address
+     * management by Jingle transport XML namespace.
+     *
+     * @param xmlns the Jingle transport XML namespace specifying the
+     * <tt>TransportManager</tt> implementation type to be set on this instance
+     * to handle our address management
+     * @throws IllegalArgumentException if the specified <tt>xmlns</tt> does not
+     * specify a (supported) <tt>TransportManager</tt> implementation type
+     */
+    private void setTransportManager(String xmlns)
+        throws IllegalArgumentException
+    {
+        // Is this really going to be an actual change?
+        if ((transportManager != null)
+                && transportManager.getXmlNamespace().equals(xmlns))
+        {
+            return;
+        }
+
+        CallPeerJabberImpl peer = getPeer();
+
+        if (!peer
+                .getProtocolProvider()
+                    .getDiscoveryManager().includesFeature(xmlns))
+        {
+            throw new IllegalArgumentException(
+                    "Unsupported Jingle transport " + xmlns);
+        }
+
+        /*
+         * TODO The transportManager is going to be changed so it may need to be
+         * disposed prior to the change.
+         */
+
+        if (xmlns.equals(
+                ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_ICE_UDP_1))
+        {
+            transportManager = new IceUdpTransportManager(peer);
+        }
+        else if (xmlns.equals(
+                ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RAW_UDP_0))
+        {
+            transportManager = new RawUdpTransportManager(peer);
+        }
+        else
+        {
+            throw new IllegalArgumentException(
+                    "Unsupported Jingle transport " + xmlns);
+        }
     }
 
     /**
@@ -910,6 +1065,7 @@ public class CallPeerMediaHandlerJabberImpl
     public void setRemotelyOnHold(boolean onHold)
     {
         this.remotelyOnHold = onHold;
+
         MediaStream audioStream = getStream(MediaType.AUDIO);
         MediaStream videoStream = getStream(MediaType.VIDEO);
 
@@ -969,8 +1125,9 @@ public class CallPeerMediaHandlerJabberImpl
 
         //2. check the user preference.
         MediaDevice device = stream.getDevice();
-        postHoldDir = postHoldDir
-            .and(getDirectionUserPreference(device.getMediaType()));
+        postHoldDir
+            = postHoldDir.and(
+                    getDirectionUserPreference(device.getMediaType()));
 
         //3. check our local hold status.
         if(isLocallyOnHold())
@@ -982,5 +1139,70 @@ public class CallPeerMediaHandlerJabberImpl
         stream.setDirection(postHoldDir);
 
         return postHoldDir;
+    }
+
+    /**
+     * Overrides {@link CallPeerMediaHandler#start()}. Prior to starting this
+     * <tt>CallPeerMediaHandler</tt>, makes sure connectivity establishment
+     * through the associated <tt>TransportManager</tt> has been started in
+     * order to determine the <tt>StreamConnector</tt>s and the
+     * <tt>MediaStreamTarget</tt>s of the <tt>MediaStream</tt>s managed by this
+     * instance.
+     *
+     * @throws IllegalStateException if this <tt>CallPeerMediaHandler</tt> has
+     * not first seen a media description or has not generated an offer
+     * @see CallPeerMediaHandler#start()
+     */
+    @Override
+    public void start()
+        throws IllegalStateException
+    {
+        if (getPeer().isInitiator())
+        {
+            try
+            {
+                startConnectivityEstablishment(remoteContentMap.values());
+            }
+            catch (OperationFailedException ofe)
+            {
+                throw new UndeclaredThrowableException(ofe);
+            }
+        }
+
+        super.start();
+    }
+
+    /**
+     * Starts the connectivity establishment of the associated
+     * <tt>TransportManagerJabberImpl</tt> i.e. checks the connectivity between
+     * the local and the remote peers given the remote counterpart of the
+     * negotiation between them and sets the respective <tt>connector</tt>s and
+     * <tt>target</tt>s of the associated <tt>MediaStream</tt>s.
+     *
+     * @param remote the collection of <tt>ContentPacketExtension</tt>s which
+     * represents the remote counterpart of the negotiation between the local
+     * and the remote peers
+     * @throws OperationFailedException if anything goes wrong while starting
+     * the connectivity establishment or setting the <tt>connector</tt>s or
+     * <tt>target</tt>s of the associated <tt>MediaStream</tt>s
+     */
+    private void startConnectivityEstablishment(
+            Collection<ContentPacketExtension> remote)
+        throws OperationFailedException
+    {
+        TransportManagerJabberImpl transportManager = getTransportManager();
+
+        transportManager.startConnectivityEstablishment(remote);
+        for (MediaType mediaType : MediaType.values())
+        {
+            MediaStream stream = getStream(mediaType);
+
+            if (stream != null)
+            {
+                stream.setConnector(
+                        transportManager.getStreamConnector(mediaType));
+                stream.setTarget(transportManager.getStreamTarget(mediaType));
+            }
+        }
     }
 }

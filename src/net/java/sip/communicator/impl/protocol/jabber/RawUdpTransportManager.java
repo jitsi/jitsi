@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -17,15 +18,23 @@ import net.java.sip.communicator.service.protocol.*;
  * single candidate pair (i.e. RTP and RTCP).
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public class RawUdpTransportManager
     extends TransportManagerJabberImpl
 {
     /**
-     * This is where we keep our answer between the time we get the offer and
-     * are ready with the answer;
+     * The list of <tt>ContentPacketExtension</tt>s which represents the local
+     * counterpart of the negotiation between the local and the remote peers.
      */
-    private List<ContentPacketExtension> cpeList;
+    private List<ContentPacketExtension> local;
+
+    /**
+     * The collection of <tt>ContentPacketExtension</tt>s which represents the
+     * remote counterpart of the negotiation between the local and the remote
+     * peers.
+     */
+    private Collection<ContentPacketExtension> remote;
 
     /**
      * Creates a new instance of this transport manager, binding it to the
@@ -34,9 +43,59 @@ public class RawUdpTransportManager
      * @param callPeer the {@link CallPeer} whose traffic we will be taking
      * care of.
      */
-    protected RawUdpTransportManager(CallPeerJabberImpl callPeer)
+    public RawUdpTransportManager(CallPeerJabberImpl callPeer)
     {
         super(callPeer);
+    }
+
+    /**
+     * Implements {@link TransportManagerJabberImpl#getStreamTarget(MediaType)}.
+     * Gets the <tt>MediaStreamTarget</tt> to be used as the <tt>target</tt> of
+     * the <tt>MediaStream</tt> with a specific <tt>MediaType</tt>.
+     *
+     * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> which
+     * is to have its <tt>target</tt> set to the returned
+     * <tt>MediaStreamTarget</tt>
+     * @return the <tt>MediaStreamTarget</tt> to be used as the <tt>target</tt>
+     * of the <tt>MediaStream</tt> with the specified <tt>MediaType</tt>
+     * @see TransportManagerJabberImpl#getStreamTarget(MediaType)
+     */
+    public MediaStreamTarget getStreamTarget(MediaType mediaType)
+    {
+        MediaStreamTarget streamTarget = null;
+
+        if (remote != null)
+        {
+            for (ContentPacketExtension content : remote)
+            {
+                RtpDescriptionPacketExtension rtpDescription
+                    = content.getFirstChildOfType(
+                            RtpDescriptionPacketExtension.class);
+                MediaType contentMediaType
+                    = MediaType.parseString(rtpDescription.getMedia());
+
+                if (mediaType.equals(contentMediaType))
+                {
+                    streamTarget = JingleUtils.extractDefaultTarget(content);
+                    break;
+                }
+            }
+        }
+        return streamTarget;
+    }
+
+    /**
+     * Implements {@link TransportManagerJabberImpl#getXmlNamespace()}. Gets the
+     * XML namespace of the Jingle transport implemented by this
+     * <tt>TransportManagerJabberImpl</tt>.
+     *
+     * @return the XML namespace of the Jingle transport implemented by this
+     * <tt>TransportManagerJabberImpl</tt>
+     * @see TransportManagerJabberImpl#getXmlNamespace()
+     */
+    public String getXmlNamespace()
+    {
+        return ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RAW_UDP_0;
     }
 
     /**
@@ -61,8 +120,8 @@ public class RawUdpTransportManager
         for(ContentPacketExtension content : theirOffer)
         {
             RtpDescriptionPacketExtension rtpDesc
-                = (RtpDescriptionPacketExtension)content
-                    .getFirstChildOfType(RtpDescriptionPacketExtension.class);
+                = content.getFirstChildOfType(
+                        RtpDescriptionPacketExtension.class);
 
             StreamConnector connector = getStreamConnector(
                             MediaType.parseString( rtpDesc.getMedia()));
@@ -81,7 +140,7 @@ public class RawUdpTransportManager
             cpExt.addChildExtension(ourTransport);
         }
 
-        this.cpeList = ourAnswer;
+        this.local = ourAnswer;
     }
 
     /**
@@ -91,39 +150,40 @@ public class RawUdpTransportManager
      * harvest would then need to be concluded in the {@link #wrapupHarvest()}
      * method which would be called once we absolutely need the candidates.
      *
-     * @param ourAnswer the content list that should tell us how many stream
+     * @param ourOffer the content list that should tell us how many stream
      * connectors we actually need.
      *
      * @throws OperationFailedException in case we fail allocating ports
      */
-    public void startCandidateHarvest(
-                            List<ContentPacketExtension>   ourAnswer)
+    public void startCandidateHarvest(List<ContentPacketExtension> ourOffer)
         throws OperationFailedException
     {
-        for(ContentPacketExtension content : ourAnswer)
+        for(ContentPacketExtension content : ourOffer)
         {
             RtpDescriptionPacketExtension rtpDesc
-                = (RtpDescriptionPacketExtension)content
-                    .getFirstChildOfType(RtpDescriptionPacketExtension.class);
+                = content.getFirstChildOfType(
+                        RtpDescriptionPacketExtension.class);
 
-            StreamConnector connector = getStreamConnector(
-                            MediaType.parseString( rtpDesc.getMedia()));
+            StreamConnector connector
+                = getStreamConnector(
+                    MediaType.parseString( rtpDesc.getMedia()));
 
             RawUdpTransportPacketExtension ourTransport
-                                        = createTransport(connector);
+                = createTransport(connector);
 
-            //now add our transport to our answer
+            //now add our transport to our offer
             ContentPacketExtension cpExt
-                = findContentByName(ourAnswer, content.getName());
+                = findContentByName(ourOffer, content.getName());
 
             cpExt.addChildExtension(ourTransport);
         }
-        this.cpeList = ourAnswer;
+
+        this.local = ourOffer;
     }
 
     /**
-     * Creates a raw udp transport element according to the specified stream
-     * <tt>connector</tt>
+     * Creates a raw UDP transport element according to the specified stream
+     * <tt>connector</tt>.
      *
      * @param connector the connector that we'd like to describe within the
      * transport element.
@@ -138,7 +198,7 @@ public class RawUdpTransportManager
             = new RawUdpTransportPacketExtension();
 
         // create and add candidates that correspond to the stream connector
-        // rtp
+        // RTP
         CandidatePacketExtension rtpCand = new CandidatePacketExtension();
         rtpCand.setComponent(CandidatePacketExtension.RTP_COMPONENT_ID);
         rtpCand.setGeneration(getCurrentGeneration());
@@ -150,7 +210,7 @@ public class RawUdpTransportManager
 
         ourTransport.addCandidate(rtpCand);
 
-        // rtcp
+        // RTCP
         CandidatePacketExtension rtcpCand = new CandidatePacketExtension();
         rtcpCand.setComponent(CandidatePacketExtension.RTCP_COMPONENT_ID);
         rtcpCand.setGeneration(getCurrentGeneration());
@@ -167,7 +227,7 @@ public class RawUdpTransportManager
 
     /**
      * Simply returns the list of local candidates that we gathered during the
-     * harvest. This is a raw udp transport manager so there's no real wraping
+     * harvest. This is a raw UDP transport manager so there's no real wrapping
      * up to do.
      *
      * @return the list of local candidates that we gathered during the
@@ -175,29 +235,25 @@ public class RawUdpTransportManager
      */
     public List<ContentPacketExtension> wrapupHarvest()
     {
-        return cpeList;
+        return local;
     }
 
     /**
-     * Looks through the <tt>cpExtList</tt> and returns the {@link
-     * ContentPacketExtension} with the specified name.
+     * Implements
+     * {@link TransportManagerJabberImpl#startConnectivityEstablishment(Collection)}.
+     * Since this represents a raw UDP transport, performs no connectivity
+     * checks and just remembers the remote counterpart of the negotiation
+     * between the local and the remote peers in order to be able to report the
+     * <tt>MediaStreamTarget</tt>s upon request.
      *
-     * @param cpExtList the list that we will be searching for a specific
-     * content.
-     * @param name the name of the content element we are looking for.
-     * @return the {@link ContentPacketExtension} with the specified name or
-     * <tt>null</tt> if no such content element exists.
+     * @param remote the collection of <tt>ContentPacketExtension</tt>s which
+     * represent the remote counterpart of the negotiation between the local and
+     * the remote peers
+     * @see TransportManagerJabberImpl#startConnectivityEstablishment(Collection)
      */
-    private ContentPacketExtension findContentByName(
-                                        List<ContentPacketExtension> cpExtList,
-                                        String                       name)
+    public void startConnectivityEstablishment(
+            Collection<ContentPacketExtension> remote)
     {
-        for(ContentPacketExtension cpExt : cpExtList)
-        {
-            if(cpExt.getName().equals(name))
-                return cpExt;
-        }
-
-        return null;
+        this.remote = remote;
     }
 }

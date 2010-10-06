@@ -15,25 +15,22 @@ import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * A Jabber implementation of the Call abstract class encapsulating Jabber
- *  jingle sessions.
+ * A Jabber implementation of the <tt>Call</tt> abstract class encapsulating
+ * Jabber jingle sessions.
  *
  * @author Emil Ivov
  */
-public class CallJabberImpl extends MediaAwareCall<
-    CallPeerJabberImpl,
-    OperationSetBasicTelephonyJabberImpl,
-    ProtocolProviderServiceJabberImpl>
+public class CallJabberImpl
+    extends MediaAwareCall<
+                    CallPeerJabberImpl,
+                    OperationSetBasicTelephonyJabberImpl,
+                    ProtocolProviderServiceJabberImpl>
 {
     /**
-     * Logger of this class
+     * The <tt>Logger</tt> used by the <tt>CallJabberImpl</tt> class and its
+     * instances for logging output.
      */
     private static final Logger logger = Logger.getLogger(CallJabberImpl.class);
-
-    /**
-     * The operation set that created us.
-     */
-    private final OperationSetBasicTelephonyJabberImpl parentOpSet;
 
     /**
      * Indicates if the <tt>CallPeer</tt> will support </tt>inputevt</tt>
@@ -42,11 +39,11 @@ public class CallJabberImpl extends MediaAwareCall<
     private boolean localInputEvtAware = false;
 
     /**
-     * Crates a CallJabberImpl instance belonging to <tt>sourceProvider</tt> and
-     * associated with the jingle session with the specified <tt>jingleSID</tt>.
-     * If this call corresponds to an incoming jingle session then the jingleSID
-     * would come from there. Otherwise one could generate one using {@link
-     * JingleIQ#generateSID()}
+     * Initializes a new <tt>CallJabberImpl</tt> instance belonging to
+     * <tt>sourceProvider</tt> and associated with the jingle session with the
+     * specified <tt>jingleSID</tt>. If the new instance corresponds to an
+     * incoming jingle session, then the jingleSID would come from there.
+     * Otherwise, one could generate one using {@link JingleIQ#generateSID()}.
      *
      * @param parentOpSet the {@link OperationSetBasicTelephonyJabberImpl}
      * instance in the context of which this call has been created.
@@ -55,7 +52,6 @@ public class CallJabberImpl extends MediaAwareCall<
                         OperationSetBasicTelephonyJabberImpl parentOpSet)
     {
         super(parentOpSet);
-        this.parentOpSet = parentOpSet;
 
         //let's add ourselves to the calls repo. we are doing it ourselves just
         //to make sure that no one ever forgets.
@@ -113,9 +109,7 @@ public class CallJabberImpl extends MediaAwareCall<
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.
         if(this.getCallPeerCount() == 1)
-        {
             parentOpSet.fireCallEvent( CallEvent.CALL_RECEIVED, this);
-        }
 
         return callPeer;
     }
@@ -142,6 +136,7 @@ public class CallJabberImpl extends MediaAwareCall<
     {
         // create the session-initiate IQ
         CallPeerJabberImpl callPeer = new CallPeerJabberImpl(calleeJID, this);
+
         callPeer.setDiscoverInfo(discoverInfo);
 
         addCallPeer(callPeer);
@@ -151,9 +146,7 @@ public class CallJabberImpl extends MediaAwareCall<
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.
         if(this.getCallPeerCount() == 1)
-        {
             parentOpSet.fireCallEvent( (CallEvent.CALL_INITIATED), this);
-        }
 
         /* enable video if it is a videocall */
         callPeer.getMediaHandler().setLocalVideoTransmissionEnabled(
@@ -163,7 +156,7 @@ public class CallJabberImpl extends MediaAwareCall<
 
         //set call state to connecting so that the user interface would start
         //playing the tones. we do that here because we may be harvesting
-        //stun/turn addresses in initiateSession() which would take a while..
+        //STUN/TURN addresses in initiateSession() which would take a while.
         callPeer.setState( CallPeerState.CONNECTING);
 
         callPeer.initiateSession();
@@ -187,9 +180,7 @@ public class CallJabberImpl extends MediaAwareCall<
                 "Stop local video streaming");
 
         for(CallPeerJabberImpl peer : getCallPeersVector())
-        {
             peer.sendModifyVideoContent(allowed);
-        }
     }
 
     /**
@@ -203,13 +194,7 @@ public class CallJabberImpl extends MediaAwareCall<
      */
     public boolean containsJingleSID(String sid)
     {
-        for(CallPeerJabberImpl peer : getCallPeersVector())
-        {
-            if (peer.getJingleSID().equals(sid))
-                return true;
-        }
-
-        return false;
+        return (getPeer(sid) != null);
     }
 
     /**
@@ -228,7 +213,6 @@ public class CallJabberImpl extends MediaAwareCall<
             if (peer.getJingleSID().equals(sid))
                 return peer;
         }
-
         return null;
     }
 }
