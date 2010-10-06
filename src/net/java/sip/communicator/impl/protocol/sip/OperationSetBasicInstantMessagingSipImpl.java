@@ -702,8 +702,8 @@ public class OperationSetBasicInstantMessagingSipImpl
                     logger.debug("received a message from an unknown contact: "
                             + fromHeader.getAddress().getURI().toString());
                 //create the volatile contact
-                from = opSetPersPresence
-                    .createVolatileContact(fromHeader.getAddress());
+                from = opSetPersPresence.createVolatileContact(
+                            fromHeader.getAddress().getURI().toString());
             }
 
             // answer ok

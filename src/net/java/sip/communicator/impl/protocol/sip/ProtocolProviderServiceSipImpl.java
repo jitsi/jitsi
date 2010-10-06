@@ -2803,6 +2803,9 @@ public class ProtocolProviderServiceSipImpl
             if(addressObj6 != null && !resultAddresses.contains(addressObj6))
                 resultAddresses.add(addressObj6);
         }
+
+        if(addressObj4 == null && addressObj6 == null)
+            logger.warn("No AAAA and A record found for " + address);
     }
 
     /**

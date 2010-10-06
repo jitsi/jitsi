@@ -130,13 +130,22 @@ public class OperationSetPresenceSipImpl
     private static final String TUPLE_ID = "t" + (long)(Math.random() * 10000);
     private static final String PERSON_ID = "p" + (long)(Math.random() * 10000);
 
-    // XML documents types
+    /**
+     * XML documents types.
+     * The notify body content as said in rfc3856.
+     */
     private static final String PIDF_XML        = "pidf+xml";
+
+    /**
+     * XML documents types.
+     * The notify body content as said in rfc3857.
+     */
+    private static final String WATCHERINFO_XML = "watcherinfo+xml";
 
     // pidf elements and attributes
     private static final String PRESENCE_ELEMENT= "presence";
     private static final String NS_ELEMENT      = "xmlns";
-    private static final String NS_VALUE        = "urn:ietf:params:xml:ns:pidf";
+    private static final String PIDF_NS_VALUE   = "urn:ietf:params:xml:ns:pidf";
     private static final String ENTITY_ATTRIBUTE= "entity";
     private static final String TUPLE_ELEMENT   = "tuple";
     private static final String ID_ATTRIBUTE    = "id";
@@ -171,6 +180,16 @@ public class OperationSetPresenceSipImpl
     // namespace wildcard
     private static final String ANY_NS          = "*";
 
+    private static final String WATCHERINFO_NS_VALUE
+            = "urn:ietf:params:xml:ns:watcherinfo";
+    private static final String WATCHERINFO_ELEMENT= "watcherinfo";
+    private static final String STATE_ATTRIBUTE = "state";
+    private static final String VERSION_ATTRIBUTE = "version";
+    private static final String WATCHERLIST_ELEMENT= "watcher-list";
+    private static final String RESOURCE_ATTRIBUTE = "resource";
+    private static final String PACKAGE_ATTRIBUTE = "package";
+    private static final String WATCHER_ELEMENT= "watcher";
+
     /**
      * The <code>EventPackageNotifier</code> which provides the ability of this
      * instance to act as a notifier for the presence event package.
@@ -182,6 +201,51 @@ public class OperationSetPresenceSipImpl
      * this instance to act as a subscriber for the presence event package.
      */
     private final EventPackageSubscriber subscriber;
+
+    /**
+     * The <code>EventPackageSubscriber</code> which provides the ability of
+     * this instance to act as a subscriber for the presence.winfo event package.
+     */
+    private final EventPackageSubscriber watcherInfoSubscriber;
+
+    /**
+     * The authorization handler, asking client for authentication.
+     */
+    private AuthorizationHandler authorizationHandler = null;
+
+    /**
+     * Watcher status from the watchers info list.
+     */
+    private enum WatcherStatus
+    {
+        PENDING("pending"),
+        ACTIVE("active"),
+        WAITING("waiting"),
+        TERMINATED("terminated");
+
+        /**
+         * The value.
+         */
+        private String value;
+
+        /**
+         * Creates <>tt WatcherStatus</tt>
+         * @param v value.
+         */
+        WatcherStatus(String v)
+        {
+            this.value = v;
+        }
+
+        /**
+         * Returns the string representation of this status.
+         * @return
+         */
+        public String getValue() 
+        {
+            return this.value;
+        }
+    }
 
     /**
      * Creates an instance of this operation set keeping a reference to the
@@ -247,11 +311,21 @@ public class OperationSetPresenceSipImpl
                                     fromAddress, eventId);
                     }
                 };
+
+            this.watcherInfoSubscriber
+                = new EventPackageSubscriber(
+                        this.parentProvider,
+                        "presence.winfo",
+                        this.subscriptionDuration,
+                        WATCHERINFO_XML,
+                        this.timer,
+                        REFRESH_MARGIN);
         }
         else
         {
             this.subscriber = null;
             this.notifier = null;
+            this.watcherInfoSubscriber = null;
         }
 
         // Notifier part of the presence event package and PUBLISH
@@ -1565,7 +1639,7 @@ public class OperationSetPresenceSipImpl
      */
     public void setAuthorizationHandler(AuthorizationHandler handler)
     {
-        // authorizations aren't supported by this implementation
+        this.authorizationHandler = handler;
     }
 
     /**
@@ -1639,7 +1713,7 @@ public class OperationSetPresenceSipImpl
      * create.
      * @return the newly created volatile contact.
      */
-    public ContactSipImpl createVolatileContact(Address contactAddress)
+    public ContactSipImpl createVolatileContact(String contactAddress)
     {
         try
         {
@@ -1654,7 +1728,7 @@ public class OperationSetPresenceSipImpl
                         .createGroup(rootGroup, "NotInContactList", false);
             }
             return ssContactList.createContact(volatileGroup,
-                    contactAddress.getURI().toString(), false);
+                    contactAddress, false);
         }
         catch (OperationFailedException ex)
         {
@@ -1874,7 +1948,7 @@ public class OperationSetPresenceSipImpl
 
          // <presence>
          Element presence = doc.createElement(PRESENCE_ELEMENT);
-         presence.setAttribute(NS_ELEMENT, NS_VALUE);
+         presence.setAttribute(NS_ELEMENT, PIDF_NS_VALUE);
          presence.setAttribute(RPID_NS_ELEMENT, RPID_NS_VALUE);
          presence.setAttribute(DM_NS_ELEMENT, DM_NS_VALUE);
          presence.setAttribute(ENTITY_ATTRIBUTE, contactUri);
@@ -1985,7 +2059,7 @@ public class OperationSetPresenceSipImpl
              logger.debug("parsing:\n" + presenceDoc);
 
          // <presence>
-         NodeList presList = doc.getElementsByTagNameNS(NS_VALUE,
+         NodeList presList = doc.getElementsByTagNameNS(PIDF_NS_VALUE,
                  PRESENCE_ELEMENT);
 
          if (presList.getLength() == 0)
@@ -2405,6 +2479,178 @@ public class OperationSetPresenceSipImpl
          }
      }
 
+    /**
+     * Parses watchers info document rfc3858.
+     * @param watcherInfoDoc the doc.
+     * @param subscriber the subscriber which receives lists.
+     */
+    public void setWatcherInfoStatus(
+            WatcherInfoSubscriberSubscription subscriber,
+            String watcherInfoDoc)
+    {
+        if(this.authorizationHandler == null)
+        {
+            logger.warn("AuthorizationHandler missing!");
+            return;
+        }
+
+        Document doc = convertDocument(watcherInfoDoc);
+
+         if (doc == null)
+             return;
+
+         if (logger.isDebugEnabled())
+             logger.debug("parsing:\n" + watcherInfoDoc);
+
+        // <watcherinfo>
+        NodeList watchList = doc.getElementsByTagNameNS(
+                WATCHERINFO_NS_VALUE, WATCHERINFO_ELEMENT);
+        if (watchList.getLength() == 0)
+        {
+            watchList = doc.getElementsByTagNameNS(
+                     ANY_NS, WATCHERINFO_ELEMENT);
+
+            if (watchList.getLength() == 0)
+            {
+                logger.error("no watcherinfo element in this document");
+                return;
+            }
+        }
+        if (watchList.getLength() > 1)
+        {
+            logger.warn("more than one watcherinfo element in this document");
+        }
+        Node watcherInfoNode = watchList.item(0);
+        if (watcherInfoNode.getNodeType() != Node.ELEMENT_NODE)
+        {
+            logger.error("the watcherinfo node is not an element");
+            return;
+        }
+
+        Element watcherInfo = (Element)watcherInfoNode;
+
+        // we don't take in account whether the state is full or partial.
+        if(logger.isDebugEnabled())
+            logger.debug("Watcherinfo is with state: "
+                    + watcherInfo.getAttribute(STATE_ATTRIBUTE));
+
+        int currentVersion = -1;
+        try
+        {
+            currentVersion =
+                Integer.parseInt(watcherInfo.getAttribute(VERSION_ATTRIBUTE));
+        }
+        catch(Throwable t)
+        {
+            logger.error("Cannot parse version!", t);
+        }
+
+        if(currentVersion != -1 && currentVersion <= subscriber.version)
+        {
+            logger.warn("Document version is old, ignore it.");
+            return;
+        }
+        else
+            subscriber.version = currentVersion;
+
+        // we need watcher list only for our resource
+        Element wlist = XMLUtils.locateElement(
+                watcherInfo, WATCHERLIST_ELEMENT, RESOURCE_ATTRIBUTE,
+                parentProvider.getRegistrarConnection()
+                    .getAddressOfRecord().getURI().toString());
+
+        if(wlist == null ||
+            !wlist.getAttribute(PACKAGE_ATTRIBUTE).equals(PRESENCE_ELEMENT))
+        {
+            logger.error("Watcher list for us is missing in this document!");
+            return;
+        }
+
+        NodeList watcherList = wlist.getElementsByTagNameNS(ANY_NS,
+                 WATCHER_ELEMENT);
+        for(int i = 0; i < watcherList.getLength(); i++)
+        {
+            Node watcherNode = watcherList.item(i);
+            if (watcherNode.getNodeType() != Node.ELEMENT_NODE)
+            {
+                logger.error("the watcher node is not an element");
+                return;
+            }
+
+            Element watcher = (Element)watcherNode;
+
+            String status = watcher.getAttribute(STATUS_ELEMENT);
+            String contactID = getTextContent(watcher);
+
+            //String event - subscribe, approved, deactivated, probation,
+            //rejected, timeout, giveup, noresource
+
+            if(status == null || contactID == null)
+            {
+                logger.warn("Status or contactID missing for watcher!");
+                continue;
+            }
+
+            if(status.equals("waiting") || status.equals("pending"))
+            {
+                ContactSipImpl contact = resolveContactID(contactID);
+
+                if(contact != null)
+                {
+                    logger.warn("We are not supposed to have this contact in our " +
+                            "list or its just rerequest of authorization!");
+                }
+                else
+                {
+                    contact = createVolatileContact(contactID);
+                }
+
+                AuthorizationRequest req = new AuthorizationRequest();
+                AuthorizationResponse response = authorizationHandler
+                        .processAuthorisationRequest(req, contact);
+
+                if(response.getResponseCode() == AuthorizationResponse.ACCEPT)
+                {
+                    try
+                    {
+                        if(ssContactList.addContactToWhiteList(contact))
+                            ssContactList.updatePresRules();
+                    }
+                    catch(XCapException ex)
+                    {
+                        logger.error("Cannot save presence rules!", ex);
+                    }
+                }
+                else if(response.getResponseCode()
+                            == AuthorizationResponse.REJECT)
+                {
+                    try
+                    {
+                        if(ssContactList.addContactToBlockList(contact))
+                            ssContactList.updatePresRules();
+                    }
+                    catch(XCapException ex)
+                    {
+                        logger.error("Cannot save presence rules!", ex);
+                    }
+                }
+                else if(response.getResponseCode()
+                            == AuthorizationResponse.IGNORE)
+                {
+                    try
+                    {
+                        if(ssContactList.addContactToPoliteBlockList(contact))
+                            ssContactList.updatePresRules();
+                    }
+                    catch(XCapException ex)
+                    {
+                        logger.error("Cannot save presence rules!", ex);
+                    }
+                }
+            }
+        }
+    }
+
      /**
       * Checks whether to URIs are equal with safe null check.
       * @param uri1 to be compared.
@@ -2498,7 +2744,7 @@ public class OperationSetPresenceSipImpl
      {
          NodeList res;
 
-         res = element.getElementsByTagNameNS(NS_VALUE, childName);
+         res = element.getElementsByTagNameNS(PIDF_NS_VALUE, childName);
 
          if (res.getLength() == 0)
          {
@@ -2605,7 +2851,9 @@ public class OperationSetPresenceSipImpl
       */
      public void forcePollContact(ContactSipImpl contact)
      {
-         if (this.presenceEnabled == false || !contact.isResolvable())
+         if (this.presenceEnabled == false
+             || !contact.isResolvable()
+             || !contact.isPersistent())
              return;
 
          // Attempt to subscribe.
@@ -2860,6 +3108,22 @@ public class OperationSetPresenceSipImpl
 
             // start polling the offline contacts
             timer.schedule(pollingTask, pollingTaskPeriod, pollingTaskPeriod);
+
+            if(this.useDistantPA)
+            {
+                try
+                {
+                    watcherInfoSubscriber.subscribe(
+                        new WatcherInfoSubscriberSubscription(
+                            parentProvider.getRegistrarConnection()
+                                .getAddressOfRecord()));
+                }
+                catch (OperationFailedException ex)
+                {
+                    logger.error("Failed to create and send the subcription " +
+                            "for watcher info.", ex);
+                }
+            }
         }
         else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
         {
@@ -3109,6 +3373,37 @@ public class OperationSetPresenceSipImpl
         {
             if (rawContent != null)
                 setPidfPresenceStatus(new String(rawContent));
+
+            SubscriptionStateHeader stateHeader =
+                (SubscriptionStateHeader)requestEvent.getRequest()
+                        .getHeader(SubscriptionStateHeader.NAME);
+
+            if(stateHeader != null)
+            {
+                if(SubscriptionStateHeader.PENDING
+                        .equals(stateHeader.getState()))
+                {
+                    contact.setSubscriptionState(
+                            SubscriptionStateHeader.PENDING);
+                }
+                else if(SubscriptionStateHeader.ACTIVE
+                        .equals(stateHeader.getState()))
+                {
+                    // if contact was in pending state
+                    // our authorization request was accepted
+                    if(SubscriptionStateHeader.PENDING
+                            .equals(contact.getSubscriptionState())
+                       && authorizationHandler != null)
+                    {
+                        authorizationHandler.processAuthorizationResponse(
+                                new AuthorizationResponse(
+                                        AuthorizationResponse.ACCEPT, ""),
+                                contact);
+                    }
+                    contact.setSubscriptionState(
+                            SubscriptionStateHeader.ACTIVE);
+                }
+            }
         }
 
         /*
@@ -3199,6 +3494,143 @@ public class OperationSetPresenceSipImpl
             // to the contact
             if (SubscriptionStateHeader.DEACTIVATED.equals(reasonCode))
                 forcePollContact(contact);
+
+            SubscriptionStateHeader stateHeader =
+                (SubscriptionStateHeader)requestEvent.getRequest()
+                        .getHeader(SubscriptionStateHeader.NAME);
+
+            if(stateHeader != null
+                && SubscriptionStateHeader.TERMINATED
+                    .equals(stateHeader.getState()))
+            {
+                if(SubscriptionStateHeader.REJECTED
+                        .equals(stateHeader.getReasonCode()))
+                {
+                    if(SubscriptionStateHeader.PENDING
+                        .equals(contact.getSubscriptionState()))
+                    {
+                        authorizationHandler.processAuthorizationResponse(
+                            new AuthorizationResponse(
+                                AuthorizationResponse.REJECT, ""),
+                                contact);
+                    }
+
+                    // as this contact is rejected we mark it as not resolvable
+                    // so we won't subscribe again (in offline poll task)
+                    contact.setResolvable(false);
+                }
+
+                contact.setSubscriptionState(
+                        SubscriptionStateHeader.TERMINATED);
+            }
+        }
+    }
+
+    /**
+     * Represents a subscription to the presence.winfo event package.
+     *
+     * @author Damian Minkov
+     */
+    private class WatcherInfoSubscriberSubscription
+        extends EventPackageSubscriber.Subscription
+    {
+        private int version = -1;
+
+        /**
+         * Initializes a new <tt>Subscription</tt> instance with a specific
+         * subscription <tt>Address</tt>/Request URI and an id tag of the
+         * associated Event headers of value <tt>null</tt>.
+         *
+         * @param toAddress the subscription <tt>Address</tt>/Request URI which
+         * is to be the target of the SUBSCRIBE requests associated with
+         * the new instance
+         */
+        public WatcherInfoSubscriberSubscription(Address toAddress)
+        {
+            super(toAddress);
+        }
+
+
+        /**
+         * Notifies this <tt>Subscription</tt> that an active NOTIFY
+         * <tt>Request</tt> has been received and it may process the
+         * specified raw content carried in it.
+         *
+         * @param requestEvent the <tt>RequestEvent</tt> carrying the full
+         * details of the received NOTIFY <tt>Request</tt> including the raw
+         * content which may be processed by this <tt>Subscription</tt>
+         * @param rawContent   an array of bytes which represents the raw
+         * content carried in the body of the received NOTIFY <tt>Request</tt>
+         * and extracted from the specified <tt>RequestEvent</tt>
+         * for the convenience of the implementers
+         */
+        @Override
+        protected void processActiveRequest(
+                RequestEvent requestEvent, byte[] rawContent)
+        {
+            if (rawContent != null)
+                setWatcherInfoStatus(this, new String(rawContent));
+        }
+
+        /**
+         * Notifies this <tt>Subscription</tt> that a <tt>Response</tt>
+         * to a previous SUBSCRIBE <tt>Request</tt> has been received with a
+         * status code in the failure range and it may process the status code
+         * carried in it.
+         *
+         * @param responseEvent the <tt>ResponseEvent</tt> carrying the
+         * full details of the received <tt>Response</tt> including the status
+         * code which may be processed by this <tt>Subscription</tt>
+         * @param statusCode the status code carried in the <tt>Response</tt>
+         * and extracted from the specified <tt>ResponseEvent</tt>
+         * for the convenience of the implementers
+         */
+        @Override
+        protected void processFailureResponse(
+                ResponseEvent responseEvent, int statusCode)
+        {
+            logger.error("Cannot subscripe to presence watcher info!");
+        }
+
+        /**
+         * Notifies this <tt>Subscription</tt> that a <tt>Response</tt>
+         * to a previous SUBSCRIBE <tt>Request</tt> has been received with a
+         * status code in the success range and it may process the status code
+         * carried in it.
+         *
+         * @param responseEvent the <tt>ResponseEvent</tt> carrying the
+         * full details of the received <tt>Response</tt> including the status
+         * code which may be processed by this <tt>Subscription</tt>
+         * @param statusCode the status code carried in the <tt>Response</tt>
+         * and extracted from the specified <tt>ResponseEvent</tt>
+         * for the convenience of the implementers
+         */
+        @Override
+        protected void processSuccessResponse(
+                ResponseEvent responseEvent, int statusCode)
+        {
+            if(logger.isDebugEnabled())
+                logger.debug("Subscriped to presence watcher info! status:"
+                        + statusCode);
+        }
+
+        /**
+         * Notifies this <tt>Subscription</tt> that a terminating NOTIFY
+         * <tt>Request</tt> has been received and it may process the reason
+         * code carried in it.
+         *
+         * @param requestEvent the <tt>RequestEvent</tt> carrying the
+         * full details of the received NOTIFY <tt>Request</tt> including the
+         * reason code which may be processed by this <tt>Subscription</tt>
+         * @param reasonCode the code of the reason for the termination carried
+         * in the NOTIFY <tt>Request</tt> and extracted from the specified
+         * <tt>RequestEvent</tt> for the convenience of the implementers.
+         */
+        @Override
+        protected void processTerminatedRequest(
+                RequestEvent requestEvent, String reasonCode)
+        {
+            logger.error("Subscription to presence watcher info terminated!");
         }
     }
 }

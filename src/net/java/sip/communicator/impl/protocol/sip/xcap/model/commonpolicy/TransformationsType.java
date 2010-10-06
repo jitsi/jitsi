@@ -18,7 +18,7 @@ import java.util.*;
  *
  * @author Grigorii Balutsel
  */
-public class TransfomationsType
+public class TransformationsType
 {
     /**
      * The service-permissions element.

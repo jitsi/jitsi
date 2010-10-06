@@ -206,7 +206,7 @@ public class OperationSetTypingNotificationsSipImpl
         {
             //create the volatile contact
             from = opSetPersPresence.createVolatileContact(
-                    fromHeader.getAddress());
+                    fromHeader.getAddress().getURI().toString());
         }
 
         // parse content

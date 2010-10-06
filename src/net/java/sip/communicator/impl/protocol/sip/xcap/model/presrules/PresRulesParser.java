@@ -150,11 +150,11 @@ public final class PresRulesParser
      * @return the transfomations object.
      * @throws Exception if there is some error during parsing.
      */
-    public static TransfomationsType transformationsFromElement(
+    public static TransformationsType transformationsFromElement(
             Element element)
             throws Exception
     {
-        TransfomationsType transfomations = new TransfomationsType();
+        TransformationsType transfomations = new TransformationsType();
         if (!CommonPolicyParser.NAMESPACE
                 .equals(getNamespaceUri(element)) ||
                 !CommonPolicyParser.TRANSFORMATIONS_ELEMENT
@@ -236,7 +236,7 @@ public final class PresRulesParser
      * @throws Exception if there is some error during creating.
      */
     public static Element elementFromTransfomations(
-            Document document, TransfomationsType transformations)
+            Document document, TransformationsType transformations)
             throws Exception
     {
         Element element = document.createElementNS(CommonPolicyParser.NAMESPACE,

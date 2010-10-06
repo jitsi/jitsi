@@ -14,6 +14,8 @@ package net.java.sip.communicator.plugin.generalconfig.autoaway;
  */
 public final class Preferences
 {
-    public static final String ENABLE = "at.liwest.communicator.plugin.statusupdate.enable";
-    public static final String TIMER = "at.liwest.communicator.plugin.statusupdate.timer";
+    public static final String ENABLE =
+            "net.java.sip.communicator.plugin.statusupdate.enable";
+    public static final String TIMER =
+            "net.java.sip.communicator.plugin.statusupdate.timer";
 }

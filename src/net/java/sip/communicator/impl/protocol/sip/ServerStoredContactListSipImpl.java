@@ -36,12 +36,23 @@ public class ServerStoredContactListSipImpl
     /**
      * Root group name.
      */
-    private static String ROOT_GROUP_NAME = "RootGroup";
+    private final static String ROOT_GROUP_NAME = "RootGroup";
 
     /**
-     * "White" rule identifier.
+     * Default "White" rule identifier.
      */
-    private static String WHITE_RULE_ID = "sip_communicator";
+    private final static String DEFAULT_WHITE_RULE_ID = "presence_allow";
+
+    /**
+     * Default "Block" rule identifier.
+     */
+    private final static String DEFAULT_BLOCK_RULE_ID = "presence_block";
+
+    /**
+     * Default "Polite Block" rule identifier.
+     */
+    private final static String DEFAULT_POLITE_BLOCK_RULE_ID
+            = "presence_polite_block";
 
     /**
      * The provider that is on top of us.
@@ -52,8 +63,7 @@ public class ServerStoredContactListSipImpl
      * The operation set that created us and that we could use when dispatching
      * subscription events.
      */
-    private final AbstractOperationSetPersistentPresence<ProtocolProviderServiceSipImpl>
-            parentOperationSet;
+    private final OperationSetPresenceSipImpl parentOperationSet;
 
     /**
      * Listeners that would receive event notifications for changes in group
@@ -72,11 +82,6 @@ public class ServerStoredContactListSipImpl
     private RulesetType presRules;
 
     /**
-     * Current "white" rule.
-     */
-    private RuleType whiteRule;
-
-    /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
      *
      * @param sipProvider        the provider that has instantiated us.
@@ -85,8 +90,7 @@ public class ServerStoredContactListSipImpl
      */
     ServerStoredContactListSipImpl(
             ProtocolProviderServiceSipImpl sipProvider,
-            AbstractOperationSetPersistentPresence<ProtocolProviderServiceSipImpl>
-                    parentOperationSet)
+            OperationSetPresenceSipImpl parentOperationSet)
     {
         this.sipProvider = sipProvider;
         this.parentOperationSet = parentOperationSet;
@@ -226,7 +230,10 @@ public class ServerStoredContactListSipImpl
                             contactId),
                     ex);
         }
-        logger.trace("createUnresolvedContact " + contactId);
+
+        if(logger.isTraceEnabled())
+            logger.trace("createUnresolvedContact " + contactId);
+
         ContactSipImpl newUnresolvedContact = new ContactSipImpl(contactAddress,
                 sipProvider);
         parentGroup.addContact(newUnresolvedContact);
@@ -285,7 +292,21 @@ public class ServerStoredContactListSipImpl
                     " is not a valid string.", ex);
         }
 
-        ContactSipImpl newContact = new ContactSipImpl(contactAddress,
+        ContactSipImpl newContact = parentOperationSet.resolveContactID(
+                contactAddress.getURI().toString());
+
+        if(newContact != null && !newContact.isPersistent() &&
+                !newContact.getParentContactGroup().isPersistent())
+        {
+            // this is a contact from not in contact list group
+            // we must remove it
+            ContactGroupSipImpl oldParentGroup =
+                    (ContactGroupSipImpl)newContact.getParentContactGroup();
+            oldParentGroup.removeContact(newContact);
+            fireContactRemoved(oldParentGroup, newContact);
+        }
+
+        newContact = new ContactSipImpl(contactAddress,
                 sipProvider);
         newContact.setPersistent(persistent);
         String name = ((SipURI) contactAddress.getURI()).getUser();
@@ -311,19 +332,21 @@ public class ServerStoredContactListSipImpl
                     xCapClient.isResourceListsSupported())
             {
                 newContact.setXCapResolved(true);
-            }
-            // Update pres-rules if needed
-            if (!isContactExistsInWhiteRule(contactId))
-            {
-                // Update pres-rules
-                addContactToWhiteList(newContact);
+
                 try
                 {
-                    updatePresRules();
+                    // Update pres-rules if needed
+                    if (!isContactInWhiteRule(contactId))
+                    {
+                        // Update pres-rules
+                        if(addContactToWhiteList(newContact))
+                            updatePresRules();
+                    }
                 }
                 catch (XCapException e)
                 {
-                    logger.error("Error while creating XCAP contact", e);
+                    logger.error("Cannot add contact to white list while " +
+                            "creating it", e);
                 }
             }
         }
@@ -347,12 +370,34 @@ public class ServerStoredContactListSipImpl
             throw new IllegalArgumentException(
                     "Removing contact cannot be null");
         }
-        logger.trace("removeContact " + contact.getUri());
+
+        if(logger.isTraceEnabled())
+            logger.trace("removeContact " + contact.getUri());
+
         ContactGroupSipImpl parentGroup =
                 (ContactGroupSipImpl) contact.getParentContactGroup();
         parentGroup.removeContact(contact);
         if (contact.isPersistent())
         {
+            try
+            {
+                // when removing contact add it to polite block list, cause
+                // as soon as we remove it we will receive notification
+                // for authorization (watcher info - pending)
+                boolean updateRules = removeContactFromWhiteList(contact);
+                updateRules = removeContactFromBlockList(contact)
+                        || updateRules;
+                updateRules = removeContactFromPoliteBlockList(contact)
+                        || updateRules;
+
+                if(updateRules)
+                    updatePresRules();
+            }
+            catch (XCapException e)
+            {
+                logger.error("Error while removing XCAP contact", e);
+            }
+
             // Update resoure-lists
             try
             {
@@ -364,19 +409,6 @@ public class ServerStoredContactListSipImpl
                 throw new OperationFailedException(
                         "Error while removing XCAP contact",
                         OperationFailedException.NETWORK_FAILURE, e);
-            }
-            // Update pres-rules if contact doesn't exist
-            if (!isContactPersistent(contact.getUri()))
-            {
-                removeContactFromWhiteList(contact);
-                try
-                {
-                    updatePresRules();
-                }
-                catch (XCapException e)
-                {
-                    logger.error("Error while removing XCAP contact", e);
-                }
             }
         }
         fireContactRemoved(parentGroup, contact);
@@ -609,6 +641,19 @@ public class ServerStoredContactListSipImpl
             try
             {
                 updateResourceLists();
+
+                Iterator<Contact>  iter = group.contacts();
+                boolean updateRules = false;
+                while(iter.hasNext())
+                {
+                    ContactSipImpl c = (ContactSipImpl)iter.next();
+                    updateRules = removeContactFromWhiteList(c) || updateRules;
+                    updateRules = removeContactFromBlockList(c) || updateRules;
+                    updateRules = removeContactFromPoliteBlockList(c)
+                            || updateRules;
+                }
+                if(updateRules)
+                    updatePresRules();
             }
             catch (XCapException e)
             {
@@ -833,34 +878,33 @@ public class ServerStoredContactListSipImpl
             // Process pres-rules
             if (xCapClient.isPresRulesSupported())
             {
-                // Get pres-rules and analyze it
-                presRules = xCapClient.getPresRules();
-                for (RuleType rule : presRules.getRules())
-                {
-                    if (rule.getId().equals(WHITE_RULE_ID))
-                    {
-                        whiteRule = rule;
-                        break;
-                    }
-                }
+                // Get white pres-rules and analyze it
+                RuleType whiteRule = getRule(SubHandlingType.Allow);
+
+                boolean updateRules = false;
+
                 // If "white" rule is available refresh it
-                if (whiteRule != null)
+                if (whiteRule == null)
                 {
-                    presRules.getRules().remove(whiteRule);
+                    whiteRule = createWhiteRule();
+                    presRules.getRules().add(whiteRule);
                 }
-                whiteRule = createWhiteRule();
-                presRules.getRules().add(whiteRule);
-                // Add contacts into the "white" rule
+
+                // Add contacts into the "white" rule if missing
                 List<ContactSipImpl> uniqueContacts =
                         getUniqueContacts(rootGroup);
                 for (ContactSipImpl contact : uniqueContacts)
                 {
-                    if(contact.isPersistent())
+                    if(contact.isPersistent()
+                        && !isContactInRule(whiteRule, contact.getUri()))
                     {
-                        addContactToWhiteList(contact);
+                        addContactToRule(whiteRule, contact);
+                        updateRules = true;
                     }
                 }
-                updatePresRules();
+
+                if(updateRules)
+                    updatePresRules();
             }
         }
         catch (XCapException e)
@@ -884,7 +928,6 @@ public class ServerStoredContactListSipImpl
             contact.setResolved(false);
         }
         presRules = null;
-        whiteRule = null;
     }
 
     /**
@@ -895,7 +938,7 @@ public class ServerStoredContactListSipImpl
     private static RuleType createWhiteRule()
     {
         RuleType whiteList = new RuleType();
-        whiteList.setId(WHITE_RULE_ID);
+        whiteList.setId(DEFAULT_WHITE_RULE_ID);
 
         ConditionsType conditions = new ConditionsType();
         whiteList.setConditions(conditions);
@@ -904,73 +947,119 @@ public class ServerStoredContactListSipImpl
         actions.setSubHandling(SubHandlingType.Allow);
         whiteList.setActions(actions);
 
-        TransfomationsType transfomations = new TransfomationsType();
+        TransformationsType transformations = new TransformationsType();
         ProvideServicePermissionType servicePermission =
                 new ProvideServicePermissionType();
         servicePermission.setAllServices(
                 new ProvideServicePermissionType.AllServicesType());
-        transfomations.setServicePermission(servicePermission);
+        transformations.setServicePermission(servicePermission);
         ProvidePersonPermissionType personPermission =
                 new ProvidePersonPermissionType();
         personPermission.setAllPersons(
                 new ProvidePersonPermissionType.AllPersonsType());
-        transfomations.setPersonPermission(personPermission);
+        transformations.setPersonPermission(personPermission);
         ProvideDevicePermissionType devicePermission =
                 new ProvideDevicePermissionType();
         devicePermission.setAllDevices(
                 new ProvideDevicePermissionType.AllDevicesType());
-        transfomations.setDevicePermission(devicePermission);
-        whiteList.setTransformations(transfomations);
+        transformations.setDevicePermission(devicePermission);
+        whiteList.setTransformations(transformations);
 
         return whiteList;
     }
 
     /**
-     * Adds contact to the "white" rule.
+     * Creates "block" rule.
      *
-     * @param contact the contact to add.
+     * @return created rule.
      */
-    private void addContactToWhiteList(ContactSipImpl contact)
+    private static RuleType createBlockRule()
     {
-        XCapClient xCapClient = sipProvider.getXCapClient();
-        if (!xCapClient.isConnected() || !xCapClient.isPresRulesSupported())
-        {
-            return;
-        }
-        IdentityType identity;
-        if (whiteRule.getConditions().getIdentities().size() == 0)
-        {
-            identity = new IdentityType();
-            whiteRule.getConditions().getIdentities().add(identity);
-        }
-        else
-        {
-            identity = whiteRule.getConditions().getIdentities().get(0);
-        }
-        OneType one = new OneType();
-        one.setId(contact.getUri());
-        identity.getOneList().add(one);
+        RuleType blackList = new RuleType();
+        blackList.setId(DEFAULT_BLOCK_RULE_ID);
+
+        ConditionsType conditions = new ConditionsType();
+        blackList.setConditions(conditions);
+
+        ActionsType actions = new ActionsType();
+        actions.setSubHandling(SubHandlingType.Block);
+        blackList.setActions(actions);
+
+        TransformationsType transformations = new TransformationsType();
+        blackList.setTransformations(transformations);
+
+        return blackList;
     }
 
     /**
-     * Indicates whether or not contact is exists in the "white" rule.
+     * Creates "polite block" rule.
      *
-     * @param contactUri the contact uri.
-     * @return true if contact is exists, false if not.
+     * @return created rule.
      */
-    private boolean isContactExistsInWhiteRule(String contactUri)
+    private static RuleType createPoliteBlockRule()
     {
-        XCapClient xCapClient = sipProvider.getXCapClient();
-        if (!xCapClient.isConnected() || !xCapClient.isPresRulesSupported())
+        RuleType blackList = new RuleType();
+        blackList.setId(DEFAULT_POLITE_BLOCK_RULE_ID);
+
+        ConditionsType conditions = new ConditionsType();
+        blackList.setConditions(conditions);
+
+        ActionsType actions = new ActionsType();
+        actions.setSubHandling(SubHandlingType.PoliteBlock);
+        blackList.setActions(actions);
+
+        TransformationsType transformations = new TransformationsType();
+        blackList.setTransformations(transformations);
+
+        return blackList;
+    }
+
+    /**
+     * Finds the rule with the given action type.
+     * @param type the action type to search for.
+     * @return the rule if any or null.
+     */
+    private RuleType getRule(SubHandlingType type)
+        throws XCapException
+    {
+        if(presRules == null)
         {
-            return false;
+            XCapClient xCapClient = sipProvider.getXCapClient();
+            if (!xCapClient.isConnected() ||
+                    !xCapClient.isResourceListsSupported())
+            {
+                return null;
+            }
+
+            presRules = xCapClient.getPresRules();
         }
+
+        for (RuleType rule : presRules.getRules())
+        {
+            if (rule.getActions().getSubHandling().equals(type))
+            {
+                return rule;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Checks whether the contact in the specified rule.
+     *
+     * @param rule the rule.
+     * @param contactUri the contact uri to check.
+     * @return is the contact in the rule.
+     */
+    private static boolean isContactInRule(RuleType rule, String contactUri)
+    {
         IdentityType identity;
-        if (whiteRule.getConditions().getIdentities().size() == 0)
+        if (rule.getConditions().getIdentities().size() == 0)
         {
             return false;
         }
-        identity = whiteRule.getConditions().getIdentities().get(0);
+        identity = rule.getConditions().getIdentities().get(0);
         for (OneType one : identity.getOneList())
         {
             if (one.getId().equals(contactUri))
@@ -982,19 +1071,49 @@ public class ServerStoredContactListSipImpl
     }
 
     /**
-     * Removes contact from the "white" rule.
+     * Adds contact to the rule.
+     *
+     * @param contact the contact to add.
+     * @param rule the rule to use to add contact to.
+     * @return true if present rules were updated, false otherwise.
+     */
+    private static boolean addContactToRule(RuleType rule, ContactSipImpl contact)
+    {
+        if(isContactInRule(rule, contact.getUri()))
+            return false;
+
+        IdentityType identity;
+        if (rule.getConditions().getIdentities().size() == 0)
+        {
+            identity = new IdentityType();
+            rule.getConditions().getIdentities().add(identity);
+        }
+        else
+        {
+            identity = rule.getConditions().getIdentities().get(0);
+        }
+        OneType one = new OneType();
+        one.setId(contact.getUri());
+        identity.getOneList().add(one);
+
+        return true;
+    }
+
+    /**
+     * Removes contact from the rule.
      *
      * @param contact the contact to remove.
+     * @param rule the rule to use to remove contact from.
+     * @return true if present rules were updated, false otherwise.
      */
-    private void removeContactFromWhiteList(ContactSipImpl contact)
+    private static boolean removeContactFromRule(
+            RuleType rule, ContactSipImpl contact)
     {
-        XCapClient xCapClient = sipProvider.getXCapClient();
-        if (!xCapClient.isConnected() || !xCapClient.isPresRulesSupported())
-        {
-            return;
-        }
+        if(rule.getConditions().getIdentities().size() == 0)
+            return false;
+
         IdentityType identity =
-                whiteRule.getConditions().getIdentities().get(0);
+                rule.getConditions().getIdentities().get(0);
         OneType contactOne = null;
         for (OneType one : identity.getOneList())
         {
@@ -1004,14 +1123,179 @@ public class ServerStoredContactListSipImpl
                 break;
             }
         }
+
         if (contactOne != null)
         {
             identity.getOneList().remove(contactOne);
         }
         if (identity.getOneList().size() == 0)
         {
-            whiteRule.getConditions().getIdentities().remove(identity);
+            rule.getConditions().getIdentities().remove(identity);
+            rule.getConditions().getIdentities().remove(identity);
         }
+
+        return true;
+    }
+
+    /**
+     * Adds contact to the "white" rule.
+     *
+     * @param contact the contact to add.
+     * @return true if present rules were updated, false otherwise.
+     */
+    boolean addContactToWhiteList(ContactSipImpl contact)
+        throws XCapException
+    {
+        RuleType whiteRule = getRule(SubHandlingType.Allow);
+        RuleType blockRule = getRule(SubHandlingType.Block);
+        RuleType politeBlockRule = getRule(SubHandlingType.PoliteBlock);
+
+        if(whiteRule == null)
+        {
+            whiteRule = createWhiteRule();
+            presRules.getRules().add(whiteRule);
+        }
+
+        boolean updateRule =
+            addContactToRule(whiteRule, contact);
+
+        if(blockRule != null)
+            updateRule = removeContactFromRule(blockRule, contact)
+                    || updateRule;
+
+        if(politeBlockRule != null)
+            updateRule = removeContactFromRule(politeBlockRule, contact)
+                    || updateRule;
+
+        return updateRule;
+    }
+
+    /**
+     * Adds contact to the "block" rule.
+     *
+     * @param contact the contact to add.
+     */
+    boolean addContactToBlockList(ContactSipImpl contact)
+        throws XCapException
+    {
+        RuleType whiteRule = getRule(SubHandlingType.Allow);
+        RuleType blockRule = getRule(SubHandlingType.Block);
+        RuleType politeBlockRule = getRule(SubHandlingType.PoliteBlock);
+
+        if(blockRule == null)
+        {
+            blockRule = createBlockRule();
+            presRules.getRules().add(blockRule);
+        }
+
+        boolean updateRule =
+            addContactToRule(blockRule, contact);
+        if(whiteRule != null)
+            updateRule = removeContactFromRule(whiteRule, contact)
+                    || updateRule;
+        if(politeBlockRule != null)
+            updateRule = removeContactFromRule(politeBlockRule, contact)
+                    || updateRule;
+
+        return updateRule;
+    }
+
+     /**
+     * Adds contact to the "polite block" rule.
+     *
+     * @param contact the contact to add.
+     */
+    boolean addContactToPoliteBlockList(ContactSipImpl contact)
+        throws XCapException
+    {
+        RuleType whiteRule = getRule(SubHandlingType.Allow);
+        RuleType blockRule = getRule(SubHandlingType.Block);
+        RuleType politeBlockRule = getRule(SubHandlingType.PoliteBlock);
+
+        if(politeBlockRule == null)
+        {
+            politeBlockRule = createPoliteBlockRule();
+            presRules.getRules().add(politeBlockRule);
+        }
+
+        boolean updateRule =
+            addContactToRule(politeBlockRule, contact);
+        if(whiteRule != null)
+            updateRule = removeContactFromRule(whiteRule, contact)
+                    || updateRule;
+        if(blockRule != null)
+            updateRule = removeContactFromRule(blockRule, contact)
+                    || updateRule;
+
+        return updateRule;
+    }
+
+    /**
+     * Indicates whether or not contact is exists in the "white" rule.
+     *
+     * @param contactUri the contact uri.
+     * @return true if contact is exists, false if not.
+     */
+    private boolean isContactInWhiteRule(String contactUri)
+        throws XCapException
+    {
+        RuleType whiteRule = getRule(SubHandlingType.Allow);
+
+        if(whiteRule == null)
+            return false;
+
+        return isContactInRule(whiteRule, contactUri);
+    }
+
+    /**
+     * Removes contact from the "white" rule.
+     *
+     * @param contact the contact to remove.
+     * @return true if present rules were updated, false otherwise.
+     */
+    boolean removeContactFromWhiteList(ContactSipImpl contact)
+        throws XCapException
+    {
+        RuleType whiteRule = getRule(SubHandlingType.Allow);
+
+        if(whiteRule != null)
+            return removeContactFromRule(whiteRule, contact);
+        else
+            return false;
+    }
+
+    /**
+     * Removes contact from the "block" rule.
+     *
+     * @param contact the contact to remove.
+     * @return true if present rules were updated, false otherwise.
+     */
+    boolean removeContactFromBlockList(ContactSipImpl contact)
+        throws XCapException
+    {
+        RuleType blockRule = getRule(SubHandlingType.Block);
+
+        if(blockRule != null)
+            return removeContactFromRule(blockRule, contact);
+        else
+            return false;
+    }
+
+    /**
+     * Removes contact from the "polite block" rule.
+     *
+     * @param contact the contact to remove.
+     * @return true if present rules were updated, false otherwise.
+     */
+    boolean removeContactFromPoliteBlockList(ContactSipImpl contact)
+        throws XCapException
+    {
+        RuleType blockRule = getRule(SubHandlingType.PoliteBlock);
+
+        if(blockRule != null)
+            return removeContactFromRule(blockRule, contact);
+        else
+            return false;
     }
 
     /**
@@ -1323,7 +1607,7 @@ public class ServerStoredContactListSipImpl
      *
      * @throws XCapException if there is some error during operation.
      */
-    synchronized private void updatePresRules()
+    synchronized void updatePresRules()
             throws XCapException
     {
         XCapClient xCapClient = sipProvider.getXCapClient();

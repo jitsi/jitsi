@@ -33,7 +33,7 @@ public class RuleType
     /**
      * The transformations element.
      */
-    private TransfomationsType transformations;
+    private TransformationsType transformations;
 
     /**
      * Gets the value of the conditions property.
@@ -80,7 +80,7 @@ public class RuleType
      *
      * @return the transformations property.
      */
-    public TransfomationsType getTransformations()
+    public TransformationsType getTransformations()
     {
         return transformations;
     }
@@ -90,7 +90,7 @@ public class RuleType
      *
      * @param transformations the uri to set.
      */
-    public void setTransformations(TransfomationsType transformations)
+    public void setTransformations(TransformationsType transformations)
     {
         this.transformations = transformations;
     }

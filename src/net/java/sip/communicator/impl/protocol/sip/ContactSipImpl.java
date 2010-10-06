@@ -91,6 +91,15 @@ public class ContactSipImpl
     private final Address sipAddress;
 
     /**
+     * Current subscription state of the contact.
+     * One of:
+     * SubscriptionStateHeader.PENDING,
+     * SubscriptionStateHeader.ACTIVE,
+     * SubscriptionStateHeader.TERMINATED.
+     */
+    private String subscriptionState;
+
+    /**
      * Creates an instance of a meta contact with the specified string used
      * as a name and identifier.
      *
@@ -532,5 +541,28 @@ public class ContactSipImpl
     public String getStatusMessage()
     {
         return null;
+    }
+
+    /**
+     * Current subscription state of the contact.
+     * One of:
+     * SubscriptionStateHeader.PENDING,
+     * SubscriptionStateHeader.ACTIVE,
+     * SubscriptionStateHeader.TERMINATED.
+     *
+     * @return current subscription state.
+     */
+    public String getSubscriptionState()
+    {
+        return subscriptionState;
+    }
+
+    /**
+     * Change current subscription state.
+     * @param subscriptionState the new state.
+     */
+    public void setSubscriptionState(String subscriptionState)
+    {
+        this.subscriptionState = subscriptionState;
     }
 }

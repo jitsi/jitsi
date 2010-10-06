@@ -821,7 +821,7 @@ public class NetworkUtils
         }
         else
         {
-            logger.warn("No A record found for: " + domain);
+            //No A record found
             return null;
         }
     }
@@ -858,7 +858,7 @@ public class NetworkUtils
         }
         else
         {
-            logger.warn("No AAAA record found for: " + domain);
+            //"No AAAA record found
             return null;
         }
     }

@@ -296,7 +296,7 @@ public class TestXCapParse extends TestCase
                 "The actions we set is not read properly",
                 actions.getAny().size() == 0);
         // transformations
-        TransfomationsType transfomations = rule.getTransformations();
+        TransformationsType transfomations = rule.getTransformations();
         assertNull(
                 "The transfomations we set is not read properly",
                 transfomations.getDevicePermission());
