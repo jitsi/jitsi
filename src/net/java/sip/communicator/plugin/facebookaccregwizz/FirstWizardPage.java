@@ -275,7 +275,11 @@ public class FirstWizardPage
      */
     private void setNextButtonAccordingToUsername()
     {
-        if (usernameField.getText() == null || usernameField.getText().equals(""))
+        // facebook don't support "-" or "@" in username
+        if (usernameField.getText() == null
+            || usernameField.getText().equals("")
+            || usernameField.getText().indexOf("@") != -1
+            || usernameField.getText().indexOf("-") != -1)
         {
             wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }

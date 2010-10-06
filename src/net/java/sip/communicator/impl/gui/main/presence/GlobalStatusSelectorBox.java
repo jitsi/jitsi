@@ -790,6 +790,10 @@ public class GlobalStatusSelectorBox
         {
             return offlineItem;
         }
+        else if(status < PresenceStatus.AWAY_THRESHOLD)
+        {
+            return dndItem;
+        }
         else if(status < PresenceStatus.AVAILABLE_THRESHOLD)
         {
             return awayItem;

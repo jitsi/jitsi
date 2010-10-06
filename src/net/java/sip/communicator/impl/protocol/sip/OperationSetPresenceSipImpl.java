@@ -3589,7 +3589,8 @@ public class OperationSetPresenceSipImpl
         protected void processFailureResponse(
                 ResponseEvent responseEvent, int statusCode)
         {
-            logger.error("Cannot subscripe to presence watcher info!");
+            if(logger.isDebugEnabled())
+                logger.debug("Cannot subscripe to presence watcher info!");
         }
 
         /**

@@ -8,11 +8,13 @@ package net.java.sip.communicator.impl.gui.main.account;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -28,7 +30,8 @@ import org.osgi.framework.*;
  */
 public class NewAccountDialog
     extends SIPCommDialog
-    implements  ActionListener
+    implements  ActionListener,
+                PropertyChangeListener
 {
     private final Logger logger = Logger.getLogger(NewAccountDialog.class);
 
@@ -118,6 +121,10 @@ public class NewAccountDialog
         this.mainPanel.add(accountPanel, BorderLayout.CENTER);
 
         this.initNetworkList();
+
+        ((AccountRegWizardContainerImpl)GuiActivator.getUIService()
+            .getAccountRegWizardContainer()).getModel()
+                .addPropertyChangeListener(this);
     }
 
     /**
@@ -213,6 +220,32 @@ public class NewAccountDialog
                 advancedButton.setEnabled(false);
                 addAccountButton.setEnabled(false);
             }
+        }
+    }
+
+    /**
+     * This method gets called when a property is changed.
+     *
+     * @param evt A PropertyChangeEvent object describing the event source
+     *            and the property that has changed.
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if(evt.getPropertyName().equals(
+                WizardModel.CANCEL_BUTTON_ENABLED_PROPERTY))
+        {
+            if(evt.getNewValue() instanceof Boolean)
+                cancelButton.setEnabled(
+                        (Boolean)evt.getNewValue());
+
+        }
+        else if(evt.getPropertyName().equals(
+                WizardModel.NEXT_FINISH_BUTTON_ENABLED_PROPERTY))
+        {
+            if(evt.getNewValue() instanceof Boolean)
+                addAccountButton.setEnabled(
+                        (Boolean)evt.getNewValue());
+
         }
     }
 
