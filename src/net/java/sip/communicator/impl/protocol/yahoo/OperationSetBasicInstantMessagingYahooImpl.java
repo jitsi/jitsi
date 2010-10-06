@@ -270,7 +270,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
     protected void fireMessageEvent(EventObject evt)
     {
         // check if this event should be filtered out
-        Iterator<EventFilter> filters = null;
+        Iterator<EventFilter> filters;
         synchronized (eventFilters)
         {
             filters = new ArrayList<EventFilter>(eventFilters).iterator();
@@ -466,11 +466,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
      */
     String decodeMessage(String message)
     {
-        int i = message.indexOf('\u001b');
-        if (i != -1)
-        {
-            message = messageDecoder.decodeToHTML(message);
-        }
+        message = messageDecoder.decodeToHTML(message);
         message = processLinks(message);
         message =
                 FONT_SIZE_0_PATTERN.matcher(message)
