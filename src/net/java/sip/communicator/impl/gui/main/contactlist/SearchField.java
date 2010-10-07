@@ -113,7 +113,7 @@ public class SearchField
         if (filterString != null && filterString.length() > 0)
         {
             TreeContactList.searchFilter
-                .setFilterString(filterString);
+                .setFilterString(filterString.trim());
 
             filterQuery = GuiActivator.getContactList()
                 .applyFilter(TreeContactList.searchFilter);
