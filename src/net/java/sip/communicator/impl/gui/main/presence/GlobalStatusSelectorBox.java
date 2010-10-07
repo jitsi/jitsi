@@ -677,6 +677,10 @@ public class GlobalStatusSelectorBox
         {
             imgType = SystrayService.SC_IMG_OFFLINE_TYPE;
         }
+        else if(status < PresenceStatus.AWAY_THRESHOLD)
+        {
+            imgType = SystrayService.SC_IMG_DND_TYPE;
+        }
         else if(status < PresenceStatus.AVAILABLE_THRESHOLD)
         {
             imgType = SystrayService.SC_IMG_AWAY_TYPE;
@@ -972,6 +976,9 @@ public class GlobalStatusSelectorBox
 
         ffcItem.setIcon(new ImageIcon(ImageLoader.getImage(
                 ImageLoader.USER_FFC_ICON)));
+
+        dndItem.setIcon(new ImageIcon(ImageLoader.getImage(
+                ImageLoader.USER_DND_ICON)));
 
         awayItem.setIcon(new ImageIcon(ImageLoader.getImage(
                 ImageLoader.USER_AWAY_ICON)));

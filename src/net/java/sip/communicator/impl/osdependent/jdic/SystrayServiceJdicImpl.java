@@ -92,6 +92,8 @@ public class SystrayServiceJdicImpl
 
     private ImageIcon logoIconFFC;
 
+    private ImageIcon logoIconDND;
+
     private ImageIcon logoIconWhite;
 
     private ImageIcon envelopeIcon;
@@ -108,6 +110,8 @@ public class SystrayServiceJdicImpl
     private URL dockIconAway;
 
     private URL dockIconFFC;
+
+    private URL dockIconDND;
 
     private Image originalDockImage = null;
 
@@ -162,6 +166,8 @@ public class SystrayServiceJdicImpl
                 "service.systray.TRAY_ICON_WINDOWS_AWAY");
             logoIconFFC = Resources.getImage(
                 "service.systray.TRAY_ICON_WINDOWS_FFC");
+            logoIconDND = Resources.getImage(
+                "service.systray.TRAY_ICON_WINDOWS_DND");
             envelopeIcon = Resources.getImage(
                 "service.systray.MESSAGE_ICON_WINDOWS");
         } // If we're running under MacOSX, we use a special black and
@@ -183,6 +189,7 @@ public class SystrayServiceJdicImpl
                 "service.systray.TRAY_ICON_OFFLINE");
             logoIconAway = Resources.getImage("service.systray.TRAY_ICON_AWAY");
             logoIconFFC = Resources.getImage("service.systray.TRAY_ICON_FFC");
+            logoIconDND = Resources.getImage("service.systray.TRAY_ICON_DND");
             envelopeIcon = Resources.getImage("service.systray.MESSAGE_ICON");
         }
 
@@ -208,7 +215,10 @@ public class SystrayServiceJdicImpl
                 "service.systray.DOCK_ICON_OFFLINE");
             dockIconAway = Resources.getImageURL(
                 "service.systray.DOCK_ICON_AWAY");
-            dockIconFFC = Resources.getImageURL("service.systray.DOCK_ICON_FFC");
+            dockIconFFC =
+                    Resources.getImageURL("service.systray.DOCK_ICON_FFC");
+            dockIconDND = 
+                    Resources.getImageURL("service.systray.DOCK_ICON_DND");
         }
 
         //Show/hide the contact list when user clicks on the systray.
@@ -478,6 +488,11 @@ public class SystrayServiceJdicImpl
             if (!isMac)
                 toChangeSystrayIcon = logoIconFFC;
         }
+        else if (imageType == SystrayService.SC_IMG_DND_TYPE)
+        {
+            if (!isMac)
+                toChangeSystrayIcon = logoIconDND;
+        }
         else if (imageType == SystrayService.ENVELOPE_IMG_TYPE)
         {
             toChangeSystrayIcon
@@ -508,6 +523,9 @@ public class SystrayServiceJdicImpl
                     break;
                 case SystrayService.SC_IMG_FFC_TYPE:
                     toChangeDockIcon = dockIconFFC;
+                    break;
+                case SystrayService.SC_IMG_DND_TYPE:
+                    toChangeDockIcon = dockIconDND;
                     break;
             }
 

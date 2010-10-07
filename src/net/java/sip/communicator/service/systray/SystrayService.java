@@ -47,14 +47,19 @@ public interface SystrayService
     public static final int SC_IMG_OFFLINE_TYPE = 2;
     
     /**
-     * Image type corresponding to the sip-communicator offline icon
+     * Image type corresponding to the sip-communicator away icon
      */
     public static final int SC_IMG_AWAY_TYPE = 3;
     
     /**
-     * Image type corresponding to the sip-communicator offline icon
+     * Image type corresponding to the sip-communicator free for chat icon
      */
     public static final int SC_IMG_FFC_TYPE = 4;
+
+    /**
+     * Image type corresponding to the sip-communicator do not disturb icon
+     */
+    public static final int SC_IMG_DND_TYPE = 5;
 
     /**
      * Image type corresponding to the envelope icon
