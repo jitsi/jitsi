@@ -492,9 +492,13 @@ public class ProtocolProviderServiceSipImpl
 
             this.sipStatusEnum = new SipStatusEnum(protocolIconPath);
 
+            boolean isProxyValidated =
+                accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.PROXY_ADDRESS_VALIDATED, false);
             //init the proxy, we had to have at least one address configured
             // so use it, if it fails later we will use next one
-            initOutboundProxy(accountID, 0);
+            if(!isProxyValidated)
+                initOutboundProxy(accountID, 0);
 
             //init proxy port
             int preferredSipPort = ListeningPoint.PORT_5060;
@@ -558,8 +562,13 @@ public class ProtocolProviderServiceSipImpl
                 ourDisplayName = accountID.getUserID();
             }
 
+            boolean isServerValidated =
+                accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.SERVER_ADDRESS_VALIDATED, false);
+
             //create a connection with the registrar
-            initRegistrarConnection(accountID);
+            if(!isServerValidated)
+                initRegistrarConnection(accountID);
 
             //init our call processor
             OperationSetBasicTelephonySipImpl opSetBasicTelephonySipImpl
