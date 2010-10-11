@@ -104,10 +104,14 @@ public class AboutWindow
                 .createEmptyBorder(15, 15, 15, 15));
         textPanel.setOpaque(false);
 
-        JLabel titleLabel = new JLabel(applicationName);
-        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 28));
-        titleLabel.setForeground(Constants.TITLE_COLOR);
-        titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        JLabel titleLabel = null;
+        if (isApplicationNameShown())
+        {
+            titleLabel = new JLabel(applicationName);
+            titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 28));
+            titleLabel.setForeground(Constants.TITLE_COLOR);
+            titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        }
 
         JTextField versionLabel
             = new JTextField(" "
@@ -176,7 +180,9 @@ public class AboutWindow
         licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
         licenseArea.addHyperlinkListener(this);
 
-        textPanel.add(titleLabel);
+        if (titleLabel != null)
+            textPanel.add(titleLabel);
+
         textPanel.add(versionLabel);
         textPanel.add(logoArea);
         textPanel.add(rightsArea);
@@ -370,5 +376,26 @@ public class AboutWindow
             setVisible(false);
             dispose();
         }
+    }
+
+    /**
+     * Indicates if the application name should be shown.
+     *
+     * @return <tt>true</tt> if the application name should be shown,
+     * <tt>false</tt> - otherwise
+     */
+    private boolean isApplicationNameShown()
+    {
+        String showApplicationNameProp
+            = BrandingActivator.getResources().getSettingsString(
+                "plugin.branding.IS_APPLICATION_NAME_SHOWN");
+
+        if (showApplicationNameProp != null
+            && showApplicationNameProp.length() > 0)
+        {
+            return new Boolean(showApplicationNameProp).booleanValue();
+        }
+
+        return true;
     }
 }
