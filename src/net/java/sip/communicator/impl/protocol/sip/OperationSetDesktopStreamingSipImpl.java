@@ -113,6 +113,28 @@ public class OperationSetDesktopStreamingSipImpl
     }
 
     /**
+     * Implements OperationSetVideoTelephony#setLocalVideoAllowed(Call,
+     * boolean). Modifies the local media setup to reflect the requested setting
+     * for the streaming of the local video and then re-invites all
+     * CallPeers to re-negotiate the modified media setup.
+     *
+     * @param call the call where we'd like to allow sending local video.
+     * @param allowed <tt>true</tt> if local video transmission is allowed and
+     * <tt>false</tt> otherwise.
+     *
+     *  @throws OperationFailedException if video initialization fails.
+     */
+    @Override
+    public void setLocalVideoAllowed(Call call, boolean allowed)
+        throws OperationFailedException
+    {
+        ((CallSipImpl)call).setLocalVideoAllowed(allowed, MediaUseCase.DESKTOP);
+
+        /* reinvite all peers */
+        ((CallSipImpl)call).reInvite();
+    }
+
+    /**
      * Sets the indicator which determines whether the streaming of local video
      * in a specific <tt>Call</tt> is allowed. The setting does not reflect
      * the availability of actual video capture devices, it just expresses the
