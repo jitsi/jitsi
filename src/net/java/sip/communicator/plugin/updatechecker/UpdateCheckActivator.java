@@ -132,6 +132,9 @@ public class UpdateCheckActivator
      */
     public void start(BundleContext bundleContext) throws Exception
     {
+        if (logger.isDebugEnabled())
+            logger.debug("Update checker [STARTED]");
+
         try
         {
             logger.logEntry();
@@ -142,13 +145,12 @@ public class UpdateCheckActivator
             logger.logExit();
         }
 
-        // check whether we are enabled
-        if(!getConfigurationService().getBoolean(UPDATECHECKER_ENABLED, true))
-            return;
-
         Thread updateThread = new Thread(new UpdateCheckThread());
         updateThread.setDaemon(true);
         updateThread.start();
+
+        if (logger.isDebugEnabled())
+            logger.debug("Update checker [REGISTERED]");
     }
 
     /**
@@ -158,7 +160,10 @@ public class UpdateCheckActivator
      */
     public void stop(BundleContext bundleContext)
         throws Exception
-    {}
+    {
+        if (logger.isDebugEnabled())
+            logger.debug("Update checker [STOPPED]");
+    }
 
     /**
      * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
@@ -318,7 +323,8 @@ public class UpdateCheckActivator
             if(configString == null)
             {
                 if (logger.isDebugEnabled())
-                    logger.debug("Updates are disabled. Faking latest version.");
+                    logger.debug(
+                            "Updates are disabled. Faking latest version.");
                 return true;
             }
 
@@ -334,8 +340,8 @@ public class UpdateCheckActivator
             downloadLink = props.getProperty("download_link");
 
             changesLink =
-                    configString.substring(0, configString.lastIndexOf("/") + 1) +
-                    props.getProperty("changes_html");
+                    configString.substring(0, configString.lastIndexOf("/") + 1)
+                    + props.getProperty("changes_html");
 
             return lastVersion.compareTo(ver.toString()) <= 0;
         }
@@ -344,11 +350,109 @@ public class UpdateCheckActivator
             logger.warn("Cannot get and compare versions!");
             if (logger.isDebugEnabled())
                 logger.debug("Error was: ", e);
-            // if we get an exception this mean we were unable to compare versions
-            // will return that current is newest to prevent opening info dialog
-            // about new version
+            // if we get an exception this mean we were unable to compare
+            // versions will return that current is newest to prevent opening
+            // info dialog about new version
             return true;
         }
+    }
+
+    /**
+     * Show dialog informing about new version with button Download which
+     * triggers browser launching
+     */
+    private void UpdaterShow()
+    {
+        final JDialog dialog = new SIPCommDialog()
+        {
+            private static final long serialVersionUID = 0L;
+
+            protected void close(boolean isEscaped)
+            {
+            }
+        };
+        dialog.setTitle(
+            getResources().getI18NString(
+                    "plugin.updatechecker.DIALOG_TITLE"));
+
+        JEditorPane contentMessage = new JEditorPane();
+        contentMessage.setContentType("text/html");
+        contentMessage.setOpaque(false);
+        contentMessage.setEditable(false);
+
+        String dialogMsg =
+            getResources().getI18NString(
+                    "plugin.updatechecker.DIALOG_MESSAGE",
+            new String[]{getResources()
+                .getSettingsString("service.gui.APPLICATION_NAME")});
+
+        if(lastVersion != null)
+            dialogMsg +=
+                getResources().getI18NString(
+                "plugin.updatechecker.DIALOG_MESSAGE_2",
+                new String[]{
+                    getResources().getSettingsString(
+                        "service.gui.APPLICATION_NAME"),
+                    lastVersion});
+
+        contentMessage.setText(dialogMsg);
+
+        JPanel contentPane = new TransparentPanel(new BorderLayout(5,5));
+        contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10,
+                10));
+        contentPane.add(contentMessage, BorderLayout.CENTER);
+
+        JPanel buttonPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 10,
+                    10));
+        JButton closeButton = new JButton(
+            getResources().getI18NString(
+                    "plugin.updatechecker.BUTTON_CLOSE"));
+
+        closeButton.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e)
+            {
+                dialog.setVisible(false);
+            }
+        });
+
+        if(downloadLink != null)
+        {
+            JButton downloadButton = new JButton(getResources().
+                    getI18NString("plugin.updatechecker.BUTTON_DOWNLOAD"));
+
+            downloadButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    if(OSUtils.IS_LINUX64)
+                        downloadLink
+                            = downloadLink.replace("i386", "amd64");
+
+                    getBrowserLauncher().openURL(downloadLink);
+                    dialog.dispose();
+                }
+            });
+
+            buttonPanel.add(downloadButton);
+        }
+
+        buttonPanel.add(closeButton);
+
+        contentPane.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.setContentPane(contentPane);
+
+        dialog.pack();
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        dialog.setLocation(
+            screenSize.width/2 - dialog.getWidth()/2,
+            screenSize.height/2 - dialog.getHeight()/2
+        );
+
+        dialog.setVisible(true);
     }
 
     /**
@@ -581,14 +685,15 @@ public class UpdateCheckActivator
                         out.flush();
                         out.close();
 
-                        if(getUIService().getPopupDialog().showConfirmPopupDialog(
-                            getResources().getI18NString(
-                                "plugin.updatechecker.DIALOG_WARN"),
-                            getResources().getI18NString(
-                                "plugin.updatechecker.DIALOG_TITLE"),
-                            PopupDialog.YES_NO_OPTION,
-                            PopupDialog.QUESTION_MESSAGE
-                            ) != PopupDialog.YES_OPTION)
+                        if(getUIService().getPopupDialog().
+                            showConfirmPopupDialog(
+                                    getResources().getI18NString(
+                                    "plugin.updatechecker.DIALOG_WARN"),
+                                    getResources().getI18NString(
+                                    "plugin.updatechecker.DIALOG_TITLE"),
+                                    PopupDialog.YES_NO_OPTION,
+                                    PopupDialog.QUESTION_MESSAGE
+                                ) != PopupDialog.YES_OPTION)
                         {
                             return;
                         }
@@ -626,8 +731,10 @@ public class UpdateCheckActivator
         catch(FileNotFoundException e)
         {
             getUIService().getPopupDialog().showMessagePopupDialog(
-                getResources().getI18NString("plugin.updatechecker.DIALOG_MISSING_UPDATE"),
-                getResources().getI18NString("plugin.updatechecker.DIALOG_NOUPDATE_TITLE"),
+                getResources().getI18NString(
+                        "plugin.updatechecker.DIALOG_MISSING_UPDATE"),
+                getResources().getI18NString(
+                        "plugin.updatechecker.DIALOG_NOUPDATE_TITLE"),
                 PopupDialog.INFORMATION_MESSAGE);
             tempF.delete();
         }
@@ -647,8 +754,10 @@ public class UpdateCheckActivator
         if(isNewestVersion())
         {
             getUIService().getPopupDialog().showMessagePopupDialog(
-                getResources().getI18NString("plugin.updatechecker.DIALOG_NOUPDATE"),
-                getResources().getI18NString("plugin.updatechecker.DIALOG_NOUPDATE_TITLE"),
+                getResources().getI18NString(
+                        "plugin.updatechecker.DIALOG_NOUPDATE"),
+                getResources().getI18NString(
+                        "plugin.updatechecker.DIALOG_NOUPDATE_TITLE"),
                 PopupDialog.INFORMATION_MESSAGE);
         }
         else
@@ -783,100 +892,24 @@ public class UpdateCheckActivator
                     toolsMenuFilter);
             }
 
+            // check whether check at startup is enabled
+            if(!getConfigurationService().getBoolean(UPDATECHECKER_ENABLED,
+                    true))
+            {
+                return;
+            }
+
             if(isNewestVersion())
                 return;
 
             if (OSUtils.IS_WINDOWS)
             {
                 windowsUpdaterShow();
-                return;
             }
-
-            final JDialog dialog = new SIPCommDialog()
+            else
             {
-                private static final long serialVersionUID = 0L;
-
-                protected void close(boolean isEscaped)
-                {
-                }
-            };
-            dialog.setTitle(
-                getResources().getI18NString("plugin.updatechecker.DIALOG_TITLE"));
-
-            JEditorPane contentMessage = new JEditorPane();
-            contentMessage.setContentType("text/html");
-            contentMessage.setOpaque(false);
-            contentMessage.setEditable(false);
-
-            String dialogMsg =
-                getResources().getI18NString("plugin.updatechecker.DIALOG_MESSAGE",
-                new String[]{getResources()
-                    .getSettingsString("service.gui.APPLICATION_NAME")});
-
-            if(lastVersion != null)
-                dialogMsg +=
-                    getResources().getI18NString(
-                    "plugin.updatechecker.DIALOG_MESSAGE_2",
-                    new String[]{
-                        getResources().getSettingsString(
-                            "service.gui.APPLICATION_NAME"),
-                        lastVersion});
-
-            contentMessage.setText(dialogMsg);
-
-            JPanel contentPane = new TransparentPanel(new BorderLayout(5,5));
-            contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            contentPane.add(contentMessage, BorderLayout.CENTER);
-
-            JPanel buttonPanel
-                = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-            JButton closeButton = new JButton(
-                getResources().getI18NString("plugin.updatechecker.BUTTON_CLOSE"));
-
-            closeButton.addActionListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent e)
-                {
-                    dialog.setVisible(false);
-                }
-            });
-
-            if(downloadLink != null)
-            {
-                JButton downloadButton = new JButton(getResources().getI18NString(
-                    "plugin.updatechecker.BUTTON_DOWNLOAD"));
-
-                downloadButton.addActionListener(new ActionListener()
-                {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        if(OSUtils.IS_LINUX64)
-                            downloadLink
-                                = downloadLink.replace("i386", "amd64");
-
-                        getBrowserLauncher().openURL(downloadLink);
-                        dialog.dispose();
-                    }
-                });
-
-                buttonPanel.add(downloadButton);
+                UpdaterShow();
             }
-
-            buttonPanel.add(closeButton);
-
-            contentPane.add(buttonPanel, BorderLayout.SOUTH);
-
-            dialog.setContentPane(contentPane);
-
-            dialog.pack();
-
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            dialog.setLocation(
-                screenSize.width/2 - dialog.getWidth()/2,
-                screenSize.height/2 - dialog.getHeight()/2
-            );
-
-            dialog.setVisible(true);
         }
     }
 }
