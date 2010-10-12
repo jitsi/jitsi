@@ -94,7 +94,7 @@ public interface ConfigurationService
      * <code>ConfigurationService</code> implementations to optimize, for
      * example, the saving of the configuration which in this case can be
      * performed only once for the setting of multiple properties.
-     * 
+     *
      * @param properties
      *            a <code>Map</code> of property names to their new values to be
      *            set
@@ -113,7 +113,7 @@ public interface ConfigurationService
      * @return the value of the property with the specified name.
      */
     public Object getProperty(String propertyName);
-    
+
     /**
      * Removes the property with the specified name. Calling
      * this method would first trigger a PropertyChangeEvent that will
@@ -208,7 +208,7 @@ public interface ConfigurationService
      * is parsed into a boolean according to the rules of
      * {@link Boolean#parseBoolean(String)} . Otherwise,
      * <code>defaultValue</code> is returned.
-     * 
+     *
      * @param propertyName
      *            the name of the property to get the value of as a boolean
      * @param defaultValue
@@ -231,7 +231,7 @@ public interface ConfigurationService
      * {@link Integer#parseInt(String)} . If parsing the value as a signed
      * decimal integer fails or there is no value associated with the specified
      * property name, <tt>defaultValue</tt> is returned.
-     * 
+     *
      * @param propertyName the name of the property to get the value of as a
      * signed decimal integer
      * @param defaultValue the value to be returned if parsing the value of the
@@ -245,7 +245,7 @@ public interface ConfigurationService
      * with the specified property name
      */
     public int getInt(String propertyName, int defaultValue);
-    
+
     /**
      * Gets the value of a specific property as a signed decimal long integer.
      * If the specified property name is associated with a value in this
@@ -254,7 +254,7 @@ public interface ConfigurationService
      * {@link Long#parseLong(String)} . If parsing the value as a signed
      * decimal long integer fails or there is no value associated with the
      * specified property name, <tt>defaultValue</tt> is returned.
-     * 
+     *
      * @param propertyName the name of the property to get the value of as a
      * signed decimal long integer
      * @param defaultValue the value to be returned if parsing the value of the
@@ -417,4 +417,10 @@ public interface ConfigurationService
      * as well as is bundle repository.
      */
     public String getScHomeDirLocation();
+
+    /**
+     * Walk through all properties and make sure all properties keys match
+     * a specific set of prefixes defined in configuration.
+     */
+    public void checkEnforcePrefix();
 }

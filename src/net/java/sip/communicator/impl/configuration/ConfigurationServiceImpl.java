@@ -39,8 +39,17 @@ public class ConfigurationServiceImpl
     private final Logger logger
         = Logger.getLogger(ConfigurationServiceImpl.class);
 
+    /**
+     * Name of the system file name property.
+     */
     private static final String SYS_PROPS_FILE_NAME_PROPERTY
         = "net.java.sip.communicator.SYS_PROPS_FILE_NAME";
+
+    /**
+     * Name of the enforce prefix property.
+     */
+    private static final String ENFORCE_PREFIX_PROPERTY
+        = "provisioning.ENFORCE_PREFIX";
 
     /**
      * A reference to the currently used configuration file.
@@ -57,7 +66,7 @@ public class ConfigurationServiceImpl
      * Indicates whether the service is started or stopped.
      */
     private boolean started = false;
-    
+
     /**
      * a reference to the FileAccessService
      */
@@ -202,7 +211,7 @@ public class ConfigurationServiceImpl
      * specific new value without asking <code>VetoableChangeListener</code>,
      * storing into the configuration file and notifying
      * <code>PrpoertyChangeListener</code>s.
-     * 
+     *
      * @param propertyName
      *            the name of the property which is to be set to a specific
      *            value
@@ -263,7 +272,7 @@ public class ConfigurationServiceImpl
     public void removeProperty(String propertyName)
         // throws PropertyVetoException
     {
-        List<String> childPropertyNames = 
+        List<String> childPropertyNames =
             getPropertyNamesByPrefix(propertyName, false);
 
         //remove all properties
@@ -271,7 +280,7 @@ public class ConfigurationServiceImpl
         {
             removeProperty(pName);
         }
-        
+
         Object oldValue = getProperty(propertyName);
         //first check whether the change is ok with everyone
         if (changeEventDispatcher.hasVetoableChangeListeners(propertyName))
@@ -285,7 +294,7 @@ public class ConfigurationServiceImpl
             logger.trace("Will remove prop: " + propertyName + ".");
 
         store.removeProperty(propertyName);
-        
+
         if (changeEventDispatcher.hasPropertyChangeListeners(propertyName))
             changeEventDispatcher.firePropertyChange(
                 propertyName, oldValue, null);
@@ -304,7 +313,7 @@ public class ConfigurationServiceImpl
     /**
      * Returns the value of the property with the specified name or null if no
      * such property exists.
-     * 
+     *
      * @param propertyName the name of the property that is being queried.
      * @return the value of the property with the specified name.
      */
@@ -350,10 +359,10 @@ public class ConfigurationServiceImpl
         for (String key : store.getPropertyNames())
         {
             int ix = key.lastIndexOf('.');
-            
+
             if(ix == -1)
                 continue;
-            
+
             String keyPrefix = key.substring(0, ix);
 
             if(exactPrefixMatch)
@@ -502,7 +511,7 @@ public class ConfigurationServiceImpl
         changeEventDispatcher.removeVetoableChangeListener(propertyName,
             listener);
     }
-    
+
     /**
      * Called on service stop.
      */
@@ -514,18 +523,18 @@ public class ConfigurationServiceImpl
     /**
      * Initializes the configuration service impl and makes it load an initial
      * configuration from the conf file.
-     * 
-     * @param bc
+     *
+     * @param bc the <tt>BundleContext</tt> provided by the OSGi framework
      */
     void start(BundleContext bc)
     {
         this.started = true;
-        
+
         // retrieve a reference to the FileAccessService
         ServiceReference faServiceReference = bc.getServiceReference(
                 FileAccessService.class.getName());
         this.faService = (FileAccessService) bc.getService(faServiceReference);
-        
+
         try
         {
             debugPrintSystemProperties();
@@ -576,7 +585,7 @@ public class ConfigurationServiceImpl
 
     /**
      * Stores local properties in the specified configuration file.
-     * 
+     *
      * @param file a reference to the configuration file where properties should
      *            be stored.
      * @throws IOException if there was a problem writing to the specified file.
@@ -910,7 +919,7 @@ public class ConfigurationServiceImpl
      * return the reference to the newly created file. In case the file is to be
      * found nowhere - a new empty file in the user home directory and returns a
      * link to that one.
-     * 
+     *
      * @param extension
      *            the extension of the file name of the configuration file. The
      *            specified extension may not be taken into account if the the
@@ -1018,7 +1027,7 @@ public class ConfigurationServiceImpl
     /**
      * Copies the contents of a specific <code>InputStream</code> as bytes into
      * a specific output <code>File</code>.
-     * 
+     *
      * @param inputStream
      *            the <code>InputStream</code> the contents of which is to be
      *            output in the specified <code>File</code>
@@ -1141,7 +1150,7 @@ public class ConfigurationServiceImpl
         }
         return intValue;
     }
-    
+
     /**
      * Gets the value of a specific property as a signed decimal long integer.
      * If the specified property name is associated with a value in this
@@ -1150,7 +1159,7 @@ public class ConfigurationServiceImpl
      * {@link Long#parseLong(String)} . If parsing the value as a signed
      * decimal long integer fails or there is no value associated with the
      * specified property name, <tt>defaultValue</tt> is returned.
-     * 
+     *
      * @param propertyName the name of the property to get the value of as a
      * signed decimal long integer
      * @param defaultValue the value to be returned if parsing the value of the
@@ -1167,7 +1176,7 @@ public class ConfigurationServiceImpl
     {
         String stringValue = getString(propertyName);
         long longValue = defaultValue;
-        
+
         if ((stringValue != null) && (stringValue.length() > 0))
         {
             try
@@ -1276,6 +1285,59 @@ public class ConfigurationServiceImpl
                 logger.error("Failed to load property file: "
                     + fileName
                     , ex);
+            }
+        }
+    }
+
+    /**
+     * Walk through all properties and make sure all properties keys match
+     * a specific set of prefixes defined in configuration.
+     */
+    public void checkEnforcePrefix()
+    {
+        String enforcePrefix = getString(ENFORCE_PREFIX_PROPERTY);
+        String prefixes[] = null;
+
+        if(enforcePrefix == null)
+        {
+            return;
+        }
+
+        /* must escape the | character */
+        prefixes = enforcePrefix.split("\\|");
+
+        for (String key : store.getPropertyNames())
+        {
+            boolean isValid = false;
+
+            for(String k : prefixes)
+            {
+                if(key.startsWith(k))
+                {
+                    isValid = true;
+                    break;
+                }
+            }
+
+            /* property name does is not in the enforce prefix list
+             * so remove it
+             */
+            if(!isValid)
+            {
+                store.removeProperty(key);
+            }
+        }
+
+        /* save configuration */
+        try
+        {
+            storeConfiguration();
+        }
+        catch(Exception e)
+        {
+            if(logger.isDebugEnabled())
+            {
+                logger.debug("Save configuration failed!", e);
             }
         }
     }

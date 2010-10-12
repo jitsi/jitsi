@@ -73,6 +73,15 @@ public class ProvisioningActivator
         = "net.java.sip.communicator.plugin.provisioning.METHOD";
 
     /**
+     * Name of the property that contains enforce prefix list (separated by
+     * pipe) for the provisioning. The retrieved configuration properties will
+     * be checked against these prefixes to avoid having incorrect content in
+     * the configuration file (such as HTML content resulting of HTTP error).
+     */
+    private static final String PROVISIONING_ALLOW_PREFIX_PROP
+        = "provisioning.ALLOW_PREFIX";
+
+    /**
      * A reference to the ConfigurationService implementation instance that
      * is currently registered with the bundle context.
      */
@@ -750,6 +759,11 @@ public class ProvisioningActivator
     {
         Properties fileProps = new OrderedProperties();
         InputStream in = null;
+        String allowPrefix = getConfigurationService().getString(
+                PROVISIONING_ALLOW_PREFIX_PROP);
+        /* must escape the | character */
+        String prefixes[] = (allowPrefix != null) ? allowPrefix.split("\\|") :
+            null;
 
         try
         {
@@ -765,6 +779,26 @@ public class ProvisioningActivator
 
                 String key = (String)entry.getKey();
                 Object value = entry.getValue();
+
+                if(prefixes != null)
+                {
+                    boolean isValid = false;
+
+                    for(String s : prefixes)
+                    {
+                        if(key.startsWith(s))
+                        {
+                            isValid = true;
+                            break;
+                        }
+                    }
+
+                    /* current propertiy prefix is not allowed */
+                    if(!isValid)
+                    {
+                        continue;
+                    }
+                }
 
                 if(value instanceof String)
                 {
