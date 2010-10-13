@@ -151,7 +151,9 @@ public class ProvisioningForm
     {
         String provMethod = ProvisioningActivator.getProvisioningMethod();
         boolean isProvEnabled
-            = (provMethod != null && !provMethod.equals("NONE"));
+            = (provMethod != null
+                && provMethod.length() > 0
+                && !provMethod.equals("NONE"));
 
         enableCheckBox.setSelected(isProvEnabled);
 

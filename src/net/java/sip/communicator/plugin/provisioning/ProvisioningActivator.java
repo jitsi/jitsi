@@ -234,7 +234,19 @@ public class ProvisioningActivator
      */
     public static String getProvisioningMethod()
     {
-        return getConfigurationService().getString(PROVISIONING_METHOD_PROP);
+        String provMethod
+            = getConfigurationService().getString(PROVISIONING_METHOD_PROP);
+System.out.println("PROVISIONING METHOD======" + provMethod);
+        if (provMethod == null || provMethod.length() <= 0)
+        {
+            provMethod = getResourceService().getSettingsString(
+                "plugin.provisioning.DEFAULT_PROVISIONING_METHOD");
+System.out.println("PROVISIONING METHOD22222======" + provMethod);
+            if (provMethod != null && provMethod.length() > 0)
+                setProvisioningMethod(provMethod);
+        }
+
+        return provMethod;
     }
 
     /**
