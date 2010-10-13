@@ -171,7 +171,17 @@ public class CallSipImpl
         callPeer.getMediaHandler().setLocalVideoTransmissionEnabled(
                 localVideoAllowed);
 
-        callPeer.invite();
+        try
+        {
+            callPeer.invite();
+        }
+        catch(OperationFailedException ex)
+        {
+            // if inviting call peer fail for some reason, change its state
+            // if not already filed
+            callPeer.setState(CallPeerState.FAILED);
+            throw ex;
+        }
 
         return callPeer;
     }

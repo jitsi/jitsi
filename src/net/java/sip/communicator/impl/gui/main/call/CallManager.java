@@ -673,7 +673,7 @@ public class CallManager
                         GuiActivator.getResources()
                             .getI18NString("service.gui.ERROR"),
                         exception.getMessage(),
-                        ErrorDialog.ERROR)
+                        exception)
                     .showDialog();
             }
         }

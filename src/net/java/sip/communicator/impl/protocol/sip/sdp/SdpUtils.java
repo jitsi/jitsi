@@ -89,6 +89,7 @@ public class SdpUtils
      */
     public static SessionDescription createSessionDescription(
                     InetAddress localAddress)
+            throws OperationFailedException
     {
         return createSessionDescription(localAddress, null, null);
     }
@@ -113,6 +114,7 @@ public class SdpUtils
                                    InetAddress              localAddress,
                                    String                   userName,
                                    Vector<MediaDescription> mediaDescriptions)
+            throws OperationFailedException
     {
         SessionDescription sessDescr = null;
 
@@ -164,7 +166,14 @@ public class SdpUtils
             //the jain-sip implementations of the above methods do not throw
             //exceptions in the cases we are using them so falling here is
             //quite unlikely. we are logging out of mere decency :)
-            logger.error("Failed to crate an SDP SessionDescription.", exc);
+            //logger.error("Failed to crate an SDP SessionDescription.", exc);
+            // fail to create session description for some reason
+            // must throw exception so we can inform user
+            // it could be we were unable to open device or some problem
+            // with hostnames
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "An error occurred while creating session description",
+                OperationFailedException.INTERNAL_ERROR, exc, logger);
         }
 
         return sessDescr;
@@ -191,6 +200,7 @@ public class SdpUtils
                           SessionDescription       descToUpdate,
                           InetAddress              newConnectionAddress,
                           Vector<MediaDescription> newMediaDescriptions)
+            throws OperationFailedException
     {
         SessionDescription update = createSessionDescription(
                         newConnectionAddress, null, newMediaDescriptions);

@@ -137,7 +137,7 @@ public class ErrorDialog
     public ErrorDialog( Frame owner,
                         String title,
                         String message,
-                        Exception e)
+                        Throwable e)
     {
         this(owner, title, message);
 
