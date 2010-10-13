@@ -130,6 +130,14 @@ public interface ConfigurationService
         // throws PropertyVetoException;
 
     /**
+     * Returns a <tt>java.util.List</tt> of <tt>String</tt>s containing all
+     * property names.
+     *
+     * @return a <tt>java.util.List</tt>containing all property names
+     */
+    public List<String> getAllPropertyNames();
+
+    /**
      * Returns a <tt>java.util.List</tt> of <tt>String</tt>s containing the
      * all property names that have the specified prefix. Depending on the value
      * of the <tt>exactPrefixMatch</tt> parameter the method will (when false)
@@ -417,10 +425,4 @@ public interface ConfigurationService
      * as well as is bundle repository.
      */
     public String getScHomeDirLocation();
-
-    /**
-     * Walk through all properties and make sure all properties keys match
-     * a specific set of prefixes defined in configuration.
-     */
-    public void checkEnforcePrefix();
 }

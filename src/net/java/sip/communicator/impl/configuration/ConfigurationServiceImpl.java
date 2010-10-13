@@ -46,12 +46,6 @@ public class ConfigurationServiceImpl
         = "net.java.sip.communicator.SYS_PROPS_FILE_NAME";
 
     /**
-     * Name of the enforce prefix property.
-     */
-    private static final String ENFORCE_PREFIX_PROPERTY
-        = "provisioning.ENFORCE_PREFIX";
-
-    /**
      * A reference to the currently used configuration file.
      */
     private File configurationFile = null;
@@ -323,6 +317,24 @@ public class ConfigurationServiceImpl
     }
 
     /**
+     * Returns a <tt>java.util.List</tt> of <tt>String</tt>s containing all
+     * property names.
+     *
+     * @return a <tt>java.util.List</tt>containing all property names
+     */
+    public List<String> getAllPropertyNames()
+    {
+        List<String> resultKeySet = new LinkedList<String>();
+
+        for (String key : store.getPropertyNames())
+        {
+            resultKeySet.add(key);
+        }
+
+        return resultKeySet;
+    }
+
+    /**
      * Returns a <tt>java.util.List</tt> of <tt>String</tt>s containing the
      * all property names that have the specified prefix. Depending on the value
      * of the <tt>exactPrefixMatch</tt> parameter the method will (when false)
@@ -352,7 +364,8 @@ public class ConfigurationServiceImpl
      * @return a <tt>java.util.List</tt>containing all property name String-s
      * matching the specified conditions.
      */
-    public List<String> getPropertyNamesByPrefix(String prefix, boolean exactPrefixMatch)
+    public List<String> getPropertyNamesByPrefix(String prefix,
+            boolean exactPrefixMatch)
     {
         List<String> resultKeySet = new LinkedList<String>();
 
@@ -1285,59 +1298,6 @@ public class ConfigurationServiceImpl
                 logger.error("Failed to load property file: "
                     + fileName
                     , ex);
-            }
-        }
-    }
-
-    /**
-     * Walk through all properties and make sure all properties keys match
-     * a specific set of prefixes defined in configuration.
-     */
-    public void checkEnforcePrefix()
-    {
-        String enforcePrefix = getString(ENFORCE_PREFIX_PROPERTY);
-        String prefixes[] = null;
-
-        if(enforcePrefix == null)
-        {
-            return;
-        }
-
-        /* must escape the | character */
-        prefixes = enforcePrefix.split("\\|");
-
-        for (String key : store.getPropertyNames())
-        {
-            boolean isValid = false;
-
-            for(String k : prefixes)
-            {
-                if(key.startsWith(k))
-                {
-                    isValid = true;
-                    break;
-                }
-            }
-
-            /* property name does is not in the enforce prefix list
-             * so remove it
-             */
-            if(!isValid)
-            {
-                store.removeProperty(key);
-            }
-        }
-
-        /* save configuration */
-        try
-        {
-            storeConfiguration();
-        }
-        catch(Exception e)
-        {
-            if(logger.isDebugEnabled())
-            {
-                logger.debug("Save configuration failed!", e);
             }
         }
     }

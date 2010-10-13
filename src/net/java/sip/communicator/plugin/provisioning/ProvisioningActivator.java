@@ -82,6 +82,12 @@ public class ProvisioningActivator
         = "provisioning.ALLOW_PREFIX";
 
     /**
+     * Name of the enforce prefix property.
+     */
+    private static final String PROVISIONING_ENFORCE_PREFIX_PROP
+        = "provisioning.ENFORCE_PREFIX";
+
+    /**
      * A reference to the ConfigurationService implementation instance that
      * is currently registered with the bundle context.
      */
@@ -124,6 +130,11 @@ public class ProvisioningActivator
      * HTTP method to request a page.
      */
     private String method = "POST";
+
+    /**
+     * List of allowed configuration prefixes.
+     */
+    private List<String> allowedPrefixes = new ArrayList<String>();
 
     /**
      * Starts this bundle
@@ -236,12 +247,12 @@ public class ProvisioningActivator
     {
         String provMethod
             = getConfigurationService().getString(PROVISIONING_METHOD_PROP);
-System.out.println("PROVISIONING METHOD======" + provMethod);
+
         if (provMethod == null || provMethod.length() <= 0)
         {
             provMethod = getResourceService().getSettingsString(
                 "plugin.provisioning.DEFAULT_PROVISIONING_METHOD");
-System.out.println("PROVISIONING METHOD22222======" + provMethod);
+
             if (provMethod != null && provMethod.length() > 0)
                 setProvisioningMethod(provMethod);
         }
@@ -771,11 +782,6 @@ System.out.println("PROVISIONING METHOD22222======" + provMethod);
     {
         Properties fileProps = new OrderedProperties();
         InputStream in = null;
-        String allowPrefix = getConfigurationService().getString(
-                PROVISIONING_ALLOW_PREFIX_PROP);
-        /* must escape the | character */
-        String prefixes[] = (allowPrefix != null) ? allowPrefix.split("\\|") :
-            null;
 
         try
         {
@@ -788,56 +794,39 @@ System.out.println("PROVISIONING METHOD22222======" + provMethod);
             while(it.hasNext())
             {
                 Map.Entry<Object, Object> entry = it.next();
-
                 String key = (String)entry.getKey();
                 Object value = entry.getValue();
 
-                if(prefixes != null)
+                if(key.equals(PROVISIONING_ALLOW_PREFIX_PROP))
                 {
-                    boolean isValid = false;
+                    String prefixes[] = ((String)value).split("\\|");
 
+                    /* updates allowed prefixes list */
                     for(String s : prefixes)
                     {
-                        if(key.startsWith(s))
-                        {
-                            isValid = true;
-                            break;
-                        }
+                        allowedPrefixes.add(s);
                     }
-
-                    /* current propertiy prefix is not allowed */
-                    if(!isValid)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
+                else if(key.equals(PROVISIONING_ENFORCE_PREFIX_PROP))
+                {
+                    checkEnforcePrefix((String)value);
+                    continue;
                 }
 
-                if(value instanceof String)
+                /* check that properties is allowed */
+                if(!isPrefixAllowed(key))
                 {
-                    if(((String)value).equals("${null}"))
-                    {
-                        getConfigurationService().removeProperty(key);
-                        continue;
-                    }
+                    continue;
                 }
 
-                /* password => credentials storage service */
-                if(key.endsWith(".PASSWORD"))
-                {
-                    getCredentialsStorageService().storePassword(
-                            key.substring(0, key.lastIndexOf(".")),
-                            (String)value);
-                }
-                else
-                {
-                    getConfigurationService().setProperty(key, value);
-                }
+                processProperty(key, value);
             }
 
-            /* save the "new" configuration */
-            getConfigurationService().storeConfiguration();
             try
             {
+                /* save and reload the "new" configuration */
+                getConfigurationService().storeConfiguration();
                 getConfigurationService().reloadConfiguration();
             }
             catch(Exception e)
@@ -858,6 +847,105 @@ System.out.println("PROVISIONING METHOD22222======" + provMethod);
             }
             catch(IOException e)
             {
+            }
+        }
+    }
+
+    /**
+     * Check if a property name belongs to the allowed prefixes.
+     *
+     * @param key property key name
+     * @return true if key is allowed, false otherwise
+     */
+    private boolean isPrefixAllowed(String key)
+    {
+        if(allowedPrefixes.size() > 0)
+        {
+            for(String s : allowedPrefixes)
+            {
+                if(key.startsWith(s))
+                {
+                    return true;
+                }
+            }
+
+            /* current property prefix is not allowed */
+            return false;
+        }
+        else
+        {
+            /* no allowed prefixes configured so key is valid by default */
+            return true;
+        }
+    }
+
+    /**
+     * Process a new property. If value equals "${null}", it means to remove the
+     * property in the configuration service. If the key name end with
+     * "PASSWORD", its value is encrypted through credentials storage service,
+     * otherwise the property is added/updated in the configuration service.
+     *
+     * @param key property key name
+     * @param value property value
+     */
+    private void processProperty(String key, Object value)
+    {
+        if((value instanceof String) && ((String)value).equals("${null}"))
+        {
+            getConfigurationService().removeProperty(key);
+        }
+        else if(key.endsWith(".PASSWORD"))
+        {
+            /* password => credentials storage service */
+            getCredentialsStorageService().storePassword(
+                    key.substring(0, key.lastIndexOf(".")),
+                    (String)value);
+        }
+        else
+        {
+            getConfigurationService().setProperty(key, value);
+        }
+    }
+
+    /**
+     * Walk through all properties and make sure all properties keys match
+     * a specific set of prefixes defined in configuration.
+     *
+     * @param enforcePrefix list of enforce prefix.
+     */
+    private void checkEnforcePrefix(String enforcePrefix)
+    {
+        ConfigurationService config = getConfigurationService();
+        String prefixes[] = null;
+
+        if(enforcePrefix == null)
+        {
+            return;
+        }
+
+        /* must escape the | character */
+        prefixes = enforcePrefix.split("\\|");
+
+        /* get all properties */
+        for (String key : config.getAllPropertyNames())
+        {
+            boolean isValid = false;
+
+            for(String k : prefixes)
+            {
+                if(key.startsWith(k))
+                {
+                    isValid = true;
+                    break;
+                }
+            }
+
+            /* property name does is not in the enforce prefix list
+             * so remove it
+             */
+            if(!isValid)
+            {
+                config.removeProperty(key);
             }
         }
     }
