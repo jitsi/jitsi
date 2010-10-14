@@ -302,14 +302,16 @@ public class ServerStoredContactListJabberImpl
     {
         Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
 
+        // make sure we ignore any whitespaces
+        name = name.trim();
+
         while(contactGroups.hasNext())
         {
             ContactGroupJabberImpl contactGroup
                 = (ContactGroupJabberImpl) contactGroups.next();
 
-            if (contactGroup.getGroupName().equals(name))
+            if (contactGroup.getGroupName().trim().equals(name))
                 return contactGroup;
-
         }
 
         return null;
@@ -325,12 +327,15 @@ public class ServerStoredContactListJabberImpl
     {
         Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
 
+        // make sure we ignore any whitespaces
+        name = name.trim();
+
         while(contactGroups.hasNext())
         {
             ContactGroupJabberImpl contactGroup
                 = (ContactGroupJabberImpl) contactGroups.next();
 
-            if (contactGroup.getNameCopy().equals(name))
+            if (contactGroup.getNameCopy().trim().equals(name))
                 return contactGroup;
 
         }
@@ -762,7 +767,7 @@ public class ServerStoredContactListJabberImpl
                 // addressbook to the roster and those contacts are
                 // with subscription none. If such already exist,
                 // remove them. This is typically our own contact
-                if(item.getType() == RosterPacket.ItemType.none)
+                if(!isEntryDisplayable(item))
                 {
                     if(contact != null)
                     {
@@ -922,6 +927,40 @@ public class ServerStoredContactListJabberImpl
     }
 
     /**
+     * Some roster entries are not supposed to be seen.
+     * Like some services automatically add contacts from their
+     * addressbook to the roster and those contacts are with subscription none.
+     * Best practices in XEP-0162.
+     * - subscription='both' or subscription='to'
+     * - ((subscription='none' or subscription='from') and ask='subscribe')
+     * - ((subscription='none' or subscription='from')
+     *          and (name attribute or group child))
+     *
+     * @param entry the entry to check.
+     *
+     * @return is item to be hidden/ignored.
+     */
+    static boolean isEntryDisplayable(RosterEntry entry)
+    {
+        if(entry.getType() == RosterPacket.ItemType.both
+           || entry.getType() == RosterPacket.ItemType.to)
+        {
+            return true;
+        }
+        else if((entry.getType() == RosterPacket.ItemType.none
+                    || entry.getType() == RosterPacket.ItemType.from)
+                && (RosterPacket.ItemStatus.SUBSCRIPTION_PENDING.equals(
+                    entry.getStatus())
+                    || (entry.getGroups() != null
+                        && entry.getGroups().size() > 0)))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Receives changes in roster.
      */
     private class ChangeListener
@@ -973,27 +1012,43 @@ public class ServerStoredContactListJabberImpl
                                           true,
                                           true);
 
-                boolean isUnfiledEntry = true;
+                if(entry.getGroups() == null || entry.getGroups().size() == 0)
+                {
+                    // no parent group so its in the root group
+                    rootGroup.addContact(contact);
+                    fireContactAdded(rootGroup, contact);
+
+                    return;
+                }
+
                 for (RosterGroup group : entry.getGroups())
                 {
                     ContactGroupJabberImpl parentGroup =
                         findContactGroup(group.getName());
+
                     if(parentGroup != null)
+                    {
                         parentGroup.addContact(contact);
+                        fireContactAdded(findContactGroup(contact), contact);
+                    }
+                    else
+                    {
+                        // create the group as it doesn't exist
+                        ContactGroupJabberImpl newGroup =
+                            new ContactGroupJabberImpl(
+                            group, group.getEntries().iterator(),
+                            ServerStoredContactListJabberImpl.this,
+                            true);
 
-                    isUnfiledEntry = false;
-                }
+                        rootGroup.addSubGroup(newGroup);
 
-                ContactGroup parentGroup = findContactGroup(contact);
+                        //tell listeners about the added group
+                        fireGroupEvent(newGroup,
+                                ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+                    }
 
-                // fire the event if and only we have parent group
-                if(parentGroup != null && !isUnfiledEntry)
-                    fireContactAdded(findContactGroup(contact), contact);
-
-                if(parentGroup == null && isUnfiledEntry)
-                {
-                    rootGroup.addContact(contact);
-                    fireContactAdded(rootGroup, contact);
+                    // as for now we only support contact only in one group
+                    return;
                 }
             }
         }

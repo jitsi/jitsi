@@ -112,7 +112,7 @@ public class ContactGroupJabberImpl
         {
             RosterEntry rEntry = groupMembers.next();
 
-            if(rEntry.getType() == RosterPacket.ItemType.none)
+            if(!ServerStoredContactListJabberImpl.isEntryDisplayable(rEntry))
                 continue;
 
             //only add the buddy if it doesn't already exist in some other group
@@ -445,7 +445,7 @@ public class ContactGroupJabberImpl
             // to our roster and this contacts are with subscription none.
             // if such already exist, remove it. This is typically our
             // own contact
-            if(item.getType() == RosterPacket.ItemType.none)
+            if(!ServerStoredContactListJabberImpl.isEntryDisplayable(item))
             {
                 if(contact != null)
                 {
