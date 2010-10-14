@@ -22,6 +22,7 @@ import net.java.sip.communicator.util.*;
  * Implements a Jabber <tt>CallPeer</tt>.
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public class CallPeerJabberImpl
     extends MediaAwareCallPeer<CallJabberImpl,
@@ -180,8 +181,8 @@ public class CallPeerJabberImpl
         if (logger.isTraceEnabled())
             logger.trace("will send ringing response: ");
 
-        JingleIQ ringing = JinglePacketFactory.createRinging(sessionInitIQ);
-        getProtocolProvider().getConnection().sendPacket(ringing);
+        getProtocolProvider().getConnection().sendPacket(
+                JinglePacketFactory.createRinging(sessionInitIQ));
     }
 
     /**
@@ -229,7 +230,7 @@ public class CallPeerJabberImpl
     public synchronized void answer()
         throws OperationFailedException
     {
-        List<ContentPacketExtension> answer;
+        Iterable<ContentPacketExtension> answer;
 
         try
         {
@@ -239,20 +240,27 @@ public class CallPeerJabberImpl
         {
             logger.info("Failed to answer an incoming call", exc);
 
-            //send an error response;
-            JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
-                sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
-                sessionInitIQ.getSID(), Reason.FAILED_APPLICATION,
-                "Error: " + exc.getMessage());
+            //send an error response
+            String reasonText = "Error: " + exc.getMessage();
+            JingleIQ errResp
+                = JinglePacketFactory.createSessionTerminate(
+                        sessionInitIQ.getTo(),
+                        sessionInitIQ.getFrom(),
+                        sessionInitIQ.getSID(),
+                        Reason.FAILED_APPLICATION,
+                        reasonText);
 
-            setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
+            setState(CallPeerState.FAILED, reasonText);
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
         }
 
-        JingleIQ response = JinglePacketFactory.createSessionAccept(
-                sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
-                getJingleSID(), answer);
+        JingleIQ response
+            = JinglePacketFactory.createSessionAccept(
+                    sessionInitIQ.getTo(),
+                    sessionInitIQ.getFrom(),
+                    getJingleSID(),
+                    answer);
 
         //send the packet first and start the stream later  in case the media
         //relay needs to see it before letting hole punching techniques through.
@@ -637,8 +645,7 @@ public class CallPeerJabberImpl
     {
         List<ContentPacketExtension> contents = content.getContentList();
         JingleIQ contentIQ = null;
-        List<ContentPacketExtension> answerContents =
-            new ArrayList<ContentPacketExtension>();
+        Iterable<ContentPacketExtension> answerContents;
 
         try
         {
@@ -649,17 +656,24 @@ public class CallPeerJabberImpl
         {
             logger.warn("Exception occurred", e);
 
-            contentIQ = JinglePacketFactory.createContentReject(
-                    getProtocolProvider().getOurJID(),
-                    this.peerJID, getJingleSID(), answerContents);
+            answerContents = null;
+            contentIQ
+                = JinglePacketFactory.createContentReject(
+                        getProtocolProvider().getOurJID(),
+                        this.peerJID,
+                        getJingleSID(),
+                        answerContents);
         }
 
         if(contentIQ == null)
         {
             /* send content-accept */
-            contentIQ = JinglePacketFactory.
-                createContentAccept(getProtocolProvider().getOurJID(),
-                            this.peerJID, getJingleSID(), answerContents);
+            contentIQ
+                = JinglePacketFactory.createContentAccept(
+                        getProtocolProvider().getOurJID(),
+                        this.peerJID,
+                        getJingleSID(),
+                        answerContents);
         }
 
         getProtocolProvider().getConnection().sendPacket(contentIQ);
@@ -749,7 +763,7 @@ public class CallPeerJabberImpl
      */
     public void processContentReject(JingleIQ content)
     {
-        if(content.getContentList().size() == 0)
+        if(content.getContentList().isEmpty())
         {
             //send an error response;
             JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
@@ -760,6 +774,27 @@ public class CallPeerJabberImpl
             setState(CallPeerState.FAILED, "Error: content rejected");
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
+        }
+    }
+
+    /**
+     * Processes the <tt>transport-info</tt> {@link JingleIQ}.
+     *
+     * @param jingleIQ the <tt>transport-info</tt> {@link JingleIQ} to process
+     */
+    public void processTransportInfo(JingleIQ jingleIQ)
+    {
+        /*
+         * The transport-info action is used to exchange transport candidates so
+         * it only concerns the mediaHandler.
+         */
+        try
+        {
+            getMediaHandler().processTransportInfo(jingleIQ.getContentList());
+        }
+        catch (OperationFailedException ofe)
+        {
+            logger.error("Failed to process an incoming transport-info", ofe);
         }
     }
 }

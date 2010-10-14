@@ -1609,5 +1609,5 @@ public abstract class CallPeerMediaHandler<
      * @return the <tt>TransportManager</tt> implementation handling our address
      * management
      */
-    public abstract TransportManager<T> getTransportManager();
+    protected abstract TransportManager<T> getTransportManager();
 }

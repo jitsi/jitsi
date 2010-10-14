@@ -715,7 +715,7 @@ public class CallPeerMediaHandlerSipImpl
      *
      * @return the transport manager that is handling our address management.
      */
-    public TransportManagerSipImpl getTransportManager()
+    protected TransportManagerSipImpl getTransportManager()
     {
         return transportManager;
     }

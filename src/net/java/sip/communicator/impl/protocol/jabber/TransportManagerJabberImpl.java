@@ -162,13 +162,13 @@ public abstract class TransportManagerJabberImpl
 
     /**
      * Notifies the transport manager that it should conclude candidate
-     * harvesting as soon as possible an return the lists of candidates
+     * harvesting as soon as possible and return the lists of candidates
      * gathered so far.
      *
      * @return the content list that we received earlier (possibly cloned into
      * a new instance) and that we have updated with transport lists.
      */
-    public abstract List<ContentPacketExtension> wrapupHarvest();
+    public abstract List<ContentPacketExtension> wrapupCandidateHarvest();
 
     /**
      * Looks through the <tt>cpExtList</tt> and returns the {@link
@@ -203,5 +203,16 @@ public abstract class TransportManagerJabberImpl
      * and the remote peer
      */
     public abstract void startConnectivityEstablishment(
-            Collection<ContentPacketExtension> remote);
+            Iterable<ContentPacketExtension> remote);
+
+    /**
+     * Notifies this <tt>TransportManagerJabberImpl</tt> that it should conclude
+     * any started connectivity establishment and return (at least) the
+     * transport-related media descriptions of the local peer.
+     *
+     * @return the transport-related media descriptions of the local peer after
+     * the end of the connectivity establishment
+     */
+    public abstract Iterable<ContentPacketExtension>
+        wrapupConnectivityEstablishment();
 }

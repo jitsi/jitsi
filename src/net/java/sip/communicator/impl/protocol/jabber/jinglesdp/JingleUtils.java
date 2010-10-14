@@ -119,7 +119,7 @@ public class JingleUtils
         List<ParameterPacketExtension> params = payloadType.getParameters();
 
         //convert params to a name:value map
-        Map<String, String> paramsMap = new Hashtable<String, String>();
+        Map<String, String> paramsMap = new HashMap<String, String>();
 
         for(ParameterPacketExtension param : params)
             paramsMap.put(param.getName(), param.getValue());
@@ -575,6 +575,12 @@ public class JingleUtils
             packet.setRelAddr(relAddr.getHostAddress());
             packet.setRelPort(relAddr.getPort());
         }
+
+        /*
+         * FIXME The XML schema of XEP-0176: Jingle ICE-UDP Transport Method
+         * specifies the network attribute as required.
+         */
+        packet.setNetwork(0);
 
         return packet;
     }

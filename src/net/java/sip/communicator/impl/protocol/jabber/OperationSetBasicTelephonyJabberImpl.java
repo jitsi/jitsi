@@ -443,7 +443,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
         try
         {
-            processJinglePacket(jingleIQ);
+            processJingleIQ(jingleIQ);
         }
         catch(Throwable t)
         {
@@ -465,7 +465,7 @@ public class OperationSetBasicTelephonyJabberImpl
      *
      * @param jingleIQ the {@link JingleIQ} packet we need to be analyzing.
      */
-    private void processJinglePacket(JingleIQ jingleIQ)
+    private void processJingleIQ(JingleIQ jingleIQ)
     {
         //let's first see whether we have a peer that's concerned by this IQ
         CallPeerJabberImpl callPeer
@@ -547,6 +547,10 @@ public class OperationSetBasicTelephonyJabberImpl
         else if (action == JingleAction.CONTENT_REMOVE)
         {
             callPeer.processContentRemove(jingleIQ);
+        }
+        else if (action == JingleAction.TRANSPORT_INFO)
+        {
+            callPeer.processTransportInfo(jingleIQ);
         }
     }
 

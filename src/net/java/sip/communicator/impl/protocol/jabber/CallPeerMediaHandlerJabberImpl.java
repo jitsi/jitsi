@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.lang.reflect.*;
 import java.util.*;
 
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.packet.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
@@ -230,7 +230,7 @@ public class CallPeerMediaHandlerJabberImpl
                IllegalArgumentException
     {
         // prepare to generate answers to all the incoming descriptions
-        List<ContentPacketExtension> answerContentList
+        List<ContentPacketExtension> answer
             = new ArrayList<ContentPacketExtension>(offer.size());
         boolean atLeastOneValidDescription = false;
 
@@ -315,11 +315,17 @@ public class CallPeerMediaHandlerJabberImpl
             }
 
             // create the answer description
-            ContentPacketExtension ourContent = JingleUtils.createDescription(
-                content.getCreator(), content.getName(),
-                JingleUtils.getSenders(direction, !getPeer().isInitiator()) ,
-                mutuallySupportedFormats, rtpExtensions,
-                getDynamicPayloadTypes(), getRtpExtensionsRegistry());
+            ContentPacketExtension ourContent
+                = JingleUtils.createDescription(
+                        content.getCreator(),
+                        content.getName(),
+                        JingleUtils.getSenders(
+                                direction,
+                                !getPeer().isInitiator()),
+                        mutuallySupportedFormats,
+                        rtpExtensions,
+                        getDynamicPayloadTypes(),
+                        getRtpExtensionsRegistry());
 
             // ZRTP
             if(getPeer().getCall().isSipZrtpAttribute())
@@ -347,13 +353,13 @@ public class CallPeerMediaHandlerJabberImpl
 
             // got an content which have inputevt, it means that peer requests
             // a desktop sharing session so tell it we support inputevt
-            if(content.getChildExtensionsOfType(
-                    InputEvtPacketExtension.class) != null)
+            if(content.getChildExtensionsOfType(InputEvtPacketExtension.class)
+                    != null)
             {
                 ourContent.addChildExtension(new InputEvtPacketExtension());
             }
 
-            answerContentList.add(ourContent);
+            answer.add(ourContent);
             localContentMap.put(content.getName(), ourContent);
 
             atLeastOneValidDescription = true;
@@ -369,9 +375,15 @@ public class CallPeerMediaHandlerJabberImpl
                     logger);
         }
 
-        //now, before we go, tell the transport manager to start our candidate
-        //harvest
-        getTransportManager().startCandidateHarvest(offer, answerContentList);
+        /*
+         * In order to minimize post-pickup delay, establish the connectivity
+         * prior to ringing.
+         */
+        List<ContentPacketExtension> candidates
+            = harvestCandidates(offer, answer);
+
+        sendTransportInfo(candidates);
+        establishConnectivity(offer);
     }
 
     /**
@@ -384,12 +396,12 @@ public class CallPeerMediaHandlerJabberImpl
      *
      * @throws OperationFailedException if we fail to configure the media stream
      */
-    protected List<ContentPacketExtension> generateSessionAccept()
+    public Iterable<ContentPacketExtension> generateSessionAccept()
         throws OperationFailedException
     {
         TransportManagerJabberImpl transportManager = getTransportManager();
-        List<ContentPacketExtension> sessAccept
-            = transportManager.wrapupHarvest();
+        Iterable<ContentPacketExtension> sessAccept
+            = transportManager.wrapupConnectivityEstablishment();
         CallPeerJabberImpl peer = getPeer();
 
         //user answered an incoming call so we go through whatever content
@@ -427,9 +439,10 @@ public class CallPeerMediaHandlerJabberImpl
 
             for(PayloadTypePacketExtension payload : payloadTypes)
             {
-                format = JingleUtils.payloadTypeToMediaFormat(
-                    payload,
-                    getDynamicPayloadTypes());
+                format
+                    = JingleUtils.payloadTypeToMediaFormat(
+                            payload,
+                            getDynamicPayloadTypes());
 
                 if(format != null)
                     break;
@@ -458,7 +471,8 @@ public class CallPeerMediaHandlerJabberImpl
             // if remote peer requires inputevt, notify UI to capture mouse
             // and keyboard events
             if(ourContent.getChildExtensionsOfType(
-                            InputEvtPacketExtension.class) != null)
+                            InputEvtPacketExtension.class)
+                    != null)
             {
                 OperationSetDesktopSharingClientJabberImpl client
                     = (OperationSetDesktopSharingClientJabberImpl)
@@ -569,15 +583,7 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         //now add the transport elements
-        TransportManagerJabberImpl transportManager = getTransportManager();
-
-        transportManager.startCandidateHarvest(mediaDescs);
-
-        /*
-         * XXX Ideally, we wouldn't wrap up that quickly. We need to revisit
-         * this.
-         */
-        return transportManager.wrapupHarvest();
+        return harvestCandidates(null, mediaDescs);
     }
 
     /**
@@ -672,15 +678,7 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         //now add the transport elements
-        TransportManagerJabberImpl transportManager = getTransportManager();
-
-        transportManager.startCandidateHarvest(mediaDescs);
-
-        /*
-         * XXX Ideally, we wouldn't wrap up that quickly. We need to revisit
-         * this.
-         */
-        return transportManager.wrapupHarvest();
+        return harvestCandidates(null, mediaDescs);
     }
 
     /**
@@ -939,10 +937,10 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         /*
-         * Since we've received (the) remote candidates from the peer, we can
-         * start checking them for connectivity.
+         * The answer given in session-accept may contain transport-related
+         * information compatible with that carried in transport-info.
          */
-        startConnectivityEstablishment(answer);
+        processTransportInfo(answer);
     }
 
     /**
@@ -953,7 +951,7 @@ public class CallPeerMediaHandlerJabberImpl
      * management
      * @see CallPeerMediaHandler#getTransportManager()
      */
-    public TransportManagerJabberImpl getTransportManager()
+    protected TransportManagerJabberImpl getTransportManager()
     {
         if (transportManager == null)
         {
@@ -1142,57 +1140,57 @@ public class CallPeerMediaHandlerJabberImpl
     }
 
     /**
-     * Overrides {@link CallPeerMediaHandler#start()}. Prior to starting this
-     * <tt>CallPeerMediaHandler</tt>, makes sure connectivity establishment
-     * through the associated <tt>TransportManager</tt> has been started in
-     * order to determine the <tt>StreamConnector</tt>s and the
-     * <tt>MediaStreamTarget</tt>s of the <tt>MediaStream</tt>s managed by this
-     * instance.
+     * Gathers local candidate addresses.
      *
-     * @throws IllegalStateException if this <tt>CallPeerMediaHandler</tt> has
-     * not first seen a media description or has not generated an offer
-     * @see CallPeerMediaHandler#start()
+     * @param remote the media descriptions received from the remote peer if any
+     * or <tt>null</tt> if <tt>local</tt> represents an offer from the local
+     * peer to be sent to the remote peer
+     * @param local the media descriptions sent or to be sent from the local
+     * peer to the remote peer. If <tt>remote</tt> is <tt>null</tt>,
+     * <tt>local</tt> represents an offer from the local peer to be sent to the
+     * remote peer
+     * @return the media descriptions of the local peer after the local
+     * candidate addresses have been gathered as returned by
+     * {@link TransportManagerJabberImpl#wrapupCandidateHarvest()}
+     * @throws OperationFailedException if anything goes wrong while starting or
+     * wrapping up the gathering of local candidate addresses
      */
-    @Override
-    public void start()
-        throws IllegalStateException
+    private List<ContentPacketExtension> harvestCandidates(
+            List<ContentPacketExtension> remote,
+            List<ContentPacketExtension> local)
+        throws OperationFailedException
     {
-        if (getPeer().isInitiator())
-        {
-            try
-            {
-                startConnectivityEstablishment(remoteContentMap.values());
-            }
-            catch (OperationFailedException ofe)
-            {
-                throw new UndeclaredThrowableException(ofe);
-            }
-        }
+        TransportManagerJabberImpl transportManager = getTransportManager();
 
-        super.start();
+        if (remote == null)
+            transportManager.startCandidateHarvest(local);
+        else
+            transportManager.startCandidateHarvest(remote, local);
+
+        /*
+         * XXX Ideally, we wouldn't wrap up that quickly. We need to revisit
+         * this.
+         */
+        return transportManager.wrapupCandidateHarvest();
     }
 
     /**
-     * Starts the connectivity establishment of the associated
-     * <tt>TransportManagerJabberImpl</tt> i.e. checks the connectivity between
-     * the local and the remote peers given the remote counterpart of the
-     * negotiation between them and sets the respective <tt>connector</tt>s and
-     * <tt>target</tt>s of the associated <tt>MediaStream</tt>s.
+     * Establishes connectivity between the candidate addresses of the local and
+     * the remote peers.
      *
-     * @param remote the collection of <tt>ContentPacketExtension</tt>s which
-     * represents the remote counterpart of the negotiation between the local
-     * and the remote peers
-     * @throws OperationFailedException if anything goes wrong while starting
-     * the connectivity establishment or setting the <tt>connector</tt>s or
-     * <tt>target</tt>s of the associated <tt>MediaStream</tt>s
+     * @param remote the media descriptions received from the remote peer which
+     * contain the remote candidate addresses to establish connectivity with
+     * @throws OperationFailedException if anything goes wrong while starting or
+     * wrapping up the establishment of connectivity between the candidate
+     * addresses of the local and the remote peers
      */
-    private void startConnectivityEstablishment(
-            Collection<ContentPacketExtension> remote)
+    private void establishConnectivity(Iterable<ContentPacketExtension> remote)
         throws OperationFailedException
     {
         TransportManagerJabberImpl transportManager = getTransportManager();
 
         transportManager.startConnectivityEstablishment(remote);
+        transportManager.wrapupConnectivityEstablishment();
         for (MediaType mediaType : MediaType.values())
         {
             MediaStream stream = getStream(mediaType);
@@ -1204,5 +1202,77 @@ public class CallPeerMediaHandlerJabberImpl
                 stream.setTarget(transportManager.getStreamTarget(mediaType));
             }
         }
+    }
+
+    /**
+     * Sends local candidate addresses from the local peer to the remote peer
+     * using the <tt>transport-info</tt> {@link JingleIQ}. Since only ICE UDP
+     * among the supported Jingle transports is documented to utilize
+     * <tt>transport-info</tt>, the <tt>sendTransportInfo</tt> method does not
+     * send <tt>ContentPacketExtension</tt>s with transport other than ICE UDP
+     * and silently ignores them (i.e. no <tt>transport-info</tt>
+     * <tt>JingleIQ</tt> is sent in the case of all <tt>candidates</tt> not
+     * being from the ICE UDP transport).
+     *
+     * @param candidates the local candidate addresses to be sent from the local
+     * peer to the remote peer using the <tt>transport-info</tt>
+     * {@link JingleIQ}
+     */
+    private void sendTransportInfo(Iterable<ContentPacketExtension> candidates)
+    {
+        JingleIQ transportInfo = new JingleIQ();
+        boolean sendTransportInfo = false;
+
+        for (ContentPacketExtension content : candidates)
+        {
+            IceUdpTransportPacketExtension transport
+                = content.getFirstChildOfType(
+                        IceUdpTransportPacketExtension.class);
+
+            if ((transport != null)
+                    && IceUdpTransportPacketExtension.NAMESPACE.equals(
+                            transport.getNamespace()))
+            {
+                List<CandidatePacketExtension> candidateList
+                    = transport.getCandidateList();
+
+                if ((candidateList != null) && !candidateList.isEmpty())
+                {
+                    transportInfo.addContent(content);
+                    sendTransportInfo = true;
+                }
+            }
+        }
+        if (sendTransportInfo)
+        {
+            CallPeerJabberImpl peer = getPeer();
+            ProtocolProviderServiceJabberImpl protocolProvider
+                = peer.getProtocolProvider();
+
+            transportInfo.setAction(JingleAction.TRANSPORT_INFO);
+            transportInfo.setFrom(protocolProvider.getOurJID());
+            transportInfo.setSID(peer.getJingleSID());
+            transportInfo.setTo(peer.getAddress());
+            transportInfo.setType(IQ.Type.SET);
+
+            protocolProvider.getConnection().sendPacket(transportInfo);
+        }
+    }
+
+    /**
+     * Processes the transport-related information provided by the remote
+     * <tt>peer</tt> in a specific set of <tt>ContentPacketExtension</tt>s.
+     *
+     * @param contents the <tt>ContentPacketExtenion</tt>s provided by the
+     * remote <tt>peer</tt> and containing the transport-related information to
+     * be processed
+     * @throws OperationFailedException if anything goes wrong while processing
+     * the transport-related information provided by the remote <tt>peer</tt> in
+     * the specified set of <tt>ContentPacketExtension</tt>s
+     */
+    public void processTransportInfo(Iterable<ContentPacketExtension> contents)
+        throws OperationFailedException
+    {
+        establishConnectivity(contents);
     }
 }

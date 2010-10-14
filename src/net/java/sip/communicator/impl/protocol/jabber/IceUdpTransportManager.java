@@ -384,7 +384,6 @@ public class IceUdpTransportManager
             RtpDescriptionPacketExtension rtpDesc
                 = ourContent.getFirstChildOfType(
                         RtpDescriptionPacketExtension.class);
-
             IceMediaStream stream = createIceStream(rtpDesc.getMedia());
 
             //we now generate the XMPP code containing the candidates.
@@ -476,13 +475,12 @@ public class IceUdpTransportManager
 
     /**
      * Simply returns the list of local candidates that we gathered during the
-     * harvest. This is a raw udp transport manager so there's no real wrapping
-     * up to do.
-     *
-     * @return the list of local candidates that we gathered during the
      * harvest.
+     *
+     * @return the list of local candidates that we gathered during the harvest
+     * @see TransportManagerJabberImpl#wrapupCandidateHarvest()
      */
-    public List<ContentPacketExtension> wrapupHarvest()
+    public List<ContentPacketExtension> wrapupCandidateHarvest()
     {
         return cpeList;
     }
@@ -504,17 +502,26 @@ public class IceUdpTransportManager
      * Implements
      * {@link TransportManagerJabberImpl#startConnectivityEstablishment(Collection)}.
      * Starts the connectivity establishment of the associated ICE
-     * <tt>Agent</tt> and waits for it to complete.
+     * <tt>Agent</tt>.
      *
      * @param remote the collection of <tt>ContentPacketExtension</tt>s which
      * represents the remote counterpart of the negotiation between the local
      * and the remote peers
-     * @see TransportManagerJabberImpl#startConnectivityEstablishment(Collection)
+     * @see TransportManagerJabberImpl#startConnectivityEstablishment(Iterable)
      */
     public void startConnectivityEstablishment(
-            Collection<ContentPacketExtension> remote)
+            Iterable<ContentPacketExtension> remote)
     {
+        /*
+         * At the time of this writing, the implementation of the ICE Agent does
+         * not support adding candidates after the connectivity establishment
+         * has been started.
+         */
+        if (!IceProcessingState.WAITING.equals(iceAgent.getState()))
+            return;
+
         int generation = iceAgent.getGeneration();
+        boolean startConnectivityEstablishment = false;
 
         for (ContentPacketExtension content : remote)
         {
@@ -565,10 +572,28 @@ public class IceUdpTransportManager
                                         candidate.getType().toString()),
                                 Integer.toString(candidate.getFoundation()),
                                 candidate.getPriority()));
+                startConnectivityEstablishment = true;
             }
         }
+        if (startConnectivityEstablishment)
+            iceAgent.startConnectivityEstablishment();
+    }
 
-        final Object[] iceProcessingState = new Object[1];
+    /**
+     * Implements
+     * {@link TransportManagerJabberImpl#wrapupConnectivityEstablishment()}.
+     * Waits for the associated ICE <tt>Agent</tt> to finish any started
+     * connectivity checks and returns the collection of
+     * <tt>ContentPacketExtension</tt>s which represents the local counterpart
+     * of the negotiation between the local and the remote peers.
+     *
+     * @return the collection of <tt>ContentPacketExtension</tt>s which
+     * represents the local counterpart of the negotiation between the local and
+     * the remote peer after the end of any started connectivity establishment
+     */
+    public Iterable<ContentPacketExtension> wrapupConnectivityEstablishment()
+    {
+        final Object iceProcessingStateSyncRoot = new Object();
         PropertyChangeListener stateChangeListener
             = new PropertyChangeListener()
             {
@@ -589,10 +614,9 @@ public class IceUdpTransportManager
 
                         if (iceAgent == IceUdpTransportManager.this.iceAgent)
                         {
-                            synchronized (iceProcessingState)
+                            synchronized (iceProcessingStateSyncRoot)
                             {
-                                iceProcessingState[0] = newValue;
-                                iceProcessingState.notify();
+                                iceProcessingStateSyncRoot.notify();
                             }
                         }
                     }
@@ -600,18 +624,17 @@ public class IceUdpTransportManager
             };
 
         iceAgent.addStateChangeListener(stateChangeListener);
-        iceAgent.startConnectivityEstablishment();
 
-        // Wait for the connectivity checks to finish.
+        // Wait for the connectivity checks to finish if they have been started.
         boolean interrupted = false;
 
-        synchronized (iceProcessingState)
+        synchronized (iceProcessingStateSyncRoot)
         {
-            while (iceProcessingState[0] == null)
+            while (IceProcessingState.RUNNING.equals(iceAgent.getState()))
             {
                 try
                 {
-                    iceProcessingState.wait();
+                    iceProcessingStateSyncRoot.wait();
                 }
                 catch (InterruptedException ie)
                 {
@@ -621,5 +644,13 @@ public class IceUdpTransportManager
         }
         if (interrupted)
             Thread.currentThread().interrupt();
+
+        /*
+         * Make sure stateChangeListener is removed from iceAgent in case its
+         * #propertyChange(PropertyChangeEvent) has never been executed.
+         */
+        iceAgent.removeStateChangeListener(stateChangeListener);
+
+        return cpeList;
     }
 }

@@ -34,7 +34,7 @@ public class RawUdpTransportManager
      * remote counterpart of the negotiation between the local and the remote
      * peers.
      */
-    private Collection<ContentPacketExtension> remote;
+    private Iterable<ContentPacketExtension> remote;
 
     /**
      * Creates a new instance of this transport manager, binding it to the
@@ -230,17 +230,17 @@ public class RawUdpTransportManager
      * harvest. This is a raw UDP transport manager so there's no real wrapping
      * up to do.
      *
-     * @return the list of local candidates that we gathered during the
-     * harvest.
+     * @return the list of local candidates that we gathered during the harvest
+     * @see TransportManagerJabberImpl#wrapupCandidateHarvest()
      */
-    public List<ContentPacketExtension> wrapupHarvest()
+    public List<ContentPacketExtension> wrapupCandidateHarvest()
     {
         return local;
     }
 
     /**
      * Implements
-     * {@link TransportManagerJabberImpl#startConnectivityEstablishment(Collection)}.
+     * {@link TransportManagerJabberImpl#startConnectivityEstablishment(Iterable)}.
      * Since this represents a raw UDP transport, performs no connectivity
      * checks and just remembers the remote counterpart of the negotiation
      * between the local and the remote peers in order to be able to report the
@@ -249,11 +249,27 @@ public class RawUdpTransportManager
      * @param remote the collection of <tt>ContentPacketExtension</tt>s which
      * represent the remote counterpart of the negotiation between the local and
      * the remote peers
-     * @see TransportManagerJabberImpl#startConnectivityEstablishment(Collection)
+     * @see TransportManagerJabberImpl#startConnectivityEstablishment(Iterable)
      */
     public void startConnectivityEstablishment(
-            Collection<ContentPacketExtension> remote)
+            Iterable<ContentPacketExtension> remote)
     {
         this.remote = remote;
+    }
+
+    /**
+     * Implements
+     * {@link TransportManagerJabberImpl#wrapupConnectivityEstablishment()}.
+     * Since this represents a raw UDP transport i.e. no connectivity checks are
+     * performed, just returns the local counterpart of the negotiation between
+     * the local and the remote peers.
+     *
+     * @return the local counterpart of the negotiation between the local and
+     * the remote peers
+     * @see TransportManagerJabberImpl#wrapupConnectivityEstablishment()
+     */
+    public Iterable<ContentPacketExtension> wrapupConnectivityEstablishment()
+    {
+        return local;
     }
 }
