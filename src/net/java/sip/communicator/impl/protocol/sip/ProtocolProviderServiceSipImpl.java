@@ -633,22 +633,24 @@ public class ProtocolProviderServiceSipImpl
                 new OperationSetVideoTelephonySipImpl(
                         opSetBasicTelephonySipImpl));
 
+// TODO: Uncomment the next lines when the desktop sharing feature is ready to
+// use.
             // OperationSetDesktopStreaming
-            addSupportedOperationSet(
-                OperationSetDesktopStreaming.class,
-                new OperationSetDesktopStreamingSipImpl(
-                        opSetBasicTelephonySipImpl));
+//            addSupportedOperationSet(
+//                OperationSetDesktopStreaming.class,
+//                new OperationSetDesktopStreamingSipImpl(
+//                        opSetBasicTelephonySipImpl));
 
             // OperationSetDesktopSharingServer
-            addSupportedOperationSet(
-               OperationSetDesktopSharingServer.class,
-               new OperationSetDesktopSharingServerSipImpl(
-                       opSetBasicTelephonySipImpl));
+//            addSupportedOperationSet(
+//               OperationSetDesktopSharingServer.class,
+//               new OperationSetDesktopSharingServerSipImpl(
+//                       opSetBasicTelephonySipImpl));
 
             // OperationSetDesktopSharingClient
-            addSupportedOperationSet(
-                OperationSetDesktopSharingClient.class,
-                new OperationSetDesktopSharingClientSipImpl(this));
+//            addSupportedOperationSet(
+//                OperationSetDesktopSharingClient.class,
+//                new OperationSetDesktopSharingClientSipImpl(this));
 
             // init DTMF (from JM Heitz)
             addSupportedOperationSet(

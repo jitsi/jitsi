@@ -25,8 +25,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public abstract class AbstractCallToggleButton
     extends SIPCommToggleButton
-    implements  ActionListener,
-                Skinnable
+    implements Skinnable
 {
     /**
      * The <tt>Call</tt> that this button controls.
@@ -97,11 +96,68 @@ public abstract class AbstractCallToggleButton
                 GuiActivator.getResources().getI18NString(toolTipTextKey));
         }
 
-        addActionListener(this);
         setSelected(selected);
+
+        setModel(new CallToggleButtonModel(call));
 
         // All items are now instantiated and could safely load the skin.
         loadSkin();
+    }
+
+    /**
+     * The button model of this call toggle button.
+     */
+    private class CallToggleButtonModel
+        extends ToggleButtonModel
+        implements ActionListener,
+                   Runnable
+    {
+        private final Call call;
+
+        private Thread runner;
+
+        public CallToggleButtonModel(Call call)
+        {
+            this.call = call;
+
+            addActionListener(this);
+        }
+
+        public synchronized void actionPerformed(ActionEvent event)
+        {
+            if (runner == null)
+            {
+                runner = new Thread(this, LocalVideoButton.class.getName());
+                runner.setDaemon(true);
+
+                setEnabled(false);
+                runner.start();
+            }
+        }
+
+        public void run()
+        {
+            try
+            {
+                doRun();
+            }
+            finally
+            {
+                synchronized (this)
+                {
+                    if (Thread.currentThread().equals(runner))
+                    {
+                        runner = null;
+                        setEnabled(true);
+                    }
+                }
+            }
+        }
+
+        private void doRun()
+        {
+            buttonPressed();
+        }
     }
 
     /**
@@ -118,9 +174,6 @@ public abstract class AbstractCallToggleButton
     /**
      * Notifies this <tt>AbstractCallToggleButton</tt> that its associated
      * action has been performed and that it should execute its very logic.
-     *
-     * @param evt an <tt>ActionEvent</tt> which describes the specifics of the
-     * performed action
      */
-    public abstract void actionPerformed(ActionEvent evt);
+    public abstract void buttonPressed();
 }

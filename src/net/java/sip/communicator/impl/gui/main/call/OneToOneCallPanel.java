@@ -9,7 +9,9 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -57,6 +59,17 @@ public class OneToOneCallPanel
      * other means (such as a local variable) of acquiring the instance.
      */
     private Window fullScreenWindow;
+
+    /**
+     * The check box allowing to turn on remote control when in a desktop
+     * sharing session.
+     */
+    private JCheckBox enableDesktopRemoteControl;
+
+    /**
+     * The panel added on the south of this container.
+     */
+    private JPanel southPanel;
 
     /**
      * Creates a call panel for the corresponding call, by specifying the
@@ -360,6 +373,51 @@ public class OneToOneCallPanel
                         newFrameWidth, newFrameHeight);
             }
         }
+    }
+
+    /**
+     * Adds all desktop sharing related components to this container.
+     */
+    public void addDesktopSharingComponents()
+    {
+        if (enableDesktopRemoteControl == null)
+        {
+            enableDesktopRemoteControl = new JCheckBox(
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.ENABLE_DESKTOP_REMOTE_CONTROL"));
+
+            southPanel = new TransparentPanel(
+                new FlowLayout(FlowLayout.CENTER));
+
+            southPanel.add(enableDesktopRemoteControl);
+
+            enableDesktopRemoteControl.setAlignmentX(CENTER_ALIGNMENT);
+
+            enableDesktopRemoteControl.addChangeListener(new ChangeListener()
+            {
+                public void stateChanged(ChangeEvent e)
+                {
+                    CallManager.enableDesktopRemoteControl(
+                        callPeer, enableDesktopRemoteControl.isSelected());
+                }
+            });
+        }
+
+        add(southPanel, BorderLayout.SOUTH);
+        revalidate();
+        repaint();
+    }
+
+    /**
+     * Removes all desktop sharing related components from this container.
+     */
+    public void removeDesktopSharingComponents()
+    {
+        if (southPanel != null)
+            remove(southPanel);
+
+        revalidate();
+        repaint();
     }
 
     /**

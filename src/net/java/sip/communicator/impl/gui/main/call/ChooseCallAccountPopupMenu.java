@@ -36,6 +36,7 @@ public class ChooseCallAccountPopupMenu
 
     /**
      * Creates this dialog.
+     *
      * @param invoker the invoker of this pop up menu
      * @param contactToCall the contact to call
      * @param telephonyProviders a list of all possible telephony providers
@@ -45,23 +46,59 @@ public class ChooseCallAccountPopupMenu
         final String contactToCall,
         List<ProtocolProviderService> telephonyProviders)
     {
+        this(invoker, contactToCall, telephonyProviders,
+            OperationSetBasicTelephony.class);
+    }
+
+    /**
+     * Creates this dialog.
+     *
+     * @param invoker the invoker of this pop up menu
+     * @param contactToCall the contact to call
+     * @param telephonyProviders a list of all possible telephony providers
+     * @param opSetClass the operation set class indicating what operation
+     * would be performed when a given item is selected from the menu
+     */
+    public ChooseCallAccountPopupMenu(
+        JComponent invoker,
+        final String contactToCall,
+        List<ProtocolProviderService> telephonyProviders,
+        Class<? extends OperationSet> opSetClass)
+    {
         this.invoker = invoker;
         this.init();
 
         for (ProtocolProviderService provider : telephonyProviders)
         {
-            this.addTelephonyProviderItem(provider, contactToCall);
+            this.addTelephonyProviderItem(provider, contactToCall, opSetClass);
         }
     }
 
     /**
      * Creates this dialog by specifying a list of telephony contacts to choose
      * from.
+     *
      * @param invoker the invoker of this pop up
      * @param telephonyObjects the list of telephony contacts to select through
      */
     public ChooseCallAccountPopupMenu(  JComponent invoker,
                                         List<?> telephonyObjects)
+    {
+        this(invoker, telephonyObjects, OperationSetBasicTelephony.class);
+    }
+
+    /**
+     * Creates this dialog by specifying a list of telephony contacts to choose
+     * from.
+     *
+     * @param invoker the invoker of this pop up
+     * @param telephonyObjects the list of telephony contacts to select through
+     * @param opSetClass the operation class, which indicates what action would
+     * be performed if an item is selected from the list
+     */
+    public ChooseCallAccountPopupMenu(  JComponent invoker,
+                                        List<?> telephonyObjects,
+                                        Class<? extends OperationSet> opSetClass)
     {
         this.invoker = invoker;
         this.init();
@@ -69,9 +106,9 @@ public class ChooseCallAccountPopupMenu
         for (Object o : telephonyObjects)
         {
             if (o instanceof UIContactDetail)
-                this.addTelephonyContactItem((UIContactDetail) o);
+                this.addTelephonyContactItem((UIContactDetail) o, opSetClass);
             else if (o instanceof ChatTransport)
-                this.addTelephonyChatTransportItem((ChatTransport) o);
+                this.addTelephonyChatTransportItem((ChatTransport) o, opSetClass);
         }
     }
 
@@ -92,12 +129,16 @@ public class ChooseCallAccountPopupMenu
     /**
      * Adds the given <tt>telephonyProvider</tt> to the list of available
      * telephony providers.
+     *
      * @param telephonyProvider the provider to add.
      * @param contactString the contact to call when the provider is selected
+     * @param opSetClass the operation set class indicating what action would
+     * be performed when an item is selected
      */
     private void addTelephonyProviderItem(
         final ProtocolProviderService telephonyProvider,
-        final String contactString)
+        final String contactString,
+        final Class<? extends OperationSet> opSetClass)
     {
         final ProviderMenuItem providerItem
             = new ProviderMenuItem(telephonyProvider);
@@ -106,8 +147,19 @@ public class ChooseCallAccountPopupMenu
         {
             public void actionPerformed(ActionEvent e)
             {
-                CallManager.createCall( providerItem.getProtocolProvider(),
-                                        contactString);
+                if (opSetClass.equals(OperationSetBasicTelephony.class))
+                    CallManager.createCall( providerItem.getProtocolProvider(),
+                                            contactString);
+                else if (opSetClass.equals(OperationSetVideoTelephony.class))
+                    CallManager.createVideoCall(
+                        providerItem.getProtocolProvider(),
+                        contactString);
+                else if (opSetClass.equals(
+                    OperationSetDesktopSharingServer.class))
+                    CallManager.createDesktopSharing(
+                        providerItem.getProtocolProvider(),
+                        contactString);
+
                 ChooseCallAccountPopupMenu.this.setVisible(false);
             }
         });
@@ -118,9 +170,14 @@ public class ChooseCallAccountPopupMenu
     /**
      * Adds the given <tt>telephonyContact</tt> to the list of available
      * telephony contact.
+     *
      * @param telephonyContact the telephony contact to add
+     * @param opSetClass the operation set class, that indicates the action that
+     * would be performed when an item is selected
      */
-    private void addTelephonyContactItem(final UIContactDetail telephonyContact)
+    private void addTelephonyContactItem(
+        final UIContactDetail telephonyContact,
+        final Class<? extends OperationSet> opSetClass)
     {
         final ContactMenuItem contactItem
             = new ContactMenuItem(telephonyContact);
@@ -129,10 +186,23 @@ public class ChooseCallAccountPopupMenu
         {
             public void actionPerformed(ActionEvent e)
             {
-                CallManager.createCall(
-                    telephonyContact.getPreferredProtocolProvider(
-                        OperationSetBasicTelephony.class),
-                    telephonyContact.getAddress());
+                if (opSetClass.equals(OperationSetBasicTelephony.class))
+                    CallManager.createCall(
+                        telephonyContact.getPreferredProtocolProvider(
+                            OperationSetBasicTelephony.class),
+                        telephonyContact.getAddress());
+                else if (opSetClass.equals(OperationSetVideoTelephony.class))
+                    CallManager.createVideoCall(
+                        telephonyContact.getPreferredProtocolProvider(
+                            OperationSetBasicTelephony.class),
+                        telephonyContact.getAddress());
+                else if (opSetClass.equals(
+                    OperationSetDesktopSharingServer.class))
+                    CallManager.createDesktopSharing(
+                        telephonyContact.getPreferredProtocolProvider(
+                            OperationSetDesktopSharingServer.class),
+                        telephonyContact.getAddress());
+
                 ChooseCallAccountPopupMenu.this.setVisible(false);
             }
         });
@@ -143,9 +213,14 @@ public class ChooseCallAccountPopupMenu
     /**
      * Adds the given <tt>ChatTransport</tt> to the list of available
      * telephony chat transports.
+     *
      * @param telTransport the telephony chat transport to add
+     * @param opSetClass the class of the operation set indicating the operation
+     * to be executed in the item is selected
      */
-    private void addTelephonyChatTransportItem(final ChatTransport telTransport)
+    private void addTelephonyChatTransportItem(
+        final ChatTransport telTransport,
+        final Class<? extends OperationSet> opSetClass)
     {
         final ChatTransportMenuItem transportItem
             = new ChatTransportMenuItem(telTransport);
@@ -154,8 +229,19 @@ public class ChooseCallAccountPopupMenu
         {
             public void actionPerformed(ActionEvent e)
             {
-                CallManager.createCall( telTransport.getProtocolProvider(),
-                                        telTransport.getName());
+                if (opSetClass.equals(OperationSetBasicTelephony.class))
+                    CallManager.createCall( telTransport.getProtocolProvider(),
+                                            telTransport.getName());
+                else if (opSetClass.equals(OperationSetVideoTelephony.class))
+                    CallManager.createVideoCall(
+                        telTransport.getProtocolProvider(),
+                        telTransport.getName());
+                else if (opSetClass.equals(
+                    OperationSetDesktopSharingServer.class))
+                    CallManager.createDesktopSharing(
+                        telTransport.getProtocolProvider(),
+                        telTransport.getName());
+
                 ChooseCallAccountPopupMenu.this.setVisible(false);
             }
         });
@@ -165,6 +251,7 @@ public class ChooseCallAccountPopupMenu
 
     /**
      * Shows the dialog at the given location.
+     *
      * @param x the x coordinate
      * @param y the y coordinate
      */
@@ -190,6 +277,7 @@ public class ChooseCallAccountPopupMenu
 
     /**
      * Creates the info label.
+     *
      * @return the created info label
      */
     private Component createInfoLabel()

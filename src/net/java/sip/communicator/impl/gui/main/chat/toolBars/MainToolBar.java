@@ -46,26 +46,44 @@ public class MainToolBar
 {
     private static final long serialVersionUID = -5572510509556499465L;
 
+    /**
+     * The invite button.
+     */
     private final ChatToolbarButton inviteButton
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.ADD_TO_CHAT_ICON));
 
+    /**
+     * The history button.
+     */
     private final ChatToolbarButton historyButton
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.HISTORY_ICON));
 
+    /**
+     * The send file button.
+     */
     private final ChatToolbarButton sendFileButton
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.SEND_FILE_ICON));
 
+    /**
+     * The button showing the previous page of the chat history.
+     */
     private final ChatToolbarButton previousButton
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.PREVIOUS_ICON));
 
+    /**
+     * The button showing the next page from chat history.
+     */
     private final ChatToolbarButton nextButton
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.NEXT_ICON));
 
+    /**
+     * The leave chat room button.
+     */
     private final ChatToolbarButton leaveChatRoomButton
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.LEAVE_ICON));
@@ -76,6 +94,13 @@ public class MainToolBar
     private final ChatToolbarButton callButton
         = new ChatToolbarButton(
                 ImageLoader.getImage(ImageLoader.CHAT_CALL));
+
+    /**
+     * The desktop sharing button.
+     */
+    private final ChatToolbarButton desktopSharingButton
+        = new ChatToolbarButton(
+                ImageLoader.getImage(ImageLoader.CHAT_DESKTOP_SHARING));
 
     /**
      * The current <tt>ChatSession</tt> made known to this instance by the last
@@ -130,6 +155,7 @@ public class MainToolBar
             this.add(leaveChatRoomButton);
 
         this.add(callButton);
+        this.add(desktopSharingButton);
         this.add(historyButton);
 
         // We only add the options button if the property SHOW_OPTIONS_WINDOW
@@ -162,6 +188,11 @@ public class MainToolBar
             GuiActivator.getResources().getI18NString(
                 "service.gui.CALL_CONTACT"));
 
+        this.desktopSharingButton.setName("desktop");
+        this.desktopSharingButton.setToolTipText(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.SHARE_DESKTOP_WITH_CONTACT"));
+
         this.historyButton.setName("history");
         this.historyButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.HISTORY")
@@ -186,6 +217,7 @@ public class MainToolBar
         this.inviteButton.addActionListener(this);
         this.leaveChatRoomButton.addActionListener(this);
         this.callButton.addActionListener(this);
+        this.desktopSharingButton.addActionListener(this);
         this.historyButton.addActionListener(this);
         optionsButton.addActionListener(this);
         this.sendFileButton.addActionListener(this);
@@ -233,6 +265,9 @@ public class MainToolBar
             callButton.setEnabled(
                 !chatPanel.chatSession.getTransportsForOperationSet(
                     OperationSetBasicTelephony.class).isEmpty());
+            desktopSharingButton.setEnabled(
+                !chatPanel.chatSession.getTransportsForOperationSet(
+                    OperationSetDesktopSharingServer.class).isEmpty());
 
             changeHistoryButtonsState(chatPanel);
         }
@@ -366,6 +401,45 @@ public class MainToolBar
 
                     Point location = new Point(callButton.getX(),
                         callButton.getY() + callButton.getHeight());
+
+                    SwingUtilities.convertPointToScreen(
+                        location, this);
+
+                    chooseAccountDialog
+                        .showPopupMenu(location.x, location.y);
+                }
+            }
+        }
+        else if (buttonText.equals("desktop"))
+        {
+            ChatSession chatSession = chatPanel.getChatSession();
+
+            List<ChatTransport> desktopTransports = null;
+            if (chatSession != null)
+                desktopTransports = chatSession
+                    .getTransportsForOperationSet(
+                        OperationSetDesktopSharingServer.class);
+
+            if (desktopTransports != null)
+            {
+                if (desktopTransports.size() == 1)
+                {
+                    ChatTransport transport = desktopTransports.get(0);
+                    CallManager.createDesktopSharing(
+                        transport.getProtocolProvider(),
+                        transport.getName());
+                }
+                else if (desktopTransports.size() > 1)
+                {
+                    ChooseCallAccountPopupMenu chooseAccountDialog
+                        = new ChooseCallAccountPopupMenu(
+                            desktopSharingButton,
+                            desktopTransports,
+                            OperationSetDesktopSharingServer.class);
+
+                    Point location = new Point(callButton.getX(),
+                        desktopSharingButton.getY()
+                        + desktopSharingButton.getHeight());
 
                     SwingUtilities.convertPointToScreen(
                         location, this);

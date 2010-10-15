@@ -809,12 +809,19 @@ public class OneToOneCallPeerPanel
 
             videoContainer.add(localVideo, VideoLayout.LOCAL, 0);
 
+            CallDialog callDialog = callRenderer.getCallDialog();
+
             /*
-             * If the local video is turned on, we ensure that the button is
-             * selected.
+             * If the local video or desktop sharing is turned on, we ensure
+             * that the button is selected.
              */
-            if (!callRenderer.getCallDialog().isVideoButtonSelected())
-                callRenderer.getCallDialog().setVideoButtonSelected(true);
+            if (callDialog.isDesktopSharing())
+            {
+                callDialog.setDesktopSharingButtonSelected(true);
+            }
+            else if (!callDialog.isDesktopSharing()
+                    && !callDialog.isVideoButtonSelected())
+                callDialog.setVideoButtonSelected(true);
         }
 
         videoContainer.validate();

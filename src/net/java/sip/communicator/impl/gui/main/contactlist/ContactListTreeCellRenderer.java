@@ -20,6 +20,8 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
@@ -43,16 +45,6 @@ public class ContactListTreeCellRenderer
 {
     private static final Color glowOuterHigh = new Color(223, 238, 249, 100);
     private static final Color glowOuterLow = new Color(219, 233, 243, 100);
-
-    /**
-     * The call button component name, used to distinguish it.
-     */
-    public static final String CALL_BUTTON_NAME = "CallButton";
-
-    /**
-     * The chat button component name, used to distinguish it.
-     */
-    public static final String CHAT_BUTTON_NAME = "ChatButton";
 
     /**
      * The default height of the avatar.
@@ -108,6 +100,22 @@ public class ContactListTreeCellRenderer
      * The call button.
      */
     private final SIPCommButton callButton = new SIPCommButton();
+
+    /**
+     * The call video button.
+     */
+    private final SIPCommButton callVideoButton = new SIPCommButton(
+        ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL),
+        ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_SMALL_PRESSED),
+        null);
+
+    /**
+     * The desktop sharing button.
+     */
+    private final SIPCommButton desktopSharingButton = new SIPCommButton(
+        ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL),
+        ImageLoader.getImage(ImageLoader.DESKTOP_BUTTON_SMALL_PRESSED),
+        null);
 
     /**
      * The chat button.
@@ -195,22 +203,19 @@ public class ContactListTreeCellRenderer
         constraints.weightx = 1f;
         constraints.weighty = 0f;
         constraints.gridheight = 1;
-        constraints.gridwidth = 2;
+        constraints.gridwidth = 4;
         this.add(nameLabel, constraints);
 
         rightLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 2));
 
         constraints.anchor = GridBagConstraints.NORTHEAST;
         constraints.fill = GridBagConstraints.VERTICAL;
-        constraints.gridx = 3;
+        constraints.gridx = 5;
         constraints.gridy = 0;
         constraints.gridheight = 3;
         constraints.weightx = 0f;
         constraints.weighty = 1f;
         this.add(rightLabel, constraints);
-
-        this.callButton.setName(CALL_BUTTON_NAME);
-        this.chatButton.setName(CHAT_BUTTON_NAME);
 
         callButton.addActionListener(new ActionListener()
         {
@@ -219,6 +224,28 @@ public class ContactListTreeCellRenderer
                 if (treeNode != null && treeNode instanceof ContactNode)
                 {
                     call(treeNode);
+                }
+            }
+        });
+
+        callVideoButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if (treeNode != null && treeNode instanceof ContactNode)
+                {
+                    callVideo(treeNode);
+                }
+            }
+        });
+
+        desktopSharingButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if (treeNode != null && treeNode instanceof ContactNode)
+                {
+                    shareDesktop(treeNode);
                 }
             }
         });
@@ -342,6 +369,8 @@ public class ContactListTreeCellRenderer
 
             this.remove(displayDetailsLabel);
             this.remove(callButton);
+            this.remove(callVideoButton);
+            this.remove(desktopSharingButton);
             this.remove(chatButton);
 
             this.statusLabel.setIcon(
@@ -510,7 +539,7 @@ public class ContactListTreeCellRenderer
             constraints.gridy = 1;
             constraints.weightx = 0f;
             constraints.weighty = 0f;
-            constraints.gridwidth = 2;
+            constraints.gridwidth = 4;
             constraints.gridheight = 1;
 
             this.add(displayDetailsLabel, constraints);
@@ -525,6 +554,8 @@ public class ContactListTreeCellRenderer
     private void initButtonsPanel(UIContact uiContact)
     {
         this.remove(callButton);
+        this.remove(callVideoButton);
+        this.remove(desktopSharingButton);
         this.remove(chatButton);
 
         if (!isSelected)
@@ -560,7 +591,8 @@ public class ContactListTreeCellRenderer
         }
 
         UIContactDetail telephonyContact
-            = uiContact.getDefaultContactDetail(OperationSetBasicTelephony.class);
+            = uiContact.getDefaultContactDetail(
+                OperationSetBasicTelephony.class);
 
         if (telephonyContact != null)
         {
@@ -581,6 +613,67 @@ public class ContactListTreeCellRenderer
                 x += callButton.getWidth();
 
             callButton.setBounds(x,
+                nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
+        }
+
+        UIContactDetail videoContact
+            = uiContact.getDefaultContactDetail(
+                OperationSetVideoTelephony.class);
+
+        if (videoContact != null)
+        {
+            constraints.anchor = GridBagConstraints.WEST;
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridx = 3;
+            constraints.gridy = 2;
+            constraints.gridwidth = 1;
+            constraints.gridheight = 1;
+            constraints.weightx = 0f;
+            constraints.weighty = 0f;
+            this.callVideoButton.setBorder(null);
+            this.add(callVideoButton, constraints);
+
+            int x = statusLabel.getWidth();
+
+            if (imContact != null)
+                x += chatButton.getWidth();
+
+            if (telephonyContact != null)
+                x += callButton.getWidth();
+
+            callVideoButton.setBounds(x,
+                nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
+        }
+
+        UIContactDetail desktopContact
+            = uiContact.getDefaultContactDetail(
+                OperationSetDesktopStreaming.class);
+
+        if (desktopContact != null)
+        {
+            constraints.anchor = GridBagConstraints.WEST;
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridx = 4;
+            constraints.gridy = 2;
+            constraints.gridwidth = 1;
+            constraints.gridheight = 1;
+            constraints.weightx = 0f;
+            constraints.weighty = 0f;
+            this.desktopSharingButton.setBorder(null);
+            this.add(desktopSharingButton, constraints);
+
+            int x = statusLabel.getWidth();
+
+            if (imContact != null)
+                x += chatButton.getWidth();
+
+            if (telephonyContact != null)
+                x += callButton.getWidth();
+
+            if (videoContact != null)
+                x += callVideoButton.getWidth();
+
+            desktopSharingButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
         }
 
@@ -637,6 +730,24 @@ public class ContactListTreeCellRenderer
     }
 
     /**
+     * Returns the call video button contained in the current cell.
+     * @return the call video button contained in the current cell
+     */
+    public JButton getCallVideoButton()
+    {
+        return callVideoButton;
+    }
+
+    /**
+     * Returns the desktop sharing button contained in the current cell.
+     * @return the desktop sharing button contained in the current cell
+     */
+    public JButton getDesktopSharingButton()
+    {
+        return desktopSharingButton;
+    }
+
+    /**
      * Calls the given treeNode.
      * @param treeNode the <tt>TreeNode</tt> to call
      */
@@ -671,7 +782,8 @@ public class ContactListTreeCellRenderer
                 else
                 {
                     protocolName = preferredProvider.getProtocolName();
-                    providers = CallManager.getTelephonyProviders(protocolName);
+                    providers = CallManager.getRegisteredProviders(protocolName,
+                        OperationSetBasicTelephony.class);
                 }
             }
             // If we don't have a preferred provider we try to obtain a
@@ -681,7 +793,8 @@ public class ContactListTreeCellRenderer
                 protocolName = detail
                     .getPreferredProtocol(OperationSetBasicTelephony.class);
                 providers
-                    = CallManager.getTelephonyProviders(protocolName);
+                    = CallManager.getRegisteredProviders(protocolName,
+                        OperationSetBasicTelephony.class);
             }
 
             // If our call didn't succeed, try to call through one of the other
@@ -732,6 +845,237 @@ public class ContactListTreeCellRenderer
     }
 
     /**
+     * Calls the given treeNode with video option enabled.
+     * @param treeNode the <tt>TreeNode</tt> to call
+     */
+    private void callVideo(TreeNode treeNode)
+    {
+        List<UIContactDetail> videoContacts
+            = ((ContactNode) treeNode).getContactDescriptor()
+                .getContactDetailsForOperationSet(
+                    OperationSetVideoTelephony.class);
+
+        ChooseCallAccountPopupMenu chooseAccountDialog = null;
+
+        if (videoContacts.size() == 1)
+        {
+            UIContactDetail detail = videoContacts.get(0);
+
+            ProtocolProviderService preferredProvider
+                = detail.getPreferredProtocolProvider(
+                    OperationSetVideoTelephony.class);
+
+            List<ProtocolProviderService> providers = null;
+            String protocolName = null;
+
+            if (preferredProvider != null)
+            {
+                if (preferredProvider.isRegistered())
+                    CallManager.createVideoCall(
+                        preferredProvider, detail.getAddress());
+                // If we have a provider, but it's not registered we try to
+                // obtain all registered providers for the same protocol as the
+                // given preferred provider.
+                else
+                {
+                    protocolName = preferredProvider.getProtocolName();
+                    providers = CallManager.getRegisteredProviders(protocolName,
+                        OperationSetVideoTelephony.class);
+                }
+            }
+            // If we don't have a preferred provider we try to obtain a
+            // preferred protocol name and all registered providers for it.
+            else
+            {
+                protocolName = detail
+                    .getPreferredProtocol(OperationSetVideoTelephony.class);
+                providers
+                    = CallManager.getRegisteredProviders(protocolName,
+                        OperationSetVideoTelephony.class);
+            }
+
+            // If our call didn't succeed, try to call through one of the other
+            // protocol providers obtained above.
+            if (providers != null)
+            {
+                int providersCount = providers.size();
+
+                if (providersCount <= 0)
+                {
+                    new ErrorDialog(null,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.CALL_FAILED"),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.NO_ONLINE_TEL_PROTOCOL_ACCOUNT",
+                            new String[]{protocolName}))
+                    .showDialog();
+                }
+                else if (providersCount == 1)
+                {
+                    CallManager.createVideoCall(
+                        providers.get(0), detail.getAddress());
+                }
+                else if (providersCount > 1)
+                    chooseAccountDialog = new ChooseCallAccountPopupMenu(
+                            tree, detail.getAddress(), providers,
+                            OperationSetVideoTelephony.class);
+            }
+        }
+        else if (videoContacts.size() > 1)
+        {
+            chooseAccountDialog
+                = new ChooseCallAccountPopupMenu(tree, videoContacts,
+                    OperationSetVideoTelephony.class);
+        }
+
+        // If the choose dialog is created we're going to show it.
+        if (chooseAccountDialog != null)
+        {
+            Point location = new Point(callVideoButton.getX(),
+                callVideoButton.getY() + callVideoButton.getHeight());
+
+            SwingUtilities.convertPointToScreen(location, tree);
+
+            location.y = location.y
+                + tree.getPathBounds(tree.getSelectionPath()).y;
+
+            chooseAccountDialog.showPopupMenu(location.x + 8, location.y - 8);
+        }
+    }
+
+    /**
+     * Shares the user desktop with the contact contained in the given
+     * <tt>treeNode</tt>.
+     * @param treeNode the <tt>TreeNode</tt>, containing the contact to share
+     * the desktop with
+     */
+    private void shareDesktop(TreeNode treeNode)
+    {
+        List<UIContactDetail> desktopContacts
+            = ((ContactNode) treeNode).getContactDescriptor()
+                .getContactDetailsForOperationSet(
+                    OperationSetDesktopStreaming.class);
+
+        ChooseCallAccountPopupMenu chooseAccountDialog = null;
+
+        if (desktopContacts.size() == 1)
+        {
+            UIContactDetail detail = desktopContacts.get(0);
+
+            ProtocolProviderService preferredProvider
+                = detail.getPreferredProtocolProvider(
+                    OperationSetDesktopStreaming.class);
+
+            List<ProtocolProviderService> providers = null;
+            String protocolName = null;
+
+            if (preferredProvider != null)
+            {
+                if (preferredProvider.isRegistered())
+                    shareDesktop(preferredProvider, detail.getAddress());
+
+                // If we have a provider, but it's not registered we try to
+                // obtain all registered providers for the same protocol as the
+                // given preferred provider.
+                else
+                {
+                    protocolName = preferredProvider.getProtocolName();
+                    providers = CallManager.getRegisteredProviders(protocolName,
+                        OperationSetDesktopStreaming.class);
+                }
+            }
+            // If we don't have a preferred provider we try to obtain a
+            // preferred protocol name and all registered providers for it.
+            else
+            {
+                protocolName = detail.getPreferredProtocol(
+                        OperationSetDesktopStreaming.class);
+                providers
+                    = CallManager.getRegisteredProviders(protocolName,
+                        OperationSetDesktopStreaming.class);
+            }
+
+            // If our call didn't succeed, try to call through one of the other
+            // protocol providers obtained above.
+            if (providers != null)
+            {
+                int providersCount = providers.size();
+
+                if (providersCount <= 0)
+                {
+                    new ErrorDialog(null,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.CALL_FAILED"),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.NO_ONLINE_TEL_PROTOCOL_ACCOUNT",
+                            new String[]{protocolName}))
+                    .showDialog();
+                }
+                else if (providersCount == 1)
+                {
+                    shareDesktop(providers.get(0), detail.getAddress());
+                }
+                else if (providersCount > 1)
+                    chooseAccountDialog = new ChooseCallAccountPopupMenu(
+                            tree, detail.getAddress(), providers,
+                            OperationSetDesktopStreaming.class);
+            }
+        }
+        else if (desktopContacts.size() > 1)
+        {
+            chooseAccountDialog
+                = new ChooseCallAccountPopupMenu(tree, desktopContacts,
+                    OperationSetDesktopStreaming.class);
+        }
+
+        // If the choose dialog is created we're going to show it.
+        if (chooseAccountDialog != null)
+        {
+            Point location = new Point(desktopSharingButton.getX(),
+                desktopSharingButton.getY() + desktopSharingButton.getHeight());
+
+            SwingUtilities.convertPointToScreen(location, tree);
+
+            location.y = location.y
+                + tree.getPathBounds(tree.getSelectionPath()).y;
+
+            chooseAccountDialog.showPopupMenu(location.x + 8, location.y - 8);
+        }
+    }
+
+    /**
+     * Shares the user desktop with the contact contained in the given
+     * <tt>treeNode</tt>.
+     *
+     * @param protocolProvider the protocol provider through which we make the
+     * sharing
+     * @param contactName the address of the contact with which we'd like to
+     * share our desktop
+     */
+    private void shareDesktop(  ProtocolProviderService protocolProvider,
+                                String contactName)
+    {
+        MediaService mediaService = GuiActivator.getMediaService();
+
+        List<MediaDevice> desktopDevices = mediaService.getDevices(
+            MediaType.VIDEO, MediaUseCase.DESKTOP);
+
+        int deviceNumber = desktopDevices.size();
+
+        if (deviceNumber == 1)
+            CallManager.createDesktopSharing(protocolProvider, contactName);
+        else if (deviceNumber > 1)
+        {
+            SelectScreenDialog selectDialog
+                = new SelectScreenDialog(   protocolProvider,
+                                            contactName,
+                                            desktopDevices);
+
+            selectDialog.setVisible(true);
+        }
+    }
+
+/**
      * Returns the drag icon used to represent a cell in all drag operations.
      *
      * @param tree the parent tree object

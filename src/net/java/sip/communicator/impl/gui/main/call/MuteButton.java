@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.event.*;
-
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -64,12 +62,8 @@ public class MuteButton
 
     /**
      * Mutes or unmutes the associated <tt>Call</tt> upon clicking this button.
-     *
-     * @param evt an <tt>ActionEvent</tt> which describes the specifics of the
-     * performed action
-     * @see AbstractCallToggleButton#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent evt)
+    public void buttonPressed()
     {
         if (call != null)
         {

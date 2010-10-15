@@ -62,8 +62,7 @@ public class HoldButton
      */
     public HoldButton(Call call, boolean fullScreen, boolean selected)
     {
-        super(
-                call,
+        super(  call,
                 fullScreen,
                 selected,
                 ImageLoader.HOLD_BUTTON,
@@ -72,12 +71,8 @@ public class HoldButton
 
     /**
      * Holds on or off the associated <tt>Call</tt> when this button is clicked.
-     *
-     * @param evt an <tt>ActionEvent</tt> which describes the specifics of the
-     * performed action
-     * @see AbstractCallToggleButton#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent evt)
+    public void buttonPressed()
     {
         if (call != null)
         {

@@ -450,7 +450,7 @@ public class MediaConfiguration
 
                     Exception exception;
                     try
-                    {                        
+                    {
                         createPreview(device, preview);
                         exception = null;
                     }

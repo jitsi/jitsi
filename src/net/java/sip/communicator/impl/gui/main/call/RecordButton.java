@@ -5,7 +5,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.event.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
@@ -106,10 +105,8 @@ public class RecordButton
 
     /**
      * Starts/stops the recording of the call when this button is pressed.
-     *
-     * @param evt the <tt>ActionEvent</tt> that notified us of the action
      */
-    public void actionPerformed(ActionEvent evt)
+    public void buttonPressed()
     {
         if (call != null)
         {

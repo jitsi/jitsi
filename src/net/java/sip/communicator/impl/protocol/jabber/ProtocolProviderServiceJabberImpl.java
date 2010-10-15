@@ -1106,19 +1106,21 @@ public class ProtocolProviderServiceJabberImpl
                     OperationSetVideoTelephony.class,
                     new OperationSetVideoTelephonyJabberImpl(basicTelephony));
 
+// TODO: Uncomment the following lines when the desktop sharing feature is ready
+// to use.
                 // initialize desktop streaming OperationSet
-                addSupportedOperationSet(
-                    OperationSetDesktopStreaming.class,
-                    new OperationSetDesktopStreamingJabberImpl(basicTelephony));
+//                addSupportedOperationSet(
+//                    OperationSetDesktopStreaming.class,
+//                    new OperationSetDesktopStreamingJabberImpl(basicTelephony));
 
                 // initialize desktop sharing OperationSets
-                addSupportedOperationSet(
-                    OperationSetDesktopSharingServer.class,
-                    new OperationSetDesktopSharingServerJabberImpl(
-                            basicTelephony));
-                addSupportedOperationSet(
-                        OperationSetDesktopSharingClient.class,
-                        new OperationSetDesktopSharingClientJabberImpl(this));
+//                addSupportedOperationSet(
+//                    OperationSetDesktopSharingServer.class,
+//                    new OperationSetDesktopSharingServerJabberImpl(
+//                            basicTelephony));
+//                addSupportedOperationSet(
+//                        OperationSetDesktopSharingClient.class,
+//                        new OperationSetDesktopSharingClientJabberImpl(this));
 
                 // Add Jingle features to supported features.
                 supportedFeatures.add(URN_XMPP_JINGLE);

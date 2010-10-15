@@ -51,85 +51,184 @@ public class MetaContactRightButtonMenu
      */
     private static final long serialVersionUID = 3033031652970285857L;
 
+    /**
+     * The logger of this class.
+     */
     private final Logger logger
         = Logger.getLogger(MetaContactRightButtonMenu.class);
 
+    /**
+     * The string shown over menu items indicating that an operation should be
+     * done for all contained contacts.
+     */
     private static final String allContactsString
         = GuiActivator.getResources().getI18NString("service.gui.ALL_CONTACTS");
 
-    private static final String moveToString = GuiActivator.getResources()
-        .getI18NString("service.gui.MOVE_TO_GROUP");
-
-    private static final String moveSubcontactString
-        = GuiActivator.getResources()
-            .getI18NString("service.gui.MOVE_SUBCONTACT");
-
-    private static final String removeContactString
-        = GuiActivator.getResources()
-            .getI18NString("service.gui.REMOVE_CONTACT");
-
+    /**
+     * String for call menu items.
+     */
     private static final String callString
         = GuiActivator.getResources().getI18NString("service.gui.CALL");
 
-    private static final String sendMessageString
-        = GuiActivator.getResources().getI18NString("service.gui.SEND_MESSAGE");
+    /**
+     * The menu responsible for moving a contact to another group.
+     */
+    private final SIPCommMenu moveToMenu
+        = new SIPCommMenu(GuiActivator.getResources()
+            .getI18NString("service.gui.MOVE_TO_GROUP"));
 
-    private static final String sendFileString
-        = GuiActivator.getResources().getI18NString("service.gui.SEND_FILE");
-
-    private static final String renameContactString
-        = GuiActivator.getResources()
-            .getI18NString("service.gui.RENAME_CONTACT");
-
-    private static final String viewHistoryString
-        = GuiActivator.getResources().getI18NString("service.gui.VIEW_HISTORY");
-
-    private static final String sendSmsString
-        = GuiActivator.getResources().getI18NString("service.gui.SEND_SMS");
-
-    private final SIPCommMenu moveToMenu = new SIPCommMenu(moveToString);
-
+    /**
+     * The menu responsible for moving a containing protocol contact to another
+     * group.
+     */
     private final SIPCommMenu moveSubcontactMenu
-        = new SIPCommMenu(moveSubcontactString);
+        = new SIPCommMenu(GuiActivator.getResources()
+            .getI18NString("service.gui.MOVE_SUBCONTACT"));
 
+    /**
+     * The menu responsible for removing a contact.
+     */
     private final SIPCommMenu removeContactMenu
-        = new SIPCommMenu(removeContactString);
+        = new SIPCommMenu(GuiActivator.getResources()
+            .getI18NString("service.gui.REMOVE_CONTACT"));
 
+    /**
+     * The menu responsible for calling a contact.
+     */
     private final SIPCommMenu callContactMenu = new SIPCommMenu(callString);
 
+    /**
+     * The menu responsible for adding a contact.
+     */
     private final JMenuItem addContactItem = new JMenuItem();
-
+ 
+    /**
+     * The menu item responsible for calling a contact.
+     */
     private final JMenuItem callItem = new JMenuItem(callString);
 
-    private final JMenuItem sendMessageItem = new JMenuItem(sendMessageString);
+    /**
+     * The video call menu item.
+     */
+    private final JMenuItem videoCallItem = new JMenuItem(
+        GuiActivator.getResources().getI18NString(
+            "service.gui.VIDEO_CALL"));
 
-    private final JMenuItem sendFileItem = new JMenuItem(sendFileString);
+    /**
+     * The menu responsible for calling a contact with video.
+     */
+    private final SIPCommMenu videoCallMenu = new SIPCommMenu(
+        GuiActivator.getResources().getI18NString(
+            "service.gui.VIDEO_CALL"));
 
-    private final JMenuItem sendSmsItem = new JMenuItem(sendSmsString);
+    /**
+     * The desktop sharing menu item.
+     */
+    private final JMenuItem desktopSharingItem = new JMenuItem(
+        GuiActivator.getResources().getI18NString(
+            "service.gui.SHARE_DESKTOP"));
 
-    private final JMenuItem renameContactItem = new JMenuItem(
-                                                        renameContactString);
+    /**
+     * The menu responsible for calling a contact with video.
+     */
+    private final SIPCommMenu desktopSharingMenu = new SIPCommMenu(
+        GuiActivator.getResources().getI18NString(
+            "service.gui.SHARE_DESKTOP"));
 
-    private final JMenuItem viewHistoryItem = new JMenuItem(viewHistoryString);
+    /**
+     * The send message menu item.
+     */
+    private final JMenuItem sendMessageItem
+        = new JMenuItem(GuiActivator.getResources()
+            .getI18NString("service.gui.SEND_MESSAGE"));
 
-    private final MetaContact contactItem;
+    /**
+     * The send file menu item.
+     */
+    private final JMenuItem sendFileItem
+        = new JMenuItem(GuiActivator.getResources()
+            .getI18NString("service.gui.SEND_FILE"));
 
+    /**
+     * The send SMS menu item.
+     */
+    private final JMenuItem sendSmsItem
+        = new JMenuItem(GuiActivator.getResources()
+            .getI18NString("service.gui.SEND_SMS"));
+
+    /**
+     * The rename contact menu item.
+     */
+    private final JMenuItem renameContactItem
+        = new JMenuItem(GuiActivator.getResources()
+            .getI18NString("service.gui.RENAME_CONTACT"));
+
+    /**
+     * The view history menu item.
+     */
+    private final JMenuItem viewHistoryItem
+        = new JMenuItem(GuiActivator.getResources()
+            .getI18NString("service.gui.VIEW_HISTORY"));
+
+    /**
+     * The <tt>MetaContact</tt> over which the right button was pressed.
+     */
+    private final MetaContact metaContact;
+
+    /**
+     * The prefix for the move menu.
+     */
     private static final String moveToPrefix = "moveTo:";
 
+    /**
+     * The prefix for remove contact menu.
+     */
     private static final String removeContactPrefix = "removeContact:";
 
+    /**
+     * The prefix for remove protocol contact menu.
+     */
     private static final String moveSubcontactPrefix = "moveSubcontact:";
 
+    /**
+     * The prefix for call contact menu.
+     */
     private static final String callContactPrefix = "callContact:";
 
+    /**
+     * The prefix for video call contact menu.
+     */
+    private static final String videoCallPrefix = "videoCall:";
+
+    /**
+     * The prefix for video call contact menu.
+     */
+    private static final String desktopSharingPrefix = "desktopSharing:";
+
+    /**
+     * The contact to move when the move menu has been chosen.
+     */
     private Contact contactToMove;
 
+    /**
+     * Indicates if all contacts should be moved when the move to menu is
+     * pressed.
+     */
     private boolean moveAllContacts = false;
 
+    /**
+     * The move dialog.
+     */
     private MoveSubcontactMessageDialog moveDialog;
 
+    /**
+     * The main window.
+     */
     private final MainFrame mainFrame;
 
+    /**
+     * The contact list component.
+     */
     private final TreeContactList contactList;
 
     /**
@@ -143,7 +242,7 @@ public class MetaContactRightButtonMenu
         this.mainFrame = GuiActivator.getUIService().getMainFrame();
         this.contactList = GuiActivator.getContactList();
 
-        this.contactItem = contactItem;
+        this.metaContact = contactItem;
 
         this.setLocation(getLocation());
 
@@ -161,7 +260,7 @@ public class MetaContactRightButtonMenu
     {
         addContactItem.setText(GuiActivator.getResources()
             .getI18NString("service.gui.ADD_CONTACT_TO")
-                + " " + contactItem.getDisplayName());
+                + " " + metaContact.getDisplayName());
 
         //Initialize moveTo menu.
         Iterator<MetaContactGroup> groups
@@ -193,9 +292,9 @@ public class MetaContactRightButtonMenu
         }
 
         //Initialize removeContact menu.
-        Iterator<Contact> contacts = contactItem.getContacts();
+        Iterator<Contact> contacts = metaContact.getContacts();
 
-        if (contactItem.getContactCount() > 1)
+        if (metaContact.getContactCount() > 1)
         {
             JMenuItem allItem = new JMenuItem(allContactsString);
             JMenuItem allItem1 = new JMenuItem(allContactsString);
@@ -221,45 +320,60 @@ public class MetaContactRightButtonMenu
 
             String contactDisplayName = contact.getDisplayName();
 
-            JMenuItem contactItem = new JMenuItem(contactDisplayName);
-            JMenuItem contactItem1 = new JMenuItem(contactDisplayName);
-
             Icon protocolIcon = new ImageIcon(
                     createContactStatusImage(contact));
 
-            contactItem.setIcon(protocolIcon);
-            contactItem1.setIcon(protocolIcon);
+            this.removeContactMenu.add(
+                createMenuItem( contactDisplayName,
+                            removeContactPrefix + contact.getAddress()
+                            + protocolProvider.getProtocolName(),
+                            protocolIcon));
 
-            contactItem.setName(removeContactPrefix + contact.getAddress()
-                    + protocolProvider.getProtocolName());
-
-            contactItem1.setName(moveSubcontactPrefix + contact.getAddress()
-                    + protocolProvider.getProtocolName());
-
-            contactItem.addActionListener(this);
-            contactItem1.addActionListener(this);
-
-            this.removeContactMenu.add(contactItem);
-            this.moveSubcontactMenu.add(contactItem1);
+            this.moveSubcontactMenu.add(
+                createMenuItem( contactDisplayName,
+                            moveSubcontactPrefix + contact.getAddress()
+                            + protocolProvider.getProtocolName(),
+                            protocolIcon));
 
             // add all the contacts that support telephony to the call menu
-            if (contact.getProtocolProvider().getOperationSet(
-                OperationSetBasicTelephony.class) != null)
+            if (metaContact.getContactCount() > 1)
             {
-                JMenuItem callContactItem = new JMenuItem(contactDisplayName);
-                callContactItem.setIcon(protocolIcon);
-                callContactItem.setName(callContactPrefix + contact.getAddress()
-                        + protocolProvider.getProtocolName());
-                callContactItem.addActionListener(this);
-                this.callContactMenu.add(callContactItem);
-            }
+                if (protocolProvider.getOperationSet(
+                        OperationSetBasicTelephony.class) != null)
+                {
+                    callContactMenu.add(
+                        createMenuItem( contactDisplayName,
+                                        callContactPrefix + contact.getAddress()
+                                        + protocolProvider.getProtocolName(),
+                                        protocolIcon));
+                }
 
-            // FIXME Why is OperationSetWebContactInfo requested and not used?
-            protocolProvider.getOperationSet(OperationSetWebContactInfo.class);
+                if (protocolProvider.getOperationSet(
+                        OperationSetVideoTelephony.class) != null)
+                {
+                    videoCallMenu.add(
+                        createMenuItem( contactDisplayName,
+                                        videoCallPrefix + contact.getAddress()
+                                        + protocolProvider.getProtocolName(),
+                                        protocolIcon));
+                }
+
+                if (protocolProvider.getOperationSet(
+                        OperationSetDesktopStreaming.class) != null)
+                {
+                    desktopSharingMenu.add(
+                        createMenuItem( contactDisplayName,
+                                        desktopSharingPrefix
+                                        + contact.getAddress()
+                                        + protocolProvider.getProtocolName(),
+                                        protocolIcon));
+                }
+            }
         }
 
         this.add(sendMessageItem);
         this.add(sendSmsItem);
+
         if (callContactMenu.getItemCount() > 1)
         {
             this.add(callContactMenu);
@@ -267,7 +381,32 @@ public class MetaContactRightButtonMenu
         else
         {
             this.add(callItem);
+            this.callItem.setName("call");
+            this.callItem.addActionListener(this);
         }
+
+        if (videoCallMenu.getItemCount() > 1)
+        {
+            this.add(videoCallMenu);
+        }
+        else
+        {
+            this.add(videoCallItem);
+            this.videoCallItem.setName("videoCall");
+            this.videoCallItem.addActionListener(this);
+        }
+
+        if (desktopSharingMenu.getItemCount() > 1)
+        {
+            this.add(desktopSharingMenu);
+        }
+        else
+        {
+            this.add(desktopSharingItem);
+            this.desktopSharingItem.setName("desktopSharing");
+            this.desktopSharingItem.addActionListener(this);
+        }
+
         this.add(sendFileItem);
 
         this.addSeparator();
@@ -291,7 +430,7 @@ public class MetaContactRightButtonMenu
         this.initPluginComponents();
 
         this.sendMessageItem.setName("sendMessage");
-        this.callItem.setName("call");
+
         this.sendSmsItem.setName("sendSms");
         this.sendFileItem.setName("sendFile");
         this.moveToMenu.setName("moveToGroup");
@@ -300,7 +439,6 @@ public class MetaContactRightButtonMenu
         this.viewHistoryItem.setName("viewHistory");
 
         this.sendMessageItem.addActionListener(this);
-        this.callItem.addActionListener(this);
         this.sendSmsItem.addActionListener(this);
         this.sendFileItem.addActionListener(this);
         this.renameContactItem.addActionListener(this);
@@ -308,21 +446,43 @@ public class MetaContactRightButtonMenu
         this.addContactItem.addActionListener(this);
 
         // Disable all menu items that do nothing.
-        if (contactItem.getDefaultContact(OperationSetFileTransfer.class)
-                == null)
+        if (metaContact.getDefaultContact(
+            OperationSetFileTransfer.class) == null)
             this.sendFileItem.setEnabled(false);
 
-        if (contactItem.getDefaultContact(OperationSetBasicTelephony.class)
-                == null)
+        if (metaContact.getDefaultContact(
+            OperationSetBasicTelephony.class) == null)
             this.callItem.setEnabled(false);
 
-        if (contactItem.getDefaultContact(OperationSetBasicInstantMessaging.class)
-                == null)
+        if (metaContact.getDefaultContact(
+            OperationSetBasicInstantMessaging.class) == null)
             this.sendMessageItem.setEnabled(false);
 
-        if (contactItem.getDefaultContact(OperationSetSmsMessaging.class)
-                == null)
+        if (metaContact.getDefaultContact(
+            OperationSetSmsMessaging.class) == null)
             this.sendSmsItem.setEnabled(false);
+    }
+
+    /**
+     * Initializes the call menu items.
+     *
+     * @param displayName the display name of the menu item
+     * @param name the name of the menu item, used to distinguish it in action
+     * events
+     * @param icon the icon of the protocol
+     *
+     * @return the created menu item
+     */
+    private JMenuItem createMenuItem(String displayName,
+                                String name,
+                                Icon icon)
+    {
+        JMenuItem menuItem = new JMenuItem(displayName);
+        menuItem.setIcon(icon);
+        menuItem.setName(name);
+        menuItem.addActionListener(this);
+
+        return menuItem;
     }
 
     /**
@@ -356,7 +516,7 @@ public class MetaContactRightButtonMenu
                 PluginComponent component = (PluginComponent) GuiActivator
                     .bundleContext.getService(serRefs[i]);
 
-                component.setCurrentContact(contactItem);
+                component.setCurrentContact(metaContact);
 
                 if (component.getComponent() == null)
                     continue;
@@ -375,15 +535,41 @@ public class MetaContactRightButtonMenu
         this.sendMessageItem.setMnemonic(
             GuiActivator.getResources()
                 .getI18nMnemonic("service.gui.SEND_MESSAGE"));
+
+        char callMnemonic = GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.CALL");
+
         if (callContactMenu.getItemCount() > 1)
         {
-            this.callContactMenu.setMnemonic(GuiActivator.getResources()
-                .getI18nMnemonic("service.gui.CALL"));
+            this.callContactMenu.setMnemonic(callMnemonic);
         }
         else
         {
-            this.callItem.setMnemonic(GuiActivator.getResources()
-                .getI18nMnemonic("service.gui.CALL"));
+            this.callItem.setMnemonic(callMnemonic);
+        }
+
+        char videoCallMnemonic = GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.VIDEO_CALL");
+
+        if (videoCallMenu.getItemCount() > 1)
+        {
+            this.videoCallMenu.setMnemonic(videoCallMnemonic);
+        }
+        else
+        {
+            this.videoCallItem.setMnemonic(videoCallMnemonic);
+        }
+
+        char desktopSharingMnemonic = GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.SHARE_DESKTOP");
+
+        if (desktopSharingMenu.getItemCount() > 1)
+        {
+            this.desktopSharingMenu.setMnemonic(desktopSharingMnemonic);
+        }
+        else
+        {
+            this.desktopSharingItem.setMnemonic(desktopSharingMnemonic);
         }
         this.sendSmsItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.SEND_SMS"));
@@ -417,31 +603,48 @@ public class MetaContactRightButtonMenu
         if (itemName.equals(addContactItem.getName()))
         {
             AddContactDialog dialog
-                = new AddContactDialog(mainFrame, contactItem);
+                = new AddContactDialog(mainFrame, metaContact);
 
             dialog.setVisible(true);
         }
         else if (itemName.equalsIgnoreCase("sendMessage"))
         {
             GuiActivator.getUIService().getChatWindowManager()
-                .startChat(contactItem);
+                .startChat(metaContact);
         }
         else if (itemName.equalsIgnoreCase("sendSms"))
         {
             Contact defaultSmsContact
-                = contactItem.getDefaultContact(OperationSetSmsMessaging.class);
+                = metaContact.getDefaultContact(OperationSetSmsMessaging.class);
 
             GuiActivator.getUIService().getChatWindowManager()
-                .startChat(contactItem, defaultSmsContact, true);
+                .startChat(metaContact, defaultSmsContact, true);
         }
-        else if (itemName.equalsIgnoreCase("call"))
+        else if (itemName.equals("call"))
         {
-            contact = contactItem.getDefaultContact(
+            contact = metaContact.getDefaultContact(
                     OperationSetBasicTelephony.class);
 
-            callContact(contact);
+            CallManager.createCall(
+                contact.getProtocolProvider(), contact);
         }
-        else if (itemName.equalsIgnoreCase("sendFile"))
+        else if (itemName.equals("videoCall"))
+        {
+            contact = metaContact.getDefaultContact(
+                    OperationSetVideoTelephony.class);
+
+            CallManager.createVideoCall(
+                contact.getProtocolProvider(), contact.getAddress());
+        }
+        else if (itemName.equals("desktopSharing"))
+        {
+            contact = metaContact.getDefaultContact(
+                    OperationSetVideoTelephony.class);
+
+            CallManager.createDesktopSharing(
+                contact.getProtocolProvider(), contact.getAddress());
+        }
+        else if (itemName.equals("sendFile"))
         {
             SipCommFileChooser scfc = GenericFileDialog.create(
                 null, "Send file...", 
@@ -456,7 +659,7 @@ public class MetaContactRightButtonMenu
                 // Obtain the corresponding chat panel.
                 ChatPanel chatPanel
                     = GuiActivator.getUIService().
-                        getChatWindowManager().getContactChat(contactItem, true);
+                        getChatWindowManager().getContactChat(metaContact, true);
 
                 chatPanel.sendFile(selectedFile);
 
@@ -465,18 +668,18 @@ public class MetaContactRightButtonMenu
             }
 
             GuiActivator.getUIService().getChatWindowManager()
-                .startChat(contactItem);
+                .startChat(metaContact);
         }
-        else if (itemName.equalsIgnoreCase("renameContact"))
+        else if (itemName.equals("renameContact"))
         {
             RenameContactDialog dialog = new RenameContactDialog(
-                    mainFrame, contactItem);
+                    mainFrame, metaContact);
 
             dialog.setVisible(true);
 
             dialog.requestFocusInFiled();
         }
-        else if (itemName.equalsIgnoreCase("viewHistory"))
+        else if (itemName.equals("viewHistory"))
         {
             HistoryWindow history;
 
@@ -484,10 +687,10 @@ public class MetaContactRightButtonMenu
                 = GuiActivator.getUIService().getHistoryWindowManager();
 
             if(historyWindowManager
-                .containsHistoryWindowForContact(contactItem))
+                .containsHistoryWindowForContact(metaContact))
             {
                 history = historyWindowManager
-                    .getHistoryWindowForContact(contactItem);
+                    .getHistoryWindowForContact(metaContact);
 
                 if(history.getState() == JFrame.ICONIFIED)
                     history.setState(JFrame.NORMAL);
@@ -496,10 +699,10 @@ public class MetaContactRightButtonMenu
             }
             else
             {
-                history = new HistoryWindow(this.contactItem);
+                history = new HistoryWindow(this.metaContact);
 
                 historyWindowManager
-                    .addHistoryWindowForContact(contactItem, history);
+                    .addHistoryWindowForContact(metaContact, history);
 
                 history.setVisible(true);
             }
@@ -507,7 +710,7 @@ public class MetaContactRightButtonMenu
         else if (itemName.startsWith(moveToPrefix))
         {
             MetaContactListManager.moveMetaContactToGroup(
-                contactItem, itemName.substring(moveToPrefix.length()));
+                metaContact, itemName.substring(moveToPrefix.length()));
         }
         else if (itemName.startsWith(removeContactPrefix))
         {
@@ -520,7 +723,7 @@ public class MetaContactRightButtonMenu
             }
             else
             {
-                MetaContactListManager.removeMetaContact(contactItem);
+                MetaContactListManager.removeMetaContact(metaContact);
             }
         }
         else if(itemName.startsWith(moveSubcontactPrefix))
@@ -563,18 +766,25 @@ public class MetaContactRightButtonMenu
             contact = getContactFromMetaContact(
                     itemName.substring(callContactPrefix.length()));
 
-            callContact(contact);
+            CallManager.createCall(
+                contact.getProtocolProvider(), contact);
         }
-    }
+        else if (itemName.startsWith(videoCallPrefix))
+        {
+            contact = getContactFromMetaContact(
+                    itemName.substring(videoCallPrefix.length()));
 
-    /**
-     * Calls the given contact
-     * @param contact the contact to call
-     */
-    private void callContact(Contact contact)
-    {
-        CallManager.createCall(
-            contact.getProtocolProvider(), contact);
+            CallManager.createVideoCall(contact.getProtocolProvider(),
+                                        contact.getAddress());
+        }
+        else if (itemName.startsWith(desktopSharingPrefix))
+        {
+            contact = getContactFromMetaContact(
+                    itemName.substring(desktopSharingPrefix.length()));
+
+            CallManager.createDesktopSharing(   contact.getProtocolProvider(),
+                                                contact.getAddress());
+        }
     }
 
     /**
@@ -587,7 +797,7 @@ public class MetaContactRightButtonMenu
      */
     private Contact getContactFromMetaContact(String itemID)
     {
-        Iterator<Contact> i = contactItem.getContacts();
+        Iterator<Contact> i = metaContact.getContacts();
 
         while (i.hasNext())
         {
@@ -632,7 +842,7 @@ public class MetaContactRightButtonMenu
         if(moveAllContacts)
         {
             MetaContactListManager
-                .moveMetaContactToGroup(contactItem, metaGroup);
+                .moveMetaContactToGroup(metaContact, metaGroup);
         }
         else if(contactToMove != null)
         {
@@ -668,7 +878,7 @@ public class MetaContactRightButtonMenu
     {
         this.moveDialog.dispose();
 
-        if(toMetaContact.equals(contactItem))
+        if(toMetaContact.equals(metaContact))
         {
             new ErrorDialog(this.mainFrame,
                 GuiActivator.getResources()
@@ -689,7 +899,7 @@ public class MetaContactRightButtonMenu
             if(moveAllContacts)
             {
                 MetaContactListManager
-                    .moveMetaContactToMetaContact(contactItem, toMetaContact);
+                    .moveMetaContactToMetaContact(metaContact, toMetaContact);
             }
             else if(contactToMove != null)
             {
@@ -723,7 +933,7 @@ public class MetaContactRightButtonMenu
         else
             this.add((Component) c.getComponent(), constraints);
 
-        c.setCurrentContact(contactItem);
+        c.setCurrentContact(metaContact);
 
         this.repaint();
     }
@@ -765,6 +975,12 @@ public class MetaContactRightButtonMenu
     {
         callItem.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
+
+        videoCallItem.setIcon(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.VIDEO_CALL)));
+
+        desktopSharingItem.setIcon(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.DESKTOP_SHARING)));
 
         sendMessageItem.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));

@@ -22,4 +22,3 @@ public interface ScreenDevice
      */
     public Dimension getSize();
 }
-

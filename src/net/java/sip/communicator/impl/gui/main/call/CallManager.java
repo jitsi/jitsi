@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -53,6 +54,19 @@ public class CallManager
      * Listener notified for changes in missed calls count.
      */
     private static MissedCallsListener missedCallsListener;
+
+    /**
+     * Indicates if an outgoing call is a desktop sharing.
+     */
+    private static boolean isDesktopSharing = false;
+
+    /**
+     * The property indicating if the user should be warned when starting a
+     * desktop sharing session.
+     */
+    private static final String desktopSharingWarningProperty
+        = "net.java.sip.communicator.impl.gui.main"
+            + ".call.SHOW_DESKTOP_SHARING_WARNING";
 
     /**
      * A call listener.
@@ -140,7 +154,9 @@ public class CallManager
         {
             Call sourceCall = event.getSourceCall();
 
-            CallManager.openCallDialog(sourceCall);
+            CallManager.openCallDialog(sourceCall, isDesktopSharing);
+
+            isDesktopSharing = false;
         }
     }
 
@@ -189,7 +205,7 @@ public class CallManager
      */
     public static void answerCall(final Call call)
     {
-        CallManager.openCallDialog(call);
+        CallManager.openCallDialog(call, false);
 
         new AnswerCallThread(call).start();
     }
@@ -240,6 +256,142 @@ public class CallManager
                                     Contact contact)
     {
         new CreateCallThread(protocolProvider, contact).start();
+    }
+
+    /**
+     * Creates a call to the contact represented by the given string.
+     *
+     * @param protocolProvider the protocol provider to which this call belongs.
+     * @param contact the contact to call to
+     */
+    public static void createVideoCall( ProtocolProviderService protocolProvider,
+                                        String contact)
+    {
+        new CreateVideoCallThread(protocolProvider, contact).start();
+    }
+
+    /**
+     * Creates a desktop sharing call to the contact represented by the given
+     * string.
+     *
+     * @param protocolProvider the protocol provider to which this call belongs.
+     * @param contact the contact to call to
+     */
+    public static void createDesktopSharing(
+                                    ProtocolProviderService protocolProvider,
+                                    String contact)
+    {
+        // Use the default media device corresponding to the screen to share
+        createDesktopSharing(protocolProvider, contact, null);
+    }
+
+    /**
+     * Creates a desktop sharing call to the contact represented by the given
+     * string.
+     *
+     * @param protocolProvider the protocol provider to which this call belongs.
+     * @param contact the contact to call to
+     * @param mediaDevice the media device corresponding to the screen to share
+     */
+    public static void createDesktopSharing(
+                                    ProtocolProviderService protocolProvider,
+                                    String contact,
+                                    MediaDevice mediaDevice)
+    {
+        if (showDesktopSharingWarning())
+        {
+            // Indicate to the outgoing call event which will be received later
+            // that this is a desktop sharing call.
+            isDesktopSharing = true;
+
+            new CreateDesktopSharingThread( protocolProvider,
+                                            contact,
+                                            mediaDevice).start();
+        }
+    }
+
+    /**
+     * Enables the desktop sharing in an existing <tt>call</tt>.
+     *
+     * @param call the call for which desktop sharing should be enabled
+     * @param isEnable indicates if the desktop sharing should be enabled or
+     * disabled
+     */
+    public static void enableDesktopSharing(Call call, boolean isEnable)
+    {
+        enableDesktopSharing(call, null, isEnable);
+    }
+
+    /**
+     * Enables the desktop sharing in an existing <tt>call</tt>.
+     *
+     * @param call the call for which desktop sharing should be enabled
+     * @param mediaDevice the media device corresponding to the screen to share
+     * @param isEnable indicates if the desktop sharing should be enabled or
+     * disabled
+     */
+    public static void enableDesktopSharing(Call call,
+                                            MediaDevice mediaDevice,
+                                            boolean isEnable)
+    {
+        OperationSetDesktopStreaming desktopOpSet
+            = call.getProtocolProvider().getOperationSet(
+                    OperationSetDesktopStreaming.class);
+
+        // This shouldn't happen at this stage, because we disable the button
+        // if the operation set isn't available.
+        if (desktopOpSet == null)
+            return;
+
+        if (!isEnable || showDesktopSharingWarning())
+        {
+            try
+            {
+                boolean isDesktopSharing
+                    = desktopOpSet.isLocalVideoAllowed(call);
+
+                CallDialog callDialog = activeCalls.get(call);
+                callDialog.setDesktopSharing(!isDesktopSharing);
+
+                if (mediaDevice != null)
+                    desktopOpSet.setLocalVideoAllowed(
+                        call,
+                        mediaDevice,
+                        !isDesktopSharing);
+                else
+                    desktopOpSet.setLocalVideoAllowed(
+                        call,
+                        !isDesktopSharing);
+            }
+            catch (OperationFailedException ex)
+            {
+                logger.error(
+                    "Failed to toggle the streaming of local video.", ex);
+            }
+        }
+    }
+
+    /**
+     * Enables/disables remote control when in a desktop sharing session with
+     * the given <tt>callPeer</tt>.
+     *
+     * @param callPeer the call peer for which we enable/disable remote control
+     * @param isEnable indicates if the remote control should be enabled
+     */
+    public static void enableDesktopRemoteControl(  CallPeer callPeer,
+                                                    boolean isEnable)
+    {
+        OperationSetDesktopSharingServer sharingOpSet
+            = callPeer.getProtocolProvider().getOperationSet(
+                OperationSetDesktopSharingServer.class);
+
+        if (sharingOpSet == null)
+            return;
+
+        if (isEnable)
+            sharingOpSet.enableRemoteControl(callPeer);
+        else
+            sharingOpSet.disableRemoteControl(callPeer);
     }
 
     /**
@@ -385,11 +537,14 @@ public class CallManager
      * Opens a call dialog.
      *
      * @param call the call object to pass to the call dialog
+     * @param isDesktopSharing indicates if the dialog to open is for desktop
+     * sharing
+     *
      * @return the opened call dialog
      */
-    public static CallDialog openCallDialog(Call call)
+    public static CallDialog openCallDialog(Call call, boolean isDesktopSharing)
     {
-        CallDialog callDialog = new CallDialog(call);
+        CallDialog callDialog = new CallDialog(call, isDesktopSharing);
 
         activeCalls.put(call, callDialog);
 
@@ -436,11 +591,13 @@ public class CallManager
      * Returns a list of all currently registered telephony providers for the
      * given protocol name.
      * @param protocolName the protocol name
-     * @return a list of all currently registered telephony providers for the
-     * given protocol name
+     * @param operationSetClass the operation set class for which we're looking
+     * for providers
+     * @return a list of all currently registered providers for the given
+     * <tt>protocolName</tt> and supporting the given <tt>operationSetClass</tt>
      */
-    public static List<ProtocolProviderService> getTelephonyProviders(
-        String protocolName)
+    public static List<ProtocolProviderService> getRegisteredProviders(
+        String protocolName, Class<? extends OperationSet> operationSetClass)
     {
         List<ProtocolProviderService> telephonyProviders
             = new LinkedList<ProtocolProviderService>();
@@ -461,8 +618,7 @@ public class CallManager
                     = (ProtocolProviderService) GuiActivator.bundleContext
                         .getService(serRef);
 
-                if (protocolProvider.getOperationSet(
-                        OperationSetBasicTelephony.class) != null
+                if (protocolProvider.getOperationSet(operationSetClass) != null
                     && protocolProvider.isRegistered())
                 {
                     telephonyProviders.add(protocolProvider);
@@ -634,7 +790,7 @@ public class CallManager
 
         public void run()
         {
-            OperationSetBasicTelephony<?> telephonyOpSet
+            OperationSetBasicTelephony telephonyOpSet
                 = protocolProvider
                     .getOperationSet(OperationSetBasicTelephony.class);
 
@@ -674,6 +830,170 @@ public class CallManager
                             .getI18NString("service.gui.ERROR"),
                         exception.getMessage(),
                         exception)
+                    .showDialog();
+            }
+        }
+    }
+
+    /**
+     * Creates a video call from a given Contact or a given String.
+     */
+    private static class CreateVideoCallThread
+        extends Thread
+    {
+        private final String stringContact;
+
+        private final Contact contact;
+
+        private final ProtocolProviderService protocolProvider;
+
+        public CreateVideoCallThread(ProtocolProviderService protocolProvider,
+                                    String contact)
+        {
+            this.protocolProvider = protocolProvider;
+            this.stringContact = contact;
+            this.contact = null;
+        }
+
+        public CreateVideoCallThread(ProtocolProviderService protocolProvider,
+                                    Contact contact)
+        {
+            this.protocolProvider = protocolProvider;
+            this.contact = contact;
+            this.stringContact = null;
+        }
+
+        public void run()
+        {
+            OperationSetVideoTelephony videoTelOpSet
+                = protocolProvider
+                    .getOperationSet(OperationSetVideoTelephony.class);
+
+            /*
+             * XXX If we are here and we just discover that
+             * OperationSetVideoTelephony is not supported, then we're already
+             * in trouble. At the very least, we've already started a whole new
+             * thread just to check that a reference is null.
+             */
+            if (videoTelOpSet == null)
+                return;
+
+            Throwable exception = null;
+
+            try
+            {
+                if (contact != null)
+                    videoTelOpSet.createVideoCall(contact);
+                else if (stringContact != null)
+                    videoTelOpSet.createVideoCall(stringContact);
+            }
+            catch (OperationFailedException e)
+            {
+                exception = e;
+            }
+            catch (ParseException e)
+            {
+                exception = e;
+            }
+            if (exception != null)
+            {
+                logger.error("The call could not be created: ", exception);
+
+                new ErrorDialog(
+                        null,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.ERROR"),
+                        exception.getMessage(),
+                        ErrorDialog.ERROR)
+                    .showDialog();
+            }
+        }
+    }
+
+    /**
+     * Creates a desktop sharing session with the given Contact or a given
+     * String.
+     */
+    private static class CreateDesktopSharingThread
+        extends Thread
+    {
+        /**
+         * The string contact to share the desktop with.
+         */
+        private final String stringContact;
+
+        /**
+         * The protocol provider through which we share our desktop.
+         */
+        private final ProtocolProviderService protocolProvider;
+
+        /**
+         * The media device corresponding to the screen we would like to share.
+         */
+        private final MediaDevice mediaDevice;
+
+        /**
+         * Creates a desktop sharing session thread.
+         *
+         * @param protocolProvider protocol provider through which we share our
+         * desktop
+         * @param contact the contact to share the desktop with
+         * @param mediaDevice the media device corresponding to the screen we
+         * would like to share
+         */
+        public CreateDesktopSharingThread(
+                                    ProtocolProviderService protocolProvider,
+                                    String contact,
+                                    MediaDevice mediaDevice)
+        {
+            this.protocolProvider = protocolProvider;
+            this.stringContact = contact;
+            this.mediaDevice = mediaDevice;
+        }
+
+        public void run()
+        {
+            OperationSetDesktopStreaming desktopSharingOpSet
+                = protocolProvider
+                    .getOperationSet(OperationSetDesktopStreaming.class);
+
+            /*
+             * XXX If we are here and we just discover that
+             * OperationSetDesktopSharingServer is not supported, then we're
+             * already in trouble. At the very least, we've already started a
+             * whole new thread just to check that a reference is null.
+             */
+            if (desktopSharingOpSet == null)
+                return;
+
+            Throwable exception = null;
+
+            try
+            {
+                if (mediaDevice != null)
+                    desktopSharingOpSet
+                        .createVideoCall(stringContact, mediaDevice);
+                else
+                    desktopSharingOpSet.createVideoCall(stringContact);
+            }
+            catch (OperationFailedException e)
+            {
+                exception = e;
+            }
+            catch (ParseException e)
+            {
+                exception = e;
+            }
+            if (exception != null)
+            {
+                logger.error("The call could not be created: ", exception);
+
+                new ErrorDialog(
+                        null,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.ERROR"),
+                        exception.getMessage(),
+                        ErrorDialog.ERROR)
                     .showDialog();
             }
         }
@@ -875,7 +1195,7 @@ public class CallManager
             while (peers.hasNext())
             {
                 CallPeer peer = peers.next();
-                OperationSetBasicTelephony<?> telephony
+                OperationSetBasicTelephony telephony
                     = pps.getOperationSet(OperationSetBasicTelephony.class);
 
                 try
@@ -908,7 +1228,7 @@ public class CallManager
         {
             ProtocolProviderService pps = callPeer.getProtocolProvider();
 
-            OperationSetBasicTelephony<?> telephony =
+            OperationSetBasicTelephony telephony =
                 pps.getOperationSet(OperationSetBasicTelephony.class);
 
             try
@@ -941,7 +1261,7 @@ public class CallManager
 
         public void run()
         {
-            OperationSetBasicTelephony<?> telephony =
+            OperationSetBasicTelephony telephony =
                 callPeer.getProtocolProvider()
                     .getOperationSet(OperationSetBasicTelephony.class);
 
@@ -975,5 +1295,44 @@ public class CallManager
         NotificationManager.stopSound(NotificationManager.BUSY_CALL);
         NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
         NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
+    }
+
+    /**
+     * Shows a warning window to warn the user that she's about to start a
+     * desktop sharing session.
+     *
+     * @return <tt>true</tt> if the user has accepted the desktop sharing
+     * session, <tt>false</tt> - otherwise
+     */
+    private static boolean showDesktopSharingWarning()
+    {
+        Boolean isWarningEnabled = GuiActivator.getConfigurationService()
+            .getBoolean(desktopSharingWarningProperty, true);
+
+        if (isWarningEnabled.booleanValue())
+        {
+            MessageDialog warningDialog = new MessageDialog(null,
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.WARNING"),
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.DESKTOP_SHARING_WARNING"),
+                true);
+
+            int result = warningDialog.showDialog();
+
+            switch (result)
+            {
+                case 0:
+                    return true;
+                case 1:
+                    return false;
+                case 2:
+                    GuiActivator.getConfigurationService()
+                        .setProperty(desktopSharingWarningProperty, false);
+                    return true;
+            }
+        }
+
+        return true;
     }
 }

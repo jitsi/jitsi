@@ -98,6 +98,11 @@ public class CallDialog
     private LocalVideoButton videoButton;
 
     /**
+     * The desktop sharing button.
+     */
+    private DesktopSharingButton desktopSharingButton;
+
+    /**
      * The transfer call button.
      */
     private TransferCallButton transferCallButton;
@@ -147,14 +152,22 @@ public class CallDialog
     private Timer callDurationTimer;
 
     /**
-     * Creates a <tt>CallDialog</tt> by specifying the underlying call panel.
-     * @param call the <tt>call</tt> that this dialog represents
+     * Indicates if the associated call is a desktop sharing call.
      */
-    public CallDialog(Call call)
+    private boolean isDesktopSharing;
+
+    /**
+     * Creates a <tt>CallDialog</tt> by specifying the underlying call panel.
+     *
+     * @param call the <tt>call</tt> that this dialog represents
+     * @param isDesktopSharing indicates if the desktop sharing is enabled
+     */
+    public CallDialog(Call call, boolean isDesktopSharing)
     {
         super(false);
 
         this.call = call;
+        this.isDesktopSharing = isDesktopSharing;
 
         this.callDurationTimer = new Timer(1000, new CallTimerListener());
         this.callDurationTimer.setRepeats(true);
@@ -214,6 +227,7 @@ public class CallDialog
         muteButton = new MuteButton(call);
         recordButton = new RecordButton(call);
         videoButton = new LocalVideoButton(call);
+        desktopSharingButton = new DesktopSharingButton(call);
         transferCallButton = new TransferCallButton(call);
         fullScreenButton = new FullScreenButton(this);
 
@@ -257,12 +271,11 @@ public class CallDialog
             // Buttons would be enabled once the call has entered in state
             // connected.
             videoButton.setEnabled(false);
+            desktopSharingButton.setEnabled(false);
             transferCallButton.setEnabled(false);
             fullScreenButton.setEnabled(false);
 
-            settingsPanel.add(videoButton);
-            settingsPanel.add(transferCallButton);
-            settingsPanel.add(fullScreenButton);
+            addOneToOneSpecificComponents();
         }
 
         buttonsPanel.add(settingsPanel, BorderLayout.WEST);
@@ -455,11 +468,37 @@ public class CallDialog
     }
 
     /**
+     * Selects or unselects the desktop sharing button in this call dialog.
+     *
+     * @param isSelected indicates if the video button should be selected or not
+     */
+    public void setDesktopSharingButtonSelected(boolean isSelected)
+    {
+        if (isSelected && !desktopSharingButton.isSelected())
+            desktopSharingButton.setSelected(true);
+        else if (!isSelected && desktopSharingButton.isSelected())
+            desktopSharingButton.setSelected(false);
+
+        if (callPanel instanceof OneToOneCallPanel)
+        {
+            if (isSelected
+                && call.getProtocolProvider()
+                    .getOperationSet(
+                        OperationSetDesktopSharingServer.class) != null)
+            {
+                ((OneToOneCallPanel) callPanel).addDesktopSharingComponents();
+            }
+            else
+                ((OneToOneCallPanel) callPanel).removeDesktopSharingComponents();
+        }
+    }
+
+    /**
      * Enables all setting buttons.
      */
     public void enableButtons()
     {
-     // Buttons would be enabled once the call has entered in state
+        // Buttons would be enabled once the call has entered in state
         // connected.
         dialButton.setEnabled(true);
         conferenceButton.setEnabled(true);
@@ -471,8 +510,27 @@ public class CallDialog
         {
             // Buttons would be enabled once the call has entered in state
             // connected.
-            videoButton.setEnabled(true);
-            transferCallButton.setEnabled(true);
+            ProtocolProviderService protocolProvider
+                = call.getProtocolProvider();
+
+            if (protocolProvider.getOperationSet(
+                OperationSetVideoTelephony.class) != null)
+            {
+                videoButton.setEnabled(true);
+            }
+
+            if (protocolProvider.getOperationSet(
+                OperationSetDesktopStreaming.class) != null)
+            {
+                desktopSharingButton.setEnabled(true);
+            }
+
+            if (protocolProvider.getOperationSet(
+                OperationSetAdvancedTelephony.class) != null)
+            {
+                transferCallButton.setEnabled(true);
+            }
+
             fullScreenButton.setEnabled(true);
         }
     }
@@ -579,7 +637,7 @@ public class CallDialog
                     // conference.
                     if (isLastConference)
                     {
-                        settingsPanel.remove(videoButton);
+                        removeOneToOneSpecificComponents();
                         contentPane.remove(callPanel);
                         updateCurrentCallPanel(
                             new ConferenceCallPanel(CallDialog.this, call));
@@ -801,6 +859,29 @@ public class CallDialog
     }
 
     /**
+     * Indicates if the associated call is a desktop sharing.
+     *
+     * @return <tt>true</tt> if the associated call is a desktop sharing,
+     * otherwise returns false
+     */
+    public boolean isDesktopSharing()
+    {
+        return isDesktopSharing;
+    }
+
+    /**
+     * Sets the desktop sharing property to indicate that the corresponding call
+     * has become or is no longer a desktop sharing.
+     *
+     * @param isDesktopSharing indicates if the corresponding call has become
+     * a desktop sharing or is no longer a desktop sharing
+     */
+    public void setDesktopSharing(boolean isDesktopSharing)
+    {
+        this.isDesktopSharing = isDesktopSharing;
+    }
+
+    /**
      * Replaces the current call panel with the given one.
      * @param callPanel the <tt>JComponent</tt> to replace the current
      * call panel
@@ -811,22 +892,45 @@ public class CallDialog
 
         if (callPanel instanceof OneToOneCallPanel)
         {
-            settingsPanel.add(videoButton);
-            settingsPanel.add(transferCallButton);
-            settingsPanel.add(fullScreenButton);
+            addOneToOneSpecificComponents();
         }
         else
         {
-            // First disable video.
-            if (videoButton.isSelected())
-                videoButton.doClick();
-
-            if (fullScreenButton.isSelected())
-                fullScreenButton.doClick();
-
-            settingsPanel.remove(videoButton);
-            settingsPanel.remove(transferCallButton);
-            settingsPanel.remove(fullScreenButton);
+            removeOneToOneSpecificComponents();
         }
+    }
+
+    /**
+     * Removes components specific for the one-to-one call.
+     */
+    private void removeOneToOneSpecificComponents()
+    {
+        // Disable video.
+        if (videoButton.isSelected())
+            videoButton.doClick();
+
+        // Disable desktop sharing.
+        if (desktopSharingButton.isSelected())
+            desktopSharingButton.doClick();
+
+        // Disable full screen.
+        if (fullScreenButton.isSelected())
+            fullScreenButton.doClick();
+
+        settingsPanel.remove(videoButton);
+        settingsPanel.remove(desktopSharingButton);
+        settingsPanel.remove(transferCallButton);
+        settingsPanel.remove(fullScreenButton);
+    }
+
+    /**
+     * Adds components specific for the one-to-one call.
+     */
+    private void addOneToOneSpecificComponents()
+    {
+        settingsPanel.add(videoButton);
+        settingsPanel.add(desktopSharingButton);
+        settingsPanel.add(transferCallButton);
+        settingsPanel.add(fullScreenButton);
     }
 }

@@ -467,13 +467,6 @@ public class DeviceConfiguration
             Vector<CaptureDeviceInfo> captureDeviceInfos =
                 CaptureDeviceManager.getDeviceList(format);
 
-            /* TODO remove this line (and use the comment part) when GUI will
-             * support initiating directly video call or desktop streaming
-             * session
-             */
-            videoCaptureDevices.addAll(captureDeviceInfos);
-
-            /*
             if(useCase != MediaUseCase.ANY)
             {
                 for(CaptureDeviceInfo dev : captureDeviceInfos)
@@ -498,7 +491,6 @@ public class DeviceConfiguration
             {
                 videoCaptureDevices.addAll(captureDeviceInfos);
             }
-            */
         }
 
         return videoCaptureDevices.toArray(NO_CAPTURE_DEVICES);
@@ -514,12 +506,6 @@ public class DeviceConfiguration
      */
     public CaptureDeviceInfo getVideoCaptureDevice(MediaUseCase useCase)
     {
-        /* TODO remove this line (and use the comment part) when GUI will
-         * support initiating directly video call or desktop streaming session
-         */
-        return videoCaptureDevice;
-
-        /*
         CaptureDeviceInfo dev = null;
 
         switch(useCase)
@@ -540,7 +526,6 @@ public class DeviceConfiguration
         }
 
         return dev;
-        */
     }
 
     /**

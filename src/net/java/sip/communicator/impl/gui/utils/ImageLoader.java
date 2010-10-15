@@ -276,6 +276,36 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.CALL_BUTTON_SMALL_PRESSED");
 
     /**
+     * The desktop sharing button small image.
+     */
+    public static final ImageID DESKTOP_BUTTON_SMALL
+        = new ImageID("service.gui.buttons.DESKTOP_BUTTON_SMALL");
+
+    /**
+     * The desktop sharing button small pressed image.
+     */
+    public static final ImageID DESKTOP_BUTTON_SMALL_PRESSED
+        = new ImageID("service.gui.buttons.DESKTOP_BUTTON_SMALL_PRESSED");
+
+    /**
+     * The desktop sharing button in the call window.
+     */
+    public static final ImageID CALL_DESKTOP_BUTTON
+        = new ImageID("service.gui.buttons.CALL_DESKTOP_BUTTON");
+
+    /**
+     * The call button small image.
+     */
+    public static final ImageID CALL_VIDEO_BUTTON_SMALL
+        = new ImageID("service.gui.buttons.CALL_VIDEO_BUTTON_SMALL");
+
+    /**
+     * The call button small pressed image.
+     */
+    public static final ImageID CALL_VIDEO_BUTTON_SMALL_PRESSED
+        = new ImageID("service.gui.buttons.CALL_VIDEO_BUTTON_SMALL_PRESSED");
+
+    /**
      * The chat button small image.
      */
     public static final ImageID CHAT_BUTTON_SMALL
@@ -286,6 +316,12 @@ public class ImageLoader
      */
     public static final ImageID CHAT_CALL
         = new ImageID("service.gui.buttons.CHAT_CALL");
+
+    /**
+     * The chat call button image.
+     */
+    public static final ImageID CHAT_DESKTOP_SHARING
+        = new ImageID("service.gui.buttons.CHAT_DESKTOP_SHARING");
 
     /**
      * The call history button image.
@@ -829,6 +865,18 @@ public class ImageLoader
      */
     public static final ImageID MAGNIFIER_ZOOM_IN
         = new ImageID("service.gui.buttons.ZOOM_IN");
+
+    /**
+     * The video call menu item icon.
+     */
+    public static final ImageID VIDEO_CALL
+        = new ImageID("service.gui.icons.VIDEO_CALL_16x16_ICON");
+
+    /**
+     * The desktop sharing menu item icon.
+     */
+    public static final ImageID DESKTOP_SHARING
+        = new ImageID("service.gui.icons.DESKTOP_SHARING_16x16_ICON");
 
     /*
      * =======================================================================

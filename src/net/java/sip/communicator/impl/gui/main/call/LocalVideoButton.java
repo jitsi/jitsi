@@ -6,15 +6,12 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.event.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The local video button is the button used to start/stop video in a
@@ -23,7 +20,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Lubomir Marinov
  */
 public class LocalVideoButton
-    extends SIPCommToggleButton
+    extends AbstractCallToggleButton
 {
     private static final Logger logger
         = Logger.getLogger(LocalVideoButton.class);
@@ -37,16 +34,28 @@ public class LocalVideoButton
      */
     public LocalVideoButton(Call call)
     {
-        setBgImage(ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
-        setBgRolloverImage(
-            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
-        setIconImage(ImageLoader.getImage(ImageLoader.LOCAL_VIDEO_BUTTON));
-        setPressedImage(
-            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG));
+        this(call, false, false);
+    }
 
-        setModel(new LocalVideoButtonModel(call));
-        setToolTipText(GuiActivator.getResources().getI18NString(
-            "service.gui.LOCAL_VIDEO_BUTTON_TOOL_TIP"));
+    /**
+     * Creates a <tt>LocalVideoButton</tt> by specifying the corresponding
+     * <tt>call</tt>.
+     *
+     * @param call  the <tt>Call</tt> to be associated with the new instance and
+     * to be put on/off hold upon performing its action
+     * @param fullScreen <tt>true</tt> if the new instance is to be used in
+     * full-screen UI; otherwise, <tt>false</tt>
+     * @param selected <tt>true</tt> if the new toggle button is to be initially
+     * selected; otherwise, <tt>false</tt>
+     */
+    public LocalVideoButton(Call call, boolean fullScreen, boolean selected)
+    {
+        super(
+            call,
+            fullScreen,
+            selected,
+            ImageLoader.LOCAL_VIDEO_BUTTON,
+            "service.gui.LOCAL_VIDEO_BUTTON_TOOL_TIP");
 
         MediaDevice videoDevice
             = GuiActivator.getMediaService().getDefaultDevice(MediaType.VIDEO,
@@ -58,73 +67,28 @@ public class LocalVideoButton
         }
     }
 
-    private static class LocalVideoButtonModel
-        extends ToggleButtonModel
-        implements ActionListener,
-                   Runnable
+    /**
+     * Enables or disables local video when the button is toggled/untoggled.
+     */
+    public void buttonPressed()
     {
-        private final Call call;
+        OperationSetVideoTelephony telephony
+            = call.getProtocolProvider()
+                .getOperationSet(OperationSetVideoTelephony.class);
 
-        private Thread runner;
-
-        public LocalVideoButtonModel(Call call)
-        {
-            this.call = call;
-
-            addActionListener(this);
-        }
-
-        public synchronized void actionPerformed(ActionEvent event)
-        {
-            if (runner == null)
-            {
-                runner = new Thread(this, LocalVideoButton.class.getName());
-                runner.setDaemon(true);
-
-                setEnabled(false);
-                runner.start();
-            }
-        }
-
-        public void run()
+        if (telephony != null)
         {
             try
             {
-                doRun();
+                telephony.setLocalVideoAllowed(
+                    call,
+                    !telephony.isLocalVideoAllowed(call));
             }
-            finally
+            catch (OperationFailedException ex)
             {
-                synchronized (this)
-                {
-                    if (Thread.currentThread().equals(runner))
-                    {
-                        runner = null;
-                        setEnabled(true);
-                    }
-                }
-            }
-        }
-
-        private void doRun()
-        {
-            OperationSetVideoTelephony telephony =
-                call.getProtocolProvider()
-                    .getOperationSet(OperationSetVideoTelephony.class);
-
-            if (telephony != null)
-            {
-                try
-                {
-                    telephony.setLocalVideoAllowed(
-                        call,
-                        !telephony.isLocalVideoAllowed(call));
-                }
-                catch (OperationFailedException ex)
-                {
-                    logger.error(
-                        "Failed to toggle the streaming of local video.",
-                        ex);
-                }
+                logger.error(
+                    "Failed to toggle the streaming of local video.",
+                    ex);
             }
         }
     }
