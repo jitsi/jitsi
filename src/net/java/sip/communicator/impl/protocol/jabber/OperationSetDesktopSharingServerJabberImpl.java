@@ -96,11 +96,6 @@ public class OperationSetDesktopSharingServerJabberImpl
     private List<String> callPeers = new ArrayList<String>();
 
     /**
-     * Video panel size.
-     */
-    private Dimension size = null;
-
-    /**
      * Initializes a new <tt>OperationSetDesktopSharingJabberImpl</tt> instance
      * which builds upon the telephony-related functionality of a specific
      * <tt>OperationSetBasicTelephonyJabberImpl</tt>.

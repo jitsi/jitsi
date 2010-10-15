@@ -1390,6 +1390,11 @@ public class OneToOneCallPeerPanel
         public void remoteControlGranted(RemoteControlGrantedEvent event)
         {
             allowRemoteControl = true;
+
+            if(remoteVideo != null)
+            {
+                addMouseAndKeyListeners();
+            }
         }
 
         /**

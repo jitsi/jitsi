@@ -6,12 +6,14 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.awt.*;
 import java.text.*;
 
 import javax.sip.address.*;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -23,6 +25,11 @@ public class OperationSetDesktopStreamingSipImpl
     extends OperationSetVideoTelephonySipImpl
     implements OperationSetDesktopStreaming
 {
+    /**
+     * Dimension of the local desktop streamed.
+     */
+    protected Dimension size = null;
+
     /**
      * Initializes a new <tt>OperationSetDesktopStreamingSipImpl</tt> instance
      * which builds upon the telephony-related functionality of a specific
@@ -130,6 +137,9 @@ public class OperationSetDesktopStreamingSipImpl
     {
         ((CallSipImpl)call).setLocalVideoAllowed(allowed, MediaUseCase.DESKTOP);
 
+        size = (((VideoMediaFormat)((CallSipImpl)call).
+                getDefaultDevice(MediaType.VIDEO).
+                getFormat()).getSize());
         /* reinvite all peers */
         ((CallSipImpl)call).reInvite();
     }
@@ -155,6 +165,9 @@ public class OperationSetDesktopStreamingSipImpl
         throws OperationFailedException
     {
         ((CallSipImpl)call).setVideoDevice(mediaDevice);
+        size = (((VideoMediaFormat)((CallSipImpl)call).
+                getDefaultDevice(MediaType.VIDEO).
+                getFormat()).getSize());
         super.setLocalVideoAllowed(call, allowed);
     }
 }

@@ -6,10 +6,12 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.awt.*;
 import java.text.*;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -21,6 +23,11 @@ public class OperationSetDesktopStreamingJabberImpl
     extends OperationSetVideoTelephonyJabberImpl
     implements OperationSetDesktopStreaming
 {
+    /**
+     * Video panel size.
+     */
+    protected Dimension size = null;
+
     /**
      * Initializes a new <tt>OperationSetDesktopStreamingJabberImpl</tt>
      * instance which builds upon the telephony-related functionality of a
@@ -106,6 +113,8 @@ public class OperationSetDesktopStreamingJabberImpl
     {
         ((CallJabberImpl)call).setLocalVideoAllowed(allowed,
                 MediaUseCase.DESKTOP);
+        size = (((VideoMediaFormat)((CallJabberImpl)call).getDefaultDevice(
+                MediaType.VIDEO).getFormat()).getSize());
         ((CallJabberImpl)call).modifyVideoContent(allowed);
     }
 
@@ -130,6 +139,7 @@ public class OperationSetDesktopStreamingJabberImpl
         throws OperationFailedException
     {
         ((CallJabberImpl)call).setVideoDevice(mediaDevice);
+        size = ((VideoMediaFormat)mediaDevice.getFormat()).getSize();
         super.setLocalVideoAllowed(call, allowed);
     }
 

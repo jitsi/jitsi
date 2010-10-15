@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.sip;
 import java.io.*;
 import java.util.List; // disambiguation
 import java.text.*;
-import java.awt.*;
 import java.awt.event.*;
 
 import javax.sip.Dialog; // disambiguation
@@ -118,11 +117,6 @@ public class OperationSetDesktopSharingServerSipImpl
      * SIP NOTIFY.
      */
     private HIDService hidService = null;
-
-    /**
-     * Dimension of the local desktop streamed.
-     */
-    private Dimension size = null;
 
     /**
      * Initializes a new <tt>OperationSetDesktopSharingSipImpl</tt> instance
