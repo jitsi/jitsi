@@ -49,9 +49,8 @@ public class MasterPasswordInputDialog
     private JButton cancelButton;
     private JTextArea infoTextArea;
     private JTextArea errorTextArea;
-    private JPanel textFieldsPanel;
     private JPanel buttonsPanel;
-    private JPanel mainPanel;
+    private JPanel dataPanel;
 
     /**
      * Builds the dialog.
@@ -66,6 +65,12 @@ public class MasterPasswordInputDialog
             .getI18NString("plugin.securityconfig.masterpassword.MP_TITLE"));
         this.setModal(true);
         this.setResizable(false);
+
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        mainPanel.add(createIconComponent(), BorderLayout.WEST);
+        mainPanel.add(dataPanel);
 
         this.getContentPane().add(mainPanel);
 
@@ -83,9 +88,8 @@ public class MasterPasswordInputDialog
      */
     private void initComponents()
     {
-        mainPanel = new TransparentPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        dataPanel = new TransparentPanel();
+        dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));
 
         // info text
         infoTextArea = new JTextArea();
@@ -115,8 +119,6 @@ public class MasterPasswordInputDialog
                 okButton.doClick();
             }
         });
-        textFieldsPanel = new TransparentPanel(new GridLayout(0, 1, 8, 8));
-        textFieldsPanel.add(currentPasswdField);
 
         // OK and cancel buttons
         okButton = new JButton(resources.getI18NString("service.gui.OK"));
@@ -129,7 +131,8 @@ public class MasterPasswordInputDialog
             "service.gui.CANCEL"));
         cancelButton.addActionListener(this);
 
-        buttonsPanel = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonsPanel = new TransparentPanel(
+            new FlowLayout(FlowLayout.RIGHT, 0, 5));
         buttonsPanel.add(okButton);
         buttonsPanel.add(cancelButton);
 
@@ -143,13 +146,13 @@ public class MasterPasswordInputDialog
      */
     private void rebuildMainPanel(boolean includeErrorMsg)
     {
-        mainPanel.removeAll();
+        dataPanel.removeAll();
 
         if (includeErrorMsg)
-            mainPanel.add(errorTextArea);
-        mainPanel.add(infoTextArea);
-        mainPanel.add(textFieldsPanel);
-        mainPanel.add(buttonsPanel);
+            dataPanel.add(errorTextArea);
+        dataPanel.add(infoTextArea);
+        dataPanel.add(currentPasswdField);
+        dataPanel.add(buttonsPanel);
     }
 
     /**
@@ -249,5 +252,24 @@ public class MasterPasswordInputDialog
      */
     public void keyTyped(KeyEvent arg0)
     {
+    }
+
+    /**
+     * Creates the icon component to show on the left of this dialog.
+     *
+     * @return the created component
+     */
+    private static Component createIconComponent()
+    {
+        JPanel wrapIconPanel = new JPanel(new BorderLayout());
+
+        JLabel iconLabel = new JLabel();
+
+        iconLabel.setIcon(GuiActivator.getResources()
+            .getImage("service.gui.icons.AUTHORIZATION_ICON"));
+
+        wrapIconPanel.add(iconLabel, BorderLayout.NORTH);
+
+        return wrapIconPanel;
     }
 }

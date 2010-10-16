@@ -74,7 +74,7 @@ public class MasterPasswordChangeDialog
     private JPanel labelsPanel;
     private JPanel buttonsPanel;
     private JPanel qualityPanel;
-    private JPanel mainPanel;
+    private JPanel dataPanel;
 
     /**
      * The <tt>ResourceManagementService</tt> used by this instance to access
@@ -94,9 +94,15 @@ public class MasterPasswordChangeDialog
         this.setTitle(
                 resources.getI18NString(
                         "plugin.securityconfig.masterpassword.MP_TITLE"));
-        this.setMinimumSize(new Dimension(350, 300));
-        this.setPreferredSize(new Dimension(350, 300));
+        this.setMinimumSize(new Dimension(450, 320));
+        this.setPreferredSize(new Dimension(450, 320));
         this.setResizable(false);
+
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        mainPanel.add(createIconComponent(), BorderLayout.WEST);
+        mainPanel.add(dataPanel);
 
         this.getContentPane().add(mainPanel);
 
@@ -124,8 +130,8 @@ public class MasterPasswordChangeDialog
      */
     private void initComponents()
     {
-        mainPanel = new TransparentPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        dataPanel = new TransparentPanel(new BorderLayout(10, 10));
+        dataPanel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
 
         // info text
         infoTextArea = new JTextArea();
@@ -135,23 +141,18 @@ public class MasterPasswordChangeDialog
         infoTextArea.setWrapStyleWord(true);
         infoTextArea.setFont(infoTextArea.getFont().deriveFont(Font.BOLD));
         infoTextArea.setText(
-                resources.getI18NString("plugin.securityconfig.masterpassword.INFO_TEXT"));
+                resources.getI18NString(
+                    "plugin.securityconfig.masterpassword.INFO_TEXT"));
 
         // label fields
         labelsPanel = new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
-        labelsPanel.add(
-                new JLabel(
-                        resources.getI18NString(
-                                "plugin.securityconfig.masterpassword.CURRENT_PASSWORD")));
-        labelsPanel.add(
-                new JLabel(
-                        resources.getI18NString(
-                                "plugin.securityconfig.masterpassword.ENTER_PASSWORD")));
-        labelsPanel.add(
-                new JLabel(
-                        resources.getI18NString(
-                                "plugin.securityconfig.masterpassword.REENTER_PASSWORD")));
+        labelsPanel.add(new JLabel(resources.getI18NString(
+                "plugin.securityconfig.masterpassword.CURRENT_PASSWORD")));
+        labelsPanel.add(new JLabel(resources.getI18NString(
+                    "plugin.securityconfig.masterpassword.ENTER_PASSWORD")));
+        labelsPanel.add(new JLabel(resources.getI18NString(
+                    "plugin.securityconfig.masterpassword.REENTER_PASSWORD")));
 
         // password fields
         ActionListener clickOkButton = new ActionListener()
@@ -166,10 +167,8 @@ public class MasterPasswordChangeDialog
                 .getCredentialsStorageService()
                     .isUsingMasterPassword())
         {
-            currentPasswdField
-                = new JTextField(
-                        resources.getI18NString(
-                                "plugin.securityconfig.masterpassword.MP_NOT_SET"));
+            currentPasswdField = new JTextField(resources.getI18NString(
+                    "plugin.securityconfig.masterpassword.MP_NOT_SET"));
             currentPasswdField.setEnabled(false);
         }
         else
@@ -207,22 +206,25 @@ public class MasterPasswordChangeDialog
 
         qualityPanel = new TransparentPanel();
         qualityPanel.setLayout(new BoxLayout(qualityPanel, BoxLayout.Y_AXIS));
-        qualityPanel.add(
-                new JLabel(
-                        resources.getI18NString(
-                                "plugin.securityconfig.masterpassword.PASSWORD_QUALITY_METER")));
+
+        JLabel qualityMeterLabel = new JLabel(resources.getI18NString(
+            "plugin.securityconfig.masterpassword.PASSWORD_QUALITY_METER"));
+        qualityMeterLabel.setAlignmentX(CENTER_ALIGNMENT);
+
+        qualityPanel.add(qualityMeterLabel);
         qualityPanel.add(passwordQualityBar);
         qualityPanel.add(Box.createVerticalStrut(15));
 
-        buttonsPanel = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonsPanel = new TransparentPanel(
+            new FlowLayout(FlowLayout.RIGHT, 0, 5));
         buttonsPanel.add(okButton);
         buttonsPanel.add(cancelButton);
         qualityPanel.add(buttonsPanel);
 
-        mainPanel.add(infoTextArea, BorderLayout.NORTH);
-        mainPanel.add(labelsPanel, BorderLayout.WEST);
-        mainPanel.add(textFieldsPanel, BorderLayout.CENTER);
-        mainPanel.add(qualityPanel, BorderLayout.SOUTH);
+        dataPanel.add(infoTextArea, BorderLayout.NORTH);
+        dataPanel.add(labelsPanel, BorderLayout.WEST);
+        dataPanel.add(textFieldsPanel, BorderLayout.CENTER);
+        dataPanel.add(qualityPanel, BorderLayout.SOUTH);
     }
 
     /**
@@ -383,5 +385,24 @@ public class MasterPasswordChangeDialog
     public void setCallback(MasterPasswordExecutable callbackInstance)
     {
         this.callback = callbackInstance;
+    }
+
+    /**
+     * Creates the icon component to show on the left of this dialog.
+     *
+     * @return the created component
+     */
+    private static Component createIconComponent()
+    {
+        JPanel wrapIconPanel = new JPanel(new BorderLayout());
+
+        JLabel iconLabel = new JLabel();
+
+        iconLabel.setIcon(SecurityConfigActivator.getResources()
+            .getImage("service.gui.icons.AUTHORIZATION_ICON"));
+
+        wrapIconPanel.add(iconLabel, BorderLayout.NORTH);
+
+        return wrapIconPanel;
     }
 }
