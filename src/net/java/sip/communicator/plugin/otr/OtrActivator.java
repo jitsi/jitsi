@@ -168,7 +168,7 @@ public class OtrActivator
                 "net.java.sip.communicator.plugin.otr.OtrConfigurationPanel",
                 getClass().getClassLoader(),
                 "plugin.otr.configform.ICON",
-                "service.gui.CHAT", 30),
+                "service.gui.CHAT", 1),
                 properties);
     }
 

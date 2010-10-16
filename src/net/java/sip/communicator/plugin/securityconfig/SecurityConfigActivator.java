@@ -96,7 +96,7 @@ public class SecurityConfigActivator
                 getClass().getClassLoader(),
                 null /* iconID */,
                 "plugin.securityconfig.masterpassword.TITLE",
-                20),
+                3),
             properties);
     }
 
@@ -243,8 +243,9 @@ public class SecurityConfigActivator
 
     /**
      * Finds all accounts with saved encrypted passwords.
-     * 
-     * @return a {@link List} of {@link AccountID} with the saved encrypted password. 
+     *
+     * @return a {@link List} of {@link AccountID} with the saved encrypted
+     * password. 
      */
     public static Map<AccountID, String> getAccountIDsWithSavedPasswords()
     {

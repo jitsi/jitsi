@@ -156,7 +156,7 @@ public class NeomediaActivator
                 getClass().getClassLoader(),
                 "impl.media.security.zrtp.CONF_ICON",
                 "service.gui.CALL",
-                1100),
+                0),
             securityProps);
 
         GatherEntropy entropy

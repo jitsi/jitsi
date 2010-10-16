@@ -60,7 +60,7 @@ public class SecurityConfigurationPanel
 
                 Object formComponent = form.getForm();
                 if (formComponent instanceof Component)
-                    addTab(form.getTitle(), (Component) formComponent);
+                    addConfigForm(form);
             }
         }
     }
@@ -96,7 +96,7 @@ public class SecurityConfigurationPanel
         case ServiceEvent.REGISTERED:
             formComponent = configForm.getForm();
             if (formComponent instanceof Component)
-                addTab(configForm.getTitle(), (Component) formComponent);
+                addConfigForm(configForm);
             break;
 
         case ServiceEvent.UNREGISTERING:
@@ -105,5 +105,26 @@ public class SecurityConfigurationPanel
                 remove((Component) formComponent);
             break;
         }
+    }
+
+    /**
+     * Adds the given form to this configuration panel.
+     *
+     * @param form the <tt>ConfigurationForm</tt> to add
+     */
+    private void addConfigForm(ConfigurationForm form)
+    {
+        int cIndex = form.getIndex();
+        String formTitle = form.getTitle();
+        Component formComponent = (Component) form.getForm();
+
+        if (cIndex >= getTabCount())
+            addTab(formTitle, formComponent);
+        else
+            insertTab(  formTitle,
+                        null,
+                        formComponent,
+                        formTitle,
+                        cIndex);
     }
 }
