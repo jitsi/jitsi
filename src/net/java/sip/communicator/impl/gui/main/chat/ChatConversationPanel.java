@@ -210,8 +210,8 @@ public class ChatConversationPanel
         String copyLinkString
             = GuiActivator.getResources().getI18NString("service.gui.COPY_LINK");
 
-        copyLinkItem =
-            new JMenuItem(copyLinkString,
+        copyLinkItem
+            = new JMenuItem(copyLinkString,
                 new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
 
         copyLinkItem.addActionListener(new ActionListener()
@@ -423,10 +423,8 @@ public class ChatConversationPanel
             endHeaderTag = "</h3>";
 
             chatString
-                += dateString
-                    + GuiActivator
-                        .getResources().getI18NString("service.gui.ME")
-                    + " at " + GuiUtils.formatTime(date) + endHeaderTag
+                += dateString + contactName + " at "
+                    + GuiUtils.formatTime(date) + endHeaderTag
                     + startDivTag + startPlainTextTag
                     + formatMessage(message, contentType, keyword)
                     + endPlainTextTag + endDivTag;
@@ -502,8 +500,7 @@ public class ChatConversationPanel
 
             chatString
                 += dateString
-                    + GuiActivator
-                        .getResources().getI18NString("service.gui.ME")
+                    + contactName
                     + " at " + GuiUtils.formatTime(date) + endHeaderTag
                     + startHistoryDivTag + startPlainTextTag
                     + formatMessage(message, contentType, keyword)
