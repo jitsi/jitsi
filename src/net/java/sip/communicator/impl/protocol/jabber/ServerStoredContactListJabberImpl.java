@@ -696,9 +696,20 @@ public class ServerStoredContactListJabberImpl
     public void moveContact(ContactJabberImpl contact,
                             ContactGroupJabberImpl newParent)
     {
-        List<ContactJabberImpl> contactsToMove
-            = new ArrayList<ContactJabberImpl>();
-        contactsToMove.add(contact);
+        // when the contact is not persistent, coming
+        // from NotInContactList group, we need just to add it to the list
+        if(!contact.isPersistent())
+        {
+            try
+            {
+                addContact(newParent, contact.getAddress());
+                return;
+            }
+            catch(OperationFailedException ex)
+            {
+                logger.error("Cannot move contact! ", ex);
+            }
+        }
 
         newParent.addContact(contact);
 
@@ -979,6 +990,9 @@ public class ServerStoredContactListJabberImpl
             {
                 RosterEntry entry = roster.getEntry(id);
 
+                if(!isEntryDisplayable(entry))
+                    continue;
+
                 ContactJabberImpl contact =
                     findContactById(entry.getUser());
 
@@ -1007,50 +1021,66 @@ public class ServerStoredContactListJabberImpl
                         }
                     }
                 }
-                contact = new ContactJabberImpl(roster.getEntry(id),
-                                          ServerStoredContactListJabberImpl.this,
-                                          true,
-                                          true);
 
-                if(entry.getGroups() == null || entry.getGroups().size() == 0)
-                {
-                    // no parent group so its in the root group
-                    rootGroup.addContact(contact);
-                    fireContactAdded(rootGroup, contact);
-
-                    return;
-                }
-
-                for (RosterGroup group : entry.getGroups())
-                {
-                    ContactGroupJabberImpl parentGroup =
-                        findContactGroup(group.getName());
-
-                    if(parentGroup != null)
-                    {
-                        parentGroup.addContact(contact);
-                        fireContactAdded(findContactGroup(contact), contact);
-                    }
-                    else
-                    {
-                        // create the group as it doesn't exist
-                        ContactGroupJabberImpl newGroup =
-                            new ContactGroupJabberImpl(
-                            group, group.getEntries().iterator(),
-                            ServerStoredContactListJabberImpl.this,
-                            true);
-
-                        rootGroup.addSubGroup(newGroup);
-
-                        //tell listeners about the added group
-                        fireGroupEvent(newGroup,
-                                ServerStoredGroupEvent.GROUP_CREATED_EVENT);
-                    }
-
-                    // as for now we only support contact only in one group
-                    return;
-                }
+                contact = addEntryToContactList(id);
             }
+        }
+
+        /**
+         * Adds the entry to our local contactlist.
+         * @param rosterEntryID the entry id.
+         * @return the newly created contact.
+         */
+        private ContactJabberImpl addEntryToContactList(String rosterEntryID)
+        {
+            RosterEntry entry = roster.getEntry(rosterEntryID);
+
+            ContactJabberImpl contact = new ContactJabberImpl(
+                    entry,
+                    ServerStoredContactListJabberImpl.this,
+                    true,
+                    true);
+
+            if(entry.getGroups() == null || entry.getGroups().size() == 0)
+            {
+                // no parent group so its in the root group
+                rootGroup.addContact(contact);
+                fireContactAdded(rootGroup, contact);
+
+                return contact;
+            }
+
+            for (RosterGroup group : entry.getGroups())
+            {
+                ContactGroupJabberImpl parentGroup =
+                    findContactGroup(group.getName());
+
+                if(parentGroup != null)
+                {
+                    parentGroup.addContact(contact);
+                    fireContactAdded(findContactGroup(contact), contact);
+                }
+                else
+                {
+                    // create the group as it doesn't exist
+                    ContactGroupJabberImpl newGroup =
+                        new ContactGroupJabberImpl(
+                        group, group.getEntries().iterator(),
+                        ServerStoredContactListJabberImpl.this,
+                        true);
+
+                    rootGroup.addSubGroup(newGroup);
+
+                    //tell listeners about the added group
+                    fireGroupEvent(newGroup,
+                            ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+                }
+
+                // as for now we only support contact only in one group
+                return contact;
+            }
+
+            return contact;
         }
 
         /**
@@ -1067,6 +1097,16 @@ public class ServerStoredContactListJabberImpl
             for (String contactID : addresses)
             {
                 RosterEntry entry = roster.getEntry(contactID);
+
+                ContactJabberImpl contact = findContactById(contactID);
+
+                if(contact == null && isEntryDisplayable(entry))
+                {
+                    // this can be an entry which has been update
+                    // was not displayable, but now it is, so lets
+                    // display it
+                    contact = addEntryToContactList(contactID);
+                }
 
                 for (RosterGroup gr : entry.getGroups())
                 {
@@ -1093,7 +1133,6 @@ public class ServerStoredContactListJabberImpl
                     {
                         // the group is found the contact may be moved from one group
                         // to another
-                        ContactJabberImpl contact = findContactById(contactID);
                         ContactGroup contactGroup =
                             contact.getParentContactGroup();
 
