@@ -14,5 +14,4 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.xml,
  net.java.sip.communicator.service.fileaccess
-Export-Package: net.java.sip.communicator.service.configuration,
- net.java.sip.communicator.service.configuration.event
+Export-Package: net.java.sip.communicator.service.configuration

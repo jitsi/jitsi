@@ -5,7 +5,6 @@ Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: net.java.sip.communicator.service.configuration,
- net.java.sip.communicator.service.configuration.event,
  net.java.sip.communicator.util,
  org.osgi.framework,
  javax.crypto,
