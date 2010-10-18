@@ -7,7 +7,6 @@ System-Bundle: yes
 Import-Package: junit.framework,
  javax.net,
  net.java.sip.communicator.service.configuration,
- net.java.sip.communicator.service.configuration.event,
  org.osgi.framework,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.protocol,
