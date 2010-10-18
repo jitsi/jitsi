@@ -33,7 +33,6 @@ Import-Package: org.apache.commons.logging,
  net.java.sip.communicator.service.fileaccess,
  net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
- net.java.sip.communicator.service.configuration.event,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.msnconstants,
  net.java.sip.communicator.service.protocol.event
