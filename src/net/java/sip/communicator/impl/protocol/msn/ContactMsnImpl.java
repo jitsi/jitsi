@@ -86,11 +86,8 @@ public class ContactMsnImpl
      */
     byte[] getImage(boolean retrieveIfNecessary)
     {
-        if(image == null && retrieveIfNecessary)
-        {
+        if((image == null) && retrieveIfNecessary)
             ssclCallback.addContactForImageUpdate(this);
-        }
-
         return image;
     }
 

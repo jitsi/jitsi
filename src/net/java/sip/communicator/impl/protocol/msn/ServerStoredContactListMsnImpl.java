@@ -1265,12 +1265,14 @@ public class ServerStoredContactListMsnImpl
     private class ContactListModListenerImpl
         extends EventAdapter
     {
+        @Override
         public void groupRenamed(MsnGroup group)
         {
             ContactGroupMsnImpl groupToRename =
                 findContactGroupByMsnId(group.getGroupId());
 
-            if(groupToRename == null){
+            if(groupToRename == null)
+            {
                 if (logger.isTraceEnabled())
                     logger.trace("Group not found!" + group);
                 return;
@@ -1282,6 +1284,7 @@ public class ServerStoredContactListMsnImpl
                            ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
         }
 
+        @Override
         public void loggingFromOtherLocation()
         {
             msnProvider.unregister(false);
@@ -1299,28 +1302,38 @@ public class ServerStoredContactListMsnImpl
      */
     void setMessenger(MsnMessenger messenger)
     {
-        if(messenger == null)
-        {
-            if(contactListModManager != null)
-                contactListModManager.removeModificationListener(
-                    contactListModListenerImpl);
-            this.contactListModManager = null;
-            if(contactListListener != null)
-                this.messenger.removeContactListListener(contactListListener);
-            this.contactListListener = null;
-            this.messenger = null;
+        if (this.messenger == messenger)
             return;
+
+        if (this.messenger != null)
+        {
+            if (contactListModManager != null)
+            {
+                contactListModManager.removeModificationListener(
+                        contactListModListenerImpl);
+                contactListModManager = null;
+            }
+            if (contactListListener != null)
+            {
+                this.messenger.removeContactListListener(contactListListener);
+                contactListListener = null;
+            }
         }
+
         this.messenger = messenger;
 
-        contactListModManager =
-            new EventManager(msnProvider, (BasicMessenger)messenger);
+        if (this.messenger != null)
+        {
+            contactListModManager
+                = new EventManager(
+                        msnProvider,
+                        (BasicMessenger) this.messenger);
+            contactListModManager.addModificationListener(
+                    contactListModListenerImpl);
 
-        contactListModManager.
-            addModificationListener(contactListModListenerImpl);
-
-        contactListListener = new ContactListListener();
-        messenger.addContactListListener(contactListListener);
+            contactListListener = new ContactListListener();
+            this.messenger.addContactListListener(contactListListener);
+        }
     }
 
     /**
@@ -1331,14 +1344,17 @@ public class ServerStoredContactListMsnImpl
      */
     protected void addContactForImageUpdate(ContactMsnImpl c)
     {
-        // Get the MSnObject
-        MsnObject avatar = c.getSourceContact().getAvatar();
-
-        if (avatar != null)
+        if (messenger != null)
         {
-            messenger.retrieveDisplayPicture(
-                    avatar,
-                    new ImageUpdater(c));
+            // Get the MsnObject
+            MsnObject avatar = c.getSourceContact().getAvatar();
+
+            if (avatar != null)
+            {
+                messenger.retrieveDisplayPicture(
+                        avatar,
+                        new ImageUpdater(c));
+            }
         }
     }
 
