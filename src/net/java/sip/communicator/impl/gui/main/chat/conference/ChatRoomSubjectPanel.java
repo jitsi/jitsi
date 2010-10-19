@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -26,9 +27,11 @@ import net.java.sip.communicator.util.swing.*;
  * 
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class ChatRoomSubjectPanel
     extends TransparentPanel
+    implements Skinnable
 {
     /**
      * The <tt>Logger</tt> used by the <tt>ChatRoomSubjectPanel</tt> class and
@@ -51,6 +54,11 @@ public class ChatRoomSubjectPanel
      * The field containing the subject of the chat room.
      */
     private final JTextField subjectField = new JTextField();
+
+    /**
+     * Config button.
+     */
+    private JButton configButton;
 
     /**
      * Creates the panel containing the chat room subject.
@@ -87,7 +95,7 @@ public class ChatRoomSubjectPanel
             || role.equals(ChatRoomMemberRole.MODERATOR)
             || role.equals(ChatRoomMemberRole.OWNER))
         {
-            JButton configButton
+            configButton
                 = new JButton(
                         new ImageIcon(
                                 ImageLoader.getImage(
@@ -180,5 +188,15 @@ public class ChatRoomSubjectPanel
                 }
             }
         }
+    }
+
+    /**
+     * Reload config button if exists.
+     */
+    public void loadSkin()
+    {
+        if(configButton != null)
+            configButton.setIcon(new ImageIcon(
+                    ImageLoader.getImage(ImageLoader.CHAT_ROOM_CONFIG)));
     }
 }

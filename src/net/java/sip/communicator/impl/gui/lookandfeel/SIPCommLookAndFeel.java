@@ -9,40 +9,79 @@ package net.java.sip.communicator.impl.gui.lookandfeel;
 import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
+
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * The default SIP-Communicator look&feel.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SIPCommLookAndFeel
     extends MetalLookAndFeel
+    implements Skinnable
 {
     private static final long serialVersionUID = 0L;
 
-    public boolean isNativeLookAndFeel() {
+    /**
+     * Returns <tt>false</tt> to indicate that this is not a native look&feel.
+     *
+     * @return <tt>false</tt> to indicate that this is not a native look&feel
+     */
+    public boolean isNativeLookAndFeel()
+    {
         return false;
     }
 
-    public boolean isSupportedLookAndFeel() {
+    /**
+     * Returns <tt>true</tt> to indicate that this look&feel is supported.
+     *
+     * @return <tt>false</tt> to indicate that this look&feel is supported
+     */
+    public boolean isSupportedLookAndFeel()
+    {
         return true;
     }
 
-    public String getDescription() {
+    /**
+     * Returns the description of this look&feel.
+     *
+     * @return the description of this look&feel
+     */
+    public String getDescription()
+    {
         return "The SIP-Communicator look and feel.";
     }
 
-    public String getID() {
+    /**
+     * Returns the identifier of this look&feel.
+     *
+     * @return the identifier of this look&feel
+     */
+    public String getID()
+    {
         return "SIPCommunicator";
     }
 
-    public String getName() {
+    /**
+     * Returns the name of this look&feel.
+     *
+     * @return  the name of this look&feel
+     */
+    public String getName()
+    {
         return "SIPCommLookAndFeel";
     }
 
-
-    protected void initClassDefaults(UIDefaults table) {
+    /**
+     * Initializes class defaults.
+     *
+     * @param table the default user interface configurations table
+     */
+    protected void initClassDefaults(UIDefaults table)
+    {
         super.initClassDefaults(table);
 
         String lfPackageName = "net.java.sip.communicator.impl.gui.lookandfeel.";
@@ -74,11 +113,36 @@ public class SIPCommLookAndFeel
         table.putDefaults(uiDefaults);
     }
 
-    public Icon getDisabledIcon(JComponent component, Icon icon) {
-        if (icon instanceof ImageIcon) {
+    /**
+     * Returns the disabled icon for the given <tt>component</tt>, based on the
+     * given <tt>icon</tt>.
+     *
+     * @param component the component, for which we make a disabled icon
+     * @param icon the icon to make a disabled version for
+     *
+     * @return the created icon
+     */
+    public Icon getDisabledIcon(JComponent component, Icon icon)
+    {
+        if (icon instanceof ImageIcon)
+        {
             return new IconUIResource(new ImageIcon(LightGrayFilter.
                    createDisabledImage(((ImageIcon)icon).getImage())));
         }
         return null;
+    }
+
+    /**
+     * Reloads look&feel.
+     */
+    public void loadSkin()
+    {
+        initClassDefaults(UIManager.getDefaults());
+        if(getCurrentTheme() != null
+            && getCurrentTheme() instanceof SIPCommDefaultTheme)
+        {
+            ((SIPCommDefaultTheme)getCurrentTheme()).loadSkin();
+            setCurrentTheme(getCurrentTheme());
+        }
     }
 }

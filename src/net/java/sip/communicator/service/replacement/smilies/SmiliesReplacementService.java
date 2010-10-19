@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.replacement.*;
 /**
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public interface SmiliesReplacementService
     extends ReplacementService
@@ -22,4 +23,9 @@ public interface SmiliesReplacementService
      * @return a collection of all smileys available
      */
     public Collection<Smiley> getSmiliesPack();
+
+    /**
+     * Reloads all smilies.
+     */
+    public void reloadSmiliesPack();
 }

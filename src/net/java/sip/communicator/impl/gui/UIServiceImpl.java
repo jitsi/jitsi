@@ -1244,6 +1244,9 @@ public class UIServiceImpl
      */
     public void repaintUI()
     {
+        if (UIManager.getLookAndFeel() instanceof SIPCommLookAndFeel)
+            ((SIPCommLookAndFeel) UIManager.getLookAndFeel()).loadSkin();
+
         Constants.reload();
         ImageLoader.clearCache();
 

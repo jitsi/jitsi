@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.replacement.smilies.*;
  * The <tt>Resources</tt> is used to access smiley icons.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class Resources
 {
@@ -60,8 +61,8 @@ public class Resources
             new String[] {":-P", ":P", ":-p", ":p" }, "Tongue out"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY9",
-            new String[] {":-))", ":))", ";-))", ";))", "(lol)"},
-            "Laughing"));
+            new String[] {":-))", ":))", ";-))", ";))", "(lol)", ":-D", ":D",
+                        ";-D", ";D"}, "Laughing"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY10",
             new String[] {"(y)", "(Y)", "(ok)"}, "Ok"));
@@ -114,5 +115,13 @@ public class Resources
                 if (srcString.equals(smileyString))
                     return smiley;
         return null;
+    }
+
+    /**
+     * Reloads smilies.
+     */
+    public static void reloadResources()
+    {
+        defaultSmileyPack = null;
     }
 }

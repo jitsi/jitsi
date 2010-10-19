@@ -13,6 +13,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -20,14 +21,16 @@ import net.java.sip.communicator.util.swing.*;
  * cut, copy and paste.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class EditMenu
     extends SIPCommMenu
-    implements ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     private JMenuItem fontDialogMenuItem = new JMenuItem(
             GuiActivator.getResources().getI18NString("service.gui.FONT"));
-    
+
     private JMenuItem cutMenuItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.CUT"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CUT_ICON)));
@@ -44,11 +47,11 @@ public class EditMenu
 
     /**
      * Creates an instance of <tt>EditMenu</tt>.
-     * 
+     *
      * @param chatWindow The parent <tt>ChatWindow</tt>.
      */
-    public EditMenu(ChatWindow chatWindow) {
-
+    public EditMenu(ChatWindow chatWindow)
+    {
         super(GuiActivator.getResources().getI18NString("service.gui.EDIT"));
 
         this.setOpaque(false);
@@ -97,26 +100,45 @@ public class EditMenu
 
     /**
      * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
+     *
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String menuItemName = menuItem.getName();
 
-        if (menuItemName.equalsIgnoreCase("cut")) {
-
-            this.chatWindow.getCurrentChatPanel().cut();            
+        if (menuItemName.equalsIgnoreCase("cut"))
+        {
+            this.chatWindow.getCurrentChatPanel().cut();
         }
-        else if (menuItemName.equalsIgnoreCase("copy")) {
-            
+        else if (menuItemName.equalsIgnoreCase("copy"))
+        {
             this.chatWindow.getCurrentChatPanel().copy();
         }
-        else if (menuItemName.equalsIgnoreCase("paste")) {
-
+        else if (menuItemName.equalsIgnoreCase("paste"))
+        {
             this.chatWindow.getCurrentChatPanel().paste();
         }
-        else if (menuItemName.equalsIgnoreCase("font")) {
+        else if (menuItemName.equalsIgnoreCase("font"))
+        {
             this.chatWindow.getCurrentChatPanel().getChatWritePanel()
                 .getEditTextToolBar().showFontChooserDialog();
         }
+    }
+
+    /**
+     * Reloads menu icons.
+     */
+    public void loadSkin()
+    {
+        cutMenuItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.CUT_ICON)));
+
+        copyMenuItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.COPY_ICON)));
+
+        pasteMenuItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.PASTE_ICON)));
     }
 }

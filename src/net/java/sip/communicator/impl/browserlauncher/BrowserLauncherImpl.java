@@ -57,6 +57,7 @@ public class BrowserLauncherImpl
             String[] browsers
                 = new String[]
                         {
+                            "google-chrome",
                             "firefox",
                             "iceweasel",
                             "opera",

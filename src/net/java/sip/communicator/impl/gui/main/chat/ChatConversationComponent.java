@@ -16,33 +16,54 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ChatConversationComponent</tt> is a component that can be added to
  * the conversation area of the chat window in order to display any special
  * events.
- * 
+ *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public abstract class ChatConversationComponent
     extends JPanel
+    implements Skinnable
 {
+    /**
+     * The logger for this class.
+     */
     private static final Logger logger
         = Logger.getLogger(ChatConversationComponent.class);
 
+    /**
+     * The constraints used to layout this component.
+     */
     protected final GridBagConstraints constraints = new GridBagConstraints();
 
-    private static final Color defaultColor
+    /**
+     * Chat conversation default background color.
+     */
+    private static Color defaultColor
         = new Color(GuiActivator.getResources()
             .getColor("service.gui.CHAT_CONVERSATION_COMPONENT"));
 
-    private static final Color warningColor
+    /**
+     * Chat conversation default warning background color.
+     */
+    private static Color warningColor
         = new Color(GuiActivator.getResources()
             .getColor("service.gui.CHAT_CONVERSATION_WARNING_COMPONENT"));
 
+    /**
+     * Initializes the background color with the default color.
+     */
     private Color backgroundColor = defaultColor;
 
+    /**
+     * The service through which we access resources like colors.
+     */
     protected static final ResourceManagementService resources
         = GuiActivator.getResources();
 
@@ -57,11 +78,37 @@ public abstract class ChatConversationComponent
     }
 
     /**
+     * Reloads color information.
+     */
+    public void loadSkin()
+    {
+        boolean defaultCol = false;
+        if(backgroundColor == defaultColor)
+            defaultCol = true;
+
+        defaultColor = new Color(GuiActivator.getResources()
+            .getColor("service.gui.CHAT_CONVERSATION_COMPONENT"));
+
+        warningColor = new Color(GuiActivator.getResources()
+            .getColor("service.gui.CHAT_CONVERSATION_WARNING_COMPONENT"));
+
+        if(defaultCol)
+            backgroundColor = defaultColor;
+        else
+            backgroundColor = warningColor;
+    }
+
+    /**
      * A specially customized button to fit better chat conversation component
      * look and feel.
      */
-    protected class ChatConversationButton extends JButton
+    protected class ChatConversationButton
+        extends JButton
+        implements Skinnable
     {
+        /**
+         * Initializes the <tt>ChatConversationButton</tt>.
+         */
         public ChatConversationButton()
         {
             init();
@@ -84,10 +131,8 @@ public abstract class ChatConversationComponent
          */
         private void init()
         {
-            int color = GuiActivator.getResources()
-                .getColor("service.gui.CHAT_LINK_COLOR");
+            loadSkin();
 
-            setForeground(new Color(color));
             setFont(getFont().deriveFont(Font.BOLD, 11f));
             setBorder(BorderFactory.createEmptyBorder());
             setBorderPainted(false);
@@ -107,6 +152,17 @@ public abstract class ChatConversationComponent
                     setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                 }
             });
+        }
+
+        /**
+         * Reloads color information.
+         */
+        public void loadSkin()
+        {
+            int color = GuiActivator.getResources()
+                .getColor("service.gui.CHAT_LINK_COLOR");
+
+            setForeground(new Color(color));
         }
     }
 
@@ -129,6 +185,8 @@ public abstract class ChatConversationComponent
 
     /**
      * Call a custom internal paint.
+     *
+     * @param g the <tt>Graphics</tt> object used for painting
      */
     public void paintComponent(Graphics g)
     {

@@ -26,6 +26,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -37,12 +38,14 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class MainToolBar
     extends TransparentPanel
     implements ActionListener,
                ChatChangeListener,
-               ChatSessionChangeListener
+               ChatSessionChangeListener,
+               Skinnable
 {
     private static final long serialVersionUID = -5572510509556499465L;
 
@@ -96,6 +99,13 @@ public class MainToolBar
                 ImageLoader.getImage(ImageLoader.CHAT_CALL));
 
     /**
+     * The options button.
+     */
+    private final ChatToolbarButton optionsButton
+            = new ChatToolbarButton(
+                    ImageLoader.getImage(ImageLoader.CHAT_CONFIGURE_ICON));
+
+    /**
      * The desktop sharing button.
      */
     private final ChatToolbarButton desktopSharingButton
@@ -140,10 +150,6 @@ public class MainToolBar
      */
     protected void init()
     {
-        ChatToolbarButton optionsButton
-            = new ChatToolbarButton(
-                    ImageLoader.getImage(ImageLoader.CHAT_CONFIGURE_ICON));
-
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 0));
         this.setOpaque(false);
 
@@ -513,5 +519,35 @@ public class MainToolBar
             if (this.chatSession instanceof MetaContactChatSession)
                 this.chatSession.addChatTransportChangeListener(this);
         }
+    }
+
+    /**
+     * Reloads icons for buttons.
+     */
+    public void loadSkin()
+    {
+        inviteButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.ADD_TO_CHAT_ICON));
+
+        historyButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.HISTORY_ICON));
+
+        sendFileButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.SEND_FILE_ICON));
+
+        previousButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.PREVIOUS_ICON));
+
+        nextButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.NEXT_ICON));
+
+        leaveChatRoomButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.LEAVE_ICON));
+
+        callButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.CHAT_CALL));
+
+        optionsButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.CHAT_CONFIGURE_ICON));
     }
 }

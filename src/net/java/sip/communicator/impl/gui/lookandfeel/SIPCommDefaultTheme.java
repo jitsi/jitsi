@@ -16,21 +16,24 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * SipCommunicator default theme.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 
 public class SIPCommDefaultTheme
     extends DefaultMetalTheme
+    implements Skinnable
 {
     /**
      * Used for tooltip borders, progress bar selection background, scroll bar
      * thumb shadow, tabbed pane focus, toolbar docking foreground
      */
-    private static final ColorUIResource PRIMARY_CONTROL_DARK_SHADOW =
+    private static ColorUIResource PRIMARY_CONTROL_DARK_SHADOW =
         new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.PRIMARY_CONTROL_DARK_SHADOW"));
 
@@ -39,7 +42,7 @@ public class SIPCommDefaultTheme
      * foreground, progress bar foreground, combo box selection background,
      * scroll bar thumb
      */
-    private static final ColorUIResource PRIMARY_CONTROL_SHADOW =
+    private static ColorUIResource PRIMARY_CONTROL_SHADOW =
         new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.PRIMARY_CONTROL_SHADOW"));
 
@@ -47,11 +50,14 @@ public class SIPCommDefaultTheme
      * Used for progress bar border, tooltip border inactive, tooltip foreground
      * inactive, scroll bar dark shadow.
      */
-    private static final ColorUIResource CONTROL_DARK_SHADOW =
+    private static ColorUIResource CONTROL_DARK_SHADOW =
         new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.CONTROL_DARK_SHADOW"));
 
-    private static final ColorUIResource CONTROL_SHADOW =
+    /**
+     * Tabbed pane shadow.
+     */
+    private static ColorUIResource CONTROL_SHADOW =
         new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.CONTROL_SHADOW"));
 
@@ -60,7 +66,7 @@ public class SIPCommDefaultTheme
      * inactive background, combo box background, desktop icon background,
      * scroll bar background, tabbed pane tab area background.
      */
-    private static final ColorUIResource CONTROL_COLOR =
+    private static ColorUIResource CONTROL_COLOR =
         new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.colors.CONTROL"));
 
@@ -69,82 +75,138 @@ public class SIPCommDefaultTheme
      * hightlight, split pane devider focus color, Tree.line, Tree.hash,
      * ToolBar.floatingForeground
      */
-    private static final ColorUIResource PRIMARY_CONTROL_COLOR
+    private static ColorUIResource PRIMARY_CONTROL_COLOR
         = new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.PRIMARY_COLOR_CONTROL"));
 
-    // Used to paint a gradient for a check box or a radio button.
-    private static final ColorUIResource BUTTON_GRADIENT_DARK_COLOR
+    /**
+     * Used to paint a gradient for a check box or a radio button.
+     */
+    private static ColorUIResource BUTTON_GRADIENT_DARK_COLOR
         = new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.BUTTON_GRADIENT_DARK"));
 
-    private static final ColorUIResource BUTTON_GRADIENT_LIGHT_COLOR
+    /**
+     * Used to paint a gradient for a check box or a radio button.
+     */
+    private static ColorUIResource BUTTON_GRADIENT_LIGHT_COLOR
         = new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.BUTTON_GRADIENT_LIGHT"));
 
-    private static final ColorUIResource SLIDER_GRADIENT_DARK_COLOR
+    /**
+     * Used to paint a gradient for sliders.
+     */
+    private static ColorUIResource SLIDER_GRADIENT_DARK_COLOR
         = new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.SLIDER_GRADIENT_DARK"));
 
-    private static final ColorUIResource SLIDER_GRADIENT_LIGHT_COLOR
+    /**
+     * Used to paint a gradient for sliders.
+     */
+    private static ColorUIResource SLIDER_GRADIENT_LIGHT_COLOR
         = new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.SLIDER_GRADIENT_LIGHT"));
 
-    private static final ColorUIResource SELECTION_FOREGROUND
+    /**
+     * Foreground color for selected components.
+     */
+    private static ColorUIResource SELECTION_FOREGROUND
         = new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.SELECTION_FOREGROUND"));
 
-    private static final ColorUIResource SELECTION_BACKGROUND
+    /**
+     * Background color for selected components.
+     */
+    private static ColorUIResource SELECTION_BACKGROUND
         = new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.SELECTION_BACKGROUND"));
 
-    private static final ColorUIResource SPLIT_PANE_DEVIDER_FOCUS_COLOR
+    /**
+     * Used to paint a focused split pane divider.
+     */
+    private static ColorUIResource SPLIT_PANE_DEVIDER_FOCUS_COLOR
         = new ColorUIResource(GuiActivator.getResources()
             .getColor("service.gui.SPLIT_PANE_DIVIDER_FOCUSED"));
 
-    private static final ColorUIResource TABBED_PANE_HIGHLIGHT_COLOR
+    /**
+     * Tabbed pane border highlight color.
+     */
+    private static ColorUIResource TABBED_PANE_HIGHLIGHT_COLOR
         = new ColorUIResource(GuiActivator.getResources()
             .getColor("service.gui.TABBED_PANE_BORDER_HIGHLIGHT"));
 
-    private static final ColorUIResource TABLE_GRID_COLOR
+    /**
+     * Table grid color.
+     */
+    private static ColorUIResource TABLE_GRID_COLOR
         = new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.TABLE_GRID"));
 
-    private static final ColorUIResource SCROLL_BAR_TRACK_HIGHLIGHT
+    /**
+     * These two are not used for now.
+     */
+    private static ColorUIResource SCROLL_BAR_TRACK_HIGHLIGHT
         = new ColorUIResource(GuiActivator.getResources()
             .getColor("service.gui.SCROLLBAR_TRACK_LIGHT"));
 
-    private static final ColorUIResource SCROLL_BAR_DARK_SHADOW
+    /**
+     * Used to paint scroll bar dark shadow.
+     */
+    private static ColorUIResource SCROLL_BAR_DARK_SHADOW
         = new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.SCROLLBAR_DARK_SHADOW"));
 
-    private static final ColorUIResource DESKTOP_BACKGROUND_COLOR
+    /**
+     * Background color for all windows.
+     */
+    private static ColorUIResource DESKTOP_BACKGROUND_COLOR
         = new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.DESKTOP_BACKGROUND"));
 
-    private static final ColorUIResource CONTROL_TEXT_COLOR
+    /**
+     * Text color for all texts.
+     */
+    private static ColorUIResource CONTROL_TEXT_COLOR
         = new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.TEXT"));
 
-    private static final ColorUIResource INACTIVE_CONTROL_TEXT_COLOR
+    /**
+     * Used for inactive labels, text areas, etc.
+     */
+    private static ColorUIResource INACTIVE_CONTROL_TEXT_COLOR
         = new ColorUIResource(GuiActivator.getResources().
             getColor("service.gui.INACTIVE_TEXT"));
 
-    private static final ColorUIResource MENU_DISABLED_FOREGROUND
+    /**
+     * Foreground color for disabled menus.
+     */
+    private static ColorUIResource MENU_DISABLED_FOREGROUND
         = new ColorUIResource(GuiActivator.getResources()
             .getColor("service.gui.MENU_DISABLED_FOREGROUND"));
 
-    private static final ColorUIResource TAB_TITLE_HIGHLIGHT
+    /**
+     * Color used in tab title for non read incoming messages.
+     */
+    private static ColorUIResource TAB_TITLE_HIGHLIGHT
         = new ColorUIResource(GuiActivator.getResources()
             .getColor("service.gui.TAB_TITLE_HIGHLIGHT"));
 
-    private static final ColorUIResource TAB_TITLE
+    /**
+     * Color used in tab title for non read incoming messages.
+     */
+    private static ColorUIResource TAB_TITLE
         = new ColorUIResource(GuiActivator.getResources()
             .getColor("service.gui.TAB_TITLE"));
 
+    /**
+     * The basic font.
+     */
     private static final FontUIResource BASIC_FONT
         = new FontUIResource(Constants.FONT);
 
+    /**
+     * Default input map for this theme.
+     */
     Object fieldInputMap = new UIDefaults.LazyInputMap(
         new Object[]
            {
@@ -196,6 +258,9 @@ public class SIPCommDefaultTheme
             "control shift O", "toggle-componentOrientation"/*DefaultEditorKit.toggleComponentOrientation*/
            });
 
+    /**
+     * The default password input map.
+     */
     Object passwordInputMap = new UIDefaults.LazyInputMap(
         new Object[]
            {
@@ -246,6 +311,9 @@ public class SIPCommDefaultTheme
             "control shift O", "toggle-componentOrientation"/*DefaultEditorKit.toggleComponentOrientation*/
     });
 
+    /**
+     * The default multi-line text component input map.
+     */
     Object multilineInputMap = new UIDefaults.LazyInputMap(
         new Object[]
            {
@@ -325,12 +393,13 @@ public class SIPCommDefaultTheme
             "meta shift T", "previous-link-action",
             "meta SPACE", "activate-link-action",
             "control shift O", "toggle-componentOrientation"/*DefaultEditorKit.toggleComponentOrientation*/
-});
+           });
 
-    public SIPCommDefaultTheme()
-    {
-    }
-
+    /**
+     * Adds a list of entries in the given defaults <tt>table</tt>.
+     *
+     * @param table the table of user interface defaults 
+     */
     public void addCustomEntriesToTable(UIDefaults table)
     {
         List<Object> buttonGradient
@@ -460,103 +529,302 @@ public class SIPCommDefaultTheme
         table.putDefaults(defaults);
     }
 
+    /**
+     * Returns the name of this theme.
+     *
+     * @return the name of this theme
+     */
     public String getName()
     {
         return "SipCommunicator";
     }
 
+    /**
+     * Returns the primary control dark shadow color resource.
+     *
+     * @return the primary control dark shadow color resource
+     */
     protected ColorUIResource getPrimary1()
     {
         return PRIMARY_CONTROL_DARK_SHADOW;
     }
 
+    /**
+     * Returns the primary control shadow color resource.
+     *
+     * @return the primary control shadow color resource
+     */
     protected ColorUIResource getPrimary2()
     {
         return PRIMARY_CONTROL_SHADOW;
     }
 
+    /**
+     * Returns the primary control color resource.
+     *
+     * @return the primary control color resource
+     */
     protected ColorUIResource getPrimary3()
     {
         return PRIMARY_CONTROL_COLOR;
     }
 
+    /**
+     * Returns the control dark shadow color resource.
+     *
+     * @return the control dark shadow color resource
+     */
     protected ColorUIResource getSecondary1()
     {
         return CONTROL_DARK_SHADOW;
     }
 
+    /**
+     * Returns the control shadow color resource.
+     *
+     * @return the control shadow color resource
+     */
     protected ColorUIResource getSecondary2()
     {
         return CONTROL_SHADOW;
     }
 
+    /**
+     * Returns the control color resource.
+     *
+     * @return the control color resource
+     */
     protected ColorUIResource getSecondary3()
     {
         return CONTROL_COLOR;
     }
 
+    /**
+     * Returns the control text color resource.
+     *
+     * @return the control text color resource
+     */
     protected ColorUIResource getBlack()
     {
         return CONTROL_TEXT_COLOR;
     }
 
+    /**
+     * Returns the desktop color resource.
+     *
+     * @return the desktop color resource
+     */
     public ColorUIResource getDesktopColor()
     {
         return DESKTOP_BACKGROUND_COLOR;
     }
 
+    /**
+     * Returns the window background color resource.
+     *
+     * @return the window background color resource
+     */
     public ColorUIResource getWindowBackground()
     {
         return getWhite();
     }
 
+    /**
+     * Returns the desktop background color resource.
+     *
+     * @return the desktop background color resource
+     */
     public ColorUIResource getControl()
     {
         return DESKTOP_BACKGROUND_COLOR;
     }
 
+    /**
+     * Returns the window background color resource.
+     *
+     * @return the window background color resource
+     */
     public ColorUIResource getMenuBackground()
     {
         return DESKTOP_BACKGROUND_COLOR;
     }
 
+    /**
+     * Returns the inactive control text color resource.
+     *
+     * @return the inactive control text color resource
+     */
     public ColorUIResource getInactiveControlTextColor()
     {
         return INACTIVE_CONTROL_TEXT_COLOR;
     }
 
+    /**
+     * Returns the menu disabled foreground color resource.
+     *
+     * @return the menu disabled foreground color resource
+     */
     public ColorUIResource getMenuDisabledForeground()
     {
         return MENU_DISABLED_FOREGROUND;
     }
 
+    /**
+     * Returns the control text font color resource.
+     *
+     * @return the control text font color resource
+     */
     public FontUIResource getControlTextFont()
     {
         return BASIC_FONT;
     }
 
+    /**
+     * Returns the system text font color resource.
+     *
+     * @return the system text font color resource
+     */
     public FontUIResource getSystemTextFont()
     {
         return BASIC_FONT;
     }
 
+    /**
+     * Returns the user text font color resource.
+     *
+     * @return the user text font color resource
+     */
     public FontUIResource getUserTextFont()
     {
         return BASIC_FONT;
     }
 
+    /**
+     * Returns the menu text font color resource.
+     *
+     * @return the menu text font color resource
+     */
     public FontUIResource getMenuTextFont()
     {
         return BASIC_FONT;
     }
 
+    /**
+     * Returns the window title font color resource.
+     *
+     * @return the window title font color resource
+     */
     public FontUIResource getWindowTitleFont()
     {
         return BASIC_FONT;
     }
 
+    /**
+     * Returns the window title font color resource.
+     *
+     * @return the window title font color resource
+     */
     public FontUIResource getSubTextFont()
     {
         return BASIC_FONT;
+    }
+
+    /**
+     * Reloads defaults.
+     */
+    public void loadSkin()
+    {
+        PRIMARY_CONTROL_DARK_SHADOW =
+            new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.PRIMARY_CONTROL_DARK_SHADOW"));
+
+        PRIMARY_CONTROL_SHADOW =
+            new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.PRIMARY_CONTROL_SHADOW"));
+
+        CONTROL_DARK_SHADOW =
+            new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.CONTROL_DARK_SHADOW"));
+
+        CONTROL_SHADOW =
+            new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.CONTROL_SHADOW"));
+
+        CONTROL_COLOR =
+            new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.colors.CONTROL"));
+
+
+        PRIMARY_CONTROL_COLOR
+            = new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.PRIMARY_COLOR_CONTROL"));
+
+        BUTTON_GRADIENT_DARK_COLOR
+            = new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.BUTTON_GRADIENT_DARK"));
+
+        BUTTON_GRADIENT_LIGHT_COLOR
+            = new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.BUTTON_GRADIENT_LIGHT"));
+
+        SLIDER_GRADIENT_DARK_COLOR
+            = new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.SLIDER_GRADIENT_DARK"));
+
+        SLIDER_GRADIENT_LIGHT_COLOR
+            = new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.SLIDER_GRADIENT_LIGHT"));
+
+        SELECTION_FOREGROUND
+            = new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.SELECTION_FOREGROUND"));
+
+        SELECTION_BACKGROUND
+            = new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.SELECTION_BACKGROUND"));
+
+        SPLIT_PANE_DEVIDER_FOCUS_COLOR
+            = new ColorUIResource(GuiActivator.getResources()
+                .getColor("service.gui.SPLIT_PANE_DIVIDER_FOCUSED"));
+
+        TABBED_PANE_HIGHLIGHT_COLOR
+            = new ColorUIResource(GuiActivator.getResources()
+                .getColor("service.gui.TABBED_PANE_BORDER_HIGHLIGHT"));
+
+        TABLE_GRID_COLOR
+            = new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.TABLE_GRID"));
+
+        SCROLL_BAR_TRACK_HIGHLIGHT
+            = new ColorUIResource(GuiActivator.getResources()
+                .getColor("service.gui.SCROLLBAR_TRACK_LIGHT"));
+
+        SCROLL_BAR_DARK_SHADOW
+            = new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.SCROLLBAR_DARK_SHADOW"));
+
+        DESKTOP_BACKGROUND_COLOR
+            = new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.DESKTOP_BACKGROUND"));
+
+        CONTROL_TEXT_COLOR
+            = new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.TEXT"));
+
+        INACTIVE_CONTROL_TEXT_COLOR
+            = new ColorUIResource(GuiActivator.getResources().
+                getColor("service.gui.INACTIVE_TEXT"));
+
+        MENU_DISABLED_FOREGROUND
+            = new ColorUIResource(GuiActivator.getResources()
+                .getColor("service.gui.MENU_DISABLED_FOREGROUND"));
+
+        TAB_TITLE_HIGHLIGHT
+            = new ColorUIResource(GuiActivator.getResources()
+                .getColor("service.gui.TAB_TITLE_HIGHLIGHT"));
+
+        TAB_TITLE
+            = new ColorUIResource(GuiActivator.getResources()
+                .getColor("service.gui.TAB_TITLE"));
     }
 }

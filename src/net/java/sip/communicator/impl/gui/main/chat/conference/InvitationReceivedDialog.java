@@ -15,6 +15,7 @@ import javax.swing.border.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -22,10 +23,12 @@ import net.java.sip.communicator.util.swing.*;
  *  
  * @author Yana Stamcheva
  * @author Valentin Martinet
+ * @author Adam Netocny
  */
 public class InvitationReceivedDialog
     extends SIPCommDialog
-    implements ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     private final JTextArea infoTextArea = new JTextArea();
 
@@ -286,8 +289,23 @@ public class InvitationReceivedDialog
         this.dispose();
     }
 
+    /**
+     * Disposes this dialog when it's closed.
+     *
+     * @param isEscaped indicates if the dialog was close by pressing the Esc
+     * key
+     */
     protected void close(boolean isEscaped)
     {
         this.dispose();
+    }
+
+    /**
+     * Reloads icon label.
+     */
+    public void loadSkin()
+    {
+        iconLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.INVITE_DIALOG_ICON)));
     }
 }

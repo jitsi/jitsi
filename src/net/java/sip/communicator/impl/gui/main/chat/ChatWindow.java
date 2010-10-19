@@ -27,6 +27,7 @@ import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.event.*;
 
@@ -45,6 +46,7 @@ import org.osgi.framework.*;
  * 
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class ChatWindow
     extends SIPCommFrame
@@ -127,14 +129,7 @@ public class ChatWindow
 
         this.setJMenuBar(menuBar);
 
-        boolean isToolBarExtended
-            = Boolean.parseBoolean(GuiActivator.getResources().
-                getSettingsString("impl.gui.IS_CHAT_TOOLBAR_EXTENDED"));
-
-        if (isToolBarExtended)
-            mainToolBar = new ExtendedMainToolBar(this);
-        else
-            mainToolBar = new MainToolBar(this);
+        mainToolBar = new MainToolBar(this);
 
         boolean chatToolbarVisible = ConfigurationManager.isChatToolbarVisible();
         northPanel.setVisible(chatToolbarVisible);
@@ -1243,23 +1238,18 @@ public class ChatWindow
                 .fireChatFocusEvent(ChatFocusEvent.FOCUS_GAINED);
         }
     }
-    
+
     private static class NorthPanel
         extends JPanel
+        implements Skinnable
     {
-        private final Image logoBgImage;
+        private Image logoBgImage;
 
         public NorthPanel(LayoutManager layoutManager)
         {
             super(layoutManager);
 
-            Image logoBgImage
-                = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
-            if (logoBgImage != null)
-                logoBgImage
-                    = ImageUtils.scaleImageWithinBounds(logoBgImage, 80, 35);
-
-            this.logoBgImage = logoBgImage;
+            loadSkin();
         }
 
         public void paintComponent(Graphics g)
@@ -1274,6 +1264,20 @@ public class ChatWindow
                         0,
                         null);
             }
+        }
+
+        /**
+         * Reloads bg image.
+         */
+        public void loadSkin()
+        {
+            Image logoBgImage
+                = ImageLoader.getImage(ImageLoader.WINDOW_TITLE_BAR);
+            if (logoBgImage != null)
+                logoBgImage
+                    = ImageUtils.scaleImageWithinBounds(logoBgImage, 80, 35);
+
+            this.logoBgImage = logoBgImage;
         }
     }
 

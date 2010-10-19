@@ -28,6 +28,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.SwingWorker;
 
@@ -40,12 +41,14 @@ import net.java.sip.communicator.util.swing.SwingWorker;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class ChatConversationPanel
     extends SCScrollPane
     implements  HyperlinkListener,
                 MouseListener,
-                ClipboardOwner
+                ClipboardOwner,
+                Skinnable
 {
     /**
      * The <tt>Logger</tt> used by the <tt>ChatConversationPanel</tt> class and
@@ -1395,5 +1398,18 @@ public class ChatConversationPanel
         }
 
         return "";
+    }
+
+    /**
+     * Reloads images.
+     */
+    public void loadSkin()
+    {
+        openLinkItem.setIcon(
+                new ImageIcon(ImageLoader.getImage(ImageLoader.BROWSER_ICON)));
+        copyLinkItem.setIcon(
+                new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
+
+        getRightButtonMenu().loadSkin();
     }
 }

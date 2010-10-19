@@ -8,6 +8,7 @@ package net.java.sip.communicator.util.swing;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.plaf.*;
 /**
  * The SIPCommMenuBar is a <tt>JMenuBar</tt> without border decoration that can
@@ -15,11 +16,24 @@ import net.java.sip.communicator.util.swing.plaf.*;
  * need a menu decoration.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SIPCommMenuBar
     extends JMenuBar
+    implements Skinnable
 {
+    /**
+     * Creates an instance of <tt>SIPCommMenuBar</tt>.
+     */
     public SIPCommMenuBar()
+    {
+        loadSkin();
+    }
+
+    /**
+     * Reload UI defs.
+     */
+    public void loadSkin()
     {
         this.setBorder(BorderFactory.createEmptyBorder());
         this.setUI(new SIPCommMenuBarUI());

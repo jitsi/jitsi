@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -32,13 +33,15 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class ChatWritePanel
     extends TransparentPanel
     implements  ActionListener,
                 KeyListener,
                 MouseListener,
-                UndoableEditListener
+                UndoableEditListener,
+                Skinnable
 {
     private final Logger logger = Logger.getLogger(ChatWritePanel.class);
 
@@ -163,6 +166,8 @@ public class ChatWritePanel
 
     /**
      * Replaces the Ctrl+Enter send command with simple Enter.
+     *
+     * @param isEnter indicates if the new send command is enter or cmd-enter
      */
     public void changeSendCommand(boolean isEnter)
     {
@@ -315,7 +320,8 @@ public class ChatWritePanel
      * When CTRL+Z is pressed invokes the <code>ChatWritePanel.undo()</code>
      * method, when CTRL+R is pressed invokes the
      * <code>ChatWritePanel.redo()</code> method.
-     * <p>
+     *
+     * @param e the <tt>KeyEvent</tt> that notified us
      */
     public void keyPressed(KeyEvent e)
     {
@@ -333,10 +339,13 @@ public class ChatWritePanel
         }
     }
 
-    public void keyReleased(KeyEvent e)
-    {
-    }
+    public void keyReleased(KeyEvent e) {}
 
+    /**
+     * Performs actions when typing timer has expired.
+     *
+     * @param e the <tt>ActionEvent</tt> that notified us
+     */
     public void actionPerformed(ActionEvent e)
     {
         Object source = e.getSource();
@@ -363,7 +372,8 @@ public class ChatWritePanel
                         .getCurrentChatTransport().
                             sendTypingNotification(typingState);
 
-                    if (result == ChatPanel.TYPING_NOTIFICATION_SUCCESSFULLY_SENT)
+                    if (result
+                            == ChatPanel.TYPING_NOTIFICATION_SUCCESSFULLY_SENT)
                         stoppedTypingTimer.setDelay(3 * 1000);
                 }
                 catch (Exception ex)
@@ -371,7 +381,8 @@ public class ChatWritePanel
                     logger.error("Failed to send typing notifications.", ex);
                 }
             }
-            else if (typingState == OperationSetTypingNotifications.STATE_PAUSED)
+            else if (typingState
+                        == OperationSetTypingNotifications.STATE_PAUSED)
             {
                 stopTypingTimer();
             }
@@ -393,8 +404,10 @@ public class ChatWritePanel
     }
 
     /**
-     * Opens the <tt>WritePanelRightButtonMenu</tt> whe user clicks with the
+     * Opens the <tt>WritePanelRightButtonMenu</tt> when user clicks with the
      * right mouse button on the editor area.
+     *
+     * @param e the <tt>MouseEvent</tt> that notified us
      */
     public void mouseClicked(MouseEvent e)
     {
@@ -410,21 +423,13 @@ public class ChatWritePanel
         }
     }
 
-    public void mousePressed(MouseEvent e)
-    {
-    }
+    public void mousePressed(MouseEvent e) {}
 
-    public void mouseReleased(MouseEvent e)
-    {
-    }
+    public void mouseReleased(MouseEvent e) {}
 
-    public void mouseEntered(MouseEvent e)
-    {
-    }
+    public void mouseEntered(MouseEvent e) {}
 
-    public void mouseExited(MouseEvent e)
-    {
-    }
+    public void mouseExited(MouseEvent e) {}
 
     /**
      * Returns the <tt>WritePanelRightButtonMenu</tt> opened in this panel.
@@ -548,5 +553,13 @@ public class ChatWritePanel
     public EditTextToolBar getEditTextToolBar()
     {
         return editTextToolBar;
+    }
+
+    /**
+     * Reloads menu.
+     */
+    public void loadSkin()
+    {
+        getRightButtonMenu().loadSkin();
     }
 }

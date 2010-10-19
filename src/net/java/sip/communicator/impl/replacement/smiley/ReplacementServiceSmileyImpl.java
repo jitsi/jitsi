@@ -17,6 +17,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Yana Stamcheva
  * @author Purvesh Sahoo
+ * @author Adam Netocny
  */
 public class ReplacementServiceSmileyImpl
     implements SmiliesReplacementService
@@ -34,7 +35,7 @@ public class ReplacementServiceSmileyImpl
     public static final String SMILEY_SOURCE = "SMILEY";
 
     /**
-     * The regex used to match the smileys in the message.
+     * The regex used to match the smilies in the message.
      */
     public static String smileyRegex;
 
@@ -154,5 +155,13 @@ public class ReplacementServiceSmileyImpl
     public Collection<Smiley> getSmiliesPack()
     {
         return Resources.getDefaultSmileyPack();
+    }
+
+    /**
+     * Reloads all smilies.
+     */
+    public void reloadSmiliesPack()
+    {
+        Resources.reloadResources();
     }
 }

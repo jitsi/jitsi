@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -24,12 +25,14 @@ import net.java.sip.communicator.util.swing.*;
  * 
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class SmileysSelectorBox
     extends SIPCommMenu
     implements ActionListener,
                MouseListener,
-               PopupMenuListener
+               PopupMenuListener,
+               Skinnable
 {
     /**
      * The chat write panel.
@@ -52,6 +55,11 @@ public class SmileysSelectorBox
     private final SmiliesReplacementService smiliesService;
 
     /**
+     * PopupMenu
+     */
+    private JPopupMenu popupMenu;
+
+    /**
      * Initializes a new <tt>SmileysSelectorBox</tt> instance.
      * 
      * @param writePanel the <tt>ChatWritePanel</tt> the new instance is to
@@ -65,10 +73,10 @@ public class SmileysSelectorBox
         // Should explicitly remove any border in order to align correctly the
         // icon.
         this.setBorder(BorderFactory.createEmptyBorder());
-        this.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.SMILIES_ICON)));
 
-        JPopupMenu popupMenu = this.getPopupMenu();
+        loadSkin();
+
+        popupMenu = this.getPopupMenu();
 
         popupMenu.setLayout(new GridBagLayout());
         popupMenu.setBackground(Color.WHITE);
@@ -293,5 +301,23 @@ public class SmileysSelectorBox
         gridBagConstraints.gridy = gridRowCount;
 
         popupMenu.add(smileyTextLabel, gridBagConstraints);
+    }
+
+    /**
+     * Reloads icons in this menu.
+     */
+    public void loadSkin()
+    {
+        this.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.SMILIES_ICON)));
+
+        if (popupMenu != null)
+        {
+            popupMenu = this.getPopupMenu();
+            //reload smilies
+            smiliesService.reloadSmiliesPack();
+
+            popupMenu.removeAll();
+        }
     }
 }

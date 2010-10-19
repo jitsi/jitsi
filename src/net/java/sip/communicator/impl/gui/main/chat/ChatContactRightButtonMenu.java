@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * The <tt>ChatContactRightButtonMenu</tt> is the menu, opened when user clicks
@@ -25,10 +26,12 @@ import net.java.sip.communicator.util.*;
  *
  * @author Yana Stamcheva
  * @author Valentin Martinet
+ * @author Adam Netocny
  */
 public class ChatContactRightButtonMenu
     extends JPopupMenu
-    implements  ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     private static final long serialVersionUID = -4069653895234333083L;
 
@@ -192,35 +195,7 @@ public class ChatContactRightButtonMenu
         this.revokeOwnershipItem.setName("revokeOwnershipItem");
         this.revokeVoiceItem.setName("revokeVoiceItem");
 
-        this.grantOwnershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
-            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_OWNER), 16, 16));
-        this.grantAdminItem.setIcon(ImageUtils.getScaledRoundedIcon(
-            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_ADMIN), 16, 16));
-        this.grantMembershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
-            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_STANDARD), 16, 16));
-        this.grantModeratorItem.setIcon(ImageUtils.getScaledRoundedIcon(
-            ImageLoader.getImage(
-                ImageLoader.CHATROOM_MEMBER_MODERATOR), 16, 16));
-        this.grantVoiceItem.setIcon(ImageUtils.getScaledRoundedIcon(
-            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_STANDARD), 16, 16));
-        this.revokeAdminItem.setIcon(ImageUtils.getScaledRoundedIcon(
-            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_STANDARD), 16, 16));
-        this.revokeMembershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
-            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_GUEST), 16, 16));
-        this.revokeModeratorItem.setIcon(ImageUtils.getScaledRoundedIcon(
-            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_STANDARD), 16, 16));
-        this.revokeOwnershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
-            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_ADMIN), 16, 16));
-        this.revokeVoiceItem.setIcon(ImageUtils.getScaledRoundedIcon(
-            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_SILENT), 16, 16));
-        this.kickItem.setIcon(new ImageIcon(ImageLoader.getImage(
-            ImageLoader.KICK_ICON_16x16)));
-        this.banItem.setIcon(new ImageIcon(ImageLoader.getImage(
-            ImageLoader.BAN_ICON_16x16)));
-        this.changeNicknameItem.setIcon(new ImageIcon(ImageLoader.getImage(
-            ImageLoader.CHANGE_NICKNAME_ICON_16x16)));
-        this.changeRoomSubjectItem.setIcon(new ImageIcon(ImageLoader.getImage(
-            ImageLoader.CHANGE_ROOM_SUBJECT_ICON_16x16)));
+        loadSkin();
 
         ChatRoomMemberRole role
             = chatContact.getName().equals(room.getUserNickname())
@@ -306,6 +281,8 @@ public class ChatContactRightButtonMenu
     /**
      * Handles the <tt>ActionEvent</tt>. Determines which menu item was
      * selected and makes the appropriate operations.
+     *
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -580,5 +557,41 @@ public class ChatContactRightButtonMenu
                     e).showDialog();
             }
         }
+    }
+
+    /**
+     * Reloads icons for all menu items.
+     */
+    public void loadSkin()
+    {
+        this.grantOwnershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_OWNER), 16, 16));
+        this.grantAdminItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_ADMIN), 16, 16));
+        this.grantMembershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_STANDARD), 16, 16));
+        this.grantModeratorItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(
+                ImageLoader.CHATROOM_MEMBER_MODERATOR), 16, 16));
+        this.grantVoiceItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_STANDARD), 16, 16));
+        this.revokeAdminItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_STANDARD), 16, 16));
+        this.revokeMembershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_GUEST), 16, 16));
+        this.revokeModeratorItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_STANDARD), 16, 16));
+        this.revokeOwnershipItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_ADMIN), 16, 16));
+        this.revokeVoiceItem.setIcon(ImageUtils.getScaledRoundedIcon(
+            ImageLoader.getImage(ImageLoader.CHATROOM_MEMBER_SILENT), 16, 16));
+        this.kickItem.setIcon(new ImageIcon(ImageLoader.getImage(
+            ImageLoader.KICK_ICON_16x16)));
+        this.banItem.setIcon(new ImageIcon(ImageLoader.getImage(
+            ImageLoader.BAN_ICON_16x16)));
+        this.changeNicknameItem.setIcon(new ImageIcon(ImageLoader.getImage(
+            ImageLoader.CHANGE_NICKNAME_ICON_16x16)));
+        this.changeRoomSubjectItem.setIcon(new ImageIcon(ImageLoader.getImage(
+            ImageLoader.CHANGE_ROOM_SUBJECT_ICON_16x16)));
     }
 }

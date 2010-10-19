@@ -15,6 +15,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -24,10 +25,12 @@ import net.java.sip.communicator.util.swing.*;
  * contact chat.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class ChatTransportSelectorBox
     extends SIPCommMenuBar
-    implements ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     private static final Logger logger
         = Logger.getLogger(ChatTransportSelectorBox.class);
@@ -273,5 +276,17 @@ public class ChatTransportSelectorBox
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Reloads UI defs.
+     */
+    public void loadSkin()
+    {
+        super.loadSkin();
+
+        if(menu != null && menu.getUI() != null
+                && menu.getUI() instanceof SIPCommSelectorMenuUI)
+            ((SIPCommSelectorMenuUI) menu.getUI()).loadSkin();
     }
 }

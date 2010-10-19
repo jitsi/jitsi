@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * The <tt>ChatRightButtonMenu</tt> appears when the user makes a right button
@@ -21,10 +22,13 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * are displayed).
  *  
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
-public class ChatRightButtonMenu extends JPopupMenu
-    implements ActionListener {
-
+public class ChatRightButtonMenu
+    extends JPopupMenu
+    implements  ActionListener,
+                Skinnable
+{
     private ChatConversationPanel chatConvPanel;
 
     private JMenuItem copyMenuItem = new JMenuItem(
@@ -42,28 +46,30 @@ public class ChatRightButtonMenu extends JPopupMenu
     private JMenuItem closeMenuItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.CLOSE"),
         new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
+
     /**
      * Creates an instance of <tt>ChatRightButtonMenu</tt>.
      *  
      * @param chatConvPanel The conversation panel, where this menu will apear.
      */
-    public ChatRightButtonMenu(ChatConversationPanel chatConvPanel) {
+    public ChatRightButtonMenu(ChatConversationPanel chatConvPanel)
+    {
         super();
 
         this.chatConvPanel = chatConvPanel;
-        
+
         this.init();
     }
-    
+
     /**
      * Initializes the menu with all menu items.
      */
-    private void init() {
-        
+    private void init()
+    {
         this.add(copyMenuItem);
-        
+
         this.addSeparator();
-        
+
         this.add(saveMenuItem);
         this.add(printMenuItem);
 
@@ -80,7 +86,7 @@ public class ChatRightButtonMenu extends JPopupMenu
         this.saveMenuItem.addActionListener(this);
         this.printMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
-        
+
         this.copyMenuItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.COPY"));
         this.saveMenuItem.setMnemonic(
@@ -89,59 +95,85 @@ public class ChatRightButtonMenu extends JPopupMenu
             GuiActivator.getResources().getI18nMnemonic("service.gui.PRINT"));
         this.closeMenuItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.CLOSE"));
-        
+
         this.copyMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_C,
                 KeyEvent.CTRL_MASK));
-        
+
         this.saveMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_S,
                 KeyEvent.CTRL_MASK));
-        
+
         this.printMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_R,
                 KeyEvent.CTRL_MASK));
-        
+
         // Disable all menu items that do nothing.
         this.saveMenuItem.setEnabled(false);
         this.printMenuItem.setEnabled(false);
     }
-    
+
     /**
      * Disables the copy item.
      */
     public void disableCopy() {
         this.copyMenuItem.setEnabled(false);
     }
-    
+
     /**
      * Enables the copy item.
      */
     public void enableCopy() {
         this.copyMenuItem.setEnabled(true);
     }
-    
+
     /**
      * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
+     *
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemText = menuItem.getName();
 
-        if (itemText.equalsIgnoreCase("copy")) {
+        if (itemText.equalsIgnoreCase("copy"))
+        {
             this.chatConvPanel.copyConversation();
-            
-        } else if (itemText.equalsIgnoreCase("save")) {
-
-        } else if (itemText.equalsIgnoreCase("print")) {
-
-        } else if (itemText.equalsIgnoreCase("service.gui.CLOSE")) {
-            
+        }
+        else if (itemText.equalsIgnoreCase("save"))
+        {
+            //TODO: Implement save to file.
+        }
+        else if (itemText.equalsIgnoreCase("print"))
+        {
+          //TODO: Implement print.
+        }
+        else if (itemText.equalsIgnoreCase("service.gui.CLOSE"))
+        {
             Window window = this.chatConvPanel
                 .getChatContainer().getConversationContainerWindow();
-            
+
             window.setVisible(false);
             window.dispose();
         }
+    }
+
+    /**
+     * Reloads menu icons.
+     */
+    public void loadSkin()
+    {
+        copyMenuItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.COPY_ICON)));
+
+        saveMenuItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.SAVE_ICON)));
+
+        printMenuItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.PRINT_ICON)));
+
+        closeMenuItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
     }
 }

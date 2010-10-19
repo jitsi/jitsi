@@ -22,6 +22,7 @@ import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -30,15 +31,17 @@ import net.java.sip.communicator.util.swing.*;
  * 
  * @author David Bismut, davidou@mageos.com
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SIPCommTabbedPaneEnhancedUI
     extends SIPCommTabbedPaneUI
+    implements Skinnable
 {
-    private static final Color TAB_HIGHLIGHT_FOREGROUND_COLOR
+    private static Color TAB_HIGHLIGHT_FOREGROUND_COLOR
         = new Color(UtilActivator.getResources()
             .getColor("service.gui.TAB_TITLE_HIGHLIGHT"));
 
-    private static final Color TAB_SELECTED_FOREGROUND_COLOR
+    private static Color TAB_SELECTED_FOREGROUND_COLOR
         = new Color(UtilActivator.getResources()
             .getColor("service.gui.TAB_TITLE_SELECTED"));
 
@@ -453,4 +456,17 @@ public class SIPCommTabbedPaneEnhancedUI
         return highlightedTabs.contains(tabIndex);
     }
 
+    /**
+     * Reloads color info.
+     */
+    public void loadSkin()
+    {
+        super.loadSkin();
+
+        TAB_HIGHLIGHT_FOREGROUND_COLOR = new Color(UtilActivator.getResources()
+            .getColor("service.gui.TAB_TITLE_HIGHLIGHT"));
+
+        TAB_SELECTED_FOREGROUND_COLOR = new Color(UtilActivator.getResources()
+            .getColor("service.gui.TAB_TITLE_SELECTED"));
+    }
 }

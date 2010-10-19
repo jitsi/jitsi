@@ -29,6 +29,7 @@ import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -38,13 +39,15 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class HistoryWindow
     extends SIPCommFrame
     implements  ChatConversationContainer,
                 HistorySearchProgressListener,
                 MessageListener,
-                ChatRoomMessageListener
+                ChatRoomMessageListener,
+                Skinnable
 {
     private static final Logger logger = Logger.getLogger(HistoryWindow.class);
 
@@ -890,4 +893,20 @@ public class HistoryWindow
     public void messageDeliveryFailed(ChatRoomMessageDeliveryFailedEvent evt) {}
 
     public void messageReceived(ChatRoomMessageReceivedEvent evt) {}
+
+    /**
+     * Re-process history.
+     */
+    public void loadSkin()
+    {
+        dateHistoryTable.clear();
+
+        Date startDate = datesPanel.getDate(datesPanel.getLastSelectedIndex());
+        this.chatConvPanel.clear();
+
+        //init progress bar by precising the date that will be loaded.
+        this.initProgressBar(startDate);
+
+        new MessagesLoader(startDate, getNextDateFromHistory(startDate)).start();
+    }
 }

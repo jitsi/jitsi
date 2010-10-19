@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -25,66 +26,156 @@ import net.java.sip.communicator.util.swing.*;
  * conversation components - for incoming, outgoing and history file transfers.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public abstract class FileTransferConversationComponent
     extends ChatConversationComponent
     implements  ActionListener,
-                FileTransferProgressListener
+                FileTransferProgressListener,
+                Skinnable
 {
+    /**
+     * The logger for this class.
+     */
     private final Logger logger
         = Logger.getLogger(FileTransferConversationComponent.class);
 
+    /**
+     * Image default width.
+     */
     protected static final int IMAGE_WIDTH = 64;
 
+    /**
+     * Image default height.
+     */
     protected static final int IMAGE_HEIGHT = 64;
 
+    /**
+     * The image label.
+     */
     protected final FileImageLabel imageLabel = new FileImageLabel();
+
+    /**
+     * The title label.
+     */
     protected final JLabel titleLabel = new JLabel();
+
+    /**
+     * The file label.
+     */
     protected final JLabel fileLabel = new JLabel();
+
+    /**
+     * The error area.
+     */
     private final JTextArea errorArea = new JTextArea();
+
+    /**
+     * The error icon label.
+     */
     private final JLabel errorIconLabel = new JLabel(
         new ImageIcon(ImageLoader.getImage(ImageLoader.EXCLAMATION_MARK)));
 
+    /**
+     * The cancel button.
+     */
     protected final ChatConversationButton cancelButton
         = new ChatConversationButton();
+
+    /**
+     * The retry button.
+     */
     protected final ChatConversationButton retryButton
         = new ChatConversationButton();
 
+    /**
+     * The accept button.
+     */
     protected final  ChatConversationButton acceptButton
         = new ChatConversationButton();
+
+    /**
+     * The reject button.
+     */
     protected final ChatConversationButton rejectButton
         = new ChatConversationButton();
 
+    /**
+     * The open file button.
+     */
     protected final ChatConversationButton openFileButton
         = new ChatConversationButton();
+
+    /**
+     * The open folder button.
+     */
     protected final ChatConversationButton openFolderButton
         = new ChatConversationButton();
 
+    /**
+     * The progress bar.
+     */
     protected final JProgressBar progressBar = new JProgressBar();
 
+    /**
+     * The progress properties panel.
+     */
     private final TransparentPanel progressPropertiesPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
+    /**
+     * The progress speed label.
+     */
     private final JLabel progressSpeedLabel = new JLabel();
 
+    /**
+     * The estimated time label.
+     */
     private final JLabel estimatedTimeLabel = new JLabel();
 
+    /**
+     * The download file.
+     */
     private File downloadFile;
 
+    /**
+     * The file transfer.
+     */
     private FileTransfer fileTransfer;
 
+    /**
+     * The speed calculated delay.
+     */
     private final static int SPEED_CALCULATE_DELAY = 5000;
 
+    /**
+     * The transferred file size.
+     */
     private long transferredFileSize = 0;
 
+    /**
+     * The time of the last calculated transfer speed.
+     */
     private long lastSpeedTimestamp = 0;
 
+    /**
+     * The last estimated time for the transfer.
+     */
     private long lastEstimatedTimeTimestamp = 0;
 
+    /**
+     * The number of bytes last transferred.
+     */
     private long lastTransferredBytes = 0;
 
+    /**
+     * The last calculated progress speed.
+     */
     private long lastProgressSpeed;
 
+    /**
+     * The last estimated time.
+     */
     private long lastEstimatedTime;
 
     /**
@@ -328,8 +419,9 @@ public abstract class FileTransferConversationComponent
 
     /**
      * Sets the file transfer.
-     * 
+     *
      * @param fileTransfer the file transfer
+     * @param transferredFileSize the size of the transferred file
      */
     protected void setFileTransfer( FileTransfer fileTransfer,
                                     long transferredFileSize)
@@ -342,6 +434,8 @@ public abstract class FileTransferConversationComponent
 
     /**
      * Handles buttons action events.
+     *
+     * @param evt the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent evt)
     {
@@ -425,6 +519,8 @@ public abstract class FileTransferConversationComponent
     /**
      * Updates progress bar progress line every time a progress event has been
      * received.
+     *
+     * @param event the <tt>FileTransferProgressEvent</tt> that notified us
      */
     public void progressChanged(FileTransferProgressEvent event)
     {
@@ -529,9 +625,7 @@ public abstract class FileTransferConversationComponent
 
     /**
      * Returns the speed of the transfer.
-     * 
-     * @param progressTimestamp the time indicating when the progress event
-     * occured.
+     *
      * @param transferredBytes the number of bytes that have been transferred
      * @return the speed of the transfer
      */
@@ -546,11 +640,27 @@ public abstract class FileTransferConversationComponent
      * Returns the estimated transfer time left.
      * 
      * @param speed the speed of the transfer
-     * @param fileSize the size of the file
+     * @param bytesLeft the size of the file
      * @return the estimated transfer time left
      */
     private double calculateEstimatedTransferTime(double speed, long bytesLeft)
     {
         return bytesLeft / speed;
+    }
+
+    /**
+     * Reload images and colors.
+     */
+    public void loadSkin()
+    {
+        errorIconLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.EXCLAMATION_MARK)));
+
+        if(downloadFile != null)
+            imageLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.DEFAULT_FILE_ICON)));
+
+        errorArea.setForeground(
+            new Color(resources.getColor("service.gui.ERROR_FOREGROUND")));
     }
 }

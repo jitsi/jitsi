@@ -29,6 +29,7 @@ import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.SwingWorker; // disambiguation
 
@@ -43,6 +44,7 @@ import net.java.sip.communicator.util.swing.SwingWorker; // disambiguation
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 @SuppressWarnings("serial")
 public class ChatPanel
@@ -52,7 +54,8 @@ public class ChatPanel
                 ChatConversationContainer,
                 ChatRoomMemberRoleListener,
                 ChatRoomLocalUserRoleListener,
-                FileTransferStatusListener
+                FileTransferStatusListener,
+                Skinnable
 {
     private static final Logger logger = Logger.getLogger(ChatPanel.class);
 
@@ -1636,7 +1639,8 @@ public class ChatPanel
 
         if(ConfigurationManager.isMultiChatWindowEnabled())
         {
-            if (getChatWindow().getChatTabCount() > 0) {
+            if (getChatWindow().getChatTabCount() > 0)
+            {
                 getChatWindow().setTabIcon(this,
                     new ImageIcon(
                         Constants.getStatusIcon(chatTransport.getStatus())));
@@ -2193,5 +2197,23 @@ public class ChatPanel
         {
             activeFileTransfers.remove(id);
         }
+    }
+
+    /**
+     * Reloads chat messages.
+     */
+    public void loadSkin()
+    {
+        try
+        {
+            Document doc
+                = this.conversationPanel.getChatTextPane().getDocument();
+            doc.remove(0, doc.getLength());
+        }
+        catch (BadLocationException ex)
+        {
+            logger.error(ex);
+        }
+        loadHistory();
     }
 }

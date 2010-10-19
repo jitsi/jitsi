@@ -20,6 +20,7 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.event.*;
 import net.java.sip.communicator.util.swing.plaf.*;
 
@@ -29,10 +30,12 @@ import net.java.sip.communicator.util.swing.plaf.*;
  * tab by clicking on these icons.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SIPCommTabbedPane
     extends JTabbedPane
-    implements ChangeListener
+    implements  ChangeListener,
+                Skinnable
 {
     private int overTabIndex = -1;
 
@@ -472,5 +475,17 @@ public class SIPCommTabbedPane
     public void stateChanged(ChangeEvent e)
     {
         lastSelectedIndex = this.getSelectedIndex();
+    }
+
+    /**
+     * Reloads skin information.
+     */
+    public void loadSkin()
+    {
+        this.setForeground(
+            new Color(UtilActivator.getResources()
+                .getColor("service.gui.TAB_TITLE")));
+
+        ((SIPCommTabbedPaneEnhancedUI)this.getUI()).loadSkin();
     }
 }

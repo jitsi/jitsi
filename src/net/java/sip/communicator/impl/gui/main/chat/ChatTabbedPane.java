@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat;
 
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -14,9 +15,11 @@ import net.java.sip.communicator.util.swing.*;
  * this information to the user.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class ChatTabbedPane
     extends SIPCommTabbedPane
+    implements Skinnable
 {
     /**
      * Creates a <tt>ChatTabbedPane</tt> with a close tab funcion.
@@ -56,6 +59,8 @@ public class ChatTabbedPane
      * messages in this tab.
      *
      * @param tabIndex the index of the tab
+     * @param unreadMessageNumber the number of messages that the user hasn't
+     * yet read
      */
     public void highlightTab(int tabIndex, int unreadMessageNumber)
     {
@@ -68,5 +73,21 @@ public class ChatTabbedPane
         this.setTitleAt(tabIndex, tabTitle);
 
         super.highlightTab(tabIndex);
+    }
+
+    /**
+     * Reloads status icons.
+     */
+    public void loadSkin()
+    {
+        super.loadSkin();
+
+        int count = getTabCount();
+
+        for(int i = 0; i < count; i++)
+        {
+            ChatPanel chatPanel = (ChatPanel) this.getComponentAt(i);
+            setIconAt(i, chatPanel.getChatSession().getChatStatusIcon());
+        }
     }
 }

@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -22,10 +23,12 @@ import net.java.sip.communicator.util.swing.*;
  * save, print and close.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class FileMenu
     extends SIPCommMenu
-    implements ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     private JMenuItem myChatRoomsItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.MY_CHAT_ROOMS"),
@@ -131,5 +134,20 @@ public class FileMenu
             this.parentWindow.setVisible(false);
             this.parentWindow.dispose();
         }
+    }
+
+    /**
+     * Reloads menu icons.
+     */
+    public void loadSkin()
+    {
+        myChatRoomsItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
+
+        historyItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.HISTORY_ICON)));
+
+        closeMenuItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
     }
 }

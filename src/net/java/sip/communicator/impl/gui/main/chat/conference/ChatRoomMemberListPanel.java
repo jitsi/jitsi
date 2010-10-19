@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * The <tt>ChatContactListPanel</tt> is the panel added on the right of the
@@ -26,9 +27,11 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Yana Stamcheva
  * @author Valentin Martinet
+ * @author Adam Netocny
  */
 public class ChatRoomMemberListPanel
     extends JPanel
+    implements Skinnable
 {
     private static final long serialVersionUID = -8250816784228586068L;
 
@@ -137,6 +140,14 @@ public class ChatRoomMemberListPanel
      */
     public void renameContact(ChatContact<?> chatContact)
     {
+    }
+
+    /**
+     * Reloads renderer.
+     */
+    public void loadSkin()
+    {
+        ((ChatContactCellRenderer)memberList.getCellRenderer()).loadSkin();
     }
 
     /**

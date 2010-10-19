@@ -16,6 +16,7 @@ import javax.swing.text.html.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -27,9 +28,11 @@ import net.java.sip.communicator.util.swing.*;
  * 
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class EditTextToolBar
     extends TransparentPanel
+    implements Skinnable
 {
     private final ChatWritePanel chatWritePanel;
 
@@ -45,6 +48,8 @@ public class EditTextToolBar
 
     private ColorLabel colorLabel;
 
+    private SIPCommButton fontButton;
+
     /**
      * Creates an instance and constructs the <tt>EditTextToolBar</tt>.
      * @param writePanel the panel containing the chat write area
@@ -59,7 +64,7 @@ public class EditTextToolBar
 
         this.initStyleToolbarButtons();
 
-        SIPCommButton fontButton
+        fontButton
             = new SIPCommButton(
                 ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON),
                 ImageLoader.getImage(ImageLoader.FONT_ICON));
@@ -443,7 +448,8 @@ public class EditTextToolBar
         if (result == FontChooser.OK_OPTION)
         {
             // Font family and size
-            setFontFamilyAndSize(fontChooser.getFontFamily(), fontChooser.getFontSize());
+            setFontFamilyAndSize(   fontChooser.getFontFamily(),
+                                    fontChooser.getFontSize());
 
             // Font style
             setBoldStyleEnable(fontChooser.isBoldStyleSelected());
@@ -456,7 +462,7 @@ public class EditTextToolBar
         
         chatEditorPane.requestFocus();
     }
-    
+
     /**
      * Sets the font family and size
      * @param family the family name
@@ -465,16 +471,20 @@ public class EditTextToolBar
     public void setFontFamilyAndSize(String family, int size)
     {
         // Family
-        ActionEvent evt = new ActionEvent(chatEditorPane, ActionEvent.ACTION_PERFORMED, family);
+        ActionEvent evt
+            = new ActionEvent(  chatEditorPane,
+                                ActionEvent.ACTION_PERFORMED,
+                                family);
         Action action = new StyledEditorKit.FontFamilyAction(family, family);
         action.actionPerformed(evt);
-        
+
         // Size
-        evt = new ActionEvent(chatEditorPane, ActionEvent.ACTION_PERFORMED, Integer.toString(size)); 
+        evt = new ActionEvent(chatEditorPane,
+            ActionEvent.ACTION_PERFORMED, Integer.toString(size));
         action = new StyledEditorKit.FontSizeAction(Integer.toString(size), size);
         action.actionPerformed(evt);
     }
-    
+
     /**
      * Enables the bold style
      * @param b TRUE enable - FALSE disable
@@ -484,27 +494,29 @@ public class EditTextToolBar
         if ((b && !boldButton.isSelected()) || (!b && boldButton.isSelected()))
             boldButton.doClick();
     }
-    
+
     /**
      * Enables the italic style
      * @param b TRUE enable - FALSE disable
      */
     public void setItalicStyleEnable(boolean b)
     {
-        if ((b && !italicButton.isSelected()) || (!b && italicButton.isSelected()))
+        if ((b && !italicButton.isSelected())
+                || (!b && italicButton.isSelected()))
             italicButton.doClick();
     }
-    
+
     /**
      * Enables the underline style
      * @param b TRUE enable - FALSE disable
      */
     public void setUnderlineStyleEnable(boolean b)
     {
-        if ((b && !underlineButton.isSelected()) || (!b && underlineButton.isSelected()))
+        if ((b && !underlineButton.isSelected())
+                || (!b && underlineButton.isSelected()))
             underlineButton.doClick();
     }
-    
+
     /**
      * Sets the font color
      * @param color the color
@@ -512,7 +524,7 @@ public class EditTextToolBar
     public void setFontColor(Color color)
     {
         colorLabel.setBackground(color);
-        
+
         ActionEvent evt
             = new ActionEvent(chatEditorPane, ActionEvent.ACTION_PERFORMED, "");
         Action action
@@ -542,5 +554,55 @@ public class EditTextToolBar
     public boolean hasSelectedMenus()
     {
         return smileysBox.isMenuSelected();
+    }
+
+    /**
+     * Loads the skin.
+     */
+    public void loadSkin()
+    {
+        fontButton.setBackgroundImage(
+                ImageLoader.getImage(ImageLoader.EDIT_TOOLBAR_BUTTON));
+        fontButton.setIconImage(
+                ImageLoader.getImage(ImageLoader.FONT_ICON));
+
+        ((SIPCommToggleButton)this.boldButton).setBgImage(
+                new ImageIcon(ImageLoader.getImage(
+                ImageLoader.EDIT_TOOLBAR_BUTTON)).getImage());
+        ((SIPCommToggleButton)this.boldButton).setBgRolloverImage(
+                new ImageIcon(ImageLoader.getImage(
+                ImageLoader.EDIT_TOOLBAR_BUTTON)).getImage());
+        ((SIPCommToggleButton)this.boldButton).setIconImage(
+                new ImageIcon(ImageLoader.getImage(
+                ImageLoader.TEXT_BOLD_BUTTON)).getImage());
+        ((SIPCommToggleButton)this.boldButton).setPressedImage(
+                new ImageIcon(ImageLoader.getImage(
+                ImageLoader.EDIT_TOOLBAR_BUTTON_PRESSED)).getImage());
+
+        ((SIPCommToggleButton)this.italicButton).setBgImage(
+                new ImageIcon(ImageLoader.getImage(
+                ImageLoader.EDIT_TOOLBAR_BUTTON)).getImage());
+        ((SIPCommToggleButton)this.italicButton).setBgRolloverImage(
+                new ImageIcon(ImageLoader.getImage(
+                ImageLoader.EDIT_TOOLBAR_BUTTON)).getImage());
+        ((SIPCommToggleButton)this.italicButton).setIconImage(
+                new ImageIcon(ImageLoader.getImage(
+                ImageLoader.TEXT_ITALIC_BUTTON)).getImage());
+        ((SIPCommToggleButton)this.italicButton).setPressedImage(
+                new ImageIcon(ImageLoader.getImage(
+                ImageLoader.EDIT_TOOLBAR_BUTTON_PRESSED)).getImage());
+
+        ((SIPCommToggleButton)this.underlineButton).setBgImage(
+                new ImageIcon(ImageLoader.getImage(
+                ImageLoader.EDIT_TOOLBAR_BUTTON)).getImage());
+        ((SIPCommToggleButton)this.underlineButton).setBgRolloverImage(
+                new ImageIcon(ImageLoader.getImage(
+                ImageLoader.EDIT_TOOLBAR_BUTTON)).getImage());
+        ((SIPCommToggleButton)this.underlineButton).setIconImage(
+                new ImageIcon(ImageLoader.getImage(
+                ImageLoader.TEXT_UNDERLINED_BUTTON)).getImage());
+        ((SIPCommToggleButton)this.underlineButton).setPressedImage(
+                new ImageIcon(ImageLoader.getImage(
+                ImageLoader.EDIT_TOOLBAR_BUTTON_PRESSED)).getImage());
     }
 }

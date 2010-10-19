@@ -13,23 +13,29 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * The SIPCommSelectorMenuUI implementation.
- * 
+ *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SIPCommSelectorMenuUI
     extends BasicMenuUI
+    implements Skinnable
 {
-    private final Image menuBgImage
+    private Image menuBgImage
         = ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX);
-    
+
     /**
      * Creates a new SIPCommSelectorMenuUI instance.
+     *
+     * @param c the component for which we create the UI
+     * @return the created <tt>ComponentUI</tt>
      */
-    public static ComponentUI createUI(JComponent x)
+    public static ComponentUI createUI(JComponent c)
     {
         return new SIPCommSelectorMenuUI();
     }
@@ -42,9 +48,12 @@ public class SIPCommSelectorMenuUI
      * @param bgColor selection background color
      * @since 1.4
      */
-    protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor)
+    protected void paintBackground( Graphics g,
+                                    JMenuItem menuItem,
+                                    Color bgColor)
     {
         g = g.create();
+
         try
         {
             AntialiasingManager.activateAntialiasing(g);
@@ -58,5 +67,14 @@ public class SIPCommSelectorMenuUI
         {
             g.dispose();
         }
+    }
+
+    /**
+     * Reloads the background icon.
+     */
+    public void loadSkin()
+    {
+        menuBgImage
+            = ImageLoader.getImage(ImageLoader.STATUS_SELECTOR_BOX);
     }
 }

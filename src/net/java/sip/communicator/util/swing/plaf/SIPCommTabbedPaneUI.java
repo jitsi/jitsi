@@ -24,6 +24,7 @@ import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -31,8 +32,8 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class SIPCommTabbedPaneUI
     extends BasicTabbedPaneUI
+    implements Skinnable
 {
-
     /**
      * The image used in the <tt>SIPCommLookAndFeel</tt> to paint a close
      * button on a tab.
@@ -118,10 +119,7 @@ public class SIPCommTabbedPaneUI
         //maxImgB = new BufferedImage(BUTTONSIZE, BUTTONSIZE,
         //        BufferedImage.TYPE_4BYTE_ABGR);
 
-        closeImgI = UtilActivator.getImage(CLOSE_TAB_ICON);
-
-        maxImgI = new BufferedImage(BUTTONSIZE, BUTTONSIZE,
-                BufferedImage.TYPE_4BYTE_ABGR);
+        loadSkin();
 
         actionPopupMenu = new JPopupMenu();
 
@@ -1732,4 +1730,15 @@ public class SIPCommTabbedPaneUI
                                         int tabPlacement,
                                         int selectedIndex)
     {}
+
+    /**
+     * Reloads close icon.
+     */
+    public void loadSkin()
+    {
+        closeImgI = UtilActivator.getImage(CLOSE_TAB_ICON);
+
+        maxImgI = new BufferedImage(BUTTONSIZE, BUTTONSIZE,
+                BufferedImage.TYPE_4BYTE_ABGR);
+    }
 }

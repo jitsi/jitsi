@@ -13,16 +13,20 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * The <tt>WritePanelRightButtonMenu</tt> appears when the user makes a right
  * button click on the chat window write area (where user types messages).
- *  
+ *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
-public class WritePanelRightButtonMenu extends JPopupMenu
-    implements ActionListener {
-
+public class WritePanelRightButtonMenu
+    extends JPopupMenu
+    implements  ActionListener,
+                Skinnable
+{
     private ChatWindow parentWindow;
 
     private JMenuItem cutMenuItem = new JMenuItem(
@@ -40,24 +44,26 @@ public class WritePanelRightButtonMenu extends JPopupMenu
     private JMenuItem closeMenuItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.CLOSE"), 
         new ImageIcon(ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
+
     /**
      * Creates an instance of <tt>WritePanelRightButtonMenu</tt>.
      *  
      * @param parentWindow The window owner of this popup menu.
      */
-    public WritePanelRightButtonMenu(ChatWindow parentWindow) {
+    public WritePanelRightButtonMenu(ChatWindow parentWindow)
+    {
         super();
 
         this.parentWindow = parentWindow;
-        
+
         this.init();
     }
-    
+
     /**
      * Initializes this menu with menu items.
      */
-    private void init() {
-        
+    private void init()
+    {
         this.add(copyMenuItem);
         this.add(cutMenuItem);
         this.add(pasteMenuItem);
@@ -75,7 +81,7 @@ public class WritePanelRightButtonMenu extends JPopupMenu
         this.cutMenuItem.addActionListener(this);
         this.pasteMenuItem.addActionListener(this);
         this.closeMenuItem.addActionListener(this);
-        
+
         this.copyMenuItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.COPY"));
         this.cutMenuItem.setMnemonic(
@@ -84,44 +90,64 @@ public class WritePanelRightButtonMenu extends JPopupMenu
             GuiActivator.getResources().getI18nMnemonic("service.gui.PASTE"));
         this.closeMenuItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.CLOSE"));
-        
+
         this.cutMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_X,
                 KeyEvent.CTRL_MASK));
-        
+
         this.copyMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_C,
                 KeyEvent.CTRL_MASK));
-        
+
         this.pasteMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_P,
                 KeyEvent.CTRL_MASK));
     }
-    
+
     /**
      * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
+     *
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemText = menuItem.getName();
 
-        if (itemText.equalsIgnoreCase("cut")) {
-
-            this.parentWindow.getCurrentChatPanel().cut();            
+        if (itemText.equalsIgnoreCase("cut"))
+        {
+            this.parentWindow.getCurrentChatPanel().cut();
         }
-        else if (itemText.equalsIgnoreCase("copy")) {
-            
+        else if (itemText.equalsIgnoreCase("copy"))
+        {
             this.parentWindow.getCurrentChatPanel().copyWriteArea();
         }
-        else if (itemText.equalsIgnoreCase("paste")) {
-
+        else if (itemText.equalsIgnoreCase("paste"))
+        {
             this.parentWindow.getCurrentChatPanel().paste();
         }
-        else if (itemText.equalsIgnoreCase("service.gui.CLOSE")) {
-
+        else if (itemText.equalsIgnoreCase("service.gui.CLOSE"))
+        {
             this.parentWindow.setVisible(false);
             this.parentWindow.dispose();
-
         }
+    }
+
+    /**
+     * Reloads menu icons.
+     */
+    public void loadSkin()
+    {
+        cutMenuItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.CUT_ICON)));
+
+        copyMenuItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.COPY_ICON)));
+
+        pasteMenuItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.PASTE_ICON)));
+
+        closeMenuItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
     }
 }
