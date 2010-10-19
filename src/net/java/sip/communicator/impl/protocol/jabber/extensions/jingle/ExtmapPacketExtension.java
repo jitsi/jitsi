@@ -133,5 +133,4 @@ public class ExtmapPacketExtension
     {
         return super.getAttributeAsString(ATTRIBUTES_ATTR_NAME);
     }
-
 }

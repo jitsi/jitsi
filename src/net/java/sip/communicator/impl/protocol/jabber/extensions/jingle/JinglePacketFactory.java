@@ -394,10 +394,10 @@ public class JinglePacketFactory
      * packet.
      */
     public static JingleIQ createContentRemove(
-                                    String                       from,
-                                    String                       to,
-                                    String                       sid,
-                                    List<ContentPacketExtension> contentList)
+            String                           from,
+            String                           to,
+            String                           sid,
+            Iterable<ContentPacketExtension> contentList)
     {
         JingleIQ contentRemove = new JingleIQ();
 
@@ -410,9 +410,7 @@ public class JinglePacketFactory
         contentRemove.setAction(JingleAction.CONTENT_REMOVE);
 
         for(ContentPacketExtension content : contentList)
-        {
             contentRemove.addContent(content);
-        }
 
         return contentRemove;
     }

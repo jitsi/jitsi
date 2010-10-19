@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.packet.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
@@ -68,7 +69,7 @@ public class CallPeerJabberImpl
         super(owningCall);
 
         this.peerJID = peerAddress;
-        super.setMediaHandler( new CallPeerMediaHandlerJabberImpl(this) );
+        setMediaHandler( new CallPeerMediaHandlerJabberImpl(this) );
     }
 
     /**
@@ -375,15 +376,17 @@ public class CallPeerJabberImpl
     {
         this.sessionInitIQ = sessionInitIQ;
 
+        CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
         List<ContentPacketExtension> answer = sessionInitIQ.getContentList();
 
         try
         {
-            getMediaHandler().processAnswer(answer);
+            mediaHandler.processAnswer(answer);
         }
         catch(Exception exc)
         {
-            logger.info("Failed to process a session-accept", exc);
+            if (logger.isInfoEnabled())
+                logger.info("Failed to process a session-accept", exc);
 
             //send an error response;
             JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
@@ -400,7 +403,7 @@ public class CallPeerJabberImpl
         //stop
         setState(CallPeerState.CONNECTED);
 
-        getMediaHandler().start();
+        mediaHandler.start();
     }
 
     /**
@@ -533,23 +536,27 @@ public class CallPeerJabberImpl
      */
     private void sendRemoveVideoContent()
     {
+        CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
+
         ContentPacketExtension content = new ContentPacketExtension();
-        ContentPacketExtension remoteContent = getMediaHandler().
-            getRemoteContent(MediaType.VIDEO.toString());
-        List<ContentPacketExtension> contents =
-            new ArrayList<ContentPacketExtension>();
+        ContentPacketExtension remoteContent
+            = mediaHandler.getRemoteContent(MediaType.VIDEO.toString());
 
         content.setName(remoteContent.getName());
         content.setCreator(remoteContent.getCreator());
         content.setSenders(remoteContent.getSenders());
-        contents.add(content);
 
-        JingleIQ contentIQ = JinglePacketFactory
-            .createContentRemove(getProtocolProvider().getOurJID(),
-                            this.peerJID, getJingleSID(), contents);
+        ProtocolProviderServiceJabberImpl protocolProvider
+            = getProtocolProvider();
+        JingleIQ contentIQ
+            = JinglePacketFactory.createContentRemove(
+                    protocolProvider.getOurJID(),
+                    this.peerJID,
+                    getJingleSID(),
+                    Arrays.asList(content));
 
-        getProtocolProvider().getConnection().sendPacket(contentIQ);
-        getMediaHandler().removeRemoteContent(remoteContent.getName());
+        protocolProvider.getConnection().sendPacket(contentIQ);
+        mediaHandler.removeContent(remoteContent.getName());
     }
 
     /**
@@ -643,14 +650,16 @@ public class CallPeerJabberImpl
      */
     public void processContentAdd(JingleIQ content)
     {
+        CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
         List<ContentPacketExtension> contents = content.getContentList();
-        JingleIQ contentIQ = null;
         Iterable<ContentPacketExtension> answerContents;
+        JingleIQ contentIQ;
 
         try
         {
-            getMediaHandler().processOffer(contents);
-            answerContents = getMediaHandler().generateSessionAccept();
+            mediaHandler.processOffer(contents);
+            answerContents = mediaHandler.generateSessionAccept();
+            contentIQ = null;
         }
         catch(Exception e)
         {
@@ -677,7 +686,7 @@ public class CallPeerJabberImpl
         }
 
         getProtocolProvider().getConnection().sendPacket(contentIQ);
-        getMediaHandler().start();
+        mediaHandler.start();
     }
 
     /**
@@ -696,7 +705,7 @@ public class CallPeerJabberImpl
         }
         catch(Exception exc)
         {
-            logger.warn("Exception occurred", exc);
+            logger.warn("Failed to process a content-accept", exc);
             //send an error response;
             JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
                     sessionInitIQ.getTo(), sessionInitIQ.getFrom(),
@@ -752,8 +761,21 @@ public class CallPeerJabberImpl
     {
         List<ContentPacketExtension> contents = content.getContentList();
 
-        for(ContentPacketExtension ext : contents)
-            getMediaHandler().removeRemoteContent(ext.getName());
+        if (!contents.isEmpty())
+        {
+            CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
+
+            for(ContentPacketExtension c : contents)
+                mediaHandler.removeContent(c.getName());
+
+            /*
+             * TODO XEP-0166: Jingle says: If the content-remove results in zero
+             * content definitions for the session, the entity that receives the
+             * content-remove SHOULD send a session-terminate action to the
+             * other party (since a session with no content definitions is
+             * void).
+             */
+        }
     }
 
     /**
@@ -796,5 +818,32 @@ public class CallPeerJabberImpl
         {
             logger.error("Failed to process an incoming transport-info", ofe);
         }
+    }
+
+    /**
+     * Sends local candidate addresses from the local peer to the remote peer
+     * using the <tt>transport-info</tt> {@link JingleIQ}.
+     *
+     * @param contents the local candidate addresses to be sent from the local
+     * peer to the remote peer using the <tt>transport-info</tt>
+     * {@link JingleIQ}
+     */
+    void sendTransportInfo(Iterable<ContentPacketExtension> contents)
+    {
+        JingleIQ transportInfo = new JingleIQ();
+
+        for (ContentPacketExtension content : contents)
+            transportInfo.addContent(content);
+
+        ProtocolProviderServiceJabberImpl protocolProvider
+            = getProtocolProvider();
+
+        transportInfo.setAction(JingleAction.TRANSPORT_INFO);
+        transportInfo.setFrom(protocolProvider.getOurJID());
+        transportInfo.setSID(getJingleSID());
+        transportInfo.setTo(getAddress());
+        transportInfo.setType(IQ.Type.SET);
+
+        protocolProvider.getConnection().sendPacket(transportInfo);
     }
 }

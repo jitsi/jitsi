@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
  * An {@link AbstractPacketExtension} implementation for transport elements.
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public class IceUdpTransportPacketExtension extends AbstractPacketExtension
 {
@@ -158,7 +159,24 @@ public class IceUdpTransportPacketExtension extends AbstractPacketExtension
     {
         synchronized(candidateList)
         {
-            this.candidateList.add(candidate);
+            candidateList.add(candidate);
+        }
+    }
+
+    /**
+     * Removes <tt>candidate</tt> from the list of
+     * {@link CandidatePacketExtension}s registered with this transport.
+     *
+     * @param candidate the <tt>CandidatePacketExtension</tt> to remove from
+     * this transport element
+     * @return <tt>true</tt> if the list of <tt>CandidatePacketExtension</tt>s
+     * registered with this transport contained the specified <tt>candidate</tt>
+     */
+    public boolean removeCandidate(CandidatePacketExtension candidate)
+    {
+        synchronized (candidateList)
+        {
+            return candidateList.remove(candidate);
         }
     }
 
@@ -215,7 +233,4 @@ public class IceUdpTransportPacketExtension extends AbstractPacketExtension
         else if(childExtension instanceof CandidatePacketExtension)
             addCandidate((CandidatePacketExtension) childExtension);
     }
-
-
-
 }

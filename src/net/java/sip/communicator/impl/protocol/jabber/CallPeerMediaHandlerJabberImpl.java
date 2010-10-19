@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.lang.reflect.*;
 import java.util.*;
 
-import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.packet.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
@@ -376,14 +376,32 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         /*
-         * In order to minimize post-pickup delay, establish the connectivity
-         * prior to ringing.
+         * In order to minimize post-pickup delay, start establishing the
+         * connectivity prior to ringing.
          */
-        List<ContentPacketExtension> candidates
-            = harvestCandidates(offer, answer);
-
-        sendTransportInfo(candidates);
-        establishConnectivity(offer);
+        harvestCandidates(
+            offer,
+            answer,
+            new TransportInfoSender()
+                    {
+                        public void sendTransportInfo(
+                                Iterable<ContentPacketExtension> contents)
+                        {
+                            getPeer().sendTransportInfo(contents);
+                        }
+                    });
+        /*
+         * While it may sound like we can completely eliminate the post-pickup
+         * delay by waiting for the connectivity establishment to finish, it may
+         * not be possible in all cases. We are the Jingle session responder so,
+         * in the case of the ICE UDP transport, we are not the controlling ICE
+         * Agent and we cannot be sure when the controlling ICE Agent will
+         * perform the nomination. It could, for example, choose to wait for our
+         * session-accept to perform the nomination which will deadlock us if we
+         * have chosen to wait for the connectivity establishment to finish
+         * before we begin ringing and send session-accept.
+         */
+        getTransportManager().startConnectivityEstablishment(offer);
     }
 
     /**
@@ -401,7 +419,7 @@ public class CallPeerMediaHandlerJabberImpl
     {
         TransportManagerJabberImpl transportManager = getTransportManager();
         Iterable<ContentPacketExtension> sessAccept
-            = transportManager.wrapupConnectivityEstablishment();
+            = transportManager.wrapupCandidateHarvest();
         CallPeerJabberImpl peer = getPeer();
 
         //user answered an incoming call so we go through whatever content
@@ -412,7 +430,7 @@ public class CallPeerMediaHandlerJabberImpl
                 = JingleUtils.getRtpDescription(ourContent);
             MediaType type = MediaType.parseString(description.getMedia());
 
-            //
+            // stream connector
             StreamConnector connector
                 = transportManager.getStreamConnector(type);
 
@@ -420,24 +438,22 @@ public class CallPeerMediaHandlerJabberImpl
             MediaDevice dev = getDefaultDevice(type);
 
             // stream target
-            ContentPacketExtension theirContent
-                = this.remoteContentMap.get(ourContent.getName());
-            MediaStreamTarget target
-                = JingleUtils.extractDefaultTarget(theirContent);
-            RtpDescriptionPacketExtension theirDescription
-                = JingleUtils.getRtpDescription(theirContent);
+            MediaStreamTarget target = transportManager.getStreamTarget(type);
 
             //stream direction
-            MediaDirection direction = JingleUtils.getDirection(
-                                       ourContent, !peer.isInitiator());
+            MediaDirection direction
+                = JingleUtils.getDirection(ourContent, !peer.isInitiator());
 
             //let's now see what was the format we announced as first and
             //configure the stream with it.
+            ContentPacketExtension theirContent
+                = this.remoteContentMap.get(ourContent.getName());
+            RtpDescriptionPacketExtension theirDescription
+                = JingleUtils.getRtpDescription(theirContent);
             MediaFormat format = null;
-            List<PayloadTypePacketExtension> payloadTypes =
-                theirDescription.getPayloadTypes();
 
-            for(PayloadTypePacketExtension payload : payloadTypes)
+            for(PayloadTypePacketExtension payload
+                    : theirDescription.getPayloadTypes())
             {
                 format
                     = JingleUtils.payloadTypeToMediaFormat(
@@ -583,7 +599,7 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         //now add the transport elements
-        return harvestCandidates(null, mediaDescs);
+        return harvestCandidates(null, mediaDescs, null);
     }
 
     /**
@@ -678,7 +694,7 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         //now add the transport elements
-        return harvestCandidates(null, mediaDescs);
+        return harvestCandidates(null, mediaDescs, null);
     }
 
     /**
@@ -771,52 +787,42 @@ public class CallPeerMediaHandlerJabberImpl
     }
 
     /**
-     * Remove a media content and stop the corresponding stream.
+     * Removes a media content with a specific name from the session represented
+     * by this <tt>CallPeerMediaHandlerJabberImpl</tt> and closes its associated
+     * media stream.
      *
-     * @param name of the Jingle content
+     * @param name the name of the media content to be removed from this session
      */
-    public void removeLocalContent(String name)
+    public void removeContent(String name)
     {
-        ContentPacketExtension content = localContentMap.remove(name);
-
-        if(content == null)
-            return;
-
-        RtpDescriptionPacketExtension description
-            = JingleUtils.getRtpDescription(content);
-
-        String media = description.getMedia();
-
-        if(media != null )
-        {
-              MediaStream stream = getStream(MediaType.parseString(media));
-              stream.stop();
-              stream = null;
-        }
+        removeContent(localContentMap, name);
+        removeContent(remoteContentMap, name);
+        getTransportManager().removeContent(name);
     }
 
     /**
-     * Remove a media content and stop the corresponding stream.
+     * Removes a media content with a specific name from the session represented
+     * by this <tt>CallPeerMediaHandlerJabberImpl</tt> and closes its associated
+     * media stream.
      *
-     * @param name of the Jingle content
+     * @param contentMap the <tt>Map</tt> in which the specified <tt>name</tt>
+     * has an association with the media content to be removed
+     * @param name the name of the media content to be removed from this session
      */
-    public void removeRemoteContent(String name)
+    private void removeContent(
+            Map<String, ContentPacketExtension> contentMap,
+            String name)
     {
-        ContentPacketExtension content = remoteContentMap.remove(name);
+        ContentPacketExtension content = contentMap.remove(name);
 
-        if(content == null)
-            return;
-
-        RtpDescriptionPacketExtension description
-            = JingleUtils.getRtpDescription(content);
-
-        String media = description.getMedia();
-
-        if(media != null )
+        if (content != null)
         {
-              MediaStream stream = getStream(MediaType.parseString(media));
-              stream.stop();
-              stream = null;
+            RtpDescriptionPacketExtension description
+                = JingleUtils.getRtpDescription(content);
+            String media = description.getMedia();
+
+            if (media != null)
+                closeStream(MediaType.parseString(media));
         }
     }
 
@@ -841,16 +847,18 @@ public class CallPeerMediaHandlerJabberImpl
     {
         RtpDescriptionPacketExtension description
             = JingleUtils.getRtpDescription(content);
-
         MediaType mediaType
             = MediaType.parseString( description.getMedia() );
 
         //stream target
-        MediaStreamTarget target
-            = JingleUtils.extractDefaultTarget(content);
+        TransportManagerJabberImpl transportManager = getTransportManager();
+        MediaStreamTarget target = transportManager.getStreamTarget(mediaType);
+
+        if (target == null)
+            target = JingleUtils.extractDefaultTarget(content);
 
         // no target port - try next media description
-        if(target.getDataAddress().getPort() == 0)
+        if((target == null) || (target.getDataAddress().getPort() == 0))
         {
             closeStream(mediaType);
             return;
@@ -885,7 +893,7 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         StreamConnector connector
-            = getTransportManager().getStreamConnector(mediaType);
+            = transportManager.getStreamConnector(mediaType);
 
         //determine the direction that we need to announce.
         MediaDirection remoteDirection
@@ -929,18 +937,19 @@ public class CallPeerMediaHandlerJabberImpl
         throws OperationFailedException,
                IllegalArgumentException
     {
-        for (ContentPacketExtension content : answer)
-        {
-            remoteContentMap.put(content.getName(), content);
-
-            processContent(content);
-        }
 
         /*
          * The answer given in session-accept may contain transport-related
          * information compatible with that carried in transport-info.
          */
         processTransportInfo(answer);
+
+        for (ContentPacketExtension content : answer)
+        {
+            remoteContentMap.put(content.getName(), content);
+
+            processContent(content);
+        }
     }
 
     /**
@@ -1149,6 +1158,7 @@ public class CallPeerMediaHandlerJabberImpl
      * peer to the remote peer. If <tt>remote</tt> is <tt>null</tt>,
      * <tt>local</tt> represents an offer from the local peer to be sent to the
      * remote peer
+     * @param transportInfoSender
      * @return the media descriptions of the local peer after the local
      * candidate addresses have been gathered as returned by
      * {@link TransportManagerJabberImpl#wrapupCandidateHarvest()}
@@ -1157,106 +1167,36 @@ public class CallPeerMediaHandlerJabberImpl
      */
     private List<ContentPacketExtension> harvestCandidates(
             List<ContentPacketExtension> remote,
-            List<ContentPacketExtension> local)
+            List<ContentPacketExtension> local,
+            TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
         TransportManagerJabberImpl transportManager = getTransportManager();
 
         if (remote == null)
+        {
+            /*
+             * We'll be harvesting candidates in order to make an offer so it
+             * doesn't make sense to send them in transport-info.
+             */
+            if (transportInfoSender != null)
+                throw new IllegalArgumentException("transportInfoSender");
+
             transportManager.startCandidateHarvest(local);
+        }
         else
-            transportManager.startCandidateHarvest(remote, local);
+        {
+            transportManager.startCandidateHarvest(
+                    remote,
+                    local,
+                    transportInfoSender);
+        }
 
         /*
          * XXX Ideally, we wouldn't wrap up that quickly. We need to revisit
          * this.
          */
         return transportManager.wrapupCandidateHarvest();
-    }
-
-    /**
-     * Establishes connectivity between the candidate addresses of the local and
-     * the remote peers.
-     *
-     * @param remote the media descriptions received from the remote peer which
-     * contain the remote candidate addresses to establish connectivity with
-     * @throws OperationFailedException if anything goes wrong while starting or
-     * wrapping up the establishment of connectivity between the candidate
-     * addresses of the local and the remote peers
-     */
-    private void establishConnectivity(Iterable<ContentPacketExtension> remote)
-        throws OperationFailedException
-    {
-        TransportManagerJabberImpl transportManager = getTransportManager();
-
-        transportManager.startConnectivityEstablishment(remote);
-        transportManager.wrapupConnectivityEstablishment();
-        for (MediaType mediaType : MediaType.values())
-        {
-            MediaStream stream = getStream(mediaType);
-
-            if (stream != null)
-            {
-                stream.setConnector(
-                        transportManager.getStreamConnector(mediaType));
-                stream.setTarget(transportManager.getStreamTarget(mediaType));
-            }
-        }
-    }
-
-    /**
-     * Sends local candidate addresses from the local peer to the remote peer
-     * using the <tt>transport-info</tt> {@link JingleIQ}. Since only ICE UDP
-     * among the supported Jingle transports is documented to utilize
-     * <tt>transport-info</tt>, the <tt>sendTransportInfo</tt> method does not
-     * send <tt>ContentPacketExtension</tt>s with transport other than ICE UDP
-     * and silently ignores them (i.e. no <tt>transport-info</tt>
-     * <tt>JingleIQ</tt> is sent in the case of all <tt>candidates</tt> not
-     * being from the ICE UDP transport).
-     *
-     * @param candidates the local candidate addresses to be sent from the local
-     * peer to the remote peer using the <tt>transport-info</tt>
-     * {@link JingleIQ}
-     */
-    private void sendTransportInfo(Iterable<ContentPacketExtension> candidates)
-    {
-        JingleIQ transportInfo = new JingleIQ();
-        boolean sendTransportInfo = false;
-
-        for (ContentPacketExtension content : candidates)
-        {
-            IceUdpTransportPacketExtension transport
-                = content.getFirstChildOfType(
-                        IceUdpTransportPacketExtension.class);
-
-            if ((transport != null)
-                    && IceUdpTransportPacketExtension.NAMESPACE.equals(
-                            transport.getNamespace()))
-            {
-                List<CandidatePacketExtension> candidateList
-                    = transport.getCandidateList();
-
-                if ((candidateList != null) && !candidateList.isEmpty())
-                {
-                    transportInfo.addContent(content);
-                    sendTransportInfo = true;
-                }
-            }
-        }
-        if (sendTransportInfo)
-        {
-            CallPeerJabberImpl peer = getPeer();
-            ProtocolProviderServiceJabberImpl protocolProvider
-                = peer.getProtocolProvider();
-
-            transportInfo.setAction(JingleAction.TRANSPORT_INFO);
-            transportInfo.setFrom(protocolProvider.getOurJID());
-            transportInfo.setSID(peer.getJingleSID());
-            transportInfo.setTo(peer.getAddress());
-            transportInfo.setType(IQ.Type.SET);
-
-            protocolProvider.getConnection().sendPacket(transportInfo);
-        }
     }
 
     /**
@@ -1273,6 +1213,60 @@ public class CallPeerMediaHandlerJabberImpl
     public void processTransportInfo(Iterable<ContentPacketExtension> contents)
         throws OperationFailedException
     {
-        establishConnectivity(contents);
+        if (getTransportManager().startConnectivityEstablishment(contents))
+            wrapupConnectivityEstablishment();
+    }
+
+    /**
+     * Waits for the associated <tt>TransportManagerJabberImpl</tt> to conclude
+     * any started connectivity establishment and then starts this
+     * <tt>CallPeerMediaHandler</tt>.
+     *
+     * @throws IllegalStateException if no offer or answer has been provided or
+     * generated earlier
+     */
+    @Override
+    public void start()
+        throws IllegalStateException
+    {
+        try
+        {
+            wrapupConnectivityEstablishment();
+        }
+        catch (OperationFailedException ofe)
+        {
+            throw new UndeclaredThrowableException(ofe);
+        }
+
+        super.start();
+    }
+
+    /**
+     * Notifies the associated <tt>TransportManagerJabberImpl</tt> that it
+     * should conclude any connectivity establishment, waits for it to actually
+     * do so and sets the <tt>connector</tt>s and <tt>target</tt>s of the
+     * <tt>MediaStream</tt>s managed by this <tt>CallPeerMediaHandler</tt>.
+     *
+     * @throws OperationFailedException if anything goes wrong while setting the
+     * <tt>connector</tt>s and/or <tt>target</tt>s of the <tt>MediaStream</tt>s
+     * managed by this <tt>CallPeerMediaHandler</tt>
+     */
+    private void wrapupConnectivityEstablishment()
+        throws OperationFailedException
+    {
+        TransportManagerJabberImpl transportManager = getTransportManager();
+
+        transportManager.wrapupConnectivityEstablishment();
+        for (MediaType mediaType : MediaType.values())
+        {
+            MediaStream stream = getStream(mediaType);
+
+            if (stream != null)
+            {
+                stream.setConnector(
+                        transportManager.getStreamConnector(mediaType));
+                stream.setTarget(transportManager.getStreamTarget(mediaType));
+            }
+        }
     }
 }

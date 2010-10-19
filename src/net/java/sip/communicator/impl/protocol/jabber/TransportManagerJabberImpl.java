@@ -18,8 +18,8 @@ import net.java.sip.communicator.service.protocol.media.*;
  * <tt>TransportManager</tt>s gather local candidates for incoming and outgoing
  * calls. Their work starts by calling a start method which, using the remote
  * peer's session description, would start the harvest. Calling a second wrapup
- * method would deliver the candidate harvest, possibly after blocking if
- * it has not yet completed.
+ * method would deliver the candidate harvest, possibly after blocking if it has
+ * not yet completed.
  *
  * @author Emil Ivov
  * @author Lyubomir Marinov
@@ -136,12 +136,21 @@ public abstract class TransportManagerJabberImpl
      * transports our peer is using.
      * @param ourAnswer the content descriptions that we should be adding our
      * transport lists to (although not necessarily in this very instance).
+     * @param transportInfoSender the <tt>TransportInfoSender</tt> to be used by
+     * this <tt>TransportManagerJabberImpl</tt> to send <tt>transport-info</tt>
+     * <tt>JingleIQ</tt>s from the local peer to the remote peer if this
+     * <tt>TransportManagerJabberImpl</tt> wishes to utilize
+     * <tt>transport-info</tt>. Local candidate addresses sent by this
+     * <tt>TransportManagerJabberImpl</tt> in <tt>transport-info</tt> are
+     * expected to not be included in the result of
+     * {@link #wrapupCandidateHarvest()}.
      *
      * @throws OperationFailedException if we fail to allocate a port number.
      */
     public abstract void startCandidateHarvest(
-                          List<ContentPacketExtension> theirOffer,
-                          List<ContentPacketExtension> ourAnswer)
+            List<ContentPacketExtension> theirOffer,
+            List<ContentPacketExtension> ourAnswer,
+            TransportInfoSender transportInfoSender)
         throws OperationFailedException;
 
     /**
@@ -180,9 +189,9 @@ public abstract class TransportManagerJabberImpl
      * @return the {@link ContentPacketExtension} with the specified name or
      * <tt>null</tt> if no such content element exists.
      */
-    protected ContentPacketExtension findContentByName(
-                                        List<ContentPacketExtension> cpExtList,
-                                        String                       name)
+    protected static ContentPacketExtension findContentByName(
+            Iterable<ContentPacketExtension> cpExtList,
+            String name)
     {
         for(ContentPacketExtension cpExt : cpExtList)
         {
@@ -201,18 +210,85 @@ public abstract class TransportManagerJabberImpl
      * @param remote the collection of <tt>ContentPacketExtension</tt>s which
      * represents the remote counterpart of the negotiation between the local
      * and the remote peer
+     * @return <tt>true</tt> if connectivity establishment has been started in
+     * response to the call; otherwise, <tt>false</tt>.
+     * <tt>TransportManagerJabberImpl</tt> implementations which do not perform
+     * connectivity checks (e.g. raw UDP) should return <tt>true</tt>. The
+     * default implementation does not perform connectivity checks and always
+     * returns <tt>true</tt>.
      */
-    public abstract void startConnectivityEstablishment(
-            Iterable<ContentPacketExtension> remote);
+    public boolean startConnectivityEstablishment(
+            Iterable<ContentPacketExtension> remote)
+    {
+        return true;
+    }
 
     /**
      * Notifies this <tt>TransportManagerJabberImpl</tt> that it should conclude
-     * any started connectivity establishment and return (at least) the
-     * transport-related media descriptions of the local peer.
-     *
-     * @return the transport-related media descriptions of the local peer after
-     * the end of the connectivity establishment
+     * any started connectivity establishment.
      */
-    public abstract Iterable<ContentPacketExtension>
-        wrapupConnectivityEstablishment();
+    public void wrapupConnectivityEstablishment()
+    {
+    }
+
+    /**
+     * Removes a content with a specific name from the transport-related part of
+     * the session represented by this <tt>TransportManagerJabberImpl</tt> which
+     * may have been reported through previous calls to the
+     * <tt>startCandidateHarvest</tt> and
+     * <tt>startConnectivityEstablishment</tt> methods.
+     * <p>
+     * <b>Note</b>: Because <tt>TransportManager</tt> deals with
+     * <tt>MediaType</tt>s, not content names and
+     * <tt>TransportManagerJabberImpl</tt> does not implement translating from
+     * content name to <tt>MediaType</tt>, implementers are expected to call
+     * {@link TransportManager#closeStreamConnector(MediaType)}.
+     * </p>
+     *
+     * @param name the name of the content to be removed from the
+     * transport-related part of the session represented by this
+     * <tt>TransportManagerJabberImpl</tt>
+     */
+    public abstract void removeContent(String name);
+
+    /**
+     * Removes a content with a specific name from a specific collection of
+     * contents and closes any associated <tt>StreamConnector</tt>.
+     *
+     * @param contents the collection of contents to remove the content with the
+     * specified name from
+     * @param name the name of the content to remove
+     * @return the removed <tt>ContentPacketExtension</tt> if any; otherwise,
+     * <tt>null</tt>
+     */
+    protected ContentPacketExtension removeContent(
+            Iterable<ContentPacketExtension> contents,
+            String name)
+    {
+        Iterator<ContentPacketExtension> contentIter = contents.iterator();
+
+        while (contentIter.hasNext())
+        {
+            ContentPacketExtension content = contentIter.next();
+
+            if (name.equals(content.getName()))
+            {
+                contentIter.remove();
+
+                // closeStreamConnector
+                RtpDescriptionPacketExtension rtpDescription
+                    = content.getFirstChildOfType(
+                            RtpDescriptionPacketExtension.class);
+
+                if (rtpDescription != null)
+                {
+                    closeStreamConnector(
+                        MediaType.parseString(rtpDescription.getMedia()));
+                }
+
+                return content;
+            }
+        }
+        return null;
+    }
 }

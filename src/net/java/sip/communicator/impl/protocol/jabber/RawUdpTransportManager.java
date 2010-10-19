@@ -110,11 +110,23 @@ public class RawUdpTransportManager
      * transports our peer is using.
      * @param ourAnswer the content descriptions that we should be adding our
      * transport lists to (although not necessarily in this very instance).
+     * @param transportInfoSender the <tt>TransportInfoSender</tt> to be used by
+     * this <tt>TransportManagerJabberImpl</tt> to send <tt>transport-info</tt>
+     * <tt>JingleIQ</tt>s from the local peer to the remote peer if this
+     * <tt>TransportManagerJabberImpl</tt> wishes to utilize
+     * <tt>transport-info</tt>. Local candidate addresses sent by this
+     * <tt>TransportManagerJabberImpl</tt> in <tt>transport-info</tt> are
+     * expected to not be included in the result of
+     * {@link #wrapupCandidateHarvest()}.
      *
      * @throws OperationFailedException if we fail to allocate a port number.
+     * @see TransportManagerJabberImpl#startCandidateHarvest(List, List,
+     * TransportInfoSender)
      */
-    public void startCandidateHarvest(List<ContentPacketExtension> theirOffer,
-                                      List<ContentPacketExtension> ourAnswer)
+    public void startCandidateHarvest(
+            List<ContentPacketExtension> theirOffer,
+            List<ContentPacketExtension> ourAnswer,
+            TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
         for(ContentPacketExtension content : theirOffer)
@@ -239,37 +251,22 @@ public class RawUdpTransportManager
     }
 
     /**
-     * Implements
-     * {@link TransportManagerJabberImpl#startConnectivityEstablishment(Iterable)}.
-     * Since this represents a raw UDP transport, performs no connectivity
-     * checks and just remembers the remote counterpart of the negotiation
-     * between the local and the remote peers in order to be able to report the
-     * <tt>MediaStreamTarget</tt>s upon request.
+     * Removes a content with a specific name from the transport-related part of
+     * the session represented by this <tt>TransportManagerJabberImpl</tt> which
+     * may have been reported through previous calls to the
+     * <tt>startCandidateHarvest</tt> and
+     * <tt>startConnectivityEstablishment</tt> methods.
      *
-     * @param remote the collection of <tt>ContentPacketExtension</tt>s which
-     * represent the remote counterpart of the negotiation between the local and
-     * the remote peers
-     * @see TransportManagerJabberImpl#startConnectivityEstablishment(Iterable)
+     * @param name the name of the content to be removed from the
+     * transport-related part of the session represented by this
+     * <tt>TransportManagerJabberImpl</tt>
+     * @see TransportManagerJabberImpl#removeContent(String)
      */
-    public void startConnectivityEstablishment(
-            Iterable<ContentPacketExtension> remote)
+    public void removeContent(String name)
     {
-        this.remote = remote;
-    }
-
-    /**
-     * Implements
-     * {@link TransportManagerJabberImpl#wrapupConnectivityEstablishment()}.
-     * Since this represents a raw UDP transport i.e. no connectivity checks are
-     * performed, just returns the local counterpart of the negotiation between
-     * the local and the remote peers.
-     *
-     * @return the local counterpart of the negotiation between the local and
-     * the remote peers
-     * @see TransportManagerJabberImpl#wrapupConnectivityEstablishment()
-     */
-    public Iterable<ContentPacketExtension> wrapupConnectivityEstablishment()
-    {
-        return local;
+        if (local != null)
+            removeContent(local, name);
+        if (remote != null)
+            removeContent(remote, name);
     }
 }

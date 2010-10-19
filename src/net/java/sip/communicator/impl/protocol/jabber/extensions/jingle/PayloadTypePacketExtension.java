@@ -79,7 +79,11 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      */
     public int getChannels()
     {
-        return getAttributeAsInt(CHANNELS_ATTR_NAME);
+        /*
+         * XEP-0167: Jingle RTP Sessions says: if omitted, it MUST be assumed
+         * to contain one channel.
+         */
+        return getAttributeAsInt(CHANNELS_ATTR_NAME, 1);
     }
 
     /**

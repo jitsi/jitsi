@@ -116,19 +116,24 @@ public class JingleUtils
                     DynamicPayloadTypeRegistry ptRegistry)
     {
         byte pt = (byte)payloadType.getID();
-        List<ParameterPacketExtension> params = payloadType.getParameters();
 
         //convert params to a name:value map
+        List<ParameterPacketExtension> params = payloadType.getParameters();
         Map<String, String> paramsMap = new HashMap<String, String>();
 
         for(ParameterPacketExtension param : params)
             paramsMap.put(param.getName(), param.getValue());
 
         //now create the format.
-        MediaFormat format = JabberActivator.getMediaService()
-            .getFormatFactory().createMediaFormat(
-                pt, payloadType.getName(), (double)payloadType.getClockrate(),
-                payloadType.getChannels(), paramsMap, null);
+        MediaFormat format
+            = JabberActivator.getMediaService().getFormatFactory()
+                    .createMediaFormat(
+                            pt,
+                            payloadType.getName(),
+                            (double)payloadType.getClockrate(),
+                            payloadType.getChannels(),
+                            paramsMap,
+                            null);
 
         //we don't seem to know anything about this format
         if(format == null)
@@ -527,8 +532,8 @@ public class JingleUtils
 
         for(Component component : stream.getComponents())
         {
-            for(Candidate cand : component.getLocalCandidates())
-                trans.addCandidate(createCandidate(cand));
+            for(Candidate candidate : component.getLocalCandidates())
+                trans.addCandidate(createCandidate(candidate));
         }
 
         return trans;

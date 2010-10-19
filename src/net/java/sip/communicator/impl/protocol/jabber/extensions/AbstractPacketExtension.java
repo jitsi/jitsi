@@ -20,6 +20,7 @@ import org.jivesoftware.smack.packet.*;
  * handling instead.
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public abstract class AbstractPacketExtension
     implements PacketExtension
@@ -95,42 +96,61 @@ public abstract class AbstractPacketExtension
      */
     public String toXML()
     {
-        StringBuilder bldr = new StringBuilder("<" + getElementName() + " ");
+        StringBuilder bldr = new StringBuilder();
+
+        bldr.append("<").append(getElementName()).append(" ");
 
         if(getNamespace() != null)
-            bldr.append("xmlns='" + getNamespace() + "'");
+            bldr.append("xmlns='").append(getNamespace()).append("'");
 
         //add the rest of the attributes if any
         for(Map.Entry<String, String> entry : attributes.entrySet())
         {
-            bldr.append(" " + entry.getKey() + "='" + entry.getValue() + "'");
+            bldr.append(" ")
+                    .append(entry.getKey())
+                        .append("='")
+                            .append(entry.getValue())
+                                .append("'");
         }
 
         //add child elements if any
         List<? extends PacketExtension> childElements = getChildExtensions();
-        synchronized(childElements)
+        String text = getText();
+
+        if (childElements == null)
         {
-            if( (childElements == null || childElements.size() == 0)
-                && (getText() == null || getText().length() == 0))
+            if ((text == null) || (text.length() == 0))
             {
                 bldr.append("/>");
                 return bldr.toString();
             }
             else
+                bldr.append('>');
+        }
+        else
+        {
+            synchronized(childElements)
             {
-                bldr.append(">");
-                for(PacketExtension packExt : childElements)
+                if (childElements.isEmpty()
+                        && ((text == null) || (text.length() == 0)))
                 {
-                    bldr.append(packExt.toXML());
+                    bldr.append("/>");
+                    return bldr.toString();
+                }
+                else
+                {
+                    bldr.append(">");
+                    for(PacketExtension packExt : childElements)
+                        bldr.append(packExt.toXML());
                 }
             }
         }
 
         //text content if any
-        if(getText() != null && getText().trim().length() > 0)
-            bldr.append(getText());
+        if((text != null) && (text.trim().length() > 0))
+            bldr.append(text);
 
-        bldr.append("</"+getElementName()+">");
+        bldr.append("</").append(getElementName()).append(">");
 
         return bldr.toString();
     }
@@ -246,13 +266,28 @@ public abstract class AbstractPacketExtension
      */
     public int getAttributeAsInt(String attribute)
     {
+        return getAttributeAsInt(attribute, -1);
+    }
+
+    /**
+     * Returns the <tt>int</tt> value of the attribute with the specified
+     * <tt>name</tt>.
+     *
+     * @param attribute the name of the attribute that we'd like to retrieve
+     * @param defaultValue the <tt>int</tt> to be returned as the value of the
+     * specified attribute if no such attribute is currently registered with
+     * this extension
+     * @return the <tt>int</tt> value of the specified <tt>attribute</tt> or
+     * <tt>defaultValue</tt> if no such attribute is currently registered with
+     * this extension
+     */
+    public int getAttributeAsInt(String attribute, int defaultValue)
+    {
         synchronized(attributes)
         {
-            String attributeVal = getAttributeAsString(attribute);
+            String value = getAttributeAsString(attribute);
 
-            return attributeVal == null
-                ? -1
-                : Integer.parseInt(attributeVal);
+            return (value == null) ? defaultValue : Integer.parseInt(value);
         }
     }
 
@@ -288,6 +323,21 @@ public abstract class AbstractPacketExtension
             {
                 throw new IllegalArgumentException(e);
             }
+        }
+    }
+
+    /**
+     * Gets the names of the attributes which currently have associated values
+     * in this extension.
+     *
+     * @return the names of the attributes which currently have associated
+     * values in this extension
+     */
+    public List<String> getAttributeNames()
+    {
+        synchronized (attributes)
+        {
+            return new ArrayList<String>(attributes.keySet());
         }
     }
 

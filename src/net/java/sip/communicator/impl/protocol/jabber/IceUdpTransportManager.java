@@ -364,13 +364,30 @@ public class IceUdpTransportManager
      * transports our peer is using.
      * @param ourAnswer the content descriptions that we should be adding our
      * transport lists to (although not necessarily in this very instance).
+     * @param transportInfoSender the <tt>TransportInfoSender</tt> to be used by
+     * this <tt>TransportManagerJabberImpl</tt> to send <tt>transport-info</tt>
+     * <tt>JingleIQ</tt>s from the local peer to the remote peer if this
+     * <tt>TransportManagerJabberImpl</tt> wishes to utilize
+     * <tt>transport-info</tt>. Local candidate addresses sent by this
+     * <tt>TransportManagerJabberImpl</tt> in <tt>transport-info</tt> are
+     * expected to not be included in the result of
+     * {@link #wrapupCandidateHarvest()}.
      *
      * @throws OperationFailedException if we fail to allocate a port number.
+     * @see TransportManagerJabberImpl#startCandidateHarvest(List, List,
+     * TransportInfoSender)
      */
-    public void startCandidateHarvest(List<ContentPacketExtension> theirOffer,
-                                      List<ContentPacketExtension> ourAnswer)
+    public void startCandidateHarvest(
+            List<ContentPacketExtension> theirOffer,
+            List<ContentPacketExtension> ourAnswer,
+            TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
+        Collection<ContentPacketExtension> transportInfoContents
+            = (transportInfoSender ==null)
+                ? null
+                : new LinkedList<ContentPacketExtension>();
+
         for(ContentPacketExtension theirContent : theirOffer)
         {
             //now add our transport to our answer
@@ -386,9 +403,46 @@ public class IceUdpTransportManager
                         RtpDescriptionPacketExtension.class);
             IceMediaStream stream = createIceStream(rtpDesc.getMedia());
 
-            //we now generate the XMPP code containing the candidates.
-            ourContent.addChildExtension(JingleUtils.createTransport(stream));
+            // Report the gathered candidate addresses.
+            if (transportInfoSender == null)
+            {
+                ourContent.addChildExtension(
+                        JingleUtils.createTransport(stream));
+            }
+            else
+            {
+                /*
+                 * The candidates will be sent in transport-info so the
+                 * transport of session-accept just has to be present, not
+                 * populated with candidates.
+                 */
+                ourContent.addChildExtension(
+                        new IceUdpTransportPacketExtension());
+
+                /*
+                 * Create the content to be sent in a transport-info. The
+                 * transport is the only extension to be sent in transport-info
+                 * so the content has the same attributes as in our answer and
+                 * none of its non-transport extensions.
+                 */
+                ContentPacketExtension transportInfoContent
+                    = new ContentPacketExtension();
+
+                for (String name : ourContent.getAttributeNames())
+                {
+                    Object value = ourContent.getAttribute(name);
+
+                    if (value != null)
+                        transportInfoContent.setAttribute(name, value);
+                }
+                transportInfoContent.addChildExtension(
+                        JingleUtils.createTransport(stream));
+                transportInfoContents.add(transportInfoContent);
+            }
         }
+
+        if (transportInfoSender != null)
+            transportInfoSender.sendTransportInfo(transportInfoContents);
 
         this.cpeList = ourAnswer;
     }
@@ -499,17 +553,18 @@ public class IceUdpTransportManager
     }
 
     /**
-     * Implements
-     * {@link TransportManagerJabberImpl#startConnectivityEstablishment(Collection)}.
      * Starts the connectivity establishment of the associated ICE
      * <tt>Agent</tt>.
      *
      * @param remote the collection of <tt>ContentPacketExtension</tt>s which
      * represents the remote counterpart of the negotiation between the local
      * and the remote peers
+     * @return <tt>true</tt> if connectivity establishment has been started in
+     * response to the call; otherwise, <tt>false</tt>
      * @see TransportManagerJabberImpl#startConnectivityEstablishment(Iterable)
      */
-    public void startConnectivityEstablishment(
+    @Override
+    public boolean startConnectivityEstablishment(
             Iterable<ContentPacketExtension> remote)
     {
         /*
@@ -518,7 +573,7 @@ public class IceUdpTransportManager
          * has been started.
          */
         if (!IceProcessingState.WAITING.equals(iceAgent.getState()))
-            return;
+            return false;
 
         int generation = iceAgent.getGeneration();
         boolean startConnectivityEstablishment = false;
@@ -543,9 +598,29 @@ public class IceUdpTransportManager
                 = transport.getChildExtensionsOfType(
                         CandidatePacketExtension.class);
 
+            /*
+             * If we cannot associate an IceMediaStream with the remote content,
+             * we will not have anything to add the remote candidates to.
+             */
             RtpDescriptionPacketExtension description
                 = content.getFirstChildOfType(
                     RtpDescriptionPacketExtension.class);
+
+            if ((description == null) && (cpeList != null))
+            {
+                ContentPacketExtension localContent
+                    = findContentByName(cpeList, content.getName());
+
+                if (localContent != null)
+                {
+                    description
+                        = localContent.getFirstChildOfType(
+                                RtpDescriptionPacketExtension.class);
+                }
+            }
+            if (description == null)
+                continue;
+
             IceMediaStream stream = iceAgent.getStream(description.getMedia());
 
             for (CandidatePacketExtension candidate : candidates)
@@ -576,22 +651,46 @@ public class IceUdpTransportManager
             }
         }
         if (startConnectivityEstablishment)
-            iceAgent.startConnectivityEstablishment();
+        {
+            /*
+             * Once again because the ICE Agent does not support adding
+             * candidates after the connectivity establishment has been started
+             * and because multiple transport-info JingleIQs may be used to send
+             * the whole set of transport candidates from the remote peer to the
+             * local peer, do not really start the connectivity establishment
+             * until we have at least one remote candidate per ICE Component.
+             */
+            for (IceMediaStream stream : iceAgent.getStreams())
+            {
+                for (Component component : stream.getComponents())
+                {
+                    if (component.getRemoteCandidateCount() < 1)
+                    {
+                        startConnectivityEstablishment = false;
+                        break;
+                    }
+                }
+                if (!startConnectivityEstablishment)
+                    break;
+            }
+
+            if (startConnectivityEstablishment)
+            {
+                iceAgent.startConnectivityEstablishment();
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
-     * Implements
-     * {@link TransportManagerJabberImpl#wrapupConnectivityEstablishment()}.
      * Waits for the associated ICE <tt>Agent</tt> to finish any started
-     * connectivity checks and returns the collection of
-     * <tt>ContentPacketExtension</tt>s which represents the local counterpart
-     * of the negotiation between the local and the remote peers.
+     * connectivity checks.
      *
-     * @return the collection of <tt>ContentPacketExtension</tt>s which
-     * represents the local counterpart of the negotiation between the local and
-     * the remote peer after the end of any started connectivity establishment
+     * @see TransportManagerJabberImpl#wrapupConnectivityEstablishment()
      */
-    public Iterable<ContentPacketExtension> wrapupConnectivityEstablishment()
+    @Override
+    public void wrapupConnectivityEstablishment()
     {
         final Object iceProcessingStateSyncRoot = new Object();
         PropertyChangeListener stateChangeListener
@@ -651,6 +750,71 @@ public class IceUdpTransportManager
          */
         iceAgent.removeStateChangeListener(stateChangeListener);
 
-        return cpeList;
+        /*
+         * Once we're done establishing connectivity, we shouldn't be sending
+         * any more candidates because we will not be able to perform
+         * connectivity checks for them. Besides, they must have been sent in
+         * transport-info already.
+         */
+        if (cpeList != null)
+        {
+            for (ContentPacketExtension content : cpeList)
+            {
+                IceUdpTransportPacketExtension transport
+                    = content.getFirstChildOfType(
+                            IceUdpTransportPacketExtension.class);
+
+                if (transport != null)
+                {
+                    for (CandidatePacketExtension candidate
+                            : transport.getCandidateList())
+                        transport.removeCandidate(candidate);
+
+                    Collection<?> childExtensions
+                        = transport.getChildExtensions();
+
+                    if ((childExtensions == null) || childExtensions.isEmpty())
+                    {
+                        transport.removeAttribute(
+                                IceUdpTransportPacketExtension.UFRAG_ATTR_NAME);
+                        transport.removeAttribute(
+                                IceUdpTransportPacketExtension.PWD_ATTR_NAME);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Removes a content with a specific name from the transport-related part of
+     * the session represented by this <tt>TransportManagerJabberImpl</tt> which
+     * may have been reported through previous calls to the
+     * <tt>startCandidateHarvest</tt> and
+     * <tt>startConnectivityEstablishment</tt> methods.
+     *
+     * @param name the name of the content to be removed from the
+     * transport-related part of the session represented by this
+     * <tt>TransportManagerJabberImpl</tt>
+     * @see TransportManagerJabberImpl#removeContent(String)
+     */
+    public void removeContent(String name)
+    {
+        ContentPacketExtension content = removeContent(cpeList, name);
+
+        if (content != null)
+        {
+            RtpDescriptionPacketExtension rtpDescription
+                = content.getFirstChildOfType(
+                        RtpDescriptionPacketExtension.class);
+
+            if (rtpDescription != null)
+            {
+                IceMediaStream stream
+                    = iceAgent.getStream(rtpDescription.getMedia());
+
+                if (stream != null)
+                    iceAgent.removeStream(stream);
+            }
+        }
     }
 }
