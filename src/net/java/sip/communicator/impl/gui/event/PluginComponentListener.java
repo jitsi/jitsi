@@ -16,10 +16,10 @@ import java.util.*;
 public interface PluginComponentListener 
     extends EventListener
 {
-
     /**
      * Indicates that a plugin component has been successfully added
      * to the container.
+     *
      * @param event the PluginComponentEvent containing the corresponding
      * plugin component
      */
@@ -28,6 +28,7 @@ public interface PluginComponentListener
     /**
      * Indicates that a plugin component has been successfully removed
      * from the container.
+     *
      * @param event the PluginComponentEvent containing the corresponding
      * plugin component
      */

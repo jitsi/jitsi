@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
+import java.awt.Container;
 import java.awt.event.*;
 import java.util.*;
 
@@ -14,9 +15,13 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.border.*;
 
+import org.osgi.framework.*;
+
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -32,8 +37,14 @@ public class CallDialog
     extends SIPCommFrame
     implements ActionListener,
                CallChangeListener,
-               CallPeerConferenceListener
+               CallPeerConferenceListener,
+               PluginComponentListener
 {
+    /**
+     * The logger for this class.
+     */
+    private static final Logger logger = Logger.getLogger(CallDialog.class);
+
     /**
      * The dial button name.
      */
@@ -210,6 +221,8 @@ public class CallDialog
 
         // Initializes all buttons and common panels.
         init();
+
+        initPluginComponents();
     }
 
     /**
@@ -932,5 +945,91 @@ public class CallDialog
         settingsPanel.add(desktopSharingButton);
         settingsPanel.add(transferCallButton);
         settingsPanel.add(fullScreenButton);
+    }
+
+    /**
+     * Initialize plug-in components already registered for this container.
+     */
+    private void initPluginComponents()
+    {
+        // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + net.java.sip.communicator.service.gui.Container.CONTAINER_ID
+            + "="+net.java.sip.communicator.service.gui.Container
+                                            .CONTAINER_CALL_DIALOG.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponent.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            logger.error("Could not obtain plugin reference.", exc);
+        }
+
+        if (serRefs != null)
+        {
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                PluginComponent component = (PluginComponent) GuiActivator
+                    .bundleContext.getService(serRefs[i]);;
+
+                this.add((Component)component.getComponent());
+            }
+        }
+
+        GuiActivator.getUIService().addPluginComponentListener(this);
+    }
+
+
+    /**
+     * Indicates that a plugin component has been successfully added
+     * to the container.
+     *
+     * @param event the PluginComponentEvent containing the corresponding
+     * plugin component
+     */
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
+        PluginComponent c = event.getPluginComponent();
+
+        if (c.getContainer().equals(
+            net.java.sip.communicator.service.gui.Container
+                .CONTAINER_CALL_DIALOG)
+            && c.getComponent() instanceof Component)
+        {
+            settingsPanel.add((Component) c.getComponent());
+
+            settingsPanel.revalidate();
+            settingsPanel.repaint();
+        }
+    }
+
+    /**
+     * Indicates that a plugin component has been successfully removed
+     * from the container.
+     *
+     * @param event the PluginComponentEvent containing the corresponding
+     * plugin component
+     */
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        PluginComponent c = event.getPluginComponent();
+
+        if (c.getContainer().equals(
+            net.java.sip.communicator.service.gui.Container
+                .CONTAINER_CALL_DIALOG)
+            && c.getComponent() instanceof Component)
+        {
+            settingsPanel.remove((Component) c.getComponent());
+
+            settingsPanel.revalidate();
+            settingsPanel.repaint();
+        }
     }
 }
