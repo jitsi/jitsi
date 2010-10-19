@@ -10,7 +10,6 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.Timer;
 
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
@@ -181,8 +180,13 @@ public class PopupMessageHandlerSwingImpl
     @Override
     public String toString()
     {
+        String applicationName
+            = SwingNotificationActivator.getResources()
+                .getSettingsString("service.gui.APPLICATION_NAME");
+
         return SwingNotificationActivator.getResources()
-            .getI18NString("impl.swingnotification.POPUP_MESSAGE_HANDLER");
+                .getI18NString("impl.swingnotification.POPUP_MESSAGE_HANDLER",
+                    new String[]{applicationName});
     }
 
     /**
