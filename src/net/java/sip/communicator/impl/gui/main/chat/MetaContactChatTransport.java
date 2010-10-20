@@ -242,6 +242,26 @@ public class MetaContactChatTransport
     }
 
     /**
+     * Determines whether this chat transport supports the supplied content type
+     *
+     * @param contentType the type we want to check
+     * @return <tt>true</tt> if the chat transport supports it and
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isContentTypeSupported(String contentType)
+    {
+        OperationSetBasicInstantMessaging imOpSet
+            = contact
+                .getProtocolProvider()
+                    .getOperationSet(OperationSetBasicInstantMessaging.class);
+
+        if(imOpSet != null)
+            return imOpSet.isContentTypeSupported(contentType);
+        else
+            return false;
+    }
+
+    /**
      * Sends the given sms message trough this chat transport.
      *
      * @param phoneNumber phone number of the destination

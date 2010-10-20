@@ -152,6 +152,20 @@ public class ConferenceChatTransport
     }
 
     /**
+     * Determines whether this chat transport supports the supplied content type
+     *
+     * @param contentType the type we want to check
+     * @return <tt>true</tt> if the chat transport supports it and
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isContentTypeSupported(String contentType)
+    {
+        // we only support plain text for chat rooms for now
+        return OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE
+                .equals(contentType);
+    }
+
+    /**
      * Sending sms messages is not supported by this chat transport
      * implementation.
      */

@@ -1209,13 +1209,16 @@ public class ChatPanel
      */
     protected void sendInstantMessage()
     {
-        String htmlText = getTextFromWriteArea("text/html");
+        String htmlText = getTextFromWriteArea(
+            OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
         String plainText = getTextFromWriteArea(
             OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
 
         String messageText;
         String mimeType;
-        if (    (htmlText.indexOf("<b") > -1
+        if (chatSession.getCurrentChatTransport().isContentTypeSupported(
+                    OperationSetBasicInstantMessaging.HTML_MIME_TYPE)
+             && (htmlText.indexOf("<b") > -1
                 || htmlText.indexOf("<i") > -1
                 || htmlText.indexOf("<u") > -1
                 || htmlText.indexOf("<font") > -1))

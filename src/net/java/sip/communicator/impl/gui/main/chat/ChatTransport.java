@@ -102,6 +102,15 @@ public interface ChatTransport
         throws Exception;
 
     /**
+     * Determines whether this chat transport supports the supplied content type
+     *
+     * @param contentType the type we want to check
+     * @return <tt>true</tt> if the chat transport supports it and
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isContentTypeSupported(String contentType);
+
+    /**
      * Sends the given SMS message trough this chat transport.
      *
      * @param phoneNumber the phone number to which to send the message
