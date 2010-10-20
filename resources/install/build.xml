@@ -501,7 +501,7 @@
             MSI i.e. it gets installed on the user machine.
         -->
         <copy
-                file="windows/update-location.properties"
+                file="${inst.resrc}/windows/update-location.properties"
                 todir="${light.dir}"
                 overwrite="true" />
 
