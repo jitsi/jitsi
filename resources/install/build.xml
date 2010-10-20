@@ -866,10 +866,15 @@
     <key>SUPublicDSAKeyFile</key>
     <string>sparkle_dsa_pub.pem</string>
     <key>SUFeedURL</key>
-    <string>${link.updates.macosx}</string>
+    <string>_DOWNLOAD_LINK_</string>
     <key>SUShowReleaseNotes</key>
     <string>YES</string>
     <key>CFBundleName</key>]]></replacevalue>
+      </replace>
+
+      <!-- Now replace the download link-->
+      <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
+        <replacefilter token="_DOWNLOAD_LINK_" value="${link.updates.macosx}"/>
       </replace>
 
       <!-- Install the Sparkle Framework in the application package -->
