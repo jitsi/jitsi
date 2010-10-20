@@ -32,10 +32,15 @@
 
     <import file="../../build.xml"/>
 
-    <property file="${inst.resrc}/ant-build-config.properties"/>
     <!-- Load installer properties -->
     <!-- USERS NEED TO UPDATE THIS FILE -->
     <property file="${inst.resrc}/installers.properties"/>
+
+    <target name="load-properties" depends="version">
+    <!-- load properties on demand here so it can evaluate
+        and sip-communicator.version property from property file-->
+        <property file="${inst.resrc}/ant-build-config.properties"/>
+    </target>
 
     <!-- define the izpack task in a separate target so that we don't get an
          error when izpack properties are not set-->
@@ -159,13 +164,13 @@
     </target>
 
     <target name="build-installation-generic"
-            depends="clean-install-generic,define-izpack-task,version">
+            depends="clean-install-generic,define-izpack-task,load-properties">
 
         <propertyfile file="${generic.app.dir}/versionupdate.properties"
             comment="Last Build Version">
             <entry  key="last_version" value="${sip-communicator.version}"/>
             <entry  key="download_link"
-                    value="http://download.sip-communicator.org/nightly/generic/${package.name}-${sip-communicator.version}.jar"/>
+                    value="${link.download.generic}"/>
         </propertyfile>
 
         <filter token="VERSION" value="${sip-communicator.version}" />
@@ -216,13 +221,13 @@
     </target>
 
     <target name="build-installation-linux"
-            depends="clean-install-linux,define-izpack-task,version">
+            depends="clean-install-linux,define-izpack-task,load-properties">
 
         <propertyfile file="${linux.app.dir}/versionupdate.properties"
             comment="Last Build Version">
             <entry  key="last_version" value="${sip-communicator.version}"/>
             <entry  key="download_link"
-                    value="http://download.sip-communicator.org/nightly/linux/${package.name}-${sip-communicator.version}-linux.bin"/>
+                    value="${link.download.linux}"/>
         </propertyfile>
 
         <filter token="VERSION" value="${sip-communicator.version}" />
@@ -311,13 +316,13 @@
     </target>
 
     <target name="build-installation-windows"
-            depends="clean-install-windows,define-izpack-task,version">
+            depends="clean-install-windows,define-izpack-task,load-properties">
 
         <propertyfile file="${windows.app.dir}/versionupdate.properties"
             comment="Last Build Version">
             <entry  key="last_version" value="${sip-communicator.version}"/>
             <entry  key="download_link"
-                    value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}.exe"/>
+                    value="${link.download.windows}"/>
         </propertyfile>
 
         <filter token="VERSION" value="${sip-communicator.version}" />
@@ -404,19 +409,19 @@
     </target>
 
     <target name="build-installation-wix"
-            depends="version">
+            depends="load-properties">
         <property name="windows_native_path" value="${sc.basedir}\lib\native\windows"/>
         <property name="windows.jre.arch.file" value="${windows.jre.file}"/>
-        <property name="windows.download.link" value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}-x86.exe"/>
+        <property name="windows.download.link" value="${link.download.windows32}"/>
         <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-x86.exe"/>
         <antcall target="build-installation-wix-base" />
     </target>
 
     <target name="build-installation-wix-64"
-            depends="version">
+            depends="load-properties">
         <property name="windows_native_path" value="${sc.basedir}\lib\native\windows-64"/>
         <property name="windows.jre.arch.file" value="${windows.jre64.file}"/>
-        <property name="windows.download.link" value="http://download.sip-communicator.org/nightly/windows/${package.name}-${sip-communicator.version}-x64.exe"/>
+        <property name="windows.download.link" value="${link.download.windows64}"/>
         <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-x64.exe"/>
         <antcall target="build-installation-wix-base" />
     </target>
@@ -492,11 +497,11 @@
         </copy>
 
         <!--
-            This versionupdate.properties file is the only of interest to the
+            This update-location.properties file is the only of interest to the
             MSI i.e. it gets installed on the user machine.
         -->
         <copy
-                file="${inst.resrc}/windows/versionupdate.properties"
+                file="windows/update-location.properties"
                 todir="${light.dir}"
                 overwrite="true" />
 
@@ -665,7 +670,7 @@
                  link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Versions/Current"/>
     </target>
 
-    <target name="macosx" depends="version"
+    <target name="macosx" depends="load-properties"
             description="Create an .app package for MACOSX">
 
       <taskdef name="jarbundler"
@@ -861,7 +866,7 @@
     <key>SUPublicDSAKeyFile</key>
     <string>sparkle_dsa_pub.pem</string>
     <key>SUFeedURL</key>
-    <string>http://download.sip-communicator.org/nightly/macosx/sparkle/updates.xml</string>
+    <string>${link.updates.macosx}</string>
     <key>SUShowReleaseNotes</key>
     <string>YES</string>
     <key>CFBundleName</key>]]></replacevalue>
@@ -964,7 +969,7 @@
     </target>
 
     <!-- Create a Debian package - This needs dpkg utilities -->
-    <target name="deb" depends="version,dpkg-build-warning,-prepare-debian-sh"
+    <target name="deb" depends="load-properties,dpkg-build-warning,-prepare-debian-sh"
             if="dpkg.build.present"
             description="Create a .deb package for Debian (needs dpkg utilities)">
 
@@ -1065,7 +1070,7 @@
             comment="Last Build Version">
             <entry  key="last_version" value="${sip-communicator.version}"/>
             <entry  key="download_link"
-                    value="http://download.sip-communicator.org/nightly/debian/${package.name}_${sip-communicator.version}_i386.deb"/>
+                    value="${link.download.debian}"/>
     </propertyfile>
 
     <!--

@@ -94,7 +94,7 @@
 		<!-- The executable files -->
 		<pack name="run" required="yes">
                     <description>Exceutable</description>
-                    <file targetdir="$INSTALL_PATH" src="resources/install/generic/versionupdate.properties" override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/generic/update-location.properties" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/generic/run.sh" os="linux" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/linux/sc-logo.png" os="linux" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/run.bat" os="windows" override="true"/>

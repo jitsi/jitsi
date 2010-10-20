@@ -55,7 +55,7 @@ install: build
 	cp $(BASEDIR)/resources/install/logging.properties debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/
 	cp debian/felix.client.run.properties debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/
 	cp -r $(BASEDIR)/lib/bundle debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/
-	cp debian/versionupdate.properties debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/
+	cp debian/update-location.properties debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/
 
 	# Copy OS specific and native libs
 	cp $(BASEDIR)/lib/os-specific/linux/*.jar debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/

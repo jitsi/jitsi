@@ -111,7 +111,7 @@
 		<!-- The executable files -->
 		<pack name="run" required="yes">
                     <description>Executable</description>
-                    <file targetdir="$INSTALL_PATH" src="resources/install/linux/versionupdate.properties"  override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/linux/update-location.properties"  override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/linux/run.sh" os="linux"  override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/linux/sc-logo.png" os="linux" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/linux/uninstall.sh"  override="true"/>

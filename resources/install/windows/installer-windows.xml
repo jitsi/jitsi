@@ -126,7 +126,7 @@
         <!-- The executable files -->
         <pack name="run" required="yes">
                     <description>Executable</description>
-                    <file targetdir="$INSTALL_PATH" src="resources/install/windows/versionupdate.properties" override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/windows/update-location.properties" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/run.exe" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/run.bat" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/uninstall.exe" override="true"/>

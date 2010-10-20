@@ -25,7 +25,7 @@ public class Resources
      * Name of the configuration file name.
      */
     private static final String CONFIG_PROP_FILE_NAME
-        = "versionupdate.properties";
+        = "update-location.properties";
 
     /**
      * The properties contained in CONFIG_PROP_FILE_NAME.
