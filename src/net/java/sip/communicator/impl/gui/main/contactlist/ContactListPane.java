@@ -80,6 +80,8 @@ public class ContactListPane
         this.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
+        this.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
+
         this.initPluginComponents();
     }
 
