@@ -412,6 +412,9 @@ public abstract class AbstractPacketExtension
         List<? extends PacketExtension> childExtensions = getChildExtensions();
         List<T> result = new ArrayList<T>();
 
+        if (childExtensions == null)
+            return result;
+
         synchronized (childExtensions)
         {
             for(PacketExtension extension : childExtensions)

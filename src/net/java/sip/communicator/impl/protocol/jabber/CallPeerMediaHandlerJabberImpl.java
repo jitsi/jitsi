@@ -633,6 +633,14 @@ public class CallPeerMediaHandlerJabberImpl
                 if(isLocallyOnHold())
                     direction = direction.and(MediaDirection.SENDONLY);
 
+                /*
+                 * Lyubomir: If we're only able to receive, it doesn't sound
+                 * like we have to offer it at all. For example, we have to
+                 * offer audio and not video when we start an audio call.
+                 */
+                else if (MediaDirection.RECVONLY.equals(direction))
+                    direction = MediaDirection.INACTIVE;
+
                 if(direction != MediaDirection.INACTIVE)
                 {
                     ContentPacketExtension content

@@ -572,7 +572,7 @@ public class IceUdpTransportManager
          * not support adding candidates after the connectivity establishment
          * has been started.
          */
-        if (!IceProcessingState.WAITING.equals(iceAgent.getState()))
+        if (IceProcessingState.RUNNING.equals(iceAgent.getState()))
             return false;
 
         int generation = iceAgent.getGeneration();

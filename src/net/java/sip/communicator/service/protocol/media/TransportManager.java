@@ -121,8 +121,16 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         {
             synchronized(connector)
             {
-                connector.getDataSocket().close();
-                connector.getControlSocket().close();
+                DatagramSocket dataSocket = connector.getDataSocket();
+
+                if (dataSocket != null)
+                    dataSocket.close();
+
+                DatagramSocket controlSocket = connector.getControlSocket();
+
+                if (controlSocket != null)
+                    controlSocket.close();
+
                 streamConnectors[mediaType.ordinal()] = null;
             }
         }
