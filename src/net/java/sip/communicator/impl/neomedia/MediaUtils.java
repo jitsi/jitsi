@@ -128,12 +128,14 @@ public class MediaUtils
             8000,
             16000,
             32000);
+/*
         addMediaFormats(
             (byte) SdpConstants.G722,
             "G722",
             MediaType.AUDIO,
             Constants.G722_RTP,
             8000);
+ */
         addMediaFormats(
             (byte) SdpConstants.G728,
             "G728",
