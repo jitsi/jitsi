@@ -77,13 +77,6 @@ public class AudioMediaStreamImpl
                 };
 
     /**
-     * JMF stores <tt>CUSTOM_CODEC_FORMATS</tt> statically, so they only need to
-     * be registered once. FMJ does this dynamically (per instance), so it needs
-     * to be done for every time we instantiate an RTP manager.
-     */
-    private static boolean formatsRegisteredOnce = false;
-
-    /**
      * The listener that gets notified of changes in the audio level of
      * remote conference participants.
      */
@@ -228,12 +221,6 @@ public class AudioMediaStreamImpl
     {
         super.registerCustomCodecFormats(rtpManager);
 
-        // if we have already registered custom formats and we are running JMF
-        // we bail out.
-        if (!FMJConditionals.REGISTER_FORMATS_WITH_EVERY_RTP_MANAGER
-                && formatsRegisteredOnce)
-            return;
-
         for (AudioFormat format : CUSTOM_CODEC_FORMATS)
         {
             if (logger.isDebugEnabled())
@@ -249,8 +236,6 @@ public class AudioMediaStreamImpl
                         MediaUtils.getRTPPayloadType(
                             format.getEncoding(), format.getSampleRate()));
         }
-
-        formatsRegisteredOnce = true;
     }
 
     /**

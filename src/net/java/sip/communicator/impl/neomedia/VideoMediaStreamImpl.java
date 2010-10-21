@@ -44,14 +44,7 @@ public class VideoMediaStreamImpl
         = Logger.getLogger(VideoMediaStreamImpl.class);
 
     /**
-     * JMF stores <tt>CUSTOM_CODEC_FORMATS</tt> statically, so they only need to
-     * be registered once. FMJ does this dynamically (per instance), so it needs
-     * to be done for every time we instantiate an RTP manager.
-     */
-    private static boolean formatsRegisteredOnce = false;
-
-    /**
-     * Negociated output size of the video stream.
+     * Negotiated output size of the video stream.
      * It may need to scale original capture device stream.
      */
     private Dimension outputSize;
@@ -495,29 +488,6 @@ public class VideoMediaStreamImpl
             (deviceSession instanceof VideoMediaDeviceSession)
                 ? ((VideoMediaDeviceSession) deviceSession).getVisualComponent()
                 : null;
-    }
-
-    /**
-     * Registers {@link Constants#H264_RTP} with a specific <tt>RTPManager</tt>.
-     *
-     * @param rtpManager the <tt>RTPManager</tt> to register
-     * {@link Constants#H264_RTP} with
-     * @see MediaStreamImpl#registerCustomCodecFormats(RTPManager)
-     */
-    @Override
-    protected void registerCustomCodecFormats(RTPManager rtpManager)
-    {
-        super.registerCustomCodecFormats(rtpManager);
-
-        // if we have already registered custom formats and we are running JMF
-        // we bail out.
-        if (!FMJConditionals.REGISTER_FORMATS_WITH_EVERY_RTP_MANAGER
-                && formatsRegisteredOnce)
-            return;
-
-        // We do not have formats to register right now.
-
-        formatsRegisteredOnce = true;
     }
 
     /**

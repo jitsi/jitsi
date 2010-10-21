@@ -551,6 +551,17 @@ public class MediaStreamImpl
         else
             streamCount = (dataSource == null) ? 0 : 1;
 
+        /*
+         * XXX We came up with a scenario in our testing in which G.722 would
+         * work fine for the first call since the start of the application and
+         * then it would fail for subsequent calls, JMF would complain that the
+         * G.722 RTP format is unknown to the RTPManager. Since
+         * RTPManager#createSendStream(DataSource, int) is one of the cases in
+         * which the formats registered with the RTPManager are necessary,
+         * register them (again) just before we use them.
+         */
+        registerCustomCodecFormats(rtpManager);
+
         for (int streamIndex = 0; streamIndex < streamCount; streamIndex++)
         {
             try

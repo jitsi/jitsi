@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.neomedia.codec.audio.g722;
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 
 /**
@@ -87,15 +88,27 @@ public class JNIEncoder
      */
     protected int doProcess(Buffer inputBuffer, Buffer outputBuffer)
     {
+        int inputOffset = inputBuffer.getOffset();
+        int inputLength = inputBuffer.getLength();
         byte[] input = (byte[]) inputBuffer.getData();
+
         int outputOffset = outputBuffer.getOffset();
-        int outputLength = inputBuffer.getLength() / 4;
+        int outputLength = inputLength / 4;
         byte[] output
             = validateByteArraySize(outputBuffer, outputOffset + outputLength);
 
+        // G.722 is defined to encode from 14-bit samples.
+        for (int i = inputOffset; i < inputLength; i += 2)
+        {
+            short sample = ArrayIOUtils.readShort(input, i);
+
+            sample >>>= 2;
+            ArrayIOUtils.writeShort(sample, input, i);
+        }
+
         g722_encoder_process(
                 encoder,
-                input, inputBuffer.getOffset(),
+                input, inputOffset,
                 output, outputOffset, outputLength);
         outputBuffer.setDuration(computeDuration(outputLength));
         outputBuffer.setFormat(getOutputFormat());

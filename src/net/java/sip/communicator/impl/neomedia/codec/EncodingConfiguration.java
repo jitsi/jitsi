@@ -177,6 +177,7 @@ public class EncodingConfiguration
         // audio
         setEncodingPreference("speex", 32000, 701);
         setEncodingPreference("speex", 16000, 700);
+        setEncodingPreference("G722", 8000 /* actually, 16 kHz */, 675);
         setEncodingPreference("PCMU", 8000, 650);
         setEncodingPreference("PCMA", 8000, 600);
         setEncodingPreference("iLBC", 8000, 500);
@@ -187,7 +188,6 @@ public class EncodingConfiguration
         setEncodingPreference("G723", 8000, 150);
         setEncodingPreference("G728", 8000, 100);
 
-        setEncodingPreference("G722", 8000, 0);
         setEncodingPreference("G729", 8000, 0 /* proprietary */);
 
         // enables by default telephone event(DTMF rfc4733), with lowest

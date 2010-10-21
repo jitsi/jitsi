@@ -44,15 +44,6 @@ public class FMJConditionals
 //          AudioFormat.SIGNED);
 
     /**
-     * JMF stores CUSTOM_CODEC_FORMATS statically, so they only need to be
-     * registered once. FMJ does this dynamically (per instance), so it needs
-     * to be done for every time we instantiate an RTP manager. This variable
-     * determines whether we should register them every time (FMJ) or not (JMF).
-     */
-    public static final boolean REGISTER_FORMATS_WITH_EVERY_RTP_MANAGER
-        = IS_FMJ;
-
-    /**
      * Whether to use JMF's internal registry to avoid auto-detecting capture
      * devices each time, by tagging it with our own "author" property.
      */
