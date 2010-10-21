@@ -525,6 +525,55 @@
     </cc>
   </target>
 
+  <!-- compile jg722 library -->
+  <target name="g722" description="Build jg722 shared library" depends="init-native">
+
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jg722" objdir="${obj}">
+      <!-- common compiler flags -->
+      <compilerarg value="-std=c99" />
+      <compilerarg value="-Wall" />
+      <compilerarg value="-O2" />
+      <compilerarg value="-DJNI_IMPLEMENTATION" />
+
+      <!-- Linux specific flags -->
+      <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
+
+      <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+
+      <!-- Mac OS X specific flags -->
+      <compilerarg value="-arch"  if="is.running.macos" />
+      <compilerarg value="x86_64" if="is.running.macos" />
+      <compilerarg value="-arch" if="is.running.macos" />
+      <compilerarg value="i386" if="is.running.macos" />
+      <compilerarg value="-arch" if="is.running.macos" />
+      <compilerarg value="ppc" if="is.running.macos" />
+      <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
+
+      <linkerarg value="-o" location="end" if="is.running.macos" />
+      <linkerarg value="libjg722.jnilib" location="end" if="is.running.macos" />
+      <linkerarg value="-dynamiclib" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="x86_64" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="i386" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="ppc" if="is.running.macos" />
+
+      <!-- Windows specific flags -->
+      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.windows" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
+
+      <linkerarg value="-ojg722.dll" if="is.running.windows" />
+      <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
+
+      <fileset dir="${src}/native/g722" includes="*.c"/>
+    </cc>
+  </target>
+
   <!-- compile hwaddressretriever library -->
   <target name="hwaddressretriever" description="Build hwaddressretriever shared library" depends="init-native,hwaddressretriever-windows"
     unless="is.running.windows">
@@ -765,6 +814,7 @@
     <echo message="'ant ffmpeg' to compile ffmpeg shared library" />
     <echo message="'ant portaudio' to compile jportaudio shared library" />
     <echo message="'ant speex' to compile jspeex shared library" />
+    <echo message="'ant g722' to compile jg722 shared library" />
     <echo message="'ant hid' to compile hid shared library" />
     <echo message="'ant hwaddressretriever' to compile hwaddressretriever shared library" />
     <echo message="'ant video4linux2 (Linux only)' to compile jvideo4linux2 shared library" />
