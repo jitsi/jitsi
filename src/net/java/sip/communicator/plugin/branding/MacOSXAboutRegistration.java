@@ -11,6 +11,7 @@ import com.apple.eawt.*;
 /**
  * @author Lubomir Marinov
  */
+@SuppressWarnings("deprecation")
 public final class MacOSXAboutRegistration
 {
     public static boolean run()

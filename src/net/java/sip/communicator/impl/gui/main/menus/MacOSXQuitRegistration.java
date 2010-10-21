@@ -11,6 +11,7 @@ import com.apple.eawt.*;
 /**
  * @author Lubomir Marinov
  */
+@SuppressWarnings("deprecation")
 public final class MacOSXQuitRegistration
 {
     public static boolean run(final Object userData)
