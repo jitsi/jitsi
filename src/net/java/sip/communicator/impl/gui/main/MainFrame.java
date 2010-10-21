@@ -909,70 +909,6 @@ public class MainFrame
     }
 
     /**
-     * <tt>RenameAction</tt> is invoked when user presses the F2 key. Depending
-     * on the selection opens the appropriate form for renaming.
-     */
-    private class RenameAction extends AbstractAction
-    {
-        private static final long serialVersionUID = 0L;
-
-        public void actionPerformed(ActionEvent e)
-        {
-            Object selectedObject
-                = GuiActivator.getContactList().getSelectedValue();
-
-            if (selectedObject instanceof ContactNode)
-            {
-                UIContact uiContact
-                    = ((ContactNode) selectedObject).getContactDescriptor();
-
-                if (!(uiContact instanceof MetaUIContact))
-                    return;
-
-                MetaUIContact metaUIContact = (MetaUIContact) uiContact;
-
-                RenameContactDialog dialog = new RenameContactDialog(
-                        MainFrame.this,
-                        (MetaContact) metaUIContact.getDescriptor());
-
-                dialog.setLocation(
-                        Toolkit.getDefaultToolkit().getScreenSize().width/2
-                            - 200,
-                        Toolkit.getDefaultToolkit().getScreenSize().height/2
-                            - 50
-                        );
-
-                dialog.setVisible(true);
-
-                dialog.requestFocusInFiled();
-            }
-            else if (selectedObject instanceof GroupNode)
-            {
-                UIGroup uiGroup
-                    = ((GroupNode) selectedObject).getGroupDescriptor();
-
-                if (!(uiGroup instanceof MetaUIGroup))
-                    return;
-
-                MetaUIGroup metaUIGroup = (MetaUIGroup) uiGroup;
-
-                RenameGroupDialog dialog = new RenameGroupDialog(
-                        MainFrame.this,
-                        (MetaContactGroup) metaUIGroup.getDescriptor());
-
-                Dimension screenSize =
-                    Toolkit.getDefaultToolkit().getScreenSize();
-                dialog.setLocation(screenSize.width / 2 - 200,
-                    screenSize.height / 2 - 50);
-
-                dialog.setVisible(true);
-
-                dialog.requestFocusInFiled();
-            }
-        }
-    }
-
-    /**
      * Overwrites the <tt>SIPCommFrame</tt> close method. This method is
      * invoked when user presses the Escape key.
      * @param isEscaped indicates if this window has been closed by pressing
@@ -1702,9 +1638,6 @@ public class MainFrame
     {
         InputMap inputMap = getRootPane()
             .getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), "main-rename");
-        getRootPane().getActionMap().put("main-rename", new RenameAction());
 
         // Remove the default escape key mapping as its a special
         // one for the main frame and the contactlist

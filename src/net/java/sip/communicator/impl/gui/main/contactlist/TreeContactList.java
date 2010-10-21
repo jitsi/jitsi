@@ -18,6 +18,7 @@ import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.MainFrame.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -1528,12 +1529,14 @@ public class TreeContactList
         InputMap imap = getInputMap();
         ActionMap amap = getActionMap();
 
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), "main-rename");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enter");
         imap.put(KeyStroke.getKeyStroke('+'), "openGroup");
         imap.put(KeyStroke.getKeyStroke('-'), "closeGroup");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "openGroup");
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "closeGroup");
 
+        amap.put("main-rename", new RenameAction());
         amap.put("enter", new AbstractAction()
         {
             public void actionPerformed(ActionEvent e)
@@ -1859,6 +1862,69 @@ public class TreeContactList
             }
             else
                 treeModel.nodeChanged(uiContact.getContactNode());
+        }
+    }
+
+    /**
+     * <tt>RenameAction</tt> is invoked when user presses the F2 key. Depending
+     * on the selection opens the appropriate form for renaming.
+     */
+    private class RenameAction extends AbstractAction
+    {
+        private static final long serialVersionUID = 0L;
+
+        public void actionPerformed(ActionEvent e)
+        {
+            Object selectedObject = getSelectedValue();
+
+            if (selectedObject instanceof ContactNode)
+            {
+                UIContact uiContact
+                    = ((ContactNode) selectedObject).getContactDescriptor();
+
+                if (!(uiContact instanceof MetaUIContact))
+                    return;
+
+                MetaUIContact metaUIContact = (MetaUIContact) uiContact;
+
+                RenameContactDialog dialog = new RenameContactDialog(
+                        GuiActivator.getUIService().getMainFrame(),
+                        (MetaContact) metaUIContact.getDescriptor());
+
+                dialog.setLocation(
+                        Toolkit.getDefaultToolkit().getScreenSize().width/2
+                            - 200,
+                        Toolkit.getDefaultToolkit().getScreenSize().height/2
+                            - 50
+                        );
+
+                dialog.setVisible(true);
+
+                dialog.requestFocusInFiled();
+            }
+            else if (selectedObject instanceof GroupNode)
+            {
+                UIGroup uiGroup
+                    = ((GroupNode) selectedObject).getGroupDescriptor();
+
+                if (!(uiGroup instanceof MetaUIGroup))
+                    return;
+
+                MetaUIGroup metaUIGroup = (MetaUIGroup) uiGroup;
+
+                RenameGroupDialog dialog = new RenameGroupDialog(
+                        GuiActivator.getUIService().getMainFrame(),
+                        (MetaContactGroup) metaUIGroup.getDescriptor());
+
+                Dimension screenSize =
+                    Toolkit.getDefaultToolkit().getScreenSize();
+                dialog.setLocation(screenSize.width / 2 - 200,
+                    screenSize.height / 2 - 50);
+
+                dialog.setVisible(true);
+
+                dialog.requestFocusInFiled();
+            }
         }
     }
 }
