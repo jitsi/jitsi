@@ -557,6 +557,8 @@ public class CallPeerSipImpl
 
             // as its connected, set initial mute status,
             // corresponding call status
+            // this would also unmute calls that were previously mute because
+            // of early media.
             if(isMute() != this.getCall().isMute())
                 setMute(this.getCall().isMute());
         }
@@ -606,8 +608,13 @@ public class CallPeerSipImpl
             return;
         }
 
-        // change status
+        //change status
         setState(CallPeerState.CONNECTING_WITH_EARLY_MEDIA);
+        getMediaHandler().start();
+
+        // set the call on mute. we don't want the user to be heard unless they
+        //know they are.
+        setMute(true);
     }
 
     /**
