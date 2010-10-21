@@ -35,6 +35,7 @@ public abstract class AbstractCodecExt
         this.supportedOutputFormats = supportedOutputFormats;
     }
 
+    @Override
     public void close()
     {
         if (!opened)
@@ -75,6 +76,7 @@ public abstract class AbstractCodecExt
         return new Format[0];
     }
 
+    @Override
     public String getName()
     {
         return (name == null) ? super.getName() : name;
@@ -121,6 +123,7 @@ public abstract class AbstractCodecExt
      * <tt>PlugIn</tt> needs to operate cannot be acquired
      * @see AbstractPlugIn#open()
      */
+    @Override
     public void open()
         throws ResourceUnavailableException
     {
@@ -159,6 +162,7 @@ public abstract class AbstractCodecExt
         return doProcess(inputBuffer, outputBuffer);
     }
 
+    @Override
     public Format setInputFormat(Format format)
     {
         if (!formatClass.isInstance(format)
@@ -168,6 +172,7 @@ public abstract class AbstractCodecExt
         return super.setInputFormat(format);
     }
 
+    @Override
     public Format setOutputFormat(Format format)
     {
         if (!formatClass.isInstance(format)

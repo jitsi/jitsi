@@ -19,19 +19,20 @@ import net.java.sip.communicator.util.*;
 public class Constants
 {
     public static final String ALAW_RTP = "ALAW/rtp";
-    public static final String SPEEX_RTP = "speex/rtp";
-    public static final String SPEEX = "speex";
-    public static final String ILBC_RTP = "ilbc/rtp";
+    public static final String G722 = "g722";
+    public static final String G722_RTP = "g722/rtp";
     public static final String ILBC = "ilbc";
+    public static final String ILBC_RTP = "ilbc/rtp";
+    public static final String SPEEX = "speex";
+    public static final String SPEEX_RTP = "speex/rtp";
+
+    public static final String H264 = "h264";
+    public static final String H264_RTP = "h264/rtp";
 
     /**
      * Pseudo format representing DTMF tones sent over RTP.
      */
     public static final String TELEPHONE_EVENT = "telephone-event";
-
-    public static final String H264_RTP = "h264/rtp";
-    public static final String H264 = "h264";
-    public static final int H264_RTP_SDP = 99;
 
     /**
      * mode    : Frame size for the encoding/decoding

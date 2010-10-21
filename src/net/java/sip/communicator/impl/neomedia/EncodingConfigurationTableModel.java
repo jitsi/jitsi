@@ -16,7 +16,8 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
- * @author Lubomir Marinov
+ *
+ * @author Lyubomir Marinov
  */
 public class EncodingConfigurationTableModel
     extends AbstractTableModel
@@ -47,6 +48,7 @@ public class EncodingConfigurationTableModel
         }
     }
 
+    @Override
     public Class<?> getColumnClass(int columnIndex)
     {
         return (columnIndex == 0) ? Boolean.class : super
@@ -119,15 +121,26 @@ public class EncodingConfigurationTableModel
                             == encoding.getClockRate()))
                 return encoding.getEncoding();
             else
-                return
-                    encoding.getEncoding()
-                        + "/"
-                        + ((long) encoding.getClockRate());
+            {
+                String e = encoding.getEncoding();
+                /*
+                 * RFC 1890 erroneously assigned 8 kHz to the RTP clock rate for
+                 * the G722 payload format. The actual sampling rate for G.722
+                 * audio is 16 kHz.
+                 */
+                double cr
+                    = "G722".equalsIgnoreCase(e)
+                        ? 16000
+                        : encoding.getClockRate();
+
+                return e + "/" + ((long) cr);
+            }
         default:
             return null;
         }
     }
 
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex)
     {
         return (columnIndex == 0);
@@ -172,6 +185,7 @@ public class EncodingConfigurationTableModel
             encodingConfiguration.setPriority(encodings[i], priorities[i]);
     }
 
+    @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex)
     {
         if ((columnIndex == 0) && (value instanceof Boolean))

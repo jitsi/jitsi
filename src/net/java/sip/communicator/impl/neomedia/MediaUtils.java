@@ -129,6 +129,12 @@ public class MediaUtils
             16000,
             32000);
         addMediaFormats(
+            (byte) SdpConstants.G722,
+            "G722",
+            MediaType.AUDIO,
+            Constants.G722_RTP,
+            8000);
+        addMediaFormats(
             (byte) SdpConstants.G728,
             "G728",
             MediaType.AUDIO,
@@ -546,6 +552,10 @@ public class MediaUtils
             return SdpConstants.DVI4_16000;
         else if (jmfEncoding.equals(AudioFormat.ALAW))
             return SdpConstants.PCMA;
+        else if (jmfEncoding.equals(Constants.G722))
+            return SdpConstants.G722;
+        else if (jmfEncoding.equals(Constants.G722_RTP))
+            return SdpConstants.G722;
         else if (jmfEncoding.equals(AudioFormat.G728_RTP))
             return SdpConstants.G728;
         else if (jmfEncoding.equals(AudioFormat.G729_RTP))

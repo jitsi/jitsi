@@ -61,36 +61,38 @@ public class EncodingConfiguration
     private static final String[] CUSTOM_CODECS =
         {
             FMJConditionals.FMJ_CODECS
-                ? "net.sf.fmj.media.codec.audio.alaw.Encoder"
-                : "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.JavaEncoder",
-            FMJConditionals.FMJ_CODECS
                 ? "net.sf.fmj.media.codec.audio.alaw.DePacketizer"
                 : "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.DePacketizer",
+            FMJConditionals.FMJ_CODECS
+                ? "net.sf.fmj.media.codec.audio.alaw.Encoder"
+                : "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.JavaEncoder",
             FMJConditionals.FMJ_CODECS
                 ? "net.sf.fmj.media.codec.audio.alaw.Packetizer"
                 : "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.Packetizer",
             FMJConditionals.FMJ_CODECS
                 ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer"
                 : "net.java.sip.communicator.impl.neomedia.codec.audio.ulaw.Packetizer",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JNIDecoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JNIEncoder",
+            SPEEX_RESAMPLER,
+            "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JavaDecoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JavaEncoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.mp3.JNIEncoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.ilbc.JavaDecoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.ilbc.JavaEncoder",
+            G729
+                ? "net.java.sip.communicator.impl.neomedia.codec.audio.g729.JavaDecoder"
+                : null,
+            G729
+                ? "net.java.sip.communicator.impl.neomedia.codec.audio.g729.JavaEncoder"
+                : null,
+            "net.java.sip.communicator.impl.neomedia.codec.audio.g722.JNIDecoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.g722.JNIEncoder",
             "net.java.sip.communicator.impl.neomedia.codec.video.h264.DePacketizer",
             "net.java.sip.communicator.impl.neomedia.codec.video.h264.JNIDecoder",
             "net.java.sip.communicator.impl.neomedia.codec.video.h264.JNIEncoder",
             "net.java.sip.communicator.impl.neomedia.codec.video.h264.Packetizer",
-            "net.java.sip.communicator.impl.neomedia.codec.video.SwScaler",
-            "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JNIEncoder",
-            "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JNIDecoder",
-            SPEEX_RESAMPLER,
-            "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JavaEncoder",
-            "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JavaDecoder",
-            "net.java.sip.communicator.impl.neomedia.codec.audio.mp3.JNIEncoder",
-            "net.java.sip.communicator.impl.neomedia.codec.audio.ilbc.JavaEncoder",
-            "net.java.sip.communicator.impl.neomedia.codec.audio.ilbc.JavaDecoder",
-            G729
-                ? "net.java.sip.communicator.impl.neomedia.codec.audio.g729.JavaEncoder"
-                : null,
-            G729
-                ? "net.java.sip.communicator.impl.neomedia.codec.audio.g729.JavaDecoder"
-                : null
+            "net.java.sip.communicator.impl.neomedia.codec.video.SwScaler"
         };
 
     /**
@@ -184,8 +186,9 @@ public class EncodingConfiguration
         setEncodingPreference("DVI4", 16000, 250);
         setEncodingPreference("G723", 8000, 150);
         setEncodingPreference("G728", 8000, 100);
-        // not selected by default as a proprietary one
-        setEncodingPreference("G729", 8000, 0);
+
+        setEncodingPreference("G722", 8000, 0);
+        setEncodingPreference("G729", 8000, 0 /* proprietary */);
 
         // enables by default telephone event(DTMF rfc4733), with lowest
         // priority as it is not needed to order it with audio codecs

@@ -68,7 +68,12 @@ public class AudioMediaStreamImpl
                             8,
                             1,
                             Format.NOT_SPECIFIED,
-                            AudioFormat.SIGNED)
+                            AudioFormat.SIGNED),
+                    new AudioFormat(
+                            Constants.G722_RTP,
+                            8000,
+                            Format.NOT_SPECIFIED /* sampleSizeInBits */,
+                            1)
                 };
 
     /**
@@ -419,6 +424,7 @@ public class AudioMediaStreamImpl
      *
      * @see MediaStream#close()
      */
+    @Override
     public void close()
     {
         super.close();
