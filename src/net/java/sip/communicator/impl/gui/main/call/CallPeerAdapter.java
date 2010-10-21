@@ -106,6 +106,11 @@ public class CallPeerAdapter
                     .stopSound(NotificationManager.INCOMING_CALL);
             }
         }
+        else if (newState == CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
+        {
+            NotificationManager
+                .stopSound(NotificationManager.OUTGOING_CALL);
+        }
         else if (newState == CallPeerState.CONNECTED)
         {
             if (!CallPeerState.isOnHold(oldState))
