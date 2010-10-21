@@ -223,15 +223,7 @@ public class MainFrame
                 ? JFrame.DISPOSE_ON_CLOSE
                 : JFrame.HIDE_ON_CLOSE);
 
-        this.setKeybindingInput(KeybindingSet.Category.MAIN);
-        this.addKeybindingAction("main-rename",
-                                new RenameAction());
-
-        // Remove the default escape key mapping as its a special
-        // one for the main frame and the contactlist
-        getRootPane().getInputMap(
-            JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-                .remove(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
+        registerKeyActions();
 
         TransparentPanel northPanel
             = new TransparentPanel(new BorderLayout(0, 0));
@@ -1702,5 +1694,21 @@ public class MainFrame
             // Starts a chat with the currently selected contact.
             GuiActivator.getContactList().startSelectedContactCall();
         }
+    }
+
+    /**
+     * Registers key actions for this window.
+     */
+    private void registerKeyActions()
+    {
+        InputMap inputMap = getRootPane()
+            .getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), "main-rename");
+        getRootPane().getActionMap().put("main-rename", new RenameAction());
+
+        // Remove the default escape key mapping as its a special
+        // one for the main frame and the contactlist
+        inputMap.remove(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
     }
 }
