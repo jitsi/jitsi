@@ -79,6 +79,22 @@ public class DefaultTreeContactList
     }
 
     /**
+     * Returns the currently selected object in the contact list. If there's
+     * no selection, returns null.
+     *
+     * @return the currently selected object
+     */
+    public Object getSelectedValue()
+    {
+        TreePath selectionPath = getSelectionPath();
+
+        if (selectionPath != null)
+            return selectionPath.getLastPathComponent();
+
+        return null;
+    }
+
+    /**
      * Checks if the given contact is currently active.
      * Dummy method used and overridden from classes extending this
      * functionality such as ContactList.

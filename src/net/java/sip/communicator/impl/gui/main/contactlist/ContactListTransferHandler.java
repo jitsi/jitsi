@@ -187,8 +187,7 @@ public class ContactListTransferHandler
 
                 TreeContactList list = (TreeContactList) comp;
 
-                Object dest
-                    = list.getSelectionPath().getLastPathComponent();
+                Object dest = list.getSelectedValue();
 
                 if (transferredContact != null)
                 {
@@ -288,8 +287,7 @@ public class ContactListTransferHandler
     private ChatPanel getChatPanel()
     {
         ChatPanel chatPanel = null;
-        Object selectedObject
-            = contactList.getSelectionPath().getLastPathComponent();
+        Object selectedObject = contactList.getSelectedValue();
 
         if (selectedObject instanceof MetaContact)
         {

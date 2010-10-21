@@ -13,7 +13,6 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -21,6 +20,7 @@ import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -928,12 +928,21 @@ public class MainFrame
         public void actionPerformed(ActionEvent e)
         {
             Object selectedObject
-                = GuiActivator.getContactList().getSelectionPath()
-                    .getLastPathComponent();
+                = GuiActivator.getContactList().getSelectedValue();
 
-            if(selectedObject instanceof MetaContact) {
+            if (selectedObject instanceof ContactNode)
+            {
+                UIContact uiContact
+                    = ((ContactNode) selectedObject).getContactDescriptor();
+
+                if (!(uiContact instanceof MetaUIContact))
+                    return;
+
+                MetaUIContact metaUIContact = (MetaUIContact) uiContact;
+
                 RenameContactDialog dialog = new RenameContactDialog(
-                        MainFrame.this, (MetaContact)selectedObject);
+                        MainFrame.this,
+                        (MetaContact) metaUIContact.getDescriptor());
 
                 dialog.setLocation(
                         Toolkit.getDefaultToolkit().getScreenSize().width/2
@@ -946,10 +955,19 @@ public class MainFrame
 
                 dialog.requestFocusInFiled();
             }
-            else if(selectedObject instanceof MetaContactGroup) {
+            else if (selectedObject instanceof GroupNode)
+            {
+                UIGroup uiGroup
+                    = ((GroupNode) selectedObject).getGroupDescriptor();
+
+                if (!(uiGroup instanceof MetaUIGroup))
+                    return;
+
+                MetaUIGroup metaUIGroup = (MetaUIGroup) uiGroup;
 
                 RenameGroupDialog dialog = new RenameGroupDialog(
-                        MainFrame.this, (MetaContactGroup)selectedObject);
+                        MainFrame.this,
+                        (MetaContactGroup) metaUIGroup.getDescriptor());
 
                 Dimension screenSize =
                     Toolkit.getDefaultToolkit().getScreenSize();
@@ -1614,7 +1632,8 @@ public class MainFrame
                 }
                 return false;
             }
-            TreePath selectionPath = contactList.getSelectionPath();
+
+            Object selectedObject = contactList.getSelectedValue();
 
             // No matter who is the focus owner.
             if (e.getKeyChar() == KeyEvent.CHAR_UNDEFINED
@@ -1623,8 +1642,8 @@ public class MainFrame
                 || e.getKeyCode() == KeyEvent.VK_BACK_SPACE
                 || e.getKeyCode() == KeyEvent.VK_TAB
                 || e.getKeyCode() == KeyEvent.VK_SPACE
-                || (selectionPath != null
-                    && selectionPath.getLastPathComponent() instanceof GroupNode
+                || (selectedObject != null
+                    && selectedObject instanceof GroupNode
                     && (e.getKeyChar() == '+'
                         || e.getKeyChar() == '-')))
             {

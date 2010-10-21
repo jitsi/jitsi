@@ -698,8 +698,7 @@ public class ContactListPane
                     = (PluginComponent)
                         GuiActivator.bundleContext.getService(serRef);
 
-                Object selectedValue =
-                    getContactList().getSelectionPath().getLastPathComponent();
+                Object selectedValue = getContactList().getSelectedValue();
 
                 if(selectedValue instanceof MetaContact)
                 {
@@ -754,8 +753,7 @@ public class ContactListPane
 
         this.add((Component) pluginComponent.getComponent(), constraints);
 
-        Object selectedValue
-            = getContactList().getSelectionPath().getLastPathComponent();
+        Object selectedValue = getContactList().getSelectedValue();
 
         if(selectedValue instanceof MetaContact)
         {

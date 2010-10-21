@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class MetaUIContact
-    implements  UIContact
+    implements UIContact
 {
     /**
      * The key of the user data in <tt>MetaContact</tt> which specifies
