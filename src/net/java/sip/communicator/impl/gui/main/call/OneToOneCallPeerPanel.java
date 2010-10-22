@@ -1161,7 +1161,6 @@ public class OneToOneCallPeerPanel
      */
     public void addMouseAndKeyListeners()
     {
-        System.out.println("ADD MOUSE AND KEY LISTENERSSSSSSSSSSS===" + remoteVideo);
         if(remoteVideo != null)
         {
             remoteVideo.addKeyListener(mouseAndKeyListener);
