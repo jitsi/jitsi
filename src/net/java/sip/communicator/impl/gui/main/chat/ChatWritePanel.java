@@ -98,8 +98,12 @@ public class ChatWritePanel
         this.rightButtonMenu =
             new WritePanelRightButtonMenu(chatPanel.getChatWindow());
 
-        scrollPane
-            .setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setHorizontalScrollBarPolicy(
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        scrollPane.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(1, 0, 1, 0, Color.GRAY),
+            BorderFactory.createEmptyBorder(0, 2, 0, 2)));
 
         scrollPane.setViewportView(editorPane);
 
