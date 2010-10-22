@@ -35,41 +35,43 @@ public class NewAccountDialog
 {
     private final Logger logger = Logger.getLogger(NewAccountDialog.class);
 
-    private TransparentPanel mainPanel
+    private final TransparentPanel mainPanel
         = new TransparentPanel(new BorderLayout(5, 5));
 
-    private TransparentPanel accountPanel
+    private final TransparentPanel accountPanel
         = new TransparentPanel(new BorderLayout());
 
-    private TransparentPanel networkPanel
+    private final TransparentPanel networkPanel
         = new TransparentPanel(new BorderLayout());
 
-    private JLabel networkLabel = new JLabel(
+    private final JLabel networkLabel = new JLabel(
         GuiActivator.getResources().getI18NString("service.gui.NETWORK"));
 
-    private JComboBox networkComboBox = new JComboBox();
+    private final JComboBox networkComboBox = new JComboBox();
 
-    private JButton advancedButton = new JButton(
+    private final JButton advancedButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.ADVANCED"));
 
-    private JButton addAccountButton = new JButton(
+    private final JButton addAccountButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.ADD"));
 
-    private JButton cancelButton = new JButton(
+    private final JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
-    private TransparentPanel rightButtonPanel
+    private final TransparentPanel rightButtonPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 
-    private TransparentPanel buttonPanel
+    private final TransparentPanel buttonPanel
         = new TransparentPanel(new BorderLayout());
 
-    private EmptyAccountRegistrationWizard emptyWizard
+    private final EmptyAccountRegistrationWizard emptyWizard
             = new EmptyAccountRegistrationWizard();
 
     private String preferredWizardName;
 
     private static NewAccountDialog newAccountDialog;
+
+    private JEditorPane errorMessagePane;
 
     /**
      * Creates the dialog and initializes the UI.
@@ -339,25 +341,30 @@ public class NewAccountDialog
      */
     private void loadErrorMessage(String errorMessage)
     {
-        JEditorPane errorMessagePane = new JEditorPane();
-        errorMessagePane.setOpaque(false);
+        if (errorMessagePane == null)
+        {
+            errorMessagePane = new JEditorPane();
+            errorMessagePane.setOpaque(false);
+            errorMessagePane.setForeground(Color.RED);
+
+            accountPanel.add(errorMessagePane, BorderLayout.NORTH);
+
+            if (isVisible())
+                pack();
+
+            //WORKAROUND: there's something wrong happening in this pack and
+            //components get cluttered, partially hiding the password text
+            // field. I am under the impression that this has something to do
+            // with the message pane preferred size being ignored (or being 0)
+            // which is why I am adding it's height to the dialog. It's quite
+            // ugly so please fix if you have something better in mind.
+            this.setSize(getWidth(), getHeight()+errorMessagePane.getHeight());
+        }
+
         errorMessagePane.setText(errorMessage);
 
-        errorMessagePane.setForeground(Color.RED);
-
-        accountPanel.add(errorMessagePane, BorderLayout.NORTH);
         accountPanel.revalidate();
         accountPanel.repaint();
-
-        this.pack();
-
-        //WORKAROUND: there's something wrong happening in this pack and
-        //components get cluttered, partially hiding the password text field.
-        //I am under the impression that this has something to do with the
-        //message pane preferred size being ignored (or being 0) which is why
-        //I am adding it's height to the dialog. It's quite ugly so please fix
-        //if you have something better in mind.
-        this.setSize(getWidth(), getHeight()+errorMessagePane.getHeight());
     }
 
     /**
