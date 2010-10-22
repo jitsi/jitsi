@@ -81,8 +81,13 @@ public class CallPeerAdapter
             NotificationManager.stopSound(NotificationManager.DIALING);
         }
 
-        if (newState == CallPeerState.ALERTING_REMOTE_SIDE)
+        if (newState == CallPeerState.ALERTING_REMOTE_SIDE
+            //if we were already in state CONNECTING_WITH_EARLY_MEDIA the server
+            //is already taking care of playing the notifications so we don't
+            //need to fire a notification here.
+            && oldState != CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
         {
+            //
             NotificationManager
                 .fireNotification(NotificationManager.OUTGOING_CALL);
         }
@@ -108,6 +113,8 @@ public class CallPeerAdapter
         }
         else if (newState == CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
         {
+            //this means a call with early media. make sure that we are not
+            //playing local notifications any more.
             NotificationManager
                 .stopSound(NotificationManager.OUTGOING_CALL);
         }
