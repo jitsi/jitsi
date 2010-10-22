@@ -455,6 +455,14 @@ public class MetaContactRightButtonMenu
             this.callItem.setEnabled(false);
 
         if (metaContact.getDefaultContact(
+            OperationSetVideoTelephony.class) == null)
+            this.videoCallItem.setEnabled(false);
+
+        if (metaContact.getDefaultContact(
+            OperationSetDesktopStreaming.class) == null)
+            this.desktopSharingItem.setEnabled(false);
+
+        if (metaContact.getDefaultContact(
             OperationSetBasicInstantMessaging.class) == null)
             this.sendMessageItem.setEnabled(false);
 
