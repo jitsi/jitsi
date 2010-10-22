@@ -1178,7 +1178,6 @@ public class OneToOneCallPeerPanel
      */
     public void removeMouseAndKeyListeners()
     {
-        System.out.println("REMOVE MOUSE AND KEY LISTENERSSSSSSSSSSS=======" + remoteVideo);
         if(remoteVideo != null)
         {
             remoteVideo.removeKeyListener(mouseAndKeyListener);
@@ -1270,7 +1269,6 @@ public class OneToOneCallPeerPanel
          */
         public void mouseMoved(MouseEvent event)
         {
-            System.out.println("MOUSE MOVED!!!!!!!!!!!!!!!!!!!!");
             if(System.currentTimeMillis() > lastMouseMovedTime + 50)
             {
                 desktopSharingClient.sendMouseEvent(callPeer, event,
