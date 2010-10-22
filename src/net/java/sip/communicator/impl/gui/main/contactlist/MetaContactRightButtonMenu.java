@@ -359,7 +359,7 @@ public class MetaContactRightButtonMenu
                 }
 
                 if (protocolProvider.getOperationSet(
-                        OperationSetDesktopStreaming.class) != null)
+                        OperationSetDesktopSharingServer.class) != null)
                 {
                     desktopSharingMenu.add(
                         createMenuItem( contactDisplayName,
@@ -459,7 +459,7 @@ public class MetaContactRightButtonMenu
             this.videoCallItem.setEnabled(false);
 
         if (metaContact.getDefaultContact(
-            OperationSetDesktopStreaming.class) == null)
+            OperationSetDesktopSharingServer.class) == null)
             this.desktopSharingItem.setEnabled(false);
 
         if (metaContact.getDefaultContact(

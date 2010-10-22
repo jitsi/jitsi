@@ -1159,8 +1159,9 @@ public class OneToOneCallPeerPanel
      * <tt>MouseWheelListener</tt> and <tt>MouseMotionListener</tt> to remote
      * video component.
      */
-    private void addMouseAndKeyListeners()
+    public void addMouseAndKeyListeners()
     {
+        System.out.println("ADD MOUSE AND KEY LISTENERSSSSSSSSSSS===" + remoteVideo);
         if(remoteVideo != null)
         {
             remoteVideo.addKeyListener(mouseAndKeyListener);
@@ -1175,8 +1176,9 @@ public class OneToOneCallPeerPanel
      * <tt>MouseWheelListener</tt> and <tt>MouseMotionListener</tt> to remote
      * video component.
      */
-    private void removeMouseAndKeyListeners()
+    public void removeMouseAndKeyListeners()
     {
+        System.out.println("REMOVE MOUSE AND KEY LISTENERSSSSSSSSSSS=======" + remoteVideo);
         if(remoteVideo != null)
         {
             remoteVideo.removeKeyListener(mouseAndKeyListener);
@@ -1268,6 +1270,7 @@ public class OneToOneCallPeerPanel
          */
         public void mouseMoved(MouseEvent event)
         {
+            System.out.println("MOUSE MOVED!!!!!!!!!!!!!!!!!!!!");
             if(System.currentTimeMillis() > lastMouseMovedTime + 50)
             {
                 desktopSharingClient.sendMouseEvent(callPeer, event,

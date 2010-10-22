@@ -12,8 +12,6 @@ import java.util.*;
 
 import javax.swing.Timer;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -22,6 +20,8 @@ import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>CallManager</tt> is the one that handles calls. It contains also
@@ -953,9 +953,9 @@ public class CallManager
 
         public void run()
         {
-            OperationSetDesktopStreaming desktopSharingOpSet
+            OperationSetDesktopSharingServer desktopSharingOpSet
                 = protocolProvider
-                    .getOperationSet(OperationSetDesktopStreaming.class);
+                    .getOperationSet(OperationSetDesktopSharingServer.class);
 
             /*
              * XXX If we are here and we just discover that

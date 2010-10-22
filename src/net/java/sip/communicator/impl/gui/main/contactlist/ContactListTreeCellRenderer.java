@@ -647,7 +647,7 @@ public class ContactListTreeCellRenderer
 
         UIContactDetail desktopContact
             = uiContact.getDefaultContactDetail(
-                OperationSetDesktopStreaming.class);
+                OperationSetDesktopSharingServer.class);
 
         if (desktopContact != null)
         {
@@ -954,7 +954,7 @@ public class ContactListTreeCellRenderer
         List<UIContactDetail> desktopContacts
             = ((ContactNode) treeNode).getContactDescriptor()
                 .getContactDetailsForOperationSet(
-                    OperationSetDesktopStreaming.class);
+                    OperationSetDesktopSharingServer.class);
 
         ChooseCallAccountPopupMenu chooseAccountDialog = null;
 
@@ -964,7 +964,7 @@ public class ContactListTreeCellRenderer
 
             ProtocolProviderService preferredProvider
                 = detail.getPreferredProtocolProvider(
-                    OperationSetDesktopStreaming.class);
+                    OperationSetDesktopSharingServer.class);
 
             List<ProtocolProviderService> providers = null;
             String protocolName = null;
@@ -981,7 +981,7 @@ public class ContactListTreeCellRenderer
                 {
                     protocolName = preferredProvider.getProtocolName();
                     providers = CallManager.getRegisteredProviders(protocolName,
-                        OperationSetDesktopStreaming.class);
+                        OperationSetDesktopSharingServer.class);
                 }
             }
             // If we don't have a preferred provider we try to obtain a
@@ -989,10 +989,10 @@ public class ContactListTreeCellRenderer
             else
             {
                 protocolName = detail.getPreferredProtocol(
-                        OperationSetDesktopStreaming.class);
+                        OperationSetDesktopSharingServer.class);
                 providers
                     = CallManager.getRegisteredProviders(protocolName,
-                        OperationSetDesktopStreaming.class);
+                        OperationSetDesktopSharingServer.class);
             }
 
             // If our call didn't succeed, try to call through one of the other
@@ -1018,14 +1018,14 @@ public class ContactListTreeCellRenderer
                 else if (providersCount > 1)
                     chooseAccountDialog = new ChooseCallAccountPopupMenu(
                             tree, detail.getAddress(), providers,
-                            OperationSetDesktopStreaming.class);
+                            OperationSetDesktopSharingServer.class);
             }
         }
         else if (desktopContacts.size() > 1)
         {
             chooseAccountDialog
                 = new ChooseCallAccountPopupMenu(tree, desktopContacts,
-                    OperationSetDesktopStreaming.class);
+                    OperationSetDesktopSharingServer.class);
         }
 
         // If the choose dialog is created we're going to show it.

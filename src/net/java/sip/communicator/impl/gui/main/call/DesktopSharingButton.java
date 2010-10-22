@@ -62,9 +62,9 @@ public class DesktopSharingButton
     {
         if (call != null)
         {
-            OperationSetDesktopStreaming desktopOpSet
+            OperationSetDesktopSharingServer desktopOpSet
                 = call.getProtocolProvider().getOperationSet(
-                        OperationSetDesktopStreaming.class);
+                        OperationSetDesktopSharingServer.class);
 
             // This shouldn't happen at this stage, because we disable the button
             // if the operation set isn't available.

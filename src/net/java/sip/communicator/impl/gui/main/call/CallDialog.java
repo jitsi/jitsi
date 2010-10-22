@@ -533,7 +533,7 @@ public class CallDialog
             }
 
             if (protocolProvider.getOperationSet(
-                OperationSetDesktopStreaming.class) != null)
+                OperationSetDesktopSharingServer.class) != null)
             {
                 desktopSharingButton.setEnabled(true);
             }
