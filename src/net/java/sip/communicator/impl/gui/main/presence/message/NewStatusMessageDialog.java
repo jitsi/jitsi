@@ -73,8 +73,6 @@ public class NewStatusMessageDialog
             GuiActivator.getResources().getI18NString(
                 "service.gui.NEW_STATUS_MESSAGE"));
 
-        JTextField messageTextField = new JTextField();
-
         JPanel dataPanel
             = new TransparentPanel(new BorderLayout(5, 5));
 

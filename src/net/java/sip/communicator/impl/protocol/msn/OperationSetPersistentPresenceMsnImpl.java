@@ -387,11 +387,23 @@ public class OperationSetPersistentPresenceMsnImpl
         //(as if set the status too early the server does not provide
         // any status information about the contacts in our list)
         if(ssContactList.isInitialized())
+        {
             parentProvider.getMessenger().getOwner().
                 setStatus(scToMsnModesMappings.get(status));
+
+            if(statusMessage != null)
+                parentProvider.getMessenger().getOwner()
+                        .setPersonalMessage(statusMessage);
+        }
         else
+        {
             parentProvider.getMessenger().getOwner().
                 setInitStatus(scToMsnModesMappings.get(status));
+
+            if(statusMessage != null)
+                parentProvider.getMessenger().getOwner()
+                        .setInitPersonalMessage(statusMessage);
+        }
     }
 
     /**

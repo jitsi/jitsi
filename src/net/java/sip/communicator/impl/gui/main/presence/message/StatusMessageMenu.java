@@ -94,6 +94,9 @@ public class StatusMessageMenu
             dialog.setVisible(true);
 
             dialog.requestFocusInField();
+
+            // we will set status from the Status Message Dialog
+            return;
         }
         else if (menuItem.equals(busyMessageItem))
         {
