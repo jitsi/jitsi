@@ -60,7 +60,8 @@ public class OsDependentActivator
         {
             // Adds a MacOSX specific dock icon listener in order to show main
             // contact list window on dock icon click.
-            MacOSXDockIcon.addDockIconListener();
+            if (OSUtils.IS_MAC)
+                MacOSXDockIcon.addDockIconListener();
 
             // Create the notification service implementation
             SystrayService systrayService = new SystrayServiceJdicImpl();
