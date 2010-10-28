@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.osdependent;
 
 import net.java.sip.communicator.impl.osdependent.jdic.*;
+import net.java.sip.communicator.impl.osdependent.macosx.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.desktop.*;
 import net.java.sip.communicator.service.gui.*;
@@ -55,7 +56,12 @@ public class OsDependentActivator
     {
         bundleContext = bc;
 
-        try {
+        try
+        {
+            // Adds a MacOSX specific dock icon listener in order to show main
+            // contact list window on dock icon click.
+            MacOSXDockIcon.addDockIconListener();
+
             // Create the notification service implementation
             SystrayService systrayService = new SystrayServiceJdicImpl();
 
@@ -86,7 +92,8 @@ public class OsDependentActivator
 
             logger.logEntry();
         }
-        finally {
+        finally
+        {
             logger.logExit();
         }
     }

@@ -20,7 +20,6 @@ import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
