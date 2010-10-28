@@ -35,7 +35,7 @@ public class FirstWizardPage
     /**
      * The user name example.
      */
-    public static final String USER_NAME_EXAMPLE = "Ex: 83378997";
+    public static final String USER_NAME_EXAMPLE = "Ex: johnsmith";
 
     /**
      * The panel containing the user name and the password.
