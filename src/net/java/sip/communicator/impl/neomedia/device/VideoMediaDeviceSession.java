@@ -1055,6 +1055,19 @@ public class VideoMediaDeviceSession
     @Override
     protected void setProcessorFormat(Processor processor, Format format)
     {
+        if(format.getEncoding().equals("h263-1998/rtp"))
+        {
+            /* if no output size has been defined, it means that no SDP's fmtp
+             * has been found with QCIF, CIF, VGA or CUSTOM elements
+             *
+             * Let's choose QCIF size (176x144)
+             */
+            if(outputSize == null)
+            {
+                outputSize = new Dimension(176, 144);
+            }
+        }
+
         /*
          * Add a size in the output format. As VideoFormat has no setter, we
          * recreate the object. Also check whether capture device can output

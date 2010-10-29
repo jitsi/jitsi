@@ -166,6 +166,9 @@ public class Packetizer
 
     /**
      * Open this <tt>Packetizer</tt>.
+     *
+     * @throws ResourceUnavailableException if something goes wrong during
+     * initialization of the Packetizer.
      */
     @Override
     public synchronized void open()

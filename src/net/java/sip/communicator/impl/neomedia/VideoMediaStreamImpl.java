@@ -16,7 +16,6 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 import javax.media.rtp.*;
 
-import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -567,7 +566,72 @@ public class VideoMediaStreamImpl
                     {
                         outputSize = res[1];
                         ((VideoMediaDeviceSession)getDeviceSession()).
+                            setOutputSize(outputSize);
+                    }
+                }
+                else if(key.equals("CIF"))
+                {
+                    Dimension dim = new Dimension(352, 288);
+
+                    if(outputSize == null || (outputSize.width < dim.width &&
+                            outputSize.height < dim.height))
+                    {
+                        outputSize = dim;
+                        ((VideoMediaDeviceSession)getDeviceSession()).
+                            setOutputSize(outputSize);
+                    }
+                }
+                else if(key.equals("QCIF"))
+                {
+                    Dimension dim = new Dimension(176, 144);
+
+                    if(outputSize == null || (outputSize.width < dim.width &&
+                            outputSize.height < dim.height))
+                    {
+                        outputSize = dim;
+                        ((VideoMediaDeviceSession)getDeviceSession()).
+                            setOutputSize(outputSize);
+                    }
+                }
+                else if(key.equals("VGA")) // X-lite send it
+                {
+                    Dimension dim = new Dimension(640, 480);
+
+                    if(outputSize == null || (outputSize.width < dim.width &&
+                            outputSize.height < dim.height))
+                    {
+                        /* X-lite does not display anything if we send 640x480
+                         * video
+                         */
+                        outputSize = dim;
+                        ((VideoMediaDeviceSession)getDeviceSession()).
+                            setOutputSize(outputSize);
+                    }
+                }
+                else if(key.equals("CUSTOM"))
+                {
+                    String args[] = value.split(",");
+
+                    if(args.length < 3)
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        Dimension dim = new Dimension(Integer.parseInt(args[0]),
+                                Integer.parseInt(args[1]));
+
+                        if(outputSize == null || (outputSize.width < dim.width
+                                && outputSize.height < dim.height))
+                        {
+                            outputSize = dim;
+                            ((VideoMediaDeviceSession)getDeviceSession()).
                                 setOutputSize(outputSize);
+                        }
+                    }
+                    catch(Exception e)
+                    {
                     }
                 }
             }

@@ -18,7 +18,17 @@ public class FFmpeg
 
     public static final int CODEC_FLAG_LOOP_FILTER = 0x00000800;
 
+    public static final int CODEC_FLAG_H263P_UMV = 0x01000000 ;
+
+    public static final int CODEC_FLAG_AC_PRED = 0x02000000;
+
+    public static final int CODEC_FLAG_H263P_SLICE_STRUCT = 0x10000000;
+
     public static final int CODEC_ID_H264 = 28;
+
+    public static final int CODEC_ID_H263 = 5;
+
+    public static final int CODEC_ID_H263P = 20;
 
     public static final int CODEC_ID_MJPEG = 8;
 

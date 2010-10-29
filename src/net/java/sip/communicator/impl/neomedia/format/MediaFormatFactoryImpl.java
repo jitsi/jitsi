@@ -219,7 +219,7 @@ public class MediaFormatFactoryImpl
             Map<String, String> advancedParameters
                 = new HashMap<String, String>();
 
-            formatParameters.putAll(mediaFormat.getFormatParameters());
+            //formatParameters.putAll(mediaFormat.getFormatParameters());
             formatParameters.putAll(formatParams);
 
             if(advancedParams != null)

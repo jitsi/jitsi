@@ -14,7 +14,6 @@ import javax.media.format.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
-import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.sf.fmj.media.*;
 
 /**

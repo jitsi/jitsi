@@ -13,7 +13,6 @@ import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
-import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.util.*;
 import net.sf.fmj.media.*;
 
@@ -345,7 +344,7 @@ public class DePacketizer
         lastTimeStamp = -1;
     }
     /**
-     * Processes (depacketize) a buffer.
+     * Processes (depacketizes) a buffer.
      *
      * @param inBuffer input buffer
      * @param outBuffer output buffer

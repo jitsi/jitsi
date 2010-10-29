@@ -28,6 +28,8 @@ public class Constants
 
     public static final String H264 = "h264";
     public static final String H264_RTP = "h264/rtp";
+    public static final String H263P = "H263-1998";
+    public static final String H263P_RTP = "h263-1998/rtp";
 
     /**
      * Pseudo format representing DTMF tones sent over RTP.

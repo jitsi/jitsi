@@ -88,6 +88,10 @@ public class EncodingConfiguration
                 : null,
             "net.java.sip.communicator.impl.neomedia.codec.audio.g722.JNIDecoder",
             "net.java.sip.communicator.impl.neomedia.codec.audio.g722.JNIEncoder",
+            "net.java.sip.communicator.impl.neomedia.codec.video.h263p.DePacketizer",
+            "net.java.sip.communicator.impl.neomedia.codec.video.h263p.JNIDecoder",
+            "net.java.sip.communicator.impl.neomedia.codec.video.h263p.JNIEncoder",
+            "net.java.sip.communicator.impl.neomedia.codec.video.h263p.Packetizer",
             "net.java.sip.communicator.impl.neomedia.codec.video.h264.DePacketizer",
             "net.java.sip.communicator.impl.neomedia.codec.video.h264.JNIDecoder",
             "net.java.sip.communicator.impl.neomedia.codec.video.h264.JNIEncoder",
@@ -161,10 +165,17 @@ public class EncodingConfiguration
             "H264",
             VideoMediaFormatImpl.DEFAULT_CLOCK_RATE,
             1100);
+
+        setEncodingPreference(
+            "H263-1998",
+            VideoMediaFormatImpl.DEFAULT_CLOCK_RATE,
+            0);
+        /*
         setEncodingPreference(
             "H263",
             VideoMediaFormatImpl.DEFAULT_CLOCK_RATE,
             1000);
+        */
         setEncodingPreference(
             "JPEG",
             VideoMediaFormatImpl.DEFAULT_CLOCK_RATE,
@@ -381,6 +392,17 @@ public class EncodingConfiguration
                 PlugInManager.CODEC);
         PlugInManager.removePlugIn(
                 "com.sun.media.codec.video.colorspace.JavaRGBConverter",
+                PlugInManager.CODEC);
+        PlugInManager.removePlugIn(
+                "com.sun.media.codec.video.colorspace.RGBScaler",
+                PlugInManager.CODEC);
+
+        /* remove JMF's H263 codec */
+        PlugInManager.removePlugIn(
+                "com.sun.media.codec.video.vh263.NativeDecoder",
+                PlugInManager.CODEC);
+        PlugInManager.removePlugIn(
+                "com.ibm.media.codec.video.h263.NativeEncoder",
                 PlugInManager.CODEC);
 
         for (String className : CUSTOM_CODECS)
