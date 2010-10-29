@@ -413,7 +413,7 @@ public class JNIEncoder
         {
             AudioFormat outputAudioFormat = (AudioFormat) outputFormat;
 
-            setOutputFormat(
+            outputFormat = setOutputFormat(
                 new AudioFormat(
                             outputAudioFormat.getEncoding(),
                             outputAudioFormat.getSampleRate(),
@@ -425,6 +425,8 @@ public class JNIEncoder
                             outputAudioFormat.getFrameRate(),
                             outputAudioFormat.getDataType())
                         {
+                            private static final long serialVersionUID = 0L;
+
                             @Override
                             public long computeDuration(long length)
                             {
