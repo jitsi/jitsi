@@ -207,7 +207,11 @@ public class MediaUtils
         = new LinkedHashMap<String, String>();
 
         // maximum resolution we can receive is the size of our screen device
-        h263FormatParams.put("CUSTOM", res.width + "," + res.height + ",2");
+        if(res != null)
+        {
+            h263FormatParams.put("CUSTOM", res.width + "," + res.height + ",2");
+        }
+
         h263FormatParams.put("VGA", "2");
         h263FormatParams.put("CIF", "1");
         h263FormatParams.put("QCIF", "1");
