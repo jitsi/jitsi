@@ -262,8 +262,8 @@ public class OperationSetDesktopSharingClientSipImpl
          */
         String msg = null;
 
-        if(event.getID() != MouseEvent.MOUSE_MOVED &&
-                event.getID() != MouseEvent.MOUSE_DRAGGED)
+        if(event.getID() != MouseEvent.MOUSE_MOVED
+            && event.getID() != MouseEvent.MOUSE_DRAGGED)
         {
             sendMouseEvent(callPeer, event);
             return;
@@ -511,7 +511,9 @@ public class OperationSetDesktopSharingClientSipImpl
                         callPeer =
                             ((OperationSetBasicTelephonySipImpl)basicTelephony)
                                .getActiveCallsRepository().findCallPeer(dialog);
-                        callPeer.addCallPeerListener(callPeerListener);
+
+                        if (callPeer != null)
+                            callPeer.addCallPeerListener(callPeerListener);
                     }
                 }
             }
