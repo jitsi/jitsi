@@ -1,6 +1,7 @@
 package net.java.sip.communicator.impl.osdependent.macosx;
 
 import net.java.sip.communicator.impl.osdependent.*;
+import net.java.sip.communicator.service.gui.*;
 
 import com.apple.eawt.*;
 
@@ -31,7 +32,10 @@ public class MacOSXDockIcon
                 public void handleReOpenApplication(
                     ApplicationEvent applicationevent)
                 {
-                    OsDependentActivator.getUIService().setVisible(true);
+                    UIService uiService = OsDependentActivator.getUIService();
+
+                    if (uiService != null && !uiService.isVisible())
+                        uiService.setVisible(true);
                 }
             });
         }
