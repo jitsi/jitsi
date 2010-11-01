@@ -8,6 +8,9 @@ package net.java.sip.communicator.service.gui;
 
 import java.awt.event.*;
 
+import javax.swing.event.*;
+import javax.swing.text.*;
+
 import net.java.sip.communicator.service.gui.event.*;
 
 /**
@@ -127,7 +130,61 @@ public interface Chat
      * @param l the <tt>ChatFocusListener</tt> to remove
      */
     public void removeChatEditorKeyListener(KeyListener l);
-    
+
+    /**
+     * Adds the given {@link ChatMenuListener} to this <tt>Chat</tt>.
+     * The <tt>ChatMenuListener</tt> is used to determine menu elements
+     * that should be added on right clicks.
+     *
+     * @param l the <tt>ChatMenuListener</tt> to add
+     */
+    public void addChatEditorMenuListener(ChatMenuListener l);
+
+    /**
+     * Adds the given {@link CaretListener} to this <tt>Chat</tt>.
+     * The <tt>CaretListener</tt> is used to inform other bundles when a user has
+     * moved the caret in the chat editor area.
+     *
+     * @param l the <tt>CaretListener</tt> to add
+     */
+    public void addChatEditorCaretListener(CaretListener l);
+
+    /**
+     * Adds the given {@link DocumentListener} to this <tt>Chat</tt>.
+     * The <tt>DocumentListener</tt> is used to inform other bundles when a user has
+     * modified the document in the chat editor area.
+     *
+     * @param l the <tt>DocumentListener</tt> to add
+     */
+    public void addChatEditorDocumentListener(DocumentListener l);
+
+     /**
+     * Removes the given {@link ChatMenuListener} to this <tt>Chat</tt>.
+     * The <tt>ChatMenuListener</tt> is used to determine menu elements
+     * that should be added on right clicks.
+     *
+     * @param l the <tt>ChatMenuListener</tt> to add
+     */
+    public void removeChatEditorMenuListener(ChatMenuListener l);
+
+    /**
+     * Removes the given {@link CaretListener} from this <tt>Chat</tt>.
+     * The <tt>CaretListener</tt> is used to inform other bundles when a user has
+     * moved the caret in the chat editor area.
+     *
+     * @param l the <tt>CaretListener</tt> to remove
+     */
+    public void removeChatEditorCaretListener(CaretListener l);
+
+     /**
+     * Removes the given {@link DocumentListener} from this <tt>Chat</tt>.
+     * The <tt>DocumentListener</tt> is used to inform other bundles when a user has
+     * modified the document in the chat editor area.
+     *
+     * @param l the <tt>DocumentListener</tt> to remove
+     */
+    public void removeChatEditorDocumentListener(DocumentListener l);
+
     /**
      * Adds a message to this <tt>Chat</tt>.
      *
@@ -139,4 +196,23 @@ public interface Chat
      */
     public void addMessage(String contactName, long date, String messageType,
         String message, String contentType);
+
+    /**
+     * Provides the {@link Highlighter} used in rendering the chat editor.
+     *
+     * @return highlighter used to render message being composed
+     */
+    public Highlighter getHighlighter();
+
+    /**
+     * Gets the caret position in the chat editor.
+     * @return index of caret in message being composed
+     */
+    public int getCaretPosition();
+
+    /**
+     * Causes the chat to validate its appearance (suggests a repaint operation
+     * may be necessary).
+     */
+    public void promptRepaint();
 }

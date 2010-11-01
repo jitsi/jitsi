@@ -15,6 +15,7 @@ import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -31,7 +32,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.SwingWorker; // disambiguation
+import net.java.sip.communicator.util.swing.SwingWorker;
 
 /**
  * The <tt>ChatPanel</tt> is the panel, where users can write and send messages,
@@ -2200,6 +2201,108 @@ public class ChatPanel
         {
             activeFileTransfers.remove(id);
         }
+    }
+
+    /**
+     * Adds the given {@link ChatMenuListener} to this <tt>Chat</tt>.
+     * The <tt>ChatMenuListener</tt> is used to determine menu elements
+     * that should be added on right clicks.
+     *
+     * @param l the <tt>ChatMenuListener</tt> to add
+     */
+    public void addChatEditorMenuListener(ChatMenuListener l)
+    {
+        this.getChatWritePanel().addChatEditorMenuListener(l);
+    }
+    
+    /**
+     * Adds the given {@link CaretListener} to this <tt>Chat</tt>.
+     * The <tt>CaretListener</tt> is used to inform other bundles when a user has
+     * moved the caret in the chat editor area.
+     *
+     * @param l the <tt>CaretListener</tt> to add
+     */
+    public void addChatEditorCaretListener(CaretListener l)
+    {
+        this.getChatWritePanel().getEditorPane().addCaretListener(l);
+    }
+
+    /**
+     * Adds the given {@link DocumentListener} to this <tt>Chat</tt>.
+     * The <tt>DocumentListener</tt> is used to inform other bundles when a user has
+     * modified the document in the chat editor area.
+     *
+     * @param l the <tt>DocumentListener</tt> to add
+     */
+    public void addChatEditorDocumentListener(DocumentListener l)
+    {
+        this.getChatWritePanel().getEditorPane()
+            .getDocument().addDocumentListener(l);
+    }
+
+      /**
+     * Removes the given {@link CaretListener} from this <tt>Chat</tt>.
+     * The <tt>CaretListener</tt> is used to inform other bundles when a user has
+     * moved the caret in the chat editor area.
+     *
+     * @param l the <tt>CaretListener</tt> to remove
+     */
+    public void removeChatEditorCaretListener(CaretListener l)
+    {
+        this.getChatWritePanel().getEditorPane().removeCaretListener(l);
+    }
+
+     /**
+     * Removes the given {@link ChatMenuListener} to this <tt>Chat</tt>.
+     * The <tt>ChatMenuListener</tt> is used to determine menu elements
+     * that should be added on right clicks.
+     *
+     * @param l the <tt>ChatMenuListener</tt> to add
+     */
+    public void removeChatEditorMenuListener(ChatMenuListener l)
+    {
+        this.getChatWritePanel().removeChatEditorMenuListener(l);
+    }
+
+    /**
+     * Removes the given {@link DocumentListener} from this <tt>Chat</tt>.
+     * The <tt>DocumentListener</tt> is used to inform other bundles when a user has
+     * modified the document in the chat editor area.
+     *
+     * @param l the <tt>DocumentListener</tt> to remove
+     */
+    public void removeChatEditorDocumentListener(DocumentListener l)
+    {
+        this.getChatWritePanel().getEditorPane()
+            .getDocument().removeDocumentListener(l);
+    }
+
+    /**
+     * Provides the {@link Highlighter} used in rendering the chat editor.
+     *
+     * @return highlighter used to render message being composed
+     */
+    public Highlighter getHighlighter()
+    {
+        return this.getChatWritePanel().getEditorPane().getHighlighter();
+    }
+
+    /**
+     * Gets the caret position in the chat editor.
+     * @return index of caret in message being composed
+     */
+    public int getCaretPosition()
+    {
+        return this.getChatWritePanel().getEditorPane().getCaretPosition();
+    }
+
+    /**
+     * Causes the chat to validate its appearance (suggests a repaint operation
+     * may be necessary).
+     */
+    public void promptRepaint()
+    {
+        this.getChatWritePanel().getEditorPane().repaint();
     }
 
     /**

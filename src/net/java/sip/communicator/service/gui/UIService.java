@@ -13,6 +13,7 @@ import java.util.List;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.event.*;
 
 /**
  * The <tt>UIService</tt> offers generic access to the graphical user interface
@@ -402,6 +403,26 @@ public interface UIService
      * @return the master password obtained from the user
      */
     public String getMasterPassword(boolean prevSuccess);
+
+    /**
+     * Provides all currently instantiated <tt>Chats</tt>.
+     *
+     * @return all active <tt>Chats</tt>.
+     */
+    public Collection <Chat> getAllChats();
+
+    /**
+     * Registers a <tt>NewChatListener</tt> to be informed when new
+     * <tt>Chats</tt> are created.
+     * @param listener listener to be registered
+     */
+    public void addChatListener(ChatListener listener);
+
+    /**
+     * Removes the registration of a <tt>NewChatListener</tt>.
+     * @param listener listener to be unregistered
+     */
+    public void removeChatListener(ChatListener listener);
 
     /**
      * Repaints and revalidates the whole UI. This method is meant to be used

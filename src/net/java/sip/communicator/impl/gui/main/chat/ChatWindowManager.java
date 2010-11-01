@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -29,6 +30,9 @@ public class ChatWindowManager
 {
     private final java.util.List<ChatPanel> chatPanels
         = new ArrayList<ChatPanel>();
+
+    private ArrayList <ChatListener> newChatListeners
+        = new ArrayList <ChatListener> ();
 
     private final Object syncChat = new Object();
 
@@ -817,6 +821,15 @@ public class ChatWindowManager
         if (ConfigurationManager.isHistoryShown())
             chatPanel.loadHistory(escapedMessageID);
 
+        // notifies listeners interested in the chat's instantiation
+        synchronized (newChatListeners)
+        {
+            for (ChatListener listener : newChatListeners)
+            {
+                listener.chatCreated(chatPanel);
+            }
+        }
+
         return chatPanel;
     }
 
@@ -909,6 +922,15 @@ public class ChatWindowManager
         if (ConfigurationManager.isHistoryShown())
             chatPanel.loadHistory(escapedMessageID);
 
+        // notifies listeners interested in the chat's instantiation
+        synchronized (newChatListeners)
+        {
+            for (ChatListener listener : newChatListeners)
+            {
+                listener.chatCreated(chatPanel);
+            }
+        }
+
         return chatPanel;
     }
 
@@ -940,6 +962,15 @@ public class ChatWindowManager
 
         if (ConfigurationManager.isHistoryShown())
             chatPanel.loadHistory(escapedMessageID);
+
+        // notifies listeners interested in the chat's instantiation
+        synchronized (newChatListeners)
+        {
+            for (ChatListener listener : newChatListeners)
+            {
+                listener.chatCreated(chatPanel);
+            }
+        }
 
         return chatPanel;
     }
@@ -1067,6 +1098,43 @@ public class ChatWindowManager
             chatPanel.setSmsSelected(isSmsSelected);
 
             openChat(chatPanel, true);
+        }
+    }
+
+    /**
+     * Returns all currently instantiated <tt>ChatPanels</tt>.
+     * @return all instantiated <tt>ChatPanels</tt>
+     */
+    public Collection <ChatPanel> getAllChats()
+    {
+        synchronized (syncChat)
+        {
+            return chatPanels;
+        }
+    }
+
+    /**
+     * Registers a <tt>NewChatListener</tt> to be informed when new <tt>Chats</tt>
+     * are created.
+     * @param listener listener to be registered
+     */
+    public void addChatListener(ChatListener listener)
+    {
+        synchronized (newChatListeners)
+        {
+            newChatListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes the registration of a <tt>NewChatListener</tt>.
+     * @param listener listener to be unregistered
+     */
+    public void removeChatListener(ChatListener listener)
+    {
+        synchronized (newChatListeners)
+        {
+            newChatListeners.remove(listener);
         }
     }
 }

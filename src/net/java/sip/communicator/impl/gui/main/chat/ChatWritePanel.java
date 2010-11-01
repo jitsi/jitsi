@@ -8,8 +8,10 @@ package net.java.sip.communicator.impl.gui.main.chat;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
@@ -21,6 +23,7 @@ import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
@@ -60,6 +63,9 @@ public class ChatWritePanel
     private WritePanelRightButtonMenu rightButtonMenu;
 
     private EditTextToolBar editTextToolBar;
+
+    private ArrayList<ChatMenuListener> menuListeners
+        = new ArrayList<ChatMenuListener>();
 
     /**
      * Creates an instance of <tt>ChatWritePanel</tt>.
@@ -557,6 +563,30 @@ public class ChatWritePanel
     public EditTextToolBar getEditTextToolBar()
     {
         return editTextToolBar;
+    }
+
+    /**
+     * Adds the given {@link ChatMenuListener} to this <tt>Chat</tt>.
+     * The <tt>ChatMenuListener</tt> is used to determine menu elements
+     * that should be added on right clicks.
+     *
+     * @param l the <tt>ChatMenuListener</tt> to add
+     */
+    public void addChatEditorMenuListener(ChatMenuListener l)
+    {
+        this.menuListeners.add(l);
+    }
+
+    /**
+     * Removes the given {@link ChatMenuListener} to this <tt>Chat</tt>.
+     * The <tt>ChatMenuListener</tt> is used to determine menu elements
+     * that should be added on right clicks.
+     *
+     * @param l the <tt>ChatMenuListener</tt> to add
+     */
+    public void removeChatEditorMenuListener(ChatMenuListener l)
+    {
+        this.menuListeners.remove(l);
     }
 
     /**

@@ -902,7 +902,7 @@
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
-        bundle-httpcore,bundle-httpclient,
+        bundle-httpcore,bundle-httpclient,bundle-plugin-spellcheck,
         bundle-version,bundle-version-impl,bundle-shutdown-timeout,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
         bundle-sparkle, bundle-plugin-branding,
@@ -2527,6 +2527,18 @@ org.apache.http.util"/>
             manifest="${src}/net/java/sip/communicator/plugin/chatconfig/chatconfig.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/chatconfig"
                 prefix="net/java/sip/communicator/plugin/chatconfig" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-PLUGIN-SpellChecker-->
+    <target name="bundle-plugin-spellcheck">
+        <jar compress="false" destfile="${bundles.dest}/spellChecker.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/spellcheck/spellCheck.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/spellcheck"
+                prefix="net/java/sip/communicator/plugin/spellcheck"/>
+            <zipfileset dir="${resources}/config/spellcheck"
+                prefix="resources/config/spellcheck"/>
+            <zipfileset src="${lib.noinst}/jmyspell-core.jar" prefix=""/>
         </jar>
     </target>
 

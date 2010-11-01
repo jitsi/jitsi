@@ -30,6 +30,7 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.shutdown.*;
@@ -1233,6 +1234,34 @@ public class UIServiceImpl
     public String getMasterPassword(boolean prevSuccess)
     {
         return MasterPasswordInputDialog.showInput(prevSuccess);
+    }
+    /**
+     * Provides all currently instantiated <tt>Chats</tt>.
+     *
+     * @return all active <tt>Chats</tt>.
+     */
+    public Collection <Chat> getAllChats()
+    {
+        return new ArrayList <Chat> (getChatWindowManager().getAllChats());
+    }
+
+    /**
+     * Registers a <tt>NewChatListener</tt> to be informed when new
+     * <tt>Chats</tt> are created.
+     * @param listener listener to be registered
+     */
+    public void addChatListener(ChatListener listener)
+    {
+        getChatWindowManager().addChatListener(listener);
+    }
+
+    /**
+     * Removes the registration of a <tt>NewChatListener</tt>.
+     * @param listener listener to be unregistered
+     */
+    public void removeChatListener(ChatListener listener)
+    {
+        getChatWindowManager().removeChatListener(listener);
     }
 
     /**

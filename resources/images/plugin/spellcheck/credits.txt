@@ -1,0 +1,39 @@
+Image Sources:
+
+flags/ -
+	Flags by Mark James (http://www.famfamfam.com/lab/icons/flags/)
+	Available in the Public Domain
+addWord.png -
+	NuoveXT 2 by Alexandre Moore (http://nuovext.pwsp.net/)
+	Available under the LGPLv3
+	Originally 'add.png'
+disableSpellchecker.png / enableSpellchecker.png -
+	NuoveXT by Alexandre Moore (http://nuovext.pwsp.net/)
+	Available under the GPLv2
+	Originally 'gtk-spell-check.png'
+pluginIcon.png -
+	Crystal Clear by Everaldo Coelho (http://everaldo.deviantart.com/art/Crystal-Clear-19744866)
+	Available under the LGPLv2
+	Originally 'spellcheck.png' (modified from original version)
+*pluginIconAlt1.png -
+	Etiquette by Silvestre Herrera (http://www.silvestre.com.ar/?p=3)
+	Available under Creative Commons v2 (A, SA)
+	Originally 'gtk-spell-check.png'
+*pluginIconAlt2.png -
+	Nuvola by David Vignoni (http://icon-king.com/?p=15)
+	Available under the LGPLv2
+	Originally 'spellcheck.png'
+wordInclude.png -
+	Nuvola by David Vignoni (http://icon-king.com/?p=15)
+	Available under the LGPLv2
+	Originally 'apply.png'
+wordExclude.png -
+	Nuvola by David Vignoni (http://icon-king.com/?p=15)
+	Available under the LGPLv2
+	Originally 'cancel.png' (modified from original version)
+personalDictionary.png -
+	Lila by Daniel Taylor (http://www.lila-center.info/doku.php)
+	Available under the GPLv2
+	Originally 'gdict.png'
+
+* not currently in use, can be safely removed
