@@ -1304,6 +1304,8 @@ public class MainFrame
      */
     public void setVisible(final boolean isVisible)
     {
+        ConfigurationManager.setApplicationVisible(isVisible);
+
         SwingUtilities.invokeLater(new Runnable(){
             public void run()
             {

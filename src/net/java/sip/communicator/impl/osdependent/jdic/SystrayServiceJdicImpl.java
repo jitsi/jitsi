@@ -232,14 +232,6 @@ public class SystrayServiceJdicImpl
                 boolean setIsVisible = !win.isVisible();
 
                 win.setVisible(setIsVisible);
-                configService.setProperty(
-                "net.java.sip.communicator.impl.systray.showApplication",
-                Boolean.toString(setIsVisible));
-
-                if(win.isVisible())
-                {
-                    win.bringToFront();
-                }
             }
         });
 

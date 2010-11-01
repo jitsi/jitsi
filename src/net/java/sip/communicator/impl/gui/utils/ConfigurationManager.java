@@ -788,6 +788,10 @@ public class ConfigurationManager
      */
     public static void setApplicationVisible(boolean isVisible)
     {
+        // If we're already in the desired visible state, don't change anything.
+        if (isApplicationVisible == isVisible)
+            return;
+
         isApplicationVisible = isVisible;
 
         configService.setProperty(
