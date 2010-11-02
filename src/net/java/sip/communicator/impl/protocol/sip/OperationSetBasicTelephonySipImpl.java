@@ -487,33 +487,25 @@ public class OperationSetBasicTelephonySipImpl
         default:
             int responseStatusCodeRange = responseStatusCode / 100;
 
-            if(responseStatusCode == 500 && responseEvent.
-                    getClientTransaction().getRequest().getMethod().
-                    equals(Request.NOTIFY))
+            /*
+             * Maybe this one comes from desktop sharing session, it is
+             * possible that keyboard and mouse notifications comes in
+             * disorder as interval between two events can be very short
+             * (especially for "mouse moved").
+             *
+             * We have to bypass SIP specifications in the SIP NOTIFY
+             * message is desktop sharing specific and thus do not close the
+             * call.
+             * 
+             * XXX this is not an optimal solution, the ideal will be
+             * to prevent disordering.
+             */
+            Request request = responseEvent.getClientTransaction().getRequest();
+            if(responseStatusCode == 500
+                && request.getMethod().equals(Request.NOTIFY)
+                && isDesktopSharing(request))
             {
-                /* maybe this one comes from desktop sharing session, it is
-                 * possible that keyboard and mouse notifications comes in
-                 * disorder as interval between two events can be very short
-                 * (especially for "mouse moved").
-                 */
-                /* XXX this is not an optimal solution, the ideal will be
-                 * to prevent disordering
-                 */
-                byte raw[] = responseEvent.getClientTransaction().
-                                    getRequest().getRawContent();
-                String content = new String(raw);
-
-                /*
-                 * we have to bypass SIP specifications in the SIP NOTIFY
-                 * message is desktop sharing specific and thus do not close the
-                 * call.
-                 */
-                if(content.startsWith(
-                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-                        "<remote-control>"))
-                {
-                    return true;
-                }
+                return true;
             }
 
             if ((responseStatusCodeRange == 4)
@@ -825,10 +817,23 @@ public class OperationSetBasicTelephonySipImpl
             return false;
         }
 
+        /*
+         * It's possible that this timeout comes for a desktop sharing NOTIFY
+         * request and we don't want to fail the call in this case, so we're
+         * consuming the event here.
+         */
+        Request request = timeoutEvent.getClientTransaction().getRequest();
+        if (request.getMethod().equals(Request.NOTIFY)
+            && isDesktopSharing(request))
+        {
+            return true;
+        }
+
         // change status
         callPeer.setState(CallPeerState.FAILED,
             "The remote party has not replied!"
                 + "The call will be disconnected");
+
         return true;
     }
 
@@ -1769,5 +1774,28 @@ public class OperationSetBasicTelephonySipImpl
     public ProtocolProviderServiceSipImpl getProtocolProvider()
     {
         return protocolProvider;
+    }
+
+    /**
+     * Indicates if the given <tt>request</tt> is a desktop sharing related
+     * request.
+     *
+     * @param request the <tt>Request</tt> to check
+     * @return <tt>true</tt> if the given <tt>request</tt> is a desktop sharing
+     * related request, <tt>false</tt> - otherwise
+     */
+    private boolean isDesktopSharing(Request request)
+    {
+        byte raw[] = request.getRawContent();
+        String content = new String(raw);
+
+        if(content.startsWith(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
+                "<remote-control>"))
+        {
+            return true;
+        }
+
+        return false;
     }
 }
