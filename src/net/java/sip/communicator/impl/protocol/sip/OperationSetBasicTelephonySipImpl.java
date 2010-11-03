@@ -502,8 +502,7 @@ public class OperationSetBasicTelephonySipImpl
              */
             Request request = responseEvent.getClientTransaction().getRequest();
             if(responseStatusCode == 500
-                && request.getMethod().equals(Request.NOTIFY)
-                && isDesktopSharing(request))
+                && isRemoteControlNotification(request))
             {
                 return true;
             }
@@ -823,16 +822,26 @@ public class OperationSetBasicTelephonySipImpl
          * consuming the event here.
          */
         Request request = timeoutEvent.getClientTransaction().getRequest();
-        if (request.getMethod().equals(Request.NOTIFY)
-            && isDesktopSharing(request))
+        if (isRemoteControlNotification(request))
         {
             return true;
         }
 
-        // change status
-        callPeer.setState(CallPeerState.FAILED,
-            "The remote party has not replied!"
-                + "The call will be disconnected");
+        // Try to hangup the peer by indicating that the call has failed.
+        try
+        {
+            hangupCallPeer( callPeer,
+                            true, // to indicate the hangup is due to a failure
+                            "The remote party has not replied!"
+                            + "The call will be disconnected");
+        }
+        catch (Throwable e)
+        {
+            // If the hangup fails, we just set the state to failed.
+            callPeer.setState(CallPeerState.FAILED,
+                "The remote party has not replied!"
+                    + "The call will be disconnected");
+        }
 
         return true;
     }
@@ -1480,8 +1489,31 @@ public class OperationSetBasicTelephonySipImpl
         throws ClassCastException,
         OperationFailedException
     {
+        // By default we hang up by indicating no failure has happened.
+        hangupCallPeer(peer, false, null);
+    }
+
+    /**
+     * Ends the call with the specified <tt>peer</tt>.
+     *
+     * @param peer the peer that we'd like to hang up on.
+     * @param failed indicates if the hangup is following to a call failure or
+     * simply a disconnect
+     * @param reason the reason of the hangup. If the hangup is due to a call
+     * failure, then this string could indicate the reason of the failure
+     *
+     * @throws ClassCastException if peer is not an instance of this
+     * CallPeerSipImpl.
+     * @throws OperationFailedException if we fail to terminate the call.
+     */
+    public synchronized void hangupCallPeer(CallPeer peer,
+                                            boolean failed,
+                                            String reason)
+        throws ClassCastException,
+        OperationFailedException
+    {
         CallPeerSipImpl peerSipImpl = (CallPeerSipImpl)peer;
-        peerSipImpl.hangup();
+        peerSipImpl.hangup(failed, reason);
     }
 
     /**
@@ -1784,8 +1816,13 @@ public class OperationSetBasicTelephonySipImpl
      * @return <tt>true</tt> if the given <tt>request</tt> is a desktop sharing
      * related request, <tt>false</tt> - otherwise
      */
-    private boolean isDesktopSharing(Request request)
+    private boolean isRemoteControlNotification(Request request)
     {
+        // We're only interested in notify requests.
+        if (!request.getMethod().equals(Request.NOTIFY))
+            return false;
+
+        // If the request method is NOTIFY we check its content.
         byte raw[] = request.getRawContent();
         String content = new String(raw);
 

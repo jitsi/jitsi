@@ -706,6 +706,25 @@ public class CallPeerSipImpl
     public void hangup()
         throws OperationFailedException
     {
+        // By default we hang up by indicating no failure has happened.
+        hangup(false, null);
+    }
+
+    /**
+     * Ends the call with for this <tt>CallPeer</tt>. Depending on the state
+     * of the peer the method would send a CANCEL, BYE, or BUSY_HERE message
+     * and set the new state to DISCONNECTED.
+     *
+     * @param failed indicates if the hangup is following to a call failure or
+     * simply a disconnect
+     * @param reason the reason of the hangup. If the hangup is due to a call
+     * failure, then this string could indicate the reason of the failure
+     *
+     * @throws OperationFailedException if we fail to terminate the call.
+     */
+    public void hangup(boolean failed, String reason)
+        throws OperationFailedException
+    {
         // do nothing if the call is already ended
         if (CallPeerState.DISCONNECTED.equals(getState())
             || CallPeerState.FAILED.equals(getState()))
@@ -723,7 +742,7 @@ public class CallPeerSipImpl
             boolean dialogIsAlive = sayBye();
             if (!dialogIsAlive)
             {
-                setState(CallPeerState.DISCONNECTED);
+                setDisconnectedState(failed, reason);
             }
         }
         else if (CallPeerState.CONNECTING.equals(getState())
@@ -736,25 +755,25 @@ public class CallPeerSipImpl
                 // leaving
                 sayCancel();
             }
-            setState(CallPeerState.DISCONNECTED);
+            setDisconnectedState(failed, reason);
         }
         else if (peerState.equals(CallPeerState.INCOMING_CALL))
         {
-            setState(CallPeerState.DISCONNECTED);
+            setDisconnectedState(failed, reason);
             sayBusyHere();
         }
         // For FAILED and BUSY we only need to update CALL_STATUS
         else if (peerState.equals(CallPeerState.BUSY))
         {
-            setState(CallPeerState.DISCONNECTED);
+            setDisconnectedState(failed, reason);
         }
         else if (peerState.equals(CallPeerState.FAILED))
         {
-            setState(CallPeerState.DISCONNECTED);
+            setDisconnectedState(failed, reason);
         }
         else
         {
-            setState(CallPeerState.DISCONNECTED);
+            setDisconnectedState(failed, reason);
             logger.error("Could not determine call peer state!");
         }
     }
@@ -1284,5 +1303,20 @@ public class CallPeerSipImpl
         setDialog(retryTran.getDialog());
         setLatestInviteTransaction(retryTran);
         setJainSipProvider(jainSipProvider);
+    }
+
+    /**
+     * Causes this CallPeer to enter either the DISCONNECTED or the FAILED
+     * state.
+     *
+     * @param failed indicates if the disconnection is due to a failure
+     * @param reason the reason of the disconnection
+     */
+    private void setDisconnectedState(boolean failed, String reason)
+    {
+        if (failed)
+            setState(CallPeerState.FAILED, reason);
+        else
+            setState(CallPeerState.DISCONNECTED, reason);
     }
 }

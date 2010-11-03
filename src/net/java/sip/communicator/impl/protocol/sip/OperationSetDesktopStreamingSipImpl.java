@@ -140,6 +140,7 @@ public class OperationSetDesktopStreamingSipImpl
         size = (((VideoMediaFormat)((CallSipImpl)call).
                 getDefaultDevice(MediaType.VIDEO).
                 getFormat()).getSize());
+
         /* reinvite all peers */
         ((CallSipImpl)call).reInvite();
     }
