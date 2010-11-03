@@ -113,15 +113,6 @@ public class JNIDecoder
                 input, inputBuffer.getOffset(),
                 output, outputOffset, outputLength);
 
-        // G.722 is defined to decode to 14-bit samples.
-        for (int i = outputOffset; i < outputLength; i += 2)
-        {
-            short sample = ArrayIOUtils.readShort(output, i);
-
-            sample <<= 2;
-            ArrayIOUtils.writeShort(sample, output, i);
-        }
-
         outputBuffer.setDuration(
                 (outputLength * 1000000L)
                     / (16L /* kHz */ * 2L /* sampleSizeInBits / 8 */));

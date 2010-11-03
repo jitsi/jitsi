@@ -1,18 +1,24 @@
 #include "net_java_sip_communicator_impl_neomedia_codec_audio_g722_JNIDecoder.h"
-#include "g722_decoder.h"
+
+#include <inttypes.h>
+#include "telephony.h"
+#include "g722.h"
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_audio_g722_JNIDecoder_g722_1decoder_1close
     (JNIEnv *jniEnv, jclass clazz, jlong decoder)
 {
-    g722_decoder_close((void *) decoder);
+    g722_decode_state_t *d = (g722_decode_state_t *) decoder;
+
+    g722_decode_release(d);
+    g722_decode_free(d);
 }
 
 JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_audio_g722_JNIDecoder_g722_1decoder_1open
     (JNIEnv *jniEnv, jclass clazz)
 {
-    return (jlong) g722_decoder_open();
+    return (jlong) g722_decode_init(NULL, 64000, 0);
 }
 
 JNIEXPORT void JNICALL
@@ -31,11 +37,11 @@ Java_net_java_sip_communicator_impl_neomedia_codec_audio_g722_JNIDecoder_g722_1d
 
         if (inputPtr)
         {
-            g722_decoder_process(
-                    (void *) decoder,
-                    (unsigned short *) (inputPtr + inputOffset),
-                    (short *) (outputPtr + outputOffset),
-                    outputLength / sizeof(short));
+            g722_decode(
+                    (g722_decode_state_t *) decoder,
+                    (int16_t *) (outputPtr + outputOffset),
+                    (const uint8_t *) (inputPtr + inputOffset),
+                    outputLength / (sizeof(int16_t) * 2));
             (*jniEnv)->ReleasePrimitiveArrayCritical(
                     jniEnv,
                     input, inputPtr,

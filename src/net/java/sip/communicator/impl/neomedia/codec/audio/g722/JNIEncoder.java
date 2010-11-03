@@ -97,15 +97,6 @@ public class JNIEncoder
         byte[] output
             = validateByteArraySize(outputBuffer, outputOffset + outputLength);
 
-        // G.722 is defined to encode from 14-bit samples.
-        for (int i = inputOffset; i < inputLength; i += 2)
-        {
-            short sample = ArrayIOUtils.readShort(input, i);
-
-            sample >>>= 2;
-            ArrayIOUtils.writeShort(sample, input, i);
-        }
-
         g722_encoder_process(
                 encoder,
                 input, inputOffset,
