@@ -171,6 +171,7 @@ public class ResourceManagementServiceImpl
             skinResources = getResources(skinPack);
             imageResources.putAll(skinPack.getImageResources());
             colorResources.putAll(skinPack.getColorResources());
+            settingsResources.putAll(skinPack.getSettingsResources());
         }
 
         UIService serv = getUIService();
@@ -331,9 +332,15 @@ public class ResourceManagementServiceImpl
                     colorResources = getResources(colorPack);
                 }
 
+                if(settingsPack != null)
+                {
+                    settingsResources = getResources(settingsPack);
+                }
+
                 skinResources = resources;
                 imageResources.putAll(skinPack.getImageResources());
                 colorResources.putAll(skinPack.getColorResources());
+                settingsResources.putAll(skinPack.getSettingsResources());
 
                 UIService serv = getUIService();
                 if (serv != null)
@@ -405,6 +412,11 @@ public class ResourceManagementServiceImpl
                     colorResources = getResources(colorPack);
                 }
 
+                if(settingsPack!=null)
+                {
+                    settingsResources = getResources(settingsPack);
+                }
+
                 skinPack = (SkinPack) getDefaultResourcePack(
                     SkinPack.class.getName(),
                     SkinPack.RESOURCE_NAME_DEFAULT_VALUE);
@@ -414,6 +426,7 @@ public class ResourceManagementServiceImpl
                     skinResources = getResources(skinPack);
                     imageResources.putAll(skinPack.getImageResources());
                     colorResources.putAll(skinPack.getColorResources());
+                    settingsResources.putAll(skinPack.getSettingsResources());
                 }
 
                 UIService serv = getUIService();

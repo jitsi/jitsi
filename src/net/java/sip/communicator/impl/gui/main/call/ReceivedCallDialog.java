@@ -17,17 +17,20 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * The dialog created when an incoming call is received.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class ReceivedCallDialog
     extends SIPCommFrame
     implements  ActionListener,
-                CallListener
+                CallListener,
+                Skinnable
 {
     private static final String CALL_BUTTON = "CallButton";
 
@@ -36,6 +39,21 @@ public class ReceivedCallDialog
     private static final int HGAP = 5;
 
     private final Call incomingCall;
+
+    /**
+     * Call button.
+     */
+    private SIPCommButton callButton;
+
+    /**
+     * HandUp button.
+     */
+    private SIPCommButton hangupButton;
+
+    /**
+     * Call label.
+     */
+    private JLabel callLabel;
 
     /**
      * Creates a <tt>ReceivedCallDialog</tt> by specifying the associated call.
@@ -69,16 +87,16 @@ public class ReceivedCallDialog
     private void initComponents()
     {
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        JLabel callLabel = new JLabel();
+        callLabel = new JLabel();
         // disable html rendering
         callLabel.putClientProperty("html.disable", Boolean.TRUE);
 
         JPanel buttonsPanel = new TransparentPanel(new GridBagLayout());
 
-        SIPCommButton callButton = new SIPCommButton(
+        callButton = new SIPCommButton(
             ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG));
 
-        SIPCommButton hangupButton = new SIPCommButton(
+        hangupButton = new SIPCommButton(
             ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
 
         mainPanel.setPreferredSize(new Dimension(400, 90));
@@ -224,4 +242,18 @@ public class ReceivedCallDialog
      * Invoked when this dialog is closed.
      */
     protected void close(boolean isEscaped) {}
+
+    /**
+     * Reloads icons.
+     */
+    public void loadSkin()
+    {
+        callButton.setBackgroundImage(
+            ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG));
+
+        hangupButton.setBackgroundImage(
+            ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
+
+        this.initCallLabel(callLabel);
+    }
 }

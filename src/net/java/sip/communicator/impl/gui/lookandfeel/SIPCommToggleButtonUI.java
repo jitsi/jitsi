@@ -13,39 +13,62 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * SIPCommToggleButtonUI implementation.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SIPCommToggleButtonUI
     extends BasicToggleButtonUI
+    implements Skinnable
 {
-    private final static BufferedImage buttonBG =
+    /**
+     * The background button image.
+     */
+    private static BufferedImage buttonBG =
         ImageLoader.getImage(ImageLoader.BUTTON);
 
-    private final static BufferedImage buttonPressedBG =
+    /**
+     * The background image for the pressed button state.
+     */
+    private static BufferedImage buttonPressedBG =
         ImageLoader.getImage(ImageLoader.TOGGLE_BUTTON_PRESSED);
 
+    /**
+     * Indicates if the button has been pressed.
+     */
     private boolean bufferIsPressed = false;
 
+    /**
+     * The paint buffer.
+     */
     private BufferedImage paintBuffer = null;
 
+    /**
+     * The buffered component.
+     */
     private Component bufferedComponent = null;
 
-    // ********************************
-    // Create PLAF
-    // ********************************
+    /**
+     * Creates the UI for the given <tt>JComponent</tt>.
+     *
+     * @param c the <tt>JComponent</tt>, for which to create an UI
+     * @return the component UI
+     */
     public static ComponentUI createUI(JComponent c)
     {
         return new SIPCommToggleButtonUI();
     }
 
-    // ********************************
-    // Install
-    // ********************************
+    /**
+     * Installs default configurations for the given <tt>AbstractButton</tt>.
+     *
+     * @param b the button, for which we're installing the defaults
+     */
     public void installDefaults(AbstractButton b)
     {
         super.installDefaults(b);
@@ -55,6 +78,11 @@ public class SIPCommToggleButtonUI
         b.setFocusPainted(true);
     }
 
+    /**
+     * Uninstalls default configurations for the given <tt>AbstractButton</tt>.
+     *
+     * @param b the button, for which we're uninstalling the defaults
+     */
     public void uninstallDefaults(AbstractButton b)
     {
         super.uninstallDefaults(b);
@@ -64,6 +92,12 @@ public class SIPCommToggleButtonUI
         b.setOpaque(true);
     }
 
+    /**
+     * Paints this button UI.
+     *
+     * @param g the <tt>Graphics</tt> object used for painting
+     * @param c the <tt>Component</tt> to paint
+     */
     public void paint(Graphics g, JComponent c)
     {
         AbstractButton button = (AbstractButton) c;
@@ -137,5 +171,17 @@ public class SIPCommToggleButtonUI
             .getWidth(), c.getHeight(), null);
 
         super.paint(g, c);
+    }
+
+    /**
+     * Reloads buffered images.
+     */
+    public void loadSkin()
+    {
+        buttonBG =
+            ImageLoader.getImage(ImageLoader.BUTTON);
+
+        buttonPressedBG =
+            ImageLoader.getImage(ImageLoader.TOGGLE_BUTTON_PRESSED);
     }
 }

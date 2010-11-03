@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -24,10 +25,12 @@ import net.java.sip.communicator.util.swing.*;
  * "Mute", "Hang up" and so on.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class CallPeerMenu
     extends SIPCommMenu
-    implements  CallPeerListener
+    implements  CallPeerListener,
+                Skinnable
 {
     private final CallPeer callPeer;
 
@@ -60,8 +63,8 @@ public class CallPeerMenu
         this.setPreferredSize(new Dimension(16, 16));
         this.setHorizontalAlignment(SwingConstants.CENTER);
 
-        this.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.CALL_PEER_TOOLS)));
+        loadSkin();
+
         this.setIconTextGap(0);
         this.addItem(
             GuiActivator.getResources().getI18NString("service.gui.HANG_UP"),
@@ -140,4 +143,23 @@ public class CallPeerMenu
     public void peerImageChanged(CallPeerChangeEvent evt) {}
 
     public void peerTransportAddressChanged(CallPeerChangeEvent evt) {}
+
+    /**
+     * Reloads default icon and menu items.
+     */
+    public void loadSkin()
+    {
+        this.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.CALL_PEER_TOOLS)));
+
+        Component[] components = getComponents();
+        for(Component component : components)
+        {
+            if(component instanceof Skinnable)
+            {
+                Skinnable skinnableComponent = (Skinnable) component;
+                skinnableComponent.loadSkin();
+            }
+        }
+    }
 }

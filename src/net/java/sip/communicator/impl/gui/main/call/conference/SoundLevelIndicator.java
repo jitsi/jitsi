@@ -12,6 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -19,20 +20,22 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Dilshan Amadoru
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SoundLevelIndicator
     extends TransparentPanel
-    implements ComponentListener
+    implements  ComponentListener,
+                Skinnable
 {
     /**
      * Image when a sound level block is active
      */
-    private final ImageIcon soundLevelActiveImage;
+    private ImageIcon soundLevelActiveImage;
 
     /**
      * Image when a sound level block is not active
      */
-    private final ImageIcon soundLevelInactiveImage;
+    private ImageIcon soundLevelInactiveImage;
 
     /**
      * Current number of distinct sound levels displayed in the UI.
@@ -64,10 +67,7 @@ public class SoundLevelIndicator
         this.minSoundLevel = minSoundLevel;
         this.maxSoundLevel = maxSoundLevel;
 
-        soundLevelActiveImage = new ImageIcon(
-            ImageLoader.getImage(ImageLoader.SOUND_LEVEL_ACTIVE));
-        soundLevelInactiveImage = new ImageIcon(
-            ImageLoader.getImage(ImageLoader.SOUND_LEVEL_INACTIVE));
+        loadSkin();
 
         this.setLayout(new FlowLayout(FlowLayout.LEFT, 1, 0));
 
@@ -192,5 +192,18 @@ public class SoundLevelIndicator
         // We deduct 150px from the given windowWidth because this is not the
         // only component positioned on the horizontal axe.
         return (windowWidth - 130)/barWidth;
+    }
+
+    /**
+     * Reloads icons.
+     */
+    public void loadSkin()
+    {
+        soundLevelActiveImage = new ImageIcon(
+            ImageLoader.getImage(ImageLoader.SOUND_LEVEL_ACTIVE));
+        soundLevelInactiveImage = new ImageIcon(
+            ImageLoader.getImage(ImageLoader.SOUND_LEVEL_INACTIVE));
+
+        updateSoundLevel(minSoundLevel);
     }
 }

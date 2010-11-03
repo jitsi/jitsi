@@ -14,6 +14,7 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -21,29 +22,55 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  */
-public class SIPCommButtonUI extends MetalButtonUI {
-
-    private final static BufferedImage buttonBG
+public class SIPCommButtonUI
+    extends MetalButtonUI
+    implements Skinnable
+{
+    /**
+     * The background button image.
+     */
+    private static BufferedImage buttonBG
         = ImageLoader.getImage(ImageLoader.BUTTON);
 
-    private final static BufferedImage buttonRolloverBG
+    /**
+     * The background image for the pressed button state.
+     */
+    private static BufferedImage buttonRolloverBG
         = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER);
 
+    /**
+     * Indicates if the button is in rollover state.
+     */
     private boolean bufferIsRollover = false;
+
+    /**
+     * The paint buffer.
+     */
     private BufferedImage paintBuffer = null;
+
+    /**
+     * The buffered component.
+     */
     private Component bufferedComponent = null;
 
-    // ********************************
-    //          Create PLAF
-    // ********************************
-    public static ComponentUI createUI(JComponent c) {
+    /**
+     * Creates the UI for the given <tt>JComponent</tt>.
+     *
+     * @param c the <tt>JComponent</tt>, for which to create an UI
+     * @return the component UI
+     */
+    public static ComponentUI createUI(JComponent c)
+    {
         return new SIPCommButtonUI();
     }
 
-    // ********************************
-    //          Install
-    // ********************************
-    public void installDefaults(AbstractButton b) {
+    /**
+     * Installs default configurations for the given <tt>AbstractButton</tt>.
+     *
+     * @param b the button, for which we're installing the defaults
+     */
+    public void installDefaults(AbstractButton b)
+    {
         super.installDefaults(b);
 
         b.setOpaque(false);
@@ -52,7 +79,13 @@ public class SIPCommButtonUI extends MetalButtonUI {
         b.setRolloverEnabled(true);
     }
 
-    public void uninstallDefaults(AbstractButton b) {
+    /**
+     * Uninstalls default configurations for the given <tt>AbstractButton</tt>.
+     *
+     * @param b the button, for which we're uninstalling the defaults
+     */
+    public void uninstallDefaults(AbstractButton b)
+    {
         super.uninstallDefaults(b);
 
         b.setBorderPainted(true);
@@ -61,8 +94,14 @@ public class SIPCommButtonUI extends MetalButtonUI {
         b.setRolloverEnabled(false);
     }
 
-    public void paint(Graphics g, JComponent c) {
-
+    /**
+     * Paints this button UI.
+     *
+     * @param g the <tt>Graphics</tt> object used for painting
+     * @param c the <tt>Component</tt> to paint
+     */
+    public void paint(Graphics g, JComponent c)
+    {
         AbstractButton button = (AbstractButton)c;
         ButtonModel model = button.getModel();
 
@@ -128,10 +167,18 @@ public class SIPCommButtonUI extends MetalButtonUI {
         super.paint(g, c);
     }
 
-
+    /**
+     * Paints the focused view of the given <tt>AbstractButton</tt>.
+     *
+     * @param g the <tt>Graphics</tt> object used for painting
+     * @param b the button to paint
+     * @param viewRect the rectangle indicating the bounds of the focused button
+     * @param textRect the rectangle indicating the bounds of the text
+     * @param iconRect the rectangle indicating the bounds of the icon
+     */
     protected void paintFocus(Graphics g, AbstractButton b,
-            Rectangle viewRect, Rectangle textRect, Rectangle iconRect){
-
+            Rectangle viewRect, Rectangle textRect, Rectangle iconRect)
+    {
         Graphics2D g2 = (Graphics2D)g;
 
         Rectangle focusRect = new Rectangle();
@@ -139,16 +186,20 @@ public class SIPCommButtonUI extends MetalButtonUI {
         boolean isIcon = b.getIcon() != null;
 
         // If there is text
-        if ( text != null && !text.equals( "" ) ) {
-            if ( !isIcon ) {
+        if ( text != null && !text.equals( "" ) )
+        {
+            if ( !isIcon )
+            {
                 focusRect.setBounds( textRect );
             }
-            else {
+            else
+            {
                 focusRect.setBounds( iconRect.union( textRect ) );
             }
         }
         // If there is an icon and no text
-        else if ( isIcon ) {
+        else if ( isIcon )
+        {
             focusRect.setBounds( iconRect );
         }
 
@@ -166,11 +217,27 @@ public class SIPCommButtonUI extends MetalButtonUI {
     /**
      * Overriden to do nothing.
      */
-    protected void paintButtonPressed(Graphics g, AbstractButton b){
-        if ( b.isContentAreaFilled() ) {
+    protected void paintButtonPressed(Graphics g, AbstractButton b)
+    {
+        if ( b.isContentAreaFilled() )
+        {
             Dimension size = b.getSize();
             g.setColor(getSelectColor());
             g.fillRoundRect(0, 0, size.width, size.height, 5, 5);
         }
+    }
+
+    /**
+     * Reloads buffered images.
+     */
+    public void loadSkin()
+    {
+        buttonBG
+            = ImageLoader.getImage(ImageLoader.BUTTON);
+
+        buttonRolloverBG
+            = ImageLoader.getImage(ImageLoader.BUTTON_ROLLOVER);
+
+        paintBuffer = null;
     }
 }

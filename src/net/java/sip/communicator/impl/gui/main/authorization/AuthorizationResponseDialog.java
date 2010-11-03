@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -24,10 +25,12 @@ import net.java.sip.communicator.util.swing.*;
  * a reply for an authorization request.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class AuthorizationResponseDialog
     extends SIPCommDialog
-    implements ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     private JTextArea infoTextArea = new JTextArea();
 
@@ -171,5 +174,14 @@ public class AuthorizationResponseDialog
     protected void close(boolean isEscaped)
     {
         this.dispose();
+    }
+
+    /**
+     * Reloads athorization icon.
+     */
+    public void loadSkin()
+    {
+        iconLabel.setIcon(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.AUTHORIZATION_ICON)));
     }
 }

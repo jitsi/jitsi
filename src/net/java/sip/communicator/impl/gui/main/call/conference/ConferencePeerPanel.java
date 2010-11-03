@@ -18,6 +18,8 @@ import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -26,11 +28,13 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class ConferencePeerPanel
     extends BasicConferenceParticipantPanel
     implements  CallPeerRenderer,
-                CallPeerConferenceListener
+                CallPeerConferenceListener,
+                Skinnable
 {
     /**
      * The parent dialog containing this panel.
@@ -72,7 +76,15 @@ public class ConferencePeerPanel
      */
     private SecurityPanel securityPanel;
 
+    /**
+     * The call peer adapter.
+     */
     private CallPeerAdapter callPeerAdapter;
+
+    /**
+     * Security imageID.
+     */
+    private ImageID securityImageID = ImageLoader.SECURE_BUTTON_OFF;
 
     /**
      * Maps a <tt>ConferenceMember</tt> to its renderer panel.
@@ -170,6 +182,8 @@ public class ConferencePeerPanel
     {
         securityStatusLabel.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.SECURE_BUTTON_OFF)));
+
+        securityImageID = ImageLoader.SECURE_BUTTON_OFF;
     }
 
     /**
@@ -186,6 +200,8 @@ public class ConferencePeerPanel
     {
         securityStatusLabel.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.SECURE_BUTTON_ON)));
+
+        securityImageID = ImageLoader.SECURE_BUTTON_ON;
 
         if ((securityPanel == null) && (callPeer != null))
         {
@@ -676,5 +692,29 @@ public class ConferencePeerPanel
                 updateSoundBar(evt.getLevel());
             }
         }
+    }
+
+    /**
+     * Reloads style information.
+     */
+    public void loadSkin()
+    {
+        this.setTitleBackground(
+            new Color(GuiActivator.getResources().getColor(
+                "service.gui.CALL_LOCAL_USER_BACKGROUND")));
+
+        securityStatusLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(securityImageID)));
+
+        if(muteStatusLabel.getIcon() != null)
+            muteStatusLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.MUTE_STATUS_ICON)));
+
+        if(holdStatusLabel.getIcon() != null)
+            holdStatusLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.HOLD_STATUS_ICON)));
+
+        if(callPeerMenu != null)
+            callPeerMenu.loadSkin();
     }
 }

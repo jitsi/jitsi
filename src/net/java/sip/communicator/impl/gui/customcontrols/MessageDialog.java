@@ -14,6 +14,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -24,10 +25,12 @@ import net.java.sip.communicator.util.swing.*;
  * The message and the name of the "OK" button could be configured.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class MessageDialog
     extends SIPCommDialog
-    implements ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     private static final long serialVersionUID = 1L;
 
@@ -279,6 +282,8 @@ public class MessageDialog
     /**
      * Handles the <tt>ActionEvent</tt>. Depending on the user choice sets
      * the return code to the appropriate value.
+     *
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -303,8 +308,23 @@ public class MessageDialog
         this.dispose();
     }
 
+    /**
+     * Visually clicks the cancel button on close.
+     *
+     * @param isEscaped indicates if the window was close by pressing the escape
+     * button
+     */
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
+    }
+
+    /**
+     * Reloads icon.
+     */
+    public void loadSkin()
+    {
+        iconLabel.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.WARNING_ICON)));
     }
 }

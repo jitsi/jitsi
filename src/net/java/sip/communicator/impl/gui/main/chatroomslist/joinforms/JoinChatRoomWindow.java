@@ -16,64 +16,67 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * This window allows to choose an account for joining a chat room.
- * 
+ *
  * @author Valentin Martinet
+ * @author Adam Netocny
  */
 public class JoinChatRoomWindow
     extends SIPCommFrame
+    implements Skinnable
 {
     /**
      * An Eclipse generated serial version ID.
      */
     private static final long serialVersionUID = -5377426011460074319L;
-    
+
     /**
      * The list of providers who support chat rooms.
      */
     private Vector<ChatRoomProviderWrapper> chatRoomProviders 
         = new Vector<ChatRoomProviderWrapper>();
-    
+
     /**
      * A JComboBox which will allow to select an account for joining a room.
      */
     private JComboBox jcb_chatRoomProviders;
-    
+
     /**
      * An editable JComboBox which will allow to set a room name, and gives 
      * suggestions regarding to its content.
      */
     private JComboBox jcb_roomName = new JComboBox();
-    
+
     /**
      * Text editor for the room name combo box.
      */
     private JTextField editor;
-    
+
     /**
      * Stores the provider icons.
      */
     private Vector<ImageIcon> providerIcons = new Vector<ImageIcon>();
-    
+
     /**
      * Stores the provider names (plus AccountID).
      */
     private Vector<String> providerNames = new Vector<String>();
-    
+
     /**
      * Rooms of the currently selected provider.
      */
     private List<String> serverRooms = null;
-    
+
     /**
      * Search state value.
      */
     private String searchStateValue = GuiActivator.getResources().getI18NString(
         "service.gui.LOADING_ROOMS");
-    
+
     /**
      * Search state label.
      */
@@ -264,14 +267,19 @@ public class JoinChatRoomWindow
         Collections.sort(rooms);
         return rooms;
     }
-    
-    
+
+    /**
+     * Indicates the window is about to be closed.
+     *
+     * @param escaped indicates if the window has been closed by pressing the
+     * Esc key
+     */
     @Override
-    protected void close(boolean isEscaped)
+    protected void close(boolean escaped)
     {
         dispose();
     }
-    
+
     /**
      * Returns the selected provider in the providers combo box.
      * 
@@ -318,11 +326,22 @@ public class JoinChatRoomWindow
             this.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
         }
 
+        /**
+         * Returns the cell renderer component for the given <tt>list</tt> and
+         * <tt>value</tt>.
+         * 
+         * @param list the parent list
+         * @param value the value to render
+         * @param index the index of the rendered cell in the list
+         * @param isSelected indicates if the cell is currently selected
+         * @param cellHasFocus indicates that the cell has the focus
+         * @return the rendering component
+         */
         public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus) 
         {
             String label = (String)value;
-            
+
             if (isSelected) 
             {
                 setBackground(list.getSelectionBackground());
@@ -336,11 +355,11 @@ public class JoinChatRoomWindow
 
             int idx = providerNames.indexOf(label);
             ImageIcon icon = providerIcons.get(idx);
-            
+
             setText(label);
 
             if (icon != null) setIcon(icon);
-            
+
             return this;
         }
     }
@@ -366,5 +385,23 @@ public class JoinChatRoomWindow
                 jcb_roomName.showPopup();
             }
         });
+    }
+
+    /**
+     * Reloads provider icons.
+     */
+    public void loadSkin()
+    {
+        providerIcons.clear();
+        
+        for(ChatRoomProviderWrapper provider : chatRoomProviders)
+        {
+            if(provider.getProtocolProvider().getRegistrationState()
+                    == RegistrationState.REGISTERED)
+            {
+                providerIcons.add(new ImageIcon(provider.getProtocolProvider()
+                    .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));
+            }
+        }
     }
 }

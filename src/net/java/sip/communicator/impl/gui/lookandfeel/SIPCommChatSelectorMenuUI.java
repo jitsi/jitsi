@@ -14,21 +14,27 @@ import javax.swing.plaf.basic.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * The SIPCommChatSelectorMenuUI implementation.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SIPCommChatSelectorMenuUI
     extends BasicMenuUI
+    implements Skinnable
 {
-    private final Image menuBgImage
+    private Image menuBgImage
         = ImageLoader.getImage(ImageLoader.CHAT_TOOLBAR_BUTTON_BG);
 
     /**
      * Creates a new SIPCommChatSelectorMenuUI instance.
+     *
+     * @param x the component for which this UI is created
+     * @return the component UI
      */
     public static ComponentUI createUI(JComponent x)
     {
@@ -43,7 +49,9 @@ public class SIPCommChatSelectorMenuUI
      * @param bgColor selection background color
      * @since 1.4
      */
-    protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor)
+    protected void paintBackground( Graphics g,
+                                    JMenuItem menuItem,
+                                    Color bgColor)
     {
         super.paintBackground(g, menuItem, bgColor);
 
@@ -68,5 +76,14 @@ public class SIPCommChatSelectorMenuUI
                 g.dispose();
             }
         }
+    }
+
+    /**
+     * Loads skin.
+     */
+    public void loadSkin()
+    {
+        menuBgImage
+            = ImageLoader.getImage(ImageLoader.CHAT_TOOLBAR_BUTTON_BG);
     }
 }

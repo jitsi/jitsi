@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -23,10 +24,12 @@ import net.java.sip.communicator.util.swing.*;
  * shown when user is trying to add a contact, which requires authorization.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class RequestAuthorizationDialog
     extends SIPCommDialog
-    implements ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     public static final int OK_RETURN_CODE = 1;
 
@@ -212,5 +215,14 @@ public class RequestAuthorizationDialog
     protected void close(boolean isEscaped)
     {
         this.cancelButton.doClick();
+    }
+
+    /**
+     * Reloads athorization icon.
+     */
+    public void loadSkin()
+    {
+        iconLabel.setIcon(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.AUTHORIZATION_ICON)));
     }
 }

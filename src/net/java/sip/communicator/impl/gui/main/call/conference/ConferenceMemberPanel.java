@@ -11,15 +11,18 @@ import java.beans.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * The <tt>ConferenceMemberPanel</tt> renders <tt>ConferenceMember</tt> details.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class ConferenceMemberPanel
     extends BasicConferenceParticipantPanel
-    implements PropertyChangeListener
+    implements  PropertyChangeListener,
+                Skinnable
 {
     /**
      * The underlying conference member.
@@ -85,4 +88,13 @@ public class ConferenceMemberPanel
         }
     }
 
+    /**
+     * Reloads title background color.
+     */
+    public void loadSkin()
+    {
+        this.setTitleBackground(
+            new Color(GuiActivator.getResources().getColor(
+            "service.gui.CALL_MEMBER_NAME_BACKGROUND")));
+    }
 }

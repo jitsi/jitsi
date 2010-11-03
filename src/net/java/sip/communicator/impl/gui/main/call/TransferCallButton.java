@@ -12,6 +12,7 @@ import java.util.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -20,9 +21,11 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Lubomir Marinov
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class TransferCallButton
     extends SIPCommButton
+    implements Skinnable
 {
     /**
      * The <tt>Call</tt> to be transfered.
@@ -101,6 +104,11 @@ public class TransferCallButton
         }
     }
 
+    /**
+     * Returns the list of transfer call peers.
+     *
+     * @return the list of transfer call peers
+     */
     private Collection<CallPeer> getTransferCallPeers()
     {
         Collection<CallPeer> transferCalls = null;
@@ -119,5 +127,17 @@ public class TransferCallButton
             }
         }
         return transferCalls;
+    }
+
+    /**
+     * Reloads icons.
+     */
+    public void loadSkin()
+    {
+        this.setBackgroundImage(ImageLoader.getImage(
+                ImageLoader.CALL_SETTING_BUTTON_BG));
+
+        this.setIconImage(ImageLoader.getImage(
+                ImageLoader.TRANSFER_CALL_BUTTON));
     }
 }

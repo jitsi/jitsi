@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 
 import org.osgi.framework.*;
 
@@ -30,11 +31,13 @@ import org.osgi.framework.*;
  * contains the create chat room item.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class ChatRoomCommonRightButtonMenu
     extends JPopupMenu
     implements  ActionListener,
-                PluginComponentListener
+                PluginComponentListener,
+                Skinnable
 {
     private Logger logger
         = Logger.getLogger(ChatRoomCommonRightButtonMenu.class);
@@ -48,10 +51,12 @@ public class ChatRoomCommonRightButtonMenu
         new ImageIcon(ImageLoader.getImage(ImageLoader.SEARCH_ICON_16x16)));
 
     private ChatRoomProviderWrapper chatRoomProvider;
+
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
-     * 
+     *
      * @param mainFrame Currently not used
+     * @param provider the chat room provider wrapper
      */
     public ChatRoomCommonRightButtonMenu(   MainFrame mainFrame,
                                             ChatRoomProviderWrapper provider)
@@ -70,19 +75,19 @@ public class ChatRoomCommonRightButtonMenu
     {
         this.add(createChatRoomItem);
         this.add(searchForChatRoomsItem);
-        
+
         this.initPluginComponents();
-        
+
         this.createChatRoomItem.setName("createChatRoom");
         this.searchForChatRoomsItem.setName("searchForChatRooms");
-        
+
         this.createChatRoomItem.setMnemonic(
             GuiActivator.getResources()
                 .getI18nMnemonic("service.gui.CREATE_CHAT_ROOM"));
         this.searchForChatRoomsItem.setMnemonic(
             GuiActivator.getResources()
                 .getI18nMnemonic("service.gui.JOIN_CHAT_ROOM"));
-        
+
         this.createChatRoomItem.addActionListener(this);
         this.searchForChatRoomsItem.addActionListener(this);
     }
@@ -131,6 +136,8 @@ public class ChatRoomCommonRightButtonMenu
     /**
      * Handles the <tt>ActionEvent</tt>. Determines which menu item was
      * selected and makes the appropriate operations.
+     *
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e){
 
@@ -156,6 +163,8 @@ public class ChatRoomCommonRightButtonMenu
     /**
      * Implements the <tt>PluginComponentListener.pluginComponentAdded</tt>
      * method, in order to add the given plugin component in this container.
+     *
+     * @param event the <tt>PluginComponentEvent</tt> that notified us
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
@@ -169,11 +178,25 @@ public class ChatRoomCommonRightButtonMenu
     /**
      * Implements the <tt>PluginComponentListener.pluginComponentRemoved</tt>
      * method, in order to remove the given component from this container.
+     *
+     * @param event the <tt>PluginComponentEvent</tt> that notified us
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
         PluginComponent c = event.getPluginComponent();
 
         this.remove((Component) c.getComponent());
+    }
+
+    /**
+     * Reloads icons.
+     */
+    public void loadSkin()
+    {
+        createChatRoomItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
+
+        searchForChatRoomsItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.SEARCH_ICON_16x16)));
     }
 }

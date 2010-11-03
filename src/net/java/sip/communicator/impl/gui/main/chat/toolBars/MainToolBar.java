@@ -547,6 +547,9 @@ public class MainToolBar
         callButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CHAT_CALL));
 
+        desktopSharingButton.setIconImage(ImageLoader.getImage(
+            ImageLoader.CHAT_DESKTOP_SHARING));
+
         optionsButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CHAT_CONFIGURE_ICON));
     }

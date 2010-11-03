@@ -13,6 +13,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -22,6 +23,7 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class OneToOneCallPanel
     extends TransparentPanel
@@ -220,6 +222,8 @@ public class OneToOneCallPanel
 
         getGraphicsConfiguration().getDevice().setFullScreenWindow(frame);
         this.fullScreenWindow = frame;
+
+        GuiUtils.addWindow(fullScreenWindow);
     }
 
     /**
@@ -233,6 +237,8 @@ public class OneToOneCallPanel
 
         if (fullScreenWindow != null)
         {
+            GuiUtils.removeWindow(fullScreenWindow);
+
             if (fullScreenWindow.isVisible())
                 fullScreenWindow.setVisible(false);
             fullScreenWindow.dispose();

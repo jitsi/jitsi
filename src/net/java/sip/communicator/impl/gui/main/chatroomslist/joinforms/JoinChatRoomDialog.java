@@ -14,26 +14,29 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>JoinChatRoomDialog</tt> is the dialog containing the form for joining
  * a chat room.
- * 
+ *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class JoinChatRoomDialog
     extends SIPCommDialog
-    implements ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     private SearchChatRoomPanel searchPanel;
-    
+
     private JButton joinButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.JOIN"));
-    
+
     private JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
-    
+
     private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
         .getImage(ImageLoader.ADD_CONTACT_CHAT_ICON)));
 
@@ -41,7 +44,7 @@ public class JoinChatRoomDialog
         new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
     private ChatRoomProviderWrapper chatRoomProvider;
-    
+
     /**
      * Creates an instance of <tt>JoinChatRoomDialog</tt>.
      * 
@@ -86,6 +89,8 @@ public class JoinChatRoomDialog
      * the desired chat room in a separate thread.
      * <br>
      * Note: No specific properties are set right now!
+     *
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -102,13 +107,15 @@ public class JoinChatRoomDialog
 
     /**
      * When escape is pressed clicks the cancel button programatically.
+     *
+     * @param escaped indicates if the window was closed by pressing the Esc
+     * key
      */
-    protected void close(boolean isEscaped)
+    protected void close(boolean escaped)
     {
         this.cancelButton.doClick();
     }
 
-    
     /**
      * Shows this dialog. And requests the current focus in the chat room name
      * field.
@@ -118,5 +125,14 @@ public class JoinChatRoomDialog
         this.setVisible(true);
 
         searchPanel.requestFocusInField();
+    }
+
+    /**
+     * Reloads icon label.
+     */
+    public void loadSkin()
+    {
+        iconLabel.setIcon(new ImageIcon(ImageLoader
+        .getImage(ImageLoader.ADD_CONTACT_CHAT_ICON)));
     }
 }

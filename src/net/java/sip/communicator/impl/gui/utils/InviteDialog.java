@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -23,9 +24,11 @@ import net.java.sip.communicator.util.swing.*;
  * user could pick in order to create a conference chat or call.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class InviteDialog
     extends SIPCommDialog
+    implements Skinnable
 {
     private final JTextArea reasonArea = new JTextArea();
 
@@ -43,6 +46,11 @@ public class InviteDialog
     private final SIPCommTextField newContactField
         = new SIPCommTextField(GuiActivator.getResources()
             .getI18NString("service.gui.OR_ENTER_PHONE_NUMBER"));
+
+    /**
+     * Icon label.
+     */
+    private final JLabel iconLabel;
 
     /**
      * Constructs an <tt>InviteDialog</tt>, by specifying the initial list of
@@ -98,7 +106,7 @@ public class InviteDialog
         infoTextArea.setWrapStyleWord(true);
         infoTextArea.setEditable(false);
 
-        JLabel iconLabel = new JLabel(new ImageIcon(
+        iconLabel = new JLabel(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.INVITE_DIALOG_ICON)));
 
         northPanel.add(iconLabel, BorderLayout.WEST);
@@ -426,5 +434,14 @@ public class InviteDialog
         {
             moveStringFromLeftToRight();
         }
+    }
+
+    /**
+     * Reloads icon for icon label.
+     */
+    public void loadSkin()
+    {
+        iconLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.INVITE_DIALOG_ICON)));
     }
 }

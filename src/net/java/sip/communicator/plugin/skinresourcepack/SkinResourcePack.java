@@ -20,7 +20,8 @@ import net.java.sip.communicator.util.*;
  * @author Adam Netocny
  */
 public class SkinResourcePack
-    implements BundleActivator, SkinPack
+    implements  BundleActivator,
+                SkinPack
 {
     /**
      * The <tt>Logger</tt> used by the <tt>SkinResourcePack</tt> and its
@@ -50,6 +51,12 @@ public class SkinResourcePack
     private static final String DEFAULT_STYLE_RESOURCE_PATH = "styles.styles";
 
     /**
+     * The resource path f skin settings.
+     */
+    private static final String DEFAULT_SETTINGS_RESOURCE_PATH
+                                                        = "settings.settings";
+
+    /**
      * The bundle context.
      */
     private static BundleContext bundleContext;
@@ -74,6 +81,11 @@ public class SkinResourcePack
      * A map of all skin color resources.
      */
     private Map<String, String> colorResources = null;
+
+    /**
+     * A map of all skin settings resources.
+     */
+    private Map<String, String> sttingsResources = null;
 
     /**
      * Starts the bundle.
@@ -202,6 +214,41 @@ public class SkinResourcePack
         this.initColorPluginResources(resources);
 
         colorResources = resources;
+
+        return resources;
+    }
+
+    /**
+     * Returns a <tt>Map</tt>, containing all [key, value] pairs for color
+     * resource pack.
+     *
+     * @return a <tt>Map</tt>, containing all [key, value] pairs for color
+     * resource pack.
+     */
+    public Map<String, String> getSettingsResources()
+    {
+        if(sttingsResources != null)
+        {
+            return sttingsResources;
+        }
+
+        Map<String, String> resources = new TreeMap<String, String>();
+
+        try
+        {
+            ResourceBundle resourceBundle
+                = ResourceBundle.getBundle(DEFAULT_SETTINGS_RESOURCE_PATH);
+
+            this.initResources(resourceBundle, resources);
+        }
+        catch (MissingResourceException ex)
+        {
+            logger.info("Failed to obtain bundle from color resource path.", ex);
+        }
+
+        this.initSettingsPluginResources(resources);
+
+        sttingsResources = resources;
 
         return resources;
     }
@@ -348,6 +395,30 @@ public class SkinResourcePack
     {
         Iterator<String> pluginProperties
             = findResourcePaths("colors", "colors-*.properties");
+
+        while (pluginProperties.hasNext())
+        {
+            String resourceBundleName = pluginProperties.next();
+
+            ResourceBundle resourceBundle
+                = ResourceBundle.getBundle(
+                    resourceBundleName.substring(
+                        0, resourceBundleName.indexOf(".properties")));
+
+            initResources(resourceBundle, resources);
+        }
+    }
+
+    /**
+     * Finds all plugin style resources, matching the "styles-*.properties"
+     * pattern and adds them to this resource pack.
+     *
+     * @param resources the map of key, value type resource pairs
+     */
+    private void initSettingsPluginResources(Map<String, String> resources)
+    {
+        Iterator<String> pluginProperties
+            = findResourcePaths("settings", "settings-*.properties");
 
         while (pluginProperties.hasNext())
         {

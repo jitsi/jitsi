@@ -32,6 +32,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.event.*;
 
@@ -46,11 +47,13 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Adam Netocny
  */
 public class MainFrame
     extends SIPCommFrame
     implements  ExportedWindow,
-                PluginComponentListener
+                PluginComponentListener,
+                Skinnable
 {
     /**
      * The logger.
@@ -1643,5 +1646,15 @@ public class MainFrame
         // Remove the default escape key mapping as its a special
         // one for the main frame and the contactlist
         inputMap.remove(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0));
+    }
+
+    /**
+     * Reloads skin information
+     */
+    public void loadSkin()
+    {
+        this.mainPanel.setBackground(new Color(
+                GuiActivator.getResources()
+                    .getColor("service.gui.MAIN_WINDOW_BACKGROUND")));
     }
 }

@@ -319,6 +319,8 @@ public class SearchFieldUI
      */
     public void loadSkin()
     {
+        super.loadSkin();
+
         searchIcon = UtilActivator.getResources()
             .getImage("service.gui.icons.SEARCH_ICON");
 

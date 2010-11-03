@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -22,9 +23,11 @@ import net.java.sip.communicator.util.swing.*;
  * extended for <tt>CallPeer</tt>s and <tt>ConferenceMember</tt>s.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class BasicConferenceParticipantPanel
     extends TransparentPanel
+    implements Skinnable
 {
     private static final Color bgColor = new Color(255, 255, 255);
 
@@ -92,6 +95,11 @@ public class BasicConferenceParticipantPanel
     private boolean isFocusUI;
 
     private boolean isSingleFocusUI;
+
+    /**
+     * True if the avatar icon was changed and is no more default.
+     */
+    private boolean iconChanged = false;
 
     /**
      * Creates an instance of <tt>ConferenceParticipantPanel</tt>.
@@ -188,7 +196,10 @@ public class BasicConferenceParticipantPanel
                                                         AVATAR_HEIGHT);
 
         if (icon != null)
+        {
+            iconChanged = true;
             imageLabel.setIcon(icon);
+        }
     }
 
     /**
@@ -426,5 +437,22 @@ public class BasicConferenceParticipantPanel
 
         if (isVisible())
             errorMessageComponent.repaint();
+    }
+
+    /**
+     * Reloads default avatar icon.
+     */
+    public void loadSkin()
+    {
+        if(!iconChanged)
+        {
+            ImageIcon avatarIcon = new ImageIcon
+                (ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)
+                    .getScaledInstance( AVATAR_WIDTH,
+                                        AVATAR_HEIGHT,
+                                        Image.SCALE_SMOOTH));
+
+            imageLabel.setIcon(avatarIcon);
+        }
     }
 }

@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -25,18 +26,19 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class SecurityPanel
     extends TransparentPanel
+    implements Skinnable
 {
     private final CallPeer peer;
 
-    private final Image iconEncr;
-    private final Image iconEncrVerified;
+    private Image iconEncr;
+    private Image iconEncrVerified;
 
     private boolean sasVerified = false;
 
-    private final SIPCommButton sasVerificationButton;
+    private SIPCommButton sasVerificationButton;
 
     private final JLabel securityStringLabel = new JLabel();
-    
+
     /**
      * Creates an instance of <tt>SecurityPanel</tt> by specifying the
      * corresponding <tt>peer</tt>.
@@ -53,11 +55,7 @@ public class SecurityPanel
         this.setToolTipText(GuiActivator.getResources().getI18NString(
         "service.gui.COMPARE_WITH_PARTNER"));
 
-        iconEncrVerified = ImageLoader.getImage(ImageLoader.ENCR_VERIFIED);
-        iconEncr = ImageLoader.getImage(ImageLoader.ENCR);
-        sasVerificationButton = new SIPCommButton(iconEncr);
-
-        this.addComponentsToPane();
+        loadSkin();
     }
 
     /**
@@ -128,5 +126,18 @@ public class SecurityPanel
 
         revalidate();
         repaint();
+    }
+
+    /**
+     * Reloads icons and components.
+     */
+    public void loadSkin()
+    {
+        this.removeAll();
+        iconEncrVerified = ImageLoader.getImage(ImageLoader.ENCR_VERIFIED);
+        iconEncr = ImageLoader.getImage(ImageLoader.ENCR);
+        sasVerificationButton = new SIPCommButton(iconEncr);
+
+        this.addComponentsToPane();
     }
 }

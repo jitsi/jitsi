@@ -12,37 +12,65 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 
+import net.java.sip.communicator.util.skin.*;
+
 /**
  * The SIPCommScrollBarUI implementation.
- * 
+ *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
-public class SIPCommScrollBarUI extends MetalScrollBarUI {
-    
+public class SIPCommScrollBarUI
+    extends MetalScrollBarUI
+    implements Skinnable
+{
+    /**
+     * The horizontal thumb image.
+     */
     private BufferedImage horizontalThumb;
+
+    /**
+     * The vertical thumb image.
+     */
     private BufferedImage verticalThumb;
+
+    /**
+     * The horizontal thumb handle image.
+     */
     private BufferedImage horizontalThumbHandle;
+
+    /**
+     * The vertical thumb handle image.
+     */
     private BufferedImage verticalThumbHandle;
-    
-    public SIPCommScrollBarUI(){
-        horizontalThumb         = (BufferedImage)UIManager
-                                    .get("ScrollBar.horizontalThumbIcon");
-        verticalThumb           = (BufferedImage)UIManager
-                                    .get("ScrollBar.verticalThumbIcon");
-        horizontalThumbHandle   = (BufferedImage)UIManager
-                                    .get("ScrollBar.horizontalThumbHandleIcon");
-        verticalThumbHandle     = (BufferedImage)UIManager
-                                    .get("ScrollBar.verticalThumbHandleIcon");
+
+    /**
+     * Creates an instance of <tt>SIPCommScrollBarUI</tt>.
+     */
+    public SIPCommScrollBarUI()
+    {
+        loadSkin();
     }
-    
-    // ********************************
-    //          Create PLAF
-    // ********************************
-    public static ComponentUI createUI(JComponent c) {
+
+    /**
+     * Creates the UI for the given <tt>JComponent</tt>.
+     *
+     * @param c the <tt>JComponent</tt>, for which to create an UI
+     * @return the component UI
+     */
+    public static ComponentUI createUI(JComponent c)
+    {
         return new SIPCommScrollBarUI();
     }
-    
-    protected void paintTrack( Graphics g, JComponent c, Rectangle trackBounds )
+
+    /**
+     * Paints the track of the scroll bar.
+     *
+     * @param g the <tt>Graphics</tt> object used for painting
+     * @param c the component to paint a track for
+     * @param trackBounds the bounds of the track to paint
+     */
+    protected void paintTrack( Graphics g, JComponent c, Rectangle trackBounds)
     {
         g.translate( trackBounds.x, trackBounds.y );
 
@@ -50,39 +78,43 @@ public class SIPCommScrollBarUI extends MetalScrollBarUI {
 
         if ( scrollbar.getOrientation() == JScrollBar.VERTICAL )
         {
-            if ( !isFreeStanding ) {
+            if ( !isFreeStanding )
+            {
                 trackBounds.width += 2;
-                if ( !leftToRight ) {
+
+                if ( !leftToRight )
                     g.translate( -1, 0 );
-                }
-            }          
-            
+            }
+
             g.setColor(this.trackColor);
             g.fillRect(0, 0, trackBounds.width-2, trackBounds.height);
-            
+
             g.setColor(this.trackHighlightColor);
             g.drawRect(0, 0, trackBounds.width-2, trackBounds.height);
-            
-            if ( !isFreeStanding ) {
+
+            if ( !isFreeStanding )
+            {
                 trackBounds.width -= 2;
-                if ( !leftToRight ) {
+
+                if ( !leftToRight )
                     g.translate( 1, 0 );
-                }
             }
         }
         else  // HORIZONTAL
         {
-            if ( !isFreeStanding ) {
+            if ( !isFreeStanding )
+            {
                 trackBounds.height += 2;
             }
 
             g.setColor(this.trackColor);
             g.fillRect(0, 0, trackBounds.width, trackBounds.height-2);
-            
+
             g.setColor(this.trackHighlightColor);
             g.drawRect(0, 0, trackBounds.width, trackBounds.height-2);
 
-            if ( !isFreeStanding ) {
+            if ( !isFreeStanding )
+            {
                 trackBounds.height -= 2;
             }
         }
@@ -90,7 +122,11 @@ public class SIPCommScrollBarUI extends MetalScrollBarUI {
     }
 
     /**
-     * Paints the bar of the scroll bar.
+     * Paints the thumb of the scroll bar.
+     *
+     * @param g the <tt>Graphics</tt> object used for painting
+     * @param c the component to paint a thumb for
+     * @param thumbBounds the bounds of the thumb to paint
      */
     protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds)
     {
@@ -99,25 +135,28 @@ public class SIPCommScrollBarUI extends MetalScrollBarUI {
         }
 
         boolean leftToRight = c.getComponentOrientation().isLeftToRight();
-        
+
         g.translate( thumbBounds.x, thumbBounds.y );
 
         int imgWidth;
         int imgHeight;
         int indentWidth  = 10;
-        
+
         if(scrollbar.getOrientation() == JScrollBar.VERTICAL)
-        {            
-            if(!isFreeStanding) {
+        {
+            if(!isFreeStanding)
+            {
                 thumbBounds.width += 2;
-                
-                if ( !leftToRight ) {
+
+                if ( !leftToRight )
+                {
                     g.translate( -1, 0 );
                 }
-            }            
+            }
+
             imgWidth = verticalThumb.getWidth();
             imgHeight = verticalThumb.getHeight();
-            
+
             Image topImage 
                 = verticalThumb.getSubimage(0, 0, 
                                             imgWidth, 
@@ -129,39 +168,41 @@ public class SIPCommScrollBarUI extends MetalScrollBarUI {
             Image bottomImage 
                 = verticalThumb.getSubimage(0, imgHeight-indentWidth, 
                                             imgWidth, indentWidth);
-            
+
             g.drawImage(topImage, 0, 0, 
                     thumbBounds.width-2, indentWidth , null);
-            
+
             g.drawImage(middleImage, thumbBounds.x, indentWidth, 
                     thumbBounds.width-2, 
                     thumbBounds.height-indentWidth , null);
-            
-            g.drawImage(bottomImage, thumbBounds.x, thumbBounds.height-indentWidth,
+
+            g.drawImage(bottomImage, thumbBounds.x,
+                    thumbBounds.height-indentWidth,
                     thumbBounds.width-2, indentWidth, null);
 
-            
             g.drawImage(verticalThumbHandle, 
                         thumbBounds.width/2-verticalThumbHandle.getWidth()/2,
                         thumbBounds.height/2-verticalThumbHandle.getHeight()/2,
                         verticalThumbHandle.getWidth(),
                         verticalThumbHandle.getHeight(), null);
-            
-            if (!isFreeStanding) {
+
+            if (!isFreeStanding)
+            {
                 thumbBounds.width -= 2;
-                if(!leftToRight) {
+                if(!leftToRight)
+                {
                     g.translate( 1, 0 );
                 }
             }
         }
         else  // HORIZONTAL
         {
-            if (!isFreeStanding) {
+            if (!isFreeStanding)
                 thumbBounds.height += 2;
-            }
+
             imgWidth = horizontalThumb.getWidth();
             imgHeight = horizontalThumb.getHeight();
-            
+
             Image leftImage 
                 = horizontalThumb.getSubimage(0, 0,
                                             indentWidth, imgHeight);
@@ -173,36 +214,57 @@ public class SIPCommScrollBarUI extends MetalScrollBarUI {
                 = horizontalThumb.getSubimage(imgWidth-indentWidth, 0, 
                                             indentWidth, 
                                             imgHeight);
-            
+
             g.drawImage(leftImage, 0, 0, 
                     indentWidth, thumbBounds.height-2, null);
-            
+
             g.drawImage(middleImage, indentWidth, thumbBounds.y, 
                     thumbBounds.width-indentWidth, 
                     thumbBounds.height-2 , null);
-            
+
             g.drawImage(rightImage, thumbBounds.width-indentWidth, thumbBounds.y,
                     indentWidth, thumbBounds.height-2, null);
-            
+
             g.drawImage(horizontalThumbHandle, 
                     thumbBounds.width/2-horizontalThumbHandle.getWidth()/2,
                     thumbBounds.height/2-horizontalThumbHandle.getHeight()/2,
                     horizontalThumbHandle.getWidth(),
                     horizontalThumbHandle.getHeight(), null);
-            
-            if (!isFreeStanding) {
+
+            if (!isFreeStanding)
                 thumbBounds.height -= 2;
-            }
         }
         g.translate(-thumbBounds.x, -thumbBounds.y);
     }
-    
+
+    /**
+     * Returns the minimum scroll thumb size.
+     *
+     * @return the minimum scroll thumb size
+     */
     protected Dimension getMinimumThumbSize()
-    {        
+    {
         if(scrollbar.getOrientation() == JScrollBar.VERTICAL)
-            return new Dimension(scrollBarWidth, verticalThumbHandle.getHeight()+4);
+            return new Dimension(   scrollBarWidth,
+                                    verticalThumbHandle.getHeight()+4);
         else
-            return new Dimension(horizontalThumbHandle.getWidth()+4, scrollBarWidth);
-    }       
+            return new Dimension(   horizontalThumbHandle.getWidth()+4,
+                                    scrollBarWidth);
+    }
+
+    /**
+     * Loads UI resources.
+     */
+    public void loadSkin()
+    {
+        horizontalThumb         = (BufferedImage)UIManager
+                                    .get("ScrollBar.horizontalThumbIcon");
+        verticalThumb           = (BufferedImage)UIManager
+                                    .get("ScrollBar.verticalThumbIcon");
+        horizontalThumbHandle   = (BufferedImage)UIManager
+                                    .get("ScrollBar.horizontalThumbHandleIcon");
+        verticalThumbHandle     = (BufferedImage)UIManager
+                                    .get("ScrollBar.verticalThumbHandleIcon");
+    }
 
 }

@@ -19,7 +19,9 @@ import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -30,10 +32,12 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Sebastien Vincent
+ * @author Adam Netocny
  */
 public class OneToOneCallPeerPanel
     extends TransparentPanel
-    implements CallPeerRenderer
+    implements  CallPeerRenderer,
+                Skinnable
 {
     /**
      * Serial version UID.
@@ -82,6 +86,11 @@ public class OneToOneCallPeerPanel
      * The DTMF label.
      */
     private final JLabel dtmfLabel = new JLabel();
+
+    /**
+     * Current id for security image.
+     */
+    private ImageID securityImageID = ImageLoader.SECURE_BUTTON_OFF;
 
     /**
      * The component responsible for displaying an error message.
@@ -159,6 +168,16 @@ public class OneToOneCallPeerPanel
      * purposes.
      */
     private MouseAndKeyListener mouseAndKeyListener = null;
+
+    /**
+     * Sound local level label.
+     */
+    private JLabel localLevelLabel;
+
+    /**
+     * Sound remote level label.
+     */
+    private JLabel remoteLevelLabel;
 
     /**
      * Creates a <tt>CallPeerPanel</tt> for the given call peer.
@@ -353,10 +372,10 @@ public class OneToOneCallPeerPanel
         TransparentPanel remoteLevelPanel
             = new TransparentPanel(new BorderLayout(5, 0));
 
-        JLabel localLevelLabel
+        localLevelLabel
             = new JLabel(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.MICROPHONE)));
-        JLabel remoteLevelLabel
+        remoteLevelLabel
             = new JLabel(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.HEADPHONE)));
 
@@ -1033,6 +1052,8 @@ public class OneToOneCallPeerPanel
         securityStatusLabel.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.SECURE_BUTTON_ON)));
 
+        securityImageID = ImageLoader.SECURE_BUTTON_ON;
+
         if (securityPanel == null)
         {
             securityPanel = new SecurityPanel(callPeer);
@@ -1087,6 +1108,8 @@ public class OneToOneCallPeerPanel
     {
         securityStatusLabel.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.SECURE_BUTTON_OFF)));
+
+        securityImageID = ImageLoader.SECURE_BUTTON_OFF;
     }
 
     /**
@@ -1408,6 +1431,41 @@ public class OneToOneCallPeerPanel
             {
                 allowRemoteControl = false;
                 removeMouseAndKeyListeners();
+            }
+        }
+    }
+
+    /**
+     * Reloads all icons.
+     */
+    public void loadSkin()
+    {
+        if(localLevelLabel != null)
+            localLevelLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.MICROPHONE)));
+
+        if(remoteLevelLabel != null)
+            remoteLevelLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.HEADPHONE)));
+
+        if(muteStatusLabel.getIcon() != null)
+            muteStatusLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.MUTE_STATUS_ICON)));
+
+        if(holdStatusLabel.getIcon() != null)
+            holdStatusLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.HOLD_STATUS_ICON)));
+
+        securityStatusLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(securityImageID)));
+
+        if(this.peerImage == null)
+        {
+            synchronized (videoContainers)
+            {
+                for (JLabel photoLabel : photoLabels)
+                    photoLabel.setIcon(new ImageIcon(
+                        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)));
             }
         }
     }

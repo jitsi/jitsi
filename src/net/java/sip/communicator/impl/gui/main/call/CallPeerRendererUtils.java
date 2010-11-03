@@ -13,6 +13,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -21,6 +22,7 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Lubomir Marinov
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class CallPeerRendererUtils
 {
@@ -34,10 +36,7 @@ public class CallPeerRendererUtils
     public static Component createExitFullScreenButton(
             final CallRenderer renderer)
     {
-        JButton button =
-            new SIPCommButton(
-                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG),
-                ImageLoader.getImage(ImageLoader.EXIT_FULL_SCREEN_BUTTON));
+        JButton button = new ExitFullScreenButton();
 
         button.setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.EXIT_FULL_SCREEN_TOOL_TIP"));
@@ -135,5 +134,35 @@ public class CallPeerRendererUtils
             component = container;
         }
         return null;
+    }
+
+    /**
+     * Full screen exit button. Implements <tt>Skinnable</tt>.
+     */
+    public static class ExitFullScreenButton
+            extends SIPCommButton
+            implements Skinnable
+    {
+        /**
+         * Creates an instance of SIPCommButton.
+         */
+        public ExitFullScreenButton()
+        {
+            super(
+                ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG),
+                ImageLoader.getImage(ImageLoader.EXIT_FULL_SCREEN_BUTTON));
+        }
+
+        /**
+         * Reloads icons.
+         */
+        public void loadSkin()
+        {
+            setBackgroundImage(
+                    ImageLoader.getImage(ImageLoader.FULL_SCREEN_BUTTON_BG));
+            setIconImage(
+                    ImageLoader.getImage(ImageLoader.EXIT_FULL_SCREEN_BUTTON));
+        }
+
     }
 }

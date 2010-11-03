@@ -10,15 +10,18 @@ import java.awt.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * Represents the button, which is used to expand the video in full screen mode.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class FullScreenButton
     extends SIPCommButton
+    implements Skinnable
 {
     /**
      * Initializes a new <tt>FullScreenButton</tt> instance which is to
@@ -49,5 +52,17 @@ public class FullScreenButton
                 callDialog.getCurrentCallRenderer().enterFullScreen();
             }
         });
+    }
+
+    /**
+     * Reloads icons.
+     */
+    public void loadSkin()
+    {
+        setBackgroundImage(ImageLoader.getImage(
+                ImageLoader.CALL_SETTING_BUTTON_BG));
+
+        setIconImage(ImageLoader.getImage(
+                ImageLoader.ENTER_FULL_SCREEN_BUTTON));
     }
 }

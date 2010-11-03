@@ -12,15 +12,18 @@ import javax.swing.plaf.metal.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * SIPCommTextFieldUI implementation.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SIPCommTextFieldUI
     extends MetalTextFieldUI
+    implements Skinnable
 {
     /**
      * Indicates if the mouse is currently over the delete button.
@@ -63,18 +66,7 @@ public class SIPCommTextFieldUI
      */
     public SIPCommTextFieldUI()
     {
-        deleteButtonImg = UtilActivator.getResources()
-            .getImage("service.gui.lookandfeel.DELETE_TEXT_ICON").getImage();
-
-        deleteButtonRolloverImg = UtilActivator.getResources()
-            .getImage("service.gui.lookandfeel.DELETE_TEXT_ROLLOVER_ICON")
-                .getImage();
-
-        deleteButton = new SIPCommButton(   deleteButtonImg,
-                                            deleteButtonRolloverImg);
-
-        deleteButton.setSize (  deleteButtonImg.getWidth(null),
-                                deleteButtonImg.getHeight(null));
+        loadSkin();
     }
 
     /**
@@ -124,10 +116,31 @@ public class SIPCommTextFieldUI
 
         try
         {
+            String roundedSet = UtilActivator.getResources().
+            getSettingsString(
+                    "impl.gui.IS_SIP_COMM_TEXT_FIELD_ROUNDED");
+
+            boolean isRounded = true;
+
+            if(roundedSet != null)
+            {
+                isRounded = new Boolean(roundedSet)
+                    .booleanValue();
+            }
+
             AntialiasingManager.activateAntialiasing(g2);
             JTextComponent c = this.getComponent();
             g2.setColor(Color.WHITE);
-            g2.fillRoundRect(1, 1, c.getWidth() - 2, c.getHeight() - 2, 20, 20);
+
+            if(isRounded)
+            {
+                g2.fillRoundRect(1, 1, c.getWidth() - 2, c.getHeight() - 2,
+                        20, 20);
+            }
+            else
+            {
+                g2.fillRect(1, 1, c.getWidth() - 2, c.getHeight() - 2);
+            }
 
             Rectangle deleteButtonRect = getDeleteButtonRect();
 
@@ -150,7 +163,16 @@ public class SIPCommTextFieldUI
 
             g2.setStroke(new BasicStroke(1f));
             g2.setColor(Color.GRAY);
-            g2.drawRoundRect(0, 0, c.getWidth() - 1, c.getHeight() - 1, 20, 20);
+
+            if(isRounded)
+            {
+                g2.drawRoundRect(0, 0, c.getWidth() - 1, c.getHeight() - 1,
+                        20, 20);
+            }
+            else
+            {
+                g2.drawRect(0, 0, c.getWidth() - 1, c.getHeight() - 1);
+            }
         }
         finally
         {
@@ -240,6 +262,33 @@ public class SIPCommTextFieldUI
         }
 
         return null;
+    }
+
+    /**
+     * Reloads skin information.
+     */
+    public void loadSkin()
+    {
+        deleteButtonImg = UtilActivator.getResources()
+            .getImage("service.gui.lookandfeel.DELETE_TEXT_ICON").getImage();
+
+        deleteButtonRolloverImg = UtilActivator.getResources()
+            .getImage("service.gui.lookandfeel.DELETE_TEXT_ROLLOVER_ICON")
+                .getImage();
+
+        if(deleteButton != null)
+        {
+            deleteButton.setBackgroundImage(deleteButtonImg);
+            deleteButton.setIconImage(deleteButtonRolloverImg);
+        }
+        else
+        {
+            deleteButton = new SIPCommButton(
+                    deleteButtonImg, deleteButtonRolloverImg);
+        }
+
+        deleteButton.setSize (  deleteButtonImg.getWidth(null),
+                                deleteButtonImg.getHeight(null));
     }
 
     /**

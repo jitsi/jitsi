@@ -9,15 +9,18 @@ package net.java.sip.communicator.impl.gui.main.call;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * The <tt>SecurityStatusLabel</tt> is meant to be used to visualize the audio
  * and video security details in a call.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SecurityStatusLabel
     extends JLabel
+    implements Skinnable
 {
     /**
      * Indicates the state of the audio security (on or off).
@@ -133,5 +136,14 @@ public class SecurityStatusLabel
     public void setEncryptionCipher(String encryptionCipher)
     {
         this.encryptionCipher = encryptionCipher;
+    }
+
+    /**
+     * Reloads icon.
+     */
+    public void loadSkin()
+    {
+        this.setIcon(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
     }
 }

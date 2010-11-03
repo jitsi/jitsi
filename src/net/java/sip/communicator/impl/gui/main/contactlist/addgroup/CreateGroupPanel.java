@@ -19,6 +19,7 @@ import net.java.sip.communicator.util.swing.*;
  * The <tt>CreateGroupPanel</tt> is the form for creating a group.
  *  
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class CreateGroupPanel
     extends TransparentPanel
@@ -93,12 +94,15 @@ public class CreateGroupPanel
     {
         return textField.getText();
     }
-    
+
+    /**
+     * Requests the focus in the contained text field.
+     */
     public void requestFocusInField()
     {
         this.textField.requestFocus();
     }
-    
+
     /**
      * Shows an error message below the create group text field.
      * 
@@ -109,5 +113,14 @@ public class CreateGroupPanel
         errorLabel.setText("*" + msg);
         
         errorLabel.setVisible(true);
-    }    
+    }
+
+    /**
+     * Reload icon label.
+     */
+    public void loadSkin()
+    {
+        iconLabel.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.ADD_GROUP_ICON)));
+    }
 }

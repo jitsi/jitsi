@@ -35,13 +35,16 @@ public class AboutWindow
     extends JDialog
     implements  HyperlinkListener,
                 ActionListener,
-                ExportedWindow
+                ExportedWindow,
+                Skinnable
 {
 
     /**
      * The global/shared <code>AboutWindow</code> currently showing.
      */
     private static AboutWindow aboutWindow;
+
+    private final SIPCommTextFieldUI textFieldUI;
 
     /**
      * Shows a <code>AboutWindow</code> creating it first if necessary. The
@@ -118,7 +121,9 @@ public class AboutWindow
                     + System.getProperty("sip-communicator.version"));
         // Force the use of the custom text field UI in order to fix an
         // incorrect rendering on Ubuntu.
-        versionLabel.setUI(new SIPCommTextFieldUI());
+        textFieldUI = new SIPCommTextFieldUI();
+        versionLabel.setUI(textFieldUI);
+
         versionLabel.setBorder(null);
         versionLabel.setOpaque(false);
         versionLabel.setEditable(false);
@@ -228,6 +233,14 @@ public class AboutWindow
         }
 
         GuiUtils.addWindow(this);
+    }
+
+    /**
+     * Reloads text field UI.
+     */
+    public void loadSkin()
+    {
+        textFieldUI.loadSkin();
     }
 
     /**

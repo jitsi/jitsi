@@ -18,15 +18,19 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>SelectAccountPanel</tt> is where the user should select the account,
  * for which the new chat room will be created.
- * 
+ *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
-public class SelectAccountPanel extends TransparentPanel
+public class SelectAccountPanel
+    extends TransparentPanel
+    implements Skinnable
 {
     /**
      * An Eclipse generated serial version UID.
@@ -37,42 +41,42 @@ public class SelectAccountPanel extends TransparentPanel
      * The index of the column that contains protocol names and icons.
      */
     private static final int PROTOCOL_COLUMN_INDEX = 0;
-    
+
     /**
      * The index of the column that contains account display names
      */
     private static final int ACCOUNT_COLUMN_INDEX = 1;
-    
+
     private final JScrollPane tablePane = new JScrollPane(
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    
+
     private final JTable accountsTable;
-    
+
     private final AccountsTableModel tableModel = new AccountsTableModel();
-    
+
     private final NewChatRoom joinChatRoom;
-    
+
     private final Iterator<ChatRoomProviderWrapper> chatRoomProvidersList;
-    
+
     private final JPanel labelsPanel 
         = new TransparentPanel(new GridLayout(0, 1));
-    
+
     private final JPanel rightPanel 
         = new TransparentPanel(new BorderLayout(5, 5));
-    
+
     private final JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
             .getImage(ImageLoader.ADD_CONTACT_CHAT_ICON)));
-    
+
     private final SIPCommMsgTextArea infoLabel = new SIPCommMsgTextArea(
         GuiActivator.getResources()
             .getI18NString("service.gui.SELECT_PROVIDERS_FOR_CHAT_ROOM"));
-    
+
     private final JLabel infoTitleLabel = new JLabel(
         GuiActivator.getResources()
             .getI18NString("service.gui.SELECT_ACCOUNT"), 
         JLabel.CENTER);
-    
+
     /**
      * Creates and initializes the <tt>SelectAccountPanel</tt>.
      * 
@@ -226,7 +230,8 @@ public class SelectAccountPanel extends TransparentPanel
      * The table model that we use for the accounts table. The only reason we
      * need a model is to make sure our table is not editable.
      */
-    private static class AccountsTableModel extends DefaultTableModel
+    private static class AccountsTableModel
+        extends DefaultTableModel
     {
         /**
          * An eclipse generated serial version uid.
@@ -245,5 +250,14 @@ public class SelectAccountPanel extends TransparentPanel
         {
             return false;
         }
-    };
+    }
+
+    /**
+     * 
+     */
+    public void loadSkin()
+    {
+        iconLabel.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.ADD_CONTACT_CHAT_ICON)));
+    }
 }

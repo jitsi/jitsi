@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * The <tt>ChooseCallAccountDialog</tt> is the dialog shown when calling a
@@ -25,9 +26,11 @@ import net.java.sip.communicator.service.protocol.*;
  * order to call this contact.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class ChooseCallAccountPopupMenu
     extends JPopupMenu
+    implements Skinnable
 {
     /**
      * The invoker component.
@@ -295,7 +298,9 @@ public class ChooseCallAccountPopupMenu
      * A custom menu item corresponding to a specific
      * <tt>ProtocolProviderService</tt>.
      */
-    private class ProviderMenuItem extends JMenuItem
+    private class ProviderMenuItem
+        extends JMenuItem
+        implements Skinnable
     {
         private final ProtocolProviderService protocolProvider;
 
@@ -304,6 +309,19 @@ public class ChooseCallAccountPopupMenu
             this.protocolProvider = protocolProvider;
             this.setText(protocolProvider.getAccountID().getAccountAddress());
 
+            loadSkin();
+        }
+
+        public ProtocolProviderService getProtocolProvider()
+        {
+            return protocolProvider;
+        }
+
+        /**
+         * Reloads protocol icon.
+         */
+        public void loadSkin()
+        {
             byte[] protocolIcon
                 = protocolProvider.getProtocolIcon()
                     .getIcon(ProtocolIcon.ICON_SIZE_16x16);
@@ -311,17 +329,14 @@ public class ChooseCallAccountPopupMenu
             if (protocolIcon != null)
                 this.setIcon(new ImageIcon(protocolIcon));
         }
-
-        public ProtocolProviderService getProtocolProvider()
-        {
-            return protocolProvider;
-        }
     }
 
     /**
      * A custom menu item corresponding to a specific protocol <tt>Contact</tt>.
      */
-    private class ContactMenuItem extends JMenuItem
+    private class ContactMenuItem
+        extends JMenuItem
+        implements Skinnable
     {
         private final UIContactDetail contact;
 
@@ -329,7 +344,14 @@ public class ChooseCallAccountPopupMenu
         {
             this.contact = contact;
             this.setText(contact.getDisplayName());
+            loadSkin();
+        }
 
+        /**
+         * Reloads contact icon.
+         */
+        public void loadSkin()
+        {
             BufferedImage contactIcon = null;
             PresenceStatus status = contact.getPresenceStatus();
 
@@ -341,17 +363,14 @@ public class ChooseCallAccountPopupMenu
             if (contactIcon != null)
                 this.setIcon(new ImageIcon(contactIcon));
         }
-
-        public UIContactDetail getContact()
-        {
-            return contact;
-        }
     }
 
     /**
      * A custom menu item corresponding to a specific <tt>ChatTransport</tt>.
      */
-    private class ChatTransportMenuItem extends JMenuItem
+    private class ChatTransportMenuItem
+        extends JMenuItem
+        implements Skinnable
     {
         private final ChatTransport chatTransport;
 
@@ -360,16 +379,35 @@ public class ChooseCallAccountPopupMenu
             this.chatTransport = chatTransport;
             this.setText(chatTransport.getDisplayName());
 
+            loadSkin();
+        }
+
+        /**
+         * Reloads transport icon.
+         */
+        public void loadSkin()
+        {
             BufferedImage contactIcon
                 = Constants.getStatusIcon(chatTransport.getStatus());
 
             if (contactIcon != null)
                 this.setIcon(new ImageIcon(contactIcon));
         }
+    }
 
-        public ChatTransport getChatTransport()
+    /**
+     * Reloads all menu items.
+     */
+    public void loadSkin()
+    {
+        Component[] components = getComponents();
+        for(Component component : components)
         {
-            return chatTransport;
+            if(component instanceof Skinnable)
+            {
+                Skinnable skinnableComponent = (Skinnable) component;
+                skinnableComponent.loadSkin();
+            }
         }
     }
 }

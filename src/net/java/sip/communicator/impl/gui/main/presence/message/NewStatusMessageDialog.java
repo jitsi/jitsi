@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -22,10 +23,12 @@ import net.java.sip.communicator.util.swing.*;
  * changing the status message for a protocol provider.
  * 
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class NewStatusMessageDialog
     extends SIPCommDialog
-    implements ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     /**
      * The Object used for logging.
@@ -47,6 +50,11 @@ public class NewStatusMessageDialog
      * The presence operation set through which we change the status message.
      */
     private final OperationSetPresence presenceOpSet;
+
+    /**
+     * Message panel.
+     */
+    private JPanel messagePanel;
 
     /**
      * Creates an instance of <tt>NewStatusMessageDialog</tt>.
@@ -117,7 +125,7 @@ public class NewStatusMessageDialog
         labelsPanel.add(infoArea);
         labelsPanel.add(dataPanel);
 
-        JPanel messagePanel = new TransparentPanel(new GridBagLayout());
+        messagePanel = new TransparentPanel(new GridBagLayout());
         GridBagConstraints messagePanelConstraints = new GridBagConstraints();
         messagePanelConstraints.anchor = GridBagConstraints.NORTHWEST;
         messagePanelConstraints.fill = GridBagConstraints.NONE;
@@ -274,5 +282,24 @@ public class NewStatusMessageDialog
     {
         if (isEscaped)
             cancelButton.doClick();
+    }
+
+    /**
+     * Reloads icon.
+     */
+    public void loadSkin()
+    {
+        if(messagePanel != null)
+        {
+            for(Component component : messagePanel.getComponents())
+            {
+                if(component instanceof ImageCanvas)
+                {
+                    ImageCanvas cmp = (ImageCanvas)component;
+                    cmp.setImage(ImageLoader
+                        .getImage(ImageLoader.RENAME_DIALOG_ICON));
+                }
+            }
+        }
     }
 }

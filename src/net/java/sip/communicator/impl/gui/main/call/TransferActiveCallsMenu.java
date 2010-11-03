@@ -14,6 +14,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * The <tt>ChooseCallAccountDialog</tt> is the dialog shown when calling a
@@ -21,9 +22,11 @@ import net.java.sip.communicator.service.protocol.*;
  * order to call this contact.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class TransferActiveCallsMenu
     extends JPopupMenu
+    implements Skinnable
 {
     /**
      * The invoker component.
@@ -150,9 +153,27 @@ public class TransferActiveCallsMenu
     }
 
     /**
+     * Reloads all menu items.
+     */
+    public void loadSkin()
+    {
+        Component[] components = getComponents();
+        for(Component component : components)
+        {
+            if(component instanceof Skinnable)
+            {
+                Skinnable skinnableComponent = (Skinnable) component;
+                skinnableComponent.loadSkin();
+            }
+        }
+    }
+
+    /**
      * A custom menu item corresponding to a specific <tt>CallPeer</tt>.
      */
-    private class CallPeerMenuItem extends JMenuItem
+    private class CallPeerMenuItem
+        extends JMenuItem
+        implements Skinnable
     {
         private final CallPeer callPeer;
 
@@ -161,15 +182,24 @@ public class TransferActiveCallsMenu
             this.callPeer = peer;
             this.setText(callPeer.getDisplayName());
 
-            byte[] peerIcon = callPeer.getImage();
-
-            if (peerIcon != null)
-                this.setIcon(new ImageIcon(peerIcon));
+            loadSkin();
         }
 
         public CallPeer getCallPeer()
         {
             return callPeer;
         }
+
+        /**
+         * Reloads icon.
+         */
+        public void loadSkin()
+        {
+            byte[] peerIcon = callPeer.getImage();
+
+            if (peerIcon != null)
+                this.setIcon(new ImageIcon(peerIcon));
+        }
+
     }
 }

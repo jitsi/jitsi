@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.createforms.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 
 /**
  * The <tt>ChatRoomsListRightButtonMenu</tt> is the menu, opened when user clicks
@@ -22,10 +23,12 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * contains the create chat room item.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class ChatRoomServerRightButtonMenu
     extends JPopupMenu
-    implements  ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     private JMenuItem createChatRoomItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.CREATE_CHAT_ROOM"),
@@ -40,8 +43,8 @@ public class ChatRoomServerRightButtonMenu
     /**
      * Creates an instance of <tt>ChatRoomsListRightButtonMenu</tt>.
      * 
-     * @param chatRoomProvider the wrapper protocol provider corresponding to the multi
-     * user chat server
+     * @param chatRoomProvider the wrapper protocol provider corresponding to
+     * the multi user chat server
      */
     public ChatRoomServerRightButtonMenu(
         ChatRoomProviderWrapper chatRoomProvider)
@@ -76,10 +79,12 @@ public class ChatRoomServerRightButtonMenu
         this.createChatRoomItem.addActionListener(this);
         this.joinChannelItem.addActionListener(this);
     }
-    
+
     /**
      * Handles the <tt>ActionEvent</tt>. Determines which menu item was
      * selected and makes the appropriate operations.
+     *
+     * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -97,5 +102,17 @@ public class ChatRoomServerRightButtonMenu
         {
             new JoinChatRoomWindow(chatRoomProvider);
         }
+    }
+
+    /**
+     * Reloads icons.s
+     */
+    public void loadSkin()
+    {
+        createChatRoomItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.CHAT_ROOM_16x16_ICON)));
+
+        joinChannelItem.setIcon(new ImageIcon(
+                ImageLoader.getImage(ImageLoader.SEARCH_ICON_16x16)));
     }
 }

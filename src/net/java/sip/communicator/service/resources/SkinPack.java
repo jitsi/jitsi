@@ -47,4 +47,13 @@ public interface SkinPack
      * resource pack.
      */
     public Map<String, String> getColorResources();
+
+    /**
+     * Returns a <tt>Map</tt>, containing all [key, value] pairs for settings
+     * resource pack.
+     *
+     * @return a <tt>Map</tt>, containing all [key, value] pairs for settings
+     * resource pack.
+     */
+    public Map<String, String> getSettingsResources();
 }

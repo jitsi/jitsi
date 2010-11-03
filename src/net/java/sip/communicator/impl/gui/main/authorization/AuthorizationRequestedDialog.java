@@ -17,14 +17,17 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class AuthorizationRequestedDialog
     extends SIPCommDialog
-    implements ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     public static final int ACCEPT_CODE = 0;
 
@@ -229,5 +232,14 @@ public class AuthorizationRequestedDialog
     protected void close(boolean isEscaped)
     {
         this.ignoreButton.doClick();
+    }
+
+    /**
+     * Reloads athorization icon.
+     */
+    public void loadSkin()
+    {
+        iconLabel.setIcon(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.AUTHORIZATION_ICON)));
     }
 }

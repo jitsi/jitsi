@@ -13,6 +13,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -22,9 +23,11 @@ import net.java.sip.communicator.util.swing.*;
  * single image or a texture of images.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SCScrollPane
     extends JScrollPane
+    implements Skinnable
 {
     private static final long serialVersionUID = 0L;
 
@@ -55,18 +58,27 @@ public class SCScrollPane
     }
 
     /**
+     * Reloads skin information in viewport.
+     */
+    public void loadSkin()
+    {
+        ((SCViewport)this.getViewport()).loadSkin();
+    }
+
+    /**
      * The <tt>SCViewport</tt> used as viewport in this scrollpane.
      */
     private static class SCViewport
         extends JViewport
+        implements Skinnable
     {
         private static final long serialVersionUID = 1L;
 
-        private final BufferedImage bgImage;
+        private BufferedImage bgImage;
 
-        private final Color color;
+        private Color color;
 
-        private final TexturePaint texture;
+        private TexturePaint texture;
 
         /**
          * Creates the <tt>SCViewport</tt>.
@@ -75,35 +87,7 @@ public class SCScrollPane
         {
             this.setBackground(Color.WHITE);
 
-            if (getSettingsBoolean("impl.gui.IS_CONTACT_LIST_IMG_BG_ENABLED"))
-            {
-                bgImage =
-                    ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
-
-                if (getSettingsBoolean(
-                    "impl.gui.IS_CONTACT_LIST_TEXTURE_BG_ENABLED")
-                    && (bgImage != null))
-                {
-                    texture =
-                        new TexturePaint(bgImage, new Rectangle(0, 0, bgImage
-                            .getWidth(null), bgImage.getHeight(null)));
-
-                    color = null;
-                }
-                else
-                {
-                    texture = null;
-                    color =
-                        new Color(GuiActivator.getResources().getColor(
-                            "service.gui.CONTACT_LIST_BACKGROUND"));
-                }
-            }
-            else
-            {
-                bgImage = null;
-                texture = null;
-                color = null;
-            }
+            loadSkin();
         }
 
         /**
@@ -158,6 +142,42 @@ public class SCScrollPane
             finally
             {
                 g.dispose();
+            }
+        }
+
+        /**
+         * Reloads background.
+         */
+        public void loadSkin()
+        {
+            if(getSettingsBoolean("impl.gui.IS_CONTACT_LIST_IMG_BG_ENABLED"))
+            {
+                bgImage =
+                    ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
+
+                if (getSettingsBoolean(
+                    "impl.gui.IS_CONTACT_LIST_TEXTURE_BG_ENABLED")
+                    && (bgImage != null))
+                {
+                    texture =
+                        new TexturePaint(bgImage, new Rectangle(0, 0, bgImage
+                            .getWidth(null), bgImage.getHeight(null)));
+
+                    color = null;
+                }
+                else
+                {
+                    texture = null;
+                    color =
+                        new Color(GuiActivator.getResources().getColor(
+                            "service.gui.CONTACT_LIST_BACKGROUND"));
+                }
+            }
+            else
+            {
+                bgImage = null;
+                texture = null;
+                color = null;
             }
         }
     }

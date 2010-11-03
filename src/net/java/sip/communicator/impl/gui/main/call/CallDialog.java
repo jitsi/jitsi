@@ -25,6 +25,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.border.*;
 
@@ -32,13 +33,15 @@ import net.java.sip.communicator.util.swing.border.*;
  * The dialog created for a given call.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class CallDialog
     extends SIPCommFrame
     implements ActionListener,
                CallChangeListener,
                CallPeerConferenceListener,
-               PluginComponentListener
+               PluginComponentListener,
+               Skinnable
 {
     /**
      * The logger for this class.
@@ -138,6 +141,11 @@ public class CallDialog
         ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
 
     /**
+     * HangUp button.
+     */
+    private SIPCommButton hangupButton;
+
+    /**
      * The call represented in this dialog.
      */
     private final Call call;
@@ -233,7 +241,7 @@ public class CallDialog
         TransparentPanel buttonsPanel
             = new TransparentPanel(new BorderLayout(5, 5));
 
-        SIPCommButton hangupButton = new SIPCommButton(
+        hangupButton = new SIPCommButton(
             ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
 
         holdButton = new HoldButton(call);
@@ -727,6 +735,27 @@ public class CallDialog
     public boolean isCallTimerStarted()
     {
         return isCallTimerStarted;
+    }
+
+    /**
+     * Reloads icons.
+     */
+    public void loadSkin()
+    {
+        dialButton.setBackgroundImage(
+                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
+
+        dialButton.setIconImage(
+                ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
+
+        conferenceButton.setBackgroundImage(
+                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
+        conferenceButton.setIconImage(
+                ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
+
+        if(hangupButton != null)
+            hangupButton.setBackgroundImage(
+                    ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
     }
 
     /**

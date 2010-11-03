@@ -15,6 +15,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -22,10 +23,12 @@ import net.java.sip.communicator.util.swing.*;
  * phone number.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class DialPanel
     extends JPanel
-    implements MouseListener
+    implements  MouseListener,
+                Skinnable
 {
     /**
      * The dial panel.
@@ -73,29 +76,18 @@ public class DialPanel
 
         this.dialPadPanel.setPreferredSize(new Dimension(width, height));
 
-        Image bgImage = ImageLoader.getImage(ImageLoader.DIAL_BUTTON_BG);
-
-        DTMFHandler.DTMFToneInfo[] availableTones = DTMFHandler.availableTones;
-        for (int i = 0; i < availableTones.length; i++)
-        {
-            DTMFHandler.DTMFToneInfo info = availableTones[i];
-            // we add only buttons having image
-            if(info.imageID == null)
-                continue;
-
-            dialPadPanel.add(
-                createDialButton(bgImage, info.imageID, info.tone.getValue()));
-        }
+        loadSkin();
 
         this.add(dialPadPanel, BorderLayout.CENTER);
     }
 
     /**
      * Creates DTMF button.
+     *
      * @param bgImage
      * @param iconImage
      * @param name
-     * @return
+     * @return the created dial button
      */
     private JButton createDialButton(Image bgImage, ImageID iconImage,
         String name)
@@ -110,17 +102,11 @@ public class DialPanel
         return button;
     }
 
-    public void mouseClicked(MouseEvent e)
-    {
-    }
+    public void mouseClicked(MouseEvent e) {}
 
-    public void mouseEntered(MouseEvent e)
-    {
-    }
+    public void mouseEntered(MouseEvent e) {}
 
-    public void mouseExited(MouseEvent e)
-    {
-    }
+    public void mouseExited(MouseEvent e) {}
 
     /**
      * Handles the <tt>MouseEvent</tt> triggered when user presses one of the
@@ -145,6 +131,8 @@ public class DialPanel
 
     /**
      * Paints the main background image to the background of this dial panel.
+     *
+     * @param g the <tt>Graphics</tt> object used for painting
      */
     public void paintComponent(Graphics g)
     {
@@ -153,7 +141,8 @@ public class DialPanel
 
         Graphics2D g2 = (Graphics2D) g;
 
-        boolean isTextureBackground = Boolean.parseBoolean(GuiActivator.getResources()
+        boolean isTextureBackground
+            = Boolean.parseBoolean(GuiActivator.getResources()
             .getSettingsString("impl.gui.IS_CONTACT_LIST_TEXTURE_BG_ENABLED"));
 
         BufferedImage bgImage
@@ -189,6 +178,28 @@ public class DialPanel
                         this.getHeight() - bgImage.getHeight(),
                         this);
             }
+        }
+    }
+
+    /**
+     * Reloads dial buttons.
+     */
+    public void loadSkin()
+    {
+        dialPadPanel.removeAll();
+
+        Image bgImage = ImageLoader.getImage(ImageLoader.DIAL_BUTTON_BG);
+
+        DTMFHandler.DTMFToneInfo[] availableTones = DTMFHandler.availableTones;
+        for (int i = 0; i < availableTones.length; i++)
+        {
+            DTMFHandler.DTMFToneInfo info = availableTones[i];
+            // we add only buttons having image
+            if(info.imageID == null)
+                continue;
+
+            dialPadPanel.add(
+                createDialButton(bgImage, info.imageID, info.tone.getValue()));
         }
     }
 }

@@ -16,20 +16,11 @@ import javax.swing.*;
 public class ImageCanvas
     extends TransparentPanel
 {
-    private final ImageIcon icon;
+    private ImageIcon icon;
 
     public ImageCanvas(Image image)
     {
-        icon = (image == null) ? null : new ImageIcon(image);
-
-        if (icon != null)
-        {
-            final int preferredWidth = icon.getIconWidth();
-            final int preferredHeight = icon.getIconHeight();
-            setMinimumSize(new Dimension(preferredWidth / 2,
-                preferredHeight / 2));
-            setPreferredSize(new Dimension(preferredWidth, preferredHeight));
-        }
+        setImage(image);
     }
 
     protected void paintComponent(Graphics g)
@@ -68,5 +59,23 @@ public class ImageCanvas
 
         g.drawImage(icon.getImage(), (width - imageWidth) / 2,
             (height - imageHeight) / 2, imageWidth, imageHeight, null);
+    }
+
+    /**
+     * Sets image to be painted.
+     * @param image Image to be painted.
+     */
+    public void setImage(Image image)
+    {
+        icon = (image == null) ? null : new ImageIcon(image);
+
+        if (icon != null)
+        {
+            final int preferredWidth = icon.getIconWidth();
+            final int preferredHeight = icon.getIconHeight();
+            setMinimumSize(new Dimension(preferredWidth / 2,
+                preferredHeight / 2));
+            setPreferredSize(new Dimension(preferredWidth, preferredHeight));
+        }
     }
 }

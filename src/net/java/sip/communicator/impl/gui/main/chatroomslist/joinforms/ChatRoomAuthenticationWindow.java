@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -22,10 +23,12 @@ import net.java.sip.communicator.util.swing.*;
  * for chat rooms that require password.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class ChatRoomAuthenticationWindow
     extends SIPCommFrame
-    implements  ActionListener
+    implements  ActionListener,
+                Skinnable
 {
     private JTextArea infoTextArea = new JTextArea();
 
@@ -193,9 +196,18 @@ public class ChatRoomAuthenticationWindow
      */
     private static class LoginWindowBackground extends JPanel
     {
-        private final ImageIcon bgImage;
+        private ImageIcon bgImage;
 
         public LoginWindowBackground(ImageIcon bgImage)
+        {
+            this.bgImage = bgImage;
+        }
+
+        /**
+         * Sets background image.
+         * @param bgImage Background image.
+         */
+        public void setBgImage(ImageIcon bgImage)
         {
             this.bgImage = bgImage;
         }
@@ -265,5 +277,16 @@ public class ChatRoomAuthenticationWindow
         {
             this.passwdField.requestFocus(); 
         }
+    }
+
+    /**
+     * Reloads logo image.
+     */
+    public void loadSkin()
+    {
+        ImageIcon logoImage
+            = new ImageIcon(chatRoom.getParentProvider().getImage());
+
+        backgroundPanel.setBgImage(logoImage);
     }
 }

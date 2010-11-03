@@ -1164,5 +1164,17 @@ public class ContactListTreeCellRenderer
 
         if (contactForegroundProperty > -1)
             contactForegroundColor = new Color(contactForegroundProperty);
+
+        callVideoButton.setBackgroundImage(ImageLoader.getImage(
+                ImageLoader.CALL_VIDEO_BUTTON_SMALL));
+
+        callVideoButton.setPressedImage(ImageLoader.getImage(
+                ImageLoader.CALL_VIDEO_BUTTON_SMALL_PRESSED));
+
+        desktopSharingButton.setBackgroundImage(ImageLoader.getImage(
+                ImageLoader.DESKTOP_BUTTON_SMALL));
+
+        desktopSharingButton.setPressedImage(ImageLoader.getImage(
+                ImageLoader.DESKTOP_BUTTON_SMALL_PRESSED));
     }
 }

@@ -14,6 +14,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.plaf.*;
 
 /**
@@ -21,6 +22,7 @@ import net.java.sip.communicator.util.swing.plaf.*;
  * according to user input.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class SIPCommSmartComboBox
     extends JComboBox
@@ -171,7 +173,8 @@ public class SIPCommSmartComboBox
 
     public class CallComboEditor
         implements  ComboBoxEditor,
-                    DocumentListener
+                    DocumentListener,
+                    Skinnable
     {
         private JTextField text;
         private volatile boolean filtering = false;
@@ -187,6 +190,18 @@ public class SIPCommSmartComboBox
             {
                 ((SIPCommTextFieldUI) text.getUI())
                     .setDeleteButtonEnabled(true);
+            }
+        }
+
+        /**
+         * Reloads UI if necessary.
+         */
+        public void loadSkin()
+        {
+            if (text.getUI() instanceof SIPCommTextFieldUI)
+            {
+                ((SIPCommTextFieldUI) text.getUI())
+                    .loadSkin();
             }
         }
 

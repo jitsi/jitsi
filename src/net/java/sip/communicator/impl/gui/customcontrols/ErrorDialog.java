@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -27,11 +28,13 @@ import net.java.sip.communicator.util.swing.*;
  * The message and the name of the "OK" button could be configured.
  *
  * @author Yana Stamcheva
+ * @author Adam Netocny
  */
 public class ErrorDialog
     extends SIPCommDialog
     implements  ActionListener,
-                HyperlinkListener
+                HyperlinkListener,
+                Skinnable
 {
     private static final long serialVersionUID = 1L;
 
@@ -70,6 +73,11 @@ public class ErrorDialog
     private boolean isDetailsShowed = true;
 
     public static final int WARNING = 1;
+
+    /**
+     * Type of this dialog.
+     */
+    private int type = 0;
 
     /**
      * The maximum width that we allow message dialogs to have.
@@ -189,8 +197,11 @@ public class ErrorDialog
         this(owner, title, message);
 
         if(type == WARNING)
+        {
             iconLabel.setIcon(new ImageIcon(ImageLoader
                 .getImage(ImageLoader.WARNING_ICON)));
+            this.type = type;
+        }
     }
 
     /**
@@ -309,6 +320,23 @@ public class ErrorDialog
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
         {
             displayOrHideDetails();
+        }
+    }
+
+    /**
+     * Reloads icon.
+     */
+    public void loadSkin()
+    {
+        if(type == WARNING)
+        {
+            iconLabel.setIcon(new ImageIcon(ImageLoader
+                .getImage(ImageLoader.WARNING_ICON)));
+        }
+        else
+        {
+            iconLabel.setIcon(new ImageIcon(ImageLoader
+                .getImage(ImageLoader.ERROR_ICON)));
         }
     }
 }
