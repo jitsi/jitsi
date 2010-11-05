@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.util.swing;
 
+import net.java.sip.communicator.util.*;
+
 import java.awt.*;
 import java.io.*;
 
@@ -25,6 +27,12 @@ public class SipCommFileDialogImpl
      * fields.
      */
     private static final long serialVersionUID = 0L;
+
+    /**
+     * The selection mode, the default is files only, can be changed to
+     * DIRECTORIES_ONLY.
+     */
+    private int selectionMode = FILES_ONLY;
 
     /**
      * Constructor
@@ -109,5 +117,36 @@ public class SipCommFileDialogImpl
     public SipCommFileFilter getUsedFilter()
     {
         return (SipCommFileFilter)this.getFilenameFilter();
+    }
+
+    /**
+     * Change the selection mode for the file choose.
+     * Possible values are DIRECTORIES_ONLY or FILES_ONLY, default is
+     * FILES_ONLY.
+     *
+     * @param mode the mode to use.
+     */
+    public void setSelectionMode(int mode)
+    {
+        this.selectionMode = mode;
+    }
+
+    /**
+     * Shows or hides the file chooser dialog.
+     * @param b  if <code>true</code>, shows the dialog;
+     * otherwise, hides it
+     */
+    public void setVisible(boolean b)
+    {
+        // workaround to make sure we choose only folders on macosx
+        if(OSUtils.IS_MAC && selectionMode == DIRECTORIES_ONLY)
+            System.setProperty(
+                "apple.awt.fileDialogForDirectories", "true");
+
+        super.setVisible(b);
+
+        if(OSUtils.IS_MAC && selectionMode == DIRECTORIES_ONLY)
+            System.setProperty(
+                "apple.awt.fileDialogForDirectories", "false");
     }
 }

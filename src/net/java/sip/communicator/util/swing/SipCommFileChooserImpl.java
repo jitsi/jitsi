@@ -132,4 +132,16 @@ public class SipCommFileChooserImpl
     {
         return (SipCommFileFilter)this.getFileFilter();
     }
+
+    /**
+     * Change the selection mode for the file choose.
+     * Possible values are DIRECTORIES_ONLY or FILES_ONLY, default is
+     * FILES_ONLY.
+     *
+     * @param mode the mode to use.
+     */
+    public void setSelectionMode(int mode)
+    {
+        super.setFileSelectionMode(mode);
+    }
 }

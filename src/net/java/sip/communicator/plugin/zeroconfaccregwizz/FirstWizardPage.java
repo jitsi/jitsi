@@ -250,8 +250,7 @@ public class FirstWizardPage
      */
     private void setNextButtonAccordingToUserID()
     {
-        if (userIDField.getText() == null || userIDField.getText().equals("")
-           || firstField.getText() == null || firstField.getText().equals(""))
+        if (userIDField.getText() == null || userIDField.getText().equals(""))
         {
             wizard.getWizardContainer().setNextFinishButtonEnabled(false);
         }
@@ -338,7 +337,7 @@ public class FirstWizardPage
 
     public Object getSimpleForm()
     {
-        JPanel simplePanel = new TransparentPanel(new BorderLayout());
+        JPanel simplePanel = new TransparentPanel(new BorderLayout(10, 10));
 
         simplePanel.add(userID, BorderLayout.WEST);
         simplePanel.add(userIDField, BorderLayout.CENTER);

@@ -248,7 +248,8 @@ public class ProtocolProviderServiceZeroconfImpl
         RegistrationState oldState = currentRegistrationState;
         currentRegistrationState = RegistrationState.UNREGISTERED;
 
-        bonjourService.shutdown();
+        if(bonjourService != null)
+            bonjourService.shutdown();
 
         fireRegistrationStateChanged(
             oldState

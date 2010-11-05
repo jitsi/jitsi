@@ -10,6 +10,7 @@ import java.awt.event.*;
 import java.io.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -24,7 +25,8 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class CallRecordingConfigForm
     extends TransparentPanel 
-    implements ActionListener
+    implements ActionListener,
+               DocumentListener
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallRecordingConfigForm</tt> class
@@ -75,11 +77,7 @@ public class CallRecordingConfigForm
                     resources.getI18NString(
                             "plugin.callrecordingconfig.CHOOSE_DIR"),
                     SipCommFileChooser.LOAD_FILE_OPERATION);
-        if (dirChooser instanceof JFileChooser)
-        {
-            ((JFileChooser) dirChooser).setFileSelectionMode(
-                    JFileChooser.DIRECTORIES_ONLY);
-        }
+        dirChooser.setSelectionMode(SipCommFileChooser.DIRECTORIES_ONLY);
     }
 
     /**
@@ -101,6 +99,7 @@ public class CallRecordingConfigForm
         saveCallsToCheckBox.setSelected(savedCallsDir != null);
         callDirTextField.setText(savedCallsDir);
         callDirTextField.setEnabled(saveCallsToCheckBox.isSelected());
+        callDirTextField.getDocument().addDocumentListener(this);
         callDirChooseButton.setEnabled(saveCallsToCheckBox.isSelected());
     }
 
@@ -207,7 +206,8 @@ public class CallRecordingConfigForm
                     changeCallsDir(
                         NeomediaActivator
                             .getFileAccessService()
-                                .getDefaultDownloadDirectory());
+                                .getDefaultDownloadDirectory(),
+                        true);
                 }
                 catch (IOException ioex)
                 {
@@ -225,12 +225,12 @@ public class CallRecordingConfigForm
         else if (source == callDirChooseButton)
         {
             File newDir = dirChooser.getFileFromDialog();
-            changeCallsDir(newDir);
+            changeCallsDir(newDir, true);
         }
         else if (source == callDirTextField)
         {
             File newDir = new File(callDirTextField.getText());
-            changeCallsDir(newDir);
+            changeCallsDir(newDir, true);
         }
     }
 
@@ -238,15 +238,18 @@ public class CallRecordingConfigForm
      * Sets the new directory for the saved calls to <tt>dir</tt>.
      * 
      * @param dir the new chosen directory
+     * @param changeCallDirTextField whether we will set the directory
+     * path in callDirTextField.
      * @return <tt>true</tt> if directory was changed successfully,
      *         <tt>false</tt> otherwise
      */
-    private boolean changeCallsDir(File dir)
+    private boolean changeCallsDir(File dir, boolean changeCallDirTextField)
     {
         if (dir != null && dir.isDirectory())
         {
             savedCallsDir = dir.getAbsolutePath();
-            callDirTextField.setText(savedCallsDir);
+            if(changeCallDirTextField)
+                callDirTextField.setText(savedCallsDir);
             NeomediaActivator
                 .getConfigurationService()
                     .setProperty(Recorder.SAVED_CALLS_PATH, savedCallsDir);
@@ -262,4 +265,38 @@ public class CallRecordingConfigForm
             return false;
         }
     }
+
+    /**
+     * Gives notification that there was an insert into the document. The
+     * range given by the DocumentEvent bounds the freshly inserted region.
+     *
+     * @param e the document event
+     */
+    public void insertUpdate(DocumentEvent e)
+    {
+        File insertedFile = new File(callDirTextField.getText());
+        if(insertedFile.exists())
+            changeCallsDir(insertedFile, false);
+    }
+
+    /**
+     * Gives notification that a portion of the document has been
+     * removed.  The range is given in terms of what the view last
+     * saw (that is, before updating sticky positions).
+     *
+     * @param e the document event
+     */
+    public void removeUpdate(DocumentEvent e)
+    {
+        File insertedFile = new File(callDirTextField.getText());
+        if(insertedFile.exists())
+            changeCallsDir(insertedFile, false);
+    }
+
+    /**
+     * Not used.
+     *
+     * @param e the document event
+     */
+    public void changedUpdate(DocumentEvent e){}
 }

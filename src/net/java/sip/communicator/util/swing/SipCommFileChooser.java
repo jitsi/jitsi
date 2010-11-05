@@ -36,6 +36,26 @@ public interface SipCommFileChooser
     public static int SAVE_FILE_OPERATION = 1;
 
     /**
+     * Instruction to display only files.
+     */
+    public static final int FILES_ONLY = 0;
+
+    /**
+     * Instruction to display only directories in
+     * file chooser dialog.
+     */
+    public static final int DIRECTORIES_ONLY = 1;
+
+    /**
+     * Change the selection mode for the file choose.
+     * Possible values are DIRECTORIES_ONLY or FILES_ONLY, default is
+     * FILES_ONLY.
+     *
+     * @param mode the mode to use.
+     */
+    public void setSelectionMode(int mode);
+
+    /**
      * Returns the selected file by the user from the dialog.
      * 
      * @return File the selected file from the dialog

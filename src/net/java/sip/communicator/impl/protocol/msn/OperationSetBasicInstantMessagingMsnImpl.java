@@ -106,7 +106,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
      * @throws java.lang.IllegalArgumentException if <tt>to</tt> is not an
      * instance of ContactImpl.
      */
-    public void sendInstantMessage(Contact to, Message message)
+    public void sendInstantMessage(final Contact to, Message message)
         throws IllegalStateException, IllegalArgumentException
     {
         assertConnected();
@@ -116,11 +116,9 @@ public class OperationSetBasicInstantMessagingMsnImpl
                "The specified contact is not an MSN contact."
                + to);
 
-        MessageDeliveredEvent msgDeliveryPendingEvt
-            = new MessageDeliveredEvent(message, to);
-
-        msgDeliveryPendingEvt
-            = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
+        final MessageDeliveredEvent msgDeliveryPendingEvt
+            = messageDeliveryPendingTransform(
+                new MessageDeliveredEvent(message, to));
 
         if (msgDeliveryPendingEvt == null)
             return;
@@ -133,10 +131,20 @@ public class OperationSetBasicInstantMessagingMsnImpl
         if (msgDeliveredEvt != null)
             fireMessageEvent(msgDeliveredEvt);
 
-        msnProvider.getMessenger().
-            sendText(
-                ((ContactMsnImpl)to).getSourceContact().getEmail(),
-                msgDeliveryPendingEvt.getSourceMessage().getContent());
+        // send message in separate thread so we won't block ui if
+        // it takes time. When sending offline messages msn uses soap
+        // and http and xml exchange can be time consuming.
+        new Thread()
+        {
+            @Override
+            public void run()
+            {
+                msnProvider.getMessenger().
+                    sendText(
+                        ((ContactMsnImpl)to).getSourceContact().getEmail(),
+                    msgDeliveryPendingEvt.getSourceMessage().getContent());
+            }
+        }.start();
     }
 
     /**

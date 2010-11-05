@@ -82,7 +82,7 @@ public class BonjourService extends Thread
                 .getOperationSet(OperationSetPersistentPresence.class);
 
         // Gaim
-        props.put("1st", acc.getFirst());
+        props.put("1st", (acc.getFirst() == null)? "":acc.getFirst());
         props.put("email", (acc.getMail() == null)? "":acc.getMail());
         props.put("jid", this.id);
         props.put("last", (acc.getLast() == null)?"":acc.getLast());
@@ -99,7 +99,7 @@ public class BonjourService extends Thread
 
         //XEP-0174 (Final paper)
         props.put("ext","");
-        props.put("nick", acc.getFirst());
+        props.put("nick", (acc.getFirst() == null)? this.id:acc.getFirst());
         props.put("ver", "1");
         props.put("node", "SIP Communicator");
 
