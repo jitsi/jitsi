@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.msn;
 
 import java.text.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -40,6 +41,11 @@ public class OperationSetBasicInstantMessagingMsnImpl
     private OperationSetPersistentPresenceMsnImpl opSetPersPresence = null;
 
     private final OperationSetAdHocMultiUserChatMsnImpl opSetMuc;
+
+    /**
+     * The thread that will send messages.
+     */
+    private SenderThread senderThread = null;
 
     /**
      * Creates an instance of this operation set.
@@ -126,25 +132,19 @@ public class OperationSetBasicInstantMessagingMsnImpl
         MessageDeliveredEvent msgDeliveredEvt
             = new MessageDeliveredEvent(message, to);
 
-        // msgDeliveredEvt = messageDeliveredTransform(msgDeliveredEvt);
-        
-        if (msgDeliveredEvt != null)
-            fireMessageEvent(msgDeliveredEvt);
+        fireMessageEvent(msgDeliveredEvt);
 
         // send message in separate thread so we won't block ui if
-        // it takes time. When sending offline messages msn uses soap
-        // and http and xml exchange can be time consuming.
-        new Thread()
+        // it takes time.
+        if(senderThread == null)
         {
-            @Override
-            public void run()
-            {
-                msnProvider.getMessenger().
-                    sendText(
-                        ((ContactMsnImpl)to).getSourceContact().getEmail(),
-                    msgDeliveryPendingEvt.getSourceMessage().getContent());
-            }
-        }.start();
+            senderThread = new SenderThread();
+            senderThread.start();
+        }
+
+        senderThread.sendMessage(
+                (ContactMsnImpl)to,
+                msgDeliveryPendingEvt.getSourceMessage().getContent());
     }
 
     /**
@@ -199,6 +199,16 @@ public class OperationSetBasicInstantMessagingMsnImpl
                  */
                 msnMessenger.addMessageListener(new MsnMessageListener());
                 msnMessenger.addEmailListener(new MsnMessageListener());
+            }
+            else if(evt.getNewState() == RegistrationState.UNREGISTERED
+                || evt.getNewState() == RegistrationState.CONNECTION_FAILED
+                || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED)
+            {
+                if(senderThread != null)
+                {
+                    senderThread.stopRunning();
+                    senderThread = null;
+                }
             }
         }
     }
@@ -363,6 +373,114 @@ public class OperationSetBasicInstantMessagingMsnImpl
                                                       MsnEmailActivityMessage message,
                                                       MsnContact contact)
         {
+        }
+    }
+
+    /**
+     * Sends instant messages in separate thread so we don't block
+     * our calling thread.
+     * When sending offline messages msn uses soap
+     * and http and xml exchange can be time consuming. 
+     */
+    private class SenderThread
+        extends Thread
+    {
+        /**
+         * start/stop indicator.
+         */
+        private boolean stopped = true;
+
+        /**
+         * List of messages queued to be sent.
+         */
+        private List<MessageToSend> messagesToSend =
+                new ArrayList<MessageToSend>();
+
+        /**
+         * Sends instant messages in separate thread so we don't block
+         * our calling thread.
+         */
+        public void run()
+        {
+            stopped = false;
+
+            while(!stopped)
+            {
+                MessageToSend msgToSend = null;
+
+                synchronized(this)
+                {
+                    if(messagesToSend.isEmpty())
+                    {
+                        try
+                        {
+                            wait();
+
+                        }
+                        catch (InterruptedException iex)
+                        {
+                        }
+                    }
+
+                    if(!messagesToSend.isEmpty())
+                        msgToSend = messagesToSend.remove(0);
+                }
+
+                if(msgToSend != null)
+                {
+                    try
+                    {
+                        msnProvider.getMessenger().sendText(
+                                msgToSend.to.getSourceContact().getEmail(),
+                                msgToSend.content);
+                    }
+                    catch(Throwable t)
+                    {
+                        fireMessageDeliveryFailed(
+                            createMessage(msgToSend.content,
+                                    DEFAULT_MIME_TYPE,
+                                    DEFAULT_MIME_ENCODING,
+                                    null),
+                            msgToSend.to,
+                            MessageDeliveryFailedEvent.UNKNOWN_ERROR);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Interrupts this sender so that it would no longer send messages.
+         */
+        public synchronized void stopRunning()
+        {
+            stopped = true;
+            notifyAll();
+        }
+
+        /**
+         * Schedule new message to be sent.
+         * @param to destination.
+         * @param content content.
+         */
+        public synchronized void sendMessage(ContactMsnImpl to, String content)
+        {
+            messagesToSend.add(new MessageToSend(to , content));
+            notifyAll();
+        }
+
+        /**
+         * Structure used to store data to be sent. 
+         */
+        private class MessageToSend
+        {
+            private ContactMsnImpl to;
+            private String content;
+
+            MessageToSend(ContactMsnImpl to, String content)
+            {
+                this.to = to;
+                this.content = content;
+            }
         }
     }
 }
