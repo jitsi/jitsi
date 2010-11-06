@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.*;
+import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.stack.*;
 
 import java.io.*;
@@ -545,38 +546,9 @@ public class SipStackSharing
             {
                 try
                 {
-
-                    /*
-                     * Max-Forwards is required, yet there are UAs which do not
-                     * place it. SipProvider#getNewServerTransaction(Request)
-                     * will throw an exception in the case of a missing
-                     * Max-Forwards header and this method will eventually just
-                     * log it thus ignoring the whole event. Since these
-                     * requests come often in some cases (e.g. ippi.fr),
-                     * performance-wise it makes sense to just prevent the
-                     * exceptions and ignore the event early.
-                     */
-                    if (request.getHeader(MaxForwardsHeader.NAME) == null)
-                    {
-                        //it appears that some buggy providers do send requests
-                        //with no Max-Forwards headers, so let's at least try
-                        //to save calls.
-                        if(Request.INVITE.equals(request.getMethod()))
-                        {
-                            MaxForwardsHeader maxForwards = SipFactory
-                                .getInstance().createHeaderFactory()
-                                    .createMaxForwardsHeader(70);
-                            request.setHeader(maxForwards);
-                        }
-                        else
-                        {
-                            if (logger.isTraceEnabled())
-                                logger.trace(
-                                        "Ignoring request without Max-Forwards header: "
-                                        + event);
-                            return;
-                        }
-                    }
+                    // apply some hacks if needed on incoming request
+                    // to be compliant with some servers/clients
+                    dirtyHacks(event);
 
                     SipProvider source = (SipProvider) event.getSource();
                     ServerTransaction transaction
@@ -1060,5 +1032,71 @@ public class SipStackSharing
 //        else
             return (java.net.InetSocketAddress)(((SipStackImpl)this.stack)
             .obtainLocalAddress(dst, dstPort, localAddress, 0));
+    }
+
+    /**
+     * Place to put some hacks if needed on incoming requests.
+     *
+     * @param event the incoming request event.
+     */
+    private void dirtyHacks(RequestEvent event)
+    {
+        Request request = event.getRequest();
+        try
+        {
+            /*
+             * Max-Forwards is required, yet there are UAs which do not
+             * place it. SipProvider#getNewServerTransaction(Request)
+             * will throw an exception in the case of a missing
+             * Max-Forwards header and this method will eventually just
+             * log it thus ignoring the whole event. Since these
+             * requests come often in some cases (e.g. ippi.fr),
+             * performance-wise it makes sense to just prevent the
+             * exceptions and ignore the event early.
+             */
+            if (request.getHeader(MaxForwardsHeader.NAME) == null)
+            {
+                //it appears that some buggy providers do send requests
+                //with no Max-Forwards headers, so let's at least try
+                //to save calls.
+                if(Request.INVITE.equals(request.getMethod()))
+                {
+                    MaxForwardsHeader maxForwards = SipFactory
+                        .getInstance().createHeaderFactory()
+                            .createMaxForwardsHeader(70);
+                    request.setHeader(maxForwards);
+                }
+                else
+                {
+                    if (logger.isTraceEnabled())
+                        logger.trace(
+                                "Ignoring request without Max-Forwards header: "
+                                + event);
+                    return;
+                }
+            }
+
+            // using asterisk voice mail initial notify for messages
+            // is ok, but on the fly received messages their notify comes
+            // without subscription-state, so we add it in order to be able to
+            // process message.
+            if(request.getMethod().equals(Request.NOTIFY)
+               && request.getHeader(EventHeader.NAME) != null
+               && ((EventHeader)request.getHeader(EventHeader.NAME))
+                    .getEventType().equals(
+                        OperationSetMessageWaitingSipImpl.EVENT_PACKAGE)
+               && request.getHeader(SubscriptionStateHeader.NAME)
+                    == null)
+            {
+                request.addHeader(
+                        new HeaderFactoryImpl()
+                            .createSubscriptionStateHeader(
+                                SubscriptionStateHeader.ACTIVE));
+            }
+        }
+        catch(Throwable ex)
+        {
+            logger.warn("Cannot apply incoming request modification!", ex);
+        }
     }
 }

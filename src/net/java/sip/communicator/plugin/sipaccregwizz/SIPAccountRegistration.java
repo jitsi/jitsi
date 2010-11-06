@@ -78,6 +78,11 @@ public class SIPAccountRegistration
 
     private String xCapPassword;
 
+    /**
+     * The voicemail uri if any.
+     */
+    private String voicemailURI;
+
     public String getPreferredTransport()
     {
         return preferredTransport;
@@ -604,5 +609,23 @@ public class SIPAccountRegistration
     public void setProxyAutoConfigure(boolean proxyAutoConfigure)
     {
         this.proxyAutoConfigure = proxyAutoConfigure;
+    }
+
+    /**
+     * The voicemail URI.
+     * @return the voicemail URI.
+     */
+    public String getVoicemailURI()
+    {
+        return voicemailURI;
+    }
+
+    /**
+     * Sets voicemail URI.
+     * @param voicemailURI new URI.
+     */
+    public void setVoicemailURI(String voicemailURI)
+    {
+        this.voicemailURI = voicemailURI;
     }
 }

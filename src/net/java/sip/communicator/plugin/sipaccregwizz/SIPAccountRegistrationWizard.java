@@ -281,6 +281,11 @@ public class SIPAccountRegistrationWizard
                     Resources.getString("service.gui.NO"));
         }
 
+        if(!StringUtils.isNullOrEmpty(registration.getVoicemailURI(), true))
+            summaryTable.put(
+                    Resources.getString("plugin.sipaccregwizz.VOICEMAIL_URI"),
+                    registration.getVoicemailURI());
+
         return summaryTable.entrySet().iterator();
     }
 
@@ -479,6 +484,11 @@ public class SIPAccountRegistrationWizard
                         .put("XCAP_PASSWORD", registration.getXCapPassword());
             }
         }
+
+        if(!StringUtils.isNullOrEmpty(registration.getVoicemailURI(), true))
+            accountProperties.put(
+                    ProtocolProviderFactory.VOICEMAIL_URI,
+                    registration.getVoicemailURI());
 
         if(isModification)
         {

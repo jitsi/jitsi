@@ -661,6 +661,10 @@ public class ProtocolProviderServiceSipImpl
                 OperationSetTelephonyConferencing.class,
                 new OperationSetTelephonyConferencingSipImpl(this));
 
+            addSupportedOperationSet(
+                OperationSetMessageWaiting.class,
+                new OperationSetMessageWaitingSipImpl(this));
+
             //initialize our OPTIONS handler
             new ClientCapabilities(this);
 

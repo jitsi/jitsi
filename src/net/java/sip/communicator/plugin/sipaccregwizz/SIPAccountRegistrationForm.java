@@ -259,6 +259,7 @@ public class SIPAccountRegistrationForm
         registration.setXCapUser(presencePanel.getXCapUser());
         registration
                 .setXCapPassword(new String(presencePanel.getXCapPassword()));
+        registration.setVoicemailURI(connectionPanel.getVoicemailURI());
 
         return true;
     }

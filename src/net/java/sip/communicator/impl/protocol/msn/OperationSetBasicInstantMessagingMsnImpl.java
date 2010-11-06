@@ -473,9 +473,21 @@ public class OperationSetBasicInstantMessagingMsnImpl
          */
         private class MessageToSend
         {
+            /**
+             * Message sent to.
+             */
             private ContactMsnImpl to;
+
+            /**
+             * Content of message.
+             */
             private String content;
 
+            /**
+             * Creates MessageToSend.
+             * @param to contact to.
+             * @param content content to be sent.
+             */
             MessageToSend(ContactMsnImpl to, String content)
             {
                 this.to = to;

@@ -305,6 +305,12 @@ public abstract class ProtocolProviderFactory
     public static final String STUN_IS_TURN_SUPPORTED = "IS_TURN_SUPPORTED";
 
     /**
+     * Address used to reach voicemail box, by services able to
+     * subscribe for voicemail new messages notifications.
+     */
+    public static final String VOICEMAIL_URI = "VOICEMAIL_URI";
+
+    /**
      * The <code>BundleContext</code> containing (or to contain) the service
      * registration of this factory.
      */

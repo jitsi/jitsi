@@ -35,6 +35,8 @@ public class ConnectionPanel
 
     private final JTextField proxyPortField = new JTextField(4);
 
+    private final JTextField voicemailField = new JTextField(4);
+
     private final JCheckBox proxyAutoCheckBox;
 
     private JComboBox transportCombo = new JComboBox(new Object[]
@@ -189,6 +191,18 @@ public class ConnectionPanel
 
         mainPanel.add(Box.createVerticalStrut(5));
         mainPanel.add(encryptionPanel);
+
+        JPanel voicemailPanel
+                = new TransparentPanel(new BorderLayout(10, 10));
+        voicemailPanel.add(new JLabel(
+                Resources.getString("plugin.sipaccregwizz.VOICEMAIL_URI")),
+                BorderLayout.WEST);
+        voicemailPanel.add(voicemailField, BorderLayout.CENTER);
+
+        voicemailField.setText(regform.getRegistration().getVoicemailURI());
+
+        mainPanel.add(Box.createVerticalStrut(5));
+        mainPanel.add(voicemailPanel);
 
         this.add(mainPanel, BorderLayout.NORTH);
     }
@@ -484,6 +498,15 @@ public class ConnectionPanel
     String getKeepAliveInterval()
     {
         return keepAliveIntervalValue.getText();
+    }
+
+    /**
+     * Returns the voicemail URI.
+     * @return the voicemail URI.
+     */
+    String getVoicemailURI()
+    {
+        return voicemailField.getText();
     }
 
     /**
