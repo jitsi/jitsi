@@ -314,6 +314,10 @@ public class OperationSetMessageWaitingSipImpl
         protected void processActiveRequest(
                 RequestEvent requestEvent, byte[] rawContent) 
         {
+            // If the message body is missing we have nothing more to do here.
+            if (rawContent == null || rawContent.length <= 0)
+                return;
+
             try
             {
                 String messageAccount = null;
