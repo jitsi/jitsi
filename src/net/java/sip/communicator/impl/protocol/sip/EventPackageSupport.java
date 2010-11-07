@@ -243,30 +243,6 @@ public class EventPackageSupport
 
     /**
      * Gets the <tt>Subscription</tt> from the list of subscriptions managed by
-     * this instance which is associated with a specific id tag in its Event
-     * header. Returns the first found one.
-     *
-     * @param eventId the id tag placed in the Event header of the
-     * <tt>Subscription</tt> to be retrieved if there is one or <tt>null</tt> if
-     * the <tt>Subscription</tt> should have no id tag in its Event header
-     * @return an existing <tt>Subscription</tt> from the list of subscriptions
-     * managed by this instance with the specified id tag in its Event
-     * header; <tt>null</tt> if no such <tt>Subscription</tt> exists in the list
-     * of subscriptions managed by this instance
-     */
-    protected Subscription getSubscriptionByEventID(String eventId)
-    {
-        synchronized (subscriptions)
-        {
-            for (Subscription subscription : subscriptions.values())
-                if (eventId.equals(subscription.getEventId()))
-                    return subscription;
-        }
-        return null;
-    }
-
-    /**
-     * Gets the <tt>Subscription</tt> from the list of subscriptions managed by
      * this instance which is associated with a specific CallId.
      *
      * @param callId the CallId associated with the <tt>Subscription</tt> to be

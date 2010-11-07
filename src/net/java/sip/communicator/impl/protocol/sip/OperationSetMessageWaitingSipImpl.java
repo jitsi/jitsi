@@ -182,15 +182,25 @@ public class OperationSetMessageWaitingSipImpl
                         if(resultSub != null)
                             return resultSub;
 
-                        return (Subscription)getSubscriptionByEventID(
-                            OperationSetMessageWaitingSipImpl
-                                .EVENT_PACKAGE);
+                        // lets find our subscription and return it
+                        // as we cannot find it by callid
+                        Object[] subs = getSubscriptions();
+
+                        for(Object s : subs)
+                        {
+                            if(s instanceof MessageSummarySubscriber)
+                            {
+                                return (MessageSummarySubscriber)s;
+                            }
+                        }
+
+                        return null;
                     }
                 };
 
             try
             {
-                Address subscribeAddress;
+                final Address subscribeAddress;
                 String vmAddressURI = (String)provider.getAccountID()
                     .getAccountProperty(
                             ProtocolProviderFactory.VOICEMAIL_URI);
@@ -209,6 +219,50 @@ public class OperationSetMessageWaitingSipImpl
             {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * Fires new event on message waiting = yes.
+     * @param account the account to reach the messages.
+     * @param unreadMessages number of unread messages.
+     * @param readMessages number of old messages.
+     * @param unreadUrgentMessages number of unread urgent messages.
+     * @param readUrgentMessages number of old urgent messages.
+     */
+    private void fireVoicemailNotificationEvent(
+        String msgTypeStr,
+        String account,
+        int unreadMessages,
+        int readMessages,
+        int unreadUrgentMessages,
+        int readUrgentMessages)
+    {
+        MessageType msgType = MessageType.valueOfByType(msgTypeStr);
+        MessageWaitingEvent event =
+            new MessageWaitingEvent(
+                provider,
+                msgType,
+                account,
+                unreadMessages,
+                readMessages,
+                unreadUrgentMessages,
+                readUrgentMessages);
+
+        Iterable<MessageWaitingListener> listeners;
+        synchronized (messageWaitingNotificationListeners)
+        {
+            List<MessageWaitingListener> ls =
+                    messageWaitingNotificationListeners.get(msgType);
+
+            if(ls == null)
+                return;
+
+            listeners = new ArrayList<MessageWaitingListener>(ls);
+        }
+        for (MessageWaitingListener listener : listeners)
+        {
+            listener.messageWaitingNotify(event);
         }
     }
 
@@ -239,7 +293,7 @@ public class OperationSetMessageWaitingSipImpl
          */
         public MessageSummarySubscriber(Address toAddress)
         {
-            super(toAddress, "message-summary");
+            super(toAddress);
         }
 
         /**
@@ -377,46 +431,6 @@ public class OperationSetMessageWaitingSipImpl
         {
             if(logger.isDebugEnabled())
                 logger.debug("Processing terminated: " + reasonCode);
-        }
-    }
-
-    /**
-     * Fires new event on message waiting = yes. 
-     * @param account the account to reach the messages.
-     * @param unreadMessages number of unread messages.
-     * @param readMessages number of old messages.
-     * @param unreadUrgentMessages number of unread urgent messages.
-     * @param readUrgentMessages number of old urgent messages.
-     */
-    private void fireVoicemailNotificationEvent(
-        String msgTypeStr,
-        String account,
-        int unreadMessages,
-        int readMessages,
-        int unreadUrgentMessages,
-        int readUrgentMessages)
-    {
-        MessageType msgType = MessageType.valueOfByType(msgTypeStr);
-        MessageWaitingEvent event =
-            new MessageWaitingEvent(
-                provider,
-                msgType,
-                account,
-                unreadMessages,
-                readMessages,
-                unreadUrgentMessages,
-                readUrgentMessages);
-        
-        Iterable<MessageWaitingListener> listeners;
-        synchronized (messageWaitingNotificationListeners)
-        {
-            listeners =
-                    new ArrayList<MessageWaitingListener>(
-                            messageWaitingNotificationListeners.get(msgType));
-        }
-        for (MessageWaitingListener listener : listeners)
-        {
-            listener.messageWaitingNotify(event);
         }
     }
 }
