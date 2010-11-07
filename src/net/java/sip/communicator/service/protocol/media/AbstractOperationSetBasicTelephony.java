@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
  * @param <T> the implementation specific provider class like for example
  * <tt>ProtocolProviderServiceSipImpl</tt>.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Emil Ivov
  * @author Dmitri Melnikov
  */
@@ -40,7 +40,8 @@ public abstract class AbstractOperationSetBasicTelephony
     /**
      * A list of listeners registered for call events.
      */
-    private final List<CallListener> callListeners = new Vector<CallListener>();
+    private final List<CallListener> callListeners
+        = new ArrayList<CallListener>();
 
     /**
      * Registers <tt>listener</tt> with this provider so that it

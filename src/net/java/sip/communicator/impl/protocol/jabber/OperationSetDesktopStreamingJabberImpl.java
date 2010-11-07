@@ -166,10 +166,12 @@ public class OperationSetDesktopStreamingJabberImpl
         }
 
         CallJabberImpl call = new CallJabberImpl(basicTelephony);
+
         /* enable video */
         call.setVideoDevice(videoDevice);
         call.setLocalVideoAllowed(true, getMediaUseCase());
 
-        return basicTelephony.createOutgoingCall(call, calleeAddress);
+        basicTelephony.createOutgoingCall(call, calleeAddress);
+        return call;
     }
 }

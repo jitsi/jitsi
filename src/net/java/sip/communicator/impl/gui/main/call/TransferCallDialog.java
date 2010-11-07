@@ -107,5 +107,6 @@ public class TransferCallDialog
      * net.java.sip.communicator.impl.gui.customcontrols.SIPCommDialog#close
      * (boolean)
      */
+    @Override
     protected void close(boolean isEscaped) {}
 }

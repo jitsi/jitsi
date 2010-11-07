@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 import java.math.*;
 import java.security.*;
 import java.util.*;
-import java.util.logging.*;
 
 import org.jivesoftware.smack.packet.*;
 
@@ -22,12 +21,6 @@ import org.jivesoftware.smack.packet.*;
  */
 public class JingleIQ extends IQ
 {
-    /**
-     * The <tt>Logger</tt> used by the <tt>JingleIQ</tt>
-     * class and its instances for logging output.
-     */
-    private static final Logger logger = Logger.getLogger(JingleIQ.class
-                    .getName());
 
     /**
      * The name space that jingle belongs to.
@@ -129,8 +122,15 @@ public class JingleIQ extends IQ
         bldr.append(" " + SID_ATTR_NAME
                             + "='" + getSID() + "'");
 
-        if (contentList.size() == 0 && reason == null && sessionInfo == null)
+        String extensionsXML = getExtensionsXML();
+
+        if ((contentList.size() == 0)
+                && (reason == null)
+                && (sessionInfo == null)
+                && ((extensionsXML == null) || (extensionsXML.length() == 0)))
+        {
             bldr.append("/>");
+        }
         else
         {
             bldr.append(">");//it is possible to have empty jingle elements
@@ -150,6 +150,10 @@ public class JingleIQ extends IQ
             //subclass
             if (sessionInfo != null)
                 bldr.append(sessionInfo.toXML());
+
+            // extensions
+            if ((extensionsXML != null) && (extensionsXML.length() != 0))
+                bldr.append(extensionsXML);
 
             bldr.append("</" + ELEMENT_NAME + ">");
         }

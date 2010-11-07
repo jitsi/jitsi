@@ -14,6 +14,7 @@ import org.jivesoftware.smack.packet.*;
  * <tt>jingle</tt> element.
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public class ReasonPacketExtension
     implements PacketExtension
@@ -43,14 +44,14 @@ public class ReasonPacketExtension
      * The content of the text element (if any) providing human-readable
      * information about the reason for the action.
      */
-    private final String text;
+    private String text;
 
     /**
      * XEP-0166 mentions that the "reason" element MAY contain an element
      * qualified by some other namespace that provides more detailed machine-
      * readable information about the reason for the action.
      */
-    private final PacketExtension otherExtension;
+    private PacketExtension otherExtension;
 
     /**
      * Creates a new <tt>ReasonPacketExtension</tt> instance with the specified
@@ -88,12 +89,24 @@ public class ReasonPacketExtension
      * Returns human-readable information about the reason for the action or
      * <tt>null</tt> if no such information is currently available.
      *
-     * @return  human-readable information about the reason for the action or
+     * @return human-readable information about the reason for the action or
      * <tt>null</tt> if no such information is currently available.
      */
     public String getText()
     {
         return text;
+    }
+
+    /**
+     * Sets the human-readable information about the reason for the action or
+     * <tt>null</tt> if no such information is currently available
+     *
+     * @param text the human-readable information about the reason for the
+     * action or <tt>null</tt> if no such information is currently available
+     */
+    public void setText(String text)
+    {
+        this.text = text;
     }
 
     /**
@@ -110,6 +123,18 @@ public class ReasonPacketExtension
     public PacketExtension getOtherExtension()
     {
         return otherExtension;
+    }
+
+    /**
+     * Sets the extra extension containing further info about this action or
+     * <tt>null</tt> if no such extension has been specified.
+     *
+     * @param otherExtension the extra extension containing further info about
+     * this action or <tt>null</tt> if no such extension has been specified
+     */
+    public void setOtherExtension(PacketExtension otherExtension)
+    {
+        this.otherExtension = otherExtension;
     }
 
     /**

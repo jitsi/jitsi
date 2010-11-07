@@ -114,6 +114,21 @@ public class JingleIQProvider implements IQProvider
                 InputEvtPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<InputEvtPacketExtension>(
                         InputEvtPacketExtension.class));
+
+        /*
+         * XEP-0251: Jingle Session Transfer <transfer/> and <transferred>
+         * providers
+         */
+        providerManager.addExtensionProvider(
+                TransferPacketExtension.ELEMENT_NAME,
+                TransferPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<TransferPacketExtension>(
+                        TransferPacketExtension.class));
+        providerManager.addExtensionProvider(
+                TransferredPacketExtension.ELEMENT_NAME,
+                TransferredPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<TransferredPacketExtension>(
+                        TransferredPacketExtension.class));
     }
 
     /**
@@ -149,9 +164,12 @@ public class JingleIQProvider implements IQProvider
 
         // Sub-elements providers
         DefaultPacketExtensionProvider<ContentPacketExtension> contentProvider
-            = new DefaultPacketExtensionProvider
-                <ContentPacketExtension>(ContentPacketExtension.class);
+            = new DefaultPacketExtensionProvider<ContentPacketExtension>(
+                    ContentPacketExtension.class);
         ReasonProvider reasonProvider = new ReasonProvider();
+        DefaultPacketExtensionProvider<TransferPacketExtension> transferProvider
+            = new DefaultPacketExtensionProvider<TransferPacketExtension>(
+                    TransferPacketExtension.class);
 
         // Now go on and parse the jingle element's content.
         int eventType;
@@ -174,11 +192,19 @@ public class JingleIQProvider implements IQProvider
                     jingleIQ.addContent(content);
                 }
                 // <reason/>
-                if (elementName.equals(ReasonPacketExtension.ELEMENT_NAME))
+                else if(elementName.equals(ReasonPacketExtension.ELEMENT_NAME))
                 {
                     ReasonPacketExtension reason
                         = reasonProvider.parseExtension(parser);
                     jingleIQ.setReason(reason);
+                }
+                // <transfer/>
+                else if (elementName.equals(
+                                TransferPacketExtension.ELEMENT_NAME)
+                        && namespace.equals(TransferPacketExtension.NAMESPACE))
+                {
+                    jingleIQ.addExtension(
+                            transferProvider.parseExtension(parser));
                 }
 
                 //<mute/> <active/> and other session-info elements

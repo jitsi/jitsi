@@ -91,6 +91,13 @@ public class ProtocolProviderServiceJabberImpl
         = IceUdpTransportPacketExtension.NAMESPACE;
 
     /**
+     * Jingle's Discover Info URN for "XEP-0251: Jingle Session Transfer"
+     * support.
+     */
+    public static final String URN_XMPP_JINGLE_TRANSFER_0
+        = TransferPacketExtension.NAMESPACE;
+
+    /**
      * Used to connect to a XMPP server.
      */
     private XMPPConnection connection = null;
@@ -1090,16 +1097,18 @@ public class ProtocolProviderServiceJabberImpl
             //enabling it through a system property.
             if(Boolean.getBoolean("enableJingle"))
             {
-                OperationSetBasicTelephonyJabberImpl basicTelephony =
-                    new OperationSetBasicTelephonyJabberImpl(this);
+                OperationSetBasicTelephonyJabberImpl basicTelephony
+                    = new OperationSetBasicTelephonyJabberImpl(this);
 
+                addSupportedOperationSet(
+                    OperationSetAdvancedTelephony.class,
+                    basicTelephony);
                 addSupportedOperationSet(
                     OperationSetBasicTelephony.class,
                     basicTelephony);
-
                 addSupportedOperationSet(
-                        OperationSetSecureTelephony.class,
-                        basicTelephony);
+                    OperationSetSecureTelephony.class,
+                    basicTelephony);
 
                 // initialize video telephony OperationSet
                 addSupportedOperationSet(
@@ -1121,6 +1130,10 @@ public class ProtocolProviderServiceJabberImpl
 //                addSupportedOperationSet(
 //                        OperationSetDesktopSharingClient.class,
 //                        new OperationSetDesktopSharingClientJabberImpl(this));
+
+                addSupportedOperationSet(
+                    OperationSetTelephonyConferencing.class,
+                    new OperationSetTelephonyConferencingJabberImpl(this));
 
                 // Add Jingle features to supported features.
                 supportedFeatures.add(URN_XMPP_JINGLE);
@@ -1144,6 +1157,9 @@ public class ProtocolProviderServiceJabberImpl
 
                 /* add extension to support remote control */
                 supportedFeatures.add(InputEvtIQ.NAMESPACE);
+
+                // XEP-0251: Jingle Session Transfer
+                supportedFeatures.add(URN_XMPP_JINGLE_TRANSFER_0);
             }
 
             // OperationSetContactCapabilities

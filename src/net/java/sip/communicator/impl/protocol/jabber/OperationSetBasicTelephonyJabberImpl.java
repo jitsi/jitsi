@@ -27,13 +27,15 @@ import org.jivesoftware.smackx.packet.*;
  *
  * @author Emil Ivov
  * @author Symphorien Wanko
+ * @author Lyubomir Marinov
  */
 public class OperationSetBasicTelephonyJabberImpl
    extends AbstractOperationSetBasicTelephony<ProtocolProviderServiceJabberImpl>
    implements RegistrationStateChangeListener,
               PacketListener,
               PacketFilter,
-              OperationSetSecureTelephony
+              OperationSetSecureTelephony,
+              OperationSetAdvancedTelephony<ProtocolProviderServiceJabberImpl>
 {
 
     /**
@@ -116,7 +118,16 @@ public class OperationSetBasicTelephonyJabberImpl
     public Call createCall(String callee)
         throws OperationFailedException
     {
-        return createOutgoingCall(new CallJabberImpl(this), callee);
+        CallJabberImpl call = new CallJabberImpl(this);
+
+        if (createOutgoingCall(call, callee) == null)
+        {
+            throw new OperationFailedException(
+                    "Failed to create outgoing call"
+                        + " because no peer was created",
+                    OperationFailedException.INTERNAL_ERROR);
+        }
+        return call;
     }
 
     /**
@@ -146,18 +157,45 @@ public class OperationSetBasicTelephonyJabberImpl
      * @param calleeAddress the address of the callee that we'd like to connect
      * with.
      *
-     * @return CallPeer the CallPeer that represented by
-     *   the specified uri. All following state change events will be
-     *   delivered through that call peer. The Call that this
-     *   peer is a member of could be retrieved from the
-     *   CallParticipatn instance with the use of the corresponding method.
+     * @return the <tt>CallPeer</tt> that represented by the specified uri. All
+     * following state change events will be delivered through that call peer.
+     * The <tt>Call</tt> that this peer is a member of could be retrieved from
+     * the <tt>CallPeer</tt> instance with the use of the corresponding method.
      *
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call.
      */
-    CallJabberImpl createOutgoingCall(
+    CallPeerJabberImpl createOutgoingCall(
             CallJabberImpl call,
             String calleeAddress)
+        throws OperationFailedException
+    {
+        return createOutgoingCall(call, calleeAddress, null);
+    }
+
+    /**
+     * Init and establish the specified call.
+     *
+     * @param call the <tt>CallJabberImpl</tt> that will be used
+     * to initiate the call
+     * @param calleeAddress the address of the callee that we'd like to connect
+     * with.
+     * @param sessionInitiateExtensions a collection of additional and optional
+     * <tt>PacketExtension</tt>s to be added to the <tt>session-initiate</tt>
+     * {@link JingleIQ} which is to init the specified <tt>call</tt>
+     *
+     * @return the <tt>CallPeer</tt> that represented by the specified uri. All
+     * following state change events will be delivered through that call peer.
+     * The <tt>Call</tt> that this peer is a member of could be retrieved from
+     * the <tt>CallPeer</tt> instance with the use of the corresponding method.
+     *
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the call.
+     */
+    CallPeerJabberImpl createOutgoingCall(
+            CallJabberImpl call,
+            String calleeAddress,
+            Iterable<PacketExtension> sessionInitiateExtensions)
         throws OperationFailedException
     {
         if (logger.isInfoEnabled())
@@ -172,16 +210,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
         // we determine on which resource the remote user is connected if the
         // resource isn't already provided
-        String fullCalleeURI = null;
-        if (calleeAddress.indexOf('/') > 0)
-        {
-            fullCalleeURI = calleeAddress;
-        }
-        else
-        {
-            fullCalleeURI = protocolProvider.getConnection()
-                .getRoster().getPresence(calleeAddress).getFrom();
-        }
+        String fullCalleeURI = getFullCalleeURI(calleeAddress);
 
         /* in case we figure that calling people without a resource id is
            impossible, we'll have to uncomment the following lines. keep in mind
@@ -224,10 +253,16 @@ public class OperationSetBasicTelephonyJabberImpl
             logger.warn("could not retrieve info for " + fullCalleeURI, ex);
         }
 
+        CallPeerJabberImpl peer;
+
         // initiate call
         try
         {
-            call.initiateSession(fullCalleeURI, di);
+            peer
+                = call.initiateSession(
+                        fullCalleeURI,
+                        di,
+                        sessionInitiateExtensions);
         }
         catch(Throwable t)
         {
@@ -245,7 +280,25 @@ public class OperationSetBasicTelephonyJabberImpl
                     t);
         }
 
-        return call;
+        return peer;
+    }
+
+    /**
+     * Gets the full callee URI for a specific callee address.
+     *
+     * @param calleeAddress the callee address to get the full callee URI for
+     * @return the full callee URI for the specified <tt>calleeAddress</tt>
+     */
+    String getFullCalleeURI(String calleeAddress)
+    {
+        return
+            (calleeAddress.indexOf('/') > 0)
+                ? calleeAddress
+                : protocolProvider
+                    .getConnection()
+                        .getRoster()
+                            .getPresence(calleeAddress)
+                                .getFrom();
     }
 
     /**
@@ -325,7 +378,7 @@ public class OperationSetBasicTelephonyJabberImpl
         throws ClassCastException,
                OperationFailedException
     {
-        ((CallPeerJabberImpl) peer).hangup();
+        ((CallPeerJabberImpl) peer).hangup(null, null);
     }
 
     /**
@@ -470,8 +523,9 @@ public class OperationSetBasicTelephonyJabberImpl
         //let's first see whether we have a peer that's concerned by this IQ
         CallPeerJabberImpl callPeer
             = activeCallsRepository.findCallPeer(jingleIQ.getSID());
+        IQ.Type type = jingleIQ.getType();
 
-        if (jingleIQ.getType() == Type.ERROR)
+        if (type == Type.ERROR)
         {
             logger.error("Received error");
 
@@ -526,6 +580,33 @@ public class OperationSetBasicTelephonyJabberImpl
             {
                 // change status.
                 callPeer.processSessionInfo(info);
+            }
+            else
+            {
+                PacketExtension packetExtension
+                    = jingleIQ.getExtension(
+                            TransferPacketExtension.ELEMENT_NAME,
+                            TransferPacketExtension.NAMESPACE);
+
+                if (packetExtension instanceof TransferPacketExtension)
+                {
+                    TransferPacketExtension transfer
+                        = (TransferPacketExtension) packetExtension;
+
+                    if (transfer.getFrom() == null)
+                        transfer.setFrom(jingleIQ.getFrom());
+
+                    try
+                    {
+                        callPeer.processTransfer(transfer);
+                    }
+                    catch (OperationFailedException ofe)
+                    {
+                        logger.error(
+                                "Failed to transfer to " + transfer.getTo(),
+                                ofe);
+                    }
+                }
             }
         }
         else if (action == JingleAction.CONTENT_ACCEPT)
@@ -600,5 +681,123 @@ public class OperationSetBasicTelephonyJabberImpl
     public void setSasVerified(CallPeer peer, boolean verified)
     {
         ((CallPeerJabberImpl) peer).getMediaHandler().setSasVerified(verified);
+    }
+
+    /**
+     * Transfers (in the sense of call transfer) a specific <tt>CallPeer</tt> to
+     * a specific callee address which already participates in an active
+     * <tt>Call</tt>.
+     * <p>
+     * The method is suitable for providing the implementation of attended call
+     * transfer (though no such requirement is imposed).
+     * </p>
+     *
+     * @param peer the <tt>CallPeer</tt> to be transfered to the specified
+     * callee address
+     * @param target the address in the form of <tt>CallPeer</tt> of the callee
+     * to transfer <tt>peer</tt> to
+     * @throws OperationFailedException if something goes wrong
+     * @see OperationSetAdvancedTelephony#transfer(CallPeer, CallPeer)
+     */
+    public void transfer(CallPeer peer, CallPeer target)
+        throws OperationFailedException
+    {
+        CallPeerJabberImpl targetJabberImpl = (CallPeerJabberImpl) target;
+        String to = getFullCalleeURI(targetJabberImpl.getAddress());
+
+        /*
+         * XEP-0251: Jingle Session Transfer says: Before doing
+         * [attended transfer], the attendant SHOULD verify that the callee
+         * supports Jingle session transfer.
+         */
+        try
+        {
+            DiscoverInfo discoverInfo
+                = protocolProvider.getDiscoveryManager().discoverInfo(to);
+
+            if (!discoverInfo.containsFeature(
+                    ProtocolProviderServiceJabberImpl
+                        .URN_XMPP_JINGLE_TRANSFER_0))
+            {
+                throw new OperationFailedException(
+                        "Callee "
+                            + to
+                            + " does not support"
+                            + " XEP-0251: Jingle Session Transfer",
+                        OperationFailedException.INTERNAL_ERROR);
+            }
+        }
+        catch (XMPPException xmppe)
+        {
+            logger.warn("Failed to retrieve DiscoverInfo for " + to, xmppe);
+        }
+
+        transfer(
+            peer,
+            to, targetJabberImpl.getJingleSID());
+    }
+
+    /**
+     * Transfers (in the sense of call transfer) a specific <tt>CallPeer</tt> to
+     * a specific callee address which may or may not already be participating
+     * in an active <tt>Call</tt>.
+     * <p>
+     * The method is suitable for providing the implementation of unattended
+     * call transfer (though no such requirement is imposed).
+     * </p>
+     *
+     * @param peer the <tt>CallPeer</tt> to be transfered to the specified
+     * callee address
+     * @param target the address of the callee to transfer <tt>peer</tt> to
+     * @throws OperationFailedException if something goes wrong
+     * @see OperationSetAdvancedTelephony#transfer(CallPeer, String)
+     */
+    public void transfer(CallPeer peer, String target)
+        throws OperationFailedException
+    {
+        transfer(peer, target, null);
+    }
+
+    /**
+     * Transfer (in the sense of call transfer) a specific <tt>CallPeer</tt> to
+     * a specific callee address which may optionally be participating in an
+     * active <tt>Call</tt>.
+     *
+     * @param peer the <tt>CallPeer</tt> to be transfered to the specified
+     * callee address
+     * @param to the address of the callee to transfer <tt>peer</tt> to
+     * @param sid the Jingle session ID of the active <tt>Call</tt> between the
+     * local peer and the callee in the case of attended transfer; <tt>null</tt>
+     * in the case of unattended transfer
+     * @throws OperationFailedException if something goes wrong
+     */
+    private void transfer(CallPeer peer, String to, String sid)
+        throws OperationFailedException
+    {
+        String caller = getFullCalleeURI(peer.getAddress());
+
+        try
+        {
+            DiscoverInfo discoverInfo
+                = protocolProvider.getDiscoveryManager().discoverInfo(caller);
+
+            if (!discoverInfo.containsFeature(
+                    ProtocolProviderServiceJabberImpl
+                        .URN_XMPP_JINGLE_TRANSFER_0))
+            {
+                throw new OperationFailedException(
+                        "Caller "
+                            + caller
+                            + " does not support"
+                            + " XEP-0251: Jingle Session Transfer",
+                        OperationFailedException.INTERNAL_ERROR);
+            }
+        }
+        catch (XMPPException xmppe)
+        {
+            logger.warn("Failed to retrieve DiscoverInfo for " + to, xmppe);
+        }
+
+        ((CallPeerJabberImpl) peer).transfer(getFullCalleeURI(to), sid);
     }
 }

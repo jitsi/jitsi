@@ -265,9 +265,8 @@ public abstract class TransportManagerJabberImpl
             Iterable<ContentPacketExtension> contents,
             String name)
     {
-        Iterator<ContentPacketExtension> contentIter = contents.iterator();
-
-        while (contentIter.hasNext())
+        for (Iterator<ContentPacketExtension> contentIter = contents.iterator();
+                contentIter.hasNext();)
         {
             ContentPacketExtension content = contentIter.next();
 

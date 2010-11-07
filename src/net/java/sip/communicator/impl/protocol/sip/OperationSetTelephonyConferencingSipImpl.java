@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.MediaType; // disambiguation
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
 
@@ -32,15 +33,19 @@ import org.xml.sax.*;
 /**
  * Implements <tt>OperationSetTelephonyConferencing</tt> for SIP.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class OperationSetTelephonyConferencingSipImpl
-    implements OperationSetTelephonyConferencing,
-               CallChangeListener,
+    extends AbstractOperationSetTelephonyConferencing<
+            ProtocolProviderServiceSipImpl,
+            OperationSetBasicTelephonySipImpl,
+            CallSipImpl,
+            CallPeerSipImpl,
+            Address>
+    implements CallChangeListener,
                CallListener,
                MethodProcessorListener,
-               PropertyChangeListener,
-               RegistrationStateChangeListener
+               PropertyChangeListener
 {
 
     /**
@@ -141,12 +146,6 @@ public class OperationSetTelephonyConferencingSipImpl
     private static final int SUBSCRIPTION_DURATION = 3600;
 
     /**
-     * The SIP <tt>OperationSetBasicTelephony</tt> implementation which this
-     * instance uses to carry out tasks such as establishing <tt>Call</tt>s.
-     */
-    private OperationSetBasicTelephonySipImpl basicTelephony;
-
-    /**
      * The <tt>CallPeerListener</tt> which listens to modifications in the
      * properties/state of <tt>CallPeer</tt> so that NOTIFY requests can be sent
      * from a conference focus to its conference members to update them with
@@ -199,13 +198,6 @@ public class OperationSetTelephonyConferencingSipImpl
     private final EventPackageNotifier notifier;
 
     /**
-     * The SIP <tt>ProtocolProviderService</tt> implementation which created
-     * this instance and for which telephony conferencing services are being
-     * provided by this instance.
-     */
-    private final ProtocolProviderServiceSipImpl parentProvider;
-
-    /**
      * The <tt>EventPackageNotifier</tt> which implements conference
      * event-package subscriber support on behalf of this
      * <tt>OperationSetTelephonyConferencing</tt> instance.
@@ -230,7 +222,7 @@ public class OperationSetTelephonyConferencingSipImpl
     public OperationSetTelephonyConferencingSipImpl(
         ProtocolProviderServiceSipImpl parentProvider)
     {
-        this.parentProvider = parentProvider;
+        super(parentProvider);
 
         this.subscriber
                 = new EventPackageSubscriber(
@@ -258,8 +250,6 @@ public class OperationSetTelephonyConferencingSipImpl
                                     eventId);
                     }
                 };
-
-        this.parentProvider.addRegistrationStateChangeListener(this);
     }
 
     /**
@@ -275,6 +265,25 @@ public class OperationSetTelephonyConferencingSipImpl
     {
         for (String str : strings)
             stringBuffer.append(str);
+    }
+
+    /**
+     * Notifies this <tt>OperationSetTelephonyConferencing</tt> that its
+     * <tt>basicTelephony</tt> property has changed its value from a specific
+     * <tt>oldValue</tt> to a specific <tt>newValue</tt>
+     *
+     * @param oldValue the old value of the <tt>basicTelephony</tt> property
+     * @param newValue the new value of the <tt>basicTelephony</tt> property
+     */
+    @Override
+    protected void basicTelephonyChanged(
+            OperationSetBasicTelephonySipImpl oldValue,
+            OperationSetBasicTelephonySipImpl newValue)
+    {
+        if (oldValue != null)
+            oldValue.removeCallListener(this);
+        if (newValue != null)
+            newValue.addCallListener(this);
     }
 
     /**
@@ -393,30 +402,17 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
-     * Creates a conference call with the specified callees as call peers.
+     * Creates a new outgoing <tt>Call</tt> into which conference callees are to
+     * be invited by this <tt>OperationSetTelephonyConferencing</tt>.
      *
-     * @param callees the list of addresses that we should call
-     * @return the newly created conference call containing all CallPeers
-     * @throws OperationFailedException if establishing the conference call
-     * fails
-     * @see OperationSetTelephonyConferencing#createConfCall(String[])
+     * @return a new outgoing <tt>Call</tt> into which conference callees are to
+     * be invited by this <tt>OperationSetTelephonyConferencing</tt>
+     * @throws OperationFailedException if anything goes wrong
      */
-    public Call createConfCall(String[] callees)
+    protected CallSipImpl createOutgoingCall()
         throws OperationFailedException
     {
-        int calleeCount = callees.length;
-        Address[] calleeAddresses = new Address[calleeCount];
-
-        for (int i = 0; i < calleeCount; i++)
-            calleeAddresses[i] = parseAddressString(callees[i]);
-
-        CallSipImpl call = basicTelephony.createOutgoingCall();
-
-        call.setConferenceFocus(true);
-
-        for (Address calleeAddress : calleeAddresses)
-            inviteCalleeToCall(calleeAddress, call);
-        return call;
+        return getBasicTelephony().createOutgoingCall();
     }
 
     /**
@@ -783,21 +779,23 @@ public class OperationSetTelephonyConferencingSipImpl
      * to the specified existing <tt>Call</tt>
      * @param call the existing <tt>Call</tt> to invite the callee with the
      * specified SIP <tt>calleeAddress</tt> to
+     * @param wasConferenceFocus the value of the <tt>conferenceFocus</tt>
+     * property of the specified <tt>call</tt> prior to the request to invite
+     * the specified <tt>calleeAddress</tt>
      * @return a new SIP <tt>CallPeer</tt> instance which describes the SIP
      * signaling and the media streaming of the newly-invited callee within the
      * specified <tt>Call</tt>
      * @throws OperationFailedException if inviting the specified callee to the
      * specified call fails
      */
-    private CallPeerSipImpl inviteCalleeToCall(
+    protected CallPeerSipImpl inviteCalleeToCall(
             Address calleeAddress,
-            CallSipImpl call)
+            CallSipImpl call,
+            boolean wasConferenceFocus)
         throws OperationFailedException
     {
-        if (!call.isConferenceFocus())
+        if (!wasConferenceFocus && call.isConferenceFocus())
         {
-            call.setConferenceFocus(true);
-
             Iterator<CallPeerSipImpl> callPeerIter = call.getCallPeers();
 
             while (callPeerIter.hasNext())
@@ -805,26 +803,6 @@ public class OperationSetTelephonyConferencingSipImpl
         }
 
         return call.invite(calleeAddress, null);
-    }
-
-    /**
-     * Invites the callee represented by the specified uri to an already
-     * existing call. The difference between this method and createConfCall is
-     * that inviteCalleeToCall allows a user to transform an existing 1 to 1
-     * call into a conference call, or add new peers to an already established
-     * conference.
-     *
-     * @param uri the callee to invite to an existing conf call.
-     * @param call the call that we should invite the callee to.
-     * @return the CallPeer object corresponding to the callee represented by
-     * the specified uri.
-     * @throws OperationFailedException if inviting the specified callee to the
-     * specified call fails
-     */
-    public CallPeer inviteCalleeToCall(String uri, Call call)
-        throws OperationFailedException
-    {
-        return inviteCalleeToCall(parseAddressString(uri), (CallSipImpl) call);
     }
 
     /**
@@ -973,7 +951,7 @@ public class OperationSetTelephonyConferencingSipImpl
      * @throws OperationFailedException if parsing the specified
      * <tt>calleeAddressString</tt> fails
      */
-    private Address parseAddressString(String calleeAddressString)
+    protected Address parseAddressString(String calleeAddressString)
         throws OperationFailedException
     {
         try
@@ -1015,43 +993,6 @@ public class OperationSetTelephonyConferencingSipImpl
 
             if (call != null)
                 notifyAll(call);
-        }
-    }
-
-    /**
-     * Notifies this <tt>RegistrationStateChangeListener</tt> that the
-     * <tt>ProtocolProviderSerivce</tt> it is registered with has changed its
-     * registration state.
-     *
-     * @param event a <tt>RegistrationStateChangeEvent</tt> which specifies the
-     * old and the new value of the registration state of the
-     * <tt>ProtocolProviderService</tt> this
-     * <tt>RegistrationStateChangeListener</tt> listens to
-     */
-    public void registrationStateChanged(RegistrationStateChangeEvent event)
-    {
-        RegistrationState newState = event.getNewState();
-
-        if (RegistrationState.REGISTERED.equals(newState))
-        {
-            OperationSetBasicTelephony<?> basicTelephony
-                = parentProvider
-                    .getOperationSet(OperationSetBasicTelephony.class);
-
-            if (this.basicTelephony != basicTelephony)
-            {
-                this.basicTelephony
-                        = (OperationSetBasicTelephonySipImpl) basicTelephony;
-                this.basicTelephony.addCallListener(this);
-            }
-        }
-        else if (RegistrationState.UNREGISTERED.equals(newState))
-        {
-            if (basicTelephony != null)
-            {
-                basicTelephony.removeCallListener(this);
-                basicTelephony = null;
-            }
         }
     }
 
@@ -1471,7 +1412,7 @@ public class OperationSetTelephonyConferencingSipImpl
             if (dialog != null)
             {
                 OperationSetBasicTelephonySipImpl basicTelephony
-                    = OperationSetTelephonyConferencingSipImpl.this.basicTelephony;
+                    = getBasicTelephony();
 
                 if (basicTelephony != null)
                     return

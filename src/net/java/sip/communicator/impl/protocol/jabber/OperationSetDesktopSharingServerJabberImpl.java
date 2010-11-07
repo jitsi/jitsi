@@ -237,12 +237,14 @@ public class OperationSetDesktopSharingServerJabberImpl
         }
 
         CallJabberImpl call = new CallJabberImpl(basicTelephony);
+
         /* enable video */
         call.setLocalVideoAllowed(true, getMediaUseCase());
         /* enable remote-control */
         call.setLocalInputEvtAware(supported);
 
-        return basicTelephony.createOutgoingCall(call, calleeAddress);
+        basicTelephony.createOutgoingCall(call, calleeAddress);
+        return call;
     }
 
     /**

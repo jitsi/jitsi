@@ -55,9 +55,7 @@ public class TransferActiveCallsMenu
         this.init();
 
         for (CallPeer callPeer : callPeers)
-        {
-            this.addCallPeerItem(callPeer);
-        }
+            addCallPeerItem(callPeer);
 
         this.addSeparator();
 

@@ -147,6 +147,67 @@ public class CallPeerJabberImpl
      */
     protected synchronized void processSessionInitiate(JingleIQ sessionInitIQ)
     {
+        /*
+         * We've already sent ack to the specified session-initiate so if it has
+         * been sent as part of an attended transfer, we have to hang up on the
+         * attendant.
+         */
+        try
+        {
+            TransferPacketExtension transfer
+                = (TransferPacketExtension)
+                    sessionInitIQ.getExtension(
+                            TransferPacketExtension.ELEMENT_NAME,
+                            TransferPacketExtension.NAMESPACE);
+
+            if (transfer != null)
+            {
+                String sid = transfer.getSID();
+
+                if (sid != null)
+                {
+                    ProtocolProviderServiceJabberImpl protocolProvider
+                        = getProtocolProvider();
+                    OperationSetBasicTelephonyJabberImpl basicTelephony
+                        = (OperationSetBasicTelephonyJabberImpl)
+                            protocolProvider
+                                .getOperationSet(
+                                        OperationSetBasicTelephony.class);
+                    CallJabberImpl attendantCall
+                        = basicTelephony
+                            .getActiveCallsRepository()
+                                .findJingleSID(sid);
+
+                    if (attendantCall != null)
+                    {
+                        CallPeerJabberImpl attendant
+                            = attendantCall.getPeer(sid);
+
+                        if ((attendant != null)
+                                && basicTelephony
+                                    .getFullCalleeURI(attendant.getAddress())
+                                        .equals(transfer.getFrom())
+                                && protocolProvider.getOurJID().equals(
+                                        transfer.getTo()))
+                        {
+                            basicTelephony.hangupCallPeer(attendant);
+                        }
+                    }
+                }
+            }
+        }
+        catch (Throwable t)
+        {
+            logger.error(
+                    "Failed to hang up on attendant"
+                        + " as part of session transfer",
+                    t);
+
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+        }
+
+        // Do initiate the session.
         this.sessionInitIQ = sessionInitIQ;
         this.isInitiator = true;
 
@@ -191,9 +252,14 @@ public class CallPeerJabberImpl
      * with, passing its content to the media handler and then sends either a
      * "session-info/ringing" or a "session-terminate" response.
      *
+     * @param sessionInitiateExtensions a collection of additional and optional
+     * <tt>PacketExtension</tt>s to be added to the <tt>session-initiate</tt>
+     * {@link JingleIQ} which is to initiate the session with this
+     * <tt>CallPeerJabberImpl</tt>
      * @throws OperationFailedException exception
      */
-    protected synchronized void initiateSession()
+    protected synchronized void initiateSession(
+            Iterable<PacketExtension> sessionInitiateExtensions)
         throws OperationFailedException
     {
         isInitiator = false;
@@ -209,12 +275,20 @@ public class CallPeerJabberImpl
         ProtocolProviderServiceJabberImpl protocolProvider
             = getProtocolProvider();
 
-        this.sessionInitIQ
+        sessionInitIQ
             = JinglePacketFactory.createSessionInitiate(
                     protocolProvider.getOurJID(),
                     this.peerJID,
                     JingleIQ.generateSID(),
                     offer);
+        if (sessionInitiateExtensions != null)
+        {
+            for (PacketExtension sessionInitiateExtension
+                    : sessionInitiateExtensions)
+            {
+                sessionInitIQ.addExtension(sessionInitiateExtension);
+            }
+        }
         protocolProvider.getConnection().sendPacket(sessionInitIQ);
     }
 
@@ -277,8 +351,14 @@ public class CallPeerJabberImpl
      * Ends the call with for this <tt>CallPeer</tt>. Depending on the state
      * of the peer the method would send a CANCEL, BYE, or BUSY_HERE message
      * and set the new state to DISCONNECTED.
+     *
+     * @param reasonText the text, if any, to be set on the
+     * <tt>ReasonPacketExtension</tt> as the value of its 
+     * @param reasonOtherExtension the <tt>PacketExtension</tt>, if any, to be
+     * set on the <tt>ReasonPacketExtension</tt> as the value of its
+     * <tt>otherExtension</tt> property
      */
-    public void hangup()
+    public void hangup(String reasonText, PacketExtension reasonOtherExtension)
     {
         // do nothing if the call is already ended
         if (CallPeerState.DISCONNECTED.equals(getState())
@@ -324,7 +404,21 @@ public class CallPeerJabberImpl
         }
 
         if (responseIQ != null)
+        {
+            if (reasonOtherExtension != null)
+            {
+                ReasonPacketExtension reason
+                    = (ReasonPacketExtension)
+                        responseIQ.getExtension(
+                                ReasonPacketExtension.ELEMENT_NAME,
+                                ReasonPacketExtension.NAMESPACE);
+
+                if (reason != null)
+                    reason.setOtherExtension(reasonOtherExtension);
+            }
+
             getProtocolProvider().getConnection().sendPacket(responseIQ);
+        }
     }
 
     /**
@@ -433,7 +527,7 @@ public class CallPeerJabberImpl
         }
 
         //we are now on hold and need to realize this before potentially
-        //spoling it all with an exception while sending the packet :).
+        //spoiling it all with an exception while sending the packet :).
         reevalLocalHoldStatus();
 
         JingleIQ onHoldIQ = JinglePacketFactory.createSessionInfo(
@@ -487,19 +581,79 @@ public class CallPeerJabberImpl
      */
     public void processSessionInfo(SessionInfoPacketExtension info)
     {
-        if( info.getType() == SessionInfoType.ringing)
-            setState(CallPeerState.ALERTING_REMOTE_SIDE);
-        if (info.getType() == SessionInfoType.hold)
+        switch (info.getType())
         {
+        case ringing:
+            setState(CallPeerState.ALERTING_REMOTE_SIDE);
+            break;
+        case hold:
             getMediaHandler().setRemotelyOnHold(true);
             reevalRemoteHoldStatus();
-        }
-        else if (info.getType() == SessionInfoType.unhold
-                 || info.getType() == SessionInfoType.active)
-        {
+            break;
+        case unhold:
+        case active:
             getMediaHandler().setRemotelyOnHold(false);
             reevalRemoteHoldStatus();
+            break;
+        default:
+            logger.warn("Received SessionInfoPacketExtension of unknown type");
         }
+    }
+
+    /**
+     * Processes a specific "XEP-0251: Jingle Session Transfer"
+     * <tt>transfer</tt> packet (extension).
+     *
+     * @param transfer the "XEP-0251: Jingle Session Transfer" transfer packet
+     * (extension) to process
+     * @throws OperationFailedException if anything goes wrong while processing
+     * the specified <tt>transfer</tt> packet (extension)
+     */
+    public void processTransfer(TransferPacketExtension transfer)
+        throws OperationFailedException
+    {
+        String attendantAddress = transfer.getFrom();
+
+        if (attendantAddress == null)
+        {
+            throw new OperationFailedException(
+                    "Session transfer must contain a \'from\' attribute value.",
+                    OperationFailedException.ILLEGAL_ARGUMENT);
+        }
+
+        String calleeAddress = transfer.getTo();
+
+        if (calleeAddress == null)
+        {
+            throw new OperationFailedException(
+                    "Session transfer must contain a \'to\' attribute value.",
+                    OperationFailedException.ILLEGAL_ARGUMENT);
+        }
+
+        putOnHold(true);
+
+        OperationSetBasicTelephonyJabberImpl basicTelephony
+            = (OperationSetBasicTelephonyJabberImpl)
+                getProtocolProvider()
+                    .getOperationSet(OperationSetBasicTelephony.class);
+        CallJabberImpl calleeCall = new CallJabberImpl(basicTelephony);
+        TransferPacketExtension calleeTransfer = new TransferPacketExtension();
+        String sid = transfer.getSID();
+
+        calleeTransfer.setFrom(attendantAddress);
+        if (sid != null)
+        {
+            calleeTransfer.setSID(sid);
+            calleeTransfer.setTo(calleeAddress);
+        }
+        basicTelephony.createOutgoingCall(
+                calleeCall,
+                calleeAddress,
+                Arrays.asList(new PacketExtension[] { calleeTransfer }));
+
+        hangup(
+            ((sid == null) ? "Unattended" : "Attended") + " transfer success",
+            new TransferredPacketExtension());
     }
 
     /**
@@ -507,7 +661,7 @@ public class CallPeerJabberImpl
      */
     private void sendAddVideoContent()
     {
-        List<ContentPacketExtension> contents = null;
+        List<ContentPacketExtension> contents;
 
         try
         {
@@ -600,21 +754,22 @@ public class CallPeerJabberImpl
             {
                 senders = SendersEnum.both;
             }
-            else if(senders == SendersEnum.none && !isInitiator)
+            else if(senders == SendersEnum.none)
             {
-                senders = SendersEnum.initiator;
-            }
-            else if(senders == SendersEnum.none && isInitiator)
-            {
-                senders = SendersEnum.responder;
+                senders
+                    = isInitiator
+                        ? SendersEnum.responder
+                        : SendersEnum.initiator;
             }
         }
         else
         {
             if(senders == SendersEnum.both)
             {
-                senders = !isInitiator ? SendersEnum.responder :
-                    SendersEnum.initiator;
+                senders
+                    = isInitiator
+                        ? SendersEnum.initiator
+                        : SendersEnum.responder;
             }
             else
             {
@@ -845,5 +1000,48 @@ public class CallPeerJabberImpl
         transportInfo.setType(IQ.Type.SET);
 
         protocolProvider.getConnection().sendPacket(transportInfo);
+    }
+
+    /**
+     * Transfer (in the sense of call transfer) this <tt>CallPeer</tt> to a
+     * specific callee address which may optionally be participating in an
+     * active <tt>Call</tt>.
+     *
+     * @param to the address of the callee to transfer this <tt>CallPeer</tt> to
+     * @param sid the Jingle session ID of the active <tt>Call</tt> between the
+     * local peer and the callee in the case of attended transfer; <tt>null</tt>
+     * in the case of unattended transfer
+     * @throws OperationFailedException if something goes wrong
+     */
+    void transfer(String to, String sid)
+        throws OperationFailedException
+    {
+        JingleIQ transferSessionInfo = new JingleIQ();
+        ProtocolProviderServiceJabberImpl protocolProvider
+            = getProtocolProvider();
+
+        transferSessionInfo.setAction(JingleAction.SESSION_INFO);
+        transferSessionInfo.setFrom(protocolProvider.getOurJID());
+        transferSessionInfo.setSID(getJingleSID());
+        transferSessionInfo.setTo(getAddress());
+        transferSessionInfo.setType(IQ.Type.SET);
+
+        TransferPacketExtension transfer = new TransferPacketExtension();
+
+        if (sid != null)
+        {
+            /*
+             * Not really sure what the value of the "from" attribute of the
+             * "transfer" element should be but the examples in "XEP-0251:
+             * Jingle Session Transfer" has it in the case of attended transfer.
+             */
+            transfer.setFrom(protocolProvider.getOurJID());
+            transfer.setSID(sid);
+        }
+        transfer.setTo(to);
+
+        transferSessionInfo.addExtension(transfer);
+
+        protocolProvider.getConnection().sendPacket(transferSessionInfo);
     }
 }

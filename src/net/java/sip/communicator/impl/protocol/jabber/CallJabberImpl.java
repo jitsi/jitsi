@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.packet.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
@@ -122,6 +123,9 @@ public class CallJabberImpl
      * @param discoverInfo any discovery information that we have for the jid
      * we are trying to reach and that we are passing in order to avoid having
      * to ask for it again.
+     * @param sessionInitiateExtensions a collection of additional and optional
+     * <tt>PacketExtension</tt>s to be added to the <tt>session-initiate</tt>
+     * {@link JingleIQ} which is to init this <tt>CallJabberImpl</tt>
      *
      * @return the newly created <tt>Call</tt> corresponding to
      * <tt>calleeJID</tt>. All following state change events will be
@@ -130,8 +134,10 @@ public class CallJabberImpl
      * @throws OperationFailedException  with the corresponding code if we fail
      *  to create the call.
      */
-    public CallPeerJabberImpl initiateSession(String       calleeJID,
-                                              DiscoverInfo discoverInfo)
+    public CallPeerJabberImpl initiateSession(
+            String calleeJID,
+            DiscoverInfo discoverInfo,
+            Iterable<PacketExtension> sessionInitiateExtensions)
         throws OperationFailedException
     {
         // create the session-initiate IQ
@@ -141,25 +147,27 @@ public class CallJabberImpl
 
         addCallPeer(callPeer);
 
-        callPeer.setState( CallPeerState.INITIATING_CALL);
+        callPeer.setState(CallPeerState.INITIATING_CALL);
 
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.
-        if(this.getCallPeerCount() == 1)
-            parentOpSet.fireCallEvent( (CallEvent.CALL_INITIATED), this);
+        if(getCallPeerCount() == 1)
+            parentOpSet.fireCallEvent(CallEvent.CALL_INITIATED, this);
+
+        CallPeerMediaHandlerJabberImpl mediaHandler
+            = callPeer.getMediaHandler();
 
         /* enable video if it is a videocall */
-        callPeer.getMediaHandler().setLocalVideoTransmissionEnabled(
-                                                            localVideoAllowed);
+        mediaHandler.setLocalVideoTransmissionEnabled(localVideoAllowed);
         /* enable remote-control if it is a desktop sharing session */
-        callPeer.getMediaHandler().setLocalInputEvtAware(localInputEvtAware);
+        mediaHandler.setLocalInputEvtAware(localInputEvtAware);
 
         //set call state to connecting so that the user interface would start
         //playing the tones. we do that here because we may be harvesting
         //STUN/TURN addresses in initiateSession() which would take a while.
-        callPeer.setState( CallPeerState.CONNECTING);
+        callPeer.setState(CallPeerState.CONNECTING);
 
-        callPeer.initiateSession();
+        callPeer.initiateSession(sessionInitiateExtensions);
 
         return callPeer;
     }

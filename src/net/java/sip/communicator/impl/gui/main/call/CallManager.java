@@ -102,6 +102,7 @@ public class CallManager
 
             sourceCall.addCallChangeListener(new CallChangeAdapter()
             {
+                @Override
                 public void callStateChanged(CallChangeEvent evt)
                 {
                     if (evt.getNewValue().equals(CallState.CALL_ENDED)
@@ -729,9 +730,10 @@ public class CallManager
         CallChangeListener callChangeListener = new CallChangeAdapter()
         {
             /*
-             * Implements
+             * Overrides
              * CallChangeAdapter#callStateChanged(CallChangeEvent).
              */
+            @Override
             public void callStateChanged(CallChangeEvent evt)
             {
                 // we are interested only in CALL_STATE_CHANGEs
@@ -788,11 +790,12 @@ public class CallManager
             this.stringContact = null;
         }
 
+        @Override
         public void run()
         {
             OperationSetBasicTelephony telephonyOpSet
-                = protocolProvider
-                    .getOperationSet(OperationSetBasicTelephony.class);
+                = protocolProvider.getOperationSet(
+                        OperationSetBasicTelephony.class);
 
             /*
              * XXX If we are here and we just discover that
@@ -863,11 +866,12 @@ public class CallManager
             this.stringContact = null;
         }
 
+        @Override
         public void run()
         {
             OperationSetVideoTelephony videoTelOpSet
-                = protocolProvider
-                    .getOperationSet(OperationSetVideoTelephony.class);
+                = protocolProvider.getOperationSet(
+                        OperationSetVideoTelephony.class);
 
             /*
              * XXX If we are here and we just discover that
@@ -951,11 +955,12 @@ public class CallManager
             this.mediaDevice = mediaDevice;
         }
 
+        @Override
         public void run()
         {
             OperationSetDesktopSharingServer desktopSharingOpSet
-                = protocolProvider
-                    .getOperationSet(OperationSetDesktopSharingServer.class);
+                = protocolProvider.getOperationSet(
+                        OperationSetDesktopSharingServer.class);
 
             /*
              * XXX If we are here and we just discover that
@@ -1012,6 +1017,7 @@ public class CallManager
             this.call = call;
         }
 
+        @Override
         public void run()
         {
             ProtocolProviderService pps = call.getProtocolProvider();
@@ -1187,6 +1193,7 @@ public class CallManager
             this.call = call;
         }
 
+        @Override
         public void run()
         {
             ProtocolProviderService pps = call.getProtocolProvider();
@@ -1224,12 +1231,12 @@ public class CallManager
             this.callPeer = callPeer;
         }
 
+        @Override
         public void run()
         {
             ProtocolProviderService pps = callPeer.getProtocolProvider();
-
-            OperationSetBasicTelephony telephony =
-                pps.getOperationSet(OperationSetBasicTelephony.class);
+            OperationSetBasicTelephony telephony
+                = pps.getOperationSet(OperationSetBasicTelephony.class);
 
             try
             {
@@ -1259,11 +1266,12 @@ public class CallManager
             this.isOnHold = isOnHold;
         }
 
+        @Override
         public void run()
         {
-            OperationSetBasicTelephony telephony =
-                callPeer.getProtocolProvider()
-                    .getOperationSet(OperationSetBasicTelephony.class);
+            OperationSetBasicTelephony telephony
+                = callPeer.getProtocolProvider().getOperationSet(
+                        OperationSetBasicTelephony.class);
 
             try
             {
