@@ -529,12 +529,17 @@ public abstract class MediaAwareCall<
      * desire of the user) to have the local video streamed in the case the
      * system is actually able to do so.
      *
+     * @param useCase the use case of the video (i.e video call or desktop
+     * streaming/sharing session)
      * @return <tt>true</tt> if the streaming of local video for this
      * <tt>Call</tt> is allowed; otherwise, <tt>false</tt>
      */
-    public boolean isLocalVideoAllowed()
+    public boolean isLocalVideoAllowed(MediaUseCase useCase)
     {
-        return localVideoAllowed;
+        if (mediaUseCase.equals(useCase))
+            return localVideoAllowed;
+        else
+            return false;
     }
 
     /**

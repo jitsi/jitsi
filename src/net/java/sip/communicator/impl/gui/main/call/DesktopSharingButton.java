@@ -62,19 +62,12 @@ public class DesktopSharingButton
     {
         if (call != null)
         {
-            OperationSetDesktopSharingServer desktopOpSet
-                = call.getProtocolProvider().getOperationSet(
-                        OperationSetDesktopSharingServer.class);
-
-            // This shouldn't happen at this stage, because we disable the button
-            // if the operation set isn't available.
-            if (desktopOpSet == null)
-                return;
-
-            boolean isDesktopSharing = desktopOpSet.isLocalVideoAllowed(call);
-
-            if (isDesktopSharing) // If it's already enabled, we disable it.
+            // If it's already enabled, we disable it.
+            if (CallManager.isDesktopSharingEnabled(call))
+            {
                 CallManager.enableDesktopSharing(call, false);
+            }
+            // Otherwise we enable the desktop sharing.
             else
             {
                 MediaService mediaService = GuiActivator.getMediaService();

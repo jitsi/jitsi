@@ -171,22 +171,15 @@ public class CallDialog
     private Timer callDurationTimer;
 
     /**
-     * Indicates if the associated call is a desktop sharing call.
-     */
-    private boolean isDesktopSharing;
-
-    /**
      * Creates a <tt>CallDialog</tt> by specifying the underlying call panel.
      *
      * @param call the <tt>call</tt> that this dialog represents
-     * @param isDesktopSharing indicates if the desktop sharing is enabled
      */
-    public CallDialog(Call call, boolean isDesktopSharing)
+    public CallDialog(Call call)
     {
         super(false);
 
         this.call = call;
-        this.isDesktopSharing = isDesktopSharing;
 
         this.callDurationTimer = new Timer(1000, new CallTimerListener());
         this.callDurationTimer.setRepeats(true);
@@ -485,7 +478,10 @@ public class CallDialog
      */
     public void setVideoButtonSelected(boolean isSelected)
     {
-        this.videoButton.setSelected(true);
+        if (isSelected && !videoButton.isSelected())
+            videoButton.setSelected(true);
+        else if (!isSelected && videoButton.isSelected())
+            videoButton.setSelected(false);
     }
 
     /**
@@ -507,10 +503,12 @@ public class CallDialog
                     .getOperationSet(
                         OperationSetDesktopSharingServer.class) != null)
             {
-                ((OneToOneCallPanel) callPanel).addDesktopSharingComponents();
+                ((OneToOneCallPanel) callPanel)
+                    .addDesktopSharingComponents();
             }
             else
-                ((OneToOneCallPanel) callPanel).removeDesktopSharingComponents();
+                ((OneToOneCallPanel) callPanel)
+                    .removeDesktopSharingComponents();
         }
     }
 
@@ -898,29 +896,6 @@ public class CallDialog
     public CallRenderer getCurrentCallRenderer()
     {
         return (CallRenderer) callPanel;
-    }
-
-    /**
-     * Indicates if the associated call is a desktop sharing.
-     *
-     * @return <tt>true</tt> if the associated call is a desktop sharing,
-     * otherwise returns false
-     */
-    public boolean isDesktopSharing()
-    {
-        return isDesktopSharing;
-    }
-
-    /**
-     * Sets the desktop sharing property to indicate that the corresponding call
-     * has become or is no longer a desktop sharing.
-     *
-     * @param isDesktopSharing indicates if the corresponding call has become
-     * a desktop sharing or is no longer a desktop sharing
-     */
-    public void setDesktopSharing(boolean isDesktopSharing)
-    {
-        this.isDesktopSharing = isDesktopSharing;
     }
 
     /**

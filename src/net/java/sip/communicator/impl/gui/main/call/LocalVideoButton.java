@@ -72,24 +72,7 @@ public class LocalVideoButton
      */
     public void buttonPressed()
     {
-        OperationSetVideoTelephony telephony
-            = call.getProtocolProvider()
-                .getOperationSet(OperationSetVideoTelephony.class);
-
-        if (telephony != null)
-        {
-            try
-            {
-                telephony.setLocalVideoAllowed(
-                    call,
-                    !telephony.isLocalVideoAllowed(call));
-            }
-            catch (OperationFailedException ex)
-            {
-                logger.error(
-                    "Failed to toggle the streaming of local video.",
-                    ex);
-            }
-        }
+        CallManager.enableLocalVideo(call,
+            !CallManager.isLocalVideoEnabled(call));
     }
 }

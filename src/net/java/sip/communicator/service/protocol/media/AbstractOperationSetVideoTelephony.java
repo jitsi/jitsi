@@ -188,7 +188,7 @@ public abstract class AbstractOperationSetVideoTelephony<
     @SuppressWarnings("unchecked") // work with MediaAware* in media package
     public boolean isLocalVideoAllowed(Call call)
     {
-        return ((V)call).isLocalVideoAllowed();
+        return ((V)call).isLocalVideoAllowed(MediaUseCase.CALL);
     }
 
     /**

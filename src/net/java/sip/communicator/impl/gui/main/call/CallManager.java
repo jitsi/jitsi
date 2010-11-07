@@ -56,11 +56,6 @@ public class CallManager
     private static MissedCallsListener missedCallsListener;
 
     /**
-     * Indicates if an outgoing call is a desktop sharing.
-     */
-    private static boolean isDesktopSharing = false;
-
-    /**
      * The property indicating if the user should be warned when starting a
      * desktop sharing session.
      */
@@ -155,9 +150,7 @@ public class CallManager
         {
             Call sourceCall = event.getSourceCall();
 
-            CallManager.openCallDialog(sourceCall, isDesktopSharing);
-
-            isDesktopSharing = false;
+            CallManager.openCallDialog(sourceCall);
         }
     }
 
@@ -206,7 +199,7 @@ public class CallManager
      */
     public static void answerCall(final Call call)
     {
-        CallManager.openCallDialog(call, false);
+        CallManager.openCallDialog(call);
 
         new AnswerCallThread(call).start();
     }
@@ -272,6 +265,70 @@ public class CallManager
     }
 
     /**
+     * Enables/disables local video for the given call.
+     *
+     * @param enable indicates whether to enable or disable the local video
+     * @param call the call for which the local video should be enabled/disabled
+     */
+    public static void enableLocalVideo(Call call, boolean enable)
+    {
+        OperationSetVideoTelephony telephony
+            = call.getProtocolProvider()
+                .getOperationSet(OperationSetVideoTelephony.class);
+
+        boolean enableSucceeded = false;
+
+        if (telephony != null)
+        {
+            // First disable desktop sharing if it's currently enabled.
+            if (enable && isDesktopSharingEnabled(call))
+                enableDesktopSharing(call, false);
+
+            try
+            {
+                telephony.setLocalVideoAllowed(
+                    call,
+                    enable);
+
+                enableSucceeded = true;
+            }
+            catch (OperationFailedException ex)
+            {
+                logger.error(
+                    "Failed to toggle the streaming of local video.",
+                    ex);
+            }
+        }
+
+        // If the operation didn't succeeded for some reason we make sure
+        // to unselect the video button.
+        if (enable && !enableSucceeded)
+            getActiveCallDialog(call).setVideoButtonSelected(false);
+    }
+
+    /**
+     * Indicates if the desktop sharing is currently enabled for the given
+     * <tt>call</tt>.
+     *
+     * @param call the <tt>Call</tt>, for which we would to check if the desktop
+     * sharing is currently enabled
+     * @return <tt>true</tt> if the desktop sharing is currently enabled for the
+     * given <tt>call</tt>, <tt>false</tt> otherwise
+     */
+    public static boolean isLocalVideoEnabled(Call call)
+    {
+        OperationSetVideoTelephony telephony
+            = call.getProtocolProvider()
+                .getOperationSet(OperationSetVideoTelephony.class);
+
+        if (telephony != null
+            && telephony.isLocalVideoAllowed(call))
+            return true;
+
+        return false;
+    }
+
+    /**
      * Creates a desktop sharing call to the contact represented by the given
      * string.
      *
@@ -301,10 +358,6 @@ public class CallManager
     {
         if (showDesktopSharingWarning())
         {
-            // Indicate to the outgoing call event which will be received later
-            // that this is a desktop sharing call.
-            isDesktopSharing = true;
-
             new CreateDesktopSharingThread( protocolProvider,
                                             contact,
                                             mediaDevice).start();
@@ -315,12 +368,12 @@ public class CallManager
      * Enables the desktop sharing in an existing <tt>call</tt>.
      *
      * @param call the call for which desktop sharing should be enabled
-     * @param isEnable indicates if the desktop sharing should be enabled or
+     * @param enable indicates if the desktop sharing should be enabled or
      * disabled
      */
-    public static void enableDesktopSharing(Call call, boolean isEnable)
+    public static void enableDesktopSharing(Call call, boolean enable)
     {
-        enableDesktopSharing(call, null, isEnable);
+        enableDesktopSharing(call, null, enable);
     }
 
     /**
@@ -328,48 +381,76 @@ public class CallManager
      *
      * @param call the call for which desktop sharing should be enabled
      * @param mediaDevice the media device corresponding to the screen to share
-     * @param isEnable indicates if the desktop sharing should be enabled or
+     * @param enable indicates if the desktop sharing should be enabled or
      * disabled
      */
     public static void enableDesktopSharing(Call call,
                                             MediaDevice mediaDevice,
-                                            boolean isEnable)
+                                            boolean enable)
     {
         OperationSetDesktopSharingServer desktopOpSet
             = call.getProtocolProvider().getOperationSet(
                     OperationSetDesktopSharingServer.class);
 
+        boolean enableSucceeded = false;
+
         // This shouldn't happen at this stage, because we disable the button
         // if the operation set isn't available.
-        if (desktopOpSet == null)
-            return;
-
-        if (!isEnable || showDesktopSharingWarning())
+        if (desktopOpSet != null)
         {
-            try
-            {
-                boolean isDesktopSharing
-                    = desktopOpSet.isLocalVideoAllowed(call);
+            // First make sure to disable the local video if it's currently
+            // enabled.
+            if (enable && isLocalVideoEnabled(call))
+                enableLocalVideo(call, false);
 
-                CallDialog callDialog = activeCalls.get(call);
-                callDialog.setDesktopSharing(!isDesktopSharing);
-
-                if (mediaDevice != null)
-                    desktopOpSet.setLocalVideoAllowed(
-                        call,
-                        mediaDevice,
-                        !isDesktopSharing);
-                else
-                    desktopOpSet.setLocalVideoAllowed(
-                        call,
-                        !isDesktopSharing);
-            }
-            catch (OperationFailedException ex)
+            if (!enable || showDesktopSharingWarning())
             {
-                logger.error(
-                    "Failed to toggle the streaming of local video.", ex);
+                try
+                {
+                    if (mediaDevice != null)
+                        desktopOpSet.setLocalVideoAllowed(
+                            call,
+                            mediaDevice,
+                            enable);
+                    else
+                        desktopOpSet.setLocalVideoAllowed(
+                            call,
+                            enable);
+
+                    enableSucceeded = true;
+                }
+                catch (OperationFailedException ex)
+                {
+                    logger.error(
+                        "Failed to toggle the streaming of local video.", ex);
+                }
             }
         }
+
+        if (enable && !enableSucceeded)
+            getActiveCallDialog(call).setDesktopSharingButtonSelected(false);
+    }
+
+    /**
+     * Indicates if the desktop sharing is currently enabled for the given
+     * <tt>call</tt>.
+     *
+     * @param call the <tt>Call</tt>, for which we would to check if the desktop
+     * sharing is currently enabled
+     * @return <tt>true</tt> if the desktop sharing is currently enabled for the
+     * given <tt>call</tt>, <tt>false</tt> otherwise
+     */
+    public static boolean isDesktopSharingEnabled(Call call)
+    {
+        OperationSetDesktopSharingServer desktopOpSet
+            = call.getProtocolProvider().getOperationSet(
+                    OperationSetDesktopSharingServer.class);
+
+        if (desktopOpSet != null
+            && desktopOpSet.isLocalVideoAllowed(call))
+            return true;
+
+        return false;
     }
 
     /**
@@ -538,14 +619,12 @@ public class CallManager
      * Opens a call dialog.
      *
      * @param call the call object to pass to the call dialog
-     * @param isDesktopSharing indicates if the dialog to open is for desktop
-     * sharing
      *
      * @return the opened call dialog
      */
-    public static CallDialog openCallDialog(Call call, boolean isDesktopSharing)
+    public static CallDialog openCallDialog(Call call)
     {
-        CallDialog callDialog = new CallDialog(call, isDesktopSharing);
+        CallDialog callDialog = new CallDialog(call);
 
         activeCalls.put(call, callDialog);
 
@@ -636,6 +715,19 @@ public class CallManager
     public static Iterator<Call> getActiveCalls()
     {
         return activeCalls.keySet().iterator();
+    }
+
+    /**
+     * Returns the <tt>CallDialog</tt> corresponding to the given <tt>call</tt>.
+     * If the call has been finished and no active <tt>CallDialog</tt> could be
+     * found it returns null.
+     *
+     * @param call the <tt>Call</tt>, which dialog we're looking for
+     * @return the <tt>CallDialog</tt> corresponding to the given <tt>call</tt>
+     */
+    public static CallDialog getActiveCallDialog(Call call)
+    {
+        return activeCalls.get(call);
     }
 
     /**

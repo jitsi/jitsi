@@ -146,6 +146,22 @@ public class OperationSetDesktopStreamingSipImpl
     }
 
     /**
+     * Implements OperationSetVideoTelephony#isLocalVideoAllowed(Call). Modifies
+     * the local media setup to reflect the requested setting for the streaming
+     * of the local video.
+     *
+     * @param call the <tt>Call</tt> whose video transmission properties we are
+     * interested in.
+     *
+     * @return <tt>true</tt> if the streaming of local video for the specified
+     * <tt>Call</tt> is allowed; otherwise, <tt>false</tt>
+     */
+    public boolean isLocalVideoAllowed(Call call)
+    {
+        return ((CallSipImpl)call).isLocalVideoAllowed(MediaUseCase.DESKTOP);
+    }
+
+    /**
      * Sets the indicator which determines whether the streaming of local video
      * in a specific <tt>Call</tt> is allowed. The setting does not reflect
      * the availability of actual video capture devices, it just expresses the

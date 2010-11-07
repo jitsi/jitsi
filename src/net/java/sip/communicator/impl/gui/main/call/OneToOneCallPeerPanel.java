@@ -445,7 +445,22 @@ public class OneToOneCallPeerPanel
         {
             if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING
                     .equals(event.getPropertyName()))
+            {
+                boolean oldValue = (Boolean) event.getOldValue();
+                boolean newValue = (Boolean) event.getNewValue();
+
+                // We ensure that when the local video property changes to
+                // false our related buttons would be disabled.
+                if (oldValue && !newValue)
+                {
+                    CallDialog callDialog = callRenderer.getCallDialog();
+
+                    callDialog.setVideoButtonSelected(false);
+                    callDialog.setDesktopSharingButtonSelected(false);
+                }
+
                 handleLocalVideoStreamingChange(this);
+            }
         }
 
         /**
@@ -829,18 +844,20 @@ public class OneToOneCallPeerPanel
             videoContainer.add(localVideo, VideoLayout.LOCAL, 0);
 
             CallDialog callDialog = callRenderer.getCallDialog();
+            Call call = callPeer.getCall();
 
             /*
              * If the local video or desktop sharing is turned on, we ensure
              * that the button is selected.
              */
-            if (callDialog.isDesktopSharing())
+            if (CallManager.isDesktopSharingEnabled(call))
             {
                 callDialog.setDesktopSharingButtonSelected(true);
             }
-            else if (!callDialog.isDesktopSharing()
-                    && !callDialog.isVideoButtonSelected())
+            else if (CallManager.isLocalVideoEnabled(call))
+            {
                 callDialog.setVideoButtonSelected(true);
+            }
         }
 
         videoContainer.validate();
