@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
+import net.java.sip.communicator.impl.neomedia.videoflip.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.resources.*;
@@ -52,7 +53,7 @@ public class VideoMediaDeviceSession
     /**
      * Local <tt>Player</tt> for the local video.
      */
-    private Player localPlayer = null;
+    private Processor localPlayer = null;
 
     /**
      * Use or not RTCP feedback Picture Loss Indication.
@@ -355,7 +356,7 @@ public class VideoMediaDeviceSession
             Exception excpt = null;
             try
             {
-                localPlayer = Manager.createPlayer(dataSource);
+                localPlayer = Manager.createProcessor(dataSource);
             }
             catch (Exception ex)
             {
@@ -371,7 +372,7 @@ public class VideoMediaDeviceSession
                         controllerUpdateForCreateLocalVisualComponent(event);
                     }
                 });
-                localPlayer.start();
+                localPlayer.configure();
             }
             else
             {
@@ -395,7 +396,51 @@ public class VideoMediaDeviceSession
     private void controllerUpdateForCreateLocalVisualComponent(
             ControllerEvent controllerEvent)
     {
-        if (controllerEvent instanceof RealizeCompleteEvent)
+        if (controllerEvent instanceof ConfigureCompleteEvent)
+        {
+            Processor player = (Processor)controllerEvent.getSourceController();
+
+            /*
+             * Use SwScaler for the scaling since it produces an image with
+             * better quality and add the "flip" effect to the video.
+             */
+            TrackControl[] trackControls = player.getTrackControls();
+
+            if ((trackControls != null) && (trackControls.length != 0))
+                try
+                {
+                    for (TrackControl trackControl : trackControls)
+                    {
+                        VideoFlipEffect flipEffect = new VideoFlipEffect();
+                        SwScaler scaler = new SwScaler();
+
+                        trackControl.setCodecChain(
+                                new Codec[] {flipEffect, scaler});
+                        break;
+                    }
+                }
+                catch (UnsupportedPlugInException upiex)
+                {
+                    logger.warn(
+                            "Failed to add SwScaler/VideoFlipEffect to " +
+                            "codec chain", upiex);
+                }
+
+            // Turn the Processor into a Player.
+            try
+            {
+                player.setContentDescriptor(null);
+            }
+            catch (NotConfiguredError nce)
+            {
+                logger.error(
+                    "Failed to set ContentDescriptor of Processor",
+                    nce);
+            }
+
+            player.realize();
+        }
+        else if (controllerEvent instanceof RealizeCompleteEvent)
         {
             Player player = (Player) controllerEvent.getSourceController();
             Component visualComponent = player.getVisualComponent();
@@ -420,6 +465,7 @@ public class VideoMediaDeviceSession
                     player.close();
                 }
             }
+            player.start();
         }
     }
 
