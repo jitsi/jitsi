@@ -17,6 +17,7 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
@@ -446,12 +447,10 @@ public class OneToOneCallPeerPanel
             if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING
                     .equals(event.getPropertyName()))
             {
-                boolean oldValue = (Boolean) event.getOldValue();
-                boolean newValue = (Boolean) event.getNewValue();
-
                 // We ensure that when the local video property changes to
                 // false our related buttons would be disabled.
-                if (oldValue && !newValue)
+                if (event.getOldValue().equals(MediaDirection.SENDRECV)
+                    && event.getNewValue().equals(MediaDirection.RECVONLY))
                 {
                     CallDialog callDialog = callRenderer.getCallDialog();
 
