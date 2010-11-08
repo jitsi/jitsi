@@ -149,7 +149,9 @@ public class AudioLevelEffect
         //copy the actual data from input to the output.
         Object data = outputBuffer.getData();
         byte[] bufferData;
-        if (data instanceof byte[] && ((byte[])data).length >= inputBuffer.getLength()) {
+        if (data instanceof byte[] &&
+                ((byte[])data).length >= inputBuffer.getLength())
+        {
             bufferData = (byte[])data;
         }
         else
@@ -161,7 +163,8 @@ public class AudioLevelEffect
         outputBuffer.setOffset(0);
 
         System.arraycopy(
-            inputBuffer.getData(), inputBuffer.getOffset(), bufferData, 0, inputBuffer.getLength());
+            inputBuffer.getData(), inputBuffer.getOffset(), bufferData, 0,
+            inputBuffer.getLength());
 
         //now copy the output to the level dispatcher.
         eventDispatcher.addData(outputBuffer);

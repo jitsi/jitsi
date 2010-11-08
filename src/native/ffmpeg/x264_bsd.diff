@@ -42,7 +42,7 @@ diff -Nru a/bsdlog.h b/bsdlog.h
 +#include <sys/types.h>
 +
 +
-+float  log2f(float);
++//float  log2f(float);
 +
 +
 +

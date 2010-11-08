@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
+import net.java.sip.communicator.impl.neomedia.videoflip.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -709,7 +710,7 @@ public class MediaServiceImpl
 
             /*
              * Use SwScaler for the scaling since it produces an image with
-             * better quality.
+             * better quality and add the "flip" effect to the video.
              */
             TrackControl[] trackControls = player.getTrackControls();
 
@@ -718,14 +719,19 @@ public class MediaServiceImpl
                 {
                     for (TrackControl trackControl : trackControls)
                     {
+                        VideoFlipEffect flipEffect = new VideoFlipEffect();
+                        SwScaler scaler = new SwScaler();
+
                         trackControl.setCodecChain(
-                                new Codec[] { new SwScaler() });
+                                new Codec[] {flipEffect, scaler});
                         break;
                     }
                 }
                 catch (UnsupportedPlugInException upiex)
                 {
-                    logger.warn("Failed to add SwScaler to codec chain", upiex);
+                    logger.warn(
+                            "Failed to add SwScaler/VideoFlipEffect to " +
+                            "codec chain", upiex);
                 }
 
             // Turn the Processor into a Player.

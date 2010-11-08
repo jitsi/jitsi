@@ -1,0 +1,36 @@
+Index: libavcodec/libx264.c
+===================================================================
+--- libavcodec/libx264.c	(révision 25669)
++++ libavcodec/libx264.c	(copie de travail)
+@@ -163,7 +163,7 @@
+     x4->params.p_log_private        = avctx;
+ 
+     x4->params.i_keyint_max         = avctx->gop_size;
+-    x4->params.b_intra_refresh      = avctx->flags2 & CODEC_FLAG2_INTRA_REFRESH;
++    x4->params.b_intra_refresh      = 1; //avctx->flags2 & CODEC_FLAG2_INTRA_REFRESH;
+     x4->params.rc.i_bitrate         = avctx->bit_rate       / 1000;
+     x4->params.rc.i_vbv_buffer_size = avctx->rc_buffer_size / 1000;
+     x4->params.rc.i_vbv_max_bitrate = avctx->rc_max_rate    / 1000;
+@@ -193,7 +193,7 @@
+     x4->params.i_bframe_pyramid  = avctx->flags2 & CODEC_FLAG2_BPYRAMID ? X264_B_PYRAMID_NORMAL : X264_B_PYRAMID_NONE;
+     avctx->has_b_frames          = avctx->flags2 & CODEC_FLAG2_BPYRAMID ? 2 : !!avctx->max_b_frames;
+ 
+-    x4->params.i_keyint_min = avctx->keyint_min;
++    x4->params.i_keyint_min = 0; //avctx->keyint_min;
+     if (x4->params.i_keyint_min > x4->params.i_keyint_max)
+         x4->params.i_keyint_min = x4->params.i_keyint_max;
+ 
+@@ -303,6 +303,13 @@
+     if (avctx->flags & CODEC_FLAG_GLOBAL_HEADER)
+         x4->params.b_repeat_headers = 0;
+ 
++    /* zero latency */
++    x4->params.rc.i_lookahead = 0;
++    x4->params.i_sync_lookahead = 0;
++    x4->params.i_bframe = 0;
++    x4->params.b_sliced_threads = 1;
++    x4->params.b_vfr_input = 0;
++
+     x4->enc = x264_encoder_open(&x4->params);
+     if (!x4->enc)
+         return -1;

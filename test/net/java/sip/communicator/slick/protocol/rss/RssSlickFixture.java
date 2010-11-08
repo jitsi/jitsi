@@ -54,7 +54,7 @@ public class RssSlickFixture
      * A <code>HashTable</code> containing group names mapped against array
      * lists of buddy screen names.
      */
-    public static Hashtable preInstalledBuddyList = null;
+    public static Hashtable<Object, Object> preInstalledBuddyList = null;
     //XXX: Do I really need that? :-\
 
     /**

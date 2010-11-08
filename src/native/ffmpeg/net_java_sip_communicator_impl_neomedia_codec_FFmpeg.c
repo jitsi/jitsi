@@ -14,6 +14,9 @@
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 
+#include "ffmpeg_utils.h"
+#include "libavfilter/vsrc_buffer.h"
+
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_av_1free (
         JNIEnv *jniEnv, jclass clazz, jlong ptr) {
@@ -89,9 +92,10 @@ Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avcodec_1decode_1video
     return ret;
 }
 
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avcodec_1decode_1video__JJJI
-  (JNIEnv *jniEnv, jclass clazz, jlong avcontext, jlong avframe, jlong src, 
-   jint src_length) 
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avcodec_1decode_1video__JJJI
+  (JNIEnv *jniEnv, jclass clazz, jlong avcontext, jlong avframe, jlong src,
+   jint src_length)
 {
     AVPacket avpkt;
     int got_picture = 0;
@@ -100,8 +104,8 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg
     av_init_packet(&avpkt);
     avpkt.data = (uint8_t*)src;
     avpkt.size = (int)src_length;
-    
-    ret = avcodec_decode_video2((AVCodecContext *) avcontext, 
+
+    ret = avcodec_decode_video2((AVCodecContext *) avcontext,
                       (AVFrame *)avframe, &got_picture,
                       &avpkt);
 
@@ -197,6 +201,13 @@ JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avcodeccontext_1add_1flags (
         JNIEnv *jniEnv, jclass clazz, jlong avctx, jint flags) {
     ((AVCodecContext *) avctx)->flags |= (int) flags;
+}
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avcodeccontext_1add_1flags2
+  (JNIEnv *jniEnv, jclass clazz, jlong avctx, jint flags)
+{
+    ((AVCodecContext *) avctx)->flags2 |= (int) flags;
 }
 
 JNIEXPORT void JNICALL
@@ -470,6 +481,7 @@ JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avframe_1set_1key_1frame (
         JNIEnv *jniEnv, jclass clazz, jlong frame, jboolean key_frame) {
     ((AVFrame *) frame)->key_frame = (JNI_TRUE == key_frame) ? 1 : 0;
+    ((AVFrame *) frame)->pict_type = (JNI_TRUE == key_frame) ? FF_I_TYPE : 0;
 }
 
 JNIEXPORT void JNICALL
@@ -573,7 +585,8 @@ Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_sws_1getCachedContext 
                 NULL, NULL, NULL);
 }
 
-JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_sws_1scale__JJIILjava_lang_Object_2III (
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_sws_1scale__JJIILjava_lang_Object_2III (
         JNIEnv *jniEnv, jclass clazz, jlong context, jlong src, jint srcSliceY,
         jint srcSliceH, jobject dst, jint dstFormat, jint dstW, jint dstH) {
     AVPicture *srcPicture;
@@ -628,3 +641,102 @@ Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_sws_1scale__JLjava_lan
         ret = -1;
     return ret;
 }
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1register_1all
+  (JNIEnv *jniEnv, jclass clazz)
+{
+  avfilter_register_all();
+}
+
+JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1alloc_1filtergraph
+  (JNIEnv *jniEnv, jclass clazz)
+{
+  AVFilterGraph* graph = av_mallocz(sizeof(AVFilterGraph));
+  return (jlong)graph;
+}
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1free_1filtergraph
+  (JNIEnv *jniEnv, jclass clazz, jlong ptr)
+{
+  AVFilterGraph* graph = (AVFilterGraph*)ptr;
+
+  if(graph)
+  {
+    avfilter_graph_destroy(graph);
+    av_freep(graph);
+  }
+}
+
+JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1alloc_1inputstream
+  (JNIEnv *jniEnv, jclass clazz)
+{
+  AVInputStream* avinputstream = av_mallocz(sizeof(AVInputStream));
+  return (jlong)avinputstream;
+}
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1free_1inputstream
+  (JNIEnv *jniEnv, jclass clazz, jlong ptr)
+{
+  av_freep((void*)ptr);
+}
+
+JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1alloc_1outputstream
+  (JNIEnv *jniEnv, jclass clazz)
+{
+  AVOutputStream* avoutputstream = av_mallocz(sizeof(AVOutputStream));
+  return (jlong)avoutputstream;
+}
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1free_1outputstream
+  (JNIEnv *jniEnv, jclass clazz, jlong ptr)
+{
+  av_freep((void*)ptr);
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1configure_1filters
+  (JNIEnv *jniEnv, jclass clazz, jstring vfilters, jlong inputstream, jint pix_fmt, jlong graph)
+{
+  jint ret = 0;
+  const char* filters = (*jniEnv)->GetStringUTFChars (jniEnv, vfilters, NULL);
+
+  ret = configure_filters((AVInputStream*)inputstream, pix_fmt, (AVFilterGraph*)graph, filters);
+
+  (*jniEnv)->ReleaseStringUTFChars (jniEnv, vfilters, filters);
+  return ret;
+}
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_av_1vsrc_1buffer_1add_1frame
+  (JNIEnv *jniEnv, jclass clazz, jlong inputstream, jlong avframe)
+{
+  AVInputStream* ist = (AVInputStream*)inputstream;
+
+  if(ist->picref)
+  {
+    avfilter_unref_buffer(ist->picref);
+  }
+
+  av_vsrc_buffer_add_frame(ist->input_video_filter, (AVFrame*)avframe,
+      ist->pts, AV_TIME_BASE_Q);
+}
+
+JNIEXPORT jint JNICALL
+  Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_av_1get_1filtered_1video_1frame
+  (JNIEnv *jniEnv, jclass clazz, jlong inputstream, jlong avframe)
+{
+  AVInputStream* ist = (AVInputStream*)inputstream;
+  AVRational ist_pts_tb;
+  
+  get_filtered_video_frame(ist->output_video_filter, (AVFrame*)avframe, &ist->picref, &ist_pts_tb);
+
+  return 0;
+}
+

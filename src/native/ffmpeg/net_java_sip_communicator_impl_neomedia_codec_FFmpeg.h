@@ -136,6 +136,14 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
+ * Method:    avcodeccontext_add_flags2
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avcodeccontext_1add_1flags2
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
  * Method:    avcodeccontext_add_partitions
  * Signature: (JI)V
  */
@@ -573,6 +581,86 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg
  */
 JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_sws_1scale__JLjava_lang_Object_2IIIIILjava_lang_Object_2III
   (JNIEnv *, jclass, jlong, jobject, jint, jint, jint, jint, jint, jobject, jint, jint, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
+ * Method:    avfilter_register_all
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1register_1all
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
+ * Method:    avfilter_alloc_filtergraph
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1alloc_1filtergraph
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
+ * Method:    avfilter_free_filtergraph
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1free_1filtergraph
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
+ * Method:    avfilter_alloc_inputstream
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1alloc_1inputstream
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
+ * Method:    avfilter_free_inputstream
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1free_1inputstream
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
+ * Method:    avfilter_alloc_outputstream
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1alloc_1outputstream
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
+ * Method:    avfilter_free_outputstream
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1free_1outputstream
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
+ * Method:    avfilter_configure_filters
+ * Signature: (Ljava/lang/String;JIJ)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1configure_1filters
+  (JNIEnv *, jclass, jstring, jlong, jint, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
+ * Method:    av_vsrc_buffer_add_frame
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_av_1vsrc_1buffer_1add_1frame
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
+ * Method:    av_get_filtered_video_frame
+ * Signature: (JJ)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_av_1get_1filtered_1video_1frame
+  (JNIEnv *, jclass, jlong, jlong);
 
 #ifdef __cplusplus
 }

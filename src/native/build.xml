@@ -100,7 +100,7 @@
     <cc outtype="shared" name="gcc" outfile="${native_install_dir}/screencapture" objdir="${obj}">
       <!-- common compiler flags -->
       <compilerarg value="-std=c99" />
-      <compilerarg value="-D_XOPEN_SOURCE=0x600" />
+      <compilerarg value="-D_XOPEN_SOURCE=600" />
       <compilerarg value="-Wall" />
       <compilerarg value="-Wextra" />
       <compilerarg value="-O3" />
@@ -294,6 +294,7 @@
     <cc outtype="shared" name="gcc" outfile="${native_install_dir}/ffmpeg" objdir="${obj}">
       <!-- common compiler flags -->
       <compilerarg value="-std=c99" />
+      <compilerarg value="-D_XOPEN_SOURCE=600" />
       <compilerarg value="-Wall" />
       <compilerarg value="-O2" />
       <compilerarg value="-I${ffmpeg}" />
@@ -302,6 +303,8 @@
       <linkerarg value="-L${ffmpeg}/libavformat" />
       <linkerarg value="-L${ffmpeg}/libavcodec" />
       <linkerarg value="-L${ffmpeg}/libavutil" />
+      <linkerarg value="-L${ffmpeg}/libavcore" />
+      <linkerarg value="-L${ffmpeg}/libavfilter" />
       <linkerarg value="-L${ffmpeg}/libswscale" />
       <linkerarg value="-L${x264}" />
       <linkerarg value="-L${lame}/libmp3lame/.libs" />
@@ -310,7 +313,9 @@
       -->
       <linkerarg value="-lavformat" location="end" /> 
       <linkerarg value="-lavcodec" location="end" />
+      <linkerarg value="-lavfilter" location="end" />
       <linkerarg value="-lavutil" location="end" />
+      <linkerarg value="-lavcore" location="end" />
       <linkerarg value="-lswscale" location="end" />
       <linkerarg value="-lx264" location="end" />
       <linkerarg value="-lmp3lame" location="end" />
