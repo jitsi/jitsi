@@ -82,6 +82,16 @@ public class MessageWaitingEvent
     }
 
     /**
+     * Returns the <tt>ProtocolProviderService</tt> which originated this event.
+     *
+     * @return the source <tt>ProtocolProviderService</tt>
+     */
+    public ProtocolProviderService getSourceProvider()
+    {
+        return (ProtocolProviderService) getSource();
+    }
+
+    /**
      * The URI we can use to reach messages from provider that is firing
      * the event.
      * @return account URI.

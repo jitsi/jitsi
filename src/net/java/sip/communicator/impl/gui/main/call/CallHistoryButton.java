@@ -13,6 +13,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
@@ -27,7 +28,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class CallHistoryButton
     extends SIPCommTextButton
-    implements  MissedCallsListener,
+    implements  UINotificationListener,
                 Skinnable
 {
     /**
@@ -46,17 +47,10 @@ public class CallHistoryButton
     private boolean isHistoryVisible = false;
 
     /**
-     * Indicates if this button currently shows the number of missed calls or
-     * the just the history icon.
+     * Indicates if this button currently shows the number of unread
+     * notifications or the just the history icon.
      */
-    private boolean isMissedCallView = false;
-
-    /**
-     * The tool tip shown when there are missed calls.
-     */
-    private final static String missedCallsToolTip
-        = GuiActivator.getResources().getI18NString(
-            "service.gui.MISSED_CALLS_TOOL_TIP");
+    private boolean isNotificationsView = false;
 
     /**
      * The tool tip shown by default over the history button. 
@@ -79,7 +73,7 @@ public class CallHistoryButton
     {
         super("");
 
-        CallManager.setMissedCallsListener(this);
+        UINotificationManager.addNotificationListener(this);
 
         this.setPreferredSize(new Dimension(29, 22));
         this.setForeground(Color.WHITE);
@@ -95,7 +89,7 @@ public class CallHistoryButton
         {
             public void actionPerformed(ActionEvent e)
             {
-                if (isHistoryVisible && !isMissedCallView)
+                if (isHistoryVisible && !isNotificationsView)
                 {
                     GuiActivator.getContactList()
                         .setDefaultFilter(TreeContactList.presenceFilter);
@@ -109,7 +103,7 @@ public class CallHistoryButton
                         .setDefaultFilter(TreeContactList.historyFilter);
                     GuiActivator.getContactList().applyDefaultFilter();
 
-                    CallManager.clearMissedCalls();
+                    UINotificationManager.removeAllNotifications();
 
                     isHistoryVisible = true;
                 }
@@ -122,14 +116,18 @@ public class CallHistoryButton
     }
 
     /**
-     * Indicates that missed calls count has changed.
-     * @param missedCalls the list of missed calls
+     * Indicates that a new notification is received.
+     *
+     * @param notification the notification that was received
      */
-    public void missedCallCountChanged(Collection<MissedCall> missedCalls)
+    public void notificationReceived(UINotification notification)
     {
-        if (!missedCalls.isEmpty())
+        Collection<UINotificationGroup> notificationGroups
+            = UINotificationManager.getNotificationGroups();
+
+        if (!isHistoryVisible && notificationGroups.size() > 0)
         {
-            setMissedCallsView(missedCalls);
+            setNotificationView(notificationGroups);
         }
         else
         {
@@ -145,7 +143,7 @@ public class CallHistoryButton
      */
     private void setHistoryView()
     {
-        isMissedCallView = false;
+        isNotificationsView = false;
 
         if (isHistoryVisible)
         {
@@ -161,36 +159,53 @@ public class CallHistoryButton
     }
 
     /**
-     * Sets the missed calls view of this button.
-     * @param missedCalls the list of missed calls
+     * Sets the notifications view of this button.
+     *
+     * @param notificationGroups the list of unread notification groups
      */
-    private void setMissedCallsView(Collection<MissedCall> missedCalls)
+    private void setNotificationView(
+        Collection<UINotificationGroup> notificationGroups)
     {
-        isMissedCallView = true;
+        int notificationCount = 0;
+        isNotificationsView = true;
         this.setBgImage(null);
 
-        String tooltipText = "<html><b>" + missedCallsToolTip + "</b><br/>";
+        Iterator<UINotificationGroup> groupsIter
+            = notificationGroups.iterator();
 
-        int visibleCallCount = 5;
-        Iterator<MissedCall> callsIter = missedCalls.iterator();
-        while (callsIter.hasNext() && visibleCallCount > 0)
+        String tooltipText = "<html>";
+
+        while (groupsIter.hasNext())
         {
-            MissedCall missedCall = callsIter.next();
-            tooltipText += GuiUtils.formatTime(missedCall.getCallTime())
-                        + "    "+ missedCall.getCallName() + "<br/>";
-            visibleCallCount--;
+            UINotificationGroup group = groupsIter.next();
 
-            if (visibleCallCount == 0 && callsIter.hasNext())
-                tooltipText
-                    += GuiActivator.getResources()
+            tooltipText += "<b>" + group.getGroupDisplayName() + "</b><br/>";
+
+            notificationCount += group.getUnreadNotificationsCount();
+
+            int visibleNotifsPerGroup = 5;
+            Iterator<UINotification> notifsIter = group.getUnreadNotifications();
+
+            while (notifsIter.hasNext() && visibleNotifsPerGroup > 0)
+            {
+                UINotification missedCall = notifsIter.next();
+                tooltipText += GuiUtils.formatTime(missedCall.getTime())
+                    + "   " + missedCall.getDisplayName() + "<br/>";
+
+                visibleNotifsPerGroup--;
+
+                if (visibleNotifsPerGroup == 0 && notifsIter.hasNext())
+                    tooltipText += GuiActivator.getResources()
                         .getI18NString("service.gui.MISSED_CALLS_MORE_TOOL_TIP",
-                            new String[]{
-                                new Integer(missedCalls.size() - 5).toString()});
+                            new String[]{ new Integer(
+                                notificationCount - 5).toString()});
+            }
         }
+
         this.setToolTipText(tooltipText + "</html>");
 
         this.setBackground(new Color(200, 0, 0));
-        this.setText(new Integer(missedCalls.size()).toString());
+        this.setText(new Integer(notificationCount).toString());
     }
 
     /**

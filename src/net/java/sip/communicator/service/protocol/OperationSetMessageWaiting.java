@@ -43,7 +43,8 @@ public interface OperationSetMessageWaiting
         }
 
         /**
-         * Returns the type ot the message type enum element.
+         * Returns the type of the message type enum element.
+         *
          * @return the message type.
          */
         public String toString()
@@ -53,6 +54,7 @@ public interface OperationSetMessageWaiting
 
         /**
          * Returns MessageType by its type name.
+         *
          * @param type the type.
          * @return the corresponding MessageType. 
          */

@@ -14,7 +14,8 @@ package net.java.sip.communicator.service.protocol.event;
 public interface MessageWaitingListener
 {
     /**
-     * Notifies for new messages that are waiting.   
+     * Notifies for new messages that are waiting.
+     *
      * @param evt the notification event.
      */
     public void messageWaitingNotify(MessageWaitingEvent evt);

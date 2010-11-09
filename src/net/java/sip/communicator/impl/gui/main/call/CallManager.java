@@ -14,6 +14,8 @@ import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.neomedia.device.*;
@@ -45,23 +47,17 @@ public class CallManager
                                             = new Hashtable<Call, CallDialog>();
 
     /**
-     * A list of the currently missed calls. Only the names of the first
-     * participant of each call is stored in the list.
-     */
-    private static Collection<MissedCall> missedCalls;
-
-    /**
-     * Listener notified for changes in missed calls count.
-     */
-    private static MissedCallsListener missedCallsListener;
-
-    /**
      * The property indicating if the user should be warned when starting a
      * desktop sharing session.
      */
     private static final String desktopSharingWarningProperty
         = "net.java.sip.communicator.impl.gui.main"
             + ".call.SHOW_DESKTOP_SHARING_WARNING";
+
+    /**
+     * The group of notifications dedicated to missed calls.
+     */
+    private static UINotificationGroup missedCallGroup;
 
     /**
      * A call listener.
@@ -100,18 +96,34 @@ public class CallManager
                 @Override
                 public void callStateChanged(CallChangeEvent evt)
                 {
-                    if (evt.getNewValue().equals(CallState.CALL_ENDED)
-                        && evt.getOldValue()
-                            .equals(CallState.CALL_INITIALIZATION))
+                    if (evt.getNewValue().equals(CallState.CALL_ENDED))
                     {
-                        // if call was answered elsewhere, don't add it
-                        // to missed calls
-                        if(evt.getCause() == null
-                           || (evt.getCause().getReasonCode() !=
-                                CallPeerChangeEvent.NORMAL_CALL_CLEARING))
-                            addMissedCall(new MissedCall(peerName, callDate));
+                        if (evt.getOldValue()
+                                .equals(CallState.CALL_INITIALIZATION))
+                        {
+                            // if call was answered elsewhere, don't add it
+                            // to missed calls
+                            if(evt.getCause() == null
+                               || (evt.getCause().getReasonCode() !=
+                                    CallPeerChangeEvent.NORMAL_CALL_CLEARING))
+                            {
+                                addMissedCallNotification(peerName, callDate);
+                            }
 
-                        evt.getSourceCall().removeCallChangeListener(this);
+                            evt.getSourceCall().removeCallChangeListener(this);
+                        }
+
+                        // If we're currently in the call history view refresh
+                        // the view.
+                        TreeContactList contactList
+                            = GuiActivator.getContactList();
+
+                        if (contactList.getCurrentFilter()
+                                .equals(TreeContactList.historyFilter))
+                        {
+                            contactList.applyFilter(
+                                TreeContactList.historyFilter);
+                        }
                     }
                 }
             });
@@ -731,51 +743,6 @@ public class CallManager
     }
 
     /**
-     * Sets the given <tt>MissedCallsListener</tt> that would be notified on
-     * any changes in missed calls count.
-     * @param l the listener to set
-     */
-    public static void setMissedCallsListener(MissedCallsListener l)
-    {
-        missedCallsListener = l;
-    }
-
-    /**
-     * Adds a missed call.
-     * @param missedCall the missed call to add to the list of missed calls
-     */
-    private static void addMissedCall(MissedCall missedCall)
-    {
-        if (missedCalls == null)
-        {
-            missedCalls = new LinkedList<MissedCall>();
-        }
-
-        missedCalls.add(missedCall);
-        fireMissedCallCountChangeEvent(missedCalls);
-    }
-
-    /**
-     * Clears the count of missed calls. Sets it to 0.
-     */
-    public static void clearMissedCalls()
-    {
-        missedCalls = null;
-    }
-
-    /**
-     * Notifies interested <tt>MissedCallListener</tt> that the count has
-     * changed.
-     * @param missedCalls the new missed calls
-     */
-    private static void fireMissedCallCountChangeEvent(
-        Collection<MissedCall> missedCalls)
-    {
-        if (missedCallsListener != null)
-            missedCallsListener.missedCallCountChanged(missedCalls);
-    }
-
-    /**
      * Returns the image corresponding to the given <tt>peer</tt>.
      *
      * @param peer the call peer, for which we're returning an image
@@ -852,6 +819,27 @@ public class CallManager
         {
             call.removeCallChangeListener(callChangeListener);
         }
+    }
+
+    /**
+     * Adds a missed call notification.
+     *
+     * @param peerName the name of the peer
+     * @param callDate the date of the call
+     */
+    private static void addMissedCallNotification(  String peerName,
+                                                    Date callDate)
+    {
+        if (missedCallGroup == null)
+            missedCallGroup
+                = new UINotificationGroup("MissedCalls",
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.MISSED_CALLS_TOOL_TIP"));
+
+        UINotificationManager.addNotification(new UINotification(
+                                                    peerName,
+                                                    callDate,
+                                                    missedCallGroup));
     }
 
     /**

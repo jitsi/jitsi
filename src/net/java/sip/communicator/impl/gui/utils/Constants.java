@@ -76,20 +76,11 @@ public class Constants
      * ======================================================================
      */
     /**
-     * The color used to paint the background of an incoming call history
-     * record.
+     * Background color for even records in call history.
      */
-    public static Color HISTORY_IN_CALL_COLOR
+    public static Color CALL_HISTORY_EVEN_ROW_COLOR
         = new Color(GuiActivator.getResources().
-            getColor("service.gui.HISTORY_INCOMING_CALL_BACKGROUND"));
-
-    /**
-     * The color used to paint the background of an outgoing call history
-     * record.
-     */
-    public static Color HISTORY_OUT_CALL_COLOR
-        = new Color(GuiActivator.getResources().
-            getColor("service.gui.HISTORY_OUTGOING_CALL_BACKGROUND"));
+            getColor("service.gui.CALL_HISTORY_EVEN_ROW_COLOR"));
 
     /**
      * The end color used to paint a gradient selected background of some
@@ -414,13 +405,9 @@ public class Constants
      */
     public static void reload()
     {
-        HISTORY_IN_CALL_COLOR
+        CALL_HISTORY_EVEN_ROW_COLOR
             = new Color(GuiActivator.getResources().
-                getColor("service.gui.HISTORY_INCOMING_CALL_BACKGROUND"));
-
-        HISTORY_OUT_CALL_COLOR
-            = new Color(GuiActivator.getResources().
-                getColor("service.gui.HISTORY_OUTGOING_CALL_BACKGROUND"));
+                getColor("service.gui.CALL_HISTORY_EVEN_ROW_COLOR"));
 
         SELECTED_COLOR
             = new Color(GuiActivator.getResources().

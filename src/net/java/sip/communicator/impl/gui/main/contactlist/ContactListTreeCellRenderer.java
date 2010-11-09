@@ -176,7 +176,7 @@ public class ContactListTreeCellRenderer
 
         loadSkin();
 
-        this.setOpaque(false);
+        this.setOpaque(true);
         this.nameLabel.setOpaque(false);
 
         this.displayDetailsLabel.setFont(getFont().deriveFont(9f));
@@ -299,6 +299,26 @@ public class ContactListTreeCellRenderer
 
         DefaultTreeContactList contactList = (DefaultTreeContactList) tree;
 
+        // Set background color.
+        if (contactList instanceof TreeContactList)
+        {
+            ContactListFilter filter
+                = ((TreeContactList) contactList).getCurrentFilter();
+
+            if (filter != null
+                && filter.equals(TreeContactList.historyFilter)
+                && value instanceof ContactNode
+                && row%2 == 0)
+            {
+                setBackground(Constants.CALL_HISTORY_EVEN_ROW_COLOR);
+            }
+            else
+            {
+                setBackground(Color.WHITE);
+            }
+        }
+
+        // Make appropriate adjustments for contact nodes and group nodes.
         if (value instanceof ContactNode)
         {
             UIContact contact

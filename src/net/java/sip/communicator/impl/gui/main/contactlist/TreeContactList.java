@@ -14,12 +14,10 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.MainFrame.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.notifsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
@@ -28,6 +26,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>TreeContactList</tt> is a contact list based on JTree.
@@ -114,6 +114,8 @@ public class TreeContactList
 
     private static final Collection<ExternalContactSource> contactSources
         = new LinkedList<ExternalContactSource>();
+
+    private static NotificationContactSource notificationSource;
 
     private FilterQuery currentFilterQuery;
 
@@ -627,7 +629,9 @@ public class TreeContactList
 
         if (eventType == ContactQueryStatusEvent.QUERY_ERROR)
         {
-            //TODO: Show the error to the user??
+            if (logger.isInfoEnabled())
+                logger.info("Contact query error occured: "
+                                + event.getQuerySource());
         }
         event.getQuerySource().removeContactQueryListener(this);
     }
@@ -758,7 +762,9 @@ public class TreeContactList
                 if (isSorted)
                     groupNode = parentNode.sortedAddContactGroup(group);
                 else
+                {
                     groupNode = parentNode.addContactGroup(group);
+                }
             }
         }
 
@@ -873,6 +879,29 @@ public class TreeContactList
             if (parent != null)
                 parent.removeContactGroup(parentGroup);
         }
+    }
+
+    /**
+     * Indicates that the information corresponding to the given
+     * <tt>contact</tt> has changed.
+     *
+     * @param contact the contact that has changed
+     */
+    public void refreshContact(final UIContact contact)
+    {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    refreshContact(contact);
+                }
+            });
+            return;
+        }
+
+        treeModel.nodeChanged(contact.getContactNode());
     }
 
     /**
@@ -1713,6 +1742,19 @@ public class TreeContactList
     public static Collection<ExternalContactSource> getContactSources()
     {
         return contactSources;
+    }
+
+    /**
+     * Returns the notification contact source.
+     *
+     * @return the notification contact source
+     */
+    public static NotificationContactSource getNotificationContactSource()
+    {
+        if (notificationSource == null)
+            notificationSource = new NotificationContactSource();
+
+        return notificationSource;
     }
 
     /**

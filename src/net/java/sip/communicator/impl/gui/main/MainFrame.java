@@ -29,6 +29,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -143,6 +144,16 @@ public class MainFrame
      * The container containing the contact list.
      */
     private ContactListPane contactListPanel;
+
+    /**
+     * The user interface provider presence listener.
+     */
+    private ProviderPresenceStatusListener uiProviderPresenceListener;
+
+    /**
+     * The user interface call listener.
+     */
+    private CallListener uiCallListener;
 
     /**
      * Creates an instance of <tt>MainFrame</tt>.
@@ -377,10 +388,13 @@ public class MainFrame
                     supportedOperationSets.get(pOpSetClassName);
             }
 
+            uiProviderPresenceListener
+                = new GUIProviderPresenceStatusListener();
+
             presence.addProviderPresenceStatusListener(
-                        new GUIProviderPresenceStatusListener());
+                uiProviderPresenceListener);
             presence.addContactPresenceStatusListener(
-                        GuiActivator.getContactList());
+                GuiActivator.getContactList());
         }
 
         // Obtain the basic instant messaging operation set.
@@ -424,7 +438,9 @@ public class MainFrame
                 = (OperationSetBasicTelephony<?>)
                     supportedOperationSets.get(telOpSetClassName);
 
-            telephony.addCallListener(new CallManager.GuiCallListener());
+            uiCallListener = new CallManager.GuiCallListener();
+
+            telephony.addCallListener(uiCallListener);
         }
 
         // Obtain the multi user chat operation set.
@@ -466,6 +482,148 @@ public class MainFrame
         if (fileTransferOpSet != null)
         {
             fileTransferOpSet.addFileTransferListener(getContactListPanel());
+        }
+
+        OperationSetMessageWaiting messageWaiting
+            = protocolProvider.getOperationSet(OperationSetMessageWaiting.class);
+
+        if (messageWaiting != null)
+        {
+            messageWaiting.addMessageWaitingNotificationListener(
+                MessageType.VOICE,
+                TreeContactList.getNotificationContactSource());
+        }
+    }
+
+    /**
+     * Removes all protocol supported operation sets.
+     *
+     * @param protocolProvider The protocol provider.
+     */
+    public void removeProtocolSupportedOperationSets(
+            ProtocolProviderService protocolProvider)
+    {
+        Map<String, OperationSet> supportedOperationSets
+            = protocolProvider.getSupportedOperationSets();
+
+        String ppOpSetClassName = OperationSetPersistentPresence
+                                    .class.getName();
+        String pOpSetClassName = OperationSetPresence.class.getName();
+
+        // Obtain the presence operation set.
+        if (supportedOperationSets.containsKey(ppOpSetClassName)
+                || supportedOperationSets.containsKey(pOpSetClassName))
+        {
+            OperationSetPresence presence = (OperationSetPresence)
+                supportedOperationSets.get(ppOpSetClassName);
+
+            if(presence == null)
+            {
+                presence = (OperationSetPresence)
+                    supportedOperationSets.get(pOpSetClassName);
+            }
+
+            if (uiProviderPresenceListener != null)
+                presence.removeProviderPresenceStatusListener(
+                    uiProviderPresenceListener);
+            presence.removeContactPresenceStatusListener(
+                    GuiActivator.getContactList());
+        }
+
+        // Obtain the basic instant messaging operation set.
+        String imOpSetClassName = OperationSetBasicInstantMessaging
+                                    .class.getName();
+
+        if (supportedOperationSets.containsKey(imOpSetClassName))
+        {
+            OperationSetBasicInstantMessaging im
+                = (OperationSetBasicInstantMessaging)
+                    supportedOperationSets.get(imOpSetClassName);
+
+            im.removeMessageListener(getContactListPanel());
+        }
+
+        // Obtain the typing notifications operation set.
+        String tnOpSetClassName = OperationSetTypingNotifications
+                                    .class.getName();
+
+        if (supportedOperationSets.containsKey(tnOpSetClassName))
+        {
+            OperationSetTypingNotifications tn
+                = (OperationSetTypingNotifications)
+                    supportedOperationSets.get(tnOpSetClassName);
+
+            //Add to all typing notification operation sets the Message
+            //listener implemented in the ContactListPanel, which handles
+            //all received messages.
+            tn.removeTypingNotificationsListener(this.getContactListPanel());
+        }
+
+        // Obtain the basic telephony operation set.
+        String telOpSetClassName = OperationSetBasicTelephony.class.getName();
+
+        if (supportedOperationSets.containsKey(telOpSetClassName))
+        {
+            OperationSetBasicTelephony<?> telephony
+                = (OperationSetBasicTelephony<?>)
+                    supportedOperationSets.get(telOpSetClassName);
+
+            if (uiCallListener != null)
+                telephony.removeCallListener(uiCallListener);
+        }
+
+        // Obtain the multi user chat operation set.
+        String multiChatClassName = OperationSetMultiUserChat.class.getName();
+
+        if (supportedOperationSets.containsKey(multiChatClassName))
+        {
+            OperationSetMultiUserChat multiUserChat
+                = (OperationSetMultiUserChat)
+                    supportedOperationSets.get(multiChatClassName);
+
+            ConferenceChatManager conferenceManager
+                = GuiActivator.getUIService().getConferenceChatManager();
+
+            multiUserChat.removeInvitationListener(conferenceManager);
+            multiUserChat.removeInvitationRejectionListener(conferenceManager);
+            multiUserChat.removePresenceListener(conferenceManager);
+        }
+
+        // Obtain the ad-hoc multi user chat operation set.
+        OperationSetAdHocMultiUserChat adHocMultiChatOpSet
+            = protocolProvider
+                .getOperationSet(OperationSetAdHocMultiUserChat.class);
+
+        if (adHocMultiChatOpSet != null)
+        {
+            ConferenceChatManager conferenceManager
+                = GuiActivator.getUIService().getConferenceChatManager();
+
+            adHocMultiChatOpSet
+                .removeInvitationListener(conferenceManager);
+            adHocMultiChatOpSet
+                .removeInvitationRejectionListener(conferenceManager);
+            adHocMultiChatOpSet
+                .removePresenceListener(conferenceManager);
+        }
+
+        // Obtain file transfer operation set.
+        OperationSetFileTransfer fileTransferOpSet
+            = protocolProvider.getOperationSet(OperationSetFileTransfer.class);
+
+        if (fileTransferOpSet != null)
+        {
+            fileTransferOpSet.removeFileTransferListener(getContactListPanel());
+        }
+
+        OperationSetMessageWaiting messageWaiting
+            = protocolProvider.getOperationSet(OperationSetMessageWaiting.class);
+
+        if (messageWaiting != null)
+        {
+            messageWaiting.removeMessageWaitingNotificationListener(
+                MessageType.VOICE,
+                TreeContactList.getNotificationContactSource());
         }
     }
 
@@ -509,7 +667,7 @@ public class MainFrame
     {
         if (logger.isTraceEnabled())
             logger.trace("Add the following protocol provider to the gui: "
-            + protocolProvider.getAccountID().getAccountAddress());
+                + protocolProvider.getAccountID().getAccountAddress());
 
         this.protocolProviders.put(protocolProvider,
                 initiateProviderIndex(protocolProvider));
@@ -525,6 +683,31 @@ public class MainFrame
             contactHandler = new DefaultContactEventHandler(this);
 
         this.addProviderContactHandler(protocolProvider, contactHandler);
+    }
+
+    /**
+     * Adds an account to the application.
+     *
+     * @param protocolProvider The protocol provider of the account.
+     */
+    public void removeProtocolProvider(ProtocolProviderService protocolProvider)
+    {
+        if (logger.isTraceEnabled())
+            logger.trace("Remove the following protocol provider to the gui: "
+                + protocolProvider.getAccountID().getAccountAddress());
+
+        this.protocolProviders.remove(protocolProvider);
+
+        this.removeProtocolSupportedOperationSets(protocolProvider);
+
+        removeProviderContactHandler(protocolProvider);
+
+        this.updateProvidersIndexes(protocolProvider);
+
+        if (accountStatusPanel.containsAccount(protocolProvider))
+        {
+            accountStatusPanel.removeAccount(protocolProvider);
+        }
     }
 
     /**
@@ -558,22 +741,6 @@ public class MainFrame
             //permits to search in the contact list
             this.contactListPanel.getContactList()
                     .requestFocus();
-        }
-    }
-
-    /**
-     * Adds an account to the application.
-     *
-     * @param protocolProvider The protocol provider of the account.
-     */
-    public void removeProtocolProvider(ProtocolProviderService protocolProvider)
-    {
-        this.protocolProviders.remove(protocolProvider);
-        this.updateProvidersIndexes(protocolProvider);
-
-        if (accountStatusPanel.containsAccount(protocolProvider))
-        {
-            accountStatusPanel.removeAccount(protocolProvider);
         }
     }
 
@@ -954,15 +1121,33 @@ public class MainFrame
     }
 
     /**
+     * Adds the given <tt>contactHandler</tt> to handle contact events for the
+     * given <tt>protocolProvider</tt>.
      *
-     * @param protocolProvider
-     * @param contactHandler
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>, which
+     * contacts should be handled by the given <tt>contactHandler</tt>
+     * @param contactHandler the <tt>ContactEventHandler</tt> that would handle
+     * events coming from the UI for any contacts belonging to the given
+     * provider
      */
     public void addProviderContactHandler(
         ProtocolProviderService protocolProvider,
         ContactEventHandler contactHandler)
     {
         providerContactHandlers.put(protocolProvider, contactHandler);
+    }
+
+    /**
+     * Removes the <tt>ContactEventHandler</tt> corresponding to the given
+     * <tt>protocolProvider</tt>.
+     *
+     * @param protocolProvider the protocol provider, which contact handler
+     * we would like to remove
+     */
+    public void removeProviderContactHandler(
+        ProtocolProviderService protocolProvider)
+    {
+        providerContactHandlers.remove(protocolProvider);
     }
 
     /**

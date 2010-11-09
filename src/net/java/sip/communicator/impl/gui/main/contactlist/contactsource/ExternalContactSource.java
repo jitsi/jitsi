@@ -29,18 +29,20 @@ public class ExternalContactSource
     /**
      * Creates an <tt>ExternalContactSource</tt> based on the given
      * <tt>ContactSourceService</tt>.
+     *
      * @param contactSource the <tt>ContactSourceService</tt>, on which this
      * <tt>ExternalContactSource</tt> is based
      */
     public ExternalContactSource(ContactSourceService contactSource)
     {
         this.contactSource = contactSource;
-        sourceUIGroup
-            = new SourceUIGroup(contactSource.getDisplayName());
+
+        sourceUIGroup = new SourceUIGroup(contactSource.getDisplayName());
     }
 
     /**
      * Returns the corresponding <tt>ContactSourceService</tt>.
+     *
      * @return the corresponding <tt>ContactSourceService</tt>
      */
     public ContactSourceService getContactSourceService()
@@ -51,6 +53,7 @@ public class ExternalContactSource
     /**
      * Returns the UI group for this contact source. There's only one group
      * descriptor per external source.
+     *
      * @return the group descriptor
      */
     public UIGroup getUIGroup()
@@ -61,6 +64,7 @@ public class ExternalContactSource
     /**
      * Returns the <tt>UIContact</tt> corresponding to the given
      * <tt>sourceContact</tt>.
+     *
      * @param sourceContact the <tt>SourceContact</tt>, for which we search a
      * corresponding <tt>UIContact</tt>
      * @return the <tt>UIContact</tt> corresponding to the given
