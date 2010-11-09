@@ -353,7 +353,8 @@
       Key="Software\JavaSoft\Java Runtime Environment"
       Name="CurrentVersion"
       Root="HKLM"
-      Type="raw" />
+      Type="raw"
+      Win64="@WINDOWS_IS_64@" />
 </Property>
 
 <Property Id="ARPCONTACT" Value="@APP_EMAIL@" />

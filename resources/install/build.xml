@@ -414,6 +414,7 @@
         <property name="windows.jre.arch.file" value="${windows.jre.file}"/>
         <property name="windows.download.link" value="${link.download.windows32}"/>
         <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-x86.exe"/>
+        <property name="windows.arch" value="32"/>
         <antcall target="build-installation-wix-base" />
     </target>
 
@@ -423,6 +424,7 @@
         <property name="windows.jre.arch.file" value="${windows.jre64.file}"/>
         <property name="windows.download.link" value="${link.download.windows64}"/>
         <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-x64.exe"/>
+        <property name="windows.arch" value="64"/>
         <antcall target="build-installation-wix-base" />
     </target>
 
@@ -529,6 +531,12 @@
                 out="${windows.app.dir}/tmp/component-refs.wxi"
                 style="${inst.resrc}/windows/heat-component-refs.xsl" />
 
+        <condition property="windows.is.64"
+            value="yes"
+            else="no">
+            <equals arg1="${windows.arch}" arg2="64" />
+        </condition>
+
         <!-- Finish the preparation for the execution of candle.exe -->
         <filter token="APP_EMAIL" value="${application.email}" />
         <filter token="APP_NAME" value="${application.name}" />
@@ -537,6 +545,7 @@
         <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
         <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
         <filter token="WINDOWS_JRE_FILE" value="${windows.jre.arch.file}" />
+        <filter token="WINDOWS_IS_64" value="${windows.is.64}" />
         <filter token="WIX_PRODUCT_ID" value="${wix.product.id}" />
         <filter token="WIX_UPGRADE_CODE" value="${wix.upgrade.code}" />
         <copy
