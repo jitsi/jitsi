@@ -23,11 +23,17 @@ public class ReplacementServiceSmileyImpl
     implements SmiliesReplacementService
 {
     /**
+     * The <tt>Logger</tt> used by the <tt>ReplacementServiceSmileyImpl</tt>
+     * class and its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(ReplacementServiceSmileyImpl.class);
+
+    /**
      * The <tt>List</tt> of smiley strings which are matched by
      * {@link #smileyRegex}.
      */
-    private static final java.util.List<String> smileyStrings =
-        new ArrayList<String>();
+    private static final List<String> smileyStrings = new ArrayList<String>();
 
     /**
      * Configuration label shown in the config form.
@@ -50,13 +56,17 @@ public class ReplacementServiceSmileyImpl
     {
         try
         {
-            return Resources.getSmiley(sourceString.trim()).getImagePath();
+            Smiley smiley = Resources.getSmiley(sourceString.trim());
+
+            if (smiley != null)
+                return smiley.getImagePath();
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            logger.error(
+                    "Failed to get smiley replacement for " + sourceString,
+                    e);
         }
-
         return sourceString;
     }
 
