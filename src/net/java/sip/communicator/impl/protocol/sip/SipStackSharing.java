@@ -1075,7 +1075,14 @@ public class SipStackSharing
                     return;
                 }
             }
+        }
+        catch(Throwable ex)
+        {
+            logger.warn("Cannot apply incoming request modification!", ex);
+        }
 
+        try
+        {
             // using asterisk voice mail initial notify for messages
             // is ok, but on the fly received messages their notify comes
             // without subscription-state, so we add it in order to be able to

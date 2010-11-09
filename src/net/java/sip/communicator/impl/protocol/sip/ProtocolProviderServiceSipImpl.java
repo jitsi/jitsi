@@ -2022,6 +2022,9 @@ public class ProtocolProviderServiceSipImpl
                 }
             }
 
+            if(proxySocketAddress == null)
+                throw new UnknownHostException();
+
             proxyAddress = proxySocketAddress.getAddress();
             proxyPort = proxySocketAddress.getPort();
 

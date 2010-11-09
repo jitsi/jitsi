@@ -498,7 +498,16 @@ public class OperationSetBasicInstantMessagingJabberImpl
                                 OperationSetPersistentPresence.class);
 
                 if(smackMessageListener == null)
+                {
                     smackMessageListener = new SmackMessageListener();
+                }
+                else
+                {
+                    // make sure this listener is not already installed in this
+                    // connection
+                    jabberProvider.getConnection()
+                        .removePacketListener(smackMessageListener);
+                }
 
                 jabberProvider.getConnection().addPacketListener(
                         smackMessageListener,
@@ -632,6 +641,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
                         .replaceAll("\\<[bB][oO][dD][yY].*?>","")
                         // removes body end tag
                         .replaceAll("\\</[bB][oO][dD][yY].*?>","");
+
+                    // for some reason &apos; is not rendered correctly
+                    // from our ui, lets use its equivalent. Other
+                    // similar chars(< > & ") seem ok. 
+                    receivedMessage =
+                            receivedMessage.replaceAll("&apos;", "&#39;");
 
                     newMessage =
                         createMessage(receivedMessage, HTML_MIME_TYPE);

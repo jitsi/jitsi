@@ -81,6 +81,22 @@ public class OperationSetMessageWaitingSipImpl
             messageWaitingNotificationListeners
                 = new HashMap<MessageType,
                               List<MessageWaitingListener>>();
+    /**
+     * Number of unread messages, count so we don't duplicate events.
+     */
+    private int unreadMessages = 0;
+    /**
+     * Number of old messages, count so we don't duplicate events.
+     */
+    private int readMessages = 0;
+    /**
+     * Number of unread urgent messages, count so we don't duplicate events.
+     */
+    private int unreadUrgentMessages = 0;
+    /**
+     * Number of old urgent messages, count so we don't duplicate events.
+     */
+    private int readUrgentMessages = 0;
 
     /**
      * Creates this operation set.
@@ -238,6 +254,25 @@ public class OperationSetMessageWaitingSipImpl
         int unreadUrgentMessages,
         int readUrgentMessages)
     {
+        synchronized(this)
+        {
+            if(this.unreadMessages == unreadMessages
+                && this.readMessages == readMessages
+                && this.unreadUrgentMessages == unreadUrgentMessages
+                && this.readUrgentMessages == readUrgentMessages)
+            {
+                // no new information skip event;
+                return;
+            }
+            else
+            {
+                this.unreadMessages = unreadMessages;
+                this.readMessages = readMessages;
+                this.unreadUrgentMessages = unreadUrgentMessages;
+                this.readUrgentMessages = readUrgentMessages;
+            }
+        }
+
         MessageType msgType = MessageType.valueOfByType(msgTypeStr);
         MessageWaitingEvent event =
             new MessageWaitingEvent(
