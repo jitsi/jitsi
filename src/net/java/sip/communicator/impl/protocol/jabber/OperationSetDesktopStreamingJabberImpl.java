@@ -92,7 +92,53 @@ public class OperationSetDesktopStreamingJabberImpl
     public Call createVideoCall(Contact callee, MediaDevice mediaDevice)
         throws OperationFailedException
     {
-        return this.createOutgoingVideoCall(callee.getAddress(), mediaDevice);
+        return createOutgoingVideoCall(callee.getAddress(), mediaDevice);
+    }
+
+    /**
+     * Create a new video call and invite the specified CallPeer to it.
+     *
+     * @param uri the address of the callee that we should invite to a new
+     * call.
+     * @return CallPeer the CallPeer that will represented by the
+     * specified uri. All following state change events will be delivered
+     * through that call peer. The Call that this peer is a member
+     * of could be retrieved from the CallParticipatn instance with the use
+     * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the video call.
+     */
+    @Override
+    public Call createVideoCall(String uri)
+        throws OperationFailedException
+    {
+        Call call = createOutgoingVideoCall(uri);
+        size = (((VideoMediaFormat)((CallJabberImpl)call).getDefaultDevice(
+                MediaType.VIDEO).getFormat()).getSize());
+        System.out.println("dimension: " + size);
+        return call;
+    }
+
+    /**
+     * Create a new video call and invite the specified CallPeer to it.
+     *
+     * @param callee the address of the callee that we should invite to a new
+     * call.
+     * @return CallPeer the CallPeer that will represented by the
+     * specified uri. All following state change events will be delivered
+     * through that call peer. The Call that this peer is a member
+     * of could be retrieved from the CallParticipatn instance with the use
+     * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the video call.
+     */
+    @Override
+    public Call createVideoCall(Contact callee) throws OperationFailedException
+    {
+        Call call = createOutgoingVideoCall(callee.getAddress());
+        size = (((VideoMediaFormat)((CallJabberImpl)call).getDefaultDevice(
+                MediaType.VIDEO).getFormat()).getSize());
+        return call;
     }
 
     /**
