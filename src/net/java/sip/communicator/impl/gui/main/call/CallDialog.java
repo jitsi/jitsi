@@ -460,18 +460,6 @@ public class CallDialog
     }
 
     /**
-     * Returns <code>true</code> if the video button is selected,
-     * <code>false</code> - otherwise.
-     *
-     * @return  <code>true</code> if the video button is selected,
-     * <code>false</code> - otherwise.
-     */
-    public boolean isVideoButtonSelected()
-    {
-        return videoButton.isSelected();
-    }
-
-    /**
      * Selects or unselects the video button in this call dialog.
      *
      * @param isSelected indicates if the video button should be selected or not
@@ -535,16 +523,35 @@ public class CallDialog
             ProtocolProviderService protocolProvider
                 = call.getProtocolProvider();
 
-            if (protocolProvider.getOperationSet(
-                OperationSetVideoTelephony.class) != null)
+            OperationSetVideoTelephony videoTelephony
+                = protocolProvider.getOperationSet(
+                    OperationSetVideoTelephony.class);
+
+            if (videoTelephony != null)
             {
                 videoButton.setEnabled(true);
+
+                // If the video was already enabled (for example in the case of
+                // direct video call) make sure the video button is selected.
+                if (videoTelephony.isLocalVideoAllowed(call)
+                    && !videoButton.isSelected())
+                    setVideoButtonSelected(true);
             }
 
-            if (protocolProvider.getOperationSet(
-                OperationSetDesktopSharingServer.class) != null)
+            OperationSetDesktopSharingServer desktopSharing
+                = protocolProvider.getOperationSet(
+                    OperationSetDesktopSharingServer.class);
+
+            if (desktopSharing != null)
             {
                 desktopSharingButton.setEnabled(true);
+
+                // If the video was already enabled (for example in the case of
+                // direct desktop sharing call) make sure the video button is
+                // selected.
+                if (desktopSharing.isLocalVideoAllowed(call)
+                    && !desktopSharingButton.isSelected())
+                    setDesktopSharingButtonSelected(true);
             }
 
             if (protocolProvider.getOperationSet(
