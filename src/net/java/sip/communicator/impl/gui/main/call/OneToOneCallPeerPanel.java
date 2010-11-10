@@ -447,15 +447,31 @@ public class OneToOneCallPeerPanel
             if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING
                     .equals(event.getPropertyName()))
             {
+                CallDialog callDialog = callRenderer.getCallDialog();
+
                 // We ensure that when the local video property changes to
                 // false our related buttons would be disabled.
-                if (event.getOldValue().equals(MediaDirection.SENDRECV)
-                    && event.getNewValue().equals(MediaDirection.RECVONLY))
+                if (event.getNewValue().equals(MediaDirection.RECVONLY))
                 {
-                    CallDialog callDialog = callRenderer.getCallDialog();
-
                     callDialog.setVideoButtonSelected(false);
                     callDialog.setDesktopSharingButtonSelected(false);
+                }
+                else if (event.getNewValue().equals(MediaDirection.SENDRECV))
+                {
+                    Call call = callPeer.getCall();
+
+                    /*
+                     * If the local video or desktop sharing is turned on, we
+                     * ensure that the button is selected.
+                     */
+                    if (CallManager.isDesktopSharingEnabled(call))
+                    {
+                        callDialog.setDesktopSharingButtonSelected(true);
+                    }
+                    else if (CallManager.isLocalVideoEnabled(call))
+                    {
+                        callDialog.setVideoButtonSelected(true);
+                    }
                 }
 
                 handleLocalVideoStreamingChange(this);
@@ -845,22 +861,6 @@ public class OneToOneCallPeerPanel
                 localVideoParent.remove(localVideo);
 
             videoContainer.add(localVideo, VideoLayout.LOCAL, 0);
-
-            CallDialog callDialog = callRenderer.getCallDialog();
-            Call call = callPeer.getCall();
-
-            /*
-             * If the local video or desktop sharing is turned on, we ensure
-             * that the button is selected.
-             */
-            if (CallManager.isDesktopSharingEnabled(call))
-            {
-                callDialog.setDesktopSharingButtonSelected(true);
-            }
-            else if (CallManager.isLocalVideoEnabled(call))
-            {
-                callDialog.setVideoButtonSelected(true);
-            }
         }
 
         videoContainer.validate();
