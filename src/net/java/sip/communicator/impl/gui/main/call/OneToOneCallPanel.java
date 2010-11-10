@@ -30,6 +30,12 @@ public class OneToOneCallPanel
     implements CallRenderer
 {
     /**
+     * Logger for the OneToOneCallPanel.
+     */
+    private static final Logger logger
+        = Logger.getLogger(OneToOneCallPanel.class);
+
+    /**
      * Serial version UID.
      */
     private static final long serialVersionUID = 0L;
@@ -386,6 +392,9 @@ public class OneToOneCallPanel
      */
     public void addDesktopSharingComponents()
     {
+        if (logger.isTraceEnabled())
+            logger.trace("Add desktop sharing related components.");
+
         if (enableDesktopRemoteControl == null)
         {
             enableDesktopRemoteControl = new JCheckBox(

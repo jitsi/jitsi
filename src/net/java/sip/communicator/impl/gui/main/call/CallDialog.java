@@ -491,6 +491,9 @@ public class CallDialog
      */
     public void setDesktopSharingButtonSelected(boolean isSelected)
     {
+        if (logger.isTraceEnabled())
+            logger.trace("Desktop sharing enabled: " + isSelected);
+
         if (isSelected && !desktopSharingButton.isSelected())
             desktopSharingButton.setSelected(true);
         else if (!isSelected && desktopSharingButton.isSelected())
