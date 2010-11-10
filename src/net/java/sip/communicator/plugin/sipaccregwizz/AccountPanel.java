@@ -22,7 +22,8 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class AccountPanel
     extends TransparentPanel
-    implements DocumentListener
+    implements DocumentListener,
+               ValidatingPanel
 {
     private final Logger logger = Logger.getLogger(AccountPanel.class);
 
@@ -70,6 +71,7 @@ public class AccountPanel
         super(new BorderLayout());
 
         this.regform = regform;
+        this.regform.addValidatingPanel(this);
 
         this.userIDField.getDocument().addDocumentListener(this);
 
@@ -158,10 +160,8 @@ public class AccountPanel
      */
     public void insertUpdate(DocumentEvent e)
     {
-        regform.setNextFinishButtonEnabled(
-                userIDField.getText() != null
-                && userIDField.getText().length() > 0);
         regform.setServerFieldAccordingToUIN(userIDField.getText());
+        regform.reValidateInput();
     }
 
     /**
@@ -172,10 +172,8 @@ public class AccountPanel
      */
     public void removeUpdate(DocumentEvent e)
     {
-        regform.setNextFinishButtonEnabled(
-            userIDField.getText() != null
-            && userIDField.getText().length() > 0);
         regform.setServerFieldAccordingToUIN(userIDField.getText());
+        regform.reValidateInput();
     }
 
     public void changedUpdate(DocumentEvent e) {}
@@ -243,6 +241,7 @@ public class AccountPanel
     void setUserID(String userID)
     {
         userIDField.setText(userID);
+        regform.reValidateInput();
     }
 
     /**
@@ -368,5 +367,18 @@ public class AccountPanel
     boolean isCreateAccount()
     {
         return createAccountButton.isSelected();
+    }
+
+    /**
+     * Whether current inserted values into the panel are valid and enough
+     * to continue with account creation/modification.
+     *
+     * @return whether the input values are ok to continue with account
+     * creation/modification.
+     */
+    public boolean isValidated()
+    {
+        return userIDField.getText() != null
+                && userIDField.getText().length() > 0;
     }
 }

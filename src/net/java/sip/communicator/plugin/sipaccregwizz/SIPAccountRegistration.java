@@ -40,7 +40,7 @@ public class SIPAccountRegistration
 
     private String serverPort = null;
 
-    private boolean proxyAutoConfigure = false;
+    private boolean proxyAutoConfigure = true;
 
     private String proxyPort = null;
 

@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.util.swing.*;
 
@@ -19,7 +20,9 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class ConnectionPanel
     extends TransparentPanel
-    implements ItemListener
+    implements ItemListener,
+               DocumentListener,
+               ValidatingPanel
 {
     private final JCheckBox enableDefaultEncryption;
 
@@ -65,6 +68,7 @@ public class ConnectionPanel
         super(new BorderLayout(10, 10));
 
         this.regform = regform;
+        this.regform.addValidatingPanel(this);
 
         enableDefaultEncryption = new SIPCommCheckBox(Resources
             .getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
@@ -76,6 +80,7 @@ public class ConnectionPanel
         proxyAutoCheckBox = new SIPCommCheckBox(
                 Resources.getString("plugin.sipaccregwizz.PROXY_AUTO"),
                 regform.getRegistration().isProxyAutoConfigure());
+        enablesProxyAutoConfigure(proxyAutoCheckBox.isSelected());
         proxyAutoCheckBox.addActionListener(new ActionListener()
         {
             /**
@@ -84,6 +89,7 @@ public class ConnectionPanel
             public void actionPerformed(ActionEvent e)
             {
                 enablesProxyAutoConfigure(proxyAutoCheckBox.isSelected());
+                ConnectionPanel.this.regform.reValidateInput();
             }
         });
 
@@ -146,6 +152,8 @@ public class ConnectionPanel
         JPanel proxyMainPanel
             = new TransparentPanel(new BorderLayout(10, 10));
 
+        proxyField.getDocument().addDocumentListener(this);
+        proxyPortField.getDocument().addDocumentListener(this);
         JPanel proxyPanel = new TransparentPanel(new BorderLayout(5, 5));
         proxyPanel.add(proxyField, BorderLayout.CENTER);
         JPanel proxyPortPanel = new TransparentPanel(
@@ -549,5 +557,57 @@ public class ConnectionPanel
         proxyField.setEnabled(!isEnable);
         proxyPortField.setEnabled(!isEnable);
         transportCombo.setEnabled(!isEnable);
+        regform.reValidateInput();
+    }
+
+    /**
+     * Handles the <tt>DocumentEvent</tt> triggered when user types in the
+     * proxy or port field. Enables or disables the "Next" wizard button
+     * according to whether the fields are empty.
+     * @param e the <tt>DocumentEvent</tt> that notified us     */
+    public void insertUpdate(DocumentEvent e)
+    {
+        regform.reValidateInput();
+    }
+
+    /**
+     * Handles the <tt>DocumentEvent</tt> triggered when user deletes letters
+     * from the proxy and port fields. Enables or disables the "Next" wizard
+     * button according to whether the fields are empty.
+     * @param e the <tt>DocumentEvent</tt> that notified us
+     */
+    public void removeUpdate(DocumentEvent e)
+    {
+        regform.reValidateInput();
+    }
+
+    /**
+     * Not used.
+     *
+     * @param e the document event
+     */
+    public void changedUpdate(DocumentEvent e){}
+
+    /**
+     * Whether current inserted values into the panel are valid and enough
+     * to continue with account creation/modification.
+     * Checks whether proxy field values are ok to continue with
+     * account creating.
+     *
+     * @return whether the input values are ok to continue with account
+     * creation/modification.
+     */
+    public boolean isValidated()
+    {
+        if(!proxyAutoCheckBox.isSelected())
+        {
+            return
+                proxyField.getText() != null
+                    && proxyField.getText().length() > 0
+                && proxyPortField.getText() != null
+                    && proxyPortField.getText().length() > 0;
+        }
+
+        return true;
     }
 }

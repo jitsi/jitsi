@@ -548,7 +548,7 @@ public class SipStackSharing
                 {
                     // apply some hacks if needed on incoming request
                     // to be compliant with some servers/clients
-                    dirtyHacks(event);
+                    applyNonConformanceHacks(event);
 
                     SipProvider source = (SipProvider) event.getSource();
                     ServerTransaction transaction
@@ -1039,7 +1039,7 @@ public class SipStackSharing
      *
      * @param event the incoming request event.
      */
-    private void dirtyHacks(RequestEvent event)
+    private void applyNonConformanceHacks(RequestEvent event)
     {
         Request request = event.getRequest();
         try
@@ -1049,31 +1049,19 @@ public class SipStackSharing
              * place it. SipProvider#getNewServerTransaction(Request)
              * will throw an exception in the case of a missing
              * Max-Forwards header and this method will eventually just
-             * log it thus ignoring the whole event. Since these
-             * requests come often in some cases (e.g. ippi.fr),
-             * performance-wise it makes sense to just prevent the
-             * exceptions and ignore the event early.
+             * log it thus ignoring the whole event.
              */
             if (request.getHeader(MaxForwardsHeader.NAME) == null)
             {
-                //it appears that some buggy providers do send requests
-                //with no Max-Forwards headers, so let's at least try
-                //to save calls.
-                if(Request.INVITE.equals(request.getMethod()))
-                {
-                    MaxForwardsHeader maxForwards = SipFactory
-                        .getInstance().createHeaderFactory()
-                            .createMaxForwardsHeader(70);
-                    request.setHeader(maxForwards);
-                }
-                else
-                {
-                    if (logger.isTraceEnabled())
-                        logger.trace(
-                                "Ignoring request without Max-Forwards header: "
-                                + event);
-                    return;
-                }
+                // it appears that some buggy providers do send requests
+                // with no Max-Forwards headers, as we are at application level
+                // and we know there will be no endless loops
+                // there is no problem of adding headers and process normally
+                // this messages
+                MaxForwardsHeader maxForwards = SipFactory
+                    .getInstance().createHeaderFactory()
+                        .createMaxForwardsHeader(70);
+                request.setHeader(maxForwards);
             }
         }
         catch(Throwable ex)

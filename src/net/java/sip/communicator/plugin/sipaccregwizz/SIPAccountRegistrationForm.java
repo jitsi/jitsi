@@ -1,6 +1,8 @@
 package net.java.sip.communicator.plugin.sipaccregwizz;
 
 import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -27,6 +29,12 @@ public class SIPAccountRegistrationForm
     private final SIPAccountRegistrationWizard wizard;
 
     private final JTabbedPane tabbedPane = new SIPCommTabbedPane(false, false);
+
+    /**
+     * The panels which value needs validation before we continue.
+     */
+    private List<ValidatingPanel> validatingPanels =
+            new ArrayList<ValidatingPanel>();
 
     /**
      * Creates an instance of <tt>SIPAccountRegistrationForm</tt>.
@@ -96,10 +104,37 @@ public class SIPAccountRegistrationForm
      * @param isEnabled <tt>true</tt> to enable the next button, <tt>false</tt>
      * otherwise
      */
-    void setNextFinishButtonEnabled(boolean isEnabled)
+    private void setNextFinishButtonEnabled(boolean isEnabled)
     {
         SIPAccRegWizzActivator.getUIService().getAccountRegWizardContainer()
             .setNextFinishButtonEnabled(isEnabled);
+    }
+
+    /**
+     * Call this to trigger revalidation of all the input values
+     * and change the state of next/finish button.
+     */
+    void reValidateInput()
+    {
+        for(ValidatingPanel panel : validatingPanels)
+        {
+            if(!panel.isValidated())
+            {
+                setNextFinishButtonEnabled(false);
+                return;
+            }
+        }
+
+        setNextFinishButtonEnabled(true);
+    }
+
+    /**
+     * Adds panel to the list of panels with values which need validation. 
+     * @param panel ValidatingPanel.
+     */
+    public void addValidatingPanel(ValidatingPanel panel)
+    {
+        validatingPanels.add(panel);
     }
 
     /**
@@ -339,8 +374,6 @@ public class SIPAccountRegistrationForm
         accountPanel.setUserIDEnabled(false);
         accountPanel.setUserID((serverAddress == null) ? accountID.getUserID()
             : (accountID.getUserID() + "@" + serverAddress));
-
-        setNextFinishButtonEnabled(accountPanel.getUserID() != null);
 
         if (password != null)
         {
