@@ -120,6 +120,55 @@ public class OperationSetDesktopStreamingSipImpl
     }
 
     /**
+     * Create a new video call and invite the specified CallPeer to it.
+     *
+     * @param uri the address of the callee that we should invite to a new
+     * call.
+     * @return CallPeer the CallPeer that will represented by the
+     * specified uri. All following state change events will be delivered
+     * through that call peer. The Call that this peer is a member
+     * of could be retrieved from the CallParticipatn instance with the use
+     * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the video call.
+     * @throws ParseException if <tt>callee</tt> is not a valid sip address
+     * string.
+     */
+    @Override
+    public Call createVideoCall(String uri)
+        throws OperationFailedException, ParseException
+    {
+        Call call = super.createVideoCall(uri);
+        size = (((VideoMediaFormat)((CallSipImpl)call).
+                getDefaultDevice(MediaType.VIDEO).
+                getFormat()).getSize());
+        return call;
+    }
+
+    /**
+     * Create a new video call and invite the specified CallPeer to it.
+     *
+     * @param callee the address of the callee that we should invite to a new
+     * call.
+     * @return CallPeer the CallPeer that will represented by the
+     * specified uri. All following state change events will be delivered
+     * through that call peer. The Call that this peer is a member
+     * of could be retrieved from the CallParticipatn instance with the use
+     * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the video call.
+     */
+    @Override
+    public Call createVideoCall(Contact callee) throws OperationFailedException
+    {
+        Call call = super.createVideoCall(callee);
+        size = (((VideoMediaFormat)((CallSipImpl)call).
+                getDefaultDevice(MediaType.VIDEO).
+                getFormat()).getSize());
+        return call;
+    }
+
+    /**
      * Implements OperationSetVideoTelephony#setLocalVideoAllowed(Call,
      * boolean). Modifies the local media setup to reflect the requested setting
      * for the streaming of the local video and then re-invites all

@@ -408,12 +408,12 @@ public class OneToOneCallPanel
 
             enableDesktopRemoteControl.setAlignmentX(CENTER_ALIGNMENT);
 
-            enableDesktopRemoteControl.addChangeListener(new ChangeListener()
+            enableDesktopRemoteControl.addItemListener(new ItemListener()
             {
-                public void stateChanged(ChangeEvent e)
+                public void itemStateChanged(ItemEvent e)
                 {
                     CallManager.enableDesktopRemoteControl(
-                        callPeer, enableDesktopRemoteControl.isSelected());
+                        callPeer, e.getStateChange() == ItemEvent.SELECTED);
                 }
             });
         }
