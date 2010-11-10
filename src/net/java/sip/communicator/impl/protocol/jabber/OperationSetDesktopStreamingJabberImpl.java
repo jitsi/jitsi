@@ -115,7 +115,6 @@ public class OperationSetDesktopStreamingJabberImpl
         Call call = createOutgoingVideoCall(uri);
         size = (((VideoMediaFormat)((CallJabberImpl)call).getDefaultDevice(
                 MediaType.VIDEO).getFormat()).getSize());
-        System.out.println("dimension: " + size);
         return call;
     }
 
