@@ -22,6 +22,8 @@ import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -527,7 +529,14 @@ public class CallDialog
                 = protocolProvider.getOperationSet(
                     OperationSetVideoTelephony.class);
 
-            if (videoTelephony != null)
+            MediaDevice videoDevice = GuiActivator.getMediaService()
+                .getDefaultDevice(  MediaType.VIDEO,
+                                    MediaUseCase.CALL);
+
+            // If the video telephony is supported and the default video device
+            // isn't null, i.e. there's an available camera to the video we
+            // enable the video button.
+            if (videoTelephony != null && videoDevice != null)
             {
                 videoButton.setEnabled(true);
 
@@ -537,6 +546,9 @@ public class CallDialog
                     && !videoButton.isSelected())
                     setVideoButtonSelected(true);
             }
+            else if (videoDevice == null)
+                videoButton.setToolTipText(GuiActivator.getResources()
+                    .getI18NString("service.gui.NO_CAMERA_AVAILABLE"));
 
             OperationSetDesktopSharingServer desktopSharing
                 = protocolProvider.getOperationSet(
