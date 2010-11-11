@@ -139,6 +139,12 @@ public interface MediaService
     public ZrtpControl createZrtpControl();
 
     /**
+     * Returns the control that handles current playback levels.
+     * @return the volume playback control.
+     */
+    public VolumeControl getVolumeControl();
+
+    /**
      * Get available <tt>ScreenDevice</tt>s.
      *
      * @return screens

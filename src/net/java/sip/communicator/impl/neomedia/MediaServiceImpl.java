@@ -120,6 +120,11 @@ public class MediaServiceImpl
     private static Map<MediaFormat, Byte> dynamicPayloadTypePreferences;
 
     /**
+     * The volume control of the media service playback.
+     */
+    private static VolumeControl volumeControl;
+
+    /**
      * Create a <tt>MediaStream</tt> which will use a specific
      * <tt>MediaDevice</tt> for capture and playback of media. The new instance
      * will not have a <tt>StreamConnector</tt> at the time of its construction
@@ -528,6 +533,17 @@ public class MediaServiceImpl
     public ZrtpControl createZrtpControl()
     {
         return new ZrtpControlImpl();
+    }
+
+    /**
+     * Returns the control that handles current playback levels.
+     *
+     * @return the volume playback control.
+     */
+    public VolumeControl getVolumeControl()
+    {
+        // returns the uninitialized value as still not implemented 
+        return volumeControl;
     }
 
     /**
