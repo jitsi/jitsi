@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.List; // disambiguation
 import java.text.*;
 
-import java.awt.*;
 import java.awt.event.*;
 
 import org.jivesoftware.smack.*;

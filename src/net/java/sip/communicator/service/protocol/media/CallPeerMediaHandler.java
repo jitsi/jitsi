@@ -527,8 +527,15 @@ public abstract class CallPeerMediaHandler<
 
         newValue = videoDirectionUserPreference;
 
-        firePropertyChange(OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING,
-                oldValue, newValue);
+        /* we do not send an event here if video is enabled because we have to
+         * wait video stream starts to have correct MediaDevice set in
+         * VideoMediaDeviceSession
+         */
+        if(!enabled)
+        {
+            firePropertyChange(OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING,
+                    oldValue, newValue);
+        }
     }
 
     /**
@@ -1559,16 +1566,27 @@ public abstract class CallPeerMediaHandler<
         }
 
         stream = getStream(MediaType.VIDEO);
-        if ((stream != null) && !stream.isStarted())
+        if ((stream != null))
         {
-            stream.start();
+            /* Inform listener of LOCAL_VIDEO_STREAMING only once the video
+             * starts, so that VideoMediaDeviceSession has correct MediaDevice
+             * set (switch from desktop streaming to webcam video or vice-versa
+             * issue)
+             */
+            firePropertyChange(OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING,
+                    null, this.videoDirectionUserPreference);
 
-             // send empty packet to deblock some kind of RTP proxy to let just
-             // one user sends its video
-            if ((stream instanceof VideoMediaStream)
-                    && !isLocalVideoTransmissionEnabled())
+            if(!stream.isStarted())
             {
-                sendHolePunchPacket(stream.getTarget());
+                stream.start();
+
+                // send empty packet to deblock some kind of RTP proxy to let
+                // just one user sends its video
+                if ((stream instanceof VideoMediaStream)
+                        && !isLocalVideoTransmissionEnabled())
+                {
+                    sendHolePunchPacket(stream.getTarget());
+                }
             }
         }
     }
