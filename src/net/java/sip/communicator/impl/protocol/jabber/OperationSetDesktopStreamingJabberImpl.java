@@ -189,6 +189,22 @@ public class OperationSetDesktopStreamingJabberImpl
     }
 
     /**
+     * Implements OperationSetVideoTelephony#isLocalVideoAllowed(Call). Modifies
+     * the local media setup to reflect the requested setting for the streaming
+     * of the local video.
+     *
+     * @param call the <tt>Call</tt> whose video transmission properties we are
+     * interested in.
+     *
+     * @return <tt>true</tt> if the streaming of local video for the specified
+     * <tt>Call</tt> is allowed; otherwise, <tt>false</tt>
+     */
+    public boolean isLocalVideoAllowed(Call call)
+    {
+        return ((CallJabberImpl)call).isLocalVideoAllowed(MediaUseCase.DESKTOP);
+    }
+
+    /**
      * Check if the remote part supports Jingle video.
      *
      * @param calleeAddress Contact address
