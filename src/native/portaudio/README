@@ -10,7 +10,7 @@
 
     - Windows
     $./configure  --enable-static --disable-shared && make
-    
+
     Note for Windows x64, edit Makefile (after ./configure) and modify
     %.lo: %.c $(MAKEFILE) $(PAINC)
 	$(LIBTOOL) --mode=compile $(CC) -c $(CFLAGS) $< -o $@

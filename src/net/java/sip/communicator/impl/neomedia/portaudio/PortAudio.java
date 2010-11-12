@@ -10,6 +10,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.nio.charset.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.util.*;
 
@@ -82,6 +83,13 @@ public final class PortAudio
     public static final double LATENCY_UNSPECIFIED = 0d;
 
     public static final int paNoDevice = -1;
+
+    /**
+     * The name of the <tt>double</tt> property which determines the suggested
+     * latency to be used when opening PortAudio streams.
+     */
+    private static final String PROP_SUGGESTED_LATENCY
+        = "net.java.sip.communicator.impl.neomedia.portaudio.suggestedLatency";
 
     /**
      * A type used to specify one or more sample formats.
@@ -182,6 +190,45 @@ public final class PortAudio
         default:
             return PortAudio.SAMPLE_FORMAT_INT16;
         }
+    }
+
+    /**
+     * Gets the suggested latency to be used when opening PortAudio streams.
+     *
+     * @return the suggested latency to be used when opening PortAudio streams
+     */
+    public static double getSuggestedLatency()
+    {
+        String suggestedLatencyString
+            = NeomediaActivator.getConfigurationService().getString(
+                    PROP_SUGGESTED_LATENCY);
+
+        if (suggestedLatencyString != null)
+        {
+            try
+            {
+                double suggestedLatency
+                    = Double.parseDouble(suggestedLatencyString);
+
+                if (suggestedLatency != LATENCY_UNSPECIFIED)
+                    return suggestedLatency;
+            }
+            catch (NumberFormatException nfe)
+            {
+                logger.error(
+                        "Failed to parse configuration property "
+                            + PROP_SUGGESTED_LATENCY
+                            + " value as a double",
+                        nfe);
+            }
+        }
+
+        if (OSUtils.IS_MAC || OSUtils.IS_LINUX)
+            return LATENCY_HIGH;
+        else if (OSUtils.IS_WINDOWS)
+            return 0.1d;
+        else
+            return LATENCY_UNSPECIFIED;
     }
 
     /**
@@ -400,33 +447,20 @@ public final class PortAudio
             int numberOfWrites)
         throws PortAudioException;
 
-    public static String PaDeviceInfo_getCharsetAwareName(long deviceInfo)
+    public static String PaDeviceInfo_getName(long deviceInfo)
     {
+        byte[] nameBytes = PaDeviceInfo_getNameBytes(deviceInfo);
+        Charset defaultCharset = Charset.defaultCharset();
+        String charsetName
+            = (defaultCharset == null) ? "UTF-8" : defaultCharset.name();
+
         try
         {
-            byte[] nameBytes = PaDeviceInfo_getNameBytes(deviceInfo);
-            Charset defaultCharset = Charset.defaultCharset();
-            String charsetName
-                = (defaultCharset == null) ? "UTF-8" : defaultCharset.name();
-
-            try
-            {
-                return new String(nameBytes, charsetName);
-            }
-            catch (UnsupportedEncodingException ueex)
-            {
-                return new String(nameBytes);
-            }
+            return new String(nameBytes, charsetName);
         }
-        catch (UnsatisfiedLinkError ulerr)
+        catch (UnsupportedEncodingException ueex)
         {
-            logger.warn(
-                    "The JNI library jportaudio is out-of-date and needs to be"
-                        + " recompiled. The application will continue with the"
-                        + " presumtion that the charset is modified UTF-8 which"
-                        + " may result in an inaccurate PaDeviceInfo name.",
-                    ulerr);
-            return PaDeviceInfo_getName(deviceInfo);
+            return new String(nameBytes);
         }
     }
 
@@ -492,20 +526,15 @@ public final class PortAudio
     public static native int PaDeviceInfo_getMaxOutputChannels(long deviceInfo);
 
     /**
-     * Gets the name of the PortAudio device specified by the pointer to its
-     * <tt>PaDeviceInfo</tt> instance.
+     * Gets the name as a <tt>byte</tt> array of the PortAudio device specified
+     * by the pointer to its <tt>PaDeviceInfo</tt> instance.
      *
      * @param deviceInfo the pointer to the <tt>PaDeviceInfo</tt> instance to
      * get the name of
-     * @return the name of the PortAudio device specified by the
-     * <tt>PaDeviceInfo</tt> instance pointed to by <tt>deviceInfo</tt>
-     * @deprecated Replaced by {@link #PaDeviceInfo_getCharsetAwareName(long)}
-     * because <tt>PaDeviceInfo_getName</tt> presumes that the <tt>name</tt> of
-     * <tt>PaDeviceInfo</tt> is encoded in modified UTF-8
+     * @return the name as a <tt>byte</tt> array of the PortAudio device
+     * specified by the <tt>PaDeviceInfo</tt> instance pointed to by
+     * <tt>deviceInfo</tt>
      */
-    @Deprecated
-    public static native String PaDeviceInfo_getName(long deviceInfo);
-
     private static native byte[] PaDeviceInfo_getNameBytes(long deviceInfo);
 
     /**

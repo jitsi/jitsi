@@ -12,6 +12,8 @@ import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.util.*;
@@ -269,7 +271,7 @@ public class PortAudioStream
                             this.deviceIndex,
                             channels,
                             sampleFormat,
-                            PortAudioManager.getSuggestedLatency());
+                            PortAudio.getSuggestedLatency());
 
                 stream
                     = PortAudio.Pa_OpenStream(
@@ -326,15 +328,18 @@ public class PortAudioStream
                             Format.NOT_SPECIFIED /* frameRate */,
                             Format.byteArray);
 
+            DeviceConfiguration deviceConfig
+                = NeomediaActivator
+                    .getMediaServiceImpl()
+                        .getDeviceConfiguration();
+
             PortAudio.setDenoise(
                     stream,
-                    audioQualityImprovement
-                        && PortAudioManager.isEnabledDeNoise());
+                    audioQualityImprovement && deviceConfig.isDenoise());
             PortAudio.setEchoFilterLengthInMillis(
                     stream,
-                    (audioQualityImprovement
-                            && PortAudioManager.isEnabledEchoCancel())
-                        ? PortAudioManager.getFilterLengthInMillis()
+                    (audioQualityImprovement && deviceConfig.isEchoCancel())
+                        ? deviceConfig.getEchoCancelFilterLengthInMillis()
                         : 0);
         }
     }

@@ -223,14 +223,6 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_Po
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
- * Method:    PaDeviceInfo_getName
- * Signature: (J)Ljava/lang/String;
- */
-JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getName
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
  * Method:    PaDeviceInfo_getNameBytes
  * Signature: (J)[B
  */

@@ -15,7 +15,6 @@ import javax.media.format.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.*;
-import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
@@ -114,29 +113,45 @@ public class DeviceConfiguration
         "net.java.sip.communicator.impl.neomedia.videodevIsDisabled";
 
     /**
-     * Property used to store is echo cancel enabled or disabled.
+     * The name of the <tt>boolean</tt> property which determines whether echo
+     * cancellation is to be performed for captured audio.
      */
-    static final String PROP_AUDIO_ECHOCANCEL_ENABLED =
-        "net.java.sip.communicator.impl.neomedia.echocancel";
+    static final String PROP_AUDIO_ECHOCANCEL
+        = "net.java.sip.communicator.impl.neomedia.echocancel";
 
     /**
-     * Property used to store the echo cancel tail used for cancelation.
+     * The default value to be used for the {@link #PROP_AUDIO_ECHOCANCEL}
+     * property when it does not have a value.
+     */
+    private static final boolean DEFAULT_AUDIO_ECHOCANCEL = true;
+
+    /**
+     * The name of the <tt>long</tt> property which determines the filter length
+     * in milliseconds to be used by the echo cancellation implementation.
      */
     static final String PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS
         = "net.java.sip.communicator.impl.neomedia.echocancel.filterLengthInMillis";
 
     /**
-     * Property used to store is denoise enabled or disabled.
+     * The default value to be used for the
+     * {@link #PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS} property when it
+     * does not have a value.
      */
-    static final String PROP_AUDIO_DENOISE_ENABLED =
-        "net.java.sip.communicator.impl.neomedia.denoise";
+    private static final long DEFAULT_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS
+        = 256;
 
     /**
-     * Property used to store the latency option we use for current OS.
-     * Must be in milliseconds.
+     * The name of the <tt>boolean</tt> property which determines whether noise
+     * suppression is to be performed for captured audio.
      */
-    static final String PROP_AUDIO_LATENCY =
-        "net.java.sip.communicator.impl.neomedia.latency";
+    static final String PROP_AUDIO_DENOISE
+        = "net.java.sip.communicator.impl.neomedia.denoise";
+
+    /**
+     * The default value to be used for the {@link #PROP_AUDIO_DENOISE} property
+     * when it does not have a value.
+     */
+    private static final boolean DEFAULT_AUDIO_DENOISE = true;
 
     /**
      * The list of class names of custom <tt>Renderer</tt> implementations to be
@@ -939,51 +954,69 @@ public class DeviceConfiguration
     }
 
     /**
-     * Change the state of echo cancel configuration
-     * @param enabled true if enabled.
-     * @param save whether we will save this option or not.
+     * Sets the indicator which determines whether echo cancellation is to be
+     * performed for captured audio.
+     *
+     * @param echoCancel <tt>true</tt> if echo cancellation is to be performed
+     * for captured audio; otherwise, <tt>false</tt>
      */
-    public void setEchoCancel(boolean enabled, boolean save)
+    public void setEchoCancel(boolean echoCancel)
     {
-        PortAudioManager.setEchoCancel(
-            enabled,
-            PortAudioManager.getFilterLengthInMillis());
-
-        if(save)
-            NeomediaActivator.getConfigurationService()
-                    .setProperty(PROP_AUDIO_ECHOCANCEL_ENABLED, enabled);
+        NeomediaActivator.getConfigurationService().setProperty(
+                PROP_AUDIO_ECHOCANCEL,
+                echoCancel);
     }
 
     /**
-     * Change the state of noise suppression configuration
-     * @param enabled true if enabled.
-     * @param save whether we will save this option or not.
+     * Sets the indicator which determines whether noise suppression is to be
+     * performed for captured audio.
+     *
+     * @param denoise <tt>true</tt> if noise suppression is to be performed for
+     * captured audio; otherwise, <tt>false</tt>
      */
-    public void setDenoise(boolean enabled, boolean save)
+    public void setDenoise(boolean denoise)
     {
-        PortAudioManager.setDeNoise(enabled);
-
-        if(save)
-            NeomediaActivator.getConfigurationService()
-                    .setProperty(PROP_AUDIO_DENOISE_ENABLED, enabled);
+        NeomediaActivator.getConfigurationService().setProperty(
+                PROP_AUDIO_DENOISE,
+                denoise);
     }
 
     /**
-     * Returns the state of echo cancel configuration.
-     * @return state of echo cancel.
+     * Gets the indicator which determines whether echo cancellation is to be
+     * performed for captured audio.
+     *
+     * @return <tt>true</tt> if echo cancellation is to be performed for
+     * captured audio; otherwise, <tt>false</tt>
      */
-    public boolean isEchoCancelEnabled()
+    public boolean isEchoCancel()
     {
-        return PortAudioManager.isEnabledEchoCancel();
+        return
+            NeomediaActivator.getConfigurationService().getBoolean(
+                    PROP_AUDIO_ECHOCANCEL,
+                    DEFAULT_AUDIO_ECHOCANCEL);
+    }
+
+    public long getEchoCancelFilterLengthInMillis()
+    {
+        return
+            NeomediaActivator.getConfigurationService().getLong(
+                    PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS,
+                    DEFAULT_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS);
     }
 
     /**
-     * Returns the state of noise suppression configuration.
-     * @return state of noise suppression.
+     * Gets the indicator which determines whether noise suppression is to be
+     * performed for captured audio
+     *
+     * @return <tt>true</tt> if noise suppression is to be performed for
+     * captured audio; otherwise, <tt>false</tt>
      */
-    public boolean isDenoiseEnabled()
+    public boolean isDenoise()
     {
-        return PortAudioManager.isEnabledDeNoise();
+        return
+            NeomediaActivator.getConfigurationService().getBoolean(
+                    PROP_AUDIO_DENOISE,
+                    DEFAULT_AUDIO_DENOISE);
     }
 
     /**

@@ -365,7 +365,7 @@ public class PortAudioRenderer
                             deviceIndex,
                             channels,
                             sampleFormat,
-                            PortAudioManager.getSuggestedLatency());
+                            PortAudio.getSuggestedLatency());
 
                 stream
                     = PortAudio.Pa_OpenStream(

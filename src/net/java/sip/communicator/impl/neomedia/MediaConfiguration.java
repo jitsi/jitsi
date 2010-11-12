@@ -138,14 +138,16 @@ public class MediaConfiguration
         // in order to avoid saving tha value when using the default one
         // and only showing to user without modification
         echoCancelCheckBox.setSelected(
-            mediaService.getDeviceConfiguration().isEchoCancelEnabled());
-        echoCancelCheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e)
-            {
-                mediaService.getDeviceConfiguration().setEchoCancel(
-                    echoCancelCheckBox.isSelected(), true);
-            }
-        });
+            mediaService.getDeviceConfiguration().isEchoCancel());
+        echoCancelCheckBox.addItemListener(
+                new ItemListener()
+                {
+                    public void itemStateChanged(ItemEvent e)
+                    {
+                        mediaService.getDeviceConfiguration().setEchoCancel(
+                                echoCancelCheckBox.isSelected());
+                    }
+                });
         portAudioPanel.add(echoCancelCheckBox, constraints);
 
         constraints.gridy = 4;
@@ -157,14 +159,16 @@ public class MediaConfiguration
         // in order to avoid saving tha value when using the default one
         // and only showing to user without modification
         denoiseCheckBox.setSelected(
-            mediaService.getDeviceConfiguration().isDenoiseEnabled());
-        denoiseCheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e)
-            {
-                mediaService.getDeviceConfiguration().setDenoise(
-                    denoiseCheckBox.isSelected(), true);
-            }
-        });
+            mediaService.getDeviceConfiguration().isDenoise());
+        denoiseCheckBox.addItemListener(
+                new ItemListener()
+                {
+                    public void itemStateChanged(ItemEvent e)
+                    {
+                        mediaService.getDeviceConfiguration().setDenoise(
+                                denoiseCheckBox.isSelected());
+                    }
+                });
         portAudioPanel.add(denoiseCheckBox, constraints);
 
         portAudioPanel.setBorder(

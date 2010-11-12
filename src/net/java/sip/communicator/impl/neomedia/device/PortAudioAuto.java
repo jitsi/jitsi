@@ -14,7 +14,6 @@ import javax.media.format.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.configuration.*;
 
 import com.sun.media.util.*;
 
@@ -95,8 +94,7 @@ public class PortAudioAuto
             int maxOutputChannels =
                 PortAudio.PaDeviceInfo_getMaxOutputChannels(deviceInfo);
 
-            String devName
-                = PortAudio.PaDeviceInfo_getCharsetAwareName(deviceInfo);
+            String devName = PortAudio.PaDeviceInfo_getName(deviceInfo);
             if (devName != null)
                 devName = devName.trim();
 
@@ -141,54 +139,7 @@ public class PortAudioAuto
 
         // now add it as available audio system to DeviceConfiguration
         DeviceConfiguration.addAudioSystem(
-            DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO);
-
-        // now extract other sound related configs
-        try
-        {
-            ConfigurationService config
-                = NeomediaActivator.getConfigurationService();
-
-            boolean echoCancelEnabled
-                = config.getBoolean(
-                        DeviceConfiguration.PROP_AUDIO_ECHOCANCEL_ENABLED,
-                        PortAudioManager.isEnabledEchoCancel());
-            long echoCancelFilterLengthInMillis
-                = PortAudioManager.getFilterLengthInMillis();
-
-            if (echoCancelEnabled)
-            {
-                echoCancelFilterLengthInMillis
-                    = config.getLong(
-                            DeviceConfiguration
-                                .PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS,
-                            echoCancelFilterLengthInMillis);
-            }
-            PortAudioManager.setEchoCancel(
-                    echoCancelEnabled,
-                    echoCancelFilterLengthInMillis);
-
-            boolean denoiseEnabled
-                = config.getBoolean(
-                        DeviceConfiguration.PROP_AUDIO_DENOISE_ENABLED,
-                        PortAudioManager.isEnabledDeNoise());
-            PortAudioManager.setDeNoise(denoiseEnabled);
-
-            // suggested latency is saved in configuration as
-            // milliseconds but PortAudioManager use it as seconds
-            int defaultAudioLatency
-                = (int) (PortAudioManager.getSuggestedLatency()*1000);
-            int audioLatency = config.getInt(
-                DeviceConfiguration.PROP_AUDIO_LATENCY,
-                defaultAudioLatency);
-            if(audioLatency != defaultAudioLatency)
-                    PortAudioManager.setSuggestedLatency(
-                        (double)audioLatency/1000d);
-        }
-        catch (Exception ex)
-        {
-            logger.error("Error parsing audio config", ex);
-        }
+                DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO);
 
         supported = true;
     }
