@@ -386,7 +386,7 @@ public class OperationSetPersistentPresenceYahooImpl
 
         try
         {
-            if(statusMessage != null)
+            if(statusMessage != null && statusMessage.length() != 0)
             {
                 boolean isAvailable = false;
 
