@@ -32,7 +32,7 @@ public class OperationSetMessageWaitingSipImpl
         = Logger.getLogger(OperationSetMessageWaitingSipImpl.class);
 
     /**
-     * The provider that created us. 
+     * The provider that created us.
      */
     private final ProtocolProviderServiceSipImpl provider;
 
@@ -226,10 +226,14 @@ public class OperationSetMessageWaitingSipImpl
                             .getAddressOfRecord();
                 else
                     subscribeAddress = provider.parseAddressString(
-                            vmAddressURI); 
+                            vmAddressURI);
 
-                messageWaitingSubscriber.subscribe(
-                    new MessageSummarySubscriber(subscribeAddress));
+
+                if(subscribeAddress != null)
+                {
+                    messageWaitingSubscriber.subscribe(
+                            new MessageSummarySubscriber(subscribeAddress));
+                }
             }
             catch(Exception e)
             {
@@ -347,7 +351,7 @@ public class OperationSetMessageWaitingSipImpl
          */
         @Override
         protected void processActiveRequest(
-                RequestEvent requestEvent, byte[] rawContent) 
+                RequestEvent requestEvent, byte[] rawContent)
         {
             // If the message body is missing we have nothing more to do here.
             if (rawContent == null || rawContent.length <= 0)
