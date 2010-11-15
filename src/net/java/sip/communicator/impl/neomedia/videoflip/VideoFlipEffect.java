@@ -212,7 +212,8 @@ public class VideoFlipEffect
             {
                 AVFrameFormat format = (AVFrameFormat)inputBuffer.getFormat();
                 if(FFmpeg.avfilter_configure_filters("hflip", inputstream,
-                        format.getPixFmt(), graph) != 0)
+                        format.getPixFmt(), format.getSize().width,
+                        format.getSize().height, graph) != 0)
                 {
                     if(logger.isDebugEnabled())
                     {

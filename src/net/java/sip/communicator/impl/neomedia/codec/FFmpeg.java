@@ -668,11 +668,13 @@ public class FFmpeg
      * @param filters filters list
      * @param avinputstream AVInputStream pointer
      * @param pix_fmt pixel format
+     * @param width width of the video
+     * @param height height of the video
      * @param graph AVFilterGraph pointer
      * @return 0 if success, -1 otherwise
      */
     public static native int avfilter_configure_filters(String filters,
-            long avinputstream, int pix_fmt, long graph);
+            long avinputstream, int pix_fmt, int width, int height, long graph);
 
     /**
      * Add the <tt>picture</tt> to the <tt>inputstream</tt> to be filtered.

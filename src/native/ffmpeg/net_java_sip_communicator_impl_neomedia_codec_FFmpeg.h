@@ -641,10 +641,10 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
  * Method:    avfilter_configure_filters
- * Signature: (Ljava/lang/String;JIJ)I
+ * Signature: (Ljava/lang/String;JIIIJ)I
  */
 JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1configure_1filters
-  (JNIEnv *, jclass, jstring, jlong, jint, jlong);
+  (JNIEnv *, jclass, jstring, jlong, jint, jint, jint, jlong);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg

@@ -702,12 +702,14 @@ Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1free_1output
 
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1configure_1filters
-  (JNIEnv *jniEnv, jclass clazz, jstring vfilters, jlong inputstream, jint pix_fmt, jlong graph)
+  (JNIEnv *jniEnv, jclass clazz, jstring vfilters, jlong inputstream, jint pix_fmt, 
+   jint width, jint height, jlong graph)
 {
   jint ret = 0;
   const char* filters = (*jniEnv)->GetStringUTFChars (jniEnv, vfilters, NULL);
 
-  ret = configure_filters((AVInputStream*)inputstream, pix_fmt, (AVFilterGraph*)graph, filters);
+  ret = configure_filters((AVInputStream*)inputstream, pix_fmt, width, height, 
+      (AVFilterGraph*)graph, filters);
 
   (*jniEnv)->ReleaseStringUTFChars (jniEnv, vfilters, filters);
   return ret;

@@ -107,7 +107,7 @@ typedef struct AVInputStream {
 int get_filtered_video_frame(AVFilterContext *sink, AVFrame *frame,
                              AVFilterBufferRef **picref, AVRational *pts_tb);
 
-int configure_filters(AVInputStream *ist, int pix_fmt, AVFilterGraph *graph,
-      const char* vfilters);
+int configure_filters(AVInputStream *ist, int pix_fmt, int width, int height,
+    AVFilterGraph *graph, const char* vfilters);
 
 #endif /* FFMPEG_CMDUTILS_H */

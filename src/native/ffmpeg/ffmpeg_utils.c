@@ -109,8 +109,8 @@ int get_filtered_video_frame(AVFilterContext *ctx, AVFrame *frame,
     return 1;
 }
 
-int configure_filters(AVInputStream *ist, int pix_fmt, AVFilterGraph *graph, 
-  const char* vfilters)
+int configure_filters(AVInputStream *ist, int pix_fmt, int w, int h,
+    AVFilterGraph *graph, const char* vfilters)
 {
     AVFilterContext *last_filter;
     /** filter graph containing all filters including input & output */
@@ -119,8 +119,8 @@ int configure_filters(AVInputStream *ist, int pix_fmt, AVFilterGraph *graph,
     FFSinkContext ffsink_ctx = { .pix_fmt = pix_fmt };
     char args[255];
     int ret;
-    int width = 640;
-    int height = 480;
+    int width = w;
+    int height = h;
 
     //graph = av_mallocz(sizeof(AVFilterGraph));
 
