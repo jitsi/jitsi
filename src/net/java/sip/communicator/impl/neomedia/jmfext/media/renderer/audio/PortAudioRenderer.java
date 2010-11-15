@@ -11,6 +11,7 @@ import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
@@ -151,10 +152,27 @@ public class PortAudioRenderer
     private Format[] supportedInputFormats;
 
     /**
+     * Volume Control used to control volume/gain of current played media.
+     */
+    private GainControl gainControl = null;
+
+    /**
      * Initializes a new <tt>PortAudioRenderer</tt> instance.
      */
     public PortAudioRenderer()
     {
+        this(true);
+    }
+
+    /**
+     * Initializes a new <tt>PortAudioRenderer</tt> instance.
+     * @param enableVolumeControl whether we enable volume control or not.
+     */
+    public PortAudioRenderer(boolean enableVolumeControl)
+    {
+        if(enableVolumeControl)
+            this.gainControl = (GainControl)NeomediaActivator
+                    .getMediaServiceImpl().getVolumeControl();
     }
 
     /**
@@ -484,6 +502,33 @@ public class PortAudioRenderer
 
         if (numberOfWrites > 0)
         {
+            // if we have some volume setting apply them
+            if(gainControl != null)
+            {
+                if(gainControl.getMute())
+                {
+                    Arrays.fill(buffer, (byte)0);
+                }
+                else if(gainControl.getDB() != 0)
+                {
+                    // increase/decrease a little more than
+                    // if using levels for factor
+                    // we use factor = pow(10, dB/10),
+                    // but    level  = pow(10, dB/20);
+                    double factor = Math.pow(10, (gainControl.getDB() / 10d));
+
+                    for (int i = 0; i < buffer.length; i+=2)
+                    {
+                        short s = (short)((buffer[i]&0xff)
+                                | (buffer[i + 1]<<8));
+                        s = (short)(s*factor);
+
+                        buffer[i] = (byte) s;
+                        buffer[i+1] = (byte) (s >> 8);
+                    }
+                }
+            }
+
             PortAudio
                 .Pa_WriteStream(
                     stream,
@@ -645,5 +690,18 @@ public class PortAudioRenderer
                 logger.error("Failed to close PortAudio stream.", paex);
             }
         }
+    }
+
+    /**
+     * Implements {@link javax.media.Controls#getControls()}. Gets the controls
+     * available for the owner of this instance. The current implementation
+     * returns an empty array because it has no available controls.
+     *
+     * @return an array of <tt>Object</tt>s which represent the controls
+     * available for the owner of this instance
+     */
+    public Object[] getControls()
+    {
+        return new Object[]{gainControl};
     }
 }

@@ -122,7 +122,8 @@ public class PortAudioClipImpl
     {
         Buffer buffer = new Buffer();
         byte[] bufferData = new byte[1024];
-        PortAudioRenderer renderer = new PortAudioRenderer();
+        // don't enable volume control for notifications
+        PortAudioRenderer renderer = new PortAudioRenderer(false);
 
         buffer.setData(bufferData);
         while (started)

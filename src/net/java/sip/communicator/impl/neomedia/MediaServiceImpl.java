@@ -542,7 +542,9 @@ public class MediaServiceImpl
      */
     public VolumeControl getVolumeControl()
     {
-        // returns the uninitialized value as still not implemented 
+        if(volumeControl == null)
+            volumeControl = new VolumeControlImpl();
+
         return volumeControl;
     }
 
