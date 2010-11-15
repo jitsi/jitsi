@@ -1508,7 +1508,7 @@ public class MediaStreamImpl
     private void startReceiveStreams()
     {
         RTPManager rtpManager = getRTPManager();
-        Iterable<ReceiveStream> receiveStreams;
+        List<ReceiveStream> receiveStreams;
 
         try
         {
@@ -1528,26 +1528,57 @@ public class MediaStreamImpl
 
         if (receiveStreams != null)
         {
-            for (ReceiveStream receiveStream : receiveStreams)
+            // receiveStreams coming from rtp manager can be empty
+            // we do not receive any rtcp from other side,
+            // than we use local stored receive stream
+            if(receiveStreams.size() == 0)
             {
-                try
+                if(receiveStream != null)
                 {
-                    DataSource receiveStreamDataSource
-                        = receiveStream.getDataSource();
+                    try
+                    {
+                        DataSource receiveStreamDataSource
+                            = receiveStream.getDataSource();
 
-                    /*
-                     * For an unknown reason, the stream DataSource can be null
-                     * at the end of the Call after re-INVITEs have been
-                     * handled.
-                     */
-                    if (receiveStreamDataSource != null)
-                        receiveStreamDataSource.start();
+                        /*
+                         * For an unknown reason, the stream DataSource can be null
+                         * at the end of the Call after re-INVITEs have been
+                         * handled.
+                         */
+                        if (receiveStreamDataSource != null)
+                            receiveStreamDataSource.start();
+                    }
+                    catch (IOException ioex)
+                    {
+                        logger.warn(
+                                "Failed to start stream " + receiveStream,
+                                ioex);
+                    }
                 }
-                catch (IOException ioex)
+            }
+            else
+            {
+                for (ReceiveStream receiveStream : receiveStreams)
                 {
-                    logger.warn(
-                            "Failed to start stream " + receiveStream,
-                            ioex);
+                    try
+                    {
+                        DataSource receiveStreamDataSource
+                            = receiveStream.getDataSource();
+
+                        /*
+                         * For an unknown reason, the stream DataSource can be
+                         * null at the end of the Call after re-INVITEs have
+                         * been handled.
+                         */
+                        if (receiveStreamDataSource != null)
+                            receiveStreamDataSource.start();
+                    }
+                    catch (IOException ioex)
+                    {
+                        logger.warn(
+                                "Failed to start stream " + receiveStream,
+                                ioex);
+                    }
                 }
             }
         }
@@ -1674,7 +1705,7 @@ public class MediaStreamImpl
     @SuppressWarnings("unchecked")
     private void stopReceiveStreams()
     {
-        Iterable<ReceiveStream> receiveStreams;
+        List<ReceiveStream> receiveStreams;
 
         try
         {
@@ -1694,24 +1725,54 @@ public class MediaStreamImpl
 
         if (receiveStreams != null)
         {
-            for (ReceiveStream receiveStream : receiveStreams)
+            // receiveStreams coming from rtp manager can be empty
+            // we do not receive any rtcp from other side,
+            // than we use local stored receive stream
+            if(receiveStreams.size() == 0)
             {
-                try
+                if(receiveStream != null)
                 {
-                    DataSource receiveStreamDataSource
-                        = receiveStream.getDataSource();
+                    try
+                    {
+                        DataSource receiveStreamDataSource
+                            = receiveStream.getDataSource();
 
-                    /*
-                     * For an unknown reason, the stream DataSource can be null
-                     * at the end of the Call after re-INVITEs have been
-                     * handled.
-                     */
-                    if (receiveStreamDataSource != null)
-                        receiveStreamDataSource.stop();
+                        /*
+                         * For an unknown reason, the stream DataSource can be
+                         * null at the end of the Call after re-INVITEs have
+                         * been handled.
+                         */
+                        if (receiveStreamDataSource != null)
+                            receiveStreamDataSource.stop();
+                    }
+                    catch (IOException ioex)
+                    {
+                        logger.warn("Failed to stop stream "
+                                + receiveStream, ioex);
+                    }
                 }
-                catch (IOException ioex)
+            }
+            else
+            {
+                for (ReceiveStream receiveStream : receiveStreams)
                 {
-                    logger.warn("Failed to stop stream " + receiveStream, ioex);
+                    try
+                    {
+                        DataSource receiveStreamDataSource
+                            = receiveStream.getDataSource();
+
+                        /*
+                         * For an unknown reason, the stream DataSource can be null
+                         * at the end of the Call after re-INVITEs have been
+                         * handled.
+                         */
+                        if (receiveStreamDataSource != null)
+                            receiveStreamDataSource.stop();
+                    }
+                    catch (IOException ioex)
+                    {
+                        logger.warn("Failed to stop stream " + receiveStream, ioex);
+                    }
                 }
             }
         }
