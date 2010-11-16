@@ -129,6 +129,11 @@ public class CallDialog
     private FullScreenButton fullScreenButton;
 
     /**
+     * The volume control button.
+     */
+    private VolumeControlButton volumeControlButton;
+
+    /**
      * The dial button, which opens a keypad dialog.
      */
     private SIPCommButton dialButton = new SIPCommButton(
@@ -246,6 +251,7 @@ public class CallDialog
         desktopSharingButton = new DesktopSharingButton(call);
         transferCallButton = new TransferCallButton(call);
         fullScreenButton = new FullScreenButton(this);
+        volumeControlButton = new VolumeControlButton();
 
         dialButton.setName(DIAL_BUTTON);
         dialButton.setToolTipText(
@@ -293,6 +299,8 @@ public class CallDialog
 
             addOneToOneSpecificComponents();
         }
+
+        settingsPanel.add(volumeControlButton);
 
         buttonsPanel.add(settingsPanel, BorderLayout.WEST);
         buttonsPanel.add(hangupButton, BorderLayout.EAST);

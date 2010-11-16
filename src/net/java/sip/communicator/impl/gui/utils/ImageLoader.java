@@ -878,6 +878,12 @@ public class ImageLoader
     public static final ImageID DESKTOP_SHARING
         = new ImageID("service.gui.icons.DESKTOP_SHARING_16x16_ICON");
 
+    /**
+     * The volume control button icon.
+     */
+    public static final ImageID VOLUME_CONTROL_BUTTON
+        = new ImageID("service.gui.buttons.VOLUME_CONTROL");
+
     /*
      * =======================================================================
      * ------------------------ EDIT TOOLBAR ICONS ---------------------------
