@@ -565,6 +565,13 @@ public class CallPeerMediaHandlerSipImpl
             MediaDirection direction
                 = devDirection.getDirectionForAnswer(remoteDirection);
 
+            // take into account and the direction previously set/sent
+            // to change directions properly, this is in case
+            // where we set a direction and the other side don't agree with us
+            // we need to be in the state we have offered
+            if(isLocallyOnHold())
+                direction = direction.and(MediaDirection.SENDONLY);
+
             // update the RTP extensions that we will be exchanging.
             List<RTPExtension> remoteRTPExtensions
                     = SdpUtils.extractRTPExtensions(
