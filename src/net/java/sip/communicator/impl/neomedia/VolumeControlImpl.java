@@ -211,6 +211,11 @@ public class VolumeControlImpl
 
         fireVolumeChange();
 
+        // save the level change, so we can restore it on next run
+        NeomediaActivator.getConfigurationService().setProperty(
+                PLAYBACK_VOLUME_LEVEL_PROPERTY_NAME,
+                String.valueOf(currentVolumeLevel));
+
         float f1 = value / initialVolumeLevel;
         db = (float)((Math.log((double)f1 != 0.0D ?
                 f1
