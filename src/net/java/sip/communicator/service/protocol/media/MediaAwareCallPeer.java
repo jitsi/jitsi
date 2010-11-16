@@ -492,6 +492,22 @@ public abstract class MediaAwareCallPeer
     @Override
     public void setState(CallPeerState newState, String reason)
     {
+        this.setState(newState, reason, -1);
+    }
+
+    /**
+     * Overrides the parent set state method in order to make sure that we
+     * close our media handler whenever we enter a disconnected state.
+     *
+     * @param newState the <tt>CallPeerState</tt> that we are about to enter and
+     * that we pass to our predecessor.
+     * @param reason a reason phrase explaining the state (e.g. if newState
+     * indicates a failure) and that we pass to our predecessor.
+     * @param reasonCode the code for the reason of the state change.
+     */
+    @Override
+    public void setState(CallPeerState newState, String reason, int reasonCode)
+    {
         // synchronized to mediaHandler if there are currently jobs of
         // initializing, configuring and starting streams (method processAnswer
         // of CallPeerMediaHandler) we won't set and fire the current state
@@ -499,7 +515,7 @@ public abstract class MediaAwareCallPeer
         // in order to deliver states as quick as possible.
         synchronized(getMediaHandler())
         {
-            super.setState(newState, reason);
+            super.setState(newState, reason, reasonCode);
 
             if (CallPeerState.DISCONNECTED.equals(newState)
                     || CallPeerState.FAILED.equals(newState))
