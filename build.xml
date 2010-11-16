@@ -749,11 +749,6 @@
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
                          value="${user.home}/schome"/-->
 
-            <!-- this is a temporary option that would need to disappear once
-                 we finalize jingle -->
-            <sysproperty key="enableJingle"
-                 value="${enableJingle}"/>
-
              <sysproperty key="smack.debugEnabled"
                  value="${smack.debugEnabled}"/>
              <!--sysproperty key="smack.debuggerClass"

@@ -353,7 +353,7 @@ public class CallPeerJabberImpl
      * and set the new state to DISCONNECTED.
      *
      * @param reasonText the text, if any, to be set on the
-     * <tt>ReasonPacketExtension</tt> as the value of its 
+     * <tt>ReasonPacketExtension</tt> as the value of its
      * @param reasonOtherExtension the <tt>PacketExtension</tt>, if any, to be
      * set on the <tt>ReasonPacketExtension</tt> as the value of its
      * <tt>otherExtension</tt> property
@@ -983,7 +983,7 @@ public class CallPeerJabberImpl
      * peer to the remote peer using the <tt>transport-info</tt>
      * {@link JingleIQ}
      */
-    void sendTransportInfo(Iterable<ContentPacketExtension> contents)
+    protected void sendTransportInfo(Iterable<ContentPacketExtension> contents)
     {
         JingleIQ transportInfo = new JingleIQ();
 
@@ -1013,7 +1013,7 @@ public class CallPeerJabberImpl
      * in the case of unattended transfer
      * @throws OperationFailedException if something goes wrong
      */
-    void transfer(String to, String sid)
+    protected void transfer(String to, String sid)
         throws OperationFailedException
     {
         JingleIQ transferSessionInfo = new JingleIQ();

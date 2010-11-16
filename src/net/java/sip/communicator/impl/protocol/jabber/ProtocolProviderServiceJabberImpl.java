@@ -1093,74 +1093,69 @@ public class ProtocolProviderServiceJabberImpl
                                           new InputEvtIQProvider());
 
             //initialize the telephony operation set
-            //until we actually finish jingle, we'll have a clumsy way of
-            //enabling it through a system property.
-            if(Boolean.getBoolean("enableJingle"))
-            {
-                OperationSetBasicTelephonyJabberImpl basicTelephony
+            OperationSetBasicTelephonyJabberImpl basicTelephony
                     = new OperationSetBasicTelephonyJabberImpl(this);
 
-                addSupportedOperationSet(
-                    OperationSetAdvancedTelephony.class,
-                    basicTelephony);
-                addSupportedOperationSet(
-                    OperationSetBasicTelephony.class,
-                    basicTelephony);
-                addSupportedOperationSet(
-                    OperationSetSecureTelephony.class,
-                    basicTelephony);
+            addSupportedOperationSet(
+                OperationSetAdvancedTelephony.class,
+                basicTelephony);
+            addSupportedOperationSet(
+                OperationSetBasicTelephony.class,
+                basicTelephony);
+            addSupportedOperationSet(
+                OperationSetSecureTelephony.class,
+                basicTelephony);
 
-                // initialize video telephony OperationSet
-                addSupportedOperationSet(
-                    OperationSetVideoTelephony.class,
-                    new OperationSetVideoTelephonyJabberImpl(basicTelephony));
+            // initialize video telephony OperationSet
+            addSupportedOperationSet(
+                OperationSetVideoTelephony.class,
+                new OperationSetVideoTelephonyJabberImpl(basicTelephony));
 
 // TODO: Uncomment the following lines when the desktop sharing feature is ready
 // to use.
-                // initialize desktop streaming OperationSet
-//                addSupportedOperationSet(
-//                    OperationSetDesktopStreaming.class,
-//                    new OperationSetDesktopStreamingJabberImpl(basicTelephony));
+            // initialize desktop streaming OperationSet
+//            addSupportedOperationSet(
+//                OperationSetDesktopStreaming.class,
+//                new OperationSetDesktopStreamingJabberImpl(basicTelephony));
 
-                // initialize desktop sharing OperationSets
-//                addSupportedOperationSet(
-//                    OperationSetDesktopSharingServer.class,
-//                    new OperationSetDesktopSharingServerJabberImpl(
-//                            basicTelephony));
-//                addSupportedOperationSet(
-//                        OperationSetDesktopSharingClient.class,
-//                        new OperationSetDesktopSharingClientJabberImpl(this));
+            // initialize desktop sharing OperationSets
+//            addSupportedOperationSet(
+//                OperationSetDesktopSharingServer.class,
+//                new OperationSetDesktopSharingServerJabberImpl(
+//                        basicTelephony));
+//            addSupportedOperationSet(
+//                    OperationSetDesktopSharingClient.class,
+//                    new OperationSetDesktopSharingClientJabberImpl(this));
 
-                addSupportedOperationSet(
-                    OperationSetTelephonyConferencing.class,
-                    new OperationSetTelephonyConferencingJabberImpl(this));
+            addSupportedOperationSet(
+                OperationSetTelephonyConferencing.class,
+                new OperationSetTelephonyConferencingJabberImpl(this));
 
-                // Add Jingle features to supported features.
-                supportedFeatures.add(URN_XMPP_JINGLE);
-                supportedFeatures.add(URN_XMPP_JINGLE_RTP);
-                supportedFeatures.add(URN_XMPP_JINGLE_RAW_UDP_0);
+            // Add Jingle features to supported features.
+            supportedFeatures.add(URN_XMPP_JINGLE);
+            supportedFeatures.add(URN_XMPP_JINGLE_RTP);
+            supportedFeatures.add(URN_XMPP_JINGLE_RAW_UDP_0);
 
-                /*
-                 * Reflect the preference of the user with respect to the use of
-                 * ICE.
-                 */
-                if (accountID.getAccountPropertyBoolean(
-                        ProtocolProviderFactory.IS_USE_ICE,
-                        false))
-                {
-                    supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
-                }
-
-                supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
-                supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
-                supportedFeatures.add(URN_XMPP_JINGLE_RTP_ZRTP);
-
-                /* add extension to support remote control */
-                supportedFeatures.add(InputEvtIQ.NAMESPACE);
-
-                // XEP-0251: Jingle Session Transfer
-                supportedFeatures.add(URN_XMPP_JINGLE_TRANSFER_0);
+            /*
+             * Reflect the preference of the user with respect to the use of
+             * ICE.
+             */
+            if (accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.IS_USE_ICE,
+                    false))
+            {
+                supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
             }
+
+            supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
+            supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
+            supportedFeatures.add(URN_XMPP_JINGLE_RTP_ZRTP);
+
+            /* add extension to support remote control */
+            supportedFeatures.add(InputEvtIQ.NAMESPACE);
+
+            // XEP-0251: Jingle Session Transfer
+            supportedFeatures.add(URN_XMPP_JINGLE_TRANSFER_0);
 
             // OperationSetContactCapabilities
             opsetContactCapabilities

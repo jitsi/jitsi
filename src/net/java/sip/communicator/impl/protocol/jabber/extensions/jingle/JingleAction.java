@@ -131,7 +131,6 @@ public enum JingleAction
      */
     TRANSPORT_ACCEPT("transport-accept"),
 
-
     /**
      * The <tt>transport-info</tt> action is used to exchange transport
      * candidates; it is mainly used in Jingle ICE-UDP but might be used in

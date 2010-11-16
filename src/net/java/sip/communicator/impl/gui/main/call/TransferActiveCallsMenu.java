@@ -29,6 +29,11 @@ public class TransferActiveCallsMenu
     implements Skinnable
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The invoker component.
      */
     private final JComponent invoker;
@@ -173,8 +178,21 @@ public class TransferActiveCallsMenu
         extends JMenuItem
         implements Skinnable
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
+        /**
+         * The <tt>CallPeer</tt> of this instance.
+         */
         private final CallPeer callPeer;
 
+        /**
+         * Constructor.
+         *
+         * @param peer the <tt>CallPeer</tt>
+         */
         public CallPeerMenuItem(CallPeer peer)
         {
             this.callPeer = peer;
@@ -183,6 +201,11 @@ public class TransferActiveCallsMenu
             loadSkin();
         }
 
+        /**
+         * Get the <tt>CallPeer</tt> of this instance.
+         *
+         * @return <tt>CallPeer</tt>
+         */
         public CallPeer getCallPeer()
         {
             return callPeer;
