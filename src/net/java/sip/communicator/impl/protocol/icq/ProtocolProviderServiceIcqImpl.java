@@ -117,6 +117,16 @@ public class ProtocolProviderServiceIcqImpl
     private RegistrationState lastRegistrationState = null;
 
     /**
+     * The server to use for aim service.
+     */
+    private static final String AIM_DEFAULT_LOGIN_SERVER = "login.oscar.aol.com";
+
+    /**
+     * The server to use for icq service.
+     */
+    private static final String ICQ_DEFAULT_LOGIN_SERVER = "login.icq.com";
+
+    /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
      * currently in or null in case it is in a unknown state.
@@ -371,8 +381,13 @@ public class ProtocolProviderServiceIcqImpl
                     new AimConnectionProperties(
                         new Screenname(getAccountID().getUserID())
                         , password);
-                connProps.setLoginHost("login.icq.com");
+
+                if(USING_ICQ)
+                    connProps.setLoginHost(ICQ_DEFAULT_LOGIN_SERVER);
+                else
+                    connProps.setLoginHost(AIM_DEFAULT_LOGIN_SERVER);
                 connProps.setLoginPort(443);
+
                 aimConnection = aimSession.openConnection(connProps);
                 aimConnection.setProxy(AimProxyInfo.forHttp(
                     globalProxyAddress, proxyPort,
@@ -380,10 +395,17 @@ public class ProtocolProviderServiceIcqImpl
             }
             else
             {
-                aimConnection = aimSession.openConnection(
-                        new AimConnectionProperties(
+                AimConnectionProperties connProps =
+                    new AimConnectionProperties(
                             new Screenname(getAccountID().getUserID())
-                            , password));
+                            , password);
+
+                if(USING_ICQ)
+                    connProps.setLoginHost(ICQ_DEFAULT_LOGIN_SERVER);
+                else
+                    connProps.setLoginHost(AIM_DEFAULT_LOGIN_SERVER);
+
+                aimConnection = aimSession.openConnection(connProps);
             }
 
             aimConnStateListener = new AimConnStateListener();
