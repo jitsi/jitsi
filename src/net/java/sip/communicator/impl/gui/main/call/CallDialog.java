@@ -281,6 +281,7 @@ public class CallDialog
         holdButton.setEnabled(false);
         muteButton.setEnabled(false);
         recordButton.setEnabled(false);
+        volumeControlButton.setEnabled(false);
 
         settingsPanel.add(dialButton);
         settingsPanel.add(conferenceButton);
@@ -525,6 +526,7 @@ public class CallDialog
         holdButton.setEnabled(true);
         muteButton.setEnabled(true);
         recordButton.setEnabled(true);
+        volumeControlButton.setEnabled(true);
 
         if (!isLastConference)
         {
