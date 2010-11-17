@@ -45,7 +45,7 @@ static inline int mutex_unlock(Mutex* mutex)
     return 0;
 }
 
-#else /* Unix */
+#else /* #ifdef _WIN32 */
 #include <pthread.h>
 
 typedef pthread_mutex_t Mutex;
@@ -68,9 +68,8 @@ static inline int mutex_lock(Mutex* mutex)
 static inline int mutex_unlock(Mutex* mutex)
 {
     return pthread_mutex_unlock(mutex);
-    return 0;
 }
-#endif
+#endif /* #ifdef _WIN32 */
 
 #include <speex/speex_echo.h>
 #include <speex/speex_preprocess.h>
@@ -110,21 +109,16 @@ typedef enum
 AudioQualityImprovement *AudioQualityImprovement_getSharedInstance
     (const char *stringID, jlong longID);
 void AudioQualityImprovement_process
-    (AudioQualityImprovement *audioQualityImprovement,
+    (AudioQualityImprovement *aqi,
     AudioQualityImprovementSampleOrigin sampleOrigin,
-    double sampleRate,
-    unsigned long sampleSizeInBits,
-    int channels,
-    void *buffer,
-    unsigned long length);
-void AudioQualityImprovement_release
-    (AudioQualityImprovement *audioQualityImprovement);
+    double sampleRate, unsigned long sampleSizeInBits, int channels,
+    void *buffer, unsigned long length);
+void AudioQualityImprovement_release(AudioQualityImprovement *aqi);
 void AudioQualityImprovement_setDenoise
-    (AudioQualityImprovement *audioQualityImprovement, jboolean denoise);
+    (AudioQualityImprovement *aqi, jboolean denoise);
 void AudioQualityImprovement_setEchoFilterLengthInMillis
-    (AudioQualityImprovement *audioQualityImprovement,
-    jlong echoFilterLengthInMillis);
+    (AudioQualityImprovement *aqi, jlong echoFilterLengthInMillis);
 void AudioQualityImprovement_setSampleRate
-    (AudioQualityImprovement *audioQualityImprovement, int sampleRate);
+    (AudioQualityImprovement *aqi, int sampleRate);
 
 #endif /* #ifndef _NET_JAVA_SIP_COMMUNICATOR_IMPL_NEOMEDIA_PORTAUDIO_AUDIOQUALITYIMPROVEMENT_H_ */

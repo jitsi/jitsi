@@ -26,7 +26,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Martin Andre
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 @SuppressWarnings("unchecked")
 public class DeviceConfiguration
@@ -127,7 +127,11 @@ public class DeviceConfiguration
 
     /**
      * The name of the <tt>long</tt> property which determines the filter length
-     * in milliseconds to be used by the echo cancellation implementation.
+     * in milliseconds to be used by the echo cancellation implementation. The
+     * recommended filter length is approximately the third of the room
+     * reverberation time. For example, in a small room, reverberation time is
+     * in the order of 300 ms, so a filter length of 100 ms is a good choice
+     * (800 samples at 8000 Hz sampling rate).
      */
     static final String PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS
         = "net.java.sip.communicator.impl.neomedia.echocancel.filterLengthInMillis";
@@ -135,10 +139,13 @@ public class DeviceConfiguration
     /**
      * The default value to be used for the
      * {@link #PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS} property when it
-     * does not have a value.
+     * does not have a value. The recommended filter length is approximately the
+     * third of the room reverberation time. For example, in a small room,
+     * reverberation time is in the order of 300 ms, so a filter length of 100
+     * ms is a good choice (800 samples at 8000 Hz sampling rate).
      */
     private static final long DEFAULT_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS
-        = 256;
+        = 200;
 
     /**
      * The name of the <tt>boolean</tt> property which determines whether noise
