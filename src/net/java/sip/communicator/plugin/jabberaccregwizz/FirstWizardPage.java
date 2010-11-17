@@ -277,9 +277,10 @@ public class FirstWizardPage
 
         connectionPanel.setPriority(priority);
 
-        boolean isUseIce
-            = Boolean.parseBoolean(
-                accountProperties.get(ProtocolProviderFactory.IS_USE_ICE));
+        String useIce =
+            accountProperties.get(ProtocolProviderFactory.IS_USE_ICE);
+        boolean isUseIce = Boolean.parseBoolean(
+                (useIce != null && useIce.length() != 0) ? useIce : "true");
 
         iceConfigPanel.setUseIce(isUseIce);
 

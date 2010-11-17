@@ -25,6 +25,11 @@ public class IceConfigPanel
     extends TransparentPanel
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The check box allowing the user to choose to use ICE.
      */
     private final JCheckBox iceBox = new SIPCommCheckBox(
@@ -157,6 +162,11 @@ public class IceConfigPanel
      */
     private class StunConfigDialog extends SIPCommDialog
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         /**
          * The main panel
          */
@@ -363,10 +373,11 @@ public class IceConfigPanel
             //WORKAROUND: there's something wrong happening in this pack and
             //components get cluttered, partially hiding the password text field.
             //I am under the impression that this has something to do with the
-            //message pane preferred size being ignored (or being 0) which is why
-            //I am adding it's height to the dialog. It's quite ugly so please fix
-            //if you have something better in mind.
-            this.setSize(getWidth(), getHeight()+errorMessagePane.getHeight());
+            //message pane preferred size being ignored (or being 0) which is
+            //why I am adding it's height to the dialog. It's quite ugly so
+            //please fix if you have something better in mind.
+            this.setSize(getWidth(), getHeight() +
+                    errorMessagePane.getHeight());
         }
 
         /**
@@ -385,6 +396,11 @@ public class IceConfigPanel
     private static class StunServerCellRenderer
         extends DefaultTableCellRenderer
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         // We need a place to store the color the JLabel should be returned
         // to after its foreground and background colors have been set
         // to the selection background color.
@@ -476,6 +492,11 @@ public class IceConfigPanel
     private class StunServerTableModel
         extends DefaultTableModel
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         /**
          * Returns the class of the objects contained in the column given by
          * the index. The class is used to distinguish which renderer should be

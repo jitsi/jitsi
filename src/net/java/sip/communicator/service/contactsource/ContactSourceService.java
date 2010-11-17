@@ -15,6 +15,9 @@ package net.java.sip.communicator.service.contactsource;
  */
 public interface ContactSourceService
 {
+    /**
+     * Constants to identify <tt>ContactSource</tt> in call history.
+     */
     public static final String CALL_HISTORY = "CallHistory";
 
     /**

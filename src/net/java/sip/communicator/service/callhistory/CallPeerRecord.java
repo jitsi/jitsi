@@ -13,9 +13,24 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public class CallPeerRecord
 {
+    /**
+     * The peer address.
+     */
     protected String peerAddress = null;
+
+    /**
+     * The start time of the record.
+     */
     protected Date startTime = null;
+
+    /**
+     * The end time of the record.
+     */
     protected Date endTime = null;
+
+    /**
+     * The state of <tt>CallPeer</tt>.
+     */
     protected CallPeerState state = CallPeerState.UNKNOWN;
 
     /**

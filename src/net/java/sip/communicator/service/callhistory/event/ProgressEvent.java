@@ -23,6 +23,9 @@ public class ProgressEvent
      */
     private static final long serialVersionUID = 0L;
 
+    /**
+     * The <tt>ProgressEvent</tt>.
+     */
     private net.java.sip.communicator.service.history.event.ProgressEvent evt;
 
     /**
@@ -30,6 +33,13 @@ public class ProgressEvent
      */
     private int progress = 0;
 
+    /**
+     * Constructor.
+     *
+     * @param source source object
+     * @param evt the <tt>ProgressEvent</tt>
+     * @param progress initial progress value
+     */
     public ProgressEvent(
         Object source,
         net.java.sip.communicator.service.history.event.ProgressEvent evt,

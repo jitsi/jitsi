@@ -15,7 +15,7 @@ import net.java.sip.communicator.service.protocol.*;
  * corresponding to a specific address (phone number, email, identifier, etc.),
  * which defines the different possible types of communication and the preferred
  * <tt>ProtocolProviderService</tt>s to go through.
- * 
+ *
  * <p>
  * Example: A <tt>ContactDetail</tt> could define two types of communication,
  * by declaring two supported operation sets
@@ -62,7 +62,7 @@ public class ContactDetail
     /**
      * Creates a <tt>ContactDetail</tt> by specifying the contact address,
      * corresponding to this detail.
-     * @param contactAddress
+     * @param contactAddress the contact address corresponding to this detail
      */
     public ContactDetail(String contactAddress)
     {

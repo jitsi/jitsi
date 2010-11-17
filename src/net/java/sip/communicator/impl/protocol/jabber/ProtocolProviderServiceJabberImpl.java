@@ -1142,7 +1142,7 @@ public class ProtocolProviderServiceJabberImpl
              */
             if (accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.IS_USE_ICE,
-                    false))
+                    true))
             {
                 supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
             }

@@ -27,7 +27,7 @@ public interface CallHistoryService
      *      the returned calls
      * @param startDate Date the start date of the calls
      * @return Collection of CallRecords with CallPeerRecord
-     * @throws RuntimeException
+     * @throws RuntimeException if something goes wrong
      */
     public Collection<CallRecord> findByStartDate(  MetaContact contact,
                                                     Date startDate)
@@ -41,7 +41,7 @@ public interface CallHistoryService
      *      the returned calls
      * @param endDate Date the end date of the calls
      * @return Collection of CallRecords with CallPeerRecord
-     * @throws RuntimeException
+     * @throws RuntimeException if something goes wrong
      */
     public Collection<CallRecord> findByEndDate(MetaContact contact,
                                                 Date endDate)
@@ -56,7 +56,7 @@ public interface CallHistoryService
      * @param startDate Date the start date of the calls
      * @param endDate Date the end date of the calls
      * @return Collection of CallRecords with CallPeerRecord
-     * @throws RuntimeException
+     * @throws RuntimeException if something goes wrong
      */
     public Collection<CallRecord> findByPeriod( MetaContact contact,
                                                 Date startDate,
@@ -69,7 +69,7 @@ public interface CallHistoryService
      *
      * @param startDate Date the start date of the calls
      * @return Collection of CallRecords with CallPeerRecord
-     * @throws RuntimeException
+     * @throws RuntimeException if something goes wrong
      */
     public Collection<CallRecord> findByStartDate(Date startDate)
         throws RuntimeException;
@@ -79,7 +79,7 @@ public interface CallHistoryService
      *
      * @param endDate Date the end date of the calls
      * @return Collection of CallRecords with CallPeerRecord
-     * @throws RuntimeException
+     * @throws RuntimeException if something goes wrong
      */
     public Collection<CallRecord> findByEndDate(Date endDate)
         throws RuntimeException;
@@ -90,7 +90,7 @@ public interface CallHistoryService
      * @param startDate Date the start date of the calls
      * @param endDate Date the end date of the calls
      * @return Collection of CallRecords with CallPeerRecord
-     * @throws RuntimeException
+     * @throws RuntimeException if something goes wrong
      */
     public Collection<CallRecord> findByPeriod(Date startDate, Date endDate)
         throws RuntimeException;
@@ -103,7 +103,7 @@ public interface CallHistoryService
      *      the returned calls
      * @param count calls count
      * @return Collection of CallRecords with CallPeerRecord
-     * @throws RuntimeException
+     * @throws RuntimeException if something goes wrong
      */
     public Collection<CallRecord> findLast(MetaContact contact, int count)
         throws RuntimeException;
@@ -113,7 +113,7 @@ public interface CallHistoryService
      *
      * @param count calls count
      * @return Collection of CallRecords with CallPeerRecord
-     * @throws RuntimeException
+     * @throws RuntimeException if something goes wrong
      */
     public Collection<CallRecord> findLast(int count)
         throws RuntimeException;
@@ -123,7 +123,7 @@ public interface CallHistoryService
      * @param address String the address of the peer
      * @param recordCount the number of records to return
      * @return Collection of CallRecords with CallPeerRecord
-     * @throws RuntimeException
+     * @throws RuntimeException if something goes wrong
      */
     public CallHistoryQuery findByPeer(String address, int recordCount)
         throws RuntimeException;

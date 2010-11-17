@@ -19,6 +19,11 @@ public class ContactQueryStatusEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates that a query has been completed.
      */
     public static final int QUERY_COMPLETED = 0;

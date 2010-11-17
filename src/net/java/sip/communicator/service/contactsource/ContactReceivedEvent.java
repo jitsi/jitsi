@@ -18,6 +18,11 @@ public class ContactReceivedEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The contact that has been received.
      */
     private final SourceContact contact;
