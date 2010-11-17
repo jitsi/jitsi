@@ -16,6 +16,7 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.version.*;
 import net.java.sip.communicator.util.*;
 
@@ -37,6 +38,12 @@ public class SipActivator
     private static VersionService       versionService        = null;
     private static UIService            uiService             = null;
     private static HIDService            hidService           = null;
+
+    /**
+     * The resource service. Used for checking for default values
+     * and loding status icons.
+     */
+    private static ResourceManagementService resources        = null;
 
     private static ProtocolProviderFactorySipImpl sipProviderFactory = null;
 
@@ -219,6 +226,26 @@ public class SipActivator
                 .getService(uiServiceReference);
         }
         return uiService;
+    }
+
+    /**
+     * Returns a reference to the ResourceManagementService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a reference to a ResourceManagementService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resources == null)
+        {
+            resources
+                = ServiceUtils.getService(
+                        bundleContext, ResourceManagementService.class);
+        }
+        return resources;
     }
 
     /**

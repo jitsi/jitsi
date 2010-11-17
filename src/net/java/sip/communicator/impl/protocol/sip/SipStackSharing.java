@@ -425,26 +425,53 @@ public class SipStackSharing
 
     /**
      * Fetches the preferred UDP and TCP port for clear communications in the
-     * user preferences or fallback on a default value.
+     * user preferences or search is default value set in settings or
+     * fallback on a default value.
      *
      * @return the preferred network port for clear communications.
      */
     private int getPreferredClearPort()
     {
-        return SipActivator.getConfigurationService().getInt(
-            PREFERRED_CLEAR_PORT_PROPERTY_NAME, ListeningPoint.PORT_5060);
+        
+        int preferredPort =  SipActivator.getConfigurationService().getInt(
+            PREFERRED_CLEAR_PORT_PROPERTY_NAME, -1);
+
+        if(preferredPort <= 1)
+        {
+            // check for default value
+            preferredPort =  SipActivator.getResources().getSettingsInt(
+                PREFERRED_CLEAR_PORT_PROPERTY_NAME);
+        }
+
+        if(preferredPort <= 1)
+            return ListeningPoint.PORT_5060;
+        else
+            return preferredPort;
     }
 
     /**
      * Fetches the preferred TLS (TCP) port for secure communications in the
-     * user preferences or fallback on a default value.
+     * user preferences or search is default value set in settings or
+     * fallback on a default value.
      *
      * @return the preferred network port for secure communications.
      */
     private int getPreferredSecurePort()
     {
-        return SipActivator.getConfigurationService().getInt(
-            PREFERRED_SECURE_PORT_PROPERTY_NAME, ListeningPoint.PORT_5061);
+        int preferredPort =  SipActivator.getConfigurationService().getInt(
+            PREFERRED_SECURE_PORT_PROPERTY_NAME, -1);
+
+        if(preferredPort <= 1)
+        {
+            // check for default value
+            preferredPort =  SipActivator.getResources().getSettingsInt(
+                PREFERRED_SECURE_PORT_PROPERTY_NAME);
+        }
+
+        if(preferredPort <= 1)
+            return ListeningPoint.PORT_5061;
+        else
+            return preferredPort;
     }
 
     /**

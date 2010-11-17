@@ -42,8 +42,6 @@ public class ProtocolIconSipImpl
      */
     private Hashtable<String, String> iconPathsTable;
 
-    private static ResourceManagementService resources;
-
     /**
      * Creates an instance of this class by passing to it the path, where all
      * protocol icons are placed.
@@ -180,7 +178,7 @@ public class ProtocolIconSipImpl
      */
     public static byte[] loadIcon(String imagePath)
     {
-        ResourceManagementService resources = getResources();
+        ResourceManagementService resources = SipActivator.getResources();
         byte[] icon = null;
 
         if (resources != null)
@@ -198,17 +196,5 @@ public class ProtocolIconSipImpl
             }
         }
         return icon;
-    }
-
-    public static ResourceManagementService getResources()
-    {
-        if (resources == null)
-        {
-            resources
-                = ServiceUtils.getService(
-                        SipActivator.bundleContext,
-                        ResourceManagementService.class);
-        }
-        return resources;
     }
 }
