@@ -418,7 +418,10 @@ public class MetaUIContact
         public MetaContactDetail(Contact contact)
         {
             super(  contact.getAddress(),
-                    contact.getDisplayName(),
+                    contact.getDisplayName()
+                        + " ("
+                        + contact.getProtocolProvider().getProtocolName()
+                        + ")",
                     contact.getProtocolProvider(),
                     contact.getProtocolProvider().getProtocolName());
 
