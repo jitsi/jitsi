@@ -13,14 +13,17 @@
 #include <string.h>
 
 static void AudioQualityImprovement_cancelEchoFromPlay
-    (AudioQualityImprovement *aqi, void *buffer, unsigned long length);
+    (AudioQualityImprovement *aqi,
+    void *buffer, unsigned long length,
+    jlong startTime, jlong endTime);
 static void AudioQualityImprovement_free(AudioQualityImprovement *aqi);
 static AudioQualityImprovement *AudioQualityImprovement_new
     (const char *stringID, jlong longID, AudioQualityImprovement *next);
 static void AudioQualityImprovement_resampleInPlay
     (AudioQualityImprovement *aqi,
     double sampleRate, unsigned long sampleSizeInBits, int channels,
-    void *buffer, unsigned long length);
+    void *buffer, unsigned long length,
+    jlong startTime, jlong endTime);
 static void AudioQualityImprovement_retain(AudioQualityImprovement *aqi);
 static void AudioQualityImprovement_setFrameSize
     (AudioQualityImprovement *aqi, jint frameSize);
@@ -38,11 +41,50 @@ static CRITICAL_SECTION AudioQualityImprovement_sharedInstancesMutex
 static AudioQualityImprovement *AudioQualityImprovement_sharedInstances
     = NULL;
 
+/**
+ *
+ * @param aqi
+ * @param buffer
+ * @param length the length of <tt>buffer</tt> in bytes
+ * @param startTime the time in milliseconds at which <tt>buffer</tt> was given
+ * to the audio capture implementation
+ * @param endTime the time in milliseconds at which <tt>buffer</tt> was returned
+ * from the audio capture implementation
+ */
 static void
 AudioQualityImprovement_cancelEchoFromPlay
     (AudioQualityImprovement *aqi,
-    void *buffer, unsigned long length)
+    void *buffer, unsigned long length,
+    jlong startTime, jlong endTime)
 {
+    spx_uint32_t playOffsetInSamples, playOffsetInBytes;
+
+    /*
+     * Account for the delay between the giving of the audio data to the
+     * playback implementation and its actual playback.
+     */
+/*
+    startTime
+        -= 2
+            * ((aqi->frameSize / sizeof(spx_int16_t))
+                / (aqi->sampleRate / 1000));
+ */
+    /*
+     * Depending on startTime, find the part of play which is to be used by the
+     * echo cancellation for buffer.
+     */
+    if (startTime < aqi->playStartTime)
+        return;
+    playOffsetInSamples
+        = (startTime - aqi->playStartTime) * (aqi->sampleRate / 1000);
+    playOffsetInBytes = playOffsetInSamples * sizeof(spx_int16_t);
+    if (playOffsetInBytes + length > aqi->playSize)
+        return;
+
+    /*
+     * Ensure that out exists and is large enough to receive the result of the
+     * echo cancellation.
+     */
     if (!(aqi->out) || (aqi->outCapacity < length))
     {
         spx_int16_t *newOut = realloc(aqi->out, length);
@@ -55,8 +97,11 @@ AudioQualityImprovement_cancelEchoFromPlay
         else
             return;
     }
-    speex_echo_cancellation(aqi->echo, buffer, aqi->play, aqi->out);
-    aqi->playSize = 0;
+
+    /* Perform the echo cancellation and return the result in buffer. */
+    speex_echo_cancellation(
+        aqi->echo,
+        buffer, aqi->play + playOffsetInSamples, aqi->out);
     memcpy(buffer, aqi->out, length);
 }
 
@@ -114,7 +159,8 @@ AudioQualityImprovement_getSharedInstance(const char *stringID, jlong longID)
         {
             theSharedInstance
                 = AudioQualityImprovement_new(
-                    stringID, longID,
+                    stringID,
+                    longID,
                     AudioQualityImprovement_sharedInstances);
             if (theSharedInstance)
                 AudioQualityImprovement_sharedInstances = theSharedInstance;
@@ -166,12 +212,27 @@ AudioQualityImprovement_new
     return aqi;
 }
 
+/**
+ *
+ * @param aqi
+ * @param sampleOrigin
+ * @param sampleRate
+ * @param sampleSizeInBits
+ * @param channels
+ * @param buffer
+ * @param length the length of <tt>buffer</tt> in bytes
+ * @param startTime the time in milliseconds at which <tt>buffer</tt> was given
+ * to the audio capture or playback implementation
+ * @param endTime the time in milliseconds at which <tt>buffer</tt> was returned
+ * from the audio capture or playback implementation
+ */
 void
 AudioQualityImprovement_process
     (AudioQualityImprovement *aqi,
     AudioQualityImprovementSampleOrigin sampleOrigin,
     double sampleRate, unsigned long sampleSizeInBits, int channels,
-    void *buffer, unsigned long length)
+    void *buffer, unsigned long length,
+    jlong startTime, jlong endTime)
 {
     if ((sampleSizeInBits == 16) && (channels == 1) && !mutex_lock(aqi->mutex))
     {
@@ -183,13 +244,12 @@ AudioQualityImprovement_process
                 AudioQualityImprovement_setFrameSize(aqi, length);
                 if (aqi->preprocess)
                 {
-                    if (aqi->echo
-                            && aqi->play
-                            && (aqi->playSize == aqi->frameSize))
+                    if (aqi->echo && aqi->play && aqi->playSize)
                     {
                         AudioQualityImprovement_cancelEchoFromPlay(
                             aqi,
-                            buffer, length);
+                            buffer, length,
+                            startTime, endTime);
                     }
                     speex_preprocess_run(aqi->preprocess, buffer);
                 }
@@ -201,7 +261,8 @@ AudioQualityImprovement_process
                 AudioQualityImprovement_resampleInPlay(
                     aqi,
                     sampleRate, sampleSizeInBits, channels,
-                    buffer, length);
+                    buffer, length,
+                    startTime, endTime);
             }
             break;
         }
@@ -253,13 +314,31 @@ AudioQualityImprovement_release(AudioQualityImprovement *aqi)
     }
 }
 
+/**
+ *
+ * @param aqi
+ * @param sampleRate
+ * @param sampleSizeInBits
+ * @param channels
+ * @param buffer
+ * @param length the length of <tt>buffer</tt> in bytes
+ * @param startTime the time in milliseconds at which <tt>buffer</tt> was given
+ * to the audio playback implementation
+ * @param endTime the time in milliseconds at which <tt>buffer</tt> was returned
+ * from the audio playback implementation
+ */
 static void
 AudioQualityImprovement_resampleInPlay
     (AudioQualityImprovement *aqi,
     double sampleRate, unsigned long sampleSizeInBits, int channels,
-    void *buffer, unsigned long length)
+    void *buffer, unsigned long length,
+    jlong startTime, jlong endTime)
 {
     spx_uint32_t playSize;
+    unsigned long sampleSizeInBytes;
+    spx_uint32_t newPlaySize;
+    jlong oldPlayStartTime;
+    spx_int16_t *play;
 
     if (sampleRate == aqi->sampleRate)
         playSize = length;
@@ -269,7 +348,8 @@ AudioQualityImprovement_resampleInPlay
         {
             speex_resampler_set_rate(
                 aqi->resampler,
-                (spx_uint32_t) sampleRate, (spx_uint32_t) (aqi->sampleRate));
+                (spx_uint32_t) sampleRate,
+                (spx_uint32_t) (aqi->sampleRate));
             playSize = aqi->frameSize;
         }
         else
@@ -277,10 +357,13 @@ AudioQualityImprovement_resampleInPlay
             aqi->resampler
                 = speex_resampler_init(
                     channels,
-                    (spx_uint32_t) sampleRate, (spx_uint32_t) (aqi->sampleRate),
+                    (spx_uint32_t) sampleRate,
+                    (spx_uint32_t) (aqi->sampleRate),
                     SPEEX_RESAMPLER_QUALITY_VOIP,
                     NULL);
-            if (!(aqi->resampler))
+            if (aqi->resampler)
+                playSize = aqi->frameSize;
+            else
             {
                 aqi->playSize = 0;
                 return;
@@ -289,17 +372,31 @@ AudioQualityImprovement_resampleInPlay
     }
     else
     {
+        /*
+         * The specified buffer neither is in the format of the audio capture
+         * nor can be resampled to it.
+         */
         aqi->playSize = 0;
         return;
     }
+
+    /* Ensure that play exists and is large enough. */
+    sampleSizeInBytes = sampleSizeInBits / 8;
     if (!(aqi->play) || (aqi->playCapacity < playSize))
     {
-        spx_int16_t *newPlay = realloc(aqi->play, playSize);
+        spx_uint32_t playCapacity;
+        spx_int16_t *newPlay;
 
+        playCapacity = aqi->filterLengthOfEcho * sampleSizeInBytes;
+        if (playCapacity < playSize)
+            playCapacity = playSize;
+        newPlay = realloc(aqi->play, playCapacity);
         if (newPlay)
         {
+            if (!(aqi->play))
+                aqi->playSize = 0;
             aqi->play = newPlay;
-            aqi->playCapacity = playSize;
+            aqi->playCapacity = playCapacity;
         }
         else
         {
@@ -307,21 +404,60 @@ AudioQualityImprovement_resampleInPlay
             return;
         }
     }
+
+    /* Ensure that there is room for buffer in play. */
+    newPlaySize = aqi->playSize + playSize;
+    if (newPlaySize > aqi->playCapacity)
+    {
+        spx_uint32_t i;
+        spx_uint32_t playBytesToDiscard = newPlaySize - aqi->playCapacity;
+        spx_uint32_t playSamplesToMove
+            = (aqi->playSize - playBytesToDiscard) / sizeof(spx_int16_t);
+        spx_int16_t *playNew = aqi->play;
+        spx_uint32_t playSamplesToDiscard
+            = playBytesToDiscard / sizeof(spx_int16_t);
+        spx_int16_t *playOld = aqi->play + playSamplesToDiscard;
+
+        for (i = 0; i < playSamplesToMove; i++)
+            *playNew++ = *playOld++;
+        aqi->playSize -= playBytesToDiscard;
+        newPlaySize = aqi->playSize + playSize;
+
+        aqi->playStartTime += playSamplesToDiscard / ( aqi->sampleRate / 1000);
+    }
+
+    if (endTime > startTime)
+    {
+        spx_uint32_t lengthInMillis
+            = (aqi->frameSize / sampleSizeInBytes) / (aqi->sampleRate / 1000);
+
+        if (endTime - startTime > lengthInMillis)
+            startTime = endTime - lengthInMillis;
+    }
+    oldPlayStartTime = aqi->playStartTime;
+    aqi->playStartTime
+        = startTime
+            - ((aqi->playSize / sampleSizeInBytes) / (aqi->sampleRate / 1000));
+    if (aqi->playStartTime != oldPlayStartTime)
+        fprintf(stderr, "start time delta = %ld\n", aqi->playStartTime - oldPlayStartTime);
+
+    /* Place buffer in play. */
+    play = aqi->play + (aqi->playSize / sizeof(spx_int16_t));
     if (length == aqi->frameSize)
     {
-        memcpy(aqi->play, buffer, playSize);
-        aqi->playSize = playSize;
+        memcpy(play, buffer, playSize);
+        aqi->playSize = newPlaySize;
     }
     else
     {
-        unsigned long sampleSizeInBytes = sampleSizeInBits / 8;
         spx_uint32_t bufferSampleCount = length / sampleSizeInBytes;
         spx_uint32_t playSampleCount = playSize / sampleSizeInBytes;
 
         speex_resampler_process_interleaved_int(
             aqi->resampler,
-            buffer, &bufferSampleCount, aqi->play, &playSampleCount);
-        aqi->playSize = playSampleCount * sampleSizeInBytes;
+            buffer, &bufferSampleCount,
+            play, &playSampleCount);
+        aqi->playSize += playSampleCount * sampleSizeInBytes;
     }
 }
 
@@ -394,7 +530,8 @@ AudioQualityImprovement_setSampleRate
 }
 
 static void
-AudioQualityImprovement_updatePreprocess(AudioQualityImprovement *aqi)
+AudioQualityImprovement_updatePreprocess
+    (AudioQualityImprovement *aqi)
 {
     if (aqi->echo)
     {
@@ -412,7 +549,8 @@ AudioQualityImprovement_updatePreprocess(AudioQualityImprovement *aqi)
         {
             int echoFilterLength
                 = (int)
-                    ((aqi->sampleRate * aqi->echoFilterLengthInMillis) / 1000);
+                    ((aqi->sampleRate * aqi->echoFilterLengthInMillis)
+                        / 1000);
 
             if (aqi->filterLengthOfEcho != echoFilterLength)
                 frameSize = 0;

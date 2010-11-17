@@ -37,6 +37,7 @@ static long PortAudio_getFrameSize(PaStreamParameters *streamParameters);
 static unsigned long PortAudio_getSampleSizeInBits
     (PaStreamParameters *streamParameters);
 static void PortAudio_throwException(JNIEnv *env, PaError errorCode);
+static long System_currentTimeMillis();
 
 static int PortAudioStream_callback(
     const void *input,
@@ -255,10 +256,13 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1ReadStream
 
     if (data)
     {
+        jlong startTime, endTime;
         PortAudioStream *portAudioStream = (PortAudioStream *) stream;
-        PaError errorCode
-            = Pa_ReadStream(portAudioStream->stream, data, frames);
+        PaError errorCode;
 
+        startTime = System_currentTimeMillis();
+        errorCode = Pa_ReadStream(portAudioStream->stream, data, frames);
+        endTime = System_currentTimeMillis();
         if ((paNoError == errorCode) || (paInputOverflowed == errorCode))
         {
             if (portAudioStream->audioQualityImprovement)
@@ -269,8 +273,8 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1ReadStream
                     portAudioStream->sampleRate,
                     portAudioStream->sampleSizeInBits,
                     portAudioStream->channels,
-                    data,
-                    frames * portAudioStream->inputFrameSize);
+                    data, frames * portAudioStream->inputFrameSize,
+                    startTime, endTime);
             }
             (*env)->ReleaseByteArrayElements(env, buffer, data, 0);
         }
@@ -336,7 +340,11 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1WriteStream
 
     for (i = 0; i < numberOfWrites; i++)
     {
+        jlong startTime, endTime;
+
+        startTime = System_currentTimeMillis();
         errorCode = Pa_WriteStream(paStream, data, frames);
+        endTime = System_currentTimeMillis();
         if ((paNoError != errorCode) && (errorCode != paOutputUnderflowed))
             break;
         else
@@ -346,11 +354,9 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1WriteStream
                 AudioQualityImprovement_process(
                     audioQualityImprovement,
                     AUDIO_QUALITY_IMPROVEMENT_SAMPLE_ORIGIN_OUTPUT,
-                    sampleRate,
-                    sampleSizeInBits,
-                    channels,
-                    data,
-                    framesInBytes);
+                    sampleRate, sampleSizeInBits, channels,
+                    data, framesInBytes,
+                    startTime, endTime);
             }
             data += framesInBytes;
         }
@@ -416,20 +422,6 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1g
     (JNIEnv *env, jclass clazz, jlong deviceInfo)
 {
     return ((PaDeviceInfo *) deviceInfo)->maxOutputChannels;
-}
-
-JNIEXPORT jstring JNICALL
-Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getName
-    (JNIEnv *env, jclass clazz, jlong deviceInfo)
-{
-    const char *name = ((PaDeviceInfo *) deviceInfo)->name;
-
-    /*
-     * PaDeviceInfo_getName has been deprected in the Java source code and the
-     * implementation here is left to allow the application to execute even
-     * without the recompiled JNI counterpart.
-     */
-    return name ? (*env)->NewStringUTF(env, name) : NULL;
 }
 
 JNIEXPORT jbyteArray JNICALL
@@ -627,8 +619,7 @@ static void
 PortAudio_throwException(JNIEnv *env, PaError errorCode)
 {
     jclass clazz
-        = (*env)
-            ->FindClass(
+        = (*env)->FindClass(
                 env,
                 "net/java/sip/communicator/impl/neomedia/portaudio/PortAudioException");
 
@@ -670,8 +661,7 @@ PortAudioStream_callback(
             = (*env)->GetObjectClass(env, streamCallback);
 
         streamCallbackMethodID
-            = (*env)
-                ->GetMethodID(
+            = (*env)->GetMethodID(
                     env,
                     streamCallbackClass,
                     "callback",
@@ -683,21 +673,18 @@ PortAudioStream_callback(
     }
 
     return
-        (*env)
-            ->CallIntMethod(
+        (*env)->CallIntMethod(
                 env,
                 streamCallback,
                 streamCallbackMethodID,
                 input
-                    ? (*env)
-                        ->NewDirectByteBuffer(
+                    ? (*env)->NewDirectByteBuffer(
                             env,
                             (void *) input,
                             frameCount * stream->inputFrameSize)
                     : NULL,
                 output
-                    ? (*env)
-                        ->NewDirectByteBuffer(
+                    ? (*env)->NewDirectByteBuffer(
                             env,
                             output,
                             frameCount * stream->outputFrameSize)
@@ -732,8 +719,7 @@ PortAudioStream_finishedCallback(void *userData)
             = (*env)->GetObjectClass(env, streamCallback);
 
         streamFinishedCallbackMethodID
-            = (*env)
-                ->GetMethodID(
+            = (*env)->GetMethodID(
                     env,
                     streamCallbackClass,
                     "finishedCallback",
@@ -801,4 +787,21 @@ PortAudioStream_new(JNIEnv *env, jobject streamCallback)
     stream->streamFinishedCallbackMethodID = NULL;
 
     return stream;
+}
+
+/**
+ * Returns the current time in milliseconds (akin to
+ * <tt>java.lang.System#currentTimeMillis()</tt>).
+ *
+ * @return the current time in milliseconds
+ */
+static jlong
+System_currentTimeMillis()
+{
+    struct timeval tv;
+
+    return
+        (gettimeofday(&tv, NULL) == 0)
+            ? ((tv.tv_sec * 1000) + (tv.tv_usec / 1000))
+            : -1;
 }

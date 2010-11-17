@@ -80,17 +80,39 @@ typedef struct _AudioQualityImprovement
     jboolean denoise;
     SpeexEchoState *echo;
     jlong echoFilterLengthInMillis;
+
+    /** The length of the echo cancelling filter of #echo in samples. */
     int filterLengthOfEcho;
     jint frameSize;
     int frameSizeOfPreprocess;
     jlong longID;
     Mutex *mutex;
     struct _AudioQualityImprovement *next;
+
+    /**
+     * The intermediate buffer into which the result of echo cancellation is
+     * written for a specific <tt>buffer</tt> of captured audio.
+     */
     spx_int16_t *out;
+
+    /** The capacity of #out in bytes. */
     spx_uint32_t outCapacity;
     spx_int16_t *play;
+
+    /**
+     * The capacity of #play in bytes i.e. the total number of bytes allocated
+     * to #play regardless of whether they are used or not.
+     */
     spx_uint32_t playCapacity;
+
+    /** The size in bytes of the valid audio data written into #play. */
     spx_uint32_t playSize;
+
+    /**
+     * The time in milliseconds at which the valid audio data written into #play
+     * has started playing back.
+     */
+    jlong playStartTime;
     SpeexPreprocessState *preprocess;
     SpeexResamplerState *resampler;
     int retainCount;
@@ -98,6 +120,7 @@ typedef struct _AudioQualityImprovement
     int sampleRateOfPreprocess;
     char *stringID;
 } AudioQualityImprovement;
+
 #endif /* #ifndef AUDIO_QUALITY_IMPROVEMENT_IMPLEMENTATION */
 
 typedef enum
@@ -112,7 +135,8 @@ void AudioQualityImprovement_process
     (AudioQualityImprovement *aqi,
     AudioQualityImprovementSampleOrigin sampleOrigin,
     double sampleRate, unsigned long sampleSizeInBits, int channels,
-    void *buffer, unsigned long length);
+    void *buffer, unsigned long length,
+    jlong startTime, jlong endTime);
 void AudioQualityImprovement_release(AudioQualityImprovement *aqi);
 void AudioQualityImprovement_setDenoise
     (AudioQualityImprovement *aqi, jboolean denoise);
