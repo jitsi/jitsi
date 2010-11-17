@@ -241,6 +241,8 @@ public class SourceUIContact
         {
             super(  detail.getContactAddress(),
                     detail.getContactAddress(),
+                    new ImageIcon(
+                        Constants.getStatusIcon(Constants.OFFLINE_STATUS)),
                     detail.getPreferredProtocolProvider(opSetClass),
                     detail.getPreferredProtocol(opSetClass));
         }

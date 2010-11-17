@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -28,6 +30,11 @@ public abstract class UIContactDetail
     private final String displayName;
 
     /**
+     * The status icon of this contact detail.
+     */
+    private final ImageIcon statusIcon;
+
+    /**
      * The <tt>ProtocolProviderService</tt> corresponding to this detail.
      */
     private final ProtocolProviderService protocolProvider;
@@ -43,6 +50,7 @@ public abstract class UIContactDetail
      * <tt>address</tt>, the <tt>displayName</tt> and <tt>preferredProvider</tt>.
      * @param address the contact address
      * @param displayName the contact display name
+     * @param statusIcon the status icon of this contact detail
      * @param preferredProvider the preferred protocol provider
      * @param preferredProtocol the preferred protocol if no protocol provider
      * is set
@@ -50,11 +58,13 @@ public abstract class UIContactDetail
     public UIContactDetail(
         String address,
         String displayName,
+        ImageIcon statusIcon,
         ProtocolProviderService preferredProvider,
         String preferredProtocol)
     {
         this.address = address;
         this.displayName = displayName;
+        this.statusIcon = statusIcon;
         this.protocolProvider = preferredProvider;
         this.preferredProtocol = preferredProtocol;
     }
@@ -75,6 +85,16 @@ public abstract class UIContactDetail
     public String getAddress()
     {
         return address;
+    }
+
+    /**
+     * Returns the status icon of this contact detail.
+     *
+     * @return the status icon of this contact detail
+     */
+    public ImageIcon getStatusIcon()
+    {
+        return statusIcon;
     }
 
     /**

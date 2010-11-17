@@ -352,16 +352,25 @@ public class ChooseCallAccountPopupMenu
          */
         public void loadSkin()
         {
-            BufferedImage contactIcon = null;
-            PresenceStatus status = contact.getPresenceStatus();
+            ImageIcon contactIcon = contact.getStatusIcon();
 
-            if (status != null)
-                contactIcon = Constants.getStatusIcon(status);
-            else
-                contactIcon = Constants.getStatusIcon(Constants.OFFLINE_STATUS);
+            if (contactIcon == null)
+            {
+                PresenceStatus status = contact.getPresenceStatus();
+
+                BufferedImage statusIcon = null;
+                if (status != null)
+                    statusIcon = Constants.getStatusIcon(status);
+                else
+                    statusIcon
+                        = Constants.getStatusIcon(Constants.OFFLINE_STATUS);
+
+                if (statusIcon != null)
+                    contactIcon = new ImageIcon(statusIcon);
+            }
 
             if (contactIcon != null)
-                this.setIcon(new ImageIcon(contactIcon));
+                this.setIcon(contactIcon);
         }
     }
 
