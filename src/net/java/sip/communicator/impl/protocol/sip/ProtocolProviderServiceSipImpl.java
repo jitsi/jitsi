@@ -2227,7 +2227,15 @@ public class ProtocolProviderServiceSipImpl
                 return userSpecifiedDefaultTransport;
             }
             else
-                return ListeningPoint.UDP;
+            {
+                String defTransportDefaultValue = SipActivator.getResources()
+                        .getSettingsString(DEFAULT_TRANSPORT);
+
+                if(!StringUtils.isNullOrEmpty(defTransportDefaultValue))
+                    return defTransportDefaultValue;
+                else
+                    return ListeningPoint.UDP;
+            }
         }
     }
 
