@@ -102,6 +102,13 @@ public class ProtocolProviderServiceSipImpl
         "net.java.sip.communicator.service.protocol.sip.PREFERRED_SIP_PORT";
 
     /**
+     * Property used in default settings if we want to override the system
+     * property for java.net.preferIPv6Addresses, with values true or false. 
+     */
+    private static final String PREFER_IPV6_ADDRESSES =
+        "net.java.sip.communicator.impl.protocol.sip.PREFER_IPV6_ADDRESSES";
+
+    /**
      * The name of the property under which the user may specify the number of
      * seconds that registrations take to expire.
      */
@@ -1617,7 +1624,7 @@ public class ProtocolProviderServiceSipImpl
                 resolveAddresses(
                         registrarAddressStr,
                         registrarSocketAddressesList,
-                        Boolean.getBoolean("java.net.preferIPv6Addresses"),
+                        checkPreferIPv6Addresses(),
                         registrarPort
                 );
                 registrarSocketAddresses = registrarSocketAddressesList
@@ -1997,7 +2004,7 @@ public class ProtocolProviderServiceSipImpl
                     resolveAddresses(
                         proxyAddressStr,
                         addresses,
-                        Boolean.getBoolean("java.net.preferIPv6Addresses"),
+                        checkPreferIPv6Addresses(),
                         proxyPort);
                     // only set if enough results found
                     if(addresses.size() > ix)
@@ -2679,8 +2686,7 @@ public class ProtocolProviderServiceSipImpl
             return;
         }
 
-        boolean preferIPv6Addresses =
-                Boolean.getBoolean("java.net.preferIPv6Addresses");
+        boolean preferIPv6Addresses = checkPreferIPv6Addresses();
 
         // first make NAPTR resolve to get protocol, if needed
         if(resolveProtocol)
@@ -3081,6 +3087,24 @@ public class ProtocolProviderServiceSipImpl
             throw new OperationFailedException(message, errorCode);
         else
             throw new OperationFailedException(message, errorCode, cause);
+    }
+
+    /**
+     * Check is property java.net.preferIPv6Addresses has default value
+     * set in the application using our property:
+     * net.java.sip.communicator.impl.protocol.sip.PREFER_IPV6_ADDRESSES
+     * if not set - use setting from the system property.
+     * @return is property java.net.preferIPv6Addresses <code>"true"</code>.
+     */
+    private boolean checkPreferIPv6Addresses()
+    {
+        String defaultSetting = SipActivator.getResources().getSettingsString(
+                PREFER_IPV6_ADDRESSES);
+        if(!StringUtils.isNullOrEmpty(defaultSetting))
+            return Boolean.parseBoolean(defaultSetting);
+
+        // if there is no default setting return the system wide value.
+        return Boolean.getBoolean("java.net.preferIPv6Addresses"); 
     }
 }
 
