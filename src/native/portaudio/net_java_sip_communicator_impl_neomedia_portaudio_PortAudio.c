@@ -37,7 +37,7 @@ static long PortAudio_getFrameSize(PaStreamParameters *streamParameters);
 static unsigned long PortAudio_getSampleSizeInBits
     (PaStreamParameters *streamParameters);
 static void PortAudio_throwException(JNIEnv *env, PaError errorCode);
-static long System_currentTimeMillis();
+static jlong System_currentTimeMillis();
 
 static int PortAudioStream_callback(
     const void *input,
@@ -260,9 +260,13 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1ReadStream
         PortAudioStream *portAudioStream = (PortAudioStream *) stream;
         PaError errorCode;
 
+/*
         startTime = System_currentTimeMillis();
+ */
         errorCode = Pa_ReadStream(portAudioStream->stream, data, frames);
+/*
         endTime = System_currentTimeMillis();
+ */
         if ((paNoError == errorCode) || (paInputOverflowed == errorCode))
         {
             if (portAudioStream->audioQualityImprovement)
@@ -342,9 +346,13 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1WriteStream
     {
         jlong startTime, endTime;
 
+/*
         startTime = System_currentTimeMillis();
+ */
         errorCode = Pa_WriteStream(paStream, data, frames);
+/*
         endTime = System_currentTimeMillis();
+ */
         if ((paNoError != errorCode) && (errorCode != paOutputUnderflowed))
             break;
         else

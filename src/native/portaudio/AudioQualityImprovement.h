@@ -100,19 +100,22 @@ typedef struct _AudioQualityImprovement
     spx_int16_t *play;
 
     /**
-     * The capacity of #play in bytes i.e. the total number of bytes allocated
-     * to #play regardless of whether they are used or not.
+     * The number of samples allocated to #play regardless of whether they are
+     * valid or not.
      */
     spx_uint32_t playCapacity;
 
-    /** The size in bytes of the valid audio data written into #play. */
-    spx_uint32_t playSize;
+    /** The number of frames to delay playback with. */
+    spx_uint32_t playDelay;
 
     /**
-     * The time in milliseconds at which the valid audio data written into #play
-     * has started playing back.
+     * The indicator which determines whether play is currently delaying the
+     * access to it from #echo.
      */
-    jlong playStartTime;
+    jboolean playIsDelaying;
+
+    /** The number of valid samples written into #play. */
+    spx_uint32_t playLength;
     SpeexPreprocessState *preprocess;
     SpeexResamplerState *resampler;
     int retainCount;
