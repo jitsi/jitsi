@@ -374,14 +374,18 @@ public class CallPeerMediaHandlerSipImpl
                 = devDirection.and(getDirectionUserPreference(mediaType));
 
             // determine the direction that we need to announce.
-            MediaDirection remoteDirection = SdpUtils
-                            .getDirection(mediaDescription);
-            MediaDirection direction = devDirection
-                            .getDirectionForAnswer(remoteDirection);
+            MediaDirection remoteDirection
+                = SdpUtils.getDirection(mediaDescription);
+            MediaDirection direction
+                = devDirection.getDirectionForAnswer(remoteDirection);
 
             // intersect the MediaFormats of our device with remote ones
             List<MediaFormat> mutuallySupportedFormats
-                = intersectFormats(remoteFormats, dev.getSupportedFormats());
+                = (dev == null)
+                    ? null
+                    : intersectFormats(
+                            remoteFormats,
+                            dev.getSupportedFormats());
 
             // check whether we will be exchanging any RTP extensions.
             List<RTPExtension> offeredRTPExtensions
@@ -391,21 +395,24 @@ public class CallPeerMediaHandlerSipImpl
             List<RTPExtension> supportedExtensions
                     = getExtensionsForType(mediaType);
 
-            List<RTPExtension> rtpExtensions = intersectRTPExtensions(
-                            offeredRTPExtensions, supportedExtensions);
+            List<RTPExtension> rtpExtensions
+                = intersectRTPExtensions(
+                        offeredRTPExtensions,
+                        supportedExtensions);
 
             // stream target
             MediaStreamTarget target
                 = SdpUtils.extractDefaultTarget(mediaDescription, offer);
             int targetDataPort = target.getDataAddress().getPort();
 
-            if (mutuallySupportedFormats.isEmpty()
+            if ((mutuallySupportedFormats == null)
+                    || mutuallySupportedFormats.isEmpty()
                     || (devDirection == MediaDirection.INACTIVE)
                     || (targetDataPort == 0))
             {
                 // mark stream as dead and go on bravely
-                answerDescriptions.add(SdpUtils
-                                .createDisablingAnswer(mediaDescription));
+                answerDescriptions.add(
+                        SdpUtils.createDisablingAnswer(mediaDescription));
 
                 //close the stream in case it already exists
                 closeStream(mediaType);

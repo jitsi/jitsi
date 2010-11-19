@@ -237,7 +237,8 @@ public class MediaServiceImpl
      * <tt>null</tt>
      * @see MediaService#getDefaultDevice(MediaType, MediaUseCase)
      */
-    public MediaDevice getDefaultDevice(MediaType mediaType,
+    public MediaDevice getDefaultDevice(
+            MediaType mediaType,
             MediaUseCase useCase)
     {
         CaptureDeviceInfo captureDeviceInfo;
@@ -264,8 +265,9 @@ public class MediaServiceImpl
             for (MediaDevice device : getDevices(mediaType, useCase))
             {
                 if ((device instanceof MediaDeviceImpl)
-                        && captureDeviceInfo.equals(((MediaDeviceImpl) device)
-                                        .getCaptureDeviceInfo()))
+                        && captureDeviceInfo.equals(
+                                ((MediaDeviceImpl) device)
+                                    .getCaptureDeviceInfo()))
                 {
                     defaultDevice = device;
                     break;
@@ -273,6 +275,7 @@ public class MediaServiceImpl
             }
         }
         if (defaultDevice == null)
+        {
             switch (mediaType)
             {
             case AUDIO:
@@ -288,11 +291,12 @@ public class MediaServiceImpl
                  */
                 break;
             }
+        }
 
         //Don't use the device in case the user has disabled all codecs for that
         //kind of media.
-        if (defaultDevice != null
-            && defaultDevice.getSupportedFormats().size() == 0)
+        if ((defaultDevice != null)
+                    && (defaultDevice.getSupportedFormats().isEmpty()))
         {
             defaultDevice = null;
         }
