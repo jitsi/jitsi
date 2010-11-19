@@ -97,6 +97,9 @@ typedef struct _AudioQualityImprovement
 
     /** The capacity of #out in bytes. */
     spx_uint32_t outCapacity;
+
+    /** The playback latency in milliseconds. */
+    jlong outputLatency;
     spx_int16_t *play;
 
     /**
@@ -138,8 +141,8 @@ void AudioQualityImprovement_process
     (AudioQualityImprovement *aqi,
     AudioQualityImprovementSampleOrigin sampleOrigin,
     double sampleRate, unsigned long sampleSizeInBits, int channels,
-    void *buffer, unsigned long length,
-    jlong startTime, jlong endTime);
+    jlong latency,
+    void *buffer, unsigned long length);
 void AudioQualityImprovement_release(AudioQualityImprovement *aqi);
 void AudioQualityImprovement_setDenoise
     (AudioQualityImprovement *aqi, jboolean denoise);

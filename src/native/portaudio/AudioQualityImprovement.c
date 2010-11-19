@@ -14,8 +14,7 @@
 
 static void AudioQualityImprovement_cancelEchoFromPlay
     (AudioQualityImprovement *aqi,
-    void *buffer, unsigned long length,
-    jlong startTime, jlong endTime);
+    void *buffer, unsigned long length);
 static void AudioQualityImprovement_free(AudioQualityImprovement *aqi);
 static AudioQualityImprovement *AudioQualityImprovement_new
     (const char *stringID, jlong longID, AudioQualityImprovement *next);
@@ -24,11 +23,14 @@ static void AudioQualityImprovement_popFromPlay
 static void AudioQualityImprovement_resampleInPlay
     (AudioQualityImprovement *aqi,
     double sampleRate, unsigned long sampleSizeInBits, int channels,
-    void *buffer, unsigned long length,
-    jlong startTime, jlong endTime);
+    void *buffer, unsigned long length);
 static void AudioQualityImprovement_retain(AudioQualityImprovement *aqi);
 static void AudioQualityImprovement_setFrameSize
     (AudioQualityImprovement *aqi, jint frameSize);
+static void AudioQualityImprovement_setOutputLatency
+    (AudioQualityImprovement *aqi, jlong outputLatency);
+static void AudioQualityImprovement_updatePlayDelay
+    (AudioQualityImprovement *aqi);
 static void AudioQualityImprovement_updatePlayIsDelaying
     (AudioQualityImprovement *aqi);
 static void AudioQualityImprovement_updatePreprocess
@@ -50,16 +52,11 @@ static AudioQualityImprovement *AudioQualityImprovement_sharedInstances
  * @param aqi
  * @param buffer
  * @param length the length of <tt>buffer</tt> in bytes
- * @param startTime the time in milliseconds at which <tt>buffer</tt> was given
- * to the audio capture implementation
- * @param endTime the time in milliseconds at which <tt>buffer</tt> was returned
- * from the audio capture implementation
  */
 static void
 AudioQualityImprovement_cancelEchoFromPlay
     (AudioQualityImprovement *aqi,
-    void *buffer, unsigned long length,
-    jlong startTime, jlong endTime)
+    void *buffer, unsigned long length)
 {
     spx_uint32_t sampleCount;
 
@@ -162,18 +159,10 @@ static AudioQualityImprovement *
 AudioQualityImprovement_new
     (const char *stringID, jlong longID, AudioQualityImprovement *next)
 {
-    AudioQualityImprovement *aqi = malloc(sizeof(AudioQualityImprovement));
+    AudioQualityImprovement *aqi = calloc(1, sizeof(AudioQualityImprovement));
 
     if (aqi)
     {
-        aqi->echo = NULL;
-        aqi->mutex = NULL;
-        aqi->out = NULL;
-        aqi->play = NULL;
-        aqi->preprocess = NULL;
-        aqi->resampler = NULL;
-        /* aqi->stringID = NULL; */
-
         /* stringID */
         aqi->stringID = strdup(stringID);
         if (!(aqi->stringID))
@@ -189,14 +178,9 @@ AudioQualityImprovement_new
             return NULL;
         }
 
-        aqi->denoise = JNI_FALSE;
-        aqi->echoFilterLengthInMillis = 0;
-        aqi->frameSize = 0;
         aqi->longID = longID;
         aqi->next = next;
-        aqi->playDelay = 3;
         aqi->retainCount = 1;
-        aqi->sampleRate = 0;
     }
     return aqi;
 }
@@ -222,20 +206,18 @@ AudioQualityImprovement_popFromPlay
  * @param sampleRate
  * @param sampleSizeInBits
  * @param channels
+ * @param latency the latency of the stream associated with <tt>buffer</tt> in
+ * milliseconds
  * @param buffer
  * @param length the length of <tt>buffer</tt> in bytes
- * @param startTime the time in milliseconds at which <tt>buffer</tt> was given
- * to the audio capture or playback implementation
- * @param endTime the time in milliseconds at which <tt>buffer</tt> was returned
- * from the audio capture or playback implementation
  */
 void
 AudioQualityImprovement_process
     (AudioQualityImprovement *aqi,
     AudioQualityImprovementSampleOrigin sampleOrigin,
     double sampleRate, unsigned long sampleSizeInBits, int channels,
-    void *buffer, unsigned long length,
-    jlong startTime, jlong endTime)
+    jlong latency,
+    void *buffer, unsigned long length)
 {
     if ((sampleSizeInBits == 16) && (channels == 1) && !mutex_lock(aqi->mutex))
     {
@@ -251,8 +233,7 @@ AudioQualityImprovement_process
                     {
                         AudioQualityImprovement_cancelEchoFromPlay(
                             aqi,
-                            buffer, length,
-                            startTime, endTime);
+                            buffer, length);
                     }
                     speex_preprocess_run(aqi->preprocess, buffer);
                 }
@@ -261,11 +242,11 @@ AudioQualityImprovement_process
         case AUDIO_QUALITY_IMPROVEMENT_SAMPLE_ORIGIN_OUTPUT:
             if (aqi->preprocess && aqi->echo)
             {
+                AudioQualityImprovement_setOutputLatency(aqi, latency);
                 AudioQualityImprovement_resampleInPlay(
                     aqi,
                     sampleRate, sampleSizeInBits, channels,
-                    buffer, length,
-                    startTime, endTime);
+                    buffer, length);
             }
             break;
         }
@@ -325,17 +306,12 @@ AudioQualityImprovement_release(AudioQualityImprovement *aqi)
  * @param channels
  * @param buffer
  * @param length the length of <tt>buffer</tt> in bytes
- * @param startTime the time in milliseconds at which <tt>buffer</tt> was given
- * to the audio playback implementation
- * @param endTime the time in milliseconds at which <tt>buffer</tt> was returned
- * from the audio playback implementation
  */
 static void
 AudioQualityImprovement_resampleInPlay
     (AudioQualityImprovement *aqi,
     double sampleRate, unsigned long sampleSizeInBits, int channels,
-    void *buffer, unsigned long length,
-    jlong startTime, jlong endTime)
+    void *buffer, unsigned long length)
 {
     spx_uint32_t playSize;
     spx_uint32_t playCapacity;
@@ -384,7 +360,7 @@ AudioQualityImprovement_resampleInPlay
 
     /* Ensure that play exists and is large enough. */
     playCapacity
-        = (2 * (aqi->playDelay)) * (aqi->frameSize / sizeof(spx_int16_t));
+        = ((1 + aqi->playDelay) + 1) * (aqi->frameSize / sizeof(spx_int16_t));
     playLength = playSize / sizeof(spx_int16_t);
     if (playCapacity < playLength)
         playCapacity = playLength;
@@ -417,6 +393,12 @@ AudioQualityImprovement_resampleInPlay
     {
         aqi->playIsDelaying = JNI_TRUE;
         aqi->playLength = 0;
+        /*
+         * We don't have enough room in play for buffer which means that we'll
+         * have to throw some samples away. But it'll effectively mean that
+         * we'll enlarge the drift which will disrupt the echo cancellation. So
+         * it seems the least of two evils to just reset the echo cancellation.
+         */
         speex_echo_state_reset(aqi->echo);
     }
 
@@ -435,7 +417,7 @@ AudioQualityImprovement_resampleInPlay
     }
     aqi->playLength += playLength;
 
-    /* Delay the playback by a few frames. */
+    /* Take into account the latency. */
     if (aqi->playIsDelaying == JNI_TRUE)
         AudioQualityImprovement_updatePlayIsDelaying(aqi);
 }
@@ -493,6 +475,17 @@ AudioQualityImprovement_setFrameSize
     }
 }
 
+static void
+AudioQualityImprovement_setOutputLatency
+    (AudioQualityImprovement *aqi, jlong outputLatency)
+{
+    if (aqi->outputLatency != outputLatency)
+    {
+        aqi->outputLatency = outputLatency;
+        AudioQualityImprovement_updatePlayDelay(aqi);
+    }
+}
+
 void
 AudioQualityImprovement_setSampleRate
     (AudioQualityImprovement *aqi, int sampleRate)
@@ -502,9 +495,40 @@ AudioQualityImprovement_setSampleRate
         if (aqi->sampleRate != sampleRate)
         {
             aqi->sampleRate = sampleRate;
+            AudioQualityImprovement_updatePlayDelay(aqi);
             AudioQualityImprovement_updatePreprocess(aqi);
         }
         mutex_unlock(aqi->mutex);
+    }
+}
+
+static void
+AudioQualityImprovement_updatePlayDelay(AudioQualityImprovement *aqi)
+{
+    spx_uint32_t playDelay;
+
+    /*
+     * Apart from output latency, there is obviously input latency as well.
+     * Since the echo cancellation implementation will attempt to adapt to the
+     * delay between the far and the near ends anyway, don't take the input
+     * latency into account and don't increase the risk of reversing the delay.
+     */
+    if (!(aqi->outputLatency) || !(aqi->frameSize) || !(aqi->sampleRate))
+        playDelay = 2;
+    else
+    {
+        playDelay
+            = aqi->outputLatency
+                / ((aqi->frameSize / sizeof(spx_int16_t))
+                    / (aqi->sampleRate / 1000));
+    }
+
+    if (aqi->playDelay != playDelay)
+    {
+        aqi->playDelay = playDelay;
+
+        if (aqi->play && (aqi->playIsDelaying == JNI_TRUE))
+            AudioQualityImprovement_updatePlayIsDelaying(aqi);
     }
 }
 

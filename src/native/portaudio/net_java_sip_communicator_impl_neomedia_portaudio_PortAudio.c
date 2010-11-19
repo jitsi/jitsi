@@ -19,7 +19,9 @@ typedef struct
     int channels;
     JNIEnv *env;
     long inputFrameSize;
+    jlong inputLatency;
     long outputFrameSize;
+    jlong outputLatency;
     double sampleRate;
     int sampleSizeInBits;
     PaStream *stream;
@@ -226,9 +228,18 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream
             stream->channels = inputStreamParameters->channelCount;
             if (stream->audioQualityImprovement)
             {
+                const PaStreamInfo *streamInfo;
+
                 AudioQualityImprovement_setSampleRate(
                     stream->audioQualityImprovement,
                     (int) sampleRate);
+
+                streamInfo = Pa_GetStreamInfo(stream->stream);
+                if (streamInfo)
+                {
+                    stream->inputLatency
+                        = (jlong) (streamInfo->inputLatency * 1000);
+                }
             }
         }
         else if (outputStreamParameters)
@@ -236,6 +247,17 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream
             stream->sampleSizeInBits
                 = PortAudio_getSampleSizeInBits(outputStreamParameters);
             stream->channels = outputStreamParameters->channelCount;
+            if (stream->audioQualityImprovement)
+            {
+                const PaStreamInfo *streamInfo;
+
+                streamInfo = Pa_GetStreamInfo(stream->stream);
+                if (streamInfo)
+                {
+                    stream->outputLatency
+                        = (jlong) (streamInfo->outputLatency * 1000);
+                }
+            }
         }
 
         return (jlong) stream;
@@ -256,17 +278,10 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1ReadStream
 
     if (data)
     {
-        jlong startTime, endTime;
         PortAudioStream *portAudioStream = (PortAudioStream *) stream;
         PaError errorCode;
 
-/*
-        startTime = System_currentTimeMillis();
- */
         errorCode = Pa_ReadStream(portAudioStream->stream, data, frames);
-/*
-        endTime = System_currentTimeMillis();
- */
         if ((paNoError == errorCode) || (paInputOverflowed == errorCode))
         {
             if (portAudioStream->audioQualityImprovement)
@@ -277,8 +292,8 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1ReadStream
                     portAudioStream->sampleRate,
                     portAudioStream->sampleSizeInBits,
                     portAudioStream->channels,
-                    data, frames * portAudioStream->inputFrameSize,
-                    startTime, endTime);
+                    portAudioStream->inputLatency,
+                    data, frames * portAudioStream->inputFrameSize);
             }
             (*env)->ReleaseByteArrayElements(env, buffer, data, 0);
         }
@@ -325,6 +340,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1WriteStream
     double sampleRate;
     unsigned long sampleSizeInBits;
     int channels;
+    jlong outputLatency;
     long framesInBytes;
     PaError errorCode;
     jint i;
@@ -340,19 +356,12 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1WriteStream
     sampleRate = portAudioStream->sampleRate;
     sampleSizeInBits = portAudioStream->sampleSizeInBits;
     channels = portAudioStream->channels;
+    outputLatency = portAudioStream->outputLatency;
     framesInBytes = frames * portAudioStream->outputFrameSize;
 
     for (i = 0; i < numberOfWrites; i++)
     {
-        jlong startTime, endTime;
-
-/*
-        startTime = System_currentTimeMillis();
- */
         errorCode = Pa_WriteStream(paStream, data, frames);
-/*
-        endTime = System_currentTimeMillis();
- */
         if ((paNoError != errorCode) && (errorCode != paOutputUnderflowed))
             break;
         else
@@ -363,8 +372,8 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1WriteStream
                     audioQualityImprovement,
                     AUDIO_QUALITY_IMPROVEMENT_SAMPLE_ORIGIN_OUTPUT,
                     sampleRate, sampleSizeInBits, channels,
-                    data, framesInBytes,
-                    startTime, endTime);
+                    outputLatency,
+                    data, framesInBytes);
             }
             data += framesInBytes;
         }
@@ -757,7 +766,7 @@ PortAudioStream_free(JNIEnv *env, PortAudioStream *stream)
 static PortAudioStream *
 PortAudioStream_new(JNIEnv *env, jobject streamCallback)
 {
-    PortAudioStream *stream = malloc(sizeof(PortAudioStream));
+    PortAudioStream *stream = calloc(1, sizeof(PortAudioStream));
 
     if (!stream)
     {
@@ -782,17 +791,6 @@ PortAudioStream_new(JNIEnv *env, jobject streamCallback)
             return NULL;
         }
     }
-    else
-    {
-        stream->vm = NULL;
-        stream->streamCallback = NULL;
-    }
-
-    stream->audioQualityImprovement = NULL;
-    stream->env = NULL;
-    stream->stream = NULL;
-    stream->streamCallbackMethodID = NULL;
-    stream->streamFinishedCallbackMethodID = NULL;
 
     return stream;
 }

@@ -145,7 +145,7 @@ public class DeviceConfiguration
      * ms is a good choice (800 samples at 8000 Hz sampling rate).
      */
     private static final long DEFAULT_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS
-        = 200;
+        = 100;
 
     /**
      * The name of the <tt>boolean</tt> property which determines whether noise
