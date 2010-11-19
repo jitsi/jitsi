@@ -74,7 +74,7 @@ public class CallManager
         {
             Call sourceCall = event.getSourceCall();
 
-            ReceivedCallDialog receivedCallDialog
+            final ReceivedCallDialog receivedCallDialog
                 = new ReceivedCallDialog(sourceCall);
 
             receivedCallDialog.pack();
@@ -96,6 +96,11 @@ public class CallManager
                 @Override
                 public void callStateChanged(CallChangeEvent evt)
                 {
+                    // When the call state changes, we ensure here that the
+                    // received call notification dialog is closed.
+                    if (receivedCallDialog.isVisible())
+                        receivedCallDialog.setVisible(false);
+
                     if (evt.getNewValue().equals(CallState.CALL_ENDED))
                     {
                         if (evt.getOldValue()
