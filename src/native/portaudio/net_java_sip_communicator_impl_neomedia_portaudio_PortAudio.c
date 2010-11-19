@@ -19,8 +19,12 @@ typedef struct
     int channels;
     JNIEnv *env;
     long inputFrameSize;
+
+    /** The input latency of #stream. */
     jlong inputLatency;
     long outputFrameSize;
+
+    /** The output latency of #stream. */
     jlong outputLatency;
     double sampleRate;
     int sampleSizeInBits;

@@ -112,7 +112,7 @@ typedef struct _AudioQualityImprovement
     spx_uint32_t playDelay;
 
     /**
-     * The indicator which determines whether play is currently delaying the
+     * The indicator which determines whether #play is currently delaying the
      * access to it from #echo.
      */
     jboolean playIsDelaying;
@@ -131,7 +131,16 @@ typedef struct _AudioQualityImprovement
 
 typedef enum
 {
+    /**
+     * The constant which indicates that the associated samples have originated
+     * from an input stream i.e. capture.
+     */
     AUDIO_QUALITY_IMPROVEMENT_SAMPLE_ORIGIN_INPUT,
+
+    /**
+     * The constant which indicates that the associated samples have originated
+     * from an output stream i.e. playback.
+     */
     AUDIO_QUALITY_IMPROVEMENT_SAMPLE_ORIGIN_OUTPUT
 } AudioQualityImprovementSampleOrigin;
 
@@ -144,8 +153,32 @@ void AudioQualityImprovement_process
     jlong latency,
     void *buffer, unsigned long length);
 void AudioQualityImprovement_release(AudioQualityImprovement *aqi);
+
+/**
+ * Sets the indicator which determines whether noise suppression is to be
+ * performed by the specified <tt>AudioQualityImprovement</tt> (for captured
+ * audio).
+ *
+ * @param aqi the <tt>AudioQualityImprovement</tt> on which to set the indicator
+ * which determines whether it is to perform noise suppression (for captured audio)
+ * @param denoise <tt>JNI_TRUE</tt> if the specified <tt>aqi</tt> is to perform
+ * noise suppression (for captured audio); otherwise, <tt>JNI_FALSE</tt>
+ */
 void AudioQualityImprovement_setDenoise
     (AudioQualityImprovement *aqi, jboolean denoise);
+
+/**
+ * Sets the filter length in milliseconds of the echo cancellation
+ * implementation of the specified <tt>AudioQualityImprovement</tt>. The
+ * recommended filter length is approximately the third of the room
+ * reverberation time. For example, in a small room, reverberation time is in
+ * the order of 300 ms, so a filter length of 100 ms is a good choice (800
+ * samples at 8000 Hz sampling rate).
+ *
+ * @param aqi the <tt>AudioQualityImprovement</tt> to set the filter length of
+ * @param echoFilterLengthInMillis the filter length in milliseconds of the echo
+ * cancellation of <tt>aqi</tt>
+ */
 void AudioQualityImprovement_setEchoFilterLengthInMillis
     (AudioQualityImprovement *aqi, jlong echoFilterLengthInMillis);
 void AudioQualityImprovement_setSampleRate

@@ -29,6 +29,16 @@ static void AudioQualityImprovement_setFrameSize
     (AudioQualityImprovement *aqi, jint frameSize);
 static void AudioQualityImprovement_setOutputLatency
     (AudioQualityImprovement *aqi, jlong outputLatency);
+
+/**
+ * Updates the indicator of the specified <tt>AudioQualityImprovement</tt> which
+ * determines whether <tt>AudioQualityImprovement#play</tt> delays the access to
+ * it from <tt>AudioQualityImprovement#echo</tt>.
+ *
+ * @param aqi the <tt>AudioQualityImprovement</tt> of which to update the
+ * indicator which determines whether <tt>AudioQualityImprovement#play</tt>
+ * delays the access to it from <tt>AudioQualityImprovement#echo</tt>
+ */
 static void AudioQualityImprovement_updatePlayDelay
     (AudioQualityImprovement *aqi);
 static void AudioQualityImprovement_updatePlayIsDelaying
@@ -432,6 +442,16 @@ AudioQualityImprovement_retain(AudioQualityImprovement *aqi)
     }
 }
 
+/**
+ * Sets the indicator which determines whether noise suppression is to be
+ * performed by the specified <tt>AudioQualityImprovement</tt> (for captured
+ * audio).
+ *
+ * @param aqi the <tt>AudioQualityImprovement</tt> on which to set the indicator
+ * which determines whether it is to perform noise suppression (for captured audio)
+ * @param denoise <tt>JNI_TRUE</tt> if the specified <tt>aqi</tt> is to perform
+ * noise suppression (for captured audio); otherwise, <tt>JNI_FALSE</tt>
+ */
 void
 AudioQualityImprovement_setDenoise
     (AudioQualityImprovement *aqi, jboolean denoise)
@@ -447,6 +467,18 @@ AudioQualityImprovement_setDenoise
     }
 }
 
+/**
+ * Sets the filter length in milliseconds of the echo cancellation
+ * implementation of the specified <tt>AudioQualityImprovement</tt>. The
+ * recommended filter length is approximately the third of the room
+ * reverberation time. For example, in a small room, reverberation time is in
+ * the order of 300 ms, so a filter length of 100 ms is a good choice (800
+ * samples at 8000 Hz sampling rate).
+ *
+ * @param aqi the <tt>AudioQualityImprovement</tt> to set the filter length of
+ * @param echoFilterLengthInMillis the filter length in milliseconds of the echo
+ * cancellation of <tt>aqi</tt>
+ */
 void
 AudioQualityImprovement_setEchoFilterLengthInMillis
     (AudioQualityImprovement *aqi, jlong echoFilterLengthInMillis)
@@ -532,6 +564,15 @@ AudioQualityImprovement_updatePlayDelay(AudioQualityImprovement *aqi)
     }
 }
 
+/**
+ * Updates the indicator of the specified <tt>AudioQualityImprovement</tt> which
+ * determines whether <tt>AudioQualityImprovement#play</tt> delays the access to
+ * it from <tt>AudioQualityImprovement#echo</tt>.
+ *
+ * @param aqi the <tt>AudioQualityImprovement</tt> of which to update the
+ * indicator which determines whether <tt>AudioQualityImprovement#play</tt>
+ * delays the access to it from <tt>AudioQualityImprovement#echo</tt>
+ */
 static void
 AudioQualityImprovement_updatePlayIsDelaying(AudioQualityImprovement *aqi)
 {
@@ -633,11 +674,14 @@ AudioQualityImprovement_updatePreprocess(AudioQualityImprovement *aqi)
                 aqi->sampleRateOfPreprocess = aqi->sampleRate;
                 if (aqi->preprocess)
                 {
-                    int vad = 1;
+                    int on = 1;
 
                     speex_preprocess_ctl(
                         aqi->preprocess,
-                        SPEEX_PREPROCESS_SET_VAD, &vad);
+                        SPEEX_PREPROCESS_SET_DEREVERB, &on);
+                    speex_preprocess_ctl(
+                        aqi->preprocess,
+                        SPEEX_PREPROCESS_SET_VAD, &on);
                 }
             }
             if (aqi->preprocess)
