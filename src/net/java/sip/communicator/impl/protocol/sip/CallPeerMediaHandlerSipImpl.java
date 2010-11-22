@@ -387,27 +387,14 @@ public class CallPeerMediaHandlerSipImpl
                             remoteFormats,
                             dev.getSupportedFormats());
 
-            // check whether we will be exchanging any RTP extensions.
-            List<RTPExtension> offeredRTPExtensions
-                    = SdpUtils.extractRTPExtensions(
-                            mediaDescription, this.getRtpExtensionsRegistry());
-
-            List<RTPExtension> supportedExtensions
-                    = getExtensionsForType(mediaType);
-
-            List<RTPExtension> rtpExtensions
-                = intersectRTPExtensions(
-                        offeredRTPExtensions,
-                        supportedExtensions);
-
             // stream target
             MediaStreamTarget target
                 = SdpUtils.extractDefaultTarget(mediaDescription, offer);
             int targetDataPort = target.getDataAddress().getPort();
 
-            if ((mutuallySupportedFormats == null)
+            if ((devDirection == MediaDirection.INACTIVE)
+                    || (mutuallySupportedFormats == null)
                     || mutuallySupportedFormats.isEmpty()
-                    || (devDirection == MediaDirection.INACTIVE)
                     || (targetDataPort == 0))
             {
                 // mark stream as dead and go on bravely
@@ -418,6 +405,17 @@ public class CallPeerMediaHandlerSipImpl
                 closeStream(mediaType);
                 continue;
             }
+
+            // check whether we will be exchanging any RTP extensions.
+            List<RTPExtension> offeredRTPExtensions
+                    = SdpUtils.extractRTPExtensions(
+                            mediaDescription, this.getRtpExtensionsRegistry());
+            List<RTPExtension> supportedExtensions
+                    = getExtensionsForType(mediaType);
+            List<RTPExtension> rtpExtensions
+                = intersectRTPExtensions(
+                        offeredRTPExtensions,
+                        supportedExtensions);
 
             StreamConnector connector
                 = getTransportManager().getStreamConnector(mediaType);
