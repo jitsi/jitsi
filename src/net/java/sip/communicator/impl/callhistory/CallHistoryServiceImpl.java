@@ -421,8 +421,8 @@ public class CallHistoryServiceImpl
             else
             {
                 callPeerStartValue = result.getStartTime();
-                if (logger.isTraceEnabled())
-                    logger.trace(
+                if (logger.isInfoEnabled())
+                    logger.info(
                         "Call history start time list different from ids list: "
                         + hr.toString());
             }
@@ -431,6 +431,10 @@ public class CallHistoryServiceImpl
             {
                 callPeerEndValue
                     = new Date(Long.parseLong(callPeerEnd.get(i)));
+                if (logger.isInfoEnabled())
+                    logger.info(
+                        "Call history end time list different from ids list: "
+                        + hr.toString());
             }
             else
             {
@@ -442,9 +446,13 @@ public class CallHistoryServiceImpl
                     callPeerStartValue,
                     callPeerEndValue);
 
-            // if there is no record about the states (backward compability)
-            if (callPeerStates != null)
+            // if there is no record about the states (backward compatibility)
+            if (callPeerStates != null && i < callPeerStates.size())
                 cpr.setState(callPeerStates.get(i));
+            else if (logger.isInfoEnabled())
+                    logger.info(
+                        "Call history state list different from ids list: "
+                        + hr.toString());
 
             result.getPeerRecords().add(cpr);
         }
