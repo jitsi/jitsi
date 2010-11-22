@@ -407,10 +407,40 @@ public class CallHistoryServiceImpl
         final int callPeerCount = callPeerIDs == null ? 0 : callPeerIDs.size();
         for (int i = 0; i < callPeerCount; i++)
         {
+            // As we iterate over the CallPeer IDs we could not be sure that
+            // for some reason the start or end call list could result in
+            // different size lists, so we check this first.
+            Date callPeerStartValue = null;
+            Date callPeerEndValue = null;
+
+            if (i < callPeerStart.size())
+            {
+                callPeerStartValue
+                    = new Date(Long.parseLong(callPeerStart.get(i)));
+            }
+            else
+            {
+                callPeerStartValue = result.getStartTime();
+                if (logger.isTraceEnabled())
+                    logger.trace(
+                        "Call history start time list different from ids list: "
+                        + hr.toString());
+            }
+
+            if (i < callPeerEnd.size())
+            {
+                callPeerEndValue
+                    = new Date(Long.parseLong(callPeerEnd.get(i)));
+            }
+            else
+            {
+                callPeerEndValue = result.getEndTime();
+            }
+
             CallPeerRecordImpl cpr =
                 new CallPeerRecordImpl(callPeerIDs.get(i),
-                    new Date(Long.parseLong(callPeerStart.get(i))),
-                    new Date(Long.parseLong(callPeerEnd.get(i))));
+                    callPeerStartValue,
+                    callPeerEndValue);
 
             // if there is no record about the states (backward compability)
             if (callPeerStates != null)

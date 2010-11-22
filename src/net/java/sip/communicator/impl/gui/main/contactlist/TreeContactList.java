@@ -1112,7 +1112,19 @@ public class TreeContactList
                     if (currentFilter == null || !currentFilter.equals(filter))
                         currentFilter = filter;
 
-                    currentFilter.applyFilter(filterQuery);
+                    // If something goes wrong in our filters, we don't want the
+                    // whole gui to crash.
+                    try
+                    {
+                        currentFilter.applyFilter(filterQuery);
+                    }
+                    catch (Throwable t)
+                    {
+                        if (logger.isInfoEnabled())
+                            logger.info(
+                                "One of our contact list filters has crashed.",
+                                t);
+                    }
                 }
 
                 synchronized (this)

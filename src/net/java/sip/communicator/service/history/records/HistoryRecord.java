@@ -100,4 +100,20 @@ public class HistoryRecord
     {
         return (timestamp == null) ? 0 : timestamp.getTime();
     }
+
+    /**
+     * Returns the String representation of this HistoryRecord.
+     *
+     * @return the String representation of this HistoryRecord
+     */
+    public String toString()
+    {
+        String s = "History Record: ";
+        for (int i = 0; i < propertyNames.length; i++)
+        {
+            s += propertyNames[i] + "=" + propertyValues[i] + "\n";
+        }
+
+        return s;
+    }
 }
