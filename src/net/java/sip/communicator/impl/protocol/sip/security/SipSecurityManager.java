@@ -199,6 +199,10 @@ public class SipSecurityManager
             if (ccEntry != null)
                 ccEntryHasSeenTran = ccEntry.popBranchID(branchID);
 
+            // remember when the authentication has started, cause we will
+            // need it later to see is the user has waited too long.
+            long authenticationDuration = System.currentTimeMillis();
+
             String storedPassword = SipActivator.getProtocolProviderFactory()
                 .loadPassword(accountID);
 
@@ -270,6 +274,18 @@ public class SipSecurityManager
                     , OperationFailedException.AUTHENTICATION_FAILED);
             }
 
+            // Check whether the user has spent more than 25 seconds
+            // entering the password, if so don't cache the branch-id, late used
+            // to check for wrong password. This way we add the chance
+            // server to challenge us one more time before we decide its a
+            // wrong password. This is done cause some servers(*) destroy
+            // the dialog after some amount of time and even if our password
+            // is correct it challenge us one more time and we decide
+            // its a wrong password challenge.
+            boolean authDurTooLong =
+                    (System.currentTimeMillis() - authenticationDuration)
+                            > 25*1000;
+
             AuthorizationHeader authorization =
                 this.createAuthorizationHeader(
                     reoriginatedRequest.getMethod(),
@@ -280,8 +296,8 @@ public class SipSecurityManager
                     authHeader,
                     ccEntry.userCredentials);
 
-
-            ccEntry.pushBranchID(retryTran.getBranchId());
+            if(!authDurTooLong)
+                ccEntry.pushBranchID(retryTran.getBranchId());
             cachedCredentials.cacheEntry(realm, ccEntry);
 
             if (logger.isDebugEnabled())

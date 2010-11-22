@@ -598,7 +598,6 @@ public class AccountManagerImpl
                 // encrypt and store
                 if ((value != null)
                         && (value.length() != 0)
-                        && !credentialsStorage.isStoredEncrypted(accountPrefix)
                         && !credentialsStorage.storePassword(
                                 accountPrefix,
                                 value))
