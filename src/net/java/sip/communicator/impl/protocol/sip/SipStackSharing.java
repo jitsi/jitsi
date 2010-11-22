@@ -575,7 +575,9 @@ public class SipStackSharing
                 {
                     // apply some hacks if needed on incoming request
                     // to be compliant with some servers/clients
-                    applyNonConformanceHacks(event);
+                    // if needed stop further processing.
+                    if(applyNonConformanceHacks(event))
+                        return;
 
                     SipProvider source = (SipProvider) event.getSource();
                     ServerTransaction transaction
@@ -1065,8 +1067,10 @@ public class SipStackSharing
      * Place to put some hacks if needed on incoming requests.
      *
      * @param event the incoming request event.
+     * @return status <code>true</code> if we don't need to process this
+     * message, just discard it and <code>false</code> otherwise.
      */
-    private void applyNonConformanceHacks(RequestEvent event)
+    private boolean applyNonConformanceHacks(RequestEvent event)
     {
         Request request = event.getRequest();
         try
@@ -1120,5 +1124,24 @@ public class SipStackSharing
         {
             logger.warn("Cannot apply incoming request modification!", ex);
         }
+
+        try
+        {
+            // receiving notify message without subscription state
+            // used for keep-alive pings, they have done their job
+            // and are no more need. Skip processing them to avoid
+            // filling logs with unneeded exceptions.
+            if(request.getMethod().equals(Request.NOTIFY)
+               && request.getHeader(SubscriptionStateHeader.NAME) == null)
+            {
+                return false;
+            }
+        }
+        catch(Throwable ex)
+        {
+            logger.warn("Cannot apply incoming request modification!", ex);
+        }
+
+        return false;
     }
 }
