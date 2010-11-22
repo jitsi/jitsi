@@ -431,14 +431,14 @@ public class CallHistoryServiceImpl
             {
                 callPeerEndValue
                     = new Date(Long.parseLong(callPeerEnd.get(i)));
-                if (logger.isInfoEnabled())
-                    logger.info(
-                        "Call history end time list different from ids list: "
-                        + hr.toString());
             }
             else
             {
                 callPeerEndValue = result.getEndTime();
+                if (logger.isInfoEnabled())
+                    logger.info(
+                        "Call history end time list different from ids list: "
+                        + hr.toString());
             }
 
             CallPeerRecordImpl cpr =
