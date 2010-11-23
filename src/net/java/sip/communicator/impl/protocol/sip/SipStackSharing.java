@@ -1134,7 +1134,7 @@ public class SipStackSharing
             if(request.getMethod().equals(Request.NOTIFY)
                && request.getHeader(SubscriptionStateHeader.NAME) == null)
             {
-                return false;
+                return true;
             }
         }
         catch(Throwable ex)
