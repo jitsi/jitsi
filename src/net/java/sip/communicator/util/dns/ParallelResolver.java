@@ -287,9 +287,9 @@ public class ParallelResolver implements Resolver
             {
                 response = defaultResolver.send(query);
             }
-            catch (IOException e)
+            catch (IOException exc)
             {
-
+                this.exception = exc;
             }
             synchronized(this)
             {
@@ -298,6 +298,9 @@ public class ParallelResolver implements Resolver
             }
         }
 
+        /**
+         * Asynchronously sends this collector's query to all backup resolvers.
+         */
         public void sendBackupQueries()
         {
             for (Resolver resolver : backupResolvers)
