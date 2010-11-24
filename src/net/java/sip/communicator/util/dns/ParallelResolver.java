@@ -228,23 +228,122 @@ public class ParallelResolver implements Resolver
     }
 
 
-    private class ParallelResolverListener implements ResolverListener
+    /**
+     * The class that listens for responses to any of the queries we send to
+     * our default and backup servers and returns as soon as we get one or until
+     * our default resolver fails.
+     */
+    private class ResponseCollector extends Thread
+                                implements ResolverListener
     {
         /**
-         * The callback used by an asynchronous resolver
-         * @param id The identifier returned by Resolver.sendAsync()
-         * @param m The response message as returned by the Resolver
+         * The query that we have sent to the default and backup DNS servers.
          */
-        public void receiveMessage(Object id, Message m);
+        private final Message query;
 
         /**
-         * The callback used by an asynchronous resolver when an exception is
-         * thrown
+         * The field where we would store the first incoming response to our
+         * query.
+         */
+        private Message response;
+
+        /**
+         * The field where we would store the first error we receive from a DNS
+         * or a backup resolver.
+         */
+        private Throwable exception;
+
+        /**
+         * Indicates whether we are still waiting for an answer from someone
+         */
+        private boolean done = false;
+
+        /**
+         * Creates a {@link ResponseCollector} for the specified <tt>query</tt>
+         *
+         * @param query the DNS query that we'd like to send to our primary
+         * and backup resolvers.
+         */
+        public ResponseCollector(final Message query)
+        {
+            this.query = query;
+        }
+
+        /**
+         * Starts this collector which would cause it to send its query to the
+         * default resolver.
+         */
+        public void sendFirstQuery()
+        {
+            start();
+        }
+
+        /**
+         * Sends this collector's query to the default resolver.
+         */
+        public void run()
+        {
+            try
+            {
+                response = defaultResolver.send(query);
+            }
+            catch (IOException e)
+            {
+
+            }
+            synchronized(this)
+            {
+                done = true;
+                notify();
+            }
+        }
+
+        public void sendBackupQueries()
+        {
+            for (Resolver resolver : backupResolvers)
+            {
+                if (done)
+                    return;
+
+                resolver.sendAsync(query, this);
+            }
+        }
+
+        public void waitForResponse()
+        {
+            wait();
+        }
+
+        /**
+         * Records the message and causes the collector to stop waiting and
+         * return.
+         *
+         * @param id The identifier returned by Resolver.sendAsync()
+         * @param message The response message as returned by the Resolver
+         */
+        public void receiveMessage(Object id, Message message)
+        {
+            synchronized (this)
+            {
+                if (done)
+                    return;
+
+                this.response = message;
+
+                done = true;
+            }
+        }
+
+        /**
+         * Nothing to do here.
          *
          * @param id The identifier returned by Resolver.sendAsync()
          * @param e The thrown exception
          */
-        public void handleException(Object id, Exception e);
+        public void handleException(Object id, Exception e)
+        {
+
+        }
 
     }
 }
