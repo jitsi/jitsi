@@ -72,6 +72,65 @@ public class ParallelResolver implements Resolver
         }
     }
 
+    /**
+     * Sends a message and waits for a response.
+     *
+     * @param query The query to send.
+     * @return The response
+     *
+     * @throws IOException An error occurred while sending or receiving.
+     */
+    public Message send(Message query)
+        throws IOException
+    {
+
+        ParallelResolverListener parallelResolveListener
+                                = new ParallelResolverListener();
+
+        defaultResolver.sendAsync(query, parallelResolveListener);
+
+        if(!panicMode)
+        {
+            Message response = parallelResolveListener
+                                                .waitForResponse(patience);
+
+            if (response != null)
+                return response;
+        }
+
+        panicMode = true;
+
+
+        return null;
+    }
+
+    /**
+     * Supposed to asynchronously send messages but not currently implemented.
+     *
+     * @param query The query to send
+     * @param listener The object containing the callbacks.
+     * @return An identifier, which is also a parameter in the callback
+     */
+    public Object sendAsync(final Message query, final ResolverListener listener)
+    {
+        return null;
+    }
+
+    /**
+     * Sends the <tt>query</tt> asynchronously through the specified resolver's
+     * synchronous method.
+     *
+     * @param resolver the resolver to use when sending <tt>query</tt>.
+     * @param query The query to send
+     * @param listener The object containing the callbacks.
+     * @return An identifier, which is also a parameter in the callback
+     */
+    public Object nonBlockingSend(final Resolver         resolver,
+                                  final Message          query,
+                                  final ResolverListener listener)
+    {
+        return ;
+    }
 
     /**
      * Sets the port to communicate on with the default servers.
@@ -167,51 +226,6 @@ public class ParallelResolver implements Resolver
     {
         defaultResolver.setTimeout(secs);
     }
-
-    /**
-     * Sends a message and waits for a response.
-     *
-     * @param query The query to send.
-     * @return The response
-     *
-     * @throws IOException An error occurred while sending or receiving.
-     */
-    public Message send(Message query)
-        throws IOException
-    {
-
-        ParallelResolverListener parallelResolveListener
-                                = new ParallelResolverListener();
-
-        defaultResolver.sendAsync(query, parallelResolveListener);
-
-        if(!panicMode)
-        {
-            Message response = parallelResolveListener
-                                                .waitForResponse(patience);
-
-            if (response != null)
-                return response;
-        }
-
-        panicMode = true;
-
-
-        return null;
-    }
-
-    /**
-     * Supposed to asynchronously send messages but not currently implemented.
-     *
-     * @param query The query to send
-     * @param listener The object containing the callbacks.
-     * @return An identifier, which is also a parameter in the callback
-     */
-    public Object sendAsync(final Message query, final ResolverListener listener)
-    {
-        return null;
-    }
-
 
 
     private class ParallelResolverListener implements ResolverListener
