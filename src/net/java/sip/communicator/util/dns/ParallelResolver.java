@@ -118,7 +118,7 @@ public class ParallelResolver implements Resolver
         ParallelResolution resolution = new ParallelResolution(query);
 
         resolution.sendFirstQuery();
-
+/*
         //if we are not in panic mode we should wait a bit and see how this
         //goes. if we get a reply we could return bravely.
         if(!panicMode)
@@ -137,7 +137,7 @@ public class ParallelResolver implements Resolver
 
         panicMode = true;
 
-
+*/
         return null;
     }
 
@@ -279,6 +279,9 @@ public class ParallelResolver implements Resolver
          */
         private boolean done = false;
 
+        /**
+         * Indicates that a response was received from the primary resolver.
+         */
         private boolean primaryResolverResponded = true;
 
         /**
