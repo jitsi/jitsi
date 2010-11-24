@@ -13,6 +13,37 @@ import java.util.*;
 import org.xbill.DNS.*;
 
 /**
+ * The purpose of this class is to help avoid the significant delays that occur
+ * in networks where DNS servers would ignore SRV and NAPTR queries (i.e.
+ * without even sending an error response).
+ * <p>
+ * We achieve this by entering a panic mode whenever we detect an abnormal delay
+ * while waiting for a DNS answer. Once we enter panic mode, we start
+ * duplicating all queries and sending them to both our primary and backup
+ * resolvers (in case we have any). We then always return the first response we
+ * get.
+ * <p>
+ * We exit panic mode after receiving three consecutive timely responses from
+ * our primary resolver.
+ * <p>
+ * Note that this class does not attempt to fix everything that may be wrong
+ * with local DNS servers. For example, some DNS servers would return
+ * <tt>NXDOMAIN</tt> responses for all SRV queries even if the domain does have
+ * an SRV record. We don't try to fix this case here. In case we receive
+ * different responses from our primary and backup resolvers it is hard to trust
+ * one more than the other. Just as local DNS servers might be systematically
+ * returning flawed responses, so could our backup-resolvers. This is especially
+ * likely to happen in enterprise network where firewalls block any DNS traffic
+ * other than the one bound to a locally configured DNS server.
+ * <p>
+ * Besides, returning <tt>NXDOMAIN</tt> is not that much of an issue as we try
+ * to handle that at the provider level where we assume that absence of an SRV
+ * record simply means we should try with A/AAAA.
+ * <p>
+ * In other words, the goal of this class is to <b>only</b> help eliminate the
+ * significant lag that may occur with servers that drop SRV and NAPTR request
+ * without answering ... nothing more.
+ *
  * @author Emil Ivov
  */
 public class ParallelResolver implements Resolver
@@ -84,19 +115,25 @@ public class ParallelResolver implements Resolver
         throws IOException
     {
 
-        ParallelResolverListener parallelResolveListener
-                                = new ParallelResolverListener();
+        ParallelResolution resolution = new ParallelResolution(query);
 
-        defaultResolver.sendAsync(query, parallelResolveListener);
+        resolution.sendFirstQuery();
 
+        //if we are not in panic mode we should wait a bit and see how this
+        //goes. if we get a reply we could return bravely.
         if(!panicMode)
         {
-            Message response = parallelResolveListener
-                                                .waitForResponse(patience);
+            if(resolution.waitForResponse(patience))
+            {
+                //we are done.
+                resolution.returnResponse();
+            }
 
             if (response != null)
                 return response;
         }
+
+        //panic mode
 
         panicMode = true;
 
@@ -114,22 +151,6 @@ public class ParallelResolver implements Resolver
     public Object sendAsync(final Message query, final ResolverListener listener)
     {
         return null;
-    }
-
-    /**
-     * Sends the <tt>query</tt> asynchronously through the specified resolver's
-     * synchronous method.
-     *
-     * @param resolver the resolver to use when sending <tt>query</tt>.
-     * @param query The query to send
-     * @param listener The object containing the callbacks.
-     * @return An identifier, which is also a parameter in the callback
-     */
-    public Object nonBlockingSend(final Resolver         resolver,
-                                  final Message          query,
-                                  final ResolverListener listener)
-    {
-        return ;
     }
 
     /**
@@ -233,7 +254,7 @@ public class ParallelResolver implements Resolver
      * our default and backup servers and returns as soon as we get one or until
      * our default resolver fails.
      */
-    private class ResponseCollector extends Thread
+    private class ParallelResolution extends Thread
                                 implements ResolverListener
     {
         /**
@@ -258,13 +279,15 @@ public class ParallelResolver implements Resolver
          */
         private boolean done = false;
 
+        private boolean primaryResolverResponded = true;
+
         /**
-         * Creates a {@link ResponseCollector} for the specified <tt>query</tt>
+         * Creates a {@link ParallelResolution} for the specified <tt>query</tt>
          *
          * @param query the DNS query that we'd like to send to our primary
          * and backup resolvers.
          */
-        public ResponseCollector(final Message query)
+        public ParallelResolution(final Message query)
         {
             this.query = query;
         }
@@ -287,7 +310,7 @@ public class ParallelResolver implements Resolver
             {
                 response = defaultResolver.send(query);
             }
-            catch (IOException exc)
+            catch (Throwable exc)
             {
                 this.exception = exc;
             }
@@ -312,9 +335,63 @@ public class ParallelResolver implements Resolver
             }
         }
 
-        public void waitForResponse()
+        /**
+         * Waits for a response or an error to occur during <tt>waitFor</tt>
+         * milliseconds.If neither happens, we return false.
+         *
+         * @param waitFor the number of milliseconds to wait for a response or
+         * an error or <tt>0</tt> if we'd like to wait until either of these
+         * happen.
+         *
+         * @return <tt>true</tt> if we returned because we received a response
+         * from a resolver or errors from everywhere, and <tt>false</tt> that
+         * didn't happen.
+         */
+        public boolean waitForResponse(long waitFor)
         {
-            wait();
+            synchronized(this)
+            {
+                if(done)
+                    return done;
+                try
+                {
+                    wait(waitFor);
+                }
+                catch (InterruptedException e)
+                {
+                    //we don't care
+                }
+
+                return done;
+            }
+        }
+
+        /**
+         * Waits for resolution to complete (if necessary) and then either
+         * returns the response we received or throws whatever exception we
+         * saw.
+         *
+         * @return the response {@link Message} we received from the DNS.
+         *
+         * @throws Throwable if this resolution ended badly ;)
+         */
+        public Message returnResponse()
+            throws Throwable
+        {
+            if(!done)
+                waitForResponse(0);
+
+            if(response != null)
+                return response;
+            else if (exception instanceof IOException)
+                throw (IOException) exception;
+            else if (exception instanceof RuntimeException)
+                throw (RuntimeException) exception;
+            else if (exception instanceof Error)
+                throw (Error) exception;
+            else
+                throw new IllegalStateException
+                    ("ExtendedResolver failure");
         }
 
         /**
@@ -332,6 +409,7 @@ public class ParallelResolver implements Resolver
                     return;
 
                 this.response = message;
+                this.primaryResolverResponded = false;
 
                 done = true;
             }
@@ -345,7 +423,9 @@ public class ParallelResolver implements Resolver
          */
         public void handleException(Object id, Exception e)
         {
-
+            //nothing to do here. this means that we won't notice if our backup
+            //resolvers fail but that's not a problem as we need to wait for
+            //our primary resolver anyway.
         }
 
     }
