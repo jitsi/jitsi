@@ -10,6 +10,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import net.java.sip.communicator.util.*;
+
 import org.xbill.DNS.*;
 
 /**
@@ -17,14 +19,14 @@ import org.xbill.DNS.*;
  * in networks where DNS servers would ignore SRV and NAPTR queries (i.e.
  * without even sending an error response).
  * <p>
- * We achieve this by entering a panic mode whenever we detect an abnormal delay
- * while waiting for a DNS answer. Once we enter panic mode, we start
- * duplicating all queries and sending them to both our primary and backup
- * resolvers (in case we have any). We then always return the first response we
- * get.
+ * We achieve this by entering a redundant mode whenever we detect an abnormal
+ * delay (longer than <tt>DNS_PATIENCE</tt>) while waiting for a DNS answer.
+ * Once we enter redundant mode, we start duplicating all queries and sending
+ * them to both our primary and backup resolvers (in case we have any). We then
+ * always return the first response we get.
  * <p>
- * We exit panic mode after receiving three consecutive timely responses from
- * our primary resolver.
+ * We exit redundant mode after receiving <tt>DNS_REDEMPTION</tt> consecutive
+ * timely responses from our primary resolver.
  * <p>
  * Note that this class does not attempt to fix everything that may be wrong
  * with local DNS servers. For example, some DNS servers would return
@@ -49,6 +51,73 @@ import org.xbill.DNS.*;
 public class ParallelResolver implements Resolver
 {
     /**
+     * The <tt>Logger</tt> used by the <tt>ParallelResolver</tt>
+     * class and its instances for logging output.
+     */
+    private static final Logger logger = Logger
+                    .getLogger(ParallelResolver.class.getName());
+
+    /**
+     * Indicates whether we are currently in a mode where all DNS queries are
+     * sent to both the primary and the backup DNS servers.
+     */
+    private static boolean redundantMode = false;
+
+    /**
+     * The default number of milliseconds it takes us to get into redundant
+     * mode while waiting for a DNS query response.
+     */
+    public static final long DNS_PATIENCE = 1500;
+
+    /**
+     * The name of the System property that allows us to override the default
+     * <tt>DNS_PATIENCE</tt> value.
+     */
+    public static final String PNAME_DNS_PATIENCE
+        = "net.java.sip.communicator.util.dns.DNS_PATIENCE";
+
+    /**
+     * The currently configured number of milliseconds that we need to wait
+     * before entering redundant mode.
+     */
+    private static long currentDnsPatience = DNS_PATIENCE;
+
+    /**
+     * The default number of times that the primary DNS would have to provide a
+     * faster response than the backup resolver before we consider it safe
+     * enough to exit redundant mode.
+     */
+    public static final int DNS_REDEMPTION = 7;
+
+
+    /**
+     * The name of the System property that allows us to override the default
+     * <tt>DNS_REDEMPTION</tt> value.
+     */
+    public static final String PNAME_DNS_REDEMPTION
+        = "net.java.sip.communicator.util.dns.DNS_REDEMPTION";
+
+    /**
+     * The currently configured number of times that the primary DNS would have
+     * to provide a faster response than the backup resolver before we consider
+     * it safe enough to exit redundant mode.
+     */
+    public static int currentDnsRedemption = DNS_REDEMPTION;
+
+    /**
+     * The number of fast responses that we need to get from the primary
+     * resolver before we exit redundant mode. <tt>0</tt> indicates that we are
+     * no longer in redundant mode
+     */
+    private static int redemptionStatus = 0;
+
+    /**
+     * A lock that we use while determining whether we've completed redemption
+     * and can exit redundant mode.
+     */
+    private final static Object redemptionLock = new Object();
+
+    /**
      * The default resolver that we use if everything works properly.
      */
     private final static Resolver defaultResolver;
@@ -64,6 +133,27 @@ public class ParallelResolver implements Resolver
             //should never happen
             throw new RuntimeException("Failed to initialize resolver");
         }
+
+        initProperties();
+    }
+
+    /**
+     * Default resolver property initialisation
+     */
+    private static void initProperties()
+    {
+        try
+        {
+            currentDnsPatience = Long.getLong(PNAME_DNS_PATIENCE);
+            currentDnsRedemption = Integer.getInteger(PNAME_DNS_REDEMPTION);
+        }
+        catch(Throwable t)
+        {
+            //we don't want messed up properties to screw up DNS resolution
+            //so we just log.
+            logger.info("Failed to initialize DNS resolver properties", t);
+        }
+
     }
 
     /**
@@ -118,27 +208,55 @@ public class ParallelResolver implements Resolver
         ParallelResolution resolution = new ParallelResolution(query);
 
         resolution.sendFirstQuery();
-/*
-        //if we are not in panic mode we should wait a bit and see how this
-        //goes. if we get a reply we could return bravely.
-        if(!panicMode)
-        {
-            if(resolution.waitForResponse(patience))
-            {
-                //we are done.
-                resolution.returnResponse();
-            }
 
-            if (response != null)
-                return response;
+        //make a copy of the redundant mode variable in case we are currently
+        //completed a redemption that started earlier.
+        boolean redundantModeCopy;
+
+        synchronized(redemptionLock)
+        {
+            redundantModeCopy = redundantMode;
         }
 
-        //panic mode
+        //if we are not in redundant mode we should wait a bit and see how this
+        //goes. if we get a reply we could return bravely.
+        if(!redundantModeCopy)
+        {
+            if(resolution.waitForResponse(currentDnsPatience))
+            {
+                //we are done.
+                return resolution.returnResponseOrThrowUp();
+            }
+            else
+            {
+                synchronized(redemptionLock)
+                {
+                    redundantMode = true;
+                    redemptionStatus = DNS_REDEMPTION;
+                }
+            }
+        }
 
-        panicMode = true;
+        //we are definitely in redundant mode now
+        resolution.sendBackupQueries();
 
-*/
-        return null;
+        resolution.waitForResponse(0);
+
+        //check if it is time to end redundant mode.
+        synchronized(redemptionLock)
+        {
+            if(resolution.primaryResolverRespondedFirst
+               && redemptionStatus > 0)
+            {
+                redemptionStatus --;
+
+                //yup, it's now time to end DNS redundant mode;
+                if(currentDnsPatience == 0)
+                    redundantMode = false;
+            }
+        }
+
+        return resolution.returnResponseOrThrowUp();
     }
 
     /**
@@ -266,7 +384,7 @@ public class ParallelResolver implements Resolver
          * The field where we would store the first incoming response to our
          * query.
          */
-        private Message response;
+        public Message response;
 
         /**
          * The field where we would store the first error we receive from a DNS
@@ -282,7 +400,7 @@ public class ParallelResolver implements Resolver
         /**
          * Indicates that a response was received from the primary resolver.
          */
-        private boolean primaryResolverResponded = true;
+        private boolean primaryResolverRespondedFirst = true;
 
         /**
          * Creates a {@link ParallelResolution} for the specified <tt>query</tt>
@@ -309,9 +427,10 @@ public class ParallelResolver implements Resolver
          */
         public void run()
         {
+            Message localResponse = null;
             try
             {
-                response = defaultResolver.send(query);
+                localResponse = defaultResolver.send(query);
             }
             catch (Throwable exc)
             {
@@ -319,7 +438,15 @@ public class ParallelResolver implements Resolver
             }
             synchronized(this)
             {
+                //if the backup resolvers had already replied we ignore the
+                //reply of the primary one whatever it was.
+                if(done)
+                    return;
+
+
+                response = localResponse;
                 done = true;
+
                 notify();
             }
         }
@@ -329,12 +456,15 @@ public class ParallelResolver implements Resolver
          */
         public void sendBackupQueries()
         {
-            for (Resolver resolver : backupResolvers)
+            synchronized(this)
             {
-                if (done)
-                    return;
+                for (Resolver resolver : backupResolvers)
+                {
+                    if (done)
+                        return;
 
-                resolver.sendAsync(query, this);
+                    resolver.sendAsync(query, this);
+                }
             }
         }
 
@@ -376,10 +506,15 @@ public class ParallelResolver implements Resolver
          *
          * @return the response {@link Message} we received from the DNS.
          *
-         * @throws Throwable if this resolution ended badly ;)
+         * @throws IOException if this resolution ended badly because of a
+         * network IO error
+         * @throws RuntimeException if something unexpected happened
+         * during resolution.
+         * @throws IllegalArgumentException if something unexpected happened
+         * during resolution.
          */
-        public Message returnResponse()
-            throws Throwable
+        public Message returnResponseOrThrowUp()
+            throws IOException, RuntimeException, IllegalArgumentException
         {
             if(!done)
                 waitForResponse(0);
@@ -412,7 +547,7 @@ public class ParallelResolver implements Resolver
                     return;
 
                 this.response = message;
-                this.primaryResolverResponded = false;
+                this.primaryResolverRespondedFirst = false;
 
                 done = true;
             }

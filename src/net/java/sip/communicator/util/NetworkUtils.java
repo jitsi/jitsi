@@ -9,6 +9,8 @@ package net.java.sip.communicator.util;
 import java.net.*;
 import java.util.*;
 
+import net.java.sip.communicator.util.dns.*;
+
 import org.xbill.DNS.*;
 import java.text.*;
 
@@ -70,11 +72,36 @@ public class NetworkUtils
      */
     public static final int    MIN_PORT_NUMBER = 1024;
 
-
     /**
      * The random port number generator that we use in getRandomPortNumer()
      */
     private static Random portNumberGenerator = new Random();
+
+    /**
+     * The name of the system property that users may use to override the
+     * address of our backup DNS resolver.
+     */
+    public static final String PNAME_BACKUP_RESOLVER
+        = "net.java.sip.communicator.util.dns.BACKUP_RESOLVER";
+
+    /**
+     * The name of the system property that users may use to override the port
+     * of our backup DNS resolver.
+     */
+    public static final String PNAME_BACKUP_RESOLVER_PORT
+        = "net.java.sip.communicator.util.dns.BACKUP_RESOLVER_PORT";
+
+    /**
+     * The address of the backup resolver we would use by default.
+     */
+    public static final String DEFAULT_BACKUP_RESOLVER
+        = "backup-resolver.jitsi.net";
+
+    /**
+     * The DNSjava resolver that we use with SRV and NAPTR queries in order to
+     * try and smooth the problem of DNS servers that silently drop them.
+     */
+    private static Resolver parallelResolver = null;
 
     /**
      * Determines whether the address is the result of windows auto configuration.
@@ -521,12 +548,12 @@ public class NetworkUtils
         Record[] records = null;
         try
         {
-            Lookup lookup = new Lookup(domain, Type.SRV);
+            Lookup lookup = createLookup(domain, Type.SRV);
             records = lookup.run();
         }
         catch (TextParseException tpe)
         {
-            logger.error("Failed to parse domain="+domain, tpe);
+            logger.error("Failed to parse domain=" + domain, tpe);
             throw new ParseException(tpe.getMessage(), 0);
         }
         if (records == null)
@@ -644,14 +671,14 @@ public class NetworkUtils
     }
 
     /**
-     * Makes a NAPTR query.
-     * @param domain the name of the domain we'd like to resolve.
-     * @return an array with the values or null if no records found.
-     * The returned records are an array of
-     * [Order, Service(Transport) and Replacement
+     * Makes a NAPTR query and returns the result. The returned records are an
+     * array of [Order, Service(Transport) and Replacement
      * (the srv to query for servers and ports)] this all for supplied
      * <tt>domain</tt>.
-
+     *
+     * @param domain the name of the domain we'd like to resolve.
+     * @return an array with the values or null if no records found.
+     *
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
      */
     public static String[][] getNAPTRRecords(String domain)
@@ -660,7 +687,7 @@ public class NetworkUtils
         Record[] records = null;
         try
         {
-            Lookup lookup = new Lookup(domain, Type.NAPTR);
+            Lookup lookup = createLookup(domain, Type.NAPTR);
             records = lookup.run();
         }
         catch (TextParseException tpe)
@@ -707,6 +734,7 @@ public class NetworkUtils
 
     /**
      * Returns the mapping from rfc3263 between service and the protocols.
+     *
      * @param service the service from NAPTR record.
      * @return the protocol TCP, UDP or TLS.
      */
@@ -790,13 +818,12 @@ public class NetworkUtils
     }
 
     /**
-     * Returns array of hosts from the SRV record of the specified domain.
-     * The records are ordered against the SRV record priority
-     * @param domain the name of the domain we'd like to resolve (_proto._tcp
-     * included).
+     * Returns array of hosts from the A record of the specified domain.
+     * The records are ordered against the A record priority
+     * @param domain the name of the domain we'd like to resolve.
      * @param port the port number of the returned <tt>InetSocketAddress</tt>
-     * @return an array of InetSocketAddress containing records returned by the DNS
-     * server - address and port .
+     * @return an array of InetSocketAddress containing records returned by the
+     * DNS server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
      */
     public static InetSocketAddress getARecord(String domain, int port)
@@ -805,6 +832,10 @@ public class NetworkUtils
         Record[] records = null;
         try
         {
+            //note that we intentionally do not use our parallel resolver here.
+            //for starters we'd like to make sure that it works well enough
+            //with SRV and NAPTR queries. We may then also adopt it for As
+            //and AAAAs once it proves to be reliable (posted on: 2010-11-24)
             Lookup lookup = new Lookup(domain, Type.A);
             records = lookup.run();
         }
@@ -827,13 +858,12 @@ public class NetworkUtils
     }
 
     /**
-     * Returns array of hosts from the SRV record of the specified domain.
-     * The records are ordered against the SRV record priority
-     * @param domain the name of the domain we'd like to resolve (_proto._tcp
-     * included).
+     * Returns array of hosts from the AAAA record of the specified domain.
+     * The records are ordered against the AAAA record priority
+     * @param domain the name of the domain we'd like to resolve.
      * @param port the port number of the returned <tt>InetSocketAddress</tt>
-     * @return an array of InetSocketAddress containing records returned by the DNS
-     * server - address and port .
+     * @return an array of InetSocketAddress containing records returned by the
+     * DNS server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
      */
     public static InetSocketAddress getAAAARecord(String domain, int port)
@@ -842,6 +872,10 @@ public class NetworkUtils
         Record[] records = null;
         try
         {
+            //note that we intentionally do not use our parallel resolver here.
+            //for starters we'd like to make sure that it works well enough
+            //with SRV and NAPTR queries. We may then also adopt it for As
+            //and AAAAs once it proves to be reliable (posted on: 2010-11-24)
             Lookup lookup = new Lookup(domain, Type.AAAA);
             records = lookup.run();
         }
@@ -969,5 +1003,78 @@ public class NetworkUtils
         }
 
         return false;
+    }
+
+    /**
+     * Creates a new {@link Lookup} instance using our own {@link
+     * ParallelResolver}.
+     *
+     * @param domain the domain we will be resolving
+     * @param type the type of the record we will be trying to obtain.
+     *
+     * @return the newly created {@link Lookup} instance.
+     *
+     * @throws TextParseException if <tt>domain</tt> is not a valid domain name.
+     */
+    private static Lookup createLookup(String domain, int type)
+        throws TextParseException
+    {
+        Lookup lookup = new Lookup(domain, Type.SRV);
+
+        //initiate our global parallel resolver if this is our first ever
+        //DNS query.
+        if(parallelResolver == null)
+        {
+            try
+            {
+                String customRslvrAddr
+                    = System.getProperty(PNAME_BACKUP_RESOLVER);
+
+                String rslvrAddrStr = DEFAULT_BACKUP_RESOLVER;
+
+                if(! StringUtils.isNullOrEmpty( customRslvrAddr ))
+                    rslvrAddrStr = customRslvrAddr;
+
+                InetAddress resolverAddress
+                    = getInetAddress(rslvrAddrStr);
+
+                int rslvrPort = SimpleResolver.DEFAULT_PORT;
+
+                //jsut in case someone said sth else ... and we want no errs
+                try
+                {
+                    rslvrPort = Integer.getInteger(
+                                        PNAME_BACKUP_RESOLVER_PORT);
+                }
+                catch(Throwable t)
+                {
+                    logger.info("Ignoring invalid resolver port.");
+                }
+
+                InetSocketAddress resolverSockAddr
+                    = new InetSocketAddress(resolverAddress, rslvrPort);
+
+                parallelResolver = new ParallelResolver(
+                                new InetSocketAddress[]{resolverSockAddr});
+            }
+            catch(Throwable t)
+            {
+                //We don't want to a problem with our parallel resolver to
+                //make our entire DNS resolution to fail so in case something
+                //goes wrong during initialization so we default to the
+                //dns java default resolver
+                logger.info("failed to initialize parallel resolver. we will "
+                                +"be using dnsjava's default one instead");
+
+                if(logger.isDebugEnabled())
+                    logger.debug("exception was: ", t);
+
+                parallelResolver = Lookup.getDefaultResolver();
+            }
+        }
+
+        lookup.setResolver( parallelResolver );
+
+        return lookup;
     }
 }
