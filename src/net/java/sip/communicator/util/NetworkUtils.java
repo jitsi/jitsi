@@ -644,13 +644,13 @@ public class NetworkUtils
     }
 
     /**
-     * Makes a NAPTR query. 
+     * Makes a NAPTR query.
      * @param domain the name of the domain we'd like to resolve.
      * @return an array with the values or null if no records found.
      * The returned records are an array of
      * [Order, Service(Transport) and Replacement
      * (the srv to query for servers and ports)] this all for supplied
-     * <tt>domain</tt>. 
+     * <tt>domain</tt>.
 
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
      */
@@ -678,7 +678,7 @@ public class NetworkUtils
         {
             NAPTRRecord r = (NAPTRRecord)records[i];
 
-            // todo - check here for broken records as missing transport 
+            // todo - check here for broken records as missing transport
             recVals[i][0] = "" + r.getOrder();
             recVals[i][1] = getProtocolFromNAPTRRecords(r.getService());
             String replacement = r.getReplacement().toString();
