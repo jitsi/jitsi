@@ -250,12 +250,19 @@ public class ParallelResolver implements Resolver
         //check if it is time to end redundant mode.
         synchronized(redemptionLock)
         {
-            if(resolution.primaryResolverRespondedFirst
-               && redemptionStatus > 0)
+            if(!resolution.primaryResolverRespondedFirst)
             {
+                //primary DNS is still feeling shaky. we reinit redemption
+                //status in case we were about to cut the server some slack
+                redemptionStatus = currentDnsRedemption;
+            }
+            else
+            {
+                //primary server replied first. we let him redeem some dignity
                 redemptionStatus --;
+
                 //yup, it's now time to end DNS redundant mode;
-                if(redemptionStatus == 0)
+                if(redemptionStatus <= 0)
                 {
                     redundantMode = false;
                     logger.info("Primary DNS seems back in biz. "
