@@ -87,7 +87,7 @@ public class ParallelResolver implements Resolver
      * faster response than the backup resolver before we consider it safe
      * enough to exit redundant mode.
      */
-    public static final int DNS_REDEMPTION = 7;
+    public static final int DNS_REDEMPTION = 3;
 
 
     /**
@@ -144,8 +144,10 @@ public class ParallelResolver implements Resolver
     {
         try
         {
-            currentDnsPatience = Long.getLong(PNAME_DNS_PATIENCE);
-            currentDnsRedemption = Integer.getInteger(PNAME_DNS_REDEMPTION);
+            currentDnsPatience
+                = Long.getLong(PNAME_DNS_PATIENCE, DNS_PATIENCE);
+            currentDnsRedemption
+                = Integer.getInteger(PNAME_DNS_REDEMPTION, DNS_REDEMPTION);
         }
         catch(Throwable t)
         {
@@ -232,7 +234,10 @@ public class ParallelResolver implements Resolver
                 synchronized(redemptionLock)
                 {
                     redundantMode = true;
-                    redemptionStatus = DNS_REDEMPTION;
+                    redemptionStatus = currentDnsRedemption;
+                    logger.info("Primary DNS seems laggy as we got no "
+                                +"response for " + currentDnsPatience + "ms. "
+                                + "Enabling redundant mode.");
                 }
             }
         }
@@ -249,10 +254,13 @@ public class ParallelResolver implements Resolver
                && redemptionStatus > 0)
             {
                 redemptionStatus --;
-
                 //yup, it's now time to end DNS redundant mode;
-                if(currentDnsPatience == 0)
+                if(redemptionStatus == 0)
+                {
                     redundantMode = false;
+                    logger.info("Primary DNS seems back in biz. "
+                                    + "Disabling redundant mode.");
+                }
             }
         }
 
@@ -462,7 +470,6 @@ public class ParallelResolver implements Resolver
                 {
                     if (done)
                         return;
-
                     resolver.sendAsync(query, this);
                 }
             }
@@ -550,6 +557,7 @@ public class ParallelResolver implements Resolver
                 this.primaryResolverRespondedFirst = false;
 
                 done = true;
+                notify();
             }
         }
 
