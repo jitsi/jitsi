@@ -1166,6 +1166,10 @@ public class ProtocolProviderServiceJabberImpl
                 OperationSetContactCapabilities.class,
                 opsetContactCapabilities);
 
+            addSupportedOperationSet(
+                OperationSetGenericNotifications.class,
+                new OperationSetGenericNotificationsJabberImpl(this));
+
             isInitialized = true;
         }
     }
