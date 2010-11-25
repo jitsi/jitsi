@@ -390,6 +390,7 @@ public class CallPeerMediaHandlerJabberImpl
                             getPeer().sendTransportInfo(contents);
                         }
                     });
+
         /*
          * While it may sound like we can completely eliminate the post-pickup
          * delay by waiting for the connectivity establishment to finish, it may
@@ -1166,7 +1167,11 @@ public class CallPeerMediaHandlerJabberImpl
      * peer to the remote peer. If <tt>remote</tt> is <tt>null</tt>,
      * <tt>local</tt> represents an offer from the local peer to be sent to the
      * remote peer
-     * @param transportInfoSender
+     * @param transportInfoSender the <tt>TransportInfoSender</tt> to be used by
+     * this <tt>TransportManagerJabberImpl</tt> to send <tt>transport-info</tt>
+     * <tt>JingleIQ</tt>s from the local peer to the remote peer if this
+     * <tt>TransportManagerJabberImpl</tt> wishes to utilize
+     * <tt>transport-info</tt>
      * @return the media descriptions of the local peer after the local
      * candidate addresses have been gathered as returned by
      * {@link TransportManagerJabberImpl#wrapupCandidateHarvest()}

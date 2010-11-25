@@ -195,7 +195,7 @@ public class CertificateVerificationServiceImpl
             TrustManagerFactory.getInstance(
                 KeyManagerFactory.getDefaultAlgorithm());
         tmFactory.init((KeyStore)null);
-        
+
         return new HostTrustManager(
                     (X509TrustManager)tmFactory.getTrustManagers()[0],
                     toHost, toPort);
@@ -290,6 +290,11 @@ public class CertificateVerificationServiceImpl
     private static class VerifyCertificateDialog
         extends SIPCommDialog
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         /**
          * Date formatter.
          */
@@ -449,7 +454,7 @@ public class CertificateVerificationServiceImpl
                     actionShowCertificate();
                 }
             });
-            TransparentPanel firstButonPanel = 
+            TransparentPanel firstButonPanel =
                 new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
             firstButonPanel.add(certButton);
             southPanel.add(firstButonPanel, BorderLayout.WEST);
@@ -622,7 +627,7 @@ public class CertificateVerificationServiceImpl
             certDisplayPanel.add(
                 new JLabel(getCertificateValue(subject.getName(), "CN")),
                 constraints);
-            
+
             constraints.gridy = currentRow++;
             constraints.gridx = 0;
             certDisplayPanel.add(new JLabel(
@@ -757,7 +762,7 @@ public class CertificateVerificationServiceImpl
                 constraints.gridx = 0;
                 certDisplayPanel.add(new JLabel("SHA1:"),
                     constraints);
-                
+
                 constraints.gridx = 1;
                 certDisplayPanel.add(
                     sha1Area,
@@ -784,7 +789,6 @@ public class CertificateVerificationServiceImpl
                 // do nothing as we cannot show this value
                 logger.warn("Error in certificate, cannot show fingerprints", e);
             }
-            
 
             constraints.gridy = currentRow++;
             constraints.gridx = 0;
@@ -1039,7 +1043,8 @@ public class CertificateVerificationServiceImpl
          * Not used.
          * @param chain the cert chain.
          * @param authType authentication type like: RSA.
-         * @throws CertificateException
+         * @throws CertificateException if something went wrong with
+         * certificate verification
          */
         public void checkClientTrusted(X509Certificate[] chain, String authType)
             throws CertificateException

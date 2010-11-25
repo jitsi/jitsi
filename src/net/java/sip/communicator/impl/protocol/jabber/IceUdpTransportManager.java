@@ -356,8 +356,9 @@ public class IceUdpTransportManager
      * Starts transport candidate harvest. This method should complete rapidly
      * and, in case of lengthy procedures like STUN/TURN/UPnP candidate harvests
      * are necessary, they should be executed in a separate thread. Candidate
-     * harvest would then need to be concluded in the {@link #wrapupHarvest()}
-     * method which would be called once we absolutely need the candidates.
+     * harvest would then need to be concluded in the
+     * {@link #wrapupCandidateHarvest()} method which would be called once we
+     * absolutely need the candidates.
      *
      * @param theirOffer a media description offer that we've received from the
      * remote party and that we should use in case we need to know what
@@ -451,8 +452,9 @@ public class IceUdpTransportManager
      * Starts transport candidate harvest. This method should complete rapidly
      * and, in case of lengthy procedures like STUN/TURN/UPnP candidate harvests
      * are necessary, they should be executed in a separate thread. Candidate
-     * harvest would then need to be concluded in the {@link #wrapupHarvest()}
-     * method which would be called once we absolutely need the candidates.
+     * harvest would then need to be concluded in the
+     * {@link #wrapupCandidateHarvest()} method which would be called once we
+     * absolutely need the candidates.
      *
      * @param ourOffer the content list that should tell us how many stream
      * connectors we actually need.
@@ -628,7 +630,7 @@ public class IceUdpTransportManager
                 /*
                  * Is the remote candidate from the current generation of the
                  * iceAgent?
-                 */ 
+                 */
                 if (candidate.getGeneration() != generation)
                     continue;
 

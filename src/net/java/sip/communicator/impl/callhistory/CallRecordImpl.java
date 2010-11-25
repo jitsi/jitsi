@@ -18,6 +18,9 @@ import net.java.sip.communicator.service.protocol.*;
 public class CallRecordImpl
     extends CallRecord
 {
+    /**
+     * The <tt>Call</tt> source of this record.
+     */
     private Call sourceCall = null;
 
     /**
