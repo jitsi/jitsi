@@ -62,6 +62,13 @@ public class IceConfigPanel
         iceBox.setAlignmentX(Component.LEFT_ALIGNMENT);
         autoDiscoverBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        /* ICE and STUN/TURN discovery are enabled by default for a new account,
+         * these properties will be overridden for existing account when
+         * they get loaded
+         */
+        iceBox.setSelected(true);
+        autoDiscoverBox.setSelected(true);
+
         JPanel checkBoxPanel = new TransparentPanel(new GridLayout(0, 1));
         checkBoxPanel.add(iceBox);
         checkBoxPanel.add(autoDiscoverBox);
@@ -211,6 +218,11 @@ public class IceConfigPanel
         private JEditorPane errorMessagePane;
 
         /**
+         * Default STUN/TURN port.
+         */
+        private static final String DEFAULT_STUN_PORT = "3478";
+
+        /**
          * Creates a new StunConfigDialog with filled in values.
          *
          * @param address the IP or FQDN of the server
@@ -266,6 +278,7 @@ public class IceConfigPanel
             TransparentPanel valuesPanel
                 = new TransparentPanel(new GridLayout(0, 1));
 
+            portField.setText(DEFAULT_STUN_PORT);
             valuesPanel.add(supportTurnCheckBox);
             valuesPanel.add(addressField);
             valuesPanel.add(portField);

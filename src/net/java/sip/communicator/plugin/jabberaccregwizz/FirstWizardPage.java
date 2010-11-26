@@ -284,12 +284,15 @@ public class FirstWizardPage
 
         iceConfigPanel.setUseIce(isUseIce);
 
-        boolean isAutoDiscoverStun
-            = Boolean.parseBoolean(
-                accountProperties.get(
-                    ProtocolProviderFactory.AUTO_DISCOVER_STUN));
+        String useAutoDiscoverStun
+            = accountProperties.get(
+                    ProtocolProviderFactory.AUTO_DISCOVER_STUN);
+        boolean isUseAutoDiscoverStun = Boolean.parseBoolean(
+                (useAutoDiscoverStun != null &&
+                        useAutoDiscoverStun.length() != 0) ?
+                                useAutoDiscoverStun : "true");
 
-        iceConfigPanel.setAutoDiscoverStun(isAutoDiscoverStun);
+        iceConfigPanel.setAutoDiscoverStun(isUseAutoDiscoverStun);
 
         for (int i = 0; i < StunServerDescriptor.MAX_STUN_SERVER_COUNT; i ++)
         {

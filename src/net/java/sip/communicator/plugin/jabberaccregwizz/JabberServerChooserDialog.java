@@ -29,7 +29,7 @@ import org.xml.sax.*;
 
 /**
  * A dialog that shows the list of available Jabber servers.
- * 
+ *
  * @author Nicolas Grandclaude
  */
 public class JabberServerChooserDialog
@@ -50,7 +50,8 @@ public class JabberServerChooserDialog
     // Panel
     private JPanel mainPanel = new TransparentPanel(new BorderLayout());
 
-    private JPanel buttonPanel = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+    private JPanel buttonPanel = new TransparentPanel(new FlowLayout(
+            FlowLayout.RIGHT));
 
     private Box buttonBox = new Box(BoxLayout.X_AXIS);
 
@@ -68,11 +69,11 @@ public class JabberServerChooserDialog
         .getString("cancelLabel"));
 
     private Vector<String> servers = new Vector<String>();
-    
+
     private FileAccessService faService = null;
 
     private String[] columnNames =
-    { Resources.getString("serverColumn"), Resources.getString("commentColumn") };
+    {Resources.getString("serverColumn"), Resources.getString("commentColumn")};
 
     public boolean isOK = false;
 
@@ -82,7 +83,7 @@ public class JabberServerChooserDialog
      * Creates an instance of <tt>JabberServerChooserDialog</tt>.
      */
     public JabberServerChooserDialog()
-    {        
+    {
         this.setSize(new Dimension(550, 450));
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.setTitle(Resources.getString("chooseTitle"));
@@ -93,7 +94,7 @@ public class JabberServerChooserDialog
         this.setLocation(screenSize.width / 2 - this.getWidth() / 2,
             screenSize.height / 2 - this.getHeight() / 2);
 
-        this.init();        
+        this.init();
     }
     /**
      * Initializes all panels, buttons, etc.
@@ -107,7 +108,7 @@ public class JabberServerChooserDialog
 
         chooseAreaPanel
             .setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
-        
+
         chooseAreaPanel.add(chooseArea, BorderLayout.NORTH);
 
         eastPanel.add(chooseAreaPanel, BorderLayout.NORTH);
@@ -126,10 +127,10 @@ public class JabberServerChooserDialog
         {
             logger.error("Could not read image.", e);
         }
-        
+
         this.westPanel.add(westIconLabel, BorderLayout.NORTH);
         this.mainPanel.add(westPanel, BorderLayout.WEST);
-        
+
         // Table with servers and comments
         serversTable = new JTable(new ServerChooserTableModel());
         serversTable.setRowHeight(22);
@@ -216,12 +217,12 @@ public class JabberServerChooserDialog
                         + localServersListFile.getAbsolutePath(), e);
                 }
             }
-            
+
             try
             {
                 URL file = new URL("http://www.jabber.org/servers.xml");
                 InputStream stream = file.openStream();
-                
+
                 try
                 {
                     // Copy the remote file to the disk
@@ -231,7 +232,7 @@ public class JabberServerChooserDialog
                     {
                         FileOutputStream fos
                             = new FileOutputStream(localServersListFile);
-                        
+
                         while ((len = stream.read(buf)) > 0)
                         {
                             fos.write(buf, 0, len);
@@ -296,22 +297,22 @@ public class JabberServerChooserDialog
     }
 
     /**
-     * The table model used for the table containing all servers. 
+     * The table model used for the table containing all servers.
      */
     private class ServerChooserTableModel extends AbstractTableModel
     {
         private Document serverComments;
-        
+
         private NodeList commentsList;
-        
+
         public ServerChooserTableModel()
-        {    
+        {
             try
             {
                 // Create a builder factory
                 DocumentBuilderFactory factory
                     = DocumentBuilderFactory.newInstance();
-                
+
                 // Create the builder and parse the file
                 serverComments = factory.newDocumentBuilder()
                     .parse(Resources.getPropertyInputStream(
@@ -329,14 +330,14 @@ public class JabberServerChooserDialog
             {
                 logger.error("Failed to parse: " + DEFAULT_FILE_NAME, e);
             }
-            
+
 
             Element root = serverComments.getDocumentElement();
 
             commentsList = root.getElementsByTagName("item");
 
         }
-            
+
         public int getColumnCount()
         {
             return 2;
@@ -361,7 +362,7 @@ public class JabberServerChooserDialog
             }
             else
             { // Column 2 (Comment)
-                
+
                 int i = 0;
                 Element e = (Element) commentsList.item(i);
 
@@ -376,7 +377,7 @@ public class JabberServerChooserDialog
                 {
                     commentString = e.getAttribute("comment");
                 }
-                
+
                 return commentString;
             }
         }
