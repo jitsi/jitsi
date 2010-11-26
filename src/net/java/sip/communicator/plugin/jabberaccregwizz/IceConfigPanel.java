@@ -19,6 +19,8 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
+ * ICE configuration panel.
+ *
  * @author Yana Stamcheva
  */
 public class IceConfigPanel
@@ -105,7 +107,7 @@ public class IceConfigPanel
         {
             public void actionPerformed(ActionEvent e)
             {
-                StunConfigDialog stunDialog = new StunConfigDialog();
+                StunConfigDialog stunDialog = new StunConfigDialog(false);
 
                 stunDialog.setVisible(true);
             }
@@ -117,6 +119,9 @@ public class IceConfigPanel
         {
             public void actionPerformed(ActionEvent e)
             {
+                if(table.getSelectedRow() < 0)
+                    return;
+
                 StunServerDescriptor stunServer
                     = (StunServerDescriptor) tableModel.getValueAt(
                         table.getSelectedRow(), 0);
@@ -218,6 +223,11 @@ public class IceConfigPanel
         private JEditorPane errorMessagePane;
 
         /**
+         * If the dialog is open via "edit" button.
+         */
+        private final boolean isEditMode;
+
+        /**
          * Default STUN/TURN port.
          */
         private static final String DEFAULT_STUN_PORT = "3478";
@@ -238,21 +248,32 @@ public class IceConfigPanel
                                 String  username,
                                 String  password)
         {
-            this();
+            this(true);
 
             addressField.setText(address);
             portField.setText(Integer.toString( port ));
             supportTurnCheckBox.setSelected(isSupportTurn);
             usernameField.setText(username);
             passwordField.setText(password);
+
+            if(!isSupportTurn)
+            {
+                usernameField.setEnabled(false);
+                passwordField.setEnabled(false);
+            }
         }
 
         /**
          * Creates an empty dialog.
+         *
+         * @param editMode true if the dialog is in "edit" state, false means
+         * "add" state
          */
-        public StunConfigDialog()
+        public StunConfigDialog(boolean editMode)
         {
             super(false);
+
+            this.isEditMode = editMode;
 
             setTitle(Resources.getString(
                 "plugin.jabberaccregwizz.ADD_STUN_SERVER"));
@@ -290,7 +311,8 @@ public class IceConfigPanel
             portField.setInputVerifier(portVerifier);
 
             JButton addButton
-                = new JButton(Resources.getString("service.gui.ADD"));
+                = new JButton(Resources.getString(isEditMode ?
+                        "service.gui.EDIT" : "service.gui.ADD"));
             JButton cancelButton
                 = new JButton(Resources.getString("service.gui.CANCEL"));
 
@@ -300,6 +322,7 @@ public class IceConfigPanel
                 {
                     String address = addressField.getText();
                     String portStr = portField.getText();
+                    StunServerDescriptor stunServer = null;
 
                     int port = -1;
                     if(portStr != null && portStr.trim().length() > 0)
@@ -313,13 +336,18 @@ public class IceConfigPanel
                         errorMessage = Resources.getString(
                             "plugin.jabberaccregwizz.NO_STUN_ADDRESS");
 
-                    if (username == null || username.length() <= 0)
+                    if ((username == null || username.length() <= 0) &&
+                            supportTurnCheckBox.isSelected())
                         errorMessage = Resources.getString(
                             "plugin.jabberaccregwizz.NO_STUN_USERNAME");
 
-                    if (containsStunServer(address, port))
+                    stunServer = getStunServer(address, port);
+
+                    if(stunServer != null && !isEditMode)
+                    {
                         errorMessage = Resources.getString(
                             "plugin.jabberaccregwizz.STUN_ALREADY_EXIST");
+                    }
 
                     if (errorMessage != null)
                     {
@@ -327,12 +355,26 @@ public class IceConfigPanel
                         return;
                     }
 
-                    StunServerDescriptor stunServer = new StunServerDescriptor(
-                        address, port, supportTurnCheckBox.isSelected(),
-                        username, new String( password ));
+                    if(!isEditMode)
+                    {
+                        stunServer = new StunServerDescriptor(
+                                address, port, supportTurnCheckBox.isSelected(),
+                                username, new String( password ));
 
-                    addStunServer(stunServer);
+                        addStunServer(stunServer);
+                    }
+                    else
+                    {
+                        /* edit an existing STUN/TURN server */
+                        stunServer.setAddress(address);
+                        stunServer.setPort(port);
+                        stunServer.setTurnSupported(
+                                supportTurnCheckBox.isSelected());
+                        stunServer.setUsername(username);
+                        stunServer.setPassword(new String(password));
 
+                        modifyStunServer(stunServer);
+                    }
                     dispose();
                 }
             });
@@ -342,6 +384,25 @@ public class IceConfigPanel
                 public void actionPerformed(ActionEvent e)
                 {
                     dispose();
+                }
+            });
+
+            supportTurnCheckBox.addItemListener(new ItemListener()
+            {
+                public void itemStateChanged(ItemEvent evt)
+                {
+                    if(evt.getStateChange() == ItemEvent.SELECTED)
+                    {
+                        /* show TURN user/password textfield */
+                        usernameField.setEnabled(true);
+                        passwordField.setEnabled(true);
+                    }
+                    else
+                    {
+                        /* hide TURN user/password textfield */
+                        usernameField.setEnabled(false);
+                        passwordField.setEnabled(false);
+                    }
                 }
             });
 
@@ -609,17 +670,38 @@ public class IceConfigPanel
     }
 
     /**
+     * Modify the given <tt>stunServer</tt> from the list of stun servers.
+     *
+     * @param stunServer the stun server to modify
+     */
+    void modifyStunServer(StunServerDescriptor stunServer)
+    {
+        for (int i = 0; i < tableModel.getRowCount(); i++)
+        {
+            StunServerDescriptor server
+                = (StunServerDescriptor) tableModel.getValueAt(i, 0);
+
+            if(stunServer == server)
+            {
+                tableModel.setValueAt(stunServer, i, 0);
+                tableModel.setValueAt(stunServer.isTurnSupported(), i, 1);
+                return;
+            }
+        }
+    }
+
+    /**
      * Indicates if a stun server with the given <tt>address</tt> and
      * <tt>port</tt> already exists in the additional stun servers table.
      *
      * @param address the STUN server address to check
      * @param port the STUN server port to check
      *
-     * @return <tt>true</tt> if a STUN server with the given <tt>address</tt>
-     * and <tt>port</tt> already exists in the table, otherwise returns
-     * <tt>false</tt>
+     * @return <tt>StunServerDescriptor</tt> if a STUN server with the given
+     * <tt>address</tt> and <tt>port</tt> already exists in the table, otherwise
+     *  returns <tt>null</tt>
      */
-    boolean containsStunServer(String address, int port)
+    StunServerDescriptor getStunServer(String address, int port)
     {
         for (int i = 0; i < tableModel.getRowCount(); i++)
         {
@@ -628,9 +710,9 @@ public class IceConfigPanel
 
             if (stunServer.getAddress().equalsIgnoreCase(address)
                 && stunServer.getPort() == port)
-                return true;
+                return stunServer;
         }
-        return false;
+        return null;
     }
 
     /**
