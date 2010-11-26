@@ -775,7 +775,8 @@ public class UpdateCheckActivator
                 else
                 {
                     AuthenticationWindow authWindow =
-                            new AuthenticationWindow("host", true, null);
+                            new AuthenticationWindow(
+                                getRequestingHost(), true, null);
 
                     userCredentials = new UserCredentials();
 

@@ -102,10 +102,7 @@ public class AuthenticationWindow
 
         this.server = server;
 
-        if(icon != null)
-        {
-            initIcon(icon);
-        }
+        initIcon(icon);
 
         if(!isUserNameEditable)
             this.uinValue = new JLabel();
@@ -200,6 +197,11 @@ public class AuthenticationWindow
      */
     private void initIcon(ImageIcon icon)
     {
+        // If an icon isn't provided set the application logo icon by default.
+        if (icon == null)
+            icon = UtilActivator.getResources()
+                .getImage("service.gui.SIP_COMMUNICATOR_LOGO_64x64");
+
         JLabel iconLabel = new JLabel(icon);
 
         iconLabel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
