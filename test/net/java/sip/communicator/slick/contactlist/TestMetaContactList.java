@@ -1245,16 +1245,5 @@ public class TestMetaContactList
         {
             collectedMetaContactGroupEvents.add(evt);
         }
-
-        /**
-         * Indicates that a <tt>MetaContact</tt> capabilities have changed.
-         * @param evt the <tt>MetaContactCapabilitiesEvent</tt> that notified
-         * us
-         */
-        public void metaContactCapabilitiesChanged(
-            MetaContactCapabilitiesEvent evt)
-        {
-            collectedMetaContactEvents.add(evt);
-        }
     }
 }

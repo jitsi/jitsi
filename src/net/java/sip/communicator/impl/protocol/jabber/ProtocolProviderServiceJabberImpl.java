@@ -1523,13 +1523,19 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
-     * Returns the full jabber id (jid) corresponding to the given contact.
+     * Returns the full jabber id (jid) corresponding to the given contact. If
+     * the provider is not connected returns null.
      *
      * @param contact the contact, for which we're looking for a jid
-     * @return the jid of the specified contact;
+     * @return the jid of the specified contact or null if the provider is not
+     * yet connected;
      */
     public String getFullJid(Contact contact)
     {
+        XMPPConnection connection = getConnection();
+        if (connection == null)
+            return null;
+
         Roster roster = getConnection().getRoster();
         Presence presence = roster.getPresence(contact.getAddress());
 

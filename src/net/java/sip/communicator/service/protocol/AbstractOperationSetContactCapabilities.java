@@ -98,10 +98,12 @@ public abstract class AbstractOperationSetContactCapabilities<
      * @param eventID the ID of the event to be fired which indicates the
      * specifics of the change of the list of <tt>OperationSet</tt> capabilities
      * of the specified <tt>sourceContact</tt> and the details of the event
+     * @param opSets the new set of operation sets for the given source contact
      */
     protected void fireContactCapabilitiesEvent(
             Contact sourceContact,
-            int eventID)
+            int eventID,
+            Map<String, ? extends OperationSet> opSets)
     {
         ContactCapabilitiesListener[] listeners;
 
@@ -115,7 +117,7 @@ public abstract class AbstractOperationSetContactCapabilities<
         if (listeners.length != 0)
         {
             ContactCapabilitiesEvent event
-                = new ContactCapabilitiesEvent(sourceContact, eventID);
+                = new ContactCapabilitiesEvent(sourceContact, eventID, opSets);
 
             for (ContactCapabilitiesListener listener : listeners)
             {

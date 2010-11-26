@@ -126,15 +126,4 @@ public interface MetaContactListListener
      * of this event
      */
     public void metaContactAvatarUpdated(MetaContactAvatarUpdateEvent evt);
-
-    /**
-     * Notifies this listener that the list of the <tt>OperationSet</tt>
-     * capabilities of a <tt>MetaContact</tt> has changed.
-     * 
-     * @param evt a <tt>MetaContactCapabilitiesEvent</tt> with ID
-     * {@link MetaContactCapabilitiesEvent#SUPPORTED_OPERATION_SETS_CHANGED}
-     * which specifies the <tt>MetaContact</tt> whose list of
-     * <tt>OperationSet</tt> capabilities has changed
-     */
-    public void metaContactCapabilitiesChanged(MetaContactCapabilitiesEvent evt);
 }

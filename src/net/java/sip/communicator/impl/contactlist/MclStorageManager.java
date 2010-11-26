@@ -2071,18 +2071,4 @@ public class MclStorageManager
     {
         // TODO Store MetaContact avatar.
     }
-
-    /**
-     * Indicates that the capabilities of a given <tt>MetaContact</tt> have
-     * changed.
-     * @param evt the <tt>MetaContactCapabilitiesEvent</tt> that notified us
-     */
-    public void metaContactCapabilitiesChanged(MetaContactCapabilitiesEvent evt)
-    {
-        /*
-         * The OperationSet capabilities of MetaContact are not pesistent so
-         * MclStorageManager has nothing to do in response to
-         * MetaContactCapabilitiesEvent.
-         */
-    }
 }

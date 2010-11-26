@@ -16,6 +16,7 @@ import net.java.sip.communicator.service.protocol.*;
  * the list of the <tt>OperationSet</tt> capabilities of a <tt>Contact</tt>.
  *
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public class ContactCapabilitiesEvent
     extends EventObject
@@ -40,6 +41,11 @@ public class ContactCapabilitiesEvent
     private final int eventID;
 
     /**
+     * The new set of supported <tt>OperationSet</tt>s.
+     */
+    private final Map<String, ? extends OperationSet> opSets;
+
+    /**
      * Initializes a new <tt>ContactCapabilitiesEvent</tt> instance which is to
      * notify about a specific change in the list of <tt>OperationSet</tt>
      * capabilities of a specific <tt>Contact</tt>.
@@ -50,12 +56,17 @@ public class ContactCapabilitiesEvent
      * the change in the list of <tt>OperationSet</tt> capabilities of the
      * specified <tt>sourceContact</tt> and the details to be carried by the new
      * event
+     * @param opSets the new set of operation sets this event is about
      */
-    public ContactCapabilitiesEvent(Contact sourceContact, int eventID)
+    public ContactCapabilitiesEvent(
+                            Contact sourceContact,
+                            int eventID,
+                            Map<String, ? extends OperationSet> opSets)
     {
         super(sourceContact);
 
         this.eventID = eventID;
+        this.opSets = opSets;
     }
 
     /**
@@ -81,5 +92,15 @@ public class ContactCapabilitiesEvent
     public Contact getSourceContact()
     {
         return (Contact) getSource();
+    }
+
+    /**
+     * Returns the new set of <tt>OperationSet</tt>-s this event is about
+     *
+     * @return the new set of <tt>OperationSet</tt>-s
+     */
+    public Map<String, ? extends OperationSet> getOperationSets()
+    {
+        return opSets;
     }
 }

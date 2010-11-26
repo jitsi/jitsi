@@ -23,10 +23,12 @@ import net.java.sip.communicator.util.*;
  * Jabber <tt>Contact</tt> in question.
  *
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public class OperationSetContactCapabilitiesJabberImpl
     extends AbstractOperationSetContactCapabilities<ProtocolProviderServiceJabberImpl>
-    implements UserCapsNodeListener
+    implements  UserCapsNodeListener,
+                ContactPresenceStatusListener
 {
     /**
      * The <tt>Logger</tt> used by the
@@ -66,6 +68,15 @@ public class OperationSetContactCapabilitiesJabberImpl
                     ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RTP,
                     ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RTP_AUDIO
                 });
+
+        OPERATION_SETS_TO_FEATURES.put(
+            OperationSetVideoTelephony.class,
+            new String[]
+            {
+                ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE,
+                ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RTP,
+                ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RTP_VIDEO
+            });
     }
 
     /**
@@ -86,6 +97,12 @@ public class OperationSetContactCapabilitiesJabberImpl
             ProtocolProviderServiceJabberImpl parentProvider)
     {
         super(parentProvider);
+
+        OperationSetPresence presenceOpSet
+            = parentProvider.getOperationSet(OperationSetPresence.class);
+
+        if (presenceOpSet != null)
+            presenceOpSet.addContactPresenceStatusListener(this);
     }
 
     /**
@@ -119,6 +136,143 @@ public class OperationSetContactCapabilitiesJabberImpl
             Contact contact,
             Class<U> opsetClass,
             boolean online)
+    {
+        String jid = parentProvider.getFullJid(contact);
+        if (jid == null)
+            jid = contact.getAddress();
+
+        return getOperationSet(jid, opsetClass, online);
+    }
+
+    /**
+     * Gets the <tt>OperationSet</tt>s supported by a specific <tt>Contact</tt>.
+     * The returned <tt>OperationSet</tt>s are considered by the associated
+     * protocol provider to capabilities possessed by the specified
+     * <tt>contact</tt>.
+     *
+     * @param contact the <tt>Contact</tt> for which the supported
+     * <tt>OperationSet</tt> capabilities are to be retrieved
+     * @param online <tt>true</tt> if <tt>contact</tt> is online; otherwise,
+     * <tt>false</tt>
+     * @return a <tt>Map</tt> listing the <tt>OperationSet</tt>s considered by
+     * the associated protocol provider to be supported by the specified
+     * <tt>contact</tt> (i.e. to be possessed as capabilities). Each supported
+     * <tt>OperationSet</tt> capability is represented by a <tt>Map.Entry</tt>
+     * with key equal to the <tt>OperationSet</tt> class name and value equal to
+     * the respective <tt>OperationSet</tt> instance
+     * @see AbstractOperationSetContactCapabilities#getSupportedOperationSets(
+     * Contact)
+     */
+    @Override
+    protected Map<String, OperationSet> getSupportedOperationSets(
+            Contact contact,
+            boolean online)
+    {
+        String jid = parentProvider.getFullJid(contact);
+        if (jid == null)
+            jid = contact.getAddress();
+
+        return getSupportedOperationSets(jid, online);
+    }
+
+    /**
+     * Gets the <tt>OperationSet</tt>s supported by a specific <tt>Contact</tt>.
+     * The returned <tt>OperationSet</tt>s are considered by the associated
+     * protocol provider to capabilities possessed by the specified
+     * <tt>contact</tt>.
+     *
+     * @param jid the <tt>Contact</tt> for which the supported
+     * <tt>OperationSet</tt> capabilities are to be retrieved
+     * @param online <tt>true</tt> if <tt>contact</tt> is online; otherwise,
+     * <tt>false</tt>
+     * @return a <tt>Map</tt> listing the <tt>OperationSet</tt>s considered by
+     * the associated protocol provider to be supported by the specified
+     * <tt>contact</tt> (i.e. to be possessed as capabilities). Each supported
+     * <tt>OperationSet</tt> capability is represented by a <tt>Map.Entry</tt>
+     * with key equal to the <tt>OperationSet</tt> class name and value equal to
+     * the respective <tt>OperationSet</tt> instance
+     * @see AbstractOperationSetContactCapabilities#getSupportedOperationSets(
+     * Contact)
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, OperationSet> getSupportedOperationSets(String jid,
+                                                                boolean online)
+    {
+        Map<String, OperationSet> supportedOperationSets
+            = parentProvider.getSupportedOperationSets();
+
+        int supportedOperationSetCount = supportedOperationSets.size();
+        Map<String, OperationSet> contactSupportedOperationSets
+            = new HashMap<String, OperationSet>(supportedOperationSetCount);
+
+        if (supportedOperationSetCount != 0)
+        {
+            for (Map.Entry<String, OperationSet> supportedOperationSetEntry
+                    : supportedOperationSets.entrySet())
+            {
+                String opsetClassName = supportedOperationSetEntry.getKey();
+                Class<? extends OperationSet> opsetClass;
+
+                try
+                {
+                    opsetClass
+                        = (Class<? extends OperationSet>)
+                            Class.forName(opsetClassName);
+                }
+                catch (ClassNotFoundException cnfex)
+                {
+                    opsetClass = null;
+                    logger.error(
+                            "Failed to get OperationSet class for name: "
+                                + opsetClassName,
+                            cnfex);
+                }
+                if (opsetClass != null)
+                {
+                    OperationSet opset
+                        = getOperationSet(jid, opsetClass, online);
+
+                    if (opset != null)
+                    {
+                        contactSupportedOperationSets.put(
+                                opsetClassName,
+                                opset);
+                    }
+                }
+            }
+        }
+        return contactSupportedOperationSets;
+    }
+
+    /**
+     * Gets the <tt>OperationSet</tt> corresponding to the specified
+     * <tt>Class</tt> and supported by the specified <tt>Contact</tt>. If the
+     * returned value is non-<tt>null</tt>, it indicates that the
+     * <tt>Contact</tt> is considered by the associated protocol provider to
+     * possess the <tt>opsetClass</tt> capability. Otherwise, the associated
+     * protocol provider considers <tt>contact</tt> to not have the
+     * <tt>opsetClass</tt> capability.
+     *
+     * @param <U> the type extending <tt>OperationSet</tt> for which the
+     * specified <tt>contact</tt> is to be checked whether it possesses it as a
+     * capability 
+     * @param jid the Jabber id for which we're checking supported operation
+     * sets
+     * @param opsetClass the <tt>OperationSet</tt> <tt>Class</tt> for which the
+     * specified <tt>contact</tt> is to be checked whether it possesses it as a
+     * capability
+     * @param online <tt>true</tt> if <tt>contact</tt> is online; otherwise,
+     * <tt>false</tt>
+     * @return the <tt>OperationSet</tt> corresponding to the specified
+     * <tt>opsetClass</tt> which is considered by the associated protocol
+     * provider to be possessed as a capability by the specified
+     * <tt>contact</tt>; otherwise, <tt>null</tt>
+     * @see AbstractOperationSetContactCapabilities#getOperationSet(Contact,
+     * Class)
+     */
+    private <U extends OperationSet> U getOperationSet(String jid,
+                                                       Class<U> opsetClass,
+                                                       boolean online)
     {
         U opset = parentProvider.getOperationSet(opsetClass);
 
@@ -156,82 +310,11 @@ public class OperationSetContactCapabilitiesJabberImpl
             if ((features == null)
                     || ((features.length != 0)
                             && !parentProvider.isFeatureListSupported(
-                                    parentProvider.getFullJid(contact),
+                                    jid,
                                     features)))
                 opset = null;
         }
         return opset;
-    }
-
-    /**
-     * Gets the <tt>OperationSet</tt>s supported by a specific <tt>Contact</tt>.
-     * The returned <tt>OperationSet</tt>s are considered by the associated
-     * protocol provider to capabilities possessed by the specified
-     * <tt>contact</tt>.
-     *
-     * @param contact the <tt>Contact</tt> for which the supported
-     * <tt>OperationSet</tt> capabilities are to be retrieved
-     * @param online <tt>true</tt> if <tt>contact</tt> is online; otherwise,
-     * <tt>false</tt>
-     * @return a <tt>Map</tt> listing the <tt>OperationSet</tt>s considered by
-     * the associated protocol provider to be supported by the specified
-     * <tt>contact</tt> (i.e. to be possessed as capabilities). Each supported
-     * <tt>OperationSet</tt> capability is represented by a <tt>Map.Entry</tt>
-     * with key equal to the <tt>OperationSet</tt> class name and value equal to
-     * the respective <tt>OperationSet</tt> instance
-     * @see AbstractOperationSetContactCapabilities#getSupportedOperationSets(
-     * Contact)
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    protected Map<String, OperationSet> getSupportedOperationSets(
-            Contact contact,
-            boolean online)
-    {
-        Map<String, OperationSet> supportedOperationSets
-            = super.getSupportedOperationSets(contact, online);
-        int supportedOperationSetCount = supportedOperationSets.size();
-        Map<String, OperationSet> contactSupportedOperationSets
-            = new HashMap<String, OperationSet>(supportedOperationSetCount);
-
-        if (supportedOperationSetCount != 0)
-        {
-            for (Map.Entry<String, OperationSet> supportedOperationSetEntry
-                    : supportedOperationSets.entrySet())
-            {
-                String opsetClassName = supportedOperationSetEntry.getKey();
-                Class<? extends OperationSet> opsetClass;
-
-                try
-                {
-                    
-                    opsetClass
-                        = (Class<? extends OperationSet>)
-                            Class.forName(opsetClassName);
-                }
-                catch (ClassNotFoundException cnfex)
-                {
-                    opsetClass = null;
-                    logger.error(
-                            "Failed to get OperationSet class for name: "
-                                + opsetClassName,
-                            cnfex);
-                }
-                if (opsetClass != null)
-                {
-                    OperationSet opset
-                        = getOperationSet(contact, opsetClass, online);
-
-                    if (opset != null)
-                    {
-                        contactSupportedOperationSets.put(
-                                opsetClassName,
-                                opset);
-                    }
-                }
-            }
-        }
-        return contactSupportedOperationSets;
     }
 
     /**
@@ -276,15 +359,16 @@ public class OperationSetContactCapabilitiesJabberImpl
      *
      * @param user the user (full JID)
      * @param node the entity caps node#ver
-     * @see UserCapsNodeListener#userCapsNodeAdded(String, String)
+     * @param online indicates if the user is currently online
+     * @see UserCapsNodeListener#userCapsNodeAdded(String, String, boolean)
      */
-    public void userCapsNodeAdded(String user, String node)
+    public void userCapsNodeAdded(String user, String node, boolean online)
     {
         /*
          * It doesn't matter to us whether a caps node has been added or removed
          * for the specified user because we report all changes.
          */
-        userCapsNodeRemoved(user, node);
+        userCapsNodeRemoved(user, node, online);
     }
 
     /**
@@ -293,9 +377,10 @@ public class OperationSetContactCapabilitiesJabberImpl
      *
      * @param user the user (full JID)
      * @param node the entity caps node#ver
-     * @see UserCapsNodeListener#userCapsNodeRemoved(String, String)
+     * @param online indicates if the given user is online
+     * @see UserCapsNodeListener#userCapsNodeRemoved(String, String, boolean)
      */
-    public void userCapsNodeRemoved(String user, String node)
+    public void userCapsNodeRemoved(String user, String node, boolean online)
     {
         OperationSetPresence opsetPresence
             = parentProvider.getOperationSet(OperationSetPresence.class);
@@ -305,12 +390,30 @@ public class OperationSetContactCapabilitiesJabberImpl
             String jid = StringUtils.parseBareAddress(user);
             Contact contact = opsetPresence.findContactByID(jid);
 
-            if (contact != null)
+            // If the contact isn't null and is online we try to discover the
+            // new set of operation sets and to notify interested parties.
+            // Otherwise we ignore the event.
+            if (contact != null && online)
             {
                 fireContactCapabilitiesEvent(
                     contact,
-                    ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED);
+                    ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED,
+                    getSupportedOperationSets(user, online));
             }
         }
+    }
+
+    /**
+     * Removes the capabilities when the user goes offline.
+     *
+     * @param evt the <tt>ContactPresenceStatusChangeEvent</tt> that notified
+     * us
+     */
+    public void contactPresenceStatusChanged(
+        ContactPresenceStatusChangeEvent evt)
+    {
+        // If the user goes offline we ensure to remove the caps node.
+        if (evt.getNewStatus().getStatus() < PresenceStatus.ONLINE_THRESHOLD)
+            capsManager.removeUserCapsNode(evt.getSourceContact().getAddress());
     }
 }

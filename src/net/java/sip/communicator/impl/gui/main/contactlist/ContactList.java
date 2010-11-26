@@ -219,9 +219,6 @@ public class ContactList
 
     public void metaContactAvatarUpdated(MetaContactAvatarUpdateEvent evt) {}
 
-    public void metaContactCapabilitiesChanged(
-        MetaContactCapabilitiesEvent evt) {}
-
     /**
      * Handles the <tt>MetaContactGroupEvent</tt>. Refreshes the list model
      * when a new meta contact group has been added.

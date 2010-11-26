@@ -37,6 +37,12 @@ public class MetaContactImpl
     private final List<Contact> protoContacts = new Vector<Contact>();
 
     /**
+     * The list of capabilities of the meta contact.
+     */
+    private final Map<String, List<Contact>> capabilities
+        = new HashMap<String, List<Contact>>();
+
+    /**
      * The number of contacts online in this meta contact.
      */
     private int contactsOnline = 0;
@@ -204,8 +210,24 @@ public class MetaContactImpl
 
         for (Contact contact : protoContacts)
         {
-            if(contact.getProtocolProvider()
-                    .getOperationSet(opSetClass) != null)
+            ProtocolProviderService contactProvider
+                = contact.getProtocolProvider();
+
+            // First try to ask the capabilities operation set if such is
+            // available.
+            OperationSetContactCapabilities capOpSet = contactProvider
+                .getOperationSet(OperationSetContactCapabilities.class);
+
+            if (capOpSet != null)
+            {
+                List<Contact> capContacts
+                    = capabilities.get(opSetClass.getName());
+                if (capContacts != null && capContacts.contains(contact))
+                {
+                    opSetContacts.add( contact );
+                }
+            }
+            else if (contactProvider.getOperationSet(opSetClass) != null)
                 opSetContacts.add( contact );
         }
 
@@ -381,9 +403,13 @@ public class MetaContactImpl
 
             if (capOpSet != null)
             {
-                if (capOpSet.getOperationSet(defaultContact, operationSet)
-                        != null)
+                List<Contact> capContacts
+                    = capabilities.get(operationSet.getName());
+
+                if (capContacts != null && capContacts.contains(defaultContact))
+                {
                     defaultOpSetContact = defaultContact;
+                }
             }
             else if (contactProvider.getOperationSet(operationSet) != null)
                 defaultOpSetContact = defaultContact;
@@ -407,9 +433,14 @@ public class MetaContactImpl
                 // the needed opset.
                 if (capOpSet != null)
                 {
-                    if (capOpSet.getOperationSet(defaultContact, operationSet)
-                            == null)
+                    List<Contact> capContacts
+                        = capabilities.get(operationSet.getName());
+
+                    if (capContacts == null
+                            || !capContacts.contains(defaultContact))
+                    {
                         continue;
+                    }
                 }
                 else if (contactProvider.getOperationSet(operationSet) == null)
                     continue;
@@ -1250,6 +1281,109 @@ public class MetaContactImpl
         }
         else
             data[index + 1] = value;
+    }
+
+    /**
+     * Loads the capabilities of this <tt>MetaContact</tt>.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>, for which
+     * we're loading the capabilities
+     * @param capOpSet the <tt>OperationSetContactCapabilities</tt>
+     * through which we obtain the capability information
+     */
+    public void loadCapabilities(
+                            ProtocolProviderService protocolProvider,
+                            OperationSetContactCapabilities capOpSet)
+    {
+        Iterator<Contact> contactIter = getContactsForProvider(protocolProvider);
+
+        while (contactIter.hasNext())
+        {
+            Contact contact = contactIter.next();
+
+            addCapabilities(contact,
+                            capOpSet.getSupportedOperationSets(contact));
+        }
+    }
+
+    /**
+     * Updates the capabilities for the given contact.
+     *
+     * @param contact the <tt>Contact</tt>, which capabilities have changed
+     * @param opSets the new updated set of operation sets
+     */
+    public void updateCapabilities( Contact contact,
+                                    Map<String, ? extends OperationSet> opSets)
+    {
+        OperationSetContactCapabilities capOpSet
+            = contact.getProtocolProvider().getOperationSet(
+                OperationSetContactCapabilities.class);
+
+        // This should not happen, because this method is called explicitly for
+        // events coming from the capabilities operation set.
+        if (capOpSet == null)
+            return;
+
+        removeCapabilities(contact, opSets);
+        addCapabilities(contact, opSets);
+    }
+
+    private void removeCapabilities(Contact contact,
+                                    Map<String, ? extends OperationSet> opSets)
+    {
+        Iterator<String> caps = this.capabilities.keySet().iterator();
+
+        Set<String> contactNewCaps = opSets.keySet();
+
+        while (caps.hasNext())
+        {
+            String opSetName = caps.next();
+            List<Contact> contactsForCap = capabilities.get(opSetName);
+
+            if (contactsForCap.contains(contact)
+                && !contactNewCaps.contains(opSetName))
+            {
+                contactsForCap.remove(contact);
+
+                if (contactsForCap.size() == 0)
+                    capabilities.remove(opSetName);
+            }
+        }
+    }
+
+    /**
+     * Adds the capabilities of the given contact. 
+     * 
+     * @param contact the <tt>Contact</tt>, which capabilities we add
+     * @param opSets the map of operation sets supported by the contact
+     */
+    private void addCapabilities(   Contact contact,
+                                    Map<String, ? extends OperationSet> opSets)
+    {
+        Iterator<String> contactNewCaps = opSets.keySet().iterator();
+
+        while (contactNewCaps.hasNext())
+        {
+            String newCap = contactNewCaps.next();
+
+            List<Contact> capContacts = null;
+            if (!capabilities.containsKey(newCap))
+            {
+                capContacts = new LinkedList<Contact>();
+                capContacts.add(contact);
+
+                capabilities.put(newCap, capContacts);
+            }
+            else
+            {
+                capContacts = capabilities.get(newCap);
+
+                if (!capContacts.contains(contact))
+                {
+                    capContacts.add(contact);
+                }
+            }
+        }
     }
 
     /**

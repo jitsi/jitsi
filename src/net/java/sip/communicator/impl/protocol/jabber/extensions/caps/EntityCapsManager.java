@@ -179,10 +179,13 @@ public class EntityCapsManager
      * @param node the node (of the caps packet extension)
      * @param hash the hashing algorithm used to calculate <tt>ver</tt>
      * @param ver the version (of the caps packet extension)
+     * @param online indicates if the user is online
      */
-    private void addUserCapsNode(
-            String user,
-            String node, String hash, String ver)
+    private void addUserCapsNode(   String user,
+                                    String node,
+                                    String hash,
+                                    String ver,
+                                    boolean online)
     {
         if ((user != null) && (node != null) && (hash != null) && (ver != null))
         {
@@ -194,6 +197,7 @@ public class EntityCapsManager
                     || !caps.ver.equals(ver))
             {
                 caps = new Caps(node, hash, ver);
+
                 userCaps.put(user, caps);
             }
             else
@@ -213,7 +217,7 @@ public class EntityCapsManager
                 String nodeVer = caps.getNodeVer();
 
                 for (UserCapsNodeListener listener : listeners)
-                    listener.userCapsNodeAdded(user, nodeVer);
+                    listener.userCapsNodeAdded(user, nodeVer, online);
             }
         }
     }
@@ -264,7 +268,7 @@ public class EntityCapsManager
                 String nodeVer = caps.getNodeVer();
 
                 for (UserCapsNodeListener listener : listeners)
-                    listener.userCapsNodeRemoved(user, nodeVer);
+                    listener.userCapsNodeRemoved(user, nodeVer, false);
             }
         }
     }
@@ -829,9 +833,16 @@ public class EntityCapsManager
 
             if (hash != null)
             {
+                // Check it the packet indicates  that the user is online. We
+                // will use this information to decide if we're going to send
+                // the discover info request.
+                boolean online = false;
+                if (packet instanceof Presence)
+                    online = ((Presence) packet).isAvailable();
+
                 addUserCapsNode(
                     packet.getFrom(),
-                    ext.getNode(), hash, ext.getVersion());
+                    ext.getNode(), hash, ext.getVersion(), online);
             }
         }
     }

@@ -20,8 +20,9 @@ public interface UserCapsNodeListener
      *
      * @param user the user (full JID)
      * @param node the entity caps node#ver
+     * @param online indicates if the user for which we're notified is online
      */
-    public void userCapsNodeAdded(String user, String node);
+    public void userCapsNodeAdded(String user, String node, boolean online);
 
     /**
      * Notifies this listener that an <tt>EntityCapsManager</tt> has removed a
@@ -29,6 +30,7 @@ public interface UserCapsNodeListener
      *
      * @param user the user (full JID)
      * @param node the entity caps node#ver
+     * @param online indicates if the user for which we're notified is online
      */
-    public void userCapsNodeRemoved(String user, String node);
+    public void userCapsNodeRemoved(String user, String node, boolean online);
 }
