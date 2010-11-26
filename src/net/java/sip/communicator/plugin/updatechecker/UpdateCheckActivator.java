@@ -614,46 +614,6 @@ public class UpdateCheckActivator
                             vs.getSSLContext(
                             u.getHost(), port).getSocketFactory());
                 }
-
-                int responseCode = ((HttpURLConnection) uc).getResponseCode();
-
-                if(responseCode == HttpURLConnection.HTTP_UNAUTHORIZED)
-                {
-                    new Thread(new Runnable()
-                    {
-                        public void run()
-                        {
-                            ExportedWindow authWindow =
-                                getUIService().getExportedWindow(
-                                    ExportedWindow.AUTHENTICATION_WINDOW);
-
-                            UserCredentials cred = new UserCredentials();
-                            authWindow.setParams(new Object[]{cred});
-                            authWindow.setVisible(true);
-
-                            userCredentials = cred;
-
-                            if(cred.getUserName() == null)
-                            {
-                                userCredentials = null;
-                            }
-                            else
-                                windowsUpdate();
-                        }
-                    }).start();
-                }
-                else if(responseCode == HttpURLConnection.HTTP_OK
-                        && userCredentials != null
-                        && userCredentials.getUserName() != null
-                        && userCredentials.isPasswordPersistent())
-                {
-                    // if save password is checked save the pass
-                    getConfigurationService().setProperty(
-                        UPDATE_USERNAME_CONFIG, userCredentials.getUserName());
-                    getConfigurationService().setProperty(
-                        UPDATE_PASSWORD_CONFIG, new String(Base64.encode(
-                            userCredentials.getPasswordAsString().getBytes())));
-                }
             }
 
             InputStream in = uc.getInputStream();
@@ -785,18 +745,25 @@ public class UpdateCheckActivator
         {
             protected PasswordAuthentication getPasswordAuthentication()
             {
-                // if there is something save return it
-                ConfigurationService config = getConfigurationService();
-                String uName
-                    = (String) config.getProperty(UPDATE_USERNAME_CONFIG);
-                if(uName != null)
+                if(userCredentials == null)
                 {
-                    String pass
-                        = (String) config.getProperty(UPDATE_PASSWORD_CONFIG);
+                    // if there is something save return it
+                    ConfigurationService config = getConfigurationService();
+                    String uName
+                        = (String) config.getProperty(UPDATE_USERNAME_CONFIG);
+                    if(uName != null)
+                    {
+                        String pass
+                            = (String) config.getProperty(UPDATE_PASSWORD_CONFIG);
 
-                    if(pass != null)
-                        return new PasswordAuthentication(uName,
-                            new String(Base64.decode(pass)).toCharArray());
+                        if(pass != null)
+                        {
+                            userCredentials = new UserCredentials();
+                            userCredentials.setUserName(uName);
+                            userCredentials.setPassword(pass.toCharArray());
+                            userCredentials.setPasswordPersistent(true);
+                        }
+                    }
                 }
 
                 if(userCredentials != null)
@@ -807,6 +774,43 @@ public class UpdateCheckActivator
                 }
                 else
                 {
+                    AuthenticationWindow authWindow =
+                            new AuthenticationWindow("host", true, null);
+
+                    userCredentials = new UserCredentials();
+
+                    authWindow.setVisible(true);
+
+                    if (!authWindow.isCanceled())
+                    {
+                        userCredentials.setUserName(authWindow.getUserName());
+                        userCredentials.setPassword(authWindow.getPassword());
+                        userCredentials.setPasswordPersistent(
+                            authWindow.isRememberPassword());
+
+                        if(authWindow.isRememberPassword())
+                        {
+                            // if save password is checked save the pass
+                            getConfigurationService().setProperty(
+                                UPDATE_USERNAME_CONFIG,
+                                userCredentials.getUserName());
+                            getConfigurationService().setProperty(
+                                UPDATE_PASSWORD_CONFIG,
+                                new String(Base64.encode(
+                                    userCredentials.getPasswordAsString()
+                                    .getBytes())));
+                        }
+
+                         return new PasswordAuthentication(
+                            userCredentials.getUserName(),
+                            userCredentials.getPassword());
+                    }
+                    else
+                    {
+                        userCredentials.setUserName(null);
+                        userCredentials = null;
+                    }
+
                     return null;
                 }
             }

@@ -34,12 +34,6 @@ public interface ExportedWindow
         = new WindowID("ChatWindow");
 
     /**
-     * The authentication window identifier.
-     */
-    public static final WindowID AUTHENTICATION_WINDOW
-        = new WindowID("AuthenticationWindow");
-
-    /**
      * The main (contact list) window identifier.
      */
     public static final WindowID MAIN_WINDOW
