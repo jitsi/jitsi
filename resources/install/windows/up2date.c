@@ -4,6 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shellapi.h> /* ShellExecute */
 #include <tlhelp32.h> /* CreateToolhelp32Snapshot */
@@ -32,14 +33,18 @@ DWORD  up2date_getExePath(LPTSTR, DWORD);
 DWORD  up2date_getParentProcessId(DWORD *);
 LPTSTR up2date_getWaitParent(LPTSTR, BOOL *);
 LPTSTR up2date_skipWhitespace(LPTSTR);
-LPTSTR up2date_str2tstr(LPCSTR);
+LPWSTR up2date_str2wstr(LPCSTR);
 DWORD  up2date_waitParent();
 
 int WINAPI
 WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow) {
     LPTSTR commandLine;
 
-    commandLine = up2date_str2tstr(cmdLine);
+#ifdef _UNICODE
+    commandLine = up2date_str2wstr(cmdLine);
+#else
+    commandLine = cmdLine;
+#endif
     if (commandLine) {
         BOOL waitParent;
         LPTSTR noWaitParentCommandLine;
@@ -79,31 +84,56 @@ WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow) 
 DWORD
 up2date_createProcess(LPCTSTR commandLine) {
     LPWSTR *argv;
+    LPWSTR wCommandLine;
     int argc;
     DWORD error;
 
-    argv = CommandLineToArgvW(commandLine, &argc);
+#ifdef _UNICODE
+    wCommandLine = commandLine;
+#else
+    wCommandLine = up2date_str2wstr(commandLine);
+    if (!wCommandLine)
+        return ERROR_NOT_ENOUGH_MEMORY;
+#endif
+
+    argv = CommandLineToArgvW(wCommandLine, &argc);
     if (argv) {
+
         switch (argc) {
-        case 2:
-            if (!SetEnvironmentVariable(
-                        TEXT("SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR"),
-                        *(argv + 1))) {
-                error = GetLastError();
+        case 2: {
+            LPWSTR environmentVariableName
+                = up2date_str2wstr("SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR");
+
+            if (!environmentVariableName)
+            {
+                error = ERROR_NOT_ENOUGH_MEMORY;
                 break;
             }
+            if (!SetEnvironmentVariableW(
+                        environmentVariableName,
+                        *(argv + 1))) {
+                error = GetLastError();
+                free(environmentVariableName);
+                break;
+            }
+            free(environmentVariableName);
+            }
         case 1: {
-            STARTUPINFO si;
+            STARTUPINFOW si;
             PROCESS_INFORMATION pi;
 
             ZeroMemory(&si, sizeof(si));
             si.cb = sizeof(si);
 
-            error
-                = CreateProcess(NULL, *argv, NULL, NULL, FALSE, 0, NULL,
-                        NULL, &si, &pi)
-                    ? 0
-                    : GetLastError();
+            if (CreateProcessW(NULL, *argv, NULL, NULL, FALSE, 0, NULL, NULL,
+                    &si, &pi))
+            {
+                error = 0;
+                CloseHandle(pi.hProcess);
+                CloseHandle(pi.hThread);
+            }
+            else
+                error = GetLastError();
             }
             break;
         default:
@@ -114,6 +144,10 @@ up2date_createProcess(LPCTSTR commandLine) {
         LocalFree((HLOCAL) argv);
     } else
         error = GetLastError();
+
+    if (((LPVOID) wCommandLine) != ((LPVOID) commandLine))
+        free(wCommandLine);
+
     return error;
 }
 
@@ -235,17 +269,15 @@ up2date_skipWhitespace(LPTSTR str) {
     return str;
 }
 
-LPTSTR
-up2date_str2tstr(LPCSTR str) {
-    LPTSTR tstr;
-
-#ifdef UNICODE
+LPWSTR
+up2date_str2wstr(LPCSTR str) {
     int tstrSize;
+    LPWSTR tstr;
 
     tstrSize =
         MultiByteToWideChar(CP_THREAD_ACP, 0, str, -1, NULL, 0);
     if (tstrSize) {
-        tstr = (LPTSTR) malloc(tstrSize * sizeof(TCHAR));
+        tstr = (LPWSTR) malloc(tstrSize * sizeof(WCHAR));
         if (tstr) {
             tstrSize
                 = MultiByteToWideChar(CP_THREAD_ACP, 0, str, -1, tstr, tstrSize);
@@ -257,10 +289,6 @@ up2date_str2tstr(LPCSTR str) {
             tstr = NULL;
     } else
         tstr = NULL;
-#else
-    tstr = str;
-#endif
-
     return tstr;
 }
 
