@@ -170,7 +170,7 @@
                 <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="25" Y="90" Width="320" Height="15" Property="CREATE_DESKTOP_SHORTCUT" CheckBoxValue="1" Text="&amp;Desktop" />
                 <Control Id="StartupShortcutCheckBox" Type="CheckBox" X="25" Y="105" Width="320" Height="15" Property="CREATE_STARTUP_SHORTCUT" CheckBoxValue="1" Text="&amp;Auto-start when computer restarts or reboots" />
 
-                <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="130" Width="330" Height="40" Text="&amp;Associate Protocols" />
+                <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="130" Width="330" Height="50" Text="&amp;Associate Protocols" />
                 <Control Id="SipRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="145" Width="320" Height="15" Property="CREATE_SIP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;SIP" />
                 <!--Control Id="FeedRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="160" Width="320" Height="15" Property="CREATE_FEED_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;FEED" /-->
                 <Control Id="XmppRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="160" Width="320" Height="15" Property="CREATE_XMPP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;XMPP" />
