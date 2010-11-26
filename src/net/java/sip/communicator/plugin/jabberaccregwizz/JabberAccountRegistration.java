@@ -94,6 +94,11 @@ public class JabberAccountRegistration
     private boolean isAutoDiscoverStun = false;
 
     /**
+     * Indicates if default STUN server should be used.
+     */
+    private boolean isUseDefaultStunServer = false;
+
+    /**
      * The list of additional STUN servers entered by user.
      */
     private List<StunServerDescriptor> additionalStunServers
@@ -314,6 +319,27 @@ public class JabberAccountRegistration
     public void setAutoDiscoverStun(boolean isAutoDiscover)
     {
         this.isAutoDiscoverStun = isAutoDiscover;
+    }
+
+    /**
+     * Indicates if the stun server should be automatically discovered.
+     * @return <tt>true</tt> if the stun server should be automatically
+     * discovered, otherwise returns <tt>false</tt>.
+     */
+    public boolean isUseDefaultStunServer()
+    {
+        return isUseDefaultStunServer;
+    }
+
+    /**
+     * Sets the <tt>useDefaultStunServer</tt> property.
+     * @param isUseDefaultStunServer <tt>true</tt> to indicate that default
+     * stun server should be used if no others are available, <tt>false</tt>
+     * otherwise.
+     */
+    public void setUseDefaultStunServer(boolean isUseDefaultStunServer)
+    {
+        this.isUseDefaultStunServer = isUseDefaultStunServer;
     }
 
     /**

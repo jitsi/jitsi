@@ -111,7 +111,7 @@ public abstract class ProtocolProviderFactory
 
     /**
      * The name of the property which defines whether proxy is auto configured
-     * bu the protocol by using known methods such as specific DNS queries. 
+     * by the protocol by using known methods such as specific DNS queries.
      */
     public static final String PROXY_AUTO_CONFIG = "PROXY_AUTO_CONFIG";
 
@@ -137,8 +137,8 @@ public abstract class ProtocolProviderFactory
     public static final String PROXY_TYPE = "PROXY_TYPE";
 
     /**
-    * The name of the property under which we store the the username for the proxy
-    * stored against the PROXY_ADDRESS property.
+    * The name of the property under which we store the the username for the
+    * proxy stored against the PROXY_ADDRESS property.
     */
    public static final String PROXY_USERNAME = "PROXY_USERNAME";
 
@@ -168,8 +168,8 @@ public abstract class ProtocolProviderFactory
     public static final String PREFERRED_TRANSPORT = "PREFERRED_TRANSPORT";
 
     /**
-     * The name of the property under which we store resources such as the jabber
-     * resource property.
+     * The name of the property under which we store resources such as the
+     * jabber resource property.
      */
     public static final String RESOURCE = "RESOURCE";
 
@@ -179,14 +179,17 @@ public abstract class ProtocolProviderFactory
     public static final String RESOURCE_PRIORITY = "RESOURCE_PRIORITY";
 
     /**
-     * The name of the property which defines that the call is encrypted by default
+     * The name of the property which defines that the call is encrypted by
+     * default
      */
     public static final String DEFAULT_ENCRYPTION = "DEFAULT_ENCRYPTION";
 
     /**
-     * The name of the property which defines if to include the ZRTP attribute to SIP/SDP
+     * The name of the property which defines if to include the ZRTP attribute
+     * to SIP/SDP
      */
-    public static final String DEFAULT_SIPZRTP_ATTRIBUTE = "DEFAULT_SIPZRTP_ATTRIBUTE";
+    public static final String DEFAULT_SIPZRTP_ATTRIBUTE =
+        "DEFAULT_SIPZRTP_ATTRIBUTE";
 
     /**
      * The name of the property under which we store the boolean value
@@ -270,6 +273,13 @@ public abstract class ProtocolProviderFactory
      * Indicates if STUN server should be automatically discovered.
      */
     public static final String AUTO_DISCOVER_STUN = "AUTO_DISCOVER_STUN";
+
+    /**
+     * Indicates if default STUN server would be used if no other STUN/TURN
+     * server are available.
+     */
+    public static final String USE_DEFAULT_STUN_SERVER =
+        "USE_DEFAULT_STUN_SERVER";
 
     /**
      * The property name prefix for all stun server properties. We generally use
@@ -381,7 +391,7 @@ public abstract class ProtocolProviderFactory
      * @throws java.lang.NullPointerException if any of the arguments is null.
      */
     public abstract AccountID installAccount(String userID,
-                                             Map<String, String>    accountProperties)
+            Map<String, String> accountProperties)
         throws IllegalArgumentException,
                IllegalStateException,
                NullPointerException;
@@ -441,9 +451,9 @@ public abstract class ProtocolProviderFactory
 
     /**
      * Removes the specified account from the list of accounts that this
-     * provider factory is handling. If the specified accountID is unknown to the
-     * ProtocolProviderFactory, the call has no effect and false is returned.
-     * This method is persistent in nature and once called the account
+     * provider factory is handling. If the specified accountID is unknown to
+     * the ProtocolProviderFactory, the call has no effect and false is
+     * returned. This method is persistent in nature and once called the account
      * corresponding to the specified ID will not be loaded during future runs
      * of the project.
      *
@@ -473,7 +483,7 @@ public abstract class ProtocolProviderFactory
             catch (OperationFailedException ex)
             {
                 logger
-                    .error("Failed to unregister protocol provider for account : "
+                  .error("Failed to unregister protocol provider for account: "
                         + accountID + " caused by: " + ex);
             }
         }
@@ -485,8 +495,8 @@ public abstract class ProtocolProviderFactory
             registration = registeredAccounts.remove(accountID);
         }
 
-        // first remove the stored account so when PP is unregistered we can distinguish
-        // between deleted or just disabled account
+        // first remove the stored account so when PP is unregistered we can
+        // distinguish between deleted or just disabled account
         wasAccountExisting = removeStoredAccount(accountID);
 
         if (registration != null)
@@ -882,8 +892,9 @@ public abstract class ProtocolProviderFactory
             = (ConfigurationService) bundleContext.getService(confReference);
 
         //first retrieve all accounts that we've registered
-        List<String> storedAccounts = configurationService.getPropertyNamesByPrefix(
-            sourcePackageName, true);
+        List<String> storedAccounts =
+            configurationService.getPropertyNamesByPrefix(sourcePackageName,
+                    true);
 
         //find an account with the corresponding id.
         for (String accountRootPropertyName : storedAccounts)

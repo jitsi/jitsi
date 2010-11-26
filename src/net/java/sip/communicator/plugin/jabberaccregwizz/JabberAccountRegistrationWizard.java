@@ -261,10 +261,14 @@ public class JabberAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.AUTO_DISCOVER_STUN,
                             String.valueOf(registration.isAutoDiscoverStun()));
 
+        accountProperties.put(ProtocolProviderFactory.USE_DEFAULT_STUN_SERVER,
+                String.valueOf(registration.isUseDefaultStunServer()));
+
         List<StunServerDescriptor> stunServers
             = registration.getAdditionalStunServers();
 
         int serverIndex = -1;
+
         for(StunServerDescriptor stunServer : stunServers)
         {
             serverIndex ++;

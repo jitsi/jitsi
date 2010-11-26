@@ -45,6 +45,13 @@ public class IceConfigPanel
         Resources.getString("plugin.jabberaccregwizz.AUTO_DISCOVER_STUN"));
 
     /**
+     * The check box allowing the user to choose to use the default
+     * SIP Communicator STUN server.
+     */
+    private final JCheckBox defaultStunBox = new SIPCommCheckBox(
+        Resources.getString("plugin.jabberaccregwizz.USE_DEFAULT_STUN_SERVER"));
+
+    /**
      * The table model for our additional stun servers table.
      */
     private final StunServerTableModel tableModel = new StunServerTableModel();
@@ -63,6 +70,7 @@ public class IceConfigPanel
 
         iceBox.setAlignmentX(Component.LEFT_ALIGNMENT);
         autoDiscoverBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+        defaultStunBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         /* ICE and STUN/TURN discovery are enabled by default for a new account,
          * these properties will be overridden for existing account when
@@ -70,10 +78,12 @@ public class IceConfigPanel
          */
         iceBox.setSelected(true);
         autoDiscoverBox.setSelected(true);
+        defaultStunBox.setSelected(true);
 
         JPanel checkBoxPanel = new TransparentPanel(new GridLayout(0, 1));
         checkBoxPanel.add(iceBox);
         checkBoxPanel.add(autoDiscoverBox);
+        checkBoxPanel.add(defaultStunBox);
 
         add(checkBoxPanel);
         add(Box.createVerticalStrut(10));
@@ -636,6 +646,26 @@ public class IceConfigPanel
     void setAutoDiscoverStun(boolean isAutoDiscover)
     {
         autoDiscoverBox.setSelected(isAutoDiscover);
+    }
+
+    /**
+     * Indicates if the default stun server should be used
+     * @return <tt>true</tt> if the default stun server should be used,
+     * otherwise returns <tt>false</tt>.
+     */
+    boolean isUseDefaultStunServer()
+    {
+        return defaultStunBox.isSelected();
+    }
+
+    /**
+     * Sets the <tt>defaultStun</tt> property.
+     * @param isDefaultStun <tt>true</tt> to indicate that the default stun
+     * server should be used, <tt>false</tt> otherwise.
+     */
+    void setUseDefaultStunServer(boolean isDefaultStun)
+    {
+        defaultStunBox.setSelected(isDefaultStun);
     }
 
     /**

@@ -92,4 +92,20 @@ public class JabberAccountID
                     ProtocolProviderFactory.AUTO_DISCOVER_STUN,
                     false);
     }
+
+    /**
+     * Determines whether this account's provider use the default STUN server
+     * provided by SIP Communicator if there is no other STUN/TURN server
+     * discovered/configured.
+     *
+     * @return <tt>true</tt> if this provider would use the default STUN server,
+     * <tt>false</tt> otherwise
+     */
+    public boolean isUseDefaultStunServer()
+    {
+        return
+            getAccountPropertyBoolean(
+                    ProtocolProviderFactory.USE_DEFAULT_STUN_SERVER,
+                    false);
+    }
 }

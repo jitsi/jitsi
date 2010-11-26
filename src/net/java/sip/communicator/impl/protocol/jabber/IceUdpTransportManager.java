@@ -59,6 +59,16 @@ public class IceUdpTransportManager
     private final Agent iceAgent;
 
     /**
+     * Default STUN server address.
+     */
+    private static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
+
+    /**
+     * Default STUN server port.
+     */
+    private static final int DEFAULT_STUN_SERVER_PORT = 3478;
+
+    /**
      * Creates a new instance of this transport manager, binding it to the
      * specified peer.
      *
@@ -84,7 +94,7 @@ public class IceUdpTransportManager
         CallPeerJabberImpl peer = getCallPeer();
         ProtocolProviderServiceJabberImpl provider = peer.getProtocolProvider();
         NetworkAddressManagerService namSer = getNetAddrMgr();
-
+        boolean atLeastOneStunServer = false;
         Agent agent = namSer.createIceAgent();
 
         /*
@@ -115,7 +125,10 @@ public class IceUdpTransportManager
                 logger.info("Auto discovered harvester is " + autoHarvester);
 
             if (autoHarvester != null)
+            {
+                atLeastOneStunServer = true;
                 agent.addCandidateHarvester(autoHarvester);
+            }
         }
 
         //now create stun server descriptors for whatever other STUN/TURN
@@ -146,7 +159,29 @@ public class IceUdpTransportManager
             if (logger.isInfoEnabled())
                 logger.info("Adding pre-configured harvester " + harvester);
 
+            atLeastOneStunServer = true;
             agent.addCandidateHarvester(harvester);
+        }
+
+        if(!atLeastOneStunServer)
+        {
+            /* we have no configured or discovered STUN server so takes the
+             * default provided by us if user allows it
+             */
+            if(accID.isUseDefaultStunServer())
+            {
+                TransportAddress addr = new TransportAddress(
+                        DEFAULT_STUN_SERVER_ADDRESS,
+                        DEFAULT_STUN_SERVER_PORT,
+                        Transport.UDP);
+                StunCandidateHarvester harvester =
+                    new StunCandidateHarvester(addr);
+
+                if(harvester != null)
+                {
+                    agent.addCandidateHarvester(harvester);
+                }
+            }
         }
 
         return agent;

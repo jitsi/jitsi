@@ -167,6 +167,8 @@ public class FirstWizardPage
 
         registration.setUseIce(iceConfigPanel.isUseIce());
         registration.setAutoDiscoverStun(iceConfigPanel.isAutoDiscoverStun());
+        registration.setUseDefaultStunServer(
+                iceConfigPanel.isUseDefaultStunServer());
 
         //we will be reentering all stun servers so let's make sure we clear
         //the servers vector in case we already did that with a "Next".
