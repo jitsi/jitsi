@@ -120,7 +120,6 @@ public class CallPeerAdapter
         }
         else if (newState == CallPeerState.CONNECTED)
         {
-            System.out.println("CONNECTED" + CallPeerState.isOnHold(oldState));
             if (!CallPeerState.isOnHold(oldState))
             {
                 NotificationManager
