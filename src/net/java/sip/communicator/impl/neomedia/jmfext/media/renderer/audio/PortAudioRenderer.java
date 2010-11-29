@@ -376,6 +376,11 @@ public class PortAudioRenderer
                     inputFormat.getSampleSizeInBits());
             double sampleRate = inputFormat.getSampleRate();
 
+            framesPerBuffer
+                = (int)
+                    ((sampleRate * PortAudio.DEFAULT_MILLIS_PER_BUFFER)
+                        / (channels * 1000));
+
             try
             {
                 outputParameters
@@ -390,7 +395,7 @@ public class PortAudioRenderer
                             0 /* inputParameters */,
                             outputParameters,
                             sampleRate,
-                            PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
+                            framesPerBuffer,
                             PortAudio.STREAM_FLAGS_CLIP_OFF
                                 | PortAudio.STREAM_FLAGS_DITHER_OFF,
                             null /* streamCallback */);
@@ -410,10 +415,6 @@ public class PortAudioRenderer
             if (stream == 0)
                 throw new ResourceUnavailableException("Pa_OpenStream");
 
-            framesPerBuffer
-                = (int)
-                    ((sampleRate * PortAudio.DEFAULT_MILLIS_PER_BUFFER)
-                        / (channels * 1000));
             bytesPerBuffer
                 = PortAudio.Pa_GetSampleSize(sampleFormat)
                     * channels
@@ -529,12 +530,9 @@ public class PortAudioRenderer
                 }
             }
 
-            PortAudio
-                .Pa_WriteStream(
+            PortAudio.Pa_WriteStream(
                     stream,
-                    buffer,
-                    offset,
-                    framesPerBuffer,
+                    buffer, offset, framesPerBuffer,
                     numberOfWrites);
 
             int bytesWritten = numberOfWrites * bytesPerBuffer;

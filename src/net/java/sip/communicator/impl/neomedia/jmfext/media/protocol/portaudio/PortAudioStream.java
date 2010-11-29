@@ -278,7 +278,7 @@ public class PortAudioStream
                             inputParameters,
                             0 /* outputParameters */,
                             sampleRate,
-                            PortAudio.FRAMES_PER_BUFFER_UNSPECIFIED,
+                            framesPerBuffer,
                             PortAudio.STREAM_FLAGS_CLIP_OFF
                                 | PortAudio.STREAM_FLAGS_DITHER_OFF,
                             null /* streamCallback */);

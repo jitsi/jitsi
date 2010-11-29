@@ -361,10 +361,7 @@ public abstract class MediaAwareCall<
         }
 
         if(device == null)
-        {
-            device = mediaService.getDefaultDevice(mediaType,
-                    mediaUseCase);
-        }
+            device = mediaService.getDefaultDevice(mediaType, mediaUseCase);
 
         if (MediaType.AUDIO.equals(mediaType))
         {

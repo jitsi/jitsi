@@ -145,7 +145,8 @@ public class DataSource
      * override and be sure that there will be no request to close a connection
      * if the connection has not been opened yet.
      */
-    protected synchronized void doDisconnect()
+    @Override
+    protected void doDisconnect()
     {
         try
         {
