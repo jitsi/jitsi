@@ -120,6 +120,7 @@ public class CallPeerAdapter
         }
         else if (newState == CallPeerState.CONNECTED)
         {
+            System.out.println("CONNECTED" + CallPeerState.isOnHold(oldState));
             if (!CallPeerState.isOnHold(oldState))
             {
                 NotificationManager
@@ -131,12 +132,14 @@ public class CallPeerAdapter
                     renderer.getCallDialog().startCallTimer();
 
                 // Enabling all buttons when the call is connected.
-                renderer.getCallDialog().enableButtons();
+                renderer.getCallDialog().enableButtons(true);
             }
             else
             {
                 renderer.setOnHold(false);
                 renderer.getCallDialog().updateHoldButtonState();
+                // Enabling all buttons when the call get back from hold
+                renderer.getCallDialog().enableButtons(true);
             }
         }
         else if (newState == CallPeerState.DISCONNECTED)
@@ -152,6 +155,7 @@ public class CallPeerAdapter
         else if (CallPeerState.isOnHold(newState))
         {
             renderer.setOnHold(true);
+            renderer.getCallDialog().enableButtons(false);
             renderer.getCallDialog().updateHoldButtonState();
         }
 

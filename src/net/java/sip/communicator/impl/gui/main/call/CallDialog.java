@@ -46,6 +46,11 @@ public class CallDialog
                Skinnable
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The logger for this class.
      */
     private static final Logger logger = Logger.getLogger(CallDialog.class);
@@ -515,18 +520,20 @@ public class CallDialog
     }
 
     /**
-     * Enables all setting buttons.
+     * Enables or disable all setting buttons.
+     *
+     * @param enable true to enable buttons settings, false to disable
      */
-    public void enableButtons()
+    public void enableButtons(boolean enable)
     {
         // Buttons would be enabled once the call has entered in state
         // connected.
-        dialButton.setEnabled(true);
-        conferenceButton.setEnabled(true);
-        holdButton.setEnabled(true);
-        muteButton.setEnabled(true);
-        recordButton.setEnabled(true);
-        volumeControlButton.setEnabled(true);
+        dialButton.setEnabled(enable);
+        conferenceButton.setEnabled(enable);
+        holdButton.setEnabled(enable);
+        muteButton.setEnabled(enable);
+        recordButton.setEnabled(enable);
+        volumeControlButton.setEnabled(enable);
 
         if (!isLastConference)
         {
@@ -548,13 +555,13 @@ public class CallDialog
             // enable the video button.
             if (videoTelephony != null && videoDevice != null)
             {
-                videoButton.setEnabled(true);
+                videoButton.setEnabled(enable);
 
                 // If the video was already enabled (for example in the case of
                 // direct video call) make sure the video button is selected.
                 if (videoTelephony.isLocalVideoAllowed(call)
                     && !videoButton.isSelected())
-                    setVideoButtonSelected(true);
+                    setVideoButtonSelected(enable);
             }
             else if (videoDevice == null)
                 videoButton.setToolTipText(GuiActivator.getResources()
@@ -566,23 +573,23 @@ public class CallDialog
 
             if (desktopSharing != null)
             {
-                desktopSharingButton.setEnabled(true);
+                desktopSharingButton.setEnabled(enable);
 
                 // If the video was already enabled (for example in the case of
                 // direct desktop sharing call) make sure the video button is
                 // selected.
                 if (desktopSharing.isLocalVideoAllowed(call)
                     && !desktopSharingButton.isSelected())
-                    setDesktopSharingButtonSelected(true);
+                    setDesktopSharingButtonSelected(enable);
             }
 
             if (protocolProvider.getOperationSet(
                 OperationSetAdvancedTelephony.class) != null)
             {
-                transferCallButton.setEnabled(true);
+                transferCallButton.setEnabled(enable);
             }
 
-            fullScreenButton.setEnabled(true);
+            fullScreenButton.setEnabled(enable);
         }
     }
 
@@ -668,7 +675,9 @@ public class CallDialog
         }
     }
 
-    public void callStateChanged(CallChangeEvent evt) {}
+    public void callStateChanged(CallChangeEvent evt)
+    {
+    }
 
     /**
      * Updates <tt>CallPeer</tt> related components to fit the new focus state.
