@@ -96,6 +96,21 @@ public class UpdateCheckActivator
     private static UserCredentials userCredentials = null;
 
     /**
+     * The error message is any.
+     */
+    private static String errorMessage = null;
+
+    /**
+     * The host we are querying for updates.
+     */
+    private static String host = null;
+
+    /**
+     * Whether user has canceled authentication process.
+     */
+    private static boolean isAuthenticationCanceled = false;
+
+    /**
      * Property name of the username used if HTTP authentication is required.
      */
     private static final String UPDATE_USERNAME_CONFIG =
@@ -330,6 +345,36 @@ public class UpdateCheckActivator
 
             URL url = new URL(configString);
             URLConnection conn = url.openConnection();
+
+            if (conn instanceof HttpURLConnection)
+            {
+                while(((HttpURLConnection)conn).getResponseCode() ==
+                            HttpURLConnection.HTTP_UNAUTHORIZED
+                        && !isAuthenticationCanceled)
+                {
+                    if(userCredentials.getUserName() != null)
+                    {
+                        errorMessage = getResources().getI18NString(
+                            "service.gui.AUTHENTICATION_FAILED",
+                            new String[]{
+                                userCredentials.getUserName(),
+                                host});
+
+                        userCredentials.setUserName(null);
+                        userCredentials.setPasswordPersistent(false);
+                        userCredentials = null;
+
+                        getConfigurationService().removeProperty(
+                            UPDATE_USERNAME_CONFIG);
+                        getConfigurationService().removeProperty(
+                            UPDATE_PASSWORD_CONFIG);                        
+
+                        conn = url.openConnection();
+                    }
+                    else
+                        break;
+                }
+            }
             conn.setConnectTimeout(10000);
             conn.setReadTimeout(10000);
 
@@ -614,6 +659,10 @@ public class UpdateCheckActivator
                             vs.getSSLContext(
                             u.getHost(), port).getSocketFactory());
                 }
+
+                // we don't handle here authentication fails cause
+                // still we gone to downloading file we have gone through
+                // successful authentication
             }
 
             InputStream in = uc.getInputStream();
@@ -760,7 +809,8 @@ public class UpdateCheckActivator
                         {
                             userCredentials = new UserCredentials();
                             userCredentials.setUserName(uName);
-                            userCredentials.setPassword(pass.toCharArray());
+                            userCredentials.setPassword(new String(
+                                    Base64.decode(pass)).toCharArray());
                             userCredentials.setPasswordPersistent(true);
                         }
                     }
@@ -774,9 +824,20 @@ public class UpdateCheckActivator
                 }
                 else
                 {
-                    AuthenticationWindow authWindow =
-                            new AuthenticationWindow(
-                                getRequestingHost(), true, null);
+                    host = getRequestingHost();
+
+                    AuthenticationWindow authWindow = null;
+                    if(errorMessage == null)
+                    {
+                        authWindow = new AuthenticationWindow(host, true, null);
+                    }
+                    else
+                    {
+                        authWindow = new AuthenticationWindow(
+                                null, null, host, true, null, errorMessage);
+                        // we showed the message, remove it
+                        errorMessage = null;
+                    }
 
                     userCredentials = new UserCredentials();
 
@@ -784,6 +845,7 @@ public class UpdateCheckActivator
 
                     if (!authWindow.isCanceled())
                     {
+                        isAuthenticationCanceled = false;
                         userCredentials.setUserName(authWindow.getUserName());
                         userCredentials.setPassword(authWindow.getPassword());
                         userCredentials.setPasswordPersistent(
@@ -808,8 +870,14 @@ public class UpdateCheckActivator
                     }
                     else
                     {
+                        isAuthenticationCanceled = true;
                         userCredentials.setUserName(null);
                         userCredentials = null;
+
+                        getConfigurationService().removeProperty(
+                            UPDATE_USERNAME_CONFIG);
+                        getConfigurationService().removeProperty(
+                            UPDATE_PASSWORD_CONFIG);
                     }
 
                     return null;
