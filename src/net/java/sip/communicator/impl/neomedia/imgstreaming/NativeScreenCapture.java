@@ -32,8 +32,8 @@ public class NativeScreenCapture
      * @param output output buffer to store screen bytes
      * @return true if grab success, false otherwise
      */
-    public static native boolean grabScreen(int display, int x, int y, int width, int height,
-            byte output[]);
+    public static native boolean grabScreen(int display, int x, int y,
+            int width, int height, byte output[]);
 
     /**
      * Grab desktop screen and get raw bytes.
@@ -47,6 +47,6 @@ public class NativeScreenCapture
      * @param outputLength native output length
      * @return true if grab success, false otherwise
      */
-    public static native boolean grabScreen(int display, int x, int y, int width, int height,
-            long output, int outputLength);
+    public static native boolean grabScreen(int display, int x, int y,
+            int width, int height, long output, int outputLength);
 }
