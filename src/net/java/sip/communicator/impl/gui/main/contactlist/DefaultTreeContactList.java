@@ -52,6 +52,8 @@ public class DefaultTreeContactList
         this.setBackground(Color.WHITE);
         this.setDragEnabled(true);
         this.setTransferHandler(new ContactListTransferHandler(this));
+        this.getSelectionModel().
+            setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
         renderer = new ContactListTreeCellRenderer();
         this.setCellRenderer(renderer);
