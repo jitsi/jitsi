@@ -14,63 +14,7 @@
 typedef void *AudioQualityImprovement;
 #else /* #ifndef AUDIO_QUALITY_IMPROVEMENT_IMPLEMENTATION */
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
-typedef CRITICAL_SECTION Mutex;
-
-static inline int mutex_init(Mutex* mutex, void* arg)
-{
-    InitializeCriticalSection(mutex);
-    arg = NULL; /* unused */
-    return 0;
-}
-
-static inline int mutex_destroy(Mutex* mutex)
-{
-    DeleteCriticalSection(mutex);
-    return 0;
-}
-
-static inline int mutex_lock(Mutex* mutex)
-{
-    EnterCriticalSection(mutex);
-    return 0;
-}
-
-static inline int mutex_unlock(Mutex* mutex)
-{
-    LeaveCriticalSection(mutex);
-    return 0;
-}
-
-#else /* #ifdef _WIN32 */
-#include <pthread.h>
-
-typedef pthread_mutex_t Mutex;
-
-static inline int mutex_init(Mutex* mutex, void* arg)
-{
-    return pthread_mutex_init(mutex, arg);
-}
-
-static inline int mutex_destroy(Mutex* mutex)
-{
-    return pthread_mutex_destroy(mutex);
-}
-
-static inline int mutex_lock(Mutex* mutex)
-{
-    return pthread_mutex_lock(mutex);
-}
-
-static inline int mutex_unlock(Mutex* mutex)
-{
-    return pthread_mutex_unlock(mutex);
-}
-#endif /* #ifdef _WIN32 */
-
+#include "Mutex.h"
 #include <speex/speex_echo.h>
 #include <speex/speex_preprocess.h>
 #include <speex/speex_resampler.h>
@@ -85,6 +29,9 @@ typedef struct _AudioQualityImprovement
     int filterLengthOfEcho;
     jint frameSize;
     int frameSizeOfPreprocess;
+
+    /** The capture latency in milliseconds. */
+    jlong inputLatency;
     jlong longID;
     Mutex *mutex;
     struct _AudioQualityImprovement *next;
@@ -146,6 +93,9 @@ typedef enum
 
 AudioQualityImprovement *AudioQualityImprovement_getSharedInstance
     (const char *stringID, jlong longID);
+
+/** Loads the <tt>AudioQualityImprovement</tt> class. */
+void AudioQualityImprovement_load();
 void AudioQualityImprovement_process
     (AudioQualityImprovement *aqi,
     AudioQualityImprovementSampleOrigin sampleOrigin,
@@ -183,5 +133,8 @@ void AudioQualityImprovement_setEchoFilterLengthInMillis
     (AudioQualityImprovement *aqi, jlong echoFilterLengthInMillis);
 void AudioQualityImprovement_setSampleRate
     (AudioQualityImprovement *aqi, int sampleRate);
+
+/** Unloads the <tt>AudioQualityImprovement</tt> class. */
+void AudioQualityImprovement_unload();
 
 #endif /* #ifndef _NET_JAVA_SIP_COMMUNICATOR_IMPL_NEOMEDIA_PORTAUDIO_AUDIOQUALITYIMPROVEMENT_H_ */
