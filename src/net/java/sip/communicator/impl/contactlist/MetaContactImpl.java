@@ -437,7 +437,7 @@ public class MetaContactImpl
                         = capabilities.get(operationSet.getName());
 
                     if (capContacts == null
-                            || !capContacts.contains(defaultContact))
+                            || !capContacts.contains(protoContact))
                     {
                         continue;
                     }
