@@ -267,7 +267,7 @@ public abstract class ProtocolProviderFactory
     /**
      * Indicates if ICE should be used.
      */
-    public static final String IS_USE_ICE = "IS_USE_ICE";
+    public static final String IS_USE_ICE = "ICE_ENABLED";
 
     /**
      * Indicates if STUN server should be automatically discovered.
