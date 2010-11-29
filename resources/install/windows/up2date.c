@@ -9,6 +9,7 @@
 #include <shellapi.h> /* ShellExecute */
 #include <tlhelp32.h> /* CreateToolhelp32Snapshot */
 
+#include <ctype.h> /* isspace */
 #include <stdlib.h>
 #include <string.h>
 #include <tchar.h> /* _istspace */
