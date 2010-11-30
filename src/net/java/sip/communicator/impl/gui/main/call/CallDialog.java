@@ -445,6 +445,7 @@ public class CallDialog
         // hold of the peer menu in a conference call we need to update the
         // state of the call dialog hold button.
         this.holdButton.setSelected(isAllLocallyOnHold);
+        this.holdButton.setEnabled(true);
     }
 
     /**
@@ -530,7 +531,7 @@ public class CallDialog
         // connected.
         dialButton.setEnabled(enable);
         conferenceButton.setEnabled(enable);
-        holdButton.setEnabled(enable);
+        //holdButton.setEnabled(enable);
         muteButton.setEnabled(enable);
         recordButton.setEnabled(enable);
         volumeControlButton.setEnabled(enable);

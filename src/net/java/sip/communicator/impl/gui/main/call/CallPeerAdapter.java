@@ -132,6 +132,7 @@ public class CallPeerAdapter
 
                 // Enabling all buttons when the call is connected.
                 renderer.getCallDialog().enableButtons(true);
+                renderer.getCallDialog().updateHoldButtonState();
             }
             else
             {
@@ -155,6 +156,13 @@ public class CallPeerAdapter
         {
             renderer.setOnHold(true);
             renderer.getCallDialog().enableButtons(false);
+            renderer.getCallDialog().updateHoldButtonState();
+        }
+        else if (!CallPeerState.isOnHold(newState) &&
+                !newStateString.equals(CallPeerState.CONNECTING))
+        {
+            renderer.setOnHold(false);
+            renderer.getCallDialog().enableButtons(true);
             renderer.getCallDialog().updateHoldButtonState();
         }
 
