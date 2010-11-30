@@ -228,8 +228,12 @@ public abstract class TransportManagerJabberImpl
     /**
      * Notifies this <tt>TransportManagerJabberImpl</tt> that it should conclude
      * any started connectivity establishment.
+     *
+     * @throws OperationFailedException if anything goes wrong with connectivity
+     * establishment (i.e. ICE failed, ...)
      */
     public void wrapupConnectivityEstablishment()
+        throws OperationFailedException
     {
     }
 

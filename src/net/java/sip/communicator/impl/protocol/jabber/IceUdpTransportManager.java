@@ -725,9 +725,11 @@ public class IceUdpTransportManager
      * connectivity checks.
      *
      * @see TransportManagerJabberImpl#wrapupConnectivityEstablishment()
+     * @throws OperationFailedException if ICE processing has failed
      */
     @Override
     public void wrapupConnectivityEstablishment()
+        throws OperationFailedException
     {
         final Object iceProcessingStateSyncRoot = new Object();
         PropertyChangeListener stateChangeListener
@@ -786,6 +788,14 @@ public class IceUdpTransportManager
          * #propertyChange(PropertyChangeEvent) has never been executed.
          */
         iceAgent.removeStateChangeListener(stateChangeListener);
+
+        /* check the state of ICE processing and throw exception if failed */
+        if(iceAgent.getState().equals(IceProcessingState.FAILED))
+        {
+            throw new OperationFailedException(
+                    "Could not establish connection (ICE failed)",
+                    OperationFailedException.GENERAL_ERROR);
+        }
 
         /*
          * Once we're done establishing connectivity, we shouldn't be sending

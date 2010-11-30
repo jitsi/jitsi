@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
+import java.lang.reflect.*;
 
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.packet.*;
@@ -340,7 +341,31 @@ public class CallPeerJabberImpl
         //send the packet first and start the stream later  in case the media
         //relay needs to see it before letting hole punching techniques through.
         getProtocolProvider().getConnection().sendPacket(response);
-        getMediaHandler().start();
+
+        try
+        {
+            getMediaHandler().start();
+        }
+        catch(UndeclaredThrowableException e)
+        {
+            Throwable exc = e.getUndeclaredThrowable();
+
+            logger.info("Failed to establish a connection", exc);
+
+            //send an error response
+            String reasonText = "Error: " + exc.getMessage();
+            JingleIQ errResp
+                = JinglePacketFactory.createSessionTerminate(
+                        sessionInitIQ.getTo(),
+                        sessionInitIQ.getFrom(),
+                        sessionInitIQ.getSID(),
+                        Reason.GENERAL_ERROR,
+                        reasonText);
+
+            setState(CallPeerState.FAILED, reasonText);
+            getProtocolProvider().getConnection().sendPacket(errResp);
+            return;
+        }
 
         //tell everyone we are connecting so that the audio notifications would
         //stop
@@ -971,7 +996,21 @@ public class CallPeerJabberImpl
         }
         catch (OperationFailedException ofe)
         {
-            logger.error("Failed to process an incoming transport-info", ofe);
+            logger.warn("Failed to process an incoming transport-info", ofe);
+
+            //send an error response
+            String reasonText = "Error: " + ofe.getMessage();
+            JingleIQ errResp
+                = JinglePacketFactory.createSessionTerminate(
+                        sessionInitIQ.getTo(),
+                        sessionInitIQ.getFrom(),
+                        sessionInitIQ.getSID(),
+                        Reason.GENERAL_ERROR,
+                        reasonText);
+
+            setState(CallPeerState.FAILED, reasonText);
+            getProtocolProvider().getConnection().sendPacket(errResp);
+            return;
         }
     }
 
