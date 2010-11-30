@@ -1,4 +1,4 @@
-Bundle-Activator: net.java.sip.communicator.impl.protocol.ProtocolProviderActivator
+Bundle-Activator: net.java.sip.communicator.service.protocol.ProtocolProviderActivator
 Bundle-Name: Protocol Provider Service
 Bundle-Description: Protocol Provider Service.
 Bundle-Vendor: sip-communicator.org
@@ -7,7 +7,8 @@ System-Bundle: yes
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.credentialsstorage,
- net.java.sip.communicator.util
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.resources
 Export-Package: net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.aimconstants,
  net.java.sip.communicator.service.protocol.event,

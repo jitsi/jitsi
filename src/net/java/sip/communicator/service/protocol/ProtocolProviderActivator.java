@@ -4,12 +4,12 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.protocol;
+package net.java.sip.communicator.service.protocol;
 
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -51,6 +51,11 @@ public class ProtocolProviderActivator
     private static ConfigurationService configurationService;
 
     /**
+     * The resource service through which we obtain localized strings.
+     */
+    private static ResourceManagementService resourceService;
+
+    /**
      * The <code>SingleCallInProgressPolicy</code> making sure that the
      * <code>Call</code>s accessible in the <code>BundleContext</code> of this
      * activator will obey to the rule that a new <code>Call</code> should put
@@ -77,6 +82,27 @@ public class ProtocolProviderActivator
                             ConfigurationService.class.getName()));
         }
         return configurationService;
+    }
+
+    /**
+     * Gets the <code>ResourceManagementService</code> to be used by the classes
+     * in the bundle represented by <code>ProtocolProviderActivator</code>.
+     * 
+     * @return the <code>ResourceManagementService</code> to be used by the
+     *          classes in the bundle represented by
+     *          <code>ProtocolProviderActivator</code>
+     */
+    public static ResourceManagementService getResourceService()
+    {
+        if (resourceService == null)
+        {
+            resourceService
+                = (ResourceManagementService)
+                    bundleContext.getService(
+                        bundleContext.getServiceReference(
+                            ResourceManagementService.class.getName()));
+        }
+        return resourceService;
     }
 
     /**
@@ -130,7 +156,7 @@ public class ProtocolProviderActivator
 
         accountManagerServiceRegistration =
             bundleContext.registerService(AccountManager.class.getName(),
-                new AccountManagerImpl(bundleContext), null);
+                new AccountManager(bundleContext), null);
 
         singleCallInProgressPolicy =
             new SingleCallInProgressPolicy(bundleContext);

@@ -34,6 +34,7 @@ package net.java.sip.communicator.service.protocol;
  *
  * @author Emil Ivov
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public class CallPeerState
 {
@@ -51,8 +52,10 @@ public class CallPeerState
      * newly created call peer that don't yet have an attributed call
      * state.
      */
-    public static final CallPeerState UNKNOWN =
-                                        new CallPeerState(_UNKNOWN);
+    public static final CallPeerState UNKNOWN
+        = new CallPeerState(_UNKNOWN,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.UNKNOWN_STATUS"));
 
     /**
      * This constant value indicates a String representation of the
@@ -68,8 +71,10 @@ public class CallPeerState
      * this state the moment we receive a "100 Trying" request from a proxy or
      * the remote side.
      */
-    public static final CallPeerState INITIATING_CALL =
-                                        new CallPeerState(_INITIATING_CALL);
+    public static final CallPeerState INITIATING_CALL
+        = new CallPeerState(_INITIATING_CALL,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.INITIATING_CALL_STATUS"));
 
     /**
      * This constant value indicates a String representation of the CONNECTING
@@ -83,8 +88,10 @@ public class CallPeerState
      * CONNECTING - which means that a network connection to that peer
      * is currently being established.
      */
-    public static final CallPeerState CONNECTING =
-                                        new CallPeerState(_CONNECTING);
+    public static final CallPeerState CONNECTING
+        = new CallPeerState(_CONNECTING,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.CONNECTING_STATUS"));
 
     /**
      * This constant value indicates a String representation of the CONNECTING
@@ -98,16 +105,20 @@ public class CallPeerState
      * CONNECTING - which means that a network connection to that peer
      * is currently being established.
      */
-    public static final CallPeerState CONNECTING_WITH_EARLY_MEDIA =
-                       new CallPeerState( _CONNECTING_WITH_EARLY_MEDIA );
+    public static final CallPeerState CONNECTING_WITH_EARLY_MEDIA
+        = new CallPeerState( _CONNECTING_WITH_EARLY_MEDIA,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.CONNECTING_EARLY_MEDIA_STATUS"));
 
     /**
      * This constant value indicates that the state of the  incoming call peer
      * is CONNECTING - which means that a network connection to that peer
      * is currently being established.
      */
-    public static final CallPeerState CONNECTING_INCOMING_CALL =
-                       new CallPeerState( _CONNECTING_WITH_EARLY_MEDIA );
+    public static final CallPeerState CONNECTING_INCOMING_CALL
+        = new CallPeerState( _CONNECTING_WITH_EARLY_MEDIA,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.CONNECTING_STATUS"));
 
     /**
      * This constant value indicates that the state of the incoming call peer
@@ -116,8 +127,10 @@ public class CallPeerState
      * the other peer we can still can hear media coming from the 
      * server for example.
      */
-    public static final CallPeerState CONNECTING_INCOMING_CALL_WITH_MEDIA =
-                       new CallPeerState( _CONNECTING_WITH_EARLY_MEDIA );
+    public static final CallPeerState CONNECTING_INCOMING_CALL_WITH_MEDIA
+        = new CallPeerState( _CONNECTING_WITH_EARLY_MEDIA,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.CONNECTING_EARLY_MEDIA_STATUS"));
 
     /**
      * This constant value indicates a String representation of the
@@ -133,8 +146,10 @@ public class CallPeerState
      * peer has been established and peer's phone is currently alerting the
      * remote user of the current call.
      */
-    public static final CallPeerState ALERTING_REMOTE_SIDE =
-                                new CallPeerState(_ALERTING_REMOTE_SIDE);
+    public static final CallPeerState ALERTING_REMOTE_SIDE
+        = new CallPeerState(_ALERTING_REMOTE_SIDE,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.RINGING_STATUS"));
 
     /**
      * This constant value indicates a String representation of the
@@ -150,7 +165,9 @@ public class CallPeerState
      * graphical alert (the phone is ringing).
      */
     public static final CallPeerState INCOMING_CALL
-                                         = new CallPeerState(_INCOMING_CALL);
+         = new CallPeerState(_INCOMING_CALL,
+             ProtocolProviderActivator.getResourceService().getI18NString(
+                 "service.gui.INCOMING_CALL_STATUS"));
 
     /**
      * This constant value indicates a String representation of the CONNECTED
@@ -165,7 +182,9 @@ public class CallPeerState
      * peer.
      */
     public static final CallPeerState CONNECTED
-                                       = new CallPeerState(_CONNECTED);
+        = new CallPeerState(_CONNECTED,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.CONNECTED_STATUS"));
 
     /**
      * This constant value indicates a String representation of the DISCONNECTED
@@ -179,8 +198,10 @@ public class CallPeerState
      * is DISCONNECTED - which means that this peer is not participating :)
      * in the call any more.
      */
-    public static final CallPeerState DISCONNECTED    =
-                                      new CallPeerState(_DISCONNECTED);
+    public static final CallPeerState DISCONNECTED
+        = new CallPeerState(_DISCONNECTED,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.DISCONNECTED_STATUS"));
 
     /**
      * This constant value indicates a String representation of the REFERRED
@@ -194,7 +215,10 @@ public class CallPeerState
      * is REFERRED - which means that this peer has transfered us to another
      * peer.
      */
-    public static final CallPeerState REFERRED = new CallPeerState(_REFERRED);
+    public static final CallPeerState REFERRED
+        = new CallPeerState(_REFERRED,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.REFERRED_STATUS"));
 
     /**
      * This constant value indicates a String representation of the BUSY
@@ -210,7 +234,9 @@ public class CallPeerState
      * because they were already in a call).
      */
     public static final CallPeerState BUSY
-                                            = new CallPeerState(_BUSY);
+        = new CallPeerState(_BUSY,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.BUSY_STATUS"));
 
     /**
      * This constant value indicates a String representation of the FAILED
@@ -224,7 +250,9 @@ public class CallPeerState
      * peer has failed for an unexpected reason.
      */
     public static final CallPeerState FAILED
-                                          = new CallPeerState(_FAILED);
+        = new CallPeerState(_FAILED,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.FAILED_STATUS"));
 
     /**
      * The constant value being a String representation of the ON_HOLD_LOCALLY
@@ -239,7 +267,9 @@ public class CallPeerState
      * locally put on hold.
      */
     public static final CallPeerState ON_HOLD_LOCALLY
-                                = new CallPeerState(_ON_HOLD_LOCALLY);
+        = new CallPeerState(_ON_HOLD_LOCALLY,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.LOCALLY_ON_HOLD_STATUS"));
 
     /**
      * The constant value being a String representation of the ON_HOLD_MUTUALLY
@@ -254,7 +284,9 @@ public class CallPeerState
      * mutually - locally and remotely - put on hold.
      */
     public static final CallPeerState ON_HOLD_MUTUALLY
-                                = new CallPeerState(_ON_HOLD_MUTUALLY);
+        = new CallPeerState(_ON_HOLD_MUTUALLY,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.MUTUALLY_ON_HOLD_STATUS"));
 
     /**
      * The constant value being a String representation of the ON_HOLD_REMOTELY
@@ -270,7 +302,9 @@ public class CallPeerState
      * remotely put on hold.
      */
     public static final CallPeerState ON_HOLD_REMOTELY
-                                = new CallPeerState(_ON_HOLD_REMOTELY);
+        = new CallPeerState(_ON_HOLD_REMOTELY,
+            ProtocolProviderActivator.getResourceService().getI18NString(
+                "service.gui.REMOTELY_ON_HOLD_STATUS"));
 
     /**
      * Determines whether a specific <tt>CallPeerState</tt> value
@@ -297,17 +331,25 @@ public class CallPeerState
     private String callStateStr;
 
     /**
+     * A localized string representation of this peer's Call State.
+     */
+    private String callStateLocalizedStr;
+
+    /**
      * Create a peer call state object with a value corresponding to the
      * specified string.
      * @param callPeerState a string representation of the state.
+     * @param callStateLocalizedStr the localized string representing this state
      */
-    private CallPeerState(String callPeerState)
+    private CallPeerState(  String callPeerState,
+                            String callStateLocalizedStr)
     {
         this.callStateStr = callPeerState;
+        this.callStateLocalizedStr = callStateLocalizedStr;
     }
 
     /**
-     * Returns a String representation of tha CallPeerState.
+     * Returns a String representation of the CallPeerState.
      *
      * @return A string value (one of the _BUSY, _CALLING, _CONNECTED,
      * _CONNECTING, _DISCONNECTED, _FAILED, _RINGING constants) representing
@@ -316,6 +358,16 @@ public class CallPeerState
     public String getStateString()
     {
         return callStateStr;
+    }
+
+    /**
+     * Returns a localized String representation of the CallPeerState.
+     *
+     * @return a localized String representation of the CallPeerState
+     */
+    public String getLocalizedStateString()
+    {
+        return callStateLocalizedStr;
     }
 
     /**
