@@ -131,15 +131,14 @@ public class CallPeerAdapter
                     renderer.getCallDialog().startCallTimer();
 
                 // Enabling all buttons when the call is connected.
-                renderer.getCallDialog().enableButtons(true);
-                renderer.getCallDialog().updateHoldButtonState();
+                renderer.getCallDialog().enableButtons();
             }
             else
             {
                 renderer.setOnHold(false);
                 renderer.getCallDialog().updateHoldButtonState();
                 // Enabling all buttons when the call get back from hold
-                renderer.getCallDialog().enableButtons(true);
+                renderer.getCallDialog().enableButtonsWhileOnHold(false);
             }
         }
         else if (newState == CallPeerState.DISCONNECTED)
@@ -155,14 +154,7 @@ public class CallPeerAdapter
         else if (CallPeerState.isOnHold(newState))
         {
             renderer.setOnHold(true);
-            renderer.getCallDialog().enableButtons(false);
-            renderer.getCallDialog().updateHoldButtonState();
-        }
-        else if (!CallPeerState.isOnHold(newState) &&
-                !newStateString.equals(CallPeerState.CONNECTING))
-        {
-            renderer.setOnHold(false);
-            renderer.getCallDialog().enableButtons(true);
+            renderer.getCallDialog().enableButtonsWhileOnHold(true);
             renderer.getCallDialog().updateHoldButtonState();
         }
 
