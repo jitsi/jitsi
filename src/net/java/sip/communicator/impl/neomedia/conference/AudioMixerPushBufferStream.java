@@ -397,6 +397,7 @@ class AudioMixerPushBufferStream
         catch (UnsupportedFormatException ufex)
         {
             IOException ioex = new IOException();
+
             ioex.initCause(ufex);
             throw ioex;
         }
@@ -517,8 +518,7 @@ class AudioMixerPushBufferStream
                             inputStreamFormat);
         }
 
-        audioMixer
-            .read(
+        audioMixer.read(
                 inputStream,
                 buffer,
                 inputStreamDesc.inputDataSourceDesc.inputDataSource);
@@ -545,8 +545,7 @@ class AudioMixerPushBufferStream
                 && !lastReadInputFormat.matches(inputFormat))
         {
             lastReadInputFormat = inputFormat;
-            logger
-                .trace(
+            logger.trace(
                     "Read inputSamples in different format "
                         + lastReadInputFormat);
         }
@@ -567,8 +566,7 @@ class AudioMixerPushBufferStream
                 && (inputChannels != Format.NOT_SPECIFIED)
                 && (outputChannels != Format.NOT_SPECIFIED))
         {
-            logger
-                .error(
+            logger.error(
                     "Read inputFormat with channels "
                         + inputChannels
                         + " while expected outputFormat channels is "
@@ -584,8 +582,7 @@ class AudioMixerPushBufferStream
         double outputSampleRate = outputFormat.getSampleRate();
 
         if (inputSampleRate != outputSampleRate)
-            logger
-                .warn(
+            logger.warn(
                     "Read inputFormat with sampleRate "
                         + inputSampleRate
                         + " while expected outputFormat sampleRate is "
@@ -602,8 +599,7 @@ class AudioMixerPushBufferStream
 
             if (logger.isTraceEnabled()
                     && (inputSampleSizeInBits != outputSampleSizeInBits))
-                logger
-                    .trace(
+                logger.trace(
                         "Read inputFormat with sampleSizeInBits "
                             + inputSampleSizeInBits
                             + ". Will convert to sampleSizeInBits"
@@ -754,8 +750,8 @@ class AudioMixerPushBufferStream
                          */
                         if (inputSampleDesc.getTimeStamp()
                                 == Buffer.TIME_UNKNOWN)
-                            inputSampleDesc
-                                .setTimeStamp(inputStreamBuffer.getTimeStamp());
+                            inputSampleDesc.setTimeStamp(
+                                    inputStreamBuffer.getTimeStamp());
                     }
                     else if (logger.isTraceEnabled())
                         inputStreamDesc.nonContributingReadCount++;
@@ -768,8 +764,7 @@ class AudioMixerPushBufferStream
                         && (inputStreamDesc.nonContributingReadCount
                                 >= TRACE_NON_CONTRIBUTING_READ_COUNT))
                 {
-                    logger
-                        .trace(
+                    logger.trace(
                             "Failed to read actual inputSamples more than "
                                 + inputStreamDesc
                                     .nonContributingReadCount
@@ -893,7 +888,10 @@ class AudioMixerPushBufferStream
     {
         InputStreamDesc[] oldValue;
         InputStreamDesc[] newValue
-            = inputStreams.toArray(new InputStreamDesc[inputStreams.size()]);
+            = (null == inputStreams)
+                ? null
+                : inputStreams.toArray(
+                        new InputStreamDesc[inputStreams.size()]);
 
         synchronized (inputStreamsSyncRoot)
         {
@@ -906,7 +904,11 @@ class AudioMixerPushBufferStream
 
         if (valueIsChanged)
         {
-            setTransferHandler(oldValue, null);
+            if (oldValue != null)
+                setTransferHandler(oldValue, null);
+
+            if (newValue == null)
+                return;
 
             boolean skippedForTransferHandler = false;
 
@@ -929,8 +931,7 @@ class AudioMixerPushBufferStream
 
                     inputStreamDesc.setInputStream(cachingInputStream);
                     if (logger.isTraceEnabled())
-                        logger
-                            .trace(
+                        logger.trace(
                                 "Created CachingPushBufferStream"
                                     + " with hashCode "
                                     + cachingInputStream.hashCode()
@@ -949,15 +950,13 @@ class AudioMixerPushBufferStream
                 int difference = newValueLength - oldValueLength;
 
                 if (difference > 0)
-                    logger
-                        .trace(
+                    logger.trace(
                             "Added "
                                 + difference
                                 + " inputStream(s) and the total is "
                                 + newValueLength);
                 else if (difference < 0)
-                    logger
-                        .trace(
+                    logger.trace(
                             "Removed "
                                 + difference
                                 + " inputStream(s) and the total is "

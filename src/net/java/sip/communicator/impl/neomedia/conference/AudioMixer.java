@@ -450,6 +450,12 @@ public class AudioMixer
                 for (InputDataSourceDesc inputDataSourceDesc : inputDataSources)
                     inputDataSourceDesc.disconnect();
 
+                /*
+                 * XXX Make the outputStream to release the inputStreams.
+                 * Otherwise, the PushBufferStream ones which have been wrapped
+                 * into CachingPushBufferStream may remaing waiting.
+                 */
+                outputStream.setInputStreams(null);
                 outputStream = null;
             }
         }

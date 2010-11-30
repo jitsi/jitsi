@@ -27,18 +27,11 @@ import javax.media.protocol.*;
  * <tt>CaptureDevice</tt>.
  * </p>
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class CachingPushBufferStream
     implements PushBufferStream
 {
-
-    /**
-     * The <tt>Logger</tt> used by the <tt>CachingPushBufferStream</tt> class
-     * and its instances for logging output.
-     */
-//    private static final Logger logger
-//        = Logger.getLogger(CachingPushBufferStream.class);
 
     /**
      * The default length in milliseconds of the buffering to be performed by
@@ -92,6 +85,11 @@ public class CachingPushBufferStream
      * respect to the maximum number of data units it provides in a single push.
      */
     private final PushBufferStream stream;
+
+    /**
+     * The <tt>BufferTransferHandler</tt> set on {@link #stream}.
+     */
+    private BufferTransferHandler transferHandler;
 
     /**
      * Initializes a new <tt>CachingPushBufferStream</tt> instance which is
@@ -162,8 +160,8 @@ public class CachingPushBufferStream
      * <tt>PushBufferStream</tt> when the cache of this instance is fully read;
      * otherwise, returns <tt>false</tt>.
      *
-     * @return <tt> if this <tt>PushBufferStream</tt> has reached the end of the
-     * content it makes available; otherwise, <tt>false</tt>
+     * @return <tt>true</tt> if this <tt>PushBufferStream</tt> has reached the
+     * end of the content it makes available; otherwise, <tt>false</tt>
      */
     public boolean endOfStream()
     {
@@ -297,12 +295,9 @@ public class CachingPushBufferStream
                     Object[] newControls = new Object[controls.length + 1];
 
                     newControls[0] = bufferControl;
-                    System
-                        .arraycopy(
-                            controls,
-                            0,
-                            newControls,
-                            1,
+                    System.arraycopy(
+                            controls, 0,
+                            newControls, 1,
                             controls.length);
                 }
             }
@@ -558,10 +553,12 @@ public class CachingPushBufferStream
      */
     public void setTransferHandler(BufferTransferHandler transferHandler)
     {
-        stream.setTransferHandler(
-            (transferHandler == null)
-                ? null
-                : new StreamSubstituteBufferTransferHandler(
+        synchronized (cache)
+        {
+            BufferTransferHandler substituteTransferHandler
+                = (transferHandler == null)
+                    ? null
+                    : new StreamSubstituteBufferTransferHandler(
                             transferHandler,
                             stream,
                             this)
@@ -571,11 +568,19 @@ public class CachingPushBufferStream
                             {
                                 if (CachingPushBufferStream.this.stream
                                         == stream)
-                                    CachingPushBufferStream.this.transferData();
+                                {
+                                    CachingPushBufferStream.this.transferData(
+                                            this);
+                                }
 
                                 super.transferData(stream);
                             }
-                        });
+                        };
+
+            stream.setTransferHandler(substituteTransferHandler);
+            this.transferHandler = substituteTransferHandler;
+            cache.notifyAll();
+        }
     }
 
     /**
@@ -584,14 +589,22 @@ public class CachingPushBufferStream
      * accept a new read, blocks the calling thread until the cache accepts a
      * new read and data is read from the wrapped <tt>PushBufferStream</tt> into
      * the cache.
+     *
+     * @param transferHandler the <tt>BufferTransferHandler</tt> which has been
+     * notified
      */
-    protected void transferData()
+    protected void transferData(BufferTransferHandler transferHandler)
     {
         synchronized (cache)
         {
             boolean interrupted = false;
 
-            while (!canWriteInCache())
+            while (true)
+            {
+                if (this.transferHandler != transferHandler)
+                    return;
+                if (canWriteInCache())
+                    break;
                 try
                 {
                     cache.wait();
@@ -600,6 +613,7 @@ public class CachingPushBufferStream
                 {
                     interrupted = true;
                 }
+            }
             if (interrupted)
                 Thread.currentThread().interrupt();
 
