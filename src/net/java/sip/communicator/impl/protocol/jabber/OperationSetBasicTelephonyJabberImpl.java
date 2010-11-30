@@ -451,7 +451,41 @@ public class OperationSetBasicTelephonyJabberImpl
     {
         //we only handle JingleIQ-s
         if( ! (packet instanceof JingleIQ) )
+        {
+            CallPeerJabberImpl callPeer =
+                activeCallsRepository.findCallPeerBySessInitPacketID(
+                    packet.getPacketID());
+
+            if(callPeer != null)
+            {
+                /* packet is a response to a Jingle call but is not a JingleIQ
+                 * so it is for sure an error (peer does not support Jingle or
+                 * does not belong to our roster)
+                 */
+                XMPPError error = packet.getError();
+
+                if (error != null)
+                {
+                    logger.error("Received an error: code=" + error.getCode()
+                            + " message=" + error.getMessage());
+                    String message = "Service unavailable";
+                    Roster roster = getProtocolProvider().getConnection().
+                        getRoster();
+
+                    if(!roster.contains(packet.getFrom()))
+                    {
+                        message += ": try adding the contact to your contact " +
+                                "list first.";
+                    }
+
+                    if (error.getMessage() != null)
+                        message = error.getMessage();
+
+                    callPeer.setState(CallPeerState.FAILED, message);
+                }
+            }
             return false;
+        }
 
         JingleIQ jingleIQ = (JingleIQ)packet;
 

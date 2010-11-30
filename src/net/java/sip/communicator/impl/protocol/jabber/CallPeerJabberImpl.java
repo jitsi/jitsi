@@ -457,6 +457,18 @@ public class CallPeerJabberImpl
     }
 
     /**
+     * Returns the IQ ID of the Jingle session-initiate packet associated with
+     * this call.
+     *
+     * @return the IQ ID of the Jingle session-initiate packet associated with
+     * this call.
+     */
+    public String getSessInitID()
+    {
+        return sessionInitIQ.getPacketID();
+    }
+
+    /**
      * Puts this peer into a {@link CallPeerState#DISCONNECTED}, indicating a
      * reason to the user, if there is one.
      *
