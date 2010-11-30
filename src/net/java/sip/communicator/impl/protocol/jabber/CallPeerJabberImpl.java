@@ -815,6 +815,7 @@ public class CallPeerJabberImpl
         try
         {
             getMediaHandler().reinitContent(remoteContent.getName(), senders);
+            getMediaHandler().start();
         }
         catch(Exception e)
         {
