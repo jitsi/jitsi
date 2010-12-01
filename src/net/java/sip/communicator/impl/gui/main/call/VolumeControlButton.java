@@ -74,13 +74,10 @@ public class VolumeControlButton
             public void stateChanged(ChangeEvent e)
             {
                 JSlider source = (JSlider) e.getSource();
-                if (!source.getValueIsAdjusting())
-                {
-                    int volume = source.getValue();
+                int volume = source.getValue();
 
-                    // Set the volume to the volume control.
-                    volumeControl.setVolume((float) volume/MULTIPLIER);
-                }
+                // Set the volume to the volume control.
+                volumeControl.setVolume((float) volume/MULTIPLIER);
             }
         });
 
