@@ -790,6 +790,25 @@ public class ProtocolProviderServiceJabberImpl
                 RegistrationState.REGISTERED,
                 RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
 
+            /* The initial presence message is sent by smack stack and does not
+             * include priority information. In case the original status is
+             * AVAILABLE, we will not update our presence information (such as
+             * our priority) when we registered.
+             */
+            OperationSetPersistentPresenceJabberImpl opSet =
+                (OperationSetPersistentPresenceJabberImpl)
+                this.getOperationSet(OperationSetPersistentPresence.class);
+
+            try
+            {
+                opSet.publishPresenceStatus(getJabberStatusEnum().getStatus(
+                            JabberStatusEnum.AVAILABLE), "");
+            }
+            catch(Exception e)
+            {
+                logger.error("Failed to publish presence status");
+            }
+
             return ConnectState.STOP_TRYING;
         }
         else

@@ -158,7 +158,7 @@ public class StatusMessageMenu
             }
             catch (OperationFailedException e1)
             {
-                
+
                 if (e1.getErrorCode()
                     == OperationFailedException.GENERAL_ERROR)
                 {
@@ -169,16 +169,16 @@ public class StatusMessageMenu
                 }
                 else if (e1.getErrorCode()
                         == OperationFailedException
-                            .NETWORK_FAILURE) 
+                            .NETWORK_FAILURE)
                 {
                     logger.error(
                         "Network failure occured while "
                         + "publishing presence status.",
                         e1);
-                } 
+                }
                 else if (e1.getErrorCode()
                         == OperationFailedException
-                            .PROVIDER_NOT_REGISTERED) 
+                            .PROVIDER_NOT_REGISTERED)
                 {
                     logger.error(
                         "Protocol provider must be"

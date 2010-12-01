@@ -210,7 +210,46 @@ public class OperationSetBasicTelephonyJabberImpl
 
         // we determine on which resource the remote user is connected if the
         // resource isn't already provided
-        String fullCalleeURI = getFullCalleeURI(calleeAddress);
+        String fullCalleeURI = null; //getFullCalleeURI(calleeAddress);
+
+        DiscoverInfo di = null;
+        int bestPriority = 0;
+
+        Iterator<Presence> it =
+            getProtocolProvider().getConnection().getRoster().getPresences(
+                calleeAddress);
+
+        // choose the resource that has the highest priority AND support Jingle
+        while(it.hasNext())
+        {
+            Presence presence = it.next();
+            String calleeURI = presence.getFrom();
+            int priority = (presence.getPriority() == Integer.MIN_VALUE) ? 0 :
+                presence.getPriority();
+
+            try
+            {
+                // check if the remote client supports telephony.
+                DiscoverInfo discoverInfo =
+                    protocolProvider.getDiscoveryManager().
+                        discoverInfo(calleeURI);
+
+                if (discoverInfo.containsFeature(
+                        ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE))
+                {
+                    if(priority > bestPriority)
+                    {
+                        bestPriority = priority;
+                        di = discoverInfo;
+                        fullCalleeURI = calleeURI;
+                    }
+                }
+            }
+            catch (XMPPException ex)
+            {
+                logger.warn("could not retrieve info for " + fullCalleeURI, ex);
+            }
+        }
 
         /* in case we figure that calling people without a resource id is
            impossible, we'll have to uncomment the following lines. keep in mind
@@ -224,36 +263,27 @@ public class OperationSetBasicTelephonyJabberImpl
         }
         */
 
-        DiscoverInfo di = null;
-
-        try
+        if(di != null)
         {
-            // check if the remote client supports telephony.
-            di = protocolProvider.getDiscoveryManager()
-                    .discoverInfo(fullCalleeURI);
-
-            if (di.containsFeature(
-                    ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE))
-            {
-                if (logger.isInfoEnabled())
-                    logger.info(fullCalleeURI + ": jingle supported ");
-            }
-            else
-            {
-                if (logger.isInfoEnabled())
-                    logger.info(calleeAddress + ": jingle not supported ??? ");
-                throw new OperationFailedException(
-                        "Failed to create OutgoingJingleSession.\n"
-                            + fullCalleeURI + " does not support jingle",
-                        OperationFailedException.INTERNAL_ERROR);
-            }
+            if (logger.isInfoEnabled())
+                logger.info(fullCalleeURI + ": jingle supported ");
         }
-        catch (XMPPException ex)
+        else
         {
-            logger.warn("could not retrieve info for " + fullCalleeURI, ex);
+            if (logger.isInfoEnabled())
+                logger.info(calleeAddress + ": jingle not supported ?");
+            throw new OperationFailedException(
+                    "Failed to create OutgoingJingleSession.\n"
+                        + fullCalleeURI + " does not support jingle",
+                    OperationFailedException.INTERNAL_ERROR);
         }
 
-        CallPeerJabberImpl peer;
+        if(logger.isInfoEnabled())
+        {
+            logger.info("Choose one is: " + fullCalleeURI + " " + bestPriority);
+        }
+
+        CallPeerJabberImpl peer = null;
 
         // initiate call
         try

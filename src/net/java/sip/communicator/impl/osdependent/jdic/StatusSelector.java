@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
 /**
  * The <tt>StatusSelector</tt> is a submenu which allows to select a status for
  * a protocol provider which supports the OperationSetPresence.
- * 
+ *
  * @author Nicolas Chamouard
  * @author Lubomir Marinov
  */
@@ -38,7 +38,7 @@ public class StatusSelector
      * The presence status
      */
     private final OperationSetPresence presence;
-    
+
     /**
      * The logger for this class.
      */
@@ -48,7 +48,7 @@ public class StatusSelector
 
     /**
      * Creates an instance of StatusSelector
-     * 
+     *
      * @param jdicSystray a reference of the parent <tt>Systray</tt>
      * @param provider the protocol provider
      * @param presence the presence status
@@ -130,7 +130,7 @@ public class StatusSelector
 
     /**
      * Change the status of the protocol according to the menu item selected
-     * 
+     *
      * @param evt the event containing the menu item name
      */
     public void actionPerformed(ActionEvent evt)
@@ -200,7 +200,7 @@ public class StatusSelector
     private class PublishPresenceStatusThread extends Thread
     {
         private final PresenceStatus status;
-        
+
         public PublishPresenceStatusThread(PresenceStatus status)
         {
             this.status = status;

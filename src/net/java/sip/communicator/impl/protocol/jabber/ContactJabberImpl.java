@@ -290,7 +290,6 @@ public class ContactJabberImpl
         return ssclCallback.findContactGroup(this);
     }
 
-
     /**
      * Returns a reference to the protocol provider that created the contact.
      * @return a refererence to an instance of the ProtocolProviderService

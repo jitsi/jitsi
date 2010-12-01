@@ -45,7 +45,7 @@ public class OperationSetPersistentPresenceJabberImpl
     private String currentStatusMessage = "";
 
     /**
-     * The presence status that we were last notified of etnering.
+     * The presence status that we were last notified of entering.
      * The initial one is OFFLINE
      */
     private PresenceStatus currentStatus;
@@ -56,7 +56,9 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     private static Map<String, Presence.Mode> scToJabberModesMappings
         = new Hashtable<String, Presence.Mode>();
-    static{
+
+    static
+    {
         scToJabberModesMappings.put(JabberStatusEnum.AWAY,
                                   Presence.Mode.away);
         scToJabberModesMappings.put(JabberStatusEnum.DO_NOT_DISTURB,
@@ -155,7 +157,6 @@ public class OperationSetPersistentPresenceJabberImpl
     {
         return ssContactList.createVolatileContact(id);
     }
-
 
     /**
      * Creates and returns a unresolved contact from the specified
@@ -327,7 +328,7 @@ public class OperationSetPersistentPresenceJabberImpl
 
     /**
      * Requests the provider to enter into a status corresponding to the
-     * specified paramters.
+     * specified parameters.
      *
      * @param status the PresenceStatus as returned by
      *   getRequestableStatusSet
@@ -341,9 +342,10 @@ public class OperationSetPersistentPresenceJabberImpl
      *   publishing the status fails due to a network error.
      */
     public void publishPresenceStatus(PresenceStatus status,
-                                      String statusMessage) throws
-        IllegalArgumentException, IllegalStateException,
-        OperationFailedException
+                                      String statusMessage)
+        throws IllegalArgumentException,
+               IllegalStateException,
+               OperationFailedException
     {
         assertConnected();
 
@@ -688,6 +690,12 @@ public class OperationSetPersistentPresenceJabberImpl
         }
     }
 
+    /**
+     * Fires provider status change.
+     *
+     * @param oldStatus old status
+     * @param newStatus new status
+     */
     public void fireProviderStatusChangeEvent(
         PresenceStatus oldStatus,
         PresenceStatus newStatus)
@@ -850,28 +858,28 @@ public class OperationSetPersistentPresenceJabberImpl
 
         /**
          * Not used here.
-         * @param addresses
+         * @param addresses list of addresses added
          */
         public void entriesAdded(Collection<String> addresses)
         {}
 
         /**
          * Not used here.
-         * @param addresses
+         * @param addresses list of addresses updated
          */
         public void entriesUpdated(Collection<String> addresses)
         {}
 
         /**
          * Not used here.
-         * @param addresses
+         * @param addresses list of addresses deleted
          */
         public void entriesDeleted(Collection<String> addresses)
         {}
 
         /**
          * Received on resource status change.
-         * @param presence
+         * @param presence presence that has changed
          */
         public void presenceChanged(Presence presence)
         {
@@ -1023,7 +1031,7 @@ public class OperationSetPersistentPresenceJabberImpl
 
         /**
          * Process packets.
-         * @param packet
+         * @param packet packet received to be processed
          */
         public void processPacket(Packet packet)
         {
@@ -1077,7 +1085,8 @@ public class OperationSetPersistentPresenceJabberImpl
                             logger.info("Sending Rejected Subscription");
                     }
 
-                    Presence responsePacket = new Presence(responsePresenceType);
+                    Presence responsePacket = new Presence(
+                            responsePresenceType);
 
                     responsePacket.setTo(fromID);
                     parentProvider.getConnection().sendPacket(responsePacket);

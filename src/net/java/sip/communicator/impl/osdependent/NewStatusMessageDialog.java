@@ -17,8 +17,8 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>NewStatusMessageDialog</tt> is the dialog containing the form for
- * changing the status message. 
- * 
+ * changing the status message.
+ *
  * @author Yana Stamcheva
  */
 public class NewStatusMessageDialog
@@ -36,7 +36,7 @@ public class NewStatusMessageDialog
 
     /**
      * Creates an instance of <tt>NewStatusMessageDialog</tt>.
-     * 
+     *
      * @param protocolProvider the <tt>ProtocolProviderService</tt>.
      */
     public NewStatusMessageDialog (ProtocolProviderService protocolProvider)
@@ -46,7 +46,7 @@ public class NewStatusMessageDialog
         this.init();
         pack();
     }
-    
+
     /**
      * Initializes the <tt>NewStatusMessageDialog</tt> by adding the buttons,
      * fields, etc.
@@ -216,7 +216,7 @@ public class NewStatusMessageDialog
             }
             catch (OperationFailedException e1)
             {
-                
+
                 if (e1.getErrorCode()
                     == OperationFailedException.GENERAL_ERROR)
                 {
@@ -227,16 +227,16 @@ public class NewStatusMessageDialog
                 }
                 else if (e1.getErrorCode()
                         == OperationFailedException
-                            .NETWORK_FAILURE) 
+                            .NETWORK_FAILURE)
                 {
                     logger.error(
                         "Network failure occured while "
                         + "publishing presence status.",
                         e1);
-                } 
+                }
                 else if (e1.getErrorCode()
                         == OperationFailedException
-                            .PROVIDER_NOT_REGISTERED) 
+                            .PROVIDER_NOT_REGISTERED)
                 {
                     logger.error(
                         "Protocol provider must be"

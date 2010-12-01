@@ -420,7 +420,7 @@ public class AccountStatusPanel
      * @param g the <tt>Graphics</tt> object used for painting
      */
     public void paintComponent(Graphics g)
-    { 
+    {
         super.paintComponent(g);
 
         if (logoBgImage != null)

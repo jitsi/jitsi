@@ -34,6 +34,11 @@ public class PresenceStatusMenu
     extends StatusSelectorMenu
     implements ActionListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final Logger logger = Logger.getLogger(PresenceStatusMenu.class);
 
     private Iterator<PresenceStatus> statusIterator;
