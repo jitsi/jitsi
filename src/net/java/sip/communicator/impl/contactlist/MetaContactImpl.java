@@ -1328,6 +1328,12 @@ public class MetaContactImpl
         addCapabilities(contact, opSets);
     }
 
+    /**
+     * Remove capabilities for the given contacts.
+     *
+     * @param contact the <tt>Contact</tt>, which capabilities we remove
+     * @param opSets the new updated set of operation sets
+     */
     private void removeCapabilities(Contact contact,
                                     Map<String, ? extends OperationSet> opSets)
     {
@@ -1352,8 +1358,8 @@ public class MetaContactImpl
     }
 
     /**
-     * Adds the capabilities of the given contact. 
-     * 
+     * Adds the capabilities of the given contact.
+     *
      * @param contact the <tt>Contact</tt>, which capabilities we add
      * @param opSets the map of operation sets supported by the contact
      */

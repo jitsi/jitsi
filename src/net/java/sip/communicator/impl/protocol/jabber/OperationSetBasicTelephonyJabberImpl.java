@@ -266,7 +266,7 @@ public class OperationSetBasicTelephonyJabberImpl
         if(di != null)
         {
             if (logger.isInfoEnabled())
-                logger.info(fullCalleeURI + ": jingle supported ");
+                logger.info(calleeAddress + ": jingle supported ");
         }
         else
         {
@@ -274,7 +274,7 @@ public class OperationSetBasicTelephonyJabberImpl
                 logger.info(calleeAddress + ": jingle not supported ?");
             throw new OperationFailedException(
                     "Failed to create OutgoingJingleSession.\n"
-                        + fullCalleeURI + " does not support jingle",
+                        + calleeAddress + " does not support jingle",
                     OperationFailedException.INTERNAL_ERROR);
         }
 
