@@ -210,10 +210,10 @@ public class OperationSetBasicTelephonyJabberImpl
 
         // we determine on which resource the remote user is connected if the
         // resource isn't already provided
-        String fullCalleeURI = null; //getFullCalleeURI(calleeAddress);
+        String fullCalleeURI = null;
 
         DiscoverInfo di = null;
-        int bestPriority = 0;
+        int bestPriority = -1;
 
         Iterator<Presence> it =
             getProtocolProvider().getConnection().getRoster().getPresences(
