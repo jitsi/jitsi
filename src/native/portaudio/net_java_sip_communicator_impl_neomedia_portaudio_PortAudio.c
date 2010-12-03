@@ -125,6 +125,7 @@ static void PortAudioStream_retain(PortAudioStream *stream);
 static const char *AUDIO_QUALITY_IMPROVEMENT_STRING_ID = "portaudio";
 #define LATENCY_HIGH net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_HIGH
 #define LATENCY_LOW net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_LOW
+#define LATENCY_UNSPECIFIED net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_UNSPECIFIED
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_free
@@ -397,17 +398,20 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1OpenStream
 
             if (stream->audioQualityImprovement)
             {
-                const PaStreamInfo *streamInfo;
-
                 AudioQualityImprovement_setSampleRate(
                     stream->audioQualityImprovement,
                     (int) sampleRate);
 
-                streamInfo = Pa_GetStreamInfo(stream->stream);
-                if (streamInfo)
+                if (stream->pseudoBlocking)
                 {
-                    stream->inputLatency
-                        = (jlong) (streamInfo->inputLatency * 1000);
+                    const PaStreamInfo *streamInfo;
+
+                    streamInfo = Pa_GetStreamInfo(stream->stream);
+                    if (streamInfo)
+                    {
+                        stream->inputLatency
+                                = (jlong) (streamInfo->inputLatency * 1000);
+                    }
                 }
             }
         }
@@ -472,20 +476,18 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1ReadStream
     {
         PortAudioStream *portAudioStream = (PortAudioStream *) stream;
         PaError errorCode;
+        jlong framesInBytes = frames * portAudioStream->inputFrameSize;
 
         if (portAudioStream->pseudoBlocking)
         {
-            PortAudioStream_retain(portAudioStream);
             if (Mutex_lock(portAudioStream->inputMutex))
                 errorCode = paInternalError;
             else
             {
                 jlong bytesRead = 0;
-                jlong totalBytesToRead
-                    = frames * portAudioStream->inputFrameSize;
 
                 errorCode = paNoError;
-                while (bytesRead < totalBytesToRead)
+                while (bytesRead < framesInBytes)
                 {
                     jlong bytesToRead;
 
@@ -502,7 +504,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1ReadStream
                         continue;
                     }
 
-                    bytesToRead = totalBytesToRead - bytesRead;
+                    bytesToRead = framesInBytes - bytesRead;
                     if (bytesToRead > portAudioStream->inputLength)
                         bytesToRead = portAudioStream->inputLength;
                     memcpy(
@@ -517,7 +519,20 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1ReadStream
                 }
                 Mutex_unlock(portAudioStream->inputMutex);
             }
-            PortAudioStream_release(portAudioStream);
+
+            /* Improve the audio quality of the input if possible. */
+            if ((paNoError == errorCode)
+                    && portAudioStream->audioQualityImprovement)
+            {
+                AudioQualityImprovement_process(
+                    portAudioStream->audioQualityImprovement,
+                    AUDIO_QUALITY_IMPROVEMENT_SAMPLE_ORIGIN_INPUT,
+                    portAudioStream->sampleRate,
+                    portAudioStream->sampleSizeInBits,
+                    portAudioStream->channels,
+                    portAudioStream->inputLatency,
+                    data, framesInBytes);
+            }
         }
         else
         {
@@ -535,7 +550,7 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1ReadStream
                         portAudioStream->sampleSizeInBits,
                         portAudioStream->channels,
                         portAudioStream->inputLatency,
-                        data, frames * portAudioStream->inputFrameSize);
+                        data, framesInBytes);
                 }
             }
         }
@@ -599,7 +614,14 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1WriteStream
     jbyte *bufferBytes;
     jbyte* data;
     PortAudioStream *portAudioStream;
+    jint i;
     PaError errorCode = paNoError;
+    jlong framesInBytes;
+    AudioQualityImprovement *audioQualityImprovement;
+    double sampleRate;
+    unsigned long sampleSizeInBits;
+    int channels;
+    jlong outputLatency;
 
     bufferBytes = (*env)->GetByteArrayElements(env, buffer, NULL);
     if (!bufferBytes)
@@ -607,72 +629,78 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1WriteStream
     data = bufferBytes + offset;
 
     portAudioStream = (PortAudioStream *) stream;
+    framesInBytes = frames * portAudioStream->outputFrameSize;
+    audioQualityImprovement = portAudioStream->audioQualityImprovement;
+    sampleRate = portAudioStream->sampleRate;
+    sampleSizeInBits = portAudioStream->sampleSizeInBits;
+    channels = portAudioStream->channels;
+    outputLatency = portAudioStream->outputLatency;
 
     if (portAudioStream->pseudoBlocking)
     {
-        PortAudioStream_retain(portAudioStream);
-        if (Mutex_lock(portAudioStream->outputMutex))
-            errorCode = paInternalError;
-        else
+        for (i = 0; i < numberOfWrites; i++)
         {
-            jlong bytesWritten = 0;
-            jlong totalBytesToWrite
-                = numberOfWrites * frames * portAudioStream->outputFrameSize;
-
-            errorCode = paNoError;
-            while (bytesWritten < totalBytesToWrite)
+            if (Mutex_lock(portAudioStream->outputMutex))
+                errorCode = paInternalError;
+            else
             {
-                size_t outputCapacity
-                    = portAudioStream->outputCapacity
-                        - portAudioStream->outputLength;
-                jlong bytesToWrite;
+                jlong bytesWritten = 0;
 
-                if (JNI_TRUE == portAudioStream->finished)
+                errorCode = paNoError;
+                while (bytesWritten < framesInBytes)
                 {
-                    errorCode = paStreamIsStopped;
-                    break;
-                }
-                if (outputCapacity < 1)
-                {
-                    ConditionVariable_wait(
-                        portAudioStream->outputCondVar,
-                        portAudioStream->outputMutex);
-                    continue;
-                }
+                    size_t outputCapacity
+                        = portAudioStream->outputCapacity
+                            - portAudioStream->outputLength;
+                    jlong bytesToWrite;
 
-                bytesToWrite = totalBytesToWrite - bytesWritten;
-                if (bytesToWrite > outputCapacity)
-                    bytesToWrite = outputCapacity;
-                memcpy(
-                    ((jbyte *) portAudioStream->output)
-                        + portAudioStream->outputLength,
-                    data + bytesWritten,
-                    bytesToWrite);
-                portAudioStream->outputLength += bytesToWrite;
-                bytesWritten += bytesToWrite;
+                    if (JNI_TRUE == portAudioStream->finished)
+                    {
+                        errorCode = paStreamIsStopped;
+                        break;
+                    }
+                    if (outputCapacity < 1)
+                    {
+                        ConditionVariable_wait(
+                            portAudioStream->outputCondVar,
+                            portAudioStream->outputMutex);
+                        continue;
+                    }
+
+                    bytesToWrite = framesInBytes - bytesWritten;
+                    if (bytesToWrite > outputCapacity)
+                        bytesToWrite = outputCapacity;
+                    memcpy(
+                        ((jbyte *) portAudioStream->output)
+                            + portAudioStream->outputLength,
+                        data + bytesWritten,
+                        bytesToWrite);
+
+                    portAudioStream->outputLength += bytesToWrite;
+                    bytesWritten += bytesToWrite;
+                }
+                Mutex_unlock(portAudioStream->outputMutex);
             }
-            Mutex_unlock(portAudioStream->outputMutex);
+
+            if (paNoError == errorCode)
+            {
+                if (audioQualityImprovement)
+                {
+                    AudioQualityImprovement_process(
+                        audioQualityImprovement,
+                        AUDIO_QUALITY_IMPROVEMENT_SAMPLE_ORIGIN_OUTPUT,
+                        sampleRate, sampleSizeInBits, channels,
+                        outputLatency,
+                        data, framesInBytes);
+                }
+
+                data += framesInBytes;
+            }
         }
-        PortAudioStream_release(portAudioStream);
     }
     else
     {
-        PaStream *paStream;
-        AudioQualityImprovement *audioQualityImprovement;
-        double sampleRate;
-        unsigned long sampleSizeInBits;
-        int channels;
-        jlong outputLatency;
-        long framesInBytes;
-        jint i;
-
-        paStream = portAudioStream->stream;
-        audioQualityImprovement = portAudioStream->audioQualityImprovement;
-        sampleRate = portAudioStream->sampleRate;
-        sampleSizeInBits = portAudioStream->sampleSizeInBits;
-        channels = portAudioStream->channels;
-        outputLatency = portAudioStream->outputLatency;
-        framesInBytes = frames * portAudioStream->outputFrameSize;
+        PaStream *paStream = portAudioStream->stream;
 
         for (i = 0; i < numberOfWrites; i++)
         {
@@ -893,13 +921,15 @@ PortAudio_fixInputParametersSuggestedLatency
 
         if (deviceInfo)
         {
-            if (inputParameters->suggestedLatency == LATENCY_LOW)
+            PaTime suggestedLatency = inputParameters->suggestedLatency;
+
+            if ((suggestedLatency == LATENCY_LOW)
+                    || (suggestedLatency == LATENCY_UNSPECIFIED))
             {
                 inputParameters->suggestedLatency
                     = deviceInfo->defaultLowInputLatency;
             }
-            else if ((inputParameters->suggestedLatency == LATENCY_HIGH)
-                    || (inputParameters->suggestedLatency == 0))
+            else if (suggestedLatency == LATENCY_HIGH)
             {
                 inputParameters->suggestedLatency
                     = deviceInfo->defaultHighInputLatency;
@@ -920,13 +950,15 @@ PortAudio_fixOutputParametersSuggestedLatency(
 
         if (deviceInfo)
         {
-            if (outputParameters->suggestedLatency == LATENCY_LOW)
+            PaTime suggestedLatency = outputParameters->suggestedLatency;
+
+            if ((suggestedLatency == LATENCY_LOW)
+                    || (suggestedLatency == LATENCY_UNSPECIFIED))
             {
                 outputParameters->suggestedLatency
                     = deviceInfo->defaultLowOutputLatency;
             }
-            else if ((outputParameters->suggestedLatency == LATENCY_HIGH)
-                    || (outputParameters->suggestedLatency == 0))
+            else if (suggestedLatency == LATENCY_HIGH)
             {
                 outputParameters->suggestedLatency
                     = deviceInfo->defaultHighOutputLatency;
@@ -1256,17 +1288,6 @@ PortAudioStream_pseudoBlockingCallback
         memcpy(inputInStream, input, inputLength);
         stream->inputLength += inputLength;
 
-        /* Improve the audio quality of the specified input if possible. */
-        if (stream->audioQualityImprovement)
-        {
-            AudioQualityImprovement_process(
-                stream->audioQualityImprovement,
-                AUDIO_QUALITY_IMPROVEMENT_SAMPLE_ORIGIN_INPUT,
-                stream->sampleRate, stream->sampleSizeInBits, stream->channels,
-                stream->inputLatency,
-                inputInStream, inputLength);
-        }
-
         ConditionVariable_notify(stream->inputCondVar);
         Mutex_unlock(stream->inputMutex);
     }
@@ -1285,19 +1306,9 @@ PortAudioStream_pseudoBlockingCallback
         if (availableOutputLength < outputLength)
         {
             memset(
-                ((jbyte *) stream->output) + availableOutputLength,
+                ((jbyte *) output) + availableOutputLength,
                 0,
                 outputLength - availableOutputLength);
-        }
-
-        if (stream->audioQualityImprovement)
-        {
-            AudioQualityImprovement_process(
-                stream->audioQualityImprovement,
-                AUDIO_QUALITY_IMPROVEMENT_SAMPLE_ORIGIN_OUTPUT,
-                stream->sampleRate, stream->sampleSizeInBits, stream->channels,
-                stream->outputLatency,
-                output, outputLength);
         }
 
         ConditionVariable_notify(stream->outputCondVar);

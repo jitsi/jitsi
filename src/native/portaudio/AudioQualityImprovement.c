@@ -561,7 +561,7 @@ AudioQualityImprovement_unload()
     if (AudioQualityImprovement_sharedInstancesMutex)
     {
         Mutex_free(AudioQualityImprovement_sharedInstancesMutex);
-        AudioQualityImprovement_sharedInstances = NULL;
+        AudioQualityImprovement_sharedInstancesMutex = NULL;
     }
 }
 
@@ -580,9 +580,8 @@ AudioQualityImprovement_updatePlayDelay(AudioQualityImprovement *aqi)
     else
     {
         playDelay
-            = (aqi->inputLatency + aqi->outputLatency)
-                / ((aqi->frameSize / sizeof(spx_int16_t))
-                    / (aqi->sampleRate / 1000));
+            = (aqi->outputLatency * aqi->sampleRate)
+                / ((aqi->frameSize / sizeof(spx_int16_t)) * 1000);
         if (playDelay < MIN_PLAY_DELAY_IN_FRAMES)
             playDelay = MIN_PLAY_DELAY_IN_FRAMES;
     }
