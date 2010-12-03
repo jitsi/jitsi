@@ -1013,6 +1013,11 @@ public class CallPeerSipImpl
                     + "to an INVITE request!", ex);
             getProtocolProvider().sayError(
                             serverTransaction, Response.NOT_ACCEPTABLE_HERE);
+
+            //do not continue processing - we already canceled the peer here
+            setState(CallPeerState.FAILED, ex.getMessage());
+
+            return;
         }
 
         try
