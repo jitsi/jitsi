@@ -317,6 +317,8 @@ public class PacketLoggingActivator
             jabberLoggingEnabled = false;
             rtpLoggingEnabled = false;
         }
+
+        globalLoggingEnabled = enabled;
     }
 
     /**

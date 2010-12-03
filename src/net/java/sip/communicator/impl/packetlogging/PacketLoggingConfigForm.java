@@ -94,11 +94,13 @@ public class PacketLoggingConfigForm
             resources.getI18NString("plugin.jabberaccregwizz.PROTOCOL_NAME"));
         jabberProtocolCheckBox.addActionListener(this);
 
+        String rtpDescription = resources.getI18NString(
+            "impl.packetlogging.PACKET_LOGGING_RTP_DESCRIPTION");
         rtpProtocolCheckBox = new JCheckBox(
-            resources.getI18NString("impl.packetlogging.PACKET_LOGGING_RTP"));
+            resources.getI18NString("impl.packetlogging.PACKET_LOGGING_RTP")
+            + " " + rtpDescription);
         rtpProtocolCheckBox.addActionListener(this);
-        rtpProtocolCheckBox.setToolTipText(resources.getI18NString(
-                "impl.packetlogging.PACKET_LOGGING_RTP_DESCRIPTION"));
+        rtpProtocolCheckBox.setToolTipText(rtpDescription);
 
         JPanel mainPanel = new TransparentPanel();
 
@@ -124,7 +126,7 @@ public class PacketLoggingConfigForm
         descriptionLabel.setForeground(Color.GRAY);
         descriptionLabel.setFont(descriptionLabel.getFont().deriveFont(8));
         c.gridy = 1;
-        c.insets = new Insets(0, 40, 10, 0);
+        c.insets = new Insets(0, 25, 10, 0);
         mainPanel.add(descriptionLabel, c);
 
         final JPanel loggersButtonPanel
