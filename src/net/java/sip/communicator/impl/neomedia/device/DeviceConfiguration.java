@@ -753,12 +753,20 @@ public class DeviceConfiguration
         }
         else if(name.equals(AUDIO_SYSTEM_PORTAUDIO))
         {
-            // firts get anyconfig before we change it
+            // first get any config before we change it
             String audioNotifyDevName =
                 config.getString(PROP_AUDIO_NOTIFY_DEVICE);
 
             String audioPlaybackDevName =
                 config.getString(PROP_AUDIO_PLAYBACK_DEVICE);
+
+            if(logger.isDebugEnabled())
+            {
+                logger.debug("Portaudio: Found stored notify device: ["
+                        + audioNotifyDevName + "]");
+                logger.debug("Portaudio: Found stored playback device: ["
+                        + audioPlaybackDevName + "]");
+            }
 
             // changed to portaudio, so lets first set the default devices
             setAudioPlaybackDevice(PortAudioAuto.defaultPlaybackDevice, save);
@@ -769,37 +777,37 @@ public class DeviceConfiguration
             if(captureDevice != null)
             {
                 this.audioCaptureDevice = captureDevice;
-
-                if(audioNotifyDevName != null)
-                {
-                    for (CaptureDeviceInfo captureDeviceInfo :
-                            PortAudioAuto.playbackDevices)
-                    {
-                        if (audioNotifyDevName.equals(
-                                captureDeviceInfo.getName()))
-                        {
-                            setAudioNotifyDevice(captureDeviceInfo, save);
-                            break;
-                        }
-                    }
-                }
-
-                if(audioPlaybackDevName != null)
-                {
-                    for (CaptureDeviceInfo captureDeviceInfo :
-                            PortAudioAuto.playbackDevices)
-                    {
-                        if (audioPlaybackDevName.equals(
-                                captureDeviceInfo.getName()))
-                        {
-                            setAudioPlaybackDevice(captureDeviceInfo, save);
-                            break;
-                        }
-                    }
-                }
             }
             else // no capture device specified save default
                 setAudioCaptureDevice(PortAudioAuto.defaultCaptureDevice, save);
+
+            if(audioNotifyDevName != null)
+            {
+                for (CaptureDeviceInfo captureDeviceInfo :
+                        PortAudioAuto.playbackDevices)
+                {
+                    if (audioNotifyDevName.equals(
+                            captureDeviceInfo.getName()))
+                    {
+                        setAudioNotifyDevice(captureDeviceInfo, save);
+                        break;
+                    }
+                }
+            }
+
+            if(audioPlaybackDevName != null)
+            {
+                for (CaptureDeviceInfo captureDeviceInfo :
+                        PortAudioAuto.playbackDevices)
+                {
+                    if (audioPlaybackDevName.equals(
+                            captureDeviceInfo.getName()))
+                    {
+                        setAudioPlaybackDevice(captureDeviceInfo, save);
+                        break;
+                    }
+                }
+            }
 
             // return here to prevent clearing the last config that was saved
             return;

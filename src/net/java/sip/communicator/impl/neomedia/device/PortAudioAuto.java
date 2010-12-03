@@ -123,14 +123,34 @@ public class PortAudioAuto
                                 });
 
             if(maxInputChannels > 0)
+            {
                 CaptureDeviceManager.addDevice(jmfInfo);
+
+                if(logger.isDebugEnabled())
+                    logger.debug("Adding capture device: [" + devName + "]");
+            }
             if(maxOutputChannels > 0)
+            {
                 playbackDevVector.add(jmfInfo);
 
+                if(logger.isDebugEnabled())
+                    logger.debug("Adding playback device: [" + devName + "]");
+            }
+
             if(deviceIndex == defaultInputDeviceIx)
+            {
                 defaultCaptureDevice = jmfInfo;
+
+                if(logger.isDebugEnabled())
+                    logger.debug("Default capture device: [" + devName + "]");
+            }
             if(deviceIndex == defaultOutputDeviceIx)
+            {
                 defaultPlaybackDevice = jmfInfo;
+
+                if(logger.isDebugEnabled())
+                    logger.debug("Default playback device: [" + devName + "]");
+            }
         }
 
         playbackDevices = playbackDevVector.toArray(new CaptureDeviceInfo[0]);
