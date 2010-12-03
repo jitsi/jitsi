@@ -1046,7 +1046,7 @@ public class SipStackSharing
      * @return the SocketAddress that this handler would use when connecting to
      * the specified destination address and port.
      *
-     * @throws IOException !!!!!!!!!!!!!!!!!!!!!!! FILL IN !!!!!!!!!!!!!!
+     * @throws IOException  if we fail binding the local socket
      */
     public java.net.InetSocketAddress getLocalAddressForDestination(
                     java.net.InetAddress dst,
@@ -1055,12 +1055,12 @@ public class SipStackSharing
                     String transport)
         throws IOException
     {
-//        if(ListeningPoint.TLS.equalsIgnoreCase(transport))
-//            return (java.net.InetSocketAddress)(((SipStackImpl)this.stack)
-//                .getLocalTLSAddressForDestination(dst, dstPort, localAddress));
-//        else
+        if(ListeningPoint.TLS.equalsIgnoreCase(transport))
             return (java.net.InetSocketAddress)(((SipStackImpl)this.stack)
-            .obtainLocalAddress(dst, dstPort, localAddress, 0));
+                .getLocalAddressForTlsDst(dst, dstPort, localAddress));
+        else
+            return (java.net.InetSocketAddress)(((SipStackImpl)this.stack)
+            .getLocalAddressForTcpDst(dst, dstPort, localAddress, 0));
     }
 
     /**

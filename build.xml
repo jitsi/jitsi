@@ -920,7 +920,7 @@
         bundle-replacement,bundle-youtube,bundle-dailymotion,bundle-smiley,
         bundle-vimeo,bundle-vbox7,bundle-metacafe,bundle-flickr,bundle-hulu,
         bundle-twitpic,bundle-directimage,bundle-bliptv,bundle-viddler,
-        bundle-plugin-chatconfig,bundle-certificate,
+        bundle-plugin-chatconfig,bundle-certificate,bundle-packetlogging,
         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
         bundle-provisioning"/>
 
@@ -2582,6 +2582,17 @@ org.apache.http.util"/>
                 prefix="net/java/sip/communicator/service/certificate" />
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/certificate"
                 prefix="net/java/sip/communicator/impl/certificate" />
+        </jar>
+    </target>
+
+
+    <target name="bundle-packetlogging">
+        <jar compress="false" destfile="${bundles.dest}/packetlogging.jar"
+            manifest="${src}/net/java/sip/communicator/impl/packetlogging/packetlogging.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/packetlogging"
+                prefix="net/java/sip/communicator/service/packetlogging" />
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/packetlogging"
+                prefix="net/java/sip/communicator/impl/packetlogging" />
         </jar>
     </target>
 </project>

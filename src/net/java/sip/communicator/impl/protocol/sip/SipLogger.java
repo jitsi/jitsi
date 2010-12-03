@@ -9,8 +9,10 @@ package net.java.sip.communicator.impl.protocol.sip;
 import gov.nist.core.*;
 import gov.nist.javax.sip.message.*;
 import javax.sip.*;
+import java.io.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.packetlogging.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -129,10 +131,12 @@ public class SipLogger
      */
     public boolean isLoggingEnabled(int logLevel)
     {
+        // always enable trace messages so we can receive packets
+        // and log them to packet logging service
         if (logLevel == TRACE_DEBUG)
             return logger.isDebugEnabled();
         if (logLevel == TRACE_MESSAGES)         // same as TRACE_INFO
-            return logger.isInfoEnabled();
+            return true;
         if (logLevel == TRACE_NONE)
             return false;
         
@@ -218,19 +222,7 @@ public class SipLogger
     public void logMessage(SIPMessage message, String from, String to,
                            boolean sender, long time)
     {
-        if (!logger.isInfoEnabled())
-            return;
-
-        String msgHeader;
-
-        if(sender)
-            msgHeader = "JAIN-SIP sent a message from=\"";
-        else
-            msgHeader = "JAIN-SIP received a message from=\"";
-
-        if (logger.isInfoEnabled())
-            logger.info( msgHeader + from + "\" to=\"" + to + "\" at=" + time
-                        + ":\n" + message);
+        logMessage(message, from, to, null, sender, time);
     }
 
     /**
@@ -246,6 +238,8 @@ public class SipLogger
     public void logMessage(SIPMessage message, String from, String to,
                            String status, boolean sender, long time)
     {
+        logPacket(message, sender);
+
         if (!logger.isInfoEnabled())
             return;
         
@@ -259,6 +253,59 @@ public class SipLogger
         if (logger.isInfoEnabled())
             logger.info(msgHeader + from + "\" to=\"" + to + "\" at " + time
                         + " (status: " + status + "):\n" + message);
+    }
+
+    /**
+     * Logs the specified message and details to the packet logging service
+     * if enabled.
+     *
+     * @param message the message to log
+     * @param sender determines whether we are the origin of this message.
+     */
+    public void logPacket(SIPMessage message, boolean sender)
+    {
+        try
+        {
+            if(!SipActivator.getPacketLogging().isLoggingEnabled(
+                    PacketLoggingService.ProtocolName.SIP))
+                return;
+
+            boolean isTransportUDP = message.getTopmostVia().getTransport()
+                .equalsIgnoreCase("UDP");
+
+            byte[] srcAddr;
+            int srcPort;
+            byte[] dstAddr;
+            int dstPort;
+
+            if(sender)
+            {
+                srcAddr = message.getLocalAddress().getAddress();
+                srcPort = message.getLocalPort();
+                dstAddr = message.getRemoteAddress().getAddress();
+                dstPort = message.getRemotePort();
+            }
+            else
+            {
+                dstPort = message.getLocalPort();
+                dstAddr = message.getLocalAddress().getAddress();
+                srcAddr = message.getRemoteAddress().getAddress();
+                srcPort = message.getRemotePort();
+            }
+
+            byte[] msg = message.toString().getBytes("UTF-8");
+            SipActivator.getPacketLogging().logPacket(
+                    PacketLoggingService.ProtocolName.SIP,
+                    srcAddr, srcPort,
+                    dstAddr, dstPort,
+                    isTransportUDP ? PacketLoggingService.TransportName.UDP :
+                            PacketLoggingService.TransportName.TCP,
+                    sender, msg);
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            logger.error("Cannot obtain message body", e);
+        }
     }
 
     /**

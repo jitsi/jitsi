@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.packetlogging.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.configuration.*;
@@ -38,6 +39,7 @@ public class SipActivator
     private static VersionService       versionService        = null;
     private static UIService            uiService             = null;
     private static HIDService            hidService           = null;
+    private static PacketLoggingService packetLoggingService  = null;
 
     /**
      * The resource service. Used for checking for default values
@@ -246,6 +248,26 @@ public class SipActivator
                         bundleContext, ResourceManagementService.class);
         }
         return resources;
+    }
+
+    /**
+     * Returns a reference to the <tt>PacketLoggingService</tt> implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a reference to a <tt>PacketLoggingService</tt> implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     */
+    public static PacketLoggingService getPacketLogging()
+    {
+        if (packetLoggingService == null)
+        {
+            packetLoggingService
+                = ServiceUtils.getService(
+                        bundleContext, PacketLoggingService.class);
+        }
+        return packetLoggingService;
     }
 
     /**

@@ -13,6 +13,7 @@ import java.text.*;
 import java.util.*;
 import javax.net.ssl.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
@@ -229,6 +230,11 @@ public class ProtocolProviderServiceJabberImpl
          */
         STOP_TRYING
     }
+
+    /**
+     * The debugger who logs packets.
+     */
+    private SmackPacketDebugger debugger = null;
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -743,6 +749,14 @@ public class ProtocolProviderServiceJabberImpl
         {
             logger.error("Error creating custom trust manager", e);
         }
+
+        if(debugger == null)
+            debugger = new SmackPacketDebugger();
+
+        // setts the debugger
+        debugger.setConnection(connection);
+        connection.addPacketListener(debugger, null);
+        connection.addPacketInterceptor(debugger, null);
 
         connection.connect();
 

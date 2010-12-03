@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import net.java.sip.communicator.service.packetlogging.*;
+
 import java.io.*;
 import java.net.*;
 
@@ -19,7 +21,6 @@ public class RTPConnectorInputStream
     implements PushSourceStream,
                Runnable
 {
-
     /**
      * The value of the property <tt>controls</tt> of
      * <tt>RTPConnectorInputStream</tt> when there are no controls. Explicitly
@@ -68,6 +69,12 @@ public class RTPConnectorInputStream
      * The Thread receiving packets.
      */
     private Thread receiverThread = null;
+
+    /**
+     * Used for debugging. As we don't log every packet
+     * we must count them and decide which to log.
+     */
+    private long numberOfPackets = 0;
 
     /**
      * Initializes a new <tt>RTPConnectorInputStream</tt> which is to receive
@@ -246,11 +253,30 @@ public class RTPConnectorInputStream
             try
             {
                 socket.receive(p);
+                numberOfPackets++;
             }
             catch (IOException e)
             {
                 ioError = true;
                 break;
+            }
+
+            if(RTPConnectorOutputStream.logPacket(numberOfPackets)
+                && NeomediaActivator.getPacketLogging().isLoggingEnabled(
+                    PacketLoggingService.ProtocolName.RTP))
+            {
+                NeomediaActivator.getPacketLogging()
+                    .logPacket(
+                        PacketLoggingService.ProtocolName.RTP,
+                        p.getAddress().getAddress(),
+                        p.getPort(),
+                        socket.getLocalAddress().getAddress(),
+                        socket.getLocalPort(),
+                        PacketLoggingService.TransportName.UDP,
+                        false,
+                        p.getData(),
+                        p.getOffset(),
+                        p.getLength());
             }
 
             pkt = createRawPacket(p);

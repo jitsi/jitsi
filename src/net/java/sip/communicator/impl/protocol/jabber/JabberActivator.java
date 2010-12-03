@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
+import net.java.sip.communicator.service.packetlogging.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -82,6 +83,8 @@ public class JabberActivator
      * A reference to the currently valid <tt>HIDService</tt> instance.
      */
     private static HIDService hidService = null;
+
+    private static PacketLoggingService packetLoggingService  = null;
 
     /**
      * Called when this bundle is started so the Framework can perform the
@@ -299,5 +302,25 @@ public class JabberActivator
             hidService = (HIDService)bundleContext.getService(hidReference);
         }
         return hidService;
+    }
+
+    /**
+     * Returns a reference to the PacketLoggingService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a reference to a PacketLoggingService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     */
+    public static PacketLoggingService getPacketLogging()
+    {
+        if (packetLoggingService == null)
+        {
+            packetLoggingService
+                = ServiceUtils.getService(
+                        bundleContext, PacketLoggingService.class);
+        }
+        return packetLoggingService;
     }
 }

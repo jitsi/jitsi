@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import net.java.sip.communicator.service.packetlogging.*;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -58,6 +60,12 @@ public class RTPConnectorOutputStream
      */
     private final LinkedBlockingQueue<RawPacket> availRawPackets
     = new LinkedBlockingQueue<RawPacket>();
+
+    /**
+     * Used for debugging. As we don't log every packet
+     * we must count them and decide which to log. 
+     */
+    private long numberOfPackets = 0;
 
     /**
      * Initializes a new <tt>RTPConnectorOutputStream</tt> which is to send
@@ -158,6 +166,26 @@ public class RTPConnectorOutputStream
     }
 
     /**
+     * We don't log every rtp traffic.
+     * We log only first then 300,500 and 1000 packets and
+     * then every 5000 packet.
+     * 
+     * @param numOfPacket current packet number.
+     * @return wether we should log the current packet.
+     */
+    static boolean logPacket(long numOfPacket)
+    {
+        if(numOfPacket == 1
+            || numOfPacket == 300
+            || numOfPacket == 500
+            || numOfPacket == 1000
+            || numOfPacket%5000 == 0)
+            return true;
+        else
+            return false;
+    }
+
+    /**
      * Sends a specific RTP packet through the <tt>DatagramSocket</tt> of this
      * <tt>OutputDataSource</tt>.
      *
@@ -168,6 +196,7 @@ public class RTPConnectorOutputStream
      */
     private boolean send(RawPacket packet)
     {
+        numberOfPackets++;
         for (InetSocketAddress target : targets)
         {
             try
@@ -179,6 +208,24 @@ public class RTPConnectorOutputStream
                                 packet.getLength(),
                                 target.getAddress(),
                                 target.getPort()));
+
+                if(logPacket(numberOfPackets)
+                    && NeomediaActivator.getPacketLogging().isLoggingEnabled(
+                            PacketLoggingService.ProtocolName.RTP))
+                {
+                    NeomediaActivator.getPacketLogging()
+                        .logPacket(
+                            PacketLoggingService.ProtocolName.RTP,
+                            socket.getLocalAddress().getAddress(),
+                            socket.getLocalPort(),
+                            target.getAddress().getAddress(),
+                            target.getPort(),
+                            PacketLoggingService.TransportName.UDP,
+                            true,
+                            packet.getBuffer(),
+                            packet.getOffset(),
+                            packet.getLength());
+                }                
             }
             catch (IOException ex)
             {

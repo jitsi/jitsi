@@ -595,7 +595,18 @@ public class GeneralConfigurationPanel
                 }
             }
         });
-        localeConfigPanel.add(localesConfigComboBox);
+        localeConfigPanel.add(localesConfigComboBox, BorderLayout.CENTER);
+
+        String label = "* " +
+                Resources.getString(
+                        "plugin.generalconfig.DEFAULT_LANGUAGE_RESTART_WARN");
+        JLabel warnLabel = new JLabel(label);
+        warnLabel.setToolTipText(label);
+        warnLabel.setForeground(Color.GRAY);
+        warnLabel.setFont(warnLabel.getFont().deriveFont(8));
+        warnLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        warnLabel.setHorizontalAlignment(JLabel.RIGHT);
+        localeConfigPanel.add(warnLabel, BorderLayout.SOUTH);
 
         return localeConfigPanel;
     }
@@ -723,16 +734,6 @@ public class GeneralConfigurationPanel
                 oldValue = clientSecurePortField.getText();
             }
         });
-
-        String label = "* " +
-                Resources.getString(
-                        "plugin.generalconfig.DEFAULT_LANGUAGE_RESTART_WARN");
-        JLabel warnLabel = new JLabel(label);
-        warnLabel.setToolTipText(label);
-        warnLabel.setForeground(Color.GRAY);
-        warnLabel.setFont(warnLabel.getFont().deriveFont(8));
-        warnLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-        valuePanel.add(warnLabel);
 
         return callConfigPanel;
     }

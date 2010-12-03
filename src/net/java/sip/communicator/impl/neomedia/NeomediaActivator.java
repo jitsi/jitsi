@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
+import net.java.sip.communicator.service.packetlogging.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
@@ -83,6 +84,12 @@ public class NeomediaActivator
      * {@link #bundleContext}.
      */
     private ServiceRegistration mediaServiceRegistration;
+
+    /**
+     * The OSGi <tt>PacketLoggingService</tt> of {@link #mediaServiceImpl} in
+     * {@link #bundleContext} and used for debugging.
+     */
+    private static PacketLoggingService packetLoggingService  = null;
 
     /**
      * Starts the execution of the neomedia bundle in the specified context.
@@ -327,5 +334,28 @@ public class NeomediaActivator
             resources
                 = ResourceManagementServiceUtils.getService(bundleContext);
         return resources;
+    }
+
+    /**
+     * Returns a reference to the <tt>PacketLoggingService</tt> implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a reference to a <tt>PacketLoggingService</tt> implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     */
+    public static PacketLoggingService getPacketLogging()
+    {
+        if (packetLoggingService == null)
+        {
+            ServiceReference plReference
+                = bundleContext.getServiceReference(
+                        PacketLoggingService.class.getName());
+
+            packetLoggingService
+                = (PacketLoggingService)bundleContext.getService(plReference);
+        }
+        return packetLoggingService;
     }
 }
