@@ -75,8 +75,10 @@ public class StunServerDescriptor
         this.address = address;
         this.port = port;
         this.isTurnSupported = supportTurn;
-        this.username = StringUtils.getUTF8Bytes( username );
-        this.password = StringUtils.getUTF8Bytes( password );
+        this.username = (username != null) ? StringUtils.getUTF8Bytes(username)
+                : "".getBytes();
+        this.password = (password != null) ? StringUtils.getUTF8Bytes(password)
+                : "".getBytes();
     }
 
     /**

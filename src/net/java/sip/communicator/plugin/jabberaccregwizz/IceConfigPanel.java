@@ -266,10 +266,10 @@ public class IceConfigPanel
             usernameField.setText(username);
             passwordField.setText(password);
 
-            if(!isSupportTurn)
+            if(isSupportTurn)
             {
-                usernameField.setEnabled(false);
-                passwordField.setEnabled(false);
+                usernameField.setEnabled(true);
+                passwordField.setEnabled(true);
             }
         }
 
@@ -308,6 +308,9 @@ public class IceConfigPanel
 
             TransparentPanel valuesPanel
                 = new TransparentPanel(new GridLayout(0, 1));
+
+            usernameField.setEnabled(false);
+            passwordField.setEnabled(false);
 
             portField.setText(DEFAULT_STUN_PORT);
             valuesPanel.add(supportTurnCheckBox);

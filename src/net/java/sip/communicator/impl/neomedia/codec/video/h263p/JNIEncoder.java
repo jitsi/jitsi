@@ -199,7 +199,6 @@ public class JNIEncoder
 
         avcontext = FFmpeg.avcodec_alloc_context();
 
-        System.out.println("transmit " + width + "x" + height);
         FFmpeg.avcodeccontext_set_pix_fmt(avcontext, FFmpeg.PIX_FMT_YUV420P);
         FFmpeg.avcodeccontext_set_size(avcontext, width, height);
         FFmpeg.avcodeccontext_set_qcompress(avcontext, 0.6f);

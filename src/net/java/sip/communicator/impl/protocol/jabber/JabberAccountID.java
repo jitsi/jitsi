@@ -106,6 +106,6 @@ public class JabberAccountID
         return
             getAccountPropertyBoolean(
                     ProtocolProviderFactory.USE_DEFAULT_STUN_SERVER,
-                    false);
+                    true);
     }
 }

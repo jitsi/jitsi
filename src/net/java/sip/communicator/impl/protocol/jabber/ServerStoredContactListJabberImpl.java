@@ -1260,6 +1260,9 @@ public class ServerStoredContactListJabberImpl
             setDaemon(true);
         }
 
+        /**
+         * Thread entry point.
+         */
         public void run()
         {
             try
