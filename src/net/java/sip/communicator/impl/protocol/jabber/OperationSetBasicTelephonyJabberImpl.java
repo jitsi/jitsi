@@ -218,14 +218,15 @@ public class OperationSetBasicTelephonyJabberImpl
         Iterator<Presence> it =
             getProtocolProvider().getConnection().getRoster().getPresences(
                 calleeAddress);
+        String calleeURI = null;
 
         // choose the resource that has the highest priority AND support Jingle
         while(it.hasNext())
         {
             Presence presence = it.next();
-            String calleeURI = presence.getFrom();
             int priority = (presence.getPriority() == Integer.MIN_VALUE) ? 0 :
                 presence.getPriority();
+            calleeURI = presence.getFrom();
 
             try
             {
@@ -266,15 +267,15 @@ public class OperationSetBasicTelephonyJabberImpl
         if(di != null)
         {
             if (logger.isInfoEnabled())
-                logger.info(calleeAddress + ": jingle supported ");
+                logger.info(fullCalleeURI + ": jingle supported ");
         }
         else
         {
             if (logger.isInfoEnabled())
-                logger.info(calleeAddress + ": jingle not supported ?");
+                logger.info(calleeURI + ": jingle not supported ?");
             throw new OperationFailedException(
                     "Failed to create OutgoingJingleSession.\n"
-                        + calleeAddress + " does not support jingle",
+                        + calleeURI + " does not support jingle",
                     OperationFailedException.INTERNAL_ERROR);
         }
 
