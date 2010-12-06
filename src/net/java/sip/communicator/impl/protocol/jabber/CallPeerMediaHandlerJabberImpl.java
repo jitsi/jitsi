@@ -946,7 +946,6 @@ public class CallPeerMediaHandlerJabberImpl
         throws OperationFailedException,
                IllegalArgumentException
     {
-
         /*
          * The answer given in session-accept may contain transport-related
          * information compatible with that carried in transport-info.
@@ -1227,7 +1226,9 @@ public class CallPeerMediaHandlerJabberImpl
         throws OperationFailedException
     {
         if (getTransportManager().startConnectivityEstablishment(contents))
-            wrapupConnectivityEstablishment();
+        {
+            //wrapupConnectivityEstablishment();
+        }
     }
 
     /**

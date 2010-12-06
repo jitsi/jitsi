@@ -851,6 +851,8 @@ public class CallPeerJabberImpl
         try
         {
             mediaHandler.processOffer(contents);
+            mediaHandler.getTransportManager().
+                wrapupConnectivityEstablishment();
             answerContents = mediaHandler.generateSessionAccept();
             contentIQ = null;
         }
@@ -894,6 +896,8 @@ public class CallPeerJabberImpl
 
         try
         {
+            getMediaHandler().getTransportManager().
+                wrapupConnectivityEstablishment();
             getMediaHandler().processAnswer(contents);
         }
         catch(Exception exc)

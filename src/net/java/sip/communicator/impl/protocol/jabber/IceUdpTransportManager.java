@@ -28,6 +28,7 @@ import org.ice4j.security.*;
  *
  * @author Emil Ivov
  * @author Lyubomir Marinov
+ * @author Sebastien Vincent
  */
 public class IceUdpTransportManager
     extends TransportManagerJabberImpl
@@ -601,16 +602,106 @@ public class IceUdpTransportManager
      * @see TransportManagerJabberImpl#startConnectivityEstablishment(Iterable)
      */
     @Override
-    public boolean startConnectivityEstablishment(
+    public synchronized boolean startConnectivityEstablishment(
             Iterable<ContentPacketExtension> remote)
     {
-        /*
-         * At the time of this writing, the implementation of the ICE Agent does
-         * not support adding candidates after the connectivity establishment
-         * has been started.
+        /* If ICE is aready running, we try to update the checklists with
+         * the candidates. Note that this is a best effort.
          */
         if (IceProcessingState.RUNNING.equals(iceAgent.getState()))
+        {
+            if(logger.isInfoEnabled())
+            {
+                logger.info("Update ICE remote candidates");
+            }
+
+            for (ContentPacketExtension content : remote)
+            {
+                IceUdpTransportPacketExtension transport
+                    = content.getFirstChildOfType(
+                            IceUdpTransportPacketExtension.class);
+
+                List<CandidatePacketExtension> candidates
+                    = transport.getChildExtensionsOfType(
+                        CandidatePacketExtension.class);
+
+                if(candidates == null || candidates.size() == 0)
+                {
+                    return false;
+                }
+
+                RtpDescriptionPacketExtension description
+                    = content.getFirstChildOfType(
+                        RtpDescriptionPacketExtension.class);
+
+                if (description == null)
+                {
+                    ContentPacketExtension localContent
+                        = findContentByName(cpeList, content.getName());
+
+                    if (localContent != null)
+                    {
+                        description
+                            = localContent.getFirstChildOfType(
+                                    RtpDescriptionPacketExtension.class);
+                    }
+                }
+
+                if (description == null)
+                    continue;
+
+                IceMediaStream stream = iceAgent.getStream(
+                        description.getMedia());
+
+                /* Different stream may have different ufrag/password */
+                String ufrag = transport.getUfrag();
+
+                if (ufrag != null)
+                    stream.setRemoteUfrag(ufrag);
+
+                String password = transport.getPassword();
+
+                if (password != null)
+                    stream.setRemotePassword(password);
+
+                for (CandidatePacketExtension candidate : candidates)
+                {
+                    /*
+                     * Is the remote candidate from the current generation of
+                     * the iceAgent?
+                     */
+                    if (candidate.getGeneration() != iceAgent.getGeneration())
+                        continue;
+
+                    Component component
+                        = stream.getComponent(candidate.getComponent());
+
+                    component.addUpdateRemoteCandidate(
+                            new RemoteCandidate(
+                                    new TransportAddress(
+                                            candidate.getIP(),
+                                            candidate.getPort(),
+                                            Transport.parse(
+                                                    candidate.getProtocol())),
+                                    component,
+                                    org.ice4j.ice.CandidateType.parse(
+                                            candidate.getType().toString()),
+                                    Integer.toString(candidate.getFoundation()),
+                                    candidate.getPriority()));
+                }
+            }
+
+            /* update all components of all streams */
+            for(IceMediaStream stream : iceAgent.getStreams())
+            {
+                for(Component component : stream.getComponents())
+                {
+                    component.updateRemoteCandidate();
+                }
+            }
+
             return false;
+        }
 
         int generation = iceAgent.getGeneration();
         boolean startConnectivityEstablishment = false;
@@ -620,16 +711,6 @@ public class IceUdpTransportManager
             IceUdpTransportPacketExtension transport
                 = content.getFirstChildOfType(
                         IceUdpTransportPacketExtension.class);
-
-            String ufrag = transport.getUfrag();
-
-            if (ufrag != null)
-                iceAgent.setRemoteUfrag(ufrag);
-
-            String password = transport.getPassword();
-
-            if (password != null)
-                iceAgent.setRemotePassword(password);
 
             List<CandidatePacketExtension> candidates
                 = transport.getChildExtensionsOfType(
@@ -659,6 +740,17 @@ public class IceUdpTransportManager
                 continue;
 
             IceMediaStream stream = iceAgent.getStream(description.getMedia());
+
+            /* Different stream may have different ufrag/password */
+            String ufrag = transport.getUfrag();
+
+            if (ufrag != null)
+                stream.setRemoteUfrag(ufrag);
+
+            String password = transport.getPassword();
+
+            if (password != null)
+                stream.setRemotePassword(password);
 
             for (CandidatePacketExtension candidate : candidates)
             {
