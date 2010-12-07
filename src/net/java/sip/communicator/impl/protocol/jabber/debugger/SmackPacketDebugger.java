@@ -25,19 +25,12 @@ public class SmackPacketDebugger
     /**
      * The current jabber connection.
      */
-    private Connection connection = null;
+    private XMPPConnection connection = null;
 
     /**
      * Local address for the connection.
      */
     private byte[] localAddress = new byte[4];
-
-    /**
-     * The local port we are using for the connection.
-     * As currently we don't have information for this
-     * we use this static value.
-     */
-    private int localPort = 5222;
 
     /**
      * Remote address for the connection.
@@ -61,7 +54,7 @@ public class SmackPacketDebugger
      * Sets current connection.
      * @param connection the connection.
      */
-    public void setConnection(Connection connection)
+    public void setConnection(XMPPConnection connection)
     {
         this.connection = connection;
 
@@ -99,7 +92,7 @@ public class SmackPacketDebugger
                 packetLogging.logPacket(
                         PacketLoggingService.ProtocolName.JABBER,
                         localAddress,
-                        localPort,
+                        connection.getSocket().getLocalPort(),
                         remoteAddress,
                         connection.getPort(),
                         PacketLoggingService.TransportName.TCP,
@@ -135,7 +128,7 @@ public class SmackPacketDebugger
                     remoteAddress,
                     connection.getPort(),
                     localAddress,
-                    localPort,
+                    connection.getSocket().getLocalPort(),
                     PacketLoggingService.TransportName.TCP,
                     false,
                     packet.toXML().getBytes("UTF-8")

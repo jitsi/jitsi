@@ -829,12 +829,20 @@
         <replacevalue><![CDATA[<key>CFBundleURLTypes</key>
       <array>
         <dict>
-          <key>CFBundleURLSchemes</key>
-          <array>
-            <string>sip</string>
-            <string>feed</string>
-            <string>xmpp</string>
-          </array>
+            <key>CFBundleURLName</key>
+            <string>sip URI</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>sip</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>xmpp URI</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>xmpp</string>
+            </array>
         </dict>
       </array>
       <key>CFBundleName</key>]]></replacevalue>
