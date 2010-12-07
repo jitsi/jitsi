@@ -311,6 +311,9 @@ public class PacketLoggingServiceImpl
             case RTP:
                 return PacketLoggingActivator.isGlobalLoggingEnabled()
                         && PacketLoggingActivator.isRTPLoggingEnabled();
+            case ICE4J:
+                return PacketLoggingActivator.isGlobalLoggingEnabled()
+                        && PacketLoggingActivator.isIce4JLoggingEnabled();
             default:
                 return false;
         }

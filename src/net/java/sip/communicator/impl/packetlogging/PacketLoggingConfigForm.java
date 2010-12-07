@@ -43,6 +43,11 @@ public class PacketLoggingConfigForm
     private JCheckBox rtpProtocolCheckBox;
 
     /**
+     * Check box to enable/disable packet debug of Ice4J.
+     */
+    private JCheckBox ice4jProtocolCheckBox;
+
+    /**
      * The file count label.
      */
     private JLabel fileCountLabel;
@@ -102,6 +107,10 @@ public class PacketLoggingConfigForm
         rtpProtocolCheckBox.addActionListener(this);
         rtpProtocolCheckBox.setToolTipText(rtpDescription);
 
+        ice4jProtocolCheckBox = new JCheckBox(
+            resources.getI18NString("impl.packetlogging.PACKET_LOGGING_ICE4J"));
+        ice4jProtocolCheckBox.addActionListener(this);
+
         JPanel mainPanel = new TransparentPanel();
 
         add(mainPanel, BorderLayout.NORTH);
@@ -138,6 +147,7 @@ public class PacketLoggingConfigForm
         loggersButtonPanel.add(sipProtocolCheckBox);
         loggersButtonPanel.add(jabberProtocolCheckBox);
         loggersButtonPanel.add(rtpProtocolCheckBox);
+        loggersButtonPanel.add(ice4jProtocolCheckBox);
 
         c.insets = new Insets(0, 20, 10, 0);
         c.gridy = 2;
@@ -179,6 +189,8 @@ public class PacketLoggingConfigForm
                 PacketLoggingActivator.isJabberLoggingEnabled());
         rtpProtocolCheckBox.setSelected(
                 PacketLoggingActivator.isRTPLoggingEnabled());
+        ice4jProtocolCheckBox.setSelected(
+                PacketLoggingActivator.isIce4JLoggingEnabled());
         fileCountField.setText(String.valueOf(PacketLoggingActivator
                 .getPacketLoggingService().getLogfileCount()));
         fileSizeField.setText(String.valueOf(PacketLoggingActivator
@@ -195,6 +207,7 @@ public class PacketLoggingConfigForm
         sipProtocolCheckBox.setEnabled(enableCheckBox.isSelected());
         jabberProtocolCheckBox.setEnabled(enableCheckBox.isSelected());
         rtpProtocolCheckBox.setEnabled(enableCheckBox.isSelected());
+        ice4jProtocolCheckBox.setEnabled(enableCheckBox.isSelected());
         fileCountField.setEnabled(enableCheckBox.isSelected());
         fileSizeField.setEnabled(enableCheckBox.isSelected());
         fileSizeLabel.setEnabled(enableCheckBox.isSelected());
@@ -229,6 +242,11 @@ public class PacketLoggingConfigForm
         {
             PacketLoggingActivator.setRTPLoggingEnabled(
                     rtpProtocolCheckBox.isSelected());
+        }
+        else if(source.equals(ice4jProtocolCheckBox))
+        {
+            PacketLoggingActivator.setIce4JLoggingEnabled(
+                    ice4jProtocolCheckBox.isSelected());
         }
     }
 

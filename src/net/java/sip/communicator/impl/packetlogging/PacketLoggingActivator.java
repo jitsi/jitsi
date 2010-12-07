@@ -90,6 +90,13 @@ public class PacketLoggingActivator
         = "net.java.sip.communicator.packetlogging.PACKET_LOGGING_RTP_ENABLED";
 
     /**
+     * Configuration property for packet logging for
+     * ICE4J enabled/disabled.
+     */
+    private final static String PACKET_LOGGING_ICE4J_ENABLED_PROPERTY_NAME
+        = "net.java.sip.communicator.packetlogging.PACKET_LOGGING_ICE4J_ENABLED";
+
+    /**
      * Configuration property for packet logging file count.
      */
     final static String PACKET_LOGGING_FILE_COUNT_PROPERTY_NAME
@@ -120,6 +127,11 @@ public class PacketLoggingActivator
      * Is Packet Logging Service enabled for rtp. 
      */
     private static boolean rtpLoggingEnabled = false;
+
+    /**
+     * Is Packet Logging Service enabled for ice4j.
+     */
+    private static boolean ice4jLoggingEnabled = false;
 
     /**
      * Creates a PacketLoggingServiceImpl, starts it, and registers it as a
@@ -195,6 +207,9 @@ public class PacketLoggingActivator
 
         rtpLoggingEnabled = getConfigurationService().getBoolean(
                 PACKET_LOGGING_RTP_ENABLED_PROPERTY_NAME, false);
+
+        ice4jLoggingEnabled = getConfigurationService().getBoolean(
+                PACKET_LOGGING_ICE4J_ENABLED_PROPERTY_NAME, false);
     }
 
     /**
@@ -297,6 +312,16 @@ public class PacketLoggingActivator
     }
 
     /**
+     * Checks whether packet logging is enabled in the configuration
+     * for Ice4J.
+     * @return <tt>true</tt> if packet logging is enabled for RTP.
+     */
+    public static boolean isIce4JLoggingEnabled()
+    {
+        return ice4jLoggingEnabled;
+    }
+
+    /**
      * Change whether packet logging is enabled and save it in configuration.
      * @param enabled <tt>true</tt> if we enable it.
      */
@@ -316,6 +341,7 @@ public class PacketLoggingActivator
             sipLoggingEnabled = false;
             jabberLoggingEnabled = false;
             rtpLoggingEnabled = false;
+            ice4jLoggingEnabled = false;
         }
 
         globalLoggingEnabled = enabled;
@@ -382,6 +408,27 @@ public class PacketLoggingActivator
         }
 
         rtpLoggingEnabled = true;
+    }
+
+    /**
+     * Change whether packet logging for Ice4J is enabled
+     * and save it in configuration.
+     * @param enabled <tt>true</tt> if we enable it.
+     */
+    public static void setIce4JLoggingEnabled(boolean enabled)
+    {
+        if(enabled)
+        {
+            getConfigurationService().setProperty(
+                PACKET_LOGGING_ICE4J_ENABLED_PROPERTY_NAME, Boolean.TRUE);
+        }
+        else
+        {
+            getConfigurationService().removeProperty(
+                PACKET_LOGGING_ICE4J_ENABLED_PROPERTY_NAME);
+        }
+
+        ice4jLoggingEnabled = true;
     }
 
     /**

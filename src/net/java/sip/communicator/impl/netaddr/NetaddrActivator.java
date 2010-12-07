@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.netaddr;
 
+import net.java.sip.communicator.service.packetlogging.*;
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.netaddr.*;
@@ -27,6 +28,12 @@ public class NetaddrActivator
 
     private NetworkAddressManagerServiceImpl networkAMS = null;
     private static ConfigurationService configurationService = null;
+
+    /**
+     * The OSGi <tt>PacketLoggingService</tt> in
+     * {@link #bundleContext} and used for debugging.
+     */
+    private static PacketLoggingService packetLoggingService  = null;
 
     /**
      * Creates a NetworkAddressManager, starts it, and registers it as a
@@ -89,6 +96,29 @@ public class NetaddrActivator
                 = (ConfigurationService) bundleContext.getService(confReference);
         }
         return configurationService;
+    }
+
+    /**
+     * Returns a reference to the <tt>PacketLoggingService</tt> implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a reference to a <tt>PacketLoggingService</tt> implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     */
+    public static PacketLoggingService getPacketLogging()
+    {
+        if (packetLoggingService == null)
+        {
+            ServiceReference plReference
+                = bundleContext.getServiceReference(
+                        PacketLoggingService.class.getName());
+
+            packetLoggingService
+                = (PacketLoggingService)bundleContext.getService(plReference);
+        }
+        return packetLoggingService;
     }
 
     /**

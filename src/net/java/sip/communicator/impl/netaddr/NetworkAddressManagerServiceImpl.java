@@ -23,6 +23,7 @@ import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
 import org.ice4j.security.*;
+import org.ice4j.stack.*;
 
 /**
  * This implementation of the Network Address Manager allows you to
@@ -90,6 +91,9 @@ public class NetworkAddressManagerServiceImpl
      public void start()
      {
          this.localHostFinderSocket = initRandomPortSocket();
+
+         // set packet logging to ice4j stack
+         StunStack.setPacketLogger(new Ice4jPacketLogger());
      }
 
      /**
@@ -569,7 +573,9 @@ public class NetworkAddressManagerServiceImpl
       */
      public Agent createIceAgent()
      {
-         return new Agent();
+         Agent a = new Agent();
+//         a.getStunStack().
+         return a;
      }
 
      /**
