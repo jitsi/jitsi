@@ -31,7 +31,7 @@ public final class PortAudio
 
     static
     {
-        System.loadLibrary("jportaudio");
+        System.loadLibrary("jnportaudio");
 
         try
         {
@@ -610,7 +610,7 @@ public final class PortAudio
              * implementation.
              */
             logger.warn(
-                    "The JNI library jportaudio is out-of-date and needs to be"
+                    "The JNI library jnportaudio is out-of-date and needs to be"
                         + " recompiled.",
                     ulerr);
         }

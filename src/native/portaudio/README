@@ -1,70 +1,26 @@
 1. portaudio
     - Linux/FreeBSD
-    $./configure --enable-static --disable-shared --with-jack=no && make (gmake on FreeBSD)
-
-    - Linux/FreeBSD amd64
-    ./configure  --enable-static --disable-shared --with-pic --with-jack=no && make (gmake on FreeBSD)
+    pa_linux_alsa.c-by-Werner.patch
+    pa_linux_alsa.c-fix-blocked-renderer.patch
+    $ ./configure --disable-shared --enable-static --with-pic --with-jack=no && make/gmake 
 
     - Mac OS X
-    $./configure  --enable-static --disable-shared && make
+    $ export MACOSX_DEPLOYMENT_TARGET=10.4
+    $ ./configure --disable-shared --enable-static --with-pic && make
 
     - Windows
-    $./configure  --enable-static --disable-shared && make
-    
-    Note for Windows x64, edit Makefile (after ./configure) and modify
-    %.lo: %.c $(MAKEFILE) $(PAINC)
-	$(LIBTOOL) --mode=compile $(CC) -c $(CFLAGS) $< -o $@
-
-    %.o: %.cpp $(MAKEFILE) $(PAINC)
-	$(CXX) -c $(CXXFLAGS) $< -o $@
-   by 
-   %.lo: %.c $(MAKEFILE) $(PAINC)
-	$(LIBTOOL) --mode=compile $(CC) -c $(CFLAGS) $< -o $@ ; sleep 1
-
-   %.o: %.cpp $(MAKEFILE) $(PAINC)
-	$(CXX) -c $(CXXFLAGS) $< -o $@ ; sleep 1
-
-   Finally add src/os/win32/pa_win_waveformat.o to OTHER_OBJS
+    $ ./configure --disable-shared --enable-static --with-pic --with-dxdir=$DXDIR --with-winapi=wmme,directx && make
 
 2. speex
-    - Windows
-    $./configure --enable-static --disable-shared && make
-
-    - Linux/FreeBSD
-    $./configure --enable-static --disable-shared && make (gmake on FreeBSD)
-
-    - Linux/FreeBSD amd64
-    $./configure --enable-static --disable-shared --with-pic && make (gmake on FreeBSD)
-
-    - Macosx
-    $export CC="gcc -arch i386 -arch ppc -arch x86_64 -mmacosx-version-min=10.4"
-    $export CPP="gcc -E"
-    $export MACOSX_DEPLOYMENT_TARGET=10.4
-    $./configure --enable-static --disable-shared && make
-
-3. jportaudio
-    - Linux/FreeBSD
-    $ make (gmake on FreeBSD)
-
-    - Linux/FreeBSD amd64
-    LDFLAGS=-shared -fPIC
-    LIBS=-L$(SPEEX_HOME)/libspeex/.libs -L$(PORTAUDIO_HOME)/lib/.libs -Wl,-Bstatic -lportaudio -lspeexdsp -Wl,-Bdynamic -lasound -lm -lpthread
-    $ make (gmake on FreeBSD)
+    - Linux/FreeBSD, Windows
+    $ ./configure --disable-shared --enable-static --with-pic && make/gmake
 
     - Mac OS X
-    CC=gcc -arch i386 -arch ppc -arch x86_64 -mmacosx-version-min=10.3
-    LDFLAGS=-dynamiclib
-    LIBS=-L$(SPEEX_HOME)/libspeex/.libs -L$(PORTAUDIO_HOME)/lib/.libs -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework Carbon -lpthread -pthread -dynamic -lportaudio -lspeexdsp
-    $ make
+    $ export MACOSX_DEPLOYMENT_TARGET=10.4
+    $ export CC="gcc -arch i386 -arch ppc -arch x86_64 -mmacosx-version-min=10.4"
+    $ export CPP="gcc -E"
+    $ ./configure --disable-shared --enable-static --with-pic && make
 
-    - Windows
-    CPPFLAGS=...
-    	 -Wl,--kill-at \
-	 -02 \
-    LIBS=-L$(PORTAUDIO_HOME)/lib/.libs -static -lportaudio -lspeexdsp -lwinmm -lm -lstdc++ -lole32 -luuid
-    $ make
-
-
-NOTES:
-    The patch pa_linux_alsa.c.fix.blocked.renderer.patch must be applied after
-    applying pa_linux_alsa.c-by-Werner.patch.
+3. jportaudio
+    - Linux/FreeBSD, Mac OS X, Windows
+    $ make/gmake

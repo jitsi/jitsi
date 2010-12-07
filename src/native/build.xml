@@ -371,13 +371,13 @@
     </cc>
   </target>
 
-  <!-- compile jportaudio library -->
-  <target name="portaudio" description="Build jportaudio shared library" depends="init-native">
+  <!-- compile jnportaudio library -->
+  <target name="portaudio" description="Build jnportaudio shared library" depends="init-native">
 
     <fail message="portaudio repository not set!" unless="portaudio" />
     <fail message="speex repository not set!" unless="speex" />
 
-    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jportaudio" objdir="${obj}">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jnportaudio" objdir="${obj}">
       <!-- common compiler flags -->
       <compilerarg value="-std=c99" />
       <compilerarg value="-Wall" />
@@ -419,7 +419,7 @@
       <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
       
       <linkerarg value="-o" location="end" if="is.running.macos" />
-      <linkerarg value="libjportaudio.jnilib" location="end" if="is.running.macos" />
+      <linkerarg value="libjnportaudio.jnilib" location="end" if="is.running.macos" />
       <linkerarg value="-dynamiclib" if="is.running.macos" />
       <linkerarg value="-arch" if="is.running.macos" />
       <linkerarg value="x86_64" if="is.running.macos" />
@@ -445,7 +445,7 @@
       <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
 
       <linkerarg value="-L${pthread}" if="is.running.windows" />
-      <linkerarg value="-ojportaudio.dll" if="is.running.windows" />
+      <linkerarg value="-ojnportaudio.dll" if="is.running.windows" />
       <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
       <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
       <linkerarg value="-lportaudio" location="end" if="is.running.windows" />
@@ -817,7 +817,7 @@
     <echo message="'ant screencapture' to compile screencapture shared library" />
     <echo message="'ant jawtrenderer' to compile jawtrenderer shared library" />
     <echo message="'ant ffmpeg' to compile ffmpeg shared library" />
-    <echo message="'ant portaudio' to compile jportaudio shared library" />
+    <echo message="'ant portaudio' to compile jnportaudio shared library" />
     <echo message="'ant speex' to compile jspeex shared library" />
     <echo message="'ant g722' to compile jg722 shared library" />
     <echo message="'ant hid' to compile hid shared library" />
@@ -835,14 +835,14 @@
     <echo message="-Dx264: path to x264 directory (ffmpeg JNI compilation)." />
     <echo message="-Dlame: path to lame directory (ffmpeg JNI compilation)." />
     <echo message="-Dffmpeg: path to ffmpeg directory (ffmpeg JNI compilation)." />
-    <echo message="-Dportaudio path to portaudio directory (jportaudio JNI compilation)." />
-    <echo message="-Dspeex: path to speex directory (jportaudio/jspeex JNI compilation)." />
+    <echo message="-Dportaudio path to portaudio directory (jnportaudio JNI compilation)." />
+    <echo message="-Dspeex: path to speex directory (jnportaudio/jspeex JNI compilation)." />
     <echo message="" />
     <echo message="Please note that external libraries such as ffmpeg, x264, lame, portaudio and speex have to be compiled" />
-    <echo message="(follow READMEs in relevant directory) before trying to compile libffmpeg and libjportaudio"  />
+    <echo message="(follow READMEs in relevant directory) before trying to compile libffmpeg and libjnportaudio"  />
     <echo message="When compiling libffmpeg you have to tell ant script the directory of ffmpeg and x264 with"  />
     <echo message="-Dffmpeg=/path/to/ffmpeg and -Dx264=/path/to/x264 -Dlame=/path/to/lame"  />
-    <echo message="When compiling libjportaudio you have to tell ant script the directory of portaudio and speex with"  />
+    <echo message="When compiling libjnportaudio you have to tell ant script the directory of portaudio and speex with"  />
     <echo message="-Dportaudio=/path/to/portaudio and -Dspeex=/path/to/speex"  />
   </target>
 </project>
