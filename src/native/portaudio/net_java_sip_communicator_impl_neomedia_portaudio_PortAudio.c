@@ -418,20 +418,6 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1g
     return ((PaDeviceInfo *) deviceInfo)->maxOutputChannels;
 }
 
-JNIEXPORT jstring JNICALL
-Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getName
-    (JNIEnv *env, jclass clazz, jlong deviceInfo)
-{
-    const char *name = ((PaDeviceInfo *) deviceInfo)->name;
-
-    /*
-     * PaDeviceInfo_getName has been deprected in the Java source code and the
-     * implementation here is left to allow the application to execute even
-     * without the recompiled JNI counterpart.
-     */
-    return name ? (*env)->NewStringUTF(env, name) : NULL;
-}
-
 JNIEXPORT jbyteArray JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_PaDeviceInfo_1getNameBytes
     (JNIEnv *jniEnv, jclass clazz, jlong deviceInfo)
