@@ -523,6 +523,14 @@ public class UpdateCheckActivator
         contentMessage.setOpaque(false);
         contentMessage.setEditable(false);
 
+        /*
+         * Use the font of the dialog because contentMessage is just like a
+         * label.
+         */
+        contentMessage.putClientProperty(
+                JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                Boolean.TRUE);
+
         String dialogMsg =
             getResources().getI18NString("plugin.updatechecker.DIALOG_MESSAGE",
             new String[]{getResources()
