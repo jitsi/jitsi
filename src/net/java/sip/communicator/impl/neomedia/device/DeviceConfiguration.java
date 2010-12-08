@@ -63,8 +63,10 @@ public class DeviceConfiguration
 
     /**
      * When audio is disabled the selected audio system is with name None.
+     * Used and for audio devices, when disabled are set in configuration to
+     * None.
      */
-    public static final String AUDIO_SYSTEM_NONE = "None";
+    public static final String AUDIO_NONE = "None";
 
     /**
      * JavaSound sound system.
@@ -247,13 +249,13 @@ public class DeviceConfiguration
         if (config.getBoolean(PROP_AUDIO_DEVICE_IS_DISABLED, false))
         {
             audioCaptureDevice = null;
-            audioSystem = AUDIO_SYSTEM_NONE;
+            audioSystem = AUDIO_NONE;
         }
         else if (audioCaptureDevices.length < 1)
         {
             logger.warn("No Audio Device was found.");
             audioCaptureDevice = null;
-            audioSystem = AUDIO_SYSTEM_NONE;
+            audioSystem = AUDIO_NONE;
         }
         else
         {
@@ -263,13 +265,16 @@ public class DeviceConfiguration
 
             String audioDevName = config.getString(PROP_AUDIO_DEVICE);
 
-            if(audioDevName == null)
+            if(audioDevName == null || audioDevName.equals(AUDIO_NONE))
             {
                 // the default behaviour if nothing set is to use PortAudio
                 // this will also choose the capture device
                 if(PortAudioAuto.isSupported())
                 {
                     setAudioSystem(AUDIO_SYSTEM_PORTAUDIO, null, false);
+                    if(audioDevName != null
+                        && audioDevName.equals(AUDIO_NONE))
+                        setAudioCaptureDevice(null, false);
                 }
                 else
                 {
@@ -606,7 +611,7 @@ public class DeviceConfiguration
                         .setProperty(
                             PROP_AUDIO_DEVICE,
                             (audioCaptureDevice == null)
-                                ? null
+                                ? AUDIO_NONE
                                 : audioCaptureDevice.getName());
             }
 
@@ -692,7 +697,7 @@ public class DeviceConfiguration
                     res = asName;
             }
         }
-        return (res == null) ? AUDIO_SYSTEM_NONE : res;
+        return (res == null) ? AUDIO_NONE : res;
     }
 
     /**
@@ -713,7 +718,7 @@ public class DeviceConfiguration
 
         audioSystem = name;
 
-        if(name.equals(AUDIO_SYSTEM_NONE))
+        if(name.equals(AUDIO_NONE))
         {
             setAudioCaptureDevice(null, save);
             setAudioNotifyDevice(null, save);
@@ -721,9 +726,6 @@ public class DeviceConfiguration
         }
         else if(name.equals(AUDIO_SYSTEM_JAVASOUND))
         {
-            setAudioNotifyDevice(null, save);
-            setAudioPlaybackDevice(null, save);
-
             // as there is only one device for javasound
             // lets search for it
             if(captureDevice != null)
@@ -783,28 +785,42 @@ public class DeviceConfiguration
 
             if(audioNotifyDevName != null)
             {
-                for (CaptureDeviceInfo captureDeviceInfo :
-                        PortAudioAuto.playbackDevices)
+                if(audioNotifyDevName.equals(AUDIO_NONE))
                 {
-                    if (audioNotifyDevName.equals(
-                            captureDeviceInfo.getName()))
+                    setAudioNotifyDevice(null, save);
+                }
+                else
+                {
+                    for (CaptureDeviceInfo captureDeviceInfo :
+                            PortAudioAuto.playbackDevices)
                     {
-                        setAudioNotifyDevice(captureDeviceInfo, save);
-                        break;
+                        if (audioNotifyDevName.equals(
+                                captureDeviceInfo.getName()))
+                        {
+                            setAudioNotifyDevice(captureDeviceInfo, save);
+                            break;
+                        }
                     }
                 }
             }
 
             if(audioPlaybackDevName != null)
             {
-                for (CaptureDeviceInfo captureDeviceInfo :
-                        PortAudioAuto.playbackDevices)
+                if(audioPlaybackDevName.equals(AUDIO_NONE))
                 {
-                    if (audioPlaybackDevName.equals(
-                            captureDeviceInfo.getName()))
+                    setAudioPlaybackDevice(null, save);
+                }
+                else
+                {
+                    for (CaptureDeviceInfo captureDeviceInfo :
+                            PortAudioAuto.playbackDevices)
                     {
-                        setAudioPlaybackDevice(captureDeviceInfo, save);
-                        break;
+                        if (audioPlaybackDevName.equals(
+                                captureDeviceInfo.getName()))
+                        {
+                            setAudioPlaybackDevice(captureDeviceInfo, save);
+                            break;
+                        }
                     }
                 }
             }
@@ -924,7 +940,8 @@ public class DeviceConfiguration
                     config.setProperty(PROP_AUDIO_DEVICE_IS_DISABLED, false);
                 }
                 else
-                    config.setProperty(PROP_AUDIO_PLAYBACK_DEVICE, null);
+                    config.setProperty(PROP_AUDIO_PLAYBACK_DEVICE,
+                        AUDIO_NONE);
             }
 
             firePropertyChange(AUDIO_PLAYBACK_DEVICE,
@@ -960,7 +977,8 @@ public class DeviceConfiguration
                     config.setProperty(PROP_AUDIO_DEVICE_IS_DISABLED, false);
                 }
                 else
-                    config.setProperty(PROP_AUDIO_NOTIFY_DEVICE, null);
+                    config.setProperty(PROP_AUDIO_NOTIFY_DEVICE,
+                        AUDIO_NONE);
             }
 
             firePropertyChange(AUDIO_NOTIFY_DEVICE,

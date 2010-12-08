@@ -161,7 +161,7 @@ public class JmfDeviceDetector
         // audio systems, lets add option None, in order to be able to
         // disable audio
         DeviceConfiguration.addAudioSystem(
-            DeviceConfiguration.AUDIO_SYSTEM_NONE);
+            DeviceConfiguration.AUDIO_NONE);
 
         // video is enabled by default
         // if video is disabled skip device detection
