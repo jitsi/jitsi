@@ -87,27 +87,27 @@ public class PacketLoggingConfigForm
         ResourceManagementService resources =
                 PacketLoggingActivator.getResourceService();
 
-        enableCheckBox = new JCheckBox(
+        enableCheckBox = new SIPCommCheckBox(
             resources.getI18NString("impl.packetlogging.ENABLE_DISABLE"));
         enableCheckBox.addActionListener(this);
 
-        sipProtocolCheckBox = new JCheckBox(
+        sipProtocolCheckBox = new SIPCommCheckBox(
             resources.getI18NString("plugin.sipaccregwizz.PROTOCOL_NAME"));
         sipProtocolCheckBox.addActionListener(this);
 
-        jabberProtocolCheckBox = new JCheckBox(
+        jabberProtocolCheckBox = new SIPCommCheckBox(
             resources.getI18NString("plugin.jabberaccregwizz.PROTOCOL_NAME"));
         jabberProtocolCheckBox.addActionListener(this);
 
         String rtpDescription = resources.getI18NString(
             "impl.packetlogging.PACKET_LOGGING_RTP_DESCRIPTION");
-        rtpProtocolCheckBox = new JCheckBox(
+        rtpProtocolCheckBox = new SIPCommCheckBox(
             resources.getI18NString("impl.packetlogging.PACKET_LOGGING_RTP")
             + " " + rtpDescription);
         rtpProtocolCheckBox.addActionListener(this);
         rtpProtocolCheckBox.setToolTipText(rtpDescription);
 
-        ice4jProtocolCheckBox = new JCheckBox(
+        ice4jProtocolCheckBox = new SIPCommCheckBox(
             resources.getI18NString("impl.packetlogging.PACKET_LOGGING_ICE4J"));
         ice4jProtocolCheckBox.addActionListener(this);
 

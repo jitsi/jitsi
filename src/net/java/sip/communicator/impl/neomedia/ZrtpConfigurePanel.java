@@ -88,11 +88,11 @@ public class ZrtpConfigurePanel
 
         JPanel checkBar = new TransparentPanel(new GridLayout(1,2));
         final JCheckBox trustedMitM
-            = new JCheckBox(
+            = new SIPCommCheckBox(
                     resources.getI18NString("impl.media.security.zrtp.TRUSTED"),
                     trusted);
         final JCheckBox sasSignature
-            = new JCheckBox(
+            = new SIPCommCheckBox(
                     resources.getI18NString(
                             "impl.media.security.zrtp.SASSIGNATURE"),
                     sasSign);

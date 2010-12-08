@@ -13,11 +13,13 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  *
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public class ProvisioningForm
     extends TransparentPanel
@@ -67,19 +69,19 @@ public class ProvisioningForm
         ResourceManagementService resources
             = ProvisioningActivator.getResourceService();
 
-        enableCheckBox = new JCheckBox(
+        enableCheckBox = new SIPCommCheckBox(
             resources.getI18NString("plugin.provisioning.ENABLE_DISABLE"));
 
-        dhcpButton = new JRadioButton(
+        dhcpButton = createRadioButton(
             resources.getI18NString("plugin.provisioning.DHCP"));
 
-        dnsButton = new JRadioButton(
+        dnsButton = createRadioButton(
             resources.getI18NString("plugin.provisioning.DNS"));
 
-        bonjourButton = new JRadioButton(
+        bonjourButton = createRadioButton(
             resources.getI18NString("plugin.provisioning.BONJOUR"));
 
-        manualButton = new JRadioButton(
+        manualButton = createRadioButton(
             resources.getI18NString("plugin.provisioning.MANUAL"));
 
         uriField = new SIPCommTextField(
@@ -142,6 +144,24 @@ public class ProvisioningForm
 
         initButtonStates();
         initListeners();
+    }
+
+    /**
+     * Creates a new <tt>JRadioButton</tt> instance with the
+     * SIP Communicator-specific look and feel applied.
+     *
+     * @param text the text to be displayed in the <tt>JRadioButton</tt>
+     * @return a new <tt>JRadioButton</tt> instance with the
+     * SIP Communicator-specific look and feel applied
+     */
+    private JRadioButton createRadioButton(String text)
+    {
+        JRadioButton radioButton = new JRadioButton(text);
+
+        /* We want it transparent on Windows as well. */
+        if (OSUtils.IS_WINDOWS)
+            radioButton.setContentAreaFilled(false);
+        return radioButton;
     }
 
     /**
