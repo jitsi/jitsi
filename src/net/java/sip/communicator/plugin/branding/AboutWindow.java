@@ -30,6 +30,7 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  * @author Adam Netocny
+ * @author Lyubomir Marinov
  */
 public class AboutWindow
     extends JDialog
@@ -63,6 +64,7 @@ public class AboutWindow
              */
             aboutWindow.addWindowListener(new WindowAdapter()
             {
+                @Override
                 public void windowClosed(WindowEvent e)
                 {
                     if (aboutWindow == e.getWindow())
@@ -250,8 +252,8 @@ public class AboutWindow
         extends JPanel
         implements Skinnable
     {
-        private final Logger logger =
-            Logger.getLogger(WindowBackground.class.getName());
+        private static final Logger logger
+            = Logger.getLogger(WindowBackground.class);
 
         private Image bgImage = null;
 
@@ -280,6 +282,7 @@ public class AboutWindow
             }
         }
 
+        @Override
         protected void paintComponent(Graphics g)
         {
             super.paintComponent(g);
@@ -289,7 +292,24 @@ public class AboutWindow
             {
                 AntialiasingManager.activateAntialiasing(g);
 
-                g.drawImage(bgImage, 0, 0, null);
+                int bgImageWidth = bgImage.getWidth(null);
+                int bgImageHeight = bgImage.getHeight(null);
+                boolean bgImageHasBeenDrawn = false;
+
+                if ((bgImageWidth != -1) && (bgImageHeight != -1))
+                {
+                    int width = getWidth();
+                    int height = getHeight();
+
+                    if ((bgImageWidth < width) || (bgImageHeight < height))
+                    {
+                        g.drawImage(bgImage, 0, 0, width, height, null);
+                        bgImageHasBeenDrawn = true;
+                    }
+                }
+
+                if (!bgImageHasBeenDrawn)
+                    g.drawImage(bgImage, 0, 0, null);
             }
             finally
             {
@@ -318,7 +338,6 @@ public class AboutWindow
                         .getBundleContext().getService(serviceReference);
 
                 browserLauncherService.openURL(href);
-
             }
         }
     }
@@ -406,7 +425,7 @@ public class AboutWindow
         if (showApplicationNameProp != null
             && showApplicationNameProp.length() > 0)
         {
-            return new Boolean(showApplicationNameProp).booleanValue();
+            return Boolean.parseBoolean(showApplicationNameProp);
         }
 
         return true;
