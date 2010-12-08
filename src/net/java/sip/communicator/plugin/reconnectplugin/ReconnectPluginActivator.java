@@ -8,7 +8,6 @@ package net.java.sip.communicator.plugin.reconnectplugin;
 
 import java.net.*;
 import java.util.*;
-import java.util.ArrayList;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
@@ -77,15 +76,15 @@ public class ReconnectPluginActivator
      * registered. When a provider is unregistered it is removed
      * from this collection.
      */
-    private Map<ProtocolProviderService, List<String>> autoReconnEnabledProviders =
-        new Hashtable<ProtocolProviderService, List<String>>();
+    private final Map<ProtocolProviderService, List<String>> autoReconnEnabledProviders
+        = new HashMap<ProtocolProviderService, List<String>>();
 
     /**
      * Holds the currently reconnecting providers and their reconnect tasks.
      * When they get connected they are removed from this collection.
      */
-    private Map<ProtocolProviderService, ReconnectTask> currentlyReconnecting =
-        new Hashtable<ProtocolProviderService, ReconnectTask>();
+    private final Map<ProtocolProviderService, ReconnectTask> currentlyReconnecting
+        = new HashMap<ProtocolProviderService, ReconnectTask>();
 
     /**
      * If network is down we save here the providers which need to be reconnected.
@@ -130,7 +129,7 @@ public class ReconnectPluginActivator
     /**
      * Network notifications event type.
      */
-    public static final String NETWORK_NOTIFICATIONS = "NetowrkNotifications";
+    public static final String NETWORK_NOTIFICATIONS = "NetworkNotifications";
 
     /**
      *
@@ -421,7 +420,7 @@ public class ReconnectPluginActivator
         if(event.getType() == ChangeEvent.IFACE_UP)
         {
             // no connection so one is up, lets connect
-            if(connectedInterfaces.size() == 0)
+            if(connectedInterfaces.isEmpty())
             {
                 Iterator<ProtocolProviderService> iter =
                     needsReconnection.iterator();
@@ -590,7 +589,7 @@ public class ReconnectPluginActivator
                 if(needsReconnection.contains(pp))
                     return;
 
-                if(connectedInterfaces.size() == 0)
+                if(connectedInterfaces.isEmpty())
                 {
                     needsReconnection.add(pp);
 
