@@ -45,6 +45,9 @@ public class CommandNotificationHandlerImpl
      */
     public void execute()
     {
+        if(StringUtils.isNullOrEmpty(commandDescriptor, true))
+            return;
+
         try
         {
             Runtime.getRuntime().exec(commandDescriptor);

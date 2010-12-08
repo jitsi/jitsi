@@ -293,6 +293,8 @@ public class NotificationManager
                 .getEventNotificationActionHandler(
                     eventType, NotificationService.ACTION_SOUND);
 
-        soundHandler.stop();
+        // There can be no sound action handler for this event type
+        if(soundHandler != null)
+            soundHandler.stop();
     }
 }

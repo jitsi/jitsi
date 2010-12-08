@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.notification;
 
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.notification.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of the <tt>SoundNotificationHandlerImpl</tt> interface.
@@ -80,7 +81,8 @@ public class SoundNotificationHandlerImpl
         AudioNotifierService audioNotifService
             = NotificationActivator.getAudioNotifier();
 
-        if(audioNotifService == null)
+        if(audioNotifService == null
+            || StringUtils.isNullOrEmpty(soundFileDescriptor, true))
             return;
 
         audio = audioNotifService.createAudio(soundFileDescriptor);

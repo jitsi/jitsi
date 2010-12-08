@@ -272,8 +272,7 @@ public class NotificationsTable
     {
         for (int row = 0; row < notifTable.getRowCount(); row++)
         {
-            NotificationEntry entry = (NotificationEntry) notifTable
-                .getValueAt(row, notifTable.getColumnCount() - 1);
+            NotificationEntry entry = getNotificationEntry(row);
 
             if (entry.getEvent() == eventName)
                 return entry;
@@ -309,8 +308,7 @@ public class NotificationsTable
     {
         for (int row = 0; row < notifTable.getRowCount(); row++)
         {
-            NotificationEntry e = (NotificationEntry) notifTable
-                .getValueAt(row, notifTable.getColumnCount() - 1);
+            NotificationEntry e = getNotificationEntry(row);
 
             if (e.equals(entry))
                 return row;
@@ -440,9 +438,8 @@ public class NotificationsTable
                 else
                     notifTable.setValueAt(ENABLED, row, col);
 
-            NotificationEntry entry = (NotificationEntry) notifTable
-                .getValueAt(row, notifTable.getColumnCount() - 1);
-
+            NotificationEntry entry = getNotificationEntry(row);
+                     
             switch(col)
             { 
             case 0:
@@ -460,15 +457,19 @@ public class NotificationsTable
 
                 entry.setProgram(isProgram);
                 if(isProgram)
+                {
                     notificationService.registerNotificationForEvent(
                             entry.getEvent(),
                             NotificationService.ACTION_COMMAND,
                             entry.getProgramFile(),
                             "");
+                }
                 else
+                {
                     notificationService.removeEventNotificationAction(
                             entry.getEvent(),
                             NotificationService.ACTION_COMMAND);
+                }
                 break;
             case 2:
                 boolean isPopup = notifTable.getValueAt(row, 2).equals(ENABLED);
@@ -494,17 +495,23 @@ public class NotificationsTable
                 entry.setSound(isSound);
 
                 if (isSound)
+                {
                     notificationService.registerNotificationForEvent(
                         entry.getEvent(),
                         NotificationService.ACTION_SOUND,
                         entry.getSoundFile(),
                         "");
+                }
                 else
+                {
                     notificationService.removeEventNotificationAction(
                         entry.getEvent(),
                         NotificationService.ACTION_SOUND);
+                }
                 break;
             };
+
+            configPanel.setNotificationEntry(entry);
         }
     }
 

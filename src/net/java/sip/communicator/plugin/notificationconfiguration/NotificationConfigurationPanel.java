@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.audionotifier.*;
+import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -54,6 +55,12 @@ public class NotificationConfigurationPanel
 
     private SipCommFileChooser fileChooserProgram;
     private SipCommFileChooser fileChooserSound;
+
+    /**
+     * Used to suppress saving entry values while filling
+     * programFileTextField and soundFileTextField.
+     */
+    private boolean isCurrentlyChangeEntryInTable = false;
 
     /**
      * Creates an instance of <tt>NotificationConfigurationPanel</tt>.
@@ -173,6 +180,8 @@ public class NotificationConfigurationPanel
      */
     public void setNotificationEntry(NotificationEntry entry)
     {
+        isCurrentlyChangeEntryInTable = true;
+
         programFileChooser.setEnabled(entry.getProgram());
         programFileTextField.setEnabled(entry.getProgram());
 
@@ -186,6 +195,8 @@ public class NotificationConfigurationPanel
         String soundFile = entry.getSoundFile();
         soundFileTextField.setText(
             (soundFile != null && soundFile.length() > 0) ? soundFile : "");
+
+        isCurrentlyChangeEntryInTable = false;
     }
 
     /**
@@ -292,16 +303,37 @@ public class NotificationConfigurationPanel
      */
     public void insertUpdate(DocumentEvent event)
     {
+        // we are just changing display values, no real change in data
+        // to save it
+        if(isCurrentlyChangeEntryInTable)
+            return;
+
         NotificationEntry entry = notificationList.getNotificationEntry(
                                     notificationList.getSelectedRow());
 
         if(event.getDocument().equals(programFileTextField.getDocument()))
         {
             entry.setProgramFile(programFileTextField.getText());
+
+            NotificationConfigurationActivator.getNotificationService()
+                    .registerNotificationForEvent(
+                            entry.getEvent(),
+                            NotificationService.ACTION_COMMAND,
+                            entry.getProgramFile(),
+                            ""
+                    );
         }
         if(event.getDocument().equals(soundFileTextField.getDocument()))
         {
             entry.setSoundFile(soundFileTextField.getText());
+
+            NotificationConfigurationActivator.getNotificationService()
+                    .registerNotificationForEvent(
+                            entry.getEvent(),
+                            NotificationService.ACTION_SOUND,
+                            entry.getSoundFile(),
+                            ""
+                    );
         }
     }
 
@@ -311,16 +343,37 @@ public class NotificationConfigurationPanel
      */
     public void removeUpdate(DocumentEvent event)
     {
+        // we are just changing display values, no real change in data
+        // to save it
+        if(isCurrentlyChangeEntryInTable)
+            return;
+
         NotificationEntry entry = notificationList.getNotificationEntry(
             notificationList.getSelectedRow());
 
         if(event.getDocument().equals(programFileTextField.getDocument()))
         {
             entry.setProgramFile(programFileTextField.getText());
+
+            NotificationConfigurationActivator.getNotificationService()
+                    .registerNotificationForEvent(
+                            entry.getEvent(),
+                            NotificationService.ACTION_COMMAND,
+                            entry.getProgramFile(),
+                            ""
+                    );
         }
         if(event.getDocument().equals(soundFileTextField.getDocument()))
         {
             entry.setSoundFile(soundFileTextField.getText());
+
+            NotificationConfigurationActivator.getNotificationService()
+                    .registerNotificationForEvent(
+                            entry.getEvent(),
+                            NotificationService.ACTION_SOUND,
+                            entry.getSoundFile(),
+                            ""
+                    );
         }
     }
 
