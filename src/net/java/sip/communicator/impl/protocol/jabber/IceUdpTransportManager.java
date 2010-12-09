@@ -474,12 +474,31 @@ public class IceUdpTransportManager
                 }
                 transportInfoContent.addChildExtension(
                         JingleUtils.createTransport(stream));
+
+                /* We send each media content in separate transport-info.
+                 * It is absolutely not mandatory (we can simply send all
+                 * content in one transport-info) but the XMPP Jingle client
+                 * Empathy (via telepathy-gabble), which is present on many
+                 * Linux distributions and N900 mobile phone, has a bug when
+                 * it receives more than one content in transport-info.
+                 *
+                 * The related bug has been fixed in mainstream but the
+                 * Linux distributions have not updated their packages yet.
+                 * That's why we made this modification to be fully
+                 * interoperable with Empathy right now.
+                 *
+                 * In the future, we will get back to the original behavior:
+                 * sending all content in one transport-info.
+                 */
+                transportInfoContents.clear();
                 transportInfoContents.add(transportInfoContent);
+
+                transportInfoSender.sendTransportInfo(transportInfoContents);
             }
         }
 
-        if (transportInfoSender != null)
-            transportInfoSender.sendTransportInfo(transportInfoContents);
+        //if (transportInfoSender != null)
+        //    transportInfoSender.sendTransportInfo(transportInfoContents);
 
         this.cpeList = ourAnswer;
     }
