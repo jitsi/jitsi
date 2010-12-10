@@ -1606,6 +1606,27 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
+     * Returns the full jabber id (jid) corresponding to the given bare jid. If
+     * the provider is not connected returns null.
+     *
+     * @param bareJid the bare contact address (i.e. no resource) whose full
+     * jid we are looking for.
+     * @return the jid of the specified contact or null if the provider is not
+     * yet connected;
+     */
+    public String getFullJid(String bareJid)
+    {
+        XMPPConnection connection = getConnection();
+        if (connection == null)
+            return null;
+
+        Roster roster = getConnection().getRoster();
+        Presence presence = roster.getPresence(bareJid);
+
+        return presence.getFrom();
+    }
+
+    /**
      * The trust manager which asks the client whether to trust particular
      * certificate which is not globally trusted.
      */
