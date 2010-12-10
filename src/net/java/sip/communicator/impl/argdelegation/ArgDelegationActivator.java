@@ -12,7 +12,7 @@ import net.java.sip.communicator.util.launchutils.*;
 
 import org.osgi.framework.*;
 
-import com.apple.eawt.AppEvent.*;
+//import com.apple.eawt.AppEvent.*;
 import com.apple.eawt.*;
 
 /**
@@ -65,13 +65,13 @@ public class ArgDelegationActivator
 
             if(application != null)
             {
-                application.setOpenURIHandler(new OpenURIHandler() {
-
-                    public void openURI(OpenURIEvent evt)
-                    {
-                        delegationPeer.handleUri(evt.getURI().toString());
-                    }
-                });
+//                application.setOpenURIHandler(new OpenURIHandler() {
+//
+//                    public void openURI(OpenURIEvent evt)
+//                    {
+//                        delegationPeer.handleUri(evt.getURI().toString());
+//                    }
+//                });
             }
         }
     }
