@@ -12,6 +12,9 @@ import net.java.sip.communicator.util.launchutils.*;
 
 import org.osgi.framework.*;
 
+import com.apple.eawt.AppEvent.*;
+import com.apple.eawt.*;
+
 /**
  * Activates the <tt>ArgDelegationService</tt> and registers a URI delegation
  * peer with the util package arg manager so that we would be notified when the
@@ -55,6 +58,22 @@ public class ArgDelegationActivator
 
         //register our instance of delegation peer.
         LaunchArgHandler.getInstance().setDelegationPeer(delegationPeer);
+
+        if(OSUtils.IS_MAC)
+        {
+            Application application = Application.getApplication();
+
+            if(application != null)
+            {
+                application.setOpenURIHandler(new OpenURIHandler() {
+
+                    public void openURI(OpenURIEvent evt)
+                    {
+                        delegationPeer.handleUri(evt.getURI().toString());
+                    }
+                });
+            }
+        }
     }
 
     /**

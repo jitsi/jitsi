@@ -5,6 +5,7 @@ Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,
+ com.apple.eawt,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.launchutils,
  net.java.sip.communicator.service.configuration,
