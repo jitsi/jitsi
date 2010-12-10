@@ -160,7 +160,6 @@ public abstract class ProtocolProviderFactory
      */
     public static final String PROXY_TRANSPORT = "PROXY_TRANSPORT";
 
-
     /**
      * The name of the property under which we store the user preference for a
      * transport protocol to use (i.e. tcp or udp).
@@ -313,6 +312,17 @@ public abstract class ProtocolProviderFactory
      * STUN servers specified.
      */
     public static final String STUN_IS_TURN_SUPPORTED = "IS_TURN_SUPPORTED";
+
+    /**
+     * Indicates if JingleNodes should be used with ICE.
+     */
+    public static final String IS_USE_JINGLE_NODES = "JINGLE_NODES_ENABLED";
+
+    /**
+     * Indicates if JingleNodes should be used with ICE.
+     */
+    public static final String AUTO_DISCOVER_JINGLE_NODES
+        = "AUTO_DISCOVER_JINGLE_NODES";
 
     /**
      * Address used to reach voicemail box, by services able to

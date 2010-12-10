@@ -105,6 +105,22 @@ public class JabberAccountRegistration
         = new ArrayList<StunServerDescriptor>();
 
     /**
+     * Indicates if JingleNodes relays should be used.
+     */
+    private boolean isUseJingleNodes = false;
+
+    /**
+     * Indicates if JingleNodes relay server should be automatically discovered.
+     */
+    private boolean isAutoDiscoverJingleNodes = false;
+
+    /**
+     * The list of additional JingleNodes (tracker or relay) entered by user.
+     */
+    private List<JingleNodeDescriptor> additionalJingleNodes
+        = new ArrayList<JingleNodeDescriptor>();
+
+    /**
      * Returns the password of the jabber registration account.
      * @return the password of the jabber registration account.
      */
@@ -362,5 +378,83 @@ public class JabberAccountRegistration
     public List<StunServerDescriptor> getAdditionalStunServers()
     {
         return additionalStunServers;
+    }
+
+    /**
+     * Sets the <tt>autoDiscoverJingleNodes</tt> property.
+     *
+     * @param isAutoDiscover <tt>true</tt> to indicate that relay server should
+     * be auto-discovered, <tt>false</tt> - otherwise.
+     */
+    public void setAutoDiscoverJingleNodes(boolean isAutoDiscover)
+    {
+        this.isAutoDiscoverJingleNodes = isAutoDiscover;
+    }
+
+    /**
+     * Indicates if the JingleNodes relay server should be automatically
+     * discovered.
+     *
+     * @return <tt>true</tt> if the relay server should be automatically
+     * discovered, otherwise returns <tt>false</tt>.
+     */
+    public boolean isAutoDiscoverJingleNodes()
+    {
+        return isAutoDiscoverJingleNodes;
+    }
+
+    /**
+     * Sets the <tt>useJingleNodes/tt> property.
+     *
+     * @param isUseJingleNodes <tt>true</tt> to indicate that Jingle Nodes
+     * should be used for this account, <tt>false</tt> - otherwise.
+     */
+    public void setUseJingleNodes(boolean isUseJingleNodes)
+    {
+        this.isUseJingleNodes = isUseJingleNodes;
+    }
+
+    /**
+     * Sets the <tt>useJingleNodes</tt> property.
+     *
+     * @param isUseJingleNodes <tt>true</tt> to indicate that JingleNodes relays
+     * should be used for this account, <tt>false</tt> - otherwise.
+     */
+    public void isUseJingleNodes(boolean isUseJingleNodes)
+    {
+        this.isUseJingleNodes = isUseJingleNodes;
+    }
+
+    /**
+     * Indicates if JingleNodes relay should be used.
+     *
+     * @return <tt>true</tt> if JingleNodes should be used, <tt>false</tt>
+     * otherwise
+     */
+    public boolean isUseJingleNodes()
+    {
+        return isUseJingleNodes;
+    }
+
+    /**
+     * Adds the given <tt>node</tt> to the list of additional JingleNodes.
+     *
+     * @param node the <tt>node</tt> to add
+     */
+    public void addJingleNodes(JingleNodeDescriptor node)
+    {
+        additionalJingleNodes.add(node);
+    }
+
+    /**
+     * Returns the <tt>List</tt> of all additional stun servers entered by the
+     * user. The list is guaranteed not to be <tt>null</tt>.
+     *
+     * @return the <tt>List</tt> of all additional stun servers entered by the
+     * user.
+     */
+    public List<JingleNodeDescriptor> getAdditionalJingleNodes()
+    {
+        return additionalJingleNodes;
     }
 }

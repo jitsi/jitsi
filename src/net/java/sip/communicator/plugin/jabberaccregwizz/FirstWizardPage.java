@@ -27,6 +27,11 @@ public class FirstWizardPage
     extends TransparentPanel
     implements  WizardPage
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
     private final AccountPanel accountPanel;
@@ -180,6 +185,20 @@ public class FirstWizardPage
         for (StunServerDescriptor descriptor : stunServers)
             registration.addStunServer(descriptor);
 
+        registration.setUseJingleNodes(iceConfigPanel.isUseJingleNodes());
+        registration.setAutoDiscoverJingleNodes(
+                iceConfigPanel.isAutoDiscoverJingleNodes());
+
+        //we will be reentering all Jingle nodes so let's make sure we clear
+        //the servers vector in case we already did that with a "Next".
+        registration.getAdditionalJingleNodes().clear();
+
+        List<JingleNodeDescriptor> jingleNodes
+            = iceConfigPanel.getAdditionalJingleNodes();
+
+        for (JingleNodeDescriptor descriptor : jingleNodes)
+            registration.addJingleNodes(descriptor);
+
         nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
 
         this.isCommitted = true;
@@ -302,15 +321,45 @@ public class FirstWizardPage
                 = StunServerDescriptor.loadDescriptor(
                     accountProperties, ProtocolProviderFactory.STUN_PREFIX + i);
 
-
-
             // If we don't find a stun server with the given index, it means
-            // that there're no more servers left i nthe table so we've nothing
+            // that there're no more servers left in the table so we've nothing
             // more to do here.
             if (stunServer == null)
                 break;
 
             iceConfigPanel.addStunServer(stunServer);
+        }
+
+        String useJN =
+            accountProperties.get(ProtocolProviderFactory.IS_USE_JINGLE_NODES);
+        boolean isUseJN = Boolean.parseBoolean(
+                (useJN != null && useJN.length() != 0) ? useJN : "false");
+
+        iceConfigPanel.setUseJingleNodes(isUseJN);
+
+        String useAutoDiscoverJN
+            = accountProperties.get(
+                    ProtocolProviderFactory.AUTO_DISCOVER_JINGLE_NODES);
+        boolean isUseAutoDiscoverJN = Boolean.parseBoolean(
+                (useAutoDiscoverJN != null &&
+                        useAutoDiscoverJN.length() != 0) ?
+                                useAutoDiscoverJN : "false");
+
+        iceConfigPanel.setAutoDiscoverJingleNodes(isUseAutoDiscoverJN);
+
+        for (int i = 0; i < JingleNodeDescriptor.MAX_JN_RELAY_COUNT ; i ++)
+        {
+            JingleNodeDescriptor jn
+                = JingleNodeDescriptor.loadDescriptor(
+                    accountProperties, JingleNodeDescriptor.JN_PREFIX + i);
+
+            // If we don't find a stun server with the given index, it means
+            // that there're no more servers left in the table so we've nothing
+            // more to do here.
+            if (jn == null)
+                break;
+
+            iceConfigPanel.addJingleNodes(jn);
         }
 
         this.isServerOverridden

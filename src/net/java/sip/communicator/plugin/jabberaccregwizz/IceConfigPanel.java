@@ -54,12 +54,36 @@ public class IceConfigPanel
     /**
      * The table model for our additional stun servers table.
      */
-    private final StunServerTableModel tableModel = new StunServerTableModel();
+    private final ServerTableModel tableModel = new ServerTableModel();
 
     /**
      * The stun server table.
      */
     private final JTable table = new JTable(tableModel);
+
+    /**
+     * The check box allowing the user to choose to use JingleNodes.
+     */
+    private final JCheckBox jnBox = new SIPCommCheckBox(
+        Resources.getString("plugin.jabberaccregwizz.USE_JINGLE_NODES"));
+
+    /**
+     * The check box allowing the user to choose to automatically discover
+     * JingleNodes relays.
+     */
+    private final JCheckBox jnAutoDiscoverBox = new SIPCommCheckBox(
+        Resources.getString("plugin.jabberaccregwizz.AUTO_DISCOVER_JN"));
+
+    /**
+     * The table model for our additional stun servers table.
+     */
+    private final ServerTableModel jnTableModel =
+        new ServerTableModel();
+
+    /**
+     * The JingleNodes server table.
+     */
+    private final JTable jnTable = new JTable(jnTableModel);
 
     /**
      * Creates an instance of <tt>IceConfigPanel</tt>.
@@ -80,6 +104,9 @@ public class IceConfigPanel
         autoDiscoverBox.setSelected(true);
         defaultStunBox.setSelected(true);
 
+        //jnBox.setSelected(true);
+        //jnAutoDiscoverBox.setSelected(true);
+
         JPanel checkBoxPanel = new TransparentPanel(new GridLayout(0, 1));
         checkBoxPanel.add(iceBox);
         checkBoxPanel.add(autoDiscoverBox);
@@ -88,6 +115,14 @@ public class IceConfigPanel
         add(checkBoxPanel);
         add(Box.createVerticalStrut(10));
         add(createAdditionalServersComponent());
+
+        checkBoxPanel = new TransparentPanel(new GridLayout(0, 1));
+        checkBoxPanel.add(jnBox);
+        checkBoxPanel.add(jnAutoDiscoverBox);
+
+        add(checkBoxPanel);
+        add(Box.createVerticalStrut(10));
+        add(createAdditionalJingleNodesComponent());
     }
 
     /**
@@ -106,7 +141,7 @@ public class IceConfigPanel
             Resources.getString("plugin.jabberaccregwizz.SUPPORT_TURN"));
 
         table.setDefaultRenderer(   StunServerDescriptor.class,
-                                    new StunServerCellRenderer());
+                                    new ServerCellRenderer());
 
         //Create the scroll pane and add the table to it.
         JScrollPane scrollPane = new JScrollPane(table);
@@ -480,7 +515,7 @@ public class IceConfigPanel
      * A custom cell renderer used in the cell containing the
      * <tt>StunServer</tt> instance.
      */
-    private static class StunServerCellRenderer
+    private static class ServerCellRenderer
         extends DefaultTableCellRenderer
     {
         /**
@@ -564,6 +599,27 @@ public class IceConfigPanel
                          : table.getBackground());
                 }
             }
+            else if(value instanceof JingleNodeDescriptor)
+            {
+                JingleNodeDescriptor jn = (JingleNodeDescriptor) value;
+
+                this.setText(jn.getJID());
+
+                if (isSelected)
+                {
+                    super.setForeground(table.getSelectionForeground());
+                    super.setBackground(table.getSelectionBackground());
+                }
+                else
+                {
+                     super.setForeground((unselectedForeground != null)
+                         ? unselectedForeground
+                         : table.getForeground());
+                     super.setBackground((unselectedBackground != null)
+                         ? unselectedBackground
+                         : table.getBackground());
+                }
+            }
             else
                 return super.getTableCellRendererComponent(table, value,
                     isSelected, hasFocus, row, column);
@@ -576,7 +632,7 @@ public class IceConfigPanel
      * A custom table model, with a non editable cells and a custom class column
      * objects.
      */
-    private class StunServerTableModel
+    private class ServerTableModel
         extends DefaultTableModel
     {
         /**
@@ -616,7 +672,7 @@ public class IceConfigPanel
      * @return <tt>true</tt> if ICE should be used for this account, otherwise
      * returns <tt>false</tt>
      */
-    boolean isUseIce()
+    protected boolean isUseIce()
     {
         return iceBox.isSelected();
     }
@@ -626,7 +682,7 @@ public class IceConfigPanel
      * @param isUseIce <tt>true</tt> to indicate that ICE should be used for
      * this account, <tt>false</tt> - otherwise.
      */
-    void setUseIce(boolean isUseIce)
+    protected void setUseIce(boolean isUseIce)
     {
         iceBox.setSelected(isUseIce);
     }
@@ -636,7 +692,7 @@ public class IceConfigPanel
      * @return <tt>true</tt> if the stun server should be automatically
      * discovered, otherwise returns <tt>false</tt>.
      */
-    boolean isAutoDiscoverStun()
+    protected boolean isAutoDiscoverStun()
     {
         return autoDiscoverBox.isSelected();
     }
@@ -646,7 +702,7 @@ public class IceConfigPanel
      * @param isAutoDiscover <tt>true</tt> to indicate that stun server should
      * be auto-discovered, <tt>false</tt> - otherwise.
      */
-    void setAutoDiscoverStun(boolean isAutoDiscover)
+    protected void setAutoDiscoverStun(boolean isAutoDiscover)
     {
         autoDiscoverBox.setSelected(isAutoDiscover);
     }
@@ -656,7 +712,7 @@ public class IceConfigPanel
      * @return <tt>true</tt> if the default stun server should be used,
      * otherwise returns <tt>false</tt>.
      */
-    boolean isUseDefaultStunServer()
+    protected boolean isUseDefaultStunServer()
     {
         return defaultStunBox.isSelected();
     }
@@ -666,7 +722,7 @@ public class IceConfigPanel
      * @param isDefaultStun <tt>true</tt> to indicate that the default stun
      * server should be used, <tt>false</tt> otherwise.
      */
-    void setUseDefaultStunServer(boolean isDefaultStun)
+    protected void setUseDefaultStunServer(boolean isDefaultStun)
     {
         defaultStunBox.setSelected(isDefaultStun);
     }
@@ -676,8 +732,8 @@ public class IceConfigPanel
      *
      * @return the list of additional stun servers entered by the user
      */
-    @SuppressWarnings("unchecked")//getDataVector() is simply not parametrized
-    List<StunServerDescriptor> getAdditionalStunServers()
+    @SuppressWarnings("unchecked")//getDataVector() is simply not parameterized
+    protected List<StunServerDescriptor> getAdditionalStunServers()
     {
         LinkedList<StunServerDescriptor> serversList
                                     = new LinkedList<StunServerDescriptor>();
@@ -696,7 +752,7 @@ public class IceConfigPanel
      * servers.
      * @param stunServer the stun server to add
      */
-    void addStunServer(StunServerDescriptor stunServer)
+    protected void addStunServer(StunServerDescriptor stunServer)
     {
         tableModel.addRow(new Object[]{stunServer,
             stunServer.isTurnSupported()});
@@ -707,7 +763,7 @@ public class IceConfigPanel
      *
      * @param stunServer the stun server to modify
      */
-    void modifyStunServer(StunServerDescriptor stunServer)
+    protected void modifyStunServer(StunServerDescriptor stunServer)
     {
         for (int i = 0; i < tableModel.getRowCount(); i++)
         {
@@ -734,7 +790,7 @@ public class IceConfigPanel
      * <tt>address</tt> and <tt>port</tt> already exists in the table, otherwise
      *  returns <tt>null</tt>
      */
-    StunServerDescriptor getStunServer(String address, int port)
+    protected StunServerDescriptor getStunServer(String address, int port)
     {
         for (int i = 0; i < tableModel.getRowCount(); i++)
         {
@@ -789,6 +845,407 @@ public class IceConfigPanel
             }
 
             return NetworkUtils.isValidPortNumber(port);
+        }
+    }
+
+    /**
+     * Creates the list of additional JingleNodes that are added by the user.
+     *
+     * @return the created component
+     */
+    private Component createAdditionalJingleNodesComponent()
+    {
+        jnTable.setPreferredScrollableViewportSize(new Dimension(450, 60));
+
+        jnTableModel.addColumn(
+            Resources.getString("plugin.jabberaccregwizz.JID_ADDRESS"));
+        jnTableModel.addColumn(
+            Resources.getString("plugin.jabberaccregwizz.RELAY_SUPPORT"));
+
+        jnTable.setDefaultRenderer(JingleNodeDescriptor.class,
+                                    new ServerCellRenderer());
+
+        //Create the scroll pane and add the table to it.
+        JScrollPane scrollPane = new JScrollPane(jnTable);
+
+        JButton addButton
+            = new JButton(Resources.getString("service.gui.ADD"));
+        addButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                JNConfigDialog jnDialog = new JNConfigDialog(false);
+
+                jnDialog.setVisible(true);
+            }
+        });
+
+        JButton editButton
+            = new JButton(Resources.getString("service.gui.EDIT"));
+        editButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if(jnTable.getSelectedRow() < 0)
+                    return;
+
+                JingleNodeDescriptor jn
+                    = (JingleNodeDescriptor) jnTableModel.getValueAt(
+                        jnTable.getSelectedRow(), 0);
+
+                if (jn != null)
+                {
+                    JNConfigDialog dialog = new JNConfigDialog(
+                                    jn.getJID(), jn.isRelaySupported());
+
+                    dialog.setVisible(true);
+                }
+            }
+        });
+
+        JButton deleteButton
+            = new JButton(Resources.getString("service.gui.DELETE"));
+        deleteButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                jnTableModel.removeRow(jnTable.getSelectedRow());
+            }
+        });
+
+        TransparentPanel buttonsPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        buttonsPanel.add(addButton);
+        buttonsPanel.add(editButton);
+        buttonsPanel.add(deleteButton);
+
+        TransparentPanel mainPanel = new TransparentPanel(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createTitledBorder(
+            Resources.getString(
+                "plugin.jabberaccregwizz.ADDITIONAL_JINGLE_NODES")));
+        mainPanel.add(scrollPane);
+        mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
+        return mainPanel;
+    }
+
+    /**
+     * The JingleNodes configuration window.
+     */
+    private class JNConfigDialog extends SIPCommDialog
+    {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
+        /**
+         * The main panel
+         */
+        private final JPanel mainPanel
+                                = new TransparentPanel(new BorderLayout());
+
+        /**
+         * The address of the stun server.
+         */
+        private final JTextField addressField = new JTextField();
+
+        /**
+         * The check box where user would indicate whether a STUN server is also
+         * a TURN server.
+         */
+        private final JCheckBox supportRelayCheckBox = new JCheckBox(
+            Resources.getString("plugin.jabberaccregwizz.RELAY_SUPPORT"));
+
+        /**
+         * The pane where we show errors.
+         */
+        private JEditorPane errorMessagePane;
+
+        /**
+         * If the dialog is open via "edit" button.
+         */
+        private final boolean isEditMode;
+
+        /**
+         * Creates a new JNConfigDialog with filled in values.
+         *
+         * @param address the IP or FQDN of the server
+         * @param isRelaySupport a <tt>boolean</tt> indicating whether the node
+         * supports relay
+         */
+        public JNConfigDialog(String  address, boolean isRelaySupport)
+        {
+            this(true);
+
+            addressField.setText(address);
+            supportRelayCheckBox.setSelected(isRelaySupport);
+        }
+
+        /**
+         * Creates an empty dialog.
+         *
+         * @param editMode true if the dialog is in "edit" state, false means
+         * "add" state
+         */
+        public JNConfigDialog(boolean editMode)
+        {
+            super(false);
+
+            this.isEditMode = editMode;
+
+            setTitle(Resources.getString(
+                "plugin.jabberaccregwizz.ADD_JINGLE_NODE"));
+
+            JLabel addressLabel = new JLabel(
+                Resources.getString("plugin.jabberaccregwizz.JID_ADDRESS"));
+
+            TransparentPanel labelsPanel
+                = new TransparentPanel(new GridLayout(0, 1));
+
+            labelsPanel.add(addressLabel);
+            labelsPanel.add(new JLabel());
+
+            TransparentPanel valuesPanel
+                = new TransparentPanel(new GridLayout(0, 1));
+
+            valuesPanel.add(addressField);
+            valuesPanel.add(supportRelayCheckBox);
+
+            JButton addButton
+                = new JButton(Resources.getString(isEditMode ?
+                        "service.gui.EDIT" : "service.gui.ADD"));
+            JButton cancelButton
+                = new JButton(Resources.getString("service.gui.CANCEL"));
+
+            addButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    String address = addressField.getText();
+                    JingleNodeDescriptor jnServer = null;
+
+                    String errorMessage = null;
+                    if (address == null || address.length() <= 0)
+                        errorMessage = Resources.getString(
+                            "plugin.jabberaccregwizz.NO_STUN_ADDRESS");
+
+                    jnServer = getJingleNodes(address);
+
+                    if(jnServer != null && !isEditMode)
+                    {
+                        errorMessage = Resources.getString(
+                            "plugin.jabberaccregwizz.STUN_ALREADY_EXIST");
+                    }
+
+                    if (errorMessage != null)
+                    {
+                        loadErrorMessage(errorMessage);
+                        return;
+                    }
+
+                    if(!isEditMode)
+                    {
+                        jnServer = new JingleNodeDescriptor(
+                                address, supportRelayCheckBox.isSelected());
+
+                        addJingleNodes(jnServer);
+                    }
+                    else
+                    {
+                        /* edit an existing Jingle Node */
+                        jnServer.setAddress(address);
+
+                        jnServer.setRelay(supportRelayCheckBox.isSelected());
+                        modifyJingleNodes(jnServer);
+                    }
+                    dispose();
+                }
+            });
+
+            cancelButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    dispose();
+                }
+            });
+
+            TransparentPanel buttonsPanel
+                = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+            buttonsPanel.add(addButton);
+            buttonsPanel.add(cancelButton);
+
+            mainPanel.add(labelsPanel, BorderLayout.WEST);
+            mainPanel.add(valuesPanel, BorderLayout.CENTER);
+            mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
+            mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20,
+                    20));
+            getContentPane().add(mainPanel, BorderLayout.NORTH);
+            pack();
+        }
+
+        /**
+         * Loads the given error message in the current dialog, by re-validating
+         * the content.
+         *
+         * @param errorMessage The error message to load.
+         */
+        private void loadErrorMessage(String errorMessage)
+        {
+            if (errorMessagePane == null)
+            {
+                errorMessagePane = new JEditorPane();
+
+                errorMessagePane.setOpaque(false);
+                errorMessagePane.setForeground(Color.RED);
+
+                mainPanel.add(errorMessagePane, BorderLayout.NORTH);
+            }
+
+            errorMessagePane.setText(errorMessage);
+            mainPanel.revalidate();
+            mainPanel.repaint();
+
+            this.pack();
+
+            //WORKAROUND: there's something wrong happening in this pack and
+            //components get cluttered, partially hiding the password text field.
+            //I am under the impression that this has something to do with the
+            //message pane preferred size being ignored (or being 0) which is
+            //why I am adding it's height to the dialog. It's quite ugly so
+            //please fix if you have something better in mind.
+            this.setSize(getWidth(), getHeight() +
+                    errorMessagePane.getHeight());
+        }
+
+        /**
+         * Dummy implementation that we are not using.
+         *
+         * @param escaped unused
+         */
+        @Override
+        protected void close(boolean escaped) {}
+    }
+
+    /**
+     * Indicates if Jingle Nodes should be used for this account.
+     *
+     * @return <tt>true</tt> if Jingle Nodes should be used for this account,
+     * otherwise returns <tt>false</tt>
+     */
+    protected boolean isUseJingleNodes()
+    {
+        return jnBox.isSelected();
+    }
+
+    /**
+     * Sets the <tt>useJingleNodes</tt> property.
+     *
+     * @param isUseJN <tt>true</tt> to indicate that Jingle Nodes should be
+     * used for this account, <tt>false</tt> - otherwise.
+     */
+    protected void setUseJingleNodes(boolean isUseJN)
+    {
+        jnBox.setSelected(isUseJN);
+    }
+
+    /**
+     * Indicates if the Jingle Nodes relays should be automatically discovered.
+     *
+     * @return <tt>true</tt> if the Jingle Nodes relays should be automatically
+     * discovered, otherwise returns <tt>false</tt>.
+     */
+    protected boolean isAutoDiscoverJingleNodes()
+    {
+        return jnAutoDiscoverBox.isSelected();
+    }
+
+    /**
+     * Sets the <tt>autoDiscoverJingleNodes</tt> property.
+     *
+     * @param isAutoDiscover <tt>true</tt> to indicate that Jingle Nodes relays
+     * should be auto-discovered, <tt>false</tt> - otherwise.
+     */
+    protected void setAutoDiscoverJingleNodes(boolean isAutoDiscover)
+    {
+        jnAutoDiscoverBox.setSelected(isAutoDiscover);
+    }
+
+    /**
+     * Returns the list of additional Jingle Nodes entered by the user.
+     *
+     * @return the list of additional Jingle Nodes entered by the user
+     */
+    @SuppressWarnings("unchecked")//getDataVector() is simply not parameterized
+    protected List<JingleNodeDescriptor> getAdditionalJingleNodes()
+    {
+        LinkedList<JingleNodeDescriptor> serversList
+                                    = new LinkedList<JingleNodeDescriptor>();
+
+        Vector<Vector<JingleNodeDescriptor>> serverRows
+                                    = jnTableModel.getDataVector();
+
+        for(Vector<JingleNodeDescriptor> row : serverRows)
+            serversList.add(row.elementAt(0));
+
+        return serversList;
+    }
+
+    /**
+     * Indicates if a JingleNodes with the given <tt>address</tt> already exists
+     * in the additional stun servers table.
+     *
+     * @param address the JingleNodes address to check
+     *
+     * @return <tt>JingleNodesDescriptor</tt> if a Jingle Node with the given
+     * <tt>address</tt> already exists in the table, otherwise returns
+     * <tt>null</tt>
+     */
+    protected JingleNodeDescriptor getJingleNodes(String address)
+    {
+        for (int i = 0; i < jnTableModel.getRowCount(); i++)
+        {
+            JingleNodeDescriptor jn
+                = (JingleNodeDescriptor) jnTableModel.getValueAt(i, 0);
+
+            if (jn.getJID().equalsIgnoreCase(address))
+                return jn;
+        }
+        return null;
+    }
+
+    /**
+     * Adds the given <tt>jingleNode</tt> to the list of additional JingleNodes
+     *
+     * @param jingleNode the Jingle Node server to add
+     */
+    protected void addJingleNodes(JingleNodeDescriptor jingleNode)
+    {
+        jnTableModel.addRow(new Object[]{jingleNode,
+            jingleNode.isRelaySupported()});
+    }
+
+    /**
+     * Modify the given <tt>jingleNode</tt> from the list of Jingle Nodes.
+     *
+     * @param jingleNode the Jingle Node to modify
+     */
+    protected void modifyJingleNodes(JingleNodeDescriptor jingleNode)
+    {
+        for (int i = 0; i < jnTableModel.getRowCount(); i++)
+        {
+            JingleNodeDescriptor node
+                = (JingleNodeDescriptor) jnTableModel.getValueAt(i, 0);
+
+            if(jingleNode == node)
+            {
+                jnTableModel.setValueAt(jingleNode, i, 0);
+                jnTableModel.setValueAt(jingleNode.isRelaySupported(), i, 1);
+                return;
+            }
         }
     }
 }

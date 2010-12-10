@@ -31,6 +31,7 @@ import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
 
 import org.osgi.framework.*;
+import org.xmpp.jnodes.smack.*;
 
 /**
  * An implementation of the protocol provider service over the Jabber protocol
@@ -90,6 +91,12 @@ public class ProtocolProviderServiceJabberImpl
      */
     public static final String URN_XMPP_JINGLE_ICE_UDP_1
         = IceUdpTransportPacketExtension.NAMESPACE;
+
+    /**
+     * Jingle's Discovery Info URN for Jingle Nodes support.
+     */
+    public static final String URN_XMPP_JINGLE_NODES
+        = "http://jabber.org/protocol/jinglenodes";
 
     /**
      * Jingle's Discover Info URN for "XEP-0251: Jingle Session Transfer"
@@ -235,6 +242,16 @@ public class ProtocolProviderServiceJabberImpl
      * The debugger who logs packets.
      */
     private SmackPacketDebugger debugger = null;
+
+    /**
+     * Jingle Nodes service.
+     */
+    private SmackServiceNode jingleNodesServiceNode = null;
+
+    /**
+     * Synchronization object to monitore jingle nodes auto discovery.
+     */
+    private final Object jingleNodesSyncRoot = new Object();
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -823,6 +840,8 @@ public class ProtocolProviderServiceJabberImpl
                 logger.error("Failed to publish presence status");
             }
 
+            startJingleNodesDiscovery();
+
             return ConnectState.STOP_TRYING;
         }
         else
@@ -1183,6 +1202,17 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_ZRTP);
+
+            /*
+             * Reflect the preference of the user with respect to the use of
+             * Jingle Nodes.
+             */
+            if (accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactoryJabberImpl.IS_USE_JINGLE_NODES,
+                    false))
+            {
+                supportedFeatures.add(URN_XMPP_JINGLE_NODES);
+            }
 
             /* add extension to support remote control */
             supportedFeatures.add(InputEvtIQ.NAMESPACE);
@@ -1755,6 +1785,71 @@ public class ProtocolProviderServiceJabberImpl
             logger.debug("Returning address " + nextHop + " as next hop.");
 
         return nextHop;
+    }
+
+    /**
+     * Start auto-discovery of JingleNodes tracker/relays.
+     */
+    public void startJingleNodesDiscovery()
+    {
+        // Jingle Nodes Service Initialization
+        JabberAccountID accID = (JabberAccountID)getAccountID();
+        jingleNodesServiceNode = new SmackServiceNode(connection, 60000);
+
+        for(JingleNodeDescriptor desc : accID.getJingleNodes())
+        {
+            TrackerEntry entry = new TrackerEntry(
+                    desc.isRelaySupported() ? TrackerEntry.Type.relay :
+                        TrackerEntry.Type.tracker,
+                    TrackerEntry.Policy._public,
+                    desc.getJID(),
+                    JingleChannelIQ.UDP);
+
+            jingleNodesServiceNode.addTrackerEntry(entry);
+        }
+
+        final SmackServiceNode service = jingleNodesServiceNode;
+        final boolean autoDiscover = accID.isJingleNodesAutoDiscoveryEnabled();
+
+        new Thread()
+        {
+            public void run()
+            {
+                synchronized(jingleNodesSyncRoot)
+                {
+                    if(logger.isInfoEnabled())
+                    {
+                        logger.info("Start Jingle Nodes discovery!");
+                    }
+
+                    final SmackServiceNode.MappedNodes nodes =
+                        service.searchServices(
+                                connection, 6, 3, 20, JingleChannelIQ.UDP,
+                                autoDiscover);
+
+                    if(logger.isInfoEnabled())
+                    {
+                        logger.info("Jingle Nodes discovery terminated!");
+                    }
+
+                    service.addEntries(nodes);
+                }
+            }
+        }.start();
+    }
+
+    /**
+     * Get the Jingle Nodes service. Note that this method will block until
+     * Jingle Nodes auto discovery (if enabled) finished.
+     *
+     * @return Jingle Nodes service
+     */
+    public SmackServiceNode getJingleNodesServiceNode()
+    {
+        synchronized(jingleNodesSyncRoot)
+        {
+            return jingleNodesServiceNode;
+        }
     }
 
     /**

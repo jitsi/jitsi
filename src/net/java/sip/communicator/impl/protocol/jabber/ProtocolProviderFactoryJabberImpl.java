@@ -20,6 +20,10 @@ import org.osgi.framework.*;
 public class ProtocolProviderFactoryJabberImpl
     extends ProtocolProviderFactory
 {
+    /**
+     * Indicates if ICE should be used.
+     */
+    public static final String IS_USE_JINGLE_NODES = "JINGLE_NODES_ENABLED";
 
     /**
      * Creates an instance of the ProtocolProviderFactoryJabberImpl.
@@ -47,13 +51,15 @@ public class ProtocolProviderFactoryJabberImpl
         BundleContext context
             = JabberActivator.getBundleContext();
         if (context == null)
-            throw new NullPointerException("The specified BundleContext was null");
+            throw new NullPointerException(
+                    "The specified BundleContext was null");
 
         if (userIDStr == null)
             throw new NullPointerException("The specified AccountID was null");
 
         if (accountProperties == null)
-            throw new NullPointerException("The specified property map was null");
+            throw new NullPointerException(
+                    "The specified property map was null");
 
         accountProperties.put(USER_ID, userIDStr);
 
@@ -89,7 +95,15 @@ public class ProtocolProviderFactoryJabberImpl
         return accountID;
     }
 
-    protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
+    /**
+     * Create an account.
+     *
+     * @param userID the user ID
+     * @param accountProperties the properties associated with the user ID
+     * @return new <tt>AccountID</tt>
+     */
+    protected AccountID createAccountID(String userID,
+            Map<String, String> accountProperties)
     {
         return new JabberAccountID(userID, accountProperties);
     }
@@ -104,6 +118,13 @@ public class ProtocolProviderFactoryJabberImpl
         return service;
     }
 
+    /**
+     * Modify an existing account.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> responsible
+     * of the account
+     * @param accountProperties modified properties to be set
+     */
     @Override
     public void modifyAccount(  ProtocolProviderService protocolProvider,
                                 Map<String, String> accountProperties)

@@ -39,4 +39,8 @@ Export-Package: org.jivesoftware.smack,
  org.jivesoftware.smackx.provider,
  org.jivesoftware.smack.sasl,
  org.xmlpull.v1,
- org.xmlpull.mxp1
+ org.xmlpull.mxp1,
+ org.xmpp.jnodes,
+ org.xmpp.jnodes.smack,
+ org.xmpp.jnodes.nio
+

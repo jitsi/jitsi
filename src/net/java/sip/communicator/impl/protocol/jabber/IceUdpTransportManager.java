@@ -21,6 +21,7 @@ import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
 import org.ice4j.security.*;
+import org.xmpp.jnodes.smack.*;
 
 /**
  * A {@link TransportManagerJabberImpl} implementation that would use ICE for
@@ -79,7 +80,6 @@ public class IceUdpTransportManager
     public IceUdpTransportManager(CallPeerJabberImpl callPeer)
     {
         super(callPeer);
-
         iceAgent = createIceAgent();
     }
 
@@ -185,6 +185,24 @@ public class IceUdpTransportManager
             }
         }
 
+        /* Jingle nodes candidate */
+        if(accID.isJingleNodesRelayEnabled())
+        {
+            /* this method is blocking until Jingle Nodes auto-discovery (if
+             * enabled) finished
+             */
+            SmackServiceNode serviceNode =
+                peer.getProtocolProvider().getJingleNodesServiceNode();
+
+            JingleNodesHarvester harvester = new JingleNodesHarvester(
+                    serviceNode);
+
+            if(harvester != null)
+            {
+                agent.addCandidateHarvester(harvester);
+            }
+        }
+
         return agent;
     }
 
@@ -232,7 +250,8 @@ public class IceUdpTransportManager
      * of the <tt>MediaStream</tt> with the specified <tt>MediaType</tt>
      * @throws OperationFailedException if anything goes wrong while
      * initializing the requested <tt>StreamConnector</tt>
-     * @see net.java.sip.communicator.service.protocol.media.TransportManager#getStreamConnector(MediaType)
+     * @see net.java.sip.communicator.service.protocol.media.TransportManager#
+     * getStreamConnector(MediaType)
      */
     @Override
     public StreamConnector getStreamConnector(MediaType mediaType)

@@ -26,11 +26,20 @@ import org.osgi.framework.*;
 public class JabberAccountRegistrationWizard
     implements AccountRegistrationWizard
 {
+    /**
+     * The logger.
+     */
     private static final Logger logger =
         Logger.getLogger(JabberAccountRegistrationWizard.class);
 
+    /**
+     * Account suffix for Google service.
+     */
     private static final String GOOGLE_USER_SUFFIX = "gmail.com";
 
+    /**
+     * XMPP server for Google service.
+     */
     private static final String GOOGLE_CONNECT_SRV = "talk.google.com";
 
     private FirstWizardPage firstWizardPage;
@@ -40,8 +49,14 @@ public class JabberAccountRegistrationWizard
 
     private final WizardContainer wizardContainer;
 
+    /**
+     * The <tt>ProtocolProviderService</tt> of this account.
+     */
     private ProtocolProviderService protocolProvider;
 
+    /**
+     * If the account has been modified.
+     */
     private boolean isModification;
 
     /**
@@ -243,6 +258,7 @@ public class JabberAccountRegistrationWizard
         {
             serverName = getServerFromUserName(userName);
         }
+
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
             serverName);
 
@@ -275,6 +291,25 @@ public class JabberAccountRegistrationWizard
 
             stunServer.storeDescriptor(accountProperties,
                             ProtocolProviderFactory.STUN_PREFIX + serverIndex);
+        }
+
+        accountProperties.put(ProtocolProviderFactory.IS_USE_JINGLE_NODES,
+                String.valueOf(registration.isUseJingleNodes()));
+
+        accountProperties.put(
+                ProtocolProviderFactory.AUTO_DISCOVER_JINGLE_NODES,
+                String.valueOf(registration.isAutoDiscoverJingleNodes()));
+
+         serverIndex = -1;
+         List<JingleNodeDescriptor> jnRelays
+            = registration.getAdditionalJingleNodes();
+
+        for(JingleNodeDescriptor jnRelay : jnRelays)
+        {
+            serverIndex ++;
+
+            jnRelay.storeDescriptor(accountProperties,
+                            JingleNodeDescriptor.JN_PREFIX + serverIndex);
         }
 
         if (isModification)

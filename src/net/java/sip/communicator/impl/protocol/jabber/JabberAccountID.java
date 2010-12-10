@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.protocol.*;
  * The Jabber implementation of a sip-communicator AccountID
  *
  * @author Damian Minkov
+ * @author Sebastien Vincent
  */
 public class JabberAccountID
     extends AccountID
@@ -94,7 +95,7 @@ public class JabberAccountID
     }
 
     /**
-     * Determines whether this account's provider use the default STUN server
+     * Determines whether this account's provider uses the default STUN server
      * provided by SIP Communicator if there is no other STUN/TURN server
      * discovered/configured.
      *
@@ -107,5 +108,65 @@ public class JabberAccountID
             getAccountPropertyBoolean(
                     ProtocolProviderFactory.USE_DEFAULT_STUN_SERVER,
                     true);
+    }
+
+    /**
+     * Returns the list of JingleNodes trackers/relays that this account is
+     * currently configured to use.
+     *
+     * @return the list of JingleNodes trackers/relays that this account is
+     * currently configured to use.
+     */
+    public List<JingleNodeDescriptor> getJingleNodes()
+    {
+        Map<String, String> accountProperties = getAccountProperties();
+        List<JingleNodeDescriptor> serList
+            = new ArrayList<JingleNodeDescriptor>();
+
+        for (int i = 0; i < JingleNodeDescriptor.MAX_JN_RELAY_COUNT; i ++)
+        {
+            JingleNodeDescriptor node
+                = JingleNodeDescriptor.loadDescriptor(
+                        accountProperties,
+                        JingleNodeDescriptor.JN_PREFIX + i);
+
+            // If we don't find a relay server with the given index, it means
+            // that there're no more servers left in the table so we've nothing
+            // more to do here.
+            if (node == null)
+                break;
+
+            serList.add(node);
+        }
+
+        return serList;
+    }
+
+    /**
+     * Determines whether this account's provider is supposed to auto discover
+     * JingleNodes relay.
+     *
+     * @return <tt>true</tt> if this provider would need to discover JingleNodes
+     * relay, <tt>false</tt> otherwise
+     */
+    public boolean isJingleNodesAutoDiscoveryEnabled()
+    {
+        return getAccountPropertyBoolean(
+                ProtocolProviderFactory.AUTO_DISCOVER_JINGLE_NODES,
+                false);
+    }
+
+    /**
+     * Determines whether this account's provider uses JingleNodes relay (if
+     * available).
+     *
+     * @return <tt>true</tt> if this provider would use JingleNodes relay (if
+     * available), <tt>false</tt> otherwise
+     */
+    public boolean isJingleNodesRelayEnabled()
+    {
+        return getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_USE_JINGLE_NODES,
+                false);
     }
 }

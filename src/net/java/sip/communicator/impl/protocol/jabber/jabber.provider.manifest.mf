@@ -6,6 +6,8 @@ Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,
  org.ice4j,
+ org.ice4j.socket,
+ org.ice4j.stack,
  org.ice4j.ice,
  org.ice4j.ice.harvest,
  org.ice4j.security,
@@ -51,4 +53,7 @@ Import-Package: org.osgi.framework,
  javax.xml.parsers,
  javax.net.ssl,
  javax.security.sasl,
- javax.security.auth.callback
+ javax.security.auth.callback,
+ org.xmpp.jnodes,
+ org.xmpp.jnodes.smack,
+ org.xmpp.jnodes.nio

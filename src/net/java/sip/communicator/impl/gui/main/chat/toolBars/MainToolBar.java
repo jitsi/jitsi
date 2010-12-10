@@ -47,6 +47,9 @@ public class MainToolBar
                ChatSessionChangeListener,
                Skinnable
 {
+    /**
+     * Serial version UID.
+     */
     private static final long serialVersionUID = -5572510509556499465L;
 
     /**
@@ -114,7 +117,7 @@ public class MainToolBar
 
     /**
      * The current <tt>ChatSession</tt> made known to this instance by the last
-     * call to its {@link #chatChanged(ChatPanel)}. 
+     * call to its {@link #chatChanged(ChatPanel)}.
      */
     private ChatSession chatSession;
 
@@ -503,7 +506,7 @@ public class MainToolBar
     /**
      * Sets the current <tt>ChatSession</tt> made known to this instance by the
      * last call to its {@link #chatChanged(ChatPanel)}.
-     * 
+     *
      * @param chatSession the <tt>ChatSession</tt> to become current for this
      * instance
      */

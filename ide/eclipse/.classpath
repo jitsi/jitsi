@@ -63,5 +63,6 @@
     <classpathentry kind="lib" path="lib/installer-exclude/lcrypto-jdk16-143.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/otr4j.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jmyspell-core.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/jnsapi.jar"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

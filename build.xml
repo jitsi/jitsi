@@ -1322,6 +1322,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/smackx-debug.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/smack.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/smackx.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jnsapi.jar" prefix=""/>
         </jar>
     </target>
 
