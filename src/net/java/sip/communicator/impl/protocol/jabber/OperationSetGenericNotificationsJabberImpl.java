@@ -23,6 +23,7 @@ import java.util.*;
  * option to generate such events.
  *
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public class OperationSetGenericNotificationsJabberImpl
     implements OperationSetGenericNotifications,
@@ -131,6 +132,11 @@ public class OperationSetGenericNotificationsJabberImpl
             return;
         }
 
+        //try to convert the jid to a full jid
+        String fullJid = jabberProvider.getFullJid(jid);
+        if( fullJid != null )
+            jid = fullJid;
+
         NotificationEventIQ newEvent = new NotificationEventIQ();
         newEvent.setEventName(eventName);
         newEvent.setEventValue(eventValue);
@@ -182,9 +188,10 @@ public class OperationSetGenericNotificationsJabberImpl
     {
         synchronized (genericEventListeners)
         {
-            List l = this.genericEventListeners.get(eventName);
-            if(l != null)
-                this.genericEventListeners.remove(listener);
+            List<GenericEventListener> listenerList
+                = this.genericEventListeners.get(eventName);
+            if(listenerList != null)
+                listenerList.remove(listener);
         }
     }
 
