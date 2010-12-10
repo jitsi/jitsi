@@ -100,6 +100,10 @@ public class AccountPanel
         userIDPassPanel.add(labelsPanel, BorderLayout.WEST);
         userIDPassPanel.add(valuesPanel, BorderLayout.CENTER);
         userIDPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
+        userIDPassPanel.setBorder(
+                BorderFactory.createTitledBorder(
+                        Resources.getString(
+                                "plugin.sipaccregwizz.USERNAME_AND_PASSWORD")));
 
         registerButton.addActionListener(new ActionListener()
         {

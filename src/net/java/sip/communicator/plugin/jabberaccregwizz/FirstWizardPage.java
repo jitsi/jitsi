@@ -71,7 +71,7 @@ public class FirstWizardPage
      */
     private void init()
     {
-        JTabbedPane tabbedPane = new JTabbedPane();
+        JTabbedPane tabbedPane = new SIPCommTabbedPane(false, false);
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
