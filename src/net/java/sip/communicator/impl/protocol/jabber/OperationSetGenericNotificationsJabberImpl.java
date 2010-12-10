@@ -13,6 +13,7 @@ import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.packet.IQ.*;
 import org.jivesoftware.smack.provider.*;
 
 import java.util.*;
@@ -209,6 +210,8 @@ public class OperationSetGenericNotificationsJabberImpl
                          + notifyEvent.toXML());
         }
 
+        //do not notify
+
         String fromUserID
             = org.jivesoftware.smack.util.StringUtils.parseBareAddress(
                 notifyEvent.getFrom());
@@ -218,24 +221,39 @@ public class OperationSetGenericNotificationsJabberImpl
         if(sender == null)
             sender = opSetPersPresence.createVolatileContact(fromUserID);
 
-        fireNewEventNotification(
-                sender,
-                notifyEvent.getEventName(),
-                notifyEvent.getEventValue(),
-                notifyEvent.getEventSource());
+        if(notifyEvent.getType() == Type.GET)
+            fireNewEventNotification(
+                            sender,
+                            notifyEvent.getEventName(),
+                            notifyEvent.getEventValue(),
+                            notifyEvent.getEventSource(),
+                            true);
+        else if(notifyEvent.getType() == Type.ERROR)
+            fireNewEventNotification(
+                            sender,
+                            notifyEvent.getEventName(),
+                            notifyEvent.getEventValue(),
+                            notifyEvent.getEventSource(),
+                            false);
     }
 
     /**
      * Fires new notification event.
+     *
      * @param from common from <tt>Contact</tt>.
      * @param eventName the event name.
      * @param eventValue the event value.
+     * @param source the name of the contact sending the notification.
+     * @param incoming indicates whether the event we are dispatching
+     * corresponds to an incoming notification or an error report indicating
+     * that an outgoing notification has failed.
      */
     private void fireNewEventNotification(
             Contact from,
-            String eventName,
-            String eventValue,
-            String source)
+            String  eventName,
+            String  eventValue,
+            String  source,
+            boolean incoming)
     {
         String sourceUserID
             = org.jivesoftware.smack.util.StringUtils.parseBareAddress(
@@ -263,7 +281,10 @@ public class OperationSetGenericNotificationsJabberImpl
         }
         for (GenericEventListener listener : listeners)
         {
-            listener.notify(event);
+            if(incoming)
+                listener.notificationReceived(event);
+            else
+                listener.notificationDeliveryFailed(event);
         }
     }
 

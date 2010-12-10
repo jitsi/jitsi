@@ -11,12 +11,25 @@ package net.java.sip.communicator.service.protocol.event;
  * events.
  *
  * @author Damian Minkov
+ * @author Emil Ivov
  */
 public interface GenericEventListener
 {
     /**
-     * Notify for incoming <tt>GenericEvent</tt>.
+     * Indicates that an incoming <tt>GenericEvent</tt> has been received.
+     *
      * @param event the incoming event.
      */
-    public void notify(GenericEvent event);
+    public void notificationReceived(GenericEvent event);
+
+    /**
+     * Indicates that a <tt>GenericEvent</tt> we previously tried to send
+     * has not been delivered.
+     *
+     * @param event the <tt>GenericEvent</tt> instance describing the event
+     * that we couldn't send.
+     */
+    public void notificationDeliveryFailed(GenericEvent event);
+
+
 }
