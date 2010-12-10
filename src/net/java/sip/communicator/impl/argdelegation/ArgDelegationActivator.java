@@ -12,8 +12,9 @@ import net.java.sip.communicator.util.launchutils.*;
 
 import org.osgi.framework.*;
 
-//import com.apple.eawt.AppEvent.*;
 import com.apple.eawt.*;
+
+import java.lang.reflect.*;
 
 /**
  * Activates the <tt>ArgDelegationService</tt> and registers a URI delegation
@@ -65,13 +66,27 @@ public class ArgDelegationActivator
 
             if(application != null)
             {
-//                application.setOpenURIHandler(new OpenURIHandler() {
-//
-//                    public void openURI(OpenURIEvent evt)
-//                    {
-//                        delegationPeer.handleUri(evt.getURI().toString());
-//                    }
-//                });
+                // if this fails its most probably cause using older java than
+                // 10.6 Update 3 and 10.5 Update 8
+                // and older native method for registering uri handlers
+                // should be working
+                try
+                {
+                    Method method = application.getClass()
+                        .getMethod("setOpenURIHandler", OpenURIHandler.class);
+
+                    OpenURIHandler handler = new OpenURIHandler() {
+                        public void openURI(
+                            com.apple.eawt.AppEvent.OpenURIEvent evt)
+                        {
+                            delegationPeer.handleUri(evt.getURI().toString());
+                        }
+                    };
+
+                    method.invoke(application, handler);
+                }
+                catch(Throwable ex)
+                {}
             }
         }
     }
