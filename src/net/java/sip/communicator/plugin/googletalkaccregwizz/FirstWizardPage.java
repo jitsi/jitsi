@@ -406,8 +406,8 @@ public class FirstWizardPage
         Map<String, String> accountProperties
             = accountID.getAccountProperties();
 
-        String password
-            = accountProperties.get(ProtocolProviderFactory.PASSWORD);
+        String password = GoogleTalkAccRegWizzActivator
+            .getGoogleTalkProtocolProviderFactory().loadPassword(accountID);
 
         this.userIDField.setEnabled(false);
         this.userIDField.setText(accountID.getUserID());

@@ -390,9 +390,8 @@ public class FirstWizardPage
     {
         AccountID accountID = protocolProvider.getAccountID();
 
-        String password =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PASSWORD);
+        String password = IrcAccRegWizzActivator.getIrcProtocolProviderFactory()
+            .loadPassword(accountID);
 
         String server =
             accountID

@@ -255,8 +255,9 @@ public class FirstWizardPage
         Map<String, String> accountProperties
             = accountID.getAccountProperties();
 
-        String password
-            = accountProperties.get(ProtocolProviderFactory.PASSWORD);
+        String password =
+            JabberAccRegWizzActivator.getJabberProtocolProviderFactory()
+                .loadPassword(accountID);
 
         accountPanel.setRememberPassword(false);
         accountPanel.setUsername(accountID.getUserID());

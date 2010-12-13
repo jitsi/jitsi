@@ -266,8 +266,8 @@ public class FirstWizardPage
     {
         AccountID accountID = protocolProvider.getAccountID();
         String password =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PASSWORD);
+            GibberishAccRegWizzActivator.getGibberishProtocolProviderFactory()
+                .loadPassword(accountID);
 
         this.userIDField.setEnabled(false);
         this.userIDField.setText(accountID.getUserID());

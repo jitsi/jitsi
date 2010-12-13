@@ -285,9 +285,8 @@ public class FirstWizardPage
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         AccountID accountID = protocolProvider.getAccountID();
-        String password =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PASSWORD);
+        String password = IcqAccRegWizzActivator.getIcqProtocolProviderFactory()
+            .loadPassword(accountID);
 
         this.uinField.setText(accountID.getUserID());
 

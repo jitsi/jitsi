@@ -305,8 +305,8 @@ public class SIPAccountRegistrationForm
      */
     public void loadAccount(AccountID accountID)
     {
-        String password = accountID.getAccountPropertyString(
-            ProtocolProviderFactory.PASSWORD);
+        String password = SIPAccRegWizzActivator.getSIPProtocolProviderFactory()
+            .loadPassword(accountID);
 
         String serverAddress = accountID.getAccountPropertyString(
                     ProtocolProviderFactory.SERVER_ADDRESS);

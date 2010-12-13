@@ -258,9 +258,8 @@ public class FirstWizardPage
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
         AccountID accountID = protocolProvider.getAccountID();
-        String password =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.PASSWORD);
+        String password = YahooAccRegWizzActivator
+            .getYahooProtocolProviderFactory().loadPassword(accountID);
 
         this.userIDField.setEnabled(false);
         this.userIDField.setText(accountID.getUserID());
