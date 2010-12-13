@@ -21,10 +21,24 @@ import net.java.sip.communicator.util.*;
 public class VersionActivator
     implements BundleActivator
 {
+    /**
+     * The logger.
+     */
     private Logger logger = Logger.getLogger(VersionActivator.class.getName());
 
-    private        ServiceRegistration  versionServReg   = null;
-            static BundleContext        bundleContext         = null;
+    /**
+     * The OSGi service registration.
+     */
+    private ServiceRegistration versionServReg = null;
+
+    /**
+     * The OSGi <tt>BundleContext</tt>.
+     */
+    static BundleContext bundleContext = null;
+
+    /**
+     * The configuration service.
+     */
     private static ConfigurationService configurationService  = null;
 
     /**

@@ -15,6 +15,9 @@ import org.apache.tools.ant.*;
 public class SipCommunicatorVersionTask
     extends Task
 {
+    /**
+     * The property to store the sip-communicator version.
+     */
     private String property;
 
     /**

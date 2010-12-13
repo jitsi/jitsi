@@ -49,7 +49,10 @@ public class IceConfigPanel
      * SIP Communicator STUN server.
      */
     private final JCheckBox defaultStunBox = new SIPCommCheckBox(
-        Resources.getString("plugin.jabberaccregwizz.USE_DEFAULT_STUN_SERVER"));
+        Resources.getResources().getI18NString(
+                "plugin.jabberaccregwizz.USE_DEFAULT_STUN_SERVER",
+                new String[]{Resources.getResources().getSettingsString(
+                        "service.gui.APPLICATION_NAME")}));
 
     /**
      * The table model for our additional stun servers table.

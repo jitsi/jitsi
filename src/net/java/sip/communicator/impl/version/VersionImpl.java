@@ -62,13 +62,16 @@ public class VersionImpl
      * The name of this application.
      */
     public static String applicationName = null;
-    
+
     /**
      * Returns the VersionImpl instance describing the current version of
      * SIP Communicator.
      */
     public static final VersionImpl CURRENT_VERSION = new VersionImpl();
-    
+
+    /**
+     * The resource management service.
+     */
     private static ResourceManagementService resourcesService;
 
     /**
@@ -281,33 +284,35 @@ public class VersionImpl
     {
         if(applicationName == null)
         {
-            try 
+            try
             {
                 if (resourcesService == null)
                 {
-                    ServiceReference serviceReference = VersionActivator.bundleContext
-                        .getServiceReference(ResourceManagementService.class.getName());
+                    ServiceReference serviceReference =
+                        VersionActivator.bundleContext
+                        .getServiceReference(
+                                ResourceManagementService.class.getName());
 
                     if(serviceReference == null)
                         return null;
 
-                    resourcesService = 
-                        (ResourceManagementService)VersionActivator.bundleContext
-                            .getService(serviceReference);
+                    resourcesService =
+                        (ResourceManagementService)VersionActivator.
+                            bundleContext.getService(serviceReference);
                 }
-                    
-                applicationName = 
+
+                applicationName =
                     resourcesService.getSettingsString(
                         "service.gui.APPLICATION_NAME");
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 // if resource bundle is not found or the key is missing
                 // return the defautl name
                 applicationName = DEFAULT_APPLICATION_NAME;
             }
         }
-        
+
         return applicationName;
     }
 }

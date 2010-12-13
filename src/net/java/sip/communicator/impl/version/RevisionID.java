@@ -13,5 +13,8 @@ package net.java.sip.communicator.impl.version;
  */
 public class RevisionID
 {
+    /**
+     * The revision ID.
+     */
     public static final String REVISION_ID="0";
 }
