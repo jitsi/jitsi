@@ -296,4 +296,11 @@ public abstract class TransportManagerJabberImpl
         }
         return null;
     }
+
+    /**
+     * Close this transport manager and release resources.
+     */
+    public void close()
+    {
+    }
 }

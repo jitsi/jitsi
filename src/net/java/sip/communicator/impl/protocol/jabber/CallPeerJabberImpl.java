@@ -362,6 +362,7 @@ public class CallPeerJabberImpl
                         Reason.GENERAL_ERROR,
                         reasonText);
 
+            getMediaHandler().getTransportManager().close();
             setState(CallPeerState.FAILED, reasonText);
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
@@ -396,6 +397,7 @@ public class CallPeerJabberImpl
         }
 
         CallPeerState prevPeerState = getState();
+        getMediaHandler().getTransportManager().close();
         setState(CallPeerState.DISCONNECTED);
         JingleIQ responseIQ = null;
 
@@ -492,6 +494,7 @@ public class CallPeerJabberImpl
                 reasonStr += " " + text;
         }
 
+        getMediaHandler().getTransportManager().close();
         setState(CallPeerState.DISCONNECTED, reasonStr);
     }
 
@@ -525,6 +528,7 @@ public class CallPeerJabberImpl
                 sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
                 exc.getClass().getName() + ": " + exc.getMessage());
 
+            getMediaHandler().getTransportManager().close();
             setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
@@ -909,6 +913,7 @@ public class CallPeerJabberImpl
                     sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
                     "Error: " + exc.getMessage());
 
+            getMediaHandler().getTransportManager().close();
             setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
@@ -942,6 +947,7 @@ public class CallPeerJabberImpl
                     sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
                     "Error: " + exc.getMessage());
 
+            getMediaHandler().getTransportManager().close();
             setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
@@ -990,6 +996,7 @@ public class CallPeerJabberImpl
                 sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
                 "Error: content rejected");
 
+            getMediaHandler().getTransportManager().close();
             setState(CallPeerState.FAILED, "Error: content rejected");
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
@@ -1025,6 +1032,7 @@ public class CallPeerJabberImpl
                         Reason.GENERAL_ERROR,
                         reasonText);
 
+            getMediaHandler().getTransportManager().close();
             setState(CallPeerState.FAILED, reasonText);
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;

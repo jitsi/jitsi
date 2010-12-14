@@ -994,4 +994,18 @@ public class IceUdpTransportManager
             }
         }
     }
+
+    /**
+     * Close this transport manager and release resources. In case of ICE, it
+     * releases Ice4j's Agent that will cleanup all streams, component and close
+     * every candidate's sockets.
+     */
+    @Override
+    public synchronized void close()
+    {
+        if(iceAgent != null)
+        {
+            iceAgent.free();
+        }
+    }
 }
