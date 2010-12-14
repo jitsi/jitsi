@@ -279,12 +279,6 @@ public class CallPeerMediaHandlerJabberImpl
             List<RTPExtension> rtpExtensions = intersectRTPExtensions(
                             offeredRTPExtensions, supportedExtensions);
 
-            // stream target
-            MediaStreamTarget target
-                = JingleUtils.extractDefaultTarget(content);
-
-            int targetDataPort = target.getDataAddress().getPort();
-
             // transport
             /*
              * RawUdpTransportPacketExtension extends
@@ -294,6 +288,17 @@ public class CallPeerMediaHandlerJabberImpl
             IceUdpTransportPacketExtension transport
                 = content.getFirstChildOfType(
                         IceUdpTransportPacketExtension.class);
+
+
+            // stream target
+            MediaStreamTarget target
+                = JingleUtils.extractDefaultTarget(content);
+
+            // according to XEP-176, transport element in session-initiate
+            // "MAY instead be empty (with each candidate to be sent as the
+            // payload of a transport-info message)".
+            int targetDataPort = (target == null && transport != null) ? -1 :
+                (target != null) ? target.getDataAddress().getPort() : 0;
 
             /*
              * TODO If the offered transport is not supported, attempt to
