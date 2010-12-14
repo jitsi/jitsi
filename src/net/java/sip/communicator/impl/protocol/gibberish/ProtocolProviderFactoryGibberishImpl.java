@@ -67,7 +67,7 @@ public class ProtocolProviderFactoryGibberishImpl
         //an osgi event, the osgi event triggers (through the UI) a call to the
         //ProtocolProviderService.register() method and it needs to acces
         //the configuration service and check for a stored password.
-        this.storeAccount(accountID);
+        this.storeAccount(accountID, false);
 
         accountID = loadAccount(accountProperties);
 

@@ -122,7 +122,7 @@ public class ProtocolProviderFactorySipImpl
         //an osgi event, the osgi event triggers (through the UI) a call to
         //the register() method and it needs to access the configuration service
         //and check for a password.
-        this.storeAccount(accountID);
+        this.storeAccount(accountID, false);
 
         try
         {

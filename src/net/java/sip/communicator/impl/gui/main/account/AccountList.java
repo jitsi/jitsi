@@ -237,9 +237,26 @@ public class AccountList
      * Dispatches the mouse event to the contained renderer check box.
      * @param e the <tt>MouseEvent</tt> that notified us
      */
-    public void mousePressed(MouseEvent e)
+    public void mousePressed(final MouseEvent e)
     {
-        dispatchEventToCheckBox(e);
+        // run in separate thread, if account is currently blocked for
+        // registering, authenticating or something else make sure
+        // we don't block UI
+        new Thread()
+        {
+            public void run()
+            {
+                dispatchEventToCheckBox(e);
+
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        AccountList.this.repaint();
+                    }
+                });
+            }
+        }.start();
     }
 
     public void mouseReleased(MouseEvent e) {}

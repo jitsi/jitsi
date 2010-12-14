@@ -535,6 +535,39 @@ public abstract class ProtocolProviderFactory
      */
     protected void storeAccount(AccountID accountID)
     {
+        this.storeAccount(accountID, true);
+    }
+
+    /**
+     * The method stores the specified account in the configuration service
+     * under the package name of the source factory. The restore and remove
+     * account methods are to be used to obtain access to and control the stored
+     * accounts.
+     * <p>
+     * In order to store all account properties, the method would create an
+     * entry in the configuration service corresponding (beginning with) the
+     * <tt>sourceFactory</tt>'s package name and add to it a unique identifier
+     * (e.g. the current miliseconds.)
+     * </p>
+     *
+     * @param accountID the AccountID corresponding to the account that we would
+     * like to store.
+     * @param  isModification if <tt>false</tt> there must be no such already
+     * loaded account, it <tt>true</tt> ist modification of an existing account.
+     * Usually we use this method with <tt>false</tt> in method installAccount
+     * and with <tt>true</tt> or the overridden method in method
+     * modifyAccount.
+     */
+    protected void storeAccount(AccountID accountID, boolean isModification)
+    {
+        if(!isModification
+            && getAccountManager().getStoredAccounts().contains(accountID))
+        {
+            throw new IllegalStateException(
+                "An account for id " + accountID.getUserID()
+                    + " was already loaded!");
+        }
+
         try
         {
             getAccountManager().storeAccount(this, accountID);

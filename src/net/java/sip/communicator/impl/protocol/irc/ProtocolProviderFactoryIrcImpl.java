@@ -68,7 +68,7 @@ public class ProtocolProviderFactoryIrcImpl
         //an OSGI event, the OSGI event triggers (through the UI) a call to the
         //ProtocolProviderService.register() method and it needs to access
         //the configuration service and check for a stored password.
-        this.storeAccount(accountID);
+        this.storeAccount(accountID, false);
 
         accountID = loadAccount(accountProperties);
 
