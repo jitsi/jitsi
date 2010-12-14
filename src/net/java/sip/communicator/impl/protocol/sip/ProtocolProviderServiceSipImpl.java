@@ -739,8 +739,6 @@ public class ProtocolProviderServiceSipImpl
      */
     public void processResponse(ResponseEvent responseEvent)
     {
-        if (logger.isDebugEnabled())
-            logger.debug("received response=\n" + responseEvent.getResponse());
         ClientTransaction clientTransaction = responseEvent
             .getClientTransaction();
         if (clientTransaction == null)
@@ -853,8 +851,6 @@ public class ProtocolProviderServiceSipImpl
         }
 
         Request request = transaction.getRequest();
-        if (logger.isDebugEnabled())
-            logger.debug("Transaction terminated for req=\n" + request);
 
         //find the object that is supposed to take care of responses with the
         //corresponding method
@@ -906,9 +902,6 @@ public class ProtocolProviderServiceSipImpl
      */
     public void processRequest(RequestEvent requestEvent)
     {
-        if (logger.isDebugEnabled())
-            logger.debug("received request=\n" + requestEvent.getRequest());
-
         Request request = requestEvent.getRequest();
 
         // test if an Event header is present and known

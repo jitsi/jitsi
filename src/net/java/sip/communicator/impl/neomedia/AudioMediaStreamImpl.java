@@ -100,6 +100,9 @@ public class AudioMediaStreamImpl
                                 ZrtpControlImpl zrtpControl)
     {
         super(connector, device, zrtpControl);
+
+        if(logger.isTraceEnabled())
+            logger.trace("Created Audio Stream with hashCode " + hashCode());
     }
 
     /**

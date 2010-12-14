@@ -17,6 +17,7 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 import javax.media.rtp.*;
 import javax.media.rtp.event.*;
+import javax.media.rtp.rtcp.*;
 
 import com.sun.media.rtp.*;
 
@@ -41,7 +42,8 @@ public class MediaStreamImpl
     extends AbstractMediaStream
     implements ReceiveStreamListener,
                SendStreamListener,
-               SessionListener
+               SessionListener,
+               RemoteListener
 {
     /**
      * The <tt>Logger</tt> used by the <tt>MediaStreamImpl</tt> class and its
@@ -489,9 +491,13 @@ public class MediaStreamImpl
 
         if (rtpManager != null)
         {
+            if(logger.isTraceEnabled())
+                printFlowStatistics(rtpManager);
+
             rtpManager.removeReceiveStreamListener(this);
             rtpManager.removeSendStreamListener(this);
             rtpManager.removeSessionListener(this);
+            rtpManager.removeRemoteListener(this);
             rtpManager.dispose();
             rtpManager = null;
         }
@@ -997,6 +1003,7 @@ public class MediaStreamImpl
             rtpManager.addReceiveStreamListener(this);
             rtpManager.addSendStreamListener(this);
             rtpManager.addSessionListener(this);
+            rtpManager.addRemoteListener(this);
 
             BufferControl bc
                 = (BufferControl)
@@ -1313,6 +1320,10 @@ public class MediaStreamImpl
         if (direction == null)
             throw new NullPointerException("direction");
 
+        if(logger.isTraceEnabled())
+            logger.trace("Changing direction of stream " + hashCode()
+                + " from:" + this.direction + " to:" + direction);
+
         /*
          * Make sure that the specified direction is in accord with the
          * direction of the MediaDevice of this instance.
@@ -1359,6 +1370,11 @@ public class MediaStreamImpl
      */
     public void setFormat(MediaFormat format)
     {
+        if(logger.isTraceEnabled())
+            logger.trace("Changing format of stream " + hashCode()
+                + " from:" + getDeviceSession().getFormat()
+                + " to:" + format);
+
         setAdvancedAttributes(format.getAdvancedAttributes());
         handleAttributes(format.getAdvancedAttributes());
         handleAttributes(format.getFormatParameters());
@@ -1390,6 +1406,10 @@ public class MediaStreamImpl
     {
         if (this.mute != mute)
         {
+            if(logger.isTraceEnabled())
+                logger.trace((mute? "Muting" : "Unmuting")
+                        + " stream with hashcode " + hashCode());
+
             this.mute = mute;
 
             MediaDeviceSession deviceSession = getDeviceSession();
@@ -1734,6 +1754,10 @@ public class MediaStreamImpl
                 {
                     try
                     {
+                        if(logger.isTraceEnabled())
+                            logger.trace("Stopping receive stream with hashcode "
+                                + receiveStream.hashCode());
+
                         DataSource receiveStreamDataSource
                             = receiveStream.getDataSource();
 
@@ -1758,6 +1782,10 @@ public class MediaStreamImpl
                 {
                     try
                     {
+                        if(logger.isTraceEnabled())
+                            logger.trace("Stopping receive stream with hashcode "
+                                + receiveStream.hashCode());
+
                         DataSource receiveStreamDataSource
                             = receiveStream.getDataSource();
 
@@ -1822,6 +1850,10 @@ public class MediaStreamImpl
         for (SendStream sendStream : sendStreams)
             try
             {
+                if(logger.isTraceEnabled())
+                    logger.trace("Stopping send stream with hashcode "
+                            + sendStream.hashCode());
+
                 sendStream.getDataSource().stop();
                 sendStream.stop();
 
@@ -1989,6 +2021,61 @@ public class MediaStreamImpl
     }
 
     /**
+     * Method called back in the RemoteListener to notify
+     * listener of all RTP Remote Events.RemoteEvents are one of
+     * ReceiverReportEvent, SenderReportEvent or RemoteCollisionEvent
+     *
+     * @param remoteEvent the event
+     */
+    public void update(RemoteEvent remoteEvent)
+    {
+        if(!logger.isTraceEnabled())
+            return;
+
+        if(remoteEvent instanceof SenderReportEvent)
+        {
+            SenderReport report =
+                    ((SenderReportEvent)remoteEvent).getReport();
+
+            if(report.getFeedbackReports().size() > 0)
+            {
+
+                Iterator iter = report.getFeedbackReports().iterator();
+                while(iter.hasNext())
+                {
+                    Feedback feedback = (Feedback)iter.next();
+
+                    StringBuilder buff = new StringBuilder(
+                            "SenderReport (for stream ")
+                        .append(hashCode())
+                        .append(") [packetCount:");
+
+                    buff.append(report.getSenderPacketCount())
+                        .append(", bytes:").append(report.getSenderByteCount())
+                        .append(", interarrival jitter:")
+                                .append(feedback.getJitter())
+                        .append(", lost:").append(feedback.getNumLost())
+                        .append(", lastSRBefore:")
+                                .append((int)(feedback.getDLSR()/65.536))
+                                .append("ms ]");
+                    logger.trace(buff.toString());
+                }
+            }
+            else
+            {
+                StringBuilder buff = new StringBuilder(
+                            "SenderReport (for stream ")
+                        .append(hashCode())
+                        .append(") [packetCount:");
+
+                buff.append(report.getSenderPacketCount())
+                    .append(", bytes:").append(report.getSenderByteCount());
+                logger.trace(buff.toString());
+            }
+        }
+    }
+
+    /**
      * Sets the local SSRC identifier and fires the corresponding
      * <tt>PropertyChangeEvent</tt>.
      *
@@ -2065,5 +2152,49 @@ public class MediaStreamImpl
     protected int getPriority()
     {
         return Thread.currentThread().getPriority();
+    }
+
+    /**
+     * Prints all statistics available for rtpManager.
+     *
+     * @param rtpManager the RTP manager that we'd like to print statistics for.
+     */
+    private void printFlowStatistics(RTPManager rtpManager)
+    {
+        String rtpManagerDescription = "stream " + hashCode();
+
+        //print flow statistics.
+        GlobalTransmissionStats s = rtpManager.getGlobalTransmissionStats();
+
+        logger.trace(
+            "global transmission stats (" + rtpManagerDescription + "): \n" +
+            "bytes sent: " + s.getBytesSent() + "\n" +
+            "local colls: " + s.getLocalColls() + "\n" +
+            "remote colls: " + s.getRemoteColls() + "\n" +
+            "RTCP sent: " + s.getRTCPSent() + "\n" +
+            "RTP sent: " + s.getRTPSent() + "\n" +
+            "transmit failed: " + s.getTransmitFailed()
+        );
+
+        GlobalReceptionStats rs = rtpManager.getGlobalReceptionStats();
+
+        logger.trace(
+            "global reception stats (" + rtpManagerDescription + "): \n" +
+            "bad RTCP packets: " + rs.getBadRTCPPkts() + "\n" +
+            "bad RTP packets: " + rs.getBadRTPkts() + "\n" +
+            "bytes received: " + rs.getBytesRecd() + "\n" +
+            "local collisions: " + rs.getLocalColls() + "\n" +
+            "malformed BYEs: " + rs.getMalformedBye() + "\n" +
+            "malformed RRs: " + rs.getMalformedRR() + "\n" +
+            "malformed SDESs: " + rs.getMalformedSDES() + "\n" +
+            "malformed SRs: " + rs.getMalformedSR() + "\n" +
+            "packets looped: " + rs.getPacketsLooped() + "\n" +
+            "packets received: " + rs.getPacketsRecd() + "\n" +
+            "remote collisions: " + rs.getRemoteColls() + "\n" +
+            "RTCPs received: " + rs.getRTCPRecd() + "\n" +
+            "SRRs received: " + rs.getSRRecd() + "\n" +
+            "transmit failed: " + rs.getTransmitFailed() + "\n" +
+            "unknown types: " + rs.getUnknownTypes()
+        );
     }
 }

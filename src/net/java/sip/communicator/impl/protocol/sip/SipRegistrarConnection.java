@@ -91,7 +91,7 @@ public class SipRegistrarConnection
     ClientTransaction regTrans = null;
 
     /**
-    * Option for specifing keep-alive method
+    * Option for specifying keep-alive method
     */
     private static final String KEEP_ALIVE_METHOD = "KEEP_ALIVE_METHOD";
 
@@ -264,8 +264,6 @@ public class SipRegistrarConnection
         try
         {
             regTrans.sendRequest();
-            if (logger.isDebugEnabled())
-                logger.debug("sent request=\n" + request);
         }
         //we sometimes get a null pointer exception here so catch them all
         catch (Exception ex)
@@ -420,6 +418,10 @@ public class SipRegistrarConnection
         //that gives me 3600 even if I request 0).
         if (grantedExpiration <= 0 || requestedExpiration <= 0)
         {
+            if(logger.isDebugEnabled())
+                logger.debug("Account "
+                        + sipProvider.getAccountID().getDisplayName()
+                        + " unregistered!");
             setRegistrationState(RegistrationState.UNREGISTERED
                 , RegistrationStateChangeEvent.REASON_USER_REQUEST
                 , "Registration terminated.");
@@ -463,6 +465,12 @@ public class SipRegistrarConnection
 
             if(headerIter != null && headerIter.hasNext())
                 updateSupportedOperationSets(headerIter);
+
+            if(logger.isDebugEnabled()
+                && getRegistrationState().equals(RegistrationState.REGISTERING))
+                logger.debug("Account "
+                        + sipProvider.getAccountID().getDisplayName()
+                        + " registered!");
 
             setRegistrationState(
                 RegistrationState.REGISTERED
@@ -567,8 +575,6 @@ public class SipRegistrarConnection
             callIdHeader = null;
 
             unregisterTransaction.sendRequest();
-            if (logger.isInfoEnabled())
-                logger.info("sent request:\n" + unregisterRequest);
 
             //if we're currently registered or in a process of unregistering
             //we'll wait for an ok response before changing the status.

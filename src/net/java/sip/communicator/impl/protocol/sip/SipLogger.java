@@ -239,20 +239,6 @@ public class SipLogger
                            String status, boolean sender, long time)
     {
         logPacket(message, sender);
-
-        if (!logger.isInfoEnabled())
-            return;
-        
-        String msgHeader;
-
-        if(sender)
-            msgHeader = "JAIN-SIP sent a message from=\"";
-        else
-            msgHeader = "JAIN-SIP received a message from=\"";
-
-        if (logger.isInfoEnabled())
-            logger.info(msgHeader + from + "\" to=\"" + to + "\" at " + time
-                        + " (status: " + status + "):\n" + message);
     }
 
     /**

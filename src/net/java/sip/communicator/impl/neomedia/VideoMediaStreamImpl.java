@@ -240,6 +240,9 @@ public class VideoMediaStreamImpl
         ZrtpControlImpl zrtpControl)
     {
         super(connector, device, zrtpControl);
+
+        if(logger.isTraceEnabled())
+            logger.trace("Created Video Stream with hashCode " + hashCode());
     }
 
     /**
