@@ -110,10 +110,10 @@ public class AudioLevelEventDispatcher
             if(dataToProcess != null)
             {
                 int newLevel
-                    = AudioLevelCalculator.calculateCurrentSignalPower(
+                    = AudioLevelCalculator.calculateSoundPressureLevel(
                             dataToProcess, 0, dataToProcessLength,
-                            SimpleAudioLevelListener.MAX_LEVEL,
                             SimpleAudioLevelListener.MIN_LEVEL,
+                            SimpleAudioLevelListener.MAX_LEVEL,
                             lastLevel);
 
                 //cache the result for csrc delivery in case a cache has been
