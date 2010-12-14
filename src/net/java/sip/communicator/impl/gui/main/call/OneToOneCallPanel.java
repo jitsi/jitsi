@@ -428,7 +428,10 @@ public class OneToOneCallPanel
     public void removeDesktopSharingComponents()
     {
         if (southPanel != null)
+        {
             remove(southPanel);
+            enableDesktopRemoteControl.setSelected(false);
+        }
 
         revalidate();
         repaint();

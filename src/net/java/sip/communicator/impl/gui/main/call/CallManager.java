@@ -391,6 +391,10 @@ public class CallManager
     public static void enableDesktopSharing(Call call, boolean enable)
     {
         enableDesktopSharing(call, null, enable);
+
+        // in case we switch to video, disable remote control if it was
+        // enabled
+        enableDesktopRemoteControl(call.getCallPeers().next(), false);
     }
 
     /**

@@ -7,7 +7,7 @@
 package net.java.sip.communicator.service.protocol.event;
 
 /**
- * An event listener that should be implemented by parties interrested in
+ * An event listener that should be implemented by parties interested in
  * remote control feature (i.e desktop sharing).
  *
  * @author Sebastien Vincent

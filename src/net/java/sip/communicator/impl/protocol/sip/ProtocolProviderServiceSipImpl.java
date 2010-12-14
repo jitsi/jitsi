@@ -103,7 +103,7 @@ public class ProtocolProviderServiceSipImpl
 
     /**
      * Property used in default settings if we want to override the system
-     * property for java.net.preferIPv6Addresses, with values true or false. 
+     * property for java.net.preferIPv6Addresses, with values true or false.
      */
     private static final String PREFER_IPV6_ADDRESSES =
         "net.java.sip.communicator.impl.protocol.sip.PREFER_IPV6_ADDRESSES";
@@ -417,8 +417,9 @@ public class ProtocolProviderServiceSipImpl
         // then remove us as SipListener
         this.addRegistrationStateChangeListener(this);
 
-        // Enable the user name modification. Setting this property to true we'll
-        // allow the user to change the user name stored in the given authority.
+        // Enable the user name modification. Setting this property to true
+        // we'll allow the user to change the user name stored in the given
+        //authority.
         authority.setUserNameEditable(true);
 
         //init the security manager before doing the actual registration to
@@ -640,24 +641,22 @@ public class ProtocolProviderServiceSipImpl
                 new OperationSetVideoTelephonySipImpl(
                         opSetBasicTelephonySipImpl));
 
-// TODO: Uncomment the next lines when the desktop sharing feature is ready to
-// use.
             // OperationSetDesktopStreaming
-//            addSupportedOperationSet(
-//                OperationSetDesktopStreaming.class,
-//                new OperationSetDesktopStreamingSipImpl(
-//                        opSetBasicTelephonySipImpl));
+            addSupportedOperationSet(
+                OperationSetDesktopStreaming.class,
+                new OperationSetDesktopStreamingSipImpl(
+                        opSetBasicTelephonySipImpl));
 
             // OperationSetDesktopSharingServer
-//            addSupportedOperationSet(
-//               OperationSetDesktopSharingServer.class,
-//               new OperationSetDesktopSharingServerSipImpl(
-//                       opSetBasicTelephonySipImpl));
+            addSupportedOperationSet(
+               OperationSetDesktopSharingServer.class,
+               new OperationSetDesktopSharingServerSipImpl(
+                       opSetBasicTelephonySipImpl));
 
             // OperationSetDesktopSharingClient
-//            addSupportedOperationSet(
-//                OperationSetDesktopSharingClient.class,
-//                new OperationSetDesktopSharingClientSipImpl(this));
+            addSupportedOperationSet(
+                OperationSetDesktopSharingClient.class,
+                new OperationSetDesktopSharingClientSipImpl(this));
 
             // init DTMF (from JM Heitz)
             addSupportedOperationSet(
@@ -1612,7 +1611,7 @@ public class ProtocolProviderServiceSipImpl
 
         try
         {
-            // if port is set we must use the explicitly set settings and 
+            // if port is set we must use the explicitly set settings and
             // skip SRV queries
             if(accountID.getAccountProperty(
                     ProtocolProviderFactory.SERVER_PORT) != null)
@@ -1989,7 +1988,7 @@ public class ProtocolProviderServiceSipImpl
                         proxyTransportsList,
                         true);
 
-                proxyTransport = proxyTransportsList.get(ix); 
+                proxyTransport = proxyTransportsList.get(ix);
                 proxySocketAddress = proxySocketAddressesList.get(ix);
             }
             else
@@ -2024,7 +2023,7 @@ public class ProtocolProviderServiceSipImpl
                         proxyTransportsList,
                         false);
 
-                    proxyTransport = proxyTransportsList.get(ix); 
+                    proxyTransport = proxyTransportsList.get(ix);
                     proxySocketAddress = proxySocketAddressesList.get(ix);
                 }
             }
@@ -2720,7 +2719,7 @@ public class ProtocolProviderServiceSipImpl
             }
         }
 
-        //try to obtain SRV mappings from the DNS 
+        //try to obtain SRV mappings from the DNS
         try
         {
             resolveSRV(
@@ -3104,7 +3103,7 @@ public class ProtocolProviderServiceSipImpl
             return Boolean.parseBoolean(defaultSetting);
 
         // if there is no default setting return the system wide value.
-        return Boolean.getBoolean("java.net.preferIPv6Addresses"); 
+        return Boolean.getBoolean("java.net.preferIPv6Addresses");
     }
 }
 

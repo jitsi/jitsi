@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
-import java.util.List; // disambiguation
 import java.text.*;
 
 import java.awt.event.*;
@@ -247,6 +246,50 @@ public class OperationSetDesktopSharingServerJabberImpl
     }
 
     /**
+     * Implements OperationSetVideoTelephony#setLocalVideoAllowed(Call,
+     * boolean). Modifies the local media setup to reflect the requested setting
+     * for the streaming of the local video and then re-invites all
+     * CallPeers to re-negotiate the modified media setup.
+     *
+     * @param call the call where we'd like to allow sending local video.
+     * @param allowed <tt>true</tt> if local video transmission is allowed and
+     * <tt>false</tt> otherwise.
+     *
+     *  @throws OperationFailedException if video initialization fails.
+     */
+    @Override
+    public void setLocalVideoAllowed(Call call, boolean allowed)
+        throws OperationFailedException
+    {
+        ((CallJabberImpl)call).setLocalInputEvtAware(allowed);
+        super.setLocalVideoAllowed(call, allowed);
+    }
+
+    /**
+     * Sets the indicator which determines whether the streaming of local video
+     * in a specific <tt>Call</tt> is allowed. The setting does not reflect
+     * the availability of actual video capture devices, it just expresses the
+     * desire of the user to have the local video streamed in the case the
+     * system is actually able to do so.
+     *
+     * @param call the <tt>Call</tt> to allow/disallow the streaming of local
+     * video for
+     * @param mediaDevice the media device to use for the desktop streaming
+     * @param allowed <tt>true</tt> to allow the streaming of local video for
+     * the specified <tt>Call</tt>; <tt>false</tt> to disallow it
+     *
+     * @throws OperationFailedException if initializing local video fails.
+     */
+    public void setLocalVideoAllowed(Call call,
+                                     MediaDevice mediaDevice,
+                                     boolean allowed)
+        throws OperationFailedException
+    {
+        ((CallJabberImpl)call).setLocalInputEvtAware(allowed);
+        super.setLocalVideoAllowed(call, allowed);
+    }
+
+    /**
      * Enable desktop remote control. Local desktop can now regenerates keyboard
      * and mouse events received from peer.
      *
@@ -257,7 +300,9 @@ public class OperationSetDesktopSharingServerJabberImpl
         if(logger.isInfoEnabled())
             logger.info("Enable remote control");
 
+        System.out.println("remote control enabled");
         CallJabberImpl call = (CallJabberImpl)callPeer.getCall();
+
         if(call.getLocalInputEvtAware())
         {
             remoteControlEnabled = true;
@@ -277,6 +322,7 @@ public class OperationSetDesktopSharingServerJabberImpl
      */
     public void disableRemoteControl(CallPeer callPeer)
     {
+        System.out.println("remote control disabled");
         if(logger.isInfoEnabled())
             logger.info("Disable remote control");
 
