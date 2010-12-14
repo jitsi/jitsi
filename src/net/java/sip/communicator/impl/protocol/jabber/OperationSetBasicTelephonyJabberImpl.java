@@ -96,7 +96,9 @@ public class OperationSetBasicTelephonyJabberImpl
         }
         else if (registrationState == RegistrationState.UNREGISTERED)
         {
-            // TODO plug jingle unregistration
+            // plug jingle unregistration
+            unsubscribeForJinglePackets();
+
             if (logger.isInfoEnabled())
                 logger.info("Jingle : OFF ");
         }
@@ -466,6 +468,14 @@ public class OperationSetBasicTelephonyJabberImpl
     private void subscribeForJinglePackets()
     {
         protocolProvider.getConnection().addPacketListener(this, this);
+    }
+
+    /**
+     * Unsubscribes us to notifications about incoming jingle packets.
+     */
+    private void unsubscribeForJinglePackets()
+    {
+        protocolProvider.getConnection().removePacketListener(this);
     }
 
     /**

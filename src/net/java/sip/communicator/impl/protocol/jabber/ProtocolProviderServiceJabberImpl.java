@@ -996,6 +996,16 @@ public class ProtocolProviderServiceJabberImpl
         {
             this.accountID = accountID;
 
+            // in case of modified account, we clear list of supported features
+            // and every state change listeners, otherwise we can have two
+            // OperationSet for same feature and it can causes problem (i.e.
+            // two OperationSetBasicTelephony can launch two ICE negociations
+            // (with different ufrag/passwd) and peer will failed call. And
+            // by the way user will see two dialog for answering/refusing the
+            // call
+            supportedFeatures.clear();
+            this.clearRegistrationStateChangeListener();
+
             String protocolIconPath
                 = accountID.getAccountPropertyString(
                         ProtocolProviderFactory.PROTOCOL_ICON_PATH);

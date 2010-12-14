@@ -238,4 +238,15 @@ public abstract class AbstractProtocolProviderService
             registrationListeners.remove(listener);
         }
     }
+
+    /**
+     * Clear all registration state change listeners.
+     */
+    public void clearRegistrationStateChangeListener()
+    {
+        synchronized(registrationListeners)
+        {
+            registrationListeners.clear();
+        }
+    }
 }
