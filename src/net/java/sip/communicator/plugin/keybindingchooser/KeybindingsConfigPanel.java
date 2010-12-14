@@ -51,11 +51,13 @@ public class KeybindingsConfigPanel
         KeybindingsService service = getKeybindingsService();
 
         setFocusable(true);
-        JTabbedPane chooserPanes = new JTabbedPane();
+
+        JTabbedPane chooserPanes = new SIPCommTabbedPane();
 
         // deselects entries awaiting input when focus is lost
         this.addFocusListener(new FocusAdapter()
         {
+            @Override
             public void focusLost(FocusEvent event)
             {
                 for (SIPChooser chooser : choosers.values())
@@ -150,6 +152,7 @@ public class KeybindingsConfigPanel
             new HashMap<String, String>();
 
         // Calls focus to the form so keyboard events are received
+        @Override
         protected void onClick(MouseEvent event, BindingEntry entry,
             BindingEntry.Field field)
         {
@@ -157,6 +160,7 @@ public class KeybindingsConfigPanel
             KeybindingsConfigPanel.this.requestFocus();
         }
 
+        @Override
         public boolean putBinding(BindingEntry newEntry, int index)
         {
             // Converts to I18N strings for UI
@@ -192,10 +196,10 @@ public class KeybindingsConfigPanel
          */
         private String getI18NString(String key)
         {
-            StringBuffer newKey = new StringBuffer();
+            StringBuilder newKey = new StringBuilder();
+
             newKey.append("plugin.keybindings.");
-            char[] keyChars = key.toCharArray();
-            for (char keyChar : keyChars)
+            for (char keyChar : key.toCharArray())
             {
                 if (Character.isLowerCase(keyChar))
                     newKey.append(Character.toUpperCase(keyChar));
@@ -213,6 +217,7 @@ public class KeybindingsConfigPanel
                     newKey.toString());
         }
 
+        @Override
         public LinkedHashMap<KeyStroke, String> getBindingMap()
         {
             // Translates I18N strings back to internal action labels

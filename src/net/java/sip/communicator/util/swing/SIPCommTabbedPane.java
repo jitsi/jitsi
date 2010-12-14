@@ -41,6 +41,11 @@ public class SIPCommTabbedPane
 
     private int lastSelectedIndex;
 
+    public SIPCommTabbedPane()
+    {
+        this(false, false);
+    }
+
     /**
      * Creates the <code>CloseAndMaxTabbedPane</code> with an enhanced UI if
      * <code>enhancedUI</code> parameter is set to <code>true</code>.
@@ -75,6 +80,8 @@ public class SIPCommTabbedPane
 
     /**
      * Returns the index of the last tab on which the mouse did an action.
+     *
+     * @return
      */
     public int getOverTabIndex()
     {
@@ -83,6 +90,8 @@ public class SIPCommTabbedPane
 
     /**
      * Returns <code>true</code> if the close icon is enabled.
+     *
+     * @return
      */
     public boolean isCloseEnabled()
     {
@@ -92,17 +101,19 @@ public class SIPCommTabbedPane
 
     /**
      * Returns <code>true</code> if the max/detach icon is enabled.
+     *
+     * @return
      */
     public boolean isMaxEnabled()
     {
-        SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) this.getUI();
-        return ui.isMaxEnabled();
+        return ((SIPCommTabbedPaneUI) getUI()).isMaxEnabled();
     }
 
     /**
      * Override JTabbedPane method. Does nothing.
      * @param tabLayoutPolicy The tab layout policy.
      */
+    @Override
     public void setTabLayoutPolicy(int tabLayoutPolicy)
     {
     }
@@ -111,6 +122,7 @@ public class SIPCommTabbedPane
      * Override JTabbedPane method. Does nothing.
      * @param tabPlacement The tab placement.
      */
+    @Override
     public void setTabPlacement(int tabPlacement)
     {
     }
@@ -122,8 +134,7 @@ public class SIPCommTabbedPane
      */
     public void setCloseIcon(boolean b)
     {
-        SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) this.getUI();
-        ui.setCloseIcon(b);
+        ((SIPCommTabbedPaneUI) getUI()).setCloseIcon(b);
     }
 
     /**
@@ -133,12 +144,11 @@ public class SIPCommTabbedPane
      */
     public void setMaxIcon(boolean b)
     {
-        SIPCommTabbedPaneUI ui = (SIPCommTabbedPaneUI) this.getUI();
-        ui.setMaxIcon(b);
+        ((SIPCommTabbedPaneUI) getUI()).setMaxIcon(b);
     }
 
     /**
-     * Detaches the <code>index</code> tab in a seperate frame. When the frame
+     * Detaches the <code>index</code> tab in a separate frame. When the frame
      * is closed, the tab is automatically reinserted into the tabbedPane.
      *
      * @param index index of the tabbedPane to be detached
@@ -427,9 +437,10 @@ public class SIPCommTabbedPane
 
     /**
      * Overrides setSelectedIndex in JTabbedPane in order to remove the
-     * hightlight if the tab which is selected.
+     * highlight if the tab which is selected.
      * @param tabIndex The index of the tab to be selected.
      */
+    @Override
     public void setSelectedIndex(int tabIndex)
     {
         SIPCommTabbedPaneEnhancedUI ui
@@ -458,6 +469,7 @@ public class SIPCommTabbedPane
         this.repaint();
     }
 
+    @Override
     public void removeTabAt(int index)
     {
         if (index < lastSelectedIndex)

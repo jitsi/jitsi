@@ -28,7 +28,7 @@ public class SIPAccountRegistrationForm
 
     private final SIPAccountRegistrationWizard wizard;
 
-    private final JTabbedPane tabbedPane = new SIPCommTabbedPane(false, false);
+    private final JTabbedPane tabbedPane = new SIPCommTabbedPane();
 
     /**
      * The panels which value needs validation before we continue.
@@ -168,7 +168,9 @@ public class SIPAccountRegistrationForm
 
     /**
      * Saves the user input when the "Next" wizard buttons is clicked.
+     *
      * @param registration the SIPAccountRegistration
+     * @return
      */
     public boolean commitPage(SIPAccountRegistration registration)
     {
@@ -342,7 +344,7 @@ public class SIPAccountRegistrationForm
         ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE, true);
 
         boolean proxyAutoConfigureEnabled = accountID.getAccountPropertyBoolean(
-            ProtocolProviderFactory.PROXY_AUTO_CONFIG, false);;
+            ProtocolProviderFactory.PROXY_AUTO_CONFIG, false);
 
         String pollingPeriod = accountID.getAccountPropertyString(
                     ProtocolProviderFactory.POLLING_PERIOD);

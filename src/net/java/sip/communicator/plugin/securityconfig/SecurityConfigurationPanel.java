@@ -7,9 +7,8 @@ package net.java.sip.communicator.plugin.securityconfig;
 
 import java.awt.*;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -19,7 +18,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class SecurityConfigurationPanel
-    extends JTabbedPane
+    extends SIPCommTabbedPane
     implements ServiceListener
 {
     /**

@@ -127,8 +127,8 @@ public class ZrtpConfigurePanel
                 }
                 else if (source == saveButton)
                 {
-                    Boolean t = new Boolean(active.isTrustedMitM());
-                    Boolean s = new Boolean(active.isSasSignature());
+                    Boolean t = Boolean.valueOf(active.isTrustedMitM());
+                    Boolean s = Boolean.valueOf(active.isSasSignature());
                     NeomediaActivator.getConfigurationService()
                         .setProperty(TRUSTED_PROP, t);
                     NeomediaActivator.getConfigurationService()
@@ -161,7 +161,7 @@ public class ZrtpConfigurePanel
         trustedMitM.addItemListener(itemListener);
         sasSignature.addItemListener(itemListener);
 
-        JTabbedPane algorithmsPane = new JTabbedPane();
+        JTabbedPane algorithmsPane = new SIPCommTabbedPane();
 
         algorithmsPane.addTab(
                 resources.getI18NString("impl.media.security.zrtp.PUB_KEYS"),
@@ -191,7 +191,8 @@ public class ZrtpConfigurePanel
 
     private <T extends Enum<T>>String getPropertyValue(T algo)
     {
-        StringBuffer strb = new StringBuffer();
+        StringBuilder strb = new StringBuilder();
+
         for (T it : active.algos(algo)) {
             strb.append(it.name());
             strb.append(';');

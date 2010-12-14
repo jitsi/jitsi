@@ -43,7 +43,7 @@ public class AccountInfoPanel
     {
         super(new BorderLayout());
 
-        JTabbedPane accountsTabbedPane = new SIPCommTabbedPane(false, false);
+        JTabbedPane accountsTabbedPane = new SIPCommTabbedPane();
 
         for (ProtocolProviderFactory providerFactory : AccountInfoActivator
             .getProtocolProviderFactories().values())

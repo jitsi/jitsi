@@ -74,7 +74,7 @@ public class ChatRoomConfigurationWindow
     /**
      * The tabbed pane containing the "General" and "Options" tabs.
      */
-    private JTabbedPane tabbedPane = new SIPCommTabbedPane(false, false);
+    private final JTabbedPane tabbedPane = new SIPCommTabbedPane();
 
     /**
      * The panel containing the title.
@@ -408,7 +408,7 @@ public class ChatRoomConfigurationWindow
                 {
                     boolean isSelected = ((AbstractButton)c).isSelected();
 
-                    formField.addValue(new Boolean(isSelected));
+                    formField.addValue(Boolean.valueOf(isSelected));
                 }
                 else if (c instanceof JComboBox)
                 {
@@ -434,6 +434,7 @@ public class ChatRoomConfigurationWindow
 
             new Thread()
             {
+                @Override
                 public void run()
                 {
                     try
