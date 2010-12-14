@@ -300,7 +300,6 @@ public class OperationSetDesktopSharingServerJabberImpl
         if(logger.isInfoEnabled())
             logger.info("Enable remote control");
 
-        System.out.println("remote control enabled");
         CallJabberImpl call = (CallJabberImpl)callPeer.getCall();
 
         if(call.getLocalInputEvtAware())
@@ -322,7 +321,6 @@ public class OperationSetDesktopSharingServerJabberImpl
      */
     public void disableRemoteControl(CallPeer callPeer)
     {
-        System.out.println("remote control disabled");
         if(logger.isInfoEnabled())
             logger.info("Disable remote control");
 
