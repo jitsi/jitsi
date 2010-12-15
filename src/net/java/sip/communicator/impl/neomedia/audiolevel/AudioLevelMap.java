@@ -39,10 +39,9 @@ public class AudioLevelMap
     {
         //copy the levels matrix so that no one pulls it from under our feet.
         long[][] levelsRef = levels;
-
         int csrcIndex = findCSRC(levelsRef, csrc);
 
-        if ( csrcIndex  == -1)
+        if (csrcIndex == -1)
         {
             //we don't have the csrc in there yet so we need a new row.
             levels = appendCSRCToMatrix(levelsRef, csrc, level);
@@ -54,7 +53,7 @@ public class AudioLevelMap
     }
 
     /**
-     * Removes <tt>csrc</tt> and it's mapped level from this map.
+     * Removes <tt>csrc</tt> and its mapped level from this map.
      *
      * @param csrc the CSRC ID that we'd like to remove from this map.
      *
@@ -65,13 +64,12 @@ public class AudioLevelMap
     {
         //copy the levels matrix so that no one pulls it from under our feet.
         long[][] levelsRef = levels;
-
         int index = findCSRC(levelsRef, csrc);
 
-        if ( index == -1)
+        if (index == -1)
             return false;
 
-        if( levelsRef.length == 1)
+        if (levelsRef.length == 1)
         {
             levels = null;
             return true;
@@ -79,16 +77,12 @@ public class AudioLevelMap
 
         //copy levelsRef into newLevels ref making sure we skip the entry
         //containing the CSRC ID that we are trying to remove;
-        long[][] newLevelsRef = new long[levelsRef.length - 1][2];
+        long[][] newLevelsRef = new long[levelsRef.length - 1][];
 
-        for( int j=0, i = 0; i < levelsRef.length; i++ )
-        {
-            if(levelsRef[i][0] == csrc)
-                continue;
-
-            newLevelsRef[j][0] = levelsRef[i][0];
-            newLevelsRef[j][1] = levelsRef[i][1];
-        }
+        System.arraycopy(levelsRef, 0, newLevelsRef, 0, index);
+        System.arraycopy(
+                levelsRef, index + 1,
+                newLevelsRef, index, newLevelsRef.length - index);
 
         levels = newLevelsRef;
         return true;
@@ -106,27 +100,9 @@ public class AudioLevelMap
     public int getLevel(long csrc)
     {
         long[][] levelsRef = levels;
-
         int index = findCSRC(levelsRef, csrc);
 
-        if( index == -1)
-            return -1;
-
-        return (int)levelsRef[index][1];
-    }
-
-    /**
-     * Returns a reference to the bi-directional array encapsulated by this map.
-     * Note that the actual array used by this map may change as soon as this
-     * method returns and its contents and order may hence no longer correspond
-     * to those in the returned array.
-     *
-     * @return a reference to the bi-directional array encapsulated by this map
-     * or <tt>null</tt> if the map is still empty.
-     */
-    public long[][] getReference()
-    {
-        return levels;
+        return (index == -1) ? -1 : ((int) levelsRef[index][1]);
     }
 
     /**
@@ -144,15 +120,14 @@ public class AudioLevelMap
      */
     private int findCSRC(long[][] levels, long csrc)
     {
-        if( levels == null )
-            return -1;
-
-        for (int i = 0; i < levels.length; i++)
+        if (levels != null)
         {
-            if (levels [i][0] == csrc)
-                return i;
+            for (int i = 0; i < levels.length; i++)
+            {
+                if (levels[i][0] == csrc)
+                    return i;
+            }
         }
-
         return -1;
     }
 
@@ -172,30 +147,16 @@ public class AudioLevelMap
      */
     private long[][] appendCSRCToMatrix(long[][] levels, long csrc, int level)
     {
-        int newLength = 1;
-
-        if( levels != null && levels.length > 0)
-        {
-            newLength = levels.length + 1;
-        }
-
-        long[][] newLevels = new long[newLength][2];
+        int newLength = 1 + ((levels == null) ? 0 : levels.length);
+        long[][] newLevels = new long[newLength][];
 
         //put the new level.
-        newLevels[0][0] = csrc;
-        newLevels[0][1] = level;
+        newLevels[0] = new long[] { csrc, level };
 
-        if( newLength == 1)
+        if (newLength == 1)
             return newLevels;
 
-        for (int i = 0; i < levels.length; i ++)
-        {
-            //csrc
-            newLevels[i+1][0] = levels [i][0];
-
-            //level
-            newLevels[i+1][1] = levels [i][1];
-        }
+        System.arraycopy(levels, 0, newLevels, 1, levels.length);
 
         return newLevels;
     }

@@ -119,7 +119,7 @@ public class AudioMixerMediaDevice
      */
     private final Map<ReceiveStream, AudioLevelEventDispatcher>
         streamAudioLevelListeners
-            = new Hashtable<ReceiveStream, AudioLevelEventDispatcher>();
+            = new HashMap<ReceiveStream, AudioLevelEventDispatcher>();
 
     /**
      * Initializes a new <tt>AudioMixerMediaDevice</tt> instance which is to
@@ -278,7 +278,7 @@ public class AudioMixerMediaDevice
                          */
                         synchronized(localUserAudioLevelListeners)
                         {
-                            if (localUserAudioLevelListeners.size() == 0)
+                            if (localUserAudioLevelListeners.isEmpty())
                                 return;
                         }
 
@@ -462,9 +462,8 @@ public class AudioMixerMediaDevice
             {
                 //if this is the first listener that we are seeing then we also
                 //need to create the dispatcher.
-                if (localUserAudioLevelListeners.size() == 0)
+                if (localUserAudioLevelListeners.isEmpty())
                 {
-
                     localUserAudioLevelDispatcher
                         .setAudioLevelListener(localUserAudioLevelDelegator);
 
@@ -577,15 +576,15 @@ public class AudioMixerMediaDevice
          * from <tt>stream</tt>.
          */
         public void putStreamAudioLevelListener(
-                                            ReceiveStream            stream,
-                                            SimpleAudioLevelListener listener)
+                ReceiveStream stream,
+                SimpleAudioLevelListener listener)
         {
             synchronized(streamAudioLevelListeners)
             {
                 AudioLevelEventDispatcher dispatcher
                     = streamAudioLevelListeners.get(stream);
 
-                if ( dispatcher == null )
+                if (dispatcher == null)
                 {
                     //this is not a replacement but a registration for a stream
                     //that was not listened to so far. create it and "put" it
@@ -606,7 +605,7 @@ public class AudioMixerMediaDevice
          * @param l the listener we'd like to remove.
          */
         public void removeLocalUserAudioLevelListener(
-                                                SimpleAudioLevelListener l)
+                SimpleAudioLevelListener l)
         {
             synchronized(localUserAudioLevelListeners)
             {
@@ -629,10 +628,9 @@ public class AudioMixerMediaDevice
 
                 //if this was the last listener then we also need to remove the
                 //dispatcher
-                if (localUserAudioLevelListeners.size() == 0)
+                if (localUserAudioLevelListeners.isEmpty())
                 {
                     localUserAudioLevelDispatcher.stop();
-
                     localUserAudioLevelDispatcher.setAudioLevelListener(null);
                 }
             }
@@ -948,6 +946,7 @@ public class AudioMixerMediaDevice
          * 
          * @param processor the processor.
          */
+        @Override
         protected void registerLocalUserAudioLevelEffect(Processor processor)
         {
         }
@@ -1032,8 +1031,9 @@ public class AudioMixerMediaDevice
         @Override
         public int getLastMeasuredAudioLevel(long csrc)
         {
-            return ((AudioMixerMediaDevice)getDevice())
-                .audioLevelCache.getLevel(csrc);
+            return
+                ((AudioMixerMediaDevice) getDevice()).audioLevelCache.getLevel(
+                        csrc);
         }
 
         /**
@@ -1045,8 +1045,9 @@ public class AudioMixerMediaDevice
         @Override
         public int getLastMeasuredLocalUserAudioLevel()
         {
-            return ((AudioMixerMediaDevice)getDevice())
-                .lastMeasuredLocalUserAudioLevel;
+            return
+                ((AudioMixerMediaDevice) getDevice())
+                    .lastMeasuredLocalUserAudioLevel;
         }
 
         /**

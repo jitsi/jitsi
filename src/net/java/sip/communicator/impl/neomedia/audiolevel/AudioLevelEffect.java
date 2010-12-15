@@ -25,9 +25,19 @@ public class AudioLevelEffect
     implements Effect
 {
     /**
-     * The supported audio formats by this effect.
+     * The indicator which determines whether <tt>AudioLevelEffect</tt>
+     * instances are to perform the copying of the data from input
+     * <tt>Buffer</tt>s to output <tt>Buffer</tt>s themselves (e.g. using
+     * {@link System#arraycopy(Object, int, Object, int, int)}).
      */
-    private Format[] supportedAudioFormats;
+    private static final boolean COPY_DATA_FROM_INPUT_TO_OUTPUT = true;
+
+    /**
+     * The dispatcher of the events which handles the calculation and the event
+     * firing in different thread in order to now slow down the JMF codec chain.
+     */
+    private final AudioLevelEventDispatcher eventDispatcher
+        = new AudioLevelEventDispatcher();
 
     /**
      * Input Format
@@ -40,11 +50,9 @@ public class AudioLevelEffect
     private AudioFormat outputFormat;
 
     /**
-     * The dispatcher of the events which handles the calculation and the event
-     * firing in different thread in order to now slow down the JMF codec chain.
+     * The supported audio formats by this effect.
      */
-    private final AudioLevelEventDispatcher eventDispatcher
-        = new AudioLevelEventDispatcher();
+    private Format[] supportedAudioFormats;
 
     /**
      * The minimum and maximum values of the scale
@@ -67,7 +75,7 @@ public class AudioLevelEffect
     }
 
     /**
-     * Sets (or unsets if <tt>listener</tt> is <tt>null</tt>, the listener that
+     * Sets (or unsets if <tt>listener</tt> is <tt>null</tt>), the listener that
      * is going to be notified of audio level changes detected by this effect.
      * Given the semantics of the {@link AudioLevelEventDispatcher} this effect
      * would do no real work if no listener is set or if it is set to
@@ -84,6 +92,7 @@ public class AudioLevelEffect
 
     /**
      * Lists all of the input formats that this codec accepts.
+     *
      * @return An array that contains the supported input <tt>Formats</tt>.
      */
     public Format[] getSupportedInputFormats()
@@ -93,8 +102,9 @@ public class AudioLevelEffect
 
     /**
      * Lists the output formats that this codec can generate.
-     * @param input The <tt>Format</tt> of the data to be used
-     *        as input to the plug-in.
+     *
+     * @param input The <tt>Format</tt> of the data to be used as input to the
+     * plug-in.
      * @return An array that contains the supported output <tt>Formats</tt>.
      */
     public Format[] getSupportedOutputFormats(Format input)
@@ -115,6 +125,7 @@ public class AudioLevelEffect
 
     /**
      * Sets the format of the data to be input to this codec.
+     *
      * @param format The <tt>Format</tt> to be set.
      * @return The <tt>Format</tt> that was set.
      */
@@ -126,6 +137,7 @@ public class AudioLevelEffect
 
     /**
      * Sets the format for the data this codec outputs.
+     *
      * @param format The <tt>Format</tt> to be set.
      * @return The <tt>Format</tt> that was set.
      */
@@ -137,47 +149,58 @@ public class AudioLevelEffect
 
     /**
      * Performs the media processing defined by this codec.
-     * @param inputBuffer The <tt>Buffer</tt> that contains the media data
-     *        to be processed.
-     * @param outputBuffer The <tt>Buffer</tt> in which to store
-     *        the processed media data.
+     *
+     * @param inputBuffer The <tt>Buffer</tt> that contains the media data to be
+     * processed.
+     * @param outputBuffer The <tt>Buffer</tt> in which to store the processed
+     * media data.
      * @return <tt>BUFFER_PROCESSED_OK</tt> if the processing is successful.
-     *         @see PlugIn
+     * @see PlugIn
      */
     public int process(Buffer inputBuffer, Buffer outputBuffer)
     {
-        //copy the actual data from input to the output.
-        Object data = outputBuffer.getData();
-        byte[] bufferData;
-        if (data instanceof byte[] &&
-                ((byte[])data).length >= inputBuffer.getLength())
+        if (COPY_DATA_FROM_INPUT_TO_OUTPUT)
         {
-            bufferData = (byte[])data;
+            // Copy the actual data from the input to the output.
+            Object data = outputBuffer.getData();
+            int inputBufferLength = inputBuffer.getLength();
+            byte[] bufferData;
+
+            if ((data instanceof byte[]) &&
+                    (((byte[])data).length >= inputBufferLength))
+            {
+                bufferData = (byte[])data;
+            }
+            else
+            {
+                bufferData = new byte[inputBufferLength];
+                outputBuffer.setData(bufferData);
+            }
+            outputBuffer.setLength(inputBufferLength);
+            outputBuffer.setOffset(0);
+
+            System.arraycopy(
+                inputBuffer.getData(), inputBuffer.getOffset(),
+                bufferData, 0,
+                inputBufferLength);
+
+            // Now copy the remaining attributes.
+            outputBuffer.setFormat(inputBuffer.getFormat());
+            outputBuffer.setHeader(inputBuffer.getHeader());
+            outputBuffer.setSequenceNumber(inputBuffer.getSequenceNumber());
+            outputBuffer.setTimeStamp(inputBuffer.getTimeStamp());
+            outputBuffer.setFlags(inputBuffer.getFlags());
+            outputBuffer.setDiscard(inputBuffer.isDiscard());
+            outputBuffer.setEOM(inputBuffer.isEOM());
+            outputBuffer.setDuration(inputBuffer.getDuration());
         }
         else
         {
-            bufferData = new byte[inputBuffer.getLength()];
-            outputBuffer.setData(bufferData);
+            outputBuffer.copy(inputBuffer);
         }
-        outputBuffer.setLength(inputBuffer.getLength());
-        outputBuffer.setOffset(0);
-
-        System.arraycopy(
-            inputBuffer.getData(), inputBuffer.getOffset(), bufferData, 0,
-            inputBuffer.getLength());
 
         //now copy the output to the level dispatcher.
         eventDispatcher.addData(outputBuffer);
-
-        //now copy the rest of the data.
-        outputBuffer.setFormat(inputBuffer.getFormat());
-        outputBuffer.setHeader(inputBuffer.getHeader());
-        outputBuffer.setSequenceNumber(inputBuffer.getSequenceNumber());
-        outputBuffer.setTimeStamp(inputBuffer.getTimeStamp());
-        outputBuffer.setFlags(inputBuffer.getFlags());
-        outputBuffer.setDiscard(inputBuffer.isDiscard());
-        outputBuffer.setEOM(inputBuffer.isEOM());
-        outputBuffer.setDuration(inputBuffer.getDuration());
 
         return BUFFER_PROCESSED_OK;
     }

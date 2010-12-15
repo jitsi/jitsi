@@ -218,17 +218,19 @@ public class CsrcTransformEngine
 
         byte[] extensionBuff = getExtensionBuff(buffLen);
 
-        extensionBuff[0] =
-            (byte)((csrcAudioLevelExtID << 4) | (csrcList.length - 1));
+        extensionBuff[0]
+            = (byte)((csrcAudioLevelExtID << 4) | (csrcList.length - 1));
 
         int csrcOffset = 1; // initial offset is equal to ext hdr size
 
         for(long csrc : csrcList)
         {
-            byte level = (byte)((AudioMediaStreamImpl)mediaStream)
-                .getLastMeasuredAudioLevel(csrc);
-            extensionBuff[csrcOffset] = level;
+            byte level
+                = (byte)
+                    ((AudioMediaStreamImpl)mediaStream)
+                        .getLastMeasuredAudioLevel(csrc);
 
+            extensionBuff[csrcOffset] = level;
             csrcOffset ++;
         }
 
