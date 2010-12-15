@@ -1372,7 +1372,9 @@ public class MediaStreamImpl
     {
         if(logger.isTraceEnabled())
             logger.trace("Changing format of stream " + hashCode()
-                + " from:" + getDeviceSession().getFormat()
+                // getDeviceSession().getFormat() will activate
+                // device in order to get its format
+                //+ " from:" + getDeviceSession().getFormat()
                 + " to:" + format);
 
         setAdvancedAttributes(format.getAdvancedAttributes());
