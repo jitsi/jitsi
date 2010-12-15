@@ -31,6 +31,11 @@ public class SelectScreenDialog
     extends SIPCommDialog
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The object used for logging.
      */
     private final static Logger logger

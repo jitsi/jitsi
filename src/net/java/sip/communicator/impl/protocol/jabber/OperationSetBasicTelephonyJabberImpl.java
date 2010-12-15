@@ -475,7 +475,10 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     private void unsubscribeForJinglePackets()
     {
-        protocolProvider.getConnection().removePacketListener(this);
+        if(protocolProvider.getConnection() != null)
+        {
+            protocolProvider.getConnection().removePacketListener(this);
+        }
     }
 
     /**

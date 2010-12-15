@@ -310,6 +310,8 @@ public class CallPeerJabberImpl
 
         try
         {
+            getMediaHandler().getTransportManager().
+                wrapupConnectivityEstablishment();
             answer = getMediaHandler().generateSessionAccept();
         }
         catch(Exception exc)
