@@ -372,8 +372,10 @@ public class BasicConferenceParticipantPanel
     /**
      * Overrides {@link JComponent#paintComponent(Graphics)} in order to
      * customize the background of this panel.
+     *
      * @param g the <tt>Graphics</tt> object used for painting
      */
+    @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);

@@ -36,18 +36,13 @@ public class AudioLevelCalculator
      * The maximum sound pressure level which matches the maximum of the sound
      * meter.
      */
-    private static final double MAX_SOUND_PRESSURE_LEVEL = 120;
+    private static final double MAX_SOUND_PRESSURE_LEVEL
+        = 127 /* HUMAN TINNITUS (RINGING IN THE EARS) BEGINS */;
 
     /**
      * The minimum level we can get as a result after compute.
      */
     private static final int MIN_AUDIO_LEVEL = Short.MIN_VALUE;
-
-    /**
-     * The minimum sound pressure level which matches the minimum of the sound
-     * meter.
-     */
-    private static final double MIN_SOUND_PRESSURE_LEVEL = 40;
 
     /**
      * Modifies a specific <tt>level</tt> value so that its multiple uses for
@@ -174,32 +169,11 @@ public class AudioLevelCalculator
         double db;
 
         if (rms > 0)
-        {
-            db = 20 * Math.log10(rms);
-            if (db < -MAX_SOUND_PRESSURE_LEVEL)
-                db = -MAX_SOUND_PRESSURE_LEVEL;
-        }
+            db = 20 * Math.log10(rms / 0.00002);
         else
             db = -MAX_SOUND_PRESSURE_LEVEL;
-        db += MAX_SOUND_PRESSURE_LEVEL;
-        db -= MIN_SOUND_PRESSURE_LEVEL;
 
-        int level
-            = (int)
-                (minLevel
-                    + (db
-                            / (MAX_SOUND_PRESSURE_LEVEL
-                                - MIN_SOUND_PRESSURE_LEVEL))
-                        * (maxLevel - minLevel));
-
-        level = ensureLevelRange(level, minLevel, maxLevel);
-
-        /*
-         * Audacity uses 0.9 for lastLevel and, consequently, 0.1 for level but
-         * that makes the animation too slow.
-         */
-        level = (int) (0.8 * lastLevel + 0.2 * level);
-        return level;
+        return ensureLevelRange((int) db, minLevel, maxLevel);
     }
 
     /**

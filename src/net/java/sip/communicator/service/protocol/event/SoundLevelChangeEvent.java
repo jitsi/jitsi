@@ -33,16 +33,30 @@ public class SoundLevelChangeEvent
     private static final long serialVersionUID = 0L;
 
     /**
-     * The maximum level that can be reported for a participant.
-     * Level values should be distributed among MAX_LEVEL and MIN_LEVEL in a
-     * way that would appear uniform to users.
+     * The maximum level that can be reported for a participant. Level values
+     * should be distributed among <tt>MAX_LEVEL</tt> and {@link #MIN_LEVEL} in
+     * a way that would appear uniform to users.
+     * <p>
+     * <b>Warning</b>: The value should be equal to
+     * <tt>net.java.sip.communicator.service.neomedia.event.SimpleAudioLevelListener#MAX_VALUE</tt>
+     * because we do not currently perform a conversion from the
+     * <tt>SimpleAudioLevelListener</tt> range to the
+     * <tt>SoundLevelChangeEvent</tt> range when we fire the event.
+     * </p>
      */
-    public static final int MAX_LEVEL = 255;
+    public static final int MAX_LEVEL = 127;
 
     /**
-     * The maximum (zero) level that can be reported for a participant.
-     * Level values should be distributed among MAX_LEVEL and
-     * MIN_LEVEL in a way that would appear uniform to users.
+     * The maximum (zero) level that can be reported for a participant. Level
+     * values should be distributed among {@link #MAX_LEVEL} and
+     * <tt>MIN_LEVEL</tt> in a way that would appear uniform to users.
+     * <p>
+     * <b>Warning</b>: The value should be equal to
+     * <tt>net.java.sip.communicator.service.neomedia.event.SimpleAudioLevelListener#MIN_VALUE</tt>
+     * because we do not currently perform a conversion from the
+     * <tt>SimpleAudioLevelListener</tt> range to the
+     * <tt>SoundLevelChangeEvent</tt> range when we fire the event.
+     * </p>
      */
     public static final int MIN_LEVEL = 0;
 
@@ -68,6 +82,7 @@ public class SoundLevelChangeEvent
 
     /**
      * Returns the current sound level of the audio stream.
+     *
      * @return the current sound level of the audio stream
      */
     public int getLevel()

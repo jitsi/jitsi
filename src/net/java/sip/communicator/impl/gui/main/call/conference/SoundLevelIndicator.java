@@ -16,16 +16,17 @@ import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- *Represents the sound level indicator for a particular peer
+ * Represents the sound level indicator for a particular peer.
  *
  * @author Dilshan Amadoru
  * @author Yana Stamcheva
  * @author Adam Netocny
+ * @author Lyubomir Marinov
  */
 public class SoundLevelIndicator
     extends TransparentPanel
-    implements  ComponentListener,
-                Skinnable
+    implements ComponentListener,
+               Skinnable
 {
     /**
      * Image when a sound level block is active
@@ -41,6 +42,12 @@ public class SoundLevelIndicator
      * Current number of distinct sound levels displayed in the UI.
      */
     private int soundBarNumber = 8;
+
+    /**
+     * The sound level which is currently depicted by this
+     * <tt>SoundLevelIndicator</tt>.
+     */
+    private int soundLevel;
 
     /**
      * Indicates if the component listener is added.
@@ -75,6 +82,7 @@ public class SoundLevelIndicator
 
         this.addComponentListener(new ComponentAdapter()
         {
+            @Override
             public void componentResized(ComponentEvent e)
             {
                 if (!isComponentListenerAdded)
@@ -102,6 +110,7 @@ public class SoundLevelIndicator
         for (int i = 0; i < soundBarNumber; i++)
         {
             JLabel block = new JLabel(soundLevelInactiveImage);
+
             this.add(block);
         }
     }
@@ -114,22 +123,51 @@ public class SoundLevelIndicator
     public void updateSoundLevel(int soundLevel)
     {
         int range = 1;
+
         // Check if the given range values are correct.
-        if (maxSoundLevel > -1 && minSoundLevel > -1
-                && maxSoundLevel >= minSoundLevel)
+        if ((minSoundLevel > -1)
+                && (maxSoundLevel > -1)
+                && (minSoundLevel < maxSoundLevel))
+        {
             range = maxSoundLevel - minSoundLevel;
 
-        int activeBarNumber = soundLevel*soundBarNumber/range;
+            if (soundLevel < 40 /* A WHISPER */)
+                soundLevel = minSoundLevel;
+            else if (soundLevel > 85 /* BEGINNING OF HEARING DAMAGE */)
+                soundLevel = maxSoundLevel;
+            else
+            {
+                /*
+                 * Depict the range between "A WHISPER" and "BEGINNING OF
+                 * HEARING DAMAGE".
+                 */
+                soundLevel = (int) (((soundLevel - 40.0) / 45.0) * range);
+                if (soundLevel < minSoundLevel)
+                    soundLevel = minSoundLevel;
+                else if (soundLevel > maxSoundLevel)
+                    soundLevel = maxSoundLevel;
+            }
+        }
 
-        for (int i = 0; i < getComponentCount(); i++)
+        /*
+         * Audacity uses 0.9 for this.soundLevel and, consequently, 0.1 for
+         * soundLevel but that makes the animation too slow.
+         */
+        this.soundLevel = (int) (this.soundLevel * 0.8 + soundLevel * 0.2);
+
+        int activeBarNumber
+            = Math.round(this.soundLevel * soundBarNumber / (float) range);
+
+        for (int i = 0, count = getComponentCount(); i < count; i++)
         {
             Component c = getComponent(i);
+
             if (c instanceof JLabel)
             {
-                if (i < activeBarNumber)
-                    ((JLabel) c).setIcon(soundLevelActiveImage);
-                else
-                    ((JLabel) c).setIcon(soundLevelInactiveImage);
+                ((JLabel) c).setIcon(
+                        (i < activeBarNumber)
+                            ? soundLevelActiveImage
+                            : soundLevelInactiveImage);
             }
         }
         this.repaint();
@@ -148,29 +186,31 @@ public class SoundLevelIndicator
     public void componentResized(ComponentEvent e)
     {
         int windowWidth = e.getComponent().getWidth();
-
         int newNumber = getSoundBarNumber(windowWidth);
 
-        while (newNumber > 0 && newNumber < soundBarNumber)
+        if (newNumber > 0)
         {
-            for (int i = getComponentCount() - 1; i >= 0; i--)
+            while (newNumber < soundBarNumber)
             {
-                if (getComponent(i) instanceof JLabel)
+                for (int i = getComponentCount() - 1; i >= 0; i--)
                 {
-                    this.remove(getComponent(i));
+                    Component c = getComponent(i);
 
-                    soundBarNumber--;
+                    if (c instanceof JLabel)
+                    {
+                        this.remove(c);
+                        soundBarNumber--;
+                    }
                 }
             }
-        }
 
-        while (newNumber > 0 && soundBarNumber < newNumber)
-        {
-            JLabel block = new JLabel(soundLevelInactiveImage);
+            while (soundBarNumber < newNumber)
+            {
+                JLabel block = new JLabel(soundLevelInactiveImage);
 
-            this.add(block);
-
-            soundBarNumber++;
+                this.add(block);
+                soundBarNumber++;
+            }
         }
 
         this.revalidate();
@@ -190,7 +230,7 @@ public class SoundLevelIndicator
         int barWidth = soundLevelActiveImage.getIconWidth();
 
         // We deduct 150px from the given windowWidth because this is not the
-        // only component positioned on the horizontal axe.
+        // only component positioned on the horizontal axis.
         return (windowWidth - 130)/barWidth;
     }
 
