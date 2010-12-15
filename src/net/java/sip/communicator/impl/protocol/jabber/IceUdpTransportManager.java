@@ -21,6 +21,7 @@ import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
 import org.ice4j.security.*;
+
 import org.xmpp.jnodes.smack.*;
 
 /**
@@ -111,7 +112,8 @@ public class IceUdpTransportManager
         {
             //the default server is supposed to use the same user name and
             //password as the account itself.
-            String username = provider.getOurJID();
+            String username = org.jivesoftware.smack.util.StringUtils.parseName(
+                    provider.getOurJID());
             String password
                 = JabberActivator.getProtocolProviderFactory().loadPassword(
                         accID);
