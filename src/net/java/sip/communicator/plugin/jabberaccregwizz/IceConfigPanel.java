@@ -331,7 +331,7 @@ public class IceConfigPanel
             JLabel portLabel = new JLabel(
                 Resources.getString("service.gui.PORT"));
             JLabel usernameLabel = new JLabel(
-                Resources.getString("plugin.jabberaccregwizz.USERNAME"));
+                Resources.getString("plugin.jabberaccregwizz.TURN_USERNAME"));
             JLabel passwordLabel = new JLabel(
                 Resources.getString("service.gui.PASSWORD"));
 
