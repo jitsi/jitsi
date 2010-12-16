@@ -50,7 +50,7 @@ public class OperationSetContactCapabilitiesJabberImpl
      * The <tt>Map</tt> which associates specific <tt>OperationSet</tt> classes
      * with the features to be supported by a <tt>Contact</tt> in order to
      * consider the <tt>Contact</tt> to possess the respective
-     * <tt>OperationSet</tt> capability. 
+     * <tt>OperationSet</tt> capability.
      */
     private static final Map<Class<? extends OperationSet>, String[]>
         OPERATION_SETS_TO_FEATURES
@@ -77,6 +77,15 @@ public class OperationSetContactCapabilitiesJabberImpl
                 ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RTP,
                 ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RTP_VIDEO
             });
+
+        OPERATION_SETS_TO_FEATURES.put(
+                OperationSetDesktopSharingServer.class,
+                new String[]
+                {
+                    ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE,
+                    ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RTP,
+                    ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RTP_VIDEO
+                });
     }
 
     /**
@@ -116,7 +125,7 @@ public class OperationSetContactCapabilitiesJabberImpl
      *
      * @param <U> the type extending <tt>OperationSet</tt> for which the
      * specified <tt>contact</tt> is to be checked whether it possesses it as a
-     * capability 
+     * capability
      * @param contact the <tt>Contact</tt> for which the <tt>opsetClass</tt>
      * capability is to be queried
      * @param opsetClass the <tt>OperationSet</tt> <tt>Class</tt> for which the
@@ -255,7 +264,7 @@ public class OperationSetContactCapabilitiesJabberImpl
      *
      * @param <U> the type extending <tt>OperationSet</tt> for which the
      * specified <tt>contact</tt> is to be checked whether it possesses it as a
-     * capability 
+     * capability
      * @param jid the Jabber id for which we're checking supported operation
      * sets
      * @param opsetClass the <tt>OperationSet</tt> <tt>Class</tt> for which the

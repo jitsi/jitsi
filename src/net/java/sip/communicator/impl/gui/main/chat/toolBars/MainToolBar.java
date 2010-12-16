@@ -271,15 +271,64 @@ public class MainToolBar
                 chatPanel.findInviteChatTransport() != null);
             sendFileButton.setEnabled(
                 chatPanel.findFileTransferChatTransport() != null);
-            callButton.setEnabled(
-                !chatPanel.chatSession.getTransportsForOperationSet(
+            callButton.setEnabled(!getOperationSetForCapabilities(
+                chatPanel.chatSession.getTransportsForOperationSet(
+                    OperationSetBasicTelephony.class),
                     OperationSetBasicTelephony.class).isEmpty());
-            desktopSharingButton.setEnabled(
-                !chatPanel.chatSession.getTransportsForOperationSet(
+            desktopSharingButton.setEnabled(!getOperationSetForCapabilities(
+                chatPanel.chatSession.getTransportsForOperationSet(
+                    OperationSetDesktopSharingServer.class),
                     OperationSetDesktopSharingServer.class).isEmpty());
 
             changeHistoryButtonsState(chatPanel);
         }
+    }
+
+
+    /**
+     * Returns list of <tt>ChatTransport</tt> (i.e. contact) that supports the
+     * specified <tt>OperationSet</tt>.
+     *
+     * @param transports list of <tt>ChatTransport</tt>
+     * @param opSetClass <tt>OperationSet</tt> to find
+     * @return list of <tt>ChatTransport</tt> (i.e. contact) that supports the
+     * specified <tt>OperationSet</tt>.
+     */
+    private List<ChatTransport> getOperationSetForCapabilities(
+            List<ChatTransport> transports,
+            Class<? extends OperationSet> opSetClass)
+    {
+        List<ChatTransport> list = new ArrayList<ChatTransport>();
+
+        for(ChatTransport transport : transports)
+        {
+            OperationSetContactCapabilities capOpSet =
+                transport.getProtocolProvider().
+                    getOperationSet(OperationSetContactCapabilities.class);
+
+            OperationSetPersistentPresence presOpSet =
+                transport.getProtocolProvider().
+                    getOperationSet(OperationSetPersistentPresence.class);
+
+            if (capOpSet == null)
+            {
+                list.add(transport);
+            }
+            else if (presOpSet != null)
+            {
+                Contact contact = presOpSet.findContactByID(
+                        transport.getName());
+
+                if(capOpSet.getOperationSet(contact, opSetClass) != null)
+                {
+                    // It supports OpSet for at least one of its
+                    // ChatTransports
+                    list.add(transport);
+                }
+            }
+        }
+
+        return list;
     }
 
     /**
@@ -392,21 +441,25 @@ public class MainToolBar
                     .getTransportsForOperationSet(
                         OperationSetBasicTelephony.class);
 
+            List<ChatTransport> contactOpSetSupported =
+                getOperationSetForCapabilities(telTransports,
+                        OperationSetBasicTelephony.class);
+
             if (telTransports != null)
             {
-                if (telTransports.size() == 1)
+                if (contactOpSetSupported.size() == 1)
                 {
-                    ChatTransport transport = telTransports.get(0);
+                    ChatTransport transport = contactOpSetSupported.get(0);
                     CallManager.createCall(
                         transport.getProtocolProvider(),
                         transport.getName());
                 }
-                else if (telTransports.size() > 1)
+                else if (contactOpSetSupported.size() > 1)
                 {
                     ChooseCallAccountPopupMenu chooseAccountDialog
                         = new ChooseCallAccountPopupMenu(
                             callButton,
-                            telTransports);
+                            contactOpSetSupported);
 
                     Point location = new Point(callButton.getX(),
                         callButton.getY() + callButton.getHeight());
@@ -429,21 +482,25 @@ public class MainToolBar
                     .getTransportsForOperationSet(
                         OperationSetDesktopSharingServer.class);
 
+            List<ChatTransport> contactOpSetSupported =
+                getOperationSetForCapabilities(desktopTransports,
+                        OperationSetDesktopSharingServer.class);
+
             if (desktopTransports != null)
             {
-                if (desktopTransports.size() == 1)
+                if (contactOpSetSupported.size() == 1)
                 {
-                    ChatTransport transport = desktopTransports.get(0);
+                    ChatTransport transport = contactOpSetSupported.get(0);
                     CallManager.createDesktopSharing(
                         transport.getProtocolProvider(),
                         transport.getName());
                 }
-                else if (desktopTransports.size() > 1)
+                else if (contactOpSetSupported.size() > 1)
                 {
                     ChooseCallAccountPopupMenu chooseAccountDialog
                         = new ChooseCallAccountPopupMenu(
                             desktopSharingButton,
-                            desktopTransports,
+                            contactOpSetSupported,
                             OperationSetDesktopSharingServer.class);
 
                     Point location = new Point(callButton.getX(),

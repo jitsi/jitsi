@@ -101,7 +101,7 @@ public class MetaContactRightButtonMenu
      * The menu responsible for adding a contact.
      */
     private final JMenuItem addContactItem = new JMenuItem();
- 
+
     /**
      * The menu item responsible for calling a contact.
      */
@@ -339,7 +339,9 @@ public class MetaContactRightButtonMenu
             if (metaContact.getContactCount() > 1)
             {
                 if (protocolProvider.getOperationSet(
-                        OperationSetBasicTelephony.class) != null)
+                        OperationSetBasicTelephony.class) != null &&
+                        hasContactCapabilities(contact,
+                                OperationSetBasicTelephony.class))
                 {
                     callContactMenu.add(
                         createMenuItem( contactDisplayName,
@@ -349,7 +351,9 @@ public class MetaContactRightButtonMenu
                 }
 
                 if (protocolProvider.getOperationSet(
-                        OperationSetVideoTelephony.class) != null)
+                        OperationSetVideoTelephony.class) != null &&
+                        hasContactCapabilities(contact,
+                                OperationSetVideoTelephony.class))
                 {
                     videoCallMenu.add(
                         createMenuItem( contactDisplayName,
@@ -359,7 +363,9 @@ public class MetaContactRightButtonMenu
                 }
 
                 if (protocolProvider.getOperationSet(
-                        OperationSetDesktopSharingServer.class) != null)
+                        OperationSetDesktopSharingServer.class) != null &&
+                        hasContactCapabilities(contact,
+                                OperationSetDesktopSharingServer.class))
                 {
                     desktopSharingMenu.add(
                         createMenuItem( contactDisplayName,
@@ -655,7 +661,7 @@ public class MetaContactRightButtonMenu
         else if (itemName.equals("sendFile"))
         {
             SipCommFileChooser scfc = GenericFileDialog.create(
-                null, "Send file...", 
+                null, "Send file...",
                 SipCommFileChooser.LOAD_FILE_OPERATION,
                 ConfigurationManager.getSendFileLastDir());
             File selectedFile = scfc.getFileFromDialog();
@@ -825,7 +831,7 @@ public class MetaContactRightButtonMenu
     /**
      * Indicates that a group has been selected during a move operation. Moves
      * the selected contact to the selected group.
-     * @param evt the <tt>ContactListEvent</tt> has 
+     * @param evt the <tt>ContactListEvent</tt> has
      */
     public void groupClicked(ContactListEvent evt)
     {
@@ -919,7 +925,7 @@ public class MetaContactRightButtonMenu
 
     /**
      * Adds the according plug-in component to this container.
-     * @param event 
+     * @param event received event
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
@@ -1019,5 +1025,37 @@ public class MetaContactRightButtonMenu
 
         callContactMenu.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
+    }
+
+    /**
+     * Returns <tt>true</tt> if <tt>Contact</tt> supports the specified
+     * <tt>OperationSet</tt>, <tt>false</tt> otherwise.
+     *
+     * @param contact contact to check
+     * @param opSet <tt>OperationSet</tt> to search for
+     * @return Returns <tt>true</tt> if <tt>Contact</tt> supports the specified
+     * <tt>OperationSet</tt>, <tt>false</tt> otherwise.
+     */
+    private boolean hasContactCapabilities(
+            Contact contact, Class<? extends OperationSet> opSet)
+    {
+        OperationSetContactCapabilities capOpSet =
+            contact.getProtocolProvider().
+                getOperationSet(OperationSetContactCapabilities.class);
+
+        if (capOpSet == null)
+        {
+            // assume contact has OpSet capabilities
+            return true;
+        }
+        else
+        {
+            if(capOpSet.getOperationSet(contact, opSet) != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

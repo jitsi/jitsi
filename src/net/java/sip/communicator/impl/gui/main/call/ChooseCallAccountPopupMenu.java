@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -32,6 +33,11 @@ public class ChooseCallAccountPopupMenu
     extends JPopupMenu
     implements Skinnable
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The invoker component.
      */
@@ -99,9 +105,9 @@ public class ChooseCallAccountPopupMenu
      * @param opSetClass the operation class, which indicates what action would
      * be performed if an item is selected from the list
      */
-    public ChooseCallAccountPopupMenu(  JComponent invoker,
-                                        List<?> telephonyObjects,
-                                        Class<? extends OperationSet> opSetClass)
+    public ChooseCallAccountPopupMenu(JComponent invoker,
+                                      List<?> telephonyObjects,
+                                      Class<? extends OperationSet> opSetClass)
     {
         this.invoker = invoker;
         this.init();
@@ -111,7 +117,8 @@ public class ChooseCallAccountPopupMenu
             if (o instanceof UIContactDetail)
                 this.addTelephonyContactItem((UIContactDetail) o, opSetClass);
             else if (o instanceof ChatTransport)
-                this.addTelephonyChatTransportItem((ChatTransport) o, opSetClass);
+                this.addTelephonyChatTransportItem((ChatTransport) o,
+                        opSetClass);
         }
     }
 
@@ -302,6 +309,11 @@ public class ChooseCallAccountPopupMenu
         extends JMenuItem
         implements Skinnable
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private final ProtocolProviderService protocolProvider;
 
         public ProviderMenuItem(ProtocolProviderService protocolProvider)
@@ -338,6 +350,11 @@ public class ChooseCallAccountPopupMenu
         extends JMenuItem
         implements Skinnable
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private final UIContactDetail contact;
 
         public ContactMenuItem(UIContactDetail contact)
@@ -381,6 +398,11 @@ public class ChooseCallAccountPopupMenu
         extends JMenuItem
         implements Skinnable
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private final ChatTransport chatTransport;
 
         public ChatTransportMenuItem(ChatTransport chatTransport)
@@ -396,11 +418,16 @@ public class ChooseCallAccountPopupMenu
          */
         public void loadSkin()
         {
-            BufferedImage contactIcon
-                = Constants.getStatusIcon(chatTransport.getStatus());
+            PresenceStatus status = chatTransport.getStatus();
+            Image statusIcon = null;
 
-            if (contactIcon != null)
-                this.setIcon(new ImageIcon(contactIcon));
+            statusIcon = ImageLoader.badgeImageWithProtocolIndex(
+                    ImageUtils.getBytesInImage(
+                            status.getStatusIcon()),
+                            chatTransport.getProtocolProvider());
+
+            if (statusIcon != null)
+                this.setIcon(new ImageIcon(statusIcon));
         }
     }
 
