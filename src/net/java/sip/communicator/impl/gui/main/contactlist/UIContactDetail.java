@@ -122,6 +122,7 @@ public abstract class UIContactDetail
     {
         return preferredProtocol;
     }
+
     /**
      * Returns the <tt>PresenceStatus</tt> of this <tt>ContactDetail</tt> or
      * null if the detail doesn't support presence.

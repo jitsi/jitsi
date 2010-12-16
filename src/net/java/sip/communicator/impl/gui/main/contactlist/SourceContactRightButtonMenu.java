@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * The right button menu for external contact sources.
  * @see ExternalContactSource
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -33,6 +33,14 @@ public class SourceContactRightButtonMenu
     extends JPopupMenu
     implements Skinnable
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
+     * The source contact.
+     */
     private final SourceContact sourceContact;
 
     /**
@@ -112,6 +120,8 @@ public class SourceContactRightButtonMenu
                         CallManager.createCall(detail.getContactAddress());
                 }
             });
+            callContactItem.setEnabled(detail.getSupportedOperationSets().
+                    contains(OperationSetBasicTelephony.class));
             callContactMenu.add(callContactItem);
         }
         return callContactMenu;

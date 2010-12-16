@@ -51,8 +51,8 @@ public class OperationSetPersistentPresenceJabberImpl
     private PresenceStatus currentStatus;
 
     /**
-     * A map containing bindings between SIP Communicator's jabber presence status
-     * instances and Jabber status codes
+     * A map containing bindings between SIP Communicator's jabber presence
+     * status instances and Jabber status codes
      */
     private static Map<String, Presence.Mode> scToJabberModesMappings
         = new Hashtable<String, Presence.Mode>();
@@ -316,7 +316,8 @@ public class OperationSetPersistentPresenceJabberImpl
 
         if( !(contactToMove instanceof ContactJabberImpl) )
             throw new IllegalArgumentException(
-                "The specified contact is not an jabber contact." + contactToMove);
+                "The specified contact is not an jabber contact." +
+                contactToMove);
         if( !(newParent instanceof ContactGroupJabberImpl) )
             throw new IllegalArgumentException(
                 "The specified group is not an jabber contact group."
@@ -529,9 +530,9 @@ public class OperationSetPersistentPresenceJabberImpl
      *   subscribing fails due to errors experienced during network
      *   communication
      */
-    public void subscribe(ContactGroup parent, String contactIdentifier) throws
-        IllegalArgumentException, IllegalStateException,
-        OperationFailedException
+    public void subscribe(ContactGroup parent, String contactIdentifier)
+        throws IllegalArgumentException, IllegalStateException,
+               OperationFailedException
     {
         assertConnected();
 
@@ -647,7 +648,8 @@ public class OperationSetPersistentPresenceJabberImpl
      * @param status the jabberStatus
      * @return a PresenceStatus instance
      */
-    public static Presence.Mode presenceStatusToJabberMode(PresenceStatus status)
+    public static Presence.Mode presenceStatusToJabberMode(
+            PresenceStatus status)
     {
         return scToJabberModesMappings.get(status
             .getStatusName());
@@ -906,7 +908,8 @@ public class OperationSetPersistentPresenceJabberImpl
                 TreeSet<Presence> userStats = statuses.get(userID);
                 if(userStats == null)
                 {
-                    userStats = new TreeSet<Presence>(new Comparator<Presence>(){
+                    userStats = new TreeSet<Presence>(new Comparator<Presence>()
+                     {
                         public int compare(Presence o1, Presence o2)
                         {
                             int res = o1.getPriority() - o2.getPriority();
@@ -934,10 +937,12 @@ public class OperationSetPersistentPresenceJabberImpl
                 }
                 else
                 {
-                    String resource = StringUtils.parseResource(presence.getFrom());
+                    String resource = StringUtils.parseResource(
+                            presence.getFrom());
 
                     // remove the status for this resource
-                    // if we are online we will update its value with the new status
+                    // if we are online we will update its value with the new
+                    // status
                     for (Iterator<Presence> iter = userStats.iterator();
                             iter.hasNext();)
                     {
@@ -1114,7 +1119,8 @@ public class OperationSetPersistentPresenceJabberImpl
                     }
                     catch(OperationFailedException e)
                     {
-                        logger.error("Cannot remove contact that unsubscribed.");
+                        logger.error(
+                                "Cannot remove contact that unsubscribed.");
                     }
                 }
             }

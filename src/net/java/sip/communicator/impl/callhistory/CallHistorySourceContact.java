@@ -71,9 +71,9 @@ public class CallHistorySourceContact implements SourceContact
     private final String displayDetails;
 
     /**
-     * Creates an instance of <tt>CallHistorySourceContact</tt> 
-     * @param contactSource
-     * @param callRecord
+     * Creates an instance of <tt>CallHistorySourceContact</tt>
+     * @param contactSource the contact source
+     * @param callRecord the call record
      */
     public CallHistorySourceContact(CallHistoryContactSource contactSource,
                                     CallRecord callRecord)
@@ -129,8 +129,31 @@ public class CallHistorySourceContact implements SourceContact
                         = new Hashtable<Class<? extends OperationSet>,
                                         ProtocolProviderService>();
 
-                    preferredProviders.put( OperationSetBasicTelephony.class,
+                    OperationSetContactCapabilities opSetCaps =
+                        preferredProvider.getOperationSet(
+                                OperationSetContactCapabilities.class);
+                    OperationSetPresence opSetPres =
+                        preferredProvider.getOperationSet(
+                                OperationSetPresence.class);
+
+                    if(opSetCaps != null && opSetPres != null)
+                    {
+                        Contact contact = opSetPres.findContactByID(
+                                peerAddress);
+                        if(contact != null && opSetCaps.getOperationSet(
+                                contact,
+                                OperationSetBasicTelephony.class) != null)
+                        {
+                            preferredProviders.put(
+                                    OperationSetBasicTelephony.class,
+                                    preferredProvider);
+                        }
+                    }
+                    else
+                    {
+                        preferredProviders.put(OperationSetBasicTelephony.class,
                                             preferredProvider);
+                    }
 
                     contactDetail.setPreferredProviders(preferredProviders);
                 }
@@ -150,11 +173,18 @@ public class CallHistorySourceContact implements SourceContact
                     contactDetail.setPreferredProtocols(preferredProtocols);
                 }
 
-                // Set supported operation sets.
                 LinkedList<Class<? extends OperationSet>> supportedOpSets
                     = new LinkedList<Class<? extends OperationSet>>();
 
-                supportedOpSets.add(OperationSetBasicTelephony.class);
+                // if the contat supports call
+                if((preferredProviders != null &&
+                        preferredProviders.containsKey(
+                                OperationSetBasicTelephony.class)) ||
+                                (preferredProtocols != null))
+                {
+                    supportedOpSets.add(OperationSetBasicTelephony.class);
+                }
+
                 contactDetail.setSupportedOpSets(supportedOpSets);
 
                 contactDetails.add(contactDetail);
@@ -267,7 +297,7 @@ public class CallHistorySourceContact implements SourceContact
 
     /**
      * Returns the date string to show for the given date.
-     * 
+     *
      * @param date the date to format
      * @return the date string to show for the given date
      */

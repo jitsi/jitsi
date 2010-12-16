@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.packet.*;
 
 import net.java.sip.communicator.service.protocol.*;
 
@@ -141,7 +140,6 @@ public class ContactGroupJabberImpl
         this.isResolved = false;
         this.ssclCallback = ssclCallback;
     }
-
 
     /**
      * Returns the number of <tt>Contact</tt> members of this

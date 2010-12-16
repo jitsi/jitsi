@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
@@ -43,7 +44,13 @@ public class ContactListTreeCellRenderer
                 Icon,
                 Skinnable
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private static final Color glowOuterHigh = new Color(223, 238, 249, 100);
+
     private static final Color glowOuterLow = new Color(219, 233, 243, 100);
 
     /**
@@ -133,6 +140,9 @@ public class ContactListTreeCellRenderer
      */
     protected final JLabel rightLabel = new JLabel();
 
+    /**
+     * The message received image.
+     */
     private Image msgReceivedImage;
 
     /**
@@ -400,9 +410,9 @@ public class ContactListTreeCellRenderer
 
             // We have no photo icon for groups.
             this.rightLabel.setIcon(null);
- 
+
             if (groupItem.countChildContacts() >= 0)
-                this.rightLabel.setText( groupItem.countOnlineChildContacts() 
+                this.rightLabel.setText( groupItem.countOnlineChildContacts()
                                         + "/" + groupItem.countChildContacts());
 
             this.setToolTipText(groupItem.getDescriptor().toString());
@@ -614,7 +624,10 @@ public class ContactListTreeCellRenderer
             = uiContact.getDefaultContactDetail(
                 OperationSetBasicTelephony.class);
 
-        if (telephonyContact != null)
+        // for SourceContact in history that do not support telephony, we
+        // show the button but disabled
+        if (telephonyContact != null ||
+                uiContact.getDescriptor() instanceof SourceContact)
         {
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
@@ -634,6 +647,7 @@ public class ContactListTreeCellRenderer
 
             callButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
+            callButton.setEnabled(telephonyContact != null);
         }
 
         UIContactDetail videoContact
@@ -727,7 +741,7 @@ public class ContactListTreeCellRenderer
                             getIconWidth() - 1, getIconHeight() - 1,
                             10, 10);
 
-            // Indent component content from the border. 
+            // Indent component content from the border.
             g2.translate(x + 5, y + 5);
 
             super.paint(g2);

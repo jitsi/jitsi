@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.packet.*;
 
@@ -354,21 +355,21 @@ public class ServerStoredContactListJabberImpl
     {
         Iterator<ContactGroup> contactGroups = rootGroup.subgroups();
         ContactJabberImpl result = null;
+        String userId = StringUtils.parseBareAddress(id);
 
         while(contactGroups.hasNext())
         {
             ContactGroupJabberImpl contactGroup
                 = (ContactGroupJabberImpl)contactGroups.next();
 
-            result = contactGroup.findContact(id);
+            result = contactGroup.findContact(userId);
 
             if (result != null)
                 return result;
-
         }
 
         //try the root group now
-        return rootGroup.findContact(id);
+        return rootGroup.findContact(userId);
     }
 
     /**

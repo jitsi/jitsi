@@ -24,6 +24,9 @@ public class ExternalContactSource
      */
     private final SourceUIGroup sourceUIGroup;
 
+    /**
+     * The contact source.
+     */
     private final ContactSourceService contactSource;
 
     /**

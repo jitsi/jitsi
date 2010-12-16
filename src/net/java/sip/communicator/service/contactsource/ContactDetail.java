@@ -55,7 +55,7 @@ public class ContactDetail
     private Map<Class<? extends OperationSet>, String> preferredProtocols;
 
     /**
-     * A list of all supported <tt>OperatioSet</tt> classes.
+     * A list of all supported <tt>OperationSet</tt> classes.
      */
     private List<Class<? extends OperationSet>> supportedOpSets = null;
 
