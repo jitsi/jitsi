@@ -14,6 +14,9 @@ import net.java.sip.communicator.util.*;
 import net.sf.fmj.media.rtp.*;
 
 /**
+ * Engine which don't transform packets, just listens for outgoing
+ * RTCP Packets and logs and stores statistical data for the stream.
+ *
  * @author Damian Minkov
  */
 public class StatisticsEngine
