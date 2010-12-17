@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Provides the interface to the native PortAudio library.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Damian Minkov
  */
 public final class PortAudio
@@ -59,26 +59,26 @@ public final class PortAudio
 
     /**
      * Can be passed as the framesPerBuffer parameter to
-     * Pa_OpenStream() or Pa_OpenDefaultStream() to indicate that the stream
-     * callback will accept buffers of any size.
+     * <tt>Pa_OpenStream()</tt> or <tt>Pa_OpenDefaultStream()</tt> to indicate
+     * that the stream callback will accept buffers of any size.
      */
     public static final long FRAMES_PER_BUFFER_UNSPECIFIED = 0;
 
     /**
-     * Used when creating new stream parameters for suggested latency.
-     * To use high input/output value.
+     * Used when creating new stream parameters for suggested latency to use
+     * high input/output value.
      */
     public static final double LATENCY_HIGH = -1d;
 
     /**
-     * Used when creating new stream parameters for suggested latency.
-     * To use low input/default value.
+     * Used when creating new stream parameters for suggested latency to use low
+     * input/default value.
      */
     public static final double LATENCY_LOW = -2d;
 
     /**
-     * Used when creating new stream parameters for suggested latency.
-     * To use default value.
+     * Used when creating new stream parameters for suggested latency to use
+     * default value.
      */
     public static final double LATENCY_UNSPECIFIED = 0d;
 
@@ -92,80 +92,75 @@ public final class PortAudio
         = "net.java.sip.communicator.impl.neomedia.portaudio.suggestedLatency";
 
     /**
-     * A type used to specify one or more sample formats.
-     * The format paFloat32.
+     * A type used to specify one or more sample formats. The standard format
+     * <tt>paFloat32</tt>.
      */
     public static final long SAMPLE_FORMAT_FLOAT32 = 0x00000001;
 
     /**
-     * A type used to specify one or more sample formats.
-     * The format paInt8.
+     * A type used to specify one or more sample formats. The standard format
+     * <tt>paInt8</tt>.
      */
     public static final long SAMPLE_FORMAT_INT8 = 0x00000010;
 
     /**
-     * A type used to specify one or more sample formats.
-     * The standard format paInt16.
+     * A type used to specify one or more sample formats. The standard format
+     * <tt>paInt16</tt>.
      */
     public static final long SAMPLE_FORMAT_INT16 = 0x00000008;
 
     /**
-     * A type used to specify one or more sample formats.
-     * The format paInt24.
+     * A type used to specify one or more sample formats. The standard format
+     * <tt>paInt24</tt>.
      */
     public static final long SAMPLE_FORMAT_INT24 = 0x00000004;
 
     /**
-     * A type used to specify one or more sample formats.
-     * The format paInt32.
+     * A type used to specify one or more sample formats. The standard format
+     * <tt>paInt32</tt>.
      */
     public static final long SAMPLE_FORMAT_INT32 = 0x00000002;
 
     /**
-     * A type used to specify one or more sample formats.
-     * The format paUInt8.
+     * A type used to specify one or more sample formats. The standard format
+     * <tt>paUInt8</tt>.
      */
     public static final long SAMPLE_FORMAT_UINT8 = 0x00000020;
 
-    /**
-     * Disable default clipping of out of range samples.
-     */
+    /** Disables default clipping of out of range samples. */
     public static final long STREAM_FLAGS_CLIP_OFF = 0x00000001;
 
-    /**
-     * Disable default dithering.
-     */
+    /** Disables default dithering. */
     public static final long STREAM_FLAGS_DITHER_OFF = 0x00000002;
 
     /**
      * Flag requests that where possible a full duplex stream will not discard
-     * overflowed input samples without calling the stream callback.
-     * This flag is only valid for full duplex callback streams and only when
-     * used in combination with the paFramesPerBufferUnspecified (0)
+     * overflowed input samples without calling the stream callback. This flag
+     * is only valid for full duplex callback streams and only when used in
+     * combination with the <tt>paFramesPerBufferUnspecified</tt> (<tt>0</tt>)
      * framesPerBuffer parameter. Using this flag incorrectly results in a
-     * paInvalidFlag error being returned from
-     * Pa_OpenStream and Pa_OpenDefaultStream.
+     * <tt>paInvalidFlag</tt> error being returned from <tt>Pa_OpenStream</tt>
+     * and <tt>Pa_OpenDefaultStream</tt>.
      */
     public static final long STREAM_FLAGS_NEVER_DROP_INPUT = 0x00000004;
 
     /**
-     * Flags used to control the behavior of a stream.
-     * They are passed as parameters to Pa_OpenStream or Pa_OpenDefaultStream.
+     * Flags used to control the behavior of a stream. They are passed as
+     * parameters to <tt>Pa_OpenStream</tt> or <tt>Pa_OpenDefaultStream</tt>.
      */
     public static final long STREAM_FLAGS_NO_FLAG = 0;
 
-    /**
-     * A mask specifying the platform specific bits.
-     */
+    /** A mask specifying the platform specific bits. */
     public static final long STREAM_FLAGS_PLATFORM_SPECIFIC_FLAGS = 0xFFFF0000;
 
     /**
-     * Call the stream callback to fill initial output buffers, rather than
-     * the default behavior of priming the buffers with zeros (silence).
-     * This flag has no effect for input-only and blocking read/write streams.
+     * Call the stream callback to fill initial output buffers, rather than the
+     * default behavior of priming the buffers with zeros (silence). This flag
+     * has no effect for input-only and blocking read/write streams.
      */
     public static final long
-        STREAM_FLAGS_PRIME_OUTPUT_BUFFERS_USING_STREAM_CALLBACK = 0x00000008;
+        STREAM_FLAGS_PRIME_OUTPUT_BUFFERS_USING_STREAM_CALLBACK
+            = 0x00000008;
 
     private static native void free(long ptr);
 
@@ -232,8 +227,9 @@ public final class PortAudio
     }
 
     /**
-     * Terminates audio processing immediately without waiting
-     * for pending buffers to complete.
+     * Terminates audio processing immediately without waiting for pending
+     * buffers to complete.
+     *
      * @param stream the steam pointer.
      * @throws PortAudioException
      */
@@ -241,8 +237,9 @@ public final class PortAudio
         throws PortAudioException;
 
     /**
-     * Closes an audio stream. If the audio stream is active it discards
-     * any pending buffers as if Pa_AbortStream() had been called.
+     * Closes an audio stream. If the audio stream is active it discards any
+     * pending buffers as if <tt>Pa_AbortStream()</tt> had been called.
+     *
      * @param stream the steam pointer.
      * @throws PortAudioException
      */
@@ -251,23 +248,26 @@ public final class PortAudio
 
     /**
      * Retrieve the index of the default input device.
-     * @return The default input device index for the default host API,
-     *         or paNoDevice if no default input device is available or
-     *         an error was encountered.
+     *
+     * @return The default input device index for the default host API, or
+     * <tt>paNoDevice</tt> if no default input device is available or an error
+     * was encountered.
      */
     public static native int Pa_GetDefaultInputDevice();
 
     /**
      * Retrieve the index of the default output device.
-     * @return The default input device index for the default host API,
-     *         or paNoDevice if no default input device is available or
-     *         an error was encountered.
+     *
+     * @return The default input device index for the default host API, or
+     * <tt>paNoDevice</tt> if no default input device is available or an error
+     * was encountered.
      */
     public static native int Pa_GetDefaultOutputDevice();
 
     /**
-     * Retrieve the number of available devices.
-     * The number of available devices may be zero.
+     * Retrieve the number of available devices. The number of available devices
+     * may be zero.
+     *
      * @return the number of devices.
      * @throws PortAudioException
      */
@@ -275,38 +275,42 @@ public final class PortAudio
         throws PortAudioException;
 
     /**
-     * Retrieve a pointer to a PaDeviceInfo structure containing
-     * information about the specified device.
+     * Retrieve a pointer to a PaDeviceInfo structure containing information
+     * about the specified device.
+     *
      * @param deviceIndex the device index
      * @return pointer to device info structure.
      */
     public static native long Pa_GetDeviceInfo(int deviceIndex);
 
     /**
-     * Retrieve a pointer to a structure containing information
-     * about a specific host Api.
+     * Retrieve a pointer to a structure containing information about a specific
+     * host Api.
+     *
      * @param hostApiIndex host api index.
-     * @return A pointer to an immutable PaHostApiInfo structure
-     *         describing a specific host API.
+     * @return A pointer to an immutable PaHostApiInfo structure describing a
+     * specific host API.
      */
     public static native long Pa_GetHostApiInfo(int hostApiIndex);
 
     /**
      * Retrieve the size of a given sample format in bytes.
+     *
      * @param format the format.
-     * @return The size in bytes of a single sample in the specified format,
-     *         or paSampleFormatNotSupported if the format is not supported.
+     * @return The size in bytes of a single sample in the specified format, or
+     * <tt>paSampleFormatNotSupported</tt> if the format is not supported.
      */
     public static native int Pa_GetSampleSize(long format);
 
     /**
-     * Retrieve the number of frames that can be read from the stream
-     * without waiting.
+     * Retrieve the number of frames that can be read from the stream without
+     * waiting.
+     *
      * @param stream pointer to the stream.
-     * @return returns a non-negative value representing the maximum number
-     *         of frames that can be read from the stream without blocking
-     *         or busy waiting or, a PaErrorCode (which are always negative)
-     *         if PortAudio is not initialized or an error is encountered.
+     * @return returns a non-negative value representing the maximum number of
+     * frames that can be read from the stream without blocking or busy waiting
+     * or, a <tt>PaErrorCode</tt> (which are always negative) if PortAudio is
+     * not initialized or an error is encountered.
      */
     public static native long Pa_GetStreamReadAvailable(long stream);
 

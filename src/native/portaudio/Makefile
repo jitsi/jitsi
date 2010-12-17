@@ -1,4 +1,4 @@
-PORTAUDIO_HOME?=../../../../portaudio-20101116
+PORTAUDIO_HOME?=../../../../portaudio-20101214
 SPEEX_HOME?=../../../../speex-1.2rc1
 
 CC=gcc -O2
@@ -11,7 +11,7 @@ ifeq "$(OS)" "mac"
   CPPFLAGS=-I$(JAVA_HOME)/Headers 
   LDFLAGS=-dynamiclib
   LIBS=-framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework Carbon \
-       -lpthread -pthread -dynamic -lportaudio -lspeexdsp
+       -lpthread -pthread -lm -dynamic -lportaudio -lspeexdsp
   TARGET=../../../lib/native/mac/lib$(TARGET_BASENAME).jnilib
 else
   ARCH=$(shell $(CC) -dumpmachine | sed -e s/x86_64-.*/-64/ -e s/i.86-.*//)
