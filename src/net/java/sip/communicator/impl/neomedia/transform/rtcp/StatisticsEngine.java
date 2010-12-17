@@ -31,6 +31,12 @@ public class StatisticsEngine
         = Logger.getLogger(StatisticsEngine.class);
 
     /**
+     * The rtp statistics prefix we use for every log.
+     * Simplifies parsing and searching for statistics info in log files.
+     */
+    public static final String RTP_STAT_PREFIX = "rtpstat:";
+
+    /**
      * Number of sender reports send.
      * Used only for logging and debug purposes.
      */
@@ -50,6 +56,20 @@ public class StatisticsEngine
      * Number of lost packets reported.
      */
     private long lost = 0;
+
+    /**
+     * The stream created us.
+     */
+    private MediaStreamImpl mediaStream;
+
+    /**
+     * Creates Statistic engine.
+     * @param stream the stream creating us.
+     */
+    public StatisticsEngine(MediaStreamImpl stream)
+    {
+        this.mediaStream = stream;
+    }
 
     /**
      * Finds the info needed for statistics in the packet and stores it.
@@ -99,18 +119,22 @@ public class StatisticsEngine
                     if(numberOfSenderReports%4 != 1)
                         return pkt;
 
-                    StringBuilder buff = new StringBuilder(
-                            "Sending report to remote party [packetCount:");
+                    StringBuilder buff = new StringBuilder(RTP_STAT_PREFIX);
 
-                    buff.append(report.getSenderPacketCount())
+                    buff.append("Sending a report for ")
+                        .append(mediaStream.getFormat().getMediaType())
+                        .append(" stream SSRC:")
+                        .append(feedback.getSSRC())
+                        .append(" [packet count:")
+                        .append(report.getSenderPacketCount())
                         .append(", bytes:").append(report.getSenderByteCount())
                         .append(", interarrival jitter:")
                                 .append(jitter)
-                        .append(", lost:").append(feedback.getNumLost())
-                        .append(", lastSRBefore:")
+                        .append(", lost packets:").append(feedback.getNumLost())
+                        .append(", time since previous report:")
                                 .append((int) (feedback.getDLSR() / 65.536))
                                 .append("ms ]");
-                    logger.trace(buff.toString());
+                    logger.info(buff);
                 }
             }
         }

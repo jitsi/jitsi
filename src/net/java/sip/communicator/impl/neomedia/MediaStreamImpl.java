@@ -355,7 +355,7 @@ public class MediaStreamImpl
 
         // RTCP Statistics
         if(statisticsEngine == null)
-            statisticsEngine = new StatisticsEngine();
+            statisticsEngine = new StatisticsEngine(this);
         engineChain.add(statisticsEngine);
 
         return
@@ -1045,7 +1045,10 @@ public class MediaStreamImpl
 
             //JMF inits the local SSRC upon initialize(RTPConnector) so now's
             //the time to ask:
-            setLocalSourceID(((RTPSessionMgr)rtpManager).getLocalSSRC());
+            //as JMF keep the ssrc in int value, we cast here from
+            //signed int to unsigned
+            setLocalSourceID(
+                    ((RTPSessionMgr) rtpManager).getLocalSSRC() & 0xFFFFFFFFL);
         }
         return rtpManager;
     }
@@ -2088,20 +2091,23 @@ public class MediaStreamImpl
                 if(numberOfReceivedSenderReports%4 != 1)
                     return;
 
-                StringBuilder buff = new StringBuilder(
-                        "Remote party report received (for stream ")
-                    .append(hashCode())
-                    .append(") [packetCount:");
+                StringBuilder buff =
+                        new StringBuilder(StatisticsEngine.RTP_STAT_PREFIX);
 
-                buff.append(report.getSenderPacketCount())
+                buff.append("Received a report for ")
+                    .append(getFormat().getMediaType().toString())
+                    .append(" stream SSRC:")
+                    .append(getLocalSourceID())
+                    .append(" [packet count:")
+                    .append(report.getSenderPacketCount())
                     .append(", bytes:").append(report.getSenderByteCount())
                     .append(", interarrival jitter:")
                             .append(remoteJitter)
-                    .append(", lost:").append(feedback.getNumLost())
-                    .append(", lastSRBefore:")
+                    .append(", lost packets:").append(feedback.getNumLost())
+                    .append(", time since previous report:")
                             .append((int)(feedback.getDLSR()/65.536))
                             .append("ms ]");
-                logger.trace(buff.toString());
+                logger.info(buff);
             }
         }
     }
@@ -2194,51 +2200,84 @@ public class MediaStreamImpl
     {
         try
         {
-            String rtpManagerDescription = "stream " + hashCode();
-
             //print flow statistics.
             GlobalTransmissionStats s = rtpManager.getGlobalTransmissionStats();
 
-            logger.trace(
-                "global transmission stats (" + rtpManagerDescription + "): \n" +
-                "bytes sent: " + s.getBytesSent() + "\n" +
-                "RTP sent: " + s.getRTPSent() + "\n" +
-                "remote reported min interarrival jitter : "
-                        + minRemoteInterArrivalJitter + "\n" +
-                "remote reported max interarrival jitter : "
-                        + maxRemoteInterArrivalJitter + "\n" +
-                "local collisions: " + s.getLocalColls() + "\n" +
-                "remote collisions: " + s.getRemoteColls() + "\n" +
-                "RTCP sent: " + s.getRTCPSent() + "\n" +
+            StringBuilder buff =
+                    new StringBuilder(StatisticsEngine.RTP_STAT_PREFIX);
 
-                "transmit failed: " + s.getTransmitFailed()
-            );
+            buff.append("call stats for outgoing ")
+                .append(getFormat().getMediaType())
+                .append(" stream SSRC:")
+                .append(getLocalSourceID())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("bytes sent: ").append(s.getBytesSent())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("RTP sent: ").append(s.getRTPSent())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("remote reported min interarrival jitter : ")
+                        .append(minRemoteInterArrivalJitter)
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("remote reported max interarrival jitter : ")
+                        .append(maxRemoteInterArrivalJitter)
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("local collisions: ").append(s.getLocalColls())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("remote collisions: ").append(s.getRemoteColls())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("RTCP sent: ").append(s.getRTCPSent())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("transmit failed: ").append(s.getTransmitFailed());
+
+            logger.info(buff);
 
             GlobalReceptionStats rs = rtpManager.getGlobalReceptionStats();
 
-            logger.trace(
-                "global reception stats (" + rtpManagerDescription + "): \n" +
-                "packets received: " + rs.getPacketsRecd() + "\n" +
-                "bytes received: " + rs.getBytesRecd() + "\n" +
-                "packets lost: " + statisticsEngine.getLost() + "\n" +
-                "min interarrival jitter : "
-                        + statisticsEngine.getMinInterArrivalJitter() + "\n" +
-                "max interarrival jitter : "
-                        + statisticsEngine.getMaxInterArrivalJitter() + "\n" +
-                "RTCPs received: " + rs.getRTCPRecd() + "\n" +
-                "bad RTCP packets: " + rs.getBadRTCPPkts() + "\n" +
-                "bad RTP packets: " + rs.getBadRTPkts() + "\n" +
-                "local collisions: " + rs.getLocalColls() + "\n" +
-                "malformed BYEs: " + rs.getMalformedBye() + "\n" +
-                "malformed RRs: " + rs.getMalformedRR() + "\n" +
-                "malformed SDESs: " + rs.getMalformedSDES() + "\n" +
-                "malformed SRs: " + rs.getMalformedSR() + "\n" +
-                "packets looped: " + rs.getPacketsLooped() + "\n" +
-                "remote collisions: " + rs.getRemoteColls() + "\n" +
-                "SRRs received: " + rs.getSRRecd() + "\n" +
-                "transmit failed: " + rs.getTransmitFailed() + "\n" +
-                "unknown types: " + rs.getUnknownTypes()
-            );
+            buff = new StringBuilder(StatisticsEngine.RTP_STAT_PREFIX);
+
+            buff.append("call stats for incoming ")
+                .append(getFormat().getMediaType()).append(" stream SSRC:")
+                .append(getRemoteSourceID())
+                .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("packets received: ").append(rs.getPacketsRecd())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("bytes received: ").append(rs.getBytesRecd())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("packets lost: ").append(statisticsEngine.getLost())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("min interarrival jitter : ")
+                    .append(statisticsEngine.getMinInterArrivalJitter())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("max interarrival jitter : ")
+                    .append(statisticsEngine.getMaxInterArrivalJitter())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("RTCPs received: ").append(rs.getRTCPRecd())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("bad RTCP packets: ").append(rs.getBadRTCPPkts())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("bad RTP packets: ").append(rs.getBadRTPkts())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("local collisions: ").append(rs.getLocalColls())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("malformed BYEs: ").append(rs.getMalformedBye())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("malformed RRs: ").append(rs.getMalformedRR())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("malformed SDESs: ").append(rs.getMalformedSDES())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("malformed SRs: ").append(rs.getMalformedSR())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("packets looped: ").append(rs.getPacketsLooped())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("remote collisions: ").append(rs.getRemoteColls())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("SRRs received: ").append(rs.getSRRecd())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("transmit failed: ").append(rs.getTransmitFailed())
+                    .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
+                .append("unknown types: ").append(rs.getUnknownTypes());
+
+            logger.info(buff);
         }
         catch(Throwable t)
         {

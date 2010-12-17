@@ -754,7 +754,10 @@ public class MediaDeviceSession
      */
     public MediaFormat getFormat()
     {
-        Format jmfFormat = getProcessorFormat();
+        // if processor is not present we will not query for format
+        // and return the locally stored one.
+        Format jmfFormat = (processor == null) ?
+                this.format : getProcessorFormat();
 
         if(jmfFormat != null)
         {
