@@ -122,7 +122,12 @@ public class MediaServiceImpl
     /**
      * The volume control of the media service playback.
      */
-    private static VolumeControl volumeControl;
+    private static OutputVolumeControl outputVolumeControl;
+
+    /**
+     * The volume control of the media service capture.
+     */
+    private static InputVolumeControl inputVolumeControl;
 
     /**
      * Create a <tt>MediaStream</tt> which will use a specific
@@ -544,12 +549,25 @@ public class MediaServiceImpl
      *
      * @return the volume playback control.
      */
-    public VolumeControl getVolumeControl()
+    public OutputVolumeControl getOutputVolumeControl()
     {
-        if(volumeControl == null)
-            volumeControl = new VolumeControlImpl();
+        if(outputVolumeControl == null)
+            outputVolumeControl = new OutputVolumeControlImpl();
 
-        return volumeControl;
+        return outputVolumeControl;
+    }
+
+    /**
+     * Returns the control that handles current capture levels.
+     *
+     * @return the volume capture control.
+     */
+    public InputVolumeControl getInputVolumeControl()
+    {
+        if(inputVolumeControl == null)
+            inputVolumeControl = new InputVolumeControlImpl();
+
+        return inputVolumeControl;
     }
 
     /**

@@ -292,6 +292,7 @@ public class CallDialog
         settingsPanel.add(conferenceButton);
         settingsPanel.add(holdButton);
         settingsPanel.add(muteButton);
+        settingsPanel.add(volumeControlButton);
         settingsPanel.add(recordButton);
 
         if (!isLastConference)
@@ -305,8 +306,6 @@ public class CallDialog
 
             addOneToOneSpecificComponents();
         }
-
-        settingsPanel.add(volumeControlButton);
 
         buttonsPanel.add(settingsPanel, BorderLayout.WEST);
         buttonsPanel.add(hangupButton, BorderLayout.EAST);
@@ -1088,5 +1087,15 @@ public class CallDialog
             settingsPanel.revalidate();
             settingsPanel.repaint();
         }
+    }
+
+    /**
+     * Checks whether recording is currently enabled or not, state retrieved
+     * from call record button state.
+     * @return
+     */
+    public boolean isRecordingStarted()
+    {
+        return recordButton.isSelected();
     }
 }

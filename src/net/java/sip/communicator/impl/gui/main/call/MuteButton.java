@@ -6,7 +6,10 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -18,14 +21,24 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Dmitri Melnikov
  */
 public class MuteButton
-    extends AbstractCallToggleButton
+    extends AbstractVolumeControlButton
+    implements VolumeChangeListener,
+               Runnable
 {
     /**
-     * The serialization-related version of the <tt>MuteButton</tt> class
-     * explicitly defined to silence a related warning (e.g. in Eclipse IDE)
-     * since the <tt>MuteButton</tt> class does not add instance fields.
+     * Mutes the call in other thread.
      */
-    private static final long serialVersionUID = 0L;
+    private Thread muteRunner;
+
+    /**
+     * Our volume control.
+     */
+    private VolumeControl volumeControl;
+
+    /**
+     * Current mute state.
+     */
+    private boolean mute = false;
 
     /**
      * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
@@ -52,18 +65,72 @@ public class MuteButton
      */
     public MuteButton(Call call, boolean fullScreen, boolean selected)
     {
-        super(
-                call,
-                fullScreen,
-                selected,
-                ImageLoader.MUTE_BUTTON,
+        super(call, fullScreen, selected, ImageLoader.MUTE_BUTTON,
                 "service.gui.MUTE_BUTTON_TOOL_TIP");
+
+        this.mute = selected;
+    }
+
+    /**
+     * Volume control used by the button.
+     *
+     * @return volume control used by the button.
+     */
+    @Override
+    public VolumeControl getVolumeControl()
+    {
+        if(volumeControl == null)
+        {
+            volumeControl = GuiActivator.getMediaService()
+                    .getInputVolumeControl();
+
+            volumeControl.addVolumeChangeListener(this);
+        }
+
+        return volumeControl;
     }
 
     /**
      * Mutes or unmutes the associated <tt>Call</tt> upon clicking this button.
      */
-    public void buttonPressed()
+    public void toggleMute()
+    {
+        if (muteRunner == null)
+        {
+            muteRunner = new Thread(this, getToolTipText());
+            muteRunner.setDaemon(true);
+
+            setEnabled(false);
+            muteRunner.start();
+        }
+    }
+
+    /**
+     * Toggles state on call in different thread.
+     */
+    public void run()
+    {
+        try
+        {
+            doRun();
+        }
+        finally
+        {
+            synchronized (this)
+            {
+                if (Thread.currentThread().equals(muteRunner))
+                {
+                    muteRunner = null;
+                    setEnabled(true);
+                }
+            }
+        }
+    }
+
+    /**
+     * Do the actual muting/unmuting.
+     */
+    private void doRun()
     {
         if (call != null)
         {
@@ -71,7 +138,21 @@ public class MuteButton
                 = call.getProtocolProvider().getOperationSet(
                         OperationSetBasicTelephony.class);
 
-            telephony.setMute(call, isSelected());
+            mute = !mute;
+            telephony.setMute(call, mute);
         }
+    }
+
+    /**
+     * Event fired when volume has changed.
+     *
+     * @param volumeChangeEvent the volume change event.
+     */
+    public void volumeChange(VolumeChangeEvent volumeChangeEvent)
+    {
+        if(volumeChangeEvent.getLevel() == 0)
+            toggleMute();
+        else if(mute)
+            toggleMute();
     }
 }

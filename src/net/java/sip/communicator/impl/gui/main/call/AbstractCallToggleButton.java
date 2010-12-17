@@ -53,6 +53,13 @@ public abstract class AbstractCallToggleButton
     protected ImageID iconImageID;
 
     /**
+     * Whether we should spawn action when clicking the button in new thread.
+     * Volume control buttons use this abstract button for its fullscreen view
+     * and don't need the new thread. Default is true, create new thread.
+     */
+    private boolean spawnActionInNewThread = true;
+
+    /**
      * Initializes a new <tt>AbstractCallToggleButton</tt> instance which is to
      * control a toggle action for a specific <tt>Call</tt>.
      * 
@@ -105,6 +112,16 @@ public abstract class AbstractCallToggleButton
     }
 
     /**
+     * Changes behaviour, whether we should start new thread for executing
+     * actions, buttonPressed().
+     * @param spawnActionInNewThread
+     */
+    public void setSpawnActionInNewThread(boolean spawnActionInNewThread)
+    {
+        this.spawnActionInNewThread = spawnActionInNewThread;
+    }
+
+    /**
      * The button model of this call toggle button.
      */
     private class CallToggleButtonModel
@@ -125,6 +142,12 @@ public abstract class AbstractCallToggleButton
 
         public synchronized void actionPerformed(ActionEvent event)
         {
+            if(!spawnActionInNewThread)
+            {
+                buttonPressed();
+                return;
+            }
+
             if (runner == null)
             {
                 runner = new Thread(this, LocalVideoButton.class.getName());

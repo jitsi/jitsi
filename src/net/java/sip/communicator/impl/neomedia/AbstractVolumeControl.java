@@ -16,15 +16,15 @@ import java.util.*;
 import java.util.List;
 
 /**
- * Controls media service playback volume. If a volume level is set
- * we change it on all current players, as we synchronize volume on all players.
- * Implements interface exposed from media service, also implements
- * the interface used in the Renderer part of JMF and merges the two
+ * Controls media service volume input or output. If a playback volume level
+ * is set we change it on all current players, as we synchronize volume
+ * on all players. Implements interface exposed from media service, also
+ * implements the interface used in the Renderer part of JMF and merges the two
  * functionalities to work as one.
  * 
  * @author Damian Minkov
  */
-public class VolumeControlImpl
+public abstract class AbstractVolumeControl
     implements VolumeControl,
                GainControl
 {
@@ -33,7 +33,7 @@ public class VolumeControlImpl
      * its instances for logging output.
      */
     private static final Logger logger
-        = Logger.getLogger(VolumeControlImpl.class);
+        = Logger.getLogger(AbstractVolumeControl.class);
 
     /**
      * The minimum volume level we can handle.
@@ -73,7 +73,7 @@ public class VolumeControlImpl
     private boolean currentMuteState = false;
 
     /**
-     * Current playback level in db.
+     * Current level in db.
      */
     private float db;
 
@@ -86,27 +86,27 @@ public class VolumeControlImpl
      * Creates volume control instance and initialise initial level value
      * if stored in config service.
      */
-    VolumeControlImpl()
+    AbstractVolumeControl()
     {
         // read initial level from config service if any
-        String initialPlaybackLevel = 
+        String initialLevel =
             NeomediaActivator.getConfigurationService()
-                .getString(PLAYBACK_VOLUME_LEVEL_PROPERTY_NAME);
+                .getString(getStoreLevelPropertyName());
         try
         {
-            if(initialPlaybackLevel != null)
+            if(initialLevel != null)
             {
-                currentVolumeLevel = Float.valueOf(initialPlaybackLevel);
+                currentVolumeLevel = Float.valueOf(initialLevel);
                 initialVolumeLevel = currentVolumeLevel; 
 
                 if(logger.isDebugEnabled())
-                    logger.debug("Restore playback volume: "
+                    logger.debug("Restore volume: "
                             + currentVolumeLevel);
             }
         }
         catch(Throwable t)
         {
-            logger.warn("Error restoring playback volume", t);
+            logger.warn("Error restoring volume", t);
         }
     }
 
@@ -213,7 +213,7 @@ public class VolumeControlImpl
 
         // save the level change, so we can restore it on next run
         NeomediaActivator.getConfigurationService().setProperty(
-                PLAYBACK_VOLUME_LEVEL_PROPERTY_NAME,
+                getStoreLevelPropertyName(),
                 String.valueOf(currentVolumeLevel));
 
         float f1 = value / initialVolumeLevel;
@@ -227,9 +227,9 @@ public class VolumeControlImpl
     }
 
     /**
-     * Mutes current sound playback.
+     * Mutes current sound.
      *
-     * @param mute mutes/unmutes playback.
+     * @param mute mutes/unmutes.
      */
     public void setMute(boolean mute)
     {
@@ -244,9 +244,9 @@ public class VolumeControlImpl
     }
 
     /**
-     * Get mute state of sound playback.
+     * Get mute state of sound.
      *
-     * @return mute state of sound playback.
+     * @return mute state of sound.
      */
     public boolean getMute()
     {
@@ -404,4 +404,12 @@ public class VolumeControlImpl
     {
         return null;
     }
+
+    /**
+     * Implementers return the property name they use to store
+     * sound level information.
+     *
+     * @return sound level property name for storing configuration.
+     */
+    abstract String getStoreLevelPropertyName();
 }

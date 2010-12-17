@@ -142,7 +142,13 @@ public interface MediaService
      * Returns the control that handles current playback levels.
      * @return the volume playback control.
      */
-    public VolumeControl getVolumeControl();
+    public OutputVolumeControl getOutputVolumeControl();
+
+    /**
+     * Returns the control that handles current capture levels.
+     * @return the volume capture control.
+     */
+    public InputVolumeControl getInputVolumeControl();
 
     /**
      * Get available <tt>ScreenDevice</tt>s.

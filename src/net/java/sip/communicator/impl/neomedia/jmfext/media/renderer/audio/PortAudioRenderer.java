@@ -172,7 +172,7 @@ public class PortAudioRenderer
     {
         if(enableVolumeControl)
             this.gainControl = (GainControl)NeomediaActivator
-                    .getMediaServiceImpl().getVolumeControl();
+                    .getMediaServiceImpl().getOutputVolumeControl();
     }
 
     /**

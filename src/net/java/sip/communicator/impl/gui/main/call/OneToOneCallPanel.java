@@ -267,6 +267,8 @@ public class OneToOneCallPanel
                 new MuteButton(call,
                                true,
                                callPeer.isMute()),
+                new VolumeControlButton(true),
+                new RecordButton(call, true, callDialog.isRecordingStarted()),
                 CallPeerRendererUtils.createExitFullScreenButton(this)
             };
 

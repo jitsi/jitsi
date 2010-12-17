@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio;
 
 import java.io.*;
+import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -87,6 +88,11 @@ public class PortAudioStream
     private boolean streamIsBusy = false;
 
     /**
+     * Volume Control used to control volume of current captured media.
+     */
+    private GainControl volumeControl = null;
+
+    /**
      * Initializes a new <tt>PortAudioStream</tt> instance which is to have its
      * <tt>Format</tt>-related information abstracted by a specific
      * <tt>FormatControl</tt>.
@@ -104,6 +110,9 @@ public class PortAudioStream
         super(formatControl);
 
         this.audioQualityImprovement = audioQualityImprovement;
+
+        this.volumeControl = (GainControl)NeomediaActivator
+                    .getMediaServiceImpl().getInputVolumeControl();
     }
 
     /**
@@ -176,6 +185,33 @@ public class PortAudioStream
 
                 ioex.initCause(paex);
                 throw ioex;
+            }
+
+            // if we have some volume setting apply them
+            if(volumeControl != null)
+            {
+                if(volumeControl.getMute())
+                {
+                    Arrays.fill(bufferData, (byte) 0);
+                }
+                else if(volumeControl.getDB() != 0)
+                {
+                    // increase/decrease a little more than
+                    // if using levels for factor
+                    // we use factor = pow(10, dB/10),
+                    // but    level  = pow(10, dB/20);
+                    double factor = Math.pow(10, (volumeControl.getDB() / 10d));
+
+                    for (int i = 0; i < bufferData.length; i+=2)
+                    {
+                        short s = (short)((bufferData[i]&0xff)
+                                | (bufferData[i + 1]<<8));
+                        s = (short)(s*factor);
+
+                        bufferData[i] = (byte) s;
+                        bufferData[i+1] = (byte) (s >> 8);
+                    }
+                }
             }
 
             long bufferTimeStamp = System.nanoTime();
