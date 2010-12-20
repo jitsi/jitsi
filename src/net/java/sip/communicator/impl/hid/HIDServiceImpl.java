@@ -56,7 +56,7 @@ public class HIDServiceImpl implements HIDService
     /**
      * Press a specific key using its keycode.
      *
-     * @param keycode the Java keycode, all available keycode can be found
+     * @param keycode the Java keycode, all available keycodes can be found
      * in java.awt.event.KeyEvent class (VK_A, VK_SPACE, ...)
      * @see java.awt.event.KeyEvent
      */

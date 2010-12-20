@@ -15,8 +15,8 @@ import org.jivesoftware.smack.packet.*;
  *
  * @author Sebastien Vincent
  */
-public class InputEvtIQ extends IQ {
-
+public class InputEvtIQ extends IQ
+{
     /**
      * The namespace that input event belongs to.
      */

@@ -45,7 +45,8 @@ public class InputEvtIQProvider implements IQProvider
     {
         InputEvtIQ inputIQ = new InputEvtIQ();
         boolean done = false;
-        RemoteControlExtensionProvider provider = new RemoteControlExtensionProvider();
+        RemoteControlExtensionProvider provider =
+            new RemoteControlExtensionProvider();
         InputEvtAction action = InputEvtAction.parseString(parser
                         .getAttributeValue("", InputEvtIQ.ACTION_ATTR_NAME));
 

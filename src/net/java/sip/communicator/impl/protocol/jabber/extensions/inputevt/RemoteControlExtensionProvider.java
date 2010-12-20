@@ -227,7 +227,8 @@ public class RemoteControlExtensionProvider
                 else if (eventType == XmlPullParser.END_TAG)
                 {
                     if (parser.getName().equals(
-                            RemoteControlExtensionProvider.ELEMENT_REMOTE_CONTROL))
+                            RemoteControlExtensionProvider.
+                                ELEMENT_REMOTE_CONTROL))
                     {
                         done = true;
                     }
@@ -244,7 +245,8 @@ public class RemoteControlExtensionProvider
             /* we are not allowed to return null otherwise the parser goes
              * crazy
              */
-            result = new RemoteControlExtension(new ComponentEvent(component, 0));
+            result = new RemoteControlExtension(new ComponentEvent(component,
+                    0));
         }
 
         return result;
