@@ -1036,7 +1036,8 @@ public class SipMessageFactory
             .getMaxForwardsHeader();
 
         //create a host-only uri for the request uri header.
-        String domain = ((SipURI) toHeader.getAddress().getURI()).getHost();
+        String domain = protocolProvider.getAccountID().
+            getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
 
         //Request URI
         SipURI requestURI = protocolProvider.getAddressFactory()

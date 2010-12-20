@@ -112,6 +112,9 @@ public abstract class AccountID
     /**
      * Creates an account id for the specified provider userid and
      * accountProperties.
+     * If account uid exists in account properties, we are loading the account
+     * and so load its value from there, prevent changing account uid
+     * when server changed (serviceName has changed).
      * @param userID a String that uniquely identifies the user.
      * @param accountProperties a Map containing any other protocol and
      * implementation specific account initialization properties
@@ -140,13 +143,23 @@ public abstract class AccountID
             = new HashMap<String, String>(accountProperties);
         this.serviceName = serviceName;
 
-        //create a unique identifier string
-        this.accountUID
-            = protocolDisplayName
-                + ":"
-                + userID
-                + "@"
-                + ((serviceName == null) ? "" : serviceName);
+        String existingAccountUID =
+                accountProperties.get(ProtocolProviderFactory.ACCOUNT_UID);
+
+        if(existingAccountUID == null)
+        {
+            //create a unique identifier string
+            this.accountUID
+                = protocolDisplayName
+                    + ":"
+                    + userID
+                    + "@"
+                    + ((serviceName == null) ? "" : serviceName);
+        }
+        else
+        {
+            this.accountUID = existingAccountUID;
+        }
     }
 
     /**

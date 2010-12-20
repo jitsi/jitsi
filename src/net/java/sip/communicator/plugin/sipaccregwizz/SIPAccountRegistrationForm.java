@@ -369,13 +369,15 @@ public class SIPAccountRegistrationForm
         String xCapPassword =
                 accountID.getAccountPropertyString("XCAP_PASSWORD");
 
-        connectionPanel.setServerOverridden(
-            accountID.getAccountPropertyBoolean(
-                ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false));
+        boolean isServerOverridden = accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
+
+        connectionPanel.setServerOverridden(isServerOverridden);
 
         accountPanel.setUserIDEnabled(false);
         accountPanel.setUserID((serverAddress == null) ? accountID.getUserID()
-            : (accountID.getUserID() + "@" + serverAddress));
+            : accountID.getAccountPropertyString(
+                ProtocolProviderFactory.USER_ID));
 
         if (password != null)
         {
@@ -384,7 +386,7 @@ public class SIPAccountRegistrationForm
         }
 
         connectionPanel.setServerAddress(serverAddress);
-        connectionPanel.setServerEnabled(false);
+        connectionPanel.setServerEnabled(isServerOverridden);
 
         if (displayName != null && displayName.length() > 0)
             accountPanel.setDisplayName(displayName);

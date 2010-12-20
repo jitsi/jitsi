@@ -413,6 +413,9 @@ public class SIPAccountRegistrationWizard
         }
         else
         {
+            accountProperties.put(ProtocolProviderFactory.PROXY_AUTO_CONFIG,
+                    Boolean.FALSE.toString());
+
             accountProperties.put(ProtocolProviderFactory.PROXY_ADDRESS,
                 registration.getProxy());
 
