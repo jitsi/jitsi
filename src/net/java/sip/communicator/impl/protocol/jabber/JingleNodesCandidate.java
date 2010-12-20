@@ -97,6 +97,7 @@ public class JingleNodesCandidate
      * @return the <tt>DatagramSocket</tt> associated with this
      * <tt>Candidate</tt>
      */
+    @Override
     public DatagramSocket getSocket()
     {
         if (socket == null)

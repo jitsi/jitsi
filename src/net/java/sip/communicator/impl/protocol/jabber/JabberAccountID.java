@@ -153,7 +153,7 @@ public class JabberAccountID
     {
         return getAccountPropertyBoolean(
                 ProtocolProviderFactory.AUTO_DISCOVER_JINGLE_NODES,
-                false);
+                true);
     }
 
     /**
@@ -167,6 +167,6 @@ public class JabberAccountID
     {
         return getAccountPropertyBoolean(
                 ProtocolProviderFactory.IS_USE_JINGLE_NODES,
-                false);
+                true);
     }
 }

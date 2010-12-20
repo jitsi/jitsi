@@ -107,8 +107,8 @@ public class IceConfigPanel
         autoDiscoverBox.setSelected(true);
         defaultStunBox.setSelected(true);
 
-        //jnBox.setSelected(true);
-        //jnAutoDiscoverBox.setSelected(true);
+        jnBox.setSelected(true);
+        jnAutoDiscoverBox.setSelected(true);
 
         JPanel checkBoxPanel = new TransparentPanel(new GridLayout(0, 1));
         checkBoxPanel.add(iceBox);

@@ -196,12 +196,15 @@ public class IceUdpTransportManager
             SmackServiceNode serviceNode =
                 peer.getProtocolProvider().getJingleNodesServiceNode();
 
-            JingleNodesHarvester harvester = new JingleNodesHarvester(
-                    serviceNode);
-
-            if(harvester != null)
+            if(serviceNode != null)
             {
-                agent.addCandidateHarvester(harvester);
+                JingleNodesHarvester harvester = new JingleNodesHarvester(
+                        serviceNode);
+
+                if(harvester != null)
+                {
+                    agent.addCandidateHarvester(harvester);
+                }
             }
         }
 

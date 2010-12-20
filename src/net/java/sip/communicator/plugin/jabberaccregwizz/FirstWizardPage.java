@@ -334,7 +334,7 @@ public class FirstWizardPage
         String useJN =
             accountProperties.get(ProtocolProviderFactory.IS_USE_JINGLE_NODES);
         boolean isUseJN = Boolean.parseBoolean(
-                (useJN != null && useJN.length() != 0) ? useJN : "false");
+                (useJN != null && useJN.length() != 0) ? useJN : "true");
 
         iceConfigPanel.setUseJingleNodes(isUseJN);
 
@@ -344,7 +344,7 @@ public class FirstWizardPage
         boolean isUseAutoDiscoverJN = Boolean.parseBoolean(
                 (useAutoDiscoverJN != null &&
                         useAutoDiscoverJN.length() != 0) ?
-                                useAutoDiscoverJN : "false");
+                                useAutoDiscoverJN : "true");
 
         iceConfigPanel.setAutoDiscoverJingleNodes(isUseAutoDiscoverJN);
 

@@ -1823,7 +1823,7 @@ public class ProtocolProviderServiceJabberImpl
     {
         // Jingle Nodes Service Initialization
         JabberAccountID accID = (JabberAccountID)getAccountID();
-        jingleNodesServiceNode = new SmackServiceNode(connection, 60000);
+        final SmackServiceNode service = new SmackServiceNode(connection, 60000);
 
         for(JingleNodeDescriptor desc : accID.getJingleNodes())
         {
@@ -1834,10 +1834,9 @@ public class ProtocolProviderServiceJabberImpl
                     desc.getJID(),
                     JingleChannelIQ.UDP);
 
-            jingleNodesServiceNode.addTrackerEntry(entry);
+            service.addTrackerEntry(entry);
         }
 
-        final SmackServiceNode service = jingleNodesServiceNode;
         final boolean autoDiscover = accID.isJingleNodesAutoDiscoveryEnabled();
 
         new Thread()
@@ -1862,6 +1861,7 @@ public class ProtocolProviderServiceJabberImpl
                     }
 
                     service.addEntries(nodes);
+                    jingleNodesServiceNode = service;
                 }
             }
         }.start();
@@ -1875,10 +1875,7 @@ public class ProtocolProviderServiceJabberImpl
      */
     public SmackServiceNode getJingleNodesServiceNode()
     {
-        synchronized(jingleNodesSyncRoot)
-        {
-            return jingleNodesServiceNode;
-        }
+        return jingleNodesServiceNode;
     }
 
     /**
