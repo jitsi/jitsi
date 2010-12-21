@@ -12,6 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -43,7 +44,10 @@ public class ChatSendPanel
     {
         super(new BorderLayout(5, 0));
 
-        this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        // MacOS would add a default border, so we just add a border for
+        // other operating systems.
+        if (!OSUtils.IS_MAC)
+            this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         sendButton = new JButton(
             GuiActivator.getResources().getI18NString("service.gui.SEND"));

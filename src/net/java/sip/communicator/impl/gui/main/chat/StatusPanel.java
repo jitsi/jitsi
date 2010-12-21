@@ -10,7 +10,6 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -28,11 +27,9 @@ public class StatusPanel extends TransparentPanel
     {
         super(new BorderLayout());
 
-        this.setPreferredSize(new Dimension(100, getFontHeight() + 10));
+        this.setPreferredSize(new Dimension(100, getFontHeight() + 5));
 
-        this.setBorder(BorderFactory.createCompoundBorder(
-            SIPCommBorders.getRoundBorder(),
-            BorderFactory.createEmptyBorder(3, 3, 3, 3)));
+        this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         this.add(statusLabel, BorderLayout.WEST);
     }
