@@ -82,12 +82,6 @@ public class CallHistoryContactSource implements ContactSourceService
         private CallHistoryQuery callHistoryQuery;
 
         /**
-         * Indicates the status of this query. When created this query is in
-         * progress.
-         */
-        private int status = QUERY_IN_PROGRESS;
-
-        /**
          * Creates an instance of <tt>CallHistoryContactQuery</tt> by specifying
          * the list of call records results.
          * @param callRecords the list of call records, which are the result
@@ -99,7 +93,7 @@ public class CallHistoryContactSource implements ContactSourceService
 
             Iterator<CallRecord> recordsIter = callRecords.iterator();
 
-            while (recordsIter.hasNext() && status != QUERY_CANCELED)
+            while (recordsIter.hasNext() && getStatus() != QUERY_CANCELED)
             {
                 sourceContacts.add(
                     new CallHistorySourceContact(
@@ -107,8 +101,8 @@ public class CallHistoryContactSource implements ContactSourceService
                         recordsIter.next()));
             }
 
-            if (status != QUERY_CANCELED)
-                status = QUERY_COMPLETED;
+            if (getStatus() != QUERY_CANCELED)
+                setStatus(QUERY_COMPLETED);
         }
 
         /**
@@ -136,8 +130,7 @@ public class CallHistoryContactSource implements ContactSourceService
                 public void queryStatusChanged(
                     CallHistoryQueryStatusEvent event)
                 {
-                    status = event.getEventType();
-                    fireQueryStatusChanged(status);
+                    setStatus(event.getEventType());
                 }
             });
         }
@@ -145,22 +138,13 @@ public class CallHistoryContactSource implements ContactSourceService
         /**
          * This query could not be canceled.
          */
+        @Override
         public void cancel()
         {
-            status = QUERY_CANCELED;
+            super.cancel();
 
             if (callHistoryQuery != null)
                 callHistoryQuery.cancel();
-        }
-
-        /**
-         * Returns the status of this query. One of the static constants defined
-         * in this class.
-         * @return the status of this query
-         */
-        public int getStatus()
-        {
-            return status;
         }
 
         /**

@@ -48,6 +48,18 @@ public class MsOutlookMAPIHResultException
     }
 
     /**
+     * Initializes a new <tt>MsOutlookMAPIHResultException</tt> instance with a
+     * specific <tt>String</tt> message.
+     *
+     * @param message the <tt>String</tt> message to be provided by the new
+     * instance
+     */
+    public MsOutlookMAPIHResultException(String message)
+    {
+        this(0, message);
+    }
+
+    /**
      * Gets the <tt>HRESULT</tt> which is represented by this
      * <tt>Exception</tt>.
      *

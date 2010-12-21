@@ -36,8 +36,15 @@ public abstract class AbstractContactQuery<T extends ContactSourceService>
         = new LinkedList<ContactQueryListener>();
 
     /**
+     * The status of this <tt>ContactQuery</tt> which is one of the
+     * <tt>QUERY_XXX</tt> constants defined by the <tt>ContactQuery</tt> class.
+     */
+    private int status = QUERY_IN_PROGRESS;
+
+    /**
      * Initializes a new <tt>AbstractContactQuery</tt> which is to be performed
-     * by a specific <tt>ContactSourceService</tt>.
+     * by a specific <tt>ContactSourceService</tt>. The status of the new
+     * instance is {@link ContactQuery#QUERY_IN_PROGRESS}.
      *
      * @param contactSource the <tt>ContactSourceService</tt> which is to
      * perform the new <tt>AbstractContactQuery</tt>
@@ -70,6 +77,17 @@ public abstract class AbstractContactQuery<T extends ContactSourceService>
                     listeners.add(l);
             }
         }
+    }
+
+    /**
+     * Cancels this <tt>ContactQuery</tt>.
+     *
+     * @see ContactQuery#cancel()
+     */
+    public void cancel()
+    {
+        if (getStatus() == QUERY_IN_PROGRESS)
+            setStatus(QUERY_CANCELED);
     }
 
     /**
@@ -134,6 +152,19 @@ public abstract class AbstractContactQuery<T extends ContactSourceService>
     }
 
     /**
+     * Gets the status of this <tt>ContactQuery</tt> which can be one of the
+     * <tt>QUERY_XXX</tt> constants defined by <tt>ContactQuery</tt>.
+     *
+     * @return the status of this <tt>ContactQuery</tt> which can be one of the
+     * <tt>QUERY_XXX</tt> constants defined by <tt>ContactQuery</tt>
+     * @see ContactQuery#getStatus()
+     */
+    public int getStatus()
+    {
+        return status;
+    }
+
+    /**
      * Removes a <tt>ContactQueryListener</tt> from the list of listeners
      * interested in notifications about this <tt>ContactQuery</tt> changing its
      * status, the receipt of new <tt>SourceContact</tt>s via this
@@ -151,6 +182,40 @@ public abstract class AbstractContactQuery<T extends ContactSourceService>
             {
                 listeners.remove(l);
             }
+        }
+    }
+
+    /**
+     * Sets the status of this <tt>ContactQuery</tt>.
+     *
+     * @param status {@link ContactQuery#QUERY_CANCELED},
+     * {@link ContactQuery#QUERY_COMPLETED}, or
+     * {@link ContactQuery#QUERY_ERROR}
+     */
+    public void setStatus(int status)
+    {
+        if (this.status != status)
+        {
+            int eventType;
+
+            switch (status)
+            {
+            case QUERY_CANCELED:
+                eventType = ContactQueryStatusEvent.QUERY_CANCELED;
+                break;
+            case QUERY_COMPLETED:
+                eventType = ContactQueryStatusEvent.QUERY_COMPLETED;
+                break;
+            case QUERY_ERROR:
+                eventType = ContactQueryStatusEvent.QUERY_ERROR;
+                break;
+            case QUERY_IN_PROGRESS:
+            default:
+                throw new IllegalArgumentException("status");
+            }
+
+            this.status = status;
+            fireQueryStatusChanged(eventType);
         }
     }
 }

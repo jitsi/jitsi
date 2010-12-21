@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.msoutlook;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.contactsource.*;
 
 /**
@@ -20,6 +22,18 @@ public class MsOutlookAddressBookContactSourceService
     private static final long MAPI_INIT_VERSION = 0;
 
     private static final long MAPI_MULTITHREAD_NOTIFICATIONS = 0x00000001;
+
+    static
+    {
+        System.loadLibrary("jmsoutlook");
+    }
+
+    /**
+     * The <tt>List</tt> of <tt>MsOutlookAddressBookContactQuery</tt> instances
+     * which have been started and haven't stopped yet.
+     */
+    private final List<MsOutlookAddressBookContactQuery> queries
+        = new LinkedList<MsOutlookAddressBookContactQuery>();
 
     /**
      * Initializes a new <tt>MsOutlookAddressBookContactSourceService</tt>
@@ -80,8 +94,33 @@ public class MsOutlookAddressBookContactSourceService
      */
     public ContactQuery queryContactSource(String query)
     {
-        // TODO Auto-generated method stub
-        return null;
+        MsOutlookAddressBookContactQuery msoabcq
+            = new MsOutlookAddressBookContactQuery(this, query);
+
+        synchronized (queries)
+        {
+            queries.add(msoabcq);
+        }
+
+        boolean msoabcqHasStarted = false;
+
+        try
+        {
+            msoabcq.start();
+            msoabcqHasStarted = true;
+        }
+        finally
+        {
+            if (!msoabcqHasStarted)
+            {
+                synchronized (queries)
+                {
+                    if (queries.remove(msoabcq))
+                        queries.notify();
+                }
+            }
+        }
+        return msoabcq;
     }
 
     /**
@@ -90,6 +129,42 @@ public class MsOutlookAddressBookContactSourceService
      */
     void stop()
     {
+        boolean interrupted = false;
+
+        synchronized (queries)
+        {
+            while (!queries.isEmpty())
+            {
+                queries.get(0).cancel();
+                try
+                {
+                    queries.wait();
+                }
+                catch (InterruptedException iex)
+                {
+                    interrupted = true;
+                }
+            }
+        }
+        if (interrupted)
+            Thread.currentThread().interrupt();
+
         MAPIUninitialize();
+    }
+
+    /**
+     * Notifies this <tt>MsOutlookAddressBookContactSourceService</tt> that a
+     * specific <tt>MsOutlookAddressBookContactQuery</tt> has stopped.
+     *
+     * @param msoabcq the <tt>MsOutlookAddressBookContactQuery</tt> which has
+     * stopped
+     */
+    void stopped(MsOutlookAddressBookContactQuery msoabcq)
+    {
+        synchronized (queries)
+        {
+            if (queries.remove(msoabcq))
+                queries.notify();
+        }
     }
 }

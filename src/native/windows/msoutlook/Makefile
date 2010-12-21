@@ -1,4 +1,4 @@
-CXX = g++ -O2
+CXX = c++ -O2
 OUTLOOK_MAPI_HEADERS ?= /c/Users/lyubomir/Downloads/Outlook2010MAPIHeaders
 TARGET_BASENAME = jmsoutlook.dll
 
@@ -14,6 +14,9 @@ LDFLAGS = -shared -Wl,--kill-at
 LIBS = -lmapi32
 TARGET = ../../../../lib/native/windows$(ARCH)/jmsoutlook.dll
 
-$(TARGET): net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactSourceService.c
+$(TARGET): \
+		MsOutlookMAPIHResultException.cpp \
+		net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactQuery.cpp \
+		net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactSourceService.c
 	$(CXX) $(CPPFLAGS) $^ $(LDFLAGS) -o $@ $(LIBS)
 	-strip $(TARGET)

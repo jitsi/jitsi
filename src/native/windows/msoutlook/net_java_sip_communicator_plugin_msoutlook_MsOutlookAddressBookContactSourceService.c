@@ -1,5 +1,7 @@
 #include "net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactSourceService.h"
+
 #include "MsOutlookMAPI.h"
+#include "MsOutlookMAPIHResultException.h"
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactSourceService_MAPIInitialize
@@ -11,9 +13,7 @@ Java_net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactSourc
     hResult = MAPIInitialize(&mapiInit);
 
     if (HR_FAILED(hResult))
-    {
-        /* TODO Auto-generated method stub */
-    }
+        MsOutlookMAPIHResultException_throwNew(jniEnv, hResult);
 }
 
 JNIEXPORT void JNICALL
