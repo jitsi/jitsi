@@ -35,7 +35,7 @@ public interface ContactSourceService
     public String getDisplayName();
 
     /**
-     * Queries this search source for the given <tt>searchString</tt>.
+     * Queries this search source for the given <tt>queryString</tt>.
      * @param queryString the string to search for
      * @return the created query
      */
