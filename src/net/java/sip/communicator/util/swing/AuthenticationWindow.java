@@ -346,7 +346,7 @@ public class AuthenticationWindow
         {
             public void actionPerformed(ActionEvent e)
             {
-                AuthenticationWindow.this.setVisible(false);
+                close(true);
             }
         };
 
