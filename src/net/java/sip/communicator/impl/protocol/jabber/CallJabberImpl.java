@@ -90,6 +90,9 @@ public class CallJabberImpl
     public CallPeerJabberImpl processSessionInitiate(JingleIQ jingleIQ)
     {
         String remoteParty = jingleIQ.getInitiator();
+        boolean autoAnswer = false;
+        CallPeerJabberImpl attendant = null;
+        OperationSetBasicTelephonyJabberImpl basicTelephony = null;
 
         //according to the Jingle spec initiator may be null.
         if (remoteParty == null)
@@ -97,15 +100,105 @@ public class CallJabberImpl
 
         CallPeerJabberImpl callPeer = new CallPeerJabberImpl(remoteParty, this);
 
+        addCallPeer(callPeer);
+
+        /*
+         * We've already sent ack to the specified session-initiate so if it has
+         * been sent as part of an attended transfer, we have to hang up on the
+         * attendant.
+         */
+        try
+        {
+            TransferPacketExtension transfer
+                = (TransferPacketExtension)
+                    jingleIQ.getExtension(
+                            TransferPacketExtension.ELEMENT_NAME,
+                            TransferPacketExtension.NAMESPACE);
+
+            if (transfer != null)
+            {
+                String sid = transfer.getSID();
+
+                if (sid != null)
+                {
+                    ProtocolProviderServiceJabberImpl protocolProvider
+                        = getProtocolProvider();
+                    basicTelephony
+                        = (OperationSetBasicTelephonyJabberImpl)
+                            protocolProvider
+                                .getOperationSet(
+                                        OperationSetBasicTelephony.class);
+                    CallJabberImpl attendantCall
+                        = basicTelephony
+                            .getActiveCallsRepository()
+                                .findJingleSID(sid);
+
+                    if (attendantCall != null)
+                    {
+                        attendant
+                            = attendantCall.getPeer(sid);
+
+                        if ((attendant != null)
+                                && basicTelephony
+                                    .getFullCalleeURI(attendant.getAddress())
+                                        .equals(transfer.getFrom())
+                                && protocolProvider.getOurJID().equals(
+                                        transfer.getTo()))
+                        {
+                            //basicTelephony.hangupCallPeer(attendant);
+                            autoAnswer = true;
+                        }
+                    }
+                }
+            }
+        }
+        catch (Throwable t)
+        {
+            logger.error(
+                    "Failed to hang up on attendant"
+                        + " as part of session transfer",
+                    t);
+
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+        }
+
         //before notifying about this call, make sure that it looks alright
         callPeer.processSessionInitiate(jingleIQ);
 
         if( callPeer.getState() == CallPeerState.FAILED)
             return null;
 
-        addCallPeer(callPeer);
-
         callPeer.setState( CallPeerState.INCOMING_CALL );
+
+        // in case of attended transfer, auto answer the call
+        if(autoAnswer)
+        {
+            /* answer directly */
+            try
+            {
+                callPeer.answer();
+            }
+            catch(Exception e)
+            {
+                logger.info("Exception occurred while answer transferred call",
+                        e);
+                callPeer = null;
+            }
+
+            // hang up now
+            try
+            {
+                basicTelephony.hangupCallPeer(attendant);
+            }
+            catch(OperationFailedException e)
+            {
+                logger.error("Failed to hang up on attendant as part of " +
+                        "session transfer", e);
+            }
+
+            return callPeer;
+        }
 
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.

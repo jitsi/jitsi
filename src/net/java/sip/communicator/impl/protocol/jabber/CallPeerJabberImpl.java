@@ -148,66 +148,6 @@ public class CallPeerJabberImpl
      */
     protected synchronized void processSessionInitiate(JingleIQ sessionInitIQ)
     {
-        /*
-         * We've already sent ack to the specified session-initiate so if it has
-         * been sent as part of an attended transfer, we have to hang up on the
-         * attendant.
-         */
-        try
-        {
-            TransferPacketExtension transfer
-                = (TransferPacketExtension)
-                    sessionInitIQ.getExtension(
-                            TransferPacketExtension.ELEMENT_NAME,
-                            TransferPacketExtension.NAMESPACE);
-
-            if (transfer != null)
-            {
-                String sid = transfer.getSID();
-
-                if (sid != null)
-                {
-                    ProtocolProviderServiceJabberImpl protocolProvider
-                        = getProtocolProvider();
-                    OperationSetBasicTelephonyJabberImpl basicTelephony
-                        = (OperationSetBasicTelephonyJabberImpl)
-                            protocolProvider
-                                .getOperationSet(
-                                        OperationSetBasicTelephony.class);
-                    CallJabberImpl attendantCall
-                        = basicTelephony
-                            .getActiveCallsRepository()
-                                .findJingleSID(sid);
-
-                    if (attendantCall != null)
-                    {
-                        CallPeerJabberImpl attendant
-                            = attendantCall.getPeer(sid);
-
-                        if ((attendant != null)
-                                && basicTelephony
-                                    .getFullCalleeURI(attendant.getAddress())
-                                        .equals(transfer.getFrom())
-                                && protocolProvider.getOurJID().equals(
-                                        transfer.getTo()))
-                        {
-                            basicTelephony.hangupCallPeer(attendant);
-                        }
-                    }
-                }
-            }
-        }
-        catch (Throwable t)
-        {
-            logger.error(
-                    "Failed to hang up on attendant"
-                        + " as part of session transfer",
-                    t);
-
-            if (t instanceof ThreadDeath)
-                throw (ThreadDeath) t;
-        }
-
         // Do initiate the session.
         this.sessionInitIQ = sessionInitIQ;
         this.isInitiator = true;

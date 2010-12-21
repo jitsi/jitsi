@@ -716,9 +716,13 @@ public class CallDialog
         });
     }
 
-    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent) {}
+    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
+    {
+    }
 
-    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent) {}
+    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent)
+    {
+    }
 
     /**
      * Checks if the contained call is a conference call.
@@ -1087,7 +1091,7 @@ public class CallDialog
     /**
      * Checks whether recording is currently enabled or not, state retrieved
      * from call record button state.
-     * @return
+     * @return <tt>true</tt> if the recording is started
      */
     public boolean isRecordingStarted()
     {

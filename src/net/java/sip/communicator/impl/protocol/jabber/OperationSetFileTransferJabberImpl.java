@@ -85,7 +85,7 @@ public class OperationSetFileTransferJabberImpl
     /**
      * Sends a file transfer request to the given <tt>toContact</tt>.
      * @return the transfer object
-     * 
+     *
      * @param toContact the contact that should receive the file
      * @param file file to send
      */
@@ -150,9 +150,9 @@ public class OperationSetFileTransferJabberImpl
      * Sends a file transfer request to the given <tt>toContact</tt> by
      * specifying the local and remote file path and the <tt>fromContact</tt>,
      * sending the file.
-     * 
+     *
      * @return the transfer object
-     * 
+     *
      * @param toContact the contact that should receive the file
      * @param fromContact the contact sending the file
      * @param remotePath the remote file path
@@ -172,7 +172,7 @@ public class OperationSetFileTransferJabberImpl
     /**
      * Adds the given <tt>FileTransferListener</tt> that would listen for
      * file transfer requests and created file transfers.
-     * 
+     *
      * @param listener the <tt>FileTransferListener</tt> to add
      */
     public void addFileTransferListener(
@@ -190,7 +190,7 @@ public class OperationSetFileTransferJabberImpl
     /**
      * Removes the given <tt>FileTransferListener</tt> that listens for
      * file transfer requests and created file transfers.
-     * 
+     *
      * @param listener the <tt>FileTransferListener</tt> to remove
      */
     public void removeFileTransferListener(
@@ -318,14 +318,14 @@ public class OperationSetFileTransferJabberImpl
         }
     }
 
-    /** 
+    /**
      * Listener for Jabber incoming file transfer requests.
      */
     private class FileTransferRequestListener implements PacketListener
     {
         /**
          * Listens for file transfer packets.
-         * @param packet
+         * @param packet packet to be processed
          */
         public void processPacket(Packet packet)
         {
@@ -395,7 +395,7 @@ public class OperationSetFileTransferJabberImpl
 
     /**
      * Delivers the specified event to all registered file transfer listeners.
-     * 
+     *
      * @param event the <tt>EventObject</tt> that we'd like delivered to all
      * registered file transfer listeners.
      */
@@ -441,7 +441,7 @@ public class OperationSetFileTransferJabberImpl
 
     /**
      * Delivers the file transfer to all registered listeners.
-     * 
+     *
      * @param event the <tt>FileTransferEvent</tt> that we'd like delivered to
      * all registered file transfer listeners.
      */
@@ -483,7 +483,7 @@ public class OperationSetFileTransferJabberImpl
             this.fileTransfer = transfer;
             this.initialFileSize = initialFileSize;
         }
-        
+
         public FileTransferProgressThread(
             org.jivesoftware.smackx.filetransfer.FileTransfer jabberTransfer,
             AbstractFileTransfer transfer)
@@ -492,6 +492,9 @@ public class OperationSetFileTransferJabberImpl
             this.fileTransfer = transfer;
         }
 
+        /**
+         * Thread entry point.
+         */
         public void run()
         {
             int status;
@@ -525,7 +528,7 @@ public class OperationSetFileTransferJabberImpl
                         // so it won't go through intermediate state - inProgress
                         // make sure this won't happen
                         if(status == FileTransferStatusChangeEvent.COMPLETED
-                            && fileTransfer.getStatus() 
+                            && fileTransfer.getStatus()
                                 == FileTransferStatusChangeEvent.PREPARING)
                         {
                             fileTransfer.fireStatusChangeEvent(
@@ -579,7 +582,7 @@ public class OperationSetFileTransferJabberImpl
     /**
      * Parses the given Jabber status to a <tt>FileTransfer</tt> interface
      * status.
-     * 
+     *
      * @param jabberStatus the Jabber status to parse
      * @return the parsed status
      */

@@ -629,7 +629,45 @@ public class OperationSetBasicTelephonyJabberImpl
 
         if(action == JingleAction.SESSION_INITIATE)
         {
-            CallJabberImpl call = new CallJabberImpl(this);
+            CallJabberImpl call = null;
+
+            TransferPacketExtension transfer
+                = (TransferPacketExtension)
+                    jingleIQ.getExtension(
+                        TransferPacketExtension.ELEMENT_NAME,
+                        TransferPacketExtension.NAMESPACE);
+
+            if (transfer != null)
+            {
+                String sid = transfer.getSID();
+
+                if (sid != null)
+                {
+                    CallJabberImpl attendantCall
+                        =  getActiveCallsRepository().findJingleSID(sid);
+
+                    if (attendantCall != null)
+                    {
+                        CallPeerJabberImpl attendant
+                            = attendantCall.getPeer(sid);
+
+                        if ((attendant != null)
+                                && getFullCalleeURI(attendant.getAddress())
+                                        .equals(transfer.getFrom())
+                                && protocolProvider.getOurJID().equals(
+                                        transfer.getTo()))
+                        {
+                            // OK transfer correspond to us
+                            call = attendantCall;
+                        }
+                    }
+                }
+            }
+
+            if(call == null)
+            {
+                call = new CallJabberImpl(this);
+            }
 
             call.processSessionInitiate(jingleIQ);
             return;
