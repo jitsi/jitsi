@@ -17,6 +17,8 @@ import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
+import com.explodingpixels.macwidgets.*;
+
 /**
  * The <tt>ConfigurationFrame</tt> is the dialog opened when the "Options" menu
  * is selected. It contains different basic configuration forms, like General,
@@ -73,7 +75,7 @@ public class ConfigurationFrame
         configScrollList.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        configScrollList.setBorder(BorderFactory.createEmptyBorder());
+        configScrollList.setBorder(null);
         configScrollList.setOpaque(false);
         configScrollList.getViewport().setOpaque(false);
         configScrollList.getViewport().add(configList);
@@ -86,16 +88,18 @@ public class ConfigurationFrame
         this.addDefaultForms();
 
         TransparentPanel mainPanel
-            = new TransparentPanel(new BorderLayout(5, 5));
+            = new TransparentPanel(new BorderLayout());
 
         centerPanel.setMinimumSize(new Dimension(600, 100));
         centerPanel.setMaximumSize(
-            new Dimension(  600, Integer.MAX_VALUE));
+            new Dimension(600, Integer.MAX_VALUE));
         this.setResizable(false);
 
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         mainPanel.add(centerPanel, BorderLayout.SOUTH);
-        mainPanel.add(configScrollList, BorderLayout.NORTH);
+
+        JComponent topComponent = createTopComponent();
+        topComponent.add(configScrollList);
+        mainPanel.add(topComponent, BorderLayout.NORTH);
 
         centerPanel.setBorder(BorderFactory.createEmptyBorder(  BORDER_SIZE,
                                                                 BORDER_SIZE,
@@ -133,6 +137,42 @@ public class ConfigurationFrame
                 this.addConfigurationForm(form);
             }
         }
+    }
+
+    /**
+     * Creates the toolbar panel for this chat window, depending on the current
+     * operating system.
+     *
+     * @return the created toolbar
+     */
+    private JComponent createTopComponent()
+    {
+        JComponent topComponent = null;
+
+        if (OSUtils.IS_MAC)
+        {
+            UnifiedToolBar macToolbarPanel = new UnifiedToolBar();
+
+            MacUtils.makeWindowLeopardStyle(getRootPane());
+
+            macToolbarPanel.getComponent().setLayout(new BorderLayout());
+            macToolbarPanel.disableBackgroundPainter();
+            macToolbarPanel.installWindowDraggerOnWindow(this);
+            centerPanel.setOpaque(true);
+            centerPanel.setBackground(
+                new Color(GuiActivator.getResources()
+                    .getColor("service.gui.MAC_PANEL_BACKGROUND")));
+
+            topComponent = macToolbarPanel.getComponent();
+        }
+        else
+        {
+            JPanel panel = new TransparentPanel(new BorderLayout());
+
+            topComponent = panel;
+        }
+
+        return topComponent;
     }
 
     /**

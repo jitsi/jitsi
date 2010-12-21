@@ -33,6 +33,8 @@ import net.java.sip.communicator.util.swing.event.*;
 
 import org.osgi.framework.*;
 
+import com.explodingpixels.macwidgets.*;
+
 /**
  * The chat window is the place, where users can write and send messages, view
  * received messages. The ChatWindow supports two modes of use: "Group all
@@ -63,13 +65,12 @@ public class ChatWindow
     private final java.util.List<ChatChangeListener> chatChangeListeners =
         new Vector<ChatChangeListener>();
 
-    private final JPanel mainPanel = new JPanel(new BorderLayout());
+    private final JPanel mainPanel
+        = new TransparentPanel(new BorderLayout());
 
-    private final NorthPanel northPanel = new NorthPanel(new BorderLayout());
+    private final JPanel statusBarPanel
+        = new TransparentPanel(new BorderLayout());
 
-    private final JPanel statusBarPanel = new JPanel(new BorderLayout());
-
-    private final JPanel pluginPanelNorth = new JPanel();
     private final JPanel pluginPanelSouth = new JPanel();
     private final JPanel pluginPanelWest = new JPanel();
     private final JPanel pluginPanelEast = new JPanel();
@@ -78,7 +79,9 @@ public class ChatWindow
 
     private final MessageWindowMenuBar menuBar;
 
-    private final MainToolBar mainToolBar;
+    private MainToolBar mainToolBar;
+
+    private final Component toolbarPanel;
 
     /**
      * Creates an instance of <tt>ChatWindow</tt> by passing to it an instance
@@ -92,8 +95,6 @@ public class ChatWindow
         }
 
         this.addWindowFocusListener(this);
-
-        this.setHierarchicallyOpaque(false);
 
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
@@ -129,17 +130,9 @@ public class ChatWindow
 
         this.setJMenuBar(menuBar);
 
-        mainToolBar = new MainToolBar(this);
+        toolbarPanel = createToolBar();
 
-        boolean chatToolbarVisible = ConfigurationManager.isChatToolbarVisible();
-        northPanel.setVisible(chatToolbarVisible);
-
-        northPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
-        northPanel.add(mainToolBar, BorderLayout.CENTER);
-        northPanel.add(contactPhotoPanel, BorderLayout.EAST);
-
-        this.mainPanel.add(northPanel, BorderLayout.NORTH);
-
+        this.getContentPane().add(toolbarPanel, BorderLayout.NORTH);
         this.getContentPane().add(mainPanel, BorderLayout.CENTER);
         this.getContentPane().add(statusBarPanel, BorderLayout.SOUTH);
 
@@ -172,20 +165,6 @@ public class ChatWindow
     }
 
     /**
-     * Sets the given isOpaque property to this panel and all its contained
-     * components.
-     * 
-     * @param isOpaque <code>true</code> to set this panel paque and
-     * <code>false</code> - otherwise.
-     */
-    public void setHierarchicallyOpaque(boolean isOpaque)
-    {
-        northPanel.setOpaque(isOpaque);
-        mainPanel.setOpaque(isOpaque);
-        statusBarPanel.setOpaque(isOpaque);
-    }
-    
-    /**
      * Shows or hides the Toolbar depending on the value of parameter b. 
      * 
      * @param b if true, makes the Toolbar visible, otherwise hides the Toolbar
@@ -193,9 +172,9 @@ public class ChatWindow
     public void setToolbarVisible(boolean b)
     {
         // The north panel is the one containing the toolbar and contact photo.
-        northPanel.setVisible(b);
+        toolbarPanel.setVisible(b);
     }
-    
+
     /**
      * Shows or hides the Stylebar depending on the value of parameter b.
      * 
@@ -261,6 +240,52 @@ public class ChatWindow
 
         for (ChatChangeListener l : this.chatChangeListeners)
             l.chatChanged(chatPanel);
+    }
+
+    /**
+     * Creates the toolbar panel for this chat window, depending on the current
+     * operating system.
+     *
+     * @return the created toolbar
+     */
+    private Component createToolBar()
+    {
+        Component toolbarPanel = null;
+
+        mainToolBar = new MainToolBar(this);
+
+        boolean chatToolbarVisible
+            = ConfigurationManager.isChatToolbarVisible();
+
+        if (OSUtils.IS_MAC)
+        {
+            UnifiedToolBar macToolbarPanel = new UnifiedToolBar();
+
+            MacUtils.makeWindowLeopardStyle(getRootPane());
+
+            macToolbarPanel.addComponentToLeft(mainToolBar);
+            macToolbarPanel.addComponentToRight(contactPhotoPanel);
+            macToolbarPanel.disableBackgroundPainter();
+            macToolbarPanel.installWindowDraggerOnWindow(this);
+            macToolbarPanel.getComponent()
+                .setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+            macToolbarPanel.getComponent().setVisible(chatToolbarVisible);
+
+            toolbarPanel = macToolbarPanel.getComponent();
+        }
+        else
+        {
+            ToolbarPanel panel = new ToolbarPanel(new BorderLayout());
+
+            panel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
+            panel.add(mainToolBar, BorderLayout.CENTER);
+            panel.add(contactPhotoPanel, BorderLayout.EAST);
+            panel.setVisible(chatToolbarVisible);
+
+            toolbarPanel = panel;
+        }
+
+        return toolbarPanel;
     }
 
     /**
@@ -783,8 +808,6 @@ public class ChatWindow
      */
     private void initPluginComponents()
     {
-        pluginPanelNorth.setLayout(
-            new BoxLayout(pluginPanelNorth, BoxLayout.Y_AXIS));
         pluginPanelEast.setLayout(
             new BoxLayout(pluginPanelEast, BoxLayout.Y_AXIS));
         pluginPanelSouth.setLayout(
@@ -792,7 +815,6 @@ public class ChatWindow
         pluginPanelWest.setLayout(
             new BoxLayout(pluginPanelWest, BoxLayout.Y_AXIS));
 
-        this.getContentPane().add(pluginPanelNorth, BorderLayout.NORTH);
         this.getContentPane().add(pluginPanelEast, BorderLayout.EAST);
         this.getContentPane().add(pluginPanelWest, BorderLayout.WEST);
         this.mainPanel.add(pluginPanelSouth, BorderLayout.SOUTH);
@@ -940,12 +962,7 @@ public class ChatWindow
     {
         if (container.equals(Container.CONTAINER_CHAT_WINDOW))
         {
-            if (constraints.equals(BorderLayout.NORTH))
-            {
-                pluginPanelNorth.add(c);
-                pluginPanelNorth.repaint();
-            }
-            else if (constraints.equals(BorderLayout.SOUTH))
+            if (constraints.equals(BorderLayout.SOUTH))
             {
                 pluginPanelSouth.add(c);
                 pluginPanelSouth.repaint();
@@ -983,9 +1000,7 @@ public class ChatWindow
     {
         if (container.equals(Container.CONTAINER_CHAT_WINDOW))
         {
-            if (constraints.equals(BorderLayout.NORTH))
-                pluginPanelNorth.remove(c);
-            else if (constraints.equals(BorderLayout.SOUTH))
+            if (constraints.equals(BorderLayout.SOUTH))
                 pluginPanelSouth.remove(c);
             else if (constraints.equals(BorderLayout.WEST))
                 pluginPanelWest.remove(c);
@@ -1239,13 +1254,13 @@ public class ChatWindow
         }
     }
 
-    private static class NorthPanel
+    private static class ToolbarPanel
         extends JPanel
         implements Skinnable
     {
         private Image logoBgImage;
 
-        public NorthPanel(LayoutManager layoutManager)
+        public ToolbarPanel(LayoutManager layoutManager)
         {
             super(layoutManager);
 

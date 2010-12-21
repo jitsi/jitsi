@@ -68,7 +68,9 @@ public abstract class SIPCommFrame
      */
     public SIPCommFrame()
     {
-        this.setContentPane(new MainContentPane());
+        // If on MacOS we would use the native background.
+        if (!OSUtils.IS_MAC)
+            this.setContentPane(new MainContentPane());
 
         init();
 

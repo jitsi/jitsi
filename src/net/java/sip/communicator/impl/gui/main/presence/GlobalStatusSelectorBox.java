@@ -151,6 +151,9 @@ public class GlobalStatusSelectorBox
 
         this.addSeparator();
 
+        this.setUI(new SIPCommStatusMenuUI());
+
+        this.setFont(titleLabel.getFont().deriveFont(Font.PLAIN, 11f));
         this.setIcon(offlineItem.getIcon());
         this.setIconTextGap(2);
         this.setOpaque(false);
@@ -158,7 +161,6 @@ public class GlobalStatusSelectorBox
         this.setToolTipText("<html><b>" + GuiActivator.getResources()
                         .getI18NString("service.gui.SET_GLOBAL_STATUS")
                         + "</b></html>");
-        this.setUI(new SIPCommStatusMenuUI());
 
         fitSizeToText();
     }

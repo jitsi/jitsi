@@ -132,6 +132,10 @@ public class AuthenticationWindow
                 removeWindowListener(this);
             }
         });
+
+        if (OSUtils.IS_MAC)
+            getRootPane()
+                .putClientProperty("apple.awt.brushMetalLook", Boolean.TRUE);
     }
 
     /**

@@ -162,6 +162,14 @@ public class ChatPanel
         this.add(messagePane, BorderLayout.CENTER);
         this.add(sendPanel, BorderLayout.SOUTH);
 
+        if (OSUtils.IS_MAC)
+        {
+            setOpaque(true);
+            setBackground(
+                new Color(GuiActivator.getResources()
+                    .getColor("service.gui.MAC_PANEL_BACKGROUND")));
+        }
+
         this.addComponentListener(new TabSelectionComponentListener());
     }
 

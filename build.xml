@@ -1510,6 +1510,8 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="lib/installer-exclude/jna.jar" prefix=""/>
             <zipfileset src="lib/installer-exclude/transparency.jar" prefix=""/>
             <zipfileset src="lib/installer-exclude/swing-worker-1.2.jar" prefix=""/>
+            <zipfileset src="lib/installer-exclude/mac_widgets-0.9.5.jar" prefix=""/>
+            <zipfileset src="lib/installer-exclude/forms-1.2.1.jar" prefix=""/>
         </jar>
     </target>
 

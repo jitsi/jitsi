@@ -39,6 +39,8 @@ import net.java.sip.communicator.util.swing.event.*;
 
 import org.osgi.framework.*;
 
+import com.explodingpixels.macwidgets.*;
+
 /**
  * The main application window. This class is the core of this UI
  * implementation. It stores all available protocol providers and their
@@ -237,20 +239,18 @@ public class MainFrame
 
         registerKeyActions();
 
-        TransparentPanel northPanel
-            = new TransparentPanel(new BorderLayout(0, 0));
+        JComponent northPanel = createTopComponent();
 
         this.setJMenuBar(menu);
 
-        northPanel.add(accountStatusPanel, BorderLayout.CENTER);
-
         TransparentPanel searchPanel
             = new TransparentPanel(new BorderLayout(2, 0));
-        searchPanel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
         searchPanel.add(searchField);
         searchPanel.add(new CallHistoryButton(), BorderLayout.EAST);
 
-        centerPanel.add(searchPanel, BorderLayout.NORTH);
+        northPanel.add(accountStatusPanel, BorderLayout.CENTER);
+        northPanel.add(searchPanel, BorderLayout.SOUTH);
+
         centerPanel.add(contactListPanel, BorderLayout.CENTER);
 
         this.mainPanel.add(northPanel, BorderLayout.NORTH);
@@ -259,6 +259,48 @@ public class MainFrame
         java.awt.Container contentPane = getContentPane();
         contentPane.add(mainPanel, BorderLayout.CENTER);
         contentPane.add(statusBarPanel, BorderLayout.SOUTH);
+    }
+
+    /**
+     * Creates the toolbar panel for this chat window, depending on the current
+     * operating system.
+     *
+     * @return the created toolbar
+     */
+    private JComponent createTopComponent()
+    {
+        JComponent topComponent = null;
+
+        if (OSUtils.IS_MAC)
+        {
+            UnifiedToolBar macToolbarPanel = new UnifiedToolBar();
+
+            MacUtils.makeWindowLeopardStyle(getRootPane());
+
+            macToolbarPanel.getComponent().setLayout(new BorderLayout(3, 3));
+            macToolbarPanel.getComponent()
+                .setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+            macToolbarPanel.disableBackgroundPainter();
+            macToolbarPanel.installWindowDraggerOnWindow(this);
+
+            // Set the color of the center panel.
+            centerPanel.setOpaque(true);
+            centerPanel.setBackground(
+                new Color(GuiActivator.getResources()
+                    .getColor("service.gui.MAC_PANEL_BACKGROUND")));
+
+            topComponent = macToolbarPanel.getComponent();
+        }
+        else
+        {
+            JPanel panel = new TransparentPanel(new BorderLayout());
+
+            panel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+
+            topComponent = panel;
+        }
+
+        return topComponent;
     }
 
     /**

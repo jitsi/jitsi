@@ -33,12 +33,12 @@ public class ConfigFormListCellRenderer
      */
     public static final int SELECTED_GRADIENT_SIZE = 5;
 
-    private final JLabel textLabel = new JLabel();
+    private final JLabel textLabel = new EmphasizedLabel("");
 
     private final JLabel iconLabel = new JLabel();
 
     private boolean isSelected = false;
-    
+
     /**
      * Initialize the panel containing the node.
      */
@@ -49,7 +49,7 @@ public class ConfigFormListCellRenderer
         this.setPreferredSize(new Dimension(60, 50));
 
         Font font = getFont();
-        this.textLabel.setFont(font.deriveFont(Font.BOLD, font.getSize() - 2));
+        this.textLabel.setFont(font.deriveFont(11f));
 
         this.iconLabel.setHorizontalAlignment(JLabel.CENTER);
         this.textLabel.setHorizontalAlignment(JLabel.CENTER);

@@ -126,7 +126,9 @@ public abstract class SIPCommDialog
      */
     private void init()
     {
-        this.setContentPane(new SIPCommFrame.MainContentPane());
+        // If on MacOS we would use the native background.
+        if (!OSUtils.IS_MAC)
+            this.setContentPane(new SIPCommFrame.MainContentPane());
 
         this.addWindowListener(new DialogWindowAdapter());
 

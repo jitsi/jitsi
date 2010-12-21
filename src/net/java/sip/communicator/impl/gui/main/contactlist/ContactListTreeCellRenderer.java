@@ -432,9 +432,20 @@ public class ContactListTreeCellRenderer
         super.paintComponent(g);
 
         g = g.create();
+
+        if (!(treeNode instanceof GroupNode) && !isSelected)
+            return;
+
+        AntialiasingManager.activateAntialiasing(g);
+
+        Graphics2D g2 = (Graphics2D) g;
+
         try
         {
-            internalPaintComponent(g);
+            if (OSUtils.IS_MAC)
+                internalPaintComponentMacOS(g2);
+            else
+                internalPaintComponent(g2);
         }
         finally
         {
@@ -446,17 +457,10 @@ public class ContactListTreeCellRenderer
      * Paint a background for all groups and a round blue border and background
      * when a cell is selected.
      *
-     * @param g the <tt>Graphics</tt> object through which we paint
+     * @param g2 the <tt>Graphics2D</tt> object through which we paint
      */
-    private void internalPaintComponent(Graphics g)
+    private void internalPaintComponent(Graphics2D g2)
     {
-        if (!(treeNode instanceof GroupNode) && !isSelected)
-            return;
-
-        AntialiasingManager.activateAntialiasing(g);
-
-        Graphics2D g2 = (Graphics2D) g;
-
         Shape clipShape
             = GraphicUtils.createRoundedClipShape(
                 getWidth(), getHeight(), 20, 20);
@@ -503,6 +507,39 @@ public class ContactListTreeCellRenderer
 
         g2.setColor(Color.LIGHT_GRAY);
         g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+    }
+
+    /**
+     * Paint a background for all groups and a round blue border and background
+     * when a cell is selected.
+     *
+     * @param g2 the <tt>Graphics2D</tt> object through which we paint
+     */
+    private void internalPaintComponentMacOS(Graphics2D g2)
+    {
+        Color borderColor = Color.GRAY;
+
+        if (isSelected)
+        {
+            g2.setPaint(new GradientPaint(0, 0,
+                Color.WHITE, 0, getHeight(), Constants.SELECTED_COLOR));
+
+            borderColor = Constants.SELECTED_COLOR;
+        }
+        else if (treeNode instanceof GroupNode)
+        {
+            g2.setPaint(new GradientPaint(0, 0,
+                Constants.CONTACT_LIST_GROUP_BG_GRADIENT_COLOR,
+                0, getHeight(),
+                Constants.CONTACT_LIST_GROUP_BG_COLOR));
+
+            borderColor = Constants.CONTACT_LIST_GROUP_BG_COLOR;
+        }
+
+        g2.fillRect(0, 0, getWidth(), getHeight());
+        g2.setColor(borderColor);
+        g2.drawLine(0, 0, getWidth(), 0);
+        g2.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
     }
 
     /**

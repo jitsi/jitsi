@@ -243,9 +243,6 @@ public class CallDialog
      */
     private void init()
     {
-        TransparentPanel buttonsPanel
-            = new TransparentPanel(new BorderLayout(5, 5));
-
         hangupButton = new SIPCommButton(
             ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
 
@@ -268,9 +265,6 @@ public class CallDialog
             GuiActivator.getResources().getI18NString(
                 "service.gui.CREATE_CONFERENCE_CALL"));
         conferenceButton.addActionListener(this);
-
-        contentPane.add(callPanel, BorderLayout.CENTER);
-        contentPane.add(buttonsPanel, BorderLayout.SOUTH);
 
         hangupButton.setName(HANGUP_BUTTON);
         hangupButton.setToolTipText(
@@ -307,13 +301,14 @@ public class CallDialog
             addOneToOneSpecificComponents();
         }
 
-        buttonsPanel.add(settingsPanel, BorderLayout.WEST);
-        buttonsPanel.add(hangupButton, BorderLayout.EAST);
-
-        buttonsPanel.setBorder(
-            new ExtendedEtchedBorder(EtchedBorder.LOWERED, 1, 0, 0, 0));
+        settingsPanel.add(volumeControlButton);
 
         dtmfHandler = new DTMFHandler(this);
+
+        JComponent bottomBar = createBottomBar();
+
+        contentPane.add(callPanel, BorderLayout.CENTER);
+        contentPane.add(bottomBar, BorderLayout.SOUTH);
     }
 
     /**
@@ -1097,5 +1092,33 @@ public class CallDialog
     public boolean isRecordingStarted()
     {
         return recordButton.isSelected();
+    }
+
+    /**
+     * Creates the bottom bar panel for this call dialog, depending on the
+     * current operating system.
+     *
+     * @return the created bottom bar
+     */
+    private JComponent createBottomBar()
+    {
+        JComponent bottomBar = new TransparentPanel();
+
+        bottomBar.setBorder(
+            new ExtendedEtchedBorder(EtchedBorder.LOWERED, 1, 0, 0, 0));
+
+        if (OSUtils.IS_MAC)
+        {
+            bottomBar.setOpaque(true);
+            bottomBar.setBackground(
+                new Color(GuiActivator.getResources()
+                    .getColor("service.gui.MAC_PANEL_BACKGROUND")));
+        }
+
+        bottomBar.setLayout(new BorderLayout());
+        bottomBar.add(settingsPanel, BorderLayout.WEST);
+        bottomBar.add(hangupButton, BorderLayout.EAST);
+
+        return bottomBar;
     }
 }

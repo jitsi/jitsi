@@ -24,9 +24,9 @@ import net.java.sip.communicator.util.*;
 public class ConfigFormDescriptor
 {
     private final Logger logger = Logger.getLogger(ConfigFormDescriptor.class);
-    
+
     private final ConfigurationForm configForm;
-    
+
     private ImageIcon configFormIcon;
 
     private Component configFormPanel;
@@ -41,20 +41,20 @@ public class ConfigFormDescriptor
     public ConfigFormDescriptor(ConfigurationForm configForm)
     {
         this.configForm = configForm;
-        
+
         byte[] icon = null;
-        
+
         try
         {
             icon = configForm.getIcon();
-            
+
             configFormTitle = configForm.getTitle();
         }
         catch (Exception e)
         {
             logger.error("Could not load configuration form.", e);
         }
-        
+
         if(icon != null)
             configFormIcon = new ImageIcon(icon);
     }

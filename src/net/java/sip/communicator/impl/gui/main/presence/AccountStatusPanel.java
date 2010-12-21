@@ -41,12 +41,12 @@ public class AccountStatusPanel
     /**
      * The desired height of the avatar.
      */
-    private static final int AVATAR_ICON_HEIGHT = 45;
+    private static final int AVATAR_ICON_HEIGHT = 40;
 
     /**
      * The desired width of the avatar.
      */
-    private static final int AVATAR_ICON_WIDTH = 45;
+    private static final int AVATAR_ICON_WIDTH = 40;
 
     /**
      * The image object storing the avatar.
@@ -57,7 +57,7 @@ public class AccountStatusPanel
      * The label showing the name of the user.
      */
     private final JLabel accountNameLabel
-        = new JLabel(
+        = new EmphasizedLabel(
                 GuiActivator
                     .getResources().getI18NString("service.gui.ACCOUNT_ME"));
 
@@ -106,8 +106,6 @@ public class AccountStatusPanel
     {
         super(new BorderLayout(10, 0));
 
-        this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
         if (ConfigurationManager.isTransparentWindowEnabled())
             this.setUI(new SIPCommOpaquePanelUI());
 
@@ -123,7 +121,7 @@ public class AccountStatusPanel
         this.accountImageLabel = imageWithMenu;
 
         accountNameLabel.setFont(
-            accountNameLabel.getFont().deriveFont(Font.BOLD));
+            accountNameLabel.getFont().deriveFont(12f));
         accountNameLabel.setOpaque(false);
 
         statusComboBox = new GlobalStatusSelectorBox(mainFrame);

@@ -109,7 +109,7 @@ public class SearchFieldUI
             int dy = (c.getY() + c.getHeight()) / 2
                 - searchIcon.getIconHeight()/2;
 
-            g2.drawImage(searchIcon.getImage(), c.getX(), dy + 1, null);
+            g2.drawImage(searchIcon.getImage(), c.getX() + 5, dy + 1, null);
 
             // Paint call button.
             Rectangle callRect = getCallButtonRect();

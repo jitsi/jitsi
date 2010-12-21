@@ -10,6 +10,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import com.explodingpixels.macwidgets.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -38,6 +40,11 @@ public class OneToOneCallPanel
      * Serial version UID.
      */
     private static final long serialVersionUID = 0L;
+
+    /**
+     * The component showing the name of the underlying call peer.
+     */
+    private final JLabel nameLabel = new JLabel("", JLabel.CENTER);
 
     /**
      * The panel representing the underlying <tt>CallPeer</tt>.
@@ -96,9 +103,6 @@ public class OneToOneCallPanel
         this.call = call;
         this.callPeer = callPeer;
 
-        this.setBorder(BorderFactory
-            .createEmptyBorder(5, 0, 5, 0));
-
         this.setTransferHandler(new CallTransferHandler(call));
 
         this.addCallPeerPanel(callPeer);
@@ -117,6 +121,13 @@ public class OneToOneCallPanel
         {
             peerPanel = new OneToOneCallPeerPanel(this, peer);
 
+            /* Create the main Components of the UI. */
+            nameLabel.setText(peer.getDisplayName());
+
+            JComponent topBar = createTopComponent();
+            topBar.add(nameLabel);
+
+            this.add(topBar, BorderLayout.NORTH);
             this.add(peerPanel);
 
             // Create an adapter which would manage all common call peer
@@ -470,5 +481,53 @@ public class OneToOneCallPanel
     public CallDialog getCallDialog()
     {
         return callDialog;
+    }
+
+    /**
+     * Sets the name of the peer.
+     * @param name the name of the peer
+     */
+    public void setPeerName(String name)
+    {
+        this.nameLabel.setText(name);
+    }
+
+    /**
+     * Creates the toolbar panel for this chat window, depending on the current
+     * operating system.
+     *
+     * @return the created toolbar
+     */
+    private JComponent createTopComponent()
+    {
+        JComponent topComponent = null;
+
+        if (OSUtils.IS_MAC)
+        {
+            UnifiedToolBar macToolbarPanel = new UnifiedToolBar();
+
+            MacUtils.makeWindowLeopardStyle(callDialog.getRootPane());
+
+            macToolbarPanel.getComponent().setLayout(new BorderLayout());
+            macToolbarPanel.disableBackgroundPainter();
+            macToolbarPanel.installWindowDraggerOnWindow(callDialog);
+
+            // Set the color of the center panel.
+            peerPanel.setOpaque(true);
+            peerPanel.setBackground(new Color(GuiActivator.getResources()
+                .getColor("service.gui.MAC_PANEL_BACKGROUND")));
+
+            topComponent = macToolbarPanel.getComponent();
+        }
+        else
+        {
+            JPanel panel = new TransparentPanel(new BorderLayout());
+
+            panel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+
+            topComponent = panel;
+        }
+
+        return topComponent;
     }
 }

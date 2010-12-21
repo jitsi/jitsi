@@ -59,11 +59,6 @@ public class OneToOneCallPeerPanel
     private CallPeerAdapter callPeerAdapter;
 
     /**
-     * The component showing the name of the underlying call peer.
-     */
-    private final JLabel nameLabel = new JLabel("", JLabel.CENTER);
-
-    /**
      * The component showing the status of the underlying call peer.
      */
     private final JLabel callStatusLabel = new JLabel();
@@ -125,7 +120,7 @@ public class OneToOneCallPeerPanel
     /**
      * The name of the peer.
      */
-    private final String peerName;
+    private String peerName;
 
     /**
      * The list containing all video containers.
@@ -181,6 +176,16 @@ public class OneToOneCallPeerPanel
     private JLabel remoteLevelLabel;
 
     /**
+     * The center component.
+     */
+    private final Component center;
+
+    /**
+     * The status bar component.
+     */
+    private final Component statusBar;
+
+    /**
      * Creates a <tt>CallPeerPanel</tt> for the given call peer.
      *
      * @param callRenderer the renderer of the call
@@ -195,26 +200,14 @@ public class OneToOneCallPeerPanel
 
         this.setPeerImage(CallManager.getPeerImage(callPeer));
 
-        /* Create the main Components of the UI. */
-        nameLabel.setText(peerName);
-        nameLabel.setAlignmentX(JLabel.CENTER);
-
-        Component center = createCenter();
-        Component statusBar = createStatusBar();
+        center = createCenter();
+        statusBar = createStatusBar();
 
         /* Lay out the main Components of the UI. */
         setLayout(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
-        if (nameLabel != null)
-        {
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 0;
-            constraints.gridy = 0;
-            constraints.weightx = 0;
 
-            add(nameLabel, constraints);
-        }
         if (center != null)
         {
             /*
@@ -975,7 +968,9 @@ public class OneToOneCallPeerPanel
      */
     public void setPeerName(String name)
     {
-        this.nameLabel.setText(name);
+        peerName = name;
+
+        ((OneToOneCallPanel) callRenderer).setPeerName(name);
     }
 
     /**
