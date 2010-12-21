@@ -109,11 +109,6 @@ public class MessageWindowMenuBar
      */
     private void init()
     {
-        fileMenu.setOpaque(false);
-        editMenu.setOpaque(false);
-        optionsMenu.setOpaque(false);
-        helpMenu.setOpaque(false);
-
         this.add(fileMenu);
         this.add(editMenu);
         this.add(optionsMenu);

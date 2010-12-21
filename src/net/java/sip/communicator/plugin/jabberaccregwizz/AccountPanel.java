@@ -43,7 +43,7 @@ public class AccountPanel
 
     private final JLabel userIDExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
-    private final JTextField userIDField = new JTextField();
+    private final JTextField userIDField = new TrimTextField();
 
     private final JPasswordField passField = new JPasswordField();
 

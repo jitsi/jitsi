@@ -36,7 +36,7 @@ public class CreateSip2SipAccountForm
     /**
      * The user name text field.
      */
-    private final JTextField usernameField = new JTextField();
+    private final JTextField usernameField = new TrimTextField();
 
     /**
      * The display name text field.

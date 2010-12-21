@@ -35,7 +35,7 @@ public class AccountPanel
 
     private final JPanel emptyPanel = new TransparentPanel();
 
-    private final JTextField userIDField = new JTextField();
+    private final JTextField userIDField = new TrimTextField();
 
     private final JPasswordField passField = new JPasswordField();
 

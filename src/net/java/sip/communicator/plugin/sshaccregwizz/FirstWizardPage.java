@@ -71,7 +71,7 @@ public class FirstWizardPage
 
     private JPanel emptyPanel9 = new TransparentPanel();
 
-    private JTextField userIDField = new JTextField();
+    private JTextField userIDField = new TrimTextField();
 
     private JTextField identityFileField = new JTextField(
         Resources.getString("plugin.sshaccregwizz.OPTIONAL"));

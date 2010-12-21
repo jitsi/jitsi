@@ -56,7 +56,7 @@ public class FirstWizardPage
     private JLabel lastExampleLabel = new JLabel("Ex: Gates");
     private JLabel mailExampleLabel = new JLabel("Ex: Bill@microsoft.com");
 
-    private JTextField userIDField = new JTextField();
+    private JTextField userIDField = new TrimTextField();
     private JTextField firstField = new JTextField();
     private JTextField lastField = new JTextField();
     private JTextField mailField = new JTextField();

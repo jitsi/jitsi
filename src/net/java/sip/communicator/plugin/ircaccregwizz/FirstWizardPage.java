@@ -80,7 +80,7 @@ public class FirstWizardPage
 
     private JLabel serverExampleLabel = new JLabel(SERVER_EXAMPLE);
 
-    private JTextField userIDField = new JTextField();
+    private JTextField userIDField = new TrimTextField();
 
     private JPasswordField passField = new JPasswordField();
 

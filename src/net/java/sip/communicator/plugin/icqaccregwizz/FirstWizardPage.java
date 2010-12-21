@@ -46,7 +46,7 @@ public class FirstWizardPage
     private JLabel passLabel
         = new JLabel(Resources.getString("service.gui.PASSWORD"));
 
-    private JTextField uinField = new JTextField();
+    private JTextField uinField = new TrimTextField();
 
     private JPasswordField passField = new JPasswordField();
 

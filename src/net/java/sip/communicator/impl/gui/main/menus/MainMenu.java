@@ -45,7 +45,7 @@ public class MainMenu
 
         menu.setText(resources.getI18NString(key));
         menu.setMnemonic(resources.getI18nMnemonic(key));
-        menu.setOpaque(false);
+
         add(menu);
     }
 

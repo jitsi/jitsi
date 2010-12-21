@@ -50,7 +50,7 @@ public class FirstWizardPage
 
     private JLabel userIDExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
-    private JTextField userIDField = new JTextField();
+    private JTextField userIDField = new TrimTextField();
 
     private JPasswordField passField = new JPasswordField();
 

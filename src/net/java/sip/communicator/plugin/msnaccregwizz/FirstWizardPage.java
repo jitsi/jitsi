@@ -46,7 +46,7 @@ public class FirstWizardPage
 
     private JLabel uinExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
-    private JTextField uinField = new JTextField();
+    private JTextField uinField = new TrimTextField();
 
     private JPasswordField passField = new JPasswordField();
 
