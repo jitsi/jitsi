@@ -1255,7 +1255,7 @@ public class ChatWindow
     }
 
     private static class ToolbarPanel
-        extends JPanel
+        extends TransparentPanel
         implements Skinnable
     {
         private Image logoBgImage;

@@ -277,9 +277,9 @@ public class MainFrame
 
             MacUtils.makeWindowLeopardStyle(getRootPane());
 
-            macToolbarPanel.getComponent().setLayout(new BorderLayout(3, 3));
+            macToolbarPanel.getComponent().setLayout(new BorderLayout(5, 5));
             macToolbarPanel.getComponent()
-                .setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+                .setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
             macToolbarPanel.disableBackgroundPainter();
             macToolbarPanel.installWindowDraggerOnWindow(this);
 
@@ -295,7 +295,7 @@ public class MainFrame
         {
             JPanel panel = new TransparentPanel(new BorderLayout());
 
-            panel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+            panel.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
 
             topComponent = panel;
         }

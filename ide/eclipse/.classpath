@@ -64,5 +64,7 @@
     <classpathentry kind="lib" path="lib/installer-exclude/otr4j.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jmyspell-core.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jnsapi.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/mac_widgets-0.9.5.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/forms-1.2.1.jar"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>
