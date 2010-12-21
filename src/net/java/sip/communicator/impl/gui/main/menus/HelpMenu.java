@@ -43,7 +43,6 @@ public class HelpMenu
         ResourceManagementService resources = GuiActivator.getResources();
 
         setMnemonic(resources.getI18nMnemonic("service.gui.HELP"));
-        setOpaque(false);
         setText(resources.getI18NString("service.gui.HELP"));
 
         this.initPluginComponents();

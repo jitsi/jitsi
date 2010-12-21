@@ -50,7 +50,6 @@ public class OptionsMenu
 
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.TOOLS"));
-        this.setOpaque(false);
 
         this.viewToolBar.setActionCommand(ACTCMD_VIEW_TOOLBAR);
         this.viewToolBar.addActionListener(this);

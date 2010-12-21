@@ -54,8 +54,6 @@ public class EditMenu
     {
         super(GuiActivator.getResources().getI18NString("service.gui.EDIT"));
 
-        this.setOpaque(false);
-
         this.chatWindow = chatWindow;
 
         this.cutMenuItem.setName("cut");

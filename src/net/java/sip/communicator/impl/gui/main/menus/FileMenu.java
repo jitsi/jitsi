@@ -89,8 +89,6 @@ public class FileMenu
         myChatRoomsItem = new JMenuItem(
             resources.getI18NString("service.gui.MY_CHAT_ROOMS"));
 
-        this.setOpaque(false);
-
         this.parentWindow = parentWindow;
 
         Boolean showAccountConfig = GuiActivator.getConfigurationService()

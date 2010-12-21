@@ -29,6 +29,5 @@ public class ViewMenu
 
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.VIEW"));
-        this.setOpaque(false);
     }
 }

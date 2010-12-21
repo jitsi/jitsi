@@ -42,7 +42,6 @@ public class HelpMenu
 
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.HELP"));
-        this.setOpaque(false);
 
         this.initPluginComponents();
     }

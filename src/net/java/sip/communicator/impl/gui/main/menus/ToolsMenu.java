@@ -72,7 +72,6 @@ public class ToolsMenu
 
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.TOOLS"));
-        this.setOpaque(false);
 
         this.registerMenuItems();
 

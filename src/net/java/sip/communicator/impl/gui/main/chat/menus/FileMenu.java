@@ -52,8 +52,6 @@ public class FileMenu
     {
         super(GuiActivator.getResources().getI18NString("service.gui.FILE"));
 
-        this.setOpaque(false);
-
         this.parentWindow = parentWindow;
 
         this.setMnemonic(
