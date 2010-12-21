@@ -302,13 +302,14 @@ public class MainToolBar
 
         for(ChatTransport transport : transports)
         {
-            OperationSetContactCapabilities capOpSet =
-                transport.getProtocolProvider().
-                    getOperationSet(OperationSetContactCapabilities.class);
-
-            OperationSetPersistentPresence presOpSet =
-                transport.getProtocolProvider().
-                    getOperationSet(OperationSetPersistentPresence.class);
+            ProtocolProviderService protocolProvider
+                = transport.getProtocolProvider();
+            OperationSetContactCapabilities capOpSet
+                = protocolProvider.getOperationSet(
+                        OperationSetContactCapabilities.class);
+            OperationSetPersistentPresence presOpSet
+                = protocolProvider.getOperationSet(
+                        OperationSetPersistentPresence.class);
 
             if (capOpSet == null)
             {
@@ -316,10 +317,12 @@ public class MainToolBar
             }
             else if (presOpSet != null)
             {
-                Contact contact = presOpSet.findContactByID(
-                        transport.getName());
+                Contact contact
+                    = presOpSet.findContactByID(transport.getName());
 
-                if(capOpSet.getOperationSet(contact, opSetClass) != null)
+                if((contact != null)
+                        && (capOpSet.getOperationSet(contact, opSetClass)
+                                != null))
                 {
                     // It supports OpSet for at least one of its
                     // ChatTransports
