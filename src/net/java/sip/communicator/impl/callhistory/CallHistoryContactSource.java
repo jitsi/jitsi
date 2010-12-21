@@ -35,6 +35,17 @@ public class CallHistoryContactSource implements ContactSourceService
     }
 
     /**
+     * Returns the identifier of this contact source. Some of the common
+     * identifiers are defined here (For example the CALL_HISTORY identifier
+     * should be returned by all call history implementations of this interface)
+     * @return the identifier of this contact source
+     */
+    public String getIdentifier()
+    {
+        return CALL_HISTORY;
+    }
+
+    /**
      * Queries this contact source for the given <tt>searchString</tt>.
      * @param queryString the string to search for
      * @return the created query
@@ -56,14 +67,8 @@ public class CallHistoryContactSource implements ContactSourceService
      * query to the contact source.
      */
     private class CallHistoryContactQuery
-        implements ContactQuery
+        extends AbstractContactQuery<CallHistoryContactSource>
     {
-        /**
-         * A list of all registered query listeners.
-         */
-        private final List<ContactQueryListener> queryListeners
-            = new LinkedList<ContactQueryListener>();
-
         /**
          * A list of all source contact results.
          */
@@ -90,6 +95,8 @@ public class CallHistoryContactSource implements ContactSourceService
          */
         public CallHistoryContactQuery(Collection<CallRecord> callRecords)
         {
+            super(CallHistoryContactSource.this);
+
             Iterator<CallRecord> recordsIter = callRecords.iterator();
 
             while (recordsIter.hasNext() && status != QUERY_CANCELED)
@@ -111,6 +118,8 @@ public class CallHistoryContactSource implements ContactSourceService
          */
         public CallHistoryContactQuery(CallHistoryQuery callHistoryQuery)
         {
+            super(CallHistoryContactSource.this);
+
             this.callHistoryQuery = callHistoryQuery;
 
             callHistoryQuery.addQueryListener(new CallHistoryQueryListener()
@@ -121,29 +130,16 @@ public class CallHistoryContactSource implements ContactSourceService
                                                 CallHistoryContactSource.this,
                                                 event.getCallRecord());
                     sourceContacts.add(contact);
-                    fireQueryEvent(contact);
+                    fireContactReceived(contact);
                 }
 
                 public void queryStatusChanged(
                     CallHistoryQueryStatusEvent event)
                 {
                     status = event.getEventType();
-                    fireQueryStatusEvent(status);
+                    fireQueryStatusChanged(status);
                 }
             });
-        }
-
-        /**
-         * Adds the given <tt>ContactQueryListener</tt> to the list of query
-         * listeners.
-         * @param l the <tt>ContactQueryListener</tt> to add
-         */
-        public void addContactQueryListener(ContactQueryListener l)
-        {
-            synchronized (queryListeners)
-            {
-                queryListeners.add(l);
-            }
         }
 
         /**
@@ -168,19 +164,6 @@ public class CallHistoryContactSource implements ContactSourceService
         }
 
         /**
-         * Removes the given <tt>ContactQueryListener</tt> from the list of
-         * query listeners.
-         * @param l the <tt>ContactQueryListener</tt> to remove
-         */
-        public void removeContactQueryListener(ContactQueryListener l)
-        {
-            synchronized (queryListeners)
-            {
-                queryListeners.remove(l);
-            }
-        }
-
-        /**
          * Returns a list containing the results of this query.
          * @return a list containing the results of this query
          */
@@ -188,68 +171,5 @@ public class CallHistoryContactSource implements ContactSourceService
         {
             return sourceContacts;
         }
-
-        /**
-         * Returns the <tt>ContactSourceService</tt>, where this query was first
-         * initiated.
-         * @return the <tt>ContactSourceService</tt>, where this query was first
-         * initiated
-         */
-        public ContactSourceService getContactSource()
-        {
-            return CallHistoryContactSource.this;
-        }
-
-        /**
-         * Notifies all registered <tt>ContactQueryListener</tt>s that a new
-         * contact has been received.
-         * @param contact the <tt>SourceContact</tt> this event is about
-         */
-        private void fireQueryEvent(SourceContact contact)
-        {
-            ContactReceivedEvent event = new ContactReceivedEvent(this, contact);
-
-            Collection<ContactQueryListener> listeners;
-            synchronized (queryListeners)
-            {
-                listeners
-                    = new ArrayList<ContactQueryListener>(queryListeners);
-            }
-
-            for (ContactQueryListener l : listeners)
-                l.contactReceived(event);
-        }
-
-        /**
-         * Notifies all registered <tt>ContactQueryListener</tt>s that a new
-         * record has been received.
-         * @param newStatus the new status
-         */
-        private void fireQueryStatusEvent(int newStatus)
-        {
-            ContactQueryStatusEvent event
-                = new ContactQueryStatusEvent(this, newStatus);
-
-            Collection<ContactQueryListener> listeners;
-            synchronized (queryListeners)
-            {
-                listeners
-                    = new ArrayList<ContactQueryListener>(queryListeners);
-            }
-
-            for (ContactQueryListener l : listeners)
-                l.queryStatusChanged(event);
-        }
-    }
-
-    /**
-     * Returns the identifier of this contact source. Some of the common
-     * identifiers are defined here (For example the CALL_HISTORY identifier
-     * should be returned by all call history implementations of this interface)
-     * @return the identifier of this contact source
-     */
-    public String getIdentifier()
-    {
-        return CALL_HISTORY;
     }
 }
