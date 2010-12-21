@@ -312,6 +312,9 @@ public class JabberAccountRegistrationWizard
                             JingleNodeDescriptor.JN_PREFIX + serverIndex);
         }
 
+        accountProperties.put(ProtocolProviderFactory.IS_USE_UPNP,
+                String.valueOf(registration.isUseUPNP()));
+
         if (isModification)
         {
             providerFactory.modifyAccount(  protocolProvider,

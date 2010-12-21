@@ -325,6 +325,11 @@ public abstract class ProtocolProviderFactory
         = "AUTO_DISCOVER_JINGLE_NODES";
 
     /**
+     * Indicates if UPnP should be used with ICE.
+     */
+    public static final String IS_USE_UPNP = "UPNP_ENABLED";
+
+    /**
      * Address used to reach voicemail box, by services able to
      * subscribe for voicemail new messages notifications.
      */

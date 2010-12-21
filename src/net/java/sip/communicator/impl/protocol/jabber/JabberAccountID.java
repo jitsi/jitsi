@@ -169,4 +169,17 @@ public class JabberAccountID
                 ProtocolProviderFactory.IS_USE_JINGLE_NODES,
                 true);
     }
+
+    /**
+     * Determines whether this account's provider uses UPnP (if available).
+     *
+     * @return <tt>true</tt> if this provider would use UPnP (if available),
+     * <tt>false</tt> otherwise
+     */
+    public boolean isUPNPEnabled()
+    {
+        return getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_USE_UPNP,
+                false);
+    }
 }

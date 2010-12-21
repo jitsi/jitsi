@@ -121,6 +121,11 @@ public class JabberAccountRegistration
         = new ArrayList<JingleNodeDescriptor>();
 
     /**
+     * Indicates if UPnP should be used.
+     */
+    private boolean isUseUPNP = false;
+
+    /**
      * Returns the password of the jabber registration account.
      * @return the password of the jabber registration account.
      */
@@ -404,7 +409,7 @@ public class JabberAccountRegistration
     }
 
     /**
-     * Sets the <tt>useJingleNodes/tt> property.
+     * Sets the <tt>useJingleNodes</tt> property.
      *
      * @param isUseJingleNodes <tt>true</tt> to indicate that Jingle Nodes
      * should be used for this account, <tt>false</tt> - otherwise.
@@ -456,5 +461,25 @@ public class JabberAccountRegistration
     public List<JingleNodeDescriptor> getAdditionalJingleNodes()
     {
         return additionalJingleNodes;
+    }
+
+    /**
+     * Indicates if UPnP should be used for this account.
+     * @return <tt>true</tt> if UPnP should be used for this account, otherwise
+     * returns <tt>false</tt>
+     */
+    public boolean isUseUPNP()
+    {
+        return isUseUPNP;
+    }
+
+    /**
+     * Sets the <tt>useUPNP</tt> property.
+     * @param isUseUPNP <tt>true</tt> to indicate that UPnP should be used for
+     * this account, <tt>false</tt> - otherwise.
+     */
+    public void setUseUPNP(boolean isUseUPNP)
+    {
+        this.isUseUPNP = isUseUPNP;
     }
 }

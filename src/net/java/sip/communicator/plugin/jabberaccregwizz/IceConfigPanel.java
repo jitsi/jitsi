@@ -78,6 +78,12 @@ public class IceConfigPanel
         Resources.getString("plugin.jabberaccregwizz.AUTO_DISCOVER_JN"));
 
     /**
+     * The check box allowing the user to choose to use JingleNodes.
+     */
+    private final JCheckBox upnpBox = new SIPCommCheckBox(
+        Resources.getString("plugin.jabberaccregwizz.USE_UPNP"));
+
+    /**
      * The table model for our additional stun servers table.
      */
     private final ServerTableModel jnTableModel =
@@ -110,8 +116,11 @@ public class IceConfigPanel
         jnBox.setSelected(true);
         jnAutoDiscoverBox.setSelected(true);
 
+        //upnpBox.setSelected(true);
+
         JPanel checkBoxPanel = new TransparentPanel(new GridLayout(0, 1));
         checkBoxPanel.add(iceBox);
+        checkBoxPanel.add(upnpBox);
         checkBoxPanel.add(autoDiscoverBox);
         checkBoxPanel.add(defaultStunBox);
 
@@ -1251,4 +1260,25 @@ public class IceConfigPanel
             }
         }
     }
+
+    /**
+     * Indicates if UPnP should be used for this account.
+     * @return <tt>true</tt> if UPnP should be used for this account, otherwise
+     * returns <tt>false</tt>
+     */
+    protected boolean isUseUPNP()
+    {
+        return iceBox.isSelected();
+    }
+
+    /**
+     * Sets the <tt>useUPNP</tt> property.
+     * @param isUseUPNP <tt>true</tt> to indicate that UPNP should be used for
+     * this account, <tt>false</tt> - otherwise.
+     */
+    protected void setUseUPNP(boolean isUseUPNP)
+    {
+        upnpBox.setSelected(isUseUPNP);
+    }
+
 }

@@ -208,6 +208,16 @@ public class IceUdpTransportManager
             }
         }
 
+        if(accID.isUPNPEnabled())
+        {
+            UPNPHarvester harvester = new UPNPHarvester();
+
+            if(harvester != null)
+            {
+                agent.addCandidateHarvester(harvester);
+            }
+        }
+
         return agent;
     }
 

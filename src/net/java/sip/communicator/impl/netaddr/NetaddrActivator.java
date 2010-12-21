@@ -21,12 +21,25 @@ import net.java.sip.communicator.util.*;
 public class NetaddrActivator
     implements BundleActivator
 {
+    /**
+     * The logger for this class.
+     */
     private static Logger logger =
         Logger.getLogger(NetworkAddressManagerServiceImpl.class);
 
+    /**
+     * The OSGi bundle context.
+     */
     private static BundleContext        bundleContext         = null;
 
+    /**
+     * The network address manager implementation.
+     */
     private NetworkAddressManagerServiceImpl networkAMS = null;
+
+    /**
+     * The configuration service.
+     */
     private static ConfigurationService configurationService = null;
 
     /**

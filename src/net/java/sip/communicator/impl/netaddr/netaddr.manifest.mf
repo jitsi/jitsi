@@ -9,6 +9,8 @@ Import-Package: net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.util,
  org.osgi.framework,
  org.ice4j.stack,
+ org.xml.sax,
+ org.xml.sax.helpers,
  javax.crypto,
  javax.crypto.spec
 Export-Package: net.java.sip.communicator.service.netaddr,

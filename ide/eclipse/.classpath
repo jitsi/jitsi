@@ -66,5 +66,6 @@
     <classpathentry kind="lib" path="lib/installer-exclude/jnsapi.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/mac_widgets-0.9.5.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/forms-1.2.1.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/weupnp-0.1.2-SNAPSHOT.jar"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

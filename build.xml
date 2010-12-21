@@ -1222,6 +1222,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/netaddr"
                 prefix="net/java/sip/communicator/impl/netaddr"/>
             <zipfileset src="${lib.noinst}/ice4j.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/weupnp-0.1.2-SNAPSHOT.jar" prefix=""/>
         </jar>
     </target>
 

@@ -199,6 +199,8 @@ public class FirstWizardPage
         for (JingleNodeDescriptor descriptor : jingleNodes)
             registration.addJingleNodes(descriptor);
 
+        registration.setUseUPNP(iceConfigPanel.isUseUPNP());
+
         nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
 
         this.isCommitted = true;
@@ -316,6 +318,16 @@ public class FirstWizardPage
 
         iceConfigPanel.setAutoDiscoverStun(isUseAutoDiscoverStun);
 
+        String useDefaultStun
+            = accountProperties.get(
+                ProtocolProviderFactory.USE_DEFAULT_STUN_SERVER);
+        boolean isUseDefaultStun = Boolean.parseBoolean(
+            (useDefaultStun != null &&
+                    useDefaultStun.length() != 0) ?
+                            useDefaultStun : "true");
+
+        iceConfigPanel.setUseDefaultStunServer(isUseDefaultStun);
+
         for (int i = 0; i < StunServerDescriptor.MAX_STUN_SERVER_COUNT; i ++)
         {
             StunServerDescriptor stunServer
@@ -362,6 +374,13 @@ public class FirstWizardPage
 
             iceConfigPanel.addJingleNodes(jn);
         }
+
+        String useUPNP =
+            accountProperties.get(ProtocolProviderFactory.IS_USE_UPNP);
+        boolean isUseUPNP = Boolean.parseBoolean(
+                (useUPNP != null && useUPNP.length() != 0) ? useUPNP : "false");
+
+        iceConfigPanel.setUseUPNP(isUseUPNP);
 
         this.isServerOverridden
             = accountID.getAccountPropertyBoolean(
