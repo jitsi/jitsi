@@ -23,7 +23,7 @@ else
     TARGET=../../../lib/native/$(OS)$(ARCH)/lib$(TARGET_BASENAME).so
   else ifeq "$(OS)" "windows"
     DXSDK_HOME?=/c/Users/lyubomir/Downloads/DXSDK_Jun10
-    ifeq "$ARCH" "-64"
+    ifeq "$(ARCH)" "-64"
       JAVA_HOME?=C:/PROGRA~1/jdk
       LIBS=-L$(DXSDK_HOME)/Lib/x64
     else
