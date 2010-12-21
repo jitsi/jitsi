@@ -111,27 +111,27 @@ public class PacketLoggingActivator
     /**
      * Is Packet Logging Service enabled.
      */
-    private static boolean globalLoggingEnabled = false;
+    private static boolean globalLoggingEnabled = true;
 
     /**
      * Is Packet Logging Service enabled for sip protocol.
      */
-    private static boolean sipLoggingEnabled = false;
+    private static boolean sipLoggingEnabled = true;
 
     /**
      * Is Packet Logging Service enabled for jabber protocol.
      */
-    private static boolean jabberLoggingEnabled = false;
+    private static boolean jabberLoggingEnabled = true;
 
     /**
      * Is Packet Logging Service enabled for rtp. 
      */
-    private static boolean rtpLoggingEnabled = false;
+    private static boolean rtpLoggingEnabled = true;
 
     /**
      * Is Packet Logging Service enabled for ice4j.
      */
-    private static boolean ice4jLoggingEnabled = false;
+    private static boolean ice4jLoggingEnabled = true;
 
     /**
      * Creates a PacketLoggingServiceImpl, starts it, and registers it as a
@@ -197,19 +197,24 @@ public class PacketLoggingActivator
     private void loadConfig()
     {
         globalLoggingEnabled = getConfigurationService().getBoolean(
-                PACKET_LOGGING_ENABLED_PROPERTY_NAME, false);
+                PACKET_LOGGING_ENABLED_PROPERTY_NAME,
+                globalLoggingEnabled);
 
         sipLoggingEnabled = getConfigurationService().getBoolean(
-                PACKET_LOGGING_SIP_ENABLED_PROPERTY_NAME, false);
+                PACKET_LOGGING_SIP_ENABLED_PROPERTY_NAME,
+                sipLoggingEnabled);
 
         jabberLoggingEnabled = getConfigurationService().getBoolean(
-                PACKET_LOGGING_JABBER_ENABLED_PROPERTY_NAME, false);
+                PACKET_LOGGING_JABBER_ENABLED_PROPERTY_NAME,
+                jabberLoggingEnabled);
 
         rtpLoggingEnabled = getConfigurationService().getBoolean(
-                PACKET_LOGGING_RTP_ENABLED_PROPERTY_NAME, false);
+                PACKET_LOGGING_RTP_ENABLED_PROPERTY_NAME,
+                rtpLoggingEnabled);
 
         ice4jLoggingEnabled = getConfigurationService().getBoolean(
-                PACKET_LOGGING_ICE4J_ENABLED_PROPERTY_NAME, false);
+                PACKET_LOGGING_ICE4J_ENABLED_PROPERTY_NAME,
+                ice4jLoggingEnabled);
     }
 
     /**
@@ -327,17 +332,12 @@ public class PacketLoggingActivator
      */
     static void setGlobalLoggingEnabled(boolean enabled)
     {
-        if(enabled)
-        {
-            getConfigurationService().setProperty(
-                PACKET_LOGGING_ENABLED_PROPERTY_NAME, Boolean.TRUE);
-        }
-        else
-        {
-            getConfigurationService().removeProperty(
-                PACKET_LOGGING_ENABLED_PROPERTY_NAME);
+        getConfigurationService().setProperty(
+                PACKET_LOGGING_ENABLED_PROPERTY_NAME, enabled);
 
-            // as we are globbally off, set it and to services
+        if(!enabled)
+        {
+            // as we are globally off, set it and to services
             sipLoggingEnabled = false;
             jabberLoggingEnabled = false;
             rtpLoggingEnabled = false;
@@ -354,16 +354,8 @@ public class PacketLoggingActivator
      */
     public static void setSipLoggingEnabled(boolean enabled)
     {
-        if(enabled)
-        {
-            getConfigurationService().setProperty(
-                PACKET_LOGGING_SIP_ENABLED_PROPERTY_NAME, Boolean.TRUE);
-        }
-        else
-        {
-            getConfigurationService().removeProperty(
-                PACKET_LOGGING_SIP_ENABLED_PROPERTY_NAME);
-        }
+        getConfigurationService().setProperty(
+                PACKET_LOGGING_SIP_ENABLED_PROPERTY_NAME, enabled);
 
         sipLoggingEnabled = enabled;
     }
@@ -375,16 +367,8 @@ public class PacketLoggingActivator
      */
     public static void setJabberLoggingEnabled(boolean enabled)
     {
-        if(enabled)
-        {
-            getConfigurationService().setProperty(
-                PACKET_LOGGING_JABBER_ENABLED_PROPERTY_NAME, Boolean.TRUE);
-        }
-        else
-        {
-            getConfigurationService().removeProperty(
-                PACKET_LOGGING_JABBER_ENABLED_PROPERTY_NAME);
-        }
+        getConfigurationService().setProperty(
+                PACKET_LOGGING_JABBER_ENABLED_PROPERTY_NAME, enabled);
 
         jabberLoggingEnabled = enabled;
     }
@@ -396,16 +380,8 @@ public class PacketLoggingActivator
      */
     public static void setRTPLoggingEnabled(boolean enabled)
     {
-        if(enabled)
-        {
-            getConfigurationService().setProperty(
-                PACKET_LOGGING_RTP_ENABLED_PROPERTY_NAME, Boolean.TRUE);
-        }
-        else
-        {
-            getConfigurationService().removeProperty(
-                PACKET_LOGGING_RTP_ENABLED_PROPERTY_NAME);
-        }
+        getConfigurationService().setProperty(
+                PACKET_LOGGING_RTP_ENABLED_PROPERTY_NAME, enabled);
 
         rtpLoggingEnabled = true;
     }
@@ -417,16 +393,8 @@ public class PacketLoggingActivator
      */
     public static void setIce4JLoggingEnabled(boolean enabled)
     {
-        if(enabled)
-        {
-            getConfigurationService().setProperty(
-                PACKET_LOGGING_ICE4J_ENABLED_PROPERTY_NAME, Boolean.TRUE);
-        }
-        else
-        {
-            getConfigurationService().removeProperty(
-                PACKET_LOGGING_ICE4J_ENABLED_PROPERTY_NAME);
-        }
+        getConfigurationService().setProperty(
+                PACKET_LOGGING_ICE4J_ENABLED_PROPERTY_NAME, enabled);
 
         ice4jLoggingEnabled = true;
     }
