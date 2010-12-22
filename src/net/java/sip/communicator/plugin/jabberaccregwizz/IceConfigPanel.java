@@ -1268,7 +1268,7 @@ public class IceConfigPanel
      */
     protected boolean isUseUPNP()
     {
-        return iceBox.isSelected();
+        return upnpBox.isSelected();
     }
 
     /**
