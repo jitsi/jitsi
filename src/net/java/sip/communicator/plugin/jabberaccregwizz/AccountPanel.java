@@ -208,6 +208,7 @@ public class AccountPanel
     void setUsername(String username)
     {
         userIDField.setText(username);
+        userIDField.setEnabled(false);
     }
 
     /**

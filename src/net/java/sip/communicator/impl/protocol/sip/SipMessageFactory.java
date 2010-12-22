@@ -1039,6 +1039,11 @@ public class SipMessageFactory
         String domain = protocolProvider.getAccountID().
             getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
 
+        // we used to take domain from toHeader, if there is no such
+        // account property back to previous behaviour
+        if(domain == null)
+            domain = ((SipURI) toHeader.getAddress().getURI()).getHost();
+
         //Request URI
         SipURI requestURI = protocolProvider.getAddressFactory()
                 .createSipURI(null, domain);

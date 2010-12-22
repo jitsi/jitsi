@@ -1019,7 +1019,7 @@ public class NetworkUtils
     private static Lookup createLookup(String domain, int type)
         throws TextParseException
     {
-        Lookup lookup = new Lookup(domain, Type.SRV);
+        Lookup lookup = new Lookup(domain, type);
 
         //initiate our global parallel resolver if this is our first ever
         //DNS query.

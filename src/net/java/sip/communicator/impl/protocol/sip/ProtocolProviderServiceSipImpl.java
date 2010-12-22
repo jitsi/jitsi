@@ -2027,8 +2027,6 @@ public class ProtocolProviderServiceSipImpl
             proxyAddress = proxySocketAddress.getAddress();
             proxyPort = proxySocketAddress.getPort();
 
-            proxyAddressStr = proxyAddress.getHostName();
-
             if (logger.isTraceEnabled())
                 logger.trace("Setting proxy address = " + proxyAddressStr);
 
@@ -2069,9 +2067,7 @@ public class ProtocolProviderServiceSipImpl
         }
 
         // Return if no proxy is specified or if the proxyAddress is null.
-        if(proxyAddressStr == null
-           || proxyAddressStr.length() == 0
-           || proxyAddress == null)
+        if(proxyAddress == null)
         {
             return;
         }
@@ -2692,17 +2688,22 @@ public class ProtocolProviderServiceSipImpl
                     for(String[] rec : naptrRecords)
                     {
                         resolveSRV(
-                                address,
+                                rec[2],
                                 rec[1],
                                 resultAddresses,
                                 resultTransports,
-                                preferIPv6Addresses);
+                                preferIPv6Addresses,
+                                true);
                     }
 
                     // NAPTR found use only it
                     if(logger.isInfoEnabled())
                         logger.info("Found NAPRT record and using it:"
                             + resultAddresses);
+
+                    // return only if found something
+                    if(resultAddresses.size() > 0
+                        && resultTransports.size() > 0)
                     return;
                 }
             }
@@ -2720,7 +2721,8 @@ public class ProtocolProviderServiceSipImpl
                 transport,
                 resultAddresses,
                 resultTransports,
-                preferIPv6Addresses);
+                preferIPv6Addresses,
+                false);
         }
         catch (ParseException e)
         {
@@ -2871,17 +2873,25 @@ public class ProtocolProviderServiceSipImpl
      * @param resultAddresses the result address after resolve.
      * @param resultTransports and the addresses transports.
      * @param preferIPv6Addresses is ipv6 addresses are preferred over ipv4.
+     * @param srvQueryString is the supplied address is of type
+     *  _sip(s)._protocol.address, a string ready for srv queries, used
+     * when we have a NAPTR returned records with value <tt>true</tt>.
      * @throws ParseException exception when parsing dns address
      */
     private void resolveSRV(String address,
                             String transport,
                             List<InetSocketAddress> resultAddresses,
                             List<String> resultTransports,
-                            boolean preferIPv6Addresses)
+                            boolean preferIPv6Addresses,
+                            boolean srvQueryString)
             throws  ParseException
     {
-        InetSocketAddress[] socketAddresses =
-            NetworkUtils.getSRVRecords(
+        InetSocketAddress[] socketAddresses;
+
+            if(srvQueryString)
+                socketAddresses = NetworkUtils.getSRVRecords(address);
+            else
+                socketAddresses = NetworkUtils.getSRVRecords(
                     transport.equalsIgnoreCase(ListeningPoint.TLS)
                             ? "sips" : "sip",
                     transport.equalsIgnoreCase(ListeningPoint.UDP)

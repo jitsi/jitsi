@@ -163,7 +163,8 @@ public class SipRegistrarConnection
         this.sipProvider = sipProviderCallback;
         this.currentRegistrarAddress = registrarAddresses[0];
         registrarURI = sipProvider.getAddressFactory().createSipURI(
-                null, this.currentRegistrarAddress.getHostName());
+                null,
+                this.currentRegistrarAddress.getAddress().getHostAddress());
 
         if(this.currentRegistrarAddress.getPort() != ListeningPoint.PORT_5060)
             registrarURI.setPort(this.currentRegistrarAddress.getPort());
@@ -313,9 +314,11 @@ public class SipRegistrarConnection
             try
             {
                 registrarURI = sipProvider.getAddressFactory().createSipURI(
-                    null, this.currentRegistrarAddress.getHostName());
+                        null,
+                        this.currentRegistrarAddress.getAddress().getHostAddress());
 
-                if(this.currentRegistrarAddress.getPort() != ListeningPoint.PORT_5060)
+                if(this.currentRegistrarAddress.getPort()
+                        != ListeningPoint.PORT_5060)
                     registrarURI.setPort(this.currentRegistrarAddress.getPort());
 
                 // as the transport may change NAPTR records provides
@@ -867,6 +870,11 @@ public class SipRegistrarConnection
                     clientTransaction, response, sourceProvider);
             processed = true;
         }
+        else if (response.getStatusCode() == Response.INTERVAL_TOO_BRIEF)
+        {
+            processIntervalTooBrief(response);
+            processed = true;
+        }
         else if ( response.getStatusCode() >= 400 )
         {
             logger.error("Received an error response.");
@@ -1031,6 +1039,56 @@ public class SipRegistrarConnection
             + exceptionEvent.getPort() + "/"
             + exceptionEvent.getTransport());
         return true;
+    }
+
+    /**
+     * Process error 423 Interval Too Brief. If there is minimum interval
+     * specified use it. Check the specified interval is greater than the one
+     * we used in our register.
+     * @param response the response containing the min expires header.
+     */
+    private void processIntervalTooBrief(Response response)
+    {
+        // interval is too brief, if we have specified correct interval
+        // in the response use it and re-register
+        MinExpiresHeader header =
+                (MinExpiresHeader)response.getHeader(MinExpiresHeader.NAME);
+
+        if(header != null)
+        {
+            int expires = header.getExpires();
+            if(expires > registrationsExpiration)
+            {
+                registrationsExpiration = expires;
+
+                try
+                {
+                    register();
+
+                    return;
+                }
+                catch (Throwable e)
+                {
+                    logger.error("Cannot send register!", e);
+
+                    setRegistrationState(
+                        RegistrationState.CONNECTION_FAILED,
+                        RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                            "A timeout occurred while trying to " +
+                                "connect to the server.");
+
+                    return;
+                }
+            }
+        }
+
+        //tell the others we couldn't register
+        this.setRegistrationState(
+            RegistrationState.CONNECTION_FAILED
+            , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+            , "Received an error while trying to register. "
+            + "Server returned error:" + response.getReasonPhrase()
+        );
     }
 
     /**
