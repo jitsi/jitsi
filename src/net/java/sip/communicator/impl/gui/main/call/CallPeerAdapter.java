@@ -66,7 +66,7 @@ public class CallPeerAdapter
         CallPeerState newState = (CallPeerState) evt.getNewValue();
         CallPeerState oldState = (CallPeerState) evt.getOldValue();
 
-        String newStateString = sourcePeer.getState().getStateString();
+        String newStateString = sourcePeer.getState().getLocalizedStateString();
 
         // Play the dialing audio when in connecting and initiating call state.
         // Stop the dialing audio when we enter any other state.
@@ -97,8 +97,10 @@ public class CallPeerAdapter
 
             // We start the busy sound only if we're in a simple call.
             if (!renderer.getCallDialog().isConference())
+            {
                 NotificationManager.fireNotification(
                     NotificationManager.BUSY_CALL);
+            }
         }
         else if (newState == CallPeerState.CONNECTING_INCOMING_CALL ||
             newState == CallPeerState.CONNECTING_INCOMING_CALL_WITH_MEDIA)

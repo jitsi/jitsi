@@ -330,7 +330,7 @@ public class OneToOneCallPeerPanel
         // stateLabel
         callStatusLabel.setForeground(Color.WHITE);
         dtmfLabel.setForeground(Color.WHITE);
-        callStatusLabel.setText(callPeer.getState().getStateString());
+        callStatusLabel.setText(callPeer.getState().getLocalizedStateString());
 
         PeerStatusPanel statusPanel = new PeerStatusPanel(new GridBagLayout());
 
