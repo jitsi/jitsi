@@ -457,6 +457,8 @@ public class CallPeerJabberImpl
 
         try
         {
+            mediaHandler.getTransportManager().
+                wrapupConnectivityEstablishment();
             mediaHandler.processAnswer(answer);
         }
         catch(Exception exc)
