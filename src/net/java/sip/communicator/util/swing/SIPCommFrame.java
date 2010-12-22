@@ -26,7 +26,7 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  * @author Adam Netocny
  */
-public abstract class SIPCommFrame
+public class SIPCommFrame
     extends JFrame
     implements Observer
 {
@@ -731,5 +731,8 @@ public abstract class SIPCommFrame
      * @param isEscaped indicates if this frame has been closed by pressing the
      * Esc key
      */
-    protected abstract void close(boolean isEscaped);
+    protected void close(boolean isEscaped)
+    {
+        
+    }
 }

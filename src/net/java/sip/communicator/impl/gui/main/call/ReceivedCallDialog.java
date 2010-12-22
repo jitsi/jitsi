@@ -12,6 +12,8 @@ import java.util.*;
 
 import javax.swing.*;
 
+import com.explodingpixels.macwidgets.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -27,17 +29,28 @@ import net.java.sip.communicator.util.swing.*;
  * @author Adam Netocny
  */
 public class ReceivedCallDialog
-    extends SIPCommFrame
     implements  ActionListener,
                 CallListener,
                 Skinnable
 {
+    /**
+     * The call button name.
+     */
     private static final String CALL_BUTTON = "CallButton";
 
+    /**
+     * The hangup button name.
+     */
     private static final String HANGUP_BUTTON = "HangupButton";
 
+    /**
+     * The horizontal gap between buttons.
+     */
     private static final int HGAP = 5;
 
+    /**
+     * The incoming call to render.
+     */
     private final Call incomingCall;
 
     /**
@@ -56,6 +69,11 @@ public class ReceivedCallDialog
     private JLabel callLabel;
 
     /**
+     * The window handling received calls.
+     */
+    private Window receivedCallWindow;
+
+    /**
      * Creates a <tt>ReceivedCallDialog</tt> by specifying the associated call.
      *
      * @param call The associated with this dialog incoming call.
@@ -64,13 +82,7 @@ public class ReceivedCallDialog
     {
         this.incomingCall = call;
 
-        this.setUndecorated(true);
-        this.setAlwaysOnTop(true);
-
-        // prevents dialog window to get unwanted key events and when going on top
-        // on linux, it steals focus and if we are accedently
-        // writing something and pressing enter a call get answered
-        this.setFocusableWindowState(false);
+        receivedCallWindow = createWindow();
 
         this.initComponents();
 
@@ -82,12 +94,93 @@ public class ReceivedCallDialog
     }
 
     /**
+     * Packs the content of this dialog.
+     */
+    public void pack()
+    {
+        receivedCallWindow.pack();
+    }
+
+    /**
+     * Shows/hides this dialog.
+     *
+     * @param isVisible indicates if this dialog should be shown or hidden
+     */
+    public void setVisible(boolean isVisible)
+    {
+        if (isVisible)
+            receivedCallWindow.setLocationRelativeTo(null);
+
+        receivedCallWindow.setVisible(isVisible);
+    }
+
+    /**
+     * Indicates if this dialog is currently visible.
+     *
+     * @return <tt>true</tt> if this dialog is currently visible, <tt>false</tt>
+     * otherwise
+     */
+    public boolean isVisible()
+    {
+        return receivedCallWindow.isVisible();
+    }
+
+    /**
+     * Creates this received call window.
+     *
+     * @return the created window
+     */
+    private Window createWindow()
+    {
+        Window receivedCallWindow = null;
+
+        if (OSUtils.IS_MAC)
+        {
+            HudWindow window = new HudWindow();
+            window.hideCloseButton();
+
+            JDialog dialog = window.getJDialog();
+            dialog.setUndecorated(true);
+            dialog.setTitle(
+                GuiActivator.getResources()
+                    .getSettingsString("service.gui.APPLICATION_NAME")
+                + " "
+                + GuiActivator.getResources()
+                    .getI18NString("service.gui.INCOMING_CALL_STATUS")
+                        .toLowerCase());
+
+            receivedCallWindow = window.getJDialog();
+
+            callLabel = HudWidgetFactory.createHudLabel("");
+        }
+        else
+        {
+            SIPCommFrame frame = new SIPCommFrame(false);
+
+            frame.setUndecorated(true);
+
+            receivedCallWindow = frame;
+
+            callLabel = new JLabel();
+        }
+
+        receivedCallWindow.setAlwaysOnTop(true);
+
+        // prevents dialog window to get unwanted key events and when going
+        // on top on linux, it steals focus and if we are accedently
+        // writing something and pressing enter a call get answered
+        receivedCallWindow.setFocusableWindowState(false);
+
+        return receivedCallWindow;
+    }
+
+    /**
      * Initializes all components in this panel.
      */
     private void initComponents()
     {
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        callLabel = new JLabel();
+
         // disable html rendering
         callLabel.putClientProperty("html.disable", Boolean.TRUE);
 
@@ -111,7 +204,7 @@ public class ReceivedCallDialog
 
         this.initCallLabel(callLabel);
 
-        this.getContentPane().add(mainPanel);
+        receivedCallWindow.add(mainPanel);
 
         GridBagConstraints mainConstraints = new GridBagConstraints();
         mainConstraints.anchor = GridBagConstraints.WEST;
@@ -151,7 +244,7 @@ public class ReceivedCallDialog
         String text = "";
 
         ImageIcon imageIcon =
-            ImageUtils.getScaledRoundedIcon(ImageLoader
+            ImageUtils.scaleIconWithinBounds(ImageLoader
                 .getImage(ImageLoader.DEFAULT_USER_PHOTO), 40, 45);
 
         while (peersIter.hasNext())
@@ -211,7 +304,7 @@ public class ReceivedCallDialog
             CallManager.hangupCall(incomingCall);
         }
 
-        this.dispose();
+        receivedCallWindow.dispose();
     }
 
     /**
@@ -224,7 +317,7 @@ public class ReceivedCallDialog
 
         if (sourceCall.equals(incomingCall))
         {
-            this.dispose();
+            receivedCallWindow.dispose();
         }
     }
 
