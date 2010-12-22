@@ -199,6 +199,22 @@ public class JabberAccountRegistrationWizard
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
     {
+        // if firstWizardPage is null we are requested sign-in from
+        // initial account registration form we must init
+        // firstWizardPage in order to init default values
+        if(firstWizardPage == null)
+        {
+            firstWizardPage = new FirstWizardPage(this);
+            AccountPanel accPanel =
+                    (AccountPanel)firstWizardPage.getSimpleForm();
+            accPanel.setUsername(userName);
+            accPanel.setPassword(password);
+            accPanel.setRememberPassword(true);
+        }
+
+        if(!firstWizardPage.isCommitted())
+            firstWizardPage.commitPage();
+
         ProtocolProviderFactory factory
             = JabberAccRegWizzActivator.getJabberProtocolProviderFactory();
 
