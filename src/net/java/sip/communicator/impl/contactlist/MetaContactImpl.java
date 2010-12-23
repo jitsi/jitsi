@@ -710,6 +710,22 @@ public class MetaContactImpl
 
             if (parentGroup != null)
                 parentGroup.lightAddMetaContact(this);
+
+            ProtocolProviderService contactProvider
+                = contact.getProtocolProvider();
+
+            // Check if the capabilities operation set is available for this
+            // contact and add a listener to it in order to track capabilities'
+            // changes for all contained protocol contacts.
+            OperationSetContactCapabilities capOpSet
+                = contactProvider
+                    .getOperationSet(OperationSetContactCapabilities.class);
+
+            if (capOpSet != null)
+            {
+                addCapabilities(contact,
+                    capOpSet.getSupportedOperationSets(contact));
+            }
         }
     }
 
@@ -787,6 +803,22 @@ public class MetaContactImpl
 
             if (parentGroup != null)
                 parentGroup.lightAddMetaContact(this);
+
+            ProtocolProviderService contactProvider
+                = contact.getProtocolProvider();
+
+            // Check if the capabilities operation set is available for this
+            // contact and add a listener to it in order to track capabilities'
+            // changes for all contained protocol contacts.
+            OperationSetContactCapabilities capOpSet
+                = contactProvider
+                    .getOperationSet(OperationSetContactCapabilities.class);
+
+            if (capOpSet != null)
+            {
+                removeCapabilities(contact,
+                    capOpSet.getSupportedOperationSets(contact));
+            }
         }
     }
 
@@ -1281,29 +1313,6 @@ public class MetaContactImpl
         }
         else
             data[index + 1] = value;
-    }
-
-    /**
-     * Loads the capabilities of this <tt>MetaContact</tt>.
-     *
-     * @param protocolProvider the <tt>ProtocolProviderService</tt>, for which
-     * we're loading the capabilities
-     * @param capOpSet the <tt>OperationSetContactCapabilities</tt>
-     * through which we obtain the capability information
-     */
-    public void loadCapabilities(
-                            ProtocolProviderService protocolProvider,
-                            OperationSetContactCapabilities capOpSet)
-    {
-        Iterator<Contact> contactIter = getContactsForProvider(protocolProvider);
-
-        while (contactIter.hasNext())
-        {
-            Contact contact = contactIter.next();
-
-            addCapabilities(contact,
-                            capOpSet.getSupportedOperationSets(contact));
-        }
     }
 
     /**

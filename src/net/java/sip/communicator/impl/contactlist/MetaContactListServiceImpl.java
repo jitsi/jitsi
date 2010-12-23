@@ -1543,51 +1543,6 @@ public class MetaContactListServiceImpl
     }
 
     /**
-     * Goes through the <tt>MetaContact</tt>s in the given <tt>group</tt> and
-     * loads contact capabilities for contained protocol contacts through the
-     * given capabilities operation set.
-     */
-    private class LoadCapabilitiesThread extends Thread
-    {
-        private ProtocolProviderService protocolProvider;
-
-        private OperationSetContactCapabilities capabilitiesOpSet;
-
-        public LoadCapabilitiesThread(
-            ProtocolProviderService protocolProvider,
-            OperationSetContactCapabilities capabilitiesOpSet)
-        {
-            this.protocolProvider = protocolProvider;
-            this.capabilitiesOpSet = capabilitiesOpSet;
-        }
-
-        public void run()
-        {
-            loadCapabilities(rootMetaGroup);
-        }
-
-        private void loadCapabilities(MetaContactGroup group)
-        {
-            Iterator<MetaContact> metaContactIter = group.getChildContacts();
-
-            while (metaContactIter.hasNext())
-            {
-                MetaContact metaContact = metaContactIter.next();
-
-                ((MetaContactImpl) metaContact)
-                    .loadCapabilities(protocolProvider, capabilitiesOpSet);
-            }
-
-            Iterator<MetaContactGroup> subGroupIter = group.getSubgroups();
-
-            while (subGroupIter.hasNext())
-            {
-                loadCapabilities(subGroupIter.next());
-            }
-        }
-    }
-
-    /**
      * Creates meta contacts and meta contact groups for all children of the
      * specified <tt>contactGroup</tt> and adds them to <tt>metaGroup</tt>
      * @param protoGroup the <tt>ContactGroup</tt> to add.
@@ -1735,7 +1690,6 @@ public class MetaContactListServiceImpl
 
         if (capOpSet != null)
         {
-            new LoadCapabilitiesThread(provider, capOpSet).start();
             capOpSet.addContactCapabilitiesListener(this);
         }
     }
