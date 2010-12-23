@@ -6,9 +6,11 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.swing.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -22,8 +24,23 @@ import java.awt.event.*;
  * @author Yana Stamcheva
  */
 public abstract class AbstractVolumeControlButton
-    extends AbstractCallToggleButton
+    extends SIPCommButton
 {
+    /**
+     * The background image.
+     */
+    protected ImageID bgImage;
+
+    /**
+     * The pressed image.
+     */
+    protected ImageID pressedImage;
+
+    /**
+     * The icon image.
+     */
+    protected ImageID iconImageID;
+
     /**
      * The multiplier would just convert the float volume value coming from
      * the service to the int value needed for the volume control slider
@@ -33,21 +50,47 @@ public abstract class AbstractVolumeControlButton
 
     /**
      * Creates an instance of <tt>VolumeControlButton</tt>.
+     * @param inSettingsPanel <tt>true</tt> when the button is used in a menu,
+     * to use different background.
      */
     public AbstractVolumeControlButton(
-            Call call,
             final boolean fullScreen,
-            boolean selected,
+            boolean inSettingsPanel,
             ImageID iconImageID,
             String toolTipTextKey)
     {
-        super(call, fullScreen, selected, iconImageID, toolTipTextKey);
+        super(ImageLoader.getImage(ImageLoader.VOLUME_BUTTON_PRESSED),
+                ImageLoader.getImage(iconImageID));
 
-        // we don't want new thread when button is pressed
-        setSpawnActionInNewThread(false);
+        this.iconImageID = iconImageID;
+
+        if (fullScreen)
+        {
+            bgImage = ImageLoader.FULL_SCREEN_BUTTON_BG;
+            pressedImage = ImageLoader.FULL_SCREEN_BUTTON_BG_PRESSED;
+        }
+        else
+        {
+            if(inSettingsPanel)
+            {
+                bgImage = ImageLoader.CALL_SETTING_BUTTON_BG;
+                pressedImage = ImageLoader.CALL_SETTING_BUTTON_PRESSED_BG;
+            }
+            else
+            {
+                bgImage = ImageLoader.VOLUME_BUTTON;
+                pressedImage = ImageLoader.VOLUME_BUTTON_PRESSED;
+            }
+        }
 
         // Loads the skin of this button.
         loadSkin();
+
+        if (toolTipTextKey != null)
+        {
+            setToolTipText(
+                GuiActivator.getResources().getI18NString(toolTipTextKey));
+        }
 
         final JSlider volumeSlider
             = new JSlider(JSlider.VERTICAL, 0, 100, 50);
@@ -115,12 +158,13 @@ public abstract class AbstractVolumeControlButton
     }
 
     /**
-     *
+     * Loads images.
      */
-    public void buttonPressed()
+    public void loadSkin()
     {
-        // just a # bypass the toggle functionality as we don't use it
-        setSelected(!isSelected());
+        setBackgroundImage(ImageLoader.getImage(bgImage));
+        setPressedImage(ImageLoader.getImage(pressedImage));
+        setIconImage(ImageLoader.getImage(iconImageID));
     }
 
     /**

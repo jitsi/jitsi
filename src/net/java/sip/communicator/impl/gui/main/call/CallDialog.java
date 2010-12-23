@@ -103,11 +103,6 @@ public class CallDialog
     private HoldButton holdButton;
 
     /**
-     * The mute button.
-     */
-    private MuteButton muteButton;
-
-    /**
      * The button which allows starting and stopping the recording of the
      * {@link #call}.
      */
@@ -132,11 +127,6 @@ public class CallDialog
      * The full screen button.
      */
     private FullScreenButton fullScreenButton;
-
-    /**
-     * The volume control button.
-     */
-    private VolumeControlButton volumeControlButton;
 
     /**
      * The dial button, which opens a keypad dialog.
@@ -181,6 +171,16 @@ public class CallDialog
      * A timer to count call duration.
      */
     private Timer callDurationTimer;
+
+    /**
+     * Sound local level label.
+     */
+    private AbstractVolumeControlButton localLevel;
+
+    /**
+     * Sound remote level label.
+     */
+    private AbstractVolumeControlButton remoteLevel;
 
     /**
      * Creates a <tt>CallDialog</tt> by specifying the underlying call panel.
@@ -247,13 +247,18 @@ public class CallDialog
             ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
 
         holdButton = new HoldButton(call);
-        muteButton = new MuteButton(call);
         recordButton = new RecordButton(call);
         videoButton = new LocalVideoButton(call);
         desktopSharingButton = new DesktopSharingButton(call);
         transferCallButton = new TransferCallButton(call);
         fullScreenButton = new FullScreenButton(this);
-        volumeControlButton = new VolumeControlButton();
+
+        localLevel = new InputVolumeControlButton(
+                call,
+                ImageLoader.MUTE_BUTTON,
+                false, true, false);
+        remoteLevel = new OutputVolumeControlButton(
+                ImageLoader.VOLUME_CONTROL_BUTTON, false, true);
 
         dialButton.setName(DIAL_BUTTON);
         dialButton.setToolTipText(
@@ -278,15 +283,11 @@ public class CallDialog
         dialButton.setEnabled(false);
         conferenceButton.setEnabled(false);
         holdButton.setEnabled(false);
-        muteButton.setEnabled(false);
         recordButton.setEnabled(false);
-        volumeControlButton.setEnabled(false);
 
         settingsPanel.add(dialButton);
         settingsPanel.add(conferenceButton);
         settingsPanel.add(holdButton);
-        settingsPanel.add(muteButton);
-        settingsPanel.add(volumeControlButton);
         settingsPanel.add(recordButton);
 
         if (!isLastConference)
@@ -300,8 +301,6 @@ public class CallDialog
 
             addOneToOneSpecificComponents();
         }
-
-        settingsPanel.add(volumeControlButton);
 
         dtmfHandler = new DTMFHandler(this);
 
@@ -442,34 +441,6 @@ public class CallDialog
     }
 
     /**
-     * Updates the state of the general mute button. The mute buttons is
-     * selected only if all call peers are muted at the same time. In all other
-     * cases the mute button is unselected.
-     */
-    public void updateMuteButtonState()
-    {
-        // Check if all the call peers are muted and change the state of
-        // the button.
-        Iterator<? extends CallPeer> callPeers = call.getCallPeers();
-
-        boolean isAllMute = true;
-        while(callPeers.hasNext())
-        {
-            CallPeer callPeer = callPeers.next();
-            if (!callPeer.isMute())
-            {
-                isAllMute = false;
-                break;
-            }
-        }
-
-        // If we have clicked the mute button in a full screen mode or selected
-        // mute of the peer menu in a conference call we need to update the
-        // state of the call dialog hold button.
-        muteButton.setSelected(isAllMute);
-    }
-
-    /**
      * Selects or unselects the video button in this call dialog.
      *
      * @param isSelected indicates if the video button should be selected or not
@@ -576,9 +547,7 @@ public class CallDialog
         dialButton.setEnabled(true);
         conferenceButton.setEnabled(true);
         holdButton.setEnabled(true);
-        muteButton.setEnabled(true);
         recordButton.setEnabled(true);
-        volumeControlButton.setEnabled(true);
 
         if (!isLastConference)
         {
@@ -989,6 +958,9 @@ public class CallDialog
         settingsPanel.remove(desktopSharingButton);
         settingsPanel.remove(transferCallButton);
         settingsPanel.remove(fullScreenButton);
+
+        //settingsPanel.add(localLevel);
+        //settingsPanel.add(remoteLevel);
     }
 
     /**
@@ -1000,6 +972,9 @@ public class CallDialog
         settingsPanel.add(desktopSharingButton);
         settingsPanel.add(transferCallButton);
         settingsPanel.add(fullScreenButton);
+
+        //settingsPanel.remove(localLevel);
+        //settingsPanel.remove(remoteLevel);
     }
 
     /**

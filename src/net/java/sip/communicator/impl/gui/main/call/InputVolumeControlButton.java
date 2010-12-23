@@ -11,6 +11,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  * Represents an UI means to mute the audio stream sent in an associated
@@ -19,12 +20,18 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Lubomir Marinov
  * @author Yana Stamcheva
  * @author Dmitri Melnikov
+ * @author Damian Minkov
  */
-public class MuteButton
+public class InputVolumeControlButton
     extends AbstractVolumeControlButton
     implements VolumeChangeListener,
                Runnable
 {
+    /**
+     * The <tt>Call</tt> that this button controls.
+     */
+    private final Call call;
+
     /**
      * Mutes the call in other thread.
      */
@@ -47,7 +54,7 @@ public class MuteButton
      * @param call the <tt>Call</tt> to be associated with the new instance and
      * to have the audio stream sent to muted
      */
-    public MuteButton(Call call)
+    public InputVolumeControlButton(Call call)
     {
         this(call, false, false);
     }
@@ -63,10 +70,36 @@ public class MuteButton
      * @param selected <tt>true</tt> if the new toggle button is to be initially
      * selected; otherwise, <tt>false</tt>
      */
-    public MuteButton(Call call, boolean fullScreen, boolean selected)
+    public InputVolumeControlButton(Call call,
+                                    boolean fullScreen,
+                                    boolean selected)
     {
-        super(call, fullScreen, selected, ImageLoader.MUTE_BUTTON,
+        this(call, ImageLoader.MUTE_BUTTON, true, fullScreen, selected);
+    }
+
+    /**
+     * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
+     * stream to a specific <tt>Call</tt>.
+     *
+     * @param call  the <tt>Call</tt> to be associated with the new instance and
+     * whose audio stream is to be muted upon performing its action
+     * @param fullScreen <tt>true</tt> if the new instance is to be used in
+     * full-screen UI; otherwise, <tt>false</tt>
+     * @param selected <tt>true</tt> if the new toggle button is to be initially
+     * selected; otherwise, <tt>false</tt>
+     * @param inSettingsPanel <tt>true</tt> when the button is used in a menu,
+     * to use different background.
+     */
+    public InputVolumeControlButton(Call call,
+                                    ImageID iconImageID,
+                                    boolean fullScreen,
+                                    boolean inSettingsPanel,
+                                    boolean selected)
+    {
+        super(fullScreen, inSettingsPanel, iconImageID,
                 "service.gui.MUTE_BUTTON_TOOL_TIP");
+
+        this.call = call;
 
         this.mute = selected;
     }

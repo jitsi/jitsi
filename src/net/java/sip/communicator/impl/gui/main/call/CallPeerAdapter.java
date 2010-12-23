@@ -207,9 +207,6 @@ public class CallPeerAdapter
             boolean isMute = (Boolean) evt.getNewValue();
 
             renderer.setMute(isMute);
-
-            // Update the state of the mute button.
-            renderer.getCallDialog().updateMuteButtonState();
         }
     }
 

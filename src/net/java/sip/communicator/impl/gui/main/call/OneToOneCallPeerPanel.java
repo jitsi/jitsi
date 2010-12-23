@@ -168,12 +168,12 @@ public class OneToOneCallPeerPanel
     /**
      * Sound local level label.
      */
-    private JLabel localLevelLabel;
+    private AbstractVolumeControlButton localLevel;
 
     /**
      * Sound remote level label.
      */
-    private JLabel remoteLevelLabel;
+    private AbstractVolumeControlButton remoteLevel;
 
     /**
      * The center component.
@@ -366,12 +366,13 @@ public class OneToOneCallPeerPanel
         TransparentPanel remoteLevelPanel
             = new TransparentPanel(new BorderLayout(5, 0));
 
-        localLevelLabel
-            = new JLabel(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.MICROPHONE)));
-        remoteLevelLabel
-            = new JLabel(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.HEADPHONE)));
+        localLevel = new InputVolumeControlButton(
+                callPeer.getCall(),
+                ImageLoader.MICROPHONE,
+                false, false, false);
+
+        remoteLevel = new OutputVolumeControlButton(
+                ImageLoader.HEADPHONE, false, false);
 
         final SoundLevelIndicator localLevelIndicator
             = new SoundLevelIndicator(  SoundLevelChangeEvent.MIN_LEVEL,
@@ -381,9 +382,9 @@ public class OneToOneCallPeerPanel
             = new SoundLevelIndicator(  SoundLevelChangeEvent.MIN_LEVEL,
                                         SoundLevelChangeEvent.MAX_LEVEL);
 
-        localLevelPanel.add(localLevelLabel, BorderLayout.WEST);
+        localLevelPanel.add(localLevel, BorderLayout.WEST);
         localLevelPanel.add(localLevelIndicator, BorderLayout.CENTER);
-        remoteLevelPanel.add(remoteLevelLabel, BorderLayout.WEST);
+        remoteLevelPanel.add(remoteLevel, BorderLayout.WEST);
         remoteLevelPanel.add(remoteLevelIndicator, BorderLayout.CENTER);
 
         GridBagConstraints constraints = new GridBagConstraints();
@@ -1455,12 +1456,12 @@ public class OneToOneCallPeerPanel
      */
     public void loadSkin()
     {
-        if(localLevelLabel != null)
-            localLevelLabel.setIcon(new ImageIcon(
+        if(localLevel != null)
+            localLevel.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.MICROPHONE)));
 
-        if(remoteLevelLabel != null)
-            remoteLevelLabel.setIcon(new ImageIcon(
+        if(remoteLevel != null)
+            remoteLevel.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.HEADPHONE)));
 
         if(muteStatusLabel.getIcon() != null)

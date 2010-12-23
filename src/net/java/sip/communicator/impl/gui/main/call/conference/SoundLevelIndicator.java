@@ -76,7 +76,7 @@ public class SoundLevelIndicator
 
         loadSkin();
 
-        this.setLayout(new FlowLayout(FlowLayout.LEFT, 1, 0));
+        this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
         this.initSoundBars();
 
@@ -110,6 +110,7 @@ public class SoundLevelIndicator
         for (int i = 0; i < soundBarNumber; i++)
         {
             JLabel block = new JLabel(soundLevelInactiveImage);
+            block.setVerticalAlignment(JLabel.CENTER);
 
             this.add(block);
         }

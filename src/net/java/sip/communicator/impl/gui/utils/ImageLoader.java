@@ -1286,6 +1286,12 @@ public class ImageLoader
     public static final ImageID HEADPHONE
         = new ImageID("service.gui.soundlevel.HEADPHONE");
 
+    public static final ImageID VOLUME_BUTTON
+        = new ImageID("service.gui.soundlevel.VOLUME_BUTTON");
+
+    public static final ImageID VOLUME_BUTTON_PRESSED
+        = new ImageID("service.gui.soundlevel.VOLUME_BUTTON_PRESSED");
+
     /**
      * Loads an image from a given image identifier.
      *
