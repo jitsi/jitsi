@@ -35,17 +35,6 @@ public class CallHistoryContactSource implements ContactSourceService
     }
 
     /**
-     * Returns the identifier of this contact source. Some of the common
-     * identifiers are defined here (For example the CALL_HISTORY identifier
-     * should be returned by all call history implementations of this interface)
-     * @return the identifier of this contact source
-     */
-    public String getIdentifier()
-    {
-        return CALL_HISTORY;
-    }
-
-    /**
      * Queries this contact source for the given <tt>searchString</tt>.
      * @param queryString the string to search for
      * @return the created query
@@ -67,8 +56,14 @@ public class CallHistoryContactSource implements ContactSourceService
      * query to the contact source.
      */
     private class CallHistoryContactQuery
-        extends AbstractContactQuery<CallHistoryContactSource>
+        implements ContactQuery
     {
+        /**
+         * A list of all registered query listeners.
+         */
+        private final List<ContactQueryListener> queryListeners
+            = new LinkedList<ContactQueryListener>();
+
         /**
          * A list of all source contact results.
          */
@@ -82,6 +77,12 @@ public class CallHistoryContactSource implements ContactSourceService
         private CallHistoryQuery callHistoryQuery;
 
         /**
+         * Indicates the status of this query. When created this query is in
+         * progress.
+         */
+        private int status = QUERY_IN_PROGRESS;
+
+        /**
          * Creates an instance of <tt>CallHistoryContactQuery</tt> by specifying
          * the list of call records results.
          * @param callRecords the list of call records, which are the result
@@ -89,11 +90,9 @@ public class CallHistoryContactSource implements ContactSourceService
          */
         public CallHistoryContactQuery(Collection<CallRecord> callRecords)
         {
-            super(CallHistoryContactSource.this);
-
             Iterator<CallRecord> recordsIter = callRecords.iterator();
 
-            while (recordsIter.hasNext() && getStatus() != QUERY_CANCELED)
+            while (recordsIter.hasNext() && status != QUERY_CANCELED)
             {
                 sourceContacts.add(
                     new CallHistorySourceContact(
@@ -101,8 +100,8 @@ public class CallHistoryContactSource implements ContactSourceService
                         recordsIter.next()));
             }
 
-            if (getStatus() != QUERY_CANCELED)
-                setStatus(QUERY_COMPLETED);
+            if (status != QUERY_CANCELED)
+                status = QUERY_COMPLETED;
         }
 
         /**
@@ -112,8 +111,6 @@ public class CallHistoryContactSource implements ContactSourceService
          */
         public CallHistoryContactQuery(CallHistoryQuery callHistoryQuery)
         {
-            super(CallHistoryContactSource.this);
-
             this.callHistoryQuery = callHistoryQuery;
 
             callHistoryQuery.addQueryListener(new CallHistoryQueryListener()
@@ -124,27 +121,63 @@ public class CallHistoryContactSource implements ContactSourceService
                                                 CallHistoryContactSource.this,
                                                 event.getCallRecord());
                     sourceContacts.add(contact);
-                    fireContactReceived(contact);
+                    fireQueryEvent(contact);
                 }
 
                 public void queryStatusChanged(
                     CallHistoryQueryStatusEvent event)
                 {
-                    setStatus(event.getEventType());
+                    status = event.getEventType();
+                    fireQueryStatusEvent(status);
                 }
             });
         }
 
         /**
+         * Adds the given <tt>ContactQueryListener</tt> to the list of query
+         * listeners.
+         * @param l the <tt>ContactQueryListener</tt> to add
+         */
+        public void addContactQueryListener(ContactQueryListener l)
+        {
+            synchronized (queryListeners)
+            {
+                queryListeners.add(l);
+            }
+        }
+
+        /**
          * This query could not be canceled.
          */
-        @Override
         public void cancel()
         {
-            super.cancel();
+            status = QUERY_CANCELED;
 
             if (callHistoryQuery != null)
                 callHistoryQuery.cancel();
+        }
+
+        /**
+         * Returns the status of this query. One of the static constants defined
+         * in this class.
+         * @return the status of this query
+         */
+        public int getStatus()
+        {
+            return status;
+        }
+
+        /**
+         * Removes the given <tt>ContactQueryListener</tt> from the list of
+         * query listeners.
+         * @param l the <tt>ContactQueryListener</tt> to remove
+         */
+        public void removeContactQueryListener(ContactQueryListener l)
+        {
+            synchronized (queryListeners)
+            {
+                queryListeners.remove(l);
+            }
         }
 
         /**
@@ -155,5 +188,68 @@ public class CallHistoryContactSource implements ContactSourceService
         {
             return sourceContacts;
         }
+
+        /**
+         * Returns the <tt>ContactSourceService</tt>, where this query was first
+         * initiated.
+         * @return the <tt>ContactSourceService</tt>, where this query was first
+         * initiated
+         */
+        public ContactSourceService getContactSource()
+        {
+            return CallHistoryContactSource.this;
+        }
+
+        /**
+         * Notifies all registered <tt>ContactQueryListener</tt>s that a new
+         * contact has been received.
+         * @param contact the <tt>SourceContact</tt> this event is about
+         */
+        private void fireQueryEvent(SourceContact contact)
+        {
+            ContactReceivedEvent event = new ContactReceivedEvent(this, contact);
+
+            Collection<ContactQueryListener> listeners;
+            synchronized (queryListeners)
+            {
+                listeners
+                    = new ArrayList<ContactQueryListener>(queryListeners);
+            }
+
+            for (ContactQueryListener l : listeners)
+                l.contactReceived(event);
+        }
+
+        /**
+         * Notifies all registered <tt>ContactQueryListener</tt>s that a new
+         * record has been received.
+         * @param newStatus the new status
+         */
+        private void fireQueryStatusEvent(int newStatus)
+        {
+            ContactQueryStatusEvent event
+                = new ContactQueryStatusEvent(this, newStatus);
+
+            Collection<ContactQueryListener> listeners;
+            synchronized (queryListeners)
+            {
+                listeners
+                    = new ArrayList<ContactQueryListener>(queryListeners);
+            }
+
+            for (ContactQueryListener l : listeners)
+                l.queryStatusChanged(event);
+        }
+    }
+
+    /**
+     * Returns the identifier of this contact source. Some of the common
+     * identifiers are defined here (For example the CALL_HISTORY identifier
+     * should be returned by all call history implementations of this interface)
+     * @return the identifier of this contact source
+     */
+    public String getIdentifier()
+    {
+        return CALL_HISTORY;
     }
 }
