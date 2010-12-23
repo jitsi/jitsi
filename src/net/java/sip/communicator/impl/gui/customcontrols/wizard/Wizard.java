@@ -108,6 +108,16 @@ public class Wizard
         = new Vector<WizardListener>();
 
     /**
+     * Status label, show when connecting.
+     */
+    private JLabel statusLabel = new JLabel();
+
+    /**
+     * If account is signing-in ignore close.
+     */
+    private boolean isCurrentlySigningIn = false;
+
+    /**
      * This method accepts a java.awt.Dialog object as the javax.swing.JDialog's
      * parent.
      * 
@@ -327,7 +337,8 @@ public class Wizard
      */
     public void setBackButtonEnabled(boolean newValue)
     {
-        wizardModel.setBackButtonEnabled(newValue);
+        if(!(isCurrentlySigningIn && newValue))
+            wizardModel.setBackButtonEnabled(newValue);
     }
 
     /**
@@ -460,6 +471,12 @@ public class Wizard
 
         buttonPanel.add(buttonBox, java.awt.BorderLayout.EAST);
 
+        JPanel statusPanel = new TransparentPanel(
+                new FlowLayout(FlowLayout.CENTER));
+        statusPanel.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));
+        statusPanel.add(statusLabel);
+        buttonPanel.add(statusPanel, java.awt.BorderLayout.CENTER);
+
         java.awt.Container contentPane = getContentPane();
         contentPane.add(buttonPanel, java.awt.BorderLayout.SOUTH);
         contentPane.add(cardPanel, java.awt.BorderLayout.CENTER);
@@ -531,6 +548,9 @@ public class Wizard
      */
     protected void close(boolean isEscaped)
     {
+        if(isCurrentlySigningIn)
+            return;
+
         this.close(Wizard.CANCEL_RETURN_CODE);
     }
 
@@ -663,5 +683,40 @@ public class Wizard
     public void setFinishButtonText(String text)
     {
         this.setFinishButtonDefaultText(text);
+    }
+
+    /**
+     * Changes cursor and status label, informing user we are in process
+     * of connecting.
+     */
+    void startCommittingPage()
+    {
+        isCurrentlySigningIn = true;
+
+        setBackButtonEnabled(false);
+        setCancelButtonEnabled(false);
+        setNextFinishButtonEnabled(false);
+
+        statusLabel.setText(GuiActivator.getResources().getI18NString(
+                "service.gui.CONNECTING"));
+
+        setCursor(new Cursor(Cursor.WAIT_CURSOR));
+    }
+
+    /**
+     * Changes cursor and status label, informing user we finished the process
+     * of connecting.
+     */
+    void stopCommittingPage()
+    {
+        isCurrentlySigningIn = false;
+
+        statusLabel.setText("");
+
+        setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+
+        setBackButtonEnabled(true);
+        setCancelButtonEnabled(true);
+        setNextFinishButtonEnabled(true);
     }
 }

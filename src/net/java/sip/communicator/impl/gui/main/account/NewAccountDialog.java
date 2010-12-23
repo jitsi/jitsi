@@ -74,6 +74,16 @@ public class NewAccountDialog
     private JEditorPane errorMessagePane;
 
     /**
+     * If account is signing-in ignore close.
+     */
+    private boolean isCurrentlySigningIn = false;
+
+    /**
+     * Status label, show when connecting.
+     */
+    private JLabel statusLabel = new JLabel();
+
+    /**
      * Creates the dialog and initializes the UI.
      */
     public NewAccountDialog()
@@ -91,9 +101,14 @@ public class NewAccountDialog
         this.networkPanel.setBorder(
             BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
+        JPanel statusPanel = new TransparentPanel(
+                new FlowLayout(FlowLayout.CENTER));
+        statusPanel.add(statusLabel);
+
         this.mainPanel.add(buttonPanel, BorderLayout.SOUTH);
         this.buttonPanel.add(advancedButton, BorderLayout.WEST);
         this.buttonPanel.add(rightButtonPanel, BorderLayout.EAST);
+        this.buttonPanel.add(statusPanel, BorderLayout.CENTER);
         this.advancedButton.addActionListener(this);
 
         this.rightButtonPanel.add(addAccountButton);
@@ -325,7 +340,7 @@ public class NewAccountDialog
         addAccountButton.setEnabled(
                         !(wizard instanceof EmptyAccountRegistrationWizard));
         advancedButton.setEnabled(
-                        !(wizard instanceof EmptyAccountRegistrationWizard));
+                !(wizard instanceof EmptyAccountRegistrationWizard));
 
         accountPanel.revalidate();
         accountPanel.repaint();
@@ -398,63 +413,10 @@ public class NewAccountDialog
         }
         else if (sourceButton.equals(addAccountButton))
         {
-            ProtocolProviderService protocolProvider;
-            try
-            {
-                if(wizard == emptyWizard)
-                {
-                    loadErrorMessage(GuiActivator.getResources().getI18NString(
-                        "service.gui.CHOOSE_NETWORK"));
+            startConnecting(wizardContainer);
 
-                }
-                protocolProvider = wizard.signin();
-
-                if (protocolProvider != null)
-                {
-                    wizardContainer.saveAccountWizard(protocolProvider, wizard);
-
-                    this.dispose();
-                }
-            }
-            catch (OperationFailedException e)
-            {
-                // If the sign in operation has failed we don't want to close
-                // the dialog in order to give the user the possibility to
-                // retry.
-                if (logger.isDebugEnabled())
-                    logger.debug("The sign in operation has failed.");
-
-                if (e.getErrorCode()
-                        == OperationFailedException.ILLEGAL_ARGUMENT)
-                {
-                    loadErrorMessage(GuiActivator.getResources().getI18NString(
-                        "service.gui.USERNAME_NULL"));
-                }
-                else if (e.getErrorCode()
-                        == OperationFailedException.IDENTIFICATION_CONFLICT)
-                {
-                    loadErrorMessage(GuiActivator.getResources().getI18NString(
-                        "service.gui.USER_EXISTS_ERROR"));
-                }
-                else
-                {
-                    loadErrorMessage(GuiActivator.getResources().getI18NString(
-                                "service.gui.ACCOUNT_CREATION_FAILED",
-                                new String[]{e.getMessage()}));
-                }
-            }
-            catch (Exception e)
-            {
-                // If the sign in operation has failed we don't want to close
-                // the dialog in order to give the user the possibility to
-                // retry.
-                if (logger.isDebugEnabled())
-                    logger.debug("The sign in operation has failed.");
-
-                loadErrorMessage(GuiActivator.getResources().getI18NString(
-                                "service.gui.ACCOUNT_CREATION_FAILED",
-                                new String[]{e.getMessage()}));
-            }
+            new Thread(new ProtocolSignInThread(
+                    wizard, wizardContainer)).start();
         }
         else if (sourceButton.equals(cancelButton))
         {
@@ -480,6 +442,9 @@ public class NewAccountDialog
      */
     protected void close(boolean isEscaped)
     {
+        if(isCurrentlySigningIn)
+            return;
+
         dispose();
     }
 
@@ -488,8 +453,178 @@ public class NewAccountDialog
      */
     public void dispose()
     {
+        if(isCurrentlySigningIn)
+            return;
+
         newAccountDialog = null;
 
         super.dispose();
+    }
+
+    /**
+     * Overrides set visible to disable closing dialog if currently signing-in.
+     *
+     * @param visible
+     */
+    @Override
+    public void setVisible(boolean visible)
+    {
+        if(isCurrentlySigningIn)
+            return;
+
+        super.setVisible(visible);
+    }
+
+    private void startConnecting(AccountRegWizardContainerImpl wizardContainer)
+    {
+        isCurrentlySigningIn = true;
+
+        advancedButton.setEnabled(false);
+        addAccountButton.setEnabled(false);
+        cancelButton.setEnabled(false);
+
+        statusLabel.setText(GuiActivator.getResources().getI18NString(
+                "service.gui.CONNECTING"));
+
+        setCursor(new Cursor(Cursor.WAIT_CURSOR));
+    }
+
+    private void stopConnecting(AccountRegWizardContainerImpl wizardContainer)
+    {
+        isCurrentlySigningIn = false;
+
+        statusLabel.setText("");
+
+        setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+
+        advancedButton.setEnabled(true);
+        addAccountButton.setEnabled(true);
+        cancelButton.setEnabled(true);
+    }
+
+    /**
+     * Makes protocol operations in different thread.
+     */
+    private class ProtocolSignInThread
+        implements Runnable
+    {
+        /**
+         * The wizard to use.
+         */
+        AccountRegistrationWizard wizard;
+
+        /**
+         * The container of the wizard.
+         */
+        AccountRegWizardContainerImpl wizardContainer;
+
+        /**
+         * Creates <tt>ProtocolSignInThread</tt>.
+         * @param wizard the wizard to use.
+         * @param wizardContainer the container of the wizard.
+         */
+        ProtocolSignInThread(AccountRegistrationWizard wizard,
+                             AccountRegWizardContainerImpl wizardContainer)
+        {
+            this.wizard = wizard;
+            this.wizardContainer = wizardContainer;
+        }
+        /**
+         * When an object implementing interface <code>Runnable</code> is used
+         * to create a thread, starting the thread causes the object's
+         * <code>run</code> method to be called in that separately executing
+         * thread.
+         * <p/>
+         * The general contract of the method <code>run</code> is that it may
+         * take any action whatsoever.
+         *
+         * @see Thread#run()
+         */
+        public void run()
+        {
+            ProtocolProviderService protocolProvider;
+            try
+            {
+                if(wizard == emptyWizard)
+                {
+                    loadErrorMessage(GuiActivator.getResources().getI18NString(
+                            "service.gui.CHOOSE_NETWORK"));
+
+                }
+                protocolProvider = wizard.signin();
+
+                if (protocolProvider != null)
+                {
+                    wizardContainer.saveAccountWizard(protocolProvider, wizard);
+
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        public void run()
+                        {
+                            stopConnecting(wizardContainer);
+
+                            NewAccountDialog.this.dispose();
+                        }
+                    });
+                }
+            }
+            catch (OperationFailedException e)
+            {
+                // make sure buttons don't stay disabled
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        stopConnecting(wizardContainer);
+                    }
+                });
+
+                // If the sign in operation has failed we don't want to close
+                // the dialog in order to give the user the possibility to
+                // retry.
+                if (logger.isDebugEnabled())
+                    logger.debug("The sign in operation has failed.");
+
+                if (e.getErrorCode()
+                        == OperationFailedException.ILLEGAL_ARGUMENT)
+                {
+                    loadErrorMessage(GuiActivator.getResources().getI18NString(
+                            "service.gui.USERNAME_NULL"));
+                }
+                else if (e.getErrorCode()
+                        == OperationFailedException.IDENTIFICATION_CONFLICT)
+                {
+                    loadErrorMessage(GuiActivator.getResources().getI18NString(
+                            "service.gui.USER_EXISTS_ERROR"));
+                }
+                else
+                {
+                    loadErrorMessage(GuiActivator.getResources().getI18NString(
+                            "service.gui.ACCOUNT_CREATION_FAILED",
+                            new String[]{e.getMessage()}));
+                }
+            }
+            catch (Exception e)
+            {
+                // make sure buttons don't stay disabled
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        stopConnecting(wizardContainer);
+                    }
+                });
+
+                // If the sign in operation has failed we don't want to close
+                // the dialog in order to give the user the possibility to
+                // retry.
+                if (logger.isDebugEnabled())
+                    logger.debug("The sign in operation has failed.");
+
+                loadErrorMessage(GuiActivator.getResources().getI18NString(
+                        "service.gui.ACCOUNT_CREATION_FAILED",
+                        new String[]{e.getMessage()}));
+            }
+        }
     }
 }
