@@ -18,6 +18,102 @@ import net.java.sip.communicator.service.contactsource.*;
 public class MsOutlookAddressBookContactQuery
     extends AbstractContactQuery<MsOutlookAddressBookContactSourceService>
 {
+
+    /**
+     * The IDs of the properties of <tt>MAPI_MAILUSER</tt> which are to be
+     * queried by the <tt>MsOutlookAddressBookContactQuery</tt> instances.
+     */
+    private static final long[] MAPI_MAILUSER_PROP_IDS
+        = new long[]
+        {
+            0x3001 /* PR_DISPLAY_NAME */,
+            0x3003 /* PR_EMAIL_ADDRESS */,
+            0x3A06 /* PR_GIVEN_NAME */,
+            0x3A44 /* PR_MIDDLE_NAME */,
+            0x3A11 /* PR_SURNAME */,
+            0x3A08 /* PR_BUSINESS_TELEPHONE_NUMBER */,
+            0x3A1B /* PR_BUSINESS2_TELEPHONE_NUMBER */,
+            0x3A09 /* PR_HOME_TELEPHONE_NUMBER */,
+            0x3A2F /* PR_HOME2_TELEPHONE_NUMBER */,
+            0x3A1C /* PR_MOBILE_TELEPHONE_NUMBER */
+        };
+
+    /**
+     * The index of the id of the <tt>PR_BUSINESS_TELEPHONE_NUMBER</tt> property
+     * in {@link #MAPI_MAILUSER_PROP_IDS}.
+     */
+    private static final int PR_BUSINESS_TELEPHONE_NUMBER_INDEX = 5;
+
+    /**
+     * The index of the id of the <tt>PR_BUSINESS2_TELEPHONE_NUMBER</tt>
+     * property in {@link #MAPI_MAILUSER_PROP_IDS}.
+     */
+    private static final int PR_BUSINESS2_TELEPHONE_NUMBER_INDEX = 6;
+
+    /**
+     * The index of the id of the <tt>PR_DISPLAY_NAME</tt> property in
+     * {@link #MAPI_MAILUSER_PROP_IDS}.
+     */
+    private static final int PR_DISPLAY_NAME_INDEX = 0;
+
+    /**
+     * The index of the id of the <tt>PR_EMAIL_ADDRESS</tt> property in
+     * {@link #MAPI_MAILUSER_PROP_IDS}.
+     */
+    private static final int PR_EMAIL_ADDRESS_INDEX = 1;
+
+    /**
+     * The index of the id of the <tt>PR_GIVEN_NAME</tt> property in
+     * {@link #MAPI_MAILUSER_PROP_IDS}.
+     */
+    private static final int PR_GIVEN_NAME_INDEX = 2;
+
+    /**
+     * The index of the id of the <tt>PR_HOME_TELEPHONE_NUMBER</tt> property in
+     * {@link #MAPI_MAILUSER_PROP_IDS}.
+     */
+    private static final int PR_HOME_TELEPHONE_NUMBER_INDEX = 7;
+
+    /**
+     * The index of the id of the <tt>PR_HOME2_TELEPHONE_NUMBER</tt> property in
+     * {@link #MAPI_MAILUSER_PROP_IDS}.
+     */
+    private static final int PR_HOME2_TELEPHONE_NUMBER_INDEX = 8;
+
+    /**
+     * The index of the id of the <tt>PR_MIDDLE_NAME</tt> property in
+     * {@link #MAPI_MAILUSER_PROP_IDS}.
+     */
+    private static final int PR_MIDDLE_NAME_INDEX = 3;
+
+    /**
+     * The index of the id of the <tt>PR_MOBILE_TELEPHONE_NUMBER</tt> property
+     * in {@link #MAPI_MAILUSER_PROP_IDS}.
+     */
+    private static final int PR_MOBILE_TELEPHONE_NUMBER_INDEX = 9;
+
+    /**
+     * The index of the id of the <tt>PR_SURNAME</tt> property in
+     * {@link #MAPI_MAILUSER_PROP_IDS}.
+     */
+    private static final int PR_SURNAME_INDEX = 4;
+
+    /**
+     * The indexes in {@link #MAPI_MAILUSER_PROP_IDS} of the property IDs which
+     * are to be represented in <tt>SourceContact</tt> as
+     * <tt>ContactDetail</tt>s.
+     */
+    private static final int[] CONTACT_DETAIL_PROP_INDEXES
+        = new int[]
+        {
+            PR_EMAIL_ADDRESS_INDEX,
+            PR_BUSINESS_TELEPHONE_NUMBER_INDEX,
+            PR_BUSINESS2_TELEPHONE_NUMBER_INDEX,
+            PR_HOME_TELEPHONE_NUMBER_INDEX,
+            PR_HOME2_TELEPHONE_NUMBER_INDEX,
+            PR_MOBILE_TELEPHONE_NUMBER_INDEX
+        };
+
     static
     {
         System.loadLibrary("jmsoutlook");
@@ -57,7 +153,7 @@ public class MsOutlookAddressBookContactQuery
     {
         super(msoabcss);
 
-        this.query = query;
+        this.query = (query == null) ? null : query.toLowerCase();
     }
 
     /**
@@ -66,7 +162,8 @@ public class MsOutlookAddressBookContactQuery
      * which matches a specific <tt>String</tt>.
      *
      * @param query the <tt>String</tt> for which the Address Book of Microsoft
-     * Outlook is to be queried
+     * Outlook is to be queried. <bb>Warning</bb>: Ignored at the time of this
+     * writing.
      * @param callback the <tt>MsOutlookAddressBookCallback</tt> to be notified
      * about the matching <tt>MAPI_MAILUSER</tt>s
      */
@@ -94,6 +191,11 @@ public class MsOutlookAddressBookContactQuery
         return qr;
     }
 
+    private static native Object[] IMAPIProp_GetProps(
+            long mapiProp,
+            long[] propIds, long flags)
+        throws MsOutlookMAPIHResultException;
+
     /**
      * Notifies this <tt>MsOutlookAddressBookContactQuery</tt> about a specific
      * <tt>MAPI_MAILUSER</tt>.
@@ -102,10 +204,52 @@ public class MsOutlookAddressBookContactQuery
      * <tt>MAPI_MAILUSER</tt> to notify about
      * @return <tt>true</tt> if this <tt>MsOutlookAddressBookContactQuery</tt>
      * is to continue being called; otherwise, <tt>false</tt>
+     * @throws MsOutlookMAPIHResultException if anything goes wrong while
+     * getting the properties of the specified <tt>MAPI_MAILUSER</tt>
      */
     private boolean onMailUser(long iUnknown)
+        throws MsOutlookMAPIHResultException
     {
-        // TODO Auto-generated method stub
+        Object[] props
+            = IMAPIProp_GetProps(iUnknown, MAPI_MAILUSER_PROP_IDS, 0);
+        boolean matches = false;
+
+        for (Object prop : props)
+        {
+            if ((prop instanceof String)
+                    && ((String) prop).toLowerCase().contains(query))
+            {
+                matches = true;
+                break;
+            }
+        }
+        if (matches)
+        {
+            List<ContactDetail> contactDetails
+                = new LinkedList<ContactDetail>();
+
+            for (int i = 0; i < CONTACT_DETAIL_PROP_INDEXES.length; i++)
+            {
+                Object prop = props[CONTACT_DETAIL_PROP_INDEXES[i]];
+
+                if (prop instanceof String)
+                {
+                    String stringProp = (String) prop;
+
+                    if (stringProp.length() != 0)
+                        contactDetails.add(new ContactDetail(stringProp));
+                }
+            }
+
+            SourceContact sourceContact
+                = new MsOutlookMailUserSourceContact(
+                        getContactSource(),
+                        (String) props[PR_DISPLAY_NAME_INDEX],
+                        contactDetails);
+
+            queryResults.add(sourceContact);
+            fireContactReceived(sourceContact);
+        }
         return (getStatus() == QUERY_IN_PROGRESS);
     }
 
@@ -130,7 +274,15 @@ public class MsOutlookAddressBookContactQuery
                                 {
                                     public boolean callback(long iUnknown)
                                     {
-                                        return onMailUser(iUnknown);
+                                        try
+                                        {
+                                            return onMailUser(iUnknown);
+                                        }
+                                        catch (MsOutlookMAPIHResultException ex)
+                                        {
+                                            ex.printStackTrace(System.err);
+                                            return false;
+                                        }
                                     }
                                 });
                         }

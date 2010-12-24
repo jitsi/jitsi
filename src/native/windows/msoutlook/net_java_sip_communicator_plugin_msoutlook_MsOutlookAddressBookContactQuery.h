@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactQuery_foreachMailUser
   (JNIEnv *, jclass, jstring, jobject);
 
+/*
+ * Class:     net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactQuery
+ * Method:    IMAPIProp_GetProps
+ * Signature: (J[JJ)[Ljava/lang/Object;
+ */
+JNIEXPORT jobjectArray JNICALL Java_net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactQuery_IMAPIProp_1GetProps
+  (JNIEnv *, jclass, jlong, jlongArray, jlong);
+
 #ifdef __cplusplus
 }
 #endif

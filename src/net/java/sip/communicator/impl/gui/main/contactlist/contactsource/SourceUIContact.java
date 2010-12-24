@@ -119,16 +119,23 @@ public class SourceUIContact
      */
     public ImageIcon getAvatar(boolean isSelected, int width, int height)
     {
-        ImageIcon icon = new ImageIcon(sourceContact.getImage());
+        byte[] image = sourceContact.getImage();
 
-        if (icon.getIconWidth() > width
-            || icon.getIconHeight() > height)
+        if (image != null)
         {
-            icon = ImageUtils
-                .getScaledRoundedIcon(icon.getImage(), width, height);
-        }
+            ImageIcon icon = new ImageIcon();
 
-        return icon;
+            if (icon.getIconWidth() > width || icon.getIconHeight() > height)
+            {
+                icon
+                    = ImageUtils.getScaledRoundedIcon(
+                            icon.getImage(),
+                            width, height);
+            }
+            return icon;
+        }
+        else
+            return null;
     }
 
     /**
@@ -186,8 +193,11 @@ public class SourceUIContact
         while (details.hasNext())
         {
             ContactDetail detail = details.next();
+            List<Class<? extends OperationSet>> supportedOperationSets
+                = detail.getSupportedOperationSets();
 
-            if (detail.getSupportedOperationSets().contains(opSetClass))
+            if ((supportedOperationSets != null)
+                    && supportedOperationSets.contains(opSetClass))
                 resultList.add(new SourceContactDetail(detail, opSetClass));
         }
         return resultList;

@@ -174,15 +174,17 @@ public class SearchFilter
     public void setFilterString(String filter)
     {
         // First escape all special characters from the given filter string.
-        this.filterString = Pattern.quote(filter);
+        this.filterString = filter;
 
         // Then create the pattern.
         // By default, case-insensitive matching assumes that only characters
         // in the US-ASCII charset are being matched, that's why we use
         // the UNICODE_CASE flag to enable unicode case-insensitive matching.
         // Sun Bug ID: 6486934 "RegEx case_insensitive match is broken"
-        this.filterPattern = Pattern.compile(
-            filterString, Pattern.MULTILINE
+        this.filterPattern
+                = Pattern.compile(
+                        Pattern.quote(filterString),
+                        Pattern.MULTILINE
                             | Pattern.CASE_INSENSITIVE
                             | Pattern.UNICODE_CASE);
     }
@@ -304,9 +306,6 @@ public class SearchFilter
      */
     public boolean hasDefaultSource()
     {
-        if (searchSourceType == DEFAULT_SOURCE)
-            return true;
-        else
-            return false;
+        return (searchSourceType == DEFAULT_SOURCE);
     }
 }

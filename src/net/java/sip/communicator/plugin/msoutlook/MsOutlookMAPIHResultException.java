@@ -28,7 +28,7 @@ public class MsOutlookMAPIHResultException
      */
     public MsOutlookMAPIHResultException(long hResult)
     {
-        this.hResult = hResult;
+        this(hResult, toString(hResult));
     }
 
     /**
@@ -69,5 +69,29 @@ public class MsOutlookMAPIHResultException
     public long getHResult()
     {
         return hResult;
+    }
+
+    /**
+     * Converts a specific <tt>HRESULT</tt> to a touch more readable
+     * <tt>String</tt> in accord with the rule of constructing MAPI
+     * <tt>HRESULT</tt> values.
+     *
+     * @param hResult the <tt>HRESULT</tt> to convert
+     * @return a <tt>String</tt> which represents the specified <tt>hResult</tt>
+     * in a touch more readable form
+     */
+    private static String toString(long hResult)
+    {
+        if (hResult == 0)
+            return "S_OK";
+        else
+        {
+            StringBuilder s = new StringBuilder("MAPI_");
+
+            s.append(((hResult & 0x80000000L) == 0) ? 'W' : 'E');
+            s.append("_0x");
+            s.append(Long.toHexString(hResult & 0xFFFL));
+            return s.toString();
+        }
     }
 }

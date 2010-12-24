@@ -2579,6 +2579,16 @@ org.apache.http.util"/>
         </jar>
     </target>
 
+    <!-- BUNDLE-PLUGIN-MSOUTLOOK -->
+    <target name="bundle-msoutlook">
+        <!-- Creates a bundle which provides support for Microsoft Outlook. -->
+        <jar compress="false" destfile="${bundles.dest}/msoutlook.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/msoutlook/msoutlook.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/msoutlook"
+                prefix="net/java/sip/communicator/plugin/msoutlook" />
+        </jar>
+    </target>
+
     <target name="bundle-certificate">
         <jar compress="false" destfile="${bundles.dest}/certificate.jar"
             manifest="${src}/net/java/sip/communicator/impl/certificate/certificate.manifest.mf">

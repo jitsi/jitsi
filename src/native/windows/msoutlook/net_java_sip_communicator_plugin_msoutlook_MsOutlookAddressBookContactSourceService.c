@@ -13,7 +13,12 @@ Java_net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactSourc
     hResult = MAPIInitialize(&mapiInit);
 
     if (HR_FAILED(hResult))
-        MsOutlookMAPIHResultException_throwNew(jniEnv, hResult);
+    {
+        MsOutlookMAPIHResultException_throwNew(
+                jniEnv,
+                hResult,
+                __FILE__, __LINE__);
+    }
 }
 
 JNIEXPORT void JNICALL
