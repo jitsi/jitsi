@@ -28,6 +28,7 @@ package net.java.sip.communicator.impl.neomedia.transform.srtp;
 
 import net.java.sip.communicator.impl.neomedia.*;
 
+import org.bouncycastle.crypto.*;
 import org.bouncycastle.crypto.digests.*;
 import org.bouncycastle.crypto.engines.*;
 import org.bouncycastle.crypto.macs.*;
@@ -137,7 +138,7 @@ public class SRTPCryptoContext
     /**
      * The HMAC object we used to do packet authentication
      */
-    private HMac hmacSha1;             // used for various HMAC computations
+    private Mac mac;             // used for various HMAC computations
 
     /**
      * The symmetric cipher engines we need here
@@ -246,7 +247,7 @@ public class SRTPCryptoContext
         System.arraycopy(masterS, 0, masterSalt, 0, policy
                 .getSaltKeyLength());
 
-        hmacSha1 = new HMac(new SHA1Digest());
+        mac = new HMac(new SHA1Digest());
         AEScipher = new AESFastEngine();
 
         switch (policy.getEncType()) {
@@ -272,8 +273,15 @@ public class SRTPCryptoContext
             break;
 
         case SRTPPolicy.HMACSHA1_AUTHENTICATION:
+            mac = new HMac(new SHA1Digest());
             authKey = new byte[policy.getAuthKeyLength()];
-            tagStore = new byte[hmacSha1.getMacSize()];
+            tagStore = new byte[mac.getMacSize()];
+            break;
+            
+        case SRTPPolicy.SKEIN_AUTHENTICATION:
+            mac = new SkeinMac();
+            authKey = new byte[policy.getAuthKeyLength()];
+            tagStore = new byte[policy.getAuthTagLength()];
             break;
 
         default:
@@ -361,7 +369,7 @@ public class SRTPCryptoContext
         }
 
         /* Authenticate the packet */
-        if (policy.getAuthType() == SRTPPolicy.HMACSHA1_AUTHENTICATION)
+        if (policy.getAuthType() != SRTPPolicy.NULL_AUTHENTICATION)
         {
             authenticatePacketHMCSHA1(pkt, roc);
             pkt.append(tagStore, policy.getAuthTagLength());
@@ -410,7 +418,7 @@ public class SRTPCryptoContext
             return false;
         }
         /* Authenticate the packet */
-        if (policy.getAuthType() == SRTPPolicy.HMACSHA1_AUTHENTICATION) {
+        if (policy.getAuthType() != SRTPPolicy.NULL_AUTHENTICATION) {
             int tagLength = policy.getAuthTagLength();
 
             // get original authentication and store in tempStore
@@ -505,7 +513,7 @@ public class SRTPCryptoContext
     }
 
     /**
-     * Authenticate a packet using HMC SHA1 method.
+     * Authenticate a packet.
      * Calculated authentication tag is returned.
      *
      * @param pkt the RTP packet to be authenticated
@@ -513,14 +521,14 @@ public class SRTPCryptoContext
      */
     private void authenticatePacketHMCSHA1(RawPacket pkt, int rocIn) 
     {
-        hmacSha1.update(pkt.getBuffer(), pkt.getOffset(), pkt.getLength());
+        mac.update(pkt.getBuffer(), pkt.getOffset(), pkt.getLength());
         // byte[] rb = new byte[4];
         rbStore[0] = (byte) (rocIn >> 24);
         rbStore[1] = (byte) (rocIn >> 16);
         rbStore[2] = (byte) (rocIn >> 8);
         rbStore[3] = (byte) rocIn;
-        hmacSha1.update(rbStore, 0, rbStore.length);
-        hmacSha1.doFinal(tagStore, 0);
+        mac.update(rbStore, 0, rbStore.length);
+        mac.doFinal(tagStore, 0);
     }
 
     /**
@@ -610,10 +618,20 @@ public class SRTPCryptoContext
             computeIv(label, index);
             cipherCtr.getCipherStream(AEScipher, authKey, policy.getAuthKeyLength(), ivStore);
 
-            KeyParameter key =  new KeyParameter(authKey);
-            hmacSha1.init(key);
-        }
+            switch ((policy.getAuthType())) {
+            case SRTPPolicy.HMACSHA1_AUTHENTICATION:
+                KeyParameter key =  new KeyParameter(authKey);
+                mac.init(key);
+                break;
 
+            case SRTPPolicy.SKEIN_AUTHENTICATION:
+                // Skein MAC uses number of bits as MAC size, not just bytes
+                ParametersForSkein pfs = new ParametersForSkein(new KeyParameter(authKey), 
+                        ParametersForSkein.Skein512, tagStore.length*8);
+                mac.init(pfs);
+                break;
+            }
+        }
         // compute the session salt
         label = 0x02;
         computeIv(label, index);
