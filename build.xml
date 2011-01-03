@@ -726,7 +726,15 @@
              <os arch="i386" />
         </condition>
 
-         <!-- forking prevents from debugging -->
+        <!-- Start the OS-specific Address Book ContactSourceService
+             implementations. -->
+        <condition property="felix.auto.start.addrbookcontactsrc"
+                value="reference:file:sc-bundles/msoutlook.jar"
+                else="">
+            <isset property="is.running.windows" />
+        </condition>
+
+        <!-- forking prevents from debugging -->
         <java classname="net.java.sip.communicator.launcher.SIPCommunicator"
             fork="true"
             failonerror="true"
@@ -788,6 +796,11 @@
               -client ${jvm.maxheapsize}"/>
 
             <sysproperty key="apple.laf.useScreenMenuBar" value="true" />
+
+            <!-- Start the OS-specific Address Book ContactSourceService
+                 implementations. -->
+            <sysproperty key="felix.auto.start.69"
+                value="${felix.auto.start.addrbookcontactsrc}"/>
         </java>
     </target>
 
@@ -922,7 +935,7 @@
         bundle-twitpic,bundle-directimage,bundle-bliptv,bundle-viddler,
         bundle-plugin-chatconfig,bundle-certificate,bundle-packetlogging,
         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
-        bundle-provisioning"/>
+        bundle-provisioning,bundle-msoutlook"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2582,7 +2595,7 @@ org.apache.http.util"/>
     <!-- BUNDLE-PLUGIN-MSOUTLOOK -->
     <target name="bundle-msoutlook">
         <!-- Creates a bundle which provides support for Microsoft Outlook. -->
-        <jar compress="false" destfile="${bundles.dest}/msoutlook.jar"
+        <jar compress="false" destfile="${bundles.dest.win}/msoutlook.jar"
             manifest="${src}/net/java/sip/communicator/plugin/msoutlook/msoutlook.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/msoutlook"
                 prefix="net/java/sip/communicator/plugin/msoutlook" />

@@ -39,6 +39,12 @@ public class MsOutlookAddressBookContactQuery
         };
 
     /**
+     * The flag which signals that MAPI strings should be returned in the
+     * Unicode character set.
+     */
+    private static final long MAPI_UNICODE = 0x80000000;
+
+    /**
      * The index of the id of the <tt>PR_BUSINESS_TELEPHONE_NUMBER</tt> property
      * in {@link #MAPI_MAILUSER_PROP_IDS}.
      */
@@ -211,7 +217,10 @@ public class MsOutlookAddressBookContactQuery
         throws MsOutlookMAPIHResultException
     {
         Object[] props
-            = IMAPIProp_GetProps(iUnknown, MAPI_MAILUSER_PROP_IDS, 0);
+            = IMAPIProp_GetProps(
+                    iUnknown,
+                    MAPI_MAILUSER_PROP_IDS,
+                    MAPI_UNICODE);
         boolean matches = false;
 
         for (Object prop : props)
