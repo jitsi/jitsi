@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia.device;
 
 import java.lang.reflect.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * FMJ auto-detect of CIVIL video capture devices.
@@ -16,6 +17,13 @@ import java.lang.reflect.*;
 public class FMJCivilVideoAuto
 {
     /**
+     * The <tt>Logger</tt> used by the <tt>FMJCivilVideoAuto</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(FMJCivilVideoAuto.class);
+
+    /**
      * Creates an instance of FMJCivilVideoAuto and auto-detects CIVIL video 
      * capture devices.
      * 
@@ -24,6 +32,9 @@ public class FMJCivilVideoAuto
      */
     public FMJCivilVideoAuto() throws Exception
     {
+        if(logger.isInfoEnabled())
+            logger.info("Start detecting Civil Capture Devices");
+
         // Done using reflection to avoid compile-time dependency on FMJ:
         //new net.sf.fmj.media.cdp.civil.CaptureDevicePlugger().addCaptureDevices();
         final Class<?> clazz 
@@ -31,5 +42,8 @@ public class FMJCivilVideoAuto
         final Method addCaptureDevices = clazz.getMethod("addCaptureDevices");
         final Object captureDevicePlugger = clazz.newInstance();
         addCaptureDevices.invoke(captureDevicePlugger);
+
+        if(logger.isInfoEnabled())
+            logger.info("Finish detecting Civil Capture Devices");
     }
 }

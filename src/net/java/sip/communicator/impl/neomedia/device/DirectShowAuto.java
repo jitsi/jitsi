@@ -41,6 +41,9 @@ public class DirectShowAuto
      */
     public DirectShowAuto() throws Exception
     {
+        if(logger.isInfoEnabled())
+            logger.info("Start detecting DirectShow capture devices");
+
         DSManager manager = DSManager.getInstance();
         DSCaptureDevice devices[] = null;
         boolean captureDeviceInfoIsAdded = false;
@@ -80,6 +83,9 @@ public class DirectShowAuto
                             format,
                         });
 
+            if(logger.isInfoEnabled())
+                logger.info("Found[" + i + "]: " + device.getName());
+
             CaptureDeviceManager.addDevice(device);
             captureDeviceInfoIsAdded = true;
         }
@@ -89,6 +95,9 @@ public class DirectShowAuto
 
         devices = null;
         DSManager.dispose();
+
+        if(logger.isInfoEnabled())
+            logger.info("Finish detecting DirectShow capture devices");
     }
 }
 
