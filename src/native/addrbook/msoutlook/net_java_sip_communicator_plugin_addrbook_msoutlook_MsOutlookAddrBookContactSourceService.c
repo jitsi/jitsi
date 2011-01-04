@@ -1,10 +1,10 @@
-#include "net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactSourceService.h"
+#include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.h"
 
 #include "MsOutlookMAPI.h"
 #include "MsOutlookMAPIHResultException.h"
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactSourceService_MAPIInitialize
+Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
     (JNIEnv *jniEnv, jclass clazz, jlong version, jlong flags)
 {
     MAPIINIT_0 mapiInit = { (ULONG) version, (ULONG) flags };
@@ -22,7 +22,7 @@ Java_net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactSourc
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactSourceService_MAPIUninitialize
+Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIUninitialize
     (JNIEnv *jniEnv, jclass clazz)
 {
     MAPIUninitialize();

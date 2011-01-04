@@ -4,10 +4,11 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.msoutlook;
+package net.java.sip.communicator.plugin.addrbook.msoutlook;
 
 import java.util.*;
 
+import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.service.contactsource.*;
 
 /**
@@ -15,13 +16,13 @@ import net.java.sip.communicator.service.contactsource.*;
  *
  * @author Lyubomir Marinov
  */
-public class MsOutlookAddressBookContactQuery
-    extends AbstractContactQuery<MsOutlookAddressBookContactSourceService>
+public class MsOutlookAddrBookContactQuery
+    extends AsyncContactQuery<MsOutlookAddrBookContactSourceService>
 {
 
     /**
      * The IDs of the properties of <tt>MAPI_MAILUSER</tt> which are to be
-     * queried by the <tt>MsOutlookAddressBookContactQuery</tt> instances.
+     * queried by the <tt>MsOutlookAddrBookContactQuery</tt> instances.
      */
     private static final long[] MAPI_MAILUSER_PROP_IDS
         = new long[]
@@ -122,80 +123,40 @@ public class MsOutlookAddressBookContactQuery
 
     static
     {
-        System.loadLibrary("jmsoutlook");
+        System.loadLibrary("jmsoutlookaddrbook");
     }
 
     /**
-     * The <tt>String</tt> for which the associated
-     * <tt>MsOutlookAddressBookContactSourceService</tt> is being queried.
-     */
-    private String query;
-
-    /**
-     * The <tt>SourceContact</tt>s which match {@link #query}.
-     */
-    private final List<SourceContact> queryResults
-        = new LinkedList<SourceContact>();
-
-    /**
-     * The <tt>Thread</tt> in which this
-     * <tt>MsOutlookAddressBookContactQuery</tt> is performing {@link #query}.
-     */
-    private Thread thread;
-
-    /**
-     * Initializes a new <tt>MsOutlookAddressBookContactQuery</tt> instance to
+     * Initializes a new <tt>MsOutlookAddrBookContactQuery</tt> instance to
      * be performed by a specific
-     * <tt>MsOutlookAddressBookContactSourceService</tt>.
+     * <tt>MsOutlookAddrBookContactSourceService</tt>.
      *
-     * @param msoabcss the <tt>MsOutlookAddressBookContactSourceService</tt>
+     * @param msoabcss the <tt>MsOutlookAddrBookContactSourceService</tt>
      * which is to perform the new <tt>ContactQuery</tt>
      * @param query the <tt>String</tt> for which <tt>msoabcss</tt> is being
      * queried
      */
-    public MsOutlookAddressBookContactQuery(
-            MsOutlookAddressBookContactSourceService msoabcss,
+    public MsOutlookAddrBookContactQuery(
+            MsOutlookAddrBookContactSourceService msoabcss,
             String query)
     {
-        super(msoabcss);
-
-        this.query = (query == null) ? null : query.toLowerCase();
+        super(msoabcss, query);
     }
 
     /**
-     * Calls back to a specific <tt>MsOutlookAddressBookCallback</tt> for each
+     * Calls back to a specific <tt>MsOutlookAddrBookCallback</tt> for each
      * <tt>MAPI_MAILUSER</tt> found in the Address Book of Microsoft Outlook
      * which matches a specific <tt>String</tt>.
      *
      * @param query the <tt>String</tt> for which the Address Book of Microsoft
      * Outlook is to be queried. <bb>Warning</bb>: Ignored at the time of this
      * writing.
-     * @param callback the <tt>MsOutlookAddressBookCallback</tt> to be notified
+     * @param callback the <tt>MsOutlookAddrBookCallback</tt> to be notified
      * about the matching <tt>MAPI_MAILUSER</tt>s
      */
     private static native void foreachMailUser(
             String query,
-            MsOutlookAddressBookCallback callback);
-
-    /**
-     * Gets the <tt>List</tt> of <tt>SourceContact</tt>s which match this
-     * <tt>ContactQuery</tt>.
-     *
-     * @return the <tt>List</tt> of <tt>SourceContact</tt>s which match this
-     * <tt>ContactQuery</tt>
-     * @see ContactQuery#getQueryResults()
-     */
-    public List<SourceContact> getQueryResults()
-    {
-        List<SourceContact> qr;
-
-        synchronized (queryResults)
-        {
-            qr = new ArrayList<SourceContact>(queryResults.size());
-            qr.addAll(queryResults);
-        }
-        return qr;
-    }
+            MsOutlookAddrBookCallback callback);
 
     private static native Object[] IMAPIProp_GetProps(
             long mapiProp,
@@ -203,12 +164,12 @@ public class MsOutlookAddressBookContactQuery
         throws MsOutlookMAPIHResultException;
 
     /**
-     * Notifies this <tt>MsOutlookAddressBookContactQuery</tt> about a specific
+     * Notifies this <tt>MsOutlookAddrBookContactQuery</tt> about a specific
      * <tt>MAPI_MAILUSER</tt>.
      *
      * @param iUnknown a pointer to an <tt>IUnknown</tt> instance for the
      * <tt>MAPI_MAILUSER</tt> to notify about
-     * @return <tt>true</tt> if this <tt>MsOutlookAddressBookContactQuery</tt>
+     * @return <tt>true</tt> if this <tt>MsOutlookAddrBookContactQuery</tt>
      * is to continue being called; otherwise, <tt>false</tt>
      * @throws MsOutlookMAPIHResultException if anything goes wrong while
      * getting the properties of the specified <tt>MAPI_MAILUSER</tt>
@@ -256,61 +217,46 @@ public class MsOutlookAddressBookContactQuery
                         (String) props[PR_DISPLAY_NAME_INDEX],
                         contactDetails);
 
-            queryResults.add(sourceContact);
-            fireContactReceived(sourceContact);
+            addQueryResult(sourceContact);
         }
         return (getStatus() == QUERY_IN_PROGRESS);
     }
 
     /**
-     * Starts this <tt>MsOutlookAddressBookContactQuery</tt>.
+     * Performs this <tt>AsyncContactQuery</tt> in a background <tt>Thread</tt>.
+     *
+     * @see AsyncContactQuery#run()
      */
-    synchronized void start()
+    protected void run()
     {
-        if (thread == null)
-        {
-            thread
-                = new Thread()
+        foreachMailUser(
+            query,
+            new MsOutlookAddrBookCallback()
+            {
+                public boolean callback(long iUnknown)
                 {
-                    @Override
-                    public void run()
+                    try
                     {
-                        try
-                        {
-                            foreachMailUser(
-                                query,
-                                new MsOutlookAddressBookCallback()
-                                {
-                                    public boolean callback(long iUnknown)
-                                    {
-                                        try
-                                        {
-                                            return onMailUser(iUnknown);
-                                        }
-                                        catch (MsOutlookMAPIHResultException ex)
-                                        {
-                                            ex.printStackTrace(System.err);
-                                            return false;
-                                        }
-                                    }
-                                });
-                        }
-                        finally
-                        {
-                            synchronized (MsOutlookAddressBookContactQuery.this)
-                            {
-                                if (thread == Thread.currentThread())
-                                {
-                                    getContactSource().stopped(
-                                            MsOutlookAddressBookContactQuery.this);
-                                }
-                            }
-                        }
+                        return onMailUser(iUnknown);
                     }
-                };
-            thread.start();
-        }
-        else
-            throw new IllegalStateException("thread");
+                    catch (MsOutlookMAPIHResultException ex)
+                    {
+                        ex.printStackTrace(System.err);
+                        return false;
+                    }
+                }
+            });
+    }
+
+    /**
+     * Notifies this <tt>AsyncContactQuery</tt> that it has stopped performing
+     * in the associated background <tt>Thread</tt>.
+     *
+     * @see AsyncContactQuery#stopped()
+     */
+    @Override
+    protected void stopped()
+    {
+        getContactSource().stopped(this);
     }
 }

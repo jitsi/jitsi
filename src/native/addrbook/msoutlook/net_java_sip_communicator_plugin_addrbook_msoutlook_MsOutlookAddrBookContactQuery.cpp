@@ -1,4 +1,4 @@
-#include "net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactQuery.h"
+#include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 
 #include "MsOutlookMAPI.h"
 #include "MsOutlookMAPIHResultException.h"
@@ -11,18 +11,18 @@
 static void Exception_throwNew
     (JNIEnv *jniEnv, const char *className, const char *message);
 
-static jboolean MsOutlookAddressBookContactQuery_foreachMailUser
+static jboolean MsOutlookAddrBookContactQuery_foreachMailUser
     (ULONG objType, LPUNKNOWN iUnknown,
     JNIEnv *jniEnv,
     jstring query,
     jobject callback, jmethodID callbackMethodID);
-static jboolean MsOutlookAddressBookContactQuery_foreachMailUserInContainerTable
+static jboolean MsOutlookAddrBookContactQuery_foreachMailUserInContainerTable
     (LPMAPICONTAINER mapiContainer, LPMAPITABLE mapiTable,
     JNIEnv *jniEnv,
     jstring query,
     jobject callback, jmethodID callbackMethodID);
-static void MsOutlookAddressBookContactQuery_freeSRowSet(LPSRowSet rows);
-static jboolean MsOutlookAddressBookContactQuery_mailUserMatches
+static void MsOutlookAddrBookContactQuery_freeSRowSet(LPSRowSet rows);
+static jboolean MsOutlookAddrBookContactQuery_mailUserMatches
     (LPMAPIPROP mailUser, JNIEnv *jniEnv, jstring query);
 
 static void
@@ -36,7 +36,7 @@ Exception_throwNew(JNIEnv *jniEnv, const char *className, const char *message)
 }
 
 JNIEXPORT void JNICALL
-Java_net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactQuery_foreachMailUser
+Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_foreachMailUser
     (JNIEnv *jniEnv, jclass clazz, jstring query, jobject callback)
 {
     jclass callbackClass;
@@ -85,7 +85,7 @@ Java_net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactQuery
             hResult = adrBook->OpenEntry(0, NULL, NULL, 0, &objType, &iUnknown);
             if (HR_SUCCEEDED(hResult))
             {
-                MsOutlookAddressBookContactQuery_foreachMailUser(
+                MsOutlookAddrBookContactQuery_foreachMailUser(
                         objType, iUnknown,
                         jniEnv, query, callback, callbackMethodID);
 
@@ -122,7 +122,7 @@ Java_net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactQuery
 }
 
 JNIEXPORT jobjectArray JNICALL
-Java_net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactQuery_IMAPIProp_1GetProps
+Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps
     (JNIEnv *jniEnv, jclass clazz,
     jlong mapiProp, jlongArray propIds, jlong flags)
 {
@@ -246,7 +246,7 @@ Java_net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactQuery
 }
 
 static jboolean
-MsOutlookAddressBookContactQuery_foreachMailUser
+MsOutlookAddrBookContactQuery_foreachMailUser
     (ULONG objType, LPUNKNOWN iUnknown,
     JNIEnv *jniEnv,
     jstring query,
@@ -271,7 +271,7 @@ MsOutlookAddressBookContactQuery_foreachMailUser
         if (HR_SUCCEEDED(hResult) && mapiTable)
         {
             proceed
-                = MsOutlookAddressBookContactQuery_foreachMailUserInContainerTable(
+                = MsOutlookAddrBookContactQuery_foreachMailUserInContainerTable(
                         mapiContainer, mapiTable,
                         jniEnv, query, callback, callbackMethodID);
             mapiTable->Release();
@@ -285,7 +285,7 @@ MsOutlookAddressBookContactQuery_foreachMailUser
             if (HR_SUCCEEDED(hResult) && mapiTable)
             {
                 proceed
-                    = MsOutlookAddressBookContactQuery_foreachMailUserInContainerTable(
+                    = MsOutlookAddrBookContactQuery_foreachMailUserInContainerTable(
                             mapiContainer, mapiTable,
                             jniEnv, query, callback, callbackMethodID);
                 mapiTable->Release();
@@ -298,7 +298,7 @@ MsOutlookAddressBookContactQuery_foreachMailUser
     case MAPI_MAILUSER:
     {
         if (JNI_TRUE
-                == MsOutlookAddressBookContactQuery_mailUserMatches(
+                == MsOutlookAddrBookContactQuery_mailUserMatches(
                         (LPMAPIPROP) iUnknown,
                         jniEnv, query))
         {
@@ -323,7 +323,7 @@ MsOutlookAddressBookContactQuery_foreachMailUser
 }
 
 static jboolean
-MsOutlookAddressBookContactQuery_foreachMailUserInContainerTable
+MsOutlookAddrBookContactQuery_foreachMailUserInContainerTable
     (LPMAPICONTAINER mapiContainer, LPMAPITABLE mapiTable,
     JNIEnv *jniEnv,
     jstring query,
@@ -383,7 +383,7 @@ MsOutlookAddressBookContactQuery_foreachMailUserInContainerTable
                          * We no longer need the rows at this point so free them
                          * before we drill down the hierarchy and allocate even more rows.
                          */
-                        MsOutlookAddressBookContactQuery_freeSRowSet(rows);
+                        MsOutlookAddrBookContactQuery_freeSRowSet(rows);
 
                         hResult
                             = mapiContainer->OpenEntry(
@@ -394,7 +394,7 @@ MsOutlookAddressBookContactQuery_foreachMailUserInContainerTable
                         if (HR_SUCCEEDED(hResult))
                         {
                             proceed
-                                = MsOutlookAddressBookContactQuery_foreachMailUser(
+                                = MsOutlookAddrBookContactQuery_foreachMailUser(
                                         objType, iUnknown,
                                         jniEnv, query, callback, callbackMethodID);
                             iUnknown->Release();
@@ -403,10 +403,10 @@ MsOutlookAddressBookContactQuery_foreachMailUserInContainerTable
                         MAPIFreeBuffer(entryID);
                     }
                     else
-                        MsOutlookAddressBookContactQuery_freeSRowSet(rows);
+                        MsOutlookAddrBookContactQuery_freeSRowSet(rows);
                 }
                 else
-                    MsOutlookAddressBookContactQuery_freeSRowSet(rows);
+                    MsOutlookAddrBookContactQuery_freeSRowSet(rows);
             }
             else
             {
@@ -424,7 +424,7 @@ MsOutlookAddressBookContactQuery_foreachMailUserInContainerTable
 }
 
 static void
-MsOutlookAddressBookContactQuery_freeSRowSet(LPSRowSet rows)
+MsOutlookAddrBookContactQuery_freeSRowSet(LPSRowSet rows)
 {
     ULONG i;
 
@@ -444,7 +444,7 @@ MsOutlookAddressBookContactQuery_freeSRowSet(LPSRowSet rows)
 }
 
 static jboolean
-MsOutlookAddressBookContactQuery_mailUserMatches
+MsOutlookAddrBookContactQuery_mailUserMatches
     (LPMAPIPROP mailUser, JNIEnv *jniEnv, jstring query)
 {
     // TODO Auto-generated method stub

@@ -8,7 +8,7 @@ MsOutlookMAPIHResultException_throwNew
 
     clazz
         = jniEnv->FindClass(
-                "net/java/sip/communicator/plugin/msoutlook/MsOutlookMAPIHResultException");
+                "net/java/sip/communicator/plugin/addrbook/msoutlook/MsOutlookMAPIHResultException");
     if (clazz)
     {
         LPCTSTR message;

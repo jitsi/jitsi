@@ -1,9 +1,0 @@
-Bundle-Activator: net.java.sip.communicator.plugin.msoutlook.MsOutlookActivator
-Bundle-Description: Microsoft Outlook support
-Bundle-Name: Microsoft Outlook support
-Bundle-Vendor: sip-communicator.org
-Bundle-Version: 0.0.1
-Import-Package: net.java.sip.communicator.service.contactsource,
- net.java.sip.communicator.service.protocol,
- org.osgi.framework
-System-Bundle: yes

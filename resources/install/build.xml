@@ -499,15 +499,6 @@
         </copy>
 
         <!--
-            Start OS-specific bundles in felix.client.run.properties such as the
-            Address Book ContactSourceService implementations at level 69.
-        -->
-        <replace file="${light.dir}/lib/felix.client.run.properties"
-                token="#felix.auto.start.69=">
-            <replacevalue><![CDATA[felix.auto.start.69=reference:file:sc-bundles/msoutlook.jar]]></replacevalue>
-        </replace>
-
-        <!--
             This update-location.properties file is the only of interest to the
             MSI i.e. it gets installed on the user machine.
         -->

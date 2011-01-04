@@ -12,11 +12,11 @@ endif
 CPPFLAGS = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/win32 -I$(OUTLOOK_MAPI_HEADERS)
 LDFLAGS = -shared -Wl,--kill-at
 LIBS = -lmapi32
-TARGET = ../../../../lib/native/windows$(ARCH)/jmsoutlook.dll
+TARGET = ../../../../lib/native/windows$(ARCH)/jmsoutlookaddrbook.dll
 
 $(TARGET): \
 		MsOutlookMAPIHResultException.cpp \
-		net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactQuery.cpp \
-		net_java_sip_communicator_plugin_msoutlook_MsOutlookAddressBookContactSourceService.c
+		net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.cpp \
+		net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.c
 	$(CXX) $(CPPFLAGS) $^ $(LDFLAGS) -o $@ $(LIBS)
 	-strip $(TARGET)

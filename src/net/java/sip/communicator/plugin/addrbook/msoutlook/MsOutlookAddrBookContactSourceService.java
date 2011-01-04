@@ -4,10 +4,11 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.msoutlook;
+package net.java.sip.communicator.plugin.addrbook.msoutlook;
 
 import java.util.*;
 
+import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.service.contactsource.*;
 
 /**
@@ -16,8 +17,8 @@ import net.java.sip.communicator.service.contactsource.*;
  *
  * @author Lyubomir Marinov
  */
-public class MsOutlookAddressBookContactSourceService
-    implements ContactSourceService
+public class MsOutlookAddrBookContactSourceService
+    implements AsyncContactSourceService
 {
     private static final long MAPI_INIT_VERSION = 0;
 
@@ -25,25 +26,25 @@ public class MsOutlookAddressBookContactSourceService
 
     static
     {
-        System.loadLibrary("jmsoutlook");
+        System.loadLibrary("jmsoutlookaddrbook");
     }
 
     /**
-     * The <tt>List</tt> of <tt>MsOutlookAddressBookContactQuery</tt> instances
+     * The <tt>List</tt> of <tt>MsOutlookAddrBookContactQuery</tt> instances
      * which have been started and haven't stopped yet.
      */
-    private final List<MsOutlookAddressBookContactQuery> queries
-        = new LinkedList<MsOutlookAddressBookContactQuery>();
+    private final List<MsOutlookAddrBookContactQuery> queries
+        = new LinkedList<MsOutlookAddrBookContactQuery>();
 
     /**
-     * Initializes a new <tt>MsOutlookAddressBookContactSourceService</tt>
+     * Initializes a new <tt>MsOutlookAddrBookContactSourceService</tt>
      * instance.
      *
      * @throws MsOutlookMAPIHResultException if anything goes wrong while
-     * initializing the new <tt>MsOutlookAddressBookContactSourceService</tt>
+     * initializing the new <tt>MsOutlookAddrBookContactSourceService</tt>
      * instance
      */
-    public MsOutlookAddressBookContactSourceService()
+    public MsOutlookAddrBookContactSourceService()
         throws MsOutlookMAPIHResultException
     {
         MAPIInitialize(MAPI_INIT_VERSION, MAPI_MULTITHREAD_NOTIFICATIONS);
@@ -64,10 +65,10 @@ public class MsOutlookAddressBookContactSourceService
 
     /**
      * Gets a <tt>String</tt> which uniquely identifies the instances of the
-     * <tt>MsOutlookAddressBookContactSourceService</tt> implementation.
+     * <tt>MsOutlookAddrBookContactSourceService</tt> implementation.
      *
      * @return a <tt>String</tt> which uniquely identifies the instances of the
-     * <tt>MsOutlookAddressBookContactSourceService</tt> implementation
+     * <tt>MsOutlookAddrBookContactSourceService</tt> implementation
      * @see ContactSourceService#getIdentifier()
      */
     public String getIdentifier()
@@ -94,8 +95,8 @@ public class MsOutlookAddressBookContactSourceService
      */
     public ContactQuery queryContactSource(String query)
     {
-        MsOutlookAddressBookContactQuery msoabcq
-            = new MsOutlookAddressBookContactQuery(this, query);
+        MsOutlookAddrBookContactQuery msoabcq
+            = new MsOutlookAddrBookContactQuery(this, query);
 
         synchronized (queries)
         {
@@ -126,8 +127,10 @@ public class MsOutlookAddressBookContactSourceService
     /**
      * Stops this <tt>ContactSourceService</tt> implementation and prepares it
      * for garbage collection.
+     *
+     * @see AsyncContactSourceService#stop()
      */
-    void stop()
+    public void stop()
     {
         boolean interrupted = false;
 
@@ -153,13 +156,13 @@ public class MsOutlookAddressBookContactSourceService
     }
 
     /**
-     * Notifies this <tt>MsOutlookAddressBookContactSourceService</tt> that a
-     * specific <tt>MsOutlookAddressBookContactQuery</tt> has stopped.
+     * Notifies this <tt>MsOutlookAddrBookContactSourceService</tt> that a
+     * specific <tt>MsOutlookAddrBookContactQuery</tt> has stopped.
      *
-     * @param msoabcq the <tt>MsOutlookAddressBookContactQuery</tt> which has
+     * @param msoabcq the <tt>MsOutlookAddrBookContactQuery</tt> which has
      * stopped
      */
-    void stopped(MsOutlookAddressBookContactQuery msoabcq)
+    void stopped(MsOutlookAddrBookContactQuery msoabcq)
     {
         synchronized (queries)
         {

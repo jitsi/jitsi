@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.msoutlook;
+package net.java.sip.communicator.plugin.addrbook.msoutlook;
 
 import java.util.*;
 
@@ -28,7 +28,7 @@ public class MsOutlookMailUserSourceContact
      * The <tt>ContactSourceService</tt> which has created this
      * <tt>SourceContact</tt>.
      */
-    private final MsOutlookAddressBookContactSourceService contactSource;
+    private final MsOutlookAddrBookContactSourceService contactSource;
 
     /**
      * The display name of this <tt>SourceContact</tt>.
@@ -44,7 +44,7 @@ public class MsOutlookMailUserSourceContact
      * @param contactDetails the <tt>ContactDetail</tt>s of the new instance
      */
     public MsOutlookMailUserSourceContact(
-            MsOutlookAddressBookContactSourceService contactSource,
+            MsOutlookAddrBookContactSourceService contactSource,
             String displayName,
             List<ContactDetail> contactDetails)
     {
@@ -99,7 +99,7 @@ public class MsOutlookMailUserSourceContact
      * <tt>SourceContact</tt>
      * @see SourceContact#getContactSource()
      */
-    public MsOutlookAddressBookContactSourceService getContactSource()
+    public MsOutlookAddrBookContactSourceService getContactSource()
     {
         return contactSource;
     }

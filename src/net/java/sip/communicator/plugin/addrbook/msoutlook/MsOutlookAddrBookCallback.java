@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.msoutlook;
+package net.java.sip.communicator.plugin.addrbook.msoutlook;
 
 /**
  * Defines the interface for a callback function which is called by the Address
@@ -13,15 +13,15 @@ package net.java.sip.communicator.plugin.msoutlook;
  *
  * @author Lyubomir Marinov
  */
-public interface MsOutlookAddressBookCallback
+public interface MsOutlookAddrBookCallback
 {
     /**
-     * Notifies this <tt>MsOutlookAddressBookCallback</tt> about a specific
+     * Notifies this <tt>MsOutlookAddrBookCallback</tt> about a specific
      * <tt>IUnknown</tt>.
      *
      * @param iUnknown the pointer to the <tt>IUnknown</tt> instance to notify
-     * this <tt>MsOutlookAddressBookCallback</tt> about
-     * @return <tt>true</tt> if this <tt>MsOutlookAddressBookCallback</tt> is to
+     * this <tt>MsOutlookAddrBookCallback</tt> about
+     * @return <tt>true</tt> if this <tt>MsOutlookAddrBookCallback</tt> is to
      * continue being called; otherwise, <tt>false</tt>
      */
     boolean callback(long iUnknown);

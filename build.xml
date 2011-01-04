@@ -726,14 +726,6 @@
              <os arch="i386" />
         </condition>
 
-        <!-- Start the OS-specific Address Book ContactSourceService
-             implementations. -->
-        <condition property="felix.auto.start.addrbookcontactsrc"
-                value="reference:file:sc-bundles/msoutlook.jar"
-                else="">
-            <isset property="is.running.windows" />
-        </condition>
-
         <!-- forking prevents from debugging -->
         <java classname="net.java.sip.communicator.launcher.SIPCommunicator"
             fork="true"
@@ -755,12 +747,14 @@
                 value="${java.net.preferIPv6Addresses}"/>
 
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-                         value="${user.home}/schome"/-->
+                value="${user.home}"/>
+            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_NAME"
+                value="schome"/-->
 
-             <sysproperty key="smack.debugEnabled"
-                 value="${smack.debugEnabled}"/>
-             <!--sysproperty key="smack.debuggerClass"
-                     value="org.jivesoftware.smack.debugger.ConsoleDebugger"/-->
+            <sysproperty key="smack.debugEnabled"
+                value="${smack.debugEnabled}"/>
+            <!--sysproperty key="smack.debuggerClass"
+                value="org.jivesoftware.smack.debugger.ConsoleDebugger"/-->
 
             <!-- Setting properties necessary for dependencies on native libs.-->
             <sysproperty key="java.library.path"
@@ -796,11 +790,6 @@
               -client ${jvm.maxheapsize}"/>
 
             <sysproperty key="apple.laf.useScreenMenuBar" value="true" />
-
-            <!-- Start the OS-specific Address Book ContactSourceService
-                 implementations. -->
-            <sysproperty key="felix.auto.start.69"
-                value="${felix.auto.start.addrbookcontactsrc}"/>
         </java>
     </target>
 
@@ -935,7 +924,7 @@
         bundle-twitpic,bundle-directimage,bundle-bliptv,bundle-viddler,
         bundle-plugin-chatconfig,bundle-certificate,bundle-packetlogging,
         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
-        bundle-provisioning,bundle-msoutlook"/>
+        bundle-provisioning,bundle-addrbook"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2592,13 +2581,13 @@ org.apache.http.util"/>
         </jar>
     </target>
 
-    <!-- BUNDLE-PLUGIN-MSOUTLOOK -->
-    <target name="bundle-msoutlook">
-        <!-- Creates a bundle which provides support for Microsoft Outlook. -->
-        <jar compress="false" destfile="${bundles.dest.win}/msoutlook.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/msoutlook/msoutlook.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/msoutlook"
-                prefix="net/java/sip/communicator/plugin/msoutlook" />
+    <!-- BUNDLE-PLUGIN-ADDRBOOK -->
+    <target name="bundle-addrbook">
+        <!-- Creates a bundle which provides support for the OS-specific Address Book. -->
+        <jar compress="false" destfile="${bundles.dest}/addrbook.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/addrbook/addrbook.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/addrbook"
+                prefix="net/java/sip/communicator/plugin/addrbook" />
         </jar>
     </target>
 

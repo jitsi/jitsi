@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.msoutlook;
+package net.java.sip.communicator.plugin.addrbook.msoutlook;
 
 /**
  * Represents a specific Microsoft Outlook MAPI <tt>HRESULT</tt> as an
