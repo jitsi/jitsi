@@ -6,7 +6,10 @@
  */
 package net.java.sip.communicator.plugin.addrbook.macosx;
 
+import java.util.*;
+
 import net.java.sip.communicator.plugin.addrbook.*;
+import net.java.sip.communicator.service.contactsource.*;
 
 /**
  * Implements <tt>ContactQuery</tt> for the Address Book of Mac OS X.
@@ -16,6 +19,118 @@ import net.java.sip.communicator.plugin.addrbook.*;
 public class MacOSXAddrBookContactQuery
     extends AsyncContactQuery<MacOSXAddrBookContactSourceService>
 {
+
+    /**
+     * The properties of <tt>ABPerson</tt> which are to be queried by the
+     * <tt>MacOSXAddrBookContactQuery</tt> instances.
+     */
+    private static final long[] ABPERSON_PROPERTIES
+        = new long[]
+        {
+            kABAIMInstantProperty(),
+            kABEmailProperty(),
+            kABFirstNameProperty(),
+            kABFirstNamePhoneticProperty(),
+            kABICQInstantProperty(),
+            kABJabberInstantProperty(),
+            kABLastNameProperty(),
+            kABLastNamePhoneticProperty(),
+            kABMiddleNameProperty(),
+            kABMiddleNamePhoneticProperty(),
+            kABMSNInstantProperty(),
+            kABNicknameProperty(),
+            kABPhoneProperty(),
+            kABYahooInstantProperty()
+        };
+
+    /**
+     * The index of the <tt>kABAIMInstantProperty</tt> <tt>ABPerson</tt>
+     * property in {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABAIMInstantProperty = 0;
+
+    /**
+     * The index of the <tt>kABEmailProperty</tt> <tt>ABPerson</tt> property in
+     * {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABEmailProperty = 1;
+
+    /**
+     * The index of the <tt>kABFirstNameProperty</tt> <tt>ABPerson</tt> property
+     * in {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABFirstNameProperty = 2;
+
+    /**
+     * The index of the <tt>kABFirstNamePhoneticProperty</tt> <tt>ABPerson</tt>
+     * property in {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABFirstNamePhoneticProperty = 3;
+
+    /**
+     * The index of the <tt>kABICQInstantProperty</tt> <tt>ABPerson</tt>
+     * property in {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABICQInstantProperty = 4;
+
+    /**
+     * The index of the <tt>kABJabberInstantProperty</tt> <tt>ABPerson</tt>
+     * property in {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABJabberInstantProperty = 5;
+
+    /**
+     * The index of the <tt>kABLastNameProperty</tt> <tt>ABPerson</tt> property
+     * in {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABLastNameProperty = 6;
+
+    /**
+     * The index of the <tt>kABLastNamePhoneticProperty</tt> <tt>ABPerson</tt>
+     * property in {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABLastNamePhoneticProperty = 7;
+
+    /**
+     * The index of the <tt>kABMiddleNameProperty</tt> <tt>ABPerson</tt>
+     * property in {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABMiddleNameProperty = 8;
+
+    /**
+     * The index of the <tt>kABMiddleNamePhoneticProperty</tt> <tt>ABPerson</tt>
+     * property in {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABMiddleNamePhoneticProperty = 9;
+
+    /**
+     * The index of the <tt>kABMSNInstantProperty</tt> <tt>ABPerson</tt>
+     * property in {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABMSNInstantProperty = 10;
+
+    /**
+     * The index of the <tt>kABNicknameProperty</tt> <tt>ABPerson</tt> property
+     * in {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABNicknameProperty = 11;
+
+    /**
+     * The index of the <tt>kABPhoneProperty</tt> <tt>ABPerson</tt> property in
+     * {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABPhoneProperty = 12;
+
+    /**
+     * The index of the <tt>kABYahooInstantProperty</tt> <tt>ABPerson</tt>
+     * property in {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABYahooInstantProperty = 13;
+
+    static
+    {
+        System.loadLibrary("jmacosxaddrbook");
+    }
 
     /**
      * Initializes a new <tt>MacOSXAddrBookContactQuery</tt> which is to perform
@@ -34,6 +149,213 @@ public class MacOSXAddrBookContactQuery
         super(contactSource, query);
     }
 
+    private static native Object[] ABRecord_valuesForProperties(
+            long record,
+            long[] properties);
+
+    /**
+     * Calls back to a specific <tt>PtrCallback</tt> for each <tt>ABPerson</tt>
+     * found in the Address Book of Mac OS X which matches a specific
+     * <tt>String</tt> query.
+     *
+     * @param query the <tt>String</tt> for which the Address Book of Mac OS X
+     * is to be queried. <b>Warning</b>: Ignored at the time of this writing.
+     * @param callback the <tt>PtrCallback</tt> to be notified about the
+     * matching <tt>ABPerson</tt>s
+     */
+    private static native void foreachPerson(
+            String query,
+            PtrCallback callback);
+
+    /**
+     * Gets the <tt>contactDetails</tt> to be set on a <tt>SourceContact</tt>
+     * which is to represent an <tt>ABPerson</tt> specified by the values of its
+     * {@link #ABPERSON_PROPERTIES}.
+     *
+     * @param values the values of the <tt>ABPERSON_PROPERTIES</tt> which
+     * represent the <tt>ABPerson</tt> to get the <tt>contactDetails</tt> of
+     * @return the <tt>contactDetails</tt> to be set on a <tt>SourceContact</tt>
+     * which is to represent the <tt>ABPerson</tt> specified by <tt>values</tt>
+     */
+    private List<ContactDetail> getContactDetails(Object[] values)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * Gets the <tt>displayName</tt> to be set on a <tt>SourceContact</tt>
+     * which is to represent an <tt>ABPerson</tt> specified by the values of its
+     * {@link #ABPERSON_PROPERTIES}.
+     *
+     * @param values the values of the <tt>ABPERSON_PROPERTIES</tt> which
+     * represent the <tt>ABPerson</tt> to get the <tt>displayName</tt> of
+     * @return the <tt>displayName</tt> to be set on a <tt>SourceContact</tt>
+     * which is to represent the <tt>ABPerson</tt> specified by <tt>values</tt>
+     */
+    private String getDisplayName(Object[] values)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * Gets the value of the <tt>kABAIMInstantProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABAIMInstantProperty</tt> constant
+     */
+    private static native long kABAIMInstantProperty();
+
+    /**
+     * Gets the value of the <tt>kABEmailProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABEmailProperty</tt> constant
+     */
+    private static native long kABEmailProperty();
+
+    /**
+     * Gets the value of the <tt>kABFirstNameProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABFirstNameProperty</tt> constant
+     */
+    private static native long kABFirstNameProperty();
+
+    /**
+     * Gets the value of the <tt>kABFirstNamePhoneticProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABFirstNamePhoneticProperty</tt> constant
+     */
+    private static native long kABFirstNamePhoneticProperty();
+
+    /**
+     * Gets the value of the <tt>kABICQInstantProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABICQInstantProperty</tt> constant
+     */
+    private static native long kABICQInstantProperty();
+
+    /**
+     * Gets the value of the <tt>kABJabberInstantProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABJabberInstantProperty</tt> constant
+     */
+    private static native long kABJabberInstantProperty();
+
+    /**
+     * Gets the value of the <tt>kABLastNameProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABLastNameProperty</tt> constant
+     */
+    private static native long kABLastNameProperty();
+
+    /**
+     * Gets the value of the <tt>kABLastNamePhoneticProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABLastNamePhoneticProperty</tt> constant
+     */
+    private static native long kABLastNamePhoneticProperty();
+
+    /**
+     * Gets the value of the <tt>kABMiddleNameProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABMiddleNameProperty</tt> constant
+     */
+    private static native long kABMiddleNameProperty();
+
+    /**
+     * Gets the value of the <tt>kABMiddleNamePhoneticProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABMiddleNamePhoneticProperty</tt> constant
+     */
+    private static native long kABMiddleNamePhoneticProperty();
+
+    /**
+     * Gets the value of the <tt>kABMSNInstantProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABMSNInstantProperty</tt> constant
+     */
+    private static native long kABMSNInstantProperty();
+
+    /**
+     * Gets the value of the <tt>kABNicknameProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABNicknameProperty</tt> constant
+     */
+    private static native long kABNicknameProperty();
+
+    /**
+     * Gets the value of the <tt>kABPhoneProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABPhoneProperty</tt> constant
+     */
+    private static native long kABPhoneProperty();
+
+    /**
+     * Gets the value of the <tt>kABYahooInstantProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABYahooInstantProperty</tt> constant
+     */
+    private static native long kABYahooInstantProperty();
+
+    /**
+     * Determines whether an <tt>ABPerson</tt> represented by the values of its
+     * {@link #ABPERSON_PROPERTIES} matches {@link #query}.
+     * 
+     * @param values the values of the <tt>ABPERSON_PROPERTIES</tt> which
+     * represent the <tt>ABPerson</tt> to be determined whether it matches
+     * <tt>query</tt>
+     * @return <tt>true</tt> if the <tt>ABPerson</tt> represented by the
+     * specified <tt>values</tt> matches <tt>query</tt>; otherwise,
+     * <tt>false</tt>
+     */
+    private boolean matches(Object[] values)
+    {
+        for (Object value : values)
+        {
+            if (value instanceof String)
+            {
+                if (((String) value).toLowerCase().equals(query))
+                    return true;
+            }
+            else if (value instanceof String[])
+            {
+                for (Object subValue : (String[]) value)
+                {
+                    if ((subValue instanceof String)
+                            && ((String) subValue).toLowerCase().equals(query))
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Notifies this <tt>MacOSXAddrBookContactQuery</tt> about a specific
+     * <tt>ABPerson</tt>.
+     *
+     * @param person a pointer to the <tt>ABPerson</tt> instance to notify about
+     * @return <tt>true</tt> if this <tt>MacOSXAddrBookContactQuery</tt> is to
+     * continue being called; otherwise, <tt>false</tt>
+     */
+    private boolean onPerson(long person)
+    {
+        Object[] values
+            = ABRecord_valuesForProperties(person, ABPERSON_PROPERTIES);
+
+        if (matches(values))
+        {
+            SourceContact sourceContact
+                = new AddrBookSourceContact(
+                        getContactSource(),
+                        getDisplayName(values),
+                        getContactDetails(values));
+
+            addQueryResult(sourceContact);
+        }
+        return (getStatus() == QUERY_IN_PROGRESS);
+    }
+
     /**
      * Performs this <tt>AsyncContactQuery</tt> in a background <tt>Thread</tt>.
      *
@@ -41,6 +363,14 @@ public class MacOSXAddrBookContactQuery
      */
     protected void run()
     {
-        // TODO Auto-generated method stub
+        foreachPerson(
+            query,
+            new PtrCallback()
+            {
+                public boolean callback(long person)
+                {
+                    return onPerson(person);
+                }
+            });
     }
 }

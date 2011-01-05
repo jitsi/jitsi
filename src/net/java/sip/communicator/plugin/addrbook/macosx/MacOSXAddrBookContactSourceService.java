@@ -16,6 +16,17 @@ import net.java.sip.communicator.service.contactsource.*;
 public class MacOSXAddrBookContactSourceService
     implements ContactSourceService
 {
+    static
+    {
+        /*
+         * Attempt to load the JNI counterpart as close to the startup of the
+         * addrbook bundle as possible so that any possible problem is
+         * discovered and reported as early as possible and outside of the UI
+         * which uses MacOSXAddrBookContactSourceService later on.
+         */
+        System.loadLibrary("jmacosxaddrbook");
+    }
+
     /**
      * Initializes a new <tt>MacOSXAddrBookContactSourceService</tt> instance.
      */

@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.addrbook.msoutlook;
+package net.java.sip.communicator.plugin.addrbook;
 
 import java.util.*;
 
@@ -12,11 +12,12 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * Implements <tt>SourceContact</tt> for a <tt>MAPI_MAILUSER</tt>.
+ * Implements a generic <tt>SourceContact</tt> for the purposes of the support
+ * for the OS-specific Address Book.
  *
  * @author Lyubomir Marinov
  */
-public class MsOutlookMailUserSourceContact
+public class AddrBookSourceContact
     implements SourceContact
 {
     /**
@@ -28,7 +29,7 @@ public class MsOutlookMailUserSourceContact
      * The <tt>ContactSourceService</tt> which has created this
      * <tt>SourceContact</tt>.
      */
-    private final MsOutlookAddrBookContactSourceService contactSource;
+    private final ContactSourceService contactSource;
 
     /**
      * The display name of this <tt>SourceContact</tt>.
@@ -36,15 +37,15 @@ public class MsOutlookMailUserSourceContact
     private final String displayName;
 
     /**
-     * Initializes a new <tt>MsOutlookMailUserSourceContact</tt> instance.
+     * Initializes a new <tt>AddrBookSourceContact</tt> instance.
      *
      * @param contactSource the <tt>ContactSourceService</tt> which is creating
      * the new instance
      * @param displayName the display name of the new instance
      * @param contactDetails the <tt>ContactDetail</tt>s of the new instance
      */
-    public MsOutlookMailUserSourceContact(
-            MsOutlookAddrBookContactSourceService contactSource,
+    public AddrBookSourceContact(
+            ContactSourceService contactSource,
             String displayName,
             List<ContactDetail> contactDetails)
     {
@@ -99,7 +100,7 @@ public class MsOutlookMailUserSourceContact
      * <tt>SourceContact</tt>
      * @see SourceContact#getContactSource()
      */
-    public MsOutlookAddrBookContactSourceService getContactSource()
+    public ContactSourceService getContactSource()
     {
         return contactSource;
     }

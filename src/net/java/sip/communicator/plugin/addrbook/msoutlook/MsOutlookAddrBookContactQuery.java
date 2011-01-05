@@ -144,19 +144,19 @@ public class MsOutlookAddrBookContactQuery
     }
 
     /**
-     * Calls back to a specific <tt>MsOutlookAddrBookCallback</tt> for each
+     * Calls back to a specific <tt>PtrCallback</tt> for each
      * <tt>MAPI_MAILUSER</tt> found in the Address Book of Microsoft Outlook
-     * which matches a specific <tt>String</tt>.
+     * which matches a specific <tt>String</tt> query.
      *
      * @param query the <tt>String</tt> for which the Address Book of Microsoft
-     * Outlook is to be queried. <bb>Warning</bb>: Ignored at the time of this
+     * Outlook is to be queried. <b>Warning</b>: Ignored at the time of this
      * writing.
-     * @param callback the <tt>MsOutlookAddrBookCallback</tt> to be notified
-     * about the matching <tt>MAPI_MAILUSER</tt>s
+     * @param callback the <tt>PtrCallback</tt> to be notified about the
+     * matching <tt>MAPI_MAILUSER</tt>s
      */
     private static native void foreachMailUser(
             String query,
-            MsOutlookAddrBookCallback callback);
+            PtrCallback callback);
 
     private static native Object[] IMAPIProp_GetProps(
             long mapiProp,
@@ -212,7 +212,7 @@ public class MsOutlookAddrBookContactQuery
             }
 
             SourceContact sourceContact
-                = new MsOutlookMailUserSourceContact(
+                = new AddrBookSourceContact(
                         getContactSource(),
                         (String) props[PR_DISPLAY_NAME_INDEX],
                         contactDetails);
@@ -231,7 +231,7 @@ public class MsOutlookAddrBookContactQuery
     {
         foreachMailUser(
             query,
-            new MsOutlookAddrBookCallback()
+            new PtrCallback()
             {
                 public boolean callback(long iUnknown)
                 {

@@ -10,7 +10,7 @@ extern "C" {
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery
  * Method:    foreachMailUser
- * Signature: (Ljava/lang/String;Lnet/java/sip/communicator/plugin/msoutlook/MsOutlookAddressBookCallback;)V
+ * Signature: (Ljava/lang/String;Lnet/java/sip/communicator/plugin/addrbook/PtrCallback;)V
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_foreachMailUser
   (JNIEnv *, jclass, jstring, jobject);
