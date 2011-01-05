@@ -1217,7 +1217,7 @@ public class ProtocolProviderServiceJabberImpl
              */
             if (accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactoryJabberImpl.IS_USE_JINGLE_NODES,
-                    false))
+                    true))
             {
                 supportedFeatures.add(URN_XMPP_JINGLE_NODES);
             }

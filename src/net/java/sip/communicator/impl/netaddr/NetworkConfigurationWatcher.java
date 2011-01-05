@@ -192,7 +192,8 @@ public class NetworkConfigurationWatcher
                     isAfterStandby = false;
                 }
 
-                last = curr;
+                // save the last time that we checked
+                last = System.currentTimeMillis();
             } catch (SocketException e)
             {
                 logger.error("Error checking network interfaces", e);

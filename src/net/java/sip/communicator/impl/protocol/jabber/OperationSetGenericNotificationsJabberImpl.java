@@ -121,6 +121,23 @@ public class OperationSetGenericNotificationsJabberImpl
             String eventName,
             String eventValue)
     {
+        this.notifyForEvent(jid, eventName, eventValue, null);
+    }
+
+    /**
+     * Generates new generic event notification and send it to the
+     * supplied contact.
+     * @param jid the contact jid which will receive the event notification.
+     * @param eventName the event name of the notification.
+     * @param eventValue the event value of the notification.
+     * @param source the source that will be reported in the event.
+     */
+    public void notifyForEvent(
+            String jid,
+            String eventName,
+            String eventValue,
+            String source)
+    {
         // if we are not registered do nothing
         if(!jabberProvider.isRegistered())
         {
@@ -141,7 +158,11 @@ public class OperationSetGenericNotificationsJabberImpl
         newEvent.setEventName(eventName);
         newEvent.setEventValue(eventValue);
         newEvent.setTo(jid);
-        newEvent.setEventSource(jabberProvider.getOurJID());
+
+        if(source != null)
+            newEvent.setEventSource(source);
+        else
+            newEvent.setEventSource(jabberProvider.getOurJID());
 
         jabberProvider.getConnection().sendPacket(newEvent);
     }

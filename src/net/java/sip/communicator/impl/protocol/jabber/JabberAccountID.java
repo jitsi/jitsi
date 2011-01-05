@@ -91,7 +91,7 @@ public class JabberAccountID
         return
             getAccountPropertyBoolean(
                     ProtocolProviderFactory.AUTO_DISCOVER_STUN,
-                    false);
+                    true);
     }
 
     /**

@@ -42,6 +42,20 @@ public interface OperationSetGenericNotifications
             String eventValue);
 
     /**
+     * Generates new generic event notification and send it to the
+     * supplied contact.
+     * @param jid the contact jid which will receive the event notification.
+     * @param eventName the event name of the notification.
+     * @param eventValue the event value of the notification.
+     * @param source the source that will be reported in the event.
+     */
+    public void notifyForEvent(
+            String jid,
+            String eventName,
+            String eventValue,
+            String source);
+
+    /**
      * Registers a <tt>GenericEventListener</tt> with this
      * operation set so that it gets notifications for new
      * event notifications.
