@@ -238,7 +238,14 @@ public class SipLogger
     public void logMessage(SIPMessage message, String from, String to,
                            String status, boolean sender, long time)
     {
-        logPacket(message, sender);
+        try
+        {
+            logPacket(message, sender);
+        }
+        catch(Throwable e)
+        {
+            logger.error("Error logging packet", e);
+        }
     }
 
     /**
@@ -248,7 +255,7 @@ public class SipLogger
      * @param message the message to log
      * @param sender determines whether we are the origin of this message.
      */
-    public void logPacket(SIPMessage message, boolean sender)
+    private void logPacket(SIPMessage message, boolean sender)
     {
         try
         {
@@ -264,19 +271,42 @@ public class SipLogger
             byte[] dstAddr;
             int dstPort;
 
+            // if addresses are not set use empty byte array with length
+            // equals to the other address or just empty
+            // byte array with length 4 (ipv4 0.0.0.0)
             if(sender)
             {
-                srcAddr = message.getLocalAddress().getAddress();
                 srcPort = message.getLocalPort();
-                dstAddr = message.getRemoteAddress().getAddress();
+                if(message.getLocalAddress() != null)
+                    srcAddr = message.getLocalAddress().getAddress();
+                else if(message.getRemoteAddress() != null)
+                    srcAddr = new byte[
+                            message.getRemoteAddress().getAddress().length];
+                else
+                    srcAddr = new byte[4];
+
                 dstPort = message.getRemotePort();
+                if(message.getRemoteAddress() != null)
+                    dstAddr = message.getRemoteAddress().getAddress();
+                else
+                    dstAddr = new byte[srcAddr.length];
             }
             else
             {
                 dstPort = message.getLocalPort();
-                dstAddr = message.getLocalAddress().getAddress();
-                srcAddr = message.getRemoteAddress().getAddress();
+                if(message.getLocalAddress() != null)
+                    dstAddr = message.getLocalAddress().getAddress();
+                else if(message.getRemoteAddress() != null)
+                    dstAddr = new byte[
+                            message.getRemoteAddress().getAddress().length];
+                else
+                    dstAddr = new byte[4];
+
                 srcPort = message.getRemotePort();
+                if(message.getRemoteAddress() != null)
+                    srcAddr = message.getRemoteAddress().getAddress();
+                else
+                    srcAddr = new byte[dstAddr.length];
             }
 
             byte[] msg = message.toString().getBytes("UTF-8");
