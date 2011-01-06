@@ -60,7 +60,7 @@ public class MsOutlookAddrBookContactSourceService
      */
     public String getDisplayName()
     {
-        return "Microsoft Outlook Address Book";
+        return "Microsoft Outlook";
     }
 
     /**

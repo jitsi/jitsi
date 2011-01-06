@@ -44,7 +44,7 @@ public class MacOSXAddrBookContactSourceService
      */
     public String getDisplayName()
     {
-        return "Mac OS X Address Book";
+        return "Address Book";
     }
 
     /**

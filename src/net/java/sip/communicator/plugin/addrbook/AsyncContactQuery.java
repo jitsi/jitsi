@@ -80,6 +80,21 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
     }
 
     /**
+     * Gets the number of <tt>SourceContact</tt>s which match this
+     * <tt>ContactQuery</tt>.
+     *
+     * @return the number of <tt>SourceContact</tt> which match this
+     * <tt>ContactQuery</tt>
+     */
+    public int getQueryResultCount()
+    {
+        synchronized (queryResults)
+        {
+            return queryResults.size();
+        }
+    }
+
+    /**
      * Gets the <tt>List</tt> of <tt>SourceContact</tt>s which match this
      * <tt>ContactQuery</tt>.
      *

@@ -37,6 +37,11 @@ public class AddrBookSourceContact
     private final String displayName;
 
     /**
+     * The image/avatar of this <tt>SourceContact</tt>
+     */
+    private byte[] image;
+
+    /**
      * Initializes a new <tt>AddrBookSourceContact</tt> instance.
      *
      * @param contactSource the <tt>ContactSourceService</tt> which is creating
@@ -136,8 +141,7 @@ public class AddrBookSourceContact
      */
     public byte[] getImage()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return image;
     }
 
     /**
@@ -156,5 +160,15 @@ public class AddrBookSourceContact
         List<ContactDetail> contactDetails = getContactDetails(operationSet);
 
         return contactDetails.isEmpty() ? null : contactDetails.get(0);
+    }
+
+    /**
+     * Sets the image/avatar of this <tt>SourceContact</tt>.
+     *
+     * @param image the image/avatar to be set on this <tt>SourceContact</tt>
+     */
+    public void setImage(byte[] image)
+    {
+        this.image = image;
     }
 }

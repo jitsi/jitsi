@@ -19,6 +19,13 @@ import net.java.sip.communicator.service.contactsource.*;
 public class MsOutlookAddrBookContactQuery
     extends AsyncContactQuery<MsOutlookAddrBookContactSourceService>
 {
+    private static final int dispidEmail1EmailAddress = 11;
+
+    private static final int dispidEmail2EmailAddress = 12;
+
+    private static final int dispidEmail3EmailAddress = 13;
+
+    private static final long MAPI_MAILUSER = 0x00000006;
 
     /**
      * The IDs of the properties of <tt>MAPI_MAILUSER</tt> which are to be
@@ -36,8 +43,14 @@ public class MsOutlookAddrBookContactQuery
             0x3A1B /* PR_BUSINESS2_TELEPHONE_NUMBER */,
             0x3A09 /* PR_HOME_TELEPHONE_NUMBER */,
             0x3A2F /* PR_HOME2_TELEPHONE_NUMBER */,
-            0x3A1C /* PR_MOBILE_TELEPHONE_NUMBER */
+            0x3A1C /* PR_MOBILE_TELEPHONE_NUMBER */,
+            0x0FFE /* PR_OBJECT_TYPE */,
+            0x00008083 /* dispidEmail1EmailAddress */,
+            0x00008093 /* dispidEmail2EmailAddress */,
+            0x000080A3 /* dispidEmail3EmailAddress */
         };
+
+    private static final long MAPI_MESSAGE = 0x00000005;
 
     /**
      * The flag which signals that MAPI strings should be returned in the
@@ -46,64 +59,75 @@ public class MsOutlookAddrBookContactQuery
     private static final long MAPI_UNICODE = 0x80000000;
 
     /**
+     * The id of the <tt>PR_ATTACHMENT_CONTACTPHOTO</tt> MAPI property.
+     */
+    private static final long PR_ATTACHMENT_CONTACTPHOTO = 0x7FFF;
+
+    /**
      * The index of the id of the <tt>PR_BUSINESS_TELEPHONE_NUMBER</tt> property
      * in {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_BUSINESS_TELEPHONE_NUMBER_INDEX = 5;
+    private static final int PR_BUSINESS_TELEPHONE_NUMBER = 5;
 
     /**
      * The index of the id of the <tt>PR_BUSINESS2_TELEPHONE_NUMBER</tt>
      * property in {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_BUSINESS2_TELEPHONE_NUMBER_INDEX = 6;
+    private static final int PR_BUSINESS2_TELEPHONE_NUMBER = 6;
 
     /**
      * The index of the id of the <tt>PR_DISPLAY_NAME</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_DISPLAY_NAME_INDEX = 0;
+    private static final int PR_DISPLAY_NAME = 0;
 
     /**
      * The index of the id of the <tt>PR_EMAIL_ADDRESS</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_EMAIL_ADDRESS_INDEX = 1;
+    private static final int PR_EMAIL_ADDRESS = 1;
 
     /**
      * The index of the id of the <tt>PR_GIVEN_NAME</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_GIVEN_NAME_INDEX = 2;
+    private static final int PR_GIVEN_NAME = 2;
 
     /**
      * The index of the id of the <tt>PR_HOME_TELEPHONE_NUMBER</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_HOME_TELEPHONE_NUMBER_INDEX = 7;
+    private static final int PR_HOME_TELEPHONE_NUMBER = 7;
 
     /**
      * The index of the id of the <tt>PR_HOME2_TELEPHONE_NUMBER</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_HOME2_TELEPHONE_NUMBER_INDEX = 8;
+    private static final int PR_HOME2_TELEPHONE_NUMBER = 8;
 
     /**
      * The index of the id of the <tt>PR_MIDDLE_NAME</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_MIDDLE_NAME_INDEX = 3;
+    private static final int PR_MIDDLE_NAME = 3;
 
     /**
      * The index of the id of the <tt>PR_MOBILE_TELEPHONE_NUMBER</tt> property
      * in {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_MOBILE_TELEPHONE_NUMBER_INDEX = 9;
+    private static final int PR_MOBILE_TELEPHONE_NUMBER = 9;
+
+    /**
+     * The index of the id of the <tt>PR_OBJECT_TYPE</tt> property in
+     * {@link #MAPI_MAILUSER_PROP_IDS}.
+     */
+    private static final int PR_OBJECT_TYPE = 10;
 
     /**
      * The index of the id of the <tt>PR_SURNAME</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_SURNAME_INDEX = 4;
+    private static final int PR_SURNAME = 4;
 
     /**
      * The indexes in {@link #MAPI_MAILUSER_PROP_IDS} of the property IDs which
@@ -113,18 +137,23 @@ public class MsOutlookAddrBookContactQuery
     private static final int[] CONTACT_DETAIL_PROP_INDEXES
         = new int[]
         {
-            PR_EMAIL_ADDRESS_INDEX,
-            PR_BUSINESS_TELEPHONE_NUMBER_INDEX,
-            PR_BUSINESS2_TELEPHONE_NUMBER_INDEX,
-            PR_HOME_TELEPHONE_NUMBER_INDEX,
-            PR_HOME2_TELEPHONE_NUMBER_INDEX,
-            PR_MOBILE_TELEPHONE_NUMBER_INDEX
+            PR_EMAIL_ADDRESS,
+            PR_BUSINESS_TELEPHONE_NUMBER,
+            PR_BUSINESS2_TELEPHONE_NUMBER,
+            PR_HOME_TELEPHONE_NUMBER,
+            PR_HOME2_TELEPHONE_NUMBER,
+            PR_MOBILE_TELEPHONE_NUMBER,
+            dispidEmail1EmailAddress,
+            dispidEmail2EmailAddress,
+            dispidEmail3EmailAddress
         };
 
     static
     {
         System.loadLibrary("jmsoutlookaddrbook");
     }
+
+    private int mapiMessageCount;
 
     /**
      * Initializes a new <tt>MsOutlookAddrBookContactQuery</tt> instance to
@@ -182,6 +211,18 @@ public class MsOutlookAddrBookContactQuery
                     iUnknown,
                     MAPI_MAILUSER_PROP_IDS,
                     MAPI_UNICODE);
+        long objType
+            = (props[PR_OBJECT_TYPE] instanceof Long)
+                ? ((Long) props[PR_OBJECT_TYPE]).longValue()
+                : 0;
+
+        /*
+         * If we have results from the Contacts folder(s), don't read from the
+         * Address Book because there may be duplicates.
+         */
+        if ((MAPI_MAILUSER == objType) && (mapiMessageCount != 0))
+            return false;
+
         boolean matches = false;
 
         for (Object prop : props)
@@ -211,11 +252,33 @@ public class MsOutlookAddrBookContactQuery
                 }
             }
 
-            SourceContact sourceContact
+            AddrBookSourceContact sourceContact
                 = new AddrBookSourceContact(
                         getContactSource(),
-                        (String) props[PR_DISPLAY_NAME_INDEX],
+                        (String) props[PR_DISPLAY_NAME],
                         contactDetails);
+
+            if (MAPI_MESSAGE == objType)
+            {
+                ++mapiMessageCount;
+
+                try
+                {
+                    Object[] images
+                        = IMAPIProp_GetProps(
+                                iUnknown,
+                                new long[] { PR_ATTACHMENT_CONTACTPHOTO },
+                                0);
+                    Object image = images[0];
+
+                    if (image instanceof byte[])
+                        sourceContact.setImage((byte[]) image);
+                }
+                catch (MsOutlookMAPIHResultException ex)
+                {
+                    // Ignore it, the image isn't as vital as the SourceContact.
+                }
+            }
 
             addQueryResult(sourceContact);
         }
