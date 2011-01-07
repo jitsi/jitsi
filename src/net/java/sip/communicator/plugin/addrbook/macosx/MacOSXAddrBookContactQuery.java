@@ -193,6 +193,8 @@ public class MacOSXAddrBookContactQuery
         super(contactSource, query);
     }
 
+    private static native byte[] ABPerson_imageData(long person);
+
     private static native Object[] ABRecord_valuesForProperties(
             long record,
             long[] properties);
@@ -532,11 +534,23 @@ public class MacOSXAddrBookContactQuery
 
                 if (!contactDetails.isEmpty())
                 {
-                    SourceContact sourceContact
+                    AddrBookSourceContact sourceContact
                         = new AddrBookSourceContact(
                                 getContactSource(),
                                 displayName,
                                 contactDetails);
+
+                    try
+                    {
+                        byte[] image = ABPerson_imageData(person);
+
+                        if (image != null)
+                            sourceContact.setImage(image);
+                    }
+                    catch (OutOfMemoryError oome)
+                    {
+                        // Ignore it, the image is not vital.
+                    }
 
                     addQueryResult(sourceContact);
                 }

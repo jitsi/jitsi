@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery
+ * Method:    ABPerson_imageData
+ * Signature: (J)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery_ABPerson_1imageData
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery
  * Method:    ABRecord_valuesForProperties
  * Signature: (J[J)[Ljava/lang/Object;
  */

@@ -12,9 +12,40 @@
 #import <AddressBook/AddressBook.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSAutoreleasePool.h>
+#import <Foundation/NSData.h>
 
 static void MacOSXAddrBookContactQuery_idToJObject
     (JNIEnv *jniEnv, id o, jobjectArray jos, jint i, jclass objectClass);
+
+JNIEXPORT jbyteArray JNICALL
+Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery_ABPerson_1imageData
+    (JNIEnv *jniEnv, jclass clazz, jlong person)
+{
+    NSData *imageData = [((ABPerson *) person) imageData];
+    jbyteArray jImageData;
+
+    if (imageData)
+    {
+        NSUInteger length = [imageData length];
+
+        if (length)
+        {
+            jImageData = (*jniEnv)->NewByteArray(jniEnv, length);
+            if (jImageData)
+            {
+                (*jniEnv)->SetByteArrayRegion(
+                    jniEnv,
+                    jImageData, 0, length,
+                    [imageData bytes]);
+            }
+        }
+        else
+            jImageData = NULL;
+    }
+    else
+        jImageData = NULL;
+    return jImageData;
+}
 
 JNIEXPORT jobjectArray JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery_ABRecord_1valuesForProperties
