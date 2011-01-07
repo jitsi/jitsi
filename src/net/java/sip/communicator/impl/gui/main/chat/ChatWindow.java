@@ -340,8 +340,6 @@ public class ChatWindow
             this.mainPanel.remove(chatPanel);
 
             chatCount --;
-
-            return;
         }
 
         //in the case of a tabbed chat window
@@ -702,8 +700,10 @@ public class ChatWindow
         if(isEscaped)
         {
             ChatPanel chatPanel = getCurrentChat();
+
             ChatRightButtonMenu chatRightMenu
                 = chatPanel.getChatConversationPanel().getRightButtonMenu();
+
             ChatWritePanel chatWritePanel = chatPanel.getChatWritePanel();
             WritePanelRightButtonMenu writePanelRightMenu
                 = chatWritePanel.getRightButtonMenu();

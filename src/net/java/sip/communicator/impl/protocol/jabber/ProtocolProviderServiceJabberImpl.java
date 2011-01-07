@@ -1608,9 +1608,11 @@ public class ProtocolProviderServiceJabberImpl
             return null;
 
         Roster roster = getConnection().getRoster();
-        Presence presence = roster.getPresence(contact.getAddress());
 
-        return presence.getFrom();
+        if (roster == null)
+            return null;
+
+        return roster.getPresence(contact.getAddress()).getFrom();
     }
 
     /**
