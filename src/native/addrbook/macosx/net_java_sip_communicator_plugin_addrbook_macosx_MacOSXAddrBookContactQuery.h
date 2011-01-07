@@ -121,6 +121,22 @@ JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_Ma
 
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery
+ * Method:    kABOrganizationProperty
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery_kABOrganizationProperty
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery
+ * Method:    kABPersonFlags
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery_kABPersonFlags
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery
  * Method:    kABPhoneProperty
  * Signature: ()J
  */

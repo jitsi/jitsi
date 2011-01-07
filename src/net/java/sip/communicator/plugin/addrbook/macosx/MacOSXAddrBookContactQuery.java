@@ -40,7 +40,9 @@ public class MacOSXAddrBookContactQuery
             kABMSNInstantProperty(),
             kABNicknameProperty(),
             kABPhoneProperty(),
-            kABYahooInstantProperty()
+            kABYahooInstantProperty(),
+            kABPersonFlags(),
+            kABOrganizationProperty()
         };
 
     /**
@@ -116,10 +118,34 @@ public class MacOSXAddrBookContactQuery
     private static final int kABNicknameProperty = 11;
 
     /**
+     * The index of the <tt>kABOrganizationProperty</tt> <tt>ABPerson</tt>
+     * property in {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABOrganizationProperty = 15;
+
+    /**
+     * The index of the <tt>kABPersonFlags</tt> <tt>ABPerson</tt> property in
+     * {@link #ABPERSON_PROPERTIES}.
+     */
+    private static final int kABPersonFlags = 14;
+
+    /**
      * The index of the <tt>kABPhoneProperty</tt> <tt>ABPerson</tt> property in
      * {@link #ABPERSON_PROPERTIES}.
      */
     private static final int kABPhoneProperty = 12;
+
+    /**
+     * The flag which indicates that an <tt>ABRecord</tt> is to be displayed as
+     * a company.
+     */
+    private static final long kABShowAsCompany = 1;
+
+    /**
+     * The mask which extracts the <tt>kABShowAsXXX</tt> flag from the
+     * <tt>personFlags</tt> of an <tt>ABPerson</tt>.
+     */
+    private static final long kABShowAsMask = 7;
 
     /**
      * The index of the <tt>kABYahooInstantProperty</tt> <tt>ABPerson</tt>
@@ -242,11 +268,26 @@ public class MacOSXAddrBookContactQuery
      */
     private String getDisplayName(Object[] values)
     {
-        String displayName
+        long personFlags
+            = (values[kABPersonFlags] instanceof Long)
+                ? ((Long) values[kABPersonFlags]).longValue()
+                : 0;
+        String displayName;
+
+        if ((personFlags & kABShowAsMask) == kABShowAsCompany)
+        {
+            displayName
+                = (values[kABOrganizationProperty] instanceof String)
+                    ? (String) values[kABOrganizationProperty]
+                    : "";
+            if (displayName.length() != 0)
+                return displayName;
+        }
+
+        displayName
             = (values[kABNicknameProperty] instanceof String)
                 ? (String) values[kABNicknameProperty]
                 : "";
-
         if (displayName.length() != 0)
             return displayName;
 
@@ -405,6 +446,20 @@ public class MacOSXAddrBookContactQuery
      * @return the value of the <tt>kABNicknameProperty</tt> constant
      */
     private static native long kABNicknameProperty();
+
+    /**
+     * Gets the value of the <tt>kABOrganizationProperty</tt> constant.
+     *
+     * @return the value of the <tt>kABOrganizationProperty</tt> constant
+     */
+    private static native long kABOrganizationProperty();
+
+    /**
+     * Gets the value of the <tt>kABPersonFlags</tt> constant.
+     *
+     * @return the value of the <tt>kABPersonFlags</tt> constant
+     */
+    private static native long kABPersonFlags();
 
     /**
      * Gets the value of the <tt>kABPhoneProperty</tt> constant.

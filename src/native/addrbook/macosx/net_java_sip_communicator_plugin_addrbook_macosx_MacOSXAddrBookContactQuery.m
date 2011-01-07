@@ -121,6 +121,8 @@ DEFINE_ABPERSON_PROPERTY_GETTER(kABMiddleNameProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABMiddleNamePhoneticProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABMSNInstantProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABNicknameProperty)
+DEFINE_ABPERSON_PROPERTY_GETTER(kABOrganizationProperty)
+DEFINE_ABPERSON_PROPERTY_GETTER(kABPersonFlags)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABPhoneProperty)
 DEFINE_ABPERSON_PROPERTY_GETTER(kABYahooInstantProperty)
 
@@ -163,6 +165,28 @@ MacOSXAddrBookContactQuery_idToJObject
                         jo = NULL;
                         break;
                     }
+                }
+            }
+        }
+        else if ([o isKindOfClass:[NSNumber class]])
+        {
+            jclass longClass = (*jniEnv)->FindClass(jniEnv, "java/lang/Long");
+
+            jo = NULL;
+            if (longClass)
+            {
+                jmethodID longMethodID
+                    = (*jniEnv)->GetMethodID(
+                            jniEnv,
+                            longClass, "<init>", "(J)V");
+
+                if (longMethodID)
+                {
+                    jo
+                        = (*jniEnv)->NewObject(
+                                jniEnv,
+                                longClass, longMethodID,
+                                (jlong) ([((NSNumber *) o) longValue]));
                 }
             }
         }
