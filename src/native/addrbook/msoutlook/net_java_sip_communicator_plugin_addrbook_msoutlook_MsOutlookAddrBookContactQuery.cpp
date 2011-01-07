@@ -7,6 +7,7 @@
 
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 
+#include "AddrBookContactQuery.h"
 #include "MsOutlookMAPI.h"
 #include "MsOutlookMAPIHResultException.h"
 
@@ -14,9 +15,6 @@
 
 #define WIND32_MEAN_AND_LEAK
 #include <windows.h>
-
-static void Exception_throwNew
-    (JNIEnv *jniEnv, const char *className, const char *message);
 
 static jboolean MsOutlookAddrBookContactQuery_foreachMailUser
     (ULONG objType, LPUNKNOWN iUnknown,
@@ -32,46 +30,19 @@ static void MsOutlookAddrBookContactQuery_freeSRowSet(LPSRowSet rows);
 static jboolean MsOutlookAddrBookContactQuery_mailUserMatches
     (LPMAPIPROP mailUser, JNIEnv *jniEnv, jstring query);
 
-static void
-Exception_throwNew(JNIEnv *jniEnv, const char *className, const char *message)
-{
-    jclass clazz;
-
-    clazz = jniEnv->FindClass(className);
-    if (clazz)
-        jniEnv->ThrowNew(clazz, message);
-}
-
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_foreachMailUser
     (JNIEnv *jniEnv, jclass clazz, jstring query, jobject callback)
 {
-    jclass callbackClass;
     jmethodID callbackMethodID;
 
     HRESULT hResult;
     LPMAPISESSION mapiSession;
 
-    /*
-     * Make sure that the specified arguments are valid. For example, check
-     * whether callback exists and has the necessary signature.
-     */
-    if (!callback)
-    {
-        Exception_throwNew(
-            jniEnv, "java/lang/NullPointerException", "callback");
+    callbackMethodID
+        = AddrBookContactQuery_getPtrCallbackMethodID(jniEnv, callback);
+    if (!callbackMethodID || (JNI_TRUE == jniEnv->ExceptionCheck()))
         return;
-    }
-    callbackClass = jniEnv->GetObjectClass(callback);
-    if (!callbackClass)
-        return;
-    callbackMethodID = jniEnv->GetMethodID(callbackClass, "callback", "(J)Z");
-    if (!callbackMethodID)
-    {
-        Exception_throwNew(
-            jniEnv, "java/lang/IllegalArgumentException", "callback");
-        return;
-    }
 
     hResult
         = MAPILogonEx(

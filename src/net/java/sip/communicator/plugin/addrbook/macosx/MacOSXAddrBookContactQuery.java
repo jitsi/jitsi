@@ -127,6 +127,24 @@ public class MacOSXAddrBookContactQuery
      */
     private static final int kABYahooInstantProperty = 13;
 
+    /**
+     * The indexes in {@link #ABPERSON_PROPERTIES} of the properties which are
+     * to be represented in <tt>SourceContact</tt> as <tt>ContactDetail</tt>s.
+     */
+    private static final int[] CONTACT_DETAIL_PROPERTY_INDEXES
+        = new int[]
+        {
+            kABEmailProperty,
+
+            kABPhoneProperty,
+
+            kABAIMInstantProperty,
+            kABICQInstantProperty,
+            kABJabberInstantProperty,
+            kABMSNInstantProperty,
+            kABYahooInstantProperty
+        };
+
     static
     {
         System.loadLibrary("jmacosxaddrbook");
@@ -179,8 +197,37 @@ public class MacOSXAddrBookContactQuery
      */
     private List<ContactDetail> getContactDetails(Object[] values)
     {
-        // TODO Auto-generated method stub
-        return null;
+        List<ContactDetail> contactDetails = new LinkedList<ContactDetail>();
+
+        for (int i = 0; i < CONTACT_DETAIL_PROPERTY_INDEXES.length; i++)
+        {
+            Object value = values[CONTACT_DETAIL_PROPERTY_INDEXES[i]];
+
+            if (value instanceof String)
+            {
+                String stringValue = (String) value;
+
+                if (stringValue.length() != 0)
+                    contactDetails.add(new ContactDetail(stringValue));
+            }
+            else if (value instanceof Object[])
+            {
+                for (Object subValue : (Object[]) value)
+                {
+                    if (subValue instanceof String)
+                    {
+                        String stringSubValue = (String) subValue;
+
+                        if (stringSubValue.length() != 0)
+                        {
+                            contactDetails.add(
+                                    new ContactDetail(stringSubValue));
+                        }
+                    }
+                }
+            }
+        }
+        return contactDetails;
     }
 
     /**
@@ -195,8 +242,84 @@ public class MacOSXAddrBookContactQuery
      */
     private String getDisplayName(Object[] values)
     {
-        // TODO Auto-generated method stub
-        return null;
+        String displayName
+            = (values[kABNicknameProperty] instanceof String)
+                ? (String) values[kABNicknameProperty]
+                : "";
+
+        if (displayName.length() != 0)
+            return displayName;
+
+        String firstName
+            = (values[kABFirstNameProperty] instanceof String)
+                ? (String) values[kABFirstNameProperty]
+                : "";
+
+        if ((firstName.length() == 0)
+                && (values[kABFirstNamePhoneticProperty] instanceof String))
+        {
+            firstName = (String) values[kABFirstNamePhoneticProperty];
+        }
+
+        String lastName
+            = (values[kABLastNameProperty] instanceof String)
+                ? (String) values[kABLastNameProperty]
+                : "";
+
+        if ((lastName.length() == 0)
+                && (values[kABLastNamePhoneticProperty] instanceof String))
+            lastName = (String) values[kABLastNamePhoneticProperty];
+        if ((lastName.length() == 0)
+                && (values[kABMiddleNameProperty] instanceof String))
+            lastName = (String) values[kABMiddleNameProperty];
+        if ((lastName.length() == 0)
+                && (values[kABMiddleNamePhoneticProperty] instanceof String))
+            lastName = (String) values[kABMiddleNamePhoneticProperty];
+
+        if (firstName.length() == 0)
+            displayName = lastName;
+        else
+        {
+            displayName
+                = (lastName.length() == 0)
+                    ? firstName
+                    : (firstName + " " + lastName);
+        }
+        if (displayName.length() != 0)
+            return displayName;
+
+        for (int i = 0; i < CONTACT_DETAIL_PROPERTY_INDEXES.length; i++)
+        {
+            Object value = values[CONTACT_DETAIL_PROPERTY_INDEXES[i]];
+
+            if (value instanceof String)
+            {
+                String stringValue = (String) value;
+
+                if (stringValue.length() != 0)
+                {
+                    displayName = stringValue;
+                    break;
+                }
+            }
+            else if (value instanceof Object[])
+            {
+                for (Object subValue : (Object[]) value)
+                {
+                    if (subValue instanceof String)
+                    {
+                        String stringSubValue = (String) subValue;
+
+                        if (stringSubValue.length() != 0)
+                        {
+                            displayName = stringSubValue;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return displayName;
     }
 
     /**
@@ -314,15 +437,16 @@ public class MacOSXAddrBookContactQuery
         {
             if (value instanceof String)
             {
-                if (((String) value).toLowerCase().equals(query))
+                if (((String) value).toLowerCase().contains(query))
                     return true;
             }
-            else if (value instanceof String[])
+            else if (value instanceof Object[])
             {
-                for (Object subValue : (String[]) value)
+                for (Object subValue : (Object[]) value)
                 {
                     if ((subValue instanceof String)
-                            && ((String) subValue).toLowerCase().equals(query))
+                            && ((String) subValue)
+                                    .toLowerCase().contains(query))
                         return true;
                 }
             }
@@ -345,13 +469,23 @@ public class MacOSXAddrBookContactQuery
 
         if (matches(values))
         {
-            SourceContact sourceContact
-                = new AddrBookSourceContact(
-                        getContactSource(),
-                        getDisplayName(values),
-                        getContactDetails(values));
+            String displayName = getDisplayName(values);
 
-            addQueryResult(sourceContact);
+            if (displayName.length() != 0)
+            {
+                List<ContactDetail> contactDetails = getContactDetails(values);
+
+                if (!contactDetails.isEmpty())
+                {
+                    SourceContact sourceContact
+                        = new AddrBookSourceContact(
+                                getContactSource(),
+                                displayName,
+                                contactDetails);
+
+                    addQueryResult(sourceContact);
+                }
+            }
         }
         return (getStatus() == QUERY_IN_PROGRESS);
     }

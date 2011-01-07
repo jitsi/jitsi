@@ -21,6 +21,13 @@ public class AddrBookActivator
     implements BundleActivator
 {
     /**
+     * The <tt>Logger</tt> used by the <tt>AddrBookActivator</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(AddrBookActivator.class);
+
+    /**
      * The <tt>ContactSourceService</tt> implementation for the OS-specific
      * Address Book.
      */
