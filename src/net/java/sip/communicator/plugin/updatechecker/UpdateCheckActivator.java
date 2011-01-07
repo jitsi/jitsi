@@ -770,6 +770,9 @@ public class UpdateCheckActivator
     {
         if(isNewestVersion())
         {
+            if(isAuthenticationCanceled)
+                return;
+
             getUIService().getPopupDialog().showMessagePopupDialog(
                 getResources().getI18NString(
                         "plugin.updatechecker.DIALOG_NOUPDATE"),
@@ -920,7 +923,15 @@ public class UpdateCheckActivator
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    checkForUpdate();
+                    // run outside swing thread, if password is required we
+                    // will block the swing
+                    new Thread()
+                    {
+                        public void run()
+                        {
+                            checkForUpdate();
+                        }
+                    }.start();
                 }
             });
         }
