@@ -86,9 +86,7 @@ public class BasicConferenceParticipantPanel
     /**
      * The component showing the sound level of the participant.
      */
-    private final SoundLevelIndicator soundIndicator
-        = new SoundLevelIndicator(  SoundLevelChangeEvent.MIN_LEVEL,
-                                    SoundLevelChangeEvent.MAX_LEVEL);
+    private final SoundLevelIndicator soundIndicator;
 
     private final GridBagConstraints constraints = new GridBagConstraints();
 
@@ -103,9 +101,15 @@ public class BasicConferenceParticipantPanel
 
     /**
      * Creates an instance of <tt>ConferenceParticipantPanel</tt>.
+     *
+     * @param renderer the renderer for the call
      */
-    public BasicConferenceParticipantPanel()
+    public BasicConferenceParticipantPanel(CallRenderer renderer)
     {
+        soundIndicator = new SoundLevelIndicator(  renderer,
+                                        SoundLevelChangeEvent.MIN_LEVEL,
+                                        SoundLevelChangeEvent.MAX_LEVEL);
+
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 

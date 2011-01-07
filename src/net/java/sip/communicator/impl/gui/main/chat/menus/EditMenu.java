@@ -108,19 +108,19 @@ public class EditMenu
 
         if (menuItemName.equalsIgnoreCase("cut"))
         {
-            this.chatWindow.getCurrentChatPanel().cut();
+            this.chatWindow.getCurrentChat().cut();
         }
         else if (menuItemName.equalsIgnoreCase("copy"))
         {
-            this.chatWindow.getCurrentChatPanel().copy();
+            this.chatWindow.getCurrentChat().copy();
         }
         else if (menuItemName.equalsIgnoreCase("paste"))
         {
-            this.chatWindow.getCurrentChatPanel().paste();
+            this.chatWindow.getCurrentChat().paste();
         }
         else if (menuItemName.equalsIgnoreCase("font"))
         {
-            this.chatWindow.getCurrentChatPanel().getChatWritePanel()
+            this.chatWindow.getCurrentChat().getChatWritePanel()
                 .getEditTextToolBar().showFontChooserDialog();
         }
     }

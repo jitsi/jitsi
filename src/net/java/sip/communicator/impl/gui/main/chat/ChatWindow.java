@@ -12,24 +12,18 @@ import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.event.*;
 
 import org.osgi.framework.*;
 
@@ -52,13 +46,14 @@ import com.explodingpixels.macwidgets.*;
  */
 public class ChatWindow
     extends SIPCommFrame
-    implements  ExportedWindow,
+    implements  ChatContainer,
+                ExportedWindow,
                 PluginComponentListener,
                 WindowFocusListener
 {
     private final Logger logger = Logger.getLogger(ChatWindow.class);
 
-    private ChatTabbedPane chatTabbedPane = null;
+    private ConversationTabbedPane chatTabbedPane = null;
 
     private int chatCount = 0;
 
@@ -101,29 +96,7 @@ public class ChatWindow
         //If in mode TABBED_CHAT_WINDOW initialize the tabbed pane
         if(ConfigurationManager.isMultiChatWindowEnabled())
         {
-            chatTabbedPane = new ChatTabbedPane();
-
-            chatTabbedPane.addCloseListener(new CloseListener()
-            {
-                public void closeOperation(MouseEvent e)
-                {
-                    int tabIndex = chatTabbedPane.getOverTabIndex();
-                    ChatPanel chatPanel
-                        = (ChatPanel) chatTabbedPane.getComponentAt(tabIndex);
-
-                    GuiActivator
-                        .getUIService()
-                            .getChatWindowManager().closeChat(chatPanel);
-                }
-            });
-
-            chatTabbedPane.addChangeListener(new ChangeListener()
-            {
-                public void stateChanged(ChangeEvent evt)
-                {
-                    removeNonReadChatState();
-                }
-            });
+            chatTabbedPane = new ConversationTabbedPane();
         }
 
         menuBar = new MessageWindowMenuBar(this);
@@ -182,7 +155,7 @@ public class ChatWindow
      */
     public void setStylebarVisible(boolean b)
     {
-        ChatPanel p = this.getCurrentChatPanel();
+        ChatPanel p = this.getCurrentChat();
 
         // Set the value for the current chat panel
         if (p != null)
@@ -309,7 +282,7 @@ public class ChatWindow
         ChatSession chatSession = chatPanel.getChatSession();
         String chatName = chatSession.getChatName();
 
-        ChatPanel currentChatPanel = getCurrentChatPanel();
+        ChatPanel currentChatPanel = getCurrentChat();
 
         if (currentChatPanel == null)
         {
@@ -381,7 +354,7 @@ public class ChatWindow
 
             if (chatTabbedPane.getTabCount() == 1)
             {
-                ChatPanel currentChatPanel = getCurrentChatPanel();
+                ChatPanel currentChatPanel = getCurrentChat();
 
                 this.chatTabbedPane.removeAll();
 
@@ -389,11 +362,14 @@ public class ChatWindow
 
                 this.mainPanel.add(currentChatPanel, BorderLayout.CENTER);
 
-                this.setCurrentChatPanel(currentChatPanel);
+                this.setCurrentChat(currentChatPanel);
             }
 
             chatCount --;
         }
+
+        if (getChatCount() == 0)
+            dispose();
     }
 
     /**
@@ -415,8 +391,15 @@ public class ChatWindow
         }
         else
         {
-            this.removeChat(getCurrentChatPanel());
+            this.removeChat(getCurrentChat());
         }
+
+        /*
+         * The ChatWindow should seize to exist so we don't want any strong
+         * references to it i.e. it cannot be exported anymore.
+         */
+        GuiActivator.getUIService().unregisterExportedWindow(this);
+        dispose();
     }
 
     /**
@@ -424,12 +407,13 @@ public class ChatWindow
      * 
      * @param chatPanel The <tt>ChatPanel</tt> to select.
      */
-    public void setCurrentChatPanel(ChatPanel chatPanel)
+    public void setCurrentChat(ChatPanel chatPanel)
     {
         ChatSession chatSession = chatPanel.getChatSession();
 
         if (logger.isDebugEnabled())
-            logger.debug("Set current chat panel to: " + chatSession.getChatName());
+            logger.debug(
+                "Set current chat panel to: " + chatSession.getChatName());
 
         if(getChatTabCount() > 0)
             this.chatTabbedPane.setSelectedComponent(chatPanel);
@@ -458,7 +442,7 @@ public class ChatWindow
             ChatPanel chatPanel = (ChatPanel) this.chatTabbedPane
                 .getComponentAt(index);
 
-            setCurrentChatPanel(chatPanel);
+            setCurrentChat(chatPanel);
         }
     }
 
@@ -467,7 +451,7 @@ public class ChatWindow
      * 
      * @return the currently selected chat panel.
      */
-    public ChatPanel getCurrentChatPanel()
+    public ChatPanel getCurrentChat()
     {
         if(getChatTabCount() > 0)
             return (ChatPanel) chatTabbedPane.getSelectedComponent();
@@ -493,7 +477,7 @@ public class ChatWindow
      *
      * @return the currently available chat panels.
      */
-    public java.util.List<ChatPanel> getChatPanels()
+    public java.util.List<ChatPanel> getChats()
     {
         ArrayList<ChatPanel> chatPanels = new ArrayList<ChatPanel>();
 
@@ -535,7 +519,7 @@ public class ChatWindow
      * 
      * @return int The number of opened tabs.
      */
-    public int getChatTabCount()
+    private int getChatTabCount()
     {
         return (chatTabbedPane == null) ? 0 : chatTabbedPane.getTabCount();
     }
@@ -545,7 +529,7 @@ public class ChatWindow
      * 
      * @param chatPanel the chat panel which corresponds to the tab to highlight
      */
-    public void highlightTab(ChatPanel chatPanel)
+    private void highlightTab(ChatPanel chatPanel)
     {
         int tabIndex = chatTabbedPane.indexOfComponent(chatPanel);
 
@@ -632,7 +616,7 @@ public class ChatWindow
     {
         public void actionPerformed(ActionEvent e)
         {
-            getCurrentChatPanel().copy();
+            getCurrentChat().copy();
         }
     }
 
@@ -645,7 +629,7 @@ public class ChatWindow
     {
         public void actionPerformed(ActionEvent e)
         {
-            getCurrentChatPanel().paste();
+            getCurrentChat().paste();
         }
     }
 
@@ -658,7 +642,7 @@ public class ChatWindow
     {
         public void actionPerformed(ActionEvent e)
         {
-            getCurrentChatPanel().getChatWritePanel()
+            getCurrentChat().getChatWritePanel()
                 .getEditTextToolBar().getSmileysSelectorBox().open();
         }
     }
@@ -691,18 +675,6 @@ public class ChatWindow
     }
 
     /**
-     * Returns the time of the last received message.
-     *
-     * @param chatPanel the chat panel for which w're getting the timestamp
-     * @return The time of the last received message.
-     */
-    public long getLastIncomingMsgTimestamp(ChatPanel chatPanel)
-    {
-        return chatPanel.getChatConversationPanel()
-            .getLastIncomingMsgTimestamp();
-    }
-
-    /**
      * Before closing the chat window saves the current size and position
      * through the <tt>ConfigurationService</tt>.
      */
@@ -729,7 +701,7 @@ public class ChatWindow
     {
         if(isEscaped)
         {
-            ChatPanel chatPanel = getCurrentChatPanel();
+            ChatPanel chatPanel = getCurrentChat();
             ChatRightButtonMenu chatRightMenu
                 = chatPanel.getChatConversationPanel().getRightButtonMenu();
             ChatWritePanel chatWritePanel = chatPanel.getChatWritePanel();
@@ -759,7 +731,7 @@ public class ChatWindow
         else
         {
             GuiActivator
-                .getUIService().getChatWindowManager().closeWindow(this);
+                .getUIService().getChatWindowManager().closeAllChats(this, true);
         }
     }
 
@@ -1041,167 +1013,7 @@ public class ChatWindow
         }
     }
 
-    /**
-     * The photo label corresponding to the current chat.
-     */
-    private class ContactPhotoPanel extends JLayeredPane
-    {
-        private final JLabel photoLabel = new JLabel();
-
-        private final JLabel addContactButton = new JLabel(
-            new ImageIcon(ImageLoader.getImage(
-                ImageLoader.ADD_CONTACT_CHAT_ICON)));
-
-        private ImageIcon tooltipIcon;
-
-        private ChatSession chatSession;
-
-        public ContactPhotoPanel()
-        {
-            this.setLayout(null);
-
-            this.setPreferredSize(
-                new Dimension(  ChatContact.AVATAR_ICON_WIDTH + 10,
-                                ChatContact.AVATAR_ICON_HEIGHT));
-
-            this.add(photoLabel, 1);
-
-            this.photoLabel.setBounds(5, 0,
-                ChatContact.AVATAR_ICON_WIDTH,
-                ChatContact.AVATAR_ICON_HEIGHT);
-
-            addContactButton.setBounds(
-                ChatContact.AVATAR_ICON_WIDTH - 6,
-                ChatContact.AVATAR_ICON_HEIGHT - 16,
-                16, 16);
-
-            this.addContactButton.addMouseListener(new MouseAdapter()
-            {
-                public void mousePressed(MouseEvent e)
-                {
-                    if(chatSession != null)
-                    {
-                        AddContactDialog dialog
-                            = new AddContactDialog(
-                                    GuiActivator.getUIService().getMainFrame());
-
-                        dialog.setSelectedAccount(
-                            chatSession.getCurrentChatTransport()
-                                .getProtocolProvider());
-
-                        // this is the current contact address we want to add
-                        dialog.setContactAddress(
-                            chatSession.getCurrentChatTransport().getName());
-
-                        dialog.setVisible(true);
-                    }
-                }
-            });
-        }
-
-        /**
-         * Sets the given <tt>chatSession</tt> parameters to this contact
-         * photo label.
-         * 
-         * @param chatSession The <tt>ChatSession</tt> to set.
-         */
-        public void setChatSession(ChatSession chatSession)
-        {
-            this.chatSession = chatSession;
-
-            byte[] chatAvatar = chatSession.getChatAvatar();
-
-            if (chatAvatar != null && chatAvatar.length > 0)
-            {
-                this.tooltipIcon = new ImageIcon(chatAvatar);
-
-                ImageIcon contactPhotoIcon
-                    = ImageUtils.getScaledRoundedIcon(chatAvatar,
-                        ChatContact.AVATAR_ICON_WIDTH ,
-                        ChatContact.AVATAR_ICON_HEIGHT);
-
-                if (contactPhotoIcon != null)
-                    this.photoLabel.setIcon(contactPhotoIcon);
-            }
-            else
-            {
-                // Even if we don't have the icon of the current contact we
-                // should remove the one of the previously selected contact.
-                this.photoLabel.setIcon(null);
-                this.tooltipIcon = null;
-            }
-
-            // Need to set the tooltip in order to have createToolTip called
-            // from the TooltipManager.
-            this.setToolTipText("");
-
-            // if its multichat don't show addContactButton, cause
-            // it sa mutlichat room which
-            // cannot be saved with add contact dialog
-            if (!chatSession.isDescriptorPersistent()
-                && !(chatSession instanceof ConferenceChatSession))
-                this.add(addContactButton, 0);
-            else
-                this.remove(addContactButton);
-
-            this.revalidate();
-            this.repaint();
-        }
-
-        /**
-         * Creates a tooltip.
-         * @return the created tool tip
-         */
-        public JToolTip createToolTip()
-        {
-            ExtendedTooltip tip = new ExtendedTooltip(true);
-
-            if (tooltipIcon != null)
-                tip.setImage(tooltipIcon);
-
-            tip.setTitle(chatSession.getChatName());
-
-            Iterator<ChatTransport> transports = chatSession.getChatTransports();
-
-            while (transports.hasNext())
-            {
-                ChatTransport transport = transports.next();
-
-                ImageIcon protocolStatusIcon;
-                if (transport.getStatus() != null)
-                {
-                    protocolStatusIcon
-                        = new ImageIcon(transport.getStatus().getStatusIcon());
-                }
-                else
-                    protocolStatusIcon = new ImageIcon();
-
-                String transportAddress = transport.getName();
-
-                tip.addLine( protocolStatusIcon,
-                                        transportAddress);
-            }
-
-            tip.setComponent(this);
-
-            return tip;
-        }
-
-        /**
-         * Returns the string to be used as the tooltip for <i>event</i>. We
-         * don't really use this string, but we need to return different string
-         * each time in order to make the TooltipManager change the tooltip over
-         * the different cells in the JList.
-         * 
-         * @param event the <tt>MouseEvent</tt>
-         * @return the string to be used as the tooltip for <i>event</i>.
-         */
-        public String getToolTipText(MouseEvent event)
-        {
-            return chatSession.getChatName();
-        }
-    }
-
+    
     /**
      * Implementation of {@link ExportedWindow#setParams(Object[])}.
      */
@@ -1213,46 +1025,14 @@ public class ChatWindow
      */
     public void windowGainedFocus(WindowEvent evt)
     {
-        this.removeNonReadChatState();
+        ChatPanel currentChat = getCurrentChat();
+
+        if (currentChat != null)
+            GuiActivator.getUIService().getChatWindowManager()
+                .removeNonReadChatState(currentChat);
     }
 
     public void windowLostFocus(WindowEvent arg0) {}
-
-    /**
-     * Removes the non read state of the currently selected chat session. This
-     * will result in removal of all icons representing the non read state (like
-     * envelopes in contact list).
-     */
-    private void removeNonReadChatState()
-    {
-        final ChatPanel currentChatPanel = this.getCurrentChatPanel();
-
-        // If there's no chat panel selected we do nothing.
-        if (currentChatPanel == null)
-            return;
-
-        ChatSession chatSession
-            = currentChatPanel.getChatSession();
-
-        if(chatSession instanceof MetaContactChatSession)
-        {
-            MetaContact selectedMetaContact
-                = (MetaContact) chatSession.getDescriptor();
-
-            TreeContactList clist
-                = GuiActivator.getContactList();
-
-            // Remove the envelope from the contact when the chat has
-            // gained the focus.
-            if(clist.isContactActive(selectedMetaContact))
-            {
-                clist.setActiveContact(selectedMetaContact, false);
-            }
-
-            this.getCurrentChatPanel()
-                .fireChatFocusEvent(ChatFocusEvent.FOCUS_GAINED);
-        }
-    }
 
     private static class ToolbarPanel
         extends TransparentPanel
@@ -1314,8 +1094,87 @@ public class ChatWindow
      */
     public void fileDropped(File file, Point point)
     {
-        ChatPanel chatPanel = getCurrentChatPanel();
+        ChatPanel chatPanel = getCurrentChat();
 
         chatPanel.sendFile(file);
+    }
+
+    /**
+     * Opens the specified <tt>ChatPanel</tt> and optinally brings it to the
+     * front.
+     *
+     * @param chatPanel the <tt>ChatPanel</tt> to be opened
+     * @param setSelected <tt>true</tt> if <tt>chatPanel</tt> (and respectively
+     * this <tt>ChatContainer</tt>) should be brought to the front; otherwise,
+     * <tt>false</tt>
+     */
+    public void openChat(ChatPanel chatPanel, boolean setSelected)
+    {
+        if(getExtendedState() != JFrame.ICONIFIED)
+        {
+            if(ConfigurationManager.isAutoPopupNewMessage()
+                    || setSelected)
+                toFront();
+        }
+        else
+        {
+            if(setSelected)
+            {
+                setExtendedState(JFrame.NORMAL);
+                toFront();
+            }
+
+            String chatWindowTitle = getTitle();
+
+            if(!chatWindowTitle.startsWith("*"))
+                setTitle("*" + chatWindowTitle);
+        }
+
+        if(setSelected)
+        {
+            setCurrentChat(chatPanel);
+        }
+        else if(!getCurrentChat().equals(chatPanel)
+            && getChatTabCount() > 0)
+        {
+            highlightTab(chatPanel);
+        }
+    }
+
+    /**
+     * Returns the frame to which this container belongs.
+     *
+     * @return the frame to which this container belongs
+     */
+    public Frame getFrame()
+    {
+        return this;
+    }
+
+    /**
+     * Sets the title of this chat container.
+     *
+     * @param chatPanel the chat, for which we set the title
+     * @param title the title to set
+     */
+    public void setChatTitle(ChatPanel chatPanel, String title)
+    {
+        setTabTitle(chatPanel, title);
+    }
+
+    public void setChatIcon(ChatPanel chatPanel, Icon icon)
+    {
+        setTabIcon(chatPanel, icon);
+    }
+
+    /**
+     * Indicates if the parent frame is currently the active window.
+     *
+     * @return <tt>true</tt> if the parent window is currently the active
+     * window, <tt>false</tt> otherwise
+     */
+    public boolean isFrameActive()
+    {
+        return isActive();
     }
 }

@@ -34,7 +34,7 @@ public class DTMFHandler
     /**
      * The call dialog, where this handler is registered.
      */
-    private CallDialog callDialog;
+    private CallPanel callContainer;
 
     /**
      * Parent windows we listen key entering on them.
@@ -153,14 +153,14 @@ public class DTMFHandler
 
     /**
      * Creates DTMF handler for a call.
-     * @param callDialog the <tt>CallDialog</tt>, where this handler is
+     * @param callContainer the <tt>CallContainer</tt>, where this handler is
      * registered
      */
-    public DTMFHandler(CallDialog callDialog)
+    public DTMFHandler(CallPanel callContainer)
     {
-        this.callDialog = callDialog;
+        this.callContainer = callContainer;
 
-        this.addParent(callDialog);
+        this.addParent(callContainer.getCallWindow().getFrame());
 
         KeyboardFocusManager keyManager
             = KeyboardFocusManager.getCurrentKeyboardFocusManager();
@@ -263,7 +263,7 @@ public class DTMFHandler
         }
 
         Iterator<? extends CallPeer> callPeers
-            = this.callDialog.getCurrentCallRenderer().getCall().getCallPeers();
+            = callContainer.getCurrentCallRenderer().getCall().getCallPeers();
 
         try
         {
@@ -279,7 +279,7 @@ public class DTMFHandler
                     dtmfOpSet.startSendingDTMF(peer, info.tone);
 
                     CallPeerRenderer peerRenderer
-                        = callDialog.getCurrentCallRenderer()
+                        = callContainer.getCurrentCallRenderer()
                             .getCallPeerRenderer(peer);
                     if (peerRenderer != null)
                         peerRenderer.printDTMFTone(info.keyChar);
@@ -303,7 +303,7 @@ public class DTMFHandler
         currentlyPlayingAudio = null;
 
         Iterator<? extends CallPeer> callPeers
-            = this.callDialog.getCurrentCallRenderer().getCall().getCallPeers();
+            = callContainer.getCurrentCallRenderer().getCall().getCallPeers();
 
         try
         {

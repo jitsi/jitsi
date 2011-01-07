@@ -122,9 +122,9 @@ public class MainToolBar
     private ChatSession chatSession;
 
     /**
-     * The chat window, where this tool bar is contained.
+     * The chat container, where this tool bar is added.
      */
-    protected final ChatWindow messageWindow;
+    protected final ChatContainer chatContainer;
 
     /**
      * The plug-in container contained in this tool bar.
@@ -134,18 +134,19 @@ public class MainToolBar
     /**
      * Creates an instance and constructs the <tt>MainToolBar</tt>.
      *
-     * @param messageWindow The parent <tt>ChatWindow</tt>.
+     * @param chatContainer The parent <tt>ChatWindow</tt>.
      */
-    public MainToolBar(ChatWindow messageWindow)
+    public MainToolBar(ChatContainer chatContainer)
     {
-        this.messageWindow = messageWindow;
+        this.chatContainer = chatContainer;
 
         init();
 
         pluginContainer
             = new PluginContainer(this, Container.CONTAINER_CHAT_TOOL_BAR);
 
-        this.messageWindow.addChatChangeListener(this);
+        this.chatContainer.addChatChangeListener(this);
+
     }
 
     /**
@@ -284,7 +285,6 @@ public class MainToolBar
         }
     }
 
-
     /**
      * Returns list of <tt>ChatTransport</tt> (i.e. contact) that supports the
      * specified <tt>OperationSet</tt>.
@@ -366,7 +366,7 @@ public class MainToolBar
         AbstractButton button = (AbstractButton) e.getSource();
         String buttonText = button.getName();
 
-        ChatPanel chatPanel = messageWindow.getCurrentChatPanel();
+        ChatPanel chatPanel = chatContainer.getCurrentChat();
 
         if (buttonText.equals("previous"))
         {
@@ -386,7 +386,7 @@ public class MainToolBar
             {
                 ConfigurationManager.setSendFileLastDir(
                     selectedFile.getParent());
-                messageWindow.getCurrentChatPanel().sendFile(selectedFile);
+                chatContainer.getCurrentChat().sendFile(selectedFile);
             }
         }
         else if (buttonText.equals("history"))

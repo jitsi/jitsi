@@ -278,12 +278,6 @@ public class ContactListPane
                 message.getContent(),
                 message.getContentType());
 
-            // A bug Fix for Previous/Next buttons .
-            // Must update buttons state after message is processed
-            // otherwise states are not proper
-            chatPanel.getChatWindow().getMainToolBar().
-                changeHistoryButtonsState(chatPanel);
-
             // Opens the chat panel with the new message in the UI thread.
             SwingUtilities.invokeLater(new Runnable()
             {

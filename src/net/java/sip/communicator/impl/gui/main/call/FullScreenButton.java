@@ -27,10 +27,10 @@ public class FullScreenButton
      * Initializes a new <tt>FullScreenButton</tt> instance which is to
      * enter the full screen mode.
      *
-     * @param callDialog the parent <tt>CallDialog</tt>, where this button is
-     * contained
+     * @param callContainer the parent <tt>CallContainer</tt>, where this button
+     * is contained
      */
-    public FullScreenButton(final CallDialog callDialog)
+    public FullScreenButton(final CallPanel callContainer)
     {
         super(  ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
                 ImageLoader.getImage(ImageLoader.ENTER_FULL_SCREEN_BUTTON));
@@ -49,7 +49,7 @@ public class FullScreenButton
              */
             public void actionPerformed(ActionEvent evt)
             {
-                callDialog.getCurrentCallRenderer().enterFullScreen();
+                callContainer.getCurrentCallRenderer().enterFullScreen();
             }
         });
     }

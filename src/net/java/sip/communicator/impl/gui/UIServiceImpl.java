@@ -104,6 +104,8 @@ public class UIServiceImpl
     private HistoryWindowManager historyWindowManager
         = new HistoryWindowManager();
 
+    private SingleWindowContainer singleWindowContainer;
+
     /**
      * Creates an instance of <tt>UIServiceImpl</tt>.
      */
@@ -118,6 +120,16 @@ public class UIServiceImpl
     {
         this.setDefaultThemePack();
 
+        // Initialize the single window container if we're in this case. This
+        // should be done before initializing the main window, because he'll
+        // search for it.
+        String singleWidnowProp = GuiActivator.getResources()
+            .getSettingsString("impl.gui.SINGLE_WINDOW_INTERFACE");
+
+        if (Boolean.parseBoolean(singleWidnowProp))
+            singleWindowContainer = new SingleWindowContainer();
+
+        // Initialize the main window.
         this.mainFrame = new MainFrame();
 
         if (UIManager.getLookAndFeel() instanceof SIPCommLookAndFeel)
@@ -132,10 +144,14 @@ public class UIServiceImpl
          */
         mainFrame.setContactList(GuiActivator.getContactListService());
 
+        // Initialize main window bounds.
         this.mainFrame.initBounds();
 
+        // Register the main window as an exported window, so that other bundles
+        // could access it through the UIService.
         GuiActivator.getUIService().registerExportedWindow(mainFrame);
 
+        // Initialize the login manager.
         this.loginManager = new LoginManager(mainFrame);
 
         this.popupDialog = new PopupDialogImpl();
@@ -156,7 +172,7 @@ public class UIServiceImpl
         }
 
         if(ConfigurationManager.isApplicationVisible())
-            mainFrame.setVisible(true);
+            mainFrame.setFrameVisible(true);
 
         SwingUtilities.invokeLater(new RunLoginGui());
 
@@ -229,7 +245,7 @@ public class UIServiceImpl
      */
     public boolean isVisible()
     {
-        return mainFrame.isVisible();
+        return mainFrame.isFrameVisible();
     }
 
     /**
@@ -244,7 +260,7 @@ public class UIServiceImpl
      */
     public void setVisible(final boolean isVisible)
     {
-        this.mainFrame.setVisible(isVisible);
+        this.mainFrame.setFrameVisible(isVisible);
     }
 
     /**
@@ -320,7 +336,7 @@ public class UIServiceImpl
      */
     public void restore()
     {
-        if (mainFrame.isVisible())
+        if (mainFrame.isFrameVisible())
         {
             if (mainFrame.getState() == JFrame.ICONIFIED)
                 mainFrame.setState(JFrame.NORMAL);
@@ -328,7 +344,7 @@ public class UIServiceImpl
             mainFrame.toFront();
         }
         else
-            mainFrame.setVisible(true);
+            mainFrame.setFrameVisible(true);
     }
 
     /**
@@ -1243,6 +1259,18 @@ public class UIServiceImpl
     public Collection <Chat> getAllChats()
     {
         return new ArrayList <Chat> (getChatWindowManager().getAllChats());
+    }
+
+    /**
+     * Returns the single window container if such one is available (i.e. we're
+     * in a single window mode).
+     *
+     * @return the single window container if such one is available, otherwise
+     * returns null
+     */
+    public SingleWindowContainer getSingleWindowContainer()
+    {
+        return singleWindowContainer;
     }
 
     /**

@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
@@ -14,6 +20,7 @@ public interface CallRenderer
 {
     /**
      * Returns the call represented by this call renderer.
+     *
      * @return the call represented by this call renderer
      */
     public Call getCall();
@@ -30,6 +37,7 @@ public interface CallRenderer
 
     /**
      * Ensures the size of the window.
+     *
      * @param component the component, which size should be considered
      * @param width the desired width
      * @param height the desired height
@@ -37,14 +45,16 @@ public interface CallRenderer
     public void ensureSize(Component component, int width, int height);
 
     /**
-     * Returns the parent call dialog, where this renderer is contained.
-     * @return the parent call dialog, where this renderer is contained
+     * Returns the parent call container, where this renderer is contained.
+     *
+     * @return the parent call container, where this renderer is contained
      */
-    public CallDialog getCallDialog();
+    public CallPanel getCallContainer();
 
     /**
      * Returns the <tt>CallPeerRenderer</tt> corresponding to the given
      * <tt>callPeer</tt>.
+     *
      * @param callPeer the <tt>CallPeer</tt>, for which we're looking for a
      * renderer
      * @return the <tt>CallPeerRenderer</tt> corresponding to the given

@@ -27,7 +27,7 @@ public class WritePanelRightButtonMenu
     implements  ActionListener,
                 Skinnable
 {
-    private ChatWindow parentWindow;
+    private ChatContainer chatContainer;
 
     private JMenuItem cutMenuItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.CUT"),
@@ -48,13 +48,13 @@ public class WritePanelRightButtonMenu
     /**
      * Creates an instance of <tt>WritePanelRightButtonMenu</tt>.
      *  
-     * @param parentWindow The window owner of this popup menu.
+     * @param chatContainer The window owner of this popup menu.
      */
-    public WritePanelRightButtonMenu(ChatWindow parentWindow)
+    public WritePanelRightButtonMenu(ChatContainer chatContainer)
     {
         super();
 
-        this.parentWindow = parentWindow;
+        this.chatContainer = chatContainer;
 
         this.init();
     }
@@ -116,20 +116,20 @@ public class WritePanelRightButtonMenu
 
         if (itemText.equalsIgnoreCase("cut"))
         {
-            this.parentWindow.getCurrentChatPanel().cut();
+            this.chatContainer.getCurrentChat().cut();
         }
         else if (itemText.equalsIgnoreCase("copy"))
         {
-            this.parentWindow.getCurrentChatPanel().copyWriteArea();
+            this.chatContainer.getCurrentChat().copyWriteArea();
         }
         else if (itemText.equalsIgnoreCase("paste"))
         {
-            this.parentWindow.getCurrentChatPanel().paste();
+            this.chatContainer.getCurrentChat().paste();
         }
         else if (itemText.equalsIgnoreCase("service.gui.CLOSE"))
         {
-            this.parentWindow.setVisible(false);
-            this.parentWindow.dispose();
+            this.chatContainer.getFrame().setVisible(false);
+            this.chatContainer.getFrame().dispose();
         }
     }
 

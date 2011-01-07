@@ -102,7 +102,7 @@ public class FileMenu
             HistoryWindowManager historyWindowManager
                 = GuiActivator.getUIService().getHistoryWindowManager();
 
-            ChatPanel chatPanel = this.parentWindow.getCurrentChatPanel();
+            ChatPanel chatPanel = this.parentWindow.getCurrentChat();
             ChatSession chatSession = chatPanel.getChatSession();
 
             if(historyWindowManager

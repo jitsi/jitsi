@@ -149,9 +149,14 @@ public class CallPeerSipImpl
     public String getDisplayName()
     {
         String displayName = getPeerAddress().getDisplayName();
-        return (displayName == null)
+        displayName = (displayName == null)
                     ? getPeerAddress().getURI().toString()
                     : displayName;
+
+        if(displayName.startsWith("sip:"))
+            displayName = displayName.substring(4);
+
+        return displayName;
     }
 
     /**

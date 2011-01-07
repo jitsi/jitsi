@@ -6,11 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.event.*;
 import java.text.*;
 import java.util.*;
-
-import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -43,8 +40,8 @@ public class CallManager
      * A table mapping protocol <tt>Call</tt> objects to the GUI dialogs
      * that are currently used to display them.
      */
-    private static Hashtable<Call, CallDialog> activeCalls
-                                            = new Hashtable<Call, CallDialog>();
+    private static Hashtable<Call, CallPanel> activeCalls
+                                    = new Hashtable<Call, CallPanel>();
 
     /**
      * The property indicating if the user should be warned when starting a
@@ -152,9 +149,9 @@ public class CallManager
 
             if (activeCalls.get(sourceCall) != null)
             {
-                CallDialog callDialog = activeCalls.get(sourceCall);
+                CallPanel callContainer = activeCalls.get(sourceCall);
 
-                disposeCallDialogWait(callDialog);
+                callContainer.getCallWindow().close(callContainer);
             }
         }
 
@@ -167,45 +164,7 @@ public class CallManager
         {
             Call sourceCall = event.getSourceCall();
 
-            CallManager.openCallDialog(sourceCall);
-        }
-    }
-
-    /**
-     * Removes the given call panel tab.
-     *
-     * @param callDialog the CallDialog to remove
-     */
-    public static void disposeCallDialogWait(CallDialog callDialog)
-    {
-        Timer timer
-            = new Timer(5000, new DisposeCallDialogListener(callDialog));
-
-        timer.setRepeats(false);
-        timer.start();
-    }
-
-    /**
-     * Removes the given CallPanel from the main tabbed pane.
-     */
-    private static class DisposeCallDialogListener
-        implements ActionListener
-    {
-        private final CallDialog callDialog;
-
-        public DisposeCallDialogListener(CallDialog callDialog)
-        {
-            this.callDialog = callDialog;
-        }
-
-        public void actionPerformed(ActionEvent e)
-        {
-            callDialog.dispose();
-
-            Call call = callDialog.getCall();
-
-            if(call != null)
-                activeCalls.remove(call);
+            CallManager.openCallContainer(sourceCall);
         }
     }
 
@@ -216,7 +175,7 @@ public class CallManager
      */
     public static void answerCall(final Call call)
     {
-        CallManager.openCallDialog(call);
+        CallManager.openCallContainer(call);
 
         new AnswerCallThread(call).start();
     }
@@ -320,7 +279,7 @@ public class CallManager
         // If the operation didn't succeeded for some reason we make sure
         // to unselect the video button.
         if (enable && !enableSucceeded)
-            getActiveCallDialog(call).setVideoButtonSelected(false);
+            getActiveCallContainer(call).setVideoButtonSelected(false);
     }
 
     /**
@@ -449,7 +408,7 @@ public class CallManager
         }
 
         if (enable && !enableSucceeded)
-            getActiveCallDialog(call).setDesktopSharingButtonSelected(false);
+            getActiveCallContainer(call).setDesktopSharingButtonSelected(false);
     }
 
     /**
@@ -637,21 +596,32 @@ public class CallManager
     }
 
     /**
-     * Opens a call dialog.
+     * Opens a call container for the given call.
      *
-     * @param call the call object to pass to the call dialog
+     * @param call the call object to pass to the call container
      *
-     * @return the opened call dialog
+     * @return the created and opened call container
      */
-    public static CallDialog openCallDialog(Call call)
+    private static CallPanel openCallContainer(Call call)
     {
-        CallDialog callDialog = new CallDialog(call);
+        CallContainer callContainer
+            = GuiActivator.getUIService().getSingleWindowContainer();
 
-        activeCalls.put(call, callDialog);
+        // If we're in a single window mode we just return the single window 
+        // call container.
+        if (callContainer == null)
+            // If we're in a multi-window mode we create the CallDialog.
+            callContainer = new CallDialog();
 
-        callDialog.setVisible(true, true);
+        CallPanel callPanel = new CallPanel(call, callContainer);
 
-        return callDialog;
+        activeCalls.put(call, callPanel);
+
+        callContainer.addCallPanel(callPanel);
+
+        callContainer.pack();
+
+        return callPanel;
     }
 
     /**
@@ -730,23 +700,25 @@ public class CallManager
     }
 
     /**
-     * Returns an <tt>Iterator</tt> over a list of all currently active calls.
-     * @return an <tt>Iterator</tt> over a list of all currently active calls
+     * Returns a collection of all currently active calls.
+     *
+     * @return a collection of all currently active calls
      */
-    public static Iterator<Call> getActiveCalls()
+    public static Collection<Call> getActiveCalls()
     {
-        return activeCalls.keySet().iterator();
+        return activeCalls.keySet();
     }
 
     /**
-     * Returns the <tt>CallDialog</tt> corresponding to the given <tt>call</tt>.
-     * If the call has been finished and no active <tt>CallDialog</tt> could be
-     * found it returns null.
+     * Returns the <tt>CallContainer</tt> corresponding to the given
+     * <tt>call</tt>. If the call has been finished and no active
+     * <tt>CallContainer</tt> could be found it returns null.
      *
      * @param call the <tt>Call</tt>, which dialog we're looking for
-     * @return the <tt>CallDialog</tt> corresponding to the given <tt>call</tt>
+     * @return the <tt>CallContainer</tt> corresponding to the given
+     * <tt>call</tt>
      */
-    public static CallDialog getActiveCallDialog(Call call)
+    public static CallPanel getActiveCallContainer(Call call)
     {
         return activeCalls.get(call);
     }

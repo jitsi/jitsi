@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.event.*;
@@ -61,47 +62,19 @@ public class ChatWindowManager
 
         synchronized (syncChat)
         {
-            ChatWindow chatWindow = chatPanel.getChatWindow();
+            ChatContainer chatContainer = chatPanel.getChatContainer();
 
             if(!chatPanel.isShown())
-                chatWindow.addChat(chatPanel);
+                chatContainer.addChat(chatPanel);
 
-            if(chatWindow.isVisible())
+            if(chatContainer.getFrame().isVisible())
             {
-                if(chatWindow.getExtendedState() != JFrame.ICONIFIED)
-                {
-                    if(ConfigurationManager.isAutoPopupNewMessage()
-                            || setSelected)
-                        chatWindow.toFront();
-                }
-                else
-                {
-                    if(setSelected)
-                    {
-                        chatWindow.setExtendedState(JFrame.NORMAL);
-                        chatWindow.toFront();
-                    }
-
-                    String chatWindowTitle = chatWindow.getTitle();
-
-                    if(!chatWindowTitle.startsWith("*"))
-                        chatWindow.setTitle("*" + chatWindowTitle);
-                }
-
-                if(setSelected)
-                {
-                    chatWindow.setCurrentChatPanel(chatPanel);
-                }
-                else if(!chatWindow.getCurrentChatPanel().equals(chatPanel)
-                    && chatWindow.getChatTabCount() > 0)
-                {
-                    chatWindow.highlightTab(chatPanel);
-                }
+                chatContainer.openChat(chatPanel, setSelected);
             }
             else
             {
-                chatWindow.setVisible(true);
-                chatWindow.setCurrentChatPanel(chatPanel);
+                chatContainer.getFrame().setVisible(true);
+                chatContainer.setCurrentChat(chatPanel);
             }
         }
     }
@@ -161,7 +134,8 @@ public class ChatWindowManager
         {
             if(containsChat(chatPanel))
             {
-                ChatWindow chatWindow = chatPanel.getChatWindow();
+                long lastMsgTimestamp = chatPanel.getChatConversationPanel()
+                    .getLastIncomingMsgTimestamp();
 
                 if (!chatPanel.isWriteAreaEmpty())
                 {
@@ -170,7 +144,7 @@ public class ChatWindowManager
                             "service.gui.NON_EMPTY_CHAT_WINDOW_CLOSE"));
 
                     int answer = JOptionPane.showConfirmDialog(
-                        chatWindow,
+                        null,
                         msgText,
                         GuiActivator.getResources().getI18NString(
                             "service.gui.WARNING"),
@@ -180,8 +154,8 @@ public class ChatWindowManager
                     if (answer == JOptionPane.OK_OPTION)
                         closeChatPanel(chatPanel);
                 }
-                else if (System.currentTimeMillis() - chatWindow
-                    .getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
+                else if (System.currentTimeMillis() - lastMsgTimestamp
+                                                                    < 2 * 1000)
                 {
                     SIPCommMsgTextArea msgText
                         = new SIPCommMsgTextArea(GuiActivator.getResources()
@@ -189,7 +163,7 @@ public class ChatWindowManager
                                 "service.gui.CLOSE_CHAT_AFTER_NEW_MESSAGE"));
 
                     int answer = JOptionPane.showConfirmDialog(
-                        chatWindow,
+                        null,
                         msgText,
                         GuiActivator.getResources()
                             .getI18NString("service.gui.WARNING"),
@@ -207,7 +181,7 @@ public class ChatWindowManager
                                 "service.gui.CLOSE_CHAT_ACTIVE_FILE_TRANSFER"));
 
                     int answer = JOptionPane.showConfirmDialog(
-                        chatWindow,
+                        null,
                         msgText,
                         GuiActivator.getResources()
                             .getI18NString("service.gui.WARNING"),
@@ -243,15 +217,51 @@ public class ChatWindowManager
     }
 
     /**
-     * Closes the specified <tt>ChatWindow</tt> and makes it available for
-     * garbage collection.
+     * Disposes the chat window.
      *
-     * @param chatWindow the <tt>ChatWindow</tt> to close
+     * @param chatContainer the <tt>ChatContainer</tt> to dispose of
      */
-    void closeWindow(ChatWindow chatWindow)
+    private void closeAllChats(ChatContainer chatContainer)
+    {
+        List<ChatPanel> chatPanelsToDispose = chatContainer.getChats();
+
+        for (ChatPanel chatPanel : chatPanelsToDispose)
+            chatPanel.dispose();
+
+        synchronized (chatPanels)
+        {
+            chatPanels.removeAll(chatPanelsToDispose);
+        }
+
+        if (chatContainer.getChatCount() > 0)
+            chatContainer.removeAllChats();
+
+        // Remove the envelope from the all active contacts in the contact list.
+        GuiActivator.getContactList().deactivateAll();
+    }
+
+    /**
+     * Closes all chats in the specified <tt>ChatContainer</tt> and makes them
+     * available for garbage collection.
+     *
+     * @param chatContainer the <tt>ChatContainer</tt> containing the chats to
+     * close
+     * @param warningEnabled indicates if the user should be warned that we're
+     * closing all the chats. This would be done only if there are currently
+     * active file transfers or waiting messages
+     */
+    void closeAllChats(ChatContainer chatContainer, boolean warningEnabled)
     {
         synchronized (syncChat)
         {
+            // If no warning is enabled we just close all chats without asking
+            // and return.
+            if (!warningEnabled)
+            {
+                closeAllChats(chatContainer);
+                return;
+            }
+
             ChatPanel activePanel = null;
 
             for (ChatPanel chatPanel : chatPanels)
@@ -268,10 +278,11 @@ public class ChatWindowManager
                             (AdHocChatRoomWrapper) adHocSession.getDescriptor());
                 }
 
+                long lastMsgTimestamp = chatPanel.getChatConversationPanel()
+                                                .getLastIncomingMsgTimestamp();
                 if (!chatPanel.isWriteAreaEmpty()
                     || chatPanel.containsActiveFileTransfers()
-                    || System.currentTimeMillis() - chatWindow
-                    .getLastIncomingMsgTimestamp(chatPanel) < 2 * 1000)
+                    || System.currentTimeMillis() - lastMsgTimestamp < 2 * 1000)
                 {
                     activePanel = chatPanel;
                 }
@@ -279,9 +290,12 @@ public class ChatWindowManager
 
             if (activePanel == null)
             {
-                this.disposeChatWindow(chatWindow);
+                this.closeAllChats(chatContainer);
                 return;
             }
+
+            long lastMsgTimestamp = activePanel.getChatConversationPanel()
+                                                .getLastIncomingMsgTimestamp();
 
             if (!activePanel.isWriteAreaEmpty())
             {
@@ -289,7 +303,7 @@ public class ChatWindowManager
                     GuiActivator.getResources().getI18NString(
                         "service.gui.NON_EMPTY_CHAT_WINDOW_CLOSE"));
                 int answer = JOptionPane.showConfirmDialog(
-                    chatWindow,
+                    chatContainer.getFrame(),
                     msgText,
                     GuiActivator.getResources()
                         .getI18NString("service.gui.WARNING"),
@@ -297,24 +311,23 @@ public class ChatWindowManager
                     JOptionPane.WARNING_MESSAGE);
 
                 if (answer == JOptionPane.OK_OPTION)
-                    this.disposeChatWindow(chatWindow);
+                    this.closeAllChats(chatContainer);
             }
-            else if (System.currentTimeMillis() - chatWindow
-                .getLastIncomingMsgTimestamp(activePanel) < 2 * 1000)
+            else if (System.currentTimeMillis() - lastMsgTimestamp < 2 * 1000)
             {
                 SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
                     GuiActivator.getResources()
                     .getI18NString("service.gui.CLOSE_CHAT_AFTER_NEW_MESSAGE"));
 
                 int answer = JOptionPane.showConfirmDialog(
-                    chatWindow,
+                    chatContainer.getFrame(),
                     msgText,
                     GuiActivator.getResources()
                         .getI18NString("service.gui.WARNING"),
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
                 if (answer == JOptionPane.OK_OPTION)
-                    this.disposeChatWindow(chatWindow);
+                    this.closeAllChats(chatContainer);
             }
             else if (activePanel.containsActiveFileTransfers())
             {
@@ -324,7 +337,7 @@ public class ChatWindowManager
                             "service.gui.CLOSE_CHAT_ACTIVE_FILE_TRANSFER"));
 
                 int answer = JOptionPane.showConfirmDialog(
-                    chatWindow,
+                    chatContainer.getFrame(),
                     msgText,
                     GuiActivator.getResources()
                         .getI18NString("service.gui.WARNING"),
@@ -336,7 +349,7 @@ public class ChatWindowManager
                     for (ChatPanel chatPanel : chatPanels)
                         chatPanel.cancelActiveFileTransfers();
 
-                    this.disposeChatWindow(chatWindow);
+                    this.closeAllChats(chatContainer);
                 }
             }
         }
@@ -455,7 +468,7 @@ public class ChatWindowManager
                     ChatPanel firstChatPanel = chatPanelsIter.next();
 
                     selectedChat
-                        = firstChatPanel.getChatWindow().getCurrentChatPanel();
+                        = firstChatPanel.getChatContainer().getCurrentChat();
                 }
             }
             else
@@ -464,7 +477,7 @@ public class ChatWindowManager
                 {
                     ChatPanel chatPanel = chatPanelsIter.next();
 
-                    if (chatPanel.getChatWindow().isFocusOwner())
+                    if (chatPanel.getChatContainer().getFrame().isFocusOwner())
                         selectedChat = chatPanel;
                 }
             }
@@ -710,18 +723,46 @@ public class ChatWindowManager
     }
 
     /**
+     * Removes the non read state of the currently selected chat session. This
+     * will result in removal of all icons representing the non read state (like
+     * envelopes in contact list).
+     *
+     * @param chatPanel the <tt>ChatPanel</tt> for which we would like to remove
+     * non read chat state
+     */
+    public void removeNonReadChatState(ChatPanel chatPanel)
+    {
+        ChatSession chatSession = chatPanel.getChatSession();
+
+        if(chatSession instanceof MetaContactChatSession)
+        {
+            MetaContact selectedMetaContact
+                = (MetaContact) chatSession.getDescriptor();
+
+            TreeContactList clist
+                = GuiActivator.getContactList();
+
+            // Remove the envelope from the contact when the chat has
+            // gained the focus.
+            if(clist.isContactActive(selectedMetaContact))
+            {
+                clist.setActiveContact(selectedMetaContact, false);
+            }
+
+            chatPanel.fireChatFocusEvent(ChatFocusEvent.FOCUS_GAINED);
+        }
+    }
+
+    /**
      * Closes the selected chat tab or the window if there are no tabs.
      *
      * @param chatPanel the chat panel to close.
      */
     private void closeChatPanel(ChatPanel chatPanel)
     {
-        ChatWindow chatWindow = chatPanel.getChatWindow();
+        ChatContainer chatContainer = chatPanel.getChatContainer();
 
-        chatWindow.removeChat(chatPanel);
-
-        if (chatWindow.getChatCount() == 0)
-            disposeChatWindow(chatWindow);
+        chatContainer.removeChat(chatPanel);
 
         boolean isChatPanelContained;
         synchronized (chatPanels)
@@ -748,8 +789,10 @@ public class ChatWindowManager
     {
         Contact defaultContact = metaContact.getDefaultContact(
                         OperationSetBasicInstantMessaging.class);
+
         ProtocolProviderService defaultProvider
             = defaultContact.getProtocolProvider();
+
         OperationSetBasicInstantMessaging defaultIM
             = defaultProvider
                 .getOperationSet(OperationSetBasicInstantMessaging.class);
@@ -803,8 +846,8 @@ public class ChatWindowManager
         if (protocolContact == null)
             protocolContact = getDefaultContact(metaContact);
 
-        ChatWindow chatWindow = getChatWindow();
-        ChatPanel chatPanel = new ChatPanel(chatWindow);
+        ChatContainer chatContainer = getChatContainer();
+        ChatPanel chatPanel = new ChatPanel(chatContainer);
 
         MetaContactChatSession chatSession
             = new MetaContactChatSession(   chatPanel,
@@ -834,17 +877,24 @@ public class ChatWindowManager
     }
 
     /**
-     * Gets a <tt>ChatWindow</tt> instance. If there is no existing
-     * <tt>ChatWindow</tt> or chats are configured to be displayed in their own
-     * <tt>ChatWindow</tt>s instead of arranged in tabs in a single
-     * <tt>ChatWindow</tt>, creates a new one.
+     * Gets a <tt>ChatContainer</tt> instance. If there is no existing
+     * <tt>ChatContainer</tt> or chats are configured to be displayed in their
+     * own windows instead of arranged in tabs in a single window, creates a
+     * new chat container.
      *
-     * @return a <tt>ChatWindow</tt> instance
+     * @return a <tt>ChatContainer</tt> instance
      */
-    private ChatWindow getChatWindow()
+    private ChatContainer getChatContainer()
     {
-        ChatWindow chatWindow;
+        ChatContainer chatContainer
+            = GuiActivator.getUIService().getSingleWindowContainer();
 
+        // If we're in a single window mode we just return the chat container.
+        if (chatContainer != null)
+            return chatContainer;
+
+        // If we're in a multi-window mode we have two possibilities - multi
+        // chat window or single chat windows.
         if (ConfigurationManager.isMultiChatWindowEnabled())
         {
             Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
@@ -854,16 +904,18 @@ public class ChatWindowManager
              * through one of the existing chats.
              */
             if (chatPanelsIter.hasNext())
-                chatWindow = chatPanelsIter.next().getChatWindow();
+                chatContainer = chatPanelsIter.next().getChatContainer();
             else
             {
-                chatWindow = new ChatWindow();
-                GuiActivator.getUIService().registerExportedWindow(chatWindow);
+                chatContainer = new ChatWindow();
+                GuiActivator.getUIService()
+                    .registerExportedWindow((ChatWindow) chatContainer);
             }
         }
         else
-            chatWindow = new ChatWindow();
-        return chatWindow;
+            chatContainer = new ChatWindow();
+
+        return chatContainer;
     }
 
     /**
@@ -902,11 +954,11 @@ public class ChatWindowManager
      * excluded from the history when the last one is loaded in the chat.
      * @return The <code>ChatPanel</code> newly created.
      */
-    private ChatPanel createChat( ChatRoomWrapper chatRoomWrapper,
-                                            String escapedMessageID)
+    private ChatPanel createChat(   ChatRoomWrapper chatRoomWrapper,
+                                    String escapedMessageID)
     {
-        ChatWindow chatWindow = getChatWindow();
-        ChatPanel chatPanel = new ChatPanel(chatWindow);
+        ChatContainer chatContainer = getChatContainer();
+        ChatPanel chatPanel = new ChatPanel(chatContainer);
 
         ConferenceChatSession chatSession
             = new ConferenceChatSession(chatPanel,
@@ -947,8 +999,8 @@ public class ChatWindowManager
     private ChatPanel createChat( AdHocChatRoomWrapper chatRoomWrapper,
                                             String escapedMessageID)
     {
-        ChatWindow chatWindow = getChatWindow();
-        ChatPanel chatPanel = new ChatPanel(chatWindow);
+        ChatContainer chatContainer = getChatContainer();
+        ChatPanel chatPanel = new ChatPanel(chatContainer);
 
         AdHocConferenceChatSession chatSession
             = new AdHocConferenceChatSession(chatPanel, chatRoomWrapper);
@@ -1004,37 +1056,6 @@ public class ChatWindowManager
         {
             return chatPanels.contains(chatPanel);
         }
-    }
-
-    /**
-     * Disposes the chat window.
-     *
-     * @param chatWindow the <tt>ChatWindow</tt> to dispose of
-     */
-    private void disposeChatWindow(ChatWindow chatWindow)
-    {
-        List<ChatPanel> chatPanelsToDispose = chatWindow.getChatPanels();
-
-        for (ChatPanel chatPanel : chatPanelsToDispose)
-            chatPanel.dispose();
-
-        synchronized (chatPanels)
-        {
-            chatPanels.removeAll(chatPanelsToDispose);
-        }
-
-        if (chatWindow.getChatCount() > 0)
-            chatWindow.removeAllChats();
-
-        /*
-         * The ChatWindow should seize to exist so we don't want any strong
-         * references to it i.e. it cannot be exported anymore.
-         */
-        GuiActivator.getUIService().unregisterExportedWindow(chatWindow);
-        chatWindow.dispose();
-
-        // Remove the envelope from the all active contacts in the contact list.
-        GuiActivator.getContactList().deactivateAll();
     }
 
     /**

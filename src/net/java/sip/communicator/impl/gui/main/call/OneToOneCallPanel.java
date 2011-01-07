@@ -52,9 +52,9 @@ public class OneToOneCallPanel
     private OneToOneCallPeerPanel peerPanel;
 
     /**
-     * The parent call dialog.
+     * The parent call container.
      */
-    private final CallDialog callDialog;
+    private final CallPanel callContainer;
 
     /**
      * The underlying <tt>Call</tt>, this panel is representing.
@@ -89,17 +89,17 @@ public class OneToOneCallPanel
      * Creates a call panel for the corresponding call, by specifying the
      * call type (incoming or outgoing) and the parent dialog.
      *
-     * @param callDialog    the dialog containing this panel
+     * @param callContainer the container containing this panel
      * @param call          the call corresponding to this panel
      * @param callPeer      the remote participant in the call
      */
-    public OneToOneCallPanel(   CallDialog callDialog,
+    public OneToOneCallPanel(   CallPanel callContainer,
                                 Call call,
                                 CallPeer callPeer)
     {
         super(new BorderLayout());
 
-        this.callDialog = callDialog;
+        this.callContainer = callContainer;
         this.call = call;
         this.callPeer = callPeer;
 
@@ -279,7 +279,7 @@ public class OneToOneCallPanel
                                true,
                                callPeer.isMute()),
                 new OutputVolumeControlButton(true),
-                new RecordButton(call, true, callDialog.isRecordingStarted()),
+                new RecordButton(call, true, callContainer.isRecordingStarted()),
                 CallPeerRendererUtils.createExitFullScreenButton(this)
             };
 
@@ -475,12 +475,12 @@ public class OneToOneCallPanel
     }
 
     /**
-     * Returns the parent call dialog, where this renderer is contained.
-     * @return the parent call dialog, where this renderer is contained
+     * Returns the parent call container, where this renderer is contained.
+     * @return the parent call container, where this renderer is contained
      */
-    public CallDialog getCallDialog()
+    public CallPanel getCallContainer()
     {
-        return callDialog;
+        return callContainer;
     }
 
     /**
@@ -504,20 +504,32 @@ public class OneToOneCallPanel
 
         if (OSUtils.IS_MAC)
         {
-            UnifiedToolBar macToolbarPanel = new UnifiedToolBar();
+            if (callContainer.getCallWindow() instanceof Window)
+            {
+                UnifiedToolBar macToolbarPanel = new UnifiedToolBar();
 
-            MacUtils.makeWindowLeopardStyle(callDialog.getRootPane());
+                MacUtils.makeWindowLeopardStyle(
+                    callContainer.getCallWindow().getFrame().getRootPane());
 
-            macToolbarPanel.getComponent().setLayout(new BorderLayout());
-            macToolbarPanel.disableBackgroundPainter();
-            macToolbarPanel.installWindowDraggerOnWindow(callDialog);
+                macToolbarPanel.getComponent().setLayout(new BorderLayout());
+                macToolbarPanel.disableBackgroundPainter();
+                macToolbarPanel.installWindowDraggerOnWindow(
+                    callContainer.getCallWindow().getFrame());
+
+                topComponent = macToolbarPanel.getComponent();
+            }
+            else
+            {
+                topComponent = new TransparentPanel(new BorderLayout());
+                topComponent.setOpaque(true);
+                topComponent.setBackground(new Color(GuiActivator.getResources()
+                    .getColor("service.gui.MAC_PANEL_BACKGROUND")));
+            }
 
             // Set the color of the center panel.
             peerPanel.setOpaque(true);
             peerPanel.setBackground(new Color(GuiActivator.getResources()
                 .getColor("service.gui.MAC_PANEL_BACKGROUND")));
-
-            topComponent = macToolbarPanel.getComponent();
         }
         else
         {

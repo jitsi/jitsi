@@ -39,7 +39,12 @@ public class ConferencePeerPanel
     /**
      * The parent dialog containing this panel.
      */
-    private final CallDialog callDialog;
+    private final CallPanel callPanel;
+
+    /**
+     * The parent call renderer.
+     */
+    private final CallRenderer callRenderer;
 
     /**
      * The call peer shown in this panel.
@@ -110,14 +115,19 @@ public class ConferencePeerPanel
      * <tt>callDialog</tt>, containing it and the corresponding
      * <tt>protocolProvider</tt>.
      *
-     * @param callDialog the call dialog containing this panel
+     * @param callRenderer the renderer of the corresponding call
+     * @param callPanel the call panel containing this peer panel
      * @param protocolProvider the <tt>ProtocolProviderService</tt> for the
      * call
      */
-    public ConferencePeerPanel( CallDialog callDialog,
+    public ConferencePeerPanel( CallRenderer callRenderer,
+                                CallPanel callPanel,
                                 ProtocolProviderService protocolProvider)
     {
-        this.callDialog = callDialog;
+        super(callRenderer);
+
+        this.callRenderer = callRenderer;
+        this.callPanel = callPanel;
         this.callPeer = null;
 
         // Try to set the same image as the one in the main window. This way
@@ -142,12 +152,18 @@ public class ConferencePeerPanel
      * the given <tt>callDialog</tt> and would correspond to the given
      * <tt>callPeer</tt>.
      *
-     * @param callDialog the dialog, in which this panel is shown
+     * @param callRenderer the renderer of the corresponding call
+     * @param callContainer the container, in which this panel is shown
      * @param callPeer The peer who own this UI
      */
-    public ConferencePeerPanel(CallDialog callDialog, CallPeer callPeer)
+    public ConferencePeerPanel( CallRenderer callRenderer,
+                                CallPanel callContainer,
+                                CallPeer callPeer)
     {
-        this.callDialog = callDialog;
+        super(callRenderer);
+
+        this.callRenderer = callRenderer;
+        this.callPanel = callContainer;
         this.callPeer = callPeer;
 
         this.setMute(callPeer.isMute());
@@ -214,7 +230,7 @@ public class ConferencePeerPanel
         if (securityPanel != null)
             securityPanel.refreshStates(securityString, isSecurityVerified);
 
-        callDialog.refreshWindow();
+        callPanel.refreshContainer();
     }
 
     /**
@@ -330,12 +346,12 @@ public class ConferencePeerPanel
     }
 
     /**
-     * Returns the parent <tt>CallDialog</tt> containing this renderer.
-     * @return the parent <tt>CallDialog</tt> containing this renderer
+     * Returns the parent <tt>CallPanel</tt> containing this renderer.
+     * @return the parent <tt>CallPanel</tt> containing this renderer
      */
-    public CallDialog getCallDialog()
+    public CallPanel getCallPanel()
     {
-        return callDialog;
+        return callPanel;
     }
 
     /**
@@ -408,7 +424,7 @@ public class ConferencePeerPanel
             return;
 
         ConferenceMemberPanel memberPanel
-            = new ConferenceMemberPanel(member);
+            = new ConferenceMemberPanel(callRenderer, member);
 
         // Map the conference member to the created member panel.
         conferenceMembersPanels.put(member, memberPanel);
@@ -466,7 +482,7 @@ public class ConferencePeerPanel
     {
         addConferenceMemberPanel(conferenceEvent.getConferenceMember());
 
-        callDialog.refreshWindow();
+        callPanel.refreshContainer();
     }
 
     /**
@@ -566,7 +582,7 @@ public class ConferencePeerPanel
 
         this.removeConferenceMemberPanel(member);
 
-        callDialog.refreshWindow();
+        callPanel.refreshContainer();
     }
 
     /**

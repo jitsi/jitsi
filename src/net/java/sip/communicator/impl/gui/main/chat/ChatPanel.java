@@ -80,11 +80,11 @@ public class ChatPanel
 
     private final ChatSendPanel sendPanel;
 
-    private final ChatWindow chatWindow;
+    private final ChatContainer chatContainer;
 
     private ChatRoomSubjectPanel subjectPanel;
 
-    int unreadMessageNumber = 0;
+    public int unreadMessageNumber = 0;
 
     /**
      * Indicates that a typing notification event is successfully sent.
@@ -112,6 +112,9 @@ public class ChatPanel
     private final java.util.List<ChatFocusListener> focusListeners
         = new Vector<ChatFocusListener>();
 
+    private final java.util.List<ChatHistoryListener> historyListeners
+        = new Vector<ChatHistoryListener>();
+
     private final Vector<Object> incomingEventBuffer = new Vector<Object>();
 
     private boolean isHistoryLoaded;
@@ -126,13 +129,13 @@ public class ChatPanel
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
      *
-     * @param chatWindow The parent window of this chat panel.
+     * @param chatContainer The parent window of this chat panel.
      */
-    public ChatPanel(ChatWindow chatWindow)
+    public ChatPanel(ChatContainer chatContainer)
     {
         super(new BorderLayout());
 
-        this.chatWindow = chatWindow;
+        this.chatContainer = chatContainer;
 
         this.conversationPanel = new ChatConversationPanel(this);
         this.conversationPanel.setPreferredSize(new Dimension(400, 200));
@@ -281,8 +284,8 @@ public class ChatPanel
             confSession.addLocalUserRoleListener(this);
             confSession.addMemberRoleListener(this);
 
-            subjectPanel = new ChatRoomSubjectPanel(chatWindow,
-                    (ConferenceChatSession) chatSession);
+            subjectPanel
+                = new ChatRoomSubjectPanel((ConferenceChatSession) chatSession);
 
             // The subject panel is added here, because it's specific for the
             // multi user chat and is not contained in the single chat chat panel.
@@ -339,9 +342,9 @@ public class ChatPanel
      *
      * @return the chat window, where this chat panel is added
      */
-    public ChatWindow getChatWindow()
+    public ChatContainer getChatContainer()
     {
-        return chatWindow;
+        return chatContainer;
     }
 
     /**
@@ -355,7 +358,7 @@ public class ChatPanel
      */
     public Window getConversationContainerWindow()
     {
-        return chatWindow;
+        return chatContainer.getFrame();
     }
 
     /**
@@ -491,7 +494,7 @@ public class ChatPanel
             if (tabbedPane.getSelectedComponent() != component)
                 return;
 
-            chatWindow.setCurrentChatPanel(ChatPanel.this);
+            chatContainer.setCurrentChat(ChatPanel.this);
         }
     }
 
@@ -638,8 +641,7 @@ public class ChatPanel
                 conversationPanel.appendMessageToEnd(historyString);
         }
 
-        getChatWindow().getMainToolBar()
-            .changeHistoryButtonsState(this);
+        fireChatHistoryChange();
     }
 
     /**
@@ -661,6 +663,11 @@ public class ChatPanel
             messageType, message, contentType);
 
         this.addChatMessage(chatMessage);
+
+        // A bug Fix for Previous/Next buttons .
+        // Must update buttons state after message is processed
+        // otherwise states are not proper
+        fireChatHistoryChange();
     }
 
     /**
@@ -925,11 +932,11 @@ public class ChatPanel
      */
     public boolean isChatFocused()
     {
-        ChatPanel currentChatPanel = chatWindow.getCurrentChatPanel();
+        ChatPanel currentChatPanel = chatContainer.getCurrentChat();
 
         return (currentChatPanel != null
                 && currentChatPanel.equals(this)
-                && chatWindow.isActive());
+                && chatContainer.getFrame().isActive());
     }
 
     /**
@@ -1585,12 +1592,12 @@ public class ChatPanel
             chatContactListPanel.renameContact(chatContact);
         }
 
-        ChatWindow chatWindow = getChatWindow();
-        chatWindow.setTabTitle(this, name);
+        ChatContainer chatContainer = getChatContainer();
+        chatContainer.setChatTitle(this, name);
 
-        if (chatWindow.getCurrentChatPanel() == this)
+        if (chatContainer.getCurrentChat() == this)
         {
-            chatWindow.setTitle(name);
+            chatContainer.setTitle(name);
         }
     }
 
@@ -1651,9 +1658,9 @@ public class ChatPanel
 
         if(ConfigurationManager.isMultiChatWindowEnabled())
         {
-            if (getChatWindow().getChatTabCount() > 0)
+            if (getChatContainer().getChatCount() > 0)
             {
-                getChatWindow().setTabIcon(this,
+                getChatContainer().setChatIcon(this,
                     new ImageIcon(
                         Constants.getStatusIcon(chatTransport.getStatus())));
             }
@@ -2283,6 +2290,48 @@ public class ChatPanel
     {
         this.getChatWritePanel().getEditorPane()
             .getDocument().removeDocumentListener(l);
+    }
+
+    /**
+     * Adds the given <tt>ChatHistoryListener</tt> to the list of listeners
+     * notified when a change occurs in the history shown in this chat panel.
+     *
+     * @param l the <tt>ChatHistoryListener</tt> to add
+     */
+    public void addChatHistoryListener(ChatHistoryListener l)
+    {
+        synchronized (historyListeners)
+        {
+            historyListeners.add(l);
+        }
+    }
+
+    /**
+     * Removes the given <tt>ChatHistoryListener</tt> from the list of listeners
+     * notified when a change occurs in the history shown in this chat panel.
+     *
+     * @param l the <tt>ChatHistoryListener</tt> to remove
+     */
+    public void removeChatHistoryListener(ChatHistoryListener l)
+    {
+        synchronized (historyListeners)
+        {
+            historyListeners.remove(l);
+        }
+    }
+
+    /**
+     * Notifies all registered <tt>ChatHistoryListener</tt>s that a change has
+     * occurred in the history of this chat.
+     */
+    private void fireChatHistoryChange()
+    {
+        Iterator<ChatHistoryListener> listeners = historyListeners.iterator();
+
+        while (listeners.hasNext())
+        {
+            listeners.next().chatHistoryChanged(this);
+        }
     }
 
     /**

@@ -254,11 +254,34 @@ public class MainFrame
         centerPanel.add(contactListPanel, BorderLayout.CENTER);
 
         this.mainPanel.add(northPanel, BorderLayout.NORTH);
+
+        SingleWindowContainer singleWContainer
+            = GuiActivator.getUIService().getSingleWindowContainer();
+
         this.mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-        java.awt.Container contentPane = getContentPane();
-        contentPane.add(mainPanel, BorderLayout.CENTER);
-        contentPane.add(statusBarPanel, BorderLayout.SOUTH);
+        if (singleWContainer != null)
+        {
+            JSplitPane topSplitPane
+                = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+            topSplitPane.setBorder(null); // remove default borders
+            topSplitPane.setOneTouchExpandable(true);
+            topSplitPane.setResizeWeight(0);
+            topSplitPane.setOpaque(false);
+            topSplitPane.setDividerLocation(200);
+
+            topSplitPane.add(mainPanel);
+            topSplitPane.add(singleWContainer);
+
+            getContentPane().add(topSplitPane, BorderLayout.CENTER);
+            getContentPane().add(statusBarPanel, BorderLayout.SOUTH);
+        }
+        else
+        {
+            java.awt.Container contentPane = getContentPane();
+            contentPane.add(mainPanel, BorderLayout.CENTER);
+            contentPane.add(statusBarPanel, BorderLayout.SOUTH);
+        }
     }
 
     /**
@@ -1348,7 +1371,7 @@ public class MainFrame
             {
                 this.nativePluginsTable.put(pluginComponent, new JPanel());
 
-                if (isVisible())
+                if (isFrameVisible())
                 {
                     SwingUtilities.invokeLater(new Runnable()
                     {
@@ -1516,7 +1539,7 @@ public class MainFrame
      *         <code>false</code> otherwise
      * @see UIService#isVisible()
      */
-    public boolean isVisible()
+    public boolean isFrameVisible()
     {
         return super.isVisible()
             && (super.getExtendedState() != JFrame.ICONIFIED);
@@ -1532,7 +1555,7 @@ public class MainFrame
      *
      * @see UIService#setVisible(boolean)
      */
-    public void setVisible(final boolean isVisible)
+    public void setFrameVisible(final boolean isVisible)
     {
         ConfigurationManager.setApplicationVisible(isVisible);
 
@@ -1734,7 +1757,11 @@ public class MainFrame
             // of type PRESSED we have nothing more to do here.
             if (!isFocused()
                 || (e.getID() != KeyEvent.KEY_PRESSED
-                    && e.getID() != KeyEvent.KEY_TYPED))
+                    && e.getID() != KeyEvent.KEY_TYPED)
+                || (GuiActivator.getUIService()
+                        .getSingleWindowContainer() != null)
+                    && GuiActivator.getUIService()
+                        .getSingleWindowContainer().containsFocus())
                 return false;
 
             // Ctrl-Enter || Cmd-Enter typed when this window is the focused

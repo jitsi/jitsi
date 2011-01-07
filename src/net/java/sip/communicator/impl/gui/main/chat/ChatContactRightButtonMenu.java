@@ -314,7 +314,7 @@ public class ChatContactRightButtonMenu
         {
             ChatOperationReasonDialog reasonDialog
                 = new ChatOperationReasonDialog(
-                    chatPanel.getChatWindow(),
+                    chatPanel.getChatContainer().getFrame(),
                     GuiActivator.getResources().getI18NString(
                     "service.gui.CHANGE_ROOM_SUBJECT"),
                     GuiActivator.getResources().getI18NString(
@@ -344,7 +344,7 @@ public class ChatContactRightButtonMenu
         {
             ChatOperationReasonDialog reasonDialog
                 = new ChatOperationReasonDialog(
-                chatPanel.getChatWindow(),
+                    chatPanel.getChatContainer().getFrame(),
                     GuiActivator.getResources().getI18NString(
                     "service.gui.CHANGE_NICKNAME"),
                     GuiActivator.getResources().getI18NString(
@@ -470,7 +470,8 @@ public class ChatContactRightButtonMenu
                     == OperationFailedException.NOT_ENOUGH_PRIVILEGES)
                 {
                     ErrorDialog errorDialog
-                        = new ErrorDialog(chatPanel.getChatWindow(),
+                        = new ErrorDialog(
+                            chatPanel.getChatContainer().getFrame(),
                             GuiActivator.getResources()
                                 .getI18NString("service.gui.KICK_FAILED"),
                             GuiActivator.getResources().getI18NString(
@@ -483,7 +484,8 @@ public class ChatContactRightButtonMenu
                 else if (e.getErrorCode()
                     == OperationFailedException.FORBIDDEN)
                 {
-                    new ErrorDialog(chatPanel.getChatWindow(),
+                    new ErrorDialog(
+                        chatPanel.getChatContainer().getFrame(),
                         GuiActivator.getResources()
                             .getI18NString("service.gui.KICK_FAILED"),
                         GuiActivator.getResources()
@@ -493,7 +495,8 @@ public class ChatContactRightButtonMenu
                 }
                 else
                 {
-                    new ErrorDialog(chatPanel.getChatWindow(),
+                    new ErrorDialog(
+                        chatPanel.getChatContainer().getFrame(),
                         GuiActivator.getResources()
                             .getI18NString("service.gui.KICK_FAILED"),
                         GuiActivator.getResources()
@@ -549,7 +552,8 @@ public class ChatContactRightButtonMenu
                     errorMessageKey = "service.gui.BAN_FAILED_GENERAL_ERROR";
                     break;
                 }
-                new ErrorDialog(chatPanel.getChatWindow(),
+                new ErrorDialog(
+                    chatPanel.getChatContainer().getFrame(),
                     errorTitle,
                     GuiActivator.getResources().getI18NString(
                         errorMessageKey,

@@ -10,6 +10,7 @@ import java.awt.*;
 import java.beans.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 
@@ -32,10 +33,15 @@ public class ConferenceMemberPanel
     /**
      * Creates a <tt><ConferenceMemberPanel</tt> by specifying the corresponding
      * <tt>member</tt> that it represents.
+     *
+     * @param callRenderer the parent call renderer
      * @param member the <tt>ConferenceMember</tt> shown in this panel
      */
-    public ConferenceMemberPanel(ConferenceMember member)
+    public ConferenceMemberPanel(   CallRenderer callRenderer,
+                                    ConferenceMember member)
     {
+        super(callRenderer);
+
         this.member = member;
 
         this.setParticipantName(member.getDisplayName());

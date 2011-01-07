@@ -50,9 +50,9 @@ public class ConferenceCallPanel
         = new Hashtable<CallPeer, ConferencePeerPanel>();
 
     /**
-     * The CallDialog which contains this panel.
+     * The CallPanel which contains this panel.
      */
-    private final CallDialog callDialog;
+    private final CallPanel callPanel;
 
     /**
      * The implementation of the routine which scrolls this scroll pane to its
@@ -76,12 +76,12 @@ public class ConferenceCallPanel
     /**
      * Creates an instance of <tt>ConferenceCallPanel</tt>.
      *
-     * @param callDialog the dialog which contains this panel
+     * @param callPanel the call panel which contains this panel
      * @param c the conference call object
      */
-    public ConferenceCallPanel(CallDialog callDialog, Call c)
+    public ConferenceCallPanel(CallPanel callPanel, Call c)
     {
-        this.callDialog = callDialog;
+        this.callPanel = callPanel;
         this.call = c;
 
         mainPanel = new TransparentPanel();
@@ -118,8 +118,9 @@ public class ConferenceCallPanel
     private void addLocalCallPeer()
     {
         final ConferencePeerPanel localPeerPanel
-            = new ConferencePeerPanel(
-                    callDialog, call.getProtocolProvider());
+            = new ConferencePeerPanel(  this,
+                                        callPanel,
+                                        call.getProtocolProvider());
 
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridx = 0;
@@ -152,7 +153,7 @@ public class ConferenceCallPanel
             return;
 
         ConferencePeerPanel confPeerPanel
-            = new ConferencePeerPanel(callDialog, peer);
+            = new ConferencePeerPanel(this, callPanel, peer);
 
         peer.addCallPeerConferenceListener(confPeerPanel);
 
@@ -400,12 +401,12 @@ public class ConferenceCallPanel
     }
 
     /**
-     * Returns the parent call dialog, where this renderer is contained.
-     * @return the parent call dialog, where this renderer is contained
+     * Returns the parent call container, where this renderer is contained.
+     * @return the parent call container, where this renderer is contained
      */
-    public CallDialog getCallDialog()
+    public CallPanel getCallContainer()
     {
-        return callDialog;
+        return callPanel;
     }
 
     /**

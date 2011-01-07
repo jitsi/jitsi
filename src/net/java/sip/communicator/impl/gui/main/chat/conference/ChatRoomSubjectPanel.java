@@ -46,11 +46,6 @@ public class ChatRoomSubjectPanel
     private final ConferenceChatSession chatSession;
 
     /**
-     * The parent window.
-     */
-    private final ChatWindow chatWindow;
-
-    /**
      * The field containing the subject of the chat room.
      */
     private final JTextField subjectField = new JTextField();
@@ -62,17 +57,14 @@ public class ChatRoomSubjectPanel
 
     /**
      * Creates the panel containing the chat room subject.
-     * 
-     * @param chatWindow the chat window, where this panel is added
+     *
      * @param chatSession the chat session
      * chat room subject and the configuration information.
      */
-    public ChatRoomSubjectPanel(ChatWindow chatWindow,
-                                ConferenceChatSession chatSession)
+    public ChatRoomSubjectPanel(ConferenceChatSession chatSession)
     {
         super(new BorderLayout(5, 5));
 
-        this.chatWindow = chatWindow;
         this.chatSession = chatSession;
 
         JLabel subjectLabel
@@ -167,24 +159,24 @@ public class ChatRoomSubjectPanel
                     == OperationFailedException.NOT_ENOUGH_PRIVILEGES)
                 {
                     new ErrorDialog(
-                            chatWindow,
-                            resources.getI18NString("service.gui.WARNING"),
-                            resources.getI18NString(
-                                    "service.gui.CHAT_ROOM_CONFIGURATION_FORBIDDEN",
-                                    new String[]{chatSession.getChatName()}),
-                            ErrorDialog.WARNING)
-                        .showDialog();
+                        null,
+                        resources.getI18NString("service.gui.WARNING"),
+                        resources.getI18NString(
+                                "service.gui.CHAT_ROOM_CONFIGURATION_FORBIDDEN",
+                                new String[]{chatSession.getChatName()}),
+                        ErrorDialog.WARNING)
+                    .showDialog();
                 }
                 else
                 {
                     new ErrorDialog(
-                            chatWindow,
-                            resources.getI18NString("service.gui.ERROR"),
-                            resources.getI18NString(
-                                    "service.gui.CHAT_ROOM_CONFIGURATION_FAILED",
-                                    new String[]{chatSession.getChatName()}),
-                            e)
-                        .showDialog();
+                        null,
+                        resources.getI18NString("service.gui.ERROR"),
+                        resources.getI18NString(
+                                "service.gui.CHAT_ROOM_CONFIGURATION_FAILED",
+                                new String[]{chatSession.getChatName()}),
+                        e)
+                    .showDialog();
                 }
             }
         }

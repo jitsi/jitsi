@@ -114,8 +114,8 @@ public interface CallPeerRenderer
     public void printDTMFTone(char dtmfChar);
 
     /**
-     * Returns the parent <tt>CallDialog</tt> containing this renderer.
-     * @return the parent <tt>CallDialog</tt> containing this renderer
+     * Returns the parent <tt>CallPanel</tt> containing this renderer.
+     * @return the parent <tt>CallPanel</tt> containing this renderer
      */
-    public CallDialog getCallDialog();
+    public CallPanel getCallPanel();
 }

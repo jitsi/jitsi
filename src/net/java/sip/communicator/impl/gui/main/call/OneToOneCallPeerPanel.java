@@ -15,6 +15,7 @@ import java.util.List; // disambiguation
 import javax.swing.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -375,11 +376,13 @@ public class OneToOneCallPeerPanel
                 ImageLoader.HEADPHONE, false, false);
 
         final SoundLevelIndicator localLevelIndicator
-            = new SoundLevelIndicator(  SoundLevelChangeEvent.MIN_LEVEL,
+            = new SoundLevelIndicator(  callRenderer,
+                                        SoundLevelChangeEvent.MIN_LEVEL,
                                         SoundLevelChangeEvent.MAX_LEVEL);
 
         final SoundLevelIndicator remoteLevelIndicator
-            = new SoundLevelIndicator(  SoundLevelChangeEvent.MIN_LEVEL,
+            = new SoundLevelIndicator(  callRenderer,
+                                        SoundLevelChangeEvent.MIN_LEVEL,
                                         SoundLevelChangeEvent.MAX_LEVEL);
 
         localLevelPanel.add(localLevel, BorderLayout.WEST);
@@ -441,14 +444,14 @@ public class OneToOneCallPeerPanel
             if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING
                     .equals(event.getPropertyName()))
             {
-                CallDialog callDialog = callRenderer.getCallDialog();
+                CallPanel callContainer = callRenderer.getCallContainer();
 
                 // We ensure that when the local video property changes to
                 // false our related buttons would be disabled.
                 if (event.getNewValue().equals(MediaDirection.RECVONLY))
                 {
-                    callDialog.setVideoButtonSelected(false);
-                    callDialog.setDesktopSharingButtonSelected(false);
+                    callContainer.setVideoButtonSelected(false);
+                    callContainer.setDesktopSharingButtonSelected(false);
                 }
                 else if (event.getNewValue().equals(MediaDirection.SENDRECV))
                 {
@@ -460,11 +463,11 @@ public class OneToOneCallPeerPanel
                      */
                     if (CallManager.isDesktopSharingEnabled(call))
                     {
-                        callDialog.setDesktopSharingButtonSelected(true);
+                        callContainer.setDesktopSharingButtonSelected(true);
                     }
                     else if (CallManager.isLocalVideoEnabled(call))
                     {
-                        callDialog.setVideoButtonSelected(true);
+                        callContainer.setVideoButtonSelected(true);
                     }
                 }
 
@@ -804,7 +807,14 @@ public class OneToOneCallPeerPanel
                 }
                 else if (isAncestor(videoContainer, visualComponent))
                 {
-                    callRenderer.ensureSize(visualComponent, width, height);
+                    // We should ensure window size only if we are not in a
+                    // single window mode.
+                    if (!callRenderer.getCallContainer().getCallWindow()
+                            .equals(GuiActivator.getUIService()
+                                .getSingleWindowContainer()))
+                    {
+                        callRenderer.ensureSize(visualComponent, width, height);
+                    }
 
                     /*
                      * Even if ensureSize hasn't changed the Frame size,
@@ -1176,12 +1186,12 @@ public class OneToOneCallPeerPanel
     }
 
     /**
-     * Returns the parent <tt>CallDialog</tt> containing this renderer.
-     * @return the parent <tt>CallDialog</tt> containing this renderer
+     * Returns the parent <tt>CallPanel</tt> containing this renderer.
+     * @return the parent <tt>CallPanel</tt> containing this renderer
      */
-    public CallDialog getCallDialog()
+    public CallPanel getCallPanel()
     {
-        return callRenderer.getCallDialog();
+        return callRenderer.getCallContainer();
     }
 
     /**

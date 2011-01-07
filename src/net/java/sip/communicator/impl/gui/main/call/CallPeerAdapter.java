@@ -96,7 +96,7 @@ public class CallPeerAdapter
             NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
 
             // We start the busy sound only if we're in a simple call.
-            if (!renderer.getCallDialog().isConference())
+            if (!renderer.getCallPanel().isConference())
             {
                 NotificationManager.fireNotification(
                     NotificationManager.BUSY_CALL);
@@ -129,18 +129,18 @@ public class CallPeerAdapter
                 NotificationManager
                     .stopSound(NotificationManager.INCOMING_CALL);
 
-                if (!renderer.getCallDialog().isCallTimerStarted())
-                    renderer.getCallDialog().startCallTimer();
+                if (!renderer.getCallPanel().isCallTimerStarted())
+                    renderer.getCallPanel().startCallTimer();
 
                 // Enabling all buttons when the call is connected.
-                renderer.getCallDialog().enableButtons();
+                renderer.getCallPanel().enableButtons();
             }
             else
             {
                 renderer.setOnHold(false);
-                renderer.getCallDialog().updateHoldButtonState();
+                renderer.getCallPanel().updateHoldButtonState();
                 // Enabling all buttons when the call get back from hold
-                renderer.getCallDialog().enableButtonsWhileOnHold(false);
+                renderer.getCallPanel().enableButtonsWhileOnHold(false);
             }
         }
         else if (newState == CallPeerState.DISCONNECTED)
@@ -156,8 +156,8 @@ public class CallPeerAdapter
         else if (CallPeerState.isOnHold(newState))
         {
             renderer.setOnHold(true);
-            renderer.getCallDialog().enableButtonsWhileOnHold(true);
-            renderer.getCallDialog().updateHoldButtonState();
+            renderer.getCallPanel().enableButtonsWhileOnHold(true);
+            renderer.getCallPanel().updateHoldButtonState();
         }
 
         renderer.setPeerState(newStateString);

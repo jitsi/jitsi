@@ -112,7 +112,7 @@ public class TransferCallButton
     private Collection<CallPeer> getTransferCallPeers()
     {
         Collection<CallPeer> transferCalls = null;
-        Iterator<Call> activeCalls = CallManager.getActiveCalls();
+        Iterator<Call> activeCalls = CallManager.getActiveCalls().iterator();
         while (activeCalls.hasNext())
         {
             Call activeCall = activeCalls.next();

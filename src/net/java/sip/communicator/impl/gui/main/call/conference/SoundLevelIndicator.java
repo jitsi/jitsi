@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
@@ -41,7 +42,7 @@ public class SoundLevelIndicator
     /**
      * Current number of distinct sound levels displayed in the UI.
      */
-    private int soundBarNumber = 8;
+    private int soundBarNumber = 0;
 
     /**
      * The sound level which is currently depicted by this
@@ -65,16 +66,34 @@ public class SoundLevelIndicator
     private final int maxSoundLevel;
 
     /**
+     * The renderer of the corresponding call, for which this sound level
+     * indicator is created.
+     */
+    private final CallRenderer callRenderer;
+
+    /**
      * Constructor
+     * @param callRenderer the renderer of the corresponding call, for which
+     * this sound level indicator is created
      * @param minSoundLevel the minimum possible sound level
      * @param maxSoundLevel the maximum possible sound level
      */
-    public SoundLevelIndicator(int minSoundLevel, int maxSoundLevel)
+    public SoundLevelIndicator( CallRenderer callRenderer,
+                                int minSoundLevel,
+                                int maxSoundLevel)
     {
+        this.callRenderer = callRenderer;
+
         this.minSoundLevel = minSoundLevel;
         this.maxSoundLevel = maxSoundLevel;
 
         loadSkin();
+
+        this.soundBarNumber
+            = getSoundBarNumber(callRenderer.getCallContainer().getWidth());
+
+        if (soundBarNumber <= 0)
+            soundBarNumber = 8;
 
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
@@ -186,7 +205,7 @@ public class SoundLevelIndicator
      */
     public void componentResized(ComponentEvent e)
     {
-        int windowWidth = e.getComponent().getWidth();
+        int windowWidth = callRenderer.getCallContainer().getWidth();
         int newNumber = getSoundBarNumber(windowWidth);
 
         if (newNumber > 0)

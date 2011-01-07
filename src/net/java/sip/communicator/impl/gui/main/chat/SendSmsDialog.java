@@ -69,7 +69,7 @@ public class SendSmsDialog
                             ChatTransport chatTransport,
                             String message)
     {
-        super(chatPanel.getChatWindow());
+        super(chatPanel.getChatContainer().getFrame());
         
         this.chatPanel = chatPanel;
         

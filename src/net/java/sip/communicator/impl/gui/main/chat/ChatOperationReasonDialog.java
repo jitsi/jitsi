@@ -66,24 +66,24 @@ public class ChatOperationReasonDialog extends MessageDialog
      * @param okButtonName the custom name of the ok button
      * @param showReasonLabel specify if we want the "Reason:" label 
      */
-    public ChatOperationReasonDialog(ChatWindow chatWindow, String title, 
+    public ChatOperationReasonDialog(Frame chatWindow, String title, 
         String message, String okButtonName, boolean showReasonLabel)
     {
         super(chatWindow, title, message, okButtonName, false);
 
         JPanel reasonPanel = new JPanel(new BorderLayout());
-        
+
         if(showReasonLabel)
         {
             reasonPanel.add(reasonLabel, BorderLayout.WEST);
         }
-        
+
         reasonPanel.add(new JLabel("          "), BorderLayout.WEST);
         reasonPanel.add(new JLabel("          "), BorderLayout.EAST);
         reasonPanel.add(reasonField, BorderLayout.CENTER);
         reasonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         reasonPanel.setOpaque(false);
-        
+
         this.getContentPane().add(reasonPanel, BorderLayout.CENTER);
 
         this.pack();
@@ -97,7 +97,7 @@ public class ChatOperationReasonDialog extends MessageDialog
     {
         return reasonField.getText();
     }
-    
+
     /**
      * Sets a default value for the reason field.
      * @param value the text to set as default text for the reason field
