@@ -9,13 +9,18 @@ package net.java.sip.communicator.impl.gui.main.call;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
+import java.util.regex.*;
 
 import javax.swing.*;
 
 import com.explodingpixels.macwidgets.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -72,6 +77,11 @@ public class ReceivedCallDialog
      * The window handling received calls.
      */
     private Window receivedCallWindow;
+
+    /**
+     * Indicates that the received call image search has been canceled.
+     */
+    private boolean imageSeachCanceled = false;
 
     /**
      * Creates a <tt>ReceivedCallDialog</tt> by specifying the associated call.
@@ -249,7 +259,7 @@ public class ReceivedCallDialog
 
         while (peersIter.hasNext())
         {
-            CallPeer peer = peersIter.next();
+            final CallPeer peer = peersIter.next();
 
             // More peers.
             if (peersIter.hasNext())
@@ -272,6 +282,14 @@ public class ReceivedCallDialog
 
                 if (image != null && image.length > 0)
                     imageIcon = ImageUtils.getScaledRoundedIcon(image, 50, 50);
+                else
+                    new Thread(new Runnable(){
+
+                        public void run()
+                        {
+                            querySourceContactImage(peer.getAddress());
+                        }
+                    }).start();
             }
         }
 
@@ -335,6 +353,110 @@ public class ReceivedCallDialog
      * Invoked when this dialog is closed.
      */
     protected void close(boolean isEscaped) {}
+
+    /**
+     * Searches for a source contact image for the given peer string.
+     *
+     * @param peerString the address of the peer to search for
+     */
+    private void querySourceContactImage(String peerString)
+    {
+        Pattern filterPattern = Pattern.compile(
+            "^" + Pattern.quote(peerString) + "$", Pattern.UNICODE_CASE);
+
+        Iterator<ExternalContactSource> contactSources
+            = TreeContactList.getContactSources().iterator();
+
+        final Vector<ContactQuery> loadedQueries = new Vector<ContactQuery>();
+
+        // Then we apply the filter on all contact sources.
+        while (contactSources.hasNext())
+        {
+            if (imageSeachCanceled)
+                return;
+
+            final ExternalContactSource contactSource = contactSources.next();
+
+            if (contactSource instanceof ExtendedContactSourceService)
+            {
+                ContactQuery query
+                    = ((ExtendedContactSourceService) contactSource)
+                        .queryContactSource(filterPattern);
+
+                loadedQueries.add(query);
+
+                List<SourceContact> results = query.getQueryResults();
+
+                if (results != null && !results.isEmpty())
+                {
+                    Iterator<SourceContact> resultsIter = results.iterator();
+
+                    while (resultsIter.hasNext())
+                    {
+                        byte[] image = resultsIter.next().getImage();
+
+                        if (image != null && image.length > 0)
+                        {
+                            setCallImage(image);
+
+                            cancelImageQueries(loadedQueries);
+                            return;
+                        }
+                    }
+                }
+
+                query.addContactQueryListener(new ContactQueryListener()
+                {
+                    public void queryStatusChanged(ContactQueryStatusEvent event)
+                    {}
+
+                    public void contactReceived(ContactReceivedEvent event)
+                    {
+                        SourceContact sourceContact = event.getContact();
+
+                        byte[] image = sourceContact.getImage();
+
+                        if (image != null && image.length > 0)
+                        {
+                            setCallImage(image);
+
+                            cancelImageQueries(loadedQueries);
+
+                            imageSeachCanceled = true;
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * Cancels the list of loaded <tt>ContactQuery</tt>s.
+     *
+     * @param loadedQueries the list of queries to cancel
+     */
+    private void cancelImageQueries(Collection<ContactQuery> loadedQueries)
+    {
+        Iterator<ContactQuery> queriesIter = loadedQueries.iterator();
+
+        while (queriesIter.hasNext())
+        {
+            queriesIter.next().cancel();
+        }
+    }
+
+    /**
+     * Sets the image of the incoming call notification.
+     *
+     * @param image the image to set
+     */
+    private void setCallImage(byte[] image)
+    {
+        callLabel.setIcon(
+            ImageUtils.getScaledRoundedIcon(image, 50, 50));
+
+        callLabel.repaint();
+    }
 
     /**
      * Reloads icons.
