@@ -11,6 +11,7 @@ import java.util.regex.*;
 
 import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Implements <tt>ContactQuery</tt> for the Address Book of Mac OS X.
@@ -230,14 +231,20 @@ public class MacOSXAddrBookContactQuery
 
         for (int i = 0; i < CONTACT_DETAIL_PROPERTY_INDEXES.length; i++)
         {
-            Object value = values[CONTACT_DETAIL_PROPERTY_INDEXES[i]];
+            int property = CONTACT_DETAIL_PROPERTY_INDEXES[i];
+            Object value = values[property];
 
             if (value instanceof String)
             {
                 String stringValue = (String) value;
 
                 if (stringValue.length() != 0)
-                    contactDetails.add(new ContactDetail(stringValue));
+                {
+                    contactDetails.add(
+                            setCapabilities(
+                                    new ContactDetail(stringValue),
+                                    property));
+                }
             }
             else if (value instanceof Object[])
             {
@@ -250,7 +257,9 @@ public class MacOSXAddrBookContactQuery
                         if (stringSubValue.length() != 0)
                         {
                             contactDetails.add(
-                                    new ContactDetail(stringSubValue));
+                                    setCapabilities(
+                                            new ContactDetail(stringSubValue),
+                                            property));
                         }
                     }
                 }
@@ -523,37 +532,34 @@ public class MacOSXAddrBookContactQuery
     {
         Object[] values
             = ABRecord_valuesForProperties(person, ABPERSON_PROPERTIES);
+        String displayName = getDisplayName(values);
 
-        if (matches(values))
+        if ((displayName.length() != 0)
+            && (query.matcher(displayName).find() || matches(values)))
         {
-            String displayName = getDisplayName(values);
+            List<ContactDetail> contactDetails = getContactDetails(values);
 
-            if (displayName.length() != 0)
+            if (!contactDetails.isEmpty())
             {
-                List<ContactDetail> contactDetails = getContactDetails(values);
+                AddrBookSourceContact sourceContact
+                    = new AddrBookSourceContact(
+                            getContactSource(),
+                            displayName,
+                            contactDetails);
 
-                if (!contactDetails.isEmpty())
+                try
                 {
-                    AddrBookSourceContact sourceContact
-                        = new AddrBookSourceContact(
-                                getContactSource(),
-                                displayName,
-                                contactDetails);
+                    byte[] image = ABPerson_imageData(person);
 
-                    try
-                    {
-                        byte[] image = ABPerson_imageData(person);
-
-                        if (image != null)
-                            sourceContact.setImage(image);
-                    }
-                    catch (OutOfMemoryError oome)
-                    {
-                        // Ignore it, the image is not vital.
-                    }
-
-                    addQueryResult(sourceContact);
+                    if (image != null)
+                        sourceContact.setImage(image);
                 }
+                catch (OutOfMemoryError oome)
+                {
+                    // Ignore it, the image is not vital.
+                }
+
+                addQueryResult(sourceContact);
             }
         }
         return (getStatus() == QUERY_IN_PROGRESS);
@@ -575,5 +581,52 @@ public class MacOSXAddrBookContactQuery
                     return onPerson(person);
                 }
             });
+    }
+
+    /**
+     * Sets the capabilities of a specific <tt>ContactDetail</tt> (e.g.
+     * <tt>supportedOpSets</tt>) depending on the <tt>ABPerson</tt> property
+     * that it stands for.
+     *
+     * @param contactDetail the <tt>ContactDetail</tt> to set the capabilities
+     * of
+     * @param property the index in {@link #ABPERSON_PROPERTIES} of the
+     * <tt>ABPerson</tt> property represented by <tt>ContactDetail</tt>
+     * @return <tt>contactDetail</tt>
+     */
+    private ContactDetail setCapabilities(
+            ContactDetail contactDetail,
+            int property)
+    {
+        List<Class<? extends OperationSet>> supportedOpSets
+            = new LinkedList<Class<? extends OperationSet>>();
+
+        switch (property)
+        {
+        case kABEmailProperty:
+            break;
+        case kABAIMInstantProperty:
+        case kABICQInstantProperty:
+            supportedOpSets.add(OperationSetBasicInstantMessaging.class);
+            break;
+        case kABJabberInstantProperty:
+            supportedOpSets.add(OperationSetBasicInstantMessaging.class);
+            supportedOpSets.add(OperationSetBasicTelephony.class);
+            break;
+        case kABMSNInstantProperty:
+            supportedOpSets.add(OperationSetBasicInstantMessaging.class);
+            break;
+        case kABYahooInstantProperty:
+            supportedOpSets.add(OperationSetBasicInstantMessaging.class);
+            break;
+        case kABPhoneProperty:
+            supportedOpSets.add(OperationSetBasicTelephony.class);
+            break;
+        default:
+            break;
+        }
+        contactDetail.setSupportedOpSets(supportedOpSets);
+
+        return contactDetail;
     }
 }
