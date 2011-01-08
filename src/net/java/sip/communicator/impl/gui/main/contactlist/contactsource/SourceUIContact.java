@@ -121,9 +121,9 @@ public class SourceUIContact
     {
         byte[] image = sourceContact.getImage();
 
-        if (image != null)
+        if ((image != null) && (image.length > 0))
         {
-            ImageIcon icon = new ImageIcon();
+            ImageIcon icon = new ImageIcon(image);
 
             if (icon.getIconWidth() > width || icon.getIconHeight() > height)
             {
