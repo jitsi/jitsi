@@ -11,7 +11,7 @@ endif
 
 CPPFLAGS = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/win32 -I$(OUTLOOK_MAPI_HEADERS) -I..
 LDFLAGS = -shared -Wl,--kill-at
-LIBS = -lmapi32
+LIBS = -lmapi32 -luuid
 TARGET = ../../../../lib/native/windows$(ARCH)/$(TARGET_BASENAME).dll
 
 $(TARGET): \
