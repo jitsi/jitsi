@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.addrbook.msoutlook;
 
 import java.util.*;
+import java.util.regex.*;
 
 import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.service.contactsource.*;
@@ -162,12 +163,12 @@ public class MsOutlookAddrBookContactQuery
      *
      * @param msoabcss the <tt>MsOutlookAddrBookContactSourceService</tt>
      * which is to perform the new <tt>ContactQuery</tt>
-     * @param query the <tt>String</tt> for which <tt>msoabcss</tt> is being
+     * @param query the <tt>Pattern</tt> for which <tt>msoabcss</tt> is being
      * queried
      */
     public MsOutlookAddrBookContactQuery(
             MsOutlookAddrBookContactSourceService msoabcss,
-            String query)
+            Pattern query)
     {
         super(msoabcss, query);
     }
@@ -227,8 +228,7 @@ public class MsOutlookAddrBookContactQuery
 
         for (Object prop : props)
         {
-            if ((prop instanceof String)
-                    && ((String) prop).toLowerCase().contains(query))
+            if ((prop instanceof String) && query.matcher((String) prop).find())
             {
                 matches = true;
                 break;
@@ -293,7 +293,7 @@ public class MsOutlookAddrBookContactQuery
     protected void run()
     {
         foreachMailUser(
-            query,
+            query.toString(),
             new PtrCallback()
             {
                 public boolean callback(long iUnknown)

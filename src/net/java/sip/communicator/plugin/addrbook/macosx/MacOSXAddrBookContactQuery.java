@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.addrbook.macosx;
 
 import java.util.*;
+import java.util.regex.*;
 
 import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.service.contactsource.*;
@@ -183,12 +184,12 @@ public class MacOSXAddrBookContactQuery
      *
      * @param contactSource the <tt>MacOSXAddrBookContactSourceService</tt>
      * which is to perform the new <tt>ContactQuery</tt> instance
-     * @param query the <tt>String</tt> for which <tt>contactSource</tt> i.e.
+     * @param query the <tt>Pattern</tt> for which <tt>contactSource</tt> i.e.
      * the Address Book of Mac OS X is being queried
      */
     public MacOSXAddrBookContactQuery(
             MacOSXAddrBookContactSourceService contactSource,
-            String query)
+            Pattern query)
     {
         super(contactSource, query);
     }
@@ -494,7 +495,7 @@ public class MacOSXAddrBookContactQuery
         {
             if (value instanceof String)
             {
-                if (((String) value).toLowerCase().contains(query))
+                if (query.matcher((String) value).find())
                     return true;
             }
             else if (value instanceof Object[])
@@ -502,8 +503,7 @@ public class MacOSXAddrBookContactQuery
                 for (Object subValue : (Object[]) value)
                 {
                     if ((subValue instanceof String)
-                            && ((String) subValue)
-                                    .toLowerCase().contains(query))
+                            && query.matcher((String) subValue).find())
                         return true;
                 }
             }
@@ -567,7 +567,7 @@ public class MacOSXAddrBookContactQuery
     protected void run()
     {
         foreachPerson(
-            query,
+            query.toString(),
             new PtrCallback()
             {
                 public boolean callback(long person)

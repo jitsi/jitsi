@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.addrbook;
 
 import java.util.*;
+import java.util.regex.*;
 
 import net.java.sip.communicator.service.contactsource.*;
 
@@ -23,10 +24,10 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
 {
 
     /**
-     * The <tt>String</tt> for which the associated
+     * The <tt>Pattern</tt> for which the associated
      * <tt>ContactSourceService</tt> is being queried.
      */
-    protected final String query;
+    protected final Pattern query;
 
     /**
      * The <tt>SourceContact</tt>s which match {@link #query}.
@@ -46,14 +47,14 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
      *
      * @param contactSource the <tt>ContactSourceService</tt> which is to
      * perform the new <tt>ContactQuery</tt> instance
-     * @param query the <tt>String</tt> for which <tt>contactSource</tt> is
+     * @param query the <tt>Pattern</tt> for which <tt>contactSource</tt> is
      * being queried
      */
-    protected AsyncContactQuery(T contactSource, String query)
+    protected AsyncContactQuery(T contactSource, Pattern query)
     {
         super(contactSource);
 
-        this.query = (query == null) ? null : query.toLowerCase();
+        this.query = query;
     }
 
     /**
