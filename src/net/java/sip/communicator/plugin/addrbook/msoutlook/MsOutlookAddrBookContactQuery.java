@@ -11,6 +11,7 @@ import java.util.regex.*;
 
 import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Implements <tt>ContactQuery</tt> for the Address Book of Microsoft Outlook.
@@ -236,6 +237,11 @@ public class MsOutlookAddrBookContactQuery
         }
         if (matches)
         {
+            List<Class<? extends OperationSet>> supportedOpSets
+                = new ArrayList<Class<? extends OperationSet>>(1);
+
+            supportedOpSets.add(OperationSetBasicTelephony.class);
+
             List<ContactDetail> contactDetails
                 = new LinkedList<ContactDetail>();
 
@@ -248,7 +254,13 @@ public class MsOutlookAddrBookContactQuery
                     String stringProp = (String) prop;
 
                     if (stringProp.length() != 0)
-                        contactDetails.add(new ContactDetail(stringProp));
+                    {
+                        ContactDetail contactDetail
+                            = new ContactDetail(stringProp);
+
+                        contactDetail.setSupportedOpSets(supportedOpSets);
+                        contactDetails.add(contactDetail);
+                    }
                 }
             }
 

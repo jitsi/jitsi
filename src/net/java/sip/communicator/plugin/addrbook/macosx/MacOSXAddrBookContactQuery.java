@@ -600,24 +600,46 @@ public class MacOSXAddrBookContactQuery
     {
         List<Class<? extends OperationSet>> supportedOpSets
             = new LinkedList<Class<? extends OperationSet>>();
+        Map<Class<? extends OperationSet>, String> preferredProtocols
+            = new HashMap<Class<? extends OperationSet>, String>();
 
         switch (property)
         {
         case kABEmailProperty:
             break;
         case kABAIMInstantProperty:
+            supportedOpSets.add(OperationSetBasicInstantMessaging.class);
+            preferredProtocols.put(
+                    OperationSetBasicInstantMessaging.class,
+                    ProtocolNames.AIM);
+            break;
         case kABICQInstantProperty:
             supportedOpSets.add(OperationSetBasicInstantMessaging.class);
+            preferredProtocols.put(
+                    OperationSetBasicInstantMessaging.class,
+                    ProtocolNames.ICQ);
             break;
         case kABJabberInstantProperty:
             supportedOpSets.add(OperationSetBasicInstantMessaging.class);
+            preferredProtocols.put(
+                    OperationSetBasicInstantMessaging.class,
+                    ProtocolNames.JABBER);
             supportedOpSets.add(OperationSetBasicTelephony.class);
+            preferredProtocols.put(
+                    OperationSetBasicTelephony.class,
+                    ProtocolNames.JABBER);
             break;
         case kABMSNInstantProperty:
             supportedOpSets.add(OperationSetBasicInstantMessaging.class);
+            preferredProtocols.put(
+                    OperationSetBasicInstantMessaging.class,
+                    ProtocolNames.MSN);
             break;
         case kABYahooInstantProperty:
             supportedOpSets.add(OperationSetBasicInstantMessaging.class);
+            preferredProtocols.put(
+                    OperationSetBasicInstantMessaging.class,
+                    ProtocolNames.YAHOO);
             break;
         case kABPhoneProperty:
             supportedOpSets.add(OperationSetBasicTelephony.class);
@@ -626,6 +648,8 @@ public class MacOSXAddrBookContactQuery
             break;
         }
         contactDetail.setSupportedOpSets(supportedOpSets);
+        if (!preferredProtocols.isEmpty())
+            contactDetail.setPreferredProtocols(preferredProtocols);
 
         return contactDetail;
     }
