@@ -630,73 +630,8 @@ public class CallManager
      */
     public static List<ProtocolProviderService> getTelephonyProviders()
     {
-        List<ProtocolProviderService> telephonyProviders
-            = new LinkedList<ProtocolProviderService>();
-
-        for (ProtocolProviderFactory providerFactory : GuiActivator
-            .getProtocolProviderFactories().values())
-        {
-            ServiceReference serRef;
-            ProtocolProviderService protocolProvider;
-
-            for (AccountID accountID : providerFactory.getRegisteredAccounts())
-            {
-                serRef = providerFactory.getProviderForAccount(accountID);
-
-                protocolProvider
-                    = (ProtocolProviderService) GuiActivator.bundleContext
-                        .getService(serRef);
-
-                if (protocolProvider.getOperationSet(
-                        OperationSetBasicTelephony.class) != null
-                    && protocolProvider.isRegistered())
-                {
-                    telephonyProviders.add(protocolProvider);
-                }
-            }
-        }
-        return telephonyProviders;
-    }
-
-    /**
-     * Returns a list of all currently registered telephony providers for the
-     * given protocol name.
-     * @param protocolName the protocol name
-     * @param operationSetClass the operation set class for which we're looking
-     * for providers
-     * @return a list of all currently registered providers for the given
-     * <tt>protocolName</tt> and supporting the given <tt>operationSetClass</tt>
-     */
-    public static List<ProtocolProviderService> getRegisteredProviders(
-        String protocolName, Class<? extends OperationSet> operationSetClass)
-    {
-        List<ProtocolProviderService> telephonyProviders
-            = new LinkedList<ProtocolProviderService>();
-
-        ProtocolProviderFactory providerFactory
-            = GuiActivator.getProtocolProviderFactory(protocolName);
-
-        if (providerFactory != null)
-        {
-            ServiceReference serRef;
-            ProtocolProviderService protocolProvider;
-
-            for (AccountID accountID : providerFactory.getRegisteredAccounts())
-            {
-                serRef = providerFactory.getProviderForAccount(accountID);
-
-                protocolProvider
-                    = (ProtocolProviderService) GuiActivator.bundleContext
-                        .getService(serRef);
-
-                if (protocolProvider.getOperationSet(operationSetClass) != null
-                    && protocolProvider.isRegistered())
-                {
-                    telephonyProviders.add(protocolProvider);
-                }
-            }
-        }
-        return telephonyProviders;
+        return GuiActivator
+            .getRegisteredProviders(OperationSetBasicTelephony.class);
     }
 
     /**

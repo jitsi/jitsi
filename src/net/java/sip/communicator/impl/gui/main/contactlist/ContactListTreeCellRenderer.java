@@ -853,8 +853,9 @@ public class ContactListTreeCellRenderer
                 else
                 {
                     protocolName = preferredProvider.getProtocolName();
-                    providers = CallManager.getRegisteredProviders(protocolName,
-                        OperationSetBasicTelephony.class);
+                    providers
+                        = GuiActivator.getRegisteredProviders(protocolName,
+                            OperationSetBasicTelephony.class);
                 }
             }
             // If we don't have a preferred provider we try to obtain a
@@ -863,9 +864,16 @@ public class ContactListTreeCellRenderer
             {
                 protocolName = detail
                     .getPreferredProtocol(OperationSetBasicTelephony.class);
-                providers
-                    = CallManager.getRegisteredProviders(protocolName,
-                        OperationSetBasicTelephony.class);
+
+                if (protocolName != null)
+                    providers
+                        = GuiActivator.getRegisteredProviders(protocolName,
+                            OperationSetBasicTelephony.class);
+                // If the protocol name is null we simply obtain all telephony
+                // providers.
+                else
+                    providers
+                        = CallManager.getTelephonyProviders();
             }
 
             // If our call didn't succeed, try to call through one of the other
@@ -950,7 +958,7 @@ public class ContactListTreeCellRenderer
                 else
                 {
                     protocolName = preferredProvider.getProtocolName();
-                    providers = CallManager.getRegisteredProviders(protocolName,
+                    providers = GuiActivator.getRegisteredProviders(protocolName,
                         OperationSetVideoTelephony.class);
                 }
             }
@@ -960,9 +968,15 @@ public class ContactListTreeCellRenderer
             {
                 protocolName = detail
                     .getPreferredProtocol(OperationSetVideoTelephony.class);
-                providers
-                    = CallManager.getRegisteredProviders(protocolName,
-                        OperationSetVideoTelephony.class);
+
+                if (protocolName != null)
+                    providers
+                        = GuiActivator.getRegisteredProviders(protocolName,
+                            OperationSetVideoTelephony.class);
+                else
+                    providers
+                        = GuiActivator.getRegisteredProviders(
+                            OperationSetVideoTelephony.class);
             }
 
             // If our call didn't succeed, try to call through one of the other
@@ -1051,8 +1065,9 @@ public class ContactListTreeCellRenderer
                 else
                 {
                     protocolName = preferredProvider.getProtocolName();
-                    providers = CallManager.getRegisteredProviders(protocolName,
-                        OperationSetDesktopSharingServer.class);
+                    providers
+                        = GuiActivator.getRegisteredProviders(protocolName,
+                            OperationSetDesktopSharingServer.class);
                 }
             }
             // If we don't have a preferred provider we try to obtain a
@@ -1061,9 +1076,15 @@ public class ContactListTreeCellRenderer
             {
                 protocolName = detail.getPreferredProtocol(
                         OperationSetDesktopSharingServer.class);
-                providers
-                    = CallManager.getRegisteredProviders(protocolName,
-                        OperationSetDesktopSharingServer.class);
+
+                if (protocolName != null)
+                    providers
+                        = GuiActivator.getRegisteredProviders(protocolName,
+                            OperationSetDesktopSharingServer.class);
+                else
+                    providers
+                        = GuiActivator.getRegisteredProviders(
+                            OperationSetDesktopSharingServer.class);
             }
 
             // If our call didn't succeed, try to call through one of the other

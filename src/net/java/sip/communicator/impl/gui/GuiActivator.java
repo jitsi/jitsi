@@ -291,6 +291,86 @@ public class GuiActivator implements BundleActivator
     }
 
     /**
+     * Returns a list of all currently registered telephony providers for the
+     * given protocol name.
+     * @param protocolName the protocol name
+     * @param operationSetClass the operation set class for which we're looking
+     * for providers
+     * @return a list of all currently registered providers for the given
+     * <tt>protocolName</tt> and supporting the given <tt>operationSetClass</tt>
+     */
+    public static List<ProtocolProviderService> getRegisteredProviders(
+        String protocolName, Class<? extends OperationSet> operationSetClass)
+    {
+        List<ProtocolProviderService> opSetProviders
+            = new LinkedList<ProtocolProviderService>();
+
+        ProtocolProviderFactory providerFactory
+            = GuiActivator.getProtocolProviderFactory(protocolName);
+
+        if (providerFactory != null)
+        {
+            ServiceReference serRef;
+            ProtocolProviderService protocolProvider;
+
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+            {
+                serRef = providerFactory.getProviderForAccount(accountID);
+
+                protocolProvider
+                    = (ProtocolProviderService) GuiActivator.bundleContext
+                        .getService(serRef);
+
+                if (protocolProvider.getOperationSet(operationSetClass) != null
+                    && protocolProvider.isRegistered())
+                {
+                    opSetProviders.add(protocolProvider);
+                }
+            }
+        }
+        return opSetProviders;
+    }
+
+    /**
+     * Returns a list of all currently registered providers, which support the
+     * given <tt>operationSetClass</tt>.
+     *
+     * @param opSetClass the operation set class for which we're looking
+     * for providers 
+     * @return a list of all currently registered providers, which support the
+     * given <tt>operationSetClass</tt>
+     */
+    public static List<ProtocolProviderService> getRegisteredProviders(
+        Class<? extends OperationSet> opSetClass)
+    {
+        List<ProtocolProviderService> opSetProviders
+            = new LinkedList<ProtocolProviderService>();
+
+        for (ProtocolProviderFactory providerFactory : GuiActivator
+            .getProtocolProviderFactories().values())
+        {
+            ServiceReference serRef;
+            ProtocolProviderService protocolProvider;
+
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+            {
+                serRef = providerFactory.getProviderForAccount(accountID);
+
+                protocolProvider
+                    = (ProtocolProviderService) GuiActivator.bundleContext
+                        .getService(serRef);
+
+                if (protocolProvider.getOperationSet(opSetClass) != null
+                    && protocolProvider.isRegistered())
+                {
+                    opSetProviders.add(protocolProvider);
+                }
+            }
+        }
+        return opSetProviders;
+    }
+
+    /**
      * Returns the <tt>AccountManager</tt> obtained from the bundle context.
      * @return the <tt>AccountManager</tt> obtained from the bundle context
      */
