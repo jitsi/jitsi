@@ -81,7 +81,7 @@ public class ReceivedCallDialog
     /**
      * Indicates that the received call image search has been canceled.
      */
-    private boolean imageSeachCanceled = false;
+    private boolean imageSearchCanceled = false;
 
     /**
      * Creates a <tt>ReceivedCallDialog</tt> by specifying the associated call.
@@ -283,8 +283,10 @@ public class ReceivedCallDialog
                 if (image != null && image.length > 0)
                     imageIcon = ImageUtils.getScaledRoundedIcon(image, 50, 50);
                 else
-                    new Thread(new Runnable(){
-
+                    // Try to find an image in one of the available contact
+                    // sources.
+                    new Thread(new Runnable()
+                    {
                         public void run()
                         {
                             querySourceContactImage(peer.getAddress());
@@ -355,12 +357,14 @@ public class ReceivedCallDialog
     protected void close(boolean isEscaped) {}
 
     /**
-     * Searches for a source contact image for the given peer string.
+     * Searches for a source contact image for the given peer string in one of
+     * the available contact sources.
      *
      * @param peerString the address of the peer to search for
      */
     private void querySourceContactImage(String peerString)
     {
+        // We make a pattern that matches the whole string only.
         Pattern filterPattern = Pattern.compile(
             "^" + Pattern.quote(peerString) + "$", Pattern.UNICODE_CASE);
 
@@ -369,41 +373,23 @@ public class ReceivedCallDialog
 
         final Vector<ContactQuery> loadedQueries = new Vector<ContactQuery>();
 
-        // Then we apply the filter on all contact sources.
         while (contactSources.hasNext())
         {
-            if (imageSeachCanceled)
+            // If the image search has been canceled from one of the previous
+            // sources, we return here.
+            if (imageSearchCanceled)
                 return;
 
-            final ExternalContactSource contactSource = contactSources.next();
+            ContactSourceService contactSource
+                = contactSources.next().getContactSourceService();
 
             if (contactSource instanceof ExtendedContactSourceService)
             {
                 ContactQuery query
-                    = ((ExtendedContactSourceService) contactSource)
-                        .queryContactSource(filterPattern);
+                    = ((ExtendedContactSourceService)
+                            contactSource).queryContactSource(filterPattern);
 
                 loadedQueries.add(query);
-
-                List<SourceContact> results = query.getQueryResults();
-
-                if (results != null && !results.isEmpty())
-                {
-                    Iterator<SourceContact> resultsIter = results.iterator();
-
-                    while (resultsIter.hasNext())
-                    {
-                        byte[] image = resultsIter.next().getImage();
-
-                        if (image != null && image.length > 0)
-                        {
-                            setCallImage(image);
-
-                            cancelImageQueries(loadedQueries);
-                            return;
-                        }
-                    }
-                }
 
                 query.addContactQueryListener(new ContactQueryListener()
                 {
@@ -420,12 +406,42 @@ public class ReceivedCallDialog
                         {
                             setCallImage(image);
 
+                            // Cancel all already loaded queries.
                             cancelImageQueries(loadedQueries);
 
-                            imageSeachCanceled = true;
+                            imageSearchCanceled = true;
                         }
                     }
                 });
+
+                // If the image search has been canceled from one of the
+                // previous sources, we return here.
+                if (imageSearchCanceled)
+                    return;
+
+                // Let's see if we find an image in the direct results.
+                List<SourceContact> results = query.getQueryResults();
+
+                if (results != null && !results.isEmpty())
+                {
+                    Iterator<SourceContact> resultsIter = results.iterator();
+
+                    while (resultsIter.hasNext())
+                    {
+                        byte[] image = resultsIter.next().getImage();
+
+                        if (image != null && image.length > 0)
+                        {
+                            setCallImage(image);
+
+                            // Cancel all already loaded queries.
+                            cancelImageQueries(loadedQueries);
+
+                            // As we found the image we return here.
+                            return;
+                        }
+                    }
+                }
             }
         }
     }

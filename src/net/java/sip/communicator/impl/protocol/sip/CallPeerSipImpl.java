@@ -114,7 +114,9 @@ public class CallPeerSipImpl
      */
     public String getAddress()
     {
-        return this.getPeerAddress().getURI().toString();
+        SipURI sipURI = (SipURI) peerAddress.getURI();
+
+        return sipURI.getUser() + "@" + sipURI.getHost();
     }
 
     /**
