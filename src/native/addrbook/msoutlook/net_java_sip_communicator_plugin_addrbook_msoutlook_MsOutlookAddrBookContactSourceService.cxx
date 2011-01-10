@@ -14,6 +14,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+static LPMAPIALLOCATEBUFFER
+    MsOutlookAddrBookContactSourceService_MAPIAllocateBuffer;
+static LPMAPIFREEBUFFER MsOutlookAddrBookContactSourceService_MAPIFreeBuffer;
+static LPMAPIINITIALIZE MsOutlookAddrBookContactSourceService_MAPIInitialize;
+static LPMAPILOGONEX MsOutlookAddrBookContactSourceService_MAPILogonEx;
+static LPMAPIUNINITIALIZE
+    MsOutlookAddrBookContactSourceService_MAPIUninitialize;
+
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
     (JNIEnv *jniEnv, jclass clazz, jlong version, jlong flags)
@@ -31,7 +39,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     if (ERROR_SUCCESS
             == RegOpenKeyEx(
                     HKEY_LOCAL_MACHINE,
-                    _TEXT("Software\\Microsoft\\Office"),
+                    _T("Software\\Microsoft\\Office"),
                     0,
                     KEY_ENUMERATE_SUB_KEYS,
                     &officeKey))
@@ -67,7 +75,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                 continue;
 
             str = installRootKeyName + subkeyNameLength;
-            memcpy(str, _TEXT("\\Outlook\\InstallRoot"), 20 * sizeof(TCHAR));
+            memcpy(str, _T("\\Outlook\\InstallRoot"), 20 * sizeof(TCHAR));
             *(str + 20) = 0;
             if ((ERROR_SUCCESS
                     == RegOpenKeyEx(
@@ -79,7 +87,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                 && (ERROR_SUCCESS
                     == RegQueryValueEx(
                             installRootKey,
-                            _TEXT("Path"),
+                            _T("Path"),
                             NULL,
                             &pathValueType,
                             NULL, &pathValueSize))
@@ -109,7 +117,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                 if (ERROR_SUCCESS
                         == RegQueryValueEx(
                                 installRootKey,
-                                _TEXT("Path"),
+                                _T("Path"),
                                 NULL,
                                 NULL,
                                 (LPBYTE) pathValue, &pathValueSize))
@@ -128,12 +136,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
                         fileAttributes = GetFileAttributes(pathValue);
                         if (INVALID_FILE_ATTRIBUTES != fileAttributes)
-                        {
-                            MAPIINIT_0 mapiInit
-                                = { (ULONG) version, (ULONG) flags };
-
-                            hResult = MAPIInitialize(&mapiInit);
-                        }
+                            hResult = S_OK;
                     }
                 }
 
@@ -143,6 +146,53 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
         }
     }
 
+    /* If we've determined that we'd like to go on with MAPI, try to load it. */
+    if (HR_SUCCEEDED(hResult))
+    {
+        HMODULE lib = LoadLibrary(_T("mapi32.dll"));
+
+        if (lib)
+        {
+            MsOutlookAddrBookContactSourceService_MAPIInitialize
+                = (LPMAPIINITIALIZE) GetProcAddress(lib, "MAPIInitialize");
+            MsOutlookAddrBookContactSourceService_MAPIUninitialize
+                = (LPMAPIUNINITIALIZE) GetProcAddress(lib, "MAPIUninitialize");
+
+            if (MsOutlookAddrBookContactSourceService_MAPIInitialize
+                    && MsOutlookAddrBookContactSourceService_MAPIUninitialize)
+            {
+                MAPIINIT_0 mapiInit = { (ULONG) version, (ULONG) flags };
+
+                hResult
+                    = MsOutlookAddrBookContactSourceService_MAPIInitialize(
+                            &mapiInit);
+                if (HR_SUCCEEDED(hResult))
+                {
+                    MsOutlookAddrBookContactSourceService_MAPIAllocateBuffer
+                        = (LPMAPIALLOCATEBUFFER)
+                            GetProcAddress(lib, "MAPIAllocateBuffer");
+                    MsOutlookAddrBookContactSourceService_MAPIFreeBuffer
+                        = (LPMAPIFREEBUFFER)
+                            GetProcAddress(lib, "MAPIFreeBuffer");
+                    MsOutlookAddrBookContactSourceService_MAPILogonEx
+                        = (LPMAPILOGONEX) GetProcAddress(lib, "MAPILogonEx");
+                    if (!MsOutlookAddrBookContactSourceService_MAPIAllocateBuffer
+                            || !MsOutlookAddrBookContactSourceService_MAPIFreeBuffer
+                            || !MsOutlookAddrBookContactSourceService_MAPILogonEx)
+                    {
+                        MsOutlookAddrBookContactSourceService_MAPIUninitialize();
+                        hResult = MAPI_E_NOT_FOUND;
+                    }
+                }
+            }
+            else
+                hResult = MAPI_E_NOT_FOUND;
+            if (HR_FAILED(hResult))
+                FreeLibrary(lib);
+        }
+    }
+
+    /* Report any possible error regardless of where it has come from. */
     if (HR_FAILED(hResult))
     {
         MsOutlookMAPIHResultException_throwNew(
@@ -156,5 +206,33 @@ JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIUninitialize
     (JNIEnv *jniEnv, jclass clazz)
 {
-    MAPIUninitialize();
+    MsOutlookAddrBookContactSourceService_MAPIUninitialize();
+}
+
+SCODE
+MsOutlookAddrBook_MAPIAllocateBuffer(ULONG size, LPVOID FAR *buffer)
+{
+    return
+        MsOutlookAddrBookContactSourceService_MAPIAllocateBuffer(size, buffer);
+}
+
+ULONG
+MsOutlookAddrBook_MAPIFreeBuffer(LPVOID buffer)
+{
+    return MsOutlookAddrBookContactSourceService_MAPIFreeBuffer(buffer);
+}
+
+HRESULT
+MsOutlookAddrBook_MAPILogonEx
+    (ULONG_PTR uiParam,
+    LPSTR profileName, LPSTR password,
+    FLAGS flags,
+    LPMAPISESSION FAR *mapiSession)
+{
+    return
+        MsOutlookAddrBookContactSourceService_MAPILogonEx(
+                uiParam,
+                profileName, password,
+                flags,
+                mapiSession);
 }
