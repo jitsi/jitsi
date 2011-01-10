@@ -28,6 +28,9 @@ MsOutlookMAPIHResultException_throwNew
         case MAPI_E_NO_ACCESS:
             message = _T("MAPI_E_NO_ACCESS");
             break;
+        case MAPI_E_NO_SUPPORT:
+            message = _T("MAPI_E_NO_SUPPORT");
+            break;
         case MAPI_E_NOT_ENOUGH_MEMORY:
             message = _T("MAPI_E_NOT_ENOUGH_MEMORY");
             break;
