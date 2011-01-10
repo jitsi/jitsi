@@ -116,6 +116,7 @@ public class JingleUtils
                     DynamicPayloadTypeRegistry ptRegistry)
     {
         byte pt = (byte)payloadType.getID();
+        boolean unknown = false;
 
         //convert params to a name:value map
         List<ParameterPacketExtension> params = payloadType.getParameters();
@@ -138,6 +139,7 @@ public class JingleUtils
         //we don't seem to know anything about this format
         if(format == null)
         {
+            unknown = true;
             format =
                 JabberActivator.getMediaService().getFormatFactory().
                     createUnknownMediaFormat(MediaType.AUDIO);
@@ -160,7 +162,7 @@ public class JingleUtils
                 && (ptRegistry.findFormat(pt) == null))
             ptRegistry.addMapping(format, pt);
 
-        return format;
+        return (unknown == false) ? format : null;
     }
 
     /**
