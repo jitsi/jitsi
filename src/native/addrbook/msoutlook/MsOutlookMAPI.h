@@ -15,4 +15,7 @@
 #include <mapitags.h>
 #include <mapix.h>
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #endif /* #ifndef _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MSOUTLOOKMAPI_H_ */

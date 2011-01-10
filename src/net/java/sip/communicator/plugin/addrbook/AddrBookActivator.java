@@ -69,7 +69,17 @@ public class AddrBookActivator
         else
             return;
 
-        css = (ContactSourceService) Class.forName(cssClassName).newInstance();
+        try
+        {
+            css
+                = (ContactSourceService)
+                    Class.forName(cssClassName).newInstance();
+        }
+        catch (Exception ex)
+        {
+            logger.error("Failed to instantiate " + cssClassName, ex);
+            return;
+        }
         try
         {
             cssServiceRegistration
