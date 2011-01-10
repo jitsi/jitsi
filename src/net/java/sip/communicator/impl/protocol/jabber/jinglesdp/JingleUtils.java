@@ -137,7 +137,11 @@ public class JingleUtils
 
         //we don't seem to know anything about this format
         if(format == null)
-            return null;
+        {
+            format =
+                JabberActivator.getMediaService().getFormatFactory().
+                    createUnknownMediaFormat(MediaType.AUDIO);
+        }
 
         /*
          * We've just created a MediaFormat for the specified payloadType

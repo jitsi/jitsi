@@ -1029,6 +1029,11 @@ public class DeviceConfiguration
                     DEFAULT_AUDIO_ECHOCANCEL);
     }
 
+    /**
+     * Get the echo cancellation filter length (in milliseconds).
+     *
+     * @return echo cancel filter length in milliseconds
+     */
     public long getEchoCancelFilterLengthInMillis()
     {
         return

@@ -7,6 +7,8 @@
 package net.java.sip.communicator.impl.neomedia.format;
 
 import java.util.*;
+import javax.media.*;
+import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
@@ -21,6 +23,26 @@ import net.java.sip.communicator.service.neomedia.format.*;
 public class MediaFormatFactoryImpl
     implements MediaFormatFactory
 {
+    /**
+     * Creates an unknown <tt>MediaFormat</tt>.
+     *
+     * @param type <tt>MediaType</tt>
+     * @return unknown <tt>MediaFormat</tt>
+     */
+    public MediaFormat createUnknownMediaFormat(MediaType type)
+    {
+        Format unknown = null;
+
+        if(type.equals(MediaType.AUDIO))
+        {
+            unknown = new VideoFormat("unknown");
+        }
+        else if(type.equals(MediaType.VIDEO))
+        {
+            unknown = new AudioFormat("unknown");
+        }
+        return MediaFormatImpl.createInstance(unknown);
+    }
 
     /**
      * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt> with

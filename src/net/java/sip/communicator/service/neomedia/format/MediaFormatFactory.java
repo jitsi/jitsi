@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.neomedia.format;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.neomedia.*;
+
 /**
  * Allows the creation of audio and video <tt>MediaFormat</tt> instances.
  *
@@ -28,6 +30,14 @@ public interface MediaFormatFactory
      * denote that a specific clock rate is not specified.
      */
     public static final double CLOCK_RATE_NOT_SPECIFIED = -1;
+
+    /**
+     * Creates an unknown <tt>MediaFormat</tt>.
+     *
+     * @param type <tt>MediaType</tt>
+     * @return unknown <tt>MediaFormat</tt>
+     */
+    public MediaFormat createUnknownMediaFormat(MediaType type);
 
     /**
      * Creates a <tt>MediaFormat</tt> for the specified <tt>encoding</tt> with
