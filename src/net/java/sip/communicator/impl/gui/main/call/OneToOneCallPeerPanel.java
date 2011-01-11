@@ -169,12 +169,12 @@ public class OneToOneCallPeerPanel
     /**
      * Sound local level label.
      */
-    private AbstractVolumeControlButton localLevel;
+    private InputVolumeControlButton localLevel;
 
     /**
      * Sound remote level label.
      */
-    private AbstractVolumeControlButton remoteLevel;
+    private OutputVolumeControlButton remoteLevel;
 
     /**
      * The center component.
@@ -370,6 +370,7 @@ public class OneToOneCallPeerPanel
         localLevel = new InputVolumeControlButton(
                 callPeer.getCall(),
                 ImageLoader.MICROPHONE,
+                ImageLoader.MUTE_BUTTON,
                 false, false, false);
 
         remoteLevel = new OutputVolumeControlButton(

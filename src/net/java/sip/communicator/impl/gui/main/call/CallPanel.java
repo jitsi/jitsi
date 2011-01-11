@@ -179,12 +179,12 @@ public class CallPanel
     /**
      * Sound local level label.
      */
-    private AbstractVolumeControlButton localLevel;
+    private InputVolumeControlButton localLevel;
 
     /**
      * Sound remote level label.
      */
-    private AbstractVolumeControlButton remoteLevel;
+    private OutputVolumeControlButton remoteLevel;
 
     /**
      * A collection of listeners, registered for call title change events.
@@ -266,6 +266,7 @@ public class CallPanel
 
         localLevel = new InputVolumeControlButton(
                 call,
+                ImageLoader.MICROPHONE,
                 ImageLoader.MUTE_BUTTON,
                 false, true, false);
         remoteLevel = new OutputVolumeControlButton(

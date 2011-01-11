@@ -23,14 +23,34 @@ import org.jvnet.lafwidget.animation.*;
 public class SIPCommToggleButton
     extends JToggleButton
 {
+    /**
+     * The background image shown in normal button state.
+     */
     private Image bgImage;
 
+    /**
+     * The background image shown in rollover button state.
+     */
     private Image bgRolloverImage;
 
+    /**
+     * The icon image shown in normal (non-pressed) button state.
+     */
     private Image iconImage;
 
+    /**
+     * The background image shown in pressed button state.
+     */
     private Image pressedImage;
 
+    /**
+     * The icon image shown in pressed button state.
+     */
+    private Image pressedIconImage;
+
+    /**
+     * Creates an instance of <tt>SIPCommToggleButton</tt>.
+     */
     public SIPCommToggleButton()
     {
         // Explicitly remove all borders that may be set from the current
@@ -41,6 +61,17 @@ public class SIPCommToggleButton
 
         this.addMouseListener(mouseHandler);
         this.addMouseMotionListener(mouseHandler);
+    }
+
+    /**
+     * Creates a button with custom background image and rollover image.
+     *
+     * @param bgImage the background button image
+     * @param rolloverImage the rollover button image
+     */
+    public SIPCommToggleButton(Image bgImage, Image rolloverImage)
+    {
+        this(bgImage, rolloverImage, null, null);
     }
 
     /**
@@ -57,12 +88,32 @@ public class SIPCommToggleButton
                                 Image iconImage,
                                 Image pressedImage)
     {
+        this(bgImage, rolloverImage, iconImage, pressedImage, null);
+    }
+
+    /**
+     * Creates a button with custom background image, rollover image and
+     * icon image.
+     *
+     * @param bgImage       the background image
+     * @param rolloverImage the roll over image
+     * @param iconImage     the icon
+     * @param pressedImage  the image used to paint the pressed state
+     * @param pressedIconImage the icon image in a pressed state 
+     */
+    public SIPCommToggleButton( Image bgImage,
+                                Image rolloverImage,
+                                Image iconImage,
+                                Image pressedImage,
+                                Image pressedIconImage)
+    {
         this();
 
         this.bgImage = bgImage;
         this.bgRolloverImage = rolloverImage;
         this.iconImage = iconImage;
         this.pressedImage = pressedImage;
+        this.pressedIconImage = pressedIconImage;
 
         this.setPreferredSize(
             new Dimension(  this.bgImage.getWidth(null),
@@ -73,22 +124,11 @@ public class SIPCommToggleButton
     }
 
     /**
-     * Creates a button with custom background image and rollover image.
-     *
-     * @param bgImage The background button image.
-     * @param rolloverImage The rollover button image.
-     */
-    public SIPCommToggleButton(Image bgImage, Image rolloverImage)
-    {
-        this(bgImage, rolloverImage, null, null);
-    }
-
-    /**
      * Overrides the <code>paintComponent</code> method of <tt>JButton</tt>
      * to paint the button background and icon, and all additional effects
      * of this configurable button.
      *
-     * @param g The Graphics object.
+     * @param g the Graphics object
      */
 
     public void paintComponent(Graphics g)
@@ -107,7 +147,7 @@ public class SIPCommToggleButton
     /**
      * Paints this button.
      *
-     * @param g The Graphics object.
+     * @param g the Graphics object
      */
     private void internalPaintComponent(Graphics g)
     {
@@ -130,21 +170,21 @@ public class SIPCommToggleButton
         }
 
         // Paint the roll over image.
-        if (this.getModel().isRollover() && this.bgRolloverImage != null)
+        if (getModel().isRollover() && bgRolloverImage != null)
         {
-            g.drawImage(this.bgRolloverImage, 0, 0, this);
+            g.drawImage(bgRolloverImage, 0, 0, this);
         }
 
         // Paint the pressed image.
-        if (this.getModel().isSelected() && this.pressedImage != null)
+        if (getModel().isSelected() && pressedImage != null)
         {
-            g.drawImage(this.pressedImage, 0, 0, this);
+            g.drawImage(pressedImage, 0, 0, this);
         }
 
         // Paint a roll over fade out.
         FadeTracker fadeTracker = FadeTracker.getInstance();
 
-        float visibility = this.getModel().isRollover() ? 1.0f : 0.0f;
+        float visibility = getModel().isRollover() ? 1.0f : 0.0f;
         if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
         {
             visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
@@ -153,7 +193,7 @@ public class SIPCommToggleButton
 
         g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
 
-        if (this.bgImage != null)
+        if (bgImage != null)
         {
             g.fillRoundRect(this.getWidth() / 2 - this.bgImage.getWidth(null)
                 / 2, this.getHeight() / 2 - this.bgImage.getHeight(null) / 2,
@@ -165,33 +205,36 @@ public class SIPCommToggleButton
         }
 
         // Paint the icon image.
-        if (this.iconImage != null)
+        Image iconImageFinal = null;
+        if (getModel().isSelected() && pressedIconImage != null)
+        {
+            iconImageFinal = pressedIconImage;
+        }
+        else if (iconImage != null)
         {
             if (!isEnabled())
             {
-                Image disabledImage = new ImageIcon(LightGrayFilter
+                iconImageFinal = new ImageIcon(LightGrayFilter
                         .createDisabledImage(iconImage)).getImage();
-
-                g.drawImage(disabledImage,
-                        (this.bgImage.getWidth(null) - disabledImage
-                                .getWidth(null)) / 2, (this.bgImage
-                                .getHeight(null) - disabledImage
-                                .getHeight(null)) / 2, this);
             }
             else
             {
-                g.drawImage(this.iconImage,
-                        (this.bgImage.getWidth(null) - this.iconImage
-                                .getWidth(null)) / 2, (this.bgImage
-                                .getHeight(null) - this.iconImage
-                                .getHeight(null)) / 2, this);
+                iconImageFinal = iconImage;
             }
         }
+
+        if (iconImageFinal != null)
+            g.drawImage(iconImageFinal,
+                (this.bgImage.getWidth(null) - iconImageFinal
+                        .getWidth(null)) / 2, (this.bgImage
+                        .getHeight(null) - iconImageFinal
+                        .getHeight(null)) / 2, this);
     }
 
     /**
      * Returns the background image of this button.
-     * @return the background image of this button.
+     *
+     * @return the background image of this button
      */
     public Image getBgImage()
     {
@@ -200,7 +243,8 @@ public class SIPCommToggleButton
 
     /**
      * Sets the background image to this button.
-     * @param bgImage The background image to set.
+     *
+     * @param bgImage the background image to set
      */
     public void setBgImage(Image bgImage)
     {
@@ -212,7 +256,8 @@ public class SIPCommToggleButton
 
     /**
      * Returns the background rollover image of this button.
-     * @return the background rollover image of this button.
+     *
+     * @return the background rollover image of this button
      */
     public Image getBgRolloverImage()
     {
@@ -221,7 +266,8 @@ public class SIPCommToggleButton
 
     /**
      * Sets the background rollover image to this button.
-     * @param bgRolloverImage The background rollover image to set.
+     *
+     * @param bgRolloverImage the background rollover image to set
      */
     public void setBgRolloverImage(Image bgRolloverImage)
     {
@@ -230,7 +276,8 @@ public class SIPCommToggleButton
 
     /**
      * Returns the icon image of this button.
-     * @return the icon image of this button.
+     *
+     * @return the icon image of this button
      */
     public Image getIconImage()
     {
@@ -239,7 +286,8 @@ public class SIPCommToggleButton
 
     /**
      * Sets the icon image to this button.
-     * @param iconImage The icon image to set.
+     *
+     * @param iconImage the icon image to set
      */
     public void setIconImage(Image iconImage)
     {
@@ -248,10 +296,21 @@ public class SIPCommToggleButton
     }
 
     /**
+     * Sets the icon image for the pressed state of this button.
+     *
+     * @param iconImage the icon image to set
+     */
+    public void setPressedIconImage(Image iconImage)
+    {
+        this.pressedIconImage = iconImage;
+        this.repaint();
+    }
+
+    /**
      * Sets the image representing the pressed state of this button.
      *
-     * @param pressedImage The image representing the pressed state of this
-     * button.
+     * @param pressedImage the image representing the pressed state of this
+     * button
      */
     public void setPressedImage(Image pressedImage)
     {

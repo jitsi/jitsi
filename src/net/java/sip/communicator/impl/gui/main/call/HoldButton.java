@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.event.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;

@@ -6,6 +6,14 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import java.util.Timer;
+
+import javax.swing.*;
+import javax.swing.event.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -23,7 +31,7 @@ import net.java.sip.communicator.service.resources.*;
  * @author Damian Minkov
  */
 public class InputVolumeControlButton
-    extends AbstractVolumeControlButton
+    extends AbstractCallToggleButton
     implements VolumeChangeListener,
                Runnable
 {
@@ -42,10 +50,16 @@ public class InputVolumeControlButton
      */
     private VolumeControl volumeControl;
 
+    private final VolumeControlSlider sliderMenu;
+
+    private final boolean fullScreen;
+
     /**
      * Current mute state.
      */
     private boolean mute = false;
+
+    private boolean sliderMenuVisible = false;
 
     /**
      * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
@@ -74,7 +88,12 @@ public class InputVolumeControlButton
                                     boolean fullScreen,
                                     boolean selected)
     {
-        this(call, ImageLoader.MUTE_BUTTON, true, fullScreen, selected);
+        this(   call,
+                ImageLoader.MICROPHONE,
+                ImageLoader.MUTE_BUTTON,
+                true,
+                fullScreen,
+                selected);
     }
 
     /**
@@ -83,6 +102,9 @@ public class InputVolumeControlButton
      *
      * @param call  the <tt>Call</tt> to be associated with the new instance and
      * whose audio stream is to be muted upon performing its action
+     * @param iconImageID the icon image
+     * @param pressedIconImageID the <tt>ImageID</tt> of the image to be used
+     * as the icon in the pressed button state of the new instance
      * @param fullScreen <tt>true</tt> if the new instance is to be used in
      * full-screen UI; otherwise, <tt>false</tt>
      * @param selected <tt>true</tt> if the new toggle button is to be initially
@@ -92,16 +114,56 @@ public class InputVolumeControlButton
      */
     public InputVolumeControlButton(Call call,
                                     ImageID iconImageID,
+                                    ImageID pressedIconImageID,
                                     boolean fullScreen,
                                     boolean inSettingsPanel,
                                     boolean selected)
     {
-        super(fullScreen, inSettingsPanel, iconImageID,
+        super(  call,
+                fullScreen,
+                inSettingsPanel,
+                selected,
+                iconImageID,
+                pressedIconImageID,
                 "service.gui.MUTE_BUTTON_TOOL_TIP");
 
         this.call = call;
-
+        this.fullScreen = fullScreen;
         this.mute = selected;
+
+        if(volumeControl == null)
+            volumeControl = getVolumeControl();
+
+        // Creates the menu that would contain the volume control component.
+        sliderMenu = new VolumeControlSlider(volumeControl);
+
+        sliderMenu.setInvoker(this);
+
+        addMouseListener(new MouseAdapter()
+        {
+            TimerTask timerTask;
+            public void mousePressed(MouseEvent mouseevent)
+            {
+                Timer timer = new Timer();
+                timerTask = new TimerTask()
+                {
+                    public void run()
+                    {
+                        showSliderMenu();
+                    }
+                };
+
+                timer.schedule(timerTask, 1000);
+            }
+
+            public void mouseReleased(MouseEvent mouseevent)
+            {
+                if (!sliderMenuVisible)
+                    timerTask.cancel();
+                else
+                    setSelected(!isSelected());
+            }
+        });
     }
 
     /**
@@ -109,18 +171,49 @@ public class InputVolumeControlButton
      *
      * @return volume control used by the button.
      */
-    @Override
-    public VolumeControl getVolumeControl()
+    private VolumeControl getVolumeControl()
     {
-        if(volumeControl == null)
-        {
-            volumeControl = GuiActivator.getMediaService()
-                    .getInputVolumeControl();
+        VolumeControl volumeControl = GuiActivator.getMediaService()
+                .getInputVolumeControl();
 
-            volumeControl.addVolumeChangeListener(this);
-        }
+        volumeControl.addVolumeChangeListener(this);
 
         return volumeControl;
+    }
+
+    private void showSliderMenu()
+    {
+        Point location = new Point(getX(), getY() + getHeight());
+
+        SwingUtilities.convertPointToScreen(location,
+                InputVolumeControlButton.this.getParent());
+
+        if(fullScreen)
+            location.setLocation(location.getX(),
+                location.getY()
+                    - sliderMenu.getPreferredSize().getHeight()
+                    - getHeight());
+
+        sliderMenu.setLocation(location);
+
+        sliderMenu.addPopupMenuListener(new PopupMenuListener()
+        {
+            public void popupMenuWillBecomeVisible(
+                PopupMenuEvent popupmenuevent)
+            {
+                sliderMenuVisible = true;
+            }
+
+            public void popupMenuWillBecomeInvisible(
+                PopupMenuEvent popupmenuevent)
+            {
+                sliderMenuVisible = false;
+            }
+
+            public void popupMenuCanceled(PopupMenuEvent popupmenuevent) {}
+        });
+
+        sliderMenu.setVisible(!sliderMenu.isVisible());
     }
 
     /**
@@ -173,6 +266,20 @@ public class InputVolumeControlButton
 
             mute = !mute;
             telephony.setMute(call, mute);
+
+            // We make sure that the button state corresponds to the mute state.
+            setSelected(mute);
+
+            // If we unmute the microphone and the volume control is set to min,
+            // make sure that the volume control is restored to the initial
+            // state.
+            if (!mute
+                && volumeControl.getVolume() == volumeControl.getMinValue())
+            {
+                volumeControl.setVolume(
+                    (volumeControl.getMaxValue()
+                        - volumeControl.getMinValue())/2);
+            }
         }
     }
 
@@ -186,6 +293,17 @@ public class InputVolumeControlButton
         if(volumeChangeEvent.getLevel() == 0)
             toggleMute();
         else if(mute)
+            toggleMute();
+    }
+
+    /**
+     * Notifies this <tt>AbstractCallToggleButton</tt> that its associated
+     * action has been performed and that it should execute its very logic.
+     */
+    @Override
+    public void buttonPressed()
+    {
+        if (!sliderMenuVisible)
             toggleMute();
     }
 }
