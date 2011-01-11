@@ -195,6 +195,30 @@ public class MsOutlookAddrBookContactQuery
         throws MsOutlookMAPIHResultException;
 
     /**
+     * Determines whether a specific index in {@link #MAPI_MAILUSER_PROP_IDS}
+     * stands for a property with a phone number value.
+     *
+     * @param propIndex the index in <tt>MAPI_MAILUSER_PROP_IDS</tt> of the
+     * property to check
+     * @return <tt>true</tt> if <tt>propIndex</tt> stands for a property with a
+     * phone number value; otherwise, <tt>false</tt>
+     */
+    private boolean isPhoneNumber(int propIndex)
+    {
+        switch (propIndex)
+        {
+        case PR_BUSINESS2_TELEPHONE_NUMBER:
+        case PR_BUSINESS_TELEPHONE_NUMBER:
+        case PR_HOME2_TELEPHONE_NUMBER:
+        case PR_HOME_TELEPHONE_NUMBER:
+        case PR_MOBILE_TELEPHONE_NUMBER:
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    /**
      * Notifies this <tt>MsOutlookAddrBookContactQuery</tt> about a specific
      * <tt>MAPI_MAILUSER</tt>.
      *
@@ -225,15 +249,24 @@ public class MsOutlookAddrBookContactQuery
         if ((MAPI_MAILUSER == objType) && (mapiMessageCount != 0))
             return false;
 
+        int propIndex = 0;
         boolean matches = false;
 
         for (Object prop : props)
         {
-            if ((prop instanceof String) && query.matcher((String) prop).find())
+            if ((prop instanceof String)
+                    && (query.matcher((String) prop).find()
+                            || (isPhoneNumber(propIndex)
+                                    && query
+                                            .matcher(
+                                                    normalizePhoneNumber(
+                                                            (String) prop))
+                                                .find())))
             {
                 matches = true;
                 break;
             }
+            propIndex++;
         }
         if (matches)
         {
@@ -247,7 +280,9 @@ public class MsOutlookAddrBookContactQuery
 
             for (int i = 0; i < CONTACT_DETAIL_PROP_INDEXES.length; i++)
             {
-                Object prop = props[CONTACT_DETAIL_PROP_INDEXES[i]];
+                propIndex = CONTACT_DETAIL_PROP_INDEXES[i];
+
+                Object prop = props[propIndex];
 
                 if (prop instanceof String)
                 {
@@ -255,6 +290,9 @@ public class MsOutlookAddrBookContactQuery
 
                     if (stringProp.length() != 0)
                     {
+                        if (isPhoneNumber(propIndex))
+                            stringProp = normalizePhoneNumber(stringProp);
+
                         ContactDetail contactDetail
                             = new ContactDetail(stringProp);
 

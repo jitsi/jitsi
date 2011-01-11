@@ -19,7 +19,6 @@ import net.java.sip.communicator.service.contactsource.*;
 public abstract class AsyncContactSourceService
     implements ExtendedContactSourceService
 {
-
     /**
      * Queries this <tt>ContactSourceService</tt> for <tt>SourceContact</tt>s
      * which match a specific <tt>query</tt> <tt>String</tt>.

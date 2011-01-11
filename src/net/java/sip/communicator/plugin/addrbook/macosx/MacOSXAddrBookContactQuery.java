@@ -240,6 +240,9 @@ public class MacOSXAddrBookContactQuery
 
                 if (stringValue.length() != 0)
                 {
+                    if (kABPhoneProperty == property)
+                        stringValue = normalizePhoneNumber(stringValue);
+
                     contactDetails.add(
                             setCapabilities(
                                     new ContactDetail(stringValue),
@@ -256,6 +259,12 @@ public class MacOSXAddrBookContactQuery
 
                         if (stringSubValue.length() != 0)
                         {
+                            if (kABPhoneProperty == property)
+                            {
+                                stringSubValue
+                                    = normalizePhoneNumber(stringSubValue);
+                            }
+
                             contactDetails.add(
                                     setCapabilities(
                                             new ContactDetail(stringSubValue),
@@ -488,6 +497,27 @@ public class MacOSXAddrBookContactQuery
     private static native long kABYahooInstantProperty();
 
     /**
+     * Determines whether a specific <tt>ABPerson</tt> property with a specific
+     * <tt>value</tt> matches the {@link #query} of this
+     * <tt>AsyncContactQuery</tt>.
+     *
+     * @param property the <tt>ABPerson</tt> property to check
+     * @param value the value of the <tt>property</tt> to check
+     * @return <tt>true</tt> if the specified <tt>value</tt> of the specified
+     * <tt>property</tt> matches the <tt>query</tt> of this
+     * <tt>AsyncContactQuery</tt>; otherwise, <tt>false</tt>
+     */
+    private boolean matches(int property, String value)
+    {
+        return
+            query.matcher(value).find()
+                    || ((kABPhoneProperty == property)
+                            && query
+                                    .matcher(normalizePhoneNumber(value))
+                                        .find());
+    }
+
+    /**
      * Determines whether an <tt>ABPerson</tt> represented by the values of its
      * {@link #ABPERSON_PROPERTIES} matches {@link #query}.
      * 
@@ -500,11 +530,13 @@ public class MacOSXAddrBookContactQuery
      */
     private boolean matches(Object[] values)
     {
+        int property = 0;
+
         for (Object value : values)
         {
             if (value instanceof String)
             {
-                if (query.matcher((String) value).find())
+                if (matches(property, (String) value))
                     return true;
             }
             else if (value instanceof Object[])
@@ -512,10 +544,11 @@ public class MacOSXAddrBookContactQuery
                 for (Object subValue : (Object[]) value)
                 {
                     if ((subValue instanceof String)
-                            && query.matcher((String) subValue).find())
+                            && matches(property, (String) subValue))
                         return true;
                 }
             }
+            property++;
         }
         return false;
     }

@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.regex.*;
 
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Provides an abstract implementation of a <tt>ContactQuery</tt> which runs in
@@ -113,6 +114,27 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
             qr.addAll(queryResults);
         }
         return qr;
+    }
+
+    /**
+     * Normalizes a <tt>String</tt> phone number by converting alpha characters
+     * to their respective digits on a keypad and then stripping non-digit
+     * characters.
+     * 
+     * @param phoneNumber a <tt>String</tt> which represents a phone number to
+     * normalize
+     * @return a <tt>String</tt> which is a normalized form of the specified
+     * <tt>phoneNumber</tt>
+     */
+    protected String normalizePhoneNumber(String phoneNumber)
+    {
+        PhoneNumberI18nService phoneNumberI18nService
+            = AddrBookActivator.getPhoneNumberI18nService();
+
+        return
+            (phoneNumberI18nService == null)
+                ? phoneNumber
+                : phoneNumberI18nService.normalize(phoneNumber);
     }
 
     /**
