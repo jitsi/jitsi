@@ -8,16 +8,18 @@
 #ifndef _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MSOUTLOOKMAPI_H_
 #define _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MSOUTLOOKMAPI_H_
 
-#ifndef __in_opt
-#define __in_opt
-#endif /* #ifndef __in_opt */
-
-#include <mapitags.h>
-#include <mapix.h>
-
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#ifndef __in_opt
+#define __in_opt
+#endif /* #ifndef __in_opt */
+#if defined(_WINBASE_H) && !defined(_WINBASE_)
+#define _tagCY_DEFINED
+#define _WINBASE_
+#endif
+#include <mapitags.h>
+#include <mapix.h>
 
 SCODE MsOutlookAddrBook_MAPIAllocateBuffer(ULONG size, LPVOID FAR *buffer);
 #define MAPIAllocateBuffer MsOutlookAddrBook_MAPIAllocateBuffer

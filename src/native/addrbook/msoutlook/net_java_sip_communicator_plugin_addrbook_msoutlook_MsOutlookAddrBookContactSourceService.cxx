@@ -77,14 +77,15 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
             str = installRootKeyName + subkeyNameLength;
             memcpy(str, _T("\\Outlook\\InstallRoot"), 20 * sizeof(TCHAR));
             *(str + 20) = 0;
-            if ((ERROR_SUCCESS
+            if (ERROR_SUCCESS
                     == RegOpenKeyEx(
                             officeKey,
                             installRootKeyName,
                             0,
                             KEY_QUERY_VALUE,
                             &installRootKey))
-                && (ERROR_SUCCESS
+            {
+            if ((ERROR_SUCCESS
                     == RegQueryValueEx(
                             installRootKey,
                             _T("Path"),
@@ -143,7 +144,10 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                 if (pathValue != installRootKeyName)
                     free(pathValue);
             }
+                RegCloseKey(installRootKey);
+            }
         }
+        RegCloseKey(officeKey);
     }
 
     /* If we've determined that we'd like to go on with MAPI, try to load it. */

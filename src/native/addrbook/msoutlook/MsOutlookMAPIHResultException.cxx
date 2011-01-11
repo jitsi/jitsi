@@ -62,33 +62,38 @@ MsOutlookMAPIHResultException_throwNew
 
         if (message)
         {
-            jmethodID methodID;
-
-            methodID
+            jmethodID methodID
                 = jniEnv->GetMethodID(
                         clazz,
                         "<init>",
                         "(JLjava/lang/String;)V");
+
             if (methodID)
             {
-                jobject t;
+                jstring jmessage = jniEnv->NewStringUTF(message);
 
-                t = jniEnv->NewObject(clazz, methodID, hResult, message);
-                if (t)
-                    jniEnv->Throw((jthrowable) t);
+                if (jmessage)
+                {
+                    jobject t
+                        = jniEnv->NewObject(
+                                clazz,
+                                methodID,
+                                (jlong) hResult, jmessage);
+
+                    if (t)
+                        jniEnv->Throw((jthrowable) t);
+                }
                 return;
             }
         }
 
         {
-            jmethodID methodID;
+            jmethodID methodID = jniEnv->GetMethodID(clazz, "<init>", "(J)V");
 
-            methodID = jniEnv->GetMethodID(clazz, "<init>", "(J)V");
             if (methodID)
             {
-                jobject t;
+                jobject t = jniEnv->NewObject(clazz, methodID, hResult);
 
-                t = jniEnv->NewObject(clazz, methodID, hResult);
                 if (t)
                     jniEnv->Throw((jthrowable) t);
                 return;
