@@ -136,7 +136,11 @@ public class MetaUIContact
      */
     public int getSourceIndex()
     {
-        return metaContact.getParentMetaContactGroup().indexOf(metaContact);
+        MetaContactGroup parentMetaContactGroup =
+                metaContact.getParentMetaContactGroup();
+        if (parentMetaContactGroup == null)
+            return -1;
+        return parentMetaContactGroup.indexOf(metaContact);
     }
 
     /**
