@@ -20,8 +20,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
-import org.osgi.framework.*;
-
 /**
  * The <tt>CallManager</tt> is the one that handles calls. It contains also
  * the "Call" and "Hang up" buttons panel. Here are handles incoming and
