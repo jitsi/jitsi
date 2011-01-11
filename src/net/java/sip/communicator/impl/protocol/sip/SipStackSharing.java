@@ -880,6 +880,25 @@ public class SipStackSharing
                     }
                 }
 
+                // Let narrow candidates by checking addresses and ports
+                Iterator<ProtocolProviderServiceSipImpl> iterPP =
+                        candidates.iterator();
+                while(iterPP.hasNext())
+                {
+                    ProtocolProviderServiceSipImpl candidate = iterPP.next();
+
+                    if(!candidate.getRegistrarConnection().isRegistrarless()
+                        && !candidate.getRegistrarConnection()
+                            .isRequestFromSameConnection(request))
+                        iterPP.remove();
+                }
+
+                if(candidates.size() == 0)
+                {
+                    logger.error("no listeners, or message not fo us");
+                    return null;
+                }
+
                 // Past this point, our guess is not reliable. We try to find
                 // the "least worst" match based on parameters like the To field
 

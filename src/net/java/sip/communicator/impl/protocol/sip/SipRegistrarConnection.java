@@ -15,6 +15,7 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
+import gov.nist.javax.sip.message.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -135,6 +136,20 @@ public class SipRegistrarConnection
      * The transport to use.
      */
     private String registrationTransport = null;
+
+    /**
+     * We remember the last received address that REGISTER OK is coming from.
+     * For security reasons if we are registered this is the address
+     * that all messages must come from.
+     */
+    private InetAddress lastRegisterAddressReceived = null;
+
+    /**
+     * We remember the last received port that REGISTER OK is coming from.
+     * For security reasons if we are registered this is the port
+     * that all messages must come from.
+     */
+    private int lastRegisterPortReceived = -1;
 
     /**
     * Creates a new instance of this class.
@@ -458,6 +473,11 @@ public class SipRegistrarConnection
                 }
             }
 
+            // remember the address and port from which we received this
+            // message
+            lastRegisterAddressReceived =
+                    ((SIPMessage)response).getRemoteAddress();
+            lastRegisterPortReceived = ((SIPMessage)response).getRemotePort();
 
             //schedule a reregistration.
             scheduleReRegistration(scheduleTime);
@@ -480,6 +500,28 @@ public class SipRegistrarConnection
                 , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
                 , null);
         }
+    }
+
+    /**
+     * Checks a particular request is it coming from the same proxy we are
+     * currently using. A check for security reasons, preventing injection
+     * of other messages in the PP.
+     * @param request the request to check.
+     * @return <tt>false</tt> if the request doesn't belong to our register
+     *         or if we cannot decide we keep the old behaviour.
+     */
+    public boolean isRequestFromSameConnection(Request request)
+    {
+        SIPMessage msg = (SIPMessage)request;
+
+        if(msg.getRemoteAddress() != null
+            && lastRegisterAddressReceived != null)
+        {
+            if(!msg.getRemoteAddress().equals(lastRegisterAddressReceived)
+                || msg.getRemotePort() != lastRegisterPortReceived)
+                return false;
+        }
+        return true;
     }
 
     /**

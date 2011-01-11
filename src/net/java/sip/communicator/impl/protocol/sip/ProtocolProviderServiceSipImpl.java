@@ -904,6 +904,15 @@ public class ProtocolProviderServiceSipImpl
     {
         Request request = requestEvent.getRequest();
 
+        if(getRegistrarConnection() != null
+           && !getRegistrarConnection().isRegistrarless()
+           && !getRegistrarConnection().isRequestFromSameConnection(request))
+        {
+            logger.warn("Received request not from our proxy, ignoring it! "
+                + "Request:" + request);
+            return;
+        }
+
         // test if an Event header is present and known
         EventHeader eventHeader = (EventHeader)
             request.getHeader(EventHeader.NAME);
