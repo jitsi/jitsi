@@ -2578,7 +2578,6 @@ org.apache.http.util"/>
             manifest="${src}/net/java/sip/communicator/plugin/provisioning/provisioning.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/provisioning"
                 prefix="net/java/sip/communicator/plugin/provisioning" />
-        	<zipfileset src="${lib.noinst}/libphonenumber-2.4.jar" prefix="" />
         </jar>
     </target>
 
@@ -2589,6 +2588,7 @@ org.apache.http.util"/>
             manifest="${src}/net/java/sip/communicator/plugin/addrbook/addrbook.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/addrbook"
                 prefix="net/java/sip/communicator/plugin/addrbook" />
+            <zipfileset src="${lib.noinst}/libphonenumber-2.4.jar" prefix="" />
         </jar>
     </target>
 
