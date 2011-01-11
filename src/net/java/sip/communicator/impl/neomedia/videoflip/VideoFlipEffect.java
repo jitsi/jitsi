@@ -116,7 +116,7 @@ public class VideoFlipEffect
 
         return new Format[]
         {
-                (Format)input.clone(),
+            (Format)input.clone(),
         };
     }
 
@@ -150,7 +150,7 @@ public class VideoFlipEffect
      * @throws ResourceUnavailableException If all of the required resources
      * cannot be acquired.
      */
-    public void open() throws ResourceUnavailableException
+    public synchronized void open() throws ResourceUnavailableException
     {
         graph = FFmpeg.avfilter_alloc_filtergraph();
         inputstream = FFmpeg.avfilter_alloc_inputstream();
@@ -160,7 +160,7 @@ public class VideoFlipEffect
     /**
      * Closes this effect.
      */
-    public void close()
+    public synchronized void close()
     {
         if(graph != 0)
         {
@@ -202,7 +202,7 @@ public class VideoFlipEffect
      * @return <tt>BUFFER_PROCESSED_OK</tt> if the processing is successful.
      * @see PlugIn
      */
-    public int process(Buffer inputBuffer, Buffer outputBuffer)
+    public synchronized int process(Buffer inputBuffer, Buffer outputBuffer)
     {
         int ret = 0;
 

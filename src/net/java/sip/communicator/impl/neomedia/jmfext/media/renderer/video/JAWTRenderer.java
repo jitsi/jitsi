@@ -354,12 +354,16 @@ public class JAWTRenderer
             }
 
             Component component = getComponent();
-            boolean repaint
-                = process(
+            boolean repaint = false;
+
+            synchronized(this)
+            {
+               repaint = process(
                     handle,
                     component,
                     (int[]) buffer.getData(), buffer.getOffset(), bufferLength,
                     size.width, size.height);
+            }
 
             if (repaint)
                 component.repaint();

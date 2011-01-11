@@ -95,10 +95,10 @@ jboolean JAWTRenderer_paint
 
     if(!blitter->device->validate())
     {
-        blitter->lost = true;
-        return JNI_TRUE;
+      blitter->lost = true;
+      return JNI_TRUE;
     }
-
+    
     blitter->device->render(blitter->surface);
     return JNI_TRUE;
 }
@@ -119,6 +119,9 @@ jboolean JAWTRenderer_process
     if(!blitter->device || blitter->width != width || blitter->height != height
             || blitter->lost)
     {
+        D3DSurface* oldSurface = NULL;
+        D3DDevice* oldDevice = NULL;
+
         blitter->lost = false;
 
         /* size has changed, recreate our device and surface */
@@ -134,6 +137,11 @@ jboolean JAWTRenderer_process
             blitter->device = NULL;
         }
 
+        if(blitter->hwnd == NULL)
+        {
+            return JNI_TRUE;
+        }
+
         blitter->device = blitter->d3d->createDevice(blitter->hwnd, width,
                 height);
 
@@ -141,6 +149,7 @@ jboolean JAWTRenderer_process
         {
             /* device creation failed */
 
+            blitter->surface = NULL;
             /* maybe we go fullscreen and/or hwnd of the window has changed
              * so we return true to force native method to be called and so
              * update blitter->hwnd for the next call

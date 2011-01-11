@@ -72,7 +72,7 @@ D3DDevice::~D3DDevice()
 {
     if(m_backSurface)
     {
-        m_backSurface->Release();
+        //m_backSurface->Release();
     }
 
     if(m_device)
