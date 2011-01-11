@@ -21,6 +21,13 @@ public interface CallContainer
      *
      * @param callPanel the <tt>CallPanel</tt> that should be closed
      */
+    public void closeWait(CallPanel callPanel);
+
+    /**
+     * Closes the given <tt>CallPanel</tt>.
+     *
+     * @param callPanel the <tt>CallPanel</tt> that should be closed
+     */
     public void close(CallPanel callPanel);
 
     /**

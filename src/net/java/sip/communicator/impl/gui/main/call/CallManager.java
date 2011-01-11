@@ -151,7 +151,9 @@ public class CallManager
             {
                 CallPanel callContainer = activeCalls.get(sourceCall);
 
-                callContainer.getCallWindow().close(callContainer);
+                activeCalls.remove(sourceCall);
+
+                callContainer.getCallWindow().closeWait(callContainer);
             }
         }
 

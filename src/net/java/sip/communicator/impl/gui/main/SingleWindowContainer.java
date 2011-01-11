@@ -7,13 +7,16 @@
 package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.main.call.CallDialog.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -192,7 +195,11 @@ public class SingleWindowContainer
         }
     }
 
-
+    /**
+     * Shows/hides the toolbar.
+     *
+     * @param isVisible 
+     */
     public void setToolbarVisible(boolean isVisible)
     {
         mainToolBar.setVisible(isVisible);
@@ -435,11 +442,45 @@ public class SingleWindowContainer
     }
 
     /**
+     * Closes the given <tt>CallPanel</tt>.
+     *
+     * @param callPanel the <tt>CallPanel</tt> to close
+     */
+    public void closeWait(CallPanel callPanel)
+    {
+        Timer timer
+            = new Timer(5000, new CloseCallListener(callPanel));
+
+        timer.setRepeats(false);
+        timer.start();
+    }
+
+    /**
+     * Removes the given CallPanel from the main tabbed pane.
+     */
+    private class CloseCallListener
+        implements ActionListener
+    {
+        private final CallPanel callPanel;
+
+        public CloseCallListener(CallPanel callPanel)
+        {
+            this.callPanel = callPanel;
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            removeConversation(callPanel);
+        }
+    }
+
+    /**
      * Packs the content of this call window.
      */
     public void pack()
     {
-        pack();
+        revalidate();
+        repaint();
     }
 
     /**

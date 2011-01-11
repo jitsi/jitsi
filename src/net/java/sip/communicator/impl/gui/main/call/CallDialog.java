@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import java.awt.event.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.util.swing.*;
@@ -65,7 +67,35 @@ public class CallDialog
     public void close(CallPanel callPanel)
     {
         if (this.callPanel.equals(callPanel))
+        {
             dispose();
+        }
+    }
+
+    /**
+     * Closes the given call panel.
+     *
+     * @param callPanel the <tt>CallPanel</tt> to close
+     */
+    public void closeWait(CallPanel callPanel)
+    {
+        if (this.callPanel.equals(callPanel))
+        {
+            disposeWait();
+        }
+    }
+
+    /**
+     * Hang ups the current call on close.
+     * @param isEscaped indicates if the window was close by pressing the escape
+     * button
+     */
+    protected void close(boolean isEscaped)
+    {
+        if (!isEscaped)
+        {
+            callPanel.actionPerformedOnHangupButton();
+        }
     }
 
     /**
@@ -102,5 +132,29 @@ public class CallDialog
     {
         if (this.callPanel.equals(callPanel))
             this.setTitle(callPanel.getCallTitle());
+    }
+
+    /**
+     * Removes the given call panel tab.
+     */
+    public void disposeWait()
+    {
+        Timer timer
+            = new Timer(5000, new DisposeCallDialogListener());
+
+        timer.setRepeats(false);
+        timer.start();
+    }
+
+    /**
+     * Removes the given CallPanel from the main tabbed pane.
+     */
+    private class DisposeCallDialogListener
+        implements ActionListener
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            dispose();
+        }
     }
 }

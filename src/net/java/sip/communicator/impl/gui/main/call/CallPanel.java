@@ -374,7 +374,7 @@ public class CallPanel
      * Executes the action associated with the "Hang up" button which may be
      * invoked by clicking the button in question or closing this dialog.
      */
-    private void actionPerformedOnHangupButton()
+    public void actionPerformedOnHangupButton()
     {
         Call call = getCall();
 
@@ -405,19 +405,6 @@ public class CallPanel
     public CallContainer getCallWindow()
     {
         return callWindow;
-    }
-
-    /**
-     * Hang ups the current call on close.
-     * @param isEscaped indicates if the window was close by pressing the escape
-     * button
-     */
-    protected void close(boolean isEscaped)
-    {
-        if (!isEscaped)
-        {
-            actionPerformedOnHangupButton();
-        }
     }
 
     /**
