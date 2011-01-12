@@ -99,6 +99,11 @@ private:
 	 * \brief Easy use of template-based list iterator.
 	 */
 	typedef std::list<DSCaptureDevice*>::iterator DeviceListIterator;
+
+	/**
+	 * If COM backend is initialized.
+	 */
+	bool comInited;
 };
 
 #endif /* DS_MANAGER_H */
