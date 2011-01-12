@@ -1,0 +1,10 @@
+Bundle-Name: JNA Lib Provider
+Bundle-Description: JNA Lib Provider
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+System-Bundle: yes
+Export-Package: com.sun.jna.win32,
+ com.sun.jna,
+ com.sun.jna.ptr,
+ com.sun.jna.examples
+

@@ -59,6 +59,7 @@
     <classpathentry kind="lib" path="lib/os-specific/solaris/installer-exclude/jmf.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/solaris/jdic_stub.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/windows/installer-exclude/jmf.jar"/>
+    <classpathentry kind="lib" path="lib/os-specific/windows/installer-exclude/jna-platform-win32.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/windows/installer-exclude/sound.jar"/>
     <classpathentry kind="lib" path="lib/os-specific/windows/jdic_stub.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/lcrypto-jdk16-143.jar"/>

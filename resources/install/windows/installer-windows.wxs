@@ -168,7 +168,7 @@
                 <Control Id="ShortcutGroup" Type="GroupBox" X="20" Y="60" Width="330" Height="65" Text="&amp;Create Shortcuts" />
                 <Control Id="StartMenuShortcutCheckBox" Type="CheckBox" X="25" Y="75" Width="320" Height="15" Property="CREATE_START_MENU_SHORTCUT" CheckBoxValue="1" Text="S&amp;tart Menu" />
                 <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="25" Y="90" Width="320" Height="15" Property="CREATE_DESKTOP_SHORTCUT" CheckBoxValue="1" Text="&amp;Desktop" />
-                <Control Id="StartupShortcutCheckBox" Type="CheckBox" X="25" Y="105" Width="320" Height="15" Property="CREATE_STARTUP_SHORTCUT" CheckBoxValue="1" Text="&amp;Auto-start when computer restarts or reboots" />
+                <Control Id="StartupShortcutCheckBox" Type="CheckBox" X="25" Y="105" Width="320" Height="15" Property="HAS_STARTUP_REGISTRY" CheckBoxValue="1" Text="&amp;Auto-start when computer restarts or reboots" />
 
                 <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="130" Width="330" Height="50" Text="&amp;Associate Protocols" />
                 <Control Id="SipRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="145" Width="320" Height="15" Property="CREATE_SIP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;SIP" />
@@ -226,11 +226,14 @@
     <Custom Action="UnsetCREATE_START_MENU_SHORTCUT" After="SetINSTALLDIR">
       <![CDATA[(IS_AUTOUPDATE = 1) AND NOT HAS_START_MENU_SHORTCUT AND NOT (HAS_START_MENU_SHORTCUT = "#1")]]>
     </Custom>
-    <Custom Action="SetCREATE_STARTUP_SHORTCUT" After="SetINSTALLDIR">
-      <![CDATA[(IS_AUTOUPDATE = 1) AND HAS_STARTUP_SHORTCUT]]>
-    </Custom>
     <Custom Action="UnsetCREATE_STARTUP_SHORTCUT" After="SetINSTALLDIR">
       <![CDATA[(IS_AUTOUPDATE = 1) AND NOT HAS_STARTUP_SHORTCUT AND NOT (HAS_STARTUP_SHORTCUT = "#1")]]>
+    </Custom>
+    <Custom Action="SetCREATE_STARTUP_REGISTRY" After="SetINSTALLDIR">
+      <![CDATA[HAS_STARTUP_REGISTRY OR HAS_STARTUP_SHORTCUT]]>
+    </Custom>
+    <Custom Action="UnsetCREATE_STARTUP_REGISTRY" After="SetINSTALLDIR">
+      <![CDATA[NOT HAS_STARTUP_REGISTRY AND NOT (HAS_STARTUP_REGISTRY = "#1")]]>
     </Custom>
 
     <Custom Action="SetWIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" After="AppSearch">
@@ -264,8 +267,8 @@
     Property="CREATE_START_MENU_SHORTCUT"
     Value="1" />
 <CustomAction
-    Id="SetCREATE_STARTUP_SHORTCUT"
-    Property="CREATE_STARTUP_SHORTCUT"
+    Id="SetCREATE_STARTUP_REGISTRY"
+    Property="CREATE_STARTUP_REGISTRY"
     Value="1" />
 <CustomAction
     Id="SetINSTALLDIR"
@@ -291,6 +294,10 @@
     Id="UnsetCREATE_STARTUP_SHORTCUT"
     Property="CREATE_STARTUP_SHORTCUT"
     Value="0" />
+<CustomAction
+    Id="UnsetCREATE_STARTUP_REGISTRY"
+    Property="CREATE_STARTUP_REGISTRY"
+    Value="0" />
 
 <InstallExecuteSequence>
   <RemoveExistingProducts After="InstallFinalize" />
@@ -311,11 +318,14 @@
   <Custom Action="UnsetCREATE_START_MENU_SHORTCUT" After="SetINSTALLDIR">
     <![CDATA[(IS_AUTOUPDATE = 1) AND NOT HAS_START_MENU_SHORTCUT AND NOT (HAS_START_MENU_SHORTCUT = "#1")]]>
   </Custom>
-  <Custom Action="SetCREATE_STARTUP_SHORTCUT" After="SetINSTALLDIR">
-    <![CDATA[(IS_AUTOUPDATE = 1) AND HAS_STARTUP_SHORTCUT]]>
-  </Custom>
   <Custom Action="UnsetCREATE_STARTUP_SHORTCUT" After="SetINSTALLDIR">
     <![CDATA[(IS_AUTOUPDATE = 1) AND NOT HAS_STARTUP_SHORTCUT AND NOT (HAS_STARTUP_SHORTCUT = "#1")]]>
+  </Custom>
+  <Custom Action="SetCREATE_STARTUP_REGISTRY" After="SetINSTALLDIR">
+    <![CDATA[HAS_STARTUP_REGISTRY OR HAS_STARTUP_SHORTCUT]]>
+  </Custom>
+  <Custom Action="UnsetCREATE_STARTUP_REGISTRY" After="SetINSTALLDIR">
+    <![CDATA[NOT HAS_STARTUP_REGISTRY AND NOT (HAS_STARTUP_REGISTRY = "#1")]]>
   </Custom>
 
   <Custom Action="SetWIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" After="AppSearch">
@@ -347,6 +357,17 @@
       Root="HKCU"
       Type="raw" />
 </Property>
+<Property Id="HAS_STARTUP_REGISTRY">
+  <RegistrySearch
+      Id="RegistrySearch_HasStartupRegistry"
+      Key="Software\Microsoft\Windows\CurrentVersion\Run"
+      Name="@APP_NAME@"
+      Root="HKCU"
+      Type="raw" />
+</Property>
+<SetProperty Id="HAS_STARTUP_REGISTRY" After="AppSearch" Value="[HAS_STARTUP_SHORTCUT]">
+     HAS_STARTUP_SHORTCUT
+</SetProperty>
 <Property Id="JRE_VERSION">
   <RegistrySearch
       Id="RegistrySearch_JREVersion"
@@ -360,6 +381,11 @@
 <Property Id="ARPCONTACT" Value="@APP_EMAIL@" />
 <Property Id="ARPHELPLINK" Value="@APP_WEB@" />
 <Property Id="ARPPRODUCTICON" Value="Icon.ico" />
+<!-- we move from startup shortcut to registry entry, we
+    always set CREATE_STARTUP_SHORTCUT = 0 so on update
+    the old shortcuts will be removed
+-->
+<Property Id="CREATE_STARTUP_SHORTCUT" Value="0" />
 <Property Id="CREATE_FEED_REGISTRY_ENTRIES" Value="0" />
 <Property Id="CREATE_SIP_REGISTRY_ENTRIES" Value="1" />
 <Property Id="CREATE_XMPP_REGISTRY_ENTRIES" Value="1" />

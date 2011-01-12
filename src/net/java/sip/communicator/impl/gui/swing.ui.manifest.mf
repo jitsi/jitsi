@@ -56,6 +56,7 @@ Import-Package: org.osgi.framework,
  javax.swing.text.html,
  javax.swing.tree,
  javax.swing.undo,
+ com.sun.jna.examples,
  org.jdesktop.jdic.desktop,
  say.swing,
  com.apple.eawt

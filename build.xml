@@ -894,6 +894,7 @@
         bundle-protocol,bundle-protocol-media,bundle-icq,
         bundle-icq-slick,bundle-mock,bundle-smacklib,bundle-jmdnslib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
+        bundle-jnalib,
         bundle-msn,bundle-msn-slick,bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
@@ -1337,6 +1338,14 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+    <target name="bundle-jnalib">
+        <!-- Creates a bundle containing the jmdns lib.-->
+        <jar compress="false" destfile="${bundles.dest}/jnalib.jar"
+            manifest="${lib.noinst}/jna.manifest.mf">
+            <zipfileset src="${lib.noinst}/jna.jar" prefix=""/>
+        </jar>
+    </target>
+
     <!-- BUNDLE-ICQ -->
     <target name="bundle-icq">
         <!-- Creates a bundle containing the icq impl of the protocol provider.-->
@@ -1510,7 +1519,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
-            <zipfileset src="lib/installer-exclude/jna.jar" prefix=""/>
             <zipfileset src="lib/installer-exclude/transparency.jar" prefix=""/>
             <zipfileset src="lib/installer-exclude/swing-worker-1.2.jar" prefix=""/>
             <zipfileset src="lib/installer-exclude/mac_widgets-0.9.5.jar" prefix=""/>
@@ -2126,7 +2134,14 @@ org.apache.http.util"/>
             manifest="${src}/net/java/sip/communicator/plugin/generalconfig/generalconfig.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/generalconfig"
                 prefix="net/java/sip/communicator/plugin/generalconfig" />
-            <zipfileset src="${lib.noinst}/izpack-shortcut-link.jar" prefix=""/>
+        </jar>
+
+        <!-- on windows general config needs jna-platform to access windows registry -->
+        <jar compress="false" destfile="${bundles.dest.win}/generalconfig.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/generalconfig/generalconfig.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/generalconfig"
+                prefix="net/java/sip/communicator/plugin/generalconfig" />
+            <zipfileset src="${lib.win.noinst}/jna-platform-win32.jar" prefix=""/>
         </jar>
     </target>
 

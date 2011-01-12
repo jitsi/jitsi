@@ -55,6 +55,18 @@
     </RegistryKey>
   </Component>
 
+  <Component
+      Id="Component_StartupRegistryEntries"
+      Directory="TARGETDIR"
+      Guid="64F3D56F-62D3-420D-B5A3-C448EB169708">
+    <Condition><![CDATA[HAS_STARTUP_REGISTRY]]></Condition>
+    <RegistryKey Action="createAndRemoveOnUninstall"
+        Key="Software\Microsoft\Windows\CurrentVersion\Run"
+        Root="HKCU">
+      <RegistryValue Name="@APP_NAME@" Type="string" Value="[INSTALLDIR]run.exe" />
+    </RegistryKey>
+  </Component>
+
 </ComponentGroup>
 </Fragment>
 </Include>

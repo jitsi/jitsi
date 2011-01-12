@@ -20,8 +20,6 @@ import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
-import com.izforge.izpack.util.os.*;
-
 import org.osgi.framework.*;
 
 /**
@@ -94,7 +92,7 @@ public class GeneralConfigurationPanel
     }
 
     /**
-     * Initializes the auto start checkbox.
+     * Initializes the auto start checkbox. Used only on windows.
      * @return the created auto start check box
      */
     private Component createAutoStartCheckBox()
@@ -125,22 +123,7 @@ public class GeneralConfigurationPanel
 
         try
         {
-            String appName = getApplicationName();
-
-            ShellLink shortcut =
-                new ShellLink(
-                    ShellLink.STARTUP,
-                    appName);
-            shortcut.setUserType(ShellLink.CURRENT_USER);
-
-            String f1 = shortcut.getcurrentUserLinkPath() +
-                        File.separator + appName + ".lnk";
-
-            String f2 = f1.replaceAll(
-                    System.getProperty("user.name"),
-                    "All Users");
-
-            if(new File(f1).exists() || new File(f2).exists())
+            if(WindowsStartup.isStartupEnabled(getApplicationName()))
                 autoStartCheckBox.setSelected(true);
             else
                 autoStartCheckBox.setSelected(false);
@@ -820,59 +803,7 @@ public class GeneralConfigurationPanel
     {
         String workingDir = new File(".").getCanonicalPath();
 
-        String appName = getApplicationName();
-
-        ShellLink shortcut = new ShellLink(ShellLink.STARTUP, appName);
-        shortcut.setUserType(ShellLink.CURRENT_USER);
-        shortcut.setDescription(
-                "This starts " + appName + " Application");
-        shortcut.setIconLocation(
-                workingDir + File.separator + "sc-logo.ico", 0);
-        shortcut.setShowCommand(ShellLink.MINNOACTIVE);
-        shortcut.setTargetPath(workingDir + File.separator + "run.exe");
-        shortcut.setWorkingDirectory(workingDir);
-
-        String f1 = shortcut.getcurrentUserLinkPath() +
-                File.separator + appName + ".lnk";
-
-        String f2 = f1.replaceAll(
-                System.getProperty("user.name"),
-                "All Users");
-
-        if(isAutoStart)
-        {
-            if(!new File(f1).exists() &&
-               !new File(f2).exists())
-                shortcut.save();
-        }
-        else
-        {
-            boolean isFileDeleted = false;
-            try
-            {
-                isFileDeleted = new File(f1).delete();
-            }
-            catch (Exception ex)
-            {
-                if (logger.isTraceEnabled())
-                    logger.trace("Unable to delete file. ", ex);
-            }
-
-            try
-            {
-                new File(f2).delete();
-            }
-            catch (Exception ex)
-            {
-                if(!isFileDeleted)
-                    GeneralConfigPluginActivator.getUIService().
-                        getPopupDialog().showMessagePopupDialog(
-                            ex.getMessage(),
-                            Resources.getString(
-                                "plugin.generalconfig.ERROR_PERMISSION"),
-                            PopupDialog.ERROR_MESSAGE);
-                // cannot delete no permissions
-            }
-        }
+        WindowsStartup.setAutostart(
+                getApplicationName(), workingDir, isAutoStart);
     } 
 }
