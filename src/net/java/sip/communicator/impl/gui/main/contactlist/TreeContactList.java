@@ -823,11 +823,13 @@ public class TreeContactList
             {
                 public void run()
                 {
-                    // If in the meantime the corresponding query was canceled
-                    // we don't proceed with adding.
+                    // If in the meantime the filter has changed we don't
+                    // add the contact.
                     if (query != null
-                        && query.getStatus() != ContactQuery.QUERY_CANCELED)
+                        && currentFilterQuery.containsQuery(query))
+                    {
                         addContact(contact, group, isSorted);
+                    }
                 }
             });
             return;
@@ -1365,15 +1367,11 @@ public class TreeContactList
         if (!(lastComponent instanceof TreeNode))
             return;
 
-        // Open message window, right button menu when mouse is pressed.
+        // Open right button menu when right mouse is pressed.
         if (lastComponent instanceof ContactNode)
         {
             UIContact uiContact
                 = ((ContactNode) lastComponent).getContactDescriptor();
-
-            fireContactListEvent(
-                uiContact,
-                ContactListEvent.CONTACT_CLICKED, e.getClickCount());
 
             if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
                     || (e.isControlDown() && !e.isMetaDown()))
@@ -1387,10 +1385,6 @@ public class TreeContactList
         {
             UIGroup uiGroup
                 = ((GroupNode) lastComponent).getGroupDescriptor();
-
-            fireContactListEvent(
-                uiGroup,
-                ContactListEvent.GROUP_CLICKED, e.getClickCount());
 
             if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
                     || (e.isControlDown() && !e.isMetaDown()))

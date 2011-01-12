@@ -261,6 +261,18 @@ public class FilterQuery
         }
     }
 
+    /**
+     * Verifies if the given query is contained in this filter query.
+     *
+     * @param query the query we're looking for
+     * @return <tt>true</tt> if the given <tt>query</tt> is contained in this
+     * filter query, <tt>false</tt> - otherwise
+     */
+    public boolean containsQuery(Object query)
+    {
+        return filterQueries.contains(query);
+    }
+
     public void contactReceived(ContactReceivedEvent event) {}
 
     public void metaContactReceived(MetaContactQueryEvent event) {}
