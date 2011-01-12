@@ -17,7 +17,6 @@
     <classpathentry kind="lib" path="lib/installer-exclude/fmj.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/httpclient-4.0.1.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/httpcore-4.0.1.jar"/>
-    <classpathentry kind="lib" path="lib/installer-exclude/izpack-shortcut-link.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jain-sip-api.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jain-sip-ri.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/jcalendar-1.3.2.jar"/>
