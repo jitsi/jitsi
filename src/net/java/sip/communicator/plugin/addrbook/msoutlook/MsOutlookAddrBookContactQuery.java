@@ -365,11 +365,21 @@ public class MsOutlookAddrBookContactQuery
      * Notifies this <tt>AsyncContactQuery</tt> that it has stopped performing
      * in the associated background <tt>Thread</tt>.
      *
-     * @see AsyncContactQuery#stopped()
+     * @param completed <tt>true</tt> if this <tt>ContactQuery</tt> has
+     * successfully completed, <tt>false</tt> if an error has been encountered
+     * during its execution
+     * @see AsyncContactQuery#stopped(boolean)
      */
     @Override
-    protected void stopped()
+    protected void stopped(boolean completed)
     {
-        getContactSource().stopped(this);
+        try
+        {
+            super.stopped(completed);
+        }
+        finally
+        {
+            getContactSource().stopped(this);
+        }
     }
 }

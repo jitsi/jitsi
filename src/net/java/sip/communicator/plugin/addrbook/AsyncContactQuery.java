@@ -155,16 +155,19 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
                     @Override
                     public void run()
                     {
+                        boolean completed = false;
+
                         try
                         {
                             AsyncContactQuery.this.run();
+                            completed = true;
                         }
                         finally
                         {
                             synchronized (AsyncContactQuery.this)
                             {
                                 if (thread == Thread.currentThread())
-                                    stopped();
+                                    stopped(completed);
                             }
                         }
                     }
@@ -179,8 +182,14 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
     /**
      * Notifies this <tt>AsyncContactQuery</tt> that it has stopped performing
      * in the associated background <tt>Thread</tt>.
+     *
+     * @param completed <tt>true</tt> if this <tt>ContactQuery</tt> has
+     * successfully completed, <tt>false</tt> if an error has been encountered
+     * during its execution
      */
-    protected void stopped()
+    protected void stopped(boolean completed)
     {
+        if (getStatus() == QUERY_IN_PROGRESS)
+            setStatus(completed ? QUERY_COMPLETED : QUERY_ERROR);
     }
 }
