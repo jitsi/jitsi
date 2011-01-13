@@ -219,6 +219,24 @@ public class MsOutlookAddrBookContactQuery
     }
 
     /**
+     * Determines whether a specific <tt>MAPI_MAILUSER</tt> property with a
+     * specific <tt>value</tt> matches the {@link #query} of this
+     * <tt>AsyncContactQuery</tt>.
+     *
+     * @param property the <tt>MAPI_MAILUSER</tt> property to check
+     * @param value the value of the <tt>property</tt> to check
+     * @return <tt>true</tt> if the specified <tt>value</tt> of the specified
+     * <tt>property</tt> matches the <tt>query</tt> of this
+     * <tt>AsyncContactQuery</tt>; otherwise, <tt>false</tt>
+     */
+    private boolean matches(int property, String value)
+    {
+        return
+            query.matcher(value).find()
+                || (isPhoneNumber(property) && phoneNumberMatches(value));
+    }
+
+    /**
      * Notifies this <tt>MsOutlookAddrBookContactQuery</tt> about a specific
      * <tt>MAPI_MAILUSER</tt>.
      *
@@ -254,14 +272,7 @@ public class MsOutlookAddrBookContactQuery
 
         for (Object prop : props)
         {
-            if ((prop instanceof String)
-                    && (query.matcher((String) prop).find()
-                            || (isPhoneNumber(propIndex)
-                                    && query
-                                            .matcher(
-                                                    normalizePhoneNumber(
-                                                            (String) prop))
-                                                .find())))
+            if ((prop instanceof String) && matches(propIndex, (String) prop))
             {
                 matches = true;
                 break;

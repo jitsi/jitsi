@@ -25,4 +25,16 @@ public interface PhoneNumberI18nService
      * <tt>phoneNumber</tt>
      */
     public String normalize(String phoneNumber);
+
+    /**
+     * Determines whether two <tt>String</tt> phone numbers match.
+     *
+     * @param aPhoneNumber a <tt>String</tt> which represents a phone number to
+     * match to <tt>bPhoneNumber</tt>
+     * @param bPhoneNumber a <tt>String</tt> which represents a phone number to
+     * match to <tt>aPhoneNumber</tt>
+     * @return <tt>true</tt> if the specified <tt>String</tt>s match as phone
+     * numbers; otherwise, <tt>false</tt>
+     */
+    public boolean phoneNumbersMatch(String aPhoneNumber, String bPhoneNumber);
 }

@@ -6,9 +6,12 @@
  */
 package net.java.sip.communicator.plugin.addrbook;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 import com.google.i18n.phonenumbers.*;
+import com.google.i18n.phonenumbers.Phonenumber.*;
 
 /**
  * Implements <tt>PhoneNumberI18nService</tt> which aids the parsing, formatting
@@ -38,5 +41,51 @@ public class PhoneNumberI18nServiceImpl
             PhoneNumberUtil.normalizeDigitsOnly(
                     PhoneNumberUtil.convertAlphaCharactersInNumber(
                             phoneNumber));
+    }
+
+    /**
+     * Determines whether two <tt>String</tt> phone numbers match.
+     *
+     * @param aPhoneNumber a <tt>String</tt> which represents a phone number to
+     * match to <tt>bPhoneNumber</tt>
+     * @param bPhoneNumber a <tt>String</tt> which represents a phone number to
+     * match to <tt>aPhoneNumber</tt>
+     * @return <tt>true</tt> if the specified <tt>String</tt>s match as phone
+     * numbers; otherwise, <tt>false</tt>
+     */
+    public boolean phoneNumbersMatch(String aPhoneNumber, String bPhoneNumber)
+    {
+        PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+
+        try
+        {
+            String defaultCountry = Locale.getDefault().getCountry();
+
+            if ((defaultCountry != null) && (defaultCountry.length() != 0))
+            {
+                PhoneNumber a
+                    = phoneNumberUtil.parse(aPhoneNumber, defaultCountry);
+                PhoneNumber b
+                    = phoneNumberUtil.parse(bPhoneNumber, defaultCountry);
+
+                if (PhoneNumberUtil.MatchType.NO_MATCH
+                        != phoneNumberUtil.isNumberMatch(a, b))
+                    return true;
+            }
+        }
+        catch (NumberParseException npex)
+        {
+            /* Ignore it, we'll try without the defaultCountry. */
+        }
+        try
+        {
+            return
+                PhoneNumberUtil.MatchType.NO_MATCH
+                    != phoneNumberUtil.isNumberMatch(aPhoneNumber, bPhoneNumber);
+        }
+        catch (NumberParseException npex)
+        {
+            throw new IllegalArgumentException(npex);
+        }
     }
 }

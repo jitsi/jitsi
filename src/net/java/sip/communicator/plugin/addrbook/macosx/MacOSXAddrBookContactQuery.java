@@ -511,10 +511,7 @@ public class MacOSXAddrBookContactQuery
     {
         return
             query.matcher(value).find()
-                    || ((kABPhoneProperty == property)
-                            && query
-                                    .matcher(normalizePhoneNumber(value))
-                                        .find());
+                || ((kABPhoneProperty == property) && phoneNumberMatches(value));
     }
 
     /**
