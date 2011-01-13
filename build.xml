@@ -492,6 +492,7 @@
         <mkdir dir="${bundles.dest.lin}"/>
         <mkdir dir="${bundles.dest.win}"/>
         <mkdir dir="${bundles.dest.freebsd}"/>
+        <mkdir dir="${bundles.dest.sol}"/>
 
         <mkdir dir="${test.reports.dir}"/>
         <mkdir dir="${test.reports.dir}/html"/>
