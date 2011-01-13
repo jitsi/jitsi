@@ -1339,10 +1339,44 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <target name="bundle-jnalib">
-        <!-- Creates a bundle containing the jmdns lib.-->
-        <jar compress="false" destfile="${bundles.dest}/jnalib.jar"
+        <!-- Creates a bundle containing the win jna implementation.-->
+        <jar
+            compress="false" destfile="${bundles.dest.win}/jnalib.jar"
             manifest="${lib.noinst}/jna.manifest.mf">
-            <zipfileset src="${lib.noinst}/jna.jar" prefix=""/>
+
+            <zipfileset src="${lib.win.noinst}/jna.jar" prefix=""/>
+            <zipfileset src="${lib.win.noinst}/jna-platform-win32.jar" prefix=""/>
+        </jar>
+
+        <!-- Creates a bundle containing the linux jna implementation.-->
+        <jar
+            compress="false" destfile="${bundles.dest.lin}/jnalib.jar"
+            manifest="${lib.noinst}/jna.manifest.mf">
+            <zipfileset src="${lib.lin.noinst}/jna.jar" prefix=""/>
+        </jar>
+
+        <!-- Creates a bundle containing the mac jna implementation.-->
+        <jar
+            compress="false" destfile="${bundles.dest.mac}/jnalib.jar"
+            manifest="${lib.noinst}/jna.manifest.mf">
+
+            <zipfileset src="${lib.mac.noinst}/jna.jar" prefix=""/>
+        </jar>
+
+        <!-- Creates a bundle containing the freebsd jna implementation.-->
+        <jar
+            compress="false" destfile="${bundles.dest.freebsd}/jnalib.jar"
+            manifest="${lib.noinst}/jna.manifest.mf">
+
+            <zipfileset src="${lib.freebsd.noinst}/jna.jar" prefix=""/>
+        </jar>
+
+        <!-- Creates a bundle containing the freebsd jna implementation.-->
+        <jar
+            compress="false" destfile="${bundles.dest.sol}/jnalib.jar"
+            manifest="${lib.noinst}/jna.manifest.mf">
+
+            <zipfileset src="${lib.sol.noinst}/jna.jar" prefix=""/>
         </jar>
     </target>
 
@@ -2134,14 +2168,6 @@ org.apache.http.util"/>
             manifest="${src}/net/java/sip/communicator/plugin/generalconfig/generalconfig.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/generalconfig"
                 prefix="net/java/sip/communicator/plugin/generalconfig" />
-        </jar>
-
-        <!-- on windows general config needs jna-platform to access windows registry -->
-        <jar compress="false" destfile="${bundles.dest.win}/generalconfig.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/generalconfig/generalconfig.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/generalconfig"
-                prefix="net/java/sip/communicator/plugin/generalconfig" />
-            <zipfileset src="${lib.win.noinst}/jna-platform-win32.jar" prefix=""/>
         </jar>
     </target>
 
