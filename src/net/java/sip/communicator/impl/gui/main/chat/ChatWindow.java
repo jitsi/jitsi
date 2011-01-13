@@ -39,7 +39,7 @@ import com.explodingpixels.macwidgets.*;
  * <tt>MetaContact</tt> or to a conference.
  * <p>
  * Note that the conference case is not yet implemented.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Adam Netocny
@@ -138,8 +138,8 @@ public class ChatWindow
     }
 
     /**
-     * Shows or hides the Toolbar depending on the value of parameter b. 
-     * 
+     * Shows or hides the Toolbar depending on the value of parameter b.
+     *
      * @param b if true, makes the Toolbar visible, otherwise hides the Toolbar
      */
     public void setToolbarVisible(boolean b)
@@ -150,7 +150,7 @@ public class ChatWindow
 
     /**
      * Shows or hides the Stylebar depending on the value of parameter b.
-     * 
+     *
      * @param b if true, makes the Stylebar visible, otherwise hides the Stylebar
      */
     public void setStylebarVisible(boolean b)
@@ -197,10 +197,10 @@ public class ChatWindow
 
     /**
      * Adds a given <tt>ChatPanel</tt> to this chat window.
-     * 
+     *
      * @param chatPanel The <tt>ChatPanel</tt> to add.
      */
-    public void addChat(ChatPanel chatPanel)
+    public void addChat(final ChatPanel chatPanel)
     {
         if (ConfigurationManager.isMultiChatWindowEnabled())
             addChatTab(chatPanel);
@@ -211,8 +211,16 @@ public class ChatWindow
 
         chatPanel.setShown(true);
 
-        for (ChatChangeListener l : this.chatChangeListeners)
-            l.chatChanged(chatPanel);
+        new Thread()
+        {
+            public void run()
+            {
+                for (ChatChangeListener l : chatChangeListeners)
+                {
+                    l.chatChanged(chatPanel);
+                }
+            }
+        }.start();
     }
 
     /**
@@ -263,7 +271,7 @@ public class ChatWindow
 
     /**
      * Adds a given <tt>ChatPanel</tt> to this chat window.
-     * 
+     *
      * @param chatPanel The <tt>ChatPanel</tt> to add.
      */
     private void addSimpleChat(ChatPanel chatPanel)
@@ -274,7 +282,7 @@ public class ChatWindow
     /**
      * Adds a given <tt>ChatPanel</tt> to the <tt>JTabbedPane</tt> of this
      * chat window.
-     * 
+     *
      * @param chatPanel The <tt>ChatPanel</tt> to add.
      */
     private void addChatTab(ChatPanel chatPanel)
@@ -324,7 +332,7 @@ public class ChatWindow
 
     /**
      * Removes a given <tt>ChatPanel</tt> from this chat window.
-     * 
+     *
      * @param chatPanel The <tt>ChatPanel</tt> to remove.
      */
     public void removeChat(ChatPanel chatPanel)
@@ -402,10 +410,10 @@ public class ChatWindow
 
     /**
      * Selects the chat tab which corresponds to the given <tt>MetaContact</tt>.
-     * 
+     *
      * @param chatPanel The <tt>ChatPanel</tt> to select.
      */
-    public void setCurrentChat(ChatPanel chatPanel)
+    public void setCurrentChat(final ChatPanel chatPanel)
     {
         ChatSession chatSession = chatPanel.getChatSession();
 
@@ -421,10 +429,16 @@ public class ChatWindow
 
         chatPanel.requestFocusInWriteArea();
 
-        for (ChatChangeListener l : this.chatChangeListeners)
+        new Thread()
         {
-            l.chatChanged(chatPanel);
-        }
+            public void run()
+            {
+                for (ChatChangeListener l : chatChangeListeners)
+                {
+                    l.chatChanged(chatPanel);
+                }
+            }
+        }.start();
     }
 
     /**
@@ -446,7 +460,7 @@ public class ChatWindow
 
     /**
      * Returns the currently selected chat panel.
-     * 
+     *
      * @return the currently selected chat panel.
      */
     public ChatPanel getCurrentChat()
@@ -514,7 +528,7 @@ public class ChatWindow
     /**
      * Returns the tab count of the chat tabbed pane. Meant to be used when in
      * "Group chat windows" mode.
-     * 
+     *
      * @return int The number of opened tabs.
      */
     private int getChatTabCount()
@@ -524,7 +538,7 @@ public class ChatWindow
 
     /**
      * Highlights the corresponding tab for the given chat panel.
-     * 
+     *
      * @param chatPanel the chat panel which corresponds to the tab to highlight
      */
     private void highlightTab(ChatPanel chatPanel)
@@ -538,7 +552,7 @@ public class ChatWindow
 
     /**
      * Sets the given icon to the tab opened for the given chat panel.
-     * 
+     *
      * @param chatPanel the chat panel, which corresponds the tab
      * @param icon the icon to be set
      */
@@ -887,7 +901,7 @@ public class ChatWindow
 
     /**
      * Returns the number of all open chats.
-     * 
+     *
      * @return the number of all open chats
      */
     public int getChatCount()
@@ -923,7 +937,7 @@ public class ChatWindow
     /**
      * Adds the given component with to the container corresponding to the
      * given constraints.
-     * 
+     *
      * @param c the component to add
      * @param container the plugin container
      * @param constraints the constraints determining the container
@@ -961,7 +975,7 @@ public class ChatWindow
     /**
      * Removes the given component from the container corresponding to the given
      * constraints.
-     * 
+     *
      * @param c the component to remove
      * @param container the plugin container
      * @param constraints the constraints determining the container
@@ -987,7 +1001,7 @@ public class ChatWindow
 
     /**
      * Sets the chat panel contact photo to this window.
-     * 
+     *
      * @param chatSession
      */
     private void setChatContactPhoto(ChatSession chatSession)
@@ -1013,7 +1027,7 @@ public class ChatWindow
         }
     }
 
-    
+
     /**
      * Implementation of {@link ExportedWindow#setParams(Object[])}.
      */
@@ -1048,7 +1062,7 @@ public class ChatWindow
         }
 
         public void paintComponent(Graphics g)
-        { 
+        {
             super.paintComponent(g);
 
             if (logoBgImage != null)
