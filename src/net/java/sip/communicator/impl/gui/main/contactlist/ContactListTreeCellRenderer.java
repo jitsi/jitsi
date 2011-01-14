@@ -634,8 +634,12 @@ public class ContactListTreeCellRenderer
         else
             statusMessageLabelHeight = 15;
 
-         UIContactDetail imContact = uiContact.getDefaultContactDetail(
-             OperationSetBasicInstantMessaging.class);
+        UIContactDetail imContact = null;
+        // For now we support instance messaging only for contacts in our
+        // contact list until it's implemented for external source contacts.
+        if (uiContact.getDescriptor() instanceof MetaContact)
+            imContact = uiContact.getDefaultContactDetail(
+                         OperationSetBasicInstantMessaging.class);
 
         if (imContact != null)
         {
