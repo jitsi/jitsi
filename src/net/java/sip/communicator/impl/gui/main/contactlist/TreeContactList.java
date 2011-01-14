@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
+import java.util.regex.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -120,6 +122,11 @@ public class TreeContactList
     private FilterQuery currentFilterQuery;
 
     private FilterThread filterThread;
+
+    /**
+     * Indicates that the received call image search has been canceled.
+     */
+    private static boolean imageSearchCanceled = false;
 
     /**
      * Creates the <tt>TreeContactList</tt>.
@@ -1801,6 +1808,147 @@ public class TreeContactList
                 return extSource;
         }
         return null;
+    }
+
+    /**
+     * Searches for a source contact image for the given peer string in one of
+     * the available contact sources.
+     *
+     * @param contactString the address of the contact to search an image for
+     * @param label the label to set the image to
+     * @param imgWidth the desired image width
+     * @param imgHeight the desired image height
+     */
+    public static void setSourceContactImage(   String contactString,
+                                                final JLabel label,
+                                                final int imgWidth,
+                                                final int imgHeight)
+    {
+        int atIndex = contactString.indexOf("@");
+
+        // If we find that the contact is actually a number, we get rid of the
+        // @ if it exists.
+        if (StringUtils.isNumber(contactString)
+            && atIndex >= 0)
+        {
+            contactString = contactString.substring(0, atIndex);
+        }
+
+        // We make a pattern that matches the whole string only.
+        Pattern filterPattern = Pattern.compile(
+            "^" + Pattern.quote(contactString) + "$", Pattern.UNICODE_CASE);
+
+        Iterator<ExternalContactSource> contactSources
+            = TreeContactList.getContactSources().iterator();
+
+        final Vector<ContactQuery> loadedQueries = new Vector<ContactQuery>();
+
+        while (contactSources.hasNext())
+        {
+            // If the image search has been canceled from one of the previous
+            // sources, we return here.
+            if (imageSearchCanceled)
+                return;
+
+            ContactSourceService contactSource
+                = contactSources.next().getContactSourceService();
+
+            if (contactSource instanceof ExtendedContactSourceService)
+            {
+                ContactQuery query
+                    = ((ExtendedContactSourceService)
+                            contactSource).queryContactSource(filterPattern);
+
+                loadedQueries.add(query);
+
+                query.addContactQueryListener(new ContactQueryListener()
+                {
+                    public void queryStatusChanged(ContactQueryStatusEvent event)
+                    {}
+
+                    public void contactReceived(ContactReceivedEvent event)
+                    {
+                        SourceContact sourceContact = event.getContact();
+
+                        byte[] image = sourceContact.getImage();
+
+                        if (image != null && image.length > 0)
+                        {
+                            setScaledLabelImage(
+                                label, image, imgWidth, imgHeight);
+
+                            // Cancel all already loaded queries.
+                            cancelImageQueries(loadedQueries);
+
+                            imageSearchCanceled = true;
+                        }
+                    }
+                });
+
+                // If the image search has been canceled from one of the
+                // previous sources, we return here.
+                if (imageSearchCanceled)
+                    return;
+
+                // Let's see if we find an image in the direct results.
+                List<SourceContact> results = query.getQueryResults();
+
+                if (results != null && !results.isEmpty())
+                {
+                    Iterator<SourceContact> resultsIter = results.iterator();
+
+                    while (resultsIter.hasNext())
+                    {
+                        byte[] image = resultsIter.next().getImage();
+
+                        if (image != null && image.length > 0)
+                        {
+                            setScaledLabelImage(
+                                label, image, imgWidth, imgHeight);
+
+                            // Cancel all already loaded queries.
+                            cancelImageQueries(loadedQueries);
+
+                            // As we found the image we return here.
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Cancels the list of loaded <tt>ContactQuery</tt>s.
+     *
+     * @param loadedQueries the list of queries to cancel
+     */
+    private static void cancelImageQueries(
+            Collection<ContactQuery> loadedQueries)
+    {
+        Iterator<ContactQuery> queriesIter = loadedQueries.iterator();
+
+        while (queriesIter.hasNext())
+        {
+            queriesIter.next().cancel();
+        }
+    }
+
+    /**
+     * Sets the image of the incoming call notification.
+     *
+     * @param label the label to set the image to
+     * @param image the image to set
+     * @param width the desired image width
+     * @param height the desired image height
+     */
+    private static void setScaledLabelImage(
+        JLabel label, byte[] image, int width, int height)
+    {
+        label.setIcon(
+            ImageUtils.getScaledRoundedIcon(image, width, height));
+
+        label.repaint();
     }
 
     /**

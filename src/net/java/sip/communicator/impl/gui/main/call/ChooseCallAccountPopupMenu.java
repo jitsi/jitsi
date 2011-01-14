@@ -14,6 +14,7 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -75,7 +76,8 @@ public class ChooseCallAccountPopupMenu
         Class<? extends OperationSet> opSetClass)
     {
         this.invoker = invoker;
-        this.init();
+        this.init(GuiActivator.getResources()
+                    .getI18NString("service.gui.CALL_VIA"));
 
         for (ProtocolProviderService provider : telephonyProviders)
         {
@@ -93,7 +95,9 @@ public class ChooseCallAccountPopupMenu
     public ChooseCallAccountPopupMenu(  JComponent invoker,
                                         List<?> telephonyObjects)
     {
-        this(invoker, telephonyObjects, OperationSetBasicTelephony.class);
+        this(   invoker,
+                telephonyObjects,
+                OperationSetBasicTelephony.class);
     }
 
     /**
@@ -110,7 +114,8 @@ public class ChooseCallAccountPopupMenu
                                       Class<? extends OperationSet> opSetClass)
     {
         this.invoker = invoker;
-        this.init();
+        this.init(GuiActivator.getResources()
+                    .getI18NString("service.gui.CHOOSE_CONTACT"));
 
         for (Object o : telephonyObjects)
         {
@@ -124,12 +129,15 @@ public class ChooseCallAccountPopupMenu
 
     /**
      * Initializes and add some common components.
+     *
+     * @param infoString the string we'd like to show on the top of this
+     * popup menu
      */
-    private void init()
+    private void init(String infoString)
     {
         setInvoker(invoker);
 
-        this.add(createInfoLabel());
+        this.add(createInfoLabel(infoString));
 
         this.addSeparator();
 
@@ -196,22 +204,49 @@ public class ChooseCallAccountPopupMenu
         {
             public void actionPerformed(ActionEvent e)
             {
-                if (opSetClass.equals(OperationSetBasicTelephony.class))
-                    CallManager.createCall(
-                        telephonyContact.getPreferredProtocolProvider(
-                            OperationSetBasicTelephony.class),
-                        telephonyContact.getAddress());
-                else if (opSetClass.equals(OperationSetVideoTelephony.class))
-                    CallManager.createVideoCall(
-                        telephonyContact.getPreferredProtocolProvider(
-                            OperationSetBasicTelephony.class),
-                        telephonyContact.getAddress());
-                else if (opSetClass.equals(
-                    OperationSetDesktopSharingServer.class))
-                    CallManager.createDesktopSharing(
-                        telephonyContact.getPreferredProtocolProvider(
-                            OperationSetDesktopSharingServer.class),
-                        telephonyContact.getAddress());
+                List<ProtocolProviderService> providers
+                    = GuiActivator.getOpSetRegisteredProviders(
+                        opSetClass,
+                        telephonyContact.getPreferredProtocolProvider(opSetClass),
+                        telephonyContact.getPreferredProtocol(opSetClass));
+
+                int providersCount = providers.size();
+
+                if (providers == null || providersCount <= 0)
+                {
+                    new ErrorDialog(null,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.CALL_FAILED"),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
+                        .showDialog();
+                    return;
+                }
+                else if (providersCount > 1)
+                {
+                    new ChooseCallAccountDialog(
+                        telephonyContact.getAddress(), opSetClass, providers)
+                    .setVisible(true);
+                }
+                else // providersCount == 1
+                {
+                    if (opSetClass.equals(OperationSetBasicTelephony.class))
+                    {
+                        CallManager.createCall(
+                            providers.get(0), telephonyContact.getAddress());
+                    }
+                    else if (opSetClass.equals(OperationSetVideoTelephony.class))
+                    {
+                        CallManager.createVideoCall(
+                            providers.get(0), telephonyContact.getAddress());
+                    }
+                    else if (opSetClass.equals(
+                        OperationSetDesktopSharingServer.class))
+                    {
+                        CallManager.createDesktopSharing(
+                            providers.get(0), telephonyContact.getAddress());
+                    }
+                }
 
                 ChooseCallAccountPopupMenu.this.setVisible(false);
             }
@@ -288,15 +323,15 @@ public class ChooseCallAccountPopupMenu
     /**
      * Creates the info label.
      *
+     * @param infoString the string we'd like to show on the top of this
+     * popup menu
      * @return the created info label
      */
-    private Component createInfoLabel()
+    private Component createInfoLabel(String infoString)
     {
         JLabel infoLabel = new JLabel();
 
-        infoLabel.setText("<html><b>" + GuiActivator.getResources()
-            .getI18NString("service.gui.CALL_VIA")
-            + "</b></html>");
+        infoLabel.setText("<html><b>" + infoString + "</b></html>");
 
         return infoLabel;
     }

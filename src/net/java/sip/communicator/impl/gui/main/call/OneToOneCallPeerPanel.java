@@ -17,6 +17,7 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -186,6 +187,8 @@ public class OneToOneCallPeerPanel
      */
     private final Component statusBar;
 
+    private final JLabel photoLabel;
+
     /**
      * Creates a <tt>CallPeerPanel</tt> for the given call peer.
      *
@@ -199,10 +202,11 @@ public class OneToOneCallPeerPanel
         this.callPeer = callPeer;
         this.peerName = callPeer.getDisplayName();
 
-        this.setPeerImage(CallManager.getPeerImage(callPeer));
-
+        photoLabel = new JLabel(getPhotoLabelIcon());
         center = createCenter();
         statusBar = createStatusBar();
+
+        this.setPeerImage(CallManager.getPeerImage(callPeer));
 
         /* Lay out the main Components of the UI. */
         setLayout(new GridBagLayout());
@@ -256,8 +260,6 @@ public class OneToOneCallPeerPanel
      */
     Component createCenter()
     {
-        final JLabel photoLabel = new JLabel(getPhotoLabelIcon());
-
         photoLabel.setPreferredSize(new Dimension(90, 90));
 
         final Container videoContainer = createVideoContainer(photoLabel);
@@ -993,15 +995,20 @@ public class OneToOneCallPeerPanel
     public void setPeerImage(byte[] image)
     {
         if (image == null || image.length <= 0)
-            return;
-
-        this.peerImage = ImageUtils.getScaledRoundedIcon(image, 100, 100);
-
-        this.peerImage = getPhotoLabelIcon();
-        synchronized (videoContainers)
         {
-            for (JLabel photoLabel : photoLabels)
-                photoLabel.setIcon(this.peerImage);
+            TreeContactList.setSourceContactImage(
+                peerName, photoLabel, 100, 100);
+        }
+        else
+        {
+            this.peerImage = ImageUtils.getScaledRoundedIcon(image, 100, 100);
+
+            this.peerImage = getPhotoLabelIcon();
+            synchronized (videoContainers)
+            {
+                for (JLabel photoLabel : photoLabels)
+                    photoLabel.setIcon(this.peerImage);
+            }
         }
     }
 

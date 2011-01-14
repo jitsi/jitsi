@@ -193,12 +193,15 @@ public class SourceUIContact
         while (details.hasNext())
         {
             ContactDetail detail = details.next();
+
             List<Class<? extends OperationSet>> supportedOperationSets
                 = detail.getSupportedOperationSets();
 
             if ((supportedOperationSets != null)
                     && supportedOperationSets.contains(opSetClass))
+            {
                 resultList.add(new SourceContactDetail(detail, opSetClass));
+            }
         }
         return resultList;
     }

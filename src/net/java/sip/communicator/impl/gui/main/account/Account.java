@@ -292,4 +292,14 @@ public class Account
     {
         return enableCheckBox;
     }
+
+    /**
+     * Returns the string representation of this account.
+     *
+     * @return the string representation of this account
+     */
+    public String toString()
+    {
+        return protocolProvider.getAccountID().getAccountAddress();
+    }
 }

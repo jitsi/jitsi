@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.audionotifier.*;
@@ -368,6 +369,58 @@ public class GuiActivator implements BundleActivator
             }
         }
         return opSetProviders;
+    }
+
+    /**
+     * Returns a list of all registered protocol providers that could be used
+     * for the operation given by the operation set. Prefers the given preferred
+     * protocol provider and preferred protocol name if they're available and
+     * registered.
+     *
+     * @param opSet
+     * @param preferredProvider
+     * @param preferredProtocolName
+     * @return a list of all registered protocol providers that could be used
+     * for the operation given by the operation set
+     */
+    public static List<ProtocolProviderService> getOpSetRegisteredProviders(
+        Class<? extends OperationSet> opSet,
+        ProtocolProviderService preferredProvider,
+        String                  preferredProtocolName)
+    {
+        List<ProtocolProviderService> providers
+            = new ArrayList<ProtocolProviderService>();
+
+        if (preferredProvider != null)
+        {
+            if (preferredProvider.isRegistered())
+                providers.add(preferredProvider);
+
+            // If we have a provider, but it's not registered we try to
+            // obtain all registered providers for the same protocol as the
+            // given preferred provider.
+            else
+            {
+                providers
+                    = GuiActivator.getRegisteredProviders(
+                        preferredProvider.getProtocolName(), opSet);
+            }
+        }
+        // If we don't have a preferred provider we try to obtain a
+        // preferred protocol name and all registered providers for it.
+        else
+        {
+            if (preferredProtocolName != null)
+                providers
+                    = GuiActivator.getRegisteredProviders(
+                        preferredProtocolName, opSet);
+            // If the protocol name is null we simply obtain all telephony
+            // providers.
+            else
+                providers = GuiActivator.getRegisteredProviders(opSet);
+        }
+
+        return providers;
     }
 
     /**
@@ -767,5 +820,24 @@ public class GuiActivator implements BundleActivator
     public static TreeContactList getContactList()
     {
         return contactList;
+    }
+
+    /**
+     * Returns the list of wrapped protocol providers.
+     *
+     * @param providers the list of protocol providers
+     * @return an array of wrapped protocol providers
+     */
+    public static Object[] getAccounts(List<ProtocolProviderService> providers)
+    {
+        ArrayList<Account> accounts = new ArrayList<Account>();
+        Iterator<ProtocolProviderService> accountsIter = providers.iterator();
+
+        while (accountsIter.hasNext())
+        {
+            accounts.add(new Account(accountsIter.next()));
+        }
+
+        return accounts.toArray();
     }
 }

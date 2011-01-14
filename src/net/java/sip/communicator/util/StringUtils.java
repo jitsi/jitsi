@@ -175,4 +175,23 @@ public final class StringUtils
             return new String(bytes);
         }
     }
+
+    /**
+     * Indicates if the given string is composed only of digits or not.
+     *
+     * @param string the string to check
+     * @return <tt>true</tt> if the given string is composed only of digits,
+     * <tt>false</tt> - otherwise
+     */
+    public static boolean isNumber(String string)
+    {
+        for (int i = 0; i < string.length(); i++)
+        {
+            //If we find a non-digit character we return false.
+            if (!Character.isDigit(string.charAt(i)))
+                return false;
+        }
+
+        return true;
+    }
 }

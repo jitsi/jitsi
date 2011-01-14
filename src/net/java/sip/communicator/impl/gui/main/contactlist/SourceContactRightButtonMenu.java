@@ -14,6 +14,7 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -109,15 +110,38 @@ public class SourceContactRightButtonMenu
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    ProtocolProviderService protocolProvider
-                        = detail.getPreferredProtocolProvider(
-                            OperationSetBasicTelephony.class);
+                    List<ProtocolProviderService> providers
+                        = GuiActivator.getOpSetRegisteredProviders(
+                            OperationSetBasicTelephony.class,
+                            detail.getPreferredProtocolProvider(
+                                OperationSetBasicTelephony.class),
+                            detail.getPreferredProtocol(
+                                OperationSetBasicTelephony.class));
 
-                    if (protocolProvider != null)
-                        CallManager.createCall( protocolProvider,
-                                                detail.getContactAddress());
-                    else
-                        CallManager.createCall(detail.getContactAddress());
+                    int providersCount = providers.size();
+
+                    if (providers == null || providersCount <= 0)
+                    {
+                        new ErrorDialog(null,
+                            GuiActivator.getResources().getI18NString(
+                                "service.gui.CALL_FAILED"),
+                            GuiActivator.getResources().getI18NString(
+                                "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
+                            .showDialog();
+                        return;
+                    }
+                    else if (providersCount > 1)
+                    {
+                        new ChooseCallAccountDialog(
+                            detail.getContactAddress(),
+                            OperationSetBasicTelephony.class, providers)
+                        .setVisible(true);
+                    }
+                    else // providersCount == 1
+                    {
+                        CallManager.createCall(
+                            providers.get(0), detail.getContactAddress());
+                    }
                 }
             });
             callContactItem.setEnabled(detail.getSupportedOperationSets().

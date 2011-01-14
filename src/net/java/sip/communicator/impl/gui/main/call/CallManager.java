@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.text.*;
 import java.util.*;
+import java.util.List;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -72,7 +73,6 @@ public class CallManager
             final ReceivedCallDialog receivedCallDialog
                 = new ReceivedCallDialog(sourceCall);
 
-            receivedCallDialog.pack();
             receivedCallDialog.setVisible(true);
 
             final String peerName
