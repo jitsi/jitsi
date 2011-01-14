@@ -1828,8 +1828,8 @@ public class TreeContactList
 
         // If we find that the contact is actually a number, we get rid of the
         // @ if it exists.
-        if (StringUtils.isNumber(contactString)
-            && atIndex >= 0)
+        if (atIndex >= 0
+            && StringUtils.isNumber(contactString.substring(0, atIndex)))
         {
             contactString = contactString.substring(0, atIndex);
         }
