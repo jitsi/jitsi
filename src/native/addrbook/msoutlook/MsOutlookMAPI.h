@@ -21,15 +21,15 @@
 #include <mapitags.h>
 #include <mapix.h>
 
-SCODE MsOutlookAddrBook_MAPIAllocateBuffer(ULONG size, LPVOID FAR *buffer);
-#define MAPIAllocateBuffer MsOutlookAddrBook_MAPIAllocateBuffer
-ULONG MsOutlookAddrBook_MAPIFreeBuffer(LPVOID buffer);
-#define MAPIFreeBuffer MsOutlookAddrBook_MAPIFreeBuffer
-HRESULT MsOutlookAddrBook_MAPILogonEx
+SCODE MsOutlookAddrBook_mapiAllocateBuffer(ULONG size, LPVOID FAR *buffer);
+#define MAPIAllocateBuffer MsOutlookAddrBook_mapiAllocateBuffer
+ULONG MsOutlookAddrBook_mapiFreeBuffer(LPVOID buffer);
+#define MAPIFreeBuffer MsOutlookAddrBook_mapiFreeBuffer
+HRESULT MsOutlookAddrBook_mapiLogonEx
     (ULONG_PTR uiParam,
     LPSTR profileName, LPSTR password,
     FLAGS flags,
     LPMAPISESSION FAR *mapiSession);
-#define MAPILogonEx MsOutlookAddrBook_MAPILogonEx
+#define MAPILogonEx MsOutlookAddrBook_mapiLogonEx
 
 #endif /* #ifndef _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_MSOUTLOOKMAPI_H_ */

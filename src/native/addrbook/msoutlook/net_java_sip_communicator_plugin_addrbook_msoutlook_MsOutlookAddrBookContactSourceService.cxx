@@ -15,18 +15,18 @@
 #include <string.h>
 
 static LPMAPIALLOCATEBUFFER
-    MsOutlookAddrBookContactSourceService_MAPIAllocateBuffer;
-static LPMAPIFREEBUFFER MsOutlookAddrBookContactSourceService_MAPIFreeBuffer;
-static LPMAPIINITIALIZE MsOutlookAddrBookContactSourceService_MAPIInitialize;
-static LPMAPILOGONEX MsOutlookAddrBookContactSourceService_MAPILogonEx;
+    MsOutlookAddrBookContactSourceService_mapiAllocateBuffer;
+static LPMAPIFREEBUFFER MsOutlookAddrBookContactSourceService_mapiFreeBuffer;
+static LPMAPIINITIALIZE MsOutlookAddrBookContactSourceService_mapiInitialize;
+static LPMAPILOGONEX MsOutlookAddrBookContactSourceService_mapiLogonEx;
 static LPMAPIUNINITIALIZE
-    MsOutlookAddrBookContactSourceService_MAPIUninitialize;
+    MsOutlookAddrBookContactSourceService_mapiUninitialize;
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
     (JNIEnv *jniEnv, jclass clazz, jlong version, jlong flags)
 {
-    HKEY officeKey;
+    HKEY regKey;
     HRESULT hResult = MAPI_E_NO_SUPPORT;
 
     /*
@@ -42,7 +42,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                     _T("Software\\Microsoft\\Office"),
                     0,
                     KEY_ENUMERATE_SUB_KEYS,
-                    &officeKey))
+                    &regKey))
     {
         DWORD i = 0;
         TCHAR installRootKeyName[
@@ -61,7 +61,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 
             regEnumKeyEx
                 = RegEnumKeyEx(
-                        officeKey,
+                        regKey,
                         i,
                         installRootKeyName, &subkeyNameLength,
                         NULL,
@@ -79,7 +79,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
             *(str + 20) = 0;
             if (ERROR_SUCCESS
                     == RegOpenKeyEx(
-                            officeKey,
+                            regKey,
                             installRootKeyName,
                             0,
                             KEY_QUERY_VALUE,
@@ -147,7 +147,114 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                 RegCloseKey(installRootKey);
             }
         }
-        RegCloseKey(officeKey);
+        RegCloseKey(regKey);
+
+        /*
+         * Make sure that Microsoft Outlook is the default mail client in order
+         * to prevent its dialog in the case of it not being the default mail
+         * client.
+         */
+        if (HR_SUCCEEDED(hResult))
+        {
+            DWORD defaultValueType;
+            /*
+             * The buffer installRootKeyName is long enough to receive
+             * "Microsoft Outlook" so use it in order to not have to allocate
+             * more memory.
+             */
+            LPTSTR defaultValue = (LPTSTR) installRootKeyName;
+            DWORD defaultValueCapacity = sizeof(installRootKeyName);
+            jboolean checkHKeyLocalMachine;
+
+            hResult = MAPI_E_NO_SUPPORT;
+            if (ERROR_SUCCESS
+                    == RegOpenKeyEx(
+                            HKEY_CURRENT_USER,
+                            _T("Software\\Clients\\Mail"),
+                            0,
+                            KEY_QUERY_VALUE,
+                            &regKey))
+            {
+                DWORD defaultValueSize = defaultValueCapacity;
+                LONG regQueryValueEx
+                    = RegQueryValueEx(
+                            regKey,
+                            NULL,
+                            NULL,
+                            &defaultValueType,
+                            (LPBYTE) defaultValue, &defaultValueSize);
+
+                switch (regQueryValueEx)
+                {
+                case ERROR_SUCCESS:
+                {
+                    if (REG_SZ == defaultValueType)
+                    {
+                        DWORD defaultValueLength
+                            = defaultValueSize / sizeof(TCHAR);
+
+                        if ((0 == defaultValueLength) || (0 == defaultValue[0]))
+                            checkHKeyLocalMachine = JNI_TRUE;
+                        else
+                        {
+                            checkHKeyLocalMachine = JNI_FALSE;
+                            if (_tcsnicmp(
+                                        _T("Microsoft Outlook"), defaultValue,
+                                        defaultValueLength)
+                                    == 0)
+                                hResult = S_OK;
+                        }
+                    }
+                    else
+                        checkHKeyLocalMachine = JNI_FALSE;
+                    break;
+                }
+                case ERROR_FILE_NOT_FOUND:
+                    checkHKeyLocalMachine = JNI_TRUE;
+                    break;
+                case ERROR_MORE_DATA:
+                    checkHKeyLocalMachine = JNI_FALSE;
+                    break;
+                default:
+                    checkHKeyLocalMachine = JNI_FALSE;
+                    break;
+                }
+                RegCloseKey(regKey);
+            }
+            else
+                checkHKeyLocalMachine = JNI_TRUE;
+            if ((JNI_TRUE == checkHKeyLocalMachine)
+                    && (ERROR_SUCCESS
+                            == RegOpenKeyEx(
+                                    HKEY_LOCAL_MACHINE,
+                                    _T("Software\\Clients\\Mail"),
+                                    0,
+                                    KEY_QUERY_VALUE,
+                                    &regKey)))
+            {
+                DWORD defaultValueSize = defaultValueCapacity;
+                LONG regQueryValueEx
+                    = RegQueryValueEx(
+                            regKey,
+                            NULL,
+                            NULL,
+                            &defaultValueType,
+                            (LPBYTE) defaultValue, &defaultValueSize);
+
+                if ((ERROR_SUCCESS == regQueryValueEx)
+                        && (REG_SZ == defaultValueType))
+                {
+                    DWORD defaultValueLength = defaultValueSize / sizeof(TCHAR);
+
+                    if (_tcsnicmp(
+                                _T("Microsoft Outlook"), defaultValue,
+                                defaultValueLength)
+                            == 0)
+                        hResult = S_OK;
+                }
+                RegCloseKey(regKey);
+            }
+        }
     }
 
     /* If we've determined that we'd like to go on with MAPI, try to load it. */
@@ -155,42 +262,40 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     {
         HMODULE lib = LoadLibrary(_T("mapi32.dll"));
 
+        hResult = MAPI_E_NO_SUPPORT;
         if (lib)
         {
-            MsOutlookAddrBookContactSourceService_MAPIInitialize
+            MsOutlookAddrBookContactSourceService_mapiInitialize
                 = (LPMAPIINITIALIZE) GetProcAddress(lib, "MAPIInitialize");
-            MsOutlookAddrBookContactSourceService_MAPIUninitialize
+            MsOutlookAddrBookContactSourceService_mapiUninitialize
                 = (LPMAPIUNINITIALIZE) GetProcAddress(lib, "MAPIUninitialize");
 
-            if (MsOutlookAddrBookContactSourceService_MAPIInitialize
-                    && MsOutlookAddrBookContactSourceService_MAPIUninitialize)
+            if (MsOutlookAddrBookContactSourceService_mapiInitialize
+                    && MsOutlookAddrBookContactSourceService_mapiUninitialize)
             {
                 MAPIINIT_0 mapiInit = { (ULONG) version, (ULONG) flags };
 
                 hResult
-                    = MsOutlookAddrBookContactSourceService_MAPIInitialize(
+                    = MsOutlookAddrBookContactSourceService_mapiInitialize(
                             &mapiInit);
                 if (HR_SUCCEEDED(hResult))
                 {
-                    MsOutlookAddrBookContactSourceService_MAPIAllocateBuffer
+                    MsOutlookAddrBookContactSourceService_mapiAllocateBuffer
                         = (LPMAPIALLOCATEBUFFER)
                             GetProcAddress(lib, "MAPIAllocateBuffer");
-                    MsOutlookAddrBookContactSourceService_MAPIFreeBuffer
+                    MsOutlookAddrBookContactSourceService_mapiFreeBuffer
                         = (LPMAPIFREEBUFFER)
                             GetProcAddress(lib, "MAPIFreeBuffer");
-                    MsOutlookAddrBookContactSourceService_MAPILogonEx
+                    MsOutlookAddrBookContactSourceService_mapiLogonEx
                         = (LPMAPILOGONEX) GetProcAddress(lib, "MAPILogonEx");
-                    if (!MsOutlookAddrBookContactSourceService_MAPIAllocateBuffer
-                            || !MsOutlookAddrBookContactSourceService_MAPIFreeBuffer
-                            || !MsOutlookAddrBookContactSourceService_MAPILogonEx)
-                    {
-                        MsOutlookAddrBookContactSourceService_MAPIUninitialize();
-                        hResult = MAPI_E_NOT_FOUND;
-                    }
+                    if (MsOutlookAddrBookContactSourceService_mapiAllocateBuffer
+                            && MsOutlookAddrBookContactSourceService_mapiFreeBuffer
+                            && MsOutlookAddrBookContactSourceService_mapiLogonEx)
+                        hResult = S_OK;
+                    else
+                        MsOutlookAddrBookContactSourceService_mapiUninitialize();
                 }
             }
-            else
-                hResult = MAPI_E_NOT_FOUND;
             if (HR_FAILED(hResult))
                 FreeLibrary(lib);
         }
@@ -210,31 +315,31 @@ JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIUninitialize
     (JNIEnv *jniEnv, jclass clazz)
 {
-    MsOutlookAddrBookContactSourceService_MAPIUninitialize();
+    MsOutlookAddrBookContactSourceService_mapiUninitialize();
 }
 
 SCODE
-MsOutlookAddrBook_MAPIAllocateBuffer(ULONG size, LPVOID FAR *buffer)
+MsOutlookAddrBook_mapiAllocateBuffer(ULONG size, LPVOID FAR *buffer)
 {
     return
-        MsOutlookAddrBookContactSourceService_MAPIAllocateBuffer(size, buffer);
+        MsOutlookAddrBookContactSourceService_mapiAllocateBuffer(size, buffer);
 }
 
 ULONG
-MsOutlookAddrBook_MAPIFreeBuffer(LPVOID buffer)
+MsOutlookAddrBook_mapiFreeBuffer(LPVOID buffer)
 {
-    return MsOutlookAddrBookContactSourceService_MAPIFreeBuffer(buffer);
+    return MsOutlookAddrBookContactSourceService_mapiFreeBuffer(buffer);
 }
 
 HRESULT
-MsOutlookAddrBook_MAPILogonEx
+MsOutlookAddrBook_mapiLogonEx
     (ULONG_PTR uiParam,
     LPSTR profileName, LPSTR password,
     FLAGS flags,
     LPMAPISESSION FAR *mapiSession)
 {
     return
-        MsOutlookAddrBookContactSourceService_MAPILogonEx(
+        MsOutlookAddrBookContactSourceService_mapiLogonEx(
                 uiParam,
                 profileName, password,
                 flags,
