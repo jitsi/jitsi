@@ -1824,15 +1824,8 @@ public class TreeContactList
                                                 final int imgWidth,
                                                 final int imgHeight)
     {
-        int atIndex = contactString.indexOf("@");
-
-        // If we find that the contact is actually a number, we get rid of the
-        // @ if it exists.
-        if (atIndex >= 0
-            && StringUtils.isNumber(contactString.substring(0, atIndex)))
-        {
-            contactString = contactString.substring(0, atIndex);
-        }
+        // Re-init the imageSearchCanceled.
+        imageSearchCanceled = false;
 
         // We make a pattern that matches the whole string only.
         Pattern filterPattern = Pattern.compile(
@@ -1915,6 +1908,24 @@ public class TreeContactList
                     }
                 }
             }
+        }
+
+        // If the image search has been canceled from one of the previous
+        // sources, we return here.
+        if (imageSearchCanceled)
+            return;
+
+        // If we didn't find anything we would check and try to remove the @
+        // sign if such exists.
+        int atIndex = contactString.indexOf("@");
+
+        // If we find that the contact is actually a number, we get rid of the
+        // @ if it exists.
+        if (atIndex >= 0
+            && StringUtils.isNumber(contactString.substring(0, atIndex)))
+        {
+            setSourceContactImage(  contactString.substring(0, atIndex),
+                                    label, imgWidth, imgHeight);
         }
     }
 
