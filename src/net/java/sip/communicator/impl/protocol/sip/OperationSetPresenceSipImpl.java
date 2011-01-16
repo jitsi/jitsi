@@ -6,14 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.xml.*;
-import net.java.sip.communicator.impl.protocol.sip.xcap.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-
-import org.w3c.dom.*;
-
 import java.net.*;
 import java.text.*;
 import java.util.*;
@@ -23,13 +15,21 @@ import javax.sip.address.Address;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
+import net.java.sip.communicator.impl.protocol.sip.xcap.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.xml.*;
+
+import org.w3c.dom.*;
+
 /**
  * Sip presence implementation (SIMPLE).
  *
  * Compliant with rfc3261, rfc3265, rfc3856, rfc3863, rfc4480 and rfc3903
  *
  * @author Benoit Pradelle
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Emil Ivov
  * @author Grigorii Balutsel
  */
@@ -238,8 +238,9 @@ public class OperationSetPresenceSipImpl
         }
 
         /**
-         * Returns the string representation of this status.
-         * @return
+         * Returns the <tt>String</tt> representation of this status.
+         *
+         * @return the <tt>String</tt> representation of this status
          */
         public String getValue() 
         {
@@ -428,6 +429,7 @@ public class OperationSetPresenceSipImpl
      *
      * @param parentGroup the group where the new group should be created
      * @param groupName the name of the new group to create.
+     * @throws OperationFailedException
      */
     public void createServerStoredContactGroup(ContactGroup parentGroup,
                                                String groupName)
@@ -1422,58 +1424,47 @@ public class OperationSetPresenceSipImpl
             return false;
 
         Request request = requestEvent.getRequest();
-
         EventHeader eventHeader
             = (EventHeader) request.getHeader(EventHeader.NAME);
-        if ((eventHeader == null)
-                || !"presence".equalsIgnoreCase(eventHeader.getEventType()))
+
+        if (eventHeader == null)
         {
-            // We are not concerned by this request, perhaps another
-            // listener is. So don't send a 489 / Bad event answer here.
+            /*
+             * We are not concerned by this request, perhaps another listener
+             * is. So don't send a 489 / Bad event response here.
+             */
             return false;
         }
 
-        ServerTransaction serverTransaction
-            = EventPackageSupport.getOrCreateServerTransaction(requestEvent);
-        if (serverTransaction == null)
+        String eventType = eventHeader.getEventType();
+
+        if (!"presence".equalsIgnoreCase(eventType)
+                && !"presence.winfo".equalsIgnoreCase(eventType))
             return false;
 
+        String requestMethod = request.getMethod();
         boolean processed = false;
 
-        // PUBLISH
-        if (request.getMethod().equals(Request.PUBLISH))
+        // presence PUBLISH and presence.winfo SUBSCRIBE
+        if (("presence".equalsIgnoreCase(eventType)
+                        && Request.PUBLISH.equals(requestMethod))
+                || ("presence.winfo".equalsIgnoreCase(eventType)
+                        && Request.SUBSCRIBE.equals(requestMethod)))
         {
             /*
-             * We aren't supposed to receive a publish so just say "not
+             * We aren't supposed to receive a PUBLISH so just say "not
              * implemented". This behavior is useful for SC to SC communication
              * with the PA auto detection feature and a server which proxy the
              * PUBLISH requests.
+             *
+             * We support presence.winfo only as a subscriber, not as a
+             * notifier. So say "not implemented" in order to not have its
+             * ServerTransaction remaining in the SIP stack forever.
              */
-            Response response;
-            try
-            {
-                response
-                    = parentProvider
-                        .getMessageFactory()
-                            .createResponse(Response.NOT_IMPLEMENTED, request);
-            }
-            catch (ParseException e)
-            {
-                logger.error("Error while creating the response 501", e);
-                return false;
-            }
-
-            try
-            {
-                serverTransaction.sendResponse(response);
-            }
-            catch (Exception e)
-            {
-                logger.error("Error while sending the response 501", e);
-                return false;
-            }
-
-            processed = true;
+            processed
+                = EventPackageSupport.sendNotImplementedResponse(
+                        parentProvider,
+                        requestEvent);
         }
 
         return processed;

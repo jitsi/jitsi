@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.text.*;
 import java.util.*;
 
 import javax.sip.*;
@@ -20,7 +21,7 @@ import net.java.sip.communicator.util.*;
  * "Session Initiation Protocol (SIP)-Specific Event Notification" and thus
  * eases the creation of event package-specific implementations.
  * 
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class EventPackageSupport
     extends MethodProcessorAdapter
@@ -450,6 +451,56 @@ public class EventPackageSupport
             }
         }
         return false;
+    }
+
+    /**
+     * Sends a {@link Response#NOT_IMPLEMENTED} <tt>Response</tt> to a specific
+     * {@link Request}.
+     *
+     * @param provider the {@link ProtocolProviderServiceSipImpl} through which
+     * the <tt>Response</tt> is to be sent
+     * @param requestEvent the <tt>Request</tt> to which the <tt>Response</tt>
+     * to be sent is to respond
+     * @return <tt>true</tt> if the <tt>Response</tt> has been successfully
+     * sent; otherwise, <tt>false</tt>
+     */
+    public static boolean sendNotImplementedResponse(
+            ProtocolProviderServiceSipImpl provider,
+            RequestEvent requestEvent)
+    {
+        ServerTransaction serverTransaction
+            = EventPackageSupport.getOrCreateServerTransaction(requestEvent);
+
+        if (serverTransaction == null)
+            return false;
+
+        Request request = requestEvent.getRequest();
+        Response response;
+
+        try
+        {
+            response
+                = provider.getMessageFactory().createResponse(
+                        Response.NOT_IMPLEMENTED,
+                        request);
+        }
+        catch (ParseException e)
+        {
+            logger.error("Error while creating 501 response", e);
+            return false;
+        }
+
+        try
+        {
+            serverTransaction.sendResponse(response);
+        }
+        catch (Exception e)
+        {
+            logger.error("Error while sending the response 501", e);
+            return false;
+        }
+
+        return true;
     }
 
     /**

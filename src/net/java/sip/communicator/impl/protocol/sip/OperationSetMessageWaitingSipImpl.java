@@ -6,20 +6,24 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
-
-import javax.sip.*;
-import javax.sip.address.*;
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
+
+import javax.sip.*;
+import javax.sip.address.*;
+import javax.sip.header.*;
+import javax.sip.message.*;
+
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Message Waiting Indication Event rfc3842.
  *
  * @author Damian Minkov
+ * @author Lyubomir Marinov
  */
 public class OperationSetMessageWaitingSipImpl
     implements OperationSetMessageWaiting,
@@ -100,6 +104,7 @@ public class OperationSetMessageWaitingSipImpl
 
     /**
      * Creates this operation set.
+     *
      * @param provider
      */
     OperationSetMessageWaitingSipImpl(
@@ -107,6 +112,24 @@ public class OperationSetMessageWaitingSipImpl
     {
         this.provider = provider;
         this.provider.addRegistrationStateChangeListener(this);
+
+        /*
+         * Answer with NOT_IMPLEMENTED to message-summary SUBSCRIBEs in order to
+         * not have its ServerTransaction remaining in the SIP stack forever .
+         */
+        this.provider.registerMethodProcessor(
+                Request.SUBSCRIBE,
+                new MethodProcessorAdapter()
+                        {
+                            @Override
+                            public boolean processRequest(
+                                    RequestEvent requestEvent)
+                            {
+                                return
+                                    OperationSetMessageWaitingSipImpl.this
+                                            .processRequest(requestEvent);
+                            }
+                        });
     }
 
     /**
@@ -134,7 +157,6 @@ public class OperationSetMessageWaitingSipImpl
 
             if(!l.contains(listener))
                 l.add(listener);
-
         }
     }
 
@@ -152,7 +174,7 @@ public class OperationSetMessageWaitingSipImpl
     {
         synchronized (messageWaitingNotificationListeners)
         {
-            List l = this.messageWaitingNotificationListeners.get(type);
+            List<?> l = this.messageWaitingNotificationListeners.get(type);
             if(l != null)
                 this.messageWaitingNotificationListeners.remove(listener);
         }
@@ -203,12 +225,8 @@ public class OperationSetMessageWaitingSipImpl
                         Object[] subs = getSubscriptions();
 
                         for(Object s : subs)
-                        {
                             if(s instanceof MessageSummarySubscriber)
-                            {
                                 return (MessageSummarySubscriber)s;
-                            }
-                        }
 
                         return null;
                     }
@@ -244,6 +262,8 @@ public class OperationSetMessageWaitingSipImpl
 
     /**
      * Fires new event on message waiting = yes.
+     *
+     * @param msgTypeStr
      * @param account the account to reach the messages.
      * @param unreadMessages number of unread messages.
      * @param readMessages number of old messages.
@@ -300,9 +320,49 @@ public class OperationSetMessageWaitingSipImpl
             listeners = new ArrayList<MessageWaitingListener>(ls);
         }
         for (MessageWaitingListener listener : listeners)
-        {
             listener.messageWaitingNotify(event);
+    }
+
+    /**
+     * Sends a {@link Response#NOT_IMPLEMENTED} <tt>Response</tt> to a specific
+     * {@link Request#SUBSCRIBE} <tt>Request</tt> with <tt>message-summary</tt>
+     * event type . 
+     *
+     * @param requestEvent the <tt>Request</tt> to process
+     * @return <tt>true</tt> if the specified <tt>Request</tt> has been
+     * successfully processed; otherwise, <tt>false</tt>
+     */
+    private boolean processRequest(RequestEvent requestEvent)
+    {
+        Request request = requestEvent.getRequest();
+        EventHeader eventHeader
+            = (EventHeader) request.getHeader(EventHeader.NAME);
+
+        if (eventHeader == null)
+        {
+            /*
+             * We are not concerned by this request, perhaps another listener
+             * is. So don't send a 489 / Bad event response here.
+             */
+            return false;
         }
+
+        String eventType = eventHeader.getEventType();
+
+        if (!EVENT_PACKAGE.equalsIgnoreCase(eventType))
+            return false;
+
+        boolean processed = false;
+
+        if (Request.SUBSCRIBE.equals(request.getMethod()))
+        {
+            processed
+                = EventPackageSupport.sendNotImplementedResponse(
+                        provider,
+                        requestEvent);
+        }
+
+        return processed;
     }
 
     /**

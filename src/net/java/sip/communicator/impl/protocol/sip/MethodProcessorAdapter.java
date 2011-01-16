@@ -13,7 +13,7 @@ import javax.sip.*;
  * no processing and exists only as a convenience to extenders so that they can
  * override the methods of interest.
  * 
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class MethodProcessorAdapter
     implements MethodProcessor
