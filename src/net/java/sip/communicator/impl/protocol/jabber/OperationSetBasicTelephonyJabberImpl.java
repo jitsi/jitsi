@@ -105,17 +105,16 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Create a new call and invite the specified CallPeer to it.
+     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt> to
+     * it given by her <tt>String</tt> URI.
      *
-     * @param callee the jabber address of the callee that we should invite to a
-     * new call.
-     * @return CallPeer the CallPeer that will represented by
-     *   the specified uri. All following state change events will be
-     *   delivered through that call peer. The Call that this
-     *   peer is a member of could be retrieved from the
-     *   CallParticipatn instance with the use of the corresponding method.
+     * @param callee the address of the callee who we should invite to a new
+     * <tt>Call</tt>
+     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
+     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
      * @throws OperationFailedException with the corresponding code if we fail
-     * to create the call.
+     * to create the call
+     * @see OperationSetBasicTelephony#createCall(String)
      */
     public Call createCall(String callee)
         throws OperationFailedException
@@ -133,17 +132,16 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Create a new call and invite the specified CallPeer to it.
+     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt>
+     * to it given by her <tt>Contact</tt>.
      *
-     * @param callee the address of the callee that we should invite to a
-     *   new call.
-     * @return CallPeer the CallPeer that will represented by
-     *   the specified uri. All following state change events will be
-     *   delivered through that call peer. The Call that this
-     *   peer is a member of could be retrieved from the
-     *   CallParticipatn instance with the use of the corresponding method.
+     * @param callee the address of the callee who we should invite to a new
+     * call
+     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
+     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
      * @throws OperationFailedException with the corresponding code if we fail
-     * to create the call.
+     * to create the call
+     * @see OperationSetBasicTelephony#createCall(Contact)
      */
     public Call createCall(Contact callee)
             throws OperationFailedException

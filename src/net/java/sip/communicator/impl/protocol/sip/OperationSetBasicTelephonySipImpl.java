@@ -28,7 +28,7 @@ import net.java.sip.communicator.util.*;
  * implementing OperationSetBasicTelephony.
  *
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Alan Kelly
  * @author Emanuel Onica
  */
@@ -87,24 +87,22 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Create a new call and invite the specified CallPeer to it.
+     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt> to
+     * it given by her <tt>String</tt> URI.
      *
-     * @param callee the sip address of the callee that we should invite to a
-     * new call.
-     * @return CallPeer the CallPeer that will represented by the
-     * specified uri. All following state change events will be delivered
-     * through that call peer. The Call that this peer is a member of could be
-     * retrieved from the <tt>CallPeer</tt> instance with the use of the
-     *  corresponding method.
-     *
+     * @param callee the address of the callee who we should invite to a new
+     * <tt>Call</tt>
+     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
+     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
      * @throws OperationFailedException with the corresponding code if we fail
-     * to create the call.
-     * @throws ParseException if <tt>callee</tt> is not a valid sip address
-     * <tt>String</tt>.
+     * to create the call
+     * @throws ParseException if <tt>callee</tt> is not a valid SIP address
+     * <tt>String</tt>
+     * @see OperationSetBasicTelephony#createCall(String)
      */
     public Call createCall(String callee)
         throws OperationFailedException,
-        ParseException
+               ParseException
     {
         Address toAddress = protocolProvider.parseAddressString(callee);
 
@@ -112,18 +110,16 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Create a new call and invite the specified CallPeer to it.
+     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt>
+     * to it given by her <tt>Contact</tt>.
      *
-     * @param callee the address of the callee that we should invite to a new
-     * call.
-     *
-     * @return CallPeer the CallPeer that will represented by the specified URI.
-     * All following state change events will be delivered through that call
-     * peer. The Call that this peer is a member of could be retrieved from the
-     * CallParticipatn instance with the use of the corresponding method.
-     *
+     * @param callee the address of the callee who we should invite to a new
+     * call
+     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
+     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
      * @throws OperationFailedException with the corresponding code if we fail
-     * to create the call.
+     * to create the call
+     * @see OperationSetBasicTelephony#createCall(Contact)
      */
     public Call createCall(Contact callee) throws OperationFailedException
     {
