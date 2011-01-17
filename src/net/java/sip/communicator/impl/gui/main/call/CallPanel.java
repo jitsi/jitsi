@@ -265,10 +265,10 @@ public class CallPanel
         fullScreenButton = new FullScreenButton(this);
 
         localLevel = new InputVolumeControlButton(
-                call,
-                ImageLoader.MICROPHONE,
-                ImageLoader.MUTE_BUTTON,
-                false, true, false);
+            call,
+            ImageLoader.MICROPHONE,
+            ImageLoader.MUTE_BUTTON,
+            false, true, false);
         remoteLevel = new OutputVolumeControlButton(
                 ImageLoader.VOLUME_CONTROL_BUTTON, false, true);
 
@@ -312,6 +312,13 @@ public class CallPanel
             fullScreenButton.setEnabled(false);
 
             addOneToOneSpecificComponents();
+        }
+        else
+        {
+            localLevel.setEnabled(false);
+            remoteLevel.setEnabled(false);
+
+            addConferenceSpecificComponents();
         }
 
         dtmfHandler = new DTMFHandler(this);
@@ -953,11 +960,13 @@ public class CallPanel
 
         if (callPanel instanceof OneToOneCallPanel)
         {
+            removeConferenceSpecificComponents();
             addOneToOneSpecificComponents();
         }
         else
         {
             removeOneToOneSpecificComponents();
+            addConferenceSpecificComponents();
         }
     }
 
@@ -993,6 +1002,24 @@ public class CallPanel
         settingsPanel.add(desktopSharingButton);
         settingsPanel.add(transferCallButton);
         settingsPanel.add(fullScreenButton);
+    }
+
+    /**
+     * Adds components specific for the conference call.
+     */
+    private void addConferenceSpecificComponents()
+    {
+        settingsPanel.add(localLevel);
+        settingsPanel.add(remoteLevel);
+    }
+
+    /**
+     * Removes components specific for the conference call.
+     */
+    private void removeConferenceSpecificComponents()
+    {
+        settingsPanel.remove(localLevel);
+        settingsPanel.remove(remoteLevel);
     }
 
     /**
