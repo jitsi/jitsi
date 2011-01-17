@@ -306,6 +306,20 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.CALL_VIDEO_BUTTON_SMALL_PRESSED");
 
     /**
+     * The add contact button small image, shown when an external source contact
+     * is selected.
+     */
+    public static final ImageID ADD_CONTACT_BUTTON_SMALL
+        = new ImageID("service.gui.buttons.ADD_CONTACT_BUTTON_SMALL");
+
+    /**
+     * The add contact button small pressed image, shown when an external source
+     * contact is selected and add contact button is pressed.
+     */
+    public static final ImageID ADD_CONTACT_BUTTON_SMALL_PRESSED
+        = new ImageID("service.gui.buttons.ADD_CONTACT_BUTTON_SMALL_PRESSED");
+
+    /**
      * The chat button small image.
      */
     public static final ImageID CHAT_BUTTON_SMALL

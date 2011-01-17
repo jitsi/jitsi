@@ -413,9 +413,6 @@ public class ChooseCallAccountPopupMenu
                 BufferedImage statusIcon = null;
                 if (status != null)
                     statusIcon = Constants.getStatusIcon(status);
-                else
-                    statusIcon
-                        = Constants.getStatusIcon(Constants.OFFLINE_STATUS);
 
                 if (statusIcon != null)
                     contactIcon = new ImageIcon(statusIcon);

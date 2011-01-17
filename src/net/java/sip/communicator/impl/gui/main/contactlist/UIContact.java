@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
 

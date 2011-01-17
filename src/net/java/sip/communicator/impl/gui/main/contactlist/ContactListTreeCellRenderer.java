@@ -13,11 +13,13 @@ import java.awt.image.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.JPopupMenu.*;
 import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -130,6 +132,14 @@ public class ContactListTreeCellRenderer
     private final SIPCommButton chatButton = new SIPCommButton();
 
     /**
+     * The add contact button.
+     */
+    private final SIPCommButton addContactButton = new SIPCommButton(
+        ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL),
+        ImageLoader.getImage(ImageLoader.ADD_CONTACT_BUTTON_SMALL_PRESSED),
+        null);
+
+    /**
      * The constraints used to align components in the <tt>centerPanel</tt>.
      */
     private final GridBagConstraints constraints = new GridBagConstraints();
@@ -213,14 +223,14 @@ public class ContactListTreeCellRenderer
         constraints.weightx = 1f;
         constraints.weighty = 0f;
         constraints.gridheight = 1;
-        constraints.gridwidth = 4;
+        constraints.gridwidth = 5;
         this.add(nameLabel, constraints);
 
         rightLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 2));
 
         constraints.anchor = GridBagConstraints.NORTHEAST;
         constraints.fill = GridBagConstraints.VERTICAL;
-        constraints.gridx = 5;
+        constraints.gridx = 6;
         constraints.gridy = 0;
         constraints.gridheight = 3;
         constraints.weightx = 0f;
@@ -275,6 +285,25 @@ public class ContactListTreeCellRenderer
                         GuiActivator.getUIService().getChatWindowManager()
                             .startChat(
                                 (MetaContact) contactDescriptor.getDescriptor());
+                    }
+                }
+            }
+        });
+
+        addContactButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if (treeNode != null && treeNode instanceof ContactNode)
+                {
+                    UIContact contactDescriptor
+                        = ((ContactNode) treeNode).getContactDescriptor();
+
+                    // The add contact function has only sense for external
+                    // source contacts.
+                    if (contactDescriptor instanceof SourceUIContact)
+                    {
+                        addContact((SourceUIContact) contactDescriptor);
                     }
                 }
             }
@@ -402,6 +431,7 @@ public class ContactListTreeCellRenderer
             this.remove(callVideoButton);
             this.remove(desktopSharingButton);
             this.remove(chatButton);
+            this.remove(addContactButton);
 
             this.statusLabel.setIcon(
                     expanded
@@ -606,7 +636,7 @@ public class ContactListTreeCellRenderer
             constraints.gridy = 1;
             constraints.weightx = 0f;
             constraints.weighty = 0f;
-            constraints.gridwidth = 4;
+            constraints.gridwidth = 5;
             constraints.gridheight = 1;
 
             this.add(displayDetailsLabel, constraints);
@@ -624,6 +654,7 @@ public class ContactListTreeCellRenderer
         this.remove(callVideoButton);
         this.remove(desktopSharingButton);
         this.remove(chatButton);
+        this.remove(addContactButton);
 
         if (!isSelected)
             return;
@@ -641,6 +672,8 @@ public class ContactListTreeCellRenderer
             imContact = uiContact.getDefaultContactDetail(
                          OperationSetBasicInstantMessaging.class);
 
+        int x = statusLabel.getWidth();
+
         if (imContact != null)
         {
             constraints.anchor = GridBagConstraints.WEST;
@@ -654,11 +687,11 @@ public class ContactListTreeCellRenderer
             this.chatButton.setBorder(null);
             this.add(chatButton, constraints);
 
-            int x = statusLabel.getWidth();
-
             chatButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight,
                 28, 28);
+
+            x += chatButton.getWidth();
         }
 
         UIContactDetail telephonyContact
@@ -681,14 +714,11 @@ public class ContactListTreeCellRenderer
             this.callButton.setBorder(null);
             this.add(callButton, constraints);
 
-            int x = statusLabel.getWidth();
-
-            if (imContact != null)
-                x += callButton.getWidth();
-
             callButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
             callButton.setEnabled(telephonyContact != null);
+
+            x += callButton.getWidth();
         }
 
         UIContactDetail videoContact
@@ -708,16 +738,10 @@ public class ContactListTreeCellRenderer
             this.callVideoButton.setBorder(null);
             this.add(callVideoButton, constraints);
 
-            int x = statusLabel.getWidth();
-
-            if (imContact != null)
-                x += chatButton.getWidth();
-
-            if (telephonyContact != null)
-                x += callButton.getWidth();
-
             callVideoButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
+
+            x += callVideoButton.getWidth();
         }
 
         UIContactDetail desktopContact
@@ -737,19 +761,29 @@ public class ContactListTreeCellRenderer
             this.desktopSharingButton.setBorder(null);
             this.add(desktopSharingButton, constraints);
 
-            int x = statusLabel.getWidth();
-
-            if (imContact != null)
-                x += chatButton.getWidth();
-
-            if (telephonyContact != null)
-                x += callButton.getWidth();
-
-            if (videoContact != null)
-                x += callVideoButton.getWidth();
-
             desktopSharingButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
+
+            x += desktopSharingButton.getWidth();
+        }
+
+        if (uiContact.getDescriptor() instanceof SourceContact)
+        {
+            constraints.anchor = GridBagConstraints.WEST;
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridx = 5;
+            constraints.gridy = 2;
+            constraints.gridwidth = 1;
+            constraints.gridheight = 1;
+            constraints.weightx = 0f;
+            constraints.weighty = 0f;
+            this.addContactButton.setBorder(null);
+            this.add(addContactButton, constraints);
+
+            addContactButton.setBounds(x,
+                nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
+
+            x += addContactButton.getWidth();
         }
 
         this.setBounds(0, 0, tree.getWidth(), getPreferredSize().height);
@@ -820,6 +854,15 @@ public class ContactListTreeCellRenderer
     public JButton getDesktopSharingButton()
     {
         return desktopSharingButton;
+    }
+
+    /**
+     * Returns the add contact button contained in the current cell.
+     * @return the add contact button contained in the current cell
+     */
+    public JButton getAddContactButton()
+    {
+        return addContactButton;
     }
 
     /**
@@ -1138,7 +1181,56 @@ public class ContactListTreeCellRenderer
         }
     }
 
-/**
+    /**
+     * Shows the appropriate user interface that would allow the user to add
+     * the given <tt>SourceUIContact</tt> to their contact list.
+     *
+     * @param contact the contact to add
+     */
+    private void addContact(SourceUIContact contact)
+    {
+        JMenuItem addContactMenu = TreeContactList.createAddContactMenu(
+            (SourceContact) contact.getDescriptor());
+
+        JPopupMenu popupMenu;
+
+        if (addContactMenu instanceof JMenu)
+        {
+            JMenu menu = ((JMenu) addContactMenu);
+            popupMenu = menu.getPopupMenu();
+        }
+        else
+        {
+            popupMenu = new JPopupMenu();
+            popupMenu.add(addContactMenu);
+        }
+
+        // Add a title label.
+        JLabel infoLabel = new JLabel();
+        infoLabel.setText("<html><b>"
+                            + GuiActivator.getResources()
+                                .getI18NString("service.gui.ADD_CONTACT")
+                            + "</b></html>");
+
+        popupMenu.insert(infoLabel, 0);
+        popupMenu.insert(new Separator(), 1);
+
+        popupMenu.setFocusable(true);
+        popupMenu.setInvoker(tree);
+
+        Point location = new Point(addContactButton.getX(),
+            addContactButton.getY() + addContactButton.getHeight());
+
+        SwingUtilities.convertPointToScreen(location, tree);
+
+        location.y = location.y
+            + tree.getPathBounds(tree.getSelectionPath()).y;
+
+        popupMenu.setLocation(location.x + 8, location.y - 8);
+        popupMenu.setVisible(true);
+    }
+
+    /**
      * Returns the drag icon used to represent a cell in all drag operations.
      *
      * @param tree the parent tree object

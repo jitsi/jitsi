@@ -79,7 +79,8 @@ public class SourceContactRightButtonMenu
         if (cDetail != null)
             add(initCallMenu());
 
-        addContactComponent = initAddContactMenu();
+        addContactComponent
+            = TreeContactList.createAddContactMenu(sourceContact);
 
         if (addContactComponent != null)
             add(addContactComponent);
@@ -149,94 +150,6 @@ public class SourceContactRightButtonMenu
             callContactMenu.add(callContactItem);
         }
         return callContactMenu;
-    }
-
-    /**
-     * Initializes the add contact menu item.
-     * @return the add contact menu item
-     */
-    private Component initAddContactMenu()
-    {
-        Component addContactComponentTmp = null;
-
-        List<ContactDetail> details = sourceContact.getContactDetails();
-
-        if (details.size() == 1)
-        {
-            addContactComponentTmp
-                = new JMenuItem(GuiActivator.getResources().getI18NString(
-                    "service.gui.ADD_CONTACT"),
-                    new ImageIcon(ImageLoader
-                        .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
-
-            final ContactDetail detail = details.get(0);
-
-            ((JMenuItem) addContactComponentTmp)
-                .addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    showAddContactDialog(detail);
-                }
-            });
-        }
-        // If we have more than one details we would propose a separate menu
-        // item for each one of them.
-        else if (details.size() > 1)
-        {
-            addContactComponentTmp
-                = new JMenu(GuiActivator.getResources().getI18NString(
-                    "service.gui.ADD_CONTACT"));
-
-            Iterator<ContactDetail> detailsIter = details.iterator();
-
-            while (detailsIter.hasNext())
-            {
-                final ContactDetail detail = detailsIter.next();
-
-                JMenuItem addMenuItem
-                    = new JMenuItem(detail.getContactAddress());
-                ((JMenu) addContactComponentTmp).add(addMenuItem);
-
-                addMenuItem.addActionListener(new ActionListener()
-                {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        showAddContactDialog(detail);
-                    }
-                });
-            }
-        }
-
-        return addContactComponentTmp;
-    }
-
-    /**
-     * Creates and shows an <tt>AddContactDialog</tt> with a predefined
-     * <tt>contactAddress</tt> and <tt>protocolProvider</tt>.
-     * @param contactDetail the contact detail to be added
-     */
-    private void showAddContactDialog(ContactDetail contactDetail)
-    {
-        AddContactDialog dialog = new AddContactDialog(
-            GuiActivator.getUIService().getMainFrame());
-
-        // Try to obtain a preferred provider.
-        ProtocolProviderService preferredProvider = null;
-        List<Class<? extends OperationSet>> opSetClasses
-            = contactDetail.getSupportedOperationSets();
-        if (opSetClasses != null
-            && opSetClasses.size() > 0)
-        {
-            preferredProvider
-                = contactDetail.getPreferredProtocolProvider(
-                    opSetClasses.get(0));
-        }
-        if (preferredProvider != null)
-            dialog.setSelectedAccount(preferredProvider);
-
-        dialog.setContactAddress(contactDetail.getContactAddress());
-        dialog.setVisible(true);
     }
 
 //    private Component initIMMenu()
