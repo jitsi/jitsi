@@ -2031,7 +2031,7 @@ public class TreeContactList
      * <tt>contactAddress</tt> and <tt>protocolProvider</tt>.
      * @param contactDetail the contact detail to be added
      */
-    private static void showAddContactDialog(ContactDetail contactDetail)
+    public static void showAddContactDialog(ContactDetail contactDetail)
     {
         AddContactDialog dialog = new AddContactDialog(
             GuiActivator.getUIService().getMainFrame());

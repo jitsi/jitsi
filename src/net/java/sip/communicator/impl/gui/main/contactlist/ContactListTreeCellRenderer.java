@@ -1189,45 +1189,46 @@ public class ContactListTreeCellRenderer
      */
     private void addContact(SourceUIContact contact)
     {
-        JMenuItem addContactMenu = TreeContactList.createAddContactMenu(
-            (SourceContact) contact.getDescriptor());
+        SourceContact sourceContact = (SourceContact) contact.getDescriptor();
 
-        JPopupMenu popupMenu;
+        List<ContactDetail> details = sourceContact.getContactDetails();
+        int detailsCount = details.size();
 
-        if (addContactMenu instanceof JMenu)
+        if (detailsCount > 1)
         {
-            JMenu menu = ((JMenu) addContactMenu);
-            popupMenu = menu.getPopupMenu();
+            JMenuItem addContactMenu = TreeContactList.createAddContactMenu(
+                (SourceContact) contact.getDescriptor());
+
+            JPopupMenu popupMenu = ((JMenu) addContactMenu).getPopupMenu();
+
+            // Add a title label.
+            JLabel infoLabel = new JLabel();
+            infoLabel.setText("<html><b>"
+                                + GuiActivator.getResources()
+                                    .getI18NString("service.gui.ADD_CONTACT")
+                                + "</b></html>");
+
+            popupMenu.insert(infoLabel, 0);
+            popupMenu.insert(new Separator(), 1);
+
+            popupMenu.setFocusable(true);
+            popupMenu.setInvoker(tree);
+
+            Point location = new Point(addContactButton.getX(),
+                addContactButton.getY() + addContactButton.getHeight());
+
+            SwingUtilities.convertPointToScreen(location, tree);
+
+            location.y = location.y
+                + tree.getPathBounds(tree.getSelectionPath()).y;
+
+            popupMenu.setLocation(location.x + 8, location.y - 8);
+            popupMenu.setVisible(true);
         }
-        else
+        else if (details.size() == 1)
         {
-            popupMenu = new JPopupMenu();
-            popupMenu.add(addContactMenu);
+            TreeContactList.showAddContactDialog(details.get(0));
         }
-
-        // Add a title label.
-        JLabel infoLabel = new JLabel();
-        infoLabel.setText("<html><b>"
-                            + GuiActivator.getResources()
-                                .getI18NString("service.gui.ADD_CONTACT")
-                            + "</b></html>");
-
-        popupMenu.insert(infoLabel, 0);
-        popupMenu.insert(new Separator(), 1);
-
-        popupMenu.setFocusable(true);
-        popupMenu.setInvoker(tree);
-
-        Point location = new Point(addContactButton.getX(),
-            addContactButton.getY() + addContactButton.getHeight());
-
-        SwingUtilities.convertPointToScreen(location, tree);
-
-        location.y = location.y
-            + tree.getPathBounds(tree.getSelectionPath()).y;
-
-        popupMenu.setLocation(location.x + 8, location.y - 8);
-        popupMenu.setVisible(true);
     }
 
     /**
