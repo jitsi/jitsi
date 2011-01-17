@@ -206,10 +206,6 @@
       IS_AUTOUPDATE = 1
     </Show>
 
-    <Custom Action="LaunchApplication" After="ExecuteAction">
-      IS_AUTOUPDATE = 1
-    </Custom>
-
     <Custom Action="SetIS_AUTOUPDATE" After="AppSearch">
       <![CDATA[NOT Installed AND %SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR <> ""]]>
     </Custom>

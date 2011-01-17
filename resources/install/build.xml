@@ -453,9 +453,22 @@
                 <include name="run.bat" />
                 <include name="run.exe" />
                 <include name="sc-logo.ico" />
-                <include name="up2date.exe" />
             </fileset>
         </copy>
+        <copy file="${inst.resrc}/windows/up2date.exe"
+              tofile="${light.dir}/${package.name}-up2date.exe"
+              overwrite="true"/>
+        <exec executable="mt.exe" dir="${light.dir}" failonerror="true">
+            <arg value="-manifest" />
+            <arg value="${inst.resrc}\windows\up2date.exe.manifest" />
+            <arg value="-outputresource:${package.name}-up2date.exe;#1" />
+        </exec>
+        <exec executable="mt.exe" dir="${light.dir}" failonerror="true">
+            <arg value="-manifest" />
+            <arg value="${inst.resrc}\windows\run.exe.manifest" />
+            <arg value="-outputresource:run.exe;#1" />
+        </exec>
+
         <mkdir dir="${light.dir}/lib" />
         <copy todir="${light.dir}/lib" overwrite="true">
             <fileset dir="${sc.basedir}/lib">

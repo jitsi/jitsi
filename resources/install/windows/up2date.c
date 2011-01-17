@@ -41,6 +41,12 @@ int WINAPI
 WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow) {
     LPTSTR commandLine;
 
+    LPWSTR wCommandLine;
+    LPWSTR *argv;
+    int argc;
+    LPWSTR wDir;
+    LPWSTR run;
+
 #ifdef _UNICODE
     commandLine = up2date_str2wstr(cmdLine);
 #else
@@ -69,8 +75,47 @@ WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow) 
             TCHAR exePath[MAX_PATH + 1];
 
             if (!up2date_getExePath(exePath, MAX_PATH + 1)) {
-                ShellExecute(NULL, TEXT("runas"), exePath,
-                    noAllowElevationCommandLine, NULL, SW_SHOWDEFAULT);
+                SHELLEXECUTEINFO ShExecInfo;
+                ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+                ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+                ShExecInfo.hwnd = NULL;
+                ShExecInfo.lpVerb = TEXT("runas");
+                ShExecInfo.lpFile = exePath;
+                ShExecInfo.lpParameters = noAllowElevationCommandLine;
+                ShExecInfo.lpDirectory = NULL;
+                ShExecInfo.nShow = SW_HIDE;
+                ShExecInfo.hInstApp = NULL;
+                ShellExecuteEx(&ShExecInfo);
+                WaitForSingleObject(ShExecInfo.hProcess,INFINITE);
+
+#ifdef _UNICODE
+                wCommandLine = commandLine;
+#else
+                wCommandLine = up2date_str2wstr(commandLine);
+                if (!wCommandLine)
+                    return ERROR_NOT_ENOUGH_MEMORY;
+#endif
+
+                argv = CommandLineToArgvW(wCommandLine, &argc);
+                if (argv)
+                {
+                    wDir = *(argv + 3);
+                    LPWSTR  runExe = L"\\run.exe";
+                    int len = wcslen(wDir);
+                    run = (wchar_t*)(malloc(sizeof(wchar_t) * (len +
+                        wcslen(runExe) + 1)));
+                    wcscpy(run, wDir);
+                    wcscpy(run + len, runExe);
+
+                    ShellExecuteW(NULL, L"open", run,
+                        NULL, NULL, SW_SHOWDEFAULT);
+
+                    error = GetLastError();
+                    if (error)
+                        up2date_displayError(error);
+
+                    free(run);
+                }
             }
         } else if (error)
             up2date_displayError(error);
@@ -130,6 +175,7 @@ up2date_createProcess(LPCTSTR commandLine) {
                     &si, &pi))
             {
                 error = 0;
+                WaitForSingleObject( pi.hProcess, INFINITE );
                 CloseHandle(pi.hProcess);
                 CloseHandle(pi.hThread);
             }

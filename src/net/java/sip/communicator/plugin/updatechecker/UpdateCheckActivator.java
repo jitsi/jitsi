@@ -715,13 +715,23 @@ public class UpdateCheckActivator
                             return;
                         }
 
+                        String packageName = getResources().getSettingsString(
+                                "plugin.updatechecker.package.name");
+
                         // file saved. Now start updater and shutdown.
                         String workingDir = System.getProperty("user.dir");
+
+                        String updateFileLocation = workingDir + File.separator;
+                        if(packageName != null)
+                            updateFileLocation += packageName + "-up2date.exe";
+                        else
+                            updateFileLocation += "up2date.exe";
+
                         ProcessBuilder processBuilder
                             = new ProcessBuilder(
                                 new String[]
                                 {
-                                    workingDir + File.separator + "up2date.exe",
+                                    updateFileLocation,
                                     "--wait-parent",
                                     "--allow-elevation",
                                     temp.getCanonicalPath(),
