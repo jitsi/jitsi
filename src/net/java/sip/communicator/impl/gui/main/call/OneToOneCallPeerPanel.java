@@ -1004,10 +1004,20 @@ public class OneToOneCallPeerPanel
             this.peerImage = ImageUtils.getScaledRoundedIcon(image, 100, 100);
 
             this.peerImage = getPhotoLabelIcon();
+
             synchronized (videoContainers)
             {
-                for (JLabel photoLabel : photoLabels)
-                    photoLabel.setIcon(this.peerImage);
+                if (photoLabels.size() > 0)
+                    for (JLabel photoLabel : photoLabels)
+                    {
+                        photoLabel.setIcon(this.peerImage);
+                        photoLabel.repaint();
+                    }
+                else
+                {
+                    photoLabel.setIcon(peerImage);
+                    photoLabel.repaint();
+                }
             }
         }
     }
