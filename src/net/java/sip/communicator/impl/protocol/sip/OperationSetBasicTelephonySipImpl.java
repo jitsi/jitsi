@@ -63,6 +63,12 @@ public class OperationSetBasicTelephonySipImpl
         new ActiveCallsRepositorySipImpl(this);
 
     /**
+     * Transfer authority interacts with user to inform for incoming
+     * REFERS for unknown calls.
+     */
+    private TransferAuthority transferAuthority = null;
+
+    /**
      * Creates a new instance and adds itself as an <tt>INVITE</tt> method
      * handler in the creating protocolProvider.
      *
@@ -1051,8 +1057,88 @@ public class OperationSetBasicTelephonySipImpl
             return;
         }
 
-        //Send Accepted
         final Dialog dialog = serverTransaction.getDialog();
+
+        CallPeerSipImpl callPeer = activeCallsRepository.findCallPeer(dialog);
+
+        if(callPeer == null)
+        {
+            // if we are missing transfer authority to inform user, just
+            // drop thi request cause possible attempt to compromise us.
+            if(transferAuthority == null)
+            {
+                // ignore request and terminate transaction
+                logger.warn("Ignoring REFER request without call for request:"
+                    + referRequest);
+                try
+                {
+                    serverTransaction.terminate();
+                }
+                catch (Throwable e)
+                {
+                    logger.warn("Failed to properly terminate transaction for "
+                                    +"a rogue request. Well ... so be it "
+                                    + "Request:" + referRequest);
+                }
+
+                return;
+            }
+
+            FromHeader fromHeader =
+                    (FromHeader)referRequest.getHeader(FromHeader.NAME);
+
+            OperationSetPresenceSipImpl opSetPersPresence =
+                    (OperationSetPresenceSipImpl) protocolProvider
+                        .getOperationSet(OperationSetPersistentPresence.class);
+
+            Contact from = opSetPersPresence.resolveContactID(
+                fromHeader.getAddress().getURI().toString());
+
+            if (from == null)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug("received a message from an unknown contact: "
+                            + fromHeader.getAddress().getURI().toString());
+                //create the volatile contact
+                from = opSetPersPresence.createVolatileContact(
+                            fromHeader.getAddress().getURI().toString());
+            }
+
+            // found no call we must authorise this with user
+            // if user don't want it, decline it.
+            if(!transferAuthority.processTransfer(
+                    from, referToAddress.getURI().toString()))
+            {
+                // send decline
+                Response declineResponse;
+                try
+                {
+                    declineResponse = protocolProvider.getMessageFactory()
+                        .createResponse(
+                                Response.DECLINE,
+                                referRequest);
+                }
+                catch (ParseException e)
+                {
+                    logger.error("Error while creating 603 response", e);
+                    return;
+                }
+
+                try
+                {
+                    serverTransaction.sendResponse(declineResponse);
+                }
+                catch (Exception e)
+                {
+                    logger.error("Error while sending the response 603", e);
+                    return;
+                }
+
+                return;
+            }
+        }
+
+        //Send Accepted
         Response accepted = null;
         try
         {
@@ -1137,9 +1223,6 @@ public class OperationSetBasicTelephonySipImpl
 
         // Before creating the outgoing call  to the refer address we change
         // the call state of the refer peer to referred.
-        CallPeerSipImpl callPeer = activeCallsRepository.findCallPeer(
-            serverTransaction.getDialog());
-
         if (callPeer != null)
             callPeer.setState(CallPeerState.REFERRED);
 
@@ -1830,5 +1913,15 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         return false;
+    }
+
+    /**
+     * Transfer authority used for interacting with user for unknown calls
+     *  and the requests for transfer.
+     * @param authority transfer authority.
+     */
+    public void setTransferAuthority(TransferAuthority authority)
+    {
+        this.transferAuthority = authority;
     }
 }
