@@ -476,6 +476,9 @@ public class ReconnectPluginActivator
             {
                 // we must disconnect every pp and put all to be need of reconnecting
                 needsReconnection.addAll(autoReconnEnabledProviders.keySet());
+                // there can by and some that are currently going to reconnect
+                // must take care of them too, cause there is no net and they won't succeed
+                needsReconnection.addAll(currentlyReconnecting.keySet());
 
                 Iterator<ProtocolProviderService> iter =
                     needsReconnection.iterator();

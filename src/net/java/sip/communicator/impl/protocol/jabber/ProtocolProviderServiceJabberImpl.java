@@ -676,7 +676,7 @@ public class ProtocolProviderServiceJabberImpl
 
                             // if it happens once again throw
                             // the original exception
-                            if(i == serverAddresses.size())
+                            if(i == serverAddresses.size() - 1)
                             {
                                 throw ex;
                             }
