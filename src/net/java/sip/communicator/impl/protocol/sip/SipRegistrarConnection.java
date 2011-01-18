@@ -248,7 +248,7 @@ public class SipRegistrarConnection
                  exc.getMessage());
 
             if(exc instanceof OperationFailedException)
-                throw (OperationFailedException)exc; 
+                throw (OperationFailedException)exc;
             else
                 throw new OperationFailedException(
                     "Failed to generate a from header for our register request.",
@@ -519,7 +519,9 @@ public class SipRegistrarConnection
         {
             if(!msg.getRemoteAddress().equals(lastRegisterAddressReceived)
                 || msg.getRemotePort() != lastRegisterPortReceived)
+            {
                 return false;
+            }
         }
         return true;
     }

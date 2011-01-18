@@ -432,7 +432,7 @@ public class SipStackSharing
      */
     private int getPreferredClearPort()
     {
-        
+
         int preferredPort =  SipActivator.getConfigurationService().getInt(
             PREFERRED_CLEAR_PORT_PROPERTY_NAME, -1);
 
@@ -617,6 +617,8 @@ public class SipStackSharing
                     logger.error(
                         "couldn't find a ProtocolProviderServiceSipImpl "
                             + "to dispatch to");
+                    if (event.getServerTransaction() != null)
+                        event.getServerTransaction().terminate();
                 }
                 else
                 {
@@ -813,10 +815,16 @@ public class SipStackSharing
             return null;
         }
 
-        Set<ProtocolProviderServiceSipImpl> currentListeners
-            = this.getSipListeners();
+        List<ProtocolProviderServiceSipImpl> currentListenersCopy
+            = new ArrayList<ProtocolProviderServiceSipImpl>(
+                                this.getSipListeners());
 
-        if(currentListeners.size() == 0)
+        // Let's first narrow down candidate choice by comparing
+        // addresses and ports (no point in delivering to a provider with a
+        // non matching IP address  since they will reject it anyway).
+        filterByAddress(currentListenersCopy, request);
+
+        if(currentListenersCopy.size() == 0)
         {
             logger.error("no listeners");
             return null;
@@ -833,7 +841,7 @@ public class SipStackSharing
 
             // check if the Request-URI username is
             // one of ours usernames
-            for(ProtocolProviderServiceSipImpl listener : currentListeners)
+            for(ProtocolProviderServiceSipImpl listener : currentListenersCopy)
             {
                 String ourUserID = listener.getAccountID().getUserID();
                 //logger.trace(ourUserID + " *** " + requestUser);
@@ -878,25 +886,6 @@ public class SipStackSharing
                                     + "\" the custom param was set");
                         return candidate;
                     }
-                }
-
-                // Let narrow candidates by checking addresses and ports
-                Iterator<ProtocolProviderServiceSipImpl> iterPP =
-                        candidates.iterator();
-                while(iterPP.hasNext())
-                {
-                    ProtocolProviderServiceSipImpl candidate = iterPP.next();
-
-                    if(!candidate.getRegistrarConnection().isRegistrarless()
-                        && !candidate.getRegistrarConnection()
-                            .isRequestFromSameConnection(request))
-                        iterPP.remove();
-                }
-
-                if(candidates.size() == 0)
-                {
-                    logger.error("no listeners, or message not fo us");
-                    return null;
                 }
 
                 // Past this point, our guess is not reliable. We try to find
@@ -945,7 +934,7 @@ public class SipStackSharing
 
             // fallback on any account
             ProtocolProviderServiceSipImpl target =
-                currentListeners.iterator().next();
+                currentListenersCopy.iterator().next();
             if (logger.isInfoEnabled())
                 logger.info("Will randomly dispatch to \"" + target.getAccountID()
                         + "\" because the username in the Request-URI "
@@ -959,6 +948,33 @@ public class SipStackSharing
             logger.error("Request-URI is not a SIP URI, dropping");
         }
         return null;
+    }
+
+    /**
+     * Removes from the specified list of candidates providers connected to a
+     * registrar that does not match the IP address that we are receiving a
+     * request from.
+     *
+     * @param candidates the list of providers we've like to filter.
+     * @param request the request that we are currently dispatching
+     */
+    private void filterByAddress(
+                    List<ProtocolProviderServiceSipImpl> candidates,
+                    Request                              request)
+    {
+        Iterator<ProtocolProviderServiceSipImpl> iterPP = candidates.iterator();
+        while (iterPP.hasNext())
+        {
+            ProtocolProviderServiceSipImpl candidate = iterPP.next();
+
+            if (   !candidate.getRegistrarConnection().isRegistrarless()
+                && !candidate.getRegistrarConnection()
+                        .isRequestFromSameConnection(request))
+            {
+                iterPP.remove();
+            }
+        }
+
     }
 
     /**

@@ -910,6 +910,19 @@ public class ProtocolProviderServiceSipImpl
         {
             logger.warn("Received request not from our proxy, ignoring it! "
                 + "Request:" + request);
+            if (requestEvent.getServerTransaction() != null)
+            {
+                try
+                {
+                    requestEvent.getServerTransaction().terminate();
+                }
+                catch (Throwable e)
+                {
+                    logger.warn("Failed to properly terminate transaction for "
+                                    +"a rogue request. Well ... so be it "
+                                    + "Request:" + request);
+                }
+            }
             return;
         }
 
