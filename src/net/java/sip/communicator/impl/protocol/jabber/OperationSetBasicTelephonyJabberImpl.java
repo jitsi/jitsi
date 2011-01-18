@@ -914,4 +914,13 @@ public class OperationSetBasicTelephonyJabberImpl
 
         ((CallPeerJabberImpl) peer).transfer(getFullCalleeURI(to), sid);
     }
+
+    /**
+     * Transfer authority used for interacting with user for unknown calls
+     *  and the requests for transfer.
+     * @param authority transfer authority.
+     */
+    public void setTransferAuthority(TransferAuthority authority)
+    {
+    }
 }
