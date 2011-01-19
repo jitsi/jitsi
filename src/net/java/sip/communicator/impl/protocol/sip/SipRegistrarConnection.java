@@ -320,31 +320,7 @@ public class SipRegistrarConnection
 
         if(i + 1 < registrarAddresses.length)
         {
-            this.currentRegistrarAddress =
-                registrarAddresses[i + 1];
-
-            sipProvider.initOutboundProxy(
-                (SipAccountID)sipProvider.getAccountID(), i + 1);
-
-            try
-            {
-                registrarURI = sipProvider.getAddressFactory().createSipURI(
-                        null,
-                        this.currentRegistrarAddress.getAddress().getHostAddress());
-
-                if(this.currentRegistrarAddress.getPort()
-                        != ListeningPoint.PORT_5060)
-                    registrarURI.setPort(this.currentRegistrarAddress.getPort());
-
-                // as the transport may change NAPTR records provides
-                // and transport
-                registrarURI.setTransportParam(
-                    sipProvider.getOutboundProxyTransport());
-            }
-            catch (Throwable e)
-            {
-                logger.error("Cannot create register URI", e);
-            }
+            changeAddress(i + 1);
 
             try
             {
@@ -362,8 +338,48 @@ public class SipRegistrarConnection
             return true;
         }
 
+
+        // as we reached the last address lets change it to the first one
+        // so we don't get stuck to the last one forever, and the next time
+        // use again the first one
+        changeAddress(0);
+
         return false;
     }
+
+    /**
+     * Change the current address used to register to ix one.
+     * @param ix the index of the new address to assign.
+     */
+    private void changeAddress(int ix)
+    {
+        if(ix >= registrarAddresses.length)
+            return;
+
+        this.currentRegistrarAddress = registrarAddresses[ix];
+
+        sipProvider.initOutboundProxy(
+                (SipAccountID)sipProvider.getAccountID(), ix);
+
+        try
+        {
+            registrarURI = sipProvider.getAddressFactory().createSipURI(
+                null,
+                this.currentRegistrarAddress.getAddress().getHostAddress());
+
+            if(this.currentRegistrarAddress.getPort() != ListeningPoint.PORT_5060)
+                registrarURI.setPort(this.currentRegistrarAddress.getPort());
+
+            // as the transport may change NAPTR records provides
+            // and transport
+            registrarURI.setTransportParam(sipProvider.getOutboundProxyTransport());
+        }
+        catch (Throwable e)
+        {
+            logger.error("Cannot create register URI", e);
+        }
+    }
+
 
     /**
     * An ok here means that our registration has been accepted or terminated

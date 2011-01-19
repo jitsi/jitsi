@@ -3072,7 +3072,8 @@ public class ProtocolProviderServiceSipImpl
      */
     public void registrationStateChanged(RegistrationStateChangeEvent event)
     {
-        if(event.getNewState() == RegistrationState.UNREGISTERED)
+        if(event.getNewState() == RegistrationState.UNREGISTERED ||
+           event.getNewState() == RegistrationState.CONNECTION_FAILED)
         {
             ProtocolProviderServiceSipImpl listener
                 = (ProtocolProviderServiceSipImpl) event.getProvider();
