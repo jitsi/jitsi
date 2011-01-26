@@ -33,7 +33,12 @@ public class NewAccountDialog
     implements  ActionListener,
                 PropertyChangeListener
 {
-    private final Logger logger = Logger.getLogger(NewAccountDialog.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>NewAccountDialog</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(NewAccountDialog.class);
 
     private final TransparentPanel mainPanel
         = new TransparentPanel(new BorderLayout(5, 5));
@@ -90,8 +95,12 @@ public class NewAccountDialog
     {
         super(GuiActivator.getUIService().getMainFrame(), false);
 
-        this.setTitle(GuiActivator.getResources()
-            .getI18NString("service.gui.NEW_ACCOUNT"));
+        String title
+            = GuiActivator.getResources().getI18NString(
+                    "service.gui.NEW_ACCOUNT");
+        if ((title != null) && title.endsWith("..."))
+            title = title.substring(0, title.length() - 3);
+        this.setTitle(title);
 
         this.getContentPane().add(mainPanel);
 
@@ -464,7 +473,8 @@ public class NewAccountDialog
     /**
      * Overrides set visible to disable closing dialog if currently signing-in.
      *
-     * @param visible
+     * @param visible <tt>true</tt> to make this <tt>NewAccountDialog</tt>
+     * visible; otherwise, <tt>false</tt>
      */
     @Override
     public void setVisible(boolean visible)
