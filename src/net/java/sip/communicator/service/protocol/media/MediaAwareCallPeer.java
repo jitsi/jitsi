@@ -488,21 +488,6 @@ public abstract class MediaAwareCallPeer
      * that we pass to our predecessor.
      * @param reason a reason phrase explaining the state (e.g. if newState
      * indicates a failure) and that we pass to our predecessor.
-     */
-    @Override
-    public void setState(CallPeerState newState, String reason)
-    {
-        this.setState(newState, reason, -1);
-    }
-
-    /**
-     * Overrides the parent set state method in order to make sure that we
-     * close our media handler whenever we enter a disconnected state.
-     *
-     * @param newState the <tt>CallPeerState</tt> that we are about to enter and
-     * that we pass to our predecessor.
-     * @param reason a reason phrase explaining the state (e.g. if newState
-     * indicates a failure) and that we pass to our predecessor.
      * @param reasonCode the code for the reason of the state change.
      */
     @Override
