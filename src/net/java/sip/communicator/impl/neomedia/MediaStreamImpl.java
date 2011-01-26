@@ -36,7 +36,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Implements <tt>MediaStream</tt> using JMF.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Emil Ivov
  */
 public class MediaStreamImpl
@@ -526,8 +526,33 @@ public class MediaStreamImpl
             rtpManager.removeSendStreamListener(this);
             rtpManager.removeSessionListener(this);
             rtpManager.removeRemoteListener(this);
-            rtpManager.dispose();
-            rtpManager = null;
+            try
+            {
+                rtpManager.dispose();
+                rtpManager = null;
+            }
+            catch (Throwable t)
+            {
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+
+                /*
+                 * Analysis of heap dumps and application logs suggests that
+                 * RTPManager#dispose() may throw an exception after a
+                 * NullPointerException has been thrown by SendStream#close() as
+                 * documented in
+                 * #stopSendStreams(Iterable<SendStream>, boolean). It is
+                 * unknown at the time of this writing whether we can do
+                 * anything to prevent the exception here but it is clear that,
+                 * if we let it go through, we will not release at least one
+                 * capture device (i.e. we will at least skip the
+                 * MediaDeviceSession#close() bellow). For example, if the
+                 * exception is thrown for the audio stream in a call, its
+                 * capture device will not be released and any video stream will
+                 * not get its #close() method called at all.
+                 */
+                logger.error("Failed to dispose of RTPManager", t);
+            }
         }
 
         if (deviceSession != null)
