@@ -14,12 +14,13 @@ import java.util.*;
 
 import javax.net.ssl.*;
 import javax.swing.*;
+import javax.swing.text.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container; // disambiguation
-import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.shutdown.*;
@@ -30,10 +31,10 @@ import net.java.sip.communicator.util.swing.*;
 import org.osgi.framework.*;
 
 /**
- * Activates the UpdateCheck plugin
+ * Implements <tt>BundleActivator</tt> for the updatechecker plug-in.
  *
  * @author Damian Minkov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class UpdateCheckActivator
     implements BundleActivator
@@ -53,17 +54,17 @@ public class UpdateCheckActivator
     /**
      * Reference to the <tt>BrowserLauncherService</tt>.
      */
-    private static BrowserLauncherService browserLauncherService;
+    private static BrowserLauncherService browserLauncher;
 
     /**
      * Reference to the <tt>ResourceManagementService</tt>.
      */
-    private static ResourceManagementService resourcesService;
+    private static ResourceManagementService resources;
 
     /**
      * Reference to the <tt>ConfigurationService</tt>.
      */
-    private static ConfigurationService configService;
+    private static ConfigurationService configuration;
 
     /**
      * Reference to the <tt>UIService</tt>.
@@ -73,7 +74,7 @@ public class UpdateCheckActivator
     /**
      * Reference to the <tt>CertificateVerificationService</tt>.
      */
-    private static CertificateVerificationService certificateService = null;
+    private static CertificateVerificationService certificateVerification = null;
 
     /**
      * The download link of the update.
@@ -134,6 +135,27 @@ public class UpdateCheckActivator
     private static final String PROP_UPDATE_LINK =
         "net.java.sip.communicator.UPDATE_LINK";
 
+    /**
+     * The <tt>JDialog</tt>, if any, which is associated with the currently
+     * executing "Check for Updates". While the "Check for Updates"
+     * functionality cannot be entered, clicking the "Check for Updates" menu
+     * item will bring it to the front.
+     */
+    private JDialog checkForUpdatesDialog;
+
+    /**
+     * The "Check for Updates" <tt>PluginComponent</tt> registered by this
+     * <tt>UpdateCheckActivator</tt>.
+     */
+    private CheckForUpdatesMenuItemComponent checkForUpdatesMenuItemComponent;
+
+    /**
+     * The indicator/counter which determines how many methods are currently
+     * executing the "Check for Updates" functionality so that it is known
+     * whether it can be entered.
+     */
+    private int inCheckForUpdates = 0;
+
     static
     {
         removeDownloadRestrictions();
@@ -150,19 +172,30 @@ public class UpdateCheckActivator
         if (logger.isDebugEnabled())
             logger.debug("Update checker [STARTED]");
 
-        try
-        {
-            logger.logEntry();
-            UpdateCheckActivator.bundleContext = bundleContext;
-        }
-        finally
-        {
-            logger.logExit();
-        }
+        UpdateCheckActivator.bundleContext = bundleContext;
 
-        Thread updateThread = new Thread(new UpdateCheckThread());
-        updateThread.setDaemon(true);
-        updateThread.start();
+        if (OSUtils.IS_WINDOWS)
+        {
+            // Register the "Check for Updates" menu item.
+            checkForUpdatesMenuItemComponent
+                = new CheckForUpdatesMenuItemComponent(
+                        Container.CONTAINER_HELP_MENU);
+
+            Hashtable<String, String> toolsMenuFilter
+                = new Hashtable<String, String>();
+            toolsMenuFilter.put(
+                    Container.CONTAINER_ID,
+                    Container.CONTAINER_HELP_MENU.getID());
+
+            bundleContext.registerService(
+                    PluginComponent.class.getName(),
+                    checkForUpdatesMenuItemComponent,
+                    toolsMenuFilter);
+
+            // Check for software update upon startup if enabled.
+            if(getConfiguration().getBoolean(UPDATECHECKER_ENABLED, true))
+                checkForUpdates(false);
+        }
 
         if (logger.isDebugEnabled())
             logger.debug("Update checker [REGISTERED]");
@@ -188,16 +221,14 @@ public class UpdateCheckActivator
      */
     private static BrowserLauncherService getBrowserLauncher()
     {
-        if (browserLauncherService == null)
+        if (browserLauncher == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(BrowserLauncherService.class.getName());
-
-            browserLauncherService = (BrowserLauncherService) bundleContext
-                .getService(serviceReference);
+            browserLauncher
+                = ServiceUtils.getService(
+                        bundleContext,
+                        BrowserLauncherService.class);
         }
-
-        return browserLauncherService;
+        return browserLauncher;
     }
 
     /**
@@ -205,22 +236,18 @@ public class UpdateCheckActivator
      * context.
      *
      * @return the <tt>ConfigurationService</tt> obtained from the bundle
-     *         context
+     * context
      */
-    private static ConfigurationService getConfigurationService()
+    private static ConfigurationService getConfiguration()
     {
-        if (configService == null)
+        if (configuration == null)
         {
-            ServiceReference configReference =
-                bundleContext.getServiceReference(ConfigurationService.class
-                    .getName());
-
-            configService =
-                (ConfigurationService) bundleContext
-                    .getService(configReference);
+            configuration
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
         }
-
-        return configService;
+        return configuration;
     }
 
     /**
@@ -238,11 +265,7 @@ public class UpdateCheckActivator
      */
     private static ShutdownService getShutdownService()
     {
-        return
-            (ShutdownService)
-                bundleContext.getService(
-                    bundleContext.getServiceReference(
-                        ShutdownService.class.getName()));
+        return ServiceUtils.getService(bundleContext, ShutdownService.class);
     }
 
     /**
@@ -255,13 +278,7 @@ public class UpdateCheckActivator
     private static UIService getUIService()
     {
         if(uiService == null)
-        {
-            ServiceReference uiServiceReference
-                = bundleContext.getServiceReference(
-                    UIService.class.getName());
-            uiService = (UIService)bundleContext
-                .getService(uiServiceReference);
-        }
+            uiService = ServiceUtils.getService(bundleContext, UIService.class);
         return uiService;
     }
 
@@ -271,45 +288,38 @@ public class UpdateCheckActivator
      */
     private static ResourceManagementService getResources()
     {
-        if (resourcesService == null)
+        if (resources == null)
         {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-
-            resourcesService = (ResourceManagementService) bundleContext
-                .getService(serviceReference);
+            resources
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ResourceManagementService.class);
         }
-
-        return resourcesService;
+        return resources;
     }
 
     /**
-     * Return the certificate verification service impl.
-     * @return the CertificateVerification service.
+     * Returns the certificate verification service implementation.
+     *
+     * @return the <tt>CertificateVerificationService</tt>
      */
-    private static CertificateVerificationService
-        getCertificateVerificationService()
+    private static CertificateVerificationService getCertificateVerification()
     {
-        if(certificateService == null)
+        if(certificateVerification == null)
         {
-            ServiceReference certVerifyReference
-                = bundleContext.getServiceReference(
-                    CertificateVerificationService.class.getName());
-            if(certVerifyReference != null)
-                certificateService
-                = (CertificateVerificationService)bundleContext.getService(
-                        certVerifyReference);
+            certificateVerification
+                = ServiceUtils.getService(
+                        bundleContext,
+                        CertificateVerificationService.class);
         }
-
-        return certificateService;
+        return certificateVerification;
     }
 
     /**
-     * Check the first link as files on the web are sorted by date
-     * @return whether we are using the latest version or not.
+     * Checks the first link as files on the web are sorted by date.
+     *
+     * @return <tt>true</tt> if we are currently running the newest version;
+     * otherwise, <tt>false</tt>
      */
     private boolean isNewestVersion()
     {
@@ -325,16 +335,10 @@ public class UpdateCheckActivator
             net.java.sip.communicator.service.version.Version
                 ver = verService.getCurrentVersion();
 
-            String configString = null;
-
-            configString = getConfigurationService().getString(
-                    PROP_UPDATE_LINK);
-
+            String configString
+                = getConfiguration().getString(PROP_UPDATE_LINK);
             if(configString == null)
-            {
                 configString = Resources.getConfigString("update_link");
-            }
-
             if(configString == null)
             {
                 if (logger.isDebugEnabled())
@@ -364,10 +368,10 @@ public class UpdateCheckActivator
                         userCredentials.setPasswordPersistent(false);
                         userCredentials = null;
 
-                        getConfigurationService().removeProperty(
-                            UPDATE_USERNAME_CONFIG);
-                        getConfigurationService().removeProperty(
-                            UPDATE_PASSWORD_CONFIG);                        
+                        getConfiguration().removeProperty(
+                                UPDATE_USERNAME_CONFIG);
+                        getConfiguration().removeProperty(
+                                UPDATE_PASSWORD_CONFIG);                        
 
                         conn = url.openConnection();
                     }
@@ -403,17 +407,30 @@ public class UpdateCheckActivator
     }
 
     /**
-     * Show dialog informing about new version with button Download which
+     * Shows dialog informing about new version with button Download which
      * triggers browser launching
      */
-    private void UpdaterShow()
+    private void showGenericNewVersionAvailableDialog()
     {
+        /*
+         * Before showing the dialog, we'll enterCheckForUpdates() in order to
+         * notify that it is not safe to enter "Check for Updates" again. If we
+         * don't manage to show the dialog, we'll have to exitCheckForUpdates().
+         * If we manage though, we'll have to exitCheckForUpdates() but only
+         * once depending on its modality.
+         */
+        final boolean[] exitCheckForUpdates = new boolean[] { false };
         final JDialog dialog = new SIPCommDialog()
         {
             private static final long serialVersionUID = 0L;
 
-            protected void close(boolean isEscaped)
+            protected void close(boolean escaped)
             {
+                synchronized (exitCheckForUpdates)
+                {
+                    if (exitCheckForUpdates[0])
+                        exitCheckForUpdates(this);
+                }
             }
         };
         dialog.setTitle(
@@ -450,22 +467,26 @@ public class UpdateCheckActivator
         JPanel buttonPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 10,
                     10));
-        JButton closeButton = new JButton(
+        final JButton closeButton = new JButton(
             getResources().getI18NString(
                     "plugin.updatechecker.BUTTON_CLOSE"));
 
-        closeButton.addActionListener(new ActionListener() {
-
+        closeButton.addActionListener(new ActionListener()
+        {
             public void actionPerformed(ActionEvent e)
             {
-                dialog.setVisible(false);
+                dialog.dispose();
+                if (exitCheckForUpdates[0])
+                    exitCheckForUpdates(dialog);
             }
         });
 
         if(downloadLink != null)
         {
-            JButton downloadButton = new JButton(getResources().
-                    getI18NString("plugin.updatechecker.BUTTON_DOWNLOAD"));
+            JButton downloadButton
+                = new JButton(
+                        getResources().getI18NString(
+                                "plugin.updatechecker.BUTTON_DOWNLOAD"));
 
             downloadButton.addActionListener(new ActionListener()
             {
@@ -476,7 +497,12 @@ public class UpdateCheckActivator
                             = downloadLink.replace("i386", "amd64");
 
                     getBrowserLauncher().openURL(downloadLink);
-                    dialog.dispose();
+
+                    /*
+                     * Do the same as the Close button in order to not duplicate
+                     * the code.
+                     */
+                    closeButton.doClick();
                 }
             });
 
@@ -494,29 +520,58 @@ public class UpdateCheckActivator
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         dialog.setLocation(
             screenSize.width/2 - dialog.getWidth()/2,
-            screenSize.height/2 - dialog.getHeight()/2
-        );
+            screenSize.height/2 - dialog.getHeight()/2);
 
-        dialog.setVisible(true);
+        synchronized (exitCheckForUpdates)
+        {
+            enterCheckForUpdates(dialog);
+            exitCheckForUpdates[0] = true;
+        }
+        try
+        {
+            dialog.setVisible(true);
+        }
+        finally
+        {
+            synchronized (exitCheckForUpdates)
+            {
+                if (exitCheckForUpdates[0] && dialog.isModal())
+                    exitCheckForUpdates(dialog);
+            }
+        }
     }
 
     /**
      * Shows dialog informing about new version with button Install
      * which triggers the update process.
      */
-    private void windowsUpdaterShow()
+    private void showWindowsNewVersionAvailableDialog()
     {
+        /*
+         * Before showing the dialog, we'll enterCheckForUpdates() in order to
+         * notify that it is not safe to enter "Check for Updates" again. If we
+         * don't manage to show the dialog, we'll have to exitCheckForUpdates().
+         * If we manage though, we'll have to exitCheckForUpdates() but only
+         * once depending on its modality.
+         */
+        final boolean[] exitCheckForUpdates = new boolean[] { false };
         final JDialog dialog = new SIPCommDialog()
         {
             private static final long serialVersionUID = 0L;
 
-            protected void close(boolean isEscaped)
+            protected void close(boolean escaped)
             {
+                synchronized (exitCheckForUpdates)
+                {
+                    if (exitCheckForUpdates[0])
+                        exitCheckForUpdates(this);
+                }
             }
         };
+        ResourceManagementService resources = getResources();
 
         dialog.setTitle(
-            getResources().getI18NString("plugin.updatechecker.DIALOG_TITLE"));
+                resources.getI18NString("plugin.updatechecker.DIALOG_TITLE"));
 
         JEditorPane contentMessage = new JEditorPane();
         contentMessage.setContentType("text/html");
@@ -531,19 +586,27 @@ public class UpdateCheckActivator
                 JEditorPane.HONOR_DISPLAY_PROPERTIES,
                 Boolean.TRUE);
 
-        String dialogMsg =
-            getResources().getI18NString("plugin.updatechecker.DIALOG_MESSAGE",
-            new String[]{getResources()
-                .getSettingsString("service.gui.APPLICATION_NAME")});
+        String dialogMsg
+            = resources.getI18NString(
+                    "plugin.updatechecker.DIALOG_MESSAGE",
+                    new String[]
+                            {
+                                resources.getSettingsString(
+                                        "service.gui.APPLICATION_NAME")
+                            });
 
         if(lastVersion != null)
-            dialogMsg +=
-                getResources().getI18NString(
-                "plugin.updatechecker.DIALOG_MESSAGE_2",
-                new String[]{
-                    getResources().getSettingsString(
-                        "service.gui.APPLICATION_NAME"),
-                    lastVersion});
+        {
+            dialogMsg
+                += resources.getI18NString(
+                        "plugin.updatechecker.DIALOG_MESSAGE_2",
+                        new String[]
+                                {
+                                    resources.getSettingsString(
+                                            "service.gui.APPLICATION_NAME"),
+                                    lastVersion
+                                });
+        }
 
         contentMessage.setText(dialogMsg);
 
@@ -562,39 +625,89 @@ public class UpdateCheckActivator
         contentPane.add(scrollChanges, BorderLayout.CENTER);
         try
         {
+            Document changesHtmlDocument = changesHtml.getDocument();
+
+            if (changesHtmlDocument instanceof AbstractDocument)
+            {
+                ((AbstractDocument) changesHtmlDocument)
+                    .setAsynchronousLoadPriority(0);
+            }
             changesHtml.setPage(new URL(changesLink));
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             logger.error("Cannot set changes Page", e);
         }
 
         JPanel buttonPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        JButton closeButton = new JButton(
-            getResources().getI18NString("plugin.updatechecker.BUTTON_CLOSE"));
+        final JButton closeButton
+            = new JButton(
+                    resources.getI18NString(
+                            "plugin.updatechecker.BUTTON_CLOSE"));
 
-        closeButton.addActionListener(new ActionListener() {
-
+        closeButton.addActionListener(new ActionListener()
+        {
             public void actionPerformed(ActionEvent e)
             {
-                dialog.setVisible(false);
+                dialog.dispose();
+                if (exitCheckForUpdates[0])
+                    exitCheckForUpdates(dialog);
             }
         });
 
         if(downloadLink != null)
         {
-            JButton installButton = new JButton(getResources().getI18NString(
-                "plugin.updatechecker.BUTTON_INSTALL"));
+            JButton installButton
+                = new JButton(
+                        resources.getI18NString(
+                                "plugin.updatechecker.BUTTON_INSTALL"));
 
-            installButton.addActionListener(new ActionListener() {
-
+            installButton.addActionListener(new ActionListener()
+            {
                 public void actionPerformed(ActionEvent e)
                 {
                     if(OSUtils.IS_WINDOWS64)
                         downloadLink = downloadLink.replace("x86", "x64");
 
-                    dialog.dispose();
-                    windowsUpdate();
+                    enterCheckForUpdates(null);
+                    try
+                    {
+                        /*
+                         * Do the same as the Close button in order to not
+                         * duplicate the code.
+                         */
+                        closeButton.doClick();
+                    }
+                    finally
+                    {
+                        boolean windowsUpdateThreadHasStarted = false;
+
+                        try
+                        {
+                            new Thread()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    try
+                                    {
+                                        windowsUpdate();
+                                    }
+                                    finally
+                                    {
+                                        exitCheckForUpdates(null);
+                                    }
+                                }
+                            }.start();
+                            windowsUpdateThreadHasStarted = true;
+                        }
+                        finally
+                        {
+                            if (!windowsUpdateThreadHasStarted)
+                                exitCheckForUpdates(null);
+                        }
+                    }
                 }
             });
 
@@ -609,40 +722,56 @@ public class UpdateCheckActivator
 
         dialog.pack();
 
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); 
         dialog.setLocation(
-            Toolkit.getDefaultToolkit().getScreenSize().width/2
-                - dialog.getWidth()/2,
-            Toolkit.getDefaultToolkit().getScreenSize().height/2
-                - dialog.getHeight()/2
-        );
+                screenSize.width/2 - dialog.getWidth()/2,
+                screenSize.height/2 - dialog.getHeight()/2);
 
-        dialog.setVisible(true);
+        synchronized (exitCheckForUpdates)
+        {
+            enterCheckForUpdates(dialog);
+            exitCheckForUpdates[0] = true;
+        }
+        try
+        {
+            dialog.setVisible(true);
+        }
+        finally
+        {
+            synchronized (exitCheckForUpdates)
+            {
+                if (exitCheckForUpdates[0] && dialog.isModal())
+                    exitCheckForUpdates(dialog);
+            }
+        }
     }
 
     /**
      * The update process itself.
-     * - Downloads the installer in a temp directory.
-     * - Warns that update will shutdown.
-     * - Triggers update (installer) in separate process with the help
-     * of update.exe and shutdowns.
+     * - Downloads the setup in a temporary directory.
+     * - Warns that update will shut down.
+     * - Triggers the setup in a separate process and shuts down.
      */
     private void windowsUpdate()
     {
-        File tempF = null;
+        final File[] tempFile = new File[1];
+        FileOutputStream tempFileOutputStream = null;
+        boolean deleteTempFile = false;
+
         try
         {
-            final File temp = File.createTempFile("sc-install", ".exe");
-            tempF = temp;
-
             URL u = new URL(downloadLink);
+
+            tempFileOutputStream = createTempFileOutputStream(u, tempFile);
+
             URLConnection uc = u.openConnection();
 
             if (uc instanceof HttpURLConnection)
             {
                 if(uc instanceof HttpsURLConnection)
                 {
-                    CertificateVerificationService vs =
-                        getCertificateVerificationService();
+                    CertificateVerificationService cvs
+                        = getCertificateVerification();
 
                     int port = u.getPort();
 
@@ -654,18 +783,14 @@ public class UpdateCheckActivator
                     if(port == -1)
                     {
                         if(u.getProtocol().equals("http"))
-                        {
                             port = 80;
-                        }
                         else if(u.getProtocol().equals("https"))
-                        {
                             port = 443;
-                        }
                     }
 
                     ((HttpsURLConnection)uc).setSSLSocketFactory(
-                            vs.getSSLContext(
-                            u.getHost(), port).getSocketFactory());
+                            cvs.getSSLContext(u.getHost(), port)
+                                    .getSocketFactory());
                 }
 
                 // we don't handle here authentication fails cause
@@ -673,125 +798,337 @@ public class UpdateCheckActivator
                 // successful authentication
             }
 
-            InputStream in = uc.getInputStream();
-
-            // Chain a ProgressMonitorInputStream to the
-            // URLConnection's InputStream
-            final ProgressMonitorInputStream pin
-             = new ProgressMonitorInputStream(null, u.toString(), in);
-
+            // Track the progress of the download.
+            final ProgressMonitorInputStream input
+                = new ProgressMonitorInputStream(
+                        null,
+                        u.toString(),
+                        uc.getInputStream());
             // Set the maximum value of the ProgressMonitor
-            ProgressMonitor pm = pin.getProgressMonitor();
-            pm.setMaximum(uc.getContentLength());
+            input.getProgressMonitor().setMaximum(uc.getContentLength());
 
-            final BufferedOutputStream out =
-                    new BufferedOutputStream(new FileOutputStream(temp));
-            new Thread(new Runnable()
+            final BufferedOutputStream output
+                = new BufferedOutputStream(tempFileOutputStream);
+
+            try
             {
-                public void run()
+                int read = -1;
+                byte[] buff = new byte[1024];
+
+                while((read = input.read(buff)) != -1)
+                    output.write(buff, 0, read);
+                try
                 {
-                    try
-                    {
-                        int read = -1;
-                        byte[] buff = new byte[1024];
-                        while((read = pin.read(buff)) != -1)
-                        {
-                            out.write(buff, 0, read);
-                        }
-                        pin.close();
-                        out.flush();
-                        out.close();
-
-                        if(getUIService().getPopupDialog().
-                            showConfirmPopupDialog(
-                                    getResources().getI18NString(
-                                    "plugin.updatechecker.DIALOG_WARN"),
-                                    getResources().getI18NString(
-                                    "plugin.updatechecker.DIALOG_TITLE"),
-                                    PopupDialog.YES_NO_OPTION,
-                                    PopupDialog.QUESTION_MESSAGE
-                                ) != PopupDialog.YES_OPTION)
-                        {
-                            return;
-                        }
-
-                        String packageName = getResources().getSettingsString(
-                                "plugin.updatechecker.package.name");
-
-                        // file saved. Now start updater and shutdown.
-                        String workingDir = System.getProperty("user.dir");
-
-                        String updateFileLocation = workingDir + File.separator;
-                        if(packageName != null)
-                            updateFileLocation += packageName + "-up2date.exe";
-                        else
-                            updateFileLocation += "up2date.exe";
-
-                        ProcessBuilder processBuilder
-                            = new ProcessBuilder(
-                                new String[]
-                                {
-                                    updateFileLocation,
-                                    "--wait-parent",
-                                    "--allow-elevation",
-                                    temp.getCanonicalPath(),
-                                    workingDir
-                                });
-                        processBuilder.start();
-
-                        getShutdownService().beginShutdown();
-
-                    } catch (Exception e)
-                    {
-                        logger.error("Error saving", e);
-                        try
-                        {
-                            pin.close();
-                            out.close();
-                        } catch (Exception e1)
-                        {}
-                    }
+                    input.close();
                 }
-            }).start();
+                catch (IOException ioe)
+                {
+                    /*
+                     * Ignore it because we've already downloaded the
+                     * setup and that's what matters most.
+                     */ 
+                }
+                output.close();
 
+                if(getUIService().getPopupDialog()
+                            .showConfirmPopupDialog(
+                                    getResources().getI18NString(
+                                        "plugin.updatechecker.DIALOG_WARN"),
+                                    getResources().getI18NString(
+                                        "plugin.updatechecker.DIALOG_TITLE"),
+                                    PopupDialog.YES_NO_OPTION,
+                                    PopupDialog.QUESTION_MESSAGE)
+                        != PopupDialog.YES_OPTION)
+                    return;
+
+                /*
+                 * The setup has been downloaded. Now start it and shut
+                 * down.
+                 */
+                new ProcessBuilder(
+                        tempFile[0].getCanonicalPath(),
+                        "--wait-parent",
+                        "SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR=\""
+                            + System.getProperty("user.dir")
+                            + "\"")
+                    .start();
+
+                getShutdownService().beginShutdown();
+            }
+            catch (Exception e)
+            {
+                logger.error("Error saving", e);
+            }
+            finally
+            {
+                try
+                {
+                    input.close();
+                }
+                catch (IOException ioe)
+                {
+                }
+                try
+                {
+                    output.close();
+                }
+                catch (IOException ioe)
+                {
+                }
+            }
         }
-        catch(FileNotFoundException e)
+        catch(FileNotFoundException fnfe)
         {
+            deleteTempFile = true;
             getUIService().getPopupDialog().showMessagePopupDialog(
                 getResources().getI18NString(
                         "plugin.updatechecker.DIALOG_MISSING_UPDATE"),
                 getResources().getI18NString(
                         "plugin.updatechecker.DIALOG_NOUPDATE_TITLE"),
                 PopupDialog.INFORMATION_MESSAGE);
-            tempF.delete();
         }
         catch (Exception e)
         {
+            deleteTempFile = true;
             if (logger.isInfoEnabled())
-                logger.info("Error starting update process!", e);
-            tempF.delete();
+                logger.info("Error starting update process!", e);;
+        }
+        finally
+        {
+            /*
+             * If we've failed, delete the temporary file into which the setup
+             * was supposed to be or has already been downloaded.
+             */
+            if (deleteTempFile)
+            {
+                if (tempFileOutputStream != null)
+                {
+                    try
+                    {
+                        tempFileOutputStream.close();
+                    }
+                    catch (IOException ioe)
+                    {
+                        // Ignore it because there's nothing else we can do.
+                    }
+                }
+                if (tempFile[0] != null)
+                    tempFile[0].delete();
+            }
         }
     }
 
     /**
-     * Invokes action for checking for updates.
+     * Tries to create a new <tt>FileOutputStream</tt> for a temporary file into
+     * which the setup is to be downloaded. Because temporary files generally
+     * have random characters in their names and the name of the setup may be
+     * shown to the user, first tries to use the name of the URL to be
+     * downloaded because it likely is prettier.
+     *
+     * @param url the <tt>URL</tt> of the file to be downloaded
+     * @param tempFile a <tt>File</tt> array of at least one element which is to
+     * receive the created <tt>File</tt> instance at index zero (if successful) 
+     * @return the newly created <tt>FileOutputStream</tt>
+     * @throws IOException if anything goes wrong while creating the new
+     * <tt>FileOutputStream</tt>
      */
-    private void checkForUpdate()
+    private FileOutputStream createTempFileOutputStream(
+            URL url,
+            File[] tempFile)
+        throws IOException
     {
-        if(isNewestVersion())
-        {
-            if(isAuthenticationCanceled)
-                return;
+        /*
+         * Try to use the name from the URL because it isn't a "randomly"
+         * generated one.
+         */
+        String path = url.getPath();
 
-            getUIService().getPopupDialog().showMessagePopupDialog(
-                getResources().getI18NString(
-                        "plugin.updatechecker.DIALOG_NOUPDATE"),
-                getResources().getI18NString(
-                        "plugin.updatechecker.DIALOG_NOUPDATE_TITLE"),
-                PopupDialog.INFORMATION_MESSAGE);
+        File tf = null;
+        FileOutputStream tfos = null;
+
+        if ((path != null) && (path.length() != 0))
+        {
+            int nameBeginIndex =path.lastIndexOf('/');
+            String name;
+
+            if (nameBeginIndex > 0)
+            {
+                name = path.substring(nameBeginIndex + 1);
+                nameBeginIndex = name.lastIndexOf('\\');
+                if (nameBeginIndex > 0)
+                    name = name.substring(nameBeginIndex + 1);
+            }
+            else
+                name = path;
+
+            /*
+             * Make sure the extension of the name is EXE so that we're able to
+             * execute it later on.
+             */
+            int nameLength = name.length();
+
+            if (nameLength != 0)
+            {
+                int baseNameEnd = name.lastIndexOf('.');
+
+                if (baseNameEnd == -1)
+                    name += ".exe";
+                else if (baseNameEnd == 0)
+                {
+                    if (!".exe".equalsIgnoreCase(name))
+                        name += ".exe";
+                }
+                else
+                    name = name.substring(0, baseNameEnd) + ".exe";
+
+                try
+                {
+                    String tempDir = System.getProperty("java.io.tmpdir");
+
+                    if ((tempDir != null) && (tempDir.length() != 0))
+                    {
+                        tf = new File(tempDir, name);
+                        tfos = new FileOutputStream(tf);
+                    }
+                }
+                catch (FileNotFoundException fnfe)
+                {
+                    // Ignore it because we'll try File#createTempFile().
+                }
+                catch (SecurityException se)
+                {
+                    // Ignore it because we'll try File#createTempFile().
+                }
+            }
         }
+
+        // Well, we couldn't use a pretty name so try File#createTempFile().
+        if (tfos == null)
+        {
+            tf = File.createTempFile("sc-setup", ".exe");
+            tfos = new FileOutputStream(tf);
+        }
+
+        tempFile[0] = tf;
+        return tfos;
+    }
+
+    /**
+     * Invokes "Check for Updates".
+     *
+     * @param notifyAboutNewestVersion <tt>true</tt> if the user is to be
+     * notified if they have the newest version already; otherwise,
+     * <tt>false</tt>
+     */
+    private synchronized void checkForUpdates(
+            final boolean notifyAboutNewestVersion)
+    {
+        if (inCheckForUpdates > 0)
+        {
+            if (checkForUpdatesDialog != null)
+                checkForUpdatesDialog.toFront();
+            return;
+        }
+
+        Thread checkForUpdatesThread
+            = new Thread()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        if(isNewestVersion())
+                        {
+                            if(!isAuthenticationCanceled
+                                    && notifyAboutNewestVersion)
+                            {
+                                ResourceManagementService resources
+                                    = getResources();
+
+                                getUIService()
+                                    .getPopupDialog()
+                                        .showMessagePopupDialog(
+                                                resources.getI18NString(
+                                                        "plugin.updatechecker.DIALOG_NOUPDATE"),
+                                                resources.getI18NString(
+                                                        "plugin.updatechecker.DIALOG_NOUPDATE_TITLE"),
+                                                PopupDialog.INFORMATION_MESSAGE);
+                            }
+                        }
+                        else if (OSUtils.IS_WINDOWS)
+                            showWindowsNewVersionAvailableDialog();
+                        else
+                            showGenericNewVersionAvailableDialog();
+                    }
+                    finally
+                    {
+                        exitCheckForUpdates(null);
+                    }
+                }
+            };
+
+        checkForUpdatesThread.setDaemon(true);
+
+        enterCheckForUpdates(null);
+        try
+        {
+            checkForUpdatesThread.start();
+            checkForUpdatesThread = null;
+        }
+        finally
+        {
+            if (checkForUpdatesThread != null)
+                exitCheckForUpdates(null);
+        }
+    }
+
+    /**
+     * Notifies this <tt>UpdateCheckActivator</tt> that a method is entering the
+     * "Check for Updates" functionality and it is thus not allowed to enter it
+     * again.
+     *
+     * @param checkForUpdatesDialog the <tt>JDialog</tt> associated with the
+     * entry in the "Check for Updates" functionality if any. While "Check for
+     * Updates" cannot be entered again, clicking the "Check for Updates" menu
+     * item will bring the <tt>checkForUpdatesDialog</tt> to the front.
+     */
+    private synchronized void enterCheckForUpdates(
+            JDialog checkForUpdatesDialog)
+    {
+        inCheckForUpdates++;
+//        if (1 == inCheckForUpdates)
+//            checkForUpdatesMenuItemComponent.getComponent().setEnabled(false);
+
+        if (checkForUpdatesDialog != null)
+            this.checkForUpdatesDialog = checkForUpdatesDialog;
+    }
+
+    /**
+     * Notifies this <tt>UpdateCheckActivator</tt> that a method is exiting the
+     * "Check for Updates" functionality and it may thus be allowed to enter it
+     * again.
+     *
+     * @param checkForUpdatesDialog the <tt>JDialog</tt> which was associated
+     * with the matching call to {@link #enterCheckForUpdates(JDialog)} if any
+     */
+    private synchronized void exitCheckForUpdates(JDialog checkForUpdatesDialog)
+    {
+        if (inCheckForUpdates == 0)
+            throw new IllegalStateException("inCheckForUpdates");
         else
-            windowsUpdaterShow();
+        {
+            inCheckForUpdates--;
+//            if (0 == inCheckForUpdates)
+//            {
+//                checkForUpdatesMenuItemComponent.getComponent().setEnabled(
+//                        true);
+//            }
+
+            if ((checkForUpdatesDialog != null)
+                    && (this.checkForUpdatesDialog == checkForUpdatesDialog))
+                this.checkForUpdatesDialog = null;
+        }
     }
 
     /**
@@ -818,7 +1155,7 @@ public class UpdateCheckActivator
                 if(userCredentials == null)
                 {
                     // if there is something save return it
-                    ConfigurationService config = getConfigurationService();
+                    ConfigurationService config = getConfiguration();
                     String uName
                         = (String) config.getProperty(UPDATE_USERNAME_CONFIG);
                     if(uName != null)
@@ -875,14 +1212,16 @@ public class UpdateCheckActivator
                         if(authWindow.isRememberPassword())
                         {
                             // if save password is checked save the pass
-                            getConfigurationService().setProperty(
-                                UPDATE_USERNAME_CONFIG,
-                                userCredentials.getUserName());
-                            getConfigurationService().setProperty(
-                                UPDATE_PASSWORD_CONFIG,
-                                new String(Base64.encode(
-                                    userCredentials.getPasswordAsString()
-                                    .getBytes())));
+                            getConfiguration().setProperty(
+                                    UPDATE_USERNAME_CONFIG,
+                                    userCredentials.getUserName());
+                            getConfiguration().setProperty(
+                                    UPDATE_PASSWORD_CONFIG,
+                                    new String(
+                                            Base64.encode(
+                                                    userCredentials
+                                                        .getPasswordAsString()
+                                                            .getBytes())));
                         }
 
                          return new PasswordAuthentication(
@@ -895,10 +1234,10 @@ public class UpdateCheckActivator
                         userCredentials.setUserName(null);
                         userCredentials = null;
 
-                        getConfigurationService().removeProperty(
-                            UPDATE_USERNAME_CONFIG);
-                        getConfigurationService().removeProperty(
-                            UPDATE_PASSWORD_CONFIG);
+                        getConfiguration().removeProperty(
+                                UPDATE_USERNAME_CONFIG);
+                        getConfiguration().removeProperty(
+                                UPDATE_PASSWORD_CONFIG);
                     }
 
                     return null;
@@ -908,110 +1247,59 @@ public class UpdateCheckActivator
     }
 
     /**
-     * The menu entry under tools menu.
+     * Implements <tt>PluginComponent</tt> for the "Check for Updates" menu
+     * item.
      */
-    private class UpdateMenuButtonComponent
+    private class CheckForUpdatesMenuItemComponent
         extends AbstractPluginComponent
     {
         /**
-         * The menu item to use.
+         * The "Check for Updates" menu item.
          */
-        private final JMenuItem updateMenuItem
-            = new JMenuItem(getResources().
-                getI18NString("plugin.updatechecker.UPDATE_MENU_ENTRY"));
+        private final JMenuItem checkForUpdatesMenuItem
+            = new JMenuItem(
+                    getResources().getI18NString(
+                            "plugin.updatechecker.UPDATE_MENU_ENTRY"));
 
         /**
-         * Creates update menu component.
+         * Initializes a new "Check for Updates" menu item.
          *
          * @param container the container of the update menu component
          */
-        UpdateMenuButtonComponent(Container container)
+        public CheckForUpdatesMenuItemComponent(Container container)
         {
             super(container);
 
-            updateMenuItem.addActionListener(new ActionListener()
+            checkForUpdatesMenuItem.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    // run outside swing thread, if password is required we
-                    // will block the swing
-                    new Thread()
-                    {
-                        public void run()
-                        {
-                            checkForUpdate();
-                        }
-                    }.start();
+                    checkForUpdates(true);
                 }
             });
         }
 
         /**
-         * Get the name of the component.
+         * Gets the UI <tt>Component</tt> of this <tt>PluginComponent</tt>.
          *
-         * @return name of the component
+         * @return the UI <tt>Component</tt> of this <tt>PluginComponent</tt>
+         * @see PluginComponent#getComponent()
+         */
+        public JMenuItem getComponent()
+        {
+            return checkForUpdatesMenuItem;
+        }
+
+        /**
+         * Gets the name of this <tt>PluginComponent</tt>.
+         *
+         * @return the name of this <tt>PluginComponent</tt>
+         * @see PluginComponent#getName()
          */
         public String getName()
         {
             return getResources().getI18NString(
                 "plugin.updatechecker.UPDATE_MENU_ENTRY");
-        }
-
-        /**
-         * Get the <tt>Component</tt>.
-         *
-         * @return the <tt>Component</tt>
-         */
-        public Object getComponent()
-        {
-            return updateMenuItem;
-        }
-    }
-
-    /**
-     * The thread that do the actual checking.
-     */
-    private class UpdateCheckThread
-        implements Runnable
-    {
-        /**
-         * Thread entry point.
-         */
-        public void run()
-        {
-            if (OSUtils.IS_WINDOWS)
-            {
-                // register update button
-                Hashtable<String, String> toolsMenuFilter
-                    = new Hashtable<String, String>();
-                toolsMenuFilter.put( Container.CONTAINER_ID,
-                                     Container.CONTAINER_HELP_MENU.getID());
-
-                bundleContext.registerService(
-                    PluginComponent.class.getName(),
-                    new UpdateMenuButtonComponent(
-                        Container.CONTAINER_HELP_MENU),
-                    toolsMenuFilter);
-            }
-
-            // check whether check at startup is enabled
-            if(!getConfigurationService().getBoolean(UPDATECHECKER_ENABLED,
-                    true))
-            {
-                return;
-            }
-
-            if(isNewestVersion())
-                return;
-
-            if (OSUtils.IS_WINDOWS)
-            {
-                windowsUpdaterShow();
-            }
-            else
-            {
-                UpdaterShow();
-            }
         }
     }
 }

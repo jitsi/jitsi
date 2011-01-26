@@ -1,0 +1,34 @@
+#include "setup.h"
+
+SCLogoIcon ICON sc-logo.ico
+
+STRINGTABLE
+BEGIN
+    IDS_ISWOW64ACCEPTABLE2 "The version of this file is x86 (32-bit) and the version of Windows you're running is x64 (64-bit). It is recommended to install the x64 (64-bit) version of the program.\012\012Continue anyway?"
+    IDS_ISWOW64ACCEPTABLE3 "The version of this file is x86 (32-bit) and the version of Windows you're running is x64 (64-bit). It is recommended to install the x64 (64-bit) version of the program."
+END
+
+1 VERSIONINFO
+    FILEVERSION 0,0,0,0
+    FILETYPE VFT_APP
+    PRODUCTVERSION 0,0,0,0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "Comments", ""
+            VALUE "CompanyName", "SIP Communicator"
+            VALUE "FileDescription", "SIP Communicator Setup"
+            VALUE "FileVersion", "0.0.0.0"
+            VALUE "InternalName", "setup"
+            VALUE "OriginalFilename", "setup.exe"
+            VALUE "ProductName", "SIP Communicator"
+            VALUE "ProductVersion", "0.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1252
+    END
+END

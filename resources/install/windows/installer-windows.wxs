@@ -19,11 +19,11 @@
     Comments="@PKG_COMMENTS@"
     Compressed="yes"
     Description="@PKG_DESCRIPTION@"
-    InstallPrivileges="elevated"
-    InstallScope="perMachine"
     InstallerVersion="200"
+    InstallScope="perMachine"
     Languages="1033"
     Manufacturer="@APP_NAME@"
+    Platform="$(var.Platform)"
     SummaryCodepage="1252" />
 
 <Upgrade Id="@WIX_UPGRADE_CODE@">
@@ -206,8 +206,12 @@
       IS_AUTOUPDATE = 1
     </Show>
 
+    <Custom Action="LaunchApplication" After="ExecuteAction">
+        IS_AUTOUPDATE = 1
+    </Custom>
+
     <Custom Action="SetIS_AUTOUPDATE" After="AppSearch">
-      <![CDATA[NOT Installed AND %SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR <> ""]]>
+      <![CDATA[NOT Installed AND SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR <> ""]]>
     </Custom>
     <Custom Action="SetINSTALLDIR" After="SetIS_AUTOUPDATE" />
     <Custom Action="SetCREATE_DESKTOP_SHORTCUT" After="SetINSTALLDIR">
@@ -269,7 +273,7 @@
 <CustomAction
     Id="SetINSTALLDIR"
     Property="INSTALLDIR"
-    Value="[%SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR]" />
+    Value="[SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR]" />
 <CustomAction
     Id="SetIS_AUTOUPDATE"
     Property="IS_AUTOUPDATE"
@@ -299,7 +303,7 @@
   <RemoveExistingProducts After="InstallFinalize" />
 
   <Custom Action="SetIS_AUTOUPDATE" After="AppSearch">
-    <![CDATA[NOT Installed AND %SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR <> ""]]>
+    <![CDATA[NOT Installed AND SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR <> ""]]>
   </Custom>
   <Custom Action="SetINSTALLDIR" After="SetIS_AUTOUPDATE" />
   <Custom Action="SetCREATE_DESKTOP_SHORTCUT" After="SetINSTALLDIR">

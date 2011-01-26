@@ -740,11 +740,14 @@ public class GeneralConfigurationPanel
                     + ":"),
             BorderLayout.WEST);
 
-        Component updateCheckBox = createUpdateCheckBox();
+        Component updateCheckBox = null;
         Component autoStartCheckBox = null;
 
         if (OSUtils.IS_WINDOWS)
+        {
             autoStartCheckBox = createAutoStartCheckBox();
+            updateCheckBox = createUpdateCheckBox();
+        }
 
         if (updateCheckBox != null && autoStartCheckBox != null)
         {

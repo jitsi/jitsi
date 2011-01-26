@@ -8,7 +8,7 @@
 <xsl:template match="*[local-name()='Wix']">
   <Include>
     <xsl:apply-templates
-        select="*[local-name()='Fragment']/*[local-name()='ComponentGroup']/*" />
+        select="*//*[local-name()='ComponentGroup' and @Id='ComponentGroup_HeatExe']/*" />
   </Include>
 </xsl:template>
 
