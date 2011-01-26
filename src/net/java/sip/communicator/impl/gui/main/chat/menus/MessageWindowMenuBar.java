@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.swing.*;
  * all menus are added.
  * 
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class MessageWindowMenuBar
     extends SIPCommWindowMenuBar
@@ -36,6 +36,10 @@ public class MessageWindowMenuBar
 
     private final HelpMenu helpMenu;
 
+    /**
+     * The <tt>PluginContainer</tt> which deals with <tt>PluginComponent</tt>s
+     * on behalf of this <tt>MessageWindowMenuBar</tt>.
+     */
     private final PluginContainer pluginContainer;
 
     /**
@@ -59,15 +63,24 @@ public class MessageWindowMenuBar
             = new PluginContainer(this, Container.CONTAINER_CHAT_MENU_BAR)
                 {
 
-                    /*
-                     * Overrides PluginContainer#addComponentToContainer(
-                     * Component, JComponent). Keeps the Help menu last as it is
-                     * its conventional place.
+                    /**
+                     * Overrides
+                     * {@link PluginContainer#addComponentToContainer(Component, JComponent, int)}.
+                     * Keeps the Help menu last as it is its conventional place.
+                     *
+                     * @param component the <tt>Component</tt> to be added to
+                     * <tt>container</tt>
+                     * @param container the <tt>JComponent</tt> container to
+                     * which <tt>component</tt> is to be added
+                     * @param preferredIndex ignored because
+                     * <tt>MessageWindowMenuBar</tt> keeps the Help menu last as
+                     * it is its conventional place
                      */
                     @Override
                     protected void addComponentToContainer(
-                        Component component,
-                        JComponent container)
+                            Component component,
+                            JComponent container,
+                            int preferredIndex)
                     {
                         /*
                          * Apply the opaque property in order to prevent plugin
@@ -116,7 +129,9 @@ public class MessageWindowMenuBar
     }
 
     /**
-     * Returns the currently selected menu.
+     * Gets the currently selected <tt>JMenu</tt>.
+     *
+     * @return the currently selected <tt>JMenu</tt>
      */
     public JMenu getSelectedMenu()
     {

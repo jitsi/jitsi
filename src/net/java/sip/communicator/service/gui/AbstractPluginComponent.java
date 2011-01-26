@@ -11,17 +11,17 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Provides an abstract base implementation of <code>PluginComponent</code> in
- * order to take case of the implementation boilerplate and let implementers
- * focus on the specifics of their plugin.
+ * order to take care of the implementation boilerplate and let implementers
+ * focus on the specifics of their plug-in.
  * 
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public abstract class AbstractPluginComponent
     implements PluginComponent
 {
 
     /**
-     * The container in which the component of this plugin is to be added.
+     * The container in which the component of this plug-in is to be added.
      */
     private final Container container;
 
@@ -29,9 +29,8 @@ public abstract class AbstractPluginComponent
      * Initializes a new <code>AbstractPluginComponent</code> which is to be
      * added to a specific <code>Container</code>.
      * 
-     * @param container
-     *            the container in which the component of the new plugin is to
-     *            be added
+     * @param container the container in which the component of the new plug-in
+     * is to be added
      */
     protected AbstractPluginComponent(Container container)
     {
@@ -54,8 +53,16 @@ public abstract class AbstractPluginComponent
         return container;
     }
 
-    /*
-     * Implements PluginComponent#getPositionIndex().
+    /**
+     * Implements {@link PluginComponent#getPositionIndex()}. Returns
+     * <tt>-1</tt> which indicates that the position of this
+     * <tt>AbstractPluginComponent</tt> within its <tt>Container</tt> is of no
+     * importance.
+     *
+     * @return <tt>-1</tt> which indicates that the position of this
+     * <tt>AbstractPluginComponent</tt> within its <tt>Container</tt> is of no
+     * importance 
+     * @see PluginComponent#getPositionIndex()
      */
     public int getPositionIndex()
     {
