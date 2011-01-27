@@ -13,6 +13,7 @@ import javax.imageio.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.keybindings.*;
+import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.resources.*;
 
 import org.osgi.framework.*;
@@ -43,6 +44,12 @@ public class UtilActivator
     private static ResourceManagementService resourceService;
 
     private static BundleContext bundleContext;
+
+    /**
+     * Network address manager service will inform us for changes in
+     * network configuration.
+     */
+    private static NetworkAddressManagerService networkAddressManagerService;
 
     /**
      * Calls <tt>Thread.setUncaughtExceptionHandler()</tt>
@@ -136,6 +143,22 @@ public class UtilActivator
                 = ResourceManagementServiceUtils.getService(bundleContext);
         }
         return resourceService;
+    }
+
+    /**
+     * Returns the service giving access to current network configuration.
+     *
+     * @return the service giving access to current network configuration.
+     */
+    public static NetworkAddressManagerService getNetworkAddressManagerService()
+    {
+        if (networkAddressManagerService == null)
+        {
+            networkAddressManagerService =
+                ServiceUtils.getService(bundleContext,
+                        NetworkAddressManagerService.class);
+        }
+        return networkAddressManagerService;
     }
 
     /**

@@ -381,6 +381,45 @@ public class ParallelResolver implements Resolver
         defaultResolver.setTimeout(secs);
     }
 
+    /**
+     * Resets resolver configuration and populate our default resolver
+     * with the newly configured servers.
+     */
+    public void reset()
+    {
+        // reset configuration
+        ResolverConfig.refresh();
+
+        ExtendedResolver resolver = (ExtendedResolver)defaultResolver;
+
+        // remove old ones
+        for(Resolver r : resolver.getResolvers())
+        {
+            resolver.deleteResolver(r);
+        }
+
+        // populate with new servers after refreshing configuration
+        try
+        {
+            String [] servers = ResolverConfig.getCurrentConfig().servers();
+            if (servers != null)
+            {
+                for (int i = 0; i < servers.length; i++)
+                {
+                    Resolver r = new SimpleResolver(servers[i]);
+                    //r.setTimeout(quantum);
+                    resolver.addResolver(r);
+                }
+            }
+            else
+                resolver.addResolver(new SimpleResolver());
+        }
+        catch (UnknownHostException e)
+        {
+            //should never happen
+            throw new RuntimeException("Failed to initialize resolver");
+        }
+    }
 
     /**
      * The class that listens for responses to any of the queries we send to

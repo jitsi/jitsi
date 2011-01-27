@@ -9,6 +9,7 @@ package net.java.sip.communicator.util;
 import java.net.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.util.dns.*;
 
 import org.xbill.DNS.*;
@@ -590,16 +591,11 @@ public class NetworkUtils
             = new ArrayList<InetSocketAddress>();
         for (int i = 0; i < pvhn.length; i++)
         {
-            try
-            {
-                sortedHostNames.add(new InetSocketAddress(
-                        Address.getByName(pvhn[i][3]),
-                        Integer.valueOf(pvhn[i][2])));
-            }
-            catch(UnknownHostException e)
-            {
-                logger.warn("Unknown host: " + pvhn[i][3], e);
-            }
+            InetSocketAddress address =
+                    getARecord(pvhn[i][3], Integer.valueOf(pvhn[i][2]));
+
+            if(address != null)
+                sortedHostNames.add(address);
         }
 
         if (logger.isTraceEnabled())
@@ -836,7 +832,7 @@ public class NetworkUtils
             //for starters we'd like to make sure that it works well enough
             //with SRV and NAPTR queries. We may then also adopt it for As
             //and AAAAs once it proves to be reliable (posted on: 2010-11-24)
-            Lookup lookup = new Lookup(domain, Type.A);
+            Lookup lookup = createLookup(domain, Type.A);
             records = lookup.run();
         }
         catch (TextParseException tpe)
@@ -876,7 +872,7 @@ public class NetworkUtils
             //for starters we'd like to make sure that it works well enough
             //with SRV and NAPTR queries. We may then also adopt it for As
             //and AAAAs once it proves to be reliable (posted on: 2010-11-24)
-            Lookup lookup = new Lookup(domain, Type.AAAA);
+            Lookup lookup = createLookup(domain, Type.AAAA);
             records = lookup.run();
         }
         catch (TextParseException tpe)
@@ -1056,6 +1052,12 @@ public class NetworkUtils
 
                 parallelResolver = new ParallelResolver(
                                 new InetSocketAddress[]{resolverSockAddr});
+
+                // listens for network changes up/down so we can reset
+                // dns configuration
+                UtilActivator.getNetworkAddressManagerService()
+                    .addNetworkConfigurationChangeListener(
+                        new NetworkListener());
             }
             catch(Throwable t)
             {
@@ -1072,9 +1074,56 @@ public class NetworkUtils
                 parallelResolver = Lookup.getDefaultResolver();
             }
         }
-
-        lookup.setResolver( parallelResolver );
+        // make sure we are not currently resetting the resolver
+        synchronized(parallelResolver)
+        {
+            lookup.setResolver( parallelResolver );
+        }
 
         return lookup;
+    }
+
+    /**
+     * Listens when network is going from down to up and
+     * resets dns configuration.
+     */
+    private static class NetworkListener
+        implements NetworkConfigurationChangeListener
+    {
+        /**
+         * The last network change we have received.
+         */
+        private int lastChange = -1;
+
+        /**
+         * Fired when a change has occurred in the
+         * computer network configuration.
+         *
+         * @param event the change event.
+         */
+        public void configurationChanged(ChangeEvent event)
+        {
+            if(lastChange == ChangeEvent.IFACE_DOWN
+                && event.getType() == ChangeEvent.IFACE_UP)
+            {
+                reloadDnsResolverConfig();
+            }
+
+            lastChange = event.getType();
+        }
+    }
+
+    /**
+     * Reloads dns server configuration in the resolver.
+     */
+    public static void reloadDnsResolverConfig()
+    {
+        if(parallelResolver instanceof ParallelResolver)
+        {
+            synchronized(parallelResolver)
+            {
+                ((ParallelResolver)parallelResolver).reset();
+            }
+        }
     }
 }
