@@ -41,6 +41,9 @@ public:
         m_bytesLength = 0;
     }
 
+    /**
+     * \brief Destructor.
+     */
     ~Grabber()
     {
         m_vm = NULL;
@@ -53,13 +56,13 @@ public:
         }
     }
 
-   	/**
-	 * \brief Method callback when device capture a frame.
-	 * \param time time when frame was received
-	 * \param sample media sample
-	 * \see ISampleGrabberCB
-	 */
-	virtual STDMETHODIMP SampleCB(double time, IMediaSample* sample)
+    /**
+     * \brief Method callback when device capture a frame.
+     * \param time time when frame was received
+     * \param sample media sample
+     * \see ISampleGrabberCB
+     */
+    virtual STDMETHODIMP SampleCB(double time, IMediaSample* sample)
     {
         jclass delegateClass = NULL;
         JNIEnv* env = NULL;
@@ -74,7 +77,7 @@ public:
         {
             jmethodID methodid = NULL;
 
-            methodid =env->GetMethodID(delegateClass,"frameReceived",
+            methodid = env->GetMethodID(delegateClass,"frameReceived",
                     "(JI)V");
             if(methodid)
             {
@@ -118,10 +121,10 @@ public:
                  * the following code from lti-civil is always used to flip
                  * images
                  */
-        		if(flipImage)
+                if(flipImage)
                 {
                     for(size_t row = 0 ; row < height ; row++)
-            		{
+                    {
                         memcpy((m_bytes + row * width * bytesPerPixel), data + (height - 1 - row) * width * bytesPerPixel,
                                 width * bytesPerPixel);
                     }

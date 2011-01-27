@@ -31,51 +31,51 @@
 class DSGrabberCallback : public ISampleGrabberCB
 {
 public:
-	/**
-	 * \brief Constructor.
-	 */
-	DSGrabberCallback();
+    /**
+     * \brief Constructor.
+     */
+    DSGrabberCallback();
 
-	/**
-	 * \brief Destructor.
-	 */
-	~DSGrabberCallback();
+    /**
+     * \brief Destructor.
+     */
+    ~DSGrabberCallback();
 
-	/**
-	 * \brief Method callback when device capture a frame.
-	 * \param time time when frame was received
-	 * \param sample media sample
-	 * \see ISampleGrabberCB
-	 */
-	virtual STDMETHODIMP SampleCB(double time, IMediaSample* sample);
+    /**
+     * \brief Method callback when device capture a frame.
+     * \param time time when frame was received
+     * \param sample media sample
+     * \see ISampleGrabberCB
+     */
+    virtual STDMETHODIMP SampleCB(double time, IMediaSample* sample);
 
-	/**
-	 * \brief Method callback when device buffer a frame.
-	 * \param time time when frame was received
-	 * \param buffer raw buffer
-	 * \param len length of buffer
-	 * \see ISampleGrabberCB
-	 */
-	virtual STDMETHODIMP BufferCB(double time, BYTE* buffer, long len);
+    /**
+     * \brief Method callback when device buffer a frame.
+     * \param time time when frame was received
+     * \param buffer raw buffer
+     * \param len length of buffer
+     * \see ISampleGrabberCB
+     */
+    virtual STDMETHODIMP BufferCB(double time, BYTE* buffer, long len);
 
-	/**
-	 * \brief Query if this COM object has the interface iid.
-	 * \param iid interface requested
-	 * \param ptr if method succeed, an object corresponding
-	 * to the interface requested will be copied in this pointer
-	 */
-	virtual HRESULT STDMETHODCALLTYPE QueryInterface(const IID& iid, void** ptr);
+    /**
+     * \brief Query if this COM object has the interface iid.
+     * \param iid interface requested
+     * \param ptr if method succeed, an object corresponding
+     * to the interface requested will be copied in this pointer
+     */
+    virtual HRESULT STDMETHODCALLTYPE QueryInterface(const IID& iid, void** ptr);
 
-	/**
-	 * \brief Adding a reference.
-	 * \return number of reference hold
-	 */
+    /**
+     * \brief Adding a reference.
+     * \return number of reference hold
+     */
     STDMETHODIMP_(ULONG) AddRef();
 
-	/**
-	 * \brief Release a reference.
-	 * \return number of reference hold
-	 */
+    /**
+     * \brief Release a reference.
+     * \return number of reference hold
+     */
     STDMETHODIMP_(ULONG) Release();
 };
 
@@ -89,75 +89,75 @@ public:
 class DSCaptureDevice
 {
 public:
-	/**
-	 * \brief Constructor.
-	 * \param name name of the capture device
-	 */
-	DSCaptureDevice(const WCHAR* name);
+    /**
+     * \brief Constructor.
+     * \param name name of the capture device
+     */
+    DSCaptureDevice(const WCHAR* name);
 
-	/**
-	 * \brief Destructor.
-	 */
-	~DSCaptureDevice();
+    /**
+     * \brief Destructor.
+     */
+    ~DSCaptureDevice();
 
-	/**
-	 * \brief Get name of the capture device.
-	 * \return name of the capture device
-	 */
-	const WCHAR* getName() const;
+    /**
+     * \brief Get name of the capture device.
+     * \return name of the capture device
+     */
+    const WCHAR* getName() const;
 
-	/**
-	 * \brief Initialize the device.
-	 * \param moniker moniker of the capture device
-	 * \return true if initialization succeed, false otherwise (in this
-	 * case the capture device have to be deleted)
-	 */
-	bool initDevice(IMoniker* moniker);
+    /**
+     * \brief Initialize the device.
+     * \param moniker moniker of the capture device
+     * \return true if initialization succeed, false otherwise (in this
+     * case the capture device have to be deleted)
+     */
+    bool initDevice(IMoniker* moniker);
 
-	/**
-	 * \brief Set video format.
-	 * \param format video format
-	 * \return true if change is successful, false otherwise (format unsupported, ...)
-	 * \note This method stop stream so you have to call start() after.
-	 */
-	bool setFormat(const VideoFormat& format);
+    /**
+     * \brief Set video format.
+     * \param format video format
+     * \return true if change is successful, false otherwise (format unsupported, ...)
+     * \note This method stop stream so you have to call start() after.
+     */
+    bool setFormat(const VideoFormat& format);
 
-	/**
-	 * \brief Get list of supported formats.
-	 * \return list of supported formats.
-	 */
-	std::list<VideoFormat> getSupportedFormats() const;
+    /**
+     * \brief Get list of supported formats.
+     * \return list of supported formats.
+     */
+    std::list<VideoFormat> getSupportedFormats() const;
 
-	/**
-	 * \brief Build the filter graph for this capture device.
-	 * \return true if success, false otherwise
-	 * \note Call this method before start().
-	 */
-	bool buildGraph();
+    /**
+     * \brief Build the filter graph for this capture device.
+     * \return true if success, false otherwise
+     * \note Call this method before start().
+     */
+    bool buildGraph();
 
-	/**
-	 * \brief get callback object.
-	 * \return callback
-	 */
-	DSGrabberCallback* getCallback();
+    /**
+     * \brief get callback object.
+     * \return callback
+     */
+    DSGrabberCallback* getCallback();
 
-	/**
-	 * \brief Set callback object when receiving new frames.
-	 * \param callback callback object to set
-	 */
-	void setCallback(DSGrabberCallback* callback);
+    /**
+     * \brief Set callback object when receiving new frames.
+     * \param callback callback object to set
+     */
+    void setCallback(DSGrabberCallback* callback);
 
-	/**
-	 * \brief Start capture device.
-	 * \return false if problem, true otherwise
-	 */
-	bool start();
+    /**
+     * \brief Start capture device.
+     * \return false if problem, true otherwise
+     */
+    bool start();
 
-	/**
-	 * \brief Stop capture device.
-	 * \return false if problem, true otherwise
-	 */
-	bool stop();
+    /**
+     * \brief Stop capture device.
+     * \return false if problem, true otherwise
+     */
+    bool stop();
 
     /**
      * \brief Get current format.
@@ -172,60 +172,60 @@ public:
     size_t getBitPerPixel();
 
 private:
-	/**
-	 * \brief Initialize list of supported size.
-	 */
-	void initSupportedFormats();
-	
     /**
-	 * \brief Name of the capture device.
-	 */
-	WCHAR* m_name;
+     * \brief Initialize list of supported size.
+     */
+    void initSupportedFormats();
+    
+    /**
+     * \brief Name of the capture device.
+     */
+    WCHAR* m_name;
 
     /**
      * \brief Callback.
      */
     DSGrabberCallback* m_callback;
 
-	/**
-	 * \brief List of VideoFormat.
-	 */
-	std::list<VideoFormat> m_formats;
+    /**
+     * \brief List of VideoFormat.
+     */
+    std::list<VideoFormat> m_formats;
     
-	/**
-	 * \brief Reference of the filter graph.
-	 */
-	IFilterGraph2* m_filterGraph;
+    /**
+     * \brief Reference of the filter graph.
+     */
+    IFilterGraph2* m_filterGraph;
 
-	/**
-	 * \brief Reference of the capture graph builder.
-	 */
-	ICaptureGraphBuilder2* m_captureGraphBuilder;
+    /**
+     * \brief Reference of the capture graph builder.
+     */
+    ICaptureGraphBuilder2* m_captureGraphBuilder;
 
-	/**
-	 * \brief Controller of the graph.
-	 */
-	IMediaControl* m_graphController;
+    /**
+     * \brief Controller of the graph.
+     */
+    IMediaControl* m_graphController;
 
-	/**
-	 * \brief Source filter.
-	 */
-	IBaseFilter* m_srcFilter;
-	
-	/**
-	 * \brief Sample grabber filter.
-	 */
-	IBaseFilter* m_sampleGrabberFilter;
+    /**
+     * \brief Source filter.
+     */
+    IBaseFilter* m_srcFilter;
+    
+    /**
+     * \brief Sample grabber filter.
+     */
+    IBaseFilter* m_sampleGrabberFilter;
 
-	/**
-	 * \brief The null renderer.
-	 */
-	IBaseFilter* m_renderer;
+    /**
+     * \brief The null renderer.
+     */
+    IBaseFilter* m_renderer;
 
-	/**
-	 * \brief The sample grabber.
-	 */
-	ISampleGrabber* m_sampleGrabber;
+    /**
+     * \brief The sample grabber.
+     */
+    ISampleGrabber* m_sampleGrabber;
 
     /**
      * \brief Current format.
