@@ -97,13 +97,13 @@
                     <file targetdir="$INSTALL_PATH" src="resources/install/generic/update-location.properties" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/generic/run.sh" os="linux" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/linux/sc-logo.png" os="linux" override="true"/>
-                    <file targetdir="$INSTALL_PATH" src="resources/install/windows/run.bat" os="windows" override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/windows/run.exe" os="windows" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/sc-logo.ico" os="windows" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/generic/uninstall.sh"  os="linux"  override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/windows/uninstall.bat" os="windows" override="true"/>
                     <executable targetfile="$INSTALL_PATH/run.sh" stage="never" os="linux"/>
                     <executable targetfile="$INSTALL_PATH/uninstall.sh" stage="never" os="linux"/>
-                    <executable targetfile="$INSTALL_PATH/run.bat" stage="never" os="windows"/>
+                    <executable targetfile="$INSTALL_PATH/run.exe" stage="never" os="windows"/>
                     <executable targetfile="$INSTALL_PATH/uninstall.bat" stage="never" os="windows"/>
 		</pack>
 	</packs>
