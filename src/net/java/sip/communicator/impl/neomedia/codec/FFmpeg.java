@@ -45,6 +45,11 @@ public class FFmpeg
     public static final int CODEC_FLAG2_INTRA_REFRESH = 0x00200000;
 
     /**
+     * Allow to pass incomplete frame to decoder.
+     */
+    public static final int CODEC_FLAG2_CHUNKS = 0x00008000;
+
+    /**
      * H264 codec ID.
      */
     public static final int CODEC_ID_H264 = 28;
@@ -69,6 +74,10 @@ public class FFmpeg
      */
     public static final int CODEC_ID_MP3 = 0x15000 + 1;
 
+    /**
+     * Work around bugs in encoders which sometimes cannot be detected
+     * automatically.
+     */
     public static final int FF_BUG_AUTODETECT = 1;
 
     public static final int FF_CMP_CHROMA = 256;
@@ -374,6 +383,12 @@ public class FFmpeg
     public static native void avcodeccontext_set_bit_rate(long avctx,
         int bit_rate);
 
+    /**
+     * Set the bit rate tolerance
+     *
+     * @param avctx the <tt>AVCodecContext</tt> to set the bit rate of
+     * @param bit_rate_tolerance bit rate tolerance
+     */
     public static native void avcodeccontext_set_bit_rate_tolerance(long avctx,
         int bit_rate_tolerance);
 
@@ -396,12 +411,24 @@ public class FFmpeg
     public static native void avcodeccontext_set_deblockbeta(long avctx,
         int deblockbeta);
 
+    /**
+     * Set the gop size (key frame interval).
+     *
+     * @param avctx the <tt>AVCodecContext</tt> to set the gop size of
+     * @param gop_size key frame interval
+     */
     public static native void avcodeccontext_set_gop_size(long avctx,
         int gop_size);
 
     public static native void avcodeccontext_set_i_quant_factor(long avctx,
         float i_quant_factor);
 
+    /**
+     * Set the maximum B frames.
+     *
+     * @param avctx the <tt>AVCodecContext</tt> to set the maximum B frames of
+     * @param max_b_frames maximum B frames
+     */
     public static native void avcodeccontext_set_max_b_frames(long avctx,
         int max_b_frames);
 
@@ -419,7 +446,14 @@ public class FFmpeg
     public static native void avcodeccontext_set_me_subpel_quality(long avctx,
         int me_subpel_quality);
 
-    public static native void avcodeccontext_set_pix_fmt(long avctx, int pix_fmt);
+    /**
+     * Set the pixel format.
+     *
+     * @param avctx the <tt>AVCodecContext</tt> to set the pixel format of
+     * @param pix_fmt pixel format
+     */
+    public static native void avcodeccontext_set_pix_fmt(long avctx,
+            int pix_fmt);
 
     public static native void avcodeccontext_set_qcompress(long avctx,
         float qcompress);
@@ -438,6 +472,12 @@ public class FFmpeg
     public static native void avcodeccontext_set_refs(long avctx,
         int refs);
 
+    /**
+     * Set the RTP payload size.
+     *
+     * @param avctx the <tt>AVCodecContext</tt> to set the RTP payload size of
+     * @param rtp_payload_size RTP payload size
+     */
     public static native void avcodeccontext_set_rtp_payload_size(long avctx,
         int rtp_payload_size);
 
@@ -474,6 +514,12 @@ public class FFmpeg
     public static native void avcodeccontext_set_size(long avctx, int width,
         int height);
 
+    /**
+     * Set the number of thread.
+     *
+     * @param avctx the <tt>AVCodecContext</tt> to set the number of thread of
+     * @param thread_count number of thread to set
+     */
     public static native void avcodeccontext_set_thread_count(long avctx,
         int thread_count);
 

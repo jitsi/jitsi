@@ -225,6 +225,9 @@ public class JNIDecoder
         FFmpeg.avcodeccontext_set_workaround_bugs(avcontext,
             FFmpeg.FF_BUG_AUTODETECT);
 
+        /* allow to pass incomplete frame to decoder */
+        FFmpeg.avcodeccontext_add_flags2(avcontext, FFmpeg.CODEC_FLAG2_CHUNKS);
+
         if (FFmpeg.avcodec_open(avcontext, avcodec) < 0)
             throw new RuntimeException("Could not open codec CODEC_ID_H264");
 
