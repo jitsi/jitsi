@@ -155,10 +155,12 @@ public class PluginContainer
          */
         int containerComponentCount = getComponentCount(container);
 
-        if (containerComponentCount > pluginComponentCount)
-            index += (containerComponentCount - pluginComponentCount);
-
-        addComponentToContainer((Component) c.getComponent(), container, index);
+        addComponentToContainer(
+                (Component) c.getComponent(),
+                container,
+                (containerComponentCount > pluginComponentCount)
+                    ? (index + (containerComponentCount - pluginComponentCount))
+                    : index);
         pluginComponents.add(index, c);
 
         container.revalidate();
