@@ -61,10 +61,18 @@ public class ConferenceInviteDialog
         // Initialize the account selector box.
         this.initAccountListData();
 
-        // Initialize the list of contacts to select from.
-        this.initContactListData(
-            (ProtocolProviderService) accountSelectorBox
-                .getSelectedItem());
+        // init the list, as we check whether features are supported
+        // it may take some time if we have too much contacts
+        new Thread(new Runnable()
+        {
+            public void run()
+            {
+                // Initialize the list of contacts to select from.
+                initContactListData(
+                    (ProtocolProviderService) accountSelectorBox
+                        .getSelectedItem());
+            }
+        }).start();
 
         this.getContentPane().add(accountSelectorPanel, BorderLayout.NORTH);
 
@@ -225,7 +233,26 @@ public class ConferenceInviteDialog
             MetaContact metaContact = contactListIter.next();
 
             if (!containsContact(metaContact))
-                this.addMetaContact(metaContact);
+            {
+                boolean supportsTelephony = false;
+                Iterator<Contact> contacts = metaContact.getContacts();
+                while (contacts.hasNext())
+                {
+                    Contact contact = contacts.next();
+
+                    if (protocolProvider.getOperationSet(
+                                OperationSetBasicTelephony.class) != null
+                        && hasContactCapabilities(contact,
+                                OperationSetBasicTelephony.class))
+                    {
+                        supportsTelephony = true;
+                        break;
+                    }
+                }
+
+                if(supportsTelephony)
+                    this.addMetaContact(metaContact);
+            }
         }
     }
 
@@ -314,6 +341,38 @@ public class ConferenceInviteDialog
 
             if(metaContact.containsContact(callPeer.getContact()))
                 return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns <tt>true</tt> if <tt>Contact</tt> supports the specified
+     * <tt>OperationSet</tt>, <tt>false</tt> otherwise.
+     *
+     * @param contact contact to check
+     * @param opSet <tt>OperationSet</tt> to search for
+     * @return Returns <tt>true</tt> if <tt>Contact</tt> supports the specified
+     * <tt>OperationSet</tt>, <tt>false</tt> otherwise.
+     */
+    private boolean hasContactCapabilities(
+            Contact contact, Class<? extends OperationSet> opSet)
+    {
+        OperationSetContactCapabilities capOpSet =
+            contact.getProtocolProvider().
+                getOperationSet(OperationSetContactCapabilities.class);
+
+        if (capOpSet == null)
+        {
+            // assume contact has OpSet capabilities
+            return true;
+        }
+        else
+        {
+            if(capOpSet.getOperationSet(contact, opSet) != null)
+            {
+                return true;
+            }
         }
 
         return false;
