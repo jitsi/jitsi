@@ -146,6 +146,8 @@ public class WizardController implements ActionListener
             }
             catch (Exception ex)
             {
+                wizard.stopCommittingPage();
+
                 //lots of things may fail on page next, like for example parameter
                 //validation or account initialization. If this is what happened here
                 //just show an error and leave everything on the same page so that

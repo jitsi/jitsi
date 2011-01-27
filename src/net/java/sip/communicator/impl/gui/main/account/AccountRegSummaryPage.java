@@ -193,6 +193,8 @@ public class AccountRegSummaryPage
                     GuiActivator.getResources()
                         .getI18NString("service.gui.USER_EXISTS_ERROR"));
             }
+            else
+                throw new RuntimeException(e.getMessage(), e);
         }
     }
 
