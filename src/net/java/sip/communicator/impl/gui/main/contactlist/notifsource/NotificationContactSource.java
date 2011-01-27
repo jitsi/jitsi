@@ -8,11 +8,9 @@ package net.java.sip.communicator.impl.gui.main.contactlist.notifsource;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.MessageType;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>NotificationContactSource</tt> represents a contact source that would

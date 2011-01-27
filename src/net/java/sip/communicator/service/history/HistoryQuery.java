@@ -26,6 +26,13 @@ public interface HistoryQuery
     public void cancel();
 
     /**
+     * Returns the query string, this query was created for.
+     *
+     * @return the query string, this query was created for
+     */
+    public String getQueryString();
+
+    /**
      * Returns a collection of the results for this query. It's up to
      * the implementation to determine how and when to fill this list of
      * results.

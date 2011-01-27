@@ -25,6 +25,12 @@ public interface CallHistoryQuery
     public void cancel();
 
     /**
+     * Returns the query string, this query was created for.
+     * @return the query string, this query was created for
+     */
+    public String getQueryString();
+
+    /**
      * Returns a collection of the initial results for this query. It's up to
      * the implementation to determine, which and how many the initial results
      * would be.

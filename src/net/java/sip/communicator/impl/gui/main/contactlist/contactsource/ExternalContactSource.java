@@ -121,7 +121,11 @@ public class ExternalContactSource
          */
         public int getSourceIndex()
         {
-            return -1;
+            if (contactSource.getIdentifier()
+                .equals(ContactSourceService.CALL_HISTORY))
+                return Integer.MAX_VALUE;
+
+            return Integer.MAX_VALUE - 1;
         }
 
         /**

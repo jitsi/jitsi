@@ -47,6 +47,12 @@ public interface ContactQuery
     public ContactSourceService getContactSource();
 
     /**
+     * Returns the query string, this query was created for.
+     * @return the query string, this query was created for
+     */
+    public String getQueryString();
+
+    /**
      * Returns the list of <tt>SourceContact</tt>s returned by this query.
      * @return the list of <tt>SourceContact</tt>s returned by this query
      */

@@ -117,6 +117,9 @@ public class CallHistoryContactSource implements ContactSourceService
             {
                 public void callRecordReceived(CallRecordEvent event)
                 {
+                    if (getStatus() == ContactQuery.QUERY_CANCELED)
+                        return;
+
                     SourceContact contact = new CallHistorySourceContact(
                                                 CallHistoryContactSource.this,
                                                 event.getCallRecord());
@@ -131,6 +134,17 @@ public class CallHistoryContactSource implements ContactSourceService
                     fireQueryStatusEvent(status);
                 }
             });
+
+            Iterator<CallRecord> callRecords
+                = callHistoryQuery.getCallRecords().iterator();
+
+            while (callRecords.hasNext())
+            {
+                SourceContact contact = new CallHistorySourceContact(
+                    CallHistoryContactSource.this,
+                    callRecords.next());
+                sourceContacts.add(contact);
+            }
         }
 
         /**
@@ -239,6 +253,11 @@ public class CallHistoryContactSource implements ContactSourceService
 
             for (ContactQueryListener l : listeners)
                 l.queryStatusChanged(event);
+        }
+
+        public String getQueryString()
+        {
+            return callHistoryQuery.getQueryString();
         }
     }
 

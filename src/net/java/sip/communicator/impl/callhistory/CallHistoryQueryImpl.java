@@ -12,6 +12,7 @@ import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.callhistory.event.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.event.*;
+import net.java.sip.communicator.service.history.records.*;
 
 /**
  * 
@@ -53,6 +54,18 @@ public class CallHistoryQueryImpl
                 fireQueryStatusEvent(event.getEventType());
             }
         });
+
+        Iterator<HistoryRecord> historyRecords
+            = historyQuery.getHistoryRecords().iterator();
+
+        while (historyRecords.hasNext())
+        {
+            CallRecord callRecord
+                = CallHistoryServiceImpl.convertHistoryRecordToCallRecord(
+                    historyRecords.next());
+
+            callRecords.add(callRecord);
+        }
     }
 
     /**
@@ -141,5 +154,15 @@ public class CallHistoryQueryImpl
                 l.queryStatusChanged(event);
             }
         }
+    }
+
+    /**
+     * Returns the query string, this query was created for.
+     *
+     * @return the query string, this query was created for
+     */
+    public String getQueryString()
+    {
+        return historyQuery.getQueryString();
     }
 }

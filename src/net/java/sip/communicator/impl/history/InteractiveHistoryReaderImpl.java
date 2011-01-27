@@ -94,7 +94,11 @@ public class InteractiveHistoryReaderImpl
                                 final boolean caseSensitive,
                                 final int resultCount)
     {
-        final HistoryQueryImpl query = new HistoryQueryImpl();
+        String queryString = "";
+        for (String s : keywords)
+            queryString += " " + s;
+
+        final HistoryQueryImpl query = new HistoryQueryImpl(queryString);
 
         new Thread()
         {

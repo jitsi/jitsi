@@ -218,7 +218,7 @@ public class TreeContactList
                         .createUIGroup(parentGroup);
             }
 
-            addContact(uiContact, uiGroup, true);
+            addContact(uiContact, uiGroup, true, true);
         }
         else
             MetaContactListSource.removeUIContact(metaContact);
@@ -351,7 +351,7 @@ public class TreeContactList
         }
 
         if (currentFilter.isMatching(uiContact))
-            addContact(uiContact, newUIGroup, true);
+            addContact(uiContact, newUIGroup, true, true);
         else
             MetaContactListSource.removeUIContact(metaContact);
     }
@@ -446,7 +446,7 @@ public class TreeContactList
                             .createUIGroup(parentGroup);
                 }
 
-                addContact(uiContact, uiGroup, true);
+                addContact(uiContact, uiGroup, true, true);
             }
             else
                 MetaContactListSource.removeUIContact(metaContact);
@@ -520,7 +520,7 @@ public class TreeContactList
                             .createUIGroup(parentGroup);
                 }
 
-                addContact(newUIContact, uiGroup, true);
+                addContact(newUIContact, uiGroup, true, true);
             }
             else
                 MetaContactListSource.removeUIContact(newParent);
@@ -731,12 +731,16 @@ public class TreeContactList
      * Adds the given <tt>contact</tt> to this list.
      * @param contact the <tt>UIContact</tt> to add
      * @param group the <tt>UIGroup</tt> to add to
-     * @param isSorted indicates if the contact should be sorted regarding to
-     * the <tt>GroupNode</tt> policy
+     * @param isContactSorted indicates if the contact should be sorted
+     * regarding to the <tt>GroupNode</tt> policy
+     * @param isGroupSorted indicates if the group should be sorted regarding to
+     * the <tt>GroupNode</tt> policy in case it doesn't exist and should be
+     * added
      */
     public void addContact( final UIContact contact,
                             final UIGroup group,
-                            final boolean isSorted)
+                            final boolean isContactSorted,
+                            final boolean isGroupSorted)
     {
         if (!SwingUtilities.isEventDispatchThread())
         {
@@ -744,7 +748,7 @@ public class TreeContactList
             {
                 public void run()
                 {
-                    addContact(contact, group, isSorted);
+                    addContact(contact, group, isContactSorted, isGroupSorted);
                 }
             });
             return;
@@ -761,7 +765,7 @@ public class TreeContactList
             {
                 GroupNode parentNode = treeModel.getRoot();
 
-                if (isSorted)
+                if (isGroupSorted)
                     groupNode = parentNode.sortedAddContactGroup(group);
                 else
                 {
@@ -772,7 +776,7 @@ public class TreeContactList
 
         contact.setParentGroup(groupNode.getGroupDescriptor());
 
-        if (isSorted)
+        if (isContactSorted)
             groupNode.sortedAddContact(contact);
         else
             groupNode.addContact(contact);
@@ -804,7 +808,7 @@ public class TreeContactList
                     // If in the meantime the corresponding query was canceled
                     // we don't proceed with adding.
                     if (query != null && !query.isCanceled())
-                        addContact(contact, group, isSorted);
+                        addContact(contact, group, isSorted, true);
                 }
             });
             return;
@@ -835,7 +839,7 @@ public class TreeContactList
                     if (query != null
                         && currentFilterQuery.containsQuery(query))
                     {
-                        addContact(contact, group, isSorted);
+                        addContact(contact, group, isSorted, true);
                     }
                 }
             });
@@ -2138,7 +2142,7 @@ public class TreeContactList
                 if (logger.isInfoEnabled())
                     logger.info("Add matching contact due to status change: "
                     + uiContact.getDisplayName());
-                addContact(uiContact, uiGroup, true);
+                addContact(uiContact, uiGroup, true, true);
             }
             else
                 MetaContactListSource

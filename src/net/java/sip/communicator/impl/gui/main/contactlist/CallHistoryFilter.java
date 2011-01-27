@@ -125,7 +125,8 @@ public class CallHistoryFilter
             GuiActivator.getContactList()
                 .addContact(uiSource.createUIContact(contactsIter.next()),
                             uiSource.getUIGroup(),
-                            false);
+                            false,
+                            true);
         }
     }
 
@@ -151,7 +152,8 @@ public class CallHistoryFilter
                 GuiActivator.getContactList()
                     .addContact(notfications.next(),
                                 uiGroup,
-                                false);
+                                false,
+                                true);
             }
         }
     }

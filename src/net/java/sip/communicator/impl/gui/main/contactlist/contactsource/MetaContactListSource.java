@@ -207,6 +207,7 @@ public class MetaContactListSource
                     GuiActivator.getContactList().addContact(
                             MetaContactListSource.createUIContact(metaContact),
                             uiGroup,
+                            true,
                             true);
 
                     query.setInitialResultCount(resultCount);

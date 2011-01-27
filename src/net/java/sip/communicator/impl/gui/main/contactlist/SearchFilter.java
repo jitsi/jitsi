@@ -252,7 +252,8 @@ public class SearchFilter
             GuiActivator.getContactList().addContact(
                 sourceUI.createUIContact(sourceContact),
                 sourceUI.getUIGroup(),
-                false);
+                false,
+                true);
         }
     }
 

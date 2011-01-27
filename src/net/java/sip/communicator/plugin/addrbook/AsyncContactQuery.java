@@ -167,6 +167,16 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
     }
 
     /**
+     * Returns the query string, this query was created for.
+     *
+     * @return the query string, this query was created for
+     */
+    public String getQueryString()
+    {
+        return query.toString();
+    }
+
+    /**
      * Normalizes a <tt>String</tt> phone number by converting alpha characters
      * to their respective digits on a keypad and then stripping non-digit
      * characters.

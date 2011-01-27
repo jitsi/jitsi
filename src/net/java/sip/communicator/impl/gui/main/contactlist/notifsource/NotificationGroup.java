@@ -237,7 +237,7 @@ public class NotificationGroup
         if (contactList.getCurrentFilter().isMatching(contact))
         {
             if (isNew)
-                contactList.addContact(contact, this, true);
+                contactList.addContact(contact, this, true, true);
             else
                 contactList.refreshContact(contact);
         }

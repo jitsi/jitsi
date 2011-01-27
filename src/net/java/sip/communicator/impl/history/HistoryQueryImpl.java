@@ -40,6 +40,22 @@ public class HistoryQueryImpl implements HistoryQuery
     private boolean isCanceled = false;
 
     /**
+     * The query string we're looking for in this query.
+     */
+    private final String queryString;
+
+    /**
+     * Creates an instance of <tt>HistoryQueryImpl</tt> by specifying the query
+     * string it was created for.
+     *
+     * @param queryString the query string we're looking for in this query
+     */
+    public HistoryQueryImpl(String queryString)
+    {
+        this.queryString = queryString;
+    }
+
+    /**
      * Cancels this query.
      */
     public void cancel()
@@ -157,5 +173,15 @@ public class HistoryQueryImpl implements HistoryQuery
                 l.queryStatusChanged(event);
             }
         }
+    }
+
+    /**
+     * Returns the query string, this query was created for.
+     *
+     * @return the query string, this query was created for
+     */
+    public String getQueryString()
+    {
+        return queryString;
     }
 }
