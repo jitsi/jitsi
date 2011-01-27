@@ -1986,8 +1986,7 @@ public class TreeContactList
 
             final ContactDetail detail = details.get(0);
 
-            ((JMenuItem) addContactComponentTmp)
-                .addActionListener(new ActionListener()
+            addContactComponentTmp.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
