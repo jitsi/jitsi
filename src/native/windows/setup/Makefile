@@ -2,6 +2,10 @@ MINGW_HOME ?= C:/mingw
 TARGET_BASENAME ?= setup
 TARGET_DIR ?= ../../../../release/windows/tmp
 
+ifeq ("$(OSTYPE)","cygwin")
+    TARGET_DIR = $(shell cygpath --unix $(TARGET_DIR))
+endif
+
 CC = $(MINGW_HOME)/bin/gcc
 CPPFLAGS = \
 	-O2 \
