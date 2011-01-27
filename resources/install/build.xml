@@ -649,6 +649,7 @@
                 dir="${src}/native/windows/setup"
                 failonerror="true">
             <arg value="MINGW_HOME=${mingw.home}" />
+            <arg value="TARGET_DIR=${windows.app.dir}/tmp" />
         </exec>
         <exec
                 executable="${wix.home}/setupbld.exe"
