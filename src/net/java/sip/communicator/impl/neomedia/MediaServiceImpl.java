@@ -715,13 +715,15 @@ public class MediaServiceImpl
             // A Player is documented to be created on a connected DataSource.
             dataSource.connect();
 
+            final MediaLocator locator = dataSource.getLocator();
+
             Processor player = Manager.createProcessor(dataSource);
 
             player.addControllerListener(new ControllerListener()
             {
                 public void controllerUpdate(ControllerEvent event)
                 {
-                    controllerUpdateForPreview(event, videoContainer);
+                    controllerUpdateForPreview(event, videoContainer, locator);
                 }
             });
             player.configure();
@@ -740,9 +742,10 @@ public class MediaServiceImpl
      * Listens and shows the video in the video container when needed.
      * @param event the event when player has ready visual component.
      * @param videoContainer the container.
+     * @param locator input DataSource locator
      */
     private static void controllerUpdateForPreview(ControllerEvent event,
-        JComponent videoContainer)
+        JComponent videoContainer, MediaLocator locator)
     {
         if (event instanceof ConfigureCompleteEvent)
         {
@@ -759,11 +762,25 @@ public class MediaServiceImpl
                 {
                     for (TrackControl trackControl : trackControls)
                     {
-                        VideoFlipEffect flipEffect = new VideoFlipEffect();
+                        Codec codecs[] = null;
                         SwScaler scaler = new SwScaler();
 
-                        trackControl.setCodecChain(
-                                new Codec[] {flipEffect, scaler});
+                        if(locator.getProtocol().equals(
+                                ImageStreamingAuto.LOCATOR_PROTOCOL))
+                        {
+                            // do not flip desktop
+                            codecs = new Codec[1];
+                            codecs[0] = scaler;
+                        }
+                        else
+                        {
+                            VideoFlipEffect flipEffect = new VideoFlipEffect();
+                            codecs = new Codec[2];
+                            codecs[0] = flipEffect;
+                            codecs[1] = scaler;
+                        }
+
+                        trackControl.setCodecChain(codecs);
                         break;
                     }
                 }
