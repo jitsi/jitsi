@@ -65,6 +65,8 @@ public class ChatPanel
 
     private JSplitPane topSplitPane;
 
+    private final JPanel topPanel = new JPanel(new BorderLayout());
+
     private final ChatConversationPanel conversationPanel;
 
     private final ChatWritePanel writeMessagePanel;
@@ -76,6 +78,17 @@ public class ChatPanel
     private ChatRoomSubjectPanel subjectPanel;
 
     public int unreadMessageNumber = 0;
+
+    /**
+     * The label showing current typing notification.
+     */
+    private JLabel typingNotificationLabel;
+
+    /**
+     * The typing notification icon.
+     */
+    private final Icon typingIcon = GuiActivator.getResources()
+        .getImage("service.gui.icons.TYPING");
 
     /**
      * Indicates that a typing notification event is successfully sent.
@@ -135,6 +148,10 @@ public class ChatPanel
         this.conversationPanel.getChatTextPane()
             .setTransferHandler(new ChatTransferHandler(this));
 
+        topPanel.setBackground(Color.WHITE);
+        topPanel.setBorder(
+            BorderFactory.createMatteBorder(1, 0, 1, 0, Color.GRAY));
+
         this.writeMessagePanel = new ChatWritePanel(this);
 
         this.messagePane.setBorder(null);
@@ -145,6 +162,8 @@ public class ChatPanel
         this.messagePane.setDividerSize(3);
         this.messagePane.setResizeWeight(1.0D);
         this.messagePane.setBottomComponent(writeMessagePanel);
+
+        this.messagePane.setTopComponent(topPanel);
 
         this.add(messagePane, BorderLayout.CENTER);
 
@@ -170,7 +189,7 @@ public class ChatPanel
         if ((this.chatSession != null)
                 && this.chatSession.isContactListSupported())
         {
-            messagePane.remove(conversationPanel);
+            topPanel.remove(conversationPanel);
 
             TransparentPanel rightPanel
                 = new TransparentPanel(new BorderLayout(5, 5));
@@ -202,7 +221,7 @@ public class ChatPanel
             topSplitPane.setLeftComponent(conversationPanel);
             topSplitPane.setRightComponent(rightPanel);
 
-            messagePane.setTopComponent(topSplitPane);
+            topPanel.add(topSplitPane);
         }
         else
         {
@@ -218,7 +237,7 @@ public class ChatPanel
                 topSplitPane = null;
             }
 
-            this.messagePane.setTopComponent(conversationPanel);
+            topPanel.add(conversationPanel);
         }
 
         if (chatSession instanceof MetaContactChatSession)
@@ -324,11 +343,38 @@ public class ChatPanel
     /**
      * Adds a typing notification message to the conversation panel.
      *
-     * @param typingNotification the typing notification string
+     * @param typingNotification the typing notification to show
      */
     public void addTypingNotification(String typingNotification)
     {
-        conversationPanel.addTypingNotification(typingNotification);
+        if (typingNotificationLabel == null)
+        {
+            typingNotificationLabel
+                = new JLabel(   typingNotification,
+                                typingIcon,
+                                SwingConstants.CENTER);
+
+            typingNotificationLabel.setPreferredSize(new Dimension(500, 20));
+            typingNotificationLabel.setForeground(Color.GRAY);
+            typingNotificationLabel.setFont(
+                typingNotificationLabel.getFont().deriveFont(11f));
+            typingNotificationLabel.setVerticalTextPosition(JLabel.BOTTOM);
+            typingNotificationLabel.setHorizontalTextPosition(JLabel.LEFT);
+            typingNotificationLabel.setIconTextGap(0);
+            topPanel.add(typingNotificationLabel, BorderLayout.SOUTH);
+        }
+        else
+        {
+            typingNotificationLabel.setText(typingNotification);
+
+            if (typingNotification != null && !typingNotification.equals(" "))
+                typingNotificationLabel.setIcon(typingIcon);
+            else
+                typingNotificationLabel.setIcon(null);
+        }
+
+        revalidate();
+        repaint();
     }
 
     /**
@@ -336,8 +382,9 @@ public class ChatPanel
      */
     public void removeTypingNotification()
     {
-        conversationPanel.removeTypingNotification();
+        addTypingNotification(" ");
     }
+
 
     /**
      * Returns the conversation panel, contained in this chat panel.
@@ -2060,8 +2107,8 @@ public class ChatPanel
 
                 // We store the divider location only when the user drags the
                 // divider and not when we've set it programatically.
-                if (dividerLocation != autoDividerLocation)
-                {
+//                if (dividerLocation != autoDividerLocation)
+//                {
                     int writeAreaSize
                         = messagePane.getHeight() - dividerLocation
                                         - messagePane.getDividerSize();
@@ -2069,12 +2116,12 @@ public class ChatPanel
                     ConfigurationManager
                         .setChatWriteAreaSize(writeAreaSize);
 
-                    writeMessagePanel.setPreferredSize(
-                        new Dimension(
-                            (int) writeMessagePanel.getPreferredSize()
-                                    .getWidth(),
-                            writeAreaSize));
-                }
+//                    writeMessagePanel.setPreferredSize(
+//                        new Dimension(
+//                            (int) writeMessagePanel.getPreferredSize()
+//                                    .getWidth(),
+//                            writeAreaSize));
+//                }
             }
         }
     }
