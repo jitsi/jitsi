@@ -25,8 +25,7 @@
 */
 package net.java.sip.communicator.impl.neomedia.transform.srtp;
 
-import org.bouncycastle.crypto.engines.AESFastEngine;
-
+import org.bouncycastle.crypto.BlockCipher;
 
 /**
  * SRTPCipherCTR implements SRTP Counter Mode AES Encryption (AES-CM).
@@ -52,34 +51,22 @@ import org.bouncycastle.crypto.engines.AESFastEngine;
  *
  * We use AESCipher to handle basic AES encryption / decryption.
  * 
+ * @author Werner Dittmann (Werner.Dittmann@t-online.de)
  * @author Bing SU (nova.su@gmail.com)
  */
-public class SRTPCipherCTR 
+public class SRTPCipherCTR
 {
-    /**
-     * AES block size, just a short name.
-     */
-    private final static int BLKLEN = 16;
 
-    /**
-     * Buffer defined maximum size.
-     */
+    private final static int BLKLEN = 16;
     private final static int MAX_BUFFER_LENGTH = 10*1024;
     private final byte[] cipherInBlock = new byte[BLKLEN];
     private final byte[] tmpCipherBlock = new byte[BLKLEN];
     private byte[] streamBuf = new byte[1024];
-
-    /**
-     * Process (encrypt / decrypt) a byte stream, using the supplied
-     * initial vector.
-     *
-     * @param aesCipher the cipher
-     * @param data byte array containing the byte stream to be processed
-     * @param off byte stream star offset with data byte array
-     * @param len byte stream length in bytes
-     * @param iv initial vector for this operation
-     */
-    public void process(AESFastEngine aesCipher, byte[] data, int off, int len,
+    
+    public SRTPCipherCTR() {
+    }
+    
+    public void process(BlockCipher cipher, byte[] data, int off, int len,
             byte[] iv) {
 
         if (off + len > data.length) {
@@ -99,7 +86,7 @@ public class SRTPCipherCTR
             cipherStream = streamBuf;
         }
 
-        getCipherStream(aesCipher, cipherStream, len, iv);
+        getCipherStream(cipher, cipherStream, len, iv);
 
         for (int i = 0; i < len; i++) {
             data[i + off] ^= cipherStream[i];
@@ -110,7 +97,6 @@ public class SRTPCipherCTR
      * Computes the cipher stream for AES CM mode. See section 4.1.1 in RFC3711
      * for detailed description.
      * 
-     * @param aesCipher the cipher
      * @param out
      *            byte array holding the output cipher stream
      * @param length
@@ -118,8 +104,7 @@ public class SRTPCipherCTR
      * @param iv
      *            initialization vector used to generate this cipher stream
      */
-    public void getCipherStream(AESFastEngine aesCipher,
-        byte[] out, int length, byte[] iv)
+    public void getCipherStream(BlockCipher aesCipher, byte[] out, int length, byte[] iv)
     {
         System.arraycopy(iv, 0, cipherInBlock, 0, 14);
 

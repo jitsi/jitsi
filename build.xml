@@ -2305,13 +2305,22 @@ org.apache.http.util"/>
                     gnu.java.zrtp.packets,
                     gnu.java.zrtp.utils,
                     gnu.java.zrtp.zidfile"/>
-                <attribute name="Import-Package" value="org.bouncycastle.crypto,
+                <attribute name="Import-Package" value="org.bouncycastle.asn1,
+			        org.bouncycastle.asn1.nist,
+                	org.bouncycastle.asn1.sec,
+                	org.bouncycastle.asn1.x9,
+                	org.bouncycastle.crypto,
+                	org.bouncycastle.crypto.agreement,
                     org.bouncycastle.crypto.digests,
+                    org.bouncycastle.crypto.engines,
+                    org.bouncycastle.crypto.generators,
                     org.bouncycastle.crypto.macs,
+                    org.bouncycastle.crypto.modes,
                     org.bouncycastle.crypto.params,
                     org.bouncycastle.crypto.prng,
-                    org.bouncycastle.crypto.engines,
-                    org.bouncycastle.crypto.modes"/>
+                    org.bouncycastle.math.ec,
+                    org.bouncycastle.util.encoders,
+                    org.bouncycastle.util"/>
                 <attribute name="Bundle-Name" value="ZRTP4J"/>
                 <attribute name="Bundle-Description" value="ZRTP for Java library."/>
                 <attribute name="Bundle-Version" value="1.4.5"/>
@@ -2362,15 +2371,21 @@ org.apache.http.util"/>
         <jar compress="true" destfile="${bundles.dest}/bouncycastle.jar">
             <zipfileset src="${lib.noinst}/lcrypto-jdk16-143.jar"/>
             <manifest>
-                <attribute name="Export-Package" value="org.bouncycastle.crypto,
+                <attribute name="Export-Package" value="org.bouncycastle.asn1,
+			        org.bouncycastle.asn1.nist,
+                	org.bouncycastle.asn1.sec,
+                	org.bouncycastle.asn1.x9,
+                	org.bouncycastle.crypto,
+                	org.bouncycastle.crypto.agreement,
                     org.bouncycastle.crypto.digests,
+                    org.bouncycastle.crypto.engines,
+                    org.bouncycastle.crypto.generators,
                     org.bouncycastle.crypto.macs,
+                    org.bouncycastle.crypto.modes,
                     org.bouncycastle.crypto.params,
                     org.bouncycastle.crypto.prng,
-                    org.bouncycastle.crypto.engines,
-                    org.bouncycastle.crypto.modes,
-                    org.bouncycastle.crypto.generators,
                     org.bouncycastle.crypto.signers,
+                    org.bouncycastle.math.ec,
                     org.bouncycastle.util.encoders,
                     org.bouncycastle.util"/>
                 <attribute name="Bundle-Name" value="BouncyCastle"/>

@@ -35,12 +35,16 @@ public class SRTPPolicy
     public final static int AESF8_ENCRYPTION = 2;
 
     /**
+     * F8 Mode TwoFish Cipher
+     */
+    public final static int TWOFISHF8_ENCRYPTION = 4;
+    /**
      * Null Authentication, no authentication
      */
     public final static int NULL_AUTHENTICATION = 0;
 
     /**
-     * HMC SHA1 Authentication, defined in Section 4.2.1, RFC3711
+     * HAMC SHA1 Authentication, defined in Section 4.2.1, RFC3711
      */
     public final static int HMACSHA1_AUTHENTICATION = 1;
 

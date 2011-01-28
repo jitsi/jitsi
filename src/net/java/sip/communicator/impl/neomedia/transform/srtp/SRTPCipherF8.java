@@ -27,7 +27,7 @@ package net.java.sip.communicator.impl.neomedia.transform.srtp;
 
 import java.util.*;
 
-import org.bouncycastle.crypto.engines.AESFastEngine;
+import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 
 /**
@@ -54,12 +54,10 @@ import org.bouncycastle.crypto.params.KeyParameter;
  *
  * We use AESCipher to handle basic AES encryption / decryption.
  * 
- * @author Werner Dittmann (Werner.Dittmann@t-online.de)
  * @author Bing SU (nova.su@gmail.com)
  */
-public class SRTPCipherF8 
+public class SRTPCipherF8
 {
-
     /**
      * AES block size, just a short name.
      */
@@ -69,30 +67,16 @@ public class SRTPCipherF8
      * F8 mode encryption context, see RFC3711 section 4.1.2 for detailed
      * description.
      */
-    static class F8Context
+    class F8Context
     {
         public byte[] S;
         public byte[] ivAccent;
         long J;
     }
 
-    /**
-     * Process (encrypt / decrypt) a byte stream, using the supplied
-     * initial vector.
-     *
-     * @param aesCipher the cipher
-     * @param data byte array containing the byte stream to be processed
-     * @param off byte stream star offset with data byte array
-     * @param len byte stream length in bytes
-     * @param iv initial vector for this operation
-     * @param key the key
-     * @param salt the salt
-     * @param f8Cipher the f8cipher
-     */
-    public static void process(AESFastEngine aesCipher,
-            byte[] data, int off, int len,
-            byte[] iv, byte[] key, byte[] salt, AESFastEngine f8Cipher) {
-        F8Context f8ctx = new F8Context();
+    public static void process(BlockCipher cipher, byte[] data, int off, int len,
+            byte[] iv, byte[] key, byte[] salt, BlockCipher f8Cipher) {
+        F8Context f8ctx = new SRTPCipherF8().new F8Context();
 
         /*
          * Get memory for the derived IV (IV')
@@ -143,13 +127,13 @@ public class SRTPCipherF8
         int inLen = len;
 
         while (inLen >= BLKLEN) {
-            processBlock(aesCipher, f8ctx, data, off, data, off, BLKLEN);
+            processBlock(cipher, f8ctx, data, off, data, off, BLKLEN);
             inLen -= BLKLEN;
             off += BLKLEN;
         }
 
         if (inLen > 0) {
-            processBlock(aesCipher, f8ctx, data, off, data, off, inLen);
+            processBlock(cipher, f8ctx, data, off, data, off, inLen);
         }
     }
     
@@ -157,7 +141,6 @@ public class SRTPCipherF8
      * Encrypt / Decrypt a block using F8 Mode AES algorithm, read len bytes
      * data from in at inOff and write the output into out at outOff
      * 
-     * @param aesCipher the cipher
      * @param f8ctx
      *            F8 encryption context
      * @param in
@@ -171,7 +154,7 @@ public class SRTPCipherF8
      * @param len
      *            length of the input data
      */
-    private static void processBlock(AESFastEngine aesCipher, F8Context f8ctx,
+    private static void processBlock(BlockCipher cipher, F8Context f8ctx,
             byte[] in, int inOff, byte[] out, int outOff, int len) {
 
         /*
@@ -195,7 +178,7 @@ public class SRTPCipherF8
         /*
          * Now compute the new key stream using AES encrypt
          */
-        aesCipher.processBlock(f8ctx.S, 0, f8ctx.S, 0);
+        cipher.processBlock(f8ctx.S, 0, f8ctx.S, 0);
 
         /*
          * As the last step XOR the plain text with the key stream to produce

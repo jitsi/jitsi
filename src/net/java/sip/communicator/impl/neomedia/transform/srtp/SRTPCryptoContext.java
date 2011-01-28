@@ -143,12 +143,12 @@ public class SRTPCryptoContext
     /**
      * The symmetric cipher engines we need here
      */
-    private AESFastEngine AEScipher = null;
+    private BlockCipher cipher = null;
 
     /**
      * Used inside F8 mode only
      */
-    private AESFastEngine AEScipherF8 = null;
+    private BlockCipher cipherF8 = null;
 
     /**
      * implements the counter cipher mode for RTP according to RFC 3711
@@ -248,7 +248,6 @@ public class SRTPCryptoContext
                 .getSaltKeyLength());
 
         mac = new HMac(new SHA1Digest());
-        AEScipher = new AESFastEngine();
 
         switch (policy.getEncType()) {
         case SRTPPolicy.NULL_ENCRYPTION:
@@ -256,13 +255,23 @@ public class SRTPCryptoContext
             saltKey = null;
             break;
 
-        case SRTPPolicy.AESF8_ENCRYPTION:
-            AEScipherF8 = new AESFastEngine();
-
-            //$FALL-THROUGH$
         case SRTPPolicy.AESCM_ENCRYPTION:
+            cipher = new AESFastEngine();
             encKey = new byte[policy.getEncKeyLength()];
             saltKey = new byte[policy.getSaltKeyLength()];
+            //$FALL-THROUGH$
+            
+        case SRTPPolicy.AESF8_ENCRYPTION:
+            cipherF8 = new AESFastEngine();
+            break;
+
+        case SRTPPolicy.TWOFISH_ENCRYPTION:
+            cipher = new TwofishEngine();
+            encKey = new byte[this.policy.getEncKeyLength()];
+            saltKey = new byte[this.policy.getSaltKeyLength()];
+            
+        case SRTPPolicy.TWOFISHF8_ENCRYPTION:
+            cipherF8 = new TwofishEngine();
             break;
         }
 
@@ -358,11 +367,13 @@ public class SRTPCryptoContext
     public void transformPacket(RawPacket pkt)
     {
         /* Encrypt the packet using Counter Mode encryption */
-        if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION)
+        if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION || 
+                policy.getEncType() == SRTPPolicy.TWOFISH_ENCRYPTION)
         {
             processPacketAESCM(pkt);
         }
-        else if (policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION) 
+        else if (policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION ||
+                policy.getEncType() == SRTPPolicy.TWOFISHF8_ENCRYPTION)
         {
             /* Encrypt the packet using F8 Mode encryption */
             processPacketAESF8(pkt);
@@ -439,12 +450,14 @@ public class SRTPCryptoContext
         }
 
         /* Decrypt the packet using Counter Mode encryption*/
-        if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION) {
+        if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION ||
+                policy.getEncType() == SRTPPolicy.TWOFISH_ENCRYPTION) {
             processPacketAESCM(pkt);
         }
 
         /* Decrypt the packet using F8 Mode encryption*/
-        else if (policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION) {
+        else if (policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION ||
+                policy.getEncType() == SRTPPolicy.TWOFISHF8_ENCRYPTION) {
             processPacketAESF8(pkt);
         }
 
@@ -482,7 +495,7 @@ public class SRTPCryptoContext
         final int payloadOffset = pkt.getHeaderLength();
         final int payloadLength = pkt.getPayloadLength();
 
-        cipherCtr.process(AEScipher, pkt.getBuffer(), pkt.getOffset() + payloadOffset,
+        cipherCtr.process(cipher, pkt.getBuffer(), pkt.getOffset() + payloadOffset,
                 payloadLength, ivStore);
     }
 
@@ -508,8 +521,8 @@ public class SRTPCryptoContext
         final int payloadOffset = pkt.getHeaderLength();
         final int payloadLength = pkt.getPayloadLength();
 
-        SRTPCipherF8.process(AEScipher, pkt.getBuffer(), pkt.getOffset() + payloadOffset,
-                payloadLength, ivStore, encKey, saltKey, AEScipherF8);
+        SRTPCipherF8.process(cipher, pkt.getBuffer(), pkt.getOffset() + payloadOffset,
+                payloadLength, ivStore, encKey, saltKey, cipherF8);
     }
 
     /**
@@ -609,14 +622,14 @@ public class SRTPCryptoContext
         computeIv(label, index);
 
         KeyParameter encryptionKey = new KeyParameter(masterKey);
-        AEScipher.init(true, encryptionKey);
-        cipherCtr.getCipherStream(AEScipher, encKey, policy.getEncKeyLength(), ivStore);
+        cipher.init(true, encryptionKey);
+        cipherCtr.getCipherStream(cipher, encKey, policy.getEncKeyLength(), ivStore);
 
         // compute the session authentication key
         if (authKey != null) {
             label = 0x01;
             computeIv(label, index);
-            cipherCtr.getCipherStream(AEScipher, authKey, policy.getAuthKeyLength(), ivStore);
+            cipherCtr.getCipherStream(cipher, authKey, policy.getAuthKeyLength(), ivStore);
 
             switch ((policy.getAuthType())) {
             case SRTPPolicy.HMACSHA1_AUTHENTICATION:
@@ -635,11 +648,11 @@ public class SRTPCryptoContext
         // compute the session salt
         label = 0x02;
         computeIv(label, index);
-        cipherCtr.getCipherStream(AEScipher, saltKey, policy.getSaltKeyLength(), ivStore);
+        cipherCtr.getCipherStream(cipher, saltKey, policy.getSaltKeyLength(), ivStore);
 
-        // As last step: initialize AES cipher with derived encryption key.
+        // As last step: initialize cipher with derived encryption key.
         encryptionKey = new KeyParameter(encKey);
-        AEScipher.init(true, encryptionKey);
+        cipher.init(true, encryptionKey);
     }
 
     /**
