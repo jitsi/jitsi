@@ -31,10 +31,6 @@ public class OptionsMenu
         GuiActivator.getResources().getI18NString("service.gui.VIEW_TOOLBAR"));
     private static final String ACTCMD_VIEW_TOOLBAR = "ACTCMD_VIEW_TOOLBAR";
 
-    private JCheckBoxMenuItem viewStyleBar = new JCheckBoxMenuItem(
-        GuiActivator.getResources().getI18NString("service.gui.VIEW_STYLEBAR"));
-    private static final String ACTCMD_VIEW_STYLEBAR = "ACTCMD_VIEW_STYLEBAR";
-
     private JCheckBoxMenuItem viewSmileys = new JCheckBoxMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.VIEW_SMILEYS"));
     private static final String ACTCMD_VIEW_SMILEYS = "ACTCMD_VIEW_SMILEYS";
@@ -55,10 +51,6 @@ public class OptionsMenu
         this.viewToolBar.addActionListener(this);
         this.add(this.viewToolBar);
 
-        this.viewStyleBar.setActionCommand(ACTCMD_VIEW_STYLEBAR);
-        this.viewStyleBar.addActionListener(this);
-        this.add(this.viewStyleBar);
-
         this.viewSmileys.setActionCommand(ACTCMD_VIEW_SMILEYS);
         this.viewSmileys.addActionListener(this);
         this.add(this.viewSmileys);
@@ -73,8 +65,7 @@ public class OptionsMenu
     {
         this.viewToolBar.setSelected(
             ConfigurationManager.isChatToolbarVisible());
-        this.viewStyleBar.setSelected(
-            ConfigurationManager.isChatStylebarVisible());
+
         this.viewSmileys.setSelected(
             ConfigurationManager.isShowSmileys());
     }
@@ -93,12 +84,6 @@ public class OptionsMenu
             this.chatWindow.setToolbarVisible(viewToolBar.isSelected());
             ConfigurationManager
                 .setChatToolbarVisible(viewToolBar.isSelected());
-        }
-        else if (action.equals(ACTCMD_VIEW_STYLEBAR))
-        {
-            this.chatWindow.setStylebarVisible(viewStyleBar.isSelected());
-            ConfigurationManager
-                .setChatStylebarVisible(viewStyleBar.isSelected());
         }
         else if (action.equals(ACTCMD_VIEW_SMILEYS))
         {

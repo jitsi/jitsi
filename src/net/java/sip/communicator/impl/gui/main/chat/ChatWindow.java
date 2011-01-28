@@ -149,27 +149,6 @@ public class ChatWindow
     }
 
     /**
-     * Shows or hides the Stylebar depending on the value of parameter b.
-     *
-     * @param b if true, makes the Stylebar visible, otherwise hides the Stylebar
-     */
-    public void setStylebarVisible(boolean b)
-    {
-        ChatPanel p = this.getCurrentChat();
-
-        // Set the value for the current chat panel
-        if (p != null)
-            p.setStylebarVisible(b);
-
-        // if there is tabs, set it for all
-        for (int i = 0, imax = this.getChatTabCount(); i < imax; i++)
-        {
-            p = (ChatPanel) this.chatTabbedPane.getComponentAt(i);
-            p.setStylebarVisible(b);
-        }
-    }
-
-    /**
      * @see SIPCommFrame#dispose()
      */
     public void dispose()
@@ -427,6 +406,8 @@ public class ChatWindow
         this.setTitle(chatSession.getChatName());
         this.setChatContactPhoto(chatSession);
 
+        this.mainToolBar.getSmileysBox().setChat(chatPanel);
+
         chatPanel.requestFocusInWriteArea();
 
         new Thread()
@@ -654,8 +635,7 @@ public class ChatWindow
     {
         public void actionPerformed(ActionEvent e)
         {
-            getCurrentChat().getChatWritePanel()
-                .getEditTextToolBar().getSmileysSelectorBox().open();
+            mainToolBar.getSmileysBox().open();
         }
     }
 
@@ -731,8 +711,7 @@ public class ChatWindow
                 writePanelRightMenu.setVisible(false);
             }
             else if ((menuBar.getSelectedMenu() != null)
-                        || chatWritePanel
-                                .getEditTextToolBar().hasSelectedMenus())
+                        || mainToolBar.getSmileysBox().isVisible())
             {
                 MenuSelectionManager.defaultManager().clearSelectedPath();
             }

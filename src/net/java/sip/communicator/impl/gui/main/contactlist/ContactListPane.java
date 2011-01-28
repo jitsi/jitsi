@@ -445,6 +445,9 @@ public class ContactListPane
 
         int typingState = evt.getTypingState();
 
+        ChatPanel chatPanel
+            = chatWindowManager.getContactChat(metaContact, false);
+
         if (typingState == OperationSetTypingNotifications.STATE_TYPING)
         {
             notificationMsg
@@ -452,39 +455,36 @@ public class ContactListPane
                     "service.gui.CONTACT_TYPING",
                     new String[]{contactName});
 
-            typingTimer.setMetaContact(metaContact);
-            typingTimer.start();
-
             // Proactive typing notification
             if (!chatWindowManager.isChatOpenedFor(metaContact))
             {
                 this.fireProactiveNotification(evt.getSourceContact());
                 return;
             }
+
+            if (chatPanel != null)
+                chatPanel.addTypingNotification(notificationMsg);
+
+            typingTimer.setMetaContact(metaContact);
+            typingTimer.start();
         }
         else if (typingState == OperationSetTypingNotifications.STATE_PAUSED)
         {
             notificationMsg = GuiActivator.getResources().getI18NString(
-                "service.gui.CONTACT_PAUSED_TYPING",
-                new String[]{contactName});
+                    "service.gui.CONTACT_PAUSED_TYPING",
+                    new String[]{contactName});
+
+            if (chatPanel != null)
+                chatPanel.addTypingNotification(notificationMsg);
+
             typingTimer.setMetaContact(metaContact);
             typingTimer.start();
         }
-        else if (typingState == OperationSetTypingNotifications.STATE_STOPPED)
+        else
         {
-            notificationMsg = "";
+            if (chatPanel != null)
+                chatPanel.removeTypingNotification();
         }
-        else if (typingState == OperationSetTypingNotifications.STATE_STALE)
-        {
-            notificationMsg
-                = GuiActivator.getResources().getI18NString(
-                    "service.gui.CONTACT_TYPING_STATE_STALE");
-        }
-        else if (typingState == OperationSetTypingNotifications.STATE_UNKNOWN)
-        {
-            // TODO: Implement state unknown
-        }
-        this.setChatNotificationMsg(metaContact, notificationMsg);
     }
 
     /**
@@ -608,22 +608,6 @@ public class ContactListPane
     }
 
     /**
-     * Sets the typing notification message at the appropriate chat.
-     *
-     * @param metaContact The meta contact.
-     * @param notificationMsg The typing notification message.
-     */
-    public void setChatNotificationMsg(MetaContact metaContact,
-            String notificationMsg)
-    {
-        ChatPanel chatPanel
-            = chatWindowManager.getContactChat(metaContact, false);
-
-        if (chatPanel != null)
-            chatPanel.setStatusMessage(notificationMsg);
-    }
-
-    /**
      * Returns the right button menu of the contact list.
      * @return the right button menu of the contact list
      */
@@ -653,7 +637,10 @@ public class ContactListPane
         {
             public void actionPerformed(ActionEvent e)
             {
-                setChatNotificationMsg(metaContact, "");
+                ChatPanel chatPanel
+                    = chatWindowManager.getContactChat(metaContact, false);
+
+                chatPanel.removeTypingNotification();
             }
         }
 

@@ -37,7 +37,7 @@ public class SmileysSelectorBox
     /**
      * The chat write panel.
      */
-    private final ChatWritePanel chatWritePanel;
+    private ChatPanel chatPanel;
 
     /**
      * The smiley text label.
@@ -61,14 +61,9 @@ public class SmileysSelectorBox
 
     /**
      * Initializes a new <tt>SmileysSelectorBox</tt> instance.
-     * 
-     * @param writePanel the <tt>ChatWritePanel</tt> the new instance is to
-     * write the selected <tt>Smiley</tt> into when it is clicked
      */
-    public SmileysSelectorBox(ChatWritePanel writePanel)
+    public SmileysSelectorBox()
     {
-        this.chatWritePanel = writePanel;
-
         this.setOpaque(false);
         // Should explicitly remove any border in order to align correctly the
         // icon.
@@ -88,6 +83,16 @@ public class SmileysSelectorBox
         popupMenu.addPopupMenuListener(this);
 
         this.smiliesService = GuiActivator.getSmiliesReplacementSource();
+    }
+
+    /**
+     * Sets the chat panel, for which smilieys would be created.
+     *
+     * @param chatPanel the chat panel, for which smilieys would be created
+     */
+    public void setChat(ChatPanel chatPanel)
+    {
+        this.chatPanel = chatPanel;
     }
 
     /**
@@ -139,9 +144,9 @@ public class SmileysSelectorBox
         SmileyMenuItem smileyItem = (SmileyMenuItem) e.getSource();
         Smiley smiley = smileyItem.smiley;
 
-        chatWritePanel.appendText(smiley.getDefaultString());
+        chatPanel.getChatWritePanel().appendText(smiley.getDefaultString());
 
-        chatWritePanel.getEditorPane().requestFocus();
+        chatPanel.getChatWritePanel().getEditorPane().requestFocus();
 
         clearMouseOverEffects(smileyItem);
     }

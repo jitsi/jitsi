@@ -63,22 +63,13 @@ public class ChatPanel
     private final JSplitPane messagePane
         = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-    private final JCheckBox sendSmsCheckBox = new SIPCommCheckBox(
-        GuiActivator.getResources().getI18NString("service.gui.SEND_AS_SMS"));
-
     private JSplitPane topSplitPane;
-
-    private ChatTransportSelectorBox transportSelectorBox;
-
-    private JLabel sendViaLabel;
 
     private final ChatConversationPanel conversationPanel;
 
     private final ChatWritePanel writeMessagePanel;
 
     private ChatRoomMemberListPanel chatContactListPanel;
-
-    private final ChatSendPanel sendPanel;
 
     private final ChatContainer chatContainer;
 
@@ -119,6 +110,8 @@ public class ChatPanel
 
     private boolean isHistoryLoaded;
 
+    private int autoDividerLocation = 0;
+
     /**
      * Stores all active  file transfer requests and effective transfers with
      * the identifier of the transfer.
@@ -142,28 +135,18 @@ public class ChatPanel
         this.conversationPanel.getChatTextPane()
             .setTransferHandler(new ChatTransferHandler(this));
 
-        this.sendPanel = new ChatSendPanel(this);
-
         this.writeMessagePanel = new ChatWritePanel(this);
-
-        int chatAreaSize = ConfigurationManager.getChatWriteAreaSize();
-        Dimension writeMessagePanelDefaultSize
-            = new Dimension(500, (chatAreaSize > 0) ? chatAreaSize : 100);
-        Dimension writeMessagePanelMinSize = new Dimension(500, 45);
-
-        this.writeMessagePanel.setMinimumSize(writeMessagePanelMinSize);
-        this.writeMessagePanel.setPreferredSize(writeMessagePanelDefaultSize);
 
         this.messagePane.setBorder(null);
         this.messagePane.setOpaque(false);
         this.messagePane.addPropertyChangeListener(
             new DividerLocationListener());
 
+        this.messagePane.setDividerSize(3);
         this.messagePane.setResizeWeight(1.0D);
         this.messagePane.setBottomComponent(writeMessagePanel);
 
         this.add(messagePane, BorderLayout.CENTER);
-        this.add(sendPanel, BorderLayout.SOUTH);
 
         if (OSUtils.IS_MAC)
         {
@@ -251,16 +234,7 @@ public class ChatPanel
                 this.repaint();
             }
 
-            initChatTransportSelectorBox();
-
-            if (!transportSelectorBox.getMenu().isEnabled())
-            {
-                // Show a message to the user that IM is not possible.
-                getChatConversationPanel().appendMessageToEnd("<h5>" +
-                        GuiActivator.getResources().
-                            getI18NString("service.gui.MSG_NOT_POSSIBLE") +
-                        "</h5>");
-            }
+            writeMessagePanel.setTransportSelectorBoxVisible(true);
 
             //Enables to change the protocol provider by simply pressing the
             // CTRL-P key combination
@@ -279,7 +253,7 @@ public class ChatPanel
             ConferenceChatSession confSession
                 = (ConferenceChatSession) chatSession;
 
-            removeChatTransportSelectorBox();
+            writeMessagePanel.setTransportSelectorBoxVisible(false);
 
             confSession.addLocalUserRoleListener(this);
             confSession.addMemberRoleListener(this);
@@ -301,9 +275,6 @@ public class ChatPanel
             while (chatParticipants.hasNext())
                 chatContactListPanel.addContact(chatParticipants.next());
         }
-
-        if (!chatSession.getCurrentChatTransport().allowsSmsMessage())
-            sendSmsCheckBox.setEnabled(false);
     }
 
     /**
@@ -313,17 +284,6 @@ public class ChatPanel
     public ChatSession getChatSession()
     {
         return chatSession;
-    }
-
-    /**
-     * Shows or hides the Stylebar depending on the value of parameter b.
-     *
-     * @param b if true, makes the Stylebar visible, otherwise hides the
-     * Stylebar
-     */
-    public void setStylebarVisible(boolean b)
-    {
-        this.writeMessagePanel.setStylebarVisible(b);
     }
 
     /**
@@ -362,13 +322,21 @@ public class ChatPanel
     }
 
     /**
-     * Sets the message text to the status panel in the bottom of the chat
-     * window. Used to show typing notification messages, links' hrefs, etc.
-     * @param statusMessage The message text to be displayed.
+     * Adds a typing notification message to the conversation panel.
+     *
+     * @param typingNotification the typing notification string
      */
-    public void setStatusMessage(String statusMessage)
+    public void addTypingNotification(String typingNotification)
     {
-        this.sendPanel.getStatusPanel().setStatusMessage(statusMessage);
+        conversationPanel.addTypingNotification(typingNotification);
+    }
+
+    /**
+     * Removes the typing notification message from the conversation panel.
+     */
+    public void removeTypingNotification()
+    {
+        conversationPanel.removeTypingNotification();
     }
 
     /**
@@ -389,16 +357,6 @@ public class ChatPanel
     public ChatWritePanel getChatWritePanel()
     {
         return this.writeMessagePanel;
-    }
-
-    /**
-     * Returns the send panel, contained in this chat panel.
-     *
-     * @return the send panel, contained in this chat panel
-     */
-    public ChatSendPanel getChatSendPanel()
-    {
-        return this.sendPanel;
     }
 
     /**
@@ -876,10 +834,19 @@ public class ChatPanel
      */
     public void sendButtonDoClick()
     {
-        JButton sendButton = this.sendPanel.getSendButton();
+        if (!isWriteAreaEmpty())
+        {
+            new Thread()
+            {
+                public void run()
+                {
+                    sendMessage();
+                }
+            }.start();
+        }
 
-        sendButton.requestFocus();
-        sendButton.doClick();
+        //make sure the focus goes back to the write area
+        requestFocusInWriteArea();
     }
 
     /**
@@ -1148,7 +1115,7 @@ public class ChatPanel
      */
     protected void sendMessage()
     {
-        if (sendSmsCheckBox.isSelected())
+        if (writeMessagePanel.isSmsSelected())
         {
             this.sendSmsMessage();
         }
@@ -1309,59 +1276,6 @@ public class ChatPanel
         }
 
         this.refreshWriteArea();
-    }
-
-    /**
-     * Initializes the send via label and selector box.
-     */
-    private void initChatTransportSelectorBox()
-    {
-        // Initialize the "send via" selector box and adds it to the send panel.
-        if (transportSelectorBox == null)
-        {
-            transportSelectorBox = new ChatTransportSelectorBox(
-                chatSession, chatSession.getCurrentChatTransport());
-
-            sendViaLabel = new JLabel(
-                GuiActivator.getResources().getI18NString(
-                    "service.gui.SEND_VIA"));
-        }
-
-        JPanel sendPanel = getChatSendPanel().getSendPanel();
-        sendPanel.add(transportSelectorBox, 0);
-        sendPanel.add(sendViaLabel, 0);
-
-        updateSendButtonStatus();
-
-        this.revalidate();
-        this.repaint();
-    }
-
-    /**
-     * Sets the send button to the same state (enabled/ disabled) as the
-    * transportSelectorBox.
-    */
-    private void updateSendButtonStatus()
-    {
-        getChatSendPanel().getSendButton().
-                setEnabled(transportSelectorBox.getMenu().isEnabled());
-    }
-
-    /**
-     * Removes the send via selector box and label.
-     */
-    private void removeChatTransportSelectorBox()
-    {
-        if (transportSelectorBox == null)
-            return;
-
-        JPanel sendPanel = getChatSendPanel().getSendPanel();
-
-        sendPanel.remove(transportSelectorBox);
-        sendPanel.remove(sendViaLabel);
-
-        this.revalidate();
-        this.repaint();
     }
 
     /**
@@ -1557,7 +1471,7 @@ public class ChatPanel
      */
     public void setSmsSelected(boolean isSmsSelected)
     {
-        sendSmsCheckBox.setSelected(isSmsSelected);
+        writeMessagePanel.setSmsSelected(isSmsSelected);
     }
 
     /**
@@ -1569,12 +1483,7 @@ public class ChatPanel
     {
         public void actionPerformed(ActionEvent e)
         {
-            /*
-             * Opens the selector box containing the protocol contact icons.
-             * This is the menu, where user could select the protocol specific
-             * contact to communicate through.
-             */
-            transportSelectorBox.getMenu().doClick();
+            writeMessagePanel.openChatTransportSelectorBox();
         }
     }
 
@@ -1608,9 +1517,7 @@ public class ChatPanel
      */
     public void addChatTransport(ChatTransport chatTransport)
     {
-        if (transportSelectorBox != null)
-            transportSelectorBox.addChatTransport(chatTransport);
-        updateSendButtonStatus();
+        writeMessagePanel.addChatTransport(chatTransport);
     }
 
     /**
@@ -1620,9 +1527,7 @@ public class ChatPanel
      */
     public void removeChatTransport(ChatTransport chatTransport)
     {
-        if (transportSelectorBox != null)
-            transportSelectorBox.removeChatTransport(chatTransport);
-        updateSendButtonStatus();
+        writeMessagePanel.removeChatTransport(chatTransport);
     }
 
     /**
@@ -1632,8 +1537,7 @@ public class ChatPanel
      */
     public void setSelectedChatTransport(ChatTransport chatTransport)
     {
-        if (transportSelectorBox != null)
-            transportSelectorBox.setSelected(chatTransport);
+        writeMessagePanel.setSelectedChatTransport(chatTransport);
     }
 
     /**
@@ -1643,8 +1547,7 @@ public class ChatPanel
      */
     public void updateChatTransportStatus(ChatTransport chatTransport)
     {
-        if (transportSelectorBox != null)
-            transportSelectorBox.updateTransportStatus(chatTransport);
+        writeMessagePanel.updateChatTransportStatus(chatTransport);
 
         // Show a status message to the user.
         this.addMessage(
@@ -2154,13 +2057,63 @@ public class ChatPanel
                     .equals(JSplitPane.DIVIDER_LOCATION_PROPERTY))
             {
                 int dividerLocation = (Integer) evt.getNewValue();
-                int writeAreaSize = messagePane.getHeight() - dividerLocation
-                                    - messagePane.getDividerSize();
 
-                ConfigurationManager
-                    .setChatWriteAreaSize(writeAreaSize);
+                // We store the divider location only when the user drags the
+                // divider and not when we've set it programatically.
+                if (dividerLocation != autoDividerLocation)
+                {
+                    int writeAreaSize
+                        = messagePane.getHeight() - dividerLocation
+                                        - messagePane.getDividerSize();
+
+                    ConfigurationManager
+                        .setChatWriteAreaSize(writeAreaSize);
+
+                    writeMessagePanel.setPreferredSize(
+                        new Dimension(
+                            (int) writeMessagePanel.getPreferredSize()
+                                    .getWidth(),
+                            writeAreaSize));
+                }
             }
         }
+    }
+
+    /**
+     * Sets the location of the split pane divider.
+     *
+     * @param location the location of the divider given by the pixel count
+     * between the left bottom corner and the left bottom divider location
+     */
+    public void setDividerLocation(int location)
+    {
+        int dividerLocation = messagePane.getHeight() - location;
+
+        autoDividerLocation = dividerLocation;
+
+        messagePane.setDividerLocation(dividerLocation);
+        messagePane.revalidate();
+        messagePane.repaint();
+    }
+
+    /**
+     * Returns the contained divider location.
+     *
+     * @return the contained divider location
+     */
+    public int getDividerLocation()
+    {
+        return messagePane.getHeight() - messagePane.getDividerLocation();
+    }
+
+    /**
+     * Returns the contained divider size.
+     *
+     * @return the contained divider size
+     */
+    public int getDividerSize()
+    {
+        return messagePane.getDividerSize();
     }
 
     /**
@@ -2360,6 +2313,47 @@ public class ChatPanel
     public void promptRepaint()
     {
         this.getChatWritePanel().getEditorPane().repaint();
+    }
+
+
+    /**
+     * Shows the font chooser dialog
+     */
+    public void showFontChooserDialog()
+    {
+        JEditorPane editorPane = writeMessagePanel.getEditorPane();
+        FontChooser fontChooser = new FontChooser();
+
+        fontChooser.setFontFamily(
+            editorPane.getFont().getFontName());
+        fontChooser.setFontSize(
+            editorPane.getFont().getSize());
+
+        fontChooser.setBoldStyle(editorPane.getFont().isBold());
+        fontChooser.setItalicStyle(editorPane.getFont().isItalic());
+
+        int result = fontChooser.showDialog(this);
+
+        if (result == FontChooser.OK_OPTION)
+        {
+            // Font family and size
+            writeMessagePanel.setFontFamilyAndSize(
+                                    fontChooser.getFontFamily(),
+                                    fontChooser.getFontSize());
+
+            // Font style
+            writeMessagePanel.setBoldStyleEnable(
+                fontChooser.isBoldStyleSelected());
+            writeMessagePanel.setItalicStyleEnable(
+                fontChooser.isItalicStyleSelected());
+            writeMessagePanel.setUnderlineStyleEnable(
+                fontChooser.isUnderlineStyleSelected());
+
+            // Font color
+            writeMessagePanel.setFontColor(fontChooser.getFontColor());
+        }
+
+        editorPane.requestFocus();
     }
 
     /**

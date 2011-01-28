@@ -151,6 +151,17 @@ public class ChatConversationPanel
     private boolean scrollToBottomIsPending = false;
 
     /**
+     * The label showing current typing notification.
+     */
+    private JLabel typingNotificationLabel;
+
+    /**
+     * The typing notification icon.
+     */
+    private final Icon typingIcon = GuiActivator.getResources()
+        .getImage("service.gui.icons.TYPING");
+
+    /**
      * The implementation of the routine which scrolls {@link #chatTextPane} to its
      * bottom.
      */
@@ -203,7 +214,10 @@ public class ChatConversationPanel
 
         this.setWheelScrollingEnabled(true);
 
-        this.setViewportView(chatTextPane);
+        JPanel viewportView = new TransparentPanel(new BorderLayout());
+        viewportView.add(chatTextPane);
+
+        this.setViewportView(viewportView);
 
         this.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -279,7 +293,7 @@ public class ChatConversationPanel
                 }
             }
         };
-        chatTextPane.addComponentListener(componentListener);
+        viewportView.addComponentListener(componentListener);
         getViewport().addComponentListener(componentListener);
     }
 
@@ -1378,6 +1392,55 @@ public class ChatConversationPanel
                 logger.error("Insert in the HTMLDocument failed.", e);
             }
         }
+    }
+
+    /**
+     * Adds a typing notification message to the conversation panel.
+     *
+     * @param typingNotification the typing notification to show
+     */
+    public void addTypingNotification(String typingNotification)
+    {
+        if (typingNotificationLabel == null)
+        {
+            typingNotificationLabel
+                = new JLabel(   typingNotification,
+                                typingIcon,
+                                SwingConstants.CENTER);
+            typingNotificationLabel.setForeground(Color.GRAY);
+            typingNotificationLabel.setFont(
+                typingNotificationLabel.getFont().deriveFont(11f));
+            typingNotificationLabel.setVerticalTextPosition(JLabel.BOTTOM);
+            typingNotificationLabel.setHorizontalTextPosition(JLabel.LEFT);
+            typingNotificationLabel.setIconTextGap(0);
+            ((JComponent) getViewport().getView()).add(
+                typingNotificationLabel, BorderLayout.SOUTH);
+        }
+        else
+        {
+            typingNotificationLabel.setText(typingNotification);
+
+            if (typingNotification != null && typingNotification.length() > 0)
+                typingNotificationLabel.setIcon(typingIcon);
+            else
+                typingNotificationLabel.setIcon(null);
+        }
+
+        synchronized (scrollToBottomRunnable)
+        {
+            scrollToBottomIsPending = true;
+        }
+
+        revalidate();
+        repaint();
+    }
+
+    /**
+     * Removes the typing notification message from the conversation panel.
+     */
+    public void removeTypingNotification()
+    {
+        addTypingNotification("");
     }
 
     /**

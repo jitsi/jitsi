@@ -120,8 +120,7 @@ public class EditMenu
         }
         else if (menuItemName.equalsIgnoreCase("font"))
         {
-            this.chatWindow.getCurrentChat().getChatWritePanel()
-                .getEditTextToolBar().showFontChooserDialog();
+            this.chatWindow.getCurrentChat().showFontChooserDialog();
         }
     }
 

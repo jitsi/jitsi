@@ -20,7 +20,6 @@ import javax.swing.undo.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
-import net.java.sip.communicator.impl.gui.main.chat.toolBars.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.event.*;
@@ -44,13 +43,14 @@ public class ChatWritePanel
                 KeyListener,
                 MouseListener,
                 UndoableEditListener,
+                DocumentListener,
                 Skinnable
 {
     private final Logger logger = Logger.getLogger(ChatWritePanel.class);
 
-    private JEditorPane editorPane = new JEditorPane();
+    private final JEditorPane editorPane = new JEditorPane();
 
-    private UndoManager undo = new UndoManager();
+    private final UndoManager undo = new UndoManager();
 
     private final ChatPanel chatPanel;
 
@@ -60,12 +60,30 @@ public class ChatWritePanel
 
     private int typingState = -1;
 
-    private WritePanelRightButtonMenu rightButtonMenu;
+    private final WritePanelRightButtonMenu rightButtonMenu;
 
-    private EditTextToolBar editTextToolBar;
-
-    private ArrayList<ChatMenuListener> menuListeners
+    private final ArrayList<ChatMenuListener> menuListeners
         = new ArrayList<ChatMenuListener>();
+
+    private final SCScrollPane scrollPane = new SCScrollPane();
+
+    private ChatTransportSelectorBox transportSelectorBox;
+
+    private final Container centerPanel;
+
+    private JLabel smsLabel;
+
+    private JCheckBoxMenuItem smsMenuItem;
+
+    private JLabel smsCharCountLabel;
+
+    private JLabel smsNumberLabel;
+
+    private int smsNumberCount = 1;
+
+    private int smsCharCount = 160;
+
+    private boolean smsMode = false;
 
     /**
      * Creates an instance of <tt>ChatWritePanel</tt>.
@@ -75,43 +93,25 @@ public class ChatWritePanel
     public ChatWritePanel(ChatPanel panel)
     {
         super(new BorderLayout());
-        SCScrollPane scrollPane = new SCScrollPane();
 
         this.chatPanel = panel;
 
-        this.editorPane.setContentType("text/html");
+        centerPanel = createCenter();
 
-        this.editorPane.putClientProperty(
-            JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+        int chatAreaSize = ConfigurationManager.getChatWriteAreaSize();
+        Dimension writeMessagePanelDefaultSize
+            = new Dimension(500, (chatAreaSize > 0) ? chatAreaSize : 45);
+        Dimension writeMessagePanelMinSize = new Dimension(500, 45);
+        Dimension writeMessagePanelMaxSize = new Dimension(500, 100);
 
-        this.editorPane.setCaretPosition(0);
-        this.editorPane.setEditorKit(new SIPCommHTMLEditorKit(this));
-        this.editorPane.getDocument().addUndoableEditListener(this);
-        this.editorPane.addKeyListener(this);
-        this.editorPane.addMouseListener(this);
-        this.editorPane.setCursor(
-            Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
-        this.editorPane.setDragEnabled(true);
-        this.editorPane.setTransferHandler(new ChatTransferHandler(chatPanel));
+        setMinimumSize(writeMessagePanelMinSize);
+        setMaximumSize(writeMessagePanelMaxSize);
+        setPreferredSize(writeMessagePanelDefaultSize);
 
-        this.editTextToolBar = new EditTextToolBar(this);
-        this.editTextToolBar.setVisible(
-            ConfigurationManager.isChatStylebarVisible());
-
-        this.add(editTextToolBar, BorderLayout.NORTH);
-        this.add(scrollPane, BorderLayout.CENTER);
+        this.add(centerPanel, BorderLayout.CENTER);
 
         this.rightButtonMenu =
             new WritePanelRightButtonMenu(chatPanel.getChatContainer());
-
-        scrollPane.setHorizontalScrollBarPolicy(
-            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
-        scrollPane.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(1, 0, 1, 0, Color.GRAY),
-            BorderFactory.createEmptyBorder(0, 2, 0, 2)));
-
-        scrollPane.setViewportView(editorPane);
 
         this.typingTimer.setRepeats(true);
 
@@ -133,13 +133,185 @@ public class ChatWritePanel
     }
 
     /**
-     * Shows or hides the Stylebar depending on the value of parameter b.
+     * Creates the center panel.
      *
-     * @param b if true, makes the Stylebar visible, otherwise hides the Stylebar
+     * @return the created center panel
      */
-    public void setStylebarVisible(boolean b)
+    private Container createCenter()
     {
-        this.editTextToolBar.setVisible(b);
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+
+        centerPanel.setBackground(Color.WHITE);
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 3));
+
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        initSmsLabel(centerPanel);
+        initTextArea(centerPanel);
+
+        smsCharCountLabel = new JLabel(String.valueOf(smsCharCount));
+        smsCharCountLabel.setForeground(Color.GRAY);
+        smsCharCountLabel.setVisible(false);
+
+        constraints.anchor = GridBagConstraints.NORTHEAST;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 3;
+        constraints.gridy = 0;
+        constraints.weightx = 0f;
+        constraints.weighty = 0f;
+        constraints.insets = new Insets(0, 2, 0, 2);
+        constraints.gridheight = 1;
+        constraints.gridwidth = 1;
+        centerPanel.add(smsCharCountLabel, constraints);
+
+        smsNumberLabel = new JLabel(String.valueOf(smsNumberCount))
+        {
+            public void paintComponent(Graphics g)
+            {
+                AntialiasingManager.activateAntialiasing(g);
+                g.setColor(getBackground());
+                g.fillOval(0, 0, getWidth(), getHeight());
+
+                super.paintComponent(g);
+            }
+        };
+        smsNumberLabel.setHorizontalAlignment(JLabel.CENTER);
+        smsNumberLabel.setPreferredSize(new Dimension(18, 18));
+        smsNumberLabel.setMinimumSize(new Dimension(18, 18));
+        smsNumberLabel.setForeground(Color.WHITE);
+        smsNumberLabel.setBackground(Color.GRAY);
+        smsNumberLabel.setVisible(false);
+
+        constraints.anchor = GridBagConstraints.NORTHEAST;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 4;
+        constraints.gridy = 0;
+        constraints.weightx = 0f;
+        constraints.weighty = 0f;
+        constraints.insets = new Insets(0, 2, 0, 2);
+        constraints.gridheight = 1;
+        constraints.gridwidth = 1;
+        centerPanel.add(smsNumberLabel, constraints);
+
+        return centerPanel;
+    }
+
+    /**
+     * Initializes the sms menu.
+     *
+     * @param centerPanel the parent panel
+     */
+    private void initSmsLabel(final JPanel centerPanel)
+    {
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        constraints.anchor = GridBagConstraints.NORTHWEST;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        constraints.gridheight = 1;
+        constraints.weightx = 0f;
+        constraints.weighty = 0f;
+        constraints.insets = new Insets(0, 3, 0, 0);
+
+        final Icon smsIcon = GuiActivator.getResources()
+        .getImage("service.gui.icons.SEND_SMS");
+
+        final Icon selectedIcon = GuiActivator.getResources()
+            .getImage("service.gui.icons.SEND_SMS_SELECTED");
+
+        smsLabel = new JLabel(smsIcon);
+        smsLabel.setVisible(true);
+
+        smsMenuItem = new JCheckBoxMenuItem(GuiActivator.getResources()
+            .getI18NString("service.gui.VIA_SMS"));
+
+        smsMenuItem.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent e)
+            {
+                smsMode = smsMenuItem.isSelected();
+
+                Color bgColor;
+                if (smsMode)
+                {
+                    smsLabel.setIcon(selectedIcon);
+                    bgColor = new Color(GuiActivator.getResources()
+                        .getColor("service.gui.LIST_SELECTION_COLOR"));
+                }
+                else
+                {
+                    smsLabel.setIcon(smsIcon);
+                    bgColor = Color.WHITE;
+                }
+
+                centerPanel.setBackground(bgColor);
+                editorPane.setBackground(bgColor);
+
+                smsLabel.repaint();
+            }
+        });
+
+        smsLabel.addMouseListener(new MouseAdapter()
+        {
+            public void mousePressed(MouseEvent mouseevent)
+            {
+                Point location = new Point(smsLabel.getX(),
+                    smsLabel.getY() + smsLabel.getHeight());
+
+                SwingUtilities.convertPointToScreen(location, smsLabel);
+
+                JPopupMenu smsPopupMenu = new JPopupMenu();
+                smsPopupMenu.setFocusable(true);
+                smsPopupMenu.setInvoker(ChatWritePanel.this);
+                smsPopupMenu.add(smsMenuItem);
+                smsPopupMenu.setLocation(location.x, location.y);
+                smsPopupMenu.setVisible(true);
+            }
+        });
+
+        centerPanel.add(smsLabel, constraints);
+    }
+
+    private void initTextArea(JPanel centerPanel)
+    {
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        editorPane.setContentType("text/html");
+        editorPane.putClientProperty(
+            JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+        editorPane.setCaretPosition(0);
+        editorPane.setEditorKit(new SIPCommHTMLEditorKit(this));
+        editorPane.getDocument().addUndoableEditListener(this);
+        editorPane.getDocument().addDocumentListener(this);
+        editorPane.addKeyListener(this);
+        editorPane.addMouseListener(this);
+        editorPane.setCursor(
+            Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+        editorPane.setDragEnabled(true);
+        editorPane.setTransferHandler(new ChatTransferHandler(chatPanel));
+
+        scrollPane.setHorizontalScrollBarPolicy(
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(
+            JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.setBorder(null);
+
+        scrollPane.setViewportView(editorPane);
+
+        constraints.anchor = GridBagConstraints.NORTHWEST;
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.gridx = 2;
+        constraints.gridy = 0;
+        constraints.weightx = 1f;
+        constraints.weighty = 1f;
+        constraints.gridheight = 1;
+        constraints.gridwidth = 1;
+        constraints.insets = new Insets(0, 0, 0, 0);
+        centerPanel.add(scrollPane, constraints);
     }
 
     /**
@@ -195,7 +367,7 @@ public class ChatWritePanel
             im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,
                 KeyEvent.SHIFT_DOWN_MASK), "newLine");
 
-            chatPanel.getChatSendPanel().getSendButton().setToolTipText(
+            this.setToolTipText(
                 "<html>"
                     + GuiActivator.getResources()
                         .getI18NString("service.gui.SEND_MESSAGE")
@@ -209,12 +381,33 @@ public class ChatWritePanel
                 KeyEvent.CTRL_DOWN_MASK), "send");
             im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "newLine");
 
-            chatPanel.getChatSendPanel().getSendButton()
-                .setToolTipText(
+            this.setToolTipText(
                     GuiActivator.getResources()
                         .getI18NString("service.gui.SEND_MESSAGE")
                         + " Ctrl-Enter");
         }
+    }
+
+    /**
+     * Enables/disables the sms mode.
+     *
+     * @param selected <tt>true</tt> to enable sms mode, <tt>false</tt> -
+     * otherwise
+     */
+    public void setSmsSelected(boolean selected)
+    {
+        smsMenuItem.setSelected(selected);
+    }
+
+    /**
+     * Returns <tt>true</tt> if the sms mode is enabled, otherwise returns
+     * <tt>false</tt>.
+     * @return <tt>true</tt> if the sms mode is enabled, otherwise returns
+     * <tt>false</tt>
+     */
+    public boolean isSmsSelected()
+    {
+        return smsMode;
     }
 
     /**
@@ -556,13 +749,231 @@ public class ChatWritePanel
     }
 
     /**
-     * Returns the toolbar above the chat write area.
+     * Initializes the send via label and selector box.
      *
-     * @return the toolbar above the chat write area.
+     * @return the chat transport selector box
      */
-    public EditTextToolBar getEditTextToolBar()
+    private Component createChatTransportSelectorBox()
     {
-        return editTextToolBar;
+        // Initialize the "send via" selector box and adds it to the send panel.
+        if (transportSelectorBox == null)
+        {
+            transportSelectorBox = new ChatTransportSelectorBox(
+                chatPanel,
+                chatPanel.getChatSession(),
+                chatPanel.getChatSession().getCurrentChatTransport());
+        }
+
+        return transportSelectorBox;
+    }
+
+    /**
+     * 
+     * @param isVisible
+     */
+    public void setTransportSelectorBoxVisible(boolean isVisible)
+    {
+        if (isVisible)
+        {
+            if (transportSelectorBox == null)
+            {
+                createChatTransportSelectorBox();
+
+                if (!transportSelectorBox.getMenu().isEnabled())
+                {
+                    // Show a message to the user that IM is not possible.
+                    chatPanel.getChatConversationPanel()
+                        .appendMessageToEnd("<h5>" +
+                            GuiActivator.getResources().
+                                getI18NString("service.gui.MSG_NOT_POSSIBLE") +
+                            "</h5>");
+                }
+                else
+                {
+                    GridBagConstraints constraints = new GridBagConstraints();
+                    constraints.anchor = GridBagConstraints.NORTHEAST;
+                    constraints.fill = GridBagConstraints.NONE;
+                    constraints.gridx = 0;
+                    constraints.gridy = 0;
+                    constraints.weightx = 0f;
+                    constraints.weighty = 0f;
+                    constraints.gridheight = 1;
+                    constraints.gridwidth = 1;
+
+                    centerPanel.add(transportSelectorBox, constraints, 0);
+                }
+            }
+            else
+            {
+                transportSelectorBox.setVisible(true);
+                centerPanel.repaint();
+            }
+        }
+        else if (transportSelectorBox != null)
+        {
+            transportSelectorBox.setVisible(false);
+            centerPanel.repaint();
+        }
+    }
+
+    /**
+     * Selects the given chat transport in the send via box.
+     *
+     * @param chatTransport the chat transport to be selected
+     */
+    public void setSelectedChatTransport(ChatTransport chatTransport)
+    {
+        if (transportSelectorBox != null)
+        {
+            transportSelectorBox.setSelected(chatTransport);
+        }
+    }
+
+    /**
+     * Adds the given chatTransport to the given send via selector box.
+     *
+     * @param chatTransport the transport to add
+     */
+    public void addChatTransport(ChatTransport chatTransport)
+    {
+        if (transportSelectorBox != null)
+            transportSelectorBox.addChatTransport(chatTransport);
+    }
+
+    /**
+     * Updates the status of the given chat transport in the send via selector
+     * box and notifies the user for the status change.
+     * @param chatTransport the <tt>chatTransport</tt> to update
+     */
+    public void updateChatTransportStatus(ChatTransport chatTransport)
+    {
+        if (transportSelectorBox != null)
+            transportSelectorBox.updateTransportStatus(chatTransport);
+    }
+
+    /**
+     * Opens the selector box containing the protocol contact icons.
+     * This is the menu, where user could select the protocol specific
+     * contact to communicate through.
+     */
+    public void openChatTransportSelectorBox()
+    {
+        transportSelectorBox.getMenu().doClick();
+    }
+
+    /**
+     * Removes the given chat status state from the send via selector box.
+     *
+     * @param chatTransport the transport to remove
+     */
+    public void removeChatTransport(ChatTransport chatTransport)
+    {
+        if (transportSelectorBox != null)
+            transportSelectorBox.removeChatTransport(chatTransport);
+    }
+
+    /**
+     * Show the sms menu.
+     * @param isVisible <tt>true</tt> to show the sms menu, <tt>false</tt> - 
+     * otherwise
+     */
+    public void setSmsLabelVisible(boolean isVisible)
+    {
+        // Re-init sms count properties.
+        smsCharCount = 160;
+        smsNumberCount = 1;
+
+        smsLabel.setVisible(isVisible);
+        smsCharCountLabel.setVisible(isVisible);
+        smsNumberLabel.setVisible(isVisible);
+
+        centerPanel.repaint();
+    }
+
+    /**
+     * Sets the font family and size
+     * @param family the family name
+     * @param size the size
+     */
+    public void setFontFamilyAndSize(String family, int size)
+    {
+        // Family
+        ActionEvent evt
+            = new ActionEvent(  editorPane,
+                                ActionEvent.ACTION_PERFORMED,
+                                family);
+        Action action = new StyledEditorKit.FontFamilyAction(family, family);
+        action.actionPerformed(evt);
+
+        // Size
+        evt = new ActionEvent(editorPane,
+            ActionEvent.ACTION_PERFORMED, Integer.toString(size));
+        action = new StyledEditorKit.FontSizeAction(Integer.toString(size), size);
+        action.actionPerformed(evt);
+    }
+
+    /**
+     * Enables the bold style
+     * @param b TRUE enable - FALSE disable
+     */
+    public void setBoldStyleEnable(boolean b)
+    {
+        if (b)
+        {
+            setStyleConstant(   new HTMLEditorKit.BoldAction(),
+                                StyleConstants.Bold);
+        }
+    }
+
+    /**
+     * Enables the italic style
+     * @param b TRUE enable - FALSE disable
+     */
+    public void setItalicStyleEnable(boolean b)
+    {
+        if (b)
+        {
+            setStyleConstant(   new HTMLEditorKit.ItalicAction(),
+                                StyleConstants.Italic);
+        }
+    }
+
+    /**
+     * Enables the underline style
+     * @param b TRUE enable - FALSE disable
+     */
+    public void setUnderlineStyleEnable(boolean b)
+    {
+        if (b)
+        {
+            setStyleConstant(   new HTMLEditorKit.UnderlineAction(),
+                                StyleConstants.Underline);
+        }
+    }
+
+    /**
+     * Sets the font color
+     * @param color the color
+     */
+    public void setFontColor(Color color)
+    {
+        ActionEvent evt
+            = new ActionEvent(editorPane, ActionEvent.ACTION_PERFORMED, "");
+        Action action
+            = new HTMLEditorKit.ForegroundAction(
+                    Integer.toString(color.getRGB()),
+                    color);
+
+        action.actionPerformed(evt);
+    }
+
+    private void setStyleConstant(Action action, Object styleConstant)
+    {
+        ActionEvent event = new ActionEvent(editorPane,
+            ActionEvent.ACTION_PERFORMED,
+            styleConstant.toString());
+
+        action.actionPerformed(event);
     }
 
     /**
@@ -595,5 +1006,55 @@ public class ChatWritePanel
     public void loadSkin()
     {
         getRightButtonMenu().loadSkin();
+    }
+
+    public void changedUpdate(DocumentEvent documentevent) {}
+
+    /**
+     * Updates write panel size and adjusts sms properties if the sms menu
+     * is visible.
+     *
+     * @param event the <tt>DocumentEvent</tt> that notified us
+     */
+    public void insertUpdate(DocumentEvent event)
+    {
+        // If we're in sms mode count the chars typed.
+        if (smsLabel.isVisible())
+        {
+            if (smsCharCount == 0)
+            {
+                smsCharCount = 159;
+                smsNumberCount ++;
+            }
+            else
+                smsCharCount--;
+
+            smsCharCountLabel.setText(String.valueOf(smsCharCount));
+            smsNumberLabel.setText(String.valueOf(smsNumberCount));
+        }
+    }
+
+    /**
+     * Updates write panel size and adjusts sms properties if the sms menu
+     * is visible.
+     *
+     * @param event the <tt>DocumentEvent</tt> that notified us
+     */
+    public void removeUpdate(DocumentEvent event)
+    {
+        // If we're in sms mode count the chars typed.
+        if (smsLabel.isVisible())
+        {
+            if (smsCharCount == 160 && smsNumberCount > 1)
+            {
+                smsCharCount = 0;
+                smsNumberCount --;
+            }
+            else
+                smsCharCount++;
+
+            smsCharCountLabel.setText(String.valueOf(smsCharCount));
+            smsNumberLabel.setText(String.valueOf(smsNumberCount));
+        }
     }
 }

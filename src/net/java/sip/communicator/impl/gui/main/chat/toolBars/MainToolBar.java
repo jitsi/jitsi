@@ -116,6 +116,15 @@ public class MainToolBar
                 ImageLoader.getImage(ImageLoader.CHAT_DESKTOP_SHARING));
 
     /**
+     * The font button.
+     */
+    private final ChatToolbarButton fontButton
+        = new ChatToolbarButton(
+                ImageLoader.getImage(ImageLoader.FONT_ICON));
+
+    private SmileysSelectorBox smileysBox;
+
+    /**
      * The current <tt>ChatSession</tt> made known to this instance by the last
      * call to its {@link #chatChanged(ChatPanel)}.
      */
@@ -166,24 +175,32 @@ public class MainToolBar
 
         this.add(callButton);
         this.add(desktopSharingButton);
+        this.add(sendFileButton);
+
+        this.addSeparator();
+
         this.add(historyButton);
+        this.add(previousButton);
+        this.add(nextButton);
 
         // We only add the options button if the property SHOW_OPTIONS_WINDOW
         // specifies so or if it's not set.
         Boolean showOptionsProp
             = GuiActivator.getConfigurationService()
                 .getBoolean(ConfigurationFrame.SHOW_OPTIONS_WINDOW_PROPERTY,
-                            true);
+                            false);
 
         if (showOptionsProp.booleanValue())
         {
             this.add(optionsButton);
         }
 
-        this.add(sendFileButton);
+        this.addSeparator();
 
-        this.add(previousButton);
-        this.add(nextButton);
+        this.add(fontButton);
+        initSmiliesSelectorBox();
+
+        this.addSeparator();
 
         this.inviteButton.setName("invite");
         this.inviteButton.setToolTipText(
@@ -212,6 +229,10 @@ public class MainToolBar
         optionsButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.OPTIONS"));
 
+        fontButton.setName("font");
+        fontButton.setToolTipText(
+            GuiActivator.getResources().getI18NString("service.gui.CHANGE_FONT"));
+
         this.sendFileButton.setName("sendFile");
         this.sendFileButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.SEND_FILE"));
@@ -224,15 +245,31 @@ public class MainToolBar
         this.nextButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.NEXT"));
 
-        this.inviteButton.addActionListener(this);
-        this.leaveChatRoomButton.addActionListener(this);
-        this.callButton.addActionListener(this);
-        this.desktopSharingButton.addActionListener(this);
-        this.historyButton.addActionListener(this);
+        inviteButton.addActionListener(this);
+        leaveChatRoomButton.addActionListener(this);
+        callButton.addActionListener(this);
+        desktopSharingButton.addActionListener(this);
+        historyButton.addActionListener(this);
         optionsButton.addActionListener(this);
-        this.sendFileButton.addActionListener(this);
-        this.previousButton.addActionListener(this);
-        this.nextButton.addActionListener(this);
+        fontButton.addActionListener(this);
+        sendFileButton.addActionListener(this);
+        previousButton.addActionListener(this);
+        nextButton.addActionListener(this);
+    }
+
+    private void initSmiliesSelectorBox()
+    {
+        this.smileysBox = new SmileysSelectorBox();
+
+        this.smileysBox.setName("smiley");
+        this.smileysBox.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.INSERT_SMILEY") + " Ctrl-M");
+
+        SIPCommMenuBar smileyMenuBar = new SIPCommMenuBar();
+        smileyMenuBar.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        smileyMenuBar.add(smileysBox);
+
+        this.add(smileyMenuBar);
     }
 
     /**
@@ -522,6 +559,8 @@ public class MainToolBar
         {
             GuiActivator.getUIService().setConfigurationWindowVisible(true);
         }
+        else if (buttonText.equals("font"))
+            chatPanel.showFontChooserDialog();
     }
 
     /**
@@ -532,6 +571,11 @@ public class MainToolBar
     public ChatToolbarButton getHistoryButton()
     {
         return historyButton;
+    }
+
+    public SmileysSelectorBox getSmileysBox()
+    {
+        return smileysBox;
     }
 
     /**
@@ -585,6 +629,14 @@ public class MainToolBar
     }
 
     /**
+     * Adds a separator to this tool bar.
+     */
+    private void addSeparator()
+    {
+        this.add(new JSeparator(SwingConstants.VERTICAL));
+    }
+
+    /**
      * Reloads icons for buttons.
      */
     public void loadSkin()
@@ -597,6 +649,9 @@ public class MainToolBar
 
         sendFileButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.SEND_FILE_ICON));
+
+        fontButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.FONT_ICON));
 
         previousButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.PREVIOUS_ICON));

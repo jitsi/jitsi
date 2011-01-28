@@ -341,7 +341,7 @@ public class HistoryWindow
     /**
      * Implements <tt>ChatConversationContainer.setStatusMessage</tt> method.
      */
-    public void setStatusMessage(String message) {}
+    public void addTypingNotification(String message) {}
 
     /**
      * Implements <tt>ChatConversationContainer.getWindow</tt> method.

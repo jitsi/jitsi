@@ -30,5 +30,5 @@ public interface ChatConversationContainer
      * 
      * @param statusMessage the status message to set
      */
-    public void setStatusMessage(String statusMessage);
+    public void addTypingNotification(String statusMessage);
 }

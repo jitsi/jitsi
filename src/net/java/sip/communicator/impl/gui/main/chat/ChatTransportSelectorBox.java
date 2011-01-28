@@ -12,7 +12,6 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
@@ -38,9 +37,11 @@ public class ChatTransportSelectorBox
     private final Map<ChatTransport, JMenuItem> transportMenuItems =
         new Hashtable<ChatTransport, JMenuItem>();
 
-    private final SIPCommMenu menu = new SIPCommMenu();
+    private final SIPCommMenu menu = new SelectorMenu();
 
     private final ChatSession chatSession;
+
+    private final ChatPanel chatPanel;
 
     /**
      * Creates an instance of <tt>ChatTransportSelectorBox</tt>.
@@ -48,26 +49,40 @@ public class ChatTransportSelectorBox
      * @param chatSession the corresponding chat session
      * @param selectedChatTransport the chat transport to select by default
      */
-    public ChatTransportSelectorBox(ChatSession chatSession,
+    public ChatTransportSelectorBox(ChatPanel chatPanel,
+                                    ChatSession chatSession,
                                     ChatTransport selectedChatTransport)
     {
+        this.chatPanel = chatPanel;
         this.chatSession = chatSession;
 
-        this.menu.setPreferredSize(new Dimension(28, 24));
-        this.menu.setUI(new SIPCommSelectorMenuUI());
+        setPreferredSize(new Dimension(30, 28));
+        setMaximumSize(new Dimension(30, 28));
+        setMinimumSize(new Dimension(30, 28));
+
+        this.menu.setPreferredSize(new Dimension(30, 45));
+        this.menu.setMaximumSize(new Dimension(30, 45));
 
         this.add(menu);
+
+        this.setBorder(null);
+        this.menu.setBorder(null);
+        this.menu.setOpaque(false);
+        this.setOpaque(false);
 
         // as a default disable the menu, it will be enabled as soon as we add
         // a valid menu item
         this.menu.setEnabled(false);
 
-        Iterator<ChatTransport> chatTransports = chatSession.getChatTransports();
+        Iterator<ChatTransport> chatTransports
+            = chatSession.getChatTransports();
+
         while (chatTransports.hasNext())
             this.addChatTransport(chatTransports.next());
 
         if (this.menu.getItemCount() > 0 &&
-            selectedChatTransport.allowsInstantMessage())
+            (selectedChatTransport.allowsInstantMessage()
+                || selectedChatTransport.allowsSmsMessage()))
         {
             this.setSelected(selectedChatTransport);
         }
@@ -90,7 +105,8 @@ public class ChatTransportSelectorBox
      */
     public void addChatTransport(ChatTransport chatTransport)
     {
-        if (chatTransport.allowsInstantMessage())
+        if (chatTransport.allowsInstantMessage()
+            || chatTransport.allowsSmsMessage())
         {
             Image img = createTransportStatusImage(chatTransport);
 
@@ -238,6 +254,9 @@ public class ChatTransportSelectorBox
             tooltipText += chatTransport.getDisplayName();
 
         this.menu.setToolTipText(tooltipText);
+
+        chatPanel.getChatWritePanel().setSmsLabelVisible(
+            chatTransport.allowsSmsMessage());
     }
 
     /**
@@ -278,15 +297,18 @@ public class ChatTransportSelectorBox
         return false;
     }
 
-    /**
-     * Reloads UI defs.
-     */
-    public void loadSkin()
+    private class SelectorMenu extends SIPCommMenu
     {
-        super.loadSkin();
+        Image image = ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON);
 
-        if(menu != null && menu.getUI() != null
-                && menu.getUI() instanceof SIPCommSelectorMenuUI)
-            ((SIPCommSelectorMenuUI) menu.getUI()).loadSkin();
+        public void paintComponent(Graphics g)
+        {
+            super.paintComponent(g);
+
+            g.drawImage(image,
+                getWidth() - image.getWidth(this) - 1,
+                (getHeight() - image.getHeight(this) - 1)/2,
+                this);
+        }
     }
 }
