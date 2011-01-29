@@ -151,6 +151,7 @@ public class ChatPanel
         topPanel.setBackground(Color.WHITE);
         topPanel.setBorder(
             BorderFactory.createMatteBorder(1, 0, 1, 0, Color.GRAY));
+        initTypingNotificationLabel();
 
         this.writeMessagePanel = new ChatWritePanel(this);
 
@@ -347,31 +348,12 @@ public class ChatPanel
      */
     public void addTypingNotification(String typingNotification)
     {
-        if (typingNotificationLabel == null)
-        {
-            typingNotificationLabel
-                = new JLabel(   typingNotification,
-                                typingIcon,
-                                SwingConstants.CENTER);
+        typingNotificationLabel.setText(typingNotification);
 
-            typingNotificationLabel.setPreferredSize(new Dimension(500, 20));
-            typingNotificationLabel.setForeground(Color.GRAY);
-            typingNotificationLabel.setFont(
-                typingNotificationLabel.getFont().deriveFont(11f));
-            typingNotificationLabel.setVerticalTextPosition(JLabel.BOTTOM);
-            typingNotificationLabel.setHorizontalTextPosition(JLabel.LEFT);
-            typingNotificationLabel.setIconTextGap(0);
-            topPanel.add(typingNotificationLabel, BorderLayout.SOUTH);
-        }
+        if (typingNotification != null && !typingNotification.equals(" "))
+            typingNotificationLabel.setIcon(typingIcon);
         else
-        {
-            typingNotificationLabel.setText(typingNotification);
-
-            if (typingNotification != null && !typingNotification.equals(" "))
-                typingNotificationLabel.setIcon(typingIcon);
-            else
-                typingNotificationLabel.setIcon(null);
-        }
+            typingNotificationLabel.setIcon(null);
 
         revalidate();
         repaint();
@@ -385,6 +367,23 @@ public class ChatPanel
         addTypingNotification(" ");
     }
 
+    /**
+     * Initializes the typing notification label.
+     */
+    private void initTypingNotificationLabel()
+    {
+        typingNotificationLabel
+            = new JLabel(" ", SwingConstants.CENTER);
+
+        typingNotificationLabel.setPreferredSize(new Dimension(500, 20));
+        typingNotificationLabel.setForeground(Color.GRAY);
+        typingNotificationLabel.setFont(
+            typingNotificationLabel.getFont().deriveFont(11f));
+        typingNotificationLabel.setVerticalTextPosition(JLabel.BOTTOM);
+        typingNotificationLabel.setHorizontalTextPosition(JLabel.LEFT);
+        typingNotificationLabel.setIconTextGap(0);
+        topPanel.add(typingNotificationLabel, BorderLayout.SOUTH);
+    }
 
     /**
      * Returns the conversation panel, contained in this chat panel.

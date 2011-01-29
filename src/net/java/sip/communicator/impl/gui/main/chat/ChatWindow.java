@@ -711,7 +711,8 @@ public class ChatWindow
                 writePanelRightMenu.setVisible(false);
             }
             else if ((menuBar.getSelectedMenu() != null)
-                        || mainToolBar.getSmileysBox().isVisible())
+                        || mainToolBar.getSmileysBox()
+                            .getPopupMenu().isVisible())
             {
                 MenuSelectionManager.defaultManager().clearSelectedPath();
             }
