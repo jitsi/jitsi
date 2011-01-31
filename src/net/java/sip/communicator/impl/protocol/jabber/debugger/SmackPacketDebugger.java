@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber.debugger;
 
 import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.service.packetlogging.*;
+import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
 
@@ -60,7 +61,21 @@ public class SmackPacketDebugger
 
         try
         {
-            remoteAddress = InetAddress.getByName(connection.getHost()).getAddress();
+            InetSocketAddress inetAddress;
+
+            if(Boolean.getBoolean("java.net.preferIPv6Addresses"))
+            {
+                inetAddress = NetworkUtils.getAAAARecord(
+                        connection.getHost(), 0);
+            }
+            else
+            {
+                inetAddress = NetworkUtils.getARecord(
+                        connection.getHost(), 0);
+            }
+
+            if(inetAddress != null)
+                remoteAddress = inetAddress.getAddress().getAddress();
 
             // to create empty ipv6 address default is ipv4
             if(remoteAddress.length != localAddress.length)

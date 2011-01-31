@@ -98,4 +98,11 @@ public interface PacketLoggingService
             byte[] packetContent,
             int packetOffset,
             int packetLength);
+
+    /**
+     * Returns the current Packet Logging Configuration.
+     *
+     * @return the Packet Logging Configuration.
+     */
+    public PacketLoggingConfiguration getConfiguration();
 }

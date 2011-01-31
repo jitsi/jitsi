@@ -38,6 +38,11 @@ public class PacketLoggingServiceImpl
     private SaverThread saverThread = new SaverThread();
 
     /**
+     * The current configuration.
+     */
+    private PacketLoggingConfiguration packetLoggingConfiguration = null;
+
+    /**
      * The fake ethernet header we use as template. 
      */
     private final static byte[] fakeEthernetHeader =
@@ -133,17 +138,6 @@ public class PacketLoggingServiceImpl
     private long written = 0;
 
     /**
-     * The limit for the file size.
-     * 0 means no limit.
-     */
-    private long limit = 5000000;
-
-     /**
-     * The counter for number of files.
-     */
-    private int logfileCount = 3;
-
-    /**
      * All the files we can use for writing.
      */
     private File[] files;
@@ -154,14 +148,6 @@ public class PacketLoggingServiceImpl
      */
     public void start()
     {
-        limit = PacketLoggingActivator.getConfigurationService().getLong(
-            PacketLoggingActivator.PACKET_LOGGING_FILE_SIZE_PROPERTY_NAME,
-            limit);
-
-        logfileCount = PacketLoggingActivator.getConfigurationService().getInt(
-            PacketLoggingActivator.PACKET_LOGGING_FILE_COUNT_PROPERTY_NAME,
-            logfileCount);
-
         saverThread.start();
     }
 
@@ -172,11 +158,13 @@ public class PacketLoggingServiceImpl
     private void getFileNames()
         throws Exception
     {
-        files = new File[getLogfileCount()];
-        for(int i = 0; i < getLogfileCount(); i++)
+        files = new File[getConfiguration().getLogfileCount()];
+        for(int i = 0; i < getConfiguration().getLogfileCount(); i++)
         {
             files[i] = PacketLoggingActivator.getFileAccessService()
-                .getPrivatePersistentFile("log/sip-communicator" + i + ".pcap");
+                .getPrivatePersistentFile(
+                    PacketLoggingActivator.LOGGING_DIR_NAME
+                        + File.separator + "sip-communicator" + i + ".pcap");
         }
     }
 
@@ -194,7 +182,7 @@ public class PacketLoggingServiceImpl
             outputStream.close();
         }
 
-        for (int i = getLogfileCount() -2; i >= 0; i--)
+        for (int i = getConfiguration().getLogfileCount() -2; i >= 0; i--)
         {
             File f1 = files[i];
             File f2 = files[i+1];
@@ -288,7 +276,7 @@ public class PacketLoggingServiceImpl
      */
     public boolean isLoggingEnabled()
     {
-        return PacketLoggingActivator.isGlobalLoggingEnabled();
+        return getConfiguration().isGlobalLoggingEnabled();
     }
 
     /**
@@ -303,17 +291,17 @@ public class PacketLoggingServiceImpl
         switch(protocol)
         {
             case SIP:
-                return PacketLoggingActivator.isGlobalLoggingEnabled()
-                        && PacketLoggingActivator.isSipLoggingEnabled();
+                return getConfiguration().isGlobalLoggingEnabled()
+                        && getConfiguration().isSipLoggingEnabled();
             case JABBER:
-                return PacketLoggingActivator.isGlobalLoggingEnabled()
-                        && PacketLoggingActivator.isJabberLoggingEnabled();
+                return getConfiguration().isGlobalLoggingEnabled()
+                        && getConfiguration().isJabberLoggingEnabled();
             case RTP:
-                return PacketLoggingActivator.isGlobalLoggingEnabled()
-                        && PacketLoggingActivator.isRTPLoggingEnabled();
+                return getConfiguration().isGlobalLoggingEnabled()
+                        && getConfiguration().isRTPLoggingEnabled();
             case ICE4J:
-                return PacketLoggingActivator.isGlobalLoggingEnabled()
-                        && PacketLoggingActivator.isIce4JLoggingEnabled();
+                return getConfiguration().isGlobalLoggingEnabled()
+                        && getConfiguration().isIce4JLoggingEnabled();
             default:
                 return false;
         }
@@ -382,6 +370,19 @@ public class PacketLoggingServiceImpl
                        packetContent,
                        packetOffset,
                        packetLength));
+    }
+
+    /**
+     * Returns the current Packet Logging Configuration.
+     *
+     * @return the Packet Logging Configuration.
+     */
+    public PacketLoggingConfiguration getConfiguration()
+    {
+        if(packetLoggingConfiguration == null)
+            packetLoggingConfiguration = new PacketLoggingConfigurationImpl();
+
+        return packetLoggingConfiguration;
     }
 
     /**
@@ -537,7 +538,8 @@ public class PacketLoggingServiceImpl
                 rotateFiles();// this one opens the file for write
             }
 
-            if(getLimit() > 0 && written > getLimit())
+            if(getConfiguration().getLimit() > 0
+                && written > getConfiguration().getLimit())
                 rotateFiles();
 
             addInt(tsSec);
@@ -625,50 +627,6 @@ public class PacketLoggingServiceImpl
         total = (~total & 0xffff);
 
         return total;
-    }
-
-    /**
-     * The limit for the file size. 0 means no limit.
-     * @return the file size limit.
-     */
-    public long getLimit()
-    {
-        return limit;
-    }
-
-    /**
-     * Changes the file size limit.
-     * @param limit the new limit size.
-     */
-    public void setLimit(long limit)
-    {
-        this.limit = limit;
-
-        PacketLoggingActivator.getConfigurationService().setProperty(
-                PacketLoggingActivator.PACKET_LOGGING_FILE_SIZE_PROPERTY_NAME,
-                limit);
-    }
-
-    /**
-     * The counter for number of files.
-     * @return the number of file counts.
-     */
-    public int getLogfileCount()
-    {
-        return logfileCount;
-    }
-
-    /**
-     * Changes file count.
-     * @param logfileCount the new file count.
-     */
-    public void setLogfileCount(int logfileCount)
-    {
-        this.logfileCount = logfileCount;
-
-        PacketLoggingActivator.getConfigurationService().setProperty(
-                PacketLoggingActivator.PACKET_LOGGING_FILE_COUNT_PROPERTY_NAME,
-                logfileCount);
     }
 
     /**

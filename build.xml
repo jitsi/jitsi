@@ -925,6 +925,7 @@
         bundle-vimeo,bundle-vbox7,bundle-metacafe,bundle-flickr,bundle-hulu,
         bundle-twitpic,bundle-directimage,bundle-bliptv,bundle-viddler,
         bundle-plugin-chatconfig,bundle-certificate,bundle-packetlogging,
+        bundle-plugin-loggingutils,
         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
         bundle-provisioning,bundle-addrbook"/>
 
@@ -2372,11 +2373,11 @@ org.apache.http.util"/>
             <zipfileset src="${lib.noinst}/lcrypto-jdk16-143.jar"/>
             <manifest>
                 <attribute name="Export-Package" value="org.bouncycastle.asn1,
-			        org.bouncycastle.asn1.nist,
-                	org.bouncycastle.asn1.sec,
-                	org.bouncycastle.asn1.x9,
-                	org.bouncycastle.crypto,
-                	org.bouncycastle.crypto.agreement,
+                    org.bouncycastle.asn1.nist,
+                    org.bouncycastle.asn1.sec,
+                    org.bouncycastle.asn1.x9,
+                    org.bouncycastle.crypto,
+                    org.bouncycastle.crypto.agreement,
                     org.bouncycastle.crypto.digests,
                     org.bouncycastle.crypto.engines,
                     org.bouncycastle.crypto.generators,
@@ -2667,6 +2668,13 @@ org.apache.http.util"/>
                 prefix="net/java/sip/communicator/service/packetlogging" />
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/packetlogging"
                 prefix="net/java/sip/communicator/impl/packetlogging" />
+        </jar>
+    </target>
+    <target name="bundle-plugin-loggingutils">
+        <jar compress="false" destfile="${bundles.dest}/plugin-loggingutils.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/loggingutils/loggingutils.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/loggingutils"
+                prefix="net/java/sip/communicator/plugin/loggingutils" />
         </jar>
     </target>
 </project>
