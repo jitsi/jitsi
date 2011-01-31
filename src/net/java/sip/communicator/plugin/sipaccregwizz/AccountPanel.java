@@ -121,7 +121,7 @@ public class AccountPanel
         uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
             .getString("plugin.sipaccregwizz.USERNAME_AND_PASSWORD")));
 
-        CreateAccountService createAccountService
+        SIPAccountCreationFormService createAccountService
             = regform.getCreateAccountService();
 
         if (createAccountService != null)

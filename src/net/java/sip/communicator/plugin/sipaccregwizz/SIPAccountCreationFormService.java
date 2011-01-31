@@ -13,7 +13,7 @@ import java.awt.*;
  *
  * @author Yana Stamcheva
  */
-public interface CreateAccountService
+public interface SIPAccountCreationFormService
 {
     /**
      * Creates an account for a specific server.

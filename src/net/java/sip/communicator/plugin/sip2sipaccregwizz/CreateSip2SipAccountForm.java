@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class CreateSip2SipAccountForm
     extends TransparentPanel
-    implements CreateAccountService
+    implements SIPAccountCreationFormService
 {
     /**
      * The logger.

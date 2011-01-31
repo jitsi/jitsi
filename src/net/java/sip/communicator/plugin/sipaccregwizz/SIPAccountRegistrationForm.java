@@ -62,7 +62,7 @@ public class SIPAccountRegistrationForm
 
         accountPanel.initAdvancedForm();
 
-        CreateAccountService createService = getCreateAccountService();
+        SIPAccountCreationFormService createService = getCreateAccountService();
         if (createService != null)
             createService.clear();
 
@@ -437,7 +437,7 @@ public class SIPAccountRegistrationForm
      */
     public Component getSimpleForm()
     {
-        CreateAccountService createAccountService = getCreateAccountService();
+        SIPAccountCreationFormService createAccountService = getCreateAccountService();
         if (createAccountService != null)
             createAccountService.clear();
 
@@ -485,7 +485,7 @@ public class SIPAccountRegistrationForm
      * specific protocol provider wizards.
      * @return an instance of <tt>CreateAccountService</tt>
      */
-    public CreateAccountService getCreateAccountService()
+    public SIPAccountCreationFormService getCreateAccountService()
     {
          return wizard.getCreateAccountService();
     }

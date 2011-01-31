@@ -715,7 +715,7 @@ public class SIPAccountRegistrationWizard
      * specific protocol provider wizards.
      * @return an instance of <tt>CreateAccountService</tt>
      */
-    protected CreateAccountService getCreateAccountService()
+    protected SIPAccountCreationFormService getCreateAccountService()
     {
         return null;
     }
