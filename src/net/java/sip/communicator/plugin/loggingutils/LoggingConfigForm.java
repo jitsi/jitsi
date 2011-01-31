@@ -90,12 +90,12 @@ public class LoggingConfigForm
     /**
      * Archive logs button.
      */
-    private SIPCommTextButton archiveButton;
+    private JButton archiveButton;
 
     /**
      * Archive logs button.
      */
-    private SIPCommTextButton uploadLogsButton;
+    private JButton uploadLogsButton;
 
     /**
      * Creates Packet Logging Config form.
@@ -212,7 +212,7 @@ public class LoggingConfigForm
         c.gridy = 3;
         mainPanel.add(advancedPanel, c);
 
-        archiveButton = new SIPCommTextButton(
+        archiveButton = new JButton(
             resources.getI18NString("plugin.loggingutils.ARCHIVE_BUTTON"));
         archiveButton.addActionListener(this);
 
@@ -229,7 +229,7 @@ public class LoggingConfigForm
 
         if(!StringUtils.isNullOrEmpty(uploadLocation))
         {
-            uploadLogsButton = new SIPCommTextButton(
+            uploadLogsButton = new JButton(
                 resources.getI18NString("plugin.loggingutils.UPLOAD_LOGS_BUTTON"));
             uploadLogsButton.addActionListener(this);
 
@@ -416,8 +416,8 @@ public class LoggingConfigForm
         SipCommFileChooser fileChooser = GenericFileDialog.create(
             null,
             resources.getI18NString(
-                    "plugin.callrecordingconfig.CHOOSE_DIR"),
-            SipCommFileChooser.LOAD_FILE_OPERATION);
+                    "plugin.loggingutils.ARCHIVE_FILECHOOSE_TITLE"),
+            SipCommFileChooser.SAVE_FILE_OPERATION);
         fileChooser.setSelectionMode(
                 SipCommFileChooser.SAVE_FILE_OPERATION);
 
@@ -437,7 +437,7 @@ public class LoggingConfigForm
         if(dest == null)
             return;
 
-        dest = LogsCollector.collectLogs(dest);
+        dest = LogsCollector.collectLogs(dest, null);
 
         NotificationService notificationService
             = LoggingUtilsActivator.getNotificationService();
@@ -464,9 +464,168 @@ public class LoggingConfigForm
     }
 
     /**
-     * Upload files to pre-configured url.
+     * Shows a dialog with input for logs description.
      */
     private void uploadLogs()
+    {
+        ResourceManagementService resources =
+            LoggingUtilsActivator.getResourceService();
+
+        final SIPCommDialog dialog = new SIPCommDialog(false)
+        {
+
+            /**
+             * Dialog is closed. Do nothing.
+             * @param escaped <tt>true</tt> if this dialog has been
+             * closed by pressing
+             */
+            protected void close(boolean escaped)
+            {}
+        };
+
+        dialog.setModal(true);
+        dialog.setTitle(resources.getI18NString(
+            "plugin.loggingutils.UPLOAD_LOGS_BUTTON"));
+
+        Container container = dialog.getContentPane();
+        container.setLayout(new GridBagLayout());
+
+        JLabel descriptionLabel = new JLabel("Add a comment:");
+        final JTextArea commentTextArea = new JTextArea();
+        commentTextArea.setRows(4);
+        final JButton uploadButton = new JButton(
+            resources.getI18NString("plugin.loggingutils.UPLOAD_BUTTON"));
+        final SIPCommTextField emailField = new SIPCommTextField(resources
+            .getI18NString("plugin.loggingutils.ARCHIVE_UPREPORT_EMAIL"));
+        final JCheckBox emailCheckBox = new SIPCommCheckBox(
+            "Email me when more information is available");
+        emailCheckBox.setSelected(true);
+        emailCheckBox.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if(!emailCheckBox.isSelected())
+                {
+                    uploadButton.setEnabled(true);
+                    emailField.setEnabled(false);
+                }
+                else
+                {
+                    emailField.setEnabled(true);
+
+                    if(emailField.getText() != null
+                        && emailField.getText().trim().length() > 0)
+                        uploadButton.setEnabled(true);
+                    else
+                        uploadButton.setEnabled(false);
+                }
+            }
+        });
+
+        emailField.getDocument().addDocumentListener(new DocumentListener()
+        {
+            public void insertUpdate(DocumentEvent e)
+            {
+                updateButtonsState();
+            }
+
+            public void removeUpdate(DocumentEvent e)
+            {
+                updateButtonsState();
+            }
+
+            public void changedUpdate(DocumentEvent e){}
+
+            /**
+             * Check whether we should enable upload button.
+             */
+            private void updateButtonsState()
+            {
+                if(emailCheckBox.isSelected() && emailField.getText() != null
+                    && emailField.getText().trim().length() > 0)
+                    uploadButton.setEnabled(true);
+                else
+                    uploadButton.setEnabled(false);
+            }
+        });
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(10, 10, 3, 10);
+        c.weightx = 1.0;
+        c.gridx = 0;
+        c.gridy = 0;
+
+        container.add(descriptionLabel, c);
+
+        c.insets = new Insets(0, 10, 10, 10);
+        c.gridy = 1;
+        container.add(new JScrollPane(commentTextArea), c);
+
+        c.insets = new Insets(0, 10, 0, 10);
+        c.gridy = 2;
+        container.add(emailCheckBox, c);
+
+        c.insets = new Insets(0, 10, 10, 10);
+        c.gridy = 3;
+        container.add(emailField, c);
+
+        JButton cancelButton = new JButton(
+            resources.getI18NString("service.gui.CANCEL"));
+        cancelButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                dialog.dispose();
+            }
+        });
+
+        uploadButton.setEnabled(false);
+        uploadButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                try
+                {
+                    ArrayList<String> paramNames = new ArrayList<String>();
+                    ArrayList<String> paramValues = new ArrayList<String>();
+
+                    if(emailCheckBox.isSelected())
+                    {
+                        paramNames.add("Email");
+                        paramValues.add(emailField.getText());
+                    }
+
+                    paramNames.add("Description");
+                    paramValues.add(commentTextArea.getText());
+
+                    uploadLogs(
+                        paramNames.toArray(new String[]{}),
+                        paramValues.toArray(new String[]{}));
+                }
+                finally
+                {
+                    dialog.dispose();
+                }
+            }
+        });
+        JPanel buttonsPanel = new TransparentPanel(
+            new FlowLayout(FlowLayout.RIGHT));
+        buttonsPanel.add(uploadButton);
+        buttonsPanel.add(cancelButton);
+
+        c.anchor = GridBagConstraints.LINE_END;
+        c.weightx = 0;
+        c.gridy = 4;
+        container.add(buttonsPanel, c);
+
+        dialog.setVisible(true);
+    }
+
+    /**
+     * Upload files to pre-configured url.
+     */
+    private void uploadLogs(String[] params, String[] values)
     {
         try
         {
@@ -475,7 +634,31 @@ public class LoggingConfigForm
             File newDest = new File(
                     tempDir, LogsCollector.getDefaultFileName());
 
-            newDest = LogsCollector.collectLogs(newDest);
+            File optionalFile = null;
+
+            // if we have some description params
+            // save them to file and add it to archive
+            if(params != null)
+            {
+                optionalFile = new File(
+                    LoggingUtilsActivator.getFileAccessService().
+                        getTemporaryDirectory(),
+                    "description.txt");
+                OutputStream out = new FileOutputStream(optionalFile);
+                for(int i = 0; i < params.length; i++)
+                {
+                    out.write((params[i] + " : "
+                        + values[i] + "\r\n").getBytes("UTF-8"));
+                }
+                out.flush();
+                out.close();
+            }
+
+            newDest = LogsCollector.collectLogs(newDest, optionalFile);
+
+            // don't leave any unneeded information
+            if(optionalFile != null)
+                optionalFile.delete();
 
             String uploadLocation =
                 LoggingUtilsActivator.getResourceService()

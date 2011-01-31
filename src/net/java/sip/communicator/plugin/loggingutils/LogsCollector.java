@@ -54,9 +54,10 @@ public class LogsCollector
      * we generate filename with current date and time. If the destination
      * is null we do nothing and if its a file we use at, as we check
      * does it end with zip extension, is missing we add it.
-     * @param destination
+     * @param destination the possible destination archived file
+     * @param optional an optional file to be added to the archive.
      */
-    static File collectLogs(File destination)
+    static File collectLogs(File destination, File optional)
     {
         if(destination == null)
             return null;
@@ -79,6 +80,11 @@ public class LogsCollector
 
             collectHomeFolderLogs(out);
             collectJavaCrashLogs(out);
+
+            if(optional != null)
+            {
+                addFileToZip(optional, out);
+            }
 
             out.close();
 
@@ -225,6 +231,10 @@ public class LogsCollector
     private static void addCrashFilesToArchive(
             File files[], String filterStartsWith, ZipOutputStream out)
     {
+        // no files to add
+        if(files == null)
+            return;
+
         byte[] buf = new byte[1024];
         // First check in working dir
         for(File f: files)
