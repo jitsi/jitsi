@@ -263,6 +263,7 @@ public class JNIDecoder
 
         // Ask FFmpeg to decode.
         got_picture[0] = false;
+
         // TODO Take into account the offset of inputBuffer.
         FFmpeg.avcodec_decode_video(
                 avcontext,

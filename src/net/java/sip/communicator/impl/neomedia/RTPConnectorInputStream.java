@@ -86,6 +86,14 @@ public class RTPConnectorInputStream
     {
         this.socket = socket;
 
+        try
+        {
+            this.socket.setReceiveBufferSize(65535);
+        }
+        catch(IOException e)
+        {
+        }
+
         closed = false;
         receiverThread = new Thread(this);
         receiverThread.start();
