@@ -86,14 +86,6 @@ public class RTPConnectorInputStream
     {
         this.socket = socket;
 
-        try
-        {
-            this.socket.setReceiveBufferSize(65535);
-        }
-        catch(IOException e)
-        {
-        }
-
         closed = false;
         receiverThread = new Thread(this);
         receiverThread.start();
@@ -253,6 +245,15 @@ public class RTPConnectorInputStream
      */
     public void run()
     {
+        try
+        {
+            socket.setReceiveBufferSize(65535);
+        }
+        catch(Throwable t)
+        {
+            System.out.println("plop " + t);
+        }
+
         while (!closed)
         {
             DatagramPacket p = new DatagramPacket(
