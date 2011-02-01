@@ -1242,15 +1242,16 @@ public class ConfigurationServiceImpl
      * Goes over all system properties and outputs their names and values for
      * debug purposes. The method has no effect if the logger is at a log level
      * other than DEBUG or TRACE (FINE or FINEST).
+     * * Changed that system properties are printed in INFO level and this way
+     *   they are included in the beginning of every users log file.
      */
     private void debugPrintSystemProperties()
     {
-        if (logger.isDebugEnabled())
+        if(logger.isInfoEnabled())
         {
             for (Map.Entry<Object, Object> entry
                     : System.getProperties().entrySet())
-                if (logger.isDebugEnabled())
-                    logger.debug(entry.getKey() + "=" + entry.getValue());
+                    logger.info(entry.getKey() + "=" + entry.getValue());
         }
     }
 
