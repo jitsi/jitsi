@@ -13,6 +13,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.border.*;
+import javax.swing.event.*;
 
 import org.osgi.framework.*;
 
@@ -106,6 +107,11 @@ public class CallPanel
      * The video button.
      */
     private LocalVideoButton videoButton;
+
+    /**
+     * The button responsible for hiding/showing the local video.
+     */
+    private ShowHideVideoButton showHideVideoButton;
 
     /**
      * The desktop sharing button.
@@ -260,6 +266,23 @@ public class CallPanel
         holdButton = new HoldButton(call);
         recordButton = new RecordButton(call);
         videoButton = new LocalVideoButton(call);
+        showHideVideoButton = new ShowHideVideoButton(call);
+
+        showHideVideoButton.setPeerRenderer(((OneToOneCallPanel) callPanel)
+            .getCallPeerRenderer(call.getCallPeers().next()));
+
+        // When the local video is enabled/disabled we ensure that the show/hide
+        // local video button is selected/unselected.
+        videoButton.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent e)
+            {
+                boolean isVideoSelected = videoButton.isSelected();
+                showHideVideoButton.setEnabled(isVideoSelected);
+                showHideVideoButton.setSelected(isVideoSelected);
+            }
+        });
+
         desktopSharingButton = new DesktopSharingButton(call);
         transferCallButton = new TransferCallButton(call);
         fullScreenButton = new FullScreenButton(this);
@@ -307,6 +330,7 @@ public class CallPanel
             // Buttons would be enabled once the call has entered in state
             // connected.
             videoButton.setEnabled(false);
+            showHideVideoButton.setEnabled(false);
             desktopSharingButton.setEnabled(false);
             transferCallButton.setEnabled(false);
             fullScreenButton.setEnabled(false);
@@ -467,6 +491,44 @@ public class CallPanel
             videoButton.setSelected(true);
         else if (!isSelected && videoButton.isSelected())
             videoButton.setSelected(false);
+    }
+
+    /**
+     * Returns <tt>true</tt> if the video button is currently selected,
+     * <tt>false</tt> - otherwise.
+     *
+     * @return <tt>true</tt> if the video button is currently selected,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isVideoButtonSelected()
+    {
+        return videoButton.isSelected();
+    }
+
+    /**
+     * Selects or unselects the show/hide video button in this call dialog.
+     *
+     * @param isSelected indicates if the show/hide video button should be
+     * selected or not
+     */
+    public void setShowHideVideoButtonSelected(boolean isSelected)
+    {
+        if (isSelected && !showHideVideoButton.isSelected())
+            showHideVideoButton.setSelected(true);
+        else if (!isSelected && showHideVideoButton.isSelected())
+            showHideVideoButton.setSelected(false);
+    }
+
+    /**
+     * Returns <tt>true</tt> if the show/hide video button is currently selected,
+     * <tt>false</tt> - otherwise.
+     *
+     * @return <tt>true</tt> if the show/hide video button is currently selected,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isShowHideVideoButtonSelected()
+    {
+        return showHideVideoButton.isSelected();
     }
 
     /**
@@ -988,6 +1050,7 @@ public class CallPanel
             fullScreenButton.doClick();
 
         settingsPanel.remove(videoButton);
+        settingsPanel.remove(showHideVideoButton);
         settingsPanel.remove(desktopSharingButton);
         settingsPanel.remove(transferCallButton);
         settingsPanel.remove(fullScreenButton);
@@ -999,6 +1062,7 @@ public class CallPanel
     private void addOneToOneSpecificComponents()
     {
         settingsPanel.add(videoButton);
+        settingsPanel.add(showHideVideoButton);
         settingsPanel.add(desktopSharingButton);
         settingsPanel.add(transferCallButton);
         settingsPanel.add(fullScreenButton);

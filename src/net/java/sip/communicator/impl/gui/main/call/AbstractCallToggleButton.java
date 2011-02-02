@@ -164,9 +164,9 @@ public abstract class AbstractCallToggleButton
                 GuiActivator.getResources().getI18NString(toolTipTextKey));
         }
 
-        setSelected(selected);
-
         setModel(new CallToggleButtonModel(call));
+
+        setSelected(selected);
 
         // All items are now instantiated and could safely load the skin.
         loadSkin();

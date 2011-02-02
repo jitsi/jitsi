@@ -118,4 +118,20 @@ public interface CallPeerRenderer
      * @return the parent <tt>CallPanel</tt> containing this renderer
      */
     public CallPanel getCallPanel();
+
+    /**
+     * Shows/hides the local video component.
+     *
+     * @param isVisible <tt>true</tt> to show the local video, <tt>false</tt> -
+     * otherwise
+     */
+    public void setLocalVideoVisible(boolean isVisible);
+
+    /**
+     * Indicates if the local video component is currently visible.
+     *
+     * @return <tt>true</tt> if the local video component is currently visible,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isLocalVideoVisible();
 }

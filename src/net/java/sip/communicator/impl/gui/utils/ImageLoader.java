@@ -519,6 +519,13 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.LOCAL_VIDEO_BUTTON");
 
     /**
+     * A show/hide local video button icon. The icon shown in the CallPeer
+     * panel.
+     */
+    public static final ImageID SHOW_LOCAL_VIDEO_BUTTON
+        = new ImageID("service.gui.buttons.SHOW_LOCAL_VIDEO_BUTTON");
+
+    /**
      * A call-transfer button icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID TRANSFER_CALL_BUTTON =
@@ -947,6 +954,12 @@ public class ImageLoader
      */
     public static final ImageID INVITE_DIALOG_ICON
         = new ImageID("service.gui.icons.INVITE_DIALOG_ICON");
+
+    /**
+     * The icon shown in the invite dialog.
+     */
+    public static final ImageID CLOSE_VIDEO
+        = new ImageID("service.gui.buttons.CLOSE_VIDEO");
 
     /*
      * =======================================================================

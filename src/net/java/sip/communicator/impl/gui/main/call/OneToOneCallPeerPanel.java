@@ -151,6 +151,11 @@ public class OneToOneCallPeerPanel
     private Component remoteVideo;
 
     /**
+     * The close local video button.
+     */
+    private Component closeButton;
+
+    /**
      * The <tt>CallPeer</tt>, which is rendered in this panel.
      */
     private CallPeer callPeer;
@@ -187,7 +192,18 @@ public class OneToOneCallPeerPanel
      */
     private final Component statusBar;
 
+    /**
+     * The label containing the user photo.
+     */
     private final JLabel photoLabel;
+
+    /**
+     * The local video mouse listener.
+     */
+    private final LocalVideoMouseListener localVideoListener
+        = new LocalVideoMouseListener();
+
+    private boolean localVideoVisible = true;
 
     /**
      * Creates a <tt>CallPeerPanel</tt> for the given call peer.
@@ -316,6 +332,11 @@ public class OneToOneCallPeerPanel
      */
     private Container createVideoContainer(Component noVideoComponent)
     {
+        VideoContainer oldParent
+            = (VideoContainer) noVideoComponent.getParent();
+        if (oldParent != null)
+            oldParent.remove(noVideoComponent);
+
         return new VideoContainer(noVideoComponent);
     }
 
@@ -715,6 +736,10 @@ public class OneToOneCallPeerPanel
                     if(event.getOrigin() == VideoEvent.LOCAL)
                     {
                         this.localVideo = video;
+                        this.closeButton = new CloseButton();
+
+                        localVideo.addMouseMotionListener(localVideoListener);
+                        localVideo.addMouseListener(localVideoListener);
                     }
                     else if(event.getOrigin() == VideoEvent.REMOTE)
                     {
@@ -738,11 +763,12 @@ public class OneToOneCallPeerPanel
                             localVideo == video)
                     {
                         this.localVideo = null;
+                        this.closeButton = null;
                     }
                     else if(event.getOrigin() == VideoEvent.REMOTE &&
                             remoteVideo == video)
                     {
-                        this.remoteVideo = video;
+                        this.remoteVideo = null;
                     }
                     break;
                 }
@@ -865,9 +891,17 @@ public class OneToOneCallPeerPanel
             Container localVideoParent = localVideo.getParent();
 
             if (localVideoParent != null)
+            {
                 localVideoParent.remove(localVideo);
+                localVideoParent.remove(closeButton);
+            }
 
-            videoContainer.add(localVideo, VideoLayout.LOCAL, 0);
+            if (localVideoVisible)
+            {
+                videoContainer.add(
+                    closeButton, VideoLayout.CLOSE_LOCAL_BUTTON, 0);
+                videoContainer.add(localVideo, VideoLayout.LOCAL, 1);
+            }
         }
 
         videoContainer.validate();
@@ -1480,6 +1514,136 @@ public class OneToOneCallPeerPanel
     }
 
     /**
+     * The Mouse listener for local video. It is responsible for dragging local
+     * video.
+     */
+    private class LocalVideoMouseListener
+        implements  MouseListener,
+                    MouseMotionListener
+    {
+        /**
+         * Indicates if we're currently during a drag operation.
+         */
+        private boolean inDrag = false;
+
+        /**
+         * The previous x coordinate of the drag.
+         */
+        private int previousX = 0;
+
+        /**
+         * The previous y coordinate of the drag.
+         */
+        private int previousY = 0;
+
+        /**
+         * Indicates that the mouse has been dragged.
+         *
+         * @param event the <tt>MouseEvent</tt> that notified us
+         */
+        public void mouseDragged(MouseEvent event)
+        {
+            Point p = event.getPoint();
+
+            if (inDrag)
+            {
+                Component c = (Component) event.getSource();
+
+                int newX = c.getX() + p.x - previousX;
+                int newY = c.getY() + p.y - previousY;
+
+                if (remoteVideo != null
+                    && newX > remoteVideo.getX()
+                    && newX + c.getWidth()
+                        < remoteVideo.getX() + remoteVideo.getWidth()
+                    && newY > remoteVideo.getY()
+                    && newY + c.getHeight()
+                        < remoteVideo.getY() + remoteVideo.getHeight())
+                {
+                    c.setLocation(newX, newY);
+                }
+            }
+        }
+
+        public void mouseMoved(MouseEvent event) {}
+
+        public void mouseClicked(MouseEvent event) {}
+
+        public void mouseEntered(MouseEvent event) {}
+
+        public void mouseExited(MouseEvent event) {}
+
+        /**
+         * Indicates that the mouse has been pressed.
+         *
+         * @param event the <tt>MouseEvent</tt> that notified us
+         */
+        public void mousePressed(MouseEvent event)
+        {
+            Point p = event.getPoint();
+
+            previousX = p.x;
+            previousY = p.y;
+            inDrag = true;
+        }
+
+        /**
+         * Indicates that the mouse has been released.
+         *
+         * @param event the <tt>MouseEvent</tt> that notified us
+         */
+        public void mouseReleased(MouseEvent event)
+        {
+            inDrag = false;
+            previousX = 0;
+            previousY = 0;
+        }
+    }
+
+    private class CloseButton
+        extends Label
+        implements MouseListener
+    {
+        Image image = ImageLoader.getImage(ImageLoader.CLOSE_VIDEO);
+
+        public CloseButton()
+        {
+            int buttonWidth = image.getWidth(this) + 5;
+            int buttonHeight = image.getHeight(this) + 5;
+
+            setPreferredSize(new Dimension(buttonWidth, buttonHeight));
+            setSize(new Dimension(buttonWidth, buttonHeight));
+
+            this.addMouseListener(this);
+        }
+
+        public void paint(Graphics g)
+        {
+            g.setColor(Color.GRAY);
+            g.fillRect(0, 0, getWidth(), getHeight());
+            g.drawImage(image,
+                getWidth()/2 - image.getWidth(this)/2,
+                getHeight()/2 - image.getHeight(this)/2, this);
+        }
+
+        public void mouseClicked(MouseEvent event)
+        {
+            setLocalVideoVisible(false);
+
+            callRenderer.getCallContainer()
+                .setShowHideVideoButtonSelected(false);
+        }
+
+        public void mouseEntered(MouseEvent event) {}
+
+        public void mouseExited(MouseEvent event) {}
+
+        public void mousePressed(MouseEvent event) {}
+
+        public void mouseReleased(MouseEvent event) {}
+    }
+
+    /**
      * Reloads all icons.
      */
     public void loadSkin()
@@ -1512,5 +1676,73 @@ public class OneToOneCallPeerPanel
                         ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)));
             }
         }
+    }
+
+    /**
+     * Shows/hides the local video component.
+     *
+     * @param isVisible <tt>true</tt> to show the local video, <tt>false</tt> -
+     * otherwise
+     */
+    public void setLocalVideoVisible(boolean isVisible)
+    {
+        synchronized (videoContainers)
+        {
+            this.localVideoVisible = isVisible;
+
+            if (isVisible
+                != callRenderer.getCallContainer()
+                    .isShowHideVideoButtonSelected())
+            {
+                callRenderer.getCallContainer()
+                    .setShowHideVideoButtonSelected(isVisible);
+            }
+
+            int videoContainerCount;
+
+            if ((videoTelephony != null)
+                    && ((videoContainerCount = videoContainers.size()) > 0))
+            {
+                Container videoContainer
+                    = videoContainers.get(videoContainerCount - 1);
+
+                if (localVideo != null)
+                {
+                    if (isVisible)
+                    {
+                        Container parent = localVideo.getParent();
+
+                        if (parent != null)
+                        {
+                            parent.remove(parent);
+                            parent.remove(closeButton);
+                        }
+
+                        videoContainer.add(
+                            closeButton, VideoLayout.CLOSE_LOCAL_BUTTON, 0);
+                        videoContainer.add(localVideo, VideoLayout.LOCAL, 1);
+                    }
+                    else
+                    {
+                        if (localVideo != null)
+                        {
+                            videoContainer.remove(localVideo);
+                            videoContainer.remove(closeButton);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Indicates if the local video component is currently visible.
+     *
+     * @return <tt>true</tt> if the local video component is currently visible,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isLocalVideoVisible()
+    {
+        return localVideoVisible;
     }
 }

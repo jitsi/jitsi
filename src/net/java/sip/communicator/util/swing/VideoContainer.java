@@ -7,84 +7,84 @@
 package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
-import java.awt.event.*;
 
 /**
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public class VideoContainer
     extends TransparentPanel
 {
-    private final ContainerListener containerListener = new ContainerListener()
-    {
-
-        /*
-         * Since the videoContainer displays either noVideoComponent or a single
-         * visual Component which represents video, ensures the last Component
-         * added to the Container is the only Component it contains i.e.
-         * noVideoComponent goes away when the video is displayed and the video
-         * goes away when noVideoComponent is displayed.
-         */
-        public void componentAdded(ContainerEvent event)
-        {
-            Container container = event.getContainer();
-            Component local = ((VideoLayout) container.getLayout()).getLocal();
-            Component added = event.getChild();
-
-            if ((local != null) && (local == added))
-                return;
-
-            boolean validate = false;
-
-            for (Component component : container.getComponents())
-            {
-                if ((component != added) && (component != local))
-                {
-                    container.remove(component);
-                    validate = true;
-                }
-            }
-            if (validate)
-                container.validate();
-        };
-
-        /*
-         * Displays noVideoComponent when there is no visual Component which
-         * represents video to be displayed.
-         */
-        public void componentRemoved(ContainerEvent event)
-        {
-            Container container = event.getContainer();
-
-            if ((container.getComponentCount() <= 0)
-                || (((VideoLayout) container.getLayout()).getRemote() == null))
-            {
-                container.add(noVideoComponent, VideoLayout.CENTER_REMOTE);
-                container.validate();
-            }
-        }
-    };
-
     private final Component noVideoComponent;
 
+    /**
+     * Creates a video container by specifying the default "no video" component.
+     *
+     * @param noVideoComponent the component shown when no remote video is
+     * available
+     */
     public VideoContainer(Component noVideoComponent)
     {
         setLayout(new VideoLayout());
 
         this.noVideoComponent = noVideoComponent;
 
-        addContainerListener(containerListener);
-        add(this.noVideoComponent, VideoLayout.CENTER_REMOTE);
+        this.add(this.noVideoComponent, VideoLayout.CENTER_REMOTE, -1);
         validate();
     }
 
+    /**
+     * Adds the given component at the CENTER_REMOTE position in the default
+     * video layout.
+     *
+     * @return the added component
+     */
+    @Override
     public Component add(Component comp)
     {
-        add(comp, VideoLayout.CENTER_REMOTE);
+        add(comp, VideoLayout.CENTER_REMOTE, -1);
         return comp;
     }
 
-    /*
+    /**
+     * Overrides the default behavior of add in order to be sure to remove the
+     * default "no video" component, when a remote video component is added.
+     */
+    @Override
+    public void add(Component addedComp, Object constraints, int index)
+    {
+        if (constraints.equals(VideoLayout.CENTER_REMOTE)
+            && noVideoComponent != null
+            && !addedComp.equals(noVideoComponent))
+        {
+            remove(noVideoComponent);
+            revalidate();
+        }
+
+        super.add(addedComp, constraints, index);
+    }
+
+    /**
+     * Overrides the default remove behavior in order to add the default no
+     * video component when the remote video is removed.
+     *
+     * @param removedComp the component to remove
+     */
+    @Override
+    public void remove(Component removedComp)
+    {
+        super.remove(removedComp);
+
+        if (((VideoLayout) getLayout()).getComponentConstraints(removedComp)
+                    .equals(VideoLayout.CENTER_REMOTE)
+                && !removedComp.equals(noVideoComponent))
+        {
+            add(noVideoComponent, VideoLayout.CENTER_REMOTE);
+            validate();
+        }
+    }
+
+    /**
      * Ensures noVideoComponent is displayed even when the clients of the
      * videoContainer invoke its #removeAll() to remove their previous visual
      * Components representing video. Just adding noVideoComponent upon
@@ -96,16 +96,9 @@ public class VideoContainer
     @Override
     public void removeAll()
     {
-        removeContainerListener(containerListener);
-        try
-        {
-            super.removeAll();
-        }
-        finally
-        {
-            addContainerListener(containerListener);
-            containerListener.componentRemoved(new ContainerEvent(this,
-                ContainerEvent.COMPONENT_REMOVED, null));
-        }
+        super.removeAll();
+
+        add(noVideoComponent, VideoLayout.CENTER_REMOTE);
+        validate();
     }
 }

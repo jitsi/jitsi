@@ -269,17 +269,24 @@ public class OneToOneCallPanel
      */
     private Component createFullScreenButtonBar()
     {
+        ShowHideVideoButton showHideButton = new ShowHideVideoButton(
+            call, true, callContainer.isShowHideVideoButtonSelected());
+        showHideButton.setPeerRenderer(peerPanel);
+
         Component[] buttons
             = new Component[]
             {
                 new HoldButton(call,
                                true,
                                CallPeerState.isOnHold(callPeer.getState())),
+                new RecordButton(call, true, callContainer.isRecordingStarted()),
+                new LocalVideoButton(
+                    call, true, callContainer.isVideoButtonSelected()),
+                showHideButton,
                 new InputVolumeControlButton(call,
                                true,
                                callPeer.isMute()),
                 new OutputVolumeControlButton(true),
-                new RecordButton(call, true, callContainer.isRecordingStarted()),
                 CallPeerRendererUtils.createExitFullScreenButton(this)
             };
 
