@@ -69,8 +69,6 @@ public class SmileysSelectorBox
         // icon.
         this.setBorder(BorderFactory.createEmptyBorder());
 
-        loadSkin();
-
         popupMenu = this.getPopupMenu();
 
         popupMenu.setLayout(new GridBagLayout());
@@ -83,6 +81,8 @@ public class SmileysSelectorBox
         popupMenu.addPopupMenuListener(this);
 
         this.smiliesService = GuiActivator.getSmiliesReplacementSource();
+
+        loadSkin();
     }
 
     /**
@@ -319,8 +319,9 @@ public class SmileysSelectorBox
         if (popupMenu != null)
         {
             popupMenu = this.getPopupMenu();
-            //reload smilies
-            smiliesService.reloadSmiliesPack();
+
+            if (smiliesService != null)
+                smiliesService.reloadSmiliesPack();
 
             popupMenu.removeAll();
         }
