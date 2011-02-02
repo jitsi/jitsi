@@ -1552,16 +1552,30 @@ public class OneToOneCallPeerPanel
                 int newX = c.getX() + p.x - previousX;
                 int newY = c.getY() + p.y - previousY;
 
-                if (remoteVideo != null
-                    && newX > remoteVideo.getX()
-                    && newX + c.getWidth()
-                        < remoteVideo.getX() + remoteVideo.getWidth()
-                    && newY > remoteVideo.getY()
-                    && newY + c.getHeight()
-                        < remoteVideo.getY() + remoteVideo.getHeight())
-                {
-                    c.setLocation(newX, newY);
-                }
+                Component remoteContainer;
+                if (remoteVideo != null)
+                    remoteContainer = remoteVideo;
+                else
+                    remoteContainer = OneToOneCallPeerPanel.this;
+
+                int minX = remoteContainer.getX();
+                int maxX = remoteContainer.getX() + remoteContainer.getWidth();
+                int minY = remoteContainer.getY();
+                int maxY = remoteContainer.getY() + remoteContainer.getHeight();
+
+                if (newX < minX)
+                    newX = minX;
+
+                if (newX + c.getWidth() > maxX)
+                    newX = maxX - c.getWidth();
+
+                if (newY < minY)
+                    newY = minY;
+
+                if (newY + c.getHeight() > maxY)
+                    newY = maxY - c.getHeight();
+
+                c.setLocation(newX, newY);
             }
         }
 
