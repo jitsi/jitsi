@@ -988,7 +988,7 @@ public class ProtocolProviderServiceSipImpl
                 try
                 {
                     serverTransaction.sendResponse(response);
-                    //emil: shouldn't we return here ?
+                    return;
                 }
                 catch (SipException e)
                 {
@@ -1046,8 +1046,7 @@ public class ProtocolProviderServiceSipImpl
 
                 TransactionState state = serverTransaction.getState();
 
-                if( TransactionState.TRYING.equals(state)
-                    || TransactionState.PROCEEDING.equals(state))
+                if( TransactionState.TRYING.equals(state))
                 {
                     Response response = this.getMessageFactory().createResponse(
                                     Response.NOT_IMPLEMENTED, request);
