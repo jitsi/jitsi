@@ -1588,9 +1588,8 @@ public class OneToOneCallPeerPanel
                     newY = maxY - c.getHeight();
 
                 c.setLocation(newX, newY);
-                closeButton.setLocation( 
-                        newX + c.getWidth() - closeButton.getWidth(), 
-                        newY);
+                if (closeButton.isVisible())
+                    closeButton.setVisible(false);
             }
         }
 
@@ -1626,6 +1625,15 @@ public class OneToOneCallPeerPanel
             inDrag = false;
             previousX = 0;
             previousY = 0;
+
+            if (!closeButton.isVisible())
+            {
+                Component c = (Component) event.getSource();
+                closeButton.setLocation( 
+                    c.getX() + c.getWidth() - closeButton.getWidth() - 3, 
+                    c.getY() + 3);
+                closeButton.setVisible(true);
+            }
         }
     }
 
