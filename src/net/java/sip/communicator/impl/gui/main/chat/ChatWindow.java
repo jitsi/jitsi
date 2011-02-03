@@ -348,6 +348,11 @@ public class ChatWindow
                 this.mainPanel.add(currentChatPanel, BorderLayout.CENTER);
 
                 this.setCurrentChat(currentChatPanel);
+
+                // The current chat is now the focused chat, so we remove the
+                // non read chat state.
+                GuiActivator.getUIService().getChatWindowManager()
+                        .removeNonReadChatState(currentChatPanel);
             }
 
             chatCount --;
