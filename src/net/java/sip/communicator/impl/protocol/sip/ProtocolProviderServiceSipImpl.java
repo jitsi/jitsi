@@ -988,6 +988,7 @@ public class ProtocolProviderServiceSipImpl
                 try
                 {
                     serverTransaction.sendResponse(response);
+                    //emil: shouldn't we return here ?
                 }
                 catch (SipException e)
                 {
@@ -1009,6 +1010,9 @@ public class ProtocolProviderServiceSipImpl
         //corresponding method
         List<MethodProcessor> processors = methodProcessors.get(method);
 
+        //raise this flag if at least one processor handles the request.
+        boolean processedAtLeastOnce = false;
+
         if (processors != null)
         {
             if (logger.isDebugEnabled())
@@ -1019,8 +1023,41 @@ public class ProtocolProviderServiceSipImpl
             {
                 if (processor.processRequest(requestEvent))
                 {
+                    processedAtLeastOnce = true;
                     break;
                 }
+            }
+        }
+
+        //send an error response if no one processes this
+        if (!processedAtLeastOnce)
+        {
+            ServerTransaction serverTransaction;
+            try
+            {
+                serverTransaction = SipStackSharing.getOrCreateServerTransaction(requestEvent);
+
+                if (serverTransaction == null)
+                {
+                    logger.warn("Could not create a transaction for a "
+                               +"non-supported method " + request.getMethod());
+                    return;
+                }
+
+                TransactionState state = serverTransaction.getState();
+
+                if( TransactionState.TRYING.equals(state)
+                    || TransactionState.PROCEEDING.equals(state))
+                {
+                    Response response = this.getMessageFactory().createResponse(
+                                    Response.NOT_IMPLEMENTED, request);
+                    serverTransaction.sendResponse(response);
+                }
+            }
+            catch (Throwable exc)
+            {
+                logger.warn("Could not respond to a non-supported method "
+                                + request.getMethod(), exc);
             }
         }
     }
