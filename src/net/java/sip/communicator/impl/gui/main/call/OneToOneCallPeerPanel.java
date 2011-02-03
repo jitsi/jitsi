@@ -1556,7 +1556,19 @@ public class OneToOneCallPeerPanel
                 if (remoteVideo != null)
                     remoteContainer = remoteVideo;
                 else
-                    remoteContainer = OneToOneCallPeerPanel.this;
+                    synchronized (videoContainers)
+                    {
+                        // If there's no remote video we limit the drag to the
+                        // parent video container.
+                        if (videoContainers != null
+                                && videoContainers.size() > 0)
+                            remoteContainer = videoContainers.get(
+                                videoContainers.size() - 1);
+                        else
+                            // In the case no video container is available
+                            // we just limit the drag to this panel.
+                            remoteContainer = OneToOneCallPeerPanel.this;
+                    }
 
                 int minX = remoteContainer.getX();
                 int maxX = remoteContainer.getX() + remoteContainer.getWidth();
@@ -1576,6 +1588,9 @@ public class OneToOneCallPeerPanel
                     newY = maxY - c.getHeight();
 
                 c.setLocation(newX, newY);
+                closeButton.setLocation( 
+                        newX + c.getWidth() - closeButton.getWidth(), 
+                        newY);
             }
         }
 
