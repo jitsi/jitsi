@@ -38,6 +38,12 @@ public class LoggingConfigForm
             = Logger.getLogger(LoggingConfigForm.class);
 
     /**
+     * Upload location property.
+     */
+    private static final String UPLOAD_LOCATION_PROPETY =
+            "plugin.loggingutils.uploadlocation";
+
+    /**
      * The enable packet logging check box.
      */
     private JCheckBox enableCheckBox;
@@ -223,11 +229,7 @@ public class LoggingConfigForm
         c.gridy = 4;
         mainPanel.add(archiveButton, c);
 
-        String uploadLocation =
-            LoggingUtilsActivator.getResourceService()
-                .getSettingsString("plugin.loggingutils.uploadlocation");
-
-        if(!StringUtils.isNullOrEmpty(uploadLocation))
+        if(!StringUtils.isNullOrEmpty(getUploadLocation()))
         {
             uploadLogsButton = new JButton(
                 resources.getI18NString("plugin.loggingutils.UPLOAD_LOGS_BUTTON"));
@@ -237,6 +239,28 @@ public class LoggingConfigForm
             c.gridy = 5;
             mainPanel.add(uploadLogsButton, c);
         }
+    }
+
+    /**
+     * Checks the property in configuration service and if missing there get it
+     * from default settings.
+     * @return the upload location.
+     */
+    private String getUploadLocation()
+    {
+        // check first in configuration it can be manually set
+        // or by provisioning
+        String uploadLocation =
+            LoggingUtilsActivator.getConfigurationService()
+                .getString(UPLOAD_LOCATION_PROPETY);
+        // if missing check default settings
+        if(uploadLocation == null || uploadLocation.length() == 0)
+        {
+            uploadLocation = LoggingUtilsActivator.getResourceService()
+                .getSettingsString(UPLOAD_LOCATION_PROPETY);
+        }
+
+        return uploadLocation;
     }
 
     /**
@@ -660,9 +684,7 @@ public class LoggingConfigForm
             if(optionalFile != null)
                 optionalFile.delete();
 
-            String uploadLocation =
-                LoggingUtilsActivator.getResourceService()
-                    .getSettingsString("plugin.loggingutils.uploadlocation");
+            String uploadLocation = getUploadLocation();
 
             if(uploadLocation == null)
                 return;
