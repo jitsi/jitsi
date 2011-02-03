@@ -126,7 +126,7 @@ public class JAWTRenderer
      * be closed
      * @param component the AWT <tt>Component</tt> into which the
      * <tt>JAWTRenderer</tt> and its native counterpart are drawing. The
-     * platform-specific info of <tt>component</tt> is not guranteed to be
+     * platform-specific info of <tt>component</tt> is not guaranteed to be
      * valid.
      */
     private static native void close(long handle, Component component);

@@ -24,6 +24,10 @@ import javax.media.format.*;
 public class AVFrameFormat
     extends VideoFormat
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
 
     /**
      * The encoding of the <tt>AVFrameFormat</tt> instances.

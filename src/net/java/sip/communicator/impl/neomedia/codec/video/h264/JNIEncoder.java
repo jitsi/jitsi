@@ -417,6 +417,7 @@ public class JNIEncoder
         outBuffer.setLength(encLen);
         outBuffer.setOffset(0);
         outBuffer.setTimeStamp(inBuffer.getTimeStamp());
+
 /*
         // flags
         int inFlags = inBuffer.getFlags();

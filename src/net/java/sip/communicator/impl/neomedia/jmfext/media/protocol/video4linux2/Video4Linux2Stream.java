@@ -478,7 +478,6 @@ public class Video4Linux2Stream
             long mmap = mmaps[index];
             int bytesused = Video4Linux2.v4l2_buffer_getBytesused(v4l2_buffer);
 
-
             if(nativePixelFormat == Video4Linux2.V4L2_PIX_FMT_MJPEG ||
                     nativePixelFormat == Video4Linux2.V4L2_PIX_FMT_JPEG)
             {

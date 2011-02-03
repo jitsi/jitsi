@@ -377,6 +377,7 @@ public class SwScaler
                     inputWidth, inputHeight, srcFmt,
                     outputWidth, outputHeight, dstFmt,
                     FFmpeg.SWS_BICUBIC);
+
         if (srcPicture == 0)
         {
             FFmpeg.sws_scale(

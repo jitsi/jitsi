@@ -116,12 +116,12 @@ public class RTPConnectorInputStream
      */
     protected RawPacket createRawPacket(DatagramPacket datagramPacket)
     {
-        if (pkt == null) 
+        if (pkt == null)
         {
             return new RawPacket(
                     datagramPacket.getData(),
                     datagramPacket.getOffset(),
-                    datagramPacket.getLength());      
+                    datagramPacket.getLength());
         }
         pkt.setBuffer(datagramPacket.getData());
         pkt.setLength(datagramPacket.getLength());
@@ -251,7 +251,6 @@ public class RTPConnectorInputStream
         }
         catch(Throwable t)
         {
-            System.out.println("plop " + t);
         }
 
         while (!closed)
