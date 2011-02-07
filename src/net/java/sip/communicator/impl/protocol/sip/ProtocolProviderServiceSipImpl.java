@@ -232,6 +232,13 @@ public class ProtocolProviderServiceSipImpl
     private final XCapClient xCapClient = new XCapClientImpl();
 
     /**
+     * A list of early processors that can do early processing of received
+     * messages (requests or responses).
+     */
+    private final List<SipMessageProcessor> earlyProcessors =
+        new ArrayList<SipMessageProcessor>();
+
+    /**
      * Gets the XCAP client.
      *
      * @return the XCAP client.
@@ -749,6 +756,23 @@ public class ProtocolProviderServiceSipImpl
         }
 
         Response response = responseEvent.getResponse();
+
+        synchronized(earlyProcessors)
+        {
+            for (SipMessageProcessor listener : earlyProcessors)
+            {
+                try
+                {
+                    if(!listener.processResponse(responseEvent, null))
+                        return;
+                }
+                catch(Throwable t)
+                {
+                    logger.error("Error pre-processing message", t);
+                }
+            }
+        }
+
         String method = ( (CSeqHeader) response.getHeader(CSeqHeader.NAME))
             .getMethod();
 
@@ -795,6 +819,22 @@ public class ProtocolProviderServiceSipImpl
             if (logger.isDebugEnabled())
                 logger.debug("ignoring a transactionless timeout event");
             return;
+        }
+
+        synchronized(earlyProcessors)
+        {
+            for (SipMessageProcessor listener : earlyProcessors)
+            {
+                try
+                {
+                    if(!listener.processTimeout(timeoutEvent, null))
+                        return;
+                }
+                catch(Throwable t)
+                {
+                    logger.error("Error pre-processing message", t);
+                }
+            }
         }
 
         Request request = transaction.getRequest();
@@ -924,6 +964,22 @@ public class ProtocolProviderServiceSipImpl
                 }
             }
             return;
+        }
+
+        synchronized(earlyProcessors)
+        {
+            for (SipMessageProcessor listener : earlyProcessors)
+            {
+                try
+                {
+                    if(!listener.processMessage(requestEvent))
+                        return;
+                }
+                catch(Throwable t)
+                {
+                    logger.error("Error pre-processing message", t);
+                }
+            }
         }
 
         // test if an Event header is present and known
@@ -3167,5 +3223,31 @@ public class ProtocolProviderServiceSipImpl
         // if there is no default setting return the system wide value.
         return Boolean.getBoolean("java.net.preferIPv6Addresses");
     }
-}
 
+    /**
+     * Registers early message processor.
+     * @param processor early message processor.
+     */
+    void addEarlyMessageProcessor(SipMessageProcessor processor)
+    {
+        synchronized (earlyProcessors)
+        {
+            if (!earlyProcessors.contains(processor))
+            {
+                this.earlyProcessors.add(processor);
+            }
+        }
+    }
+
+    /**
+     * Removes the early message processor.
+     * @param processor early message processor.
+     */
+    void removeEarlyMessageProcessor(SipMessageProcessor processor)
+    {
+        synchronized (earlyProcessors)
+        {
+            this.earlyProcessors.remove(processor);
+        }
+    }
+}
