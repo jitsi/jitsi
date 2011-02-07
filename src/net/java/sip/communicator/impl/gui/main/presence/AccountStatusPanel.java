@@ -145,7 +145,6 @@ public class AccountStatusPanel
 
         TransparentPanel rightPanel = new TransparentPanel();
         rightPanel.setLayout(new BorderLayout(0, 0));
-        rightPanel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
         rightPanel.add(accountNameLabel, BorderLayout.NORTH);
         rightPanel.add(statusToolsPanel, BorderLayout.SOUTH);
 
