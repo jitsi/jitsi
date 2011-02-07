@@ -1835,8 +1835,13 @@ public class MainFrame
                 return false;
             }
 
+            boolean singleWindowRule
+                = GuiActivator.getUIService().getSingleWindowContainer() == null
+                    || contactList.isFocusOwner();
+
             if (!searchField.isFocusOwner()
                 && keyManager.getFocusOwner() != null
+                && singleWindowRule
                 && keyManager.getFocusOwner()
                     .equals(keyManager.getPermanentFocusOwner()))
             {

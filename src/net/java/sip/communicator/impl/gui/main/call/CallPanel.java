@@ -375,13 +375,16 @@ public class CallPanel
 
             if(!dialpadDialog.isVisible())
             {
-                dialpadDialog.setSize(
-                    this.getWidth() - 20,
-                    dialpadDialog.getHeight());
+                dialpadDialog.pack();
+
+                Point location = new Point( button.getX(),
+                                            button.getY() + button.getHeight());
+                SwingUtilities.convertPointToScreen(
+                    location, button.getParent());
 
                 dialpadDialog.setLocation(
-                    this.getX() + 10,
-                    getLocationOnScreen().y + getHeight());
+                    (int) location.getX() + 2,
+                    (int) location.getY() + 2);
 
                 dialpadDialog.addWindowFocusListener(dialpadDialog);
                 dialpadDialog.setVisible(true);

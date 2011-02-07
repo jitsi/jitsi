@@ -188,10 +188,14 @@ public class DTMFHandler
         if(e.getID() == KeyEvent.KEY_TYPED)
             return false;
 
+        boolean singleWindowRule
+            = GuiActivator.getUIService().getSingleWindowContainer() == null
+                || callContainer.isFocusOwner();
+
         boolean dispatch = false;
         for (int i = 0; i < parents.size(); i++)
         {
-            if(parents.get(i).isFocused())
+            if(parents.get(i).isFocused() && singleWindowRule)
             {
                 dispatch = true;
                 break;

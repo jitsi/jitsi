@@ -400,6 +400,9 @@ public class SingleWindowContainer
 
         mainToolBar = new MainToolBar(this);
 
+        // The toolbar would be only visible when a chat is opened.
+        mainToolBar.setVisible(false);
+
         boolean chatToolbarVisible = ConfigurationManager.isChatToolbarVisible();
         northPanel.setVisible(chatToolbarVisible);
 

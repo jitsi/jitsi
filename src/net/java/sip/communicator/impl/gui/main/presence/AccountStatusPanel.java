@@ -136,7 +136,7 @@ public class AccountStatusPanel
         statusToolsPanel.add(statusMenuBar, BorderLayout.WEST);
 
         toolbarPluginPanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+            = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 
         new PluginContainer(toolbarPluginPanel,
                             Container.CONTAINER_MAIN_TOOL_BAR);
