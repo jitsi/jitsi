@@ -757,21 +757,7 @@ public class ProtocolProviderServiceSipImpl
 
         Response response = responseEvent.getResponse();
 
-        synchronized(earlyProcessors)
-        {
-            for (SipMessageProcessor listener : earlyProcessors)
-            {
-                try
-                {
-                    if(!listener.processResponse(responseEvent, null))
-                        return;
-                }
-                catch(Throwable t)
-                {
-                    logger.error("Error pre-processing message", t);
-                }
-            }
-        }
+        earlyProcessMessage(responseEvent);
 
         String method = ( (CSeqHeader) response.getHeader(CSeqHeader.NAME))
             .getMethod();
@@ -821,21 +807,7 @@ public class ProtocolProviderServiceSipImpl
             return;
         }
 
-        synchronized(earlyProcessors)
-        {
-            for (SipMessageProcessor listener : earlyProcessors)
-            {
-                try
-                {
-                    if(!listener.processTimeout(timeoutEvent, null))
-                        return;
-                }
-                catch(Throwable t)
-                {
-                    logger.error("Error pre-processing message", t);
-                }
-            }
-        }
+        earlyProcessMessage(timeoutEvent);
 
         Request request = transaction.getRequest();
         if (logger.isDebugEnabled())
@@ -966,21 +938,7 @@ public class ProtocolProviderServiceSipImpl
             return;
         }
 
-        synchronized(earlyProcessors)
-        {
-            for (SipMessageProcessor listener : earlyProcessors)
-            {
-                try
-                {
-                    if(!listener.processMessage(requestEvent))
-                        return;
-                }
-                catch(Throwable t)
-                {
-                    logger.error("Error pre-processing message", t);
-                }
-            }
-        }
+        earlyProcessMessage(requestEvent);
 
         // test if an Event header is present and known
         EventHeader eventHeader = (EventHeader)
@@ -3248,6 +3206,33 @@ public class ProtocolProviderServiceSipImpl
         synchronized (earlyProcessors)
         {
             this.earlyProcessors.remove(processor);
+        }
+    }
+
+    /**
+     * Early process an incoming message from interested listeners.
+     * @param message the message to process.
+     */
+    void earlyProcessMessage(EventObject message)
+    {
+        synchronized(earlyProcessors)
+        {
+            for (SipMessageProcessor listener : earlyProcessors)
+            {
+                try
+                {
+                    if(message instanceof RequestEvent)
+                        listener.processMessage((RequestEvent)message);
+                    else if(message instanceof ResponseEvent)
+                        listener.processResponse((ResponseEvent)message, null);
+                    else  if(message instanceof TimeoutEvent)
+                        listener.processTimeout((TimeoutEvent)message, null);
+                }
+                catch(Throwable t)
+                {
+                    logger.error("Error pre-processing message", t);
+                }
+            }
         }
     }
 }
