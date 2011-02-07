@@ -348,14 +348,7 @@ public class LoggingConfigForm
         }
         else if(source.equals(uploadLogsButton))
         {
-            new Thread(new Runnable()
-            {
-                public void run()
-                {
-                    uploadLogs();
-                }
-            }).start();
-
+            uploadLogs();
         }
     }
 
@@ -611,8 +604,8 @@ public class LoggingConfigForm
             {
                 try
                 {
-                    ArrayList<String> paramNames = new ArrayList<String>();
-                    ArrayList<String> paramValues = new ArrayList<String>();
+                    final ArrayList<String> paramNames = new ArrayList<String>();
+                    final ArrayList<String> paramValues = new ArrayList<String>();
 
                     if(emailCheckBox.isSelected())
                     {
@@ -623,9 +616,17 @@ public class LoggingConfigForm
                     paramNames.add("Description");
                     paramValues.add(commentTextArea.getText());
 
-                    uploadLogs(
-                        paramNames.toArray(new String[]{}),
-                        paramValues.toArray(new String[]{}));
+                    // don't block the UI thread we may need to show
+                    // some ui for password input if protected area on the way
+                    new Thread(new Runnable()
+                    {
+                        public void run()
+                        {
+                            uploadLogs(
+                                paramNames.toArray(new String[]{}),
+                                paramValues.toArray(new String[]{}));
+                        }
+                    }).start();
                 }
                 finally
                 {
