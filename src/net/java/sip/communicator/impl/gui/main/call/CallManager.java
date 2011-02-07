@@ -604,11 +604,11 @@ public class CallManager
      */
     private static CallPanel openCallContainer(Call call)
     {
+        // If we're in a single window mode we just return the single window 
+        // call container.
         CallContainer callContainer
             = GuiActivator.getUIService().getSingleWindowContainer();
 
-        // If we're in a single window mode we just return the single window 
-        // call container.
         if (callContainer == null)
             // If we're in a multi-window mode we create the CallDialog.
             callContainer = new CallDialog();
@@ -618,8 +618,6 @@ public class CallManager
         activeCalls.put(call, callPanel);
 
         callContainer.addCallPanel(callPanel);
-
-        callContainer.pack();
 
         return callPanel;
     }

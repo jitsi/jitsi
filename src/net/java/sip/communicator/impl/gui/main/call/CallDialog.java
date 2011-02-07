@@ -56,7 +56,10 @@ public class CallDialog
         callPanel.addCallTitleListener(this);
 
         if (!isVisible())
+        {
+            pack();
             setVisible(true);
+        }
     }
 
     /**

@@ -898,8 +898,10 @@ public class OneToOneCallPeerPanel
 
             if (localVideoVisible)
             {
-                videoContainer.add(
-                    closeButton, VideoLayout.CLOSE_LOCAL_BUTTON, 0);
+                if (!CallManager.isDesktopSharingEnabled(callPeer.getCall()))
+                    videoContainer.add(
+                        closeButton, VideoLayout.CLOSE_LOCAL_BUTTON, 0);
+
                 videoContainer.add(localVideo, VideoLayout.LOCAL, 1);
             }
         }
