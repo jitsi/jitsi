@@ -99,6 +99,13 @@ public class NetworkUtils
         = "backup-resolver.jitsi.net";
 
     /**
+     * The name of the system property that users may use to override the
+     * IP address of our backup DNS resolver.
+     */
+    public static final String PNAME_BACKUP_RESOLVER_IP
+        = "util.dns.BACKUP_RESOLVER_IP";
+
+    /**
      * The DNSjava resolver that we use with SRV and NAPTR queries in order to
      * try and smooth the problem of DNS servers that silently drop them.
      */
@@ -1025,14 +1032,23 @@ public class NetworkUtils
             {
                 String customRslvrAddr
                     = System.getProperty(PNAME_BACKUP_RESOLVER);
-
                 String rslvrAddrStr = DEFAULT_BACKUP_RESOLVER;
+                String customRslvrIP
+                    = UtilActivator.getResources().getSettingsString(
+                        PNAME_BACKUP_RESOLVER_IP);
 
                 if(! StringUtils.isNullOrEmpty( customRslvrAddr ))
                     rslvrAddrStr = customRslvrAddr;
 
-                InetAddress resolverAddress
-                    = getInetAddress(rslvrAddrStr);
+                InetAddress resolverAddress = getInetAddress(rslvrAddrStr);
+
+                if(resolverAddress == null)
+                {
+                    /* name resolution failed for backup DNS resolver,
+                     * try with the IP address of the default backup resolver
+                     */
+                    resolverAddress = getInetAddress(customRslvrIP);
+                }
 
                 int rslvrPort = SimpleResolver.DEFAULT_PORT;
 
