@@ -89,7 +89,6 @@ public class ParallelResolver implements Resolver
      */
     public static final int DNS_REDEMPTION = 3;
 
-
     /**
      * The name of the System property that allows us to override the default
      * <tt>DNS_REDEMPTION</tt> value.
@@ -488,6 +487,8 @@ public class ParallelResolver implements Resolver
             }
             catch (Throwable exc)
             {
+                logger.info("Exception occurred during parallel DNS resolving" +
+                        exc);
                 this.exception = exc;
             }
             synchronized(this)
@@ -510,6 +511,7 @@ public class ParallelResolver implements Resolver
          */
         public void sendBackupQueries()
         {
+            logger.info("Send DNS queries to backup resolvers");
             synchronized(this)
             {
                 for (Resolver resolver : backupResolvers)
@@ -575,14 +577,27 @@ public class ParallelResolver implements Resolver
             if(response != null)
                 return response;
             else if (exception instanceof IOException)
+            {
+                logger.warn("IO exception while using DNS resolver", exception);
                 throw (IOException) exception;
+            }
             else if (exception instanceof RuntimeException)
+            {
+                logger.warn("RunTimeException while using DNS resolver",
+                        exception);
                 throw (RuntimeException) exception;
+            }
             else if (exception instanceof Error)
+            {
+                logger.warn("Error while using DNS resolver", exception);
                 throw (Error) exception;
+            }
             else
-                throw new IllegalStateException
-                    ("ExtendedResolver failure");
+            {
+                logger.warn("Illegal state exception while using DNS resolver",
+                        exception);
+                throw new IllegalStateException("ExtendedResolver failure");
+            }
         }
 
         /**

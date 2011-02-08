@@ -1036,7 +1036,7 @@ public class NetworkUtils
 
                 int rslvrPort = SimpleResolver.DEFAULT_PORT;
 
-                //jsut in case someone said sth else ... and we want no errs
+                //just in case someone said sth else ... and we want no errs
                 try
                 {
                     rslvrPort = Integer.getInteger(
