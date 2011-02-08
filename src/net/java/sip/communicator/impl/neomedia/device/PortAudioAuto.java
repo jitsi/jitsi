@@ -80,6 +80,27 @@ public class PortAudioAuto
         int defaultInputDeviceIx = PortAudio.Pa_GetDefaultInputDevice();
         int defaultOutputDeviceIx = PortAudio.Pa_GetDefaultOutputDevice();
 
+        // for windows we will search for directsound devices, to set them as
+        // defualt, we need info for defualt devices host api
+        PortAudio.PaHostApiTypeId defaultInputHostApi
+            = PortAudio.PaHostApiTypeId.undefined;
+        PortAudio.PaHostApiTypeId defaultOutputHostApi
+            = PortAudio.PaHostApiTypeId.undefined;
+
+        if(defaultInputDeviceIx != PortAudio.paNoDevice)
+        {
+            defaultInputHostApi = PortAudio.PaHostApiTypeId.valueOf(
+                PortAudio.PaDeviceInfo_getHostApi(
+                    PortAudio.Pa_GetDeviceInfo(defaultInputDeviceIx)));
+        }
+
+        if(defaultOutputDeviceIx != PortAudio.paNoDevice)
+        {
+            defaultOutputHostApi = PortAudio.PaHostApiTypeId.valueOf(
+                PortAudio.PaDeviceInfo_getHostApi(
+                    PortAudio.Pa_GetDeviceInfo(defaultOutputDeviceIx)));
+        }
+
         Vector<CaptureDeviceInfo> playbackDevVector =
             new Vector<CaptureDeviceInfo>();
         int channels = 1;
@@ -93,6 +114,9 @@ public class PortAudioAuto
                 PortAudio.PaDeviceInfo_getMaxInputChannels(deviceInfo);
             int maxOutputChannels =
                 PortAudio.PaDeviceInfo_getMaxOutputChannels(deviceInfo);
+            PortAudio.PaHostApiTypeId hostApi =
+                PortAudio.PaHostApiTypeId.valueOf(
+                    PortAudio.PaDeviceInfo_getHostApi(deviceInfo));
 
             String devName = PortAudio.PaDeviceInfo_getName(deviceInfo);
             if (devName != null)
@@ -121,6 +145,29 @@ public class PortAudioAuto
                                             Format.NOT_SPECIFIED /* frameRate */,
                                             Format.byteArray)
                                 });
+
+            // under windows we search for the first direct sound device
+            // that we can use (output or input) and use it as default one
+            if(OSUtils.IS_WINDOWS)
+            {
+                if(defaultInputHostApi != PortAudio.PaHostApiTypeId
+                        .paDirectSound
+                    && hostApi == PortAudio.PaHostApiTypeId.paDirectSound
+                    && maxInputChannels > 0)
+                {
+                    defaultInputHostApi = hostApi;
+                    defaultInputDeviceIx = deviceIndex;
+                }
+
+                if(defaultOutputHostApi
+                        != PortAudio.PaHostApiTypeId.paDirectSound
+                    && hostApi == PortAudio.PaHostApiTypeId.paDirectSound
+                    && maxOutputChannels > 0)
+                {
+                    defaultOutputHostApi = hostApi;
+                    defaultOutputDeviceIx = deviceIndex;
+                }
+            }
 
             if(maxInputChannels > 0)
             {

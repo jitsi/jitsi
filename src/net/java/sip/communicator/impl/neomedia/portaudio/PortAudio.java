@@ -162,6 +162,54 @@ public final class PortAudio
         STREAM_FLAGS_PRIME_OUTPUT_BUFFERS_USING_STREAM_CALLBACK
             = 0x00000008;
 
+    /**
+     * Unchanging unique identifiers for each supported host API. This type
+     * is used in the PaHostApiInfo structure. The values are guaranteed to be
+     * unique and to never change, thus allowing code to be written that
+     * conditionally uses host API specific extensions.
+     */
+    public static enum PaHostApiTypeId
+    {
+        undefined(-1), /* Used only outside pa for undefined PaHostApiTypeId */
+        paInDevelopment(0),/* use while developing support for a new host API */
+        paDirectSound(1),
+        paMME(2),
+        paASIO(3),
+        paSoundManager(4),
+        paCoreAudio(5),
+        paOSS(7),
+        paALSA(8),
+        paAL(9),
+        paBeOS(10),
+        paWDMKS(11),
+        paJACK(12),
+        paWASAPI(13),
+        paAudioScienceHPI(14);
+
+        int value;
+        private PaHostApiTypeId(int value)
+        {
+            this.value = value;
+        }
+
+        /**
+         * Returns PaHostApiTypeId by its type unique value.
+         *
+         * @param value the value.
+         * @return the corresponding PaHostApiTypeId.
+         */
+        public static PaHostApiTypeId valueOf(int value)
+        {
+            for(PaHostApiTypeId ha : values())
+            {
+                if(ha.value == value)
+                    return ha;
+            }
+
+            return valueOf(value);
+        }
+    }
+
     private static native void free(long ptr);
 
     /**
