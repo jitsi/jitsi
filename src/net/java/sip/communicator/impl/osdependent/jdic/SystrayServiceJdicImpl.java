@@ -231,7 +231,7 @@ public class SystrayServiceJdicImpl
                     uiService.getExportedWindow(ExportedWindow.MAIN_WINDOW);
                 boolean setIsVisible = !win.isVisible();
 
-                win.setVisible(setIsVisible);
+                uiService.setVisible(setIsVisible);
             }
         });
 
