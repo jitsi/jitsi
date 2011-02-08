@@ -1062,10 +1062,17 @@ public class CertificateVerificationServiceImpl
         public void checkServerTrusted(X509Certificate[] chain, String authType)
             throws CertificateException
         {
+            // check and default configurations for property
+            // if missing default is null - false
+            String defaultAlwaysTrustMode =
+                CertificateVerificationActivator.getResources()
+                    .getSettingsString(CertificateVerificationService
+                        .ALWAYS_TRUST_MODE_ENABLED_PROP_NAME);
+
             if(CertificateVerificationActivator.getConfigurationService()
                 .getBoolean(CertificateVerificationService
                     .ALWAYS_TRUST_MODE_ENABLED_PROP_NAME,
-                    false))
+                    Boolean.parseBoolean(defaultAlwaysTrustMode)))
             {
                 return;
             }
