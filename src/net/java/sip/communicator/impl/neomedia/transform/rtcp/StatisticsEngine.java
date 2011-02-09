@@ -80,7 +80,7 @@ public class StatisticsEngine
      */
     public RawPacket transform(RawPacket pkt)
     {
-        if(!logger.isTraceEnabled())
+        if(!logger.isInfoEnabled())
             return pkt;
 
         try

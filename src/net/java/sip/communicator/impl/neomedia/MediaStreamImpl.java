@@ -519,7 +519,7 @@ public class MediaStreamImpl
 
         if (rtpManager != null)
         {
-            if(logger.isTraceEnabled())
+            if(logger.isInfoEnabled())
                 printFlowStatistics(rtpManager);
 
             rtpManager.removeReceiveStreamListener(this);
@@ -2087,7 +2087,7 @@ public class MediaStreamImpl
      */
     public void update(RemoteEvent remoteEvent)
     {
-        if(!logger.isTraceEnabled())
+        if(!logger.isInfoEnabled())
             return;
 
         if(remoteEvent instanceof SenderReportEvent)
