@@ -6,17 +6,23 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap;
 
+import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.utils.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcaperror.*;
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.util.*;
 import org.apache.http.*;
 import org.apache.http.auth.*;
 import org.apache.http.client.methods.*;
+import org.apache.http.conn.*;
+import org.apache.http.conn.scheme.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.*;
+import org.osgi.framework.*;
 
+import javax.net.ssl.*;
 import javax.sip.address.*;
 import java.io.*;
 import java.net.URI;
@@ -89,11 +95,25 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     private int timeout;
 
     /**
+     * The service we use to interact with user regarding certificates.
+     */
+    private CertificateVerificationService certificateVerification;
+
+    /**
      * Creates an instance of this XCAP client.
      */
     public BaseHttpXCapClient()
     {
         timeout = DEFAULT_TIMEOUT;
+
+        ServiceReference guiVerifyReference
+            = SipActivator.getBundleContext().getServiceReference(
+                CertificateVerificationService.class.getName());
+
+        if(guiVerifyReference != null)
+            certificateVerification
+                = (CertificateVerificationService)SipActivator.getBundleContext()
+                    .getService(guiVerifyReference);
     }
 
     /**
@@ -388,6 +408,23 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     private DefaultHttpClient createHttpClient()
     {
         DefaultHttpClient httpClient = new DefaultHttpClient();
+        try
+        {
+            // make sure we use Certificate Verification Service if
+            // for some reason the certificate needs to be shown to user
+            // for approval
+            ClientConnectionManager ccm = httpClient.getConnectionManager();
+            SchemeRegistry sr = ccm.getSchemeRegistry();
+            SSLContext ctx = certificateVerification.getSSLContext(
+                uri.getHost(), uri.getPort() == -1 ? 443 : uri.getPort());
+            org.apache.http.conn.ssl.SSLSocketFactory ssf
+                = new org.apache.http.conn.ssl.SSLSocketFactory(ctx);
+            sr.register(new Scheme("https", ssf, 443));
+        }
+        catch(Throwable e)
+        {
+            logger.error("Cannot add our trust manager to httpClient", e);
+        }
         HttpParams httpParams = httpClient.getParams();
         HttpConnectionParams.setConnectionTimeout(httpParams, timeout);
         HttpConnectionParams.setSoTimeout(httpParams, timeout);
