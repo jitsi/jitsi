@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.chat;
 import java.awt.datatransfer.*;
 import java.awt.im.*;
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -50,6 +51,23 @@ public class ChatTransferHandler
         = Logger.getLogger(ChatTransferHandler.class);
 
     /**
+     * The data flavor used when transferring <tt>File</tt>s under Linux.
+     */
+    private static DataFlavor uriListFlavor;
+    static
+    {
+         try
+         {
+             uriListFlavor =
+                 new DataFlavor("text/uri-list;class=java.lang.String");
+         } catch (ClassNotFoundException e)
+         {
+            // can't happen
+             logger.error("", e);
+         }
+    }
+
+    /**
      * The chat panel involved in the copy/paste/DnD operation.
      */
     private final ChatPanel chatPanel;
@@ -79,9 +97,10 @@ public class ChatTransferHandler
      */
     public boolean canImport(JComponent comp, DataFlavor flavor[])
     {
-        for (int i = 0, n = flavor.length; i < n; i++)
+        for(DataFlavor f: flavor)
         {
-            if (flavor[i].equals(uiContactDataFlavor))
+            if (f.equals(uiContactDataFlavor)
+                || f.equals(uriListFlavor))
             {
                 return true;
             }
@@ -120,6 +139,33 @@ public class ChatTransferHandler
 
                     // Otherwise fire files dropped event.
                     return true;
+                }
+            }
+            catch (UnsupportedFlavorException e)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to drop files.", e);
+            }
+            catch (IOException e)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug("Failed to drop files.", e);
+            }
+        }
+        else if (t.isDataFlavorSupported(uriListFlavor))
+        {
+            try
+            {
+                Object o = t.getTransferData(uriListFlavor);
+
+                StringTokenizer tokens = new StringTokenizer((String)o);
+                while (tokens.hasMoreTokens())
+                {
+                    String urlString = tokens.nextToken();
+                    URL url = new URL(urlString);
+                    File file = new File(
+                        URLDecoder.decode(url.getFile(), "UTF-8"));
+                    chatPanel.sendFile(file);
                 }
             }
             catch (UnsupportedFlavorException e)
