@@ -574,13 +574,25 @@ public class ReconnectPluginActivator
                 {
                     // ignore providers which haven't registered successfully
                     // till now, they maybe misconfigured
-                    // todo show dialog
-                    notify(
-                        getResources().getI18NString("service.gui.ERROR"),
-                        "plugin.reconnectplugin.CONNECTION_FAILED_MSG",
-                        new String[]
-                        {   pp.getAccountID().getUserID(),
-                            pp.getAccountID().getService() });
+                    String notifyMsg;
+
+                    if(evt.getReasonCode() ==
+                        RegistrationStateChangeEvent.REASON_NON_EXISTING_USER_ID)
+                    {
+                        notify(
+                            getResources().getI18NString("service.gui.ERROR"),
+                            "service.gui.NON_EXISTING_USER_ID",
+                            new String[]{pp.getAccountID().getService()});
+                    }
+                    else
+                    {
+                        notify(
+                            getResources().getI18NString("service.gui.ERROR"),
+                            "plugin.reconnectplugin.CONNECTION_FAILED_MSG",
+                            new String[]
+                            {   pp.getAccountID().getUserID(),
+                                pp.getAccountID().getService() });
+                    }
 
                     return;
                 }

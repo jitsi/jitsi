@@ -939,10 +939,17 @@ public class SipRegistrarConnection
         {
             logger.error("Received an error response.");
 
+            int registrationStateReason =
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+
+            if(response.getStatusCode() == Response.NOT_FOUND)
+                registrationStateReason =
+                    RegistrationStateChangeEvent.REASON_NON_EXISTING_USER_ID;
+
             //tell the others we couldn't register
             this.setRegistrationState(
                 RegistrationState.CONNECTION_FAILED
-                , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+                , registrationStateReason
                 , "Received an error while trying to register. "
                 + "Server returned error:" + response.getReasonPhrase()
             );
