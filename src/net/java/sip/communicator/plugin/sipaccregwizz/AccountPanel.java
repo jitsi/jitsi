@@ -184,7 +184,12 @@ public class AccountPanel
      */
     String getUserID()
     {
-        return userIDField.getText();
+        String userID = userIDField.getText();
+
+        if(userID.startsWith("sip:"))
+            return userID.substring(4);
+
+        return userID;
     }
 
     /**

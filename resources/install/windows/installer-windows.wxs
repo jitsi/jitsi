@@ -115,6 +115,7 @@
   <UIRef Id="WixUI_CInstallDir" />
 
   <TextStyle Id="GreyText" Blue="127" FaceName="Tahoma" Green="127" Red="127" Size="8" />
+  <TextStyle Id="WhiteText" Blue="240" FaceName="Tahoma" Green="240" Red="240" Size="9"/>
 
             <!-- Modified ExitDialog -->
             <Dialog Id="CExitDialog" Width="370" Height="270" Title="!(loc.ExitDialog_Title)">

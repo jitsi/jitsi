@@ -316,6 +316,9 @@ public class SIPAccountRegistrationWizard
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
     {
+        if(userName.startsWith("sip:"))
+            userName = userName.substring(4);
+
         ProtocolProviderFactory factory
             = SIPAccRegWizzActivator.getSIPProtocolProviderFactory();
 
