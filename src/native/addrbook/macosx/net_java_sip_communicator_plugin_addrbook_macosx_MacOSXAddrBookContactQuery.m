@@ -127,7 +127,6 @@ Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery
                 || (JNI_TRUE == (*jniEnv)->ExceptionCheck(jniEnv)))
             break;
     }
-    [addressBook release];
 
     [autoreleasePool release];
 }
