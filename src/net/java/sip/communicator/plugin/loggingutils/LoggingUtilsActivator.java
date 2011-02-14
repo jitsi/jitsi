@@ -34,7 +34,7 @@ public class LoggingUtilsActivator
     /**
      * The OSGI bundle context.
      */
-    private static BundleContext        bundleContext         = null;
+    static BundleContext        bundleContext         = null;
 
     /**
      * The resource service.

@@ -246,7 +246,7 @@ public class LoggingConfigForm
      * from default settings.
      * @return the upload location.
      */
-    private String getUploadLocation()
+    static String getUploadLocation()
     {
         // check first in configuration it can be manually set
         // or by provisioning
@@ -623,6 +623,8 @@ public class LoggingConfigForm
                         public void run()
                         {
                             uploadLogs(
+                                getUploadLocation(),
+                                LogsCollector.getDefaultFileName(),
                                 paramNames.toArray(new String[]{}),
                                 paramValues.toArray(new String[]{}));
                         }
@@ -649,15 +651,22 @@ public class LoggingConfigForm
 
     /**
      * Upload files to pre-configured url.
+     * @param uploadLocation the location we are uploading to.
+     * @param fileName the filename we use for the resulting filename we upload.
+     * @param params the optional parameter names.
+     * @param values the optional parameter values.
      */
-    private void uploadLogs(String[] params, String[] values)
+    static void uploadLogs(
+        String uploadLocation,
+        String fileName,
+        String[] params,
+        String[] values)
     {
         try
         {
             File tempDir = LoggingUtilsActivator.getFileAccessService()
                 .getTemporaryDirectory();
-            File newDest = new File(
-                    tempDir, LogsCollector.getDefaultFileName());
+            File newDest = new File(tempDir, fileName);
 
             File optionalFile = null;
 
@@ -684,8 +693,6 @@ public class LoggingConfigForm
             // don't leave any unneeded information
             if(optionalFile != null)
                 optionalFile.delete();
-
-            String uploadLocation = getUploadLocation();
 
             if(uploadLocation == null)
                 return;
