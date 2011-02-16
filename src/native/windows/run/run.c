@@ -1095,6 +1095,7 @@ Run_runJavaExe(LPCTSTR javaExe, BOOL searchPath, BOOL *searchForJava)
                 if (INVALID_HANDLE_VALUE != Run_channel)
                 {
                     DWORD processAndThreadIds[2];
+                    DWORD numberOfBytesWritten;
 
                     processAndThreadIds[0] = pi.dwProcessId;
                     processAndThreadIds[1] = pi.dwThreadId;
@@ -1102,7 +1103,7 @@ Run_runJavaExe(LPCTSTR javaExe, BOOL searchPath, BOOL *searchForJava)
                             Run_channel,
                             processAndThreadIds,
                             sizeof(processAndThreadIds),
-                            NULL,
+                            &numberOfBytesWritten,
                             NULL);
                     FlushFileBuffers(Run_channel);
                     CloseHandle(Run_channel);
