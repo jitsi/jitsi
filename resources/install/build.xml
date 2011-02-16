@@ -58,7 +58,7 @@
             classname="net.charabia.jsmoothgen.ant.JSmoothGen"
             classpath="${inst.resrc}/windows/jsmoothgen-ant.jar"/>
     </target>
-    <target name="windows-generate-exe" depends="define-jsmooth-task"
+    <!--target name="windows-generate-exe" depends="define-jsmooth-task"
             if="application.home.dirname">
 
         <copy file="${inst.resrc}/windows/run.exe.jsmooth"
@@ -80,6 +80,17 @@
             skeletonroot="${inst.resrc}/windows/skeletons"/>
 
         <delete file="${inst.resrc}/windows/tmp.run.exe.jsmooth"/>
+    </target-->
+    <target name="windows-generate-exe">
+        <exec
+                executable="make"
+                dir="${src}/native/windows/run"
+                failonerror="true">
+            <arg value="PRODUCTNAME=${application.name}" />
+            <arg value="MINGW_HOME=${mingw.home}" />
+            <arg value="TARGET_DIR=${inst.resrc}/windows" />
+        </exec>
+        <delete file="${inst.resrc}/windows/run.res"/>
     </target>
 
     <target name="-prepare-debian-sh"

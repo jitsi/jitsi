@@ -1,0 +1,41 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
+#include "run.h"
+
+SCLogoIcon ICON sc-logo.ico
+
+STRINGTABLE
+BEGIN
+    IDS_CRASHANDRELAUNCH "Ouch, it seems %1 has crashed!\012\012Relaunch it?"
+    IDS_JAVANOTFOUND "A Java Runtime Environment (JRE) or Java Development Kit (JDK) must be available in order to run %1."
+END
+
+1 VERSIONINFO
+    FILEVERSION 0,0,0,0
+    FILETYPE VFT_APP
+    PRODUCTVERSION 0,0,0,0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "Comments", ""
+            VALUE "CompanyName", "sip-communicator.org"
+            VALUE "FileDescription", "SIP Communicator"
+            VALUE "FileVersion", "0.0.0.0"
+            VALUE "InternalName", "run"
+            VALUE "OriginalFilename", "run.exe"
+            VALUE "ProductName", PRODUCTNAME
+            VALUE "ProductVersion", "0.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1252
+    END
+END
