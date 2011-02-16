@@ -84,4 +84,15 @@ public interface OperationSetDesktopStreaming
      * @return true if streaming is partial, false otherwise
      */
     public boolean isPartialStreaming(Call call);
+
+    /**
+     * Move origin of a partial desktop streaming.
+     *
+     * @param call the <tt>Call</tt> whose video transmission properties we are
+     * interested in.
+     * @param x new x coordinate origin
+     * @param y new y coordinate origin
+     */
+    public void movePartialDesktopStreaming(Call call, int x,
+            int y);
 }
