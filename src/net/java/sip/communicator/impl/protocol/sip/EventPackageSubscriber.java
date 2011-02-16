@@ -782,8 +782,8 @@ public class EventPackageSubscriber
                  subscription.setTimerTask(refreshTask);
 
                  int refreshDelay = expHeader.getExpires();
-                 // try to keep a margin
-                 if (refreshDelay >= refreshMargin)
+                 // try to keep a margin if the refresh delay allows it
+                 if (refreshDelay >= (2*refreshMargin))
                      refreshDelay -= refreshMargin;
                  timer.schedule(refreshTask, refreshDelay * 1000);
 

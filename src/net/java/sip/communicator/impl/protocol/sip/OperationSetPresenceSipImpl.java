@@ -242,7 +242,7 @@ public class OperationSetPresenceSipImpl
          *
          * @return the <tt>String</tt> representation of this status
          */
-        public String getValue() 
+        public String getValue()
         {
             return this.value;
         }
@@ -1214,8 +1214,8 @@ public class OperationSetPresenceSipImpl
                 this.republishTask = new RePublishTask();
 
                 int republishDelay = expires.getExpires();
-                // keep a margin
-                if (republishDelay >= REFRESH_MARGIN)
+                // try to keep a margin if the refresh delay allows it
+                if (republishDelay >= (2*REFRESH_MARGIN))
                     republishDelay -= REFRESH_MARGIN;
                 timer.schedule(this.republishTask, republishDelay * 1000);
 
