@@ -31,15 +31,53 @@ import net.java.sip.communicator.service.protocol.*;
  * their choice.
  *
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public class ContactDetail
 {
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing an
+     * e-mail address.
+     */
+    public static final String LABEL_EMAIL = "Email";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing an
+     * address of a contact at their home.
+     */
+    public static final String LABEL_HOME = "Home";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
+     * mobile contact address (e.g. a cell phone number).
+     */
+    public static final String LABEL_MOBILE = "Mobile";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
+     * phone number.
+     */
+    public static final String LABEL_PHONE = "Phone";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing an
+     * address of a contact at their work.
+     */
+    public static final String LABEL_WORK = "Work";
+
     /**
      * The address of this contact detail. This should be the address through
      * which the contact could be reached by one of the supported
      * <tt>OperationSet</tt>s (e.g. by IM, call).
      */
     private final String contactAddress;
+
+    /**
+     * The set of labels of this <tt>ContactDetail</tt>. The labels may be
+     * arbitrary and may include any of the standard/well-known labels defined
+     * by the <tt>LABEL_XXX</tt> constants of the <tt>ContactDetail</tt> class.
+     */
+    private final Collection<String> labels = new LinkedList<String>();
 
     /**
      * A mapping of <tt>OperationSet</tt> classes and preferred protocol
@@ -66,7 +104,38 @@ public class ContactDetail
      */
     public ContactDetail(String contactAddress)
     {
+        this(contactAddress, null);
+    }
+
+    /**
+     * Initializes a new <tt>ContactDetail</tt> instance which is to represent a
+     * specific contact address and which is to be optionally labeled with a
+     * specific set of labels.
+     *
+     * @param contactAddress the contact address to be represented by the new
+     * <tt>ContactDetail</tt> instance
+     * @param labels the set of labels with which the new <tt>ContactDetail</tt>
+     * instance is to be labeled. The labels may be arbitrary and may include
+     * any of the standard/well-known labels defined by the <tt>LABEL_XXX</tt>
+     * constants of the <tt>ContactDetail</tt> class.
+     */
+    public ContactDetail(String contactAddress, String[] labels)
+    {
+        // contactAddress
         this.contactAddress = contactAddress;
+        // labels
+        if (labels != null)
+        {
+            System.err.println(this.contactAddress);
+            for (String label : labels)
+            {
+                if (!this.labels.contains(label))
+                {
+                    this.labels.add(label);
+                    System.err.println("\t" + label);
+                }
+            }
+        }
     }
 
     /**
@@ -174,5 +243,35 @@ public class ContactDetail
     public List<Class<? extends OperationSet>> getSupportedOperationSets()
     {
         return supportedOpSets;
+    }
+
+    /**
+     * Determines whether the set of labels of this <tt>ContactDetail</tt>
+     * contains a specific label. The labels may be arbitrary and may include
+     * any of the standard/well-known labels defined by the <tt>LABEL_XXX</tt>
+     * constants of the <tt>ContactDetail</tt> class.
+     * 
+     * @param label the label to be determined whether it is contained in the
+     * set of labels of this <tt>ContactDetail</tt>
+     * @return <tt>true</tt> if the specified <tt>label</tt> is contained in the
+     * set of labels of this <tt>ContactDetail</tt>
+     */
+    public boolean containsLabel(String label)
+    {
+        return labels.contains(label);
+    }
+
+    /**
+     * Gets the set of labels of this <tt>ContactDetail</tt>. The labels may be
+     * arbitrary and may include any of the standard/well-known labels defined
+     * by the <tt>LABEL_XXX</tt> constants of the <tt>ContactDetail</tt> class.
+     *
+     * @return the set of labels of this <tt>ContactDetail</tt>. If this
+     * <tt>ContactDetail</tt> has no labels, the returned <tt>Collection</tt> is
+     * empty.
+     */
+    public Collection<String> getLabels()
+    {
+        return Collections.unmodifiableCollection(labels);
     }
 }

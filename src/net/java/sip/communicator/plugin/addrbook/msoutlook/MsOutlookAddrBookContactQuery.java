@@ -189,6 +189,46 @@ public class MsOutlookAddrBookContactQuery
             String query,
             PtrCallback callback);
 
+    /**
+     * Gets the set of <tt>ContactDetail</tt> labels to be assigned to a
+     * property specified by its index in {@link #MAPI_MAILUSER_PROP_IDS}.
+     *
+     * @param propIndex the index in <tt>MAPI_MAILUSER_PROP_IDS</tt> of the
+     * property to get the <tt>ContactDetail</tt> labels of
+     * @return the set of <tt>ContactDetail</tt> labels to be assigned to the
+     * property specified by its index in <tt>MAPI_MAILUSER_PROP_IDS</tt>
+     */
+    private String[] getLabels(int propIndex)
+    {
+        switch (propIndex)
+        {
+        case dispidEmail1EmailAddress:
+        case dispidEmail2EmailAddress:
+        case dispidEmail3EmailAddress:
+        case PR_EMAIL_ADDRESS:
+            return new String[] { ContactDetail.LABEL_EMAIL };
+        case PR_BUSINESS2_TELEPHONE_NUMBER:
+        case PR_BUSINESS_TELEPHONE_NUMBER:
+            return
+                new String[]
+                        { ContactDetail.LABEL_PHONE, ContactDetail.LABEL_WORK };
+        case PR_HOME2_TELEPHONE_NUMBER:
+        case PR_HOME_TELEPHONE_NUMBER:
+            return
+                new String[]
+                        { ContactDetail.LABEL_PHONE, ContactDetail.LABEL_HOME };
+        case PR_MOBILE_TELEPHONE_NUMBER:
+            return
+                new String[]
+                        {
+                            ContactDetail.LABEL_PHONE,
+                            ContactDetail.LABEL_MOBILE
+                        };
+        default:
+            return null;
+        }
+    }
+
     private static native Object[] IMAPIProp_GetProps(
             long mapiProp,
             long[] propIds, long flags)
@@ -305,7 +345,9 @@ public class MsOutlookAddrBookContactQuery
                             stringProp = normalizePhoneNumber(stringProp);
 
                         ContactDetail contactDetail
-                            = new ContactDetail(stringProp);
+                            = new ContactDetail(
+                                    stringProp,
+                                    getLabels(propIndex));
 
                         contactDetail.setSupportedOpSets(supportedOpSets);
                         contactDetails.add(contactDetail);
