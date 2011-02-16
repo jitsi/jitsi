@@ -27,6 +27,10 @@ public class MsOutlookAddrBookContactQuery
 
     private static final int dispidEmail3EmailAddress = 13;
 
+    /**
+     * The object type of a <tt>SourceContact</tt> in the Address Book of
+     * Microsoft Outlook.
+     */
     private static final long MAPI_MAILUSER = 0x00000006;
 
     /**
@@ -52,6 +56,10 @@ public class MsOutlookAddrBookContactQuery
             0x000080A3 /* dispidEmail3EmailAddress */
         };
 
+    /**
+     * The object type of a <tt>SourceContact</tt> in a Contacts folder of
+     * Microsoft Outlook.
+     */
     private static final long MAPI_MESSAGE = 0x00000005;
 
     /**
@@ -155,6 +163,13 @@ public class MsOutlookAddrBookContactQuery
         System.loadLibrary("jmsoutlookaddrbook");
     }
 
+    /**
+     * The number of <tt>SourceContact</tt>s matching this <tt>ContactQuery</tt>
+     * which have been retrieved from Contacts folders. Since each one of them
+     * may appear multiple times in the Address Book as well, no matching in the
+     * Address Book will be performed if there is at least one matching
+     * <tt>SourceContact</tt> in a Contacts folder.
+     */
     private int mapiMessageCount;
 
     /**
