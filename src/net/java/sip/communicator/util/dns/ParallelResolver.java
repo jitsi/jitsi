@@ -344,7 +344,7 @@ public class ParallelResolver implements Resolver
      * @throws IllegalArgumentException An invalid field was specified.
      * @see OPTRecord
      */
-    @SuppressWarnings("unchecked")//that's the way it is in dnsjava
+    @SuppressWarnings("rawtypes") // that's the way it is in dnsjava
     public void setEDNS(int level, int payloadSize, int flags, List options)
     {
         defaultResolver.setEDNS(level, payloadSize, flags, options);

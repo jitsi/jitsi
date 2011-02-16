@@ -116,7 +116,7 @@ public class SIPCommunicator
                     +"Launch with the --multiple param to override this "
                     +"behaviour.");
 
-                //we exit with succes because for the user that's what it is.
+                //we exit with success because for the user that's what it is.
                 System.exit(SipCommunicatorLock.SUCCESS);
             }
             else if(lockResult == SipCommunicatorLock.SUCCESS)

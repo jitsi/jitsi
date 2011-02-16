@@ -775,10 +775,9 @@ public class UpdateCheckActivator
 
                     int port = u.getPort();
 
-                    /* if we do not specify port in the URL
-                     * (http://domain.org:port) we have to set up the default
-                     * port of HTTP (80) or
-                     * HTTPS (443).
+                    /*
+                     * If we do not specify port in the URL, we have to set up
+                     * the default port of HTTP (80) or HTTPS (443).
                      */
                     if(port == -1)
                     {

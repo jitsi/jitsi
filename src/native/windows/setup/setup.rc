@@ -1,3 +1,10 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 #include "setup.h"
 
 SCLogoIcon ICON sc-logo.ico
@@ -18,7 +25,7 @@ BEGIN
         BLOCK "040904E4"
         BEGIN
             VALUE "Comments", ""
-            VALUE "CompanyName", "SIP Communicator"
+            VALUE "CompanyName", "sip-communicator.org"
             VALUE "FileDescription", "SIP Communicator Setup"
             VALUE "FileVersion", "0.0.0.0"
             VALUE "InternalName", "setup"

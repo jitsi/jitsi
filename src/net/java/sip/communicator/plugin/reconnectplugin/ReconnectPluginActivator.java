@@ -139,12 +139,14 @@ public class ReconnectPluginActivator
             "ATLEAST_ONE_SUCCESSFUL_CONNECTION";
 
     /**
-     * Starts this bundle
+     * Starts this bundle.
      *
-     * @param bundleContext BundleContext
-     * @throws Exception
+     * @param bundleContext the <tt>BundleContext</tt> in which this bundle is
+     * to be started
+     * @throws Exception if anything goes wrong while starting this bundle
      */
-    public void start(BundleContext bundleContext) throws Exception
+    public void start(BundleContext bundleContext)
+        throws Exception
     {
         try
         {
@@ -161,13 +163,10 @@ public class ReconnectPluginActivator
         if(timer == null)
             timer = new Timer("Reconnect timer");
 
-        ServiceReference serviceReference = bundleContext.getServiceReference(
-            NetworkAddressManagerService.class.getName());
-
-        this.networkAddressManagerService = 
-            (NetworkAddressManagerService)bundleContext
-                .getService(serviceReference);
-
+        this.networkAddressManagerService
+            = ServiceUtils.getService(
+                    bundleContext,
+                    NetworkAddressManagerService.class);
         this.networkAddressManagerService
             .addNetworkConfigurationChangeListener(this);
 
@@ -205,9 +204,11 @@ public class ReconnectPluginActivator
     }
 
     /**
-     * Stop the bundle. Nothing to stop for now.
-     * @param bundleContext
-     * @throws Exception 
+     * Stops this bundle.
+     *
+     * @param bundleContext the <tt>BundleContext</tt> in which this bundle is
+     * to be stopped
+     * @throws Exception if anything goes wrong while stopping this bundle 
      */
     public void stop(BundleContext bundleContext)
         throws Exception
@@ -733,7 +734,8 @@ public class ReconnectPluginActivator
 
         /**
          * Creates the task.
-         * @param provider
+         *
+         * @param provider the <tt>ProtocolProviderService</tt> to reconnect
          */
         public ReconnectTask(ProtocolProviderService provider)
         {
