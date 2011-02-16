@@ -117,7 +117,11 @@ public class ContactDetail
      * @param labels the set of labels with which the new <tt>ContactDetail</tt>
      * instance is to be labeled. The labels may be arbitrary and may include
      * any of the standard/well-known labels defined by the <tt>LABEL_XXX</tt>
-     * constants of the <tt>ContactDetail</tt> class.
+     * constants of the <tt>ContactDetail</tt> class. For the sake of
+     * convenience, <tt>null</tt> and duplicate values in the specified
+     * <tt>String[]</tt> <tt>labels</tt> will be ignored i.e. will not appear in
+     * the set of labels reported by the new <tt>ContactDetail</tt> instance
+     * later on.
      */
     public ContactDetail(String contactAddress, String[] labels)
     {
@@ -126,14 +130,10 @@ public class ContactDetail
         // labels
         if (labels != null)
         {
-            System.err.println(this.contactAddress);
             for (String label : labels)
             {
-                if (!this.labels.contains(label))
-                {
+                if ((label != null) && !this.labels.contains(label))
                     this.labels.add(label);
-                    System.err.println("\t" + label);
-                }
             }
         }
     }

@@ -173,15 +173,24 @@ MacOSXAddrBookContactQuery_idToJObject
         }
         else if ([o isKindOfClass:[ABMultiValue class]])
         {
+            /*
+             * We changed our minds after the initial implementation and decided
+             * that we want to display not only the values but the labels as
+             * well. In order to minimize the scope of the modifications, we'll
+             * be returning each label in the same array right after its
+             * corresponding value.
+             */
             ABMultiValue *mv = (ABMultiValue *) o;
             NSUInteger mvCount = [mv count];
             jobjectArray joArray
-                = (*jniEnv)->NewObjectArray(jniEnv, mvCount, objectClass, NULL);
+                = (*jniEnv)->NewObjectArray(
+                        jniEnv,
+                        mvCount * 2 /* value, label */, objectClass, NULL);
 
             jo = joArray;
             if (joArray)
             {
-                NSUInteger j;
+                NSUInteger j, j1;
 
                 for (j = 0; j < mvCount; j++)
                 {
@@ -195,6 +204,19 @@ MacOSXAddrBookContactQuery_idToJObject
                         jo = NULL;
                         break;
                     }
+                    /* Because the compiler says ++j may be undefined for j. */
+                    j1 = j + 1;
+                    MacOSXAddrBookContactQuery_idToJObject(
+                        jniEnv,
+                        [mv labelAtIndex:j],
+                        joArray, j1,
+                        objectClass);
+                    if (JNI_TRUE == (*jniEnv)->ExceptionCheck(jniEnv))
+                    {
+                        jo = NULL;
+                        break;
+                    }
+                    j = j1;
                 }
             }
         }

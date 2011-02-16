@@ -173,6 +173,15 @@ public class MacOSXAddrBookContactQuery
             kABYahooInstantProperty
         };
 
+    /**
+     * The regex which matches the superfluous parts of an <tt>ABMultiValue</tt>
+     * label.
+     */
+    private static final Pattern LABEL_PATTERN
+        = Pattern.compile(
+            "kAB|Email|Phone|Label|(\\p{Punct}*)",
+            Pattern.CASE_INSENSITIVE);
+
     static
     {
         System.loadLibrary("jmacosxaddrbook");
@@ -200,6 +209,52 @@ public class MacOSXAddrBookContactQuery
     private static native Object[] ABRecord_valuesForProperties(
             long record,
             long[] properties);
+
+    /**
+     * Initializes a new <tt>ContactDetail</tt> instance which is to reperesent
+     * a specific contact address that is the value of a specific
+     * <tt>ABPerson</tt> property and, optionally, has a specific label.
+     *
+     * @param property the index in {@link #ABPERSON_PROPERTIES} of the
+     * <tt>ABPerson</tt> property to be represented by <tt>ContactDetail</tt>
+     * @param contactAddress the contact address to be represented by the new
+     * <tt>ContactDetail</tt> instance
+     * @param label an optional label to be added to the set of labels, if any,
+     * determined by <tt>property</tt>
+     * @return a new <tt>ContactDetail</tt> instance which represents the
+     * specified <tt>contactAddress</tt>
+     */
+    private ContactDetail createContactDetail(
+            int property,
+            String contactAddress,
+            Object label)
+    {
+        String p, l;
+
+        switch (property)
+        {
+        case kABEmailProperty:
+            p = ContactDetail.LABEL_EMAIL;
+            break;
+        case kABPhoneProperty:
+            p = ContactDetail.LABEL_PHONE;
+            break;
+        default:
+            p = null;
+            break;
+        }
+
+        if (label == null)
+            l = null;
+        else
+        {
+            l = LABEL_PATTERN.matcher((String) label).replaceAll("").trim();
+            if (l.length() < 1)
+                l = null;
+        }
+
+        return new ContactDetail(contactAddress, new String[] { p, l });
+    }
 
     /**
      * Calls back to a specific <tt>PtrCallback</tt> for each <tt>ABPerson</tt>
@@ -245,14 +300,23 @@ public class MacOSXAddrBookContactQuery
 
                     contactDetails.add(
                             setCapabilities(
-                                    new ContactDetail(stringValue),
+                                    createContactDetail(
+                                            property,
+                                            stringValue,
+                                            null),
                                     property));
                 }
             }
             else if (value instanceof Object[])
             {
-                for (Object subValue : (Object[]) value)
+                Object[] multiValue = (Object[]) value;
+
+                for (int multiValueIndex = 0;
+                        multiValueIndex < multiValue.length;
+                        multiValueIndex += 2)
                 {
+                    Object subValue = multiValue[multiValueIndex];
+
                     if (subValue instanceof String)
                     {
                         String stringSubValue = (String) subValue;
@@ -267,7 +331,10 @@ public class MacOSXAddrBookContactQuery
 
                             contactDetails.add(
                                     setCapabilities(
-                                            new ContactDetail(stringSubValue),
+                                            createContactDetail(
+                                                property,
+                                                stringSubValue,
+                                                multiValue[multiValueIndex + 1]),
                                             property));
                         }
                     }
@@ -366,8 +433,14 @@ public class MacOSXAddrBookContactQuery
             }
             else if (value instanceof Object[])
             {
-                for (Object subValue : (Object[]) value)
+                Object[] multiValue = (Object[]) value;
+
+                for (int multiValueIndex = 0;
+                        multiValueIndex < multiValue.length;
+                        multiValueIndex += 2)
                 {
+                    Object subValue = multiValue[multiValueIndex];
+
                     if (subValue instanceof String)
                     {
                         String stringSubValue = (String) subValue;
@@ -538,8 +611,13 @@ public class MacOSXAddrBookContactQuery
             }
             else if (value instanceof Object[])
             {
-                for (Object subValue : (Object[]) value)
+                Object[] multiValue = (Object[]) value;
+
+                for (int multiValueIndex = 0;
+                        multiValueIndex < multiValue.length;
+                        multiValueIndex += 2)
                 {
+                    Object subValue = multiValue[multiValueIndex];
                     if ((subValue instanceof String)
                             && matches(property, (String) subValue))
                         return true;
