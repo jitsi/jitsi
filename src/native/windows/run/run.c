@@ -21,6 +21,13 @@
 static HANDLE Run_channel = INVALID_HANDLE_VALUE;
 
 /**
+ * The command line that the application has received as the <tt>cmdLine</tt>
+ * function argument of its <tt>WinMain</tt> entry point and that is currently
+ * unparsed i.e. the parts which have already been parsed are no longer present.
+ */
+static LPSTR Run_cmdLine = NULL;
+
+/**
  * The indicator which determines whether the crash handler is to launch the
  * application.
  */
@@ -207,6 +214,7 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
     size_t scHomeDirNamePropertyLength;
     size_t scHomeDirNameValueLength;
     size_t mainClassLength;
+    size_t cmdLineLength;
     DWORD error;
 
     javaExeLength = _tcslen(javaExe);
@@ -264,6 +272,7 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
                     + 2);
     }
     mainClassLength = _tcslen(mainClass);
+    cmdLineLength = Run_cmdLine ? (1 /* ' ' */ + _tcslen(Run_cmdLine)) : 0;
 
     *commandLine
         = (LPTSTR)
@@ -274,6 +283,7 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
                             + classpathLength
                             + propertiesLength
                             + mainClassLength
+                            + cmdLineLength
                             + 1 /* 0 */));
     if (*commandLine)
     {
@@ -356,6 +366,13 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
         }
         _tcsncpy(str, mainClass, mainClassLength);
         str += mainClassLength;
+        if (Run_cmdLine)
+        {
+            *str = _T(' ');
+            str++;
+            _tcsncpy(str, Run_cmdLine, cmdLineLength);
+            str += cmdLineLength;
+        }
         *str = 0;
 
         error = ERROR_SUCCESS;
@@ -691,8 +708,8 @@ Run_runAsCrashHandlerWithPipe(
     LPCTSTR executableFilePath, LPSTR cmdLine,
     HANDLE *readPipe, HANDLE *writePipe)
 {
-    LPCTSTR commandLineFormat = _T("run.exe --channel=%d");
-    int commandLineLength = 256;
+    LPCTSTR commandLineFormat = _T("run.exe --channel=%d %s");
+    int commandLineLength = 256 + _tcslen(cmdLine);
     LPTSTR commandLine
         = (LPTSTR) malloc(sizeof(TCHAR) * (commandLineLength + 1));
     DWORD error;
@@ -707,7 +724,8 @@ Run_runAsCrashHandlerWithPipe(
                     commandLine,
                     commandLineLength,
                     commandLineFormat,
-                    (int) (*readPipe));
+                    (int) (*writePipe),
+                    cmdLine);
         if (commandLineLength < 0)
         {
             free(commandLine);
@@ -820,17 +838,11 @@ Run_runAsCrashHandlerWithPipe(
                     }
                     while (WAIT_TIMEOUT == event);
 
-                    if (ERROR_SUCCESS == error)
-                    {
-                        if (GetExitCodeProcess(
-                                childProcessToWaitFor,
-                                &exitCode))
-                        {
-                            /* TODO Auto-generated method stub */
-                        }
-                        else
-                            error = GetLastError();
-                    }
+                    if ((ERROR_SUCCESS == error)
+                            && !GetExitCodeProcess(
+                                    childProcessToWaitFor,
+                                    &exitCode))
+                        error = GetLastError();
                 }
 
                 CloseHandle(childProcessToWaitFor);
@@ -891,7 +903,23 @@ Run_runAsLauncher(LPCTSTR executableFilePath, LPSTR cmdLine)
                 char ch;
 
                 if (channel && GetHandleInformation(channel, &flags))
-                    Run_channel = channel;
+                {
+                    /*
+                     * Make sure channel will not be inherited by any child
+                     * process.
+                     */
+                    HANDLE currentProcess = GetCurrentProcess();
+                    HANDLE channelDuplicate = INVALID_HANDLE_VALUE;
+
+                    if (DuplicateHandle(
+                            currentProcess, channel,
+                            currentProcess, &channelDuplicate,
+                            0,
+                            FALSE,
+                            DUPLICATE_SAME_ACCESS))
+                        Run_channel = channelDuplicate;
+                    CloseHandle(channel);
+                }
 
                 /*
                  * Skip the value of the channelArg and the whitespace after it.
@@ -943,6 +971,8 @@ Run_runJava(LPCTSTR executableFilePath, LPSTR cmdLine)
     DWORD cdLength;
     DWORD error = ERROR_CALL_NOT_IMPLEMENTED;
     BOOL searchForJava = TRUE;
+
+    Run_cmdLine = cmdLine;
 
     /* Try to use the private Java distributed with the application. */
     if ((cdLength = GetCurrentDirectory(0, NULL)))
@@ -1074,6 +1104,7 @@ Run_runJavaExe(LPCTSTR javaExe, BOOL searchPath, BOOL *searchForJava)
                             sizeof(processAndThreadIds),
                             NULL,
                             NULL);
+                    FlushFileBuffers(Run_channel);
                     CloseHandle(Run_channel);
                     Run_channel = INVALID_HANDLE_VALUE;
                 }
