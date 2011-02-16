@@ -239,4 +239,25 @@ public class OperationSetDesktopStreamingSipImpl
         /* reinvite all peers */
         ((CallSipImpl)call).reInvite();
     }
+
+    /**
+     * If the streaming is partial (not the full desktop).
+     *
+     * @param call the <tt>Call</tt> whose video transmission properties we are
+     * interested in.
+     * @return true if streaming is partial, false otherwise
+     */
+    public boolean isPartialStreaming(Call call)
+    {
+        CallSipImpl callImpl = (CallSipImpl)call;
+        MediaDevice device = callImpl.getDefaultDevice(MediaType.VIDEO);
+
+        if(device != null)
+        {
+            MediaService mediaService = SipActivator.getMediaService();
+            return mediaService.isPartialStreaming(device);
+        }
+
+        return false;
+    }
 }

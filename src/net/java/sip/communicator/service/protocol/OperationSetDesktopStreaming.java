@@ -75,4 +75,13 @@ public interface OperationSetDesktopStreaming
                                         MediaDevice mediaDevice,
                                         boolean allowed)
         throws OperationFailedException;
+
+    /**
+     * If the streaming is partial (not the full desktop).
+     *
+     * @param call the <tt>Call</tt> whose video transmission properties we are
+     * interested in.
+     * @return true if streaming is partial, false otherwise
+     */
+    public boolean isPartialStreaming(Call call);
 }

@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.media.*;
 import javax.media.control.*;
+import javax.media.format.RGBFormat;
 import javax.media.protocol.*;
 import javax.swing.*;
 
@@ -20,6 +21,7 @@ import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
+import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.impl.neomedia.videoflip.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
@@ -926,5 +928,48 @@ public class MediaServiceImpl
         player.stop();
         player.deallocate();
         player.close();
+    }
+
+    /**
+     * Get a <tt>MediaDevice</tt> for a part of desktop streaming/sharing.
+     *
+     * @param mediaDevice original desktop streaming <tt>MediaDevice</tt>
+     * @param width width of the part
+     * @param height height of the part
+     * @param x origin of the x coordinate (relative to the full desktop)
+     * @param y origin of the y coordinate (relative to the full desktop)
+     * @return <tt>MediaDevice</tt> representing the part of desktop or null
+     * if problem
+     */
+    public MediaDevice getMediaDeviceForPartialDesktopStreaming(
+            MediaDevice mediaDevice, int width, int height, int x, int y)
+    {
+        return null;
+    }
+
+    /**
+     * Move origin of a partial desktop streaming <tt>MediaDevice</tt>.
+     *
+     * @param mediaDevice desktop streaming <tt>MediaDevice</tt> obtained by
+     * getMediaDeviceForPartialDesktopStreaming() method.
+     * @param x new x coordinate origin
+     * @param y new y coordinate origin
+     */
+    public void movePartialDesktopStreaming(MediaDevice mediaDevice, int x,
+            int y)
+    {
+    }
+
+    /**
+     * If the <tt>MediaDevice</tt> corresponds to partial desktop streaming
+     * device.
+     *
+     * @param mediaDevice <tt>MediaDevice</tt>
+     * @return true if <tt>MediaDevice</tt> is a partial desktop streaming
+     * device, false otherwise
+     */
+    public boolean isPartialStreaming(MediaDevice mediaDevice)
+    {
+        return false;
     }
 }
