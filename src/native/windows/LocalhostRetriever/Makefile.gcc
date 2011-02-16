@@ -3,7 +3,8 @@
 # \brief Win32 (gcc) makefile.
 # \author Sebastien Vincent
 
-CC = gcc -m32
+# add -m32 to cross-compile for 32-bit target
+CC = gcc -O2
 JNI_HEADERS = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/win32
 CFLAGS = -shared $(JNI_HEADERS) -D_JNI_IMPLEMENTATION
 
