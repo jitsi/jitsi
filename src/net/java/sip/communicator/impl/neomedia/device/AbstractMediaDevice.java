@@ -24,6 +24,10 @@ import net.java.sip.communicator.service.neomedia.device.*;
 public abstract class AbstractMediaDevice
     implements MediaDevice
 {
+    /**
+     * The <tt>MediaDeviceSession</tt> used.
+     */
+    private MediaDeviceSession session = null;
 
     /**
      * Creates a <tt>DataSource</tt> instance for this <tt>MediaDevice</tt>
@@ -46,10 +50,22 @@ public abstract class AbstractMediaDevice
         switch (getMediaType())
         {
         case VIDEO:
-            return new VideoMediaDeviceSession(this);
+            session = new VideoMediaDeviceSession(this);
+            return session;
         default:
-            return new AudioMediaDeviceSession(this);
+            session = new AudioMediaDeviceSession(this);
+            return session;
         }
+    }
+
+    /**
+     * Get the last used <tt>MediaDeviceSession</tt>.
+     *
+     * @return <tt>MediaDeviceSession</tt>
+     */
+    public MediaDeviceSession getSession()
+    {
+        return session;
     }
 
     /**

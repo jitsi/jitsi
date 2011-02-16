@@ -286,7 +286,7 @@ public class OperationSetDesktopSharingServerJabberImpl
         throws OperationFailedException
     {
         ((CallJabberImpl)call).setLocalInputEvtAware(allowed);
-        super.setLocalVideoAllowed(call, allowed);
+        super.setLocalVideoAllowed(call, mediaDevice, allowed);
     }
 
     /**

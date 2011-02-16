@@ -231,9 +231,12 @@ public class OperationSetDesktopStreamingSipImpl
         throws OperationFailedException
     {
         ((CallSipImpl)call).setVideoDevice(mediaDevice);
+        ((CallSipImpl)call).setLocalVideoAllowed(allowed, MediaUseCase.DESKTOP);
         size = (((VideoMediaFormat)((CallSipImpl)call).
                 getDefaultDevice(MediaType.VIDEO).
                 getFormat()).getSize());
-        super.setLocalVideoAllowed(call, allowed);
+
+        /* reinvite all peers */
+        ((CallSipImpl)call).reInvite();
     }
 }

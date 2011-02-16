@@ -183,9 +183,11 @@ public class OperationSetDesktopStreamingJabberImpl
                                      boolean allowed)
         throws OperationFailedException
     {
+        ((CallJabberImpl)call).setLocalVideoAllowed(allowed,
+                MediaUseCase.DESKTOP);
         ((CallJabberImpl)call).setVideoDevice(mediaDevice);
         size = ((VideoMediaFormat)mediaDevice.getFormat()).getSize();
-        super.setLocalVideoAllowed(call, allowed);
+        ((CallJabberImpl)call).modifyVideoContent(allowed);
     }
 
     /**
