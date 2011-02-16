@@ -166,7 +166,7 @@ void DSManager::initCaptureDevices()
             captureDevice = new DSCaptureDevice(name.bstrVal);
             /* wprintf(L"%ws\n", name.bstrVal); */
 
-            if(captureDevice->initDevice(moniker))
+            if(captureDevice && captureDevice->initDevice(moniker))
             {
                 /* initialization success, add to the list */
                 m_devices.push_back(captureDevice);
@@ -185,7 +185,7 @@ void DSManager::initCaptureDevices()
     }
 
     /* cleanup */
-    devEnum->Release();
     monikerEnum->Release();
+    devEnum->Release();
 }
 

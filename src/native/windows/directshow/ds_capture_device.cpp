@@ -126,10 +126,24 @@ DSCaptureDevice::DSCaptureDevice(const WCHAR* name)
 
 DSCaptureDevice::~DSCaptureDevice()
 {
-    /* remove all added filters from filter graph */
-    m_filterGraph->RemoveFilter(m_srcFilter);
-    m_filterGraph->RemoveFilter(m_renderer);
-    m_filterGraph->RemoveFilter(m_sampleGrabberFilter);
+    if(m_filterGraph)
+    {
+        /* remove all added filters from filter graph */
+        if(m_srcFilter)
+        {
+            m_filterGraph->RemoveFilter(m_srcFilter);
+        }
+
+        if(m_renderer)
+        {
+            m_filterGraph->RemoveFilter(m_renderer);
+        }
+
+        if(m_sampleGrabberFilter)
+        {
+            m_filterGraph->RemoveFilter(m_sampleGrabberFilter);
+        }
+    }
 
     /* clean up COM stuff */
     if(m_renderer)
@@ -141,12 +155,12 @@ DSCaptureDevice::~DSCaptureDevice()
     {
         m_sampleGrabber->Release();
     }
-    
+
     if(m_sampleGrabberFilter)
     {
         m_sampleGrabberFilter->Release();
     }
-    
+
     if(m_srcFilter)
     {
         m_srcFilter->Release();
@@ -192,7 +206,12 @@ bool DSCaptureDevice::setFormat(const VideoFormat& format)
         size_t bitCount = 0;
 
         /* get the current format and change resolution */
-        streamConfig->GetFormat(&mediaType);
+        if(FAILED(streamConfig->GetFormat(&mediaType)))
+        {
+            streamConfig->Release();
+            return false;
+        }
+
         videoFormat = (VIDEOINFOHEADER*)mediaType->pbFormat;
         videoFormat->bmiHeader.biWidth = (LONG)format.width;
         videoFormat->bmiHeader.biHeight = (LONG)format.height;
@@ -262,7 +281,7 @@ bool DSCaptureDevice::initDevice(IMoniker* moniker)
     {
         return false;
     }
-    
+ 
     if(m_filterGraph)
     {
         /* already initialized */
@@ -299,9 +318,10 @@ bool DSCaptureDevice::initDevice(IMoniker* moniker)
 
     /* add source filter to the filter graph */
     WCHAR* name = wcsdup(m_name);
+
     ret = m_filterGraph->AddSourceFilterForMoniker(moniker, NULL, name, &m_srcFilter);
     free(name);
-
+ 
     if(ret != S_OK)
     {
         return false;
@@ -317,14 +337,14 @@ bool DSCaptureDevice::initDevice(IMoniker* moniker)
 
     /* get sample grabber */
     ret = m_sampleGrabberFilter->QueryInterface(IID_ISampleGrabber, (void**)&m_sampleGrabber);
-    
+
     if(ret != S_OK)
     {
         return false;
     }
 
     /* and sample grabber to the filter graph */
-    m_filterGraph->AddFilter(m_sampleGrabberFilter, L"SampleGrabberFilter");
+    ret = m_filterGraph->AddFilter(m_sampleGrabberFilter, L"SampleGrabberFilter");
 
     /* set media type */
 /*
@@ -344,7 +364,7 @@ bool DSCaptureDevice::initDevice(IMoniker* moniker)
     /* set renderer */
     ret = CoCreateInstance(CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER,
         IID_IBaseFilter, (void**)&m_renderer);
-    
+
     if(ret != S_OK)
     {
         return false;
@@ -356,8 +376,7 @@ bool DSCaptureDevice::initDevice(IMoniker* moniker)
     /* initialize the list of formats this device supports */
     initSupportedFormats();
 
-    setFormat(m_formats.front());
-    return true;
+    return setFormat(m_formats.front());
 }
 
 void DSCaptureDevice::initSupportedFormats()
@@ -378,7 +397,7 @@ void DSCaptureDevice::initSupportedFormats()
 
         streamConfig->GetNumberOfCapabilities(&nb, &size);
         allocBytes = new BYTE[size];
-        
+ 
         for(int i = 0 ; i < nb ; i++)
         {
             if(streamConfig->GetStreamCaps(i, &mediaType, allocBytes) == S_OK)
@@ -441,7 +460,7 @@ bool DSCaptureDevice::buildGraph()
 }
 
 bool DSCaptureDevice::start()
-{    
+{
     if(!m_renderer || !m_sampleGrabberFilter || !m_srcFilter || !m_graphController)
     {
         return false;
@@ -465,7 +484,7 @@ bool DSCaptureDevice::stop()
     m_sampleGrabberFilter->Stop();
     m_renderer->Stop();
     m_graphController->Stop();
-        
+
     return true;
 }
 
