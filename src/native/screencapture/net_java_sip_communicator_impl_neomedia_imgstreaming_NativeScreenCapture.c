@@ -179,7 +179,7 @@ static int windows_grab_screen(jbyte* data, unsigned int display, int x, int y, 
     return -1;
   } 
 
-  bitmap = CreateCompatibleBitmap(desktop, width, height);
+  bitmap = CreateCompatibleBitmap(desktop, w, h);
 
   if(!bitmap)
   {
@@ -246,7 +246,7 @@ static int windows_grab_screen(jbyte* data, unsigned int display, int x, int y, 
   pixels++;
 
   /* get raw bytes */
-  if(GetDIBits(dest, bitmap, 0, height, pixels, bitmap_info, DIB_RGB_COLORS) == 0)
+  if(GetDIBits(dest, bitmap, 0, h, pixels, bitmap_info, DIB_RGB_COLORS) == 0)
   {
     fprintf(stderr, "GetDIBits failed!\n");
     free(bitmap_info);
