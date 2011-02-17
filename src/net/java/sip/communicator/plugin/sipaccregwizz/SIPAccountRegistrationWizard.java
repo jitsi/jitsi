@@ -365,6 +365,11 @@ public class SIPAccountRegistrationWizard
         {
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
+        else
+        {
+            // clear password if requested
+            registration.setPassword(null);
+        }
 
         String serverAddress = null;
         String serverFromUsername =
@@ -377,7 +382,7 @@ public class SIPAccountRegistrationWizard
             && registration.getDefaultDomain() != null)
         {
             // we have only a username and we want to add
-            // a defautl domain
+            // a default domain
             userName = userName + "@" + registration.getDefaultDomain();
 
             if(serverAddress == null)

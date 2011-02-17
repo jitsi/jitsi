@@ -616,6 +616,18 @@ public class AccountManager
             }
         }
 
+        // clear the password if missing property, modification can request
+        // password delete
+        if(!accountProperties.containsKey(ProtocolProviderFactory.PASSWORD))
+        {
+            CredentialsStorageService credentialsStorage
+                    = ServiceUtils.getService(
+                            bundleContext,
+                            CredentialsStorageService.class);
+            credentialsStorage.removePassword(
+                factoryPackage + "." + accountNodeName);
+        }
+
         if (configurationProperties.size() > 0)
             configurationService.setProperties(configurationProperties);
 

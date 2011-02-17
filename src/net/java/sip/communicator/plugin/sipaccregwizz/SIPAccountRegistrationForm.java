@@ -384,6 +384,10 @@ public class SIPAccountRegistrationForm
             accountPanel.setPassword(password);
             accountPanel.setRememberPassword(true);
         }
+        else
+        {
+            accountPanel.setRememberPassword(false);
+        }
 
         connectionPanel.setServerAddress(serverAddress);
         connectionPanel.setServerEnabled(isServerOverridden);
