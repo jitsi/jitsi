@@ -946,21 +946,30 @@ public class MediaServiceImpl
     {
         MediaDevice device = null;
         String name = "Partial desktop streaming";
-        Dimension size = new Dimension(width, height);
+        Dimension size = null;
         MediaLocator locator =
             ((MediaDeviceImpl)mediaDevice).getCaptureDeviceInfo().getLocator();
         int display = Integer.parseInt(locator.getRemainder());
+        int mod = 0;
 
         /* on Mac OS X, width have to be a multiple of 16 */
         if(OSUtils.IS_MAC)
         {
-            int mod = width % 16;
-
-            if(mod > 0)
-            {
-                width += mod;
-            }
+            mod = width % 16;
+            width += mod;
         }
+        else
+        {
+            /* JMF filter graph seems to not like odd width */
+            mod = width % 2;
+            width += mod;
+        }
+
+        /* JMF filter graph seems to not like odd height */
+        mod = height % 2;
+        height += mod;
+
+        size = new Dimension(width, height);
 
         Format formats[] = new Format[]
                             {
