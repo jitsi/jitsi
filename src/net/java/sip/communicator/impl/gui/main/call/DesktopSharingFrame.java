@@ -294,6 +294,7 @@ public class DesktopSharingFrame
             SHARING_REGION_INDENT, SHARING_REGION_INDENT));
 
         frame.setContentPane(contentPane);
+        ComponentMover.registerComponent(frame);
 
         if (TransparentFrame.isTranslucencySupported)
             frame.setAlwaysOnTop(true);
