@@ -67,6 +67,16 @@ public class MutePullBufferDataSource
     }
 
     /**
+     * Get wrapped DataSource.
+     *
+     * @return wrapped DataSource
+     */
+    public PullBufferDataSource getWrappedDataSource()
+    {
+        return dataSource;
+    }
+
+    /**
      * Implements {@link PullBufferDataSource#getStreams()}. Wraps the streams
      * of the wrapped <tt>PullBufferDataSource</tt> into
      * <tt>MutePullBufferStream</tt> instances in order to provide mute support
@@ -123,7 +133,7 @@ public class MutePullBufferDataSource
          * (through its owning MutePullBufferDataSource), overwrites the data
          * read from the wrapped PullBufferStream with silence data.
          * @param buffer which data will be filled.
-         * @throws IOException Thrown if an error occurs while reading. 
+         * @throws IOException Thrown if an error occurs while reading.
          */
         public void read(Buffer buffer)
             throws IOException

@@ -652,7 +652,7 @@ public class MediaDeviceSession
      * @return the <tt>DataSource</tt> that this instance uses to read captured
      * media from
      */
-    protected synchronized DataSource getCaptureDevice()
+    public synchronized DataSource getCaptureDevice()
     {
         if (captureDevice == null)
             captureDevice = createCaptureDevice();

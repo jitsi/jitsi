@@ -23,6 +23,11 @@ public class DataSource
     extends AbstractPullBufferCaptureDevice
 {
     /**
+     * Stream created.
+     */
+    private ImageStream stream = null;
+
+    /**
      * Initializes a new <tt>DataSource</tt> instance.
      */
     public DataSource()
@@ -37,6 +42,21 @@ public class DataSource
     public DataSource(MediaLocator locator)
     {
         super(locator);
+    }
+
+    /**
+     * Set origin of <tt>ImageStream</tt>.
+     *
+     * @param streamIndex
+     * @param x x coordinate
+     * @param y y coordinate
+     */
+    public void setOrigin(int streamIndex, int x, int y)
+    {
+        if(stream != null)
+        {
+            stream.setOrigin(x, y);
+        }
     }
 
     /**
@@ -60,9 +80,30 @@ public class DataSource
             int streamIndex,
             FormatControl formatControl)
     {
-        int index = Integer.parseInt(getLocator().getRemainder());
+        /* full desktop: remainder => index
+         * part of desktop: remainder => index,x,y
+         */
+        int index = -1;
+        String remainder = getLocator().getRemainder();
+        String split[] = remainder.split(",");
+        int x = 0;
+        int y = 0;
+
+        if(split != null && split.length > 1)
+        {
+            index = Integer.parseInt(split[0]);
+            x = Integer.parseInt(split[1]);
+            y = Integer.parseInt(split[2]);
+        }
+        else
+        {
+            index = Integer.parseInt(getLocator().getRemainder());
+        }
+
         ImageStream stream = new ImageStream(formatControl);
         stream.setDisplayIndex(index);
+        stream.setOrigin(x, y);
+        this.stream = stream;
         return stream;
     }
 }

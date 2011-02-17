@@ -604,7 +604,7 @@ public class CallManager
      */
     private static CallPanel openCallContainer(Call call)
     {
-        // If we're in a single window mode we just return the single window 
+        // If we're in a single window mode we just return the single window
         // call container.
         CallContainer callContainer
             = GuiActivator.getUIService().getSingleWindowContainer();

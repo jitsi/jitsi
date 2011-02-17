@@ -944,7 +944,41 @@ public class MediaServiceImpl
     public MediaDevice getMediaDeviceForPartialDesktopStreaming(
             MediaDevice mediaDevice, int width, int height, int x, int y)
     {
-        return null;
+        MediaDevice device = null;
+        String name = "Partial desktop streaming";
+        Dimension size = new Dimension(width, height);
+        MediaLocator locator =
+            ((MediaDeviceImpl)mediaDevice).getCaptureDeviceInfo().getLocator();
+        int display = Integer.parseInt(locator.getRemainder());
+
+        Format formats[] = new Format[]
+                            {
+                                   new AVFrameFormat(
+                                        size,
+                                        Format.NOT_SPECIFIED,
+                                        FFmpeg.PIX_FMT_ARGB,
+                                        Format.NOT_SPECIFIED),
+                                   new RGBFormat(
+                                        size, // size
+                                        Format.NOT_SPECIFIED, // maxDataLength
+                                        Format.byteArray, // dataType
+                                        Format.NOT_SPECIFIED, // frameRate
+                                        32, // bitsPerPixel
+                                        2 /* red */,
+                                        3 /* green */,
+                                        4 /* blue */)
+                             };
+
+        CaptureDeviceInfo devInfo
+            = new CaptureDeviceInfo(
+                name + " " + display,
+                new MediaLocator(ImageStreamingAuto.LOCATOR_PROTOCOL +
+                        ":" + display + "," + x + "," + y),
+                formats);
+
+        device = new MediaDeviceImpl(devInfo, MediaType.VIDEO);
+
+        return device;
     }
 
     /**
@@ -958,6 +992,29 @@ public class MediaServiceImpl
     public void movePartialDesktopStreaming(MediaDevice mediaDevice, int x,
             int y)
     {
+        MediaDeviceImpl dev = (MediaDeviceImpl)mediaDevice;
+
+        if(!dev.getCaptureDeviceInfo().getLocator().getProtocol().
+                equals(ImageStreamingAuto.LOCATOR_PROTOCOL))
+        {
+            return;
+        }
+
+        /* To move origin of the desktop capture, we need to access the
+         * JMF DataSource of imgstreaming
+         */
+        VideoMediaDeviceSession session =
+            (VideoMediaDeviceSession)dev.getSession();
+
+        DataSource ds = session.getCaptureDevice();
+        if(ds instanceof MutePullBufferDataSource)
+        {
+            MutePullBufferDataSource ds2 = (MutePullBufferDataSource)ds;
+            ds = ds2.getWrappedDataSource();
+        }
+
+        ((net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreaming.DataSource)
+        ds).setOrigin(0, x, y);
     }
 
     /**
@@ -970,6 +1027,14 @@ public class MediaServiceImpl
      */
     public boolean isPartialStreaming(MediaDevice mediaDevice)
     {
+        MediaDeviceImpl dev = (MediaDeviceImpl)mediaDevice;
+        CaptureDeviceInfo devInfo = dev.getCaptureDeviceInfo();
+
+        if(devInfo.getName().startsWith("Partial desktop streaming"))
+        {
+            return true;
+        }
+
         return false;
     }
 }

@@ -16,6 +16,7 @@ import javax.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
+import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
@@ -131,6 +132,12 @@ public class MediaDeviceImpl
                         exception);
             else
             {
+                if(captureDevice instanceof AbstractPullBufferCaptureDevice)
+                {
+                    ((AbstractPullBufferCaptureDevice)captureDevice).
+                        setCaptureDeviceInfo(captureDeviceInfo);
+                }
+
                 // Try to enable tracing on captureDevice.
                 if (logger.isTraceEnabled())
                     captureDevice

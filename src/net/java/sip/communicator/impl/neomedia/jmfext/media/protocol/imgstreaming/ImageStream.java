@@ -54,11 +54,21 @@ public class ImageStream
      * If stream has been reinitialized.
      */
     private boolean reinit = false;
-    
+
     /**
      * Index of display that we will capture from.
      */
     private int displayIndex = -1;
+
+    /**
+     * X origin.
+     */
+    private int x = 0;
+
+    /**
+     * Y origin.
+     */
+    private int y = 0;
 
     /**
      * Initializes a new <tt>ImageStream</tt> instance which is to have a
@@ -149,7 +159,8 @@ public class ImageStream
 
             if((dataByte != null) || (dataLength != 0))
             {
-                Dimension bufferFrameSize = ((VideoFormat)bufferFormat).getSize();
+                Dimension bufferFrameSize =
+                    ((VideoFormat)bufferFormat).getSize();
                 byte buf[] = readScreen(dataByte, bufferFrameSize);
 
                 if(buf != dataByte)
@@ -204,6 +215,18 @@ public class ImageStream
     public void setDisplayIndex(int index)
     {
         displayIndex = index;
+    }
+
+    /**
+     * Set Origin of capture.
+     *
+     * @param x x coordinate
+     * @param y y coordinate
+     */
+    public void setOrigin(int x, int y)
+    {
+        this.x = x;
+        this.y = y;
     }
 
     /**
@@ -271,7 +294,7 @@ public class ImageStream
         }
 
         /* get desktop screen via native grabber */
-        return desktopInteract.captureScreen(displayIndex, 0, 0, dim.width, 
+        return desktopInteract.captureScreen(displayIndex, x, y, dim.width,
                 dim.height, data.ptr, data.getLength());
     }
 
@@ -304,7 +327,7 @@ public class ImageStream
         }
 
         /* get desktop screen via native grabber if available */
-        if(desktopInteract.captureScreen(displayIndex, 0, 0, dim.width,
+        if(desktopInteract.captureScreen(displayIndex, x, y, dim.width,
                     dim.height, output))
         {
             return output;

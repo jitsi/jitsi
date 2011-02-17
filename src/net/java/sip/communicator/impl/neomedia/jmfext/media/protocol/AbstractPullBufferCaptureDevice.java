@@ -74,6 +74,11 @@ public abstract class AbstractPullBufferCaptureDevice
     private boolean started = false;
 
     /**
+     * The <tt>CaptureDeviceInfo</tt>.
+     */
+    private CaptureDeviceInfo devInfo = null;
+
+    /**
      * The <tt>PullBufferStream</tt>s through which this
      * <tt>PullBufferDataSource</tt> gives access to its media data.
      * <p>
@@ -369,6 +374,11 @@ public abstract class AbstractPullBufferCaptureDevice
      */
     public CaptureDeviceInfo getCaptureDeviceInfo()
     {
+        if(devInfo != null)
+        {
+            return devInfo;
+        }
+
         return AbstractPushBufferCaptureDevice.getCaptureDeviceInfo(this);
     }
 
@@ -733,5 +743,10 @@ public abstract class AbstractPullBufferCaptureDevice
             }
             started = false;
         }
+    }
+
+    public void setCaptureDeviceInfo(CaptureDeviceInfo devInfo)
+    {
+        this.devInfo = devInfo;
     }
 }
