@@ -11,6 +11,7 @@ TARGET = ../../../../lib/native/mac/lib$(TARGET_BASENAME).jnilib
 
 $(TARGET): \
 		../AddrBookContactQuery.c \
-		net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery.m
+		net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery.m \
+		net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactSourceService.m
 	$(CC) $(CPPFLAGS) $^ $(LDFLAGS) -o $@ $(LIBS)
 	-strip $(TARGET)

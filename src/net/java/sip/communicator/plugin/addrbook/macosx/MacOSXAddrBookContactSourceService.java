@@ -21,20 +21,23 @@ public class MacOSXAddrBookContactSourceService
 {
     static
     {
-        /*
-         * Attempt to load the JNI counterpart as close to the startup of the
-         * addrbook bundle as possible so that any possible problem is
-         * discovered and reported as early as possible and outside of the UI
-         * which uses MacOSXAddrBookContactSourceService later on.
-         */
         System.loadLibrary("jmacosxaddrbook");
     }
+
+    /**
+     * The pointer to the native counterpart of this
+     * <tt>MacOSXAddrBookContactSourceService</tt>.
+     */
+    private long ptr;
 
     /**
      * Initializes a new <tt>MacOSXAddrBookContactSourceService</tt> instance.
      */
     public MacOSXAddrBookContactSourceService()
     {
+        ptr = start();
+        if (0 == ptr)
+            throw new IllegalStateException("ptr");
     }
 
     /**
@@ -85,13 +88,33 @@ public class MacOSXAddrBookContactSourceService
     }
 
     /**
+     * Starts a new native <tt>MacOSXAddrBookContactSourceService</tt> instance.
+     *
+     * @return a pointer to the newly-started native
+     * <tt>MacOSXAddrBookContactSourceService</tt> instance
+     */
+    private static native long start();
+
+    /**
      * Stops this <tt>ContactSourceService</tt> implementation and prepares it
      * for garbage collection.
      *
      * @see AsyncContactSourceService#stop()
      */
-    public void stop()
+    public synchronized void stop()
     {
-        // TODO Auto-generated method stub
+        if (0 != ptr)
+        {
+            stop(ptr);
+            ptr = 0;
+        }
     }
+
+    /**
+     * Stops a native <tt>MacOSXAddrBookContactSourceService</tt>.
+     *
+     * @param ptr the pointer to the native
+     * <tt>MacOSXAddrBookContactSourceService</tt> to stop
+     */
+    private static native void stop(long ptr);
 }

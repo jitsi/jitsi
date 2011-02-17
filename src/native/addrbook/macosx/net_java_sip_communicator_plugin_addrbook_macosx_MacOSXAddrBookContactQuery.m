@@ -110,7 +110,7 @@ Java_net_java_sip_communicator_plugin_addrbook_macosx_MacOSXAddrBookContactQuery
 
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
-    addressBook = [ABAddressBook addressBook];
+    addressBook = [ABAddressBook sharedAddressBook];
     people = [addressBook people];
     peopleCount = [people count];
     for (i = 0; i < peopleCount; i++)
