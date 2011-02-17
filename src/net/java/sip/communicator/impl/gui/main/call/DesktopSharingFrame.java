@@ -93,8 +93,12 @@ public class DesktopSharingFrame
 
         JComponent sharingRegion = new TransparentPanel();
         // The preferred width on MacOSX should be a multiple of 16, that's why
-        // we put 592 as a default width.
-        sharingRegion.setPreferredSize(new Dimension(592, 400));
+        // we put 592 as a default width. On the other hand the width on
+        // Windows or Linux should be preferably a multiple of 2.
+        if (OSUtils.IS_MAC)
+            sharingRegion.setPreferredSize(new Dimension(592, 400));
+        else
+            sharingRegion.setPreferredSize(new Dimension(600, 400));
 
         frame.getContentPane().add(sharingRegion, BorderLayout.NORTH);
 
@@ -125,9 +129,15 @@ public class DesktopSharingFrame
         initContentPane(frame, initialFrame);
 
         JComponent sharingRegion = new TransparentPanel();
-        // The preferred width on MacOSX should be a multiple of 16,
-        // that's why we put 592 as a default width.
-        sharingRegion.setPreferredSize(new Dimension(592, 400));
+
+        // The preferred width on MacOSX should be a multiple of 16, that's why
+        // we put 592 as a default width. On the other hand the width on
+        // Windows or Linux should be preferably a multiple of 2.
+        if (OSUtils.IS_MAC)
+            sharingRegion.setPreferredSize(new Dimension(592, 400));
+        else
+            sharingRegion.setPreferredSize(new Dimension(600, 400));
+
         frame.getContentPane().add(sharingRegion, BorderLayout.NORTH);
 
         JPanel buttonPanel = initButtons(
@@ -510,7 +520,13 @@ public class DesktopSharingFrame
                 // We should make sure that the width on MacOSX is a multiple
                 // of 16.
                 if (OSUtils.IS_MAC && sharingWidth%16 > 0)
-                    sharingWidth = sharingWidth - sharingWidth%16;
+                {
+                    sharingWidth = Math.round(sharingWidth/16f)*16;
+                }
+                else if (sharingWidth%2 > 0)
+                {
+                    sharingWidth = Math.round(sharingWidth/2f)*2;
+                }
 
                 sharingRegion.setPreferredSize(
                     new Dimension(sharingWidth, newSharingHeight));
