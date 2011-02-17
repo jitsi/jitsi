@@ -1595,12 +1595,24 @@ public class OneToOneCallPeerPanel
             }
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void mouseMoved(MouseEvent event) {}
 
+        /**
+         * {@inheritDoc}
+         */
         public void mouseClicked(MouseEvent event) {}
 
+        /**
+         * {@inheritDoc}
+         */
         public void mouseEntered(MouseEvent event) {}
 
+        /**
+         * {@inheritDoc}
+         */
         public void mouseExited(MouseEvent event) {}
 
         /**
@@ -1631,20 +1643,34 @@ public class OneToOneCallPeerPanel
             if (!closeButton.isVisible())
             {
                 Component c = (Component) event.getSource();
-                closeButton.setLocation( 
-                    c.getX() + c.getWidth() - closeButton.getWidth() - 3, 
+                closeButton.setLocation(
+                    c.getX() + c.getWidth() - closeButton.getWidth() - 3,
                     c.getY() + 3);
                 closeButton.setVisible(true);
             }
         }
     }
 
+    /**
+     * The local video close button.
+     */
     private class CloseButton
         extends Label
         implements MouseListener
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
+        /**
+         * Background image.
+         */
         Image image = ImageLoader.getImage(ImageLoader.CLOSE_VIDEO);
 
+        /**
+         * Constructor.
+         */
         public CloseButton()
         {
             int buttonWidth = image.getWidth(this) + 5;
@@ -1656,6 +1682,9 @@ public class OneToOneCallPeerPanel
             this.addMouseListener(this);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void paint(Graphics g)
         {
             g.setColor(Color.GRAY);
@@ -1665,6 +1694,9 @@ public class OneToOneCallPeerPanel
                 getHeight()/2 - image.getHeight(this)/2, this);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void mouseClicked(MouseEvent event)
         {
             setLocalVideoVisible(false);
@@ -1673,12 +1705,24 @@ public class OneToOneCallPeerPanel
                 .setShowHideVideoButtonSelected(false);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         public void mouseEntered(MouseEvent event) {}
 
+        /**
+         * {@inheritDoc}
+         */
         public void mouseExited(MouseEvent event) {}
 
+        /**
+         * {@inheritDoc}
+         */
         public void mousePressed(MouseEvent event) {}
 
+        /**
+         * {@inheritDoc}
+         */
         public void mouseReleased(MouseEvent event) {}
     }
 
@@ -1737,6 +1781,19 @@ public class OneToOneCallPeerPanel
                     .setShowHideVideoButtonSelected(isVisible);
             }
 
+            if(localVideo == null && isVisible)
+            {
+                /* create local visual component if not already created */
+                try
+                {
+                    videoTelephony.createLocalVisualComponent(callPeer,
+                        null);
+                }
+                catch(OperationFailedException e)
+                {
+                }
+            }
+
             int videoContainerCount;
 
             if ((videoTelephony != null)
@@ -1747,28 +1804,12 @@ public class OneToOneCallPeerPanel
 
                 if (localVideo != null)
                 {
-                    if (isVisible)
-                    {
-                        Container parent = localVideo.getParent();
-
-                        if (parent != null)
-                        {
-                            parent.remove(parent);
-                            parent.remove(closeButton);
-                        }
-
-                        videoContainer.add(
-                            closeButton, VideoLayout.CLOSE_LOCAL_BUTTON, 0);
-                        videoContainer.add(localVideo, VideoLayout.LOCAL, 1);
-                    }
-                    else
-                    {
-                        if (localVideo != null)
-                        {
-                            videoContainer.remove(localVideo);
-                            videoContainer.remove(closeButton);
-                        }
-                    }
+                    videoContainer.remove(localVideo);
+                    videoContainer.remove(closeButton);
+                    /* release resources */
+                    videoTelephony.disposeLocalVisualComponent(callPeer,
+                            localVideo);
+                    localVideo = null;
                 }
             }
         }
