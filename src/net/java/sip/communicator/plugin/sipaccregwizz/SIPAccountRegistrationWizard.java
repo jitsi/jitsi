@@ -116,6 +116,12 @@ public class SIPAccountRegistrationWizard
     public Iterator<WizardPage> getPages() {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
 
+        // create new registration, our container needs the pages
+        // this means this is a new wizard and we must reset all data
+        // it will be invoked and when the wizard cleans and unregister
+        // our pages, but this fix don't hurt in this situation.
+        this.registration = new SIPAccountRegistration();
+
         // If the first wizard page was already created
         if (firstWizardPage == null)
             firstWizardPage = new FirstWizardPage(this);
@@ -685,6 +691,11 @@ public class SIPAccountRegistrationWizard
      */
     public Object getSimpleForm()
     {
+        // when creating first wizard page, create and new
+        // AccountRegistration to avoid reusing old instances and
+        // data left from old registrations
+        this.registration = new SIPAccountRegistration();
+
         firstWizardPage = new FirstWizardPage(this);
         return firstWizardPage.getSimpleForm();
     }

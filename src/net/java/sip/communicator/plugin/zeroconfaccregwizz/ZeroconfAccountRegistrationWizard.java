@@ -108,6 +108,13 @@ public class ZeroconfAccountRegistrationWizard
     public Iterator<WizardPage> getPages()
     {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
+
+        // create new registration, our container needs the pages
+        // this means this is a new wizard and we must reset all data
+        // it will be invoked and when the wizard cleans and unregister
+        // our pages, but this fix don't hurt in this situation.
+        this.registration = new ZeroconfAccountRegistration();
+
         firstWizardPage = new FirstWizardPage(this);
 
         pages.add(firstWizardPage);
@@ -383,6 +390,11 @@ public class ZeroconfAccountRegistrationWizard
 
     public Object getSimpleForm()
     {
+        // when creating first wizard page, create and new
+        // AccountRegistration to avoid reusing old instances and
+        // data left from old registrations
+        this.registration = new ZeroconfAccountRegistration();
+
         firstWizardPage = new FirstWizardPage(this);
         return firstWizardPage.getSimpleForm();
     }

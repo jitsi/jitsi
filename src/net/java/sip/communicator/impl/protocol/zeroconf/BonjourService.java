@@ -402,9 +402,13 @@ public class BonjourService extends Thread
     public void serviceRemoved(ServiceEvent event)
     {
         String name = event.getName();
-        if (name.equals(id)) return;
+        if (name.equals(id))
+            return;
 
         ContactZeroconfImpl contact = getContact(name, null);
+
+        if(contact == null)
+            return;
 
         opSetPersPresence.changePresenceStatusForContact(contact,
                                             ZeroconfStatusEnum.OFFLINE);
