@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.protocol.event;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -48,6 +49,12 @@ public class CallEvent
      * an outgoing call.
      */
     private final int eventID;
+
+    /**
+     * The media types supported by this call, if information is
+     * available.
+     */
+    private List<MediaType> mediaTypes = new ArrayList<MediaType>();
 
     /**
      * Creates an event instance indicating that an incoming/outgoing call
@@ -91,9 +98,27 @@ public class CallEvent
      */
     public String toString()
     {
-
         return "CallEvent:[ id=" + getEventID()
             + " Call=" + getSourceCall() + "]";
     }
 
+    /**
+     * Return the media types supported by this call, if information is
+     * available. It can be empty list if information wasn't provided for this
+     * event and call.
+     * @return the supported media types of current call.
+     */
+    public List<MediaType> getMediaTypes()
+    {
+        return mediaTypes;
+    }
+
+    /**
+     * Update media types for the event.
+     * @param mediaTypes the new media types.
+     */
+    public void setMediaTypes(List<MediaType> mediaTypes)
+    {
+        this.mediaTypes = mediaTypes;
+    }
 }

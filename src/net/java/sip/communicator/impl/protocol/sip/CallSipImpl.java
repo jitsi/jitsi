@@ -8,10 +8,13 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.util.*;
 
+import javax.sdp.*;
 import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.message.*;
 
+import net.java.sip.communicator.impl.protocol.sip.sdp.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -231,15 +234,60 @@ public class CallSipImpl
         // new and we also need to notify everyone of its creation.
         if(this.getCallPeerCount() == 1)
         {
+            ArrayList<MediaType> mediaTypes = null;
+
+            //this check is not mandatory catch all to skip if a problem exists
+            try
+            {
+                // lets check the supported media types.
+                // for this call
+                Request inviteReq = containingTransaction.getRequest();
+
+                if(inviteReq != null && inviteReq.getRawContent() != null)
+                {
+                    mediaTypes = new ArrayList<MediaType>();
+
+                    String sdpStr = SdpUtils.getContentAsString(inviteReq);
+
+                    SessionDescription sesDescr = SdpUtils.parseSdpString(sdpStr);
+
+                    List<MediaDescription> remoteDescriptions = SdpUtils
+                            .extractMediaDescriptions(sesDescr);
+                    for (MediaDescription mediaDescription : remoteDescriptions)
+                    {
+                        MediaType mediaType =
+                                SdpUtils.getMediaType(mediaDescription);
+
+                        if(mediaType.equals(MediaType.VIDEO))
+                        {
+                            MediaDirection videoDirection =
+                                    SdpUtils.getDirection(mediaDescription);
+
+                            if(videoDirection.allowsSending())
+                            {
+                                mediaTypes.add(mediaType);
+                                continue;
+                            }
+                        }
+                        else
+                            mediaTypes.add(mediaType);
+                    }
+                }
+            }
+            catch(Throwable t)
+            {
+                logger.warn("Error getting media types", t);
+            }
+
             getParentOperationSet().fireCallEvent( (incomingCall
                                         ? CallEvent.CALL_RECEIVED
                                         : CallEvent.CALL_INITIATED),
-                                        this);
+                                        this,
+                                        mediaTypes);
         }
 
         return callPeer;
     }
-
 
     /**
      * Processes an incoming INVITE that is meant to replace an existing

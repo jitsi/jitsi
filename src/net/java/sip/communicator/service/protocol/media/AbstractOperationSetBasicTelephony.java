@@ -68,7 +68,27 @@ public abstract class AbstractOperationSetBasicTelephony
      */
     public void fireCallEvent(int eventID, Call sourceCall)
     {
+        this.fireCallEvent(eventID, sourceCall, null);
+    }
+
+    /**
+     * Creates and dispatches a <tt>CallEvent</tt> notifying registered
+     * listeners that an event with id <tt>eventID</tt> has occurred on
+     * <tt>sourceCall</tt>.
+     *
+     * @param eventID the ID of the event to dispatch
+     * @param sourceCall the call on which the event has occurred.
+     */
+    public void fireCallEvent(int eventID, Call sourceCall,
+                  List<MediaType> mediaTypes)
+    {
         CallEvent cEvent = new CallEvent(sourceCall, eventID);
+
+        if(mediaTypes != null)
+        {
+            cEvent.setMediaTypes(mediaTypes);
+        }
+
         List<CallListener> listeners;
 
         synchronized (callListeners)
