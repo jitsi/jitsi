@@ -789,13 +789,12 @@ Run_runAsCrashHandlerWithPipe(
                     DWORD childToWaitFor[2];
                     DWORD numberOfBytesRead = 0;
 
-                    if (waitForChildProcess
-                            && ReadFile(
-                                    *readPipe,
-                                    childToWaitFor,
-                                    sizeof(childToWaitFor),
-                                    &numberOfBytesRead,
-                                    NULL)
+                    if (ReadFile(
+                                *readPipe,
+                                childToWaitFor,
+                                sizeof(childToWaitFor),
+                                &numberOfBytesRead,
+                                NULL)
                             && (numberOfBytesRead
                                     == sizeof(childToWaitFor))
                             && childToWaitFor[0]
