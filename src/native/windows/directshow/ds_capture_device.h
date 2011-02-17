@@ -171,6 +171,12 @@ public:
      */
     size_t getBitPerPixel();
 
+    /**
+     * \brief If the image is flipped vertically.
+     * \return true if image is flipped vertically, false otherwise
+     */
+    bool isFlip();
+
 private:
     /**
      * \brief Initialize list of supported size.
@@ -236,6 +242,11 @@ private:
      * \brief Current bit per pixel.
      */
     size_t m_bitPerPixel;
+
+    /**
+     * \brief If the video is already flipped.
+     */
+    bool m_flip;
 };
 
 #endif /* DS_CAPTURE_DEVICE_H */
