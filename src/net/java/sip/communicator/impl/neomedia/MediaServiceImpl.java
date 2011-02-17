@@ -951,6 +951,17 @@ public class MediaServiceImpl
             ((MediaDeviceImpl)mediaDevice).getCaptureDeviceInfo().getLocator();
         int display = Integer.parseInt(locator.getRemainder());
 
+        /* on Mac OS X, width have to be a multiple of 16 */
+        if(OSUtils.IS_MAC)
+        {
+            int mod = width % 16;
+
+            if(mod > 0)
+            {
+                width += mod;
+            }
+        }
+
         Format formats[] = new Format[]
                             {
                                    new AVFrameFormat(
