@@ -122,18 +122,28 @@ public class MetaContactRightButtonMenu
             "service.gui.VIDEO_CALL"));
 
     /**
-     * The desktop sharing menu item.
+     * The menu responsible for desktop sharing when a single desktop sharing
+     * contact is available.
      */
-    private final JMenuItem desktopSharingItem = new JMenuItem(
+    private final SIPCommMenu contactDesktopSharingMenu = new SIPCommMenu(
         GuiActivator.getResources().getI18NString(
             "service.gui.SHARE_DESKTOP"));
 
     /**
-     * The menu responsible for calling a contact with video.
+     * The menu responsible for full screen sharing when more than one contact
+     * is available for sharing.
      */
-    private final SIPCommMenu desktopSharingMenu = new SIPCommMenu(
+    private final SIPCommMenu multiContactFullShareMenu = new SIPCommMenu(
         GuiActivator.getResources().getI18NString(
-            "service.gui.SHARE_DESKTOP"));
+            "service.gui.SHARE_FULL_SCREEN"));
+
+    /**
+     * The menu responsible for region screen sharing when more than one contact
+     * is available for sharing.
+     */
+    private final SIPCommMenu multiContactRegionShareMenu = new SIPCommMenu(
+        GuiActivator.getResources().getI18NString(
+            "service.gui.SHARE_REGION"));
 
     /**
      * The send message menu item.
@@ -201,9 +211,14 @@ public class MetaContactRightButtonMenu
     private static final String videoCallPrefix = "videoCall:";
 
     /**
-     * The prefix for video call contact menu.
+     * The prefix for full screen desktop sharing menu.
      */
-    private static final String desktopSharingPrefix = "desktopSharing:";
+    private static final String fullDesktopSharingPrefix = "shareFullScreen:";
+
+    /**
+     * The prefix for region screen desktop sharing menu.
+     */
+    private static final String regionDesktopSharingPrefix = "shareRegionScreen:";
 
     /**
      * The contact to move when the move menu has been chosen.
@@ -367,9 +382,16 @@ public class MetaContactRightButtonMenu
                         hasContactCapabilities(contact,
                                 OperationSetDesktopSharingServer.class))
                 {
-                    desktopSharingMenu.add(
+                    multiContactFullShareMenu.add(
                         createMenuItem( contactDisplayName,
-                                        desktopSharingPrefix
+                                        fullDesktopSharingPrefix
+                                        + contact.getAddress()
+                                        + protocolProvider.getProtocolName(),
+                                        protocolIcon));
+
+                    multiContactRegionShareMenu.add(
+                        createMenuItem( contactDisplayName,
+                                        regionDesktopSharingPrefix
                                         + contact.getAddress()
                                         + protocolProvider.getProtocolName(),
                                         protocolIcon));
@@ -402,54 +424,69 @@ public class MetaContactRightButtonMenu
             this.videoCallItem.addActionListener(this);
         }
 
-        if (desktopSharingMenu.getItemCount() > 1)
+        if (multiContactFullShareMenu.getItemCount() > 1)
         {
-            this.add(desktopSharingMenu);
+            add(multiContactFullShareMenu);
+            add(multiContactRegionShareMenu);
+
+            multiContactRegionShareMenu.setEnabled(false);
         }
         else
         {
-            this.add(desktopSharingItem);
-            this.desktopSharingItem.setName("desktopSharing");
-            this.desktopSharingItem.addActionListener(this);
+            // Create desktop sharing menu.
+            contactDesktopSharingMenu.add(
+                createMenuItem( GuiActivator.getResources()
+                                .getI18NString("service.gui.SHARE_FULL_SCREEN"),
+                                "shareFullScreen",
+                                null));
+
+            JMenuItem menuItem = createMenuItem( GuiActivator.getResources()
+                .getI18NString("service.gui.SHARE_REGION"),
+                "shareRegion",
+                null);
+            menuItem.setEnabled(false);
+            contactDesktopSharingMenu.add(menuItem);
+
+            add(contactDesktopSharingMenu);
         }
 
-        this.add(sendFileItem);
+        add(sendFileItem);
 
-        this.addSeparator();
+        addSeparator();
 
-        this.add(moveToMenu);
-        this.add(moveSubcontactMenu);
+        add(moveToMenu);
+        add(moveSubcontactMenu);
 
-        this.addSeparator();
+        addSeparator();
 
-        this.add(addContactItem);
+        add(addContactItem);
 
-        this.addSeparator();
+        addSeparator();
 
-        this.add(removeContactMenu);
-        this.add(renameContactItem);
+        add(removeContactMenu);
+        add(renameContactItem);
 
-        this.addSeparator();
+        addSeparator();
 
-        this.add(viewHistoryItem);
+        add(viewHistoryItem);
 
-        this.initPluginComponents();
+        initPluginComponents();
 
-        this.sendMessageItem.setName("sendMessage");
+        sendMessageItem.setName("sendMessage");
 
-        this.sendSmsItem.setName("sendSms");
-        this.sendFileItem.setName("sendFile");
-        this.moveToMenu.setName("moveToGroup");
-        this.addContactItem.setName("addContact");
-        this.renameContactItem.setName("renameContact");
-        this.viewHistoryItem.setName("viewHistory");
+        sendSmsItem.setName("sendSms");
+        sendFileItem.setName("sendFile");
+        moveToMenu.setName("moveToGroup");
+        addContactItem.setName("addContact");
+        renameContactItem.setName("renameContact");
+        viewHistoryItem.setName("viewHistory");
 
-        this.sendMessageItem.addActionListener(this);
-        this.sendSmsItem.addActionListener(this);
-        this.sendFileItem.addActionListener(this);
-        this.renameContactItem.addActionListener(this);
-        this.viewHistoryItem.addActionListener(this);
-        this.addContactItem.addActionListener(this);
+        sendMessageItem.addActionListener(this);
+        sendSmsItem.addActionListener(this);
+        sendFileItem.addActionListener(this);
+        renameContactItem.addActionListener(this);
+        viewHistoryItem.addActionListener(this);
+        addContactItem.addActionListener(this);
 
         // Disable all menu items that do nothing.
         if (metaContact.getDefaultContact(
@@ -466,7 +503,7 @@ public class MetaContactRightButtonMenu
 
         if (metaContact.getDefaultContact(
             OperationSetDesktopSharingServer.class) == null)
-            this.desktopSharingItem.setEnabled(false);
+            this.contactDesktopSharingMenu.setEnabled(false);
 
         if (metaContact.getDefaultContact(
             OperationSetBasicInstantMessaging.class) == null)
@@ -577,13 +614,13 @@ public class MetaContactRightButtonMenu
         char desktopSharingMnemonic = GuiActivator.getResources()
             .getI18nMnemonic("service.gui.SHARE_DESKTOP");
 
-        if (desktopSharingMenu.getItemCount() > 1)
+        if (contactDesktopSharingMenu.getItemCount() > 1)
         {
-            this.desktopSharingMenu.setMnemonic(desktopSharingMnemonic);
+            this.contactDesktopSharingMenu.setMnemonic(desktopSharingMnemonic);
         }
         else
         {
-            this.desktopSharingItem.setMnemonic(desktopSharingMnemonic);
+            this.contactDesktopSharingMenu.setMnemonic(desktopSharingMnemonic);
         }
         this.sendSmsItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.SEND_SMS"));
@@ -650,12 +687,20 @@ public class MetaContactRightButtonMenu
             CallManager.createVideoCall(
                 contact.getProtocolProvider(), contact.getAddress());
         }
-        else if (itemName.equals("desktopSharing"))
+        else if (itemName.equals("shareFullScreen"))
         {
             contact = metaContact.getDefaultContact(
                     OperationSetVideoTelephony.class);
 
             CallManager.createDesktopSharing(
+                contact.getProtocolProvider(), contact.getAddress());
+        }
+        else if (itemName.equals("shareRegion"))
+        {
+            contact = metaContact.getDefaultContact(
+                    OperationSetVideoTelephony.class);
+
+            CallManager.createRegionDesktopSharing(
                 contact.getProtocolProvider(), contact.getAddress());
         }
         else if (itemName.equals("sendFile"))
@@ -791,12 +836,21 @@ public class MetaContactRightButtonMenu
             CallManager.createVideoCall(contact.getProtocolProvider(),
                                         contact.getAddress());
         }
-        else if (itemName.startsWith(desktopSharingPrefix))
+        else if (itemName.startsWith(fullDesktopSharingPrefix))
         {
             contact = getContactFromMetaContact(
-                    itemName.substring(desktopSharingPrefix.length()));
+                    itemName.substring(fullDesktopSharingPrefix.length()));
 
             CallManager.createDesktopSharing(   contact.getProtocolProvider(),
+                                                contact.getAddress());
+        }
+        else if (itemName.startsWith(regionDesktopSharingPrefix))
+        {
+            contact = getContactFromMetaContact(
+                    itemName.substring(regionDesktopSharingPrefix.length()));
+
+            CallManager.createRegionDesktopSharing(
+                                                contact.getProtocolProvider(),
                                                 contact.getAddress());
         }
     }
@@ -993,7 +1047,7 @@ public class MetaContactRightButtonMenu
         videoCallItem.setIcon(new ImageIcon(
             ImageLoader.getImage(ImageLoader.VIDEO_CALL)));
 
-        desktopSharingItem.setIcon(new ImageIcon(
+        contactDesktopSharingMenu.setIcon(new ImageIcon(
             ImageLoader.getImage(ImageLoader.DESKTOP_SHARING)));
 
         sendMessageItem.setIcon(new ImageIcon(

@@ -1,0 +1,567 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.gui.main.call;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
+import java.beans.*;
+import java.util.*;
+
+import javax.swing.*;
+
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.transparent.*;
+
+/**
+ * 
+ * @author Yana Stamcheva
+ */
+public class DesktopSharingFrame
+{
+    /**
+     * Used for logging.
+     */
+    private static final Logger logger
+        = Logger.getLogger(DesktopSharingFrame.class);
+
+    /**
+     * The icon shown to indicate the resize drag area.
+     */
+    private static final ImageIcon resizeIcon
+        = GuiActivator.getResources().getImage(
+            "service.gui.icons.WINDOW_RESIZE_ICON");
+
+    /**
+     * The indent of the sharing region from the frame.
+     */
+    private static int SHARING_REGION_INDENT = 2;
+
+    /**
+     * The x coordinate of the frame, which started the regional sharing.
+     */
+    private static int initialFrameX = -1;
+
+    /**
+     * The y coordinate of the frame, which started the regional sharing.
+     */
+    private static int initialFrameY = -1;
+
+    /**
+     * The width of the sharing region, which started the sharing.
+     */
+    private static int sharingRegionWidth = -1;
+
+    /**
+     * The height of the sharing region, which started the sharing.
+     */
+    private static int sharingRegionHeight = -1;
+
+    /**
+     * A mapping of a desktop sharing frame created by this class and a call.
+     */
+    private static final Map<Call, JFrame> callDesktopFrames
+        = new Hashtable<Call, JFrame>();
+
+    /**
+     * Creates the transparent desktop sharing frame.
+     *
+     * @param protocolProvider the protocol provider, through which the desktop
+     * sharing will pass
+     * @param contactAddress the address of the contact to call
+     * @param initialFrame indicates if this is the frame which initiates the
+     * desktop sharing
+     * @return the created desktop sharing frame
+     */
+    public static TransparentFrame createTransparentFrame(
+                                    ProtocolProviderService protocolProvider,
+                                    String contactAddress,
+                                    boolean initialFrame)
+    {
+        TransparentFrame frame = TransparentFrame.createTransparentFrame();
+
+        initContentPane(frame, initialFrame);
+
+        JComponent sharingRegion = new TransparentPanel();
+        // The preferred width on MacOSX should be a multiple of 16, that's why
+        // we put 592 as a default width.
+        sharingRegion.setPreferredSize(new Dimension(592, 400));
+
+        frame.getContentPane().add(sharingRegion, BorderLayout.NORTH);
+
+        JPanel buttonPanel = initButtons(
+            frame, sharingRegion, initialFrame, null,
+            protocolProvider, contactAddress);
+
+        frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+        frame.pack();
+
+        return frame;
+    }
+
+    /**
+     * Creates the transparent desktop sharing frame.
+     *
+     * @param call the current call
+     * @param initialFrame indicates if this is the frame which initiates the
+     * desktop sharing
+     * @return the created desktop sharing frame
+     */
+    public static TransparentFrame createTransparentFrame(
+                                                        Call call,
+                                                        boolean initialFrame)
+    {
+        TransparentFrame frame = TransparentFrame.createTransparentFrame();
+
+        initContentPane(frame, initialFrame);
+
+        JComponent sharingRegion = new TransparentPanel();
+        // The preferred width on MacOSX should be a multiple of 16,
+        // that's why we put 592 as a default width.
+        sharingRegion.setPreferredSize(new Dimension(592, 400));
+        frame.getContentPane().add(sharingRegion, BorderLayout.NORTH);
+
+        JPanel buttonPanel = initButtons(
+            frame, sharingRegion, initialFrame, call, null, null);
+
+        frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+
+        // If the desktop sharing has started we store the frame to call mapping.
+        if (!initialFrame)
+        {
+            callDesktopFrames.put(call, frame);
+            addCallListener(call, frame);
+            addFrameListener(call, frame, sharingRegion);
+            addDesktopSharingListener(call, frame);
+
+            logger.info("The sharing region width: " + sharingRegionWidth);
+
+            if (sharingRegionWidth > -1 && sharingRegionHeight > -1)
+                sharingRegion.setPreferredSize(
+                    new Dimension(sharingRegionWidth, sharingRegionHeight));
+
+            frame.pack();
+
+            if (initialFrameX > -1 && initialFrameY > -1)
+                frame.setLocation(initialFrameX, initialFrameY);
+            else
+                // By default we position the frame in the center of the screen.
+                // It's important to call this method after the pack(), because
+                // it requires the frame size to calculate the location.
+                frame.setLocationRelativeTo(null);
+        }
+        else
+        {
+            frame.pack();
+
+            // By default we position the frame in the center of the screen.
+            // It's important to call this method after the pack(), because
+            // it requires the frame size to calculate the location.
+            frame.setLocationRelativeTo(null);
+        }
+
+        return frame;
+    }
+
+    /**
+     * Adds a call listener, which listens for call ended events and would
+     * close any related desktop sharing frames when a call is ended.
+     *
+     * @param call the call, for which we're registering a listener
+     * @param frame the frame to be closed on call ended
+     */
+    private static void addCallListener(Call call, JFrame frame)
+    {
+        OperationSetBasicTelephony telOpSet = call.getProtocolProvider()
+            .getOperationSet(OperationSetBasicTelephony.class);
+
+        if (telOpSet != null) // This should be always true.
+        {
+            telOpSet.addCallListener(new CallListener()
+            {
+                /**
+                 * Implements CallListener.callEnded. Disposes the frame
+                 * related to the ended call.
+                 *
+                 * @param event the <tt>CallEvent</tt> that notified us
+                 */
+                public void callEnded(CallEvent event)
+                {
+                    Call call = event.getSourceCall();
+                    JFrame desktopFrame = callDesktopFrames.get(call);
+
+                    if (desktopFrame != null)
+                    {
+                        desktopFrame.dispose();
+                        callDesktopFrames.remove(call);
+                    }
+                }
+
+                public void incomingCallReceived(CallEvent event) {}
+
+                public void outgoingCallCreated(CallEvent event) {}
+            });
+        }
+    }
+
+    /**
+     * Adds the desktop sharing listener.
+     *
+     * @param call the call, for which we're registering a listener
+     * @param frame the frame to be closed on call ended
+     */
+    private static void addDesktopSharingListener(final Call call, JFrame frame)
+    {
+        OperationSetVideoTelephony videoOpSet =
+            call.getProtocolProvider()
+                .getOperationSet(OperationSetVideoTelephony.class);
+
+        videoOpSet.addPropertyChangeListener(call, new PropertyChangeListener()
+        {
+            public void propertyChange(PropertyChangeEvent evt)
+            {
+                if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING
+                        .equals(evt.getPropertyName())
+                    && evt.getNewValue().equals(MediaDirection.RECVONLY))
+                {
+                    JFrame desktopFrame = callDesktopFrames.get(call);
+
+                    if (desktopFrame != null)
+                    {
+                        desktopFrame.dispose();
+                        callDesktopFrames.remove(call);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Initializes the content pane of the given window.
+     *
+     * @param frame the parent frame
+     * @param initialFrame indicates if this is the frame which initiates the
+     * desktop sharing
+     */
+    private static void initContentPane(JFrame frame, boolean initialFrame)
+    {
+        JPanel contentPane = new JPanel()
+        {
+            protected void paintComponent(Graphics g)
+            {
+                if (TransparentFrame.isTranslucencySupported)
+                {
+                    AntialiasingManager.activateAntialiasing(g);
+                    final int R = 240;
+                    final int G = 240;
+                    final int B = 240;
+
+                    Paint p =
+                    new GradientPaint(0.0f, 0.0f, new Color(R, G, B, 0),
+                        getWidth(), getHeight(), new Color(R, G, B, 0), true);
+                    Graphics2D g2d = (Graphics2D)g;
+                    g2d.setPaint(p);
+                    g2d.fillRect(0, 0, getWidth(), getHeight());
+                    g2d.setColor(new Color( Color.DARK_GRAY.getRed(),
+                                            Color.DARK_GRAY.getGreen(),
+                                            Color.DARK_GRAY.getBlue(), 180));
+                    g2d.setStroke(
+                        new BasicStroke((float) 4));
+                    g2d.drawRoundRect(
+                        0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                }
+                else
+                {
+                    super.paintComponent(g);
+                }
+            }
+        };
+
+        contentPane.setOpaque(false);
+        contentPane.setDoubleBuffered(false);
+        contentPane.setLayout(new BorderLayout());
+        contentPane.setBorder(BorderFactory.createEmptyBorder(
+            SHARING_REGION_INDENT, SHARING_REGION_INDENT,
+            SHARING_REGION_INDENT, SHARING_REGION_INDENT));
+
+        frame.setContentPane(contentPane);
+
+        if (TransparentFrame.isTranslucencySupported)
+            frame.setAlwaysOnTop(true);
+    }
+
+    /**
+     * Creates and initializes the button panel.
+     *
+     * @param frame the parent frame
+     * @param sharingRegion the sharing region component
+     * @param initialFrame indicates if this is the frame which initiates the
+     * desktop sharing
+     * @param call the current call, if we're in a call
+     * @param protocolProvider the protocol provider
+     * @param contact the contact, which is the receiver of the call
+     *
+     * @return the created button panel
+     */
+    private static JPanel initButtons(
+                                final JFrame frame,
+                                final JComponent sharingRegion,
+                                boolean initialFrame,
+                                final Call call,
+                                final ProtocolProviderService protocolProvider,
+                                final String contact)
+    {
+        JPanel buttonPanel = new TransparentPanel(new GridBagLayout())
+        {
+            public void paintComponent(Graphics g)
+            {
+                if (!TransparentFrame.isTranslucencySupported)
+                {
+                    super.paintComponent(g);
+                    return;
+                }
+
+                Graphics2D g2d = (Graphics2D) g.create();
+
+                AntialiasingManager.activateAntialiasing(g2d);
+
+                g2d.setColor(new Color( Color.DARK_GRAY.getRed(),
+                                        Color.DARK_GRAY.getGreen(),
+                                        Color.DARK_GRAY.getBlue(), 180));
+
+                GeneralPath shape = new GeneralPath();
+                int x = -SHARING_REGION_INDENT + 2;
+                int y = 0;
+                int width = getWidth() + SHARING_REGION_INDENT*2 - 4;
+                int height = getHeight() + SHARING_REGION_INDENT*2 - 2;
+
+                shape.moveTo(x, y);
+                shape.lineTo(width, y);
+                shape.lineTo(width, height - 12);
+                shape.curveTo(width, height - 12,
+                                width, height,
+                                width - 12, height);
+                shape.lineTo(12, height);
+                shape.curveTo(12, height,
+                                x, height,
+                                x, height - 12);
+                shape.lineTo(x, y);
+                shape.closePath();
+
+                g2d.fill(shape);
+                g2d.setColor(getBackground());
+            }
+        };
+
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        buttonPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        buttonPanel.setPreferredSize(
+            new Dimension(sharingRegion.getWidth(), 30));
+
+        if (initialFrame)
+        {
+            JButton startButton = createButton(
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.START_SHARING"));
+
+            JButton cancelButton = createButton(
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.CANCEL"));
+
+            constraints.gridx = 0;
+            constraints.gridy = 0;
+            constraints.weightx = 1.0;
+            constraints.insets = new Insets(0, 0, 0, 5);
+            constraints.anchor = GridBagConstraints.EAST;
+            buttonPanel.add(cancelButton, constraints);
+
+            constraints.gridx = 1;
+            constraints.gridy = 0;
+            constraints.weightx = 1.0;
+            constraints.anchor = GridBagConstraints.WEST;
+            buttonPanel.add(startButton, constraints);
+
+            constraints.gridx = 3;
+            constraints.gridy = 0;
+            constraints.weightx = 0;
+            constraints.insets = new Insets(0, 0, 2, 2);
+            constraints.anchor = GridBagConstraints.SOUTHWEST;
+            buttonPanel.add(
+                createResizeLabel(frame, sharingRegion, buttonPanel),
+                constraints);
+
+            startButton.setCursor(Cursor.getDefaultCursor());
+            cancelButton.setCursor(Cursor.getDefaultCursor());
+
+            cancelButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent arg0)
+                {
+                    frame.dispose();
+                }
+            });
+
+            startButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    Point location = sharingRegion.getLocationOnScreen();
+
+                    initialFrameX = frame.getX();
+                    initialFrameY = frame.getY();
+                    sharingRegionWidth = sharingRegion.getWidth();
+                    sharingRegionHeight = sharingRegion.getHeight();
+
+                    frame.dispose();
+
+                    if (call != null)
+                        CallManager.enableRegionDesktopSharing(
+                            call, location.x, location.y,
+                            sharingRegionWidth, sharingRegionHeight);
+                    else
+                        CallManager.createRegionDesktopSharing(
+                            protocolProvider, contact,
+                            location.x, location.y,
+                            sharingRegionWidth, sharingRegionHeight);
+                }
+            });
+        }
+        else
+        {
+            JButton stopButton = createButton(
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.STOP_SHARING"));
+
+            buttonPanel.add(stopButton);
+
+            stopButton.setCursor(Cursor.getDefaultCursor());
+
+            stopButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    if (call != null)
+                        CallManager.enableDesktopSharing(call, false);
+
+                    frame.dispose();
+                }
+            });
+        }
+
+        return buttonPanel;
+    }
+
+    /**
+     * Creates a button with the given text.
+     *
+     * @param text the text of the button
+     * @return the created button
+     */
+    private static JButton createButton(String text)
+    {
+        JButton button = new JButton(text);
+
+        button.setOpaque(false);
+
+        return button;
+    }
+
+    /**
+     * Creates the label allowing to resize the given frame.
+     *
+     * @param frame the frame to resize
+     * @param sharingRegion the sharing region
+     * @param buttonPanel the button panel, where the created label would be
+     * added
+     * @return the created resize label
+     */
+    private static JLabel createResizeLabel(final JFrame frame,
+                                            final JComponent sharingRegion,
+                                            final JComponent buttonPanel)
+    {
+        final JLabel resizeLabel = new JLabel(resizeIcon);
+        resizeLabel.addMouseMotionListener(new MouseMotionAdapter()
+        {
+            public void mouseDragged(MouseEvent e)
+            {
+                Point p = e.getLocationOnScreen();
+                Point regionLocation = sharingRegion.getLocationOnScreen();
+
+                int sharingWidth = (int) ( p.getX()
+                                    - regionLocation.getX()
+                                    - 2*SHARING_REGION_INDENT);
+
+                int newSharingHeight = (int) (p.getY()
+                                                - frame.getY()
+                                                - buttonPanel.getHeight()
+                                                - 2*SHARING_REGION_INDENT);
+
+                // We should make sure that the width on MacOSX is a multiple
+                // of 16.
+                if (OSUtils.IS_MAC && sharingWidth%16 > 0)
+                    sharingWidth = sharingWidth - sharingWidth%16;
+
+                sharingRegion.setPreferredSize(
+                    new Dimension(sharingWidth, newSharingHeight));
+
+                frame.validate();
+
+                int height = (int) (p.getY() - frame.getY());
+
+                frame.setSize(sharingWidth + 2*SHARING_REGION_INDENT, height);
+            }
+        });
+
+        return resizeLabel;
+    }
+
+    /**
+     * Adds a listener for the given frame and call
+     *
+     * @param call the underlying call
+     * @param frame the frame to which the listener would be added
+     * @param sharingRegion the sharing region
+     */
+    private static void addFrameListener(   final Call call,
+                                            final JFrame frame,
+                                            final Component sharingRegion)
+    {
+        frame.addComponentListener(new ComponentListener()
+        {
+            public void componentResized(ComponentEvent e) {}
+
+            public void componentMoved(ComponentEvent e)
+            {
+                OperationSetDesktopSharingServer desktopOpSet
+                    = call.getProtocolProvider().getOperationSet(
+                            OperationSetDesktopSharingServer.class);
+
+                if (desktopOpSet == null)
+                    return;
+
+                Point location = new Point( sharingRegion.getX(),
+                                            sharingRegion.getY());
+
+                SwingUtilities.convertPointToScreen(location,
+                                                    frame.getContentPane());
+
+                desktopOpSet.movePartialDesktopStreaming(
+                    call, location.x, location.y);
+            }
+
+            public void componentShown(ComponentEvent e) {}
+
+            public void componentHidden(ComponentEvent arg0) {}
+        });
+    }
+}

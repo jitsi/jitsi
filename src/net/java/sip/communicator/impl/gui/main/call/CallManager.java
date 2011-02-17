@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.text.*;
 import java.util.*;
-import java.util.List;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -16,10 +15,12 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.transparent.*;
 
 /**
  * The <tt>CallManager</tt> is the one that handles calls. It contains also
@@ -315,8 +316,101 @@ public class CallManager
                                     ProtocolProviderService protocolProvider,
                                     String contact)
     {
-        // Use the default media device corresponding to the screen to share
-        createDesktopSharing(protocolProvider, contact, null);
+        // If the user presses cancel on the desktop sharing warning then we
+        // have nothing more to do here.
+        if (!showDesktopSharingWarning())
+            return;
+
+        MediaService mediaService = GuiActivator.getMediaService();
+
+        List<MediaDevice> desktopDevices = mediaService.getDevices(
+            MediaType.VIDEO, MediaUseCase.DESKTOP);
+
+        int deviceNumber = desktopDevices.size();
+
+        if (deviceNumber == 1)
+        {
+            createDesktopSharing(
+                protocolProvider, contact, desktopDevices.get(0));
+        }
+        else if (deviceNumber > 1)
+        {
+            SelectScreenDialog selectDialog
+                = new SelectScreenDialog(desktopDevices);
+
+            selectDialog.setVisible(true);
+
+            createDesktopSharing(   protocolProvider,
+                                    contact,
+                                    selectDialog.getSelectedDevice());
+        }
+    }
+
+    /**
+     * Creates a region desktop sharing through the given
+     * <tt>protocolProvider</tt> with the given <tt>contact</tt>.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>, through
+     * which the sharing session will be established
+     * @param contact the address of the contact recipient
+     */
+    public static void createRegionDesktopSharing(
+                                    ProtocolProviderService protocolProvider,
+                                    String contact)
+    {
+        if (showDesktopSharingWarning())
+        {
+            TransparentFrame frame = DesktopSharingFrame.createTransparentFrame(
+                    protocolProvider, contact, true);
+
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        }
+    }
+
+    /**
+     * Creates a desktop sharing call to the contact represented by the given
+     * string.
+     *
+     * @param protocolProvider the protocol provider to which this call belongs.
+     * @param contact the contact to call to
+     * @param x the x coordinate of the shared region
+     * @param y the y coordinated of the shared region
+     * @param width the width of the shared region
+     * @param height the height of the shared region
+     */
+    public static void createRegionDesktopSharing(
+                                    ProtocolProviderService protocolProvider,
+                                    String contact,
+                                    int x,
+                                    int y,
+                                    int width,
+                                    int height)
+    {
+        MediaService mediaService = GuiActivator.getMediaService();
+
+        List<MediaDevice> desktopDevices = mediaService.getDevices(
+            MediaType.VIDEO, MediaUseCase.DESKTOP);
+
+        int deviceNumber = desktopDevices.size();
+
+        if (deviceNumber == 1)
+        {
+            createDesktopSharing(protocolProvider, contact,
+                mediaService.getMediaDeviceForPartialDesktopStreaming(
+                    desktopDevices.get(0), width, height, x, y));
+        }
+        else if (deviceNumber > 1)
+        {
+            SelectScreenDialog selectDialog
+                = new SelectScreenDialog(desktopDevices);
+
+            selectDialog.setVisible(true);
+
+            createDesktopSharing(protocolProvider, contact,
+                mediaService.getMediaDeviceForPartialDesktopStreaming(
+                    selectDialog.getSelectedDevice(), width, height, x, y));
+        }
     }
 
     /**
@@ -327,17 +421,14 @@ public class CallManager
      * @param contact the contact to call to
      * @param mediaDevice the media device corresponding to the screen to share
      */
-    public static void createDesktopSharing(
+    private static void createDesktopSharing(
                                     ProtocolProviderService protocolProvider,
                                     String contact,
                                     MediaDevice mediaDevice)
     {
-        if (showDesktopSharingWarning())
-        {
-            new CreateDesktopSharingThread( protocolProvider,
-                                            contact,
-                                            mediaDevice).start();
-        }
+        new CreateDesktopSharingThread( protocolProvider,
+                                        contact,
+                                        mediaDevice).start();
     }
 
     /**
@@ -349,7 +440,102 @@ public class CallManager
      */
     public static void enableDesktopSharing(Call call, boolean enable)
     {
-        enableDesktopSharing(call, null, enable);
+        if (!enable)
+            enableDesktopSharing(call, null, enable);
+        else if (showDesktopSharingWarning())
+        {
+            MediaService mediaService = GuiActivator.getMediaService();
+
+            List<MediaDevice> desktopDevices = mediaService.getDevices(
+                MediaType.VIDEO, MediaUseCase.DESKTOP);
+
+            int deviceNumber = desktopDevices.size();
+
+            if (deviceNumber == 1)
+            {
+                enableDesktopSharing(call, null, enable);
+            }
+            else if (deviceNumber > 1)
+            {
+                SelectScreenDialog selectDialog
+                    = new SelectScreenDialog(desktopDevices);
+
+                selectDialog.setVisible(true);
+
+                enableDesktopSharing(
+                    call, selectDialog.getSelectedDevice(), enable);
+            }
+        }
+
+        // in case we switch to video, disable remote control if it was
+        // enabled
+        enableDesktopRemoteControl(call.getCallPeers().next(), false);
+    }
+
+    /**
+     * Enables the region desktop sharing for the given call.
+     *
+     * @param call the call, for which the region desktop sharing should be
+     * enabled
+     * @param enable indicates if the desktop sharing should be enabled or
+     * disabled
+     */
+    public static void enableRegionDesktopSharing(Call call, boolean enable)
+    {
+        if (!enable)
+            enableDesktopSharing(call, null, enable);
+        else if (showDesktopSharingWarning())
+        {
+            TransparentFrame frame
+                = DesktopSharingFrame.createTransparentFrame(call, true);
+
+            frame.setVisible(true);
+        }
+    }
+
+    /**
+     * Creates a desktop sharing call to the contact represented by the given
+     * string.
+     *
+     * @param call the call for which desktop sharing should be enabled
+     * @param x the x coordinate of the shared region
+     * @param y the y coordinated of the shared region
+     * @param width the width of the shared region
+     * @param height the height of the shared region
+     */
+    public static void enableRegionDesktopSharing(
+                                    Call call,
+                                    int x,
+                                    int y,
+                                    int width,
+                                    int height)
+    {
+        // Use the default media device corresponding to the screen to share
+        MediaService mediaService = GuiActivator.getMediaService();
+
+        List<MediaDevice> desktopDevices = mediaService.getDevices(
+            MediaType.VIDEO, MediaUseCase.DESKTOP);
+
+        int deviceNumber = desktopDevices.size();
+
+        if (deviceNumber == 1)
+        {
+            enableDesktopSharing(call,
+                mediaService.getMediaDeviceForPartialDesktopStreaming(
+                    desktopDevices.get(0), width, height, x, y), true);
+        }
+        else if (deviceNumber > 1)
+        {
+            SelectScreenDialog selectDialog
+                = new SelectScreenDialog(desktopDevices);
+
+            selectDialog.setVisible(true);
+
+            enableDesktopSharing(call,
+                mediaService.getMediaDeviceForPartialDesktopStreaming(
+                    selectDialog.getSelectedDevice(), width, height, x, y),
+                    true);
+        }
 
         // in case we switch to video, disable remote control if it was
         // enabled
@@ -364,7 +550,7 @@ public class CallManager
      * @param enable indicates if the desktop sharing should be enabled or
      * disabled
      */
-    public static void enableDesktopSharing(Call call,
+    private static void enableDesktopSharing(Call call,
                                             MediaDevice mediaDevice,
                                             boolean enable)
     {
@@ -383,27 +569,24 @@ public class CallManager
             if (enable && isLocalVideoEnabled(call))
                 enableLocalVideo(call, false);
 
-            if (!enable || showDesktopSharingWarning())
+            try
             {
-                try
-                {
-                    if (mediaDevice != null)
-                        desktopOpSet.setLocalVideoAllowed(
-                            call,
-                            mediaDevice,
-                            enable);
-                    else
-                        desktopOpSet.setLocalVideoAllowed(
-                            call,
-                            enable);
+                if (mediaDevice != null)
+                    desktopOpSet.setLocalVideoAllowed(
+                        call,
+                        mediaDevice,
+                        enable);
+                else
+                    desktopOpSet.setLocalVideoAllowed(
+                        call,
+                        enable);
 
-                    enableSucceeded = true;
-                }
-                catch (OperationFailedException ex)
-                {
-                    logger.error(
-                        "Failed to toggle the streaming of local video.", ex);
-                }
+                enableSucceeded = true;
+            }
+            catch (OperationFailedException ex)
+            {
+                logger.error(
+                    "Failed to toggle the streaming of local video.", ex);
             }
         }
 
@@ -428,6 +611,28 @@ public class CallManager
 
         if (desktopOpSet != null
             && desktopOpSet.isLocalVideoAllowed(call))
+            return true;
+
+        return false;
+    }
+
+    /**
+     * Indicates if the desktop sharing is currently enabled for the given
+     * <tt>call</tt>.
+     *
+     * @param call the <tt>Call</tt>, for which we would to check if the desktop
+     * sharing is currently enabled
+     * @return <tt>true</tt> if the desktop sharing is currently enabled for the
+     * given <tt>call</tt>, <tt>false</tt> otherwise
+     */
+    public static boolean isRegionDesktopSharingEnabled(Call call)
+    {
+        OperationSetDesktopSharingServer desktopOpSet
+            = call.getProtocolProvider().getOperationSet(
+                    OperationSetDesktopSharingServer.class);
+
+        if (desktopOpSet != null
+            && desktopOpSet.isPartialStreaming(call))
             return true;
 
         return false;

@@ -1161,24 +1161,7 @@ public class ContactListTreeCellRenderer
     private void shareDesktop(  ProtocolProviderService protocolProvider,
                                 String contactName)
     {
-        MediaService mediaService = GuiActivator.getMediaService();
-
-        List<MediaDevice> desktopDevices = mediaService.getDevices(
-            MediaType.VIDEO, MediaUseCase.DESKTOP);
-
-        int deviceNumber = desktopDevices.size();
-
-        if (deviceNumber == 1)
-            CallManager.createDesktopSharing(protocolProvider, contactName);
-        else if (deviceNumber > 1)
-        {
-            SelectScreenDialog selectDialog
-                = new SelectScreenDialog(   protocolProvider,
-                                            contactName,
-                                            desktopDevices);
-
-            selectDialog.setVisible(true);
-        }
+        CallManager.createDesktopSharing(protocolProvider, contactName);
     }
 
     /**

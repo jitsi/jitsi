@@ -905,6 +905,12 @@ public class ImageLoader
     public static final ImageID VOLUME_CONTROL_BUTTON
         = new ImageID("service.gui.buttons.VOLUME_CONTROL");
 
+    /**
+     * The transparent window button background.
+     */
+    public static final ImageID TRANSPARENT_WINDOW_BUTTON
+        = new ImageID("service.gui.buttons.TRANSPARENT_WINDOW_BUTTON");
+
     /*
      * =======================================================================
      * ------------------------ EDIT TOOLBAR ICONS ---------------------------

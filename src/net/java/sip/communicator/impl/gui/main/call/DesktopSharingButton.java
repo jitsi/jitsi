@@ -6,12 +6,13 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.util.*;
+import java.awt.*;
+import java.awt.event.*;
+
+import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -70,23 +71,67 @@ public class DesktopSharingButton
             // Otherwise we enable the desktop sharing.
             else
             {
-                MediaService mediaService = GuiActivator.getMediaService();
+                //We'll select the button once the desktop sharing  has been
+                // established.
+                setSelected(false);
 
-                List<MediaDevice> desktopDevices = mediaService.getDevices(
-                    MediaType.VIDEO, MediaUseCase.DESKTOP);
+                JPopupMenu sharingMenu = createDesktopSharingMenu();
 
-                int deviceNumber = desktopDevices.size();
+                Point location = new Point(getX(), getY() + getHeight());
 
-                if (deviceNumber == 1)
-                    CallManager.enableDesktopSharing(call, true);
-                else if (deviceNumber > 1)
-                {
-                    SelectScreenDialog selectDialog
-                        = new SelectScreenDialog(call, desktopDevices);
+                SwingUtilities.convertPointToScreen(location, getParent());
 
-                    selectDialog.setVisible(true);
-                }
+                sharingMenu.setLocation(location);
+                sharingMenu.setVisible(true);
             }
         }
+    }
+
+    /**
+     * Creates the menu responsible for desktop sharing when a single desktop
+     * sharing contact is available.
+     *
+     * @return the created popup menu
+     */
+    private JPopupMenu createDesktopSharingMenu()
+    {
+        final JPopupMenu popupMenu = new JPopupMenu(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.SHARE_DESKTOP"));
+
+        popupMenu.setInvoker(this);
+        popupMenu.setFocusable(true);
+
+        JMenuItem shareFullScreen = new JMenuItem(GuiActivator.getResources()
+            .getI18NString("service.gui.SHARE_FULL_SCREEN"));
+
+        JMenuItem shareRegion = new JMenuItem(GuiActivator.getResources()
+            .getI18NString("service.gui.SHARE_REGION"));
+
+        shareRegion.setEnabled(false);
+
+        popupMenu.add(shareFullScreen);
+        popupMenu.add(shareRegion);
+
+        shareFullScreen.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                popupMenu.setVisible(false);
+                CallManager.enableDesktopSharing(call, true);
+            }
+        });
+
+        shareRegion.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                popupMenu.setVisible(false);
+
+                CallManager.enableRegionDesktopSharing(call, true);
+            }
+        });
+
+        return popupMenu;
     }
 }

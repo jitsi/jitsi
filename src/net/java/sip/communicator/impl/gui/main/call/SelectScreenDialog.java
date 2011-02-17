@@ -17,7 +17,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -65,54 +64,9 @@ public class SelectScreenDialog
     private static MediaDevice videoDeviceInPreview;
 
     /**
-     * The parent call for which the screen is selected, if any.
+     * The selected media device.
      */
-    private Call call;
-
-    /**
-     * The protocol provider through which we make the sharing.
-     */
-    private ProtocolProviderService protocolProvider;
-
-    /**
-     * The contact with which we'd like to share our desktop.
-     */
-    private String contact;
-
-    /**
-     * Creates an instance of <tt>SelectScreenDialog</tt> by specifying the list
-     * of possible desktop devices to choose from.
-     *
-     * @param call the call, for which screen for desktop sharing is selected
-     * @param desktopDevices the list of possible desktop devices to choose
-     * from
-     */
-    public SelectScreenDialog(Call call, List<MediaDevice> desktopDevices)
-    {
-        this(desktopDevices);
-
-        this.call = call;
-    }
-
-    /**
-     * Creates an instance of <tt>SelectScreenDialog</tt> by specifying the list
-     * of possible desktop devices to choose from.
-     *
-     * @param protocolProvider the protocol provider through which we make the
-     * sharing
-     * @param contact the contact to share the desktop with
-     * @param desktopDevices the list of possible desktop devices to choose
-     * from
-     */
-    public SelectScreenDialog(  ProtocolProviderService protocolProvider,
-                                String contact,
-                                List<MediaDevice> desktopDevices)
-    {
-        this(desktopDevices);
-
-        this.protocolProvider = protocolProvider;
-        this.contact = contact;
-    }
+    private MediaDevice selectedDevice;
 
     /**
      * Creates an instance of <tt>SelectScreenDialog</tt> by specifying the list
@@ -123,6 +77,8 @@ public class SelectScreenDialog
      */
     public SelectScreenDialog(List<MediaDevice> desktopDevices)
     {
+        setModal(true);
+
         setPreferredSize(new Dimension(400, 300));
 
         Container contentPane = getContentPane();
@@ -136,6 +92,16 @@ public class SelectScreenDialog
         contentPane.add(createPreview(deviceComboBox));
 
         contentPane.add(createButtonsPanel(), BorderLayout.SOUTH);
+    }
+
+    /**
+     * Returns the selected device.
+     *
+     * @return the selected device
+     */
+    public MediaDevice getSelectedDevice()
+    {
+        return selectedDevice;
     }
 
     /**
@@ -155,17 +121,10 @@ public class SelectScreenDialog
         {
             public void actionPerformed(ActionEvent e)
             {
-                MediaDevice selectedDevice
+                selectedDevice
                     = (MediaDevice) deviceComboBox.getSelectedItem();
 
                 dispose();
-
-                if (call != null)
-                    CallManager.enableDesktopSharing(call, selectedDevice, true);
-                else
-                    CallManager.createDesktopSharing(   protocolProvider,
-                                                        contact,
-                                                        selectedDevice);
             }
         });
 
