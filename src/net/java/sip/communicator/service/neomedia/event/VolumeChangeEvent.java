@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.service.neomedia.event;
 
-import net.java.sip.communicator.service.neomedia.*;
-
 import java.util.*;
+
+import net.java.sip.communicator.service.neomedia.*;
 
 /**
  * Represents the event fired when playback volume value has changed.
@@ -19,22 +19,25 @@ public class VolumeChangeEvent
     extends EventObject
 {
     /**
-     * Current level of volume.
+     * The volume level.
      */
-    private float level;
+    private final float level;
 
     /**
-     * Is volume muted.
+     * The indicator which determines whether the volume is muted.
      */
-    private boolean mute;
+    private final boolean mute;
 
     /**
-     * Constructs a VolumeChangeEvent with current values.
+     * Initializes a new <tt>VolumeChangeEvent</tt> which is to notify about a
+     * specific volume level and its mute state.
      *
-     * @param source Volume control from which the change comes.
-     * @param level volume level.
-     * @param mute is muted.
-     * @throws IllegalArgumentException if source is null.
+     * @param source the <tt>VolumeControl</tt> which is the source of the
+     * change
+     * @param level the volume level
+     * @param mute <tt>true</tt> if the volume is muted; otherwise,
+     * <tt>false</tt>
+     * @throws IllegalArgumentException if source is <tt>null</tt>
      */
     public VolumeChangeEvent(VolumeControl source, float level, boolean mute)
     {
@@ -45,17 +48,22 @@ public class VolumeChangeEvent
     }
 
     /**
-     * The source control which has changed the volume.
-     * @return the volume control.
+     * Gets the <tt>VolumeControl</tt> which is the source of the change
+     * notified about by this <tt>VolumeChangeEvent</tt>.
+     *
+     * @return the <tt>VolumeControl</tt> which is the source of the change
+     * notified about by this <tt>VolumeChangeEvent</tt>
      */
     public VolumeControl getSourceVolumeControl()
     {
-        return (VolumeControl)getSource();
+        return (VolumeControl) getSource();
     }
 
     /**
-     * Current volume level.
-     * @return current volume level.
+     * Gets the volume level notified about by this <tt>VolumeChangeEvent</tt>.
+     *
+     * @return the volume level notified about by this
+     * <tt>VolumeChangeEvent</tt>
      */
     public float getLevel()
     {
@@ -63,8 +71,9 @@ public class VolumeChangeEvent
     }
 
     /**
-     * Is current volume muted.
-     * @return is current volume muted.
+     * Gets the indicator which determines whether the volume is muted.
+     *
+     * @return <tt>true</tt> if the volume is muted; otherwise, <tt>false</tt>
      */
     public boolean getMute()
     {
