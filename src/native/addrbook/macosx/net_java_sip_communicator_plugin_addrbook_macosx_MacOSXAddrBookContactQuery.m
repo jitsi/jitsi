@@ -190,33 +190,31 @@ MacOSXAddrBookContactQuery_idToJObject
             jo = joArray;
             if (joArray)
             {
-                NSUInteger j, j1;
+                NSUInteger j, j2;
 
                 for (j = 0; j < mvCount; j++)
                 {
+                    j2 = j * 2;
                     MacOSXAddrBookContactQuery_idToJObject(
                         jniEnv,
                         [mv valueAtIndex:j],
-                        joArray, j,
+                        joArray, j2,
                         objectClass);
                     if (JNI_TRUE == (*jniEnv)->ExceptionCheck(jniEnv))
                     {
                         jo = NULL;
                         break;
                     }
-                    /* Because the compiler says ++j may be undefined for j. */
-                    j1 = j + 1;
                     MacOSXAddrBookContactQuery_idToJObject(
                         jniEnv,
                         [mv labelAtIndex:j],
-                        joArray, j1,
+                        joArray, j2 + 1,
                         objectClass);
                     if (JNI_TRUE == (*jniEnv)->ExceptionCheck(jniEnv))
                     {
                         jo = NULL;
                         break;
                     }
-                    j = j1;
                 }
             }
         }
